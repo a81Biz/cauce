@@ -47,7 +47,7 @@ const errors = [];
 const warnings = [];
 const passed = [];
 let GRAPH = { state: 'UNKNOWN', reason: 'sin evaluar' };
-const SUITE_VERSION = '4.14.0';
+const SUITE_VERSION = '5.0.0';
 
 const fail = (rule, msg) => errors.push({ rule, msg });
 const warn = (rule, msg) => warnings.push({ rule, msg });
@@ -392,6 +392,50 @@ function checkValor(foundationLista) {
 // el default invertido lo raro es abrir y cerrar; y lo que esta abierto lo dice el registro,
 // no la memoria del agente — asi sobrevive a que la sesion termine.
 const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_DOMAIN']);
+// SUITE-R33/R34 · el estado, y su frescura contra git.
+//
+// SUITE-R03 dice desde la 4.0.0 que ninguna sesion depende de la memoria del agente. Nada lo
+// comprobaba: verify-fdge ni siquiera abria HANDOFF.md. Una regla que solo se cumple por buena
+// voluntad es una recomendacion — y esta es la que decide si manana hay que explicarlo todo
+// otra vez. Git es el reloj: si hubo trabajo despues del ultimo estado, el estado esta viejo.
+const CAMPOS_ESTADO = ['implementación', 'tarea', 'compuerta', 'siguiente', 'decisiones', 'no hacer', 'actualizado'];
+const RE_ESTADO = /<!--\s*ESTADO\s*-->([\s\S]*?)<!--\s*\/ESTADO\s*-->/;
+function checkEstado() {
+  const h = read(join(IMPL, 'HANDOFF.md'));
+  if (h === null) { warn('SUITE-R33', 'Sin docs/implementation/HANDOFF.md: no hay estado que retomar.'); return; }
+  const m = h.match(RE_ESTADO);
+  if (!m) {
+    fail('SUITE-R33', 'HANDOFF.md no abre con el bloque ESTADO. Un HANDOFF de prosa cuenta lo que se hizo; retomar necesita qué está abierto, qué compuerta espera y cuál es la siguiente acción — y eso tiene que caber en una pantalla.');
+    return;
+  }
+  const cuerpo = m[1];
+  const faltan = CAMPOS_ESTADO.filter((c) => !new RegExp('^\s*' + c + '\s*:', 'im').test(cuerpo));
+  if (faltan.length) {
+    fail('SUITE-R33', `El bloque ESTADO no declara: ${faltan.join(', ')}. El orden es fijo a propósito: se lee siempre igual y por eso se lee entero.`);
+  }
+  const vacios = CAMPOS_ESTADO.filter((c) => {
+    const v = cuerpo.match(new RegExp('^\s*' + c + '\s*:[ \t]*(.*)$', 'im'))?.[1]?.trim();
+    return v !== undefined && v === '';
+  });
+  if (vacios.length) fail('SUITE-R33', `Campos del bloque ESTADO en blanco: ${vacios.join(', ')}. «ninguna» es una respuesta; el blanco no dice si no hay o si nadie lo escribió.`);
+  if (!faltan.length && !vacios.length) ok('SUITE-R33', 'Bloque ESTADO completo.');
+
+  // Frescura contra git. Sin repositorio no hay reloj y no se puede exigir.
+  const fecha = (ruta) => {
+    try {
+      const o = execFileSync('git', ['log', '-1', '--format=%ct', '--', ruta], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+      return o ? Number(o) : 0;
+    } catch { return -1; }
+  };
+  const tEstado = fecha('docs/implementation/HANDOFF.md');
+  const tTrabajo = fecha('changes');
+  if (tEstado < 0 || tTrabajo < 0) return;               // sin git, nada que comparar
+  if (tTrabajo && tEstado && tTrabajo > tEstado) {
+    const dias = Math.round((tTrabajo - tEstado) / 86400);
+    fail('SUITE-R34', `Hubo trabajo en changes/ después del último estado${dias ? ` (${dias} día(s) de diferencia)` : ''}. La sesión terminó sin dejar el estado retomable: mañana hay que reconstruirlo leyendo el repositorio, que es justo lo que SUITE-R03 dice que no debe hacer falta.`);
+  } else if (tEstado) ok('SUITE-R34', 'El estado es más reciente que el último trabajo.');
+}
+
 function checkImplementacion(reg) {
   const all = Array.isArray(reg?.allocations) ? reg.allocations : [];
   const abiertas = all.filter((a) => a?.type === 'EP' && a?.status === 'IN_PROGRESS');
@@ -884,13 +928,14 @@ const all = argv.includes('--all');
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
 
-console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 4.14.0\n');
+console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 5.0.0\n');
 
 const reg = checkRegistry();
 checkFoundation();
 checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
 checkImplementacion(reg);
+checkEstado();
 checkFirmas();
 checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));

@@ -8,6 +8,98 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 5.0.0 — 2026-08-12
+
+**Fases D, E, F y G del plan.** Sube a `MAJOR` porque cambia lo que un proyecto debe tener para
+cumplir: un bloque de estado en `HANDOFF.md` y —si declara plataforma— un espejo verificable.
+La guía de migración está al final de esta entrada.
+
+### El estado sale de la memoria del agente — `SUITE-R33` · `SUITE-R34`
+
+`SUITE-R03` dice desde la 4.0.0 que ninguna sesión depende de la memoria del agente. **Nada lo
+comprobaba**: `verify-fdge` ni siquiera abría `HANDOFF.md`. Una regla que solo se cumple por
+buena voluntad es una recomendación — y era la que decidía si mañana hay que explicarlo todo
+otra vez.
+
+`HANDOFF.md` abre ahora con un bloque `ESTADO` de campos fijos: qué implementación está abierta,
+qué tarea y en qué fase, qué compuerta espera y a quién, **la siguiente acción concreta**, las
+decisiones vivas y qué no hacer. El relato va debajo. Un `HANDOFF` de doscientas líneas cuenta
+lo que se hizo; retomar necesita saber qué sigue, y eso cabe en una pantalla.
+
+Y `SUITE-R34` lo exige **contra git**: si hubo commits en `changes/` después del último que tocó
+`HANDOFF.md`, la sesión terminó sin dejar el estado retomable. Git es el único reloj que no
+depende de que alguien se acuerde.
+
+`FDGE-R52` añade el reanclaje en cada transición de fase, y se declara **la regla más débil del
+marco**: de la deriva dentro de una sesión se consigue que se note al final, no impedirla.
+
+### La plataforma espeja; el registro asigna — `SUITE-R35`
+
+Nueva herramienta `tools/tracker.mjs`. El contrato es de la metodología y los adaptadores lo
+implementan:
+
+| Concepto | GitHub | Azure DevOps |
+|:---|:---|:---|
+| implementación abierta | milestone | epic work item |
+| tarea | issue | task work item |
+| compuerta `G4` | pull request | pull request |
+
+`SUITE-R08` no se toca: el registro sigue siendo el único asignador y cada `allocation` guarda su
+número de issue. El espejo se comprueba **por enumeración en las dos direcciones**. Y el issue
+**referencia** el intake, no lo copia — dos copias del mismo texto divergen, que es la causa raíz
+que la v4 nació para eliminar.
+
+El adaptador habla **CLI, no MCP**: la verificación tiene que correr donde no hay nadie delante
+para autorizar un OAuth. El de Azure declara el contrato y dice que no lo implementa todavía, en
+vez de fingir que sí.
+
+### Nada se publica sin revisar secretos — `FND-R29` · `FND-R30`
+
+Nueva herramienta `tools/revisar-secretos.mjs`. Recorre el árbol y, con `--historial`, los
+commits — porque **un secreto en la historia sigue ahí después de borrarlo del archivo**, y
+publicar es irreversible justo ahí.
+
+Bloquea y **propone la corrección**: un escáner que solo dice «hay un secreto» deja el trabajo
+entero al que lo lee. Un falso positivo se firma por escrito, con nombre y motivo; no se silencia
+el escáner.
+
+Los dos casos que lo motivaron son reales: una contraseña de base de datos en claro en el código
+de una API sin remoto, y un `.claude/settings.local.json` con la ruta absoluta de una máquina
+dentro del primer `npm publish` de este mismo paquete — cazado por un humano leyendo la salida,
+no por una comprobación.
+
+`FND-R30` añade los accesos a la misma parada: descubrir a mitad de sesión que falta un permiso
+es perder la sesión.
+
+### Adoptar la plataforma sin arrastrar el pasado — `SUITE-R36` · `SUITE-R37`
+
+**Solo migra lo vivo.** Lo cerrado no es estado, es evidencia, y se queda en el repositorio. En
+el proyecto que motivó esto: 127 asignaciones, **dos** vivas. Migrar dos frente a 127 no es una
+diferencia de esfuerzo — es la diferencia entre un tablero que se lee y uno que no.
+
+`SUITE-R37` cierra qué se versiona: evidencia, ledgers y `docs/methodology/` sí; la salida del
+grafo no; y los ledgers append-only **nunca** bajo una regla `*.log`, que se los traga en
+silencio.
+
+### Verificación
+
+`selftest.sh`: **161 casos**, con los bloques **O** (continuidad), **P** (plataforma) y **Q**
+(secretos). `audit.mjs`: 520 elementos, 0 huecos.
+
+### Migración desde 4.x
+
+1. `npm i -D @a81biz/cauce@5` y `npx cauce install`.
+2. Añadir el bloque `ESTADO` al principio de `HANDOFF.md` — el formato está en `INSTALL.md` y en
+   `FDGE-Prompts.md`. Sin él, `verify-fdge` falla con `SUITE-R33`.
+3. Escribirlo **al cerrar cada fase**, no al terminar la sesión: una sesión no siempre avisa de
+   que va a terminar.
+4. Opcional: declarar `tracker.plataforma` en `REGISTRY.json` y ejecutar
+   `tracker.mjs abrir --aplicar`. Sin declararla, nada cambia.
+
+Ningún PT en vuelo se invalida: `SUITE-R18` sigue sellando cada asignación con su versión.
+
+---
+
 ## 4.14.0 — 2026-08-12
 
 **Fase C: la implementación deja de ser un plan y pasa a ser una unidad abierta.**

@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **4.14.0**
+> Suite version: **5.0.0**
 
 ---
 
@@ -16,6 +16,61 @@ fases intermedias emitiendo checkpoints y se detiene solo en las compuertas viva
 
 `EXEC-R01` · En todos los modos, cada fase produce un checkpoint legible. Auto-avanzar en
 silencio está prohibido.
+
+## La plataforma de trabajo                                              `SUITE-R35`
+
+Opcional, y cuando está cambia lo que cuesta retomar: **qué está abierto pasa de leer doscientas
+líneas a una consulta**.
+
+| Concepto | GitHub | Azure DevOps |
+|:---|:---|:---|
+| implementación abierta | milestone | epic work item |
+| tarea | issue | task work item |
+| compuerta `G4` | pull request | pull request |
+
+```bash
+node docs/methodology/tools/tracker.mjs espejo            # comprueba las dos direcciones
+node docs/methodology/tools/tracker.mjs abrir --aplicar   # crea los issues que faltan
+```
+
+**El registro asigna; la plataforma espeja.** `SUITE-R08` no se toca: si la plataforma asignara
+identificadores habría dos fuentes divergiendo, que es la causa raíz que la v4 nació para
+eliminar. Y **el issue referencia el intake, no lo copia** — por lo mismo.
+
+Reparto: la plataforma responde **qué está abierto**; el repositorio, **qué se decidió y qué se
+probó**. Cada cosa donde pertenece.
+
+## Retomar: el bloque ESTADO                                    `SUITE-R33` · `SUITE-R34`
+
+`HANDOFF.md` abre con esto, y el relato va debajo:
+
+```
+<!-- ESTADO -->
+implementación: EP-NNN · <slug>            (o «ninguna abierta»)
+tarea:          PT-NNN · PHASE n           (o «ninguna»)
+compuerta:      G3 pendiente · <quién>     (o «ninguna»)
+siguiente:      <la acción concreta que toca ahora>
+decisiones:     <lo que se decidió y no se deduce del repositorio>
+no hacer:       <lo que alguien podría intentar y no debe>
+actualizado:    AAAA-MM-DD
+<!-- /ESTADO -->
+```
+
+Un `HANDOFF` de doscientas líneas cuenta **lo que se hizo**. Retomar necesita otra cosa: qué
+está abierto, qué compuerta espera a quién y **cuál es la siguiente acción**. Si no cabe en una
+pantalla, la sesión siguiente empieza explicando otra vez.
+
+**Se escribe al cerrar cada fase**, no al terminar la sesión — porque una sesión no siempre
+avisa de que va a terminar.
+
+`SUITE-R34` lo exige contra git: si hay commits que tocaron `changes/` **después** del último
+que tocó `HANDOFF.md`, la sesión dejó trabajo sin estado y `SUITE-R03` no se cumple. Git es el
+único reloj que no depende de que alguien se acuerde.
+
+`FDGE-R52` · **Reléelo antes de cada transición de fase** y di en una línea dónde estás.
+`PHASE 0` lo lee una sola vez, al arrancar; en una sesión larga el contexto se comprime y las
+reglas salen de la ventana. Es la regla más débil del marco: consigue que la deriva se note,
+no impedirla.
 
 ## El bucle de la implementación                       `[IMPLEMENTACIÓN]` · `[CIERRA]`
 

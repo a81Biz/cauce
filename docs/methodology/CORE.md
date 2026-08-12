@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 1a35ba87c229 -->
-<!-- fuentes: RULES.md:50f333e00924 LEXICON.md:2d8bf80aabe8 EXECUTION-MODES.md:95ad1bf3058c PHASES.md:48dc34ba84e7 -->
+<!-- cuerpo: 759674c3cc2d -->
+<!-- fuentes: RULES.md:7864f96d9f87 LEXICON.md:d3efb0fdf7b4 EXECUTION-MODES.md:3f6e807d752e PHASES.md:6acd7d06f28d -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -137,6 +137,11 @@ verifica un script y bloquea la integración.
 `SUITE-R30` **H** La instalación deja registro de lo que ejecutó.
 `SUITE-R31` **H** La divergencia del marco se mide. La suite se instala copiando docs/methodology/ al proyecto, así que cada proyecto tiene la suya y nada avisa cuando se separan — lo que SUITE-R21 intenta evitar y la…
 `SUITE-R32` **H** Un espacio de trabajo nace con contenido. Git no versiona directorios vacíos: un PTSA/ creado por el instalador y nunca escrito desaparece en el primer clon, y el verificador lo reporta como «nada que…
+`SUITE-R33` **H** El estado se declara en un bloque corto y fijo.
+`SUITE-R34` **H** El estado tiene que ser más reciente que el trabajo.
+`SUITE-R35` **H** El registro asigna; la plataforma espeja. REGISTRY.json sigue siendo el único asignador de identificadores (SUITE-R08) y cada allocation guarda su número de issue. La plataforma —GitHub, Azure— responde qué…
+`SUITE-R36` **H** Al adoptar la plataforma, solo migra lo vivo.
+`SUITE-R37` **H** Qué se versiona, decidido de una vez. Evidencia, ledgers y docs/methodology/ sí: auditar un commit antiguo exige saber qué reglas lo gobernaban, y sin la carpeta eso depende de que el paquete siga…
 
 ### LEX — Nombres
 
@@ -214,6 +219,8 @@ verifica un script y bloquea la integración.
 `FND-R26` **H** La estrategia de historia git sale de los hechos.
 `FND-R27` **H** Qué se versiona es una decisión humana. Un repositorio que no versiona ni un archivo —un .gitignore con *, por ejemplo— es tan inútil como no tenerlo: G4 no tiene qué fusionar, PHASE 10 no tiene a qué…
 `FND-R28` **H** El grafo cubre el código propio y nada más.
+`FND-R29` **H** Nada se publica sin revisar secretos, y la revisión bloquea.
+`FND-R30` **H** Los accesos se comprueban antes de necesitarlos.
 
 ### FDGE — Desarrollo
 
@@ -268,6 +275,7 @@ verifica un script y bloquea la integración.
 `FDGE-R49` **H** Mientras haya una implementación abierta, todo le pertenece.
 `FDGE-R50` **H** Nueva o parte de: el criterio está escrito.
 `FDGE-R51` **H** El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.
+`FDGE-R52` **H** Reanclaje en cada transición de fase. Antes de cambiar de fase y antes de abrir nada nuevo, se relee el bloque ESTADO y se dice en una línea dónde se está. PHASE 0 lee el estado una vez, al arrancar;…
 
 ### INTAKE — Admisión
 
@@ -359,6 +367,12 @@ INTERFAZ la CONVERSACIÓN, no el archivo. Ejecuta, RESUME en 10 líneas y PREGUN
          medio donde el humano ya está mirando.                              [SUITE-R28]
          Los artefactos se escriben igual: son el registro, no la interfaz.
 I0 TERRENO   node tools/plan-layout.mjs      (sin --write: aún no se escribe) [FND-R20]
+I0b SEGURIDAD node tools/revisar-secretos.mjs . --historial                    [FND-R29]
+             ANTES de que nada se publique. Bloquea y PROPONE la corrección.
+             Un secreto en la historia sigue ahí tras borrarlo del archivo.
+             Falso positivo ⇒ se firma por escrito. NO se silencia el escáner.
+    ACCESOS  gh auth status | az account show si va a declarar plataforma   [FND-R30]
+             Descubrirlo a mitad de sesión es perder la sesión.
 I1 DECISIÓN  el CRITERIO ya está en la herramienta, no en tu opinión del momento:
              destino: carpeta con package.json|docker-compose|playwright = RAÍZ;
                       sin marcas = src/                                       [FND-R25]
@@ -388,6 +402,10 @@ I5 GRAFO     /graphify con el ALCANCE que calculó plan-layout: código propio. 
 I6 CLAUDE.md desde Suite-CLAUDE-Template + suite_version, execution_mode, firmantes.
              La Declaración de Valor NO se pide aquí: la produce Foundation PHASE 0,
              que es donde ya se ha leído el código. Queda como marcador.      [FND-R24]
+I6c ADOPTAR   proyecto con historia: node tools/tracker.mjs abrir --aplicar   [SUITE-R36]
+             SOLO lo vivo. Lo cerrado es evidencia, no estado, y se queda en el
+             repositorio. Un issue por trabajo terminado llena el tablero de
+             cadáveres que el espejo reconcilia para siempre.
 I7 VERIFICAR build-core · verify-suite · verify-fdge --all → resume en la conversación
 I8 ARRANCAR  encadena [START FOUNDATION] (o [START FIDE] si no hay código todavía)
 NO   mover sin firma · pedir la Declaración de Valor al instalar · instalar en silencio
@@ -568,6 +586,45 @@ HAZ  BUG           → VALIDATION_PENDING y PARA. Solo un humano lo lleva a DONE
      INVESTIGATION → CLOSED directo, sin INTEGRATED: no produce código [FDGE-R27]
 PARA G3 humana si BUG, en los tres modos. Resto: auto solo si las SIETE condiciones [EXEC §5.2]
      — y auto significa que verify-fdge PASÓ, no que tú lo afirmes [EXEC-R06]
+```
+
+### La plataforma de trabajo — espejo, no fuente                     [SUITE-R35]
+```
+CONTRATO  implementación abierta → milestone | epic work item
+          tarea                  → issue     | task work item
+          compuerta G4           → pull request         [FDGE-R33: el merge es humano]
+          cierre de implementación → dispara [START QA] sobre lo entregado
+REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECIDIÓ.
+          El issue REFERENCIA el intake, no lo copia: dos copias divergen.
+ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
+          node tools/tracker.mjs espejo        comprueba las dos direcciones
+          node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+NO        dejar que la plataforma asigne identificadores · copiar el intake al issue
+          · usar MCP como único canal: la verificación corre donde no hay nadie delante
+```
+
+### El bloque ESTADO — se escribe al cerrar cada fase                [SUITE-R33]
+```
+<!-- ESTADO -->
+implementación: EP-NNN · <slug>            (o «ninguna abierta»)
+tarea:          PT-NNN · PHASE n           (o «ninguna»)
+compuerta:      G3 pendiente · <quién>     (o «ninguna»)
+siguiente:      <la acción concreta que toca ahora>
+decisiones:     <lo que se decidió y no se deduce del repositorio>
+no hacer:       <lo que alguien podría intentar y no debe>
+actualizado:    AAAA-MM-DD
+<!-- /ESTADO -->
+```
+```
+FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/.  [SUITE-R34]
+          Si hay trabajo posterior, la sesión terminó sin dejar el estado
+          retomable. Se comprueba contra git, el único reloj que no depende
+          de nadie.
+REANCLAJE antes de cambiar de fase y antes de abrir nada: RELEE el bloque y di
+          en una línea dónde estás. PHASE 0 lo lee UNA vez; después nada lo
+          devuelve a la ventana y en una sesión larga el contexto se comprime. [FDGE-R52]
+NO        contar aquí lo que se hizo: eso es HISTORY.log y el relato de HANDOFF.
+          Esto responde qué está abierto y qué sigue, y cabe en una pantalla.
 ```
 
 ### PHASE 8 · Persistence

@@ -4,7 +4,7 @@
 > Prompts: [FPGE-Prompts.md](FPGE-Prompts.md) · Reglas: [RULES.md](RULES.md) §Parte 7 ·
 > Vocabulario: [LEXICON.md](LEXICON.md)
 >
-> Suite version: **4.14.0**
+> Suite version: **5.0.0**
 
 ---
 

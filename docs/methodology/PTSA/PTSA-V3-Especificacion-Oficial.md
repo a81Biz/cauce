@@ -2,7 +2,7 @@
 
 ## Sistema de Auditoría y Certificación Continua para Sistemas Generativos
 
-**Documento normativo.** Versión 3.1 — alineada con Methodology Suite **4.14.0**.
+**Documento normativo.** Versión 3.1 — alineada con Methodology Suite **5.0.0**.
 **Clase de documento:** Estándar Operativo y Normativo (Operational & Normative Standard).
 **Estado:** EN VIGOR (binding).
 **Sustituye a:** PTSA v2.0 (Motor PTSA v4.1) y al borrador `docs/methodology/Framework-PTSA.md` (3.0 Draft Candidate).
@@ -11,7 +11,7 @@
 
 ---
 
-## Alineación con la Methodology Suite 4.14.0
+## Alineación con la Methodology Suite 5.0.0
 
 Esta revisión **no cambia ningún requisito, fórmula, umbral ni procedimiento**. Cambia
 únicamente la nomenclatura, para eliminar las colisiones que hacían ambigua la suite:

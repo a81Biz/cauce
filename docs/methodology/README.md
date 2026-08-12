@@ -1,6 +1,6 @@
 # Methodology Suite — Manual de instrucciones
 
-> **Versión 4.14.0** · [CHANGELOG.md](CHANGELOG.md)
+> **Versión 5.0.0** · [CHANGELOG.md](CHANGELOG.md)
 >
 > Seis componentes que forman un ciclo gobernado de desarrollo de software asistido por IA.
 > El objetivo: que ningún trabajo sea ambiguo, ninguna decisión invisible y ningún artefacto
@@ -683,7 +683,7 @@ después de sus secciones propias.
 
 **Lo único que se personaliza:**
 ```yaml
-suite_version: 4.14.0
+suite_version: 5.0.0
 execution_mode: SUPERVISED
 ```
 más el bloque **Declaración de Valor** (dominio, productos, reglas de validez), que es lo que
@@ -721,7 +721,7 @@ PTSA/  RESUMEN.md · ESTADO_ACTUAL.md · AUDIT_LOG.md · PENDIENTES.md · RELACI
 `REGISTRY.json` inicial:
 ```json
 {
-  "suite_version": "4.14.0",
+  "suite_version": "5.0.0",
   "execution_mode": "SUPERVISED",
   "counters": { "PT":0,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0 },
   "allocations": []
@@ -1005,7 +1005,7 @@ intención por la observación.
 ### Cobertura mecánica — qué se comprueba y qué no
 
 `SUITE-R26` · Una regla que solo se cumple por buena voluntad es una recomendación. La
-auditoría adversaria de la 4.14.0 midió esto por primera vez y encontró **QA en 0/19 y FPGE en
+auditoría adversaria de la 5.0.0 midió esto por primera vez y encontró **QA en 0/19 y FPGE en
 0/10**: dos componentes cuyas reglas nadie verificaba. `audit.mjs` publica ahora la cobertura
 por componente, así que un cero deja de pasar inadvertido.
 
@@ -1101,6 +1101,8 @@ medio camino, y comprueban que once defectos inyectados se detectan.
 | `tools/verify-ptsa.mjs` | matriz de cobertura de una auditoría | antes de certificar un score |
 | `tools/verify-qa.mjs` | ciclo QA y roadmap FPGE | antes de publicar un ciclo o un roadmap |
 | `tools/plan-layout.mjs` | terreno de la raíz, dependencias, y propuesta de reorganización | al instalar, antes de documentar nada |
+| `tools/revisar-secretos.mjs` | árbol e historia antes de publicar · bloquea y propone corrección | al instalar, antes del primer push |
+| `tools/tracker.mjs` | espejo entre el registro y la plataforma: toda tarea viva con issue abierto y al revés | al abrir o cerrar trabajo · en CI |
 | `tools/comparar-marco.mjs` | divergencia entre la copia del proyecto y la de referencia, **y en qué dirección** | cuando el proyecto corrige el marco, o al migrar |
 | `tools/migrate.mjs` | migración de versión, encadenada a verificación | al subir de versión |
 | `tools/audit.mjs` | cobertura: enumera reglas, fases, triggers, artefactos, herramientas | tras cualquier cambio en la suite |

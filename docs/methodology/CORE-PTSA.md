@@ -1,8 +1,8 @@
 # CORE-PTSA — overlay de auditoría
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 1a8a59021250 -->
-<!-- fuentes: PTSA/PTSA-V3-Especificacion-Oficial.md:9930fd8210f0 -->
+<!-- cuerpo: 12ce7a9de56e -->
+<!-- fuentes: PTSA/PTSA-V3-Especificacion-Oficial.md:f64a881fc6c1 -->
 
 Se carga **solo** en sesiones de PTSA, junto a `CORE.md` (`SUITE-R25`). `CORE.md` lleva las
 reglas de PTSA que el resto de la suite necesita; aquí están **todas** las de la

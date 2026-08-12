@@ -32,6 +32,24 @@ manifiestos, documentos sueltos, dependencias y artefactos que faltan.
 **Resume en la conversación, en diez líneas o menos**: qué encontraste, qué propones mover y por
 qué importa. No pegues el informe entero: el humano no necesita leerlo, necesita decidir.
 
+### `I0-bis` · Seguridad y accesos — compuerta propia   `FND-R29` · `FND-R30`
+
+```bash
+node docs/methodology/tools/revisar-secretos.mjs . --historial
+```
+
+**Antes de que nada se publique.** Instalar implica que el repositorio va a publicarse, y
+publicar es irreversible donde importa: un secreto en la historia sigue ahí después de borrarlo
+del archivo. En la primera instalación real había una contraseña de base de datos en claro en el
+código de la API, y nada la miraba.
+
+Bloquea, y **propone la corrección**. Un falso positivo se firma por escrito, con nombre y
+motivo — no se silencia el escáner.
+
+Y los accesos, en la misma parada (`FND-R30`): `gh auth status` o `az account show` si el
+proyecto va a declarar plataforma. Descubrir a mitad de sesión que falta un permiso es perder la
+sesión.
+
 ### `I1` · Decisión — **G0**
 
 **El criterio ya está escrito en la herramienta, no en tu opinión del momento.** Eso es lo que
@@ -99,6 +117,14 @@ así que un `PTSA/` creado y nunca escrito desaparece en el primer clon — y `v
 reporta como «nada que auditar», que es lo mismo que diría si la auditoría no aplicara. Y los ledgers vacíos con su cabecera
 (`REGISTRY.json`, `HISTORY.log`, `INCIDENTS.log`, `SESSION_LOG.md`, `MIGRATION.log`).
 
+**Qué se versiona** (`SUITE-R37`), decidido de una vez para no volver sobre ello:
+
+| | |
+|:---|:---|
+| **Sí** | evidencia · ledgers · `docs/methodology/` — auditar un commit antiguo exige saber qué reglas lo gobernaban, y sin la carpeta eso depende de que el paquete siga publicado |
+| **No** | `graphify-out/` — regenerable, y su frescura vive en `REGISTRY.graph` |
+| **Nunca bajo `*.log`** | los ledgers append-only de la suite. Una regla `*.log` se los traga en silencio, y sin ellos `G4` no tiene qué verificar ni `PHASE 10` a qué volver |
+
 `REGISTRY.json` arranca con los contadores a cero y `suite_version` igual a la del `CHANGELOG`.
 
 ### `I4` · Dependencias — `SUITE-R29`
@@ -151,6 +177,23 @@ el defecto — pasó, con un verde falso sobre `FND-R24`, y se descubrió por ac
 El comparador dice **qué difiere y en qué dirección**. No sincroniza: si la corrección se hizo
 en el proyecto, falta propagarla; si la referencia avanzó, falta migrar. **Nunca a ciegas en
 ninguna dirección** — sobrescribir la copia del proyecto puede revertir correcciones suyas.
+
+### `I6-ter` · Adoptar la plataforma en un proyecto con historia   `SUITE-R36`
+
+```bash
+node docs/methodology/tools/tracker.mjs abrir --aplicar
+```
+
+**Solo migra lo vivo.** Un proyecto en marcha lleva una implementación abierta y unas pocas
+tareas. Lo cerrado no es estado, es evidencia: se queda en el repositorio junto al código que lo
+produjo. Crear un issue por cada trabajo terminado llenaría la plataforma de cadáveres que el
+espejo tendría que reconciliar para siempre.
+
+Medido en un proyecto real: 127 asignaciones, de las que **dos** estaban vivas. Migrar dos
+frente a migrar 127 no es una diferencia de esfuerzo, es la diferencia entre un tablero que se
+lee y uno que no.
+
+Y el issue **referencia** el intake: no lo copia (`SUITE-R35`).
 
 ### `I7` · Verificar
 

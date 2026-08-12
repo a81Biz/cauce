@@ -46,14 +46,14 @@ build_fixture() {
   mkdir -p docs/methodology/PTSA && cp "$SUITE"/PTSA/PTSA-V3-Especificacion-Oficial.md docs/methodology/PTSA/ 2>/dev/null || true
 
   cat > docs/implementation/REGISTRY.json <<'J'
-{ "suite_version":"4.14.0","execution_mode":"SUPERVISED",
+{ "suite_version":"5.0.0","execution_mode":"SUPERVISED",
   "graph":{"generated":"2026-08-05","scope":"src/","pt_at_generation":4},
   "counters":{"PT":4,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
   "allocations":[
-    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"4.14.0"},
-    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"4.14.0"},
-    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"4.14.0"},
-    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"4.14.0"}
+    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.0.0"},
+    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.0.0"},
+    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.0.0"},
+    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.0.0"}
   ] }
 J
 
@@ -744,7 +744,7 @@ chk   "INSTALL.log sin entradas ⇒ falla"     "no contiene ninguna entrada"  V 
 build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/^\| (\d+) \| (.+?) \| \| \|$/| $1 | $2 | ACEPTADO | /gm' "$WORK/docs/implementation/LAYOUT.md"
-printf "## 2026-08-06 · [INSTALL SUITE] · 4.14.0
+printf "## 2026-08-06 · [INSTALL SUITE] · 5.0.0
 Ejecutado por: Ada Lovelace
 
 I2  MOVER      [L1] 15 archivos .md  ·  raiz a docs/business/     OK
@@ -808,6 +808,128 @@ chk   "ligero sin criterios ⇒ falla"           "✗ FDGE-R51"  V PT-001
 # La plantilla ligera viaja en el paquete y NO pide firma propia.
 chk   "TAREA.md en el paquete"                 "Firmado por lote"  cat "$SUITE/INTAKE/templates/TAREA.md"
 chkno "TAREA.md no pide firma propia"          "Solicitado por"    cat "$SUITE/INTAKE/templates/TAREA.md"
+
+# ─── O · continuidad: el bloque ESTADO y su frescura ─────────────────────────
+echo "── O · continuidad ──"
+
+build_fixture
+printf '# HANDOFF
+
+Solo prosa: cuenta lo que se hizo y no dice qué sigue.
+' > "$WORK/docs/implementation/HANDOFF.md"
+chk   "HANDOFF sin bloque ESTADO ⇒ falla"     "✗ SUITE-R33"  V --all
+build_fixture
+printf '<!-- ESTADO -->
+implementación: ninguna abierta
+tarea:          ninguna
+compuerta:      ninguna
+siguiente:      abrir la primera implementación
+decisiones:     ninguna viva
+no hacer:       nada pendiente
+actualizado:    2026-08-12
+<!-- /ESTADO -->
+' > "$WORK/docs/implementation/HANDOFF.md"
+chk   "bloque ESTADO completo ⇒ pasa"         "✓ SUITE-R33"  V --all
+build_fixture
+printf '<!-- ESTADO -->
+implementación: ninguna abierta
+tarea:          ninguna
+compuerta:      ninguna
+decisiones:     ninguna viva
+no hacer:       nada pendiente
+actualizado:    2026-08-12
+<!-- /ESTADO -->
+' > "$WORK/docs/implementation/HANDOFF.md"
+chk   "falta «siguiente» ⇒ falla"             "✗ SUITE-R33"  V --all
+build_fixture
+printf '<!-- ESTADO -->
+implementación: ninguna abierta
+tarea:          ninguna
+compuerta:      ninguna
+siguiente:
+decisiones:     ninguna viva
+no hacer:       nada pendiente
+actualizado:    2026-08-12
+<!-- /ESTADO -->
+' > "$WORK/docs/implementation/HANDOFF.md"
+chk   "«siguiente» en blanco ⇒ falla"         "✗ SUITE-R33"  V --all
+
+# La frescura se mide contra git: trabajo posterior al estado ⇒ el estado está viejo.
+build_fixture
+printf '<!-- ESTADO -->
+implementación: ninguna abierta
+tarea:          ninguna
+compuerta:      ninguna
+siguiente:      abrir la primera implementación
+decisiones:     ninguna viva
+no hacer:       nada pendiente
+actualizado:    2026-08-12
+<!-- /ESTADO -->
+' > "$WORK/docs/implementation/HANDOFF.md"
+git -C "$WORK" init -q 2>/dev/null; printf "*.tmp
+" > "$WORK/.gitignore"
+git -C "$WORK" add -A >/dev/null 2>&1
+git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "estado y trabajo a la vez" >/dev/null 2>&1
+chkno "estado y trabajo a la vez ⇒ pasa"      "✗ SUITE-R34"  V --all
+printf "
+nota posterior
+" >> "$WORK/changes/PT-001-login/intake.md"
+git -C "$WORK" add -A >/dev/null 2>&1
+# Un segundo de separación: git sella en segundos y los dos commits caían en el mismo.
+sleep 1
+git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "trabajo despues del estado" >/dev/null 2>&1
+chk   "trabajo posterior al estado ⇒ falla"   "✗ SUITE-R34"  V --all
+
+# ─── P · el espejo con la plataforma ─────────────────────────────────────────
+echo "── P · plataforma ──"
+TR() { node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
+
+# Sin plataforma declarada no se exige nada: el repositorio sigue siendo válido solo.
+build_fixture
+chk   "sin plataforma ⇒ lo dice y no falla"   "no declara plataforma"  TR espejo
+build_fixture
+reg_set "r.tracker={plataforma:'inventada'}"
+chk   "plataforma desconocida ⇒ lo dice"      "Plataforma desconocida"  TR espejo
+build_fixture
+reg_set "r.tracker={plataforma:'azure'}"
+chkno "azure declara el contrato, no miente"  "Sin divergencias"  TR espejo
+
+# El contrato tiene que viajar en el paquete, no en la cabeza de nadie.
+chk   "el contrato está en PHASES"            "milestone"       cat "$SUITE/PHASES.md"
+chk   "el issue no copia el intake"           "no lo copia"     cat "$SUITE/tools/tracker.mjs"
+
+# ─── Q · la compuerta de secretos ────────────────────────────────────────────
+echo "── Q · secretos ──"
+SEC() { node "$SUITE/tools/revisar-secretos.mjs" "$@"; }
+
+build_fixture
+chk   "árbol limpio ⇒ sin hallazgos"          "Sin hallazgos"   SEC "$WORK"
+build_fixture
+mkdir -p "$WORK/src" && printf 'const p = new Pool({ password: "SuperSecreta123" });
+' > "$WORK/src/db.ts"
+chk   "contraseña en el código ⇒ bloquea"     "contraseña en texto plano"  SEC "$WORK"
+chk   "y propone la corrección"               "Corrección:"     SEC "$WORK"
+build_fixture
+printf '{ "api_key": "abcd1234efgh5678" }
+' > "$WORK/config.json"
+chk   "credencial en JSON ⇒ bloquea"          "campo de credencial"  SEC "$WORK"
+build_fixture
+printf '{ "api_key": "REDACTADO" }
+' > "$WORK/config.json"
+chk   "REDACTADO no es un secreto"            "Sin hallazgos"   SEC "$WORK"
+
+# Lo que el árbol ya no muestra, la historia sí: es la razón de la compuerta.
+build_fixture
+mkdir -p "$WORK/src" && printf 'const p = new Pool({ password: "SuperSecreta123" });
+' > "$WORK/src/db.ts"
+git -C "$WORK" init -q 2>/dev/null; git -C "$WORK" add -A >/dev/null 2>&1
+git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "con secreto" >/dev/null 2>&1
+printf 'const p = new Pool({ password: process.env.PGPASSWORD });
+' > "$WORK/src/db.ts"
+git -C "$WORK" add -A >/dev/null 2>&1
+git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "lo saco del archivo" >/dev/null 2>&1
+chk   "árbol limpio tras sacarlo"             "Sin hallazgos"   SEC "$WORK"
+chk   "pero la historia lo conserva"          "contraseña en texto plano"  SEC "$WORK" --historial
 
 # ─── C · coherencia de la metodología ───────────────────────────────────────
 echo "── C · metodología ──"

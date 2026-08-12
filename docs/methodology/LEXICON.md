@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **4.14.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **5.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -208,10 +208,11 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
 
 ```json
 {
-  "suite_version": "4.14.0",
+  "suite_version": "5.0.0",
   "execution_mode": "SUPERVISED",
   "foundation": { "generated": "2026-08-01", "validated_by": "Ada Lovelace", "pt_at_generation": 38 },
   "graph": { "generated": "2026-08-01", "scope": "src/", "pt_at_generation": 38 },
+  "tracker": { "plataforma": "github" | "azure" | null },
   "counters": {
     "PT": 0, "EP": 0, "QA": 0, "QR": 0, "QD": 0,
     "H": 0, "E": 0, "P": 0, "R": 0, "INC": 0
@@ -227,7 +228,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
       "status": "READY",
       "phase": 1,
       "structural": false,
-      "suite_version": "4.14.0"
+      "suite_version": "5.0.0"
     }
   ]
 }
@@ -429,7 +430,7 @@ FIDE añade un único documento propio, fuera del rango numerado de Foundation:
 ```
 REGISTRY.json          append + counters · asignador único de IDs
 HISTORY.log            append-only   · un registro por PT cerrado
-HANDOFF.md             sobrescribible · estado actual del sistema
+HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
 SESSION_LOG.md         append-only   · una entrada por sesión (antes SESSION_SUMMARY.md)
 BACKLOG.md             sobrescribible · índice de PTs vivos y su fase actual
 RECONCILIATION.log     append-only   · una entrada por decisión sobre un documento legado
@@ -557,6 +558,8 @@ tools/
   verify-qa.mjs       ciclo QA y roadmap FPGE · los dos componentes que no tenían ninguna
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
+  tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35
+  revisar-secretos.mjs  árbol e historia antes de publicar · bloquea y propone · FND-R29
   selftest.sh         batería de casos límite, defectos inyectados y migración
 ```
 
