@@ -1,0 +1,92 @@
+# Publicación a npm, a mano y con registro.
+#
+# POR QUÉ NO SE PUBLICA DESDE UNA MÁQUINA
+#   Publicar desde el portátil de alguien deja el token en su disco, la operación sin rastro y
+#   el resultado dependiendo de qué tuviera esa máquina en ese momento. Aquí el token vive en
+#   los secretos del repositorio, la ejecución queda registrada con quién la lanzó, y lo que se
+#   publica es exactamente lo que hay en `main` — verificado en esta misma corrida.
+#
+# POR QUÉ ES MANUAL
+#   Publicar es irreversible: npm no permite despublicar salvo en una ventana muy estrecha. Es
+#   una decisión humana, como todo lo que `SUITE-R06` mantiene fuera de la automatización. Se
+#   lanza desde la pestaña Actions, o con `gh workflow run publicar.yml`.
+#
+# QUÉ IMPIDE
+#   - Publicar algo que no se certifica a sí mismo: la verificación corre antes y bloquea.
+#   - Republicar una versión que ya existe: se comprueba contra el registro y se para.
+#   - Publicar desde una rama que no sea `main`.
+
+name: publicar
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmacion:
+        description: 'Escribe PUBLICAR para confirmar. Es irreversible.'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write        # procedencia firmada por npm (--provenance)
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: La confirmación es literal
+        run: |
+          if [ "${{ inputs.confirmacion }}" != "PUBLICAR" ]; then
+            echo "Confirmación ausente o distinta de PUBLICAR. No se publica nada."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Solo desde main
+        run: |
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            echo "Rama ${{ github.ref_name }}: solo se publica desde main."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      # El marco no se publica si no puede certificarse a sí mismo. Las cuatro bloquean.
+      - name: Coherencia interna
+        run: npm run verify:suite
+      - name: Núcleo sincronizado con sus fuentes
+        run: npm run core:check
+      - name: Cobertura de la auditoría
+        run: npm run audit
+      - name: Batería de casos
+        run: npm run selftest
+
+      - name: Esta versión no puede existir ya
+        run: |
+          NOMBRE=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Comprobando $NOMBRE@$VERSION"
+          if npm view "$NOMBRE@$VERSION" version >/dev/null 2>&1; then
+            echo "$NOMBRE@$VERSION ya está publicada. Sube la versión en package.json y el CHANGELOG."
+            exit 1
+          fi
+          echo "Libre. Se publica $NOMBRE@$VERSION."
+
+      - name: Publicar
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Qué quedó publicado
+        run: |
+          NOMBRE=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "### Publicado \`$NOMBRE@$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Lanzado por: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- https://www.npmjs.com/package/$NOMBRE" >> $GITHUB_STEP_SUMMARY
