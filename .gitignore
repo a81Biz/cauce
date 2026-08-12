@@ -6,3 +6,6 @@ node_modules/
 
 # Configuración local de Claude Code: es de la máquina, no del marco.
 .claude/settings.local.json
+
+# Configuración local de Claude Code en cualquier nivel: es de la máquina, no del marco.
+.claude/settings.local.json

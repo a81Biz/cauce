@@ -47,6 +47,29 @@ vinculantes. Se cargan en cada sesión (PHASE 0 de FDGE):
 
 ---
 
+## Instalar
+
+```bash
+npm i -D @a81biz/cauce      # el paquete lleva ámbito; el comando se llama cauce
+npx cauce install           # deja el marco en docs/methodology/ y genera su núcleo
+```
+
+Y después, en Claude Code, dentro del proyecto:
+
+```
+instala el framework
+```
+
+El ámbito `@a81biz` es de propiedad, no de uso: npm rechaza `cauce` a secas por parecerse a
+paquetes que ya existen. El binario sigue llamándose `cauce`.
+
+`npx cauce install` **se niega** a sobrescribir una copia del marco que difiera de la del
+paquete, y dice qué difiere. Una copia distinta puede llevar correcciones que ese proyecto hizo
+bajo sus propios PT — pasó, con un verde falso sobre la regla que sostiene la auditoría — así
+que sincronizar a ciegas está prohibido en las dos direcciones (`SUITE-R31`).
+
+---
+
 ## Instalar: copiar la carpeta y decírselo a Claude
 
 ```

@@ -1,5 +1,5 @@
 {
-  "name": "cauce",
+  "name": "@a81biz/cauce",
   "version": "4.13.0",
   "description": "Marco de gobernanza para desarrollo asistido por IA: trazabilidad, evidencia y control humano sobre toda decisión irreversible.",
   "type": "module",
@@ -13,12 +13,16 @@
     "url": "https://github.com/a81Biz/cauce/issues"
   },
   "homepage": "https://github.com/a81Biz/cauce#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "cauce": "bin/cauce.mjs"
   },
   "files": [
     "bin",
     "docs/methodology",
+    "!docs/methodology/.claude",
     "README.md",
     "LICENSE",
     "NOTICE"
