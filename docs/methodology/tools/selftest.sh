@@ -64,7 +64,7 @@ J
 ## 10. Firma `[HUMANO]`
 
 ```
-Reportado por: Alberto
+Reportado por: Ada Lovelace
 Fecha: 2026-08-05
 Confirmo que los comportamientos esperado y observado, la severidad y el out-of-scope
 reflejan mi intención: SÍ
@@ -104,7 +104,7 @@ Fecha: 2026-08-05
 Estado: DONE
 Estructural: no
 Rama: fix/PT-001-login
-Compuertas: G1 2026-08-05 Alberto · G2 2026-08-05 Alberto · G3 2026-08-05 Alberto · G4 pendiente
+Compuertas: G1 2026-08-05 Ada Lovelace · G2 2026-08-05 Ada Lovelace · G3 2026-08-05 Ada Lovelace · G4 pendiente
 
 ## PT-002 — INVESTIGATION: pool
 Fecha: 2026-08-05
@@ -153,7 +153,7 @@ build_fixture; perl -pi -e 's/^## Conclusión/## Notas/' "$WORK/changes/PT-002-p
 chk "INVESTIGATION sin Conclusión"      "FDGE-R42"          V PT-002
 build_fixture; perl -pi -e 's/^Estado: DONE$/Estado: VALIDATION_PENDING/ if $. < 6' "$WORK/docs/implementation/HISTORY.log"
 chk "BUG sin validar intentando G4"     "FDGE-R34"          V --gate G4 PT-001
-build_fixture; perl -pi -e 's/G3 2026-08-05 Alberto/G3 auto/' "$WORK/docs/implementation/HISTORY.log"
+build_fixture; perl -pi -e 's/G3 2026-08-05 Ada Lovelace/G3 auto/' "$WORK/docs/implementation/HISTORY.log"
 chk "BUG en DONE sin firma humana G3"   "FDGE-R26"          V --gate G4 PT-001
 build_fixture; reg_set "r.counters.PT=1"
 chk "contador bajo el ID ya asignado"   "LEX-R04"           V --all
@@ -332,7 +332,7 @@ Ningún formulario acepta datos inválidos sin mensaje.
 OUT: rediseño visual
 
 ## 4. Firma única
-Solicitado por: Alberto
+Solicitado por: Ada Lovelace
 He leído el Intake de cada PT y confirmo que todos reflejan mi intención: SÍ
 
 ## 5. PTs
@@ -430,7 +430,7 @@ printf 'firmantes:
 chk   "firmantes sin personalizar ⇒ falla"     "✗ SUITE-R27" V --all
 build_fixture
 printf 'firmantes:
-  - Alberto
+  - Ada Lovelace
 ' > "$WORK/CLAUDE.md"
 printf '| PT-050 | BUG | INTEGRATED | integrado por: Impostor |
 ' >> "$WORK/docs/implementation/HISTORY.log"
@@ -609,7 +609,7 @@ chk   "LAYOUT sin firmar ⇒ no se abre nada" "✗ FND-R23"        V --all
 build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/Revisado por:.*
-/Revisado por: Alberto
+/Revisado por: Ada Lovelace
 /; s/quiero: SÍ \| NO.*
 /quiero: SÍ
 /' "$WORK/docs/implementation/LAYOUT.md"
@@ -617,7 +617,7 @@ chkno "LAYOUT firmado ⇒ deja trabajar"      "✗ FND-R23"        V --all
 build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/Revisado por:.*
-/Revisado por: Alberto
+/Revisado por: Ada Lovelace
 /; s/quiero: SÍ \| NO.*
 /quiero: SÍ
 /' "$WORK/docs/implementation/LAYOUT.md"
@@ -625,7 +625,7 @@ chk   "LAYOUT firmado no se sobrescribe"    "ya está FIRMADO"  node "$WORK/docs
 build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/Revisado por:.*
-/Revisado por: Alberto
+/Revisado por: Ada Lovelace
 /; s/quiero: SÍ \| NO.*
 /quiero: SÍ
 /' "$WORK/docs/implementation/LAYOUT.md"
@@ -635,7 +635,7 @@ chk   "dos veredictos en LAYOUT ⇒ falla"    "✗ FND-R22"        V --all
 # El verificador debe reconocer la plantilla que la propia suite reparte, comentarios incluidos.
 build_fixture
 printf 'firmantes:                # quien firma
-  - Alberto Martinez        # responsable
+  - Ada Lovelace        # responsable
 ' > "$WORK/CLAUDE.md"
 chk   "firmantes con comentario ⇒ se lee"   "✓ SUITE-R27"      V --all
 
@@ -650,7 +650,7 @@ chk   "el procedimiento llega a CORE.md"     "I0 TERRENO"       cat "$SUITE/CORE
 # al traerlas: las firmas de LAYOUT no se contrastaban contra firmantes:.
 build_fixture
 printf "firmantes:
-  - Alberto
+  - Ada Lovelace
 " > "$WORK/CLAUDE.md"
 printf 'Solicitado por:
 Fecha: 2026-08-06
@@ -658,7 +658,7 @@ Fecha: 2026-08-06
 chkno "campo vacio no captura «Fecha:»"      "firma «Fecha:»"   V --all
 build_fixture
 printf "firmantes:
-  - Alberto
+  - Ada Lovelace
 " > "$WORK/CLAUDE.md"
 printf 'Declaración de Valor
 Firmada por:
@@ -671,7 +671,7 @@ perl -0pi -e 's/Revisado por:.*
 /Revisado por: Impostor
 /' "$WORK/docs/implementation/LAYOUT.md"
 printf "firmantes:
-  - Alberto
+  - Ada Lovelace
 " > "$WORK/CLAUDE.md"
 chk   "firma de LAYOUT contrastada"          "✗ SUITE-R27"      V --all
 build_fixture
@@ -745,7 +745,7 @@ build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/^\| (\d+) \| (.+?) \| \| \|$/| $1 | $2 | ACEPTADO | /gm' "$WORK/docs/implementation/LAYOUT.md"
 printf "## 2026-08-06 · [INSTALL SUITE] · 4.13.0
-Ejecutado por: Alberto
+Ejecutado por: Ada Lovelace
 
 I2  MOVER      [L1] 15 archivos .md  ·  raiz a docs/business/     OK
 I3  CREAR      estructura y ledgers                              OK

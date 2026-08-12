@@ -210,7 +210,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
 {
   "suite_version": "4.13.0",
   "execution_mode": "SUPERVISED",
-  "foundation": { "generated": "2026-08-01", "validated_by": "Alberto", "pt_at_generation": 38 },
+  "foundation": { "generated": "2026-08-01", "validated_by": "Ada Lovelace", "pt_at_generation": 38 },
   "graph": { "generated": "2026-08-01", "scope": "src/", "pt_at_generation": 38 },
   "counters": {
     "PT": 0, "EP": 0, "QA": 0, "QR": 0, "QD": 0,

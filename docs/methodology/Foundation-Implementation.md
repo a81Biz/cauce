@@ -173,7 +173,7 @@ docs/arquitectura-2023.md      → SUPERSEDE → docs/_archive/2026-08-05/docs/a
 notas/ideas.md                 → ARCHIVE   → docs/_archive/2026-08-05/notas/ideas.md
 dist/                          → DELETE
   motivo: regenerable, no estaba en .gitignore
-ACK G0: Alberto · 2026-08-05
+ACK G0: Ada Lovelace · 2026-08-05
 ```
 
 #### 1.5 Qué pasa si el proyecto es greenfield

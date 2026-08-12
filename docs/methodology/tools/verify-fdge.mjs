@@ -280,7 +280,7 @@ const RE_INTEGRADO = /^\|?\s*(PT-\d+).*INTEGRATED/im;
 const RE_QUIEN = /(?:integrado|resuelto|autorizado|validado|aprobado)\s+por:\s*(\S+)/i;
 // SUITE-R27 · una firma no se puede probar, pero SI se puede contrastar. El CLAUDE.md del
 // proyecto declara quien esta autorizado a firmar; un nombre fuera de esa lista falla. No
-// impide que el agente escriba «Alberto», pero convierte la firma en una afirmacion
+// impide que el agente escriba «Ada Lovelace», pero convierte la firma en una afirmacion
 // contrastable y deja a una persona concreta asociada a cada decision irreversible.
 // La propia plantilla escribe «firmantes:  # quien puede firmar...»: exigir fin de linea
 // limpio hacia que el verificador no reconociera el archivo que la suite reparte.

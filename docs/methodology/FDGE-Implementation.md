@@ -453,7 +453,7 @@ Archivos modificados:
 Evidencia: docs/implementation/evidence/PT-042/
 Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
 Delta (real vs planificado): [qué cambió respecto al Proposal Package y por qué · «según plan» si nada]
-Compuertas: G1 2026-08-05 Alberto · G2 2026-08-05 Alberto · G3 auto · G4 pendiente
+Compuertas: G1 2026-08-05 Ada Lovelace · G2 2026-08-05 Ada Lovelace · G3 auto · G4 pendiente
 Trazabilidad externa: [QD-007] [H-021] [R-014]   — omitir las que no apliquen
 ```
 
