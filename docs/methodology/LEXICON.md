@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **4.13.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **4.14.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -208,7 +208,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
 
 ```json
 {
-  "suite_version": "4.13.0",
+  "suite_version": "4.14.0",
   "execution_mode": "SUPERVISED",
   "foundation": { "generated": "2026-08-01", "validated_by": "Ada Lovelace", "pt_at_generation": 38 },
   "graph": { "generated": "2026-08-01", "scope": "src/", "pt_at_generation": 38 },
@@ -227,7 +227,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
       "status": "READY",
       "phase": 1,
       "structural": false,
-      "suite_version": "4.13.0"
+      "suite_version": "4.14.0"
     }
   ]
 }
@@ -543,6 +543,8 @@ INSTALL.md                       instalación conversacional · [INSTALL SUITE] 
 PTSA/
   PTSA-V3-Especificacion-Oficial.md · PTSA-Prompts.md
   templates/COVERAGE.md          plantilla de la matriz de cobertura [PTSA-R77]
+INTAKE/templates/
+  TAREA.md                       tarea dentro de una implementación firmada [FDGE-R51]
 FIDE/
   Framework-FIDE.md · FIDE-Implementation.md · FIDE-CLAUDE-Launcher.md
 tools/
@@ -576,6 +578,8 @@ proyecto sin `CORE.md` no puede cumplir `SUITE-R15`: no tiene qué cargar.
 | Trigger | Componente | Efecto |
 |:---|:---|:---|
 | `[START FIDE] prompt: "..."` | FIDE | Incubar proyecto nuevo desde cero. |
+| `[IMPLEMENTACIÓN]` | FDGE | Abrir una implementación: el marco decide si es un `EP` nuevo o parte del abierto (`FDGE-R50`), propone y espera confirmación. |
+| `[CIERRA]` | FDGE | Cerrar la implementación abierta. Dispara `[START QA]` sobre lo que entregó. |
 | `[INSTALL SUITE]` | Suite | Instalar la suite en el proyecto, en conversación. También lo dispara «instala el framework». Ver `INSTALL.md`. |
 | `[START FOUNDATION]` | Foundation | Ingeniería inversa completa. Admite `scope:`. |
 | `[START RECONCILE]` | Foundation | Reconciliación **suelta** sobre un proyecto ya documentado. No regenera el paquete (`FND-R15`). |

@@ -47,7 +47,7 @@ const errors = [];
 const warnings = [];
 const passed = [];
 let GRAPH = { state: 'UNKNOWN', reason: 'sin evaluar' };
-const SUITE_VERSION = '4.13.0';
+const SUITE_VERSION = '4.14.0';
 
 const fail = (rule, msg) => errors.push({ rule, msg });
 const warn = (rule, msg) => warnings.push({ rule, msg });
@@ -385,6 +385,32 @@ function checkValor(foundationLista) {
   } else ok('FND-R24', `Declaración de Valor firmada por ${firmada}.`);
 }
 
+// FDGE-R48/R49 · la implementacion como unidad abierta.
+//
+// El sintoma que la motiva no es de disciplina, es mecanico: sin una unidad abierta hay que
+// declarar CADA VEZ que algo es nuevo, y eso es justo lo que se olvida a mitad de sesion. Con
+// el default invertido lo raro es abrir y cerrar; y lo que esta abierto lo dice el registro,
+// no la memoria del agente — asi sobrevive a que la sesion termine.
+const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_DOMAIN']);
+function checkImplementacion(reg) {
+  const all = Array.isArray(reg?.allocations) ? reg.allocations : [];
+  const abiertas = all.filter((a) => a?.type === 'EP' && a?.status === 'IN_PROGRESS');
+  if (abiertas.length > 1) {
+    fail('FDGE-R48', `${abiertas.length} implementaciones abiertas a la vez (${abiertas.map((a) => a.id).join(', ')}). Con dos, «esto es lo mismo» deja de tener respuesta y el default de FDGE-R49 no significa nada. Cierra una antes de abrir otra.`);
+    return;
+  }
+  if (!abiertas.length) { ok('FDGE-R48', 'Sin implementación abierta.'); return; }
+  const abierta = abiertas[0];
+  ok('FDGE-R48', `${abierta.id} es la única implementación abierta.`);
+  // Default invertido: con una abierta, todo PT vivo le pertenece. La excepcion es HOTFIX,
+  // porque produccion caida no espera a que se cierre nada.
+  const huerfanos = all.filter((a) => a?.type && a.type !== 'EP' && VIVOS.has(a?.status)
+    && !a?.epic && String(a?.track ?? '').toUpperCase() !== 'HOTFIX');
+  if (huerfanos.length) {
+    fail('FDGE-R49', `${abierta.id} está abierta y ${huerfanos.length} PT vivo(s) no declaran su epic: ${huerfanos.map((a) => a.id).join(', ')}. Mientras haya una implementación abierta todo le pertenece; trabajar fuera exige cerrarla o abrir otra, y ambas cosas se dicen. La única excepción es track HOTFIX.`);
+  } else ok('FDGE-R49', `${abierta.id} abierta · todo el trabajo vivo le pertenece.`);
+}
+
 function checkTerreno() {
   if (!existsSync(join(ROOT, '.git'))) {
     warn('FND-R19', 'La raíz no es un repositorio git. G4 es un merge real (FDGE-R33), PHASE 10 es un rollback real y la evidencia se ancla a commits: sin repositorio en la raíz, esas tres cosas no tienen dónde ocurrir. → git init, o instalar la suite en el repositorio.');
@@ -622,6 +648,9 @@ function checkPT(pt, { gate } = {}) {
   type = intake.match(RE_TYPE)?.[1] ?? null;
   track = intake.match(RE_TRACK)?.[1] ?? 'STANDARD';
 
+  if (RE_SIGN_BATCH.test(intake) && !/AC-\d+/.test(intake)) {
+    fail('FDGE-R51', `${pt}: intake ligero sin ningún AC-nn. La firma se hereda del lote; los criterios de aceptación NO — son lo único que cambia de una tarea a otra, y son contra lo que valida G3.`);
+  }
   if (!RE_SIGN_BLOCK.test(intake)) {
     fail('INTAKE-R06', `${pt}: intake.md no tiene bloque "## Firma".`);
   } else {
@@ -632,8 +661,15 @@ function checkPT(pt, { gate } = {}) {
     else ok('INTAKE-R06', `${pt}: Intake firmado.`);
   }
 
+  // FDGE-R51 · un PT de una implementacion ya firmada hereda del lote la firma, el veredicto
+  // de G1 y la severidad. Cobrarle el ritual completo a cada arreglo de una construccion tiene
+  // una sola salida practicable: saltarselo, y perder el rastro. Lo que NO hereda: sus criterios
+  // de aceptacion, G3 y la evidencia — la ligereza esta en la entrada, no en la salida.
+  const heredaDelLote = RE_SIGN_BATCH.test(intake);
+  if (heredaDelLote) ok('FDGE-R51', `${pt}: intake ligero · firma, veredicto y severidad heredados del lote.`);
+
   const dor = intake.match(RE_DOR)?.[1]?.toUpperCase();
-  if (!dor) {
+  if (!dor && !heredaDelLote) {
     fail('FDGE-R03', `${pt}: intake.md no registra el veredicto de G1 (VEREDICTO: PASS | FAIL | CHALLENGE).`);
   } else if (dor === 'FAIL') {
     fail('FDGE-R03', `${pt}: G1 dio FAIL. El PT no puede avanzar más allá de PHASE 1.`);
@@ -641,7 +677,7 @@ function checkPT(pt, { gate } = {}) {
     fail('FDGE-R03', `${pt}: G1 dio CHALLENGE sin resolución humana. Añade "CHALLENGE aceptado por: [nombre]" al intake.`);
   }
 
-  if (!RE_SEVERITY.test(intake)) {
+  if (!RE_SEVERITY.test(intake) && !heredaDelLote) {
     fail('FDGE-R04', `${pt}: intake.md no declara severity: S1..S4 (la declara el humano, INTAKE-R04).`);
   }
   if (track === 'HOTFIX' && intake.match(RE_SEVERITY)?.[1] !== 'S1') {
@@ -848,12 +884,13 @@ const all = argv.includes('--all');
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
 
-console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 4.13.0\n');
+console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 4.14.0\n');
 
 const reg = checkRegistry();
 checkFoundation();
 checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
+checkImplementacion(reg);
 checkFirmas();
 checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));

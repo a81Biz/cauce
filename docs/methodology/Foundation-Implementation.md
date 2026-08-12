@@ -6,7 +6,7 @@
 > Reglas: [RULES.md](RULES.md) §Parte 2 · Vocabulario: [LEXICON.md](LEXICON.md)
 > Marcos que lo consumen: [FDGE-Implementation.md](FDGE-Implementation.md) · [QA/QA-Implementation.md](QA/QA-Implementation.md) · [FPGE-Implementation.md](FPGE-Implementation.md) · [PTSA/PTSA-V3-Especificacion-Oficial.md](PTSA/PTSA-V3-Especificacion-Oficial.md)
 >
-> Suite version: **4.13.0**
+> Suite version: **4.14.0**
 
 ---
 

@@ -8,6 +8,59 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 4.14.0 — 2026-08-12
+
+**Fase C: la implementación deja de ser un plan y pasa a ser una unidad abierta.**
+
+El síntoma que la motiva no es de disciplina, es mecánico. Sin una unidad abierta hay que
+declarar **cada vez** que algo es nuevo — y eso es justo lo que se olvida a mitad de sesión.
+Medido en un proyecto real: las cinco tareas de un mismo lote pagaron 87, 89, 90, 96 y 132
+líneas de intake, cada una con su firma propia **además** de la del lote. Unas 500 líneas de
+ceremonia para una sola implementación. Cobrar el ritual completo por cada arreglo tiene una
+sola salida practicable: saltárselo, y perder el rastro.
+
+### El default invertido — `FDGE-R48` · `FDGE-R49`
+
+| | |
+|:---|:---|
+| `FDGE-R48` | Como mucho **una** implementación abierta. Con dos, «esto es lo mismo» deja de tener respuesta y el default no significa nada |
+| `FDGE-R49` | Mientras haya una abierta, **todo le pertenece**. Lo raro pasa a ser abrir y cerrar; lo común no necesita marcador. Trabajar fuera exige cerrarla o abrir otra, y ambas cosas se dicen. `track: HOTFIX` es la única excepción: producción caída no espera a que se cierre nada |
+
+Marcadores nuevos: **`[IMPLEMENTACIÓN]`** y **`[CIERRA]`**. Cerrar encadena `[START QA]` sobre
+lo que la implementación entregó — QA deja de ser un recordatorio y pasa a ser un evento.
+
+Y lo que resuelve de continuidad: **lo que está abierto lo dice el registro, no la memoria del
+agente.** Por eso sobrevive a que la sesión termine.
+
+### Nueva o parte de: el criterio está escrito — `FDGE-R50`
+
+Es **parte de la abierta** si toca los productos que su objetivo declara, si sirve a su criterio
+de éxito, o si corrige algo que ella misma introdujo. Es **nueva** si entrega valor que la
+abierta no prometió, o si el criterio de éxito de la abierta se cumple igual sin ella. El agente
+lo aplica y propone; el humano confirma. Dejarlo al juicio del momento hace que dos sesiones
+respondan distinto sobre el mismo trabajo.
+
+### El intake pesado pertenece a la implementación — `FDGE-R51`
+
+Nueva plantilla `INTAKE/templates/TAREA.md`: qué se quiere, criterios de aceptación y qué no
+entra. La firma, el veredicto de `G1` y la severidad **se heredan del lote** (`INTAKE-R08`).
+
+Lo que **no** se hereda: los criterios de aceptación —son lo único que cambia de una tarea a
+otra, y son contra lo que valida `G3`—, la evidencia y `G4`. La ligereza está en la entrada, no
+en la salida.
+
+`audit.mjs` distingue ahora dos clases de plantilla de admisión: exigirle a la ligera lo que
+define a la pesada la volvería pesada otra vez.
+
+### Verificación
+
+`selftest.sh`: **143 casos**, con el bloque **N**. `audit.mjs`: 496 elementos, 0 huecos.
+
+Y el detector de bytes de control de la 4.8.0 se ganó el sueldo: al escribir la comprobación de
+`FDGE-R51` un `` volvió a convertirse en `0x08` y lo cazó en la misma pasada.
+
+---
+
 ## 4.13.0 — 2026-08-12
 
 **Fase A del plan: sanear la fuente antes de publicarla.** Un proyecto real corrigió cuatro

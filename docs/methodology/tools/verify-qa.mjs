@@ -3,7 +3,7 @@
  * verify-qa — Verificación mecánica de un ciclo QA y de un roadmap FPGE.
  *
  * POR QUÉ EXISTE
- *   La auditoría adversaria de la 4.13.0 midió la cobertura mecánica regla a regla y encontró
+ *   La auditoría adversaria de la 4.14.0 midió la cobertura mecánica regla a regla y encontró
  *   dos componentes enteros en cero: QA 0/19 y FPGE 0/10. Todo lo que ambos prometen —«sin
  *   captura el paso no fue ejecutado», «todo FAIL genera un QD», «FPGE es read-only sobre
  *   artefactos ajenos»— dependía de que el agente se lo aplicara a sí mismo. Una regla que

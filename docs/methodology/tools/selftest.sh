@@ -46,14 +46,14 @@ build_fixture() {
   mkdir -p docs/methodology/PTSA && cp "$SUITE"/PTSA/PTSA-V3-Especificacion-Oficial.md docs/methodology/PTSA/ 2>/dev/null || true
 
   cat > docs/implementation/REGISTRY.json <<'J'
-{ "suite_version":"4.13.0","execution_mode":"SUPERVISED",
+{ "suite_version":"4.14.0","execution_mode":"SUPERVISED",
   "graph":{"generated":"2026-08-05","scope":"src/","pt_at_generation":4},
   "counters":{"PT":4,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
   "allocations":[
-    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"4.13.0"},
-    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"4.13.0"},
-    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"4.13.0"},
-    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"4.13.0"}
+    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"4.14.0"},
+    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"4.14.0"},
+    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"4.14.0"},
+    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"4.14.0"}
   ] }
 J
 
@@ -744,7 +744,7 @@ chk   "INSTALL.log sin entradas ⇒ falla"     "no contiene ninguna entrada"  V 
 build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/^\| (\d+) \| (.+?) \| \| \|$/| $1 | $2 | ACEPTADO | /gm' "$WORK/docs/implementation/LAYOUT.md"
-printf "## 2026-08-06 · [INSTALL SUITE] · 4.13.0
+printf "## 2026-08-06 · [INSTALL SUITE] · 4.14.0
 Ejecutado por: Ada Lovelace
 
 I2  MOVER      [L1] 15 archivos .md  ·  raiz a docs/business/     OK
@@ -767,6 +767,47 @@ printf '# INSTALL.log
 I2  MOVER      [L99] algo que nadie aprobo                    OK
 ' > "$WORK/docs/implementation/INSTALL.log"
 chk   "etiqueta sin decisión ⇒ falla"         "que nadie aprobó"  V --all
+
+# ─── N · la implementación como unidad abierta ───────────────────────────────
+echo "── N · implementación abierta ──"
+
+# FDGE-R48 · dos abiertas dejan sin respuesta a «esto es lo mismo».
+build_fixture
+reg_set "r.allocations.push({id:'EP-001',type:'EP',status:'IN_PROGRESS',slug:'a'},{id:'EP-002',type:'EP',status:'IN_PROGRESS',slug:'b'})"
+chk   "dos implementaciones abiertas ⇒ falla"  "✗ FDGE-R48"  V --all
+build_fixture
+reg_set "r.allocations.push({id:'EP-001',type:'EP',status:'IN_PROGRESS',slug:'a'});r.allocations.forEach(x=>{if(x.type!=='EP')x.epic='EP-001'})"
+chk   "una sola abierta ⇒ pasa"                "✓ FDGE-R48"  V --all
+
+# FDGE-R49 · el default invertido: con una abierta, todo PT vivo le pertenece.
+build_fixture
+reg_set "r.allocations.push({id:'EP-001',type:'EP',status:'IN_PROGRESS',slug:'a'});r.allocations.filter(x=>x.id==='PT-001').forEach(x=>{x.status='IN_PROGRESS';delete x.epic})"
+chk   "PT vivo sin epic ⇒ falla"               "✗ FDGE-R49"  V --all
+build_fixture
+reg_set "r.allocations.push({id:'EP-001',type:'EP',status:'IN_PROGRESS',slug:'a'});r.allocations.forEach(x=>{if(x.type!=='EP')x.epic='EP-001'})"
+chk   "PT vivo con su epic ⇒ pasa"             "✓ FDGE-R49"  V --all
+build_fixture
+reg_set "r.allocations.push({id:'EP-001',type:'EP',status:'IN_PROGRESS',slug:'a'});r.allocations.forEach(x=>{if(x.type!=='EP'){x.track='HOTFIX';delete x.epic}})"
+chk   "HOTFIX exento del default"              "✓ FDGE-R49"  V --all
+
+# FDGE-R51 · el intake ligero hereda del lote, pero no sus criterios de aceptación.
+build_fixture
+perl -0pi -e 's/^severity:.*
+//m; s/VEREDICTO: PASS/(sin veredicto propio)/' "$WORK/changes/PT-001-login/intake.md"
+perl -0pi -e 's/reflejan mi intención: SÍ/reflejan mi intención: SÍ
+Firmado por lote: EP-001/' "$WORK/changes/PT-001-login/intake.md"
+chk   "intake ligero ⇒ hereda del lote"        "✓ FDGE-R51"  V PT-001
+chkno "intake ligero ⇒ no exige severidad"     "✗ FDGE-R04"  V PT-001
+chkno "intake ligero ⇒ no exige veredicto"     "✗ FDGE-R03"  V PT-001
+build_fixture
+perl -0pi -e 's/AC-0/XX-0/g' "$WORK/changes/PT-001-login/intake.md"
+perl -0pi -e 's/reflejan mi intención: SÍ/reflejan mi intención: SÍ
+Firmado por lote: EP-001/' "$WORK/changes/PT-001-login/intake.md"
+chk   "ligero sin criterios ⇒ falla"           "✗ FDGE-R51"  V PT-001
+
+# La plantilla ligera viaja en el paquete y NO pide firma propia.
+chk   "TAREA.md en el paquete"                 "Firmado por lote"  cat "$SUITE/INTAKE/templates/TAREA.md"
+chkno "TAREA.md no pide firma propia"          "Solicitado por"    cat "$SUITE/INTAKE/templates/TAREA.md"
 
 # ─── C · coherencia de la metodología ───────────────────────────────────────
 echo "── C · metodología ──"

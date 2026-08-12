@@ -6,6 +6,18 @@
 
 ---
 
+## Plantillas
+
+| Plantilla | Cuándo |
+|:---|:---|
+| `templates/BUG-REPORT.md` · `FEATURE-REQUEST.md` · `CHANGE-REQUEST.md` | trabajo suelto, fuera de una implementación abierta |
+| `templates/EPIC-INTAKE.md` | abrir una implementación (`[IMPLEMENTACIÓN]`) |
+| **`templates/TAREA.md`** | **una tarea dentro de una implementación ya firmada** (`FDGE-R51`) |
+
+La ligera existe porque el intake pesado pertenece a la implementación, no a cada cambio dentro
+de ella: cobrar el ritual completo por cada arreglo tiene una sola salida practicable —
+saltárselo, y perder el rastro.
+
 ## 1. El problema que resuelve
 
 La suite v3 gobernaba al agente de forma exhaustiva y al humano no lo gobernaba en absoluto.

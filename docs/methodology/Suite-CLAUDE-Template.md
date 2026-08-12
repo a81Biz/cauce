@@ -3,7 +3,7 @@
 > Copiar al `CLAUDE.md` del proyecto, **después** de sus secciones propias (Project Overview,
 > Development Commands, Architecture).
 >
-> Suite version: **4.13.0** · Referencia: `docs/methodology/`
+> Suite version: **4.14.0** · Referencia: `docs/methodology/`
 
 ---
 
@@ -46,7 +46,7 @@ Orden de autoridad ante conflicto (`LEX-R21`):
 **Única sección que se personaliza.** Todo lo demás son punteros.
 
 ```yaml
-suite_version: 4.13.0
+suite_version: 4.14.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:                        # quién puede firmar un Intake y resolver una compuerta
   - Nombre Apellido

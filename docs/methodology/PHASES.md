@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **4.13.0**
+> Suite version: **4.14.0**
 
 ---
 
@@ -68,6 +68,31 @@ FORMATO      checkpoint de EXEC-R01: Hecho · Artefacto · Desviaciones · Riesg
 LEE ASÍ      este documento es telegráfico a propósito [SUITE-R24]: LEE·HAZ·SALE·NO·PARA.
              El rationale vive en los Framework-*.md, que NO se cargan. Quitar el porqué
              del texto que se EJECUTA es ganancia; quitar precisión de la regla no lo es.
+```
+
+### IMPLEMENTACIÓN · `[IMPLEMENTACIÓN]` · `[CIERRA]` — el bucle abierto
+```
+ABRIR   [IMPLEMENTACIÓN] <lo que se quiere construir>
+        DECIDE con el criterio escrito, no con tu juicio del momento:       [FDGE-R50]
+          PARTE DE la abierta  → toca sus productos · sirve a su criterio de éxito
+                                 · corrige algo que ella introdujo
+          NUEVA                → entrega valor que la abierta no prometió
+                                 · el criterio de éxito de la abierta se cumple sin ella
+        PROPÓN y espera confirmación. Si es nueva y hay una abierta, hay que
+        cerrar la abierta primero: solo una a la vez.                       [FDGE-R48]
+
+DENTRO  el default está INVERTIDO: todo lo que se diga pertenece a la abierta.  [FDGE-R49]
+        NO preguntes «¿esto es nuevo?» en cada petición — lo raro es abrir y cerrar.
+        Tarea nueva, mejora o arreglo: plantilla TAREA.md, sin ceremonia.    [FDGE-R51]
+        qué se quiere + criterios de aceptación + qué NO. La firma, el veredicto
+        de G1 y la severidad se heredan del lote.                            [INTAKE-R08]
+        EXCEPCIÓN track HOTFIX: producción caída no espera a que se cierre nada.
+
+CERRAR  [CIERRA] → el lote pasa a DONE y ENCADENA [START QA] sobre lo entregado.
+        Cerrar es un acto explícito. Hasta entonces la implementación sigue abierta
+        aunque la sesión termine — y ahí está su valor: sobrevive a la sesión.
+NO      abrir dos a la vez · preguntar en cada arreglo si es nuevo · cobrar
+        intake completo por una tarea de una implementación ya firmada
 ```
 
 ### PHASE 0 · Context

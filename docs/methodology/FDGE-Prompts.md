@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **4.13.0**
+> Suite version: **4.14.0**
 
 ---
 
@@ -16,6 +16,41 @@ fases intermedias emitiendo checkpoints y se detiene solo en las compuertas viva
 
 `EXEC-R01` · En todos los modos, cada fase produce un checkpoint legible. Auto-avanzar en
 silencio está prohibido.
+
+## El bucle de la implementación                       `[IMPLEMENTACIÓN]` · `[CIERRA]`
+
+Una implementación no es un plan: es una **unidad abierta**. Se abre, se construye —con las
+mejoras y los arreglos que hagan falta, que son la construcción— y se cierra.
+
+### Al abrir
+
+El criterio de si es nueva o parte de la abierta **está escrito** (`FDGE-R50`), no es tu juicio
+de hoy:
+
+| | |
+|:---|:---|
+| **Parte de la abierta** | toca los productos que su objetivo declara · sirve a su criterio de éxito · corrige algo que ella misma introdujo |
+| **Nueva** | entrega valor que la abierta no prometió · el criterio de éxito de la abierta se cumple igual sin ella |
+
+Aplícalo, **propón** y espera confirmación. Si es nueva y hay una abierta, primero se cierra:
+solo una a la vez (`FDGE-R48`), porque con dos «esto es lo mismo» deja de tener respuesta.
+
+### Mientras está abierta — el default invertido
+
+**Todo lo que se diga le pertenece** (`FDGE-R49`). No preguntes en cada petición si es nueva: lo
+raro es abrir y cerrar. Una tarea, una mejora o un arreglo entran con `TAREA.md` —qué se quiere,
+criterios de aceptación, qué no entra— y la firma se hereda del lote (`FDGE-R51`).
+
+Sin ese default hay que declarar cada vez que algo es nuevo, y **eso es justo lo que se olvida a
+mitad de sesión**. Con él, la implementación abierta sobrevive a la sesión: al volver, lo que
+está abierto lo dice el registro, no tu memoria.
+
+`track: HOTFIX` es la única excepción: producción caída no espera a que se cierre nada.
+
+### Al cerrar
+
+`[CIERRA]` pasa el lote a `DONE` y **encadena `[START QA]`** sobre lo que entregó. Cerrar es un
+acto explícito: mientras no ocurra, la implementación sigue abierta.
 
 ### Disciplina de respuesta                                                  [SUITE-R23]
 

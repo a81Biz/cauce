@@ -255,11 +255,15 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       dir: 'INTAKE/templates',
       // Quien debe referenciar cada plantilla de esta familia
       refs: ['INTAKE/Intake-Protocol.md'],
-      // Bloques que toda plantilla de la familia debe traer
-      exige: [
-        [/##\s*(?:\d+[.)]\s*)?Firma/i, 'sin bloque de Firma'],
-        [/VEREDICTO/, 'sin bloque de veredicto G1'],
-      ],
+      // La familia tiene dos clases desde FDGE-R51: la completa, que se firma, y la LIGERA de
+      // una tarea dentro de una implementacion ya firmada, que hereda firma y veredicto del
+      // lote. Exigirle a la ligera lo que define a la pesada la volveria pesada otra vez.
+      exigeSi: (txt) => (/Firmado por lote/.test(txt) && !/Solicitado por/.test(txt)
+        ? [[/Firmado por lote/, 'una plantilla ligera tiene que declarar de qué lote hereda']]
+        : [
+          [/##\s*(?:\d+[.)]\s*)?Firma/i, 'sin bloque de Firma'],
+          [/VEREDICTO/, 'sin bloque de veredicto G1'],
+        ]),
     },
     {
       dir: 'PTSA/templates',
@@ -281,7 +285,8 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       const falta = [];
       if (!refTxt.includes(t)) falta.push(`${fam.refs.join(' ni ')} no la referencian`);
       const txt = readFileSync(join(dir, t), 'utf8');
-      for (const [re, msg] of fam.exige) if (!re.test(txt)) falta.push(msg);
+      const exige = fam.exigeSi ? fam.exigeSi(txt) : fam.exige;
+      for (const [re, msg] of exige) if (!re.test(txt)) falta.push(msg);
       if (falta.length) gap('plantilla', `${fam.dir}/${t}`, falta.join(' · ')); else tick('plantilla');
     }
   }
@@ -353,7 +358,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
 }
 
 // ── 8. SUITE-R26 · cobertura mecanica por componente ────────────────────────
-// La auditoria adversaria de la 4.13.0 midio esto por primera vez y encontro QA 0/19 y FPGE
+// La auditoria adversaria de la 4.14.0 midio esto por primera vez y encontro QA 0/19 y FPGE
 // 0/10: dos componentes enteros cuyas reglas solo se cumplian por buena voluntad. No se exige
 // el 100 % —hay reglas que ningun script puede comprobar— pero el hueco se declara.
 const coberturaMecanica = (() => {

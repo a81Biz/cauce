@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 4a218c0267fa -->
-<!-- fuentes: RULES.md:f23b951a5355 LEXICON.md:39e830d60fed EXECUTION-MODES.md:2a2a83f9e8f0 PHASES.md:a39c0422fa0b -->
+<!-- cuerpo: 1a35ba87c229 -->
+<!-- fuentes: RULES.md:50f333e00924 LEXICON.md:2d8bf80aabe8 EXECUTION-MODES.md:95ad1bf3058c PHASES.md:48dc34ba84e7 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -264,6 +264,10 @@ verifica un script y bloquea la integración.
 `FDGE-R45` **C** Higiene de la evidencia. La evidencia se guarda en el repositorio y HISTORY.log es append-only: un secreto que entra ahí no se puede retirar. Antes de escribir en evidence/PT-XXX/, el agente redacta…
 `FDGE-R46` **S** Métricas del propio proceso. status FDGE reporta, calculadas desde HISTORY.log: tasa de rechazo por compuerta · proporción de PTs con delta distinto de «según plan» · nº de PTs revertidos · hotfixes y su…
 `FDGE-R47` **S** Envejecimiento del trabajo parado. Un PT en DRAFT o BLOCKED durante más de 30 días se reporta en status FDGE como estancado, con su antigüedad y el motivo declarado. A los 60 días se propone explícitamente…
+`FDGE-R48` **H** Una sola implementación abierta. Como mucho un EP-NNN en IN_PROGRESS a la vez. Con dos abiertas, «esto es lo mismo» deja de tener respuesta y el default de FDGE-R49 no significa nada. Cerrar una es un acto…
+`FDGE-R49` **H** Mientras haya una implementación abierta, todo le pertenece.
+`FDGE-R50` **H** Nueva o parte de: el criterio está escrito.
+`FDGE-R51` **H** El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.
 
 ### INTAKE — Admisión
 
@@ -403,6 +407,31 @@ FORMATO      checkpoint de EXEC-R01: Hecho · Artefacto · Desviaciones · Riesg
 LEE ASÍ      este documento es telegráfico a propósito [SUITE-R24]: LEE·HAZ·SALE·NO·PARA.
              El rationale vive en los Framework-*.md, que NO se cargan. Quitar el porqué
              del texto que se EJECUTA es ganancia; quitar precisión de la regla no lo es.
+```
+
+### IMPLEMENTACIÓN · `[IMPLEMENTACIÓN]` · `[CIERRA]` — el bucle abierto
+```
+ABRIR   [IMPLEMENTACIÓN] <lo que se quiere construir>
+        DECIDE con el criterio escrito, no con tu juicio del momento:       [FDGE-R50]
+          PARTE DE la abierta  → toca sus productos · sirve a su criterio de éxito
+                                 · corrige algo que ella introdujo
+          NUEVA                → entrega valor que la abierta no prometió
+                                 · el criterio de éxito de la abierta se cumple sin ella
+        PROPÓN y espera confirmación. Si es nueva y hay una abierta, hay que
+        cerrar la abierta primero: solo una a la vez.                       [FDGE-R48]
+
+DENTRO  el default está INVERTIDO: todo lo que se diga pertenece a la abierta.  [FDGE-R49]
+        NO preguntes «¿esto es nuevo?» en cada petición — lo raro es abrir y cerrar.
+        Tarea nueva, mejora o arreglo: plantilla TAREA.md, sin ceremonia.    [FDGE-R51]
+        qué se quiere + criterios de aceptación + qué NO. La firma, el veredicto
+        de G1 y la severidad se heredan del lote.                            [INTAKE-R08]
+        EXCEPCIÓN track HOTFIX: producción caída no espera a que se cierre nada.
+
+CERRAR  [CIERRA] → el lote pasa a DONE y ENCADENA [START QA] sobre lo entregado.
+        Cerrar es un acto explícito. Hasta entonces la implementación sigue abierta
+        aunque la sesión termine — y ahí está su valor: sobrevive a la sesión.
+NO      abrir dos a la vez · preguntar en cada arreglo si es nuevo · cobrar
+        intake completo por una tarea de una implementación ya firmada
 ```
 
 ### PHASE 0 · Context

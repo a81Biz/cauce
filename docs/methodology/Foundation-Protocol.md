@@ -6,7 +6,7 @@
 > Prompts: [Foundation-Prompts.md](Foundation-Prompts.md) ·
 > Vocabulario: [LEXICON.md](LEXICON.md)
 >
-> Suite version: **4.13.0**
+> Suite version: **4.14.0**
 >
 > **Posición:** prerequisito de la suite. Se ejecuta antes de que cualquier framework (FDGE, PTSA, FPGE, QA) pueda operar sobre un proyecto real.
 > **Implementación operativa:** [Foundation-Implementation.md](Foundation-Implementation.md)

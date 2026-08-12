@@ -5,7 +5,7 @@
 > explican su porqué; nunca reformulan el texto.
 > **Autoridad:** ver `LEX-R21`. Vocabulario: [LEXICON.md](LEXICON.md).
 >
-> Suite version: **4.13.0**
+> Suite version: **4.14.0**
 
 ---
 
@@ -142,6 +142,10 @@ reinterpretada por el `CLAUDE.md` de un proyecto destino. El `CLAUDE.md` del pro
 | `FDGE-R44` | HARD | **Marcado estructural.** Todo PT declara en su entrada de `HISTORY.log` la línea `Estructural: sí \| no`. `sí` cuando creó, movió, renombró o eliminó archivos, o cambió un límite de módulo. Es lo que hace computable `FDGE-R43`. |
 | `FDGE-R09` | HARD | **Investigation Gate.** Si la causa raíz, el impacto arquitectónico o las dependencias son desconocidas, o si cualquier confianza declarada está por debajo del 70 %, el trabajo se reclasifica a `INVESTIGATION` de inmediato. Planificar implementación queda prohibido hasta que la investigación eleve la confianza. |
 | `FDGE-R10` | HARD | Una `INVESTIGATION` **no produce código**. Cierra con hallazgos documentados y puede originar un PT nuevo de otro tipo. Por eso queda **exenta** de `FDGE-R15` (trazabilidad `AC→test`) y de `FDGE-R23` (manifiesto): su evidencia es la conclusión documentada en `discovery.md`, con las fuentes consultadas y su fecha. Lo que sí exige es `FDGE-R42`. |
+| `FDGE-R48` | HARD | **Una sola implementación abierta.** Como mucho un `EP-NNN` en `IN_PROGRESS` a la vez. Con dos abiertas, «esto es lo mismo» deja de tener respuesta y el default de `FDGE-R49` no significa nada. Cerrar una es un acto explícito; abrir otra antes de cerrar es un error, no una preferencia. |
+| `FDGE-R49` | HARD | **Mientras haya una implementación abierta, todo le pertenece.** El default se invierte: lo raro es abrir y cerrar, no continuar. Todo PT vivo declara el `epic` de la implementación abierta; la única excepción es `track: HOTFIX`, porque producción caída no espera a que se cierre nada. Trabajar fuera de la abierta exige cerrarla o abrir otra — y ambas cosas se dicen, no se deducen. Sin este default hay que declarar cada vez que algo es nuevo, y **eso es exactamente lo que se olvida a mitad de sesión**. |
+| `FDGE-R50` | HARD | **Nueva o parte de: el criterio está escrito.** Es **parte de la abierta** si toca los productos que su objetivo declara, si sirve a su criterio de éxito, o si corrige algo que ella misma introdujo. Es **nueva** si entrega valor que la abierta no prometió, o si el criterio de éxito de la abierta se cumple igual sin ella. El agente aplica el criterio y **propone**; el humano confirma o corrige. Dejarlo al juicio del momento hace que dos sesiones respondan distinto sobre el mismo trabajo. |
+| `FDGE-R51` | HARD | **El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.** Un PT que declara `epic` de una implementación firmada lleva solo **qué se quiere** y sus criterios de aceptación: la firma, el veredicto de `G1` y la severidad los hereda del lote (`INTAKE-R08`). Que en medio de una construcción haga falta arreglar algo no es una decisión que firmar — es la construcción. Cobrar el ritual completo por cada arreglo tiene una sola salida practicable: saltárselo, y perder el rastro. |
 | `FDGE-R42` | CHECK | **Criterio de cierre de una `INVESTIGATION`.** `discovery.md` contiene una sección `## Conclusión` con: qué se determinó, qué evidencia lo sustenta, qué quedó sin determinar, y el PT de seguimiento propuesto (o «ninguno», justificado). Sin esa sección, la investigación no cierra. |
 
 ## 3.3 Estrategia y propuesta (PHASE 3–4 · Compuerta G2)

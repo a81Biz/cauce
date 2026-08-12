@@ -3,7 +3,7 @@
 > **Estatus:** normativo. Define cuánta autonomía tiene el agente y dónde el humano decide.
 > **Autoridad:** ver `LEX-R21`. Reglas: [RULES.md](RULES.md). Vocabulario: [LEXICON.md](LEXICON.md).
 >
-> Suite version: **4.13.0**
+> Suite version: **4.14.0**
 
 ---
 
