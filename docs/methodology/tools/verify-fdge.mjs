@@ -30,6 +30,11 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
+// TERCER sitio donde se sella, y el que se quedo atras: build-core y verify-suite pasaron a
+// hashear contenido NORMALIZADO —git entrega LF en Linux y CRLF en Windows— y este siguio con
+// bytes crudos. Resultado: el nucleo estaba bien y verify-fdge lo declaraba desincronizado.
+// Tres copias de la misma formula es una copia de mas; queda anotado para cuando haya una sola.
+const selloDe = (txt) => createHash('sha1').update(txt.split(/\r?\n/).join('\n')).digest('hex').slice(0, 12);
 import { execFileSync } from 'node:child_process';
 
 const ROOT = process.cwd();
@@ -514,7 +519,7 @@ function checkCore() {
     return;
   }
   const real = fuentes
-    .map((f) => `${f}:${createHash('sha1').update(readFileSync(join(dir, f), 'utf8')).digest('hex').slice(0, 12)}`)
+    .map((f) => `${f}:${selloDe(readFileSync(join(dir, f), 'utf8'))}`)
     .join(' ');
   if (decl !== real) fail('SUITE-R16', 'CORE.md desincronizado con sus fuentes. → node docs/methodology/tools/build-core.mjs docs/methodology');
   else ok('SUITE-R15', 'CORE.md presente y sincronizado.');

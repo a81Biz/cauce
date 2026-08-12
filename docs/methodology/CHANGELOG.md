@@ -49,9 +49,29 @@ Git no versiona directorios vacíos. Un `PTSA/` creado por el instalador y nunca
 desaparece en el primer clon, y `verify-ptsa` lo reporta como «nada que auditar» — lo mismo que
 diría si la auditoría no aplicara. Ocurrió: se creó en la instalación y hoy no existe.
 
+### El núcleo no era el mismo en Linux que en Windows
+
+Lo destapó el primer CI del propio marco, y es el defecto más serio de esta versión.
+
+`build-core` cortaba la cabecera de `PHASES.md` con `indexOf('
+---
+')`, un literal que **nunca
+casa en un archivo con CRLF**. En Windows el núcleo se llevaba esa cabecera; en Linux no. El
+agente cargaba un `CORE.md` distinto según la plataforma donde se hubiera generado.
+
+Y el sello hasheaba **bytes crudos**, así que con `autocrlf` el CI acusaba de desincronizado un
+núcleo intacto. La fórmula estaba copiada en **tres sitios** —`build-core`, `verify-suite` y
+`verify-fdge`— y arreglar dos dejó al tercero declarando desincronizado lo que los otros dos
+daban por bueno: cinco casos del selftest se volvieron rojos al normalizar solo dos. Tres copias
+de la misma fórmula son dos de más, y queda anotado.
+
+Ahora los tres normalizan antes de hashear, y el selftest lo comprueba generando el núcleo sobre
+una copia convertida a `LF`. Más `.gitattributes` con `eol=lf`, que es el cinturón además del
+tirante.
+
 ### Verificación
 
-`selftest.sh`: **130 casos**, con los cinco defectos de arriba y la instalación brownfield.
+`selftest.sh`: **132 casos**, con los cinco defectos de arriba y la instalación brownfield.
 `audit.mjs`: 494 elementos, 0 huecos.
 
 ---

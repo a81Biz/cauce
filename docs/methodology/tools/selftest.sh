@@ -36,7 +36,7 @@ V() { node "$WORK/docs/methodology/tools/verify-fdge.mjs" "$@"; }
 
 # ─── Fixture ────────────────────────────────────────────────────────────────
 build_fixture() {
-  rm -rf "$WORK"; mkdir -p "$WORK"; cd "$WORK"
+  [ -n "${MTH_KEEP:-}" ] || rm -rf "$WORK"; mkdir -p "$WORK"; cd "$WORK"
   mkdir -p docs/enterprise-documentation docs/implementation/evidence docs/methodology/tools changes graphify-out
   for f in 02-PRD 03-TRD 06-Backend-Architecture; do echo "# $f" > "docs/enterprise-documentation/$f.md"; done
   printf '# Conventions\n\nRULE-01 a\nRULE-02 b\nRULE-03 c\n' > docs/enterprise-documentation/11-Conventions.md
@@ -678,6 +678,19 @@ build_fixture
 cp -r "$SUITE" "$WORK/canonica" && rm -rf "$WORK/canonica/FIDE"
 chk   "brownfield sin FIDE ⇒ sin enlaces rotos" "Sin errores"   node "$SUITE/tools/verify-suite.mjs" "$WORK/canonica"
 chk   "comparar-marco mide la divergencia"   "DIFIEREN\|idénticas\|Ausentes"  node "$SUITE/tools/comparar-marco.mjs" "$SUITE"
+
+# El nucleo tiene que ser el MISMO con LF y con CRLF. El sello hasheaba bytes crudos y el
+# corte de la cabecera de PHASES usaba un literal con 
+: en Windows el nucleo se llevaba esa
+# cabecera y en Linux no, asi que el CI acusaba de desincronizado un nucleo intacto.
+LFDIR="$WORK/../suite-lf"
+rm -rf "$LFDIR" && cp -r "$SUITE" "$LFDIR"
+find "$LFDIR" -type f \( -name "*.md" -o -name "*.mjs" -o -name "*.sh" \) -exec perl -pi -e 's/
+/
+/' {} +
+chk   "el núcleo es el mismo con LF"          "CORE.md sincronizado"  node "$LFDIR/tools/build-core.mjs" --check "$LFDIR"
+chk   "el overlay es el mismo con LF"         "CORE-PTSA.md sincronizado"  node "$LFDIR/tools/build-core.mjs" --check "$LFDIR"
+rm -rf "$LFDIR"
 
 # Caso de la primera instalacion real: repositorio que existe y no versiona nada.
 build_fixture

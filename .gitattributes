@@ -1,0 +1,8 @@
+# Fin de línea normalizado en el repositorio.
+#
+# El sello de CORE.md hashea contenido normalizado (build-core.mjs) precisamente porque un
+# árbol de trabajo puede tener CRLF en Windows y LF en Linux. Esto es el cinturón además del
+# tirante: mantiene el repositorio homogéneo para que un diff no sea ruido de fin de línea.
+* text=auto eol=lf
+*.png binary
+*.jpg binary

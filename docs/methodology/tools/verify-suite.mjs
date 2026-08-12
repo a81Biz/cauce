@@ -273,6 +273,12 @@ for (const f of files) {
   }
 }
 
+// El sello hashea el contenido NORMALIZADO, no los bytes crudos. Git entrega LF en Linux y
+// CRLF en Windows con autocrlf, asi que un sello sobre bytes daba «CORE.md desincronizado» en
+// el CI aunque nadie hubiera tocado nada: el marco no se podia certificar a si mismo fuera de
+// la maquina donde se genero. Es el mismo CRLF que ya dejo 25 reglas fuera de CORE.md.
+const selloDe = (txt) => createHash('sha1').update(txt.split(/\r?\n/).join('\n')).digest('hex').slice(0, 12);
+
 // ── 7. SUITE-R16 · CORE.md sincronizado con sus fuentes ──────────────────────
 {
   const corePath = join(BASE, 'CORE.md');
@@ -283,7 +289,7 @@ for (const f of files) {
     const declared = cur.match(/<!-- fuentes: (.+?) -->/)?.[1];
     // MISMA lista que build-core.mjs; si divergen, el chequeo da falsos positivos.
     const actual = ['RULES.md', 'LEXICON.md', 'EXECUTION-MODES.md', 'PHASES.md']
-      .map((f) => f + ':' + createHash('sha1').update(readFileSync(join(BASE, f), 'utf8')).digest('hex').slice(0, 12))
+      .map((f) => f + ':' + selloDe(readFileSync(join(BASE, f), 'utf8')))
       .join(' ');
     if (declared !== actual) {
       fail('SUITE-R16', 'CORE.md', 0,

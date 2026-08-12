@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 37bf68e362f6 -->
-<!-- fuentes: RULES.md:482463864039 LEXICON.md:ba3161de545e EXECUTION-MODES.md:975174d9cd9e PHASES.md:07924ddb8dd4 -->
+<!-- cuerpo: 561e5899c091 -->
+<!-- fuentes: RULES.md:f23b951a5355 LEXICON.md:60a635dc0d40 EXECUTION-MODES.md:2a2a83f9e8f0 PHASES.md:a39c0422fa0b -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -345,19 +345,6 @@ verifica un script y bloquea la integración.
 `FIDE-R06` **H** El README.md del paquete generado por FIDE declara explícitamente que documenta arquitectura prevista, no observada, y que no cumple todavía FND-R01.
 
 ## Procedimiento por fase
-
-# PHASES — Directiva densa por fase
-
-> **Fuente canónica del procedimiento.** `tools/build-core.mjs` la inserta íntegra en
-> `CORE.md`; los `*-Prompts.md` son su expansión legible para copiar y pegar en modo
-> `MANUAL`. Si difieren, manda este archivo (`LEX-R21`).
->
-> Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
-> `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
->
-> Suite version: **4.13.0**
-
----
 
 ## Instalación
 

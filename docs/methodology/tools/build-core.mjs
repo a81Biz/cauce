@@ -82,7 +82,11 @@ const exec = read('EXECUTION-MODES.md');
 // PHASES.md es el procedimiento canónico denso; los *-Prompts.md son su expansión legible.
 // Se inserta íntegro (menos su cabecera) para que CORE.md sustituya a los prompts en runtime.
 const phases = (() => {
-  const t = read('PHASES.md');
+  // El corte se hacia con indexOf('\n---\n'), que NUNCA casa en un archivo con CRLF: en
+  // Windows el nucleo se llevaba la cabecera explicativa de PHASES.md y en Linux no. El agente
+  // cargaba un CORE.md distinto segun la plataforma — y el CI, que corre en Linux, acusaba de
+  // desincronizado un nucleo que estaba bien. Se normaliza antes de buscar.
+  const t = read('PHASES.md').split(/\r?\n/).join('\n');
   const i = t.indexOf('\n---\n');           // corta la cabecera explicativa
   return (i < 0 ? t : t.slice(i + 5)).trim();
 })();
@@ -247,7 +251,7 @@ function corePtsa() {
     guarda(m[1], body);
   }
   const ids = [...regs.keys()].sort((a, b) => Number(a.match(/\d+/)[0]) - Number(b.match(/\d+/)[0]));
-  const h = createHash('sha1').update(SPEC).digest('hex').slice(0, 12);
+  const h = selloDe(SPEC);   // normalizado: el overlay tambien tiene que ser portable
   return `# CORE-PTSA — overlay de auditoría
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
@@ -272,8 +276,13 @@ node docs/methodology/tools/build-core.mjs --check
 `;
 }
 
+// El sello hashea el contenido NORMALIZADO, no los bytes crudos. Git entrega LF en Linux y
+// CRLF en Windows con autocrlf, asi que un sello sobre bytes daba «CORE.md desincronizado» en
+// el CI aunque nadie hubiera tocado nada: el marco no se podia certificar a si mismo fuera de
+// la maquina donde se genero. Es el mismo CRLF que ya dejo 25 reglas fuera de CORE.md.
+const selloDe = (txt) => createHash('sha1').update(txt.split(/\r?\n/).join('\n')).digest('hex').slice(0, 12);
 const src = ['RULES.md', 'LEXICON.md', 'EXECUTION-MODES.md', 'PHASES.md']
-  .map((f) => `${f}:${createHash('sha1').update(read(f)).digest('hex').slice(0, 12)}`)
+  .map((f) => `${f}:${selloDe(read(f))}`)
   .join(' ');
 
 const core = `# CORE — Núcleo operativo
