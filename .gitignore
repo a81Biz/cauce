@@ -1,0 +1,8 @@
+node_modules/
+*.log
+.env
+.env.*
+!.env.example
+
+# Configuración local de Claude Code: es de la máquina, no del marco.
+.claude/settings.local.json

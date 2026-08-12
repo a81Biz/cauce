@@ -1,0 +1,33 @@
+{
+  "name": "cauce",
+  "version": "4.13.0",
+  "description": "Marco de gobernanza para desarrollo asistido por IA: trazabilidad, evidencia y control humano sobre toda decisión irreversible.",
+  "type": "module",
+  "private": true,
+  "license": "UNLICENSED",
+  "bin": {
+    "cauce": "bin/cauce.mjs"
+  },
+  "files": [
+    "bin",
+    "docs/methodology",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "selftest": "bash docs/methodology/tools/selftest.sh",
+    "audit": "node docs/methodology/tools/audit.mjs docs/methodology",
+    "verify:suite": "node docs/methodology/tools/verify-suite.mjs docs/methodology",
+    "core": "node docs/methodology/tools/build-core.mjs docs/methodology",
+    "core:check": "node docs/methodology/tools/build-core.mjs --check docs/methodology",
+    "verify": "npm run verify:suite && npm run core:check && npm run audit && npm run selftest"
+  },
+  "keywords": [
+    "metodologia",
+    "gobernanza",
+    "trazabilidad",
+    "desarrollo-asistido-por-ia"
+  ]
+}

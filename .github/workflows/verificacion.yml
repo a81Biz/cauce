@@ -1,0 +1,38 @@
+# El marco se gobierna con sus propias reglas.
+#
+# Hasta la 4.13.0, cauce exigía verificación mecánica a todos los proyectos y no la tenía él:
+# sus 130 casos, su auditoría de cobertura y su comprobación de núcleo se corrían a mano. Una
+# comprobación que alguien tiene que acordarse de correr es la que no se corre — es la misma
+# clase de fallo que el marco documenta en otros sitios, aplicada a sí mismo.
+#
+# Las cuatro bloquean. No hay aquí ninguna comprobación «informativa»: si el marco no puede
+# certificarse a sí mismo, no se publica.
+
+name: verificación
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  marco:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Coherencia interna
+        run: npm run verify:suite
+
+      - name: Núcleo sincronizado con sus fuentes
+        run: npm run core:check
+
+      - name: Cobertura de la auditoría
+        run: npm run audit
+
+      - name: Batería de casos
+        run: npm run selftest
