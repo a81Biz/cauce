@@ -1,0 +1,11 @@
+{
+  "pt": "PT-011",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01"], "tests": ["selftest.sh:citar un PT en prosa no lo hace miembro","selftest.sh:ni siquiera al de al lado"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02"], "tests": ["selftest.sh:el de la tabla sí exige su firma"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-03"], "tests": ["selftest.sh:sin tabla, respaldo al barrido completo"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-04"], "tests": ["ejecución real contra el proyecto legado"], "evidence": ["salidas/legado-antes.txt","salidas/legado-despues.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-05"], "tests": ["selftest.sh:el CHANGELOG dice dónde estaba"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 256, "failed": 0, "coverage": 256, "baseline": 251 }
+}

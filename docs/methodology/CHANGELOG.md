@@ -696,6 +696,8 @@ la etiqueta `Fecha:` de la línea siguiente y lo daba por firmado:
 | `RE_FIRMA_NOMBRE` | `SUITE-R27` se evalúa una vez sobre todos los intakes, así que **un solo intake honestamente sin firmar bloqueaba G4 para el proyecto entero**, acusándolo además de firma inválida |
 | `RE_SIGNED_BY` | El mismo defecto en el campo de solicitud |
 | `INTAKE-R08` | Los miembros de un lote se leían de todo el texto: citar un PT anterior como precedente lo convertía en miembro y disparaba un fallo sobre un PT ya cerrado. Obligaba a escribir los intakes **sin referencias cruzadas**, que es justo lo que da trazabilidad. Ahora una mención en prosa es una mención y una fila de tabla es un miembro |
+
+> **Nota añadida el 2026-08-13 (`PT-011`).** Esta corrección **no llegó al código en la 4.13.0.** De las cuatro de aquella tanda entraron tres; esta se quedó en el texto y `verify-fdge` siguió barriendo el intake entero hasta la **6.1.0**. Se descubrió midiendo cauce contra el repositorio que la había escrito, donde producía 14 errores falsos. La entrada no se reescribe (`SUITE-R09`), pero una afirmación así **cierra la pregunta**: nadie vuelve a mirar una corrección que el CHANGELOG da por hecha.
 | `verify-suite` | Marcaba 4 enlaces rotos en **toda** instalación brownfield, por no copiar `FIDE/` — que es lo que el propio `INSTALL.md` manda. Un componente que la instalación manda no copiar no puede contar como enlace roto |
 
 **La quinta apareció al traer las otras.** `RE_FIRMA_NOMBRE` no incluía `revisado`, así que las

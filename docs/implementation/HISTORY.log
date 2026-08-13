@@ -458,3 +458,40 @@ Uno lo cazó una regla recién creada sobre su propia herramienta; el otro lo vi
 mirando el tablero, y ninguna comprobación lo habría encontrado. El lote deja ese límite
 escrito en vez de fingir que lo cubre.
 
+## PT-011 — BUG: el lector de miembros del lote
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `INTAKE-R08` leía los miembros de un lote barriendo **todo el texto** del intake,
+así que citar un PT anterior como precedente lo convertía en miembro y disparaba un fallo sobre
+un PT cerrado. El coste no era el error: obligaba a escribir los intakes de lote **sin
+referencias cruzadas**, que es justo lo que da trazabilidad — se sufrió al redactar `EP-001` en
+esta misma sesión.
+
+Dónde estaba la corrección: en el proyecto que la sufría, commit `760f790`. El `CHANGELOG` de
+cauce **4.13.0 la declaraba traída** y el código nunca la llevó: de las cuatro de aquella tanda
+llegaron tres.
+
+Qué se hizo: se trae con su comentario —el razonamiento del respaldo se pierde si solo se copia
+el código— y se añade una nota a la entrada de 4.13.0 diciendo dónde estaba realmente. La
+entrada no se reescribe (`SUITE-R09`), pero una afirmación así **cierra la pregunta**.
+
+Resultado, medido contra ese repositorio: **17 hallazgos → 3**. Los tres que quedan son la
+migración misma (`SUITE-R17`, `SUITE-R16`, `SUITE-R33`) y ninguno es falso.
+`selftest` 251 → 256 casos.
+
+Delta: `AC-04` decía «baja a 2» y son 3 — un número mal contado en un criterio de aceptación,
+corregido en la trazabilidad en vez de dejarlo pasar. Y un caso del arnés volcaba el `CHANGELOG`
+entero, que **narra excepciones pasadas**: el detector de «la herramienta reventó» lo acusaba a
+sí mismo. Se filtró en vez de volcarlo.
+
+Lo que este PT no resuelve y queda enumerado: la puerta de versión para que una regla nueva no
+se cobre sobre trabajo cerrado.
+

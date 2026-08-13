@@ -417,6 +417,56 @@ build_fixture; mk_epic
 perl -0pi -e 's/## 6. Análisis de solapamiento.*//s' "$WORK/changes/EP-001-validacion/intake.md"
 chk "lote sin solapamiento ⇒ falla"       "INTAKE-R09"  V --all
 
+
+# PT-011 · los miembros de un lote se leen de las FILAS DE TABLA, no de todo el texto.
+#
+# Con el barrido completo, citar un PT anterior como precedente —«el metodo que ya funciono en
+# PT-003»— lo convertia en miembro y disparaba un fallo sobre un PT cerrado. El coste no era el
+# error: obligaba a escribir los intakes de lote SIN referencias cruzadas, que es justo lo que
+# da trazabilidad. La correccion venia del proyecto legado (commit 760f790), y el CHANGELOG de
+# la 4.13.0 la declaraba TRAIDA cuando el codigo nunca la llevo.
+mk_epic_tabla() {
+  mkdir -p "$WORK/changes/EP-001-validacion"
+  cat > "$WORK/changes/EP-001-validacion/intake.md" <<'M'
+---
+id: EP-001
+---
+## 1. Objetivo común
+Toda la validación de formularios.
+
+## 2. Criterio de éxito del lote
+Ningún formulario acepta datos inválidos sin mensaje.
+
+## 3. Qué NO entra en el lote
+OUT: rediseño visual
+
+## 4. Firma única
+Solicitado por: Ada Lovelace
+He leído el Intake de cada PT y confirmo que todos reflejan mi intención: SÍ
+
+## 5. PTs
+| Orden | PT | Tipo |
+|:--|:--|:--|
+| 1 | PT-001 | BUG |
+
+Se reutiliza el método que ya funcionó en PT-003, y se evita el error que PT-002 cometió.
+
+## 6. Análisis de solapamiento
+Pares que comparten archivos: ninguno
+M
+}
+
+build_fixture; mk_epic_tabla
+chkno "citar un PT en prosa no lo hace miembro"  "PT-003: pertenece"  V --all
+chkno "ni siquiera al de al lado"                "PT-002: pertenece"  V --all
+chk   "el de la tabla sí exige su firma"         "PT-001: pertenece"  V --all
+build_fixture; mk_epic
+chk   "sin tabla, respaldo al barrido completo"  "PT-001: pertenece"  V --all
+# Se filtra en vez de volcar el CHANGELOG entero: el detector de «la herramienta revento» busca
+# rastros de excepcion, y el CHANGELOG NARRA excepciones pasadas —«ReferenceError en cada
+# ejecucion»— asi que volcarlo entero se acusaba a si mismo de haber reventado.
+chk   "el CHANGELOG dice dónde estaba"           "PT-011"  grep -h "PT-011" "$SUITE/CHANGELOG.md"
+
 # ─── I · auditoría PTSA por enumeración ──────────────────────────────────────
 echo "── I · PTSA por enumeración ──"
 VP() { node "$WORK/docs/methodology/tools/verify-ptsa.mjs" "$WORK"; }

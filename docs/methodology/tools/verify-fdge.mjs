@@ -637,7 +637,26 @@ function checkEpics() {
     if (!RE_SIGN_BLOCK.test(txt) && !/Firma [úu]nica/i.test(txt)) falta.push('bloque de firma');
     if (falta.length) { fail('INTAKE-R09', `${ep}: intake del lote incompleto — falta: ${falta.join(' · ')}.`); continue; }
     // Todo PT del lote debe llevar «Firmado por lote: EP-NNN» (INTAKE-R08)
-    const pts = [...txt.matchAll(/PT-\d+/g)].map((m) => m[0]);
+    //
+    // PT-011 · Los miembros se leen de las FILAS DE TABLA, no de todo el texto. Con
+    // `matchAll` sobre el intake entero, citar un PT anterior como precedente —«el método que
+    // ya funcionó en PT-006»— lo convertía en miembro del lote y disparaba un INTAKE-R08 falso
+    // sobre un PT cerrado. El coste no era el error: era que obligaba a escribir los intakes de
+    // lote SIN referencias cruzadas, que es justo lo que da trazabilidad.
+    //
+    // La corrección venía del proyecto que la sufrió (su commit 760f790) y el CHANGELOG de la
+    // 4.13.0 la declaró TRAÍDA sin que el código la llevara: de las cuatro de aquella tanda
+    // llegaron tres. Un CHANGELOG que afirma una corrección cierra la pregunta, y nadie
+    // vuelve a mirar.
+    //
+    // Se conserva el barrido completo como respaldo cuando no hay ninguna fila reconocible,
+    // para no dejar de comprobar EN SILENCIO los intakes de lote escritos antes de que la
+    // plantilla tuviera tabla — cambiar un fallo ruidoso por uno mudo es peor.
+    const enFilas = txt
+      .split(/\r?\n/)
+      .filter((l) => /^\s*\|/.test(l))
+      .flatMap((l) => [...l.matchAll(/\bPT-\d+\b/g)].map((m) => m[0]));
+    const pts = enFilas.length ? enFilas : [...txt.matchAll(/PT-\d+/g)].map((m) => m[0]);
     for (const pt of [...new Set(pts)]) {
       const d = readdirSync(CHANGES).find((x) => x.startsWith(pt + '-'));
       if (!d) { fail('INTAKE-R09', `${ep}: lista ${pt} y no existe changes/${pt}-slug/.`); continue; }
