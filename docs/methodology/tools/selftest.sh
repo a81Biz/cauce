@@ -1032,6 +1032,45 @@ chk   "bitácora al día ⇒ pasa"               "✓ FDGE-R52"  V PT-001
 perl -0pi -e 's/2026-08-12 · PHASE 3 → 4.*//s' "$WORK/changes/PT-001-login/bitacora.md"
 chk   "bitácora atrasada ⇒ falla"            "✗ FDGE-R52"  V PT-001
 
+# PT-004 · un artefacto se exige DESDE la fase que lo produce, no antes.
+#
+# Sin esto, abrir un PT correctamente ponía CI en rojo: `verify-fdge --all` exigía
+# `traceability.md` (PHASE 4) y `discovery.md` (PHASE 2) a un PT recién salido de PHASE 1. La
+# fase ya se calculaba en checkPT y solo la consumía FDGE-R52. Una compuerta que se pone roja
+# sobre comportamiento correcto enseña a saltársela.
+#
+# Los cuatro primeros casos van en pares: uno comprueba que dejó de fallar donde no tocaba, y
+# el siguiente que SIGUE fallando donde sí. Sin el inverso, apagar la comprobación entera
+# pasaría los dos primeros.
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-004').forEach(x=>{x.phase=1})"
+rm -f "$WORK/changes/PT-004-pdf/traceability.md"
+chkno "PHASE 1 sin traceability ⇒ no falla"  "✗ FDGE-R15"  V PT-004
+chk   "PHASE 1 sin traceability ⇒ se avisa"  "! FDGE-R15"  V PT-004
+build_fixture
+rm -f "$WORK/changes/PT-004-pdf/traceability.md"
+chk   "PHASE 4 sin traceability ⇒ falla"     "✗ FDGE-R15"  V PT-004
+
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-002').forEach(x=>{x.phase=1})"
+rm -f "$WORK/changes/PT-002-pool/discovery.md"
+chkno "PHASE 1 sin discovery ⇒ no falla"     "✗ FDGE-R42"  V PT-002
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-002').forEach(x=>{x.phase=2})"
+rm -f "$WORK/changes/PT-002-pool/discovery.md"
+chk   "PHASE 2 sin discovery ⇒ falla"        "✗ FDGE-R42"  V PT-002
+
+# RULE-06 · lo que no se puede comprobar se DECLARA no evaluable. Un PT sin fase en ninguna
+# de las dos fuentes no incumple: es un PT sobre el que no se puede afirmar nada. Ni bloquea
+# ni pasa en silencio — y el aviso dice dónde escribir el campo (RULE-07).
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-004').forEach(x=>{delete x.phase})"
+perl -0pi -e 's/^phase:.*\n//m' "$WORK/changes/PT-004-pdf/intake.md"
+rm -f "$WORK/changes/PT-004-pdf/traceability.md"
+chkno "sin fase declarada ⇒ no bloquea"      "✗ FDGE-R15"  V PT-004
+chk   "sin fase declarada ⇒ SIN EVALUAR"     "SIN EVALUAR" V PT-004
+chk   "el aviso dice dónde declararla"       "phase"       V PT-004
+
 # La portada del paquete no puede declarar una versión fósil.
 chkno "el README no fija una versión"        "Versión 4."  cat "$SUITE/../../README.md"
 chk   "el README nombra el paquete"          "@a81biz/cauce"  cat "$SUITE/../../README.md"

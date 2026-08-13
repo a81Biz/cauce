@@ -80,3 +80,28 @@ roja sobre comportamiento correcto enseña a saltársela — el mismo razonamien
 
 Mientras esté sin arreglar, las otras tres tareas se ejecutan con la compuerta en rojo por un
 motivo ajeno a ellas, y ninguna puede demostrar que la dejó verde.
+
+---
+
+## Revisiones
+
+> Append-only (`SUITE-R09`). El intake se firmó por lote el 2026-08-13; lo que cambia después
+> se añade aquí y no se edita arriba.
+
+### Revisión 1 — 2026-08-13 · reformulación de `AC-06`
+
+**Qué cambia.** `AC-06` decía «CI puede estar en verde con trabajo abierto en curso», medido
+como `verify-fdge --all` con 0 errores. Pasa a medirse como **0 errores atribuibles a la
+exigencia de artefactos por fase**.
+
+**Motivo.** Al escribir `PHASE 3` se determinó que quedará un error ajeno a este PT:
+`FDGE-R52` busca `bitacora.md` e ignora la plataforma declarada, cuando `CORE.md` manda
+escribir el reanclaje en el issue si la hay. Corregirlo aquí violaría el scope lock
+(`FDGE-R20`): pertenece a `PT-001`, donde ya está recogido como `AC-07`.
+
+**Consecuencia.** La verificación de que CI puede estar entero en verde con trabajo abierto se
+traslada al cierre de `PT-001`. Se escribe aquí para que la discusión ocurra ahora y no en
+`G3`, que es para lo que existe este campo.
+
+**Registrado por:** el agente, en `PHASE 3`. No altera lo firmado: acota cómo se mide un
+criterio, no qué se quiere.

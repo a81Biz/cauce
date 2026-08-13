@@ -58,7 +58,8 @@
       "title": "SUITE-R35 tiene verificador y ninguna compuerta lo ejecuta",
       "origin": "Intake humano 2026-08-13 · «no veo que uses github para dar de alta las tareas y desde ahí se desprenda el seguimiento para no perder lo que se está haciendo»",
       "created": "2026-08-13",
-      "issue": 3
+      "issue": 3,
+      "phase": 1
     },
     {
       "id": "PT-002",
@@ -74,7 +75,8 @@
       "title": "audit.mjs declara «sin huecos» midiendo por componente, no por regla",
       "origin": "Medición 2026-08-13 · 63 reglas HARD sin verificador y el informe en verde",
       "created": "2026-08-13",
-      "issue": 4
+      "issue": 4,
+      "phase": 1
     },
     {
       "id": "PT-003",
@@ -90,7 +92,8 @@
       "title": "SUITE-R35 declara milestone, issue y PR; el adaptador solo implementa issue",
       "origin": "Medición 2026-08-13 · tracker.mjs no menciona milestone ni pull request",
       "created": "2026-08-13",
-      "issue": 5
+      "issue": 5,
+      "phase": 1
     },
     {
       "id": "PT-004",
@@ -99,7 +102,7 @@
       "complexity": "TRIVIAL",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "IN_PROGRESS",
+      "status": "VALIDATION_PENDING",
       "structural": false,
       "suite_version": "5.2.3",
       "epic": "EP-001",
@@ -107,7 +110,7 @@
       "origin": "Hallazgo de ejecución 2026-08-13 · verify-fdge --all falló sobre los tres PTs recién abiertos por FDGE-R15 y FDGE-R42",
       "created": "2026-08-13",
       "issue": 6,
-      "phase": 2
+      "phase": 6
     }
   ]
 }

@@ -197,3 +197,50 @@ el reanclaje, que es lo que `SUITE-R35` prohíbe. Recogido como `AC-07` de `PT-0
 `discovery.md` ajenos y `bitacora.md` siguen sin existir porque sus fases no han ocurrido.
 
 **Siguiente:** `PHASE 3` de `PT-004`. Decisión abierta: de dónde sale la fase de un PT.
+
+---
+
+## 2026-08-13 · `PT-004` de `PHASE 3` a `PHASE 6` · detenido en `G3`
+
+**`G2` aprobada por delegación** el 2026-08-13 —«adelante, firma a mi nombre»—, con
+constancia en `design.md`. La autorización cubre además `SUITE-R06e` **para este PT y dentro
+del alcance de `tasks.md`**: `verify-fdge.mjs` y `selftest.sh`. Fuera de ahí, no.
+
+**`PHASE 3`** — la decisión que `PHASE 2` dejó abierta («de dónde sale la fase») **no era una
+decisión**: la precedencia intake → registro ya está implementada en `verify-fdge.mjs:757` y
+el fixture del arnés declara `phase` en sus cuatro allocations desde antes de este PT. Era una
+lectura que faltaba. Confianza de solución 70 % → 90 %, con el motivo escrito.
+
+Tres alternativas rechazadas con motivo: inferir la fase de los artefactos (circular para
+`traceability.md`), derivarla del `status` (`LEX-R07`: son enumeraciones distintas), y hacer
+`phase` obligatoria de golpe (pondría en rojo a todo proyecto instalado — el mismo daño en la
+otra dirección).
+
+**`PHASE 5`** — los 8 casos se escribieron **antes** del arreglo y fallaron 6 de 8; los 2 que
+pasaban eran los inversos, que es lo esperado (`FDGE-R17`). Ambas salidas quedan como
+evidencia. El arreglo: `faseDeclarada` distingue fase declarada de ausente, y una función
+`exigible()` con tres salidas —error · aviso · `SIN EVALUAR`— que consultan `FDGE-R15` y
+`FDGE-R42`. `fase` se conserva como `faseDeclarada ?? 0` para no alterar `FDGE-R52`, que está
+fuera de alcance.
+
+**Resultado medido**
+
+| | Antes | Después |
+|:---|:---|:---|
+| `verify-fdge --all` | 4 errores | **1** |
+| `selftest` | 180 casos | **188**, 0 fallos |
+
+**El error que queda es el previsto en `strategy.md`:** `FDGE-R52` busca `bitacora.md` e
+ignora la plataforma declarada. El reanclaje de `PT-004` está escrito en los comentarios del
+issue #6, que es donde `CORE.md` manda ponerlo. Pertenece a `PT-001` (`AC-07`).
+
+**No se escribió `bitacora.md` para poner la compuerta en verde.** Duplicaría el reanclaje en
+dos sitios —lo que `SUITE-R35` prohíbe— y convertiría una evidencia en un adorno. `AC-06`
+queda `PARCIAL`, con `verified: false` en el manifiesto, y se cierra con `PT-001`.
+
+**Parada: `G3`.** `PT-004` es un `BUG` y pasa a `VALIDATION_PENDING`. Cerrar un BUG no lo
+automatiza ningún modo de ejecución (`SUITE-R06b`, `FDGE-R26`, `EXEC-R05`, `LEX-R08`), y esa
+parada **no la levanta ninguna delegación**: es la lista cerrada de acciones irreversibles, no
+un campo de formulario.
+
+**Siguiente:** `G3` humana sobre `PT-004`. Después, `PHASE 8` y `PT-001`.

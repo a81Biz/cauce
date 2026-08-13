@@ -752,9 +752,41 @@ function checkPT(pt, { gate } = {}) {
     fail('FDGE-R53', `${pt}: el intake no declara cómo termina. Una tarea sin condición de cierre observable no tiene final: se estira hasta que nadie recuerda dónde empezó. Una línea basta — «Termina cuando: …».`);
   }
 
+  // PT-004 · La fase se DECLARA o no existe. No es lo mismo «PHASE 0» que «nadie lo escribio»:
+  // con `?? 0` los dos casos daban el mismo numero, y sobre un valor inventado la compuerta
+  // dice «todo bien» sobre nada — que es justo lo que RULE-06 prohibe. Fuentes, por precedencia:
+  // el YAML del intake manda sobre el registro, porque es lo que el PT dice de si mismo.
+  const faseDeclarada = (() => {
+    const yaml = intake.match(RE_PHASE_YAML)?.[1];
+    if (yaml !== undefined) return Number(yaml);
+    if (enRegistroPT?.phase !== undefined && enRegistroPT?.phase !== null) return Number(enRegistroPT.phase);
+    return null;              // nadie la declara: no evaluable, y se dice
+  })();
+  const fase = faseDeclarada ?? 0;
+
+  // Un artefacto se exige DESDE la fase que lo produce (CORE.md §Procedimiento por fase).
+  // Exigirlo antes ponia en rojo a todo PT recien abierto, y CI corre `verify-fdge --all`:
+  // un repositorio no podia tener trabajo en curso y la compuerta en verde a la vez. Una
+  // compuerta que se pone roja sobre comportamiento correcto ensena a saltarsela.
+  //
+  // Tres salidas, no dos (RULE-02): falta y toca -> error · falta y aun no toca -> aviso ·
+  // no se sabe en que fase esta -> SIN EVALUAR, que no es un aprobado.
+  const exigible = (regla, desde, artefacto) => {
+    if (faseDeclarada === null) {
+      warn(regla, `${pt}: no declara fase — la exigencia de ${artefacto} queda SIN EVALUAR. `
+        + 'Declara «phase: N» en el YAML de su intake.md o «phase» en su allocation de '
+        + 'REGISTRY.json. Sin fase no se puede afirmar que falte ni que sobre (RULE-06).');
+      return false;
+    }
+    if (faseDeclarada < desde) {
+      warn(regla, `${pt}: aún sin ${artefacto} — se escribe en PHASE ${desde} y el PT está en PHASE ${faseDeclarada}.`);
+      return false;
+    }
+    return true;
+  };
+
   // FDGE-R52 · el reanclaje se ESCRIBE. Una nota por transicion alcanzada, con fecha.
   // Releer no deja rastro y por eso no se podia exigir; escribir si, y ademas obliga a releer.
-  const fase = Number(intake.match(RE_PHASE_YAML)?.[1] ?? enRegistroPT?.phase ?? 0);
   if (rigeAqui && fase >= 2) {
     const bit = read(join(dir, 'bitacora.md'));
     const notas = bit === null ? 0 : (bit.match(RE_NOTA_BITACORA) ?? []).length;
@@ -790,8 +822,12 @@ function checkPT(pt, { gate } = {}) {
   // ── INVESTIGATION: exenta de trazabilidad y manifiesto (FDGE-R10) ──────────
   if (type === 'INVESTIGATION') {
     const disc = read(join(dir, 'discovery.md'));
-    if (disc === null) fail('FDGE-R42', `${pt}: falta ${rel}/discovery.md.`);
-    else if (!/^##\s*Conclusi[óo]n/im.test(disc)) {
+    // discovery.md lo produce PHASE 2 (2-B). Antes de eso su ausencia no es un defecto.
+    if (disc === null && exigible('FDGE-R42', 2, 'discovery.md')) {
+      fail('FDGE-R42', `${pt}: está en PHASE ${fase} y falta ${rel}/discovery.md, que produce PHASE 2.`);
+    } else if (disc === null) {
+      /* aviso ya emitido por exigible() */
+    } else if (!/^##\s*Conclusi[óo]n/im.test(disc)) {
       fail('FDGE-R42', `${pt}: discovery.md no tiene sección "## Conclusión". Una investigación no cierra sin ella.`);
     } else ok('FDGE-R42', `${pt}: investigación con conclusión documentada.`);
     checkHistory(pt, rel, type, { gate });
@@ -807,8 +843,12 @@ function checkPT(pt, { gate } = {}) {
 
   const trace = read(join(dir, 'traceability.md'));
   let acs = [];
-  if (trace === null) {
-    fail('FDGE-R15', `${pt}: falta ${rel}/traceability.md. Sin matriz no hay trazabilidad AC → TS → test → evidencia.`);
+  // traceability.md lo produce PHASE 4. Sus COLUMNAS ya distinguian fase (Test y Evidencia
+  // desde PHASE 6); lo que faltaba era distinguirla para la EXISTENCIA del archivo.
+  if (trace === null && exigible('FDGE-R15', 4, 'traceability.md')) {
+    fail('FDGE-R15', `${pt}: está en PHASE ${fase} y falta ${rel}/traceability.md, que produce PHASE 4. Sin matriz no hay trazabilidad AC → TS → test → evidencia.`);
+  } else if (trace === null) {
+    /* aviso ya emitido por exigible() */
   } else {
     const rows = parseTraceability(trace);
     if (!rows.length) fail('FDGE-R15', `${pt}: traceability.md no contiene ninguna fila AC-nn reconocible.`);
