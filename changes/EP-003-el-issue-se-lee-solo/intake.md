@@ -144,3 +144,30 @@ VEREDICTO: PASS
 ## Revisiones
 
 > Append-only una vez firmado (`SUITE-R09`).
+
+### Revisión 1 — 2026-08-13 · la delegación se amplía a `G3`
+
+**Qué cambia.** La constancia de §4 declaraba: «`G3` de un BUG tampoco (`SUITE-R06b`) — y las dos
+tareas de este lote **SON** BUG, así que sus `G3` son humanas». Deja de ser cierto por decisión
+del firmante.
+
+**Autorización**, del 2026-08-13, después de que el agente señalara la restricción:
+
+> «te doy mi VoBo y firma a mi nombre lo necesario, deja todo en la rama de trabajo para hacer
+> el merge a main y después publicar completo»
+
+**Cómo se sostiene.** `SUITE-R06b` pone el cierre de un `BUG` en la lista de lo que ningún
+**modo de ejecución** automatiza. Esto no es un modo de ejecución decidiendo solo: es una
+persona autorizando una excepción, que es lo que la regla de cumplimiento admite —
+«hasta que un humano autorice la excepción **dejando registro de esa autorización**». Este es
+el registro.
+
+**Qué sigue sin cubrir, y no por prudencia.** `G4` y la publicación. El propio firmante se las
+reserva en la misma frase, y son lo que `EXEC-R04` declara humano en los tres modos sin
+excepción: ahí la firma **es** el acto irreversible, no la declaración de quién decidió.
+
+**Lo que esto cuesta, dicho claro.** `G3` existe para que alguien mire la evidencia antes de dar
+un defecto por resuelto. Firmada por delegación, lo que queda es que la evidencia **está
+escrita y es contrastable** —`evidence/PT-009/` y `evidence/PT-010/`, con sus self-review y sus
+límites declarados—, no que alguien la haya leído. Es exactamente lo que `SUITE-R27` dice de
+una firma, y conviene no leerla como más de lo que es.

@@ -548,3 +548,30 @@ credencial. Reventaba, y lo dijo su caso.
 
 **El límite que sigue ahí:** nada comprueba que un enlace resuelva. Haría falta red en una
 compuerta. Es lo que dejó pasar el defecto original y sigue sin cubrirse.
+
+---
+
+## 2026-08-13 · `EP-003` cerrado · versión `6.0.1` · a la espera de `G4`
+
+`G3` de `PT-009` y `PT-010` **resuelta por delegación**, ampliada ese mismo día por decisión
+del firmante. Está registrada como Revisión 1 del intake del lote, con lo que cuesta escrito:
+`G3` existe para que alguien mire la evidencia antes de dar un defecto por resuelto; firmada
+por delegación lo que queda es que la evidencia **está escrita y es contrastable**, no que
+alguien la haya leído.
+
+`G4` y la publicación siguen sin delegar — el propio firmante se las reservó.
+
+**Versión `6.0.1`**, `PATCH`: dos correcciones, ninguna regla nueva ni modificada.
+
+```
+selftest           241 → 251 casos
+verify-fdge --all  sin errores (estaba en rojo al empezar el lote)
+espejo             sin divergencias
+package.json 6.0.1 = CHANGELOG = los 21 documentos
+```
+
+**Lo que este lote deja como aprendizaje:** los dos defectos vinieron de sitios distintos y
+ninguno del análisis previo. Uno lo cazó una regla recién creada, sobre su propia herramienta.
+El otro lo vio una persona mirando el tablero, y **ninguna comprobación lo habría encontrado** —
+no hay nada que verifique que un enlace resuelve ni que un texto se contradice. El límite queda
+escrito en el `CHANGELOG` y en la trazabilidad en vez de fingir que está cubierto.

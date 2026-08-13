@@ -370,3 +370,91 @@ Qué se aprendió: las tres tareas encontraron algo que su análisis no había p
 desincronizado, la compuerta de acceso que dejaba `estado` inútil, y que agente y humano
 comparten login—. Las tres veces lo dijo una comprobación, no el agente.
 
+## PT-009 — BUG: tracker firma lo que escribe
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-003
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-003, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada, con constancia en la Revisión 1 del intake del lote) · G4 pendiente
+
+Qué fallaba: `tracker cerrar` publicaba su mensaje de cierre **sin marca de procedencia**, así
+que `SUITE-R43` lo contaba como comentario humano. `verify-fdge --all` quedó en rojo tras el
+cierre posterior al merge de `EP-001`/`EP-002`.
+
+Causa raíz: `PT-008` definió la marca y la aplicó donde el agente escribe a mano, no donde
+escribe la herramienta. La marca vivía en `tracker.mjs` y `tracker` no la usaba.
+
+**Lo cazó la regla que `PT-008` creó, sobre la herramienta que la implementa, en la primera
+ejecución posterior a su creación.** Nadie fue a buscarlo.
+
+Qué se hizo: `mensajeDeCierre()`, función pura exportada, con la marca. El comentario ya
+publicado es inmutable, así que se **respondió** con una nota marcada en vez de excluirlo de la
+comprobación. `TS-05` comprueba que `SUITE-R43` sigue exigiendo respuesta: si alguien relaja la
+regla más adelante, ese caso se pone rojo.
+
+Resultado: `selftest` 241 → 244. `verify-fdge --all` sin errores.
+
+Delta declarado en el self-review: se descartó una salida más cómoda —excluir los PT
+`INTEGRATED` de `SUITE-R43`— que es defendible sobre el texto de la regla **y quita rojos**.
+Por eso no se tomó de paso.
+
+## PT-010 — BUG: el cuerpo del issue se lee y su enlace resuelve
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-003
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-003, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada, con constancia) · G4 pendiente
+
+Qué fallaba, dos cosas en cuatro líneas de cuerpo: el issue de una implementación decía **«sin
+implementación»** sobre sí mismo —el generador usaba un solo texto y un `EP` no tiene campo
+`epic`— y el enlace al intake era **relativo**, que en el cuerpo de un issue resuelve contra la
+raíz del sitio y da 404.
+
+Cómo se descubrió: **mirándolo.** «estoy viendo en los issue que no hay nada de la EP-002», y
+era literal. Ninguna comprobación lo habría detectado: no hay nada que compruebe que un enlace
+resuelve ni que un texto se contradice.
+
+Qué se hizo: `cuerpoDeIssue()` pura y exportada, que distingue lote de tarea, enumera las
+tareas del lote con su issue y enlaza con URL absoluta a la **rama por defecto** —un issue es
+un artefacto largo y una rama es corta—. Sin URL derivable no se inventa: ruta sin enlace y el
+motivo (`RULE-06`). `abrir --aplicar` sincroniza también el cuerpo de los issues abiertos.
+
+Resultado: `selftest` 244 → 251.
+
+Delta: un defecto propio cazado por su caso — `contextoCuerpo` leía el adaptador al cargar el
+módulo y `estado` corre **sin** adaptador, justo la acción que existe para funcionar sin
+credencial.
+
+Límite que sigue abierto: nada comprueba que un enlace resuelva. Haría falta red en una
+compuerta. Es lo que dejó pasar el defecto original.
+
+## EP-003 — IMPLEMENTACIÓN: el issue se lee sin salir de GitHub
+Fecha: 2026-08-13
+Estado: DONE
+Estructural: no
+Compuertas: G1 2026-08-13 Alberto Martínez (firma única delegada, con constancia) · G4 pendiente
+
+| PT | Tipo | Sev | Estado | Qué resolvió |
+|:---|:---|:---|:---|:---|
+| PT-009 | BUG | S2 | DONE | `tracker` firma lo que escribe |
+| PT-010 | BUG | S2 | DONE | el cuerpo del issue se lee y su enlace resuelve |
+
+Criterio de éxito contrastado: abrir un issue de este repositorio basta ahora para entender de
+qué va y llegar a lo demás sin adivinar rutas, y `verify-fdge` volvió a verde **por el motivo
+correcto** — la herramienta firma lo que escribe, la regla no se tocó.
+
+`selftest` 241 → 251. Dos correcciones, **ninguna regla nueva y ninguna modificada**.
+
+Qué se aprendió: los dos defectos vinieron de sitios distintos y ninguno del análisis previo.
+Uno lo cazó una regla recién creada sobre su propia herramienta; el otro lo vio una persona
+mirando el tablero, y ninguna comprobación lo habría encontrado. El lote deja ese límite
+escrito en vez de fingir que lo cubre.
+

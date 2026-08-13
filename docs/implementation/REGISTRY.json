@@ -1,5 +1,5 @@
 {
-  "suite_version": "6.0.0",
+  "suite_version": "6.0.1",
   "execution_mode": "SUPERVISED",
   "foundation": {
     "generated": "2026-08-13",
@@ -218,7 +218,7 @@
       "complexity": null,
       "severity": null,
       "track": null,
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "structural": null,
       "suite_version": "6.0.0",
       "title": "El issue se lee sin salir de GitHub, y la herramienta firma lo que escribe",
@@ -233,15 +233,17 @@
       "complexity": "TRIVIAL",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "structural": false,
       "suite_version": "6.0.0",
       "epic": "EP-003",
-      "phase": 6,
+      "phase": 8,
       "title": "tracker cerrar comenta sin marca y SUITE-R43 toma su propio mensaje por humano",
       "origin": "Hallazgo de ejecución 2026-08-13 · verify-fdge --all en rojo tras el cierre posterior al merge",
       "created": "2026-08-13",
-      "issue": 14
+      "issue": 14,
+      "validated_by": "Alberto Martínez (por delegación, con constancia)",
+      "validated": "2026-08-13"
     },
     {
       "id": "PT-010",
@@ -250,15 +252,17 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "structural": false,
       "suite_version": "6.0.0",
       "epic": "EP-003",
-      "phase": 6,
+      "phase": 8,
       "title": "El cuerpo de un issue de EP dice «sin implementación» y su enlace al intake es un 404",
       "origin": "Intake humano 2026-08-13 · «estoy viendo en los issue que no hay nada de la EP-002»",
       "created": "2026-08-13",
-      "issue": 15
+      "issue": 15,
+      "validated_by": "Alberto Martínez (por delegación, con constancia)",
+      "validated": "2026-08-13"
     }
   ]
 }

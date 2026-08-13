@@ -8,6 +8,58 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 6.0.1 — 2026-08-13
+
+**Dos correcciones sobre lo que la 6.0.0 puso en la plataforma.** Ninguna regla nueva y ninguna
+modificada: `PATCH`.
+
+### La herramienta firma lo que escribe
+
+`SUITE-R43` —la regla que la 6.0.0 estrenó para que lo que una persona escribe no quede sin
+leer— **acusó al mensaje de cierre del propio `tracker`** de ser un comentario humano. No
+llevaba marca de procedencia, así que desde el punto de vista de la regla no había forma de
+saber quién lo había escrito.
+
+Es el hallazgo más limpio de la sesión: **la regla se cazó a sí misma**, sobre la herramienta
+que la implementa, en la primera ejecución posterior a su creación. Nadie fue a buscarlo.
+
+Se arregla **quien escribe**, no la regla. El comentario ya publicado es inmutable, así que se
+respondió en vez de excluirlo de la comprobación — y un caso del arnés comprueba que
+`SUITE-R43` sigue exigiendo respuesta, para que nadie la relaje más adelante sin que salte algo.
+
+### El cuerpo del issue se lee, y su enlace resuelve
+
+El cuerpo de un issue de implementación decía **«sin implementación»** sobre la implementación
+misma —el generador componía un solo texto para tarea y para lote, y un `EP` no tiene campo
+`epic`— y el enlace al intake era **relativo**, que en el cuerpo de un issue resuelve contra la
+raíz del sitio y da 404.
+
+Consecuencia real: la 6.0.0 puso el **estado** en el tablero dando por hecho que el contenido se
+alcanzaba desde el issue. No se alcanzaba. Quien lo abría no encontraba nada.
+
+Ahora el cuerpo distingue lote de tarea, un lote **enumera sus tareas con su issue**, y el
+enlace es absoluto a la rama por defecto — un issue es un artefacto largo y una rama es corta.
+Sin URL derivable no se inventa ninguna: se escribe la ruta sin enlace y se dice por qué
+(`RULE-06`). `tracker abrir --aplicar` sincroniza también el cuerpo de los issues abiertos.
+
+**Lo vio una persona mirando el tablero.** Ninguna comprobación lo habría detectado: no hay
+nada en el marco que compruebe que un enlace resuelve —haría falta red en una compuerta— ni que
+un texto se contradice. **El límite queda declarado, no cubierto.**
+
+### Verificación
+
+`selftest`: **251 casos** (241 en la 6.0.0). `verify-fdge --all` sin errores — estaba en rojo
+al empezar, por el primero de los dos defectos.
+
+### Migración
+
+**Ninguna.** Son dos correcciones de comportamiento. Si tienes issues abiertos con el cuerpo
+antiguo, se regeneran solos:
+
+```bash
+node docs/methodology/tools/tracker.mjs abrir --aplicar
+```
+
 ## 6.0.0 — 2026-08-13
 
 **Dos reglas nuevas, y por eso sube a `MAJOR`.** `SUITE-R42` y `SUITE-R43` cambian lo que un
