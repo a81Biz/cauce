@@ -1,0 +1,13 @@
+{
+  "pt": "PT-013",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-07"], "tests": ["selftest.sh:un DEFERRED sí es vivo","ejecución real: PT-015/016/017 con issues #22/#23/#24"], "evidence": ["salidas/tablero-con-aplazados.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02"], "tests": ["selftest.sh:si cita una allocation, no se ve"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-01","TS-03"], "tests": ["selftest.sh:aplazar sin citar a nadie se ve","selftest.sh:un guion no aplaza nada"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-04","TS-05"], "tests": ["selftest.sh:en G4 bloquea","selftest.sh:y fuera de G4 solo avisa"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-08"], "tests": ["selftest.sh:SUITE-R44 existe en RULES","selftest.sh:SUITE-R44 llega al núcleo"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["TS-05"], "tests": ["selftest.sh:y fuera de G4 solo avisa"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-07", "scenarios": ["TS-06"], "tests": ["selftest.sh:un DEFERRED no exige artefactos"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 275, "failed": 0, "coverage": 275, "baseline": 266 }
+}

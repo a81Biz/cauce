@@ -303,6 +303,68 @@ chk "4.0.x · PT en vuelo conservado"   "PT-007"                          cat "$
 
 rm -rf "$MIG"
 
+
+# PT-012 · el tramo 4.12 -> 6.x, que NO EXISTIA. Un proyecto en 4.12 recibia un informe de dos
+# lineas y todo lo demas vivia en PROSA dentro del CHANGELOG de dos versiones atras. Se DETECTA,
+# no se recita: un tramo que imprima siempre nueve pasos de los que te aplican dos ensena a no
+# leerlo.
+mk_v412() {  # 4.12: registro moderno, sin bloque ESTADO, sin fase y sin plataforma
+  rm -rf "$MIG"; mkdir -p "$MIG"/docs/implementation "$MIG"/docs/methodology/tools
+  cd "$MIG"
+  cat > docs/implementation/REGISTRY.json <<'J'
+{ "suite_version":"4.12.0","execution_mode":"SUPERVISED",
+  "counters":{"PT":9,"EP":1,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
+  "allocations":[{"id":"PT-009","type":"BUG","severity":"S2","slug":"x","created":"2026-08-01","status":"IN_PROGRESS","suite_version":"4.12.0"}] }
+J
+  printf '# HANDOFF
+
+Prosa, sin bloque de estado.
+' > docs/implementation/HANDOFF.md
+  printf '## PT-009 — BUG: x
+Estado: DONE
+Estructural: no
+' > docs/implementation/HISTORY.log
+  cp "$SUITE"/tools/*.mjs docs/methodology/tools/
+  cp "$SUITE"/CHANGELOG.md docs/methodology/ 2>/dev/null || true
+}
+
+reg_mig() {   # $1 · cabecera del REGISTRY del fixture de migracion, sin tocar lo demas
+  cat > "$MIG/docs/implementation/REGISTRY.json" <<J
+{ $1,"execution_mode":"SUPERVISED",
+  "counters":{"PT":9,"EP":1,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
+  "allocations":[{"id":"PT-009","type":"BUG","severity":"S2","slug":"x","created":"2026-08-01","status":"IN_PROGRESS","suite_version":"4.12.0"}] }
+J
+}
+
+mk_v412
+chk "4.12 ⇒ pide el bloque ESTADO"        "SUITE-R33"     M
+chk "4.12 ⇒ pide declarar la fase"        "PT-009"        M
+chk "4.12 ⇒ ofrece la plataforma"         "OPCIONAL"      M
+chk "4.12 ⇒ enumera lo que llega"         "revisar-secretos"  M
+chk "4.12 ⇒ menciona las excepciones"     "SECRETOS-EXCEPCIONES"  M
+
+# Los inversos: lo que YA esta no se pide, y un proyecto en 6.x no ve el tramo.
+mk_v412 && printf '# HANDOFF
+
+<!-- ESTADO -->
+implementación: ninguna
+<!-- /ESTADO -->
+' > "$MIG/docs/implementation/HANDOFF.md"
+chkno "con ESTADO ya escrito, no lo pide"  "SUITE-R33"    M
+
+mk_v412 && reg_mig '"suite_version":"6.0.1"'
+chkno "ya en 6.x, el tramo no aparece"     "SUITE-R33"    M
+
+# Con plataforma declarada cambia lo que se pide: aparecen el espejo y las dos reglas nuevas.
+mk_v412 && reg_mig '"suite_version":"4.12.0","tracker":{"plataforma":"github"}'
+chk   "con plataforma ⇒ pide sincronizar"  "abrir --aplicar"  M
+chk   "con plataforma ⇒ avisa de R42"      "SUITE-R42"        M
+# El inverso correcto NO es «no menciona SUITE-R42»: sin plataforma sí se menciona, dentro del
+# mensaje que explica que activaria declararla. Lo que no debe aparecer es la EXIGENCIA. El
+# aserto estaba mal escrito y lo dijo el propio caso.
+mk_v412
+chkno "sin plataforma ⇒ no exige el PR"    "G4 pasa a resolverse"  M
+
 # ─── E · integridad de la reconciliación y la migración verificada ──────────
 echo "── E · reconciliación y migración verificada ──"
 build_fixture
@@ -416,6 +478,56 @@ chk "lote bien formado ⇒ pasa"            "✓ INTAKE-R09" V --all
 build_fixture; mk_epic
 perl -0pi -e 's/## 6. Análisis de solapamiento.*//s' "$WORK/changes/EP-001-validacion/intake.md"
 chk "lote sin solapamiento ⇒ falla"       "INTAKE-R09"  V --all
+
+
+# PT-011 · los miembros de un lote se leen de las FILAS DE TABLA, no de todo el texto.
+#
+# Con el barrido completo, citar un PT anterior como precedente —«el metodo que ya funciono en
+# PT-003»— lo convertia en miembro y disparaba un fallo sobre un PT cerrado. El coste no era el
+# error: obligaba a escribir los intakes de lote SIN referencias cruzadas, que es justo lo que
+# da trazabilidad. La correccion venia del proyecto legado (commit 760f790), y el CHANGELOG de
+# la 4.13.0 la declaraba TRAIDA cuando el codigo nunca la llevo.
+mk_epic_tabla() {
+  mkdir -p "$WORK/changes/EP-001-validacion"
+  cat > "$WORK/changes/EP-001-validacion/intake.md" <<'M'
+---
+id: EP-001
+---
+## 1. Objetivo común
+Toda la validación de formularios.
+
+## 2. Criterio de éxito del lote
+Ningún formulario acepta datos inválidos sin mensaje.
+
+## 3. Qué NO entra en el lote
+OUT: rediseño visual
+
+## 4. Firma única
+Solicitado por: Ada Lovelace
+He leído el Intake de cada PT y confirmo que todos reflejan mi intención: SÍ
+
+## 5. PTs
+| Orden | PT | Tipo |
+|:--|:--|:--|
+| 1 | PT-001 | BUG |
+
+Se reutiliza el método que ya funcionó en PT-003, y se evita el error que PT-002 cometió.
+
+## 6. Análisis de solapamiento
+Pares que comparten archivos: ninguno
+M
+}
+
+build_fixture; mk_epic_tabla
+chkno "citar un PT en prosa no lo hace miembro"  "PT-003: pertenece"  V --all
+chkno "ni siquiera al de al lado"                "PT-002: pertenece"  V --all
+chk   "el de la tabla sí exige su firma"         "PT-001: pertenece"  V --all
+build_fixture; mk_epic
+chk   "sin tabla, respaldo al barrido completo"  "PT-001: pertenece"  V --all
+# Se filtra en vez de volcar el CHANGELOG entero: el detector de «la herramienta revento» busca
+# rastros de excepcion, y el CHANGELOG NARRA excepciones pasadas —«ReferenceError en cada
+# ejecucion»— asi que volcarlo entero se acusaba a si mismo de haber reventado.
+chk   "el CHANGELOG dice dónde estaba"           "PT-011"  grep -h "PT-011" "$SUITE/CHANGELOG.md"
 
 # ─── I · auditoría PTSA por enumeración ──────────────────────────────────────
 echo "── I · PTSA por enumeración ──"
@@ -990,6 +1102,18 @@ V2='{id:"PT-101",status:"DRAFT",issue:7}'
 I7='{number:7,title:"PT-101 x"}'
 I9='{number:9,title:"suelto"}'
 
+# --- PT-014 . el cuerpo del lote, en una pasada ---------------------------
+# La dependencia va en un sentido: el lote cita a sus tareas por NUMERO, la tarea al lote por
+# ID. Creando en el orden del registro el lote nacia sin los numeros y habia que repetir.
+TANDA='[{"id":"EP-9","type":"EP"},{"id":"PT-90","type":"BUG","epic":"EP-9"},{"id":"PT-91","type":"BUG","epic":"EP-9"}]'
+trlib "el lote se crea el ultimo"           "PT-90,PT-91,EP-9"   "console.log(m.ordenDeApertura($TANDA).map((a)=>a.id).join(\",\"))"
+trlib "y no se pierde ni se duplica"        "^3$"   "console.log(m.ordenDeApertura($TANDA).length)"
+trlib "entre tareas, el orden del registro" "PT-90,PT-91"   "console.log(m.ordenDeApertura($TANDA).filter((a)=>a.type!==\"EP\").map((a)=>a.id).join(\",\"))"
+trlib "no muta la lista que recibe"         "EP-9,PT-90,PT-91"   "const t=$TANDA; m.ordenDeApertura(t); console.log(t.map((a)=>a.id).join(\",\"))"
+trlib "sin nada que abrir, no revienta"     "^0$"   "console.log(m.ordenDeApertura(undefined).length)"
+# Y la razon de todo: con ese orden el cuerpo del lote SI enumera numeros.
+trlib "el cuerpo del lote ya trae numero"   "#77"   "console.log(m.cuerpoDeIssue({id:\"EP-9\",type:\"EP\",slug:\"x\"},{tareas:[{id:\"PT-90\",issue:77,title:\"t\"}]}))"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \
@@ -1223,6 +1347,156 @@ trlib "una tarea sí dice a qué lote va"   "EP-9"   "console.log(m.cuerpoDeIssu
 
 build_fixture
 chkno "sin plataforma ⇒ G4 libre de R43"    "SUITE-R43"   V --gate G4 PT-001
+
+
+# PT-013 · lo aplazado no se narra: se ASIGNA. Un out-of-scope que apunta a trabajo futuro sin
+# citar a nadie es como EP-001 perdio la migracion del proyecto legado durante cuatro versiones.
+# DEFERRED existia en LEXICON §5.1 y no lo usaba nadie.
+chk   "SUITE-R44 existe en RULES"          "SUITE-R44"   cat "$SUITE/RULES.md"
+chk   "SUITE-R44 llega al núcleo"          "SUITE-R44"   cat "$SUITE/CORE.md"
+
+oos() {   # $1 destino de la fila de out-of-scope del PT-001 del fixture
+  printf '# Fuera de alcance
+
+| Fuera | Por qué | Dónde va |
+|:--|:--|:--|
+| algo | porque sí | %s |
+' "$1"     > "$WORK/changes/PT-001-login/out-of-scope.md"
+}
+
+build_fixture; oos 'Decisión posterior'
+chk   "aplazar sin citar a nadie se ve"    "SUITE-R44"   V PT-001
+chk   "y fuera de G4 solo avisa"           "! SUITE-R44" V PT-001
+chk   "en G4 bloquea"                      "✗ SUITE-R44" V --gate G4 PT-001
+# PT-018 cambio la semantica: citar una allocation CUALQUIERA ya no basta. Este caso afirmaba
+# lo contrario y se sustituye — un aserto que exige el comportamiento viejo lo perpetua.
+build_fixture; oos '`PT-004`'
+chk   "citar a cualquiera ya no basta"     "SUITE-R44"   V PT-001
+build_fixture; oos '—'
+chkno "un guion no aplaza nada"            "SUITE-R44"   V PT-001
+
+# DEFERRED: exento para la verificacion, VIVO para el espejo. Las dos caras.
+build_fixture
+reg_set "r.allocations.push({id:'PT-020',type:'BUG',severity:'S3',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1'}); r.counters.PT=20"
+chkno "un DEFERRED no exige artefactos"    "PT-020"      V --all
+trlib "un DEFERRED sí es vivo"             "^VIVO$"   "console.log(m.vivasDe([{id:\"PT-020\",status:\"DEFERRED\"}]).length?\"VIVO\":\"NO\")"
+
+
+# PT-018 · el destino de una fila de out-of-scope es VOCABULARIO CERRADO, no prosa.
+#
+# PT-013 dejo dos agujeros y los dos salian de lo mismo: con prosa libre, la comprobacion tiene
+# que adivinar si significa «aplazado» y si el sitio al que apunta sirve. Ninguna es adivinable.
+# Es lo que PTSA-R77 resuelve para las auditorias: toda celda lleva un valor de una lista
+# cerrada, y no existe la celda en blanco.
+chkno "SUITE-R44 ya no adivina sobre prosa"  "RE_APLAZA"  cat "$SUITE/tools/verify-fdge.mjs"
+
+build_fixture; oos 'Decisión posterior'
+chk   "destino en prosa falla"             "SUITE-R44"   V PT-001
+build_fixture; oos 'ya veremos'
+chk   "otra prosa cualquiera, también"     "SUITE-R44"   V PT-001
+build_fixture; oos '—'
+chkno "un guion sigue siendo válido"       "SUITE-R44"   V PT-001
+
+# Reciprocidad: citar no basta. PT-012 citaba PT-013 —que no iba a hacer ese trabajo— y pasaba.
+build_fixture
+reg_set "r.allocations.push({id:'PT-030',type:'CHORE',severity:'S4',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-001'}); r.counters.PT=30"
+oos '`PT-030`'
+chkno "un DEFERRED que reconoce su origen vale"  "SUITE-R44"  V PT-001
+build_fixture
+reg_set "r.allocations.push({id:'PT-031',type:'CHORE',severity:'S4',slug:'otro',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-999'}); r.counters.PT=31"
+oos '`PT-031`'
+chk   "si no reconoce su origen, falla"          "SUITE-R44"  V PT-001
+
+
+# PT-022 . un lote citado tiene que DECLARAR su cierre, asi que los fixtures de PT-021 lo llevan.
+ep_cierre() {  # $1 identificador del lote
+  mkdir -p "$WORK/changes/$1-lote"
+  printf '# %s
+
+## Cierre del lote
+
+| Que | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | HECHO |
+' "$1" > "$WORK/changes/$1-lote/intake.md"
+}
+
+# PT-021 . citar el PROPIO lote. Exigir CLOSED era un bloqueo por construccion: un lote llega a
+# CLOSED DESPUES del merge, y el merge ES G4. El patron legitimo «esto se hace al cerrar el
+# lote» no podia pasar nunca — lo encontro G4 de EP-004 bloqueando dos tareas por ESCRIBIR lo
+# que las otras tres callaron. DONE es trabajo hecho esperando al humano; ya no es una promesa.
+build_fixture
+reg_set "r.allocations.push({id:'EP-030',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-030'; r.counters.EP=30"
+ep_cierre EP-030
+oos '`EP-030`'
+chkno "el propio lote en DONE vale"          "SUITE-R44"  V --gate G4 PT-001
+build_fixture
+reg_set "r.allocations.push({id:'EP-031',type:'EP',slug:'lote',created:'2026-08-13',status:'CLOSED',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-031'; r.counters.EP=31"
+ep_cierre EP-031
+oos '`EP-031`'
+chkno "y en CLOSED tambien"                  "SUITE-R44"  V --gate G4 PT-001
+# La intencion original, intacta: mientras el lote sigue abierto es una intencion, no una asignacion.
+build_fixture
+reg_set "r.allocations.push({id:'EP-032',type:'EP',slug:'lote',created:'2026-08-13',status:'IN_PROGRESS',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-032'; r.counters.EP=32"
+oos '`EP-032`'
+chk   "el lote IN_PROGRESS sigue sin valer"  "SUITE-R44"  V PT-001
+build_fixture
+reg_set "r.allocations.push({id:'EP-033',type:'EP',slug:'lote',created:'2026-08-13',status:'DRAFT',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-033'; r.counters.EP=33"
+oos '`EP-033`'
+chk   "y en DRAFT tampoco"                   "SUITE-R44"  V PT-001
+
+
+# PT-022 . SUITE-R45 — un lote declara que se hace al cerrarlo.
+# La entrada de CHANGELOG de EP-004 estaba como fila en DOS out-of-scope y ausente en TRES: la
+# misma obligacion copiada cinco veces, divergiendo a los dos dias. Y las dos que la ESCRIBIERON
+# fueron las bloqueadas. El lote es quien aplaza el cierre del lote: ahi solo hay un sitio.
+ep_intake() { # $1 cuerpo de la seccion de cierre (vacio = sin seccion)
+  mkdir -p "$WORK/changes/EP-040-lote"
+  { echo "# EP-040 — lote"; echo; echo "## Objetivo común"; echo "x"; echo; echo "## Criterio de éxito del lote";
+    echo "x"; echo; echo "## Análisis de solapamiento"; echo "x"; echo; echo "## Qué NO entra"; echo "- OUT: y"; echo;
+    echo '```'; echo "Firmado por: Alberto Martínez"; echo "Fecha: 2026-08-13"; echo '```'; echo;
+    echo "| PT | Tipo |"; echo "|:---|:---|"; echo "| PT-001 | BUG |"; echo; printf '%s
+' "$1"; } > "$WORK/changes/EP-040-lote/intake.md"
+  reg_set "r.allocations.push({id:'EP-040',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-040'; r.counters.EP=40"
+}
+build_fixture; ep_intake ""
+chk   "un lote sin seccion de cierre no pasa G4"  "SUITE-R45"  V --gate G4 PT-001
+build_fixture; ep_intake "## Cierre del lote"
+chk   "y con la seccion vacia, tampoco"           "SUITE-R45"  V --gate G4 PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | pendiente |"
+chk   "una fila sin resolver bloquea en G4"       "SUITE-R45"  V --gate G4 PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | pendiente |"
+reg_set "r.allocations.find((a)=>a.id==='EP-040').status='IN_PROGRESS'"
+chk   "y con el lote abierto solo avisa"          "! SUITE-R45" V PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | HECHO |
+| Lo demas | PT-099 |"
+chkno "resuelta con HECHO o con un ID, pasa"      "✗ SUITE-R45"  V --gate G4 PT-001
+# Un lote CLOSED ya paso su G4 con las reglas de su momento: exigirselo es reescribir historia.
+build_fixture; ep_intake ""
+reg_set "r.allocations.find((a)=>a.id==='EP-040').status='CLOSED'"
+chkno "a un lote ya cerrado no se le exige"       "SUITE-R45"  V --gate G4 PT-001
+# La otra mitad: citar el propio lote deja de ser gratis — cuesta escribirlo EN el lote.
+build_fixture; ep_intake ""; oos '`EP-040`'
+chk   "citar un lote que no declara cierre falla" "SUITE-R44"  V PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | HECHO |"
+oos '`EP-040`'
+chkno "citarlo cuando si lo declara, vale"        "SUITE-R44"  V PT-001
 
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"

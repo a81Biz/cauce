@@ -15,3 +15,10 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-005 | BUG | S2 | DONE | EP-001 | La excepción de secretos no sobrevive a un clon superficial, y la historia se da por revisada sin revisarla |
 | PT-009 | BUG | S2 | DONE | EP-003 | tracker cerrar comenta sin marca y SUITE-R43 toma su propio mensaje por humano |
 | PT-010 | BUG | S2 | DONE | EP-003 | El cuerpo de un issue de EP dice «sin implementación» y su enlace al intake es un 404 |
+| PT-011 | BUG | S2 | DONE | EP-004 | INTAKE-R08 lee los miembros de todo el texto: citar un PT en prosa lo convierte en miembro |
+| PT-012 | BUG | S2 | DONE | EP-004 | migrate.mjs no tiene tramo 4.12 → 6.x |
+| PT-013 | BUG | S2 | DONE | EP-004 | Lo que un lote aplaza queda en prosa y nada obliga a que vuelva |
+| PT-014 | BUG | S3 | READY | EP-004 | El cuerpo de un lote se escribe antes de que sus tareas tengan issue |
+| PT-015 | CHORE | S4 | DEFERRED | — | Escribir verificador para las reglas HARD que hoy no tienen ninguno |
+| PT-016 | CHORE | S4 | DEFERRED | — | Decidir si phase pasa a ser obligatoria, y añadirla a TAREA.md |
+| PT-017 | CHORE | S4 | DEFERRED | — | migrate: derivar la lista de «qué llega nuevo» |

@@ -1,0 +1,6 @@
+Informe de migrate sobre el proyecto legado ANTES de PT-012:
+
+  SE HARIA AUTOMATICAMENTE  · REGISTRY.suite_version: 4.12.0 -> 6.0.1
+  REQUIERE UNA PERSONA      ! actualizar suite_version en el CLAUDE.md
+
+  1 automatica(s) · 1 pendiente(s) de decision humana.

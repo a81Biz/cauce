@@ -1,0 +1,7 @@
+# Comprobacion inversa (PT-022) — checkCierreDeLote desactivada
+
+  [31m✗[0m un lote sin seccion de cierre no pasa G4  (no apareció: SUITE-R45)
+  [31m✗[0m y con la seccion vacia, tampoco  (no apareció: SUITE-R45)
+  [31m✗[0m una fila sin resolver bloquea en G4  (no apareció: SUITE-R45)
+  [31m✗[0m y con el lote abierto solo avisa  (no apareció: ! SUITE-R45)
+selftest: HAY FALLOS · 299 casos

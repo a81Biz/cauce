@@ -48,7 +48,11 @@ import { execFileSync } from 'node:child_process';
 // espera el merge no es trabajo cerrado — es lo más abierto que hay, porque lo que le queda es
 // una compuerta humana. `SUITE-R36` dice «solo lo vivo» y lo cerrado empieza en INTEGRATED.
 export const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED',
-  'BLOCKED_DOMAIN', 'VALIDATION_PENDING', 'DONE']);
+  'BLOCKED_DOMAIN', 'VALIDATION_PENDING', 'DONE',
+  // PT-013 · un aplazado esta VIVO para el espejo: su issue permanece abierto y en el tablero.
+  // Para la verificacion esta exento —no tiene intake ni fases— y esos dos signos opuestos son
+  // lo que hace que aplazar algo lo ponga a la vista en vez de sacarlo de ella.
+  'DEFERRED']);
 
 /** Las allocations que el espejo cubre. Lo cerrado es evidencia, no estado (`SUITE-R36`). */
 export const vivasDe = (allocations) =>
@@ -199,6 +203,23 @@ export function cuerpoDeIssue(a, opciones = {}) {
 /** Una nota de reanclaje declara una transición de fase (`FDGE-R52`), no es un comentario suelto. */
 export const RE_NOTA = /PHASE\s*\d+\s*(?:→|->|a)\s*\d+|PHASE\s*\d+\s*→/i;
 export const contarNotas = (textos) => (textos ?? []).filter((t) => RE_NOTA.test(String(t))).length;
+
+/**
+ * PT-014 · En qué orden se crean los issues de una tanda.
+ *
+ * La dependencia entre cuerpos va en UN SOLO sentido: el de un lote enumera sus tareas **con su
+ * número**, y el de una tarea cita a su lote **por identificador**. Creando en el orden del
+ * registro —donde el lote va primero— su cuerpo se compone cuando sus tareas aún no tienen
+ * número, y salía sin ellos: hacía falta repetir el comando.
+ *
+ * No se pide dos veces ni se pospone nada: se crea antes lo que no depende de nadie. Con la
+ * dependencia en un sentido, un orden basta y no hay ciclo posible.
+ *
+ * Estable dentro de cada grupo (`Array.prototype.sort` lo es desde ES2019): dos tareas
+ * conservan el orden del registro, que es el que el humano ve.
+ */
+export const ordenDeApertura = (pendientes) =>
+  [...(pendientes ?? [])].sort((x, y) => (x?.type === 'EP' ? 1 : 0) - (y?.type === 'EP' ? 1 : 0));
 
 const ARGS = process.argv.slice(2);
 const ACCION = ARGS[0] ?? 'espejo';
@@ -462,7 +483,9 @@ function abrir() {
     }
     if (errores.length) return;
   }
-  for (const a of pendientes) {
+  // PT-014 · las tareas antes que su lote, para que el cuerpo del lote las enumere con numero
+  // en esta misma pasada. Es un reordenamiento: ni una llamada mas a la plataforma.
+  for (const a of ordenDeApertura(pendientes)) {
     // El issue REFERENCIA el intake; no lo copia. Dos copias del mismo texto divergen — es la
     // causa raiz que la v4 nacio para eliminar, reintroducida por la puerta nueva.
     const cuerpo = cuerpoDeIssue(a, contextoCuerpo(a));

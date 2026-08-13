@@ -458,3 +458,284 @@ Uno lo cazó una regla recién creada sobre su propia herramienta; el otro lo vi
 mirando el tablero, y ninguna comprobación lo habría encontrado. El lote deja ese límite
 escrito en vez de fingir que lo cubre.
 
+## PT-011 — BUG: el lector de miembros del lote
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `INTAKE-R08` leía los miembros de un lote barriendo **todo el texto** del intake,
+así que citar un PT anterior como precedente lo convertía en miembro y disparaba un fallo sobre
+un PT cerrado. El coste no era el error: obligaba a escribir los intakes de lote **sin
+referencias cruzadas**, que es justo lo que da trazabilidad — se sufrió al redactar `EP-001` en
+esta misma sesión.
+
+Dónde estaba la corrección: en el proyecto que la sufría, commit `760f790`. El `CHANGELOG` de
+cauce **4.13.0 la declaraba traída** y el código nunca la llevó: de las cuatro de aquella tanda
+llegaron tres.
+
+Qué se hizo: se trae con su comentario —el razonamiento del respaldo se pierde si solo se copia
+el código— y se añade una nota a la entrada de 4.13.0 diciendo dónde estaba realmente. La
+entrada no se reescribe (`SUITE-R09`), pero una afirmación así **cierra la pregunta**.
+
+Resultado, medido contra ese repositorio: **17 hallazgos → 3**. Los tres que quedan son la
+migración misma (`SUITE-R17`, `SUITE-R16`, `SUITE-R33`) y ninguno es falso.
+`selftest` 251 → 256 casos.
+
+Delta: `AC-04` decía «baja a 2» y son 3 — un número mal contado en un criterio de aceptación,
+corregido en la trazabilidad en vez de dejarlo pasar. Y un caso del arnés volcaba el `CHANGELOG`
+entero, que **narra excepciones pasadas**: el detector de «la herramienta reventó» lo acusaba a
+sí mismo. Se filtró en vez de volcarlo.
+
+Lo que este PT no resuelve y queda enumerado: la puerta de versión para que una regla nueva no
+se cobre sobre trabajo cerrado.
+
+## PT-012 — BUG: migrar desde 4.12
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `migrate.mjs` tenía tramos para `3.x → 4.x`, `< 4.1.0` y `< 4.2.0` y nada más. Un
+proyecto en 4.12 recibía un informe de **dos líneas** —sella la versión, actualiza el
+`CLAUDE.md`— y todo lo demás vivía en **prosa dentro del CHANGELOG** de dos versiones atrás,
+repartido entre las guías de la 5.0.0 y la 6.0.0.
+
+`SUITE-R19` pide listar como acción pendiente lo que no se automatiza. La herramienta cumplía
+la otra mitad —encadena `verify-fdge` al terminar— y no esta.
+
+Qué se hizo: dos tramos que **detectan**, no recitan. Comprueban si el `HANDOFF` tiene bloque
+`ESTADO`, si las allocations vivas declaran `phase`, si hay plataforma declarada, y enumeran lo
+que llega nuevo. El tramo de 6.0.0 solo aparece si el proyecto declara plataforma, porque
+`SUITE-R42` y `SUITE-R43` son condicionales.
+
+**El bloque `ESTADO` no lo escribe la herramienta**, y el mensaje explica por qué: declara qué
+compuerta espera y cuál es la siguiente acción, y rellenarlo con plantilla produciría un estado
+que miente.
+
+Resultado, medido contra el proyecto legado: **1 acción pendiente → 7**, todas detectadas sobre
+su estado real, incluido que `EP-009` y `EP-014` no declaran fase. `selftest` 256 → 266 casos.
+
+Delta: un aserto propio estaba mal —comprobaba que sin plataforma no se mencionara `SUITE-R42`,
+y sí se menciona explicando qué activaría declararla—. Lo dijo el caso; se corrigió a comprobar
+que no aparezca la exigencia.
+
+Deuda declarada: la lista de «qué llega nuevo» está **escrita a mano** y es un hecho copiado
+(`RULE-01`). Debería derivarse comparando el paquete con el destino. Queda enumerada en el
+out-of-scope, no narrada.
+
+## PT-013 — BUG: lo aplazado se asigna, no se narra
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: aplazar trabajo se escribía en PROSA —una fila de `out-of-scope.md` con un destino
+tipo «decisión posterior»— y nada lo enumeraba, nada lo recogía y nada impedía cerrar un lote
+dejándolo atrás. `EP-001` aplazó la corrección que lo había motivado y nadie la recogió en
+cuatro versiones: estaba escrita en tres documentos y en ninguna lista que una compuerta tocara.
+
+Revisión del alcance por decisión humana: no basta con **enumerar**. Lo aplazado tiene
+identificador del registro y su **issue abierto** — «una lista hay que ir a mirarla; un issue
+está en el tablero».
+
+Qué se hizo: `SUITE-R44`. Toda fila de out-of-scope que apunte a trabajo futuro cita el
+identificador que lo sostiene. Fuera de `G4` avisa —aplazar durante el trabajo es legítimo—;
+en `G4` bloquea, que es donde el lote se cierra. Y `DEFERRED`, que existía en `LEXICON` §5.1
+sin que lo usara nadie, se vuelve usable: **exento** de las exigencias de un PT en curso y
+**vivo** para el espejo, de modo que su issue permanece abierto.
+
+Resultado: `selftest` 266 → 275 casos. Y lo primero que hizo la regla fue encontrar **tres
+aplazados del propio agente**, ya recogidos: `PT-015` (#22), `PT-016` (#23) y `PT-017` (#24).
+
+Delta: la heurística se escapaba los plurales —«Decisiones posteriores» no casaba
+`posterior`— y una fila quedó sin ver hasta compararlo a mano. Un detector con ese agujero
+es teatro.
+
+Agujero declarado y sin arreglo mecánico: **citar cualquier identificador satisface la regla**.
+`PT-012` citaba `PT-013` y pasaba, aunque `PT-013` no fuera a hacer ese trabajo. Comprueba que
+haya dónde volver, no que ese sitio sirva.
+
+
+## PT-018 — BUG: el destino de un out-of-scope es vocabulario cerrado, no prosa
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `SUITE-R44` nació en `PT-013` con dos agujeros declarados en su propia self-review,
+y los dos salían de lo mismo: la columna «Dónde va» admitía PROSA LIBRE. Con prosa libre la
+comprobación tiene que adivinar si una frase significa «aplazado» —una lista de palabras, a la
+que se le escapó «posteriores» en plural— y si el sitio al que apunta sirve —`PT-012` citaba a
+`PT-013`, que no iba a hacer ese trabajo, y pasaba—.
+
+Qué se hizo: quitar la prosa, no mejorar el detector. Ampliar la lista de palabras es perseguir
+el idioma: cada sinónimo que se añade deja fuera al siguiente. `RE_APLAZA` deja de existir. El
+destino es «—» o la cita de un identificador, y la cita debe ser RECÍPROCA: hermano del mismo
+lote vale siempre; el propio lote solo si ya cerró; cualquier otro debe ser una allocation
+DEFERRED cuyo `origin` mencione el PT. Es lo que `PTSA-R77` ya exige de su matriz y el marco no
+se exigía a sí mismo.
+
+Qué encontró al aplicarse: dos aplazados sin asignar que la versión anterior no veía —`PT-019`
+(#26), migrar el proyecto legado, que era el trabajo con el que se abrió la sesión, y `PT-020`
+(#27)—. Un caso de `PT-013` se SUSTITUYE, no se arregla: afirmaba que citar cualquier allocation
+basta, que es justo lo que este PT deroga.
+
+Defecto propio, y es el que este marco documenta ocho veces: el `\b` de `RE_CITA_ID` se degradó
+al byte de control 0x08. El regex compilaba sin error y no casaba nada — la comprobación estaba
+apagada y en verde. `SUITE-R38` existe para esto. Encontrado con `cat -A`.
+
+Evidencia: docs/implementation/evidence/PT-018/ · selftest 275 → 281 casos, avisos SUITE-R44: 0
+Cierre a DONE autorizado por Alberto Martínez (SUITE-R06b, tipo BUG).
+
+## PT-014 — BUG: el cuerpo del lote se compone antes de que sus tareas tengan número
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `tracker abrir --aplicar` creaba los issues en el orden del registro, donde un lote
+va antes que sus tareas. Al componer el cuerpo del lote sus tareas aún no tenían número, y salía
+sin ellos: hacía falta repetir el comando. Lo vio el propio usuario al abrir `EP-004`.
+
+Qué se hizo: `ordenDeApertura()`, pura y exportada, que pone los `EP` al final. La dependencia
+entre cuerpos va en un solo sentido —el lote cita a sus tareas por NÚMERO, la tarea al lote por
+IDENTIFICADOR— así que no hay ciclo y un orden basta. Cero llamadas nuevas a la plataforma.
+
+Hallazgo: `sincronizarCuerpos()` YA arreglaba esto y no se alcanzaba — solo corre en la rama de
+`abrir()` en la que no hay nada que abrir. Por eso el defecto sobrevivió a `PT-010`, que es quien
+escribió esa función. Un arreglo inalcanzable se lee como protección y es peor que ninguno.
+
+Lo que no se verificó: abrir un lote real contra GitHub. No hay ninguno que abrir e inventar uno
+dejaría basura en el tablero. Se verificaron las dos piezas que componen el resultado, y la
+comprobación inversa —revertida la función a la identidad— deja el caso en rojo.
+
+Evidencia: docs/implementation/evidence/PT-014/ · selftest 281 → 287 casos
+Cierre a DONE autorizado por Alberto Martínez (SUITE-R06b, tipo BUG).
+
+## PT-021 — BUG: citar el propio lote no podía pasar G4 nunca
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: SIMPLE
+Track: STANDARD
+Implementación: EP-005
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-005, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `SUITE-R44` aceptaba la cita al propio lote solo si estaba CLOSED. Un lote llega a
+CLOSED DESPUÉS del merge, y el merge ES G4 — así que el patrón legítimo «esto se hace al cerrar
+el lote» (la entrada de CHANGELOG, el número de versión) no podía satisfacer la regla NUNCA.
+Bloqueo por construcción, escrito por mí un día antes en PT-018.
+
+Lo encontró G4 de EP-004 bloqueando dos tareas y no las otras tres, y lo hizo visible una
+pregunta humana: «¿por qué habrían 3 de 5 tareas limpias?? deben ser las 5». La diferencia no
+era corrección: las dos bloqueadas ESCRIBIERON la fila que las otras tres omitieron.
+
+Qué se hizo: LOTE_COMPLETO = {DONE, CLOSED}. DONE es el estado en el que el trabajo del lote
+está hecho y solo espera al humano; ahí ya no es una promesa. DRAFT e IN_PROGRESS siguen
+bloqueando, que era la intención original, y se comprueba con dos casos propios.
+
+Por qué no lo vio ningún caso: escribí el caso desde la mitad prohibitiva de la regla («el
+propio lote abierto no vale») y nunca el complementario. Un aserto que solo prueba lo que se
+prohíbe no detecta que lo que se permite es inalcanzable.
+
+Hallazgo fuera de alcance, corregido aquí: RULES.md seguía describiendo SUITE-R44 con la LISTA
+DE PALABRAS que PT-018 eliminó del código. PT-018 declaró ese cambio en su spec-changes.md y no
+lo hizo — la regla escrita y la ejecutada llevaban un día divergiendo, que es el defecto que la
+v4 nació para eliminar. verify-suite no lo ve: comprueba que la regla exista y esté citada, no
+que diga lo que el código hace.
+
+Evidencia: docs/implementation/evidence/PT-021/ · selftest 287 → 291 casos · EP-004: 5 de 5 en G4
+Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## PT-022 — BUG: SUITE-R44 solo miraba las filas que existen
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-005
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-005, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: la entrada de CHANGELOG de EP-004 estaba escrita como fila del out-of-scope de dos
+tareas y ausente en las otras tres. La misma obligación copiada cinco veces —lo que SUITE-R38
+prohíbe— divergiendo a los dos días. Y las dos que la ESCRIBIERON fueron las que la compuerta
+bloqueó: declarar lo que aplazas salía más caro que callártelo, en la regla escrita contra «es
+imposible que se te pasen u olviden cosas».
+
+Qué se hizo: SUITE-R45. El lote es quien aplaza el cierre del lote, así que se declara en su
+intake —«## Cierre del lote»— y G4 comprueba que cada fila esté resuelta. Y SUITE-R44 se
+engancha: citar el propio lote vale si el lote declara ese cierre. Citarlo era gratis.
+
+Lo que NO hace, y va escrito en la regla: no comprueba que un out-of-scope esté completo. Lo que
+no está escrito no es detectable sin conocer el alcance real de la tarea, y forzarlo produciría
+filas copiadas para pasar. AC-03 queda PARCIAL en la trazabilidad y verified:false en el
+manifiesto, en vez de darse por bueno porque «el espíritu se cumple».
+
+Dos veces me bloqueé contra mi propia regla, y las dos ejecutando, no leyendo: escribí «merge y
+publicación» como fila de cierre —el merge no es algo que el lote resuelva al cerrar, ES cerrar—
+y exigí la sección a tres lotes ya CLOSED, que es reescribir historia con una regla que no
+existía cuando pasaron su compuerta.
+
+Defecto de método: la llamada quedó tras un `continue` de INTAKE-R09 y no se ejecutaba. Mismo
+defecto que PT-014 encontró en sincronizarCuerpos(), mismo archivo, dos días de diferencia. Lo
+delataron tres casos en rojo.
+
+Evidencia: docs/implementation/evidence/PT-022/ · selftest 291 → 299 casos
+Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## G4 — EP-004 y EP-005 · autorización de merge a main
+Fecha: 2026-08-13
+Compuerta: G4
+Autoriza: Alberto Martínez
+Alcance: PT-011, PT-012, PT-013, PT-014, PT-018 (EP-004) · PT-021, PT-022 (EP-005)
+Pull request: #28
+Versión: 7.0.0
+
+Texto de la autorización: «pon en done, cierra todo y haz el merge a main. Tienes mi VoBo y
+firma a mi nombre».
+
+SUITE-R06a y EXEC-R04 ponen el merge a la rama principal fuera de lo que se automatiza, y
+EXEC-R07 dice describir el comando en vez de ejecutarlo. La regla de cumplimiento del proyecto
+admite la excepción cuando un humano la autoriza DEJANDO REGISTRO: esta entrada es ese registro,
+y existe para que la excepción sea contrastable y no invisible.
+
+Límite honesto, el mismo que SUITE-R27 declara para las firmas: mecánicamente nada distingue
+este merge de uno hecho por una persona — lo ejecuta el agente. Lo que este registro aporta no
+es prueba, es TRAZA: queda dicho quién lo autorizó, con qué palabras y sobre qué alcance.
+
+Precondiciones verificadas antes de ejecutar:
+  verify-fdge --gate G4   las siete tareas, sin errores
+  verify-suite            sin errores de coherencia
+  selftest                299 casos, 0 fallos
+  tracker espejo          sin divergencias
+  version                 los 21 documentos y package.json declaran 7.0.0

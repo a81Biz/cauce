@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **6.0.1**
+> Suite version: **7.0.0**
 
 ---
 
@@ -259,6 +259,15 @@ REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECI
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de   [SUITE-R44]
+          un identificador. Nada de prosa: no se interpreta. Y la cita es
+          RECIPROCA — hermano del lote vale siempre; el propio lote solo si
+          esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
+          «origin» mencionando el PT. En G4 bloquea.
+CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [SUITE-R45]
+          que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
+          bloquea. Existe porque la misma obligacion estaba copiada en dos
+          out-of-scope y ausente en tres — copiar una regla la hace diverger.
 LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
           node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
           Se distingue por MARCA de procedencia, no por autor: el agente comenta

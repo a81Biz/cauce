@@ -8,6 +8,152 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.0.0 — 2026-08-13
+
+**Una regla nueva y vinculante, y por eso sube a `MAJOR`.** `SUITE-R44` obliga a que la columna
+«Dónde va» de un `out-of-scope.md` sea vocabulario cerrado. Un archivo que hoy pasa con prosa
+pasará a fallar: **hay migración, y está abajo**.
+
+El lote nació de una frase: *«es imposible que se te pasen u olviden cosas, se supone que todo
+está apuntado»*. El marco perdía trabajo por el mismo sitio por el que lo perdería una persona
+— escribiéndolo en un párrafo y confiando en acordarse.
+
+### `SUITE-R44` · lo que un lote aplaza se asigna, no se narra
+
+Una fila de `out-of-scope.md` que aplaza trabajo tiene que decir **dónde vuelve**, y decirlo en
+un vocabulario que no haya que interpretar:
+
+| Escrito en «Dónde va» | Significa |
+|:---|:---|
+| `—` | no aplaza nada: queda fuera y punto |
+| `PT-NNN` · `EP-NNN` | aplaza, y ahí vuelve |
+
+Cualquier otra cosa —una frase, una celda vacía, «pendiente»— **falla**. Y la cita tiene que ser
+**recíproca**: un hermano del mismo lote vale siempre; el propio lote solo si ya cerró —«lo hará
+este lote» es justo la promesa que falló—; cualquier otro destino debe ser una allocation
+`DEFERRED` cuyo `origin` mencione el PT del que viene.
+
+`DEFERRED` deja de ser un estado declarado y muerto: queda **exento** de las exigencias de un PT
+en curso y **vivo** para el espejo, así que aplazar algo lo pone en el tablero con su issue
+abierto en vez de sacarlo.
+
+Fuera de `G4` avisa; en `G4` bloquea. Aplazar sigue permitido: lo que deja de estar permitido es
+aplazar sin decir a dónde.
+
+**La regla se probó sobre el propio repositorio y encontró cinco trabajos aplazados que no
+estaban asignados en ninguna parte**, incluido migrar un proyecto legado — el trabajo con el que
+se había abierto la sesión veinte tareas antes.
+
+### La migración de legado deja de estar rota
+
+- **`INTAKE-R08` leía los miembros de un lote de todo el texto del intake**, no de su tabla, así
+  que cualquier identificador citado de paso contaba como miembro. Sobre un proyecto real, los
+  hallazgos pasaron de **17 a 3**, y los tres son la migración misma.
+- **`migrate.mjs` no tenía tramo `4.12 → 6.x`**: recitaba lo que llega nuevo en vez de mirar el
+  proyecto. Ahora detecta el bloque `ESTADO` ausente, las allocations vivas sin `phase` y si la
+  plataforma está declarada. Sobre el mismo proyecto: de **1 acción pendiente a 7**.
+
+### Y dos defectos del propio marco
+
+- **`tracker abrir` componía el cuerpo del issue de un lote antes de que sus tareas tuvieran
+  número**, y hacía falta repetir el comando. Se crean las tareas primero: cero llamadas nuevas.
+  El arreglo ya existía en `sincronizarCuerpos()` y **no se alcanzaba** — un arreglo inalcanzable
+  se lee como protección y es peor que ninguno.
+- `verify-fdge` volvió a exigir los artefactos **desde la fase que los produce**, no antes.
+
+```
+selftest              266 → 287 casos
+cobertura mecánica    93/170 reglas con verificador que una compuerta ejecuta
+```
+
+### `SUITE-R45` · un lote declara qué se hace al cerrarlo
+
+Salió de un defecto de la propia `SUITE-R44`, encontrado en su primer `G4` y hecho visible por
+una pregunta: *«¿por qué habrían 3 de 5 tareas limpias? deben ser las 5»*.
+
+La entrada de `CHANGELOG` de un lote estaba escrita como fila del `out-of-scope` de **dos**
+tareas y ausente en las otras **tres** — la misma obligación copiada cinco veces, que es lo que
+`SUITE-R38` prohíbe, divergiendo a los dos días. Y las dos que la escribieron fueron las que la
+compuerta bloqueó: **declarar lo que aplazas salía más caro que callártelo**, en la regla escrita
+precisamente contra eso.
+
+El lote es quien aplaza el cierre del lote, así que se declara ahí y en ningún otro sitio:
+
+```markdown
+## Cierre del lote
+
+| Qué se resuelve al cerrar | Estado |
+|:---|:---|
+| Entrada de `CHANGELOG.md` | HECHO |
+| Lo que no dio tiempo       | PT-0NN |
+```
+
+En `G4` cada fila declara `HECHO` o el identificador al que se movió. Sin la sección, `G4`
+bloquea. Un lote ya `CLOSED` queda **exento**: pasó su compuerta con las reglas de su momento y
+exigírselo ahora sería reescribir historia. El **merge y la publicación no son filas** — no son
+trabajo que el lote absorba al cerrar, son el cierre mismo.
+
+Y `SUITE-R44` se le engancha: citar el propio lote vale **si el lote declara ese cierre**. Antes
+apuntar al lote no obligaba a nada.
+
+**Lo que esta regla NO hace, y está escrito en ella:** no comprueba que un `out-of-scope` esté
+completo. Lo que no está escrito no es detectable sin conocer el alcance real de la tarea — que
+es justo lo que ese documento sirve para declarar — y forzarlo produciría filas copiadas para
+pasar: ruido con aspecto de rigor. Lo que cambia es que **omitir una fila deje de perder nada**,
+porque la obligación ya no vive en ella.
+
+### Y el punto muerto que lo destapó
+
+`SUITE-R44` aceptaba la cita al propio lote solo si estaba `CLOSED`. Un lote llega a `CLOSED`
+**después** del merge, y el merge **es** `G4`: el patrón legítimo «esto se hace al cerrar el
+lote» no podía satisfacer la regla nunca. Ahora vale en `DONE` o `CLOSED`; `DRAFT` e
+`IN_PROGRESS` siguen bloqueando, que era la intención.
+
+En el mismo hallazgo apareció que `RULES.md` seguía describiendo `SUITE-R44` con **la lista de
+palabras que el código ya no tenía**: la regla escrita y la ejecutada llevaban un día
+divergiendo. Corregida.
+
+### Migración — añadido a lo anterior
+
+A cada `EP` **vivo** —no a los cerrados— añádele en su intake:
+
+```markdown
+## Cierre del lote
+
+| Qué se resuelve al cerrar | Estado |
+|:---|:---|
+| Entrada de `CHANGELOG.md` y número de versión | pendiente |
+```
+
+Y borra esa misma fila de los `out-of-scope` de sus tareas, si la tienen: ahora vive en un solo
+sitio. `verify-fdge --all` avisa mientras el lote está abierto y bloquea en `G4`.
+
+---
+
+### Migración desde 6.0.x
+
+**Un solo cambio, y es mecánico.** Revisa la columna «Dónde va» de cada `changes/*/out-of-scope.md`:
+
+```bash
+node docs/methodology/tools/verify-fdge.mjs --all
+```
+
+Cada aviso `SUITE-R44` señala una fila. Para cada una:
+
+1. **Si no aplaza trabajo** —queda fuera y ya está— escribe `—` en la celda. Es lo más frecuente.
+2. **Si lo aplaza dentro del mismo lote**, cita el `PT-NNN` hermano que lo recoge.
+3. **Si lo aplaza para después**, dale una allocation propia en `REGISTRY.json` con
+   `"status": "DEFERRED"` y un `origin` que mencione el PT del que sale, y cita su identificador.
+   Su issue queda abierto: aplazar algo lo pone en el tablero.
+
+No hay cambio de esquema, ni de nombres canónicos, ni migración de datos. Los `out-of-scope.md`
+de lotes **ya cerrados** no se tocan: la comprobación mira las allocations vivas.
+
+Si prefieres migrar sin prisa, `SUITE-R44` solo bloquea en `G4`: hasta entonces avisa, y puedes
+trabajar mientras ordenas los archivos.
+
+---
+
 ## 6.0.1 — 2026-08-13
 
 **Dos correcciones sobre lo que la 6.0.0 puso en la plataforma.** Ninguna regla nueva y ninguna
@@ -696,6 +842,8 @@ la etiqueta `Fecha:` de la línea siguiente y lo daba por firmado:
 | `RE_FIRMA_NOMBRE` | `SUITE-R27` se evalúa una vez sobre todos los intakes, así que **un solo intake honestamente sin firmar bloqueaba G4 para el proyecto entero**, acusándolo además de firma inválida |
 | `RE_SIGNED_BY` | El mismo defecto en el campo de solicitud |
 | `INTAKE-R08` | Los miembros de un lote se leían de todo el texto: citar un PT anterior como precedente lo convertía en miembro y disparaba un fallo sobre un PT ya cerrado. Obligaba a escribir los intakes **sin referencias cruzadas**, que es justo lo que da trazabilidad. Ahora una mención en prosa es una mención y una fila de tabla es un miembro |
+
+> **Nota añadida el 2026-08-13 (`PT-011`).** Esta corrección **no llegó al código en la 4.13.0.** De las cuatro de aquella tanda entraron tres; esta se quedó en el texto y `verify-fdge` siguió barriendo el intake entero hasta la **6.1.0**. Se descubrió midiendo cauce contra el repositorio que la había escrito, donde producía 14 errores falsos. La entrada no se reescribe (`SUITE-R09`), pero una afirmación así **cierra la pregunta**: nadie vuelve a mirar una corrección que el CHANGELOG da por hecha.
 | `verify-suite` | Marcaba 4 enlaces rotos en **toda** instalación brownfield, por no copiar `FIDE/` — que es lo que el propio `INSTALL.md` manda. Un componente que la instalación manda no copiar no puede contar como enlace roto |
 
 **La quinta apareció al traer las otras.** `RE_FIRMA_NOMBRE` no incluía `revisado`, así que las

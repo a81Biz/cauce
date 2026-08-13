@@ -1,0 +1,10 @@
+{
+  "pt": "PT-022",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E7","E8"], "tests": ["selftest.sh:citar un lote que no declara cierre falla","selftest.sh:citarlo cuando si lo declara, vale"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E1","E2","E3"], "tests": ["selftest.sh:un lote sin seccion de cierre no pasa G4","selftest.sh:y con la seccion vacia, tampoco","selftest.sh:una fila sin resolver bloquea en G4","inversa: caen esos y solo esos"], "evidence": ["salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E7"], "tests": ["PARCIAL: no se detecta la fila ausente — no es mecanizable. Se le quita el precio a la omision moviendo la obligacion al lote"], "evidence": ["salidas/repositorio.txt"], "verified": false },
+    { "ac": "AC-04", "scenarios": ["E4","E6"], "tests": ["selftest.sh:y con el lote abierto solo avisa","selftest.sh:a un lote ya cerrado no se le exige"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 299, "failed": 0, "coverage": 299, "baseline": 291 }
+}

@@ -1,0 +1,6 @@
+tracker · github · acción espejo
+
+
+  ✗ SUITE-R35    PT-018: su issue #25 declara «G1, fase: 1» y el registro dice «G2, fase: 4». El estado de la plataforma se DERIVA del registro: sincronízalo con  tracker abrir --aplicar
+
+1 divergencia(s) entre el registro y la plataforma.

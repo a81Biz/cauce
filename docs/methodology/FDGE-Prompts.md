@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **6.0.1**
+> Suite version: **7.0.0**
 
 ---
 
@@ -55,6 +55,19 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 **No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R45`: un lote declara qué se hace al cerrarlo.** El intake de un `EP` lleva una
+sección `## Cierre del lote` con una fila por cosa que se resuelve en el cierre y no en ninguna
+de sus tareas — la entrada de `CHANGELOG.md`, el número de versión, lo que sus tareas le hayan
+aplazado. En `G4` cada fila declara `HECHO` o el identificador al que se movió. Sin la sección,
+`G4` bloquea. **No comprueba que un `out-of-scope` esté completo**: lo que no está escrito no es
+detectable, y fingir que lo es sería peor. Lo que cambia es que omitir una fila deje de perder
+nada, porque la obligación ya no vive en ella.
+
+**`SUITE-R44`: lo que el lote aplaza se asigna, no se narra.** Una fila de `out-of-scope.md`
+que apunte a trabajo futuro cita el identificador que lo sostiene — normalmente una allocation
+en `DEFERRED`, con su issue abierto. En `G4` bloquea; antes solo avisa, porque aplazar durante
+el trabajo es legítimo.
 
 **`SUITE-R43`: lo que escribas en el issue se lee antes de cerrar fase.** Se distingue por una
 marca invisible en los comentarios del agente, no por autor —comenta con tu credencial, así que

@@ -629,6 +629,10 @@ function checkEpics() {
     const f = join(CHANGES, dir, 'intake.md');
     const txt = read(f);
     if (txt === null) { fail('INTAKE-R09', `${ep}: falta changes/${dir}/intake.md.`); continue; }
+    // SUITE-R45 va ANTES del control de completitud: que al intake le falte el analisis de
+    // solapamiento no dice nada sobre si el lote declara su cierre, y el `continue` de abajo
+    // dejaba la comprobacion sin ejecutar. Lo dijeron tres casos en rojo, no la lectura.
+    checkCierreDeLote(ep, txt, dir);
     const falta = [];
     if (!/Objetivo com[úu]n/i.test(txt)) falta.push('objetivo común');
     if (!/Criterio de [ée]xito del lote/i.test(txt)) falta.push('criterio de éxito del lote');
@@ -637,7 +641,32 @@ function checkEpics() {
     if (!RE_SIGN_BLOCK.test(txt) && !/Firma [úu]nica/i.test(txt)) falta.push('bloque de firma');
     if (falta.length) { fail('INTAKE-R09', `${ep}: intake del lote incompleto — falta: ${falta.join(' · ')}.`); continue; }
     // Todo PT del lote debe llevar «Firmado por lote: EP-NNN» (INTAKE-R08)
-    const pts = [...txt.matchAll(/PT-\d+/g)].map((m) => m[0]);
+    //
+    // PT-011 · Los miembros se leen de las FILAS DE TABLA, no de todo el texto. Con
+    // `matchAll` sobre el intake entero, citar un PT anterior como precedente —«el método que
+    // ya funcionó en PT-006»— lo convertía en miembro del lote y disparaba un INTAKE-R08 falso
+    // sobre un PT cerrado. El coste no era el error: era que obligaba a escribir los intakes de
+    // lote SIN referencias cruzadas, que es justo lo que da trazabilidad.
+    //
+    // La corrección venía del proyecto que la sufrió (su commit 760f790) y el CHANGELOG de la
+    // 4.13.0 la declaró TRAÍDA sin que el código la llevara: de las cuatro de aquella tanda
+    // llegaron tres. Un CHANGELOG que afirma una corrección cierra la pregunta, y nadie
+    // vuelve a mirar.
+    //
+    // Se conserva el barrido completo como respaldo cuando no hay ninguna fila reconocible,
+    // para no dejar de comprobar EN SILENCIO los intakes de lote escritos antes de que la
+    // plantilla tuviera tabla — cambiar un fallo ruidoso por uno mudo es peor.
+    //
+    // PT-022 · la seccion «## Cierre del lote» TAMBIEN es una tabla, y sus filas citan
+    // identificadores que no son miembros del lote sino destinos de lo que aplaza. Sin
+    // excluirla, citar PT-023 en el cierre lo convertia en miembro y pedia su carpeta: la
+    // regla nueva se rompio contra la anterior el mismo dia. Se recorta antes de leer.
+    const sinCierre = RE_CIERRE_LOTE.test(txt) ? txt.slice(0, txt.search(RE_CIERRE_LOTE)) : txt;
+    const enFilas = sinCierre
+      .split(/\r?\n/)
+      .filter((l) => /^\s*\|/.test(l))
+      .flatMap((l) => [...l.matchAll(/\bPT-\d+\b/g)].map((m) => m[0]));
+    const pts = enFilas.length ? enFilas : [...sinCierre.matchAll(/PT-\d+/g)].map((m) => m[0]);
     for (const pt of [...new Set(pts)]) {
       const d = readdirSync(CHANGES).find((x) => x.startsWith(pt + '-'));
       if (!d) { fail('INTAKE-R09', `${ep}: lista ${pt} y no existe changes/${pt}-slug/.`); continue; }
@@ -648,6 +677,73 @@ function checkEpics() {
     }
     ok('INTAKE-R09', `${ep}: intake del lote completo.`);
   }
+}
+
+/**
+ * `SUITE-R45` · PT-022 · Un lote declara qué se hace al cerrarlo.
+ *
+ * La entrada de `CHANGELOG` de EP-004 estaba escrita como fila del out-of-scope de DOS tareas y
+ * ausente en las otras TRES. La misma obligación copiada cinco veces —lo que SUITE-R38 prohíbe—
+ * divergiendo a los dos días. Y las dos que la escribieron fueron las que la compuerta bloqueó:
+ * declarar lo que aplazas salía más caro que callártelo.
+ *
+ * El lote es quien aplaza el cierre del lote. Ahí solo hay UN sitio donde escribirlo.
+ *
+ * Esto NO comprueba que un out-of-scope esté completo: lo que no está escrito no es detectable
+ * sin conocer el alcance real de la tarea, y fingir que se detecta sería peor que la omisión
+ * (RULE-06). Lo que cambia es que omitir una fila deje de PERDER algo.
+ */
+const RE_CIERRE_LOTE = /^##+\s*Cierre del lote/im;
+/** `SUITE-R45` · ¿el intake de este lote declara su sección de cierre? Lo usan las dos mitades
+ *  de PT-022: la que comprueba el lote y la que impide citarlo cuando no hay nada escrito. */
+function loteDeclaraCierre(ep) {
+  if (!existsSync(CHANGES)) return false;
+  const dir = readdirSync(CHANGES).find((d) => d.startsWith(ep + '-'));
+  return !!dir && RE_CIERRE_LOTE.test(read(join(CHANGES, dir, 'intake.md')) ?? '');
+}
+const RE_RESUELTA = /\bHECHO\b|\b(?:PT|EP)-\d+\b/;
+function checkCierreDeLote(ep, txt, dir) {
+  const alloc = (REGISTRO?.allocations ?? []).find((a) => a?.id === ep);
+  // Un lote CLOSED ya paso su G4 con las reglas de su momento. Exigirle una seccion que no
+  // existia entonces es reescribir historia — y este marco lo prohibe en todas partes menos,
+  // hasta aqui, en si mismo. La regla aplica a lo que todavia puede cerrarse.
+  if (alloc?.status === 'CLOSED') return;
+  const enG4 = gate === 'G4' || alloc?.status === 'DONE';
+  if (!RE_CIERRE_LOTE.test(txt)) {
+    const m = `${ep}: su intake no declara «## Cierre del lote». Lo que se resuelve al cerrar `
+      + `—la entrada de CHANGELOG.md, el número de versión, lo que sus tareas le hayan aplazado— `
+      + `vive ahí y en ningún otro sitio: escrito como fila en cada tarea, es la misma regla `
+      + `copiada N veces, y las copias divergen (SUITE-R38).`;
+    if (enG4) fail('SUITE-R45', m); else warn('SUITE-R45', m);
+    return;
+  }
+  // Las filas de la sección: tabla markdown, primera celda con el asunto y la última su estado.
+  // Se corta DESPUES del titulo: partir desde el propio «##» devuelve la cadena vacia y la
+  // seccion parecia sin filas aunque las tuviera. Lo dijo la ejecucion real, no un caso.
+  const desde = txt.slice(txt.search(RE_CIERRE_LOTE));
+  const cuerpo = desde.slice(desde.search(/\r?\n/) + 1).split(/^##+\s/m)[0];
+  const filas = cuerpo.split(/\r?\n/)
+    .filter((l) => /^\s*\|/.test(l) && !/^\s*\|[\s:|-]*\|?\s*$/.test(l))
+    .slice(1);                      // la primera es la cabecera
+  if (!filas.length) {
+    const m = `${ep}: «## Cierre del lote» está vacía. Una sección sin filas dice que no queda `
+      + `nada por hacer al cerrar, y eso es una afirmación, no un hueco que se rellena luego.`;
+    if (enG4) fail('SUITE-R45', m); else warn('SUITE-R45', m);
+    return;
+  }
+  const sinResolver = filas.filter((l) => !RE_RESUELTA.test(l.split('|').slice(-2)[0] ?? ''));
+  if (sinResolver.length && enG4) {
+    const cual = sinResolver.map((l) => `«${(l.split('|')[1] ?? '').trim().slice(0, 40)}»`).join(', ');
+    fail('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de «## Cierre del lote» sin resolver `
+      + `en G4: ${cual}. Cada una declara HECHO o el identificador al que se movió — un lote no `
+      + `cierra dejando sin responder lo que él mismo se asignó.`);
+    return;
+  }
+  if (sinResolver.length) {
+    warn('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de cierre aún sin resolver. En G4 bloquean.`);
+    return;
+  }
+  ok('SUITE-R45', `${ep}: cierre del lote declarado y resuelto (${filas.length} fila(s)).`);
 }
 
 // ─── FND-R13 · línea base de reconciliación ──────────────────────────────────
@@ -888,6 +984,7 @@ function checkPT(pt, { gate } = {}) {
     } else ok('FDGE-R42', `${pt}: investigación con conclusión documentada.`);
     checkHistory(pt, rel, type, { gate });
     checkIndex(pt);
+    checkAplazado(pt, rel, { gate });
     if (errors.length === errAt) ok('FDGE-R10', `${pt}: INVESTIGATION verificada (exenta de FDGE-R15 y FDGE-R23).`);
     return;
   }
@@ -967,6 +1064,7 @@ function checkPT(pt, { gate } = {}) {
 
   checkHistory(pt, rel, type, { gate });
   checkIndex(pt);
+  checkAplazado(pt, rel, { gate });
 
   if (errors.length === errAt) ok('FDGE-R34', `${pt}: sin errores de cumplimiento.`);
 }
@@ -1055,6 +1153,90 @@ function checkHistory(pt, rel, type, { gate }) {
   ok('FDGE-R34', `${pt}: precondiciones de G4 satisfechas.`);
 }
 
+// ─── SUITE-R44 · cerrar un lote no borra lo que aplazó ───────────────────────
+// Un lote de esta suite aplazó la corrección que lo había motivado y nadie la recogió en cuatro
+// versiones: estaba escrita en tres documentos y en ninguna lista que una compuerta tocara.
+//
+// PT-018 · La primera versión ADIVINABA sobre prosa libre —una lista de palabras: «posterior»,
+// «siguiente»— y tenía dos agujeros que salían de lo mismo: se le escapaba cualquier redacción
+// nueva, y citar un identificador cualquiera la satisfacía aunque ese PT no cubriera nada.
+//
+// No se mejora el detector: se quita. El destino es VOCABULARIO CERRADO, como `PTSA-R77` exige
+// en la matriz de auditoría — «no existe la celda en blanco: es indistinguible de una que nadie
+// miró». Sin prosa no hay nada que adivinar.
+const RE_SOLO_GUION = /^[-–—\s]*$/;
+// PT-021 · los estados en los que el trabajo de un lote esta HECHO. DONE espera al humano en
+// G4; CLOSED ya paso por el. Ninguno de los dos es una promesa. Esta aqui y no en linea porque
+// SUITE-R38: un criterio que se repite escrito a mano diverge.
+const LOTE_COMPLETO = new Set(['DONE', 'CLOSED']);
+const RE_CITA_ID = /\b((?:PT|EP)-\d+)\b/;
+
+function checkAplazado(pt, rel, { gate }) {
+  const dir = ptDir(pt);
+  const oos = dir ? read(join(dir, 'out-of-scope.md')) : null;
+  if (oos === null) return;
+  const yo = (REGISTRO?.allocations ?? []).find((a) => a?.id === pt);
+  const problemas = [];
+
+  for (const linea of oos.split(/\r?\n/)) {
+    const t = linea.trim();
+    if (!t.startsWith('|')) continue;
+    const celdas = t.split('|').slice(1, -1).map((c) => c.trim());
+    if (celdas.length < 3) continue;
+    const destino = celdas[celdas.length - 1];
+    if (/^[:\- ]+$/.test(destino) || /^Dónde va$/i.test(destino)) continue;   // separador o cabecera
+    if (RE_SOLO_GUION.test(destino)) continue;                                 // no aplaza: declara
+
+    const cita = destino.match(RE_CITA_ID)?.[1];
+    if (!cita) {
+      problemas.push(`«${celdas[0].slice(0, 44)}» → «${destino.slice(0, 34)}» no cita a nadie`);
+      continue;
+    }
+    const dest = (REGISTRO?.allocations ?? []).find((a) => a?.id === cita);
+    if (!dest) { problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no existe en el registro`); continue; }
+
+    // Un hermano del mismo lote lo cubre ahí, cerrado o no: no está aplazado.
+    if (dest.epic && yo?.epic && dest.epic === yo.epic) continue;
+    // Citar el PROPIO lote vale cuando su trabajo esta COMPLETO. «Lo hara este lote» es la
+    // promesa que fallo con la migracion del proyecto legado: mientras el lote sigue abierto no
+    // es una asignacion, es una intencion.
+    //
+    // PT-021 · exigir CLOSED era un bloqueo por construccion. Un lote llega a CLOSED DESPUES
+    // del merge, y el merge ES G4 — asi que el patron legitimo «esto se hace al cerrar el lote»
+    // (la entrada de CHANGELOG, el numero de version) no podia satisfacer la regla NUNCA. Lo
+    // encontro G4 de EP-004 bloqueando dos tareas por escribir lo que las otras tres callaron.
+    //
+    // DONE es el estado en el que el trabajo del lote esta hecho y solo espera al humano. Ahi
+    // ya no es una promesa. DRAFT e IN_PROGRESS siguen bloqueando, que era la intencion.
+    //
+    // PT-022 · y ademas el lote tiene que DECLARARLO. Citarlo era gratis: apuntar al lote no
+    // obligaba a nada, y por eso la misma obligacion acabo escrita en dos out-of-scope y
+    // ausente en tres. Ahora apuntar al lote cuesta escribirlo EN el lote, una sola vez.
+    if (dest.id === yo?.epic && LOTE_COMPLETO.has(dest.status)) {
+      if (!loteDeclaraCierre(dest.id)) {
+        problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no declara «## Cierre del lote» `
+          + `en su intake: la cita apunta a un sitio donde no hay nada escrito (SUITE-R45)`);
+      }
+      continue;
+    }
+
+    // Si no, tiene que ser un aplazado que RECONOZCA de dónde viene. Citar no basta: sin
+    // reciprocidad, apuntar a cualquier PT satisface la regla sin que nadie recoja nada.
+    if (dest.status !== 'DEFERRED') {
+      problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no está DEFERRED ni es hermano de este lote`);
+    } else if (!String(dest.origin ?? '').includes(pt)) {
+      problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que está DEFERRED pero su «origin» no menciona ${pt}: la cita no es recíproca`);
+    }
+  }
+
+  if (!problemas.length) return;
+  const m = `${pt}: ${problemas.length} fila(s) de ${rel}/out-of-scope.md no declaran su destino con el vocabulario cerrado. `
+    + 'O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una '
+    + `allocation DEFERRED cuyo «origin» mencione ${pt}. Sin eso, aplazar es narrar. `
+    + problemas.join(' · ');
+  if (gate === 'G4') fail('SUITE-R44', m); else warn('SUITE-R44', m);
+}
+
 // ─── FDGE-R31 / LEX-R07 · índice de origen ───────────────────────────────────
 function checkIndex(pt) {
   const idxFiles = ['DISCOVERY.md', 'ENRICHMENT.md', 'REFACTOR_SCOPE.md'];
@@ -1076,7 +1258,10 @@ function checkIndex(pt) {
 
 // ─── Descubrimiento de PTs ───────────────────────────────────────────────────
 function allOpenPTs(reg) {
-  const terminal = new Set(['CLOSED', 'REJECTED', 'REVERTED']);
+  // PT-013 · DEFERRED se une a los terminales AQUI: un aplazado no tiene intake ni ha recorrido
+  // fases, y exigirselo seria un rojo permanente. Sigue siendo VIVO para el espejo (tracker),
+  // que es lo que mantiene su issue abierto.
+  const terminal = new Set(['CLOSED', 'REJECTED', 'REVERTED', 'DEFERRED']);
   const fromReg = (reg?.allocations ?? [])
     .filter((a) => /^PT-\d+$/.test(a.id ?? '') && !terminal.has(a.status))
     .map((a) => a.id);

@@ -1,0 +1,287 @@
+── A · casos límite (deben pasar en verde) ──
+  [32m✓[0m BUG validado, listo para G4
+  [32m✓[0m INVESTIGATION sin AC
+  [32m✓[0m CHORE en EXPRESS sin tests
+  [32m✓[0m FEATURE a medio camino
+  [32m✓[0m MAJOR con grafo fresco
+── B · defectos inyectados (deben detectarse) ──
+  [32m✓[0m MAJOR sin grafo bloquea G2
+  [32m✓[0m grafo STALE tras PT estructural
+  [32m✓[0m falta «Estructural:» en HISTORY
+  [32m✓[0m Intake sin firmar
+  [32m✓[0m INVESTIGATION sin Conclusión
+  [32m✓[0m BUG sin validar intentando G4
+  [32m✓[0m BUG en DONE sin firma humana G3
+  [32m✓[0m contador bajo el ID ya asignado
+  [32m✓[0m estado derogado de v3 en índice
+  [32m✓[0m evidencia declarada inexistente
+  [32m✓[0m Foundation sin archivo del núcleo
+  [32m✓[0m versión desalineada ⇒ restringido
+  [32m✓[0m sin CHANGELOG ⇒ no evaluable
+  [32m✓[0m allocation sin sello de versión
+── D · migración ──
+  [32m✓[0m v3 detectada
+  [32m✓[0m v3 · REGISTRY sembrado a PT=21
+  [32m✓[0m v3 · SESSION_SUMMARY renombrado
+  [32m✓[0m v3 · PTSA/Fases → Phases
+  [32m✓[0m v3 · instrucctions archivado
+  [32m✓[0m v3 · pide reconciliación
+  [32m✓[0m v3 · pide Intake retroactivo
+  [32m✓[0m v3 · dry-run no toca nada
+  [32m✓[0m v3 · dry-run: no creó REGISTRY
+  [32m✓[0m v3 · --apply crea REGISTRY
+  [32m✓[0m v3 · --apply movió Fases
+  [32m✓[0m 4.0.x detectada
+  [32m✓[0m 4.0.x · pide grafo
+  [32m✓[0m 4.0.x · pide «Estructural:»
+  [32m✓[0m 4.0.x · sella suite_version
+  [32m✓[0m 4.0.x · PT en vuelo conservado
+  [32m✓[0m 4.12 ⇒ pide el bloque ESTADO
+  [32m✓[0m 4.12 ⇒ pide declarar la fase
+  [32m✓[0m 4.12 ⇒ ofrece la plataforma
+  [32m✓[0m 4.12 ⇒ enumera lo que llega
+  [32m✓[0m 4.12 ⇒ menciona las excepciones
+  [32m✓[0m con ESTADO ya escrito, no lo pide
+  [32m✓[0m ya en 6.x, el tramo no aparece
+  [32m✓[0m con plataforma ⇒ pide sincronizar
+  [32m✓[0m con plataforma ⇒ avisa de R42
+  [32m✓[0m sin plataforma ⇒ no exige el PR
+── E · reconciliación y migración verificada ──
+  [32m✓[0m sin baseline ⇒ avisa de RECONCILE
+  [32m✓[0m baseline completa ⇒ pasa
+  [32m✓[0m baseline incompleta ⇒ falla
+  [32m✓[0m log sin baseline ⇒ falla
+  [32m✓[0m numeración de FIDE v3 detectada
+  [32m✓[0m migración encadena verify-fdge
+── F · instalación ──
+  [32m✓[0m proyecto sin CORE.md ⇒ falla
+  [32m✓[0m migración exige el overlay PTSA
+  [32m✓[0m con CORE.md y fuentes ⇒ pasa
+  [32m✓[0m CORE.md sin sus fuentes ⇒ falla
+  [32m✓[0m CORE.md editado a mano ⇒ falla
+── G · robustez y seguridad ──
+  [32m✓[0m allocations no-array sin crash
+  [32m✓[0m REGISTRY null ⇒ mensaje correcto
+  [32m✓[0m counters no-objeto sin crash
+  [32m✓[0m JWT en la evidencia ⇒ falla
+  [32m✓[0m password en evidencia ⇒ falla
+  [32m✓[0m evidencia limpia ⇒ pasa
+    [32m✓[0m build-core sin fuentes ⇒ mensaje claro
+── H · lotes ──
+  [32m✓[0m lote sin «Firmado por lote» ⇒ falla
+  [32m✓[0m lote bien formado ⇒ pasa
+  [32m✓[0m lote sin solapamiento ⇒ falla
+  [32m✓[0m citar un PT en prosa no lo hace miembro
+  [32m✓[0m ni siquiera al de al lado
+  [32m✓[0m el de la tabla sí exige su firma
+  [32m✓[0m sin tabla, respaldo al barrido completo
+  [32m✓[0m el CHANGELOG dice dónde estaba
+── I · PTSA por enumeración ──
+  [32m✓[0m matriz completa ⇒ pasa
+  [32m✓[0m celda en blanco ⇒ falla
+  [32m✓[0m sin COVERAGE.md ⇒ falla
+  [32m✓[0m coverage inflado ⇒ falla
+  [32m✓[0m producto en DRAFT al cerrar ⇒ falla
+  [32m✓[0m BUG cerrado sin humano ⇒ falla
+  [32m✓[0m score sin cobertura ⇒ falla
+  [32m✓[0m plantilla sin completar ⇒ falla
+  [32m✓[0m proyecto sin PTSA/ ⇒ no rompe
+  [32m✓[0m PTSA/ sin auditoría ⇒ no rompe
+  [32m✓[0m overlay PTSA obsoleto ⇒ falla
+── K · integridad y firmas ──
+  [32m✓[0m CORE.md retocado en su cuerpo ⇒ falla
+  [32m✓[0m overlay retocado ⇒ falla
+  [32m✓[0m secreto en el intake ⇒ falla
+  [32m✓[0m integración sin nombre humano ⇒ falla
+  [32m✓[0m AUTONOMOUS sin lote ⇒ falla
+  [32m✓[0m firmantes sin personalizar ⇒ falla
+  [32m✓[0m firma ajena a la lista ⇒ falla
+  [32m✓[0m sin CLAUDE.md ⇒ aviso, no crash
+── J · QA y FPGE ──
+  [32m✓[0m ciclo QA correcto ⇒ pasa
+  [32m✓[0m veredicto ambiguo ⇒ falla
+  [32m✓[0m FAIL sin QD ⇒ falla
+  [32m✓[0m HP en fallo no es QA-A ⇒ falla
+  [32m✓[0m caso sin captura ⇒ falla
+  [32m✓[0m caso sin AC-nn ⇒ falla
+  [32m✓[0m espera fija ⇒ falla
+  [32m✓[0m candidato sin evidencia ⇒ falla
+  [32m✓[0m roadmap sin frescura ⇒ falla
+  [32m✓[0m QA-F con FEATURE libre ⇒ falla
+  [32m✓[0m sin QA/ ni ROADMAP ⇒ no rompe
+── L · falsificación ──
+  [32m✓[0m sello recalculado a mano ⇒ falla
+  [32m✓[0m «no hay captura» no cuenta ⇒ falla
+  [32m✓[0m captura inexistente ⇒ falla
+  [32m✓[0m QD sin libro de defectos ⇒ falla
+  [32m✓[0m dos veredictos distintos ⇒ falla
+  [32m✓[0m fila que agrupa productos ⇒ falla
+  [32m✓[0m matriz dentro de una valla ⇒ falla
+  [32m✓[0m coverage inflado 2 puntos ⇒ falla
+  [32m✓[0m migración a medias sigue restringida
+  [32m✓[0m herramienta que no compila ⇒ falla
+  [32m✓[0m auditor en verde tras restaurar
+── M · terreno ──
+  [32m✓[0m repo anidado ⇒ se propone mover
+  [32m✓[0m raíz sin git ⇒ se avisa
+  [32m✓[0m repo anidado ⇒ verify-fdge falla
+  [32m✓[0m documentos sueltos ⇒ docs/business/
+  [32m✓[0m LAYOUT sin firmar ⇒ no se abre nada
+  [32m✓[0m LAYOUT firmado ⇒ deja trabajar
+  [32m✓[0m LAYOUT firmado no se sobrescribe
+  [32m✓[0m dos veredictos en LAYOUT ⇒ falla
+  [32m✓[0m firmantes con comentario ⇒ se lee
+  [32m✓[0m el terreno reporta dependencias
+  [32m✓[0m INSTALL.md viaja en el paquete
+  [32m✓[0m el procedimiento llega a CORE.md
+  [32m✓[0m campo vacio no captura «Fecha:»
+  [32m✓[0m Valor sin firmar no pasa por firmada
+  [32m✓[0m firma de LAYOUT contrastada
+  [32m✓[0m brownfield sin FIDE ⇒ sin enlaces rotos
+  [32m✓[0m comparar-marco mide la divergencia
+  [32m✓[0m el núcleo es el mismo con LF
+  [32m✓[0m el overlay es el mismo con LF
+  [32m✓[0m repo que no versiona nada ⇒ falla
+  [32m✓[0m carpeta con package.json ⇒ a la RAÍZ
+  [32m✓[0m carpeta sin marcas ⇒ a src/
+  [32m✓[0m historia sin commits ⇒ descartarla
+  [32m✓[0m gitignore que ignora todo ⇒ propone
+  [32m✓[0m las pruebas no entran en el grafo
+  [32m✓[0m la Declaración de Valor espera a Foundation
+  [32m✓[0m con Foundation hecha, PENDIENTE ⇒ falla
+  [32m✓[0m LAYOUT sin INSTALL.log ⇒ falla
+  [32m✓[0m INSTALL.log sin entradas ⇒ falla
+  [32m✓[0m INSTALL.log con entradas ⇒ pasa
+  [32m✓[0m decisión sin etiqueta [Ln] ⇒ falla
+  [32m✓[0m etiqueta sin decisión ⇒ falla
+── N · implementación abierta ──
+  [32m✓[0m dos implementaciones abiertas ⇒ falla
+  [32m✓[0m una sola abierta ⇒ pasa
+  [32m✓[0m PT vivo sin epic ⇒ falla
+  [32m✓[0m PT vivo con su epic ⇒ pasa
+  [32m✓[0m HOTFIX exento del default
+  [32m✓[0m intake ligero ⇒ hereda del lote
+  [32m✓[0m intake ligero ⇒ no exige severidad
+  [32m✓[0m intake ligero ⇒ no exige veredicto
+  [32m✓[0m ligero sin criterios ⇒ falla
+  [32m✓[0m TAREA.md en el paquete
+  [32m✓[0m TAREA.md no pide firma propia
+── O · continuidad ──
+  [32m✓[0m HANDOFF sin bloque ESTADO ⇒ falla
+  [32m✓[0m bloque ESTADO completo ⇒ pasa
+  [32m✓[0m falta «siguiente» ⇒ falla
+  [32m✓[0m «siguiente» en blanco ⇒ falla
+  [32m✓[0m estado y trabajo a la vez ⇒ pasa
+  [32m✓[0m trabajo posterior al estado ⇒ falla
+── P · plataforma ──
+  [32m✓[0m sin plataforma ⇒ lo dice y no falla
+  [32m✓[0m plataforma desconocida ⇒ lo dice
+  [32m✓[0m azure declara el contrato, no miente
+  [32m✓[0m el contrato está en PHASES
+  [32m✓[0m y cita la regla que lo manda
+  [32m✓[0m el issue no copia el intake
+  [32m✓[0m viva sin issue ⇒ divergencia
+  [32m✓[0m issue huérfano ⇒ divergencia
+  [32m✓[0m issue muerto ⇒ divergencia
+  [32m✓[0m espejo exacto ⇒ sin divergencia
+  [32m✓[0m lo cerrado no se espeja
+  [32m✓[0m etiquetas que faltan
+  [32m✓[0m sin plataforma ⇒ código 2
+  [32m✓[0m plataforma desconocida ⇒ 2
+  [32m✓[0m declarada y sin acceso ⇒ 3
+  [32m✓[0m sin acceso dice cómo entrar
+  [32m✓[0m declarada y con acceso ⇒ 0
+  [32m✓[0m sin plataforma ⇒ exige bitácora
+  [32m✓[0m sin plataforma ⇒ bitácora al día
+  [32m✓[0m sin plataforma ⇒ G4 libre del espejo
+── Q · secretos ──
+  [32m✓[0m árbol limpio ⇒ sin hallazgos
+  [32m✓[0m contraseña en el código ⇒ bloquea
+  [32m✓[0m y propone la corrección
+  [32m✓[0m credencial en JSON ⇒ bloquea
+  [32m✓[0m REDACTADO no es un secreto
+  [32m✓[0m árbol limpio tras sacarlo
+  [32m✓[0m pero la historia lo conserva
+  [32m✓[0m el secreto de la historia se caza
+  [32m✓[0m los commits del fixture SÍ difieren
+  [32m✓[0m la huella no depende del commit
+  [32m✓[0m firmada allí ⇒ exime aquí
+  [32m✓[0m clon superficial ⇒ SIN EVALUAR
+  [32m✓[0m y dice cómo arreglarlo
+  [32m✓[0m no dice que revisó la historia
+  [32m✓[0m CI clona la historia entera
+  [32m✓[0m PHASES ya no declara milestone
+  [32m✓[0m SUITE-R42 existe en RULES
+  [32m✓[0m SUITE-R42 llega al núcleo
+  [32m✓[0m sin plataforma ⇒ pr no aplica
+  [32m✓[0m plataforma sin acceso ⇒ pr da 3
+  [32m✓[0m sin plataforma ⇒ G4 libre de R42
+  [32m✓[0m tracker no puede fusionar
+  [32m✓[0m la etiqueta lleva la fase
+  [32m✓[0m y la compuerta que espera
+  [32m✓[0m PHASE 5 no espera compuerta
+  [32m✓[0m sin fase declarada no revienta
+  [32m✓[0m etiqueta que no cuadra ⇒ divergencia
+  [32m✓[0m etiquetas correctas ⇒ sin divergencia
+  [32m✓[0m estado funciona sin plataforma
+  [32m✓[0m humano tras el agente ⇒ pendiente
+  [32m✓[0m respondido ⇒ ya no pendiente
+  [32m✓[0m los del agente no cuentan
+  [32m✓[0m sin comentarios no revienta
+  [32m✓[0m sin ninguna marca ⇒ no evaluable
+  [32m✓[0m SUITE-R43 existe en RULES
+  [32m✓[0m el cierre lleva la marca
+  [32m✓[0m y no pierde lo que decia
+  [32m✓[0m SUITE-R43 sigue exigiendo respuesta
+  [32m✓[0m el EP no se niega a si mismo
+  [32m✓[0m y dice que ES una implementacion
+  [32m✓[0m el enlace es absoluto
+  [32m✓[0m enumera sus tareas con su issue
+  [32m✓[0m sin URL no se inventa
+  [32m✓[0m sigue sin copiar el intake
+  [32m✓[0m una tarea sí dice a qué lote va
+  [32m✓[0m sin plataforma ⇒ G4 libre de R43
+── R · bitácora y cierre ──
+  [32m✓[0m sin condición de cierre ⇒ falla
+  [32m✓[0m con condición de cierre ⇒ pasa
+  [32m✓[0m PHASE 4 sin bitácora ⇒ falla
+  [32m✓[0m bitácora al día ⇒ pasa
+  [32m✓[0m bitácora atrasada ⇒ falla
+  [32m✓[0m PHASE 1 sin traceability ⇒ no falla
+  [32m✓[0m PHASE 1 sin traceability ⇒ se avisa
+  [32m✓[0m PHASE 4 sin traceability ⇒ falla
+  [32m✓[0m PHASE 1 sin discovery ⇒ no falla
+  [32m✓[0m PHASE 2 sin discovery ⇒ falla
+  [32m✓[0m sin fase declarada ⇒ no bloquea
+  [32m✓[0m sin fase declarada ⇒ SIN EVALUAR
+  [32m✓[0m el aviso dice dónde declararla
+  [32m✓[0m el README no fija una versión
+  [32m✓[0m el README nombra el paquete
+── S · patrones ──
+  [32m✓[0m los patrones cumplen su contrato
+  [32m✓[0m escape degradado ⇒ falla su ejemplo
+  [32m✓[0m destino que ES cauce ⇒ no se instala
+  [32m✓[0m un proyecto normal NO es cauce
+  [32m✓[0m secreto sin firmar ⇒ bloquea
+  [32m✓[0m fila sin firmante NO exime
+  [32m✓[0m firmada ⇒ se ve y no bloquea
+  [32m✓[0m firmada ⇒ ya no bloquea
+  [32m✓[0m package.json desalineado ⇒ falla
+  [32m✓[0m version.mjs ve el desalineado
+  [32m✓[0m una sola fórmula del sello
+── C · metodología ──
+  [32m✓[0m verify-suite en verde
+  [32m✓[0m CORE.md sincronizado
+  [32m✓[0m CORE-PTSA.md sincronizado
+  [32m✓[0m cobertura sin huecos
+  [32m✓[0m la cobertura lleva denominador
+  [32m✓[0m declara las ejecutadas
+  [32m✓[0m declara las que nadie ejecuta
+  [32m✓[0m declara las que nadie verifica
+  [32m✓[0m ya no dice cobertura completa
+  [32m✓[0m enumera las que nadie verifica
+  [32m✓[0m enumera las que nadie ejecuta
+  [32m✓[0m las ejecutadas ni 0 ni el total
+  [32m✓[0m sin saber quién ejecuta ⇒ SIN EVALUAR
+
+selftest: OK · 266 casos

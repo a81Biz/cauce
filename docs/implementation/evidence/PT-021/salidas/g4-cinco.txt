@@ -1,0 +1,7 @@
+# EP-004 en G4 — las cinco tareas
+
+PT-011   Sin errores. PTs verificados: 1.
+PT-012   Sin errores. PTs verificados: 1.
+PT-013   Sin errores. PTs verificados: 1.
+PT-014   Sin errores. PTs verificados: 1.
+PT-018   Sin errores. PTs verificados: 1.

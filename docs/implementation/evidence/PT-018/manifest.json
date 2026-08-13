@@ -1,0 +1,13 @@
+{
+  "pt": "PT-018",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E2","E3"], "tests": ["grep RE_APLAZA tools/ · sin resultados"], "evidence": ["salidas/verify-fdge-all.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E2"], "tests": ["selftest.sh:SUITE-R44 ya no adivina sobre prosa"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E3"], "tests": ["selftest.sh:otra prosa cualquiera, también"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E5"], "tests": ["selftest.sh:el propio lote abierto no vale"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E8"], "tests": ["selftest.sh:si reconoce su origen, pasa"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["E7"], "tests": ["selftest.sh:citar a cualquiera ya no basta","selftest.sh:si no reconoce su origen, falla"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-07", "scenarios": ["E1","E4","E6","E9"], "tests": ["verify-fdge --all sobre el repositorio · avisos SUITE-R44: 0","ejecución real: PT-019/#26 y PT-020/#27 encontrados y asignados"], "evidence": ["salidas/verify-fdge-all.txt","salidas/espejo.txt"], "verified": true }
+  ],
+  "suite": { "passed": 281, "failed": 0, "coverage": 281, "baseline": 275 }
+}

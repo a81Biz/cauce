@@ -1,0 +1,9 @@
+{
+  "pt": "PT-014",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1","E6"], "tests": ["selftest.sh:el lote se crea el ultimo","selftest.sh:el cuerpo del lote ya trae numero"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E1","E3"], "tests": ["selftest.sh:el lote se crea el ultimo","selftest.sh:entre tareas, el orden del registro","comprobacion inversa: el caso va rojo sin el arreglo"], "evidence": ["salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E2","E4","E5"], "tests": ["selftest.sh:y no se pierde ni se duplica","selftest.sh:no muta la lista que recibe","selftest.sh:sin nada que abrir, no revienta"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 287, "failed": 0, "coverage": 287, "baseline": 281 }
+}

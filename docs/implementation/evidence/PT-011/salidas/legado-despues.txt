@@ -1,0 +1,709 @@
+verify-fdge — cumplimiento mecánico de la Methodology Suite 6.0.1
+
+PASA
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+  ✓ FND-R05        11-Conventions.md declara 5 Hard Rules.
+  ✓ FND-R08        Foundation presente (archivos del núcleo verificados).
+  ✓ SUITE-R06      Toda integración registrada lleva nombre humano.
+  ✓ FDGE-R48       EP-014 es la única implementación abierta.
+  ✓ FDGE-R49       EP-014 abierta · todo el trabajo vivo le pertenece.
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ FND-R22        Plan de terreno resuelto y firmado.
+  ✓ FND-R24        Declaración de Valor firmada por Alberto Martínez.
+  ✓ SUITE-R30      INSTALL.log con 11 acción(es) registrada(s), todas las decisiones con rastro.
+  ✓ FND-R13        Línea base de reconciliación completa.
+  ✓ INTAKE-R09     EP-001: intake del lote completo.
+  ✓ INTAKE-R09     EP-002: intake del lote completo.
+  ✓ INTAKE-R09     EP-003: intake del lote completo.
+  ✓ INTAKE-R09     EP-004: intake del lote completo.
+  ✓ INTAKE-R09     EP-005: intake del lote completo.
+  ✓ INTAKE-R09     EP-006: intake del lote completo.
+  ✓ INTAKE-R09     EP-007: intake del lote completo.
+  ✓ INTAKE-R09     EP-008: intake del lote completo.
+  ✓ INTAKE-R09     EP-009: intake del lote completo.
+  ✓ INTAKE-R09     EP-010: intake del lote completo.
+  ✓ INTAKE-R09     EP-011: intake del lote completo.
+  ✓ INTAKE-R09     EP-012: intake del lote completo.
+  ✓ INTAKE-R09     EP-013: intake del lote completo.
+  ✓ INTAKE-R09     EP-014: intake del lote completo.
+  ✓ FDGE-R43       Grafo FRESH — generado 2026-08-11 sobre apps packages e2e tools docs/business docs/enterprise-documentation docs/implementation changes.
+  ✓ INTAKE-R06     PT-029: Intake firmado.
+  ✓ FDGE-R45       PT-029: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-029: self-review completo.
+  ✓ FDGE-R29       PT-029: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-029: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-029: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-028: Intake firmado.
+  ✓ FDGE-R45       PT-028: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-028: self-review completo.
+  ✓ FDGE-R29       PT-028: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-028: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-028: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-020: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-020: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-020: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-020: self-review completo.
+  ✓ FDGE-R29       PT-020: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-020: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-020: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-021: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-021: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-021: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-021: self-review completo.
+  ✓ FDGE-R29       PT-021: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-021: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-021: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-022: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-022: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-022: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-022: self-review completo.
+  ✓ FDGE-R29       PT-022: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-022: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-022: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-023: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-023: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-023: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-023: self-review completo.
+  ✓ FDGE-R29       PT-023: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-023: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-023: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-024: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-024: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-024: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-024: self-review completo.
+  ✓ FDGE-R29       PT-024: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-024: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-024: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-025: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-025: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-025: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-025: self-review completo.
+  ✓ FDGE-R29       PT-025: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-025: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-025: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-026: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-026: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-026: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-026: self-review completo.
+  ✓ FDGE-R29       PT-026: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-026: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-026: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-027: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-027: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-027: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-027: self-review completo.
+  ✓ FDGE-R29       PT-027: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-027: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-027: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-018: Intake firmado.
+  ✓ FDGE-R45       PT-018: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-018: self-review completo.
+  ✓ FDGE-R29       PT-018: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-018: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-018: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-017: Intake firmado.
+  ✓ FDGE-R45       PT-017: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-017: self-review completo.
+  ✓ FDGE-R29       PT-017: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-017: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-017: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-016: Intake firmado.
+  ✓ FDGE-R45       PT-016: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-016: self-review completo.
+  ✓ FDGE-R29       PT-016: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-016: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-016: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-015: Intake firmado.
+  ✓ FDGE-R45       PT-015: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-015: self-review completo.
+  ✓ FDGE-R29       PT-015: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-015: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-015: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-014: Intake firmado.
+  ✓ FDGE-R45       PT-014: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-014: self-review completo.
+  ✓ FDGE-R29       PT-014: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-014: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-014: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-013: Intake firmado.
+  ✓ FDGE-R45       PT-013: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-013: self-review completo.
+  ✓ FDGE-R29       PT-013: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-013: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-013: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-012: Intake firmado.
+  ✓ FDGE-R45       PT-012: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-012: self-review completo.
+  ✓ FDGE-R29       PT-012: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-012: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-012: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-011: Intake firmado.
+  ✓ FDGE-R45       PT-011: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-011: self-review completo.
+  ✓ FDGE-R29       PT-011: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-011: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-011: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-010: Intake firmado.
+  ✓ FDGE-R45       PT-010: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-010: self-review completo.
+  ✓ FDGE-R29       PT-010: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-010: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-010: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-009: Intake firmado.
+  ✓ FDGE-R45       PT-009: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-009: self-review completo.
+  ✓ FDGE-R29       PT-009: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-009: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-009: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-001: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-001: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-001: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-001: self-review completo.
+  ✓ FDGE-R29       PT-001: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-001: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-001: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-002: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-002: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-002: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-002: self-review completo.
+  ✓ FDGE-R29       PT-002: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-002: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-002: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-007: Intake firmado.
+  ✓ FDGE-R45       PT-007: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-007: self-review completo.
+  ✓ FDGE-R29       PT-007: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-007: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-007: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-005: Intake firmado.
+  ✓ FDGE-R45       PT-005: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-005: self-review completo.
+  ✓ FDGE-R29       PT-005: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-005: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-005: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-004: Intake firmado.
+  ✓ FDGE-R45       PT-004: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-004: self-review completo.
+  ✓ FDGE-R29       PT-004: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-004: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-004: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-003: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-003: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-003: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-003: self-review completo.
+  ✓ FDGE-R29       PT-003: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-003: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-003: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-030: Intake firmado.
+  ✓ FDGE-R45       PT-030: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-030: self-review completo.
+  ✓ FDGE-R29       PT-030: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-030: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-030: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-031: Intake firmado.
+  ✓ FDGE-R45       PT-031: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-031: self-review completo.
+  ✓ FDGE-R29       PT-031: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-031: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-031: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-032: firmado por lote EP-003.
+  ✓ FDGE-R51       PT-032: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-032: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-032: self-review completo.
+  ✓ FDGE-R29       PT-032: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-032: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-032: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-033: firmado por lote EP-003.
+  ✓ FDGE-R51       PT-033: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-033: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-033: self-review completo.
+  ✓ FDGE-R29       PT-033: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-033: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-033: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-034: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-034: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-034: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-034: self-review completo.
+  ✓ FDGE-R29       PT-034: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-034: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-034: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-037: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-037: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-037: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-037: self-review completo.
+  ✓ FDGE-R29       PT-037: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-037: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-037: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-038: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-038: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-038: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-038: self-review completo.
+  ✓ FDGE-R29       PT-038: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-038: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-038: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-039: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-039: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-039: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-039: self-review completo.
+  ✓ FDGE-R29       PT-039: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-039: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-039: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-040: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-040: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-040: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-040: self-review completo.
+  ✓ FDGE-R29       PT-040: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-040: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-040: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-041: Intake firmado.
+  ✓ FDGE-R45       PT-041: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-041: self-review completo.
+  ✓ FDGE-R29       PT-041: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-041: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-041: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-042: Intake firmado.
+  ✓ FDGE-R45       PT-042: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-042: self-review completo.
+  ✓ FDGE-R29       PT-042: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-042: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-042: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-043: Intake firmado.
+  ✓ FDGE-R45       PT-043: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-043: self-review completo.
+  ✓ FDGE-R29       PT-043: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-043: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-043: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-044: Intake firmado.
+  ✓ FDGE-R45       PT-044: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-044: self-review completo.
+  ✓ FDGE-R29       PT-044: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-044: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-044: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-045: Intake firmado.
+  ✓ FDGE-R45       PT-045: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-045: self-review completo.
+  ✓ FDGE-R29       PT-045: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-045: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-045: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-046: Intake firmado.
+  ✓ FDGE-R45       PT-046: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-046: self-review completo.
+  ✓ FDGE-R29       PT-046: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-046: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-046: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-047: Intake firmado.
+  ✓ FDGE-R45       PT-047: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-047: self-review completo.
+  ✓ FDGE-R29       PT-047: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-047: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-047: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-048: Intake firmado.
+  ✓ FDGE-R45       PT-048: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-048: self-review completo.
+  ✓ FDGE-R29       PT-048: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-048: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-048: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-049: firmado por lote EP-006.
+  ✓ FDGE-R51       PT-049: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-049: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-049: self-review completo.
+  ✓ FDGE-R29       PT-049: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-049: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-049: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-050: firmado por lote EP-005.
+  ✓ FDGE-R51       PT-050: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-050: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-050: self-review completo.
+  ✓ FDGE-R29       PT-050: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-050: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-050: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-051: firmado por lote EP-005.
+  ✓ FDGE-R51       PT-051: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-051: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-051: self-review completo.
+  ✓ FDGE-R29       PT-051: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-051: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-051: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-052: firmado por lote EP-005.
+  ✓ FDGE-R51       PT-052: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-052: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-052: self-review completo.
+  ✓ FDGE-R29       PT-052: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-052: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-052: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-053: firmado por lote EP-005.
+  ✓ FDGE-R51       PT-053: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-053: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-053: self-review completo.
+  ✓ FDGE-R29       PT-053: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-053: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-053: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-054: Intake firmado.
+  ✓ FDGE-R45       PT-054: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-054: self-review completo.
+  ✓ FDGE-R29       PT-054: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-054: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-054: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-057: firmado por lote EP-008.
+  ✓ FDGE-R51       PT-057: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-057: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-057: self-review completo.
+  ✓ FDGE-R29       PT-057: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-057: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-057: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-058: firmado por lote EP-008.
+  ✓ FDGE-R51       PT-058: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-058: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-058: self-review completo.
+  ✓ FDGE-R29       PT-058: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-058: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-058: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-059: firmado por lote EP-008.
+  ✓ FDGE-R51       PT-059: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-059: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-059: self-review completo.
+  ✓ FDGE-R29       PT-059: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-059: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-059: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-060: firmado por lote EP-007.
+  ✓ FDGE-R51       PT-060: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-060: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-060: self-review completo.
+  ✓ FDGE-R29       PT-060: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-060: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-060: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-061: Intake firmado.
+  ✓ FDGE-R45       PT-061: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-061: self-review completo.
+  ✓ FDGE-R29       PT-061: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-061: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-061: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-062: firmado por lote EP-009.
+  ✓ FDGE-R51       PT-062: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-062: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-062: self-review completo.
+  ✓ FDGE-R29       PT-062: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-062: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-062: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-063: Intake firmado.
+  ✓ FDGE-R45       PT-063: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-063: self-review completo.
+  ✓ FDGE-R29       PT-063: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-063: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-063: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-064: Intake firmado.
+  ✓ FDGE-R45       PT-064: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-064: self-review completo.
+  ✓ FDGE-R29       PT-064: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-064: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-064: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-065: Intake firmado.
+  ✓ FDGE-R45       PT-065: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-065: self-review completo.
+  ✓ FDGE-R29       PT-065: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-065: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-065: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-066: firmado por lote EP-007.
+  ✓ FDGE-R51       PT-066: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-066: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-066: self-review completo.
+  ✓ FDGE-R29       PT-066: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-066: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-066: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-067: Intake firmado.
+  ✓ FDGE-R45       PT-067: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-067: self-review completo.
+  ✓ FDGE-R29       PT-067: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-067: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-067: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-068: firmado por lote EP-010.
+  ✓ FDGE-R51       PT-068: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-068: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-068: self-review completo.
+  ✓ FDGE-R29       PT-068: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-068: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-068: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-069: firmado por lote EP-010.
+  ✓ FDGE-R51       PT-069: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-069: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-069: self-review completo.
+  ✓ FDGE-R29       PT-069: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-069: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-069: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-070: firmado por lote EP-010.
+  ✓ FDGE-R51       PT-070: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-070: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-070: self-review completo.
+  ✓ FDGE-R29       PT-070: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-070: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-070: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-071: firmado por lote EP-010.
+  ✓ FDGE-R51       PT-071: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-071: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-071: self-review completo.
+  ✓ FDGE-R29       PT-071: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-071: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-071: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-072: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-072: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-072: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-072: self-review completo.
+  ✓ FDGE-R29       PT-072: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-072: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-072: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-073: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-073: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-073: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-073: self-review completo.
+  ✓ FDGE-R29       PT-073: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-073: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-073: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-074: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-074: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-074: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-074: self-review completo.
+  ✓ FDGE-R29       PT-074: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-074: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-074: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-075: firmado por lote EP-012.
+  ✓ FDGE-R51       PT-075: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-075: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-075: self-review completo.
+  ✓ FDGE-R29       PT-075: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-075: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-075: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-076: firmado por lote EP-012.
+  ✓ FDGE-R51       PT-076: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-076: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-076: self-review completo.
+  ✓ FDGE-R29       PT-076: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-076: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-076: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-077: firmado por lote EP-012.
+  ✓ FDGE-R51       PT-077: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-077: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-077: self-review completo.
+  ✓ FDGE-R29       PT-077: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-077: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-077: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-078: firmado por lote EP-012.
+  ✓ FDGE-R51       PT-078: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-078: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-078: self-review completo.
+  ✓ FDGE-R29       PT-078: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-078: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-078: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-079: Intake firmado.
+  ✓ FDGE-R45       PT-079: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-079: self-review completo.
+  ✓ FDGE-R29       PT-079: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-079: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-079: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-080: Intake firmado.
+  ✓ FDGE-R45       PT-080: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-080: self-review completo.
+  ✓ FDGE-R29       PT-080: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-080: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-080: sin errores de cumplimiento.
+  ✓ INTAKE-R06     PT-081: Intake firmado.
+  ✓ FDGE-R45       PT-081: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-081: self-review completo.
+  ✓ FDGE-R29       PT-081: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-081: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-081: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-082: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-082: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-082: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-082: self-review completo.
+  ✓ FDGE-R29       PT-082: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-082: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-082: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-083: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-083: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-083: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-083: self-review completo.
+  ✓ FDGE-R29       PT-083: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-083: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-083: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-085: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-085: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-085: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-085: self-review completo.
+  ✓ FDGE-R29       PT-085: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-085: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-085: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-086: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-086: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-086: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-086: self-review completo.
+  ✓ FDGE-R29       PT-086: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-086: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-086: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-087: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-087: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-087: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-087: self-review completo.
+  ✓ FDGE-R29       PT-087: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-087: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-087: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-089: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-089: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-089: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-089: self-review completo.
+  ✓ FDGE-R29       PT-089: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-089: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-089: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-090: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-090: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-090: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-090: self-review completo.
+  ✓ FDGE-R29       PT-090: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-090: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-090: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-091: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-091: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-091: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-091: self-review completo.
+  ✓ FDGE-R29       PT-091: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-091: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-091: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-092: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-092: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-092: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-092: self-review completo.
+  ✓ FDGE-R29       PT-092: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-092: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-092: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-094: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-094: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-094: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-094: self-review completo.
+  ✓ FDGE-R29       PT-094: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-094: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-094: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-095: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-095: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-095: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-095: self-review completo.
+  ✓ FDGE-R29       PT-095: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-095: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-095: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-096: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-096: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-096: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-096: self-review completo.
+  ✓ FDGE-R29       PT-096: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-096: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-096: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-097: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-097: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-097: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-097: self-review completo.
+  ✓ FDGE-R29       PT-097: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-097: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-097: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-099: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-099: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-099: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-099: self-review completo.
+  ✓ FDGE-R29       PT-099: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-099: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-099: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-100: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-100: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-100: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-100: self-review completo.
+  ✓ FDGE-R29       PT-100: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-100: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-100: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-101: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-101: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-101: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-101: self-review completo.
+  ✓ FDGE-R29       PT-101: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-101: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-101: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-103: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-103: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-103: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-103: self-review completo.
+  ✓ FDGE-R29       PT-103: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-103: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-103: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-104: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-104: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-104: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-104: self-review completo.
+  ✓ FDGE-R29       PT-104: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-104: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-104: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-105: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-105: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-105: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-105: self-review completo.
+  ✓ FDGE-R29       PT-105: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-105: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-105: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-106: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-106: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-106: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-106: self-review completo.
+  ✓ FDGE-R29       PT-106: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-106: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-106: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-108: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-108: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-108: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-108: self-review completo.
+  ✓ FDGE-R29       PT-108: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-108: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-108: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-109: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-109: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-109: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-109: self-review completo.
+  ✓ FDGE-R29       PT-109: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-109: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-109: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-110: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-110: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-110: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-110: self-review completo.
+  ✓ FDGE-R29       PT-110: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-110: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-110: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-111: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-111: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-111: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-111: self-review completo.
+  ✓ FDGE-R29       PT-111: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-111: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-111: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-112: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-112: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-112: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-112: self-review completo.
+  ✓ FDGE-R29       PT-112: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-112: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-112: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-113: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-113: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-113: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-113: self-review completo.
+  ✓ FDGE-R29       PT-113: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-113: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-113: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-114: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-114: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-114: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-114: self-review completo.
+  ✓ FDGE-R29       PT-114: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-114: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-114: sin errores de cumplimiento.
+
+ERRORES
+  ✗ SUITE-R17      El proyecto declara suite_version 4.12.0 y la vigente es 6.0.1. Modo restringido: solo migrate, status y terminar los PTs en vuelo. → node tools/migrate.mjs
+  ✗ SUITE-R16      CORE.md desincronizado con sus fuentes. → node docs/methodology/tools/build-core.mjs docs/methodology
+  ✗ SUITE-R33      HANDOFF.md no abre con el bloque ESTADO. Un HANDOFF de prosa cuenta lo que se hizo; retomar necesita qué está abierto, qué compuerta espera y cuál es la siguiente acción — y eso tiene que caber en una pantalla.
+
+3 error(es).
