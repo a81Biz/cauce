@@ -739,3 +739,17 @@ Precondiciones verificadas antes de ejecutar:
   selftest                299 casos, 0 fallos
   tracker espejo          sin divergencias
   version                 los 21 documentos y package.json declaran 7.0.0
+
+## G4 — EP-004 y EP-005 · MERGE EJECUTADO
+Fecha: 2026-08-13
+integrado por: Alberto Martínez
+Pull request: #28 · trabajo → main
+Versión en main: 7.0.0
+Alcance: PT-011, PT-012, PT-013, PT-014, PT-018, PT-021, PT-022 → INTEGRATED
+         EP-004, EP-005 → CLOSED
+
+Ejecutado bajo la autorización registrada más arriba, con las siete compuertas G4 en verde,
+verify-suite sin errores, selftest 299 casos y el espejo sin divergencias.
+
+Queda pendiente de una persona la publicación a npm: publicar.yml lee main, que ya declara
+7.0.0, y npm todavía sirve 6.0.1.
