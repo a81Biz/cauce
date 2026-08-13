@@ -87,3 +87,121 @@ Descubrimientos de ejecución: el arnés se engañaba a sí mismo pasando la rut
 `argv[1]`; `VIVOS` no contaba `DONE` ni `VALIDATION_PENDING` como vivos, y un PT que espera el
 merge es lo más abierto que hay; y `notas PT-NNN` colisionaba con el posicional de ruta.
 
+## PT-002 — BUG: la cobertura mecánica se mide por regla
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente del cierre del lote
+
+Qué fallaba: `audit` medía la cobertura mecánica POR COMPONENTE —hueco solo si un componente
+tenía cero reglas verificadas— e informaba «Cobertura completa: sin huecos» con 63 reglas HARD
+sin ningún script. No mentía sobre lo que medía: mentía sobre lo que el lector entiende que ha
+medido. No vio ninguno de los dos defectos de este mismo lote.
+
+Causa raíz: la unidad de medida es el componente y el informe habla como si fuera la regla.
+
+Qué se hizo: el conjunto de herramientas con compuerta se DERIVA de `package.json`, los
+workflows y `bin/cauce.mjs` — no se escribe (`RULE-01`). Tres estados por regla: ejecutada ·
+citada sin compuerta · sin verificador. Sin poder derivarlo, `SIN EVALUAR`: ni 0 ni el total
+(`RULE-06`). Banderas `--sin-verificar` y `--sin-compuerta` para enumerar.
+
+Resultado: 91/167 ejecutadas por una compuerta, HARD 69/134 · 7 citadas sin compuerta ·
+69 sin verificador. `selftest` 202 → 211 casos, 0 fallos.
+
+Ninguna regla cambió de texto y el código de salida tampoco: la cobertura informa, no bloquea.
+`SUITE-R26` dice «aspira» y sigue siendo correcta; un umbral empujaría a citar identificadores
+en comentarios para subir la cifra.
+
+Delta respecto al plan: una regresión propia. Cambiar la frase final rompió dos casos que
+greppeaban «sin huecos». Se resolvió conservando el literal en minúscula, no reescribiendo los
+asertos — cambiar el aserto para que encaje con la salida nueva es como se pierde la señal que
+ese aserto daba.
+
+Límite declarado: «citada» sigue siendo que el identificador aparezca en el texto de la
+herramienta, así que 91 es un LÍMITE SUPERIOR. Afinarlo exigiría interpretar código.
+
+## PT-003 — INVESTIGATION: el contrato de la plataforma
+Fecha: 2026-08-13
+Estado: CLOSED
+Severidad: S3
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G3 2026-08-13 Alberto Martínez
+
+Qué se preguntó: `SUITE-R35` declara tres mapeos —milestone, issue, pull request— y el
+adaptador implementa uno. ¿Se implementan los otros dos o se recorta el contrato?
+
+Qué se determinó: **la premisa era falsa.** `SUITE-R35` declara **un** mapeo. `RULES.md` tiene
+cero apariciones de «milestone» y cero de «pull request»; `LEXICON.md`, cero. El contrato de
+tres mapeos vive solo en `PHASES.md:250-256`, bajo el encabezado `[SUITE-R35]`.
+
+Un documento de procedimiento enunciaba dos obligaciones atribuyéndoselas a una regla que no
+las contiene. `LEX-R21` pone `PHASES` por debajo de `RULES`. El adaptador no incumple nada:
+cumple la regla entera. El defecto es de nivel de autoridad, no de cobertura — y es la avería
+que la v4 nació para eliminar en su forma más sutil: no dos copias que divergen, sino una
+copia que dice de más.
+
+Decisiones: el milestone **no se implementa y se retira del procedimiento** —cero milestones
+en toda la historia, `EP-001` ya tiene su propio issue, y añadirlo daría dos representaciones
+del mismo hecho en la misma plataforma—. El pull request **se conserva y sube a `RULES.md`**:
+la práctica ya existe (PR #1 fusionado), abrir un PR no es automatizar `G4` (`SUITE-R06a`
+prohíbe merge y push, no proponerlos) y es comprobable.
+
+Qué quedó sin determinar: si el mapeo `G4` → pull request sube como parte de `SUITE-R35` o
+como regla propia. Es normativo y lo decide una persona.
+
+PT de seguimiento propuesto (`FDGE-R42`): un `CHORE` con dos partes —retirar los dos mapeos de
+`PHASES.md` y añadir a `RULES.md` el del pull request con su comprobación—. No pertenece a
+`EP-001` (`FDGE-R50`): toca `RULES.md` y `CORE.md`, en el out-of-scope de todas sus tareas.
+
+## EP-001 — IMPLEMENTACIÓN: el marco se hace cumplir a sí mismo
+Fecha: 2026-08-13
+Estado: DONE
+Estructural: no
+Compuertas: G1 2026-08-13 Alberto Martínez (firma única por delegación, con constancia) · G4 pendiente
+
+Tareas, en el orden en que se ejecutaron:
+
+| PT | Tipo | Sev | Estado | Qué resolvió |
+|:---|:---|:---|:---|:---|
+| PT-004 | BUG | S2 | DONE | `verify-fdge` exigía artefactos de PHASE 4 a un PT en PHASE 1 |
+| PT-001 | BUG | S2 | DONE | `SUITE-R35` tenía herramienta y ninguna compuerta la ejecutaba |
+| PT-002 | BUG | S3 | DONE | `audit` decía «cobertura completa» con 63 reglas HARD sin script |
+| PT-003 | INVESTIGATION | S3 | CLOSED | El contrato de tres mapeos no estaba en la regla, sino en el procedimiento |
+
+Criterio de éxito del lote, contrastado: abrir trabajo sin dejar rastro consultable **ya no es
+posible sin que salte una compuerta** —`tracker espejo` corre en `npm run verify`, en CI y en
+`G4`— y el marco **publica cuánta de su propia letra sostiene una máquina**: 91/167, HARD
+69/134, con las 7 de la franja intermedia enumerables.
+
+Resultado acumulado: `selftest` 180 → 211 casos. `verify-fdge --all` sin errores. Espejo con
+GitHub cuadrando.
+
+Qué se aprendió, y no estaba en el plan:
+
+- **Tres de los cuatro defectos aparecieron EJECUTANDO el marco, no leyéndolo.** `PT-004` salió
+  al abrir los tres primeros PTs; el defecto de `FDGE-R52` salió al reanclar; `VIVOS` sin
+  `DONE` salió al correr el espejo de verdad.
+- **El defecto raíz de `PT-001` lo encontró una persona preguntando**, no un verificador. Hasta
+  ese momento el lote se había planificado entero sin issues y las siete comprobaciones
+  pasaban en verde.
+- **`FDGE-R52` cazó al agente tres veces** por consolidar el reanclaje en vez de escribir una
+  nota por transición. Las tres tenía razón. La primera vez se rehízo el recorrido por decisión
+  humana en vez de firmar una excepción.
+- Se retiró una guarda de CI para PRs desde fork: cero forks en la historia del repositorio y
+  no verificable desde aquí. La 5.2.1 ya sentó ese precedente.
+
+Pendientes que salen de este lote y NO le pertenecen (`FDGE-R50`):
+
+1. Retirar de `PHASES.md` los mapeos de milestone y pull request, y decidir si el del PR sube
+   a `RULES.md` con su comprobación. Propuesto por `PT-003`.
+2. Llevar el contenido completo de cada fase al issue de GitHub, y comprobar que no se cierra
+   fase con comentarios humanos sin responder. Aceptado el 2026-08-13.
+

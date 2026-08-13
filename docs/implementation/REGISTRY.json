@@ -34,7 +34,7 @@
       "complexity": null,
       "severity": null,
       "track": null,
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "structural": null,
       "suite_version": "5.2.3",
       "title": "El marco se hace cumplir a sí mismo",
@@ -70,7 +70,7 @@
       "complexity": "TRIVIAL",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "structural": false,
       "suite_version": "5.2.3",
       "epic": "EP-001",
@@ -78,7 +78,9 @@
       "origin": "Medición 2026-08-13 · 63 reglas HARD sin verificador y el informe en verde",
       "created": "2026-08-13",
       "issue": 4,
-      "phase": 6
+      "phase": 8,
+      "validated_by": "Alberto Martínez",
+      "validated": "2026-08-13"
     },
     {
       "id": "PT-003",
@@ -87,7 +89,7 @@
       "complexity": "STANDARD",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "CLOSED",
       "structural": false,
       "suite_version": "5.2.3",
       "epic": "EP-001",
@@ -95,7 +97,9 @@
       "origin": "Medición 2026-08-13 · tracker.mjs no menciona milestone ni pull request",
       "created": "2026-08-13",
       "issue": 5,
-      "phase": 1
+      "phase": 8,
+      "validated_by": "Alberto Martínez",
+      "validated": "2026-08-13"
     },
     {
       "id": "PT-004",
