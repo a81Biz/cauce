@@ -45,3 +45,45 @@ compuerta en verde: duplicaría el reanclaje, que es lo que `SUITE-R35` prohíbe
 Descubrimiento: el defecto apareció EJECUTANDO `PHASE 1` de las otras tareas del lote, no
 leyendo el código. Este repositorio se autoalojó el 2026-08-13 y `PT-004` es el primer PT que
 ha abierto: el verificador nunca se había ejecutado aquí contra un PT vivo.
+
+## PT-001 — BUG: el espejo entra en las compuertas
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Commit: 2ad50be · 82f877f
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente del cierre del lote
+
+Qué fallaba: `SUITE-R35` era HARD desde la 5.0.0, tenía herramienta (`tracker.mjs`) y ninguna
+compuerta la ejecutaba. Se podía abrir trabajo, avanzarlo y llegar a `G4` sin que nada
+comprobara que existía en la plataforma. Tres frentes más: `FDGE-R52` solo leía `bitacora.md`
+ignorando la plataforma que `CORE.md` manda usar; `tracker` usaba etiquetas que no creaba; y
+los códigos de salida `2` (sin plataforma) y `3` (sin acceso) estaban fundidos en uno.
+
+Causa raíz: una regla se publicó con su herramienta y sin su compuerta.
+
+Cómo se descubrió: **preguntando una persona**, no un verificador. Hasta ese momento el lote
+se había planificado entero sin issues y las siete comprobaciones pasaban en verde.
+
+Qué se hizo: `tracker` separa adaptador de lógica —la comparación es función pura y exportada,
+que es lo que permite probarla sin credenciales—, gana el código `3`, la acción `notas` y la
+preparación de sus etiquetas. `verify-fdge` no habla con GitHub: le pregunta a `tracker`.
+`npm run verify`, CI y `cauce verify` ejecutan el espejo. Ninguna regla cambió de texto.
+
+Resultado: `selftest` 188 → 202 casos, 0 fallos. Espejo real 5 = 5. `G4` de `PT-004`
+desbloqueada.
+
+Delta respecto al plan: cinco revisiones del intake, todas registradas. Dos por ampliación de
+alcance; una porque el plan de pruebas de `PHASE 4` resultó inviable —el `gh` de mentira no es
+portable y ningún caso del arnés puede exigir `gh` autenticado—; una por retirar la guarda de
+fork, que protegía un caso inexistente y no verificable; y una por rehacer el recorrido de
+reanclaje que `FDGE-R52` denunció con razón.
+
+Descubrimientos de ejecución: el arnés se engañaba a sí mismo pasando la ruta del módulo como
+`argv[1]`; `VIVOS` no contaba `DONE` ni `VALIDATION_PENDING` como vivos, y un PT que espera el
+merge es lo más abierto que hay; y `notas PT-NNN` colisionaba con el posicional de ruta.
+
