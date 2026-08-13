@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 17,
+    "PT": 20,
     "EP": 4,
     "QA": 0,
     "QR": 0,
@@ -397,6 +397,53 @@
       "title": "migrate: derivar la lista de «qué llega nuevo» comparando paquete y destino",
       "origin": "Aplazado por PT-012 · hoy está escrita a mano y es un hecho copiado (RULE-01)",
       "issue": 24
+    },
+    {
+      "id": "PT-018",
+      "slug": "el-destino-no-es-prosa",
+      "type": "BUG",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "IN_PROGRESS",
+      "structural": false,
+      "suite_version": "6.0.1",
+      "epic": "EP-004",
+      "phase": 4,
+      "title": "SUITE-R44 adivina sobre prosa libre: el destino de un out-of-scope debe ser vocabulario cerrado y recíproco",
+      "origin": "Intake humano 2026-08-13 · «no es un problema de código, son temas de redacción y no puede ser que el sistema no pueda cuadrarlos»",
+      "created": "2026-08-13",
+      "issue": 25
+    },
+    {
+      "type": "CHORE",
+      "complexity": null,
+      "severity": "S2",
+      "track": null,
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "6.0.1",
+      "created": "2026-08-13",
+      "id": "PT-019",
+      "slug": "migrar-el-proyecto-legado",
+      "title": "Migrar «Inteligencia de Mercados Energéticos Mexicanos» de 4.12.0 a 6.x",
+      "origin": "Aplazado por PT-011 y por EP-001 · es el trabajo con el que se abrió la sesión y el que EP-004 desbloquea",
+      "issue": 26
+    },
+    {
+      "type": "CHORE",
+      "complexity": null,
+      "severity": "S3",
+      "track": null,
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "6.0.1",
+      "created": "2026-08-13",
+      "id": "PT-020",
+      "slug": "ampliar-el-grafo-a-tools",
+      "title": "Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01)",
+      "origin": "Aplazado por PT-004 · el grafo cubre «bin» y FDGE-R43 se satisface sobre un grafo que no describe el sistema",
+      "issue": 27
     }
   ]
 }

@@ -1080,33 +1080,61 @@ function checkHistory(pt, rel, type, { gate }) {
 // Un lote de esta suite aplazó la corrección que lo había motivado y nadie la recogió en cuatro
 // versiones: estaba escrita en tres documentos y en ninguna lista que una compuerta tocara.
 //
-// La heurística de «apunta a trabajo futuro» se DECLARA aquí y en la regla, porque una
-// heurística escondida es peor que una explícita.
-// Los plurales importan: «Decisiones posteriores» se escapaba de `\bposterior\b` y una fila
-// aplazada quedaba sin ver. Un detector con ese agujero es teatro, no comprobación.
-const RE_APLAZA = /\b(posterior(?:es)?|siguientes?|m[áa]s adelante|otra implementaci[óo]n|futur[oa]s?|pendiente de decidir)\b/i;
-const RE_CITA_ID = /\b(?:PT|EP)-\d+\b/;
+// PT-018 · La primera versión ADIVINABA sobre prosa libre —una lista de palabras: «posterior»,
+// «siguiente»— y tenía dos agujeros que salían de lo mismo: se le escapaba cualquier redacción
+// nueva, y citar un identificador cualquiera la satisfacía aunque ese PT no cubriera nada.
+//
+// No se mejora el detector: se quita. El destino es VOCABULARIO CERRADO, como `PTSA-R77` exige
+// en la matriz de auditoría — «no existe la celda en blanco: es indistinguible de una que nadie
+// miró». Sin prosa no hay nada que adivinar.
+const RE_SOLO_GUION = /^[-–—\s]*$/;
+const RE_CITA_ID = /\b((?:PT|EP)-\d+)\b/;
 
 function checkAplazado(pt, rel, { gate }) {
-  const oos = read(join(ptDir(pt) ?? '', 'out-of-scope.md'));
+  const dir = ptDir(pt);
+  const oos = dir ? read(join(dir, 'out-of-scope.md')) : null;
   if (oos === null) return;
-  const sinRecoger = [];
+  const yo = (REGISTRO?.allocations ?? []).find((a) => a?.id === pt);
+  const problemas = [];
+
   for (const linea of oos.split(/\r?\n/)) {
     const t = linea.trim();
     if (!t.startsWith('|')) continue;
     const celdas = t.split('|').slice(1, -1).map((c) => c.trim());
-    if (celdas.length < 3) continue;                       // no es la tabla con destino
+    if (celdas.length < 3) continue;
     const destino = celdas[celdas.length - 1];
-    if (/^[-–—\s]*$/.test(destino) || /^Dónde va$/i.test(destino)) continue;
-    if (!RE_APLAZA.test(destino)) continue;                // no aplaza: declara lo que no entra
-    if (RE_CITA_ID.test(destino)) continue;                // tiene dónde volver
-    sinRecoger.push(`«${celdas[0].slice(0, 48)}» → «${destino.slice(0, 40)}»`);
+    if (/^[:\- ]+$/.test(destino) || /^Dónde va$/i.test(destino)) continue;   // separador o cabecera
+    if (RE_SOLO_GUION.test(destino)) continue;                                 // no aplaza: declara
+
+    const cita = destino.match(RE_CITA_ID)?.[1];
+    if (!cita) {
+      problemas.push(`«${celdas[0].slice(0, 44)}» → «${destino.slice(0, 34)}» no cita a nadie`);
+      continue;
+    }
+    const dest = (REGISTRO?.allocations ?? []).find((a) => a?.id === cita);
+    if (!dest) { problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no existe en el registro`); continue; }
+
+    // Un hermano del mismo lote lo cubre ahí, cerrado o no: no está aplazado.
+    if (dest.epic && yo?.epic && dest.epic === yo.epic) continue;
+    // Citar el PROPIO lote vale solo si ya cerró: «lo hará este lote» es exactamente la
+    // promesa que falló con la migración del proyecto legado, y mientras el lote siga abierto
+    // no es una asignación, es una intención.
+    if (dest.id === yo?.epic && dest.status === 'CLOSED') continue;
+
+    // Si no, tiene que ser un aplazado que RECONOZCA de dónde viene. Citar no basta: sin
+    // reciprocidad, apuntar a cualquier PT satisface la regla sin que nadie recoja nada.
+    if (dest.status !== 'DEFERRED') {
+      problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no está DEFERRED ni es hermano de este lote`);
+    } else if (!String(dest.origin ?? '').includes(pt)) {
+      problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que está DEFERRED pero su «origin» no menciona ${pt}: la cita no es recíproca`);
+    }
   }
-  if (!sinRecoger.length) return;
-  const m = `${pt}: ${sinRecoger.length} fila(s) de ${rel}/out-of-scope.md apuntan a trabajo futuro sin citar quién lo sostiene. `
-    + 'Lo aplazado se ASIGNA —una allocation en DEFERRED, con su issue— no se narra: '
-    + `un lote de esta suite perdió así su propia razón de ser durante cuatro versiones. ${sinRecoger.join(' · ')}`;
-  // Aplazar DURANTE el trabajo es legítimo y frecuente; en G4 el lote se cierra, y ahí bloquea.
+
+  if (!problemas.length) return;
+  const m = `${pt}: ${problemas.length} fila(s) de ${rel}/out-of-scope.md no declaran su destino con el vocabulario cerrado. `
+    + 'O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una '
+    + `allocation DEFERRED cuyo «origin» mencione ${pt}. Sin eso, aplazar es narrar. `
+    + problemas.join(' · ');
   if (gate === 'G4') fail('SUITE-R44', m); else warn('SUITE-R44', m);
 }
 

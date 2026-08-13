@@ -1356,8 +1356,10 @@ build_fixture; oos 'Decisión posterior'
 chk   "aplazar sin citar a nadie se ve"    "SUITE-R44"   V PT-001
 chk   "y fuera de G4 solo avisa"           "! SUITE-R44" V PT-001
 chk   "en G4 bloquea"                      "✗ SUITE-R44" V --gate G4 PT-001
+# PT-018 cambio la semantica: citar una allocation CUALQUIERA ya no basta. Este caso afirmaba
+# lo contrario y se sustituye — un aserto que exige el comportamiento viejo lo perpetua.
 build_fixture; oos '`PT-004`'
-chkno "si cita una allocation, no se ve"   "SUITE-R44"   V PT-001
+chk   "citar a cualquiera ya no basta"     "SUITE-R44"   V PT-001
 build_fixture; oos '—'
 chkno "un guion no aplaza nada"            "SUITE-R44"   V PT-001
 
@@ -1366,6 +1368,32 @@ build_fixture
 reg_set "r.allocations.push({id:'PT-020',type:'BUG',severity:'S3',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1'}); r.counters.PT=20"
 chkno "un DEFERRED no exige artefactos"    "PT-020"      V --all
 trlib "un DEFERRED sí es vivo"             "^VIVO$"   "console.log(m.vivasDe([{id:\"PT-020\",status:\"DEFERRED\"}]).length?\"VIVO\":\"NO\")"
+
+
+# PT-018 · el destino de una fila de out-of-scope es VOCABULARIO CERRADO, no prosa.
+#
+# PT-013 dejo dos agujeros y los dos salian de lo mismo: con prosa libre, la comprobacion tiene
+# que adivinar si significa «aplazado» y si el sitio al que apunta sirve. Ninguna es adivinable.
+# Es lo que PTSA-R77 resuelve para las auditorias: toda celda lleva un valor de una lista
+# cerrada, y no existe la celda en blanco.
+chkno "SUITE-R44 ya no adivina sobre prosa"  "RE_APLAZA"  cat "$SUITE/tools/verify-fdge.mjs"
+
+build_fixture; oos 'Decisión posterior'
+chk   "destino en prosa falla"             "SUITE-R44"   V PT-001
+build_fixture; oos 'ya veremos'
+chk   "otra prosa cualquiera, también"     "SUITE-R44"   V PT-001
+build_fixture; oos '—'
+chkno "un guion sigue siendo válido"       "SUITE-R44"   V PT-001
+
+# Reciprocidad: citar no basta. PT-012 citaba PT-013 —que no iba a hacer ese trabajo— y pasaba.
+build_fixture
+reg_set "r.allocations.push({id:'PT-030',type:'CHORE',severity:'S4',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-001'}); r.counters.PT=30"
+oos '`PT-030`'
+chkno "un DEFERRED que reconoce su origen vale"  "SUITE-R44"  V PT-001
+build_fixture
+reg_set "r.allocations.push({id:'PT-031',type:'CHORE',severity:'S4',slug:'otro',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-999'}); r.counters.PT=31"
+oos '`PT-031`'
+chk   "si no reconoce su origen, falla"          "SUITE-R44"  V PT-001
 
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"

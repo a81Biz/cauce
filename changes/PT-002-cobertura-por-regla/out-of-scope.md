@@ -8,6 +8,6 @@
 | Quitar la comprobación por componente | Caza un caso real que la cifra global no caza | — |
 | Modificar `package.json`, los workflows o `bin/cauce.mjs` | Se **leen** como fuente de quién ejecuta qué; tocarlos falsearía la medida | — |
 | La cobertura de PTSA | Ya tiene su matriz (`PTSA-R77`) | — |
-| Llevar la documentación al issue de GitHub | Pendiente aceptado el 2026-08-13 | `EP-002` |
+| Llevar la documentación al issue de GitHub | Lo hizo `EP-002`, ya cerrado | — |
 | Entrada de `CHANGELOG.md` y número de versión | Cierre de lote, y `TD-05` sigue sin decidir | Cierre de `EP-001` |
 | Merge a `main` | `G4` es del lote y va al final: mandar a `main` es desplegar una versión | — |
