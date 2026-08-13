@@ -575,3 +575,34 @@ ninguno del análisis previo. Uno lo cazó una regla recién creada, sobre su pr
 El otro lo vio una persona mirando el tablero, y **ninguna comprobación lo habría encontrado** —
 no hay nada que verifique que un enlace resuelve ni que un texto se contradice. El límite queda
 escrito en el `CHANGELOG` y en la trazabilidad en vez de fingir que está cubierto.
+
+---
+
+## 2026-08-13 · `G4` de `EP-003` · `6.0.1` publicada · sesión cerrada
+
+Merge del PR #16 por Alberto Martínez (`018e791`) y publicación en npm. Cierre posterior:
+`PT-009` y `PT-010` a `INTEGRATED`, `EP-003` a `CLOSED`, sus tres issues cerrados. Espejo
+**0 = 0**. `verify-fdge --all` sin errores.
+
+**Publicación verificada desde fuera**, no desde el árbol de trabajo:
+
+```
+npx @a81biz/cauce@6.0.1 version   →  cauce 6.0.1
+el tarball trae SUITE-R42 y SUITE-R43 en RULES.md
+y cuerpoDeIssue / mensajeDeCierre en tracker.mjs
+```
+
+**Sobre «actualizar el paquete de cauce a 6.0.1» en este repositorio: no hay nada que
+instalar.** Este repositorio **es** cauce (`SUITE-R41`), y tenerlo como dependencia de sí mismo
+dejaría dos copias completas del marco que solo pueden divergir — está documentado como avería
+desde la 5.2.3 y el propio instalador lo detecta. `package.json` no tiene dependencias y
+declara 6.0.1, igual que el `CHANGELOG` y los 21 documentos.
+
+**Lo que queda del objetivo con el que empezó la sesión.** Se abrió preguntando si cauce servía
+para el proyecto «Inteligencia de Mercados Energéticos Mexicanos», que sigue en **4.12.0**. Ahí
+sí hay paquete que instalar. Y el defecto que lo bloqueaba —`migrate.mjs` sin tramo
+`4.12 → 5.x`— **sigue sin escribirse**: se apartó al out-of-scope de `EP-001` para no mezclar y
+nunca volvió a abrirse.
+
+Tres lotes, diez tareas y tres versiones después, el trabajo que originó la sesión está donde
+estaba. Queda escrito aquí para que no se pierda.
