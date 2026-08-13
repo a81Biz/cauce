@@ -42,6 +42,18 @@ Una fila sin firmante no es una firma. La plantilla sin rellenar **no exime**.
 | `3a536d3fda50` | Alberto Martínez | 2026-08-13 | **campo de credencial con valor** · Fixture de `tools/selftest.sh` (`7ef06b42`): campo de credencial sintético en evidencia falsa, para probar que la evidencia también se revisa. |
 | `aa6be08bbdf9` | Alberto Martínez | 2026-08-13 | **JWT en una cabecera Authorization** · Fixture de `tools/selftest.sh` (`7ef06b42`): JWT sintético en evidencia falsa. No es un token emitido. |
 | `b5c647f7980c` | Alberto Martínez | 2026-08-13 | **contraseña en texto plano** · La nota explicativa de este mismo archivo, en el commit `8507e3ea` que lo creó: citaba los valores de los fixtures. Ya no los cita, pero el commit es inmutable. |
+| `031806bb5494` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
+| `3936b3f97476` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
+| `5ffc0945773c` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
+| `80cda2861838` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
+| `99e65d4d8c89` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
+| `cb0ab32cf2fe` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
+| `cbe7920fd6cc` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
+
+> **Las siete de arriba comparten una sola causa** y por eso comparten motivo: son el mismo
+> volcado. No se les asigna un tipo fila por fila porque no pude confirmarlo uno a uno, y
+> escribir un tipo sin confirmarlo es el error que esta misma tabla cometió en su primera
+> versión.
 
 ### Constancia de cómo se refirmaron   `FND-R29` · `SUITE-R27`
 
