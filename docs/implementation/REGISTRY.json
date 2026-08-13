@@ -509,7 +509,8 @@
       "phase": null,
       "title": "Auditar si PT-018 declaro mas cambios de especificacion que no hizo",
       "origin": "Aplazado por EP-005 · PT-021 encontro que PT-018 declaro reescribir SUITE-R44 en RULES.md y no lo hizo: la regla escrita y la ejecutada divergieron un dia. No se audito el resto",
-      "created": "2026-08-13"
+      "created": "2026-08-13",
+      "issue": 32
     }
   ]
 }
