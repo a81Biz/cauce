@@ -66,6 +66,70 @@ selftest              266 → 287 casos
 cobertura mecánica    93/170 reglas con verificador que una compuerta ejecuta
 ```
 
+### `SUITE-R45` · un lote declara qué se hace al cerrarlo
+
+Salió de un defecto de la propia `SUITE-R44`, encontrado en su primer `G4` y hecho visible por
+una pregunta: *«¿por qué habrían 3 de 5 tareas limpias? deben ser las 5»*.
+
+La entrada de `CHANGELOG` de un lote estaba escrita como fila del `out-of-scope` de **dos**
+tareas y ausente en las otras **tres** — la misma obligación copiada cinco veces, que es lo que
+`SUITE-R38` prohíbe, divergiendo a los dos días. Y las dos que la escribieron fueron las que la
+compuerta bloqueó: **declarar lo que aplazas salía más caro que callártelo**, en la regla escrita
+precisamente contra eso.
+
+El lote es quien aplaza el cierre del lote, así que se declara ahí y en ningún otro sitio:
+
+```markdown
+## Cierre del lote
+
+| Qué se resuelve al cerrar | Estado |
+|:---|:---|
+| Entrada de `CHANGELOG.md` | HECHO |
+| Lo que no dio tiempo       | PT-0NN |
+```
+
+En `G4` cada fila declara `HECHO` o el identificador al que se movió. Sin la sección, `G4`
+bloquea. Un lote ya `CLOSED` queda **exento**: pasó su compuerta con las reglas de su momento y
+exigírselo ahora sería reescribir historia. El **merge y la publicación no son filas** — no son
+trabajo que el lote absorba al cerrar, son el cierre mismo.
+
+Y `SUITE-R44` se le engancha: citar el propio lote vale **si el lote declara ese cierre**. Antes
+apuntar al lote no obligaba a nada.
+
+**Lo que esta regla NO hace, y está escrito en ella:** no comprueba que un `out-of-scope` esté
+completo. Lo que no está escrito no es detectable sin conocer el alcance real de la tarea — que
+es justo lo que ese documento sirve para declarar — y forzarlo produciría filas copiadas para
+pasar: ruido con aspecto de rigor. Lo que cambia es que **omitir una fila deje de perder nada**,
+porque la obligación ya no vive en ella.
+
+### Y el punto muerto que lo destapó
+
+`SUITE-R44` aceptaba la cita al propio lote solo si estaba `CLOSED`. Un lote llega a `CLOSED`
+**después** del merge, y el merge **es** `G4`: el patrón legítimo «esto se hace al cerrar el
+lote» no podía satisfacer la regla nunca. Ahora vale en `DONE` o `CLOSED`; `DRAFT` e
+`IN_PROGRESS` siguen bloqueando, que era la intención.
+
+En el mismo hallazgo apareció que `RULES.md` seguía describiendo `SUITE-R44` con **la lista de
+palabras que el código ya no tenía**: la regla escrita y la ejecutada llevaban un día
+divergiendo. Corregida.
+
+### Migración — añadido a lo anterior
+
+A cada `EP` **vivo** —no a los cerrados— añádele en su intake:
+
+```markdown
+## Cierre del lote
+
+| Qué se resuelve al cerrar | Estado |
+|:---|:---|
+| Entrada de `CHANGELOG.md` y número de versión | pendiente |
+```
+
+Y borra esa misma fila de los `out-of-scope` de sus tareas, si la tienen: ahora vive en un solo
+sitio. `verify-fdge --all` avisa mientras el lote está abierto y bloquea en `G4`.
+
+---
+
 ### Migración desde 6.0.x
 
 **Un solo cambio, y es mecánico.** Revisa la columna «Dónde va» de cada `changes/*/out-of-scope.md`:

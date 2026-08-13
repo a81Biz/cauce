@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 22,
+    "PT": 23,
     "EP": 5,
     "QA": 0,
     "QR": 0,
@@ -494,6 +494,22 @@
       "origin": "Pregunta humana 2026-08-13 · tres tareas pasan G4 por decir menos que las otras dos",
       "created": "2026-08-13",
       "issue": 30
+    },
+    {
+      "id": "PT-023",
+      "slug": "auditar-los-cambios-de-especificacion-declarados",
+      "type": "CHORE",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "7.0.0",
+      "epic": null,
+      "phase": null,
+      "title": "Auditar si PT-018 declaro mas cambios de especificacion que no hizo",
+      "origin": "Aplazado por EP-005 · PT-021 encontro que PT-018 declaro reescribir SUITE-R44 en RULES.md y no lo hizo: la regla escrita y la ejecutada divergieron un dia. No se audito el resto",
+      "created": "2026-08-13"
     }
   ]
 }

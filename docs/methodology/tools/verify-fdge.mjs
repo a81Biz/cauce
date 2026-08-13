@@ -656,11 +656,17 @@ function checkEpics() {
     // Se conserva el barrido completo como respaldo cuando no hay ninguna fila reconocible,
     // para no dejar de comprobar EN SILENCIO los intakes de lote escritos antes de que la
     // plantilla tuviera tabla — cambiar un fallo ruidoso por uno mudo es peor.
-    const enFilas = txt
+    //
+    // PT-022 · la seccion «## Cierre del lote» TAMBIEN es una tabla, y sus filas citan
+    // identificadores que no son miembros del lote sino destinos de lo que aplaza. Sin
+    // excluirla, citar PT-023 en el cierre lo convertia en miembro y pedia su carpeta: la
+    // regla nueva se rompio contra la anterior el mismo dia. Se recorta antes de leer.
+    const sinCierre = RE_CIERRE_LOTE.test(txt) ? txt.slice(0, txt.search(RE_CIERRE_LOTE)) : txt;
+    const enFilas = sinCierre
       .split(/\r?\n/)
       .filter((l) => /^\s*\|/.test(l))
       .flatMap((l) => [...l.matchAll(/\bPT-\d+\b/g)].map((m) => m[0]));
-    const pts = enFilas.length ? enFilas : [...txt.matchAll(/PT-\d+/g)].map((m) => m[0]);
+    const pts = enFilas.length ? enFilas : [...sinCierre.matchAll(/PT-\d+/g)].map((m) => m[0]);
     for (const pt of [...new Set(pts)]) {
       const d = readdirSync(CHANGES).find((x) => x.startsWith(pt + '-'));
       if (!d) { fail('INTAKE-R09', `${ep}: lista ${pt} y no existe changes/${pt}-slug/.`); continue; }
