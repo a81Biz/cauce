@@ -29,12 +29,35 @@ import { createHash } from 'node:crypto';
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const PAQUETE = resolve(AQUI, '..');              // raíz del paquete instalado
 const CARGA = join(PAQUETE, 'docs', 'methodology'); // lo que se instala en el destino
-const VERSION = JSON.parse(readFileSync(join(PAQUETE, 'package.json'), 'utf8')).version;
+const PKG_PROPIO = JSON.parse(readFileSync(join(PAQUETE, 'package.json'), 'utf8'));
+const VERSION = PKG_PROPIO.version;
 
 const [, , comando, ...resto] = process.argv;
 const DESTINO = resolve(resto.find((a) => !a.startsWith('--')) ?? process.cwd());
 const SUITE_EN_DESTINO = join(DESTINO, 'docs', 'methodology');
 const FORZAR = resto.includes('--forzar');
+
+// ── ¿el destino ES cauce? Por IDENTIDAD, no por ruta ────────────────────────
+// Comparar rutas (`CARGA === SUITE_EN_DESTINO`) solo acierta cuando la carga y el destino son
+// literalmente el mismo directorio. En el repositorio de cauce con el paquete instalado como
+// dependencia de sí mismo hay DOS binarios con el mismo nombre y se comportan distinto:
+//
+//   npx cauce                        → el bin del propio repo   → las rutas coinciden → detecta
+//   node_modules/.bin/cauce          → el bin del paquete       → rutas distintas     → NO detecta
+//
+// El segundo es el que usa cualquier `npm run`, porque npm pone `node_modules/.bin` en el PATH.
+// Ese anunció «49 archivos en docs/methodology/» sobre el repositorio que ES cauce. No hizo daño
+// porque los contenidos coincidían y porque `SUITE-R31` para el caso divergente — pero el
+// mensaje mentía, y depender de qué binario resolvió el shell no es una garantía.
+//
+// La identidad no depende de rutas: si el `package.json` del destino declara este mismo nombre,
+// el destino es cauce.
+const esCauce = (dir) => {
+  try {
+    return JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).name === PKG_PROPIO.name;
+  } catch { return false; }
+};
+const AUTOALOJADO = CARGA === SUITE_EN_DESTINO || esCauce(DESTINO);
 
 const c = { dim: '\x1b[2m', neg: '\x1b[1m', rojo: '\x1b[31m', verde: '\x1b[32m', fin: '\x1b[0m' };
 const di = (s = '') => console.log(s);
@@ -89,9 +112,20 @@ const comandos = {
     // Autoalojamiento: cauce gobernándose con sus propias reglas. Aquí la carga y el destino
     // son el mismo directorio, y copiar seria copiar cada archivo sobre si mismo — inofensivo
     // pero mentiroso: diria «48 archivos instalados» sin haber instalado nada. Se dice.
-    if (CARGA === SUITE_EN_DESTINO) {
-      di(`${c.verde}cauce ${VERSION}${c.fin} · este repositorio ES cauce: la carga y el destino son el mismo sitio.`);
+    if (AUTOALOJADO) {
+      di(`${c.verde}cauce ${VERSION}${c.fin} · este repositorio ES cauce. No se instala sobre sí mismo.`);
       di(`${c.dim}No hay nada que copiar. Se regenera el núcleo y lo demás sigue igual.${c.fin}`);
+      // Instalarlo como dependencia de sí mismo deja DOS copias completas del marco en el mismo
+      // repositorio: la de trabajo y la publicada. Solo pueden divergir, y es exactamente la
+      // divergencia que cauce existe para eliminar — dentro de cauce.
+      if (existsSync(join(DESTINO, 'node_modules', ...PKG_PROPIO.name.split('/')))) {
+        di();
+        di(`${c.rojo}Y está instalado como dependencia de sí mismo.${c.fin}`);
+        di('Eso deja dos copias completas del marco en este repositorio: la de trabajo y la');
+        di('publicada. Solo pueden divergir — la avería que cauce existe para eliminar, dentro');
+        di('de cauce. Además el nombre «cauce» pasa a resolver a dos binarios distintos según');
+        di(`quién lo invoque. Quítalo:  ${c.neg}npm uninstall ${PKG_PROPIO.name}${c.fin}`);
+      }
       di();
       const r = corre('build-core.mjs', [SUITE_EN_DESTINO]);
       di();

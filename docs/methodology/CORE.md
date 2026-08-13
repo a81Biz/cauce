@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 265ef2055d51 -->
-<!-- fuentes: RULES.md:b4343c361cad LEXICON.md:5f9192327f5c EXECUTION-MODES.md:28ab1515dc74 PHASES.md:5e43fb8889f2 -->
+<!-- cuerpo: 37dd9a455d71 -->
+<!-- fuentes: RULES.md:31ecaf98f27f LEXICON.md:1e8439f42567 EXECUTION-MODES.md:63725a2a7d98 PHASES.md:c42c54d4b401 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -145,6 +145,7 @@ verifica un script y bloquea la integración.
 `SUITE-R38` **H** Un patrón crítico vive en un solo sitio y viaja con su contrato.
 `SUITE-R39` **H** La frontera del proyecto se declara, y se dice qué la sostiene.
 `SUITE-R40` **H** La versión vigente se deriva; no se escribe dos veces.
+`SUITE-R41` **H** Cauce no se instala sobre sí mismo, y se reconoce por identidad.
 
 ### LEX — Nombres
 
