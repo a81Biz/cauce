@@ -127,6 +127,17 @@ export const PATRONES = {
     noCasa: ['<!-- cuerpo: -->', '<!-- cuerpo: XYZ -->', '<!-- fuentes: RULES.md:abc -->'],
   },
 
+  VERSION_VIGENTE: {
+    re: /^##\s+(\d+\.\d+\.\d+)\s+—/m,
+    para: 'la versión vigente, leída de la primera entrada del CHANGELOG (SUITE-R40)',
+    casa: ['## 5.2.1 — 2026-08-12', '## 10.0.0 — 2026-01-01'],
+    noCasa: [
+      '## 5.2 — 2026-08-12',          // sin parche: no es una versión de la suite
+      '## v5.2.1 — 2026-08-12',       // el prefijo no es el formato del CHANGELOG
+      '### 5.2.1 — 2026-08-12',       // un subtítulo no abre una versión
+    ],
+  },
+
   ESTADO_BLOQUE: {
     re: /<!--\s*ESTADO\s*-->([\s\S]*?)<!--\s*\/ESTADO\s*-->/,
     para: 'el bloque de estado que hace retomable la sesión (SUITE-R33)',

@@ -30,7 +30,7 @@ import { join, relative, dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe } from './patrones.mjs';
+import { selloDe, PATRONES } from './patrones.mjs';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
 if (!existsSync(BASE)) {
@@ -38,12 +38,47 @@ if (!existsSync(BASE)) {
   process.exit(1);
 }
 
-const SUITE_VERSION = '5.2.0';
+// La versión vigente NO se escribe aquí (SUITE-R40). Estuvo escrita a mano —`const
+// SUITE_VERSION = '5.2.0'`— siendo la autoridad contra la que se comprueban todos los
+// documentos, y quedó una versión por detrás de `package.json` sin que nada lo notara: el
+// verificador que existe para cazar versiones desalineadas era él mismo una cuarta copia del
+// número. Es el defecto de la v3 —el mismo hecho escrito a mano en varios sitios, divergiendo—
+// dentro de la herramienta que lo persigue.
+//
+// La fuente es la primera entrada del CHANGELOG, que viaja dentro de la suite y por tanto
+// también existe en un proyecto destino, donde no hay `package.json` de cauce que consultar.
+const CAMBIOS = join(BASE, 'CHANGELOG.md');
+if (!existsSync(CAMBIOS)) {
+  console.error(`Falta ${CAMBIOS}: sin él no se puede saber qué versión rige.`);
+  process.exit(1);
+}
+const mVer = readFileSync(CAMBIOS, 'utf8').match(PATRONES.VERSION_VIGENTE.re);
+if (!mVer) {
+  console.error('El CHANGELOG no abre con una versión «## X.Y.Z — AAAA-MM-DD». Es de donde se lee la vigente.');
+  process.exit(1);
+}
+const SUITE_VERSION = mVer[1];
 const errors = [];
 const warnings = [];
 
 const fail = (rule, file, line, msg) => errors.push({ rule, file, line, msg });
 const warn = (rule, file, line, msg) => warnings.push({ rule, file, line, msg });
+
+// ── 0. El paquete declara la misma versión que el CHANGELOG (SUITE-R40) ──────
+// Solo aplica en el repositorio de cauce: un proyecto destino tiene su propio `package.json`,
+// que nada tiene que ver con la versión de la suite. Se distingue por el nombre del paquete.
+const PKG = resolve(BASE, '..', '..', 'package.json');
+if (existsSync(PKG)) {
+  try {
+    const pkg = JSON.parse(readFileSync(PKG, 'utf8'));
+    if (pkg.name === '@a81biz/cauce' && pkg.version !== SUITE_VERSION) {
+      fail('SUITE-R40', 'package.json', 0,
+        `Declara ${pkg.version} y el CHANGELOG abre en ${SUITE_VERSION}. Se publicaría un número que miente sobre lo que contiene.`);
+    }
+  } catch {
+    fail('SUITE-R40', 'package.json', 0, 'No se puede leer: sin él no se comprueba que el paquete y el CHANGELOG digan lo mismo.');
+  }
+}
 
 // ── Recolectar todos los .md de la metodología ───────────────────────────────
 function walk(dir, out = []) {

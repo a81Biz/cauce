@@ -1235,3 +1235,21 @@ sesión, que es donde se acumula el coste real de una jornada de trabajo.
 Y el ahorro no compromete el control. Las compuertas G1-G4, la lista cerrada de acciones que
 nunca se automatizan (`SUITE-R06`) y la firma humana de los Intakes siguen intactas: lo que
 se recortó fue la prosa alrededor, no un solo punto de decisión.
+
+## Subir de versión   `SUITE-R40`
+
+La versión vigente **se deriva**: es la primera entrada de `CHANGELOG.md`. Ninguna herramienta
+la fija en una constante, y ningún documento se edita a mano para declararla.
+
+```bash
+# 1. Escribir la entrada nueva en CHANGELOG.md — esto es humano: qué cambió y si rompe
+# 2. Propagarla a los 20 documentos y a package.json
+node docs/methodology/tools/version.mjs docs/methodology --aplicar
+node docs/methodology/tools/build-core.mjs docs/methodology
+npm run verify
+```
+
+Sin este orden vuelve lo que ya pasó: `verify-suite` tenía la versión escrita a mano siendo la
+autoridad contra la que se comprueban todos los documentos, veinte declararon una versión
+atrasada durante días y el verificador dijo que todo estaba bien — comparaba contra su propia
+copia equivocada.

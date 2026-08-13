@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **5.2.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **5.2.1** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -559,6 +559,7 @@ tools/
   verify-qa.mjs       ciclo QA y roadmap FPGE · los dos componentes que no tenían ninguna
   patrones.mjs        los patrones críticos, una vez y con su contrato · SUITE-R38
   verify-patrones.mjs ejecuta ese contrato: un patrón degradado falla su propio ejemplo
+  version.mjs         propaga la versión del CHANGELOG a documentos y paquete · SUITE-R40
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35

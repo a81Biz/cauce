@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 0c20dec58f6e -->
-<!-- fuentes: RULES.md:7f3fabae6243 LEXICON.md:b4e5eb13b99d EXECUTION-MODES.md:396f09590084 PHASES.md:bcfbae37d458 -->
+<!-- cuerpo: 38329c790cbf -->
+<!-- fuentes: RULES.md:367a1b38ce42 LEXICON.md:35fdd293ab79 EXECUTION-MODES.md:b284c298a687 PHASES.md:38af4f94b06b -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -144,6 +144,7 @@ verifica un script y bloquea la integración.
 `SUITE-R37` **H** Qué se versiona, decidido de una vez. Evidencia, ledgers y docs/methodology/ sí: auditar un commit antiguo exige saber qué reglas lo gobernaban, y sin la carpeta eso depende de que el paquete siga…
 `SUITE-R38` **H** Un patrón crítico vive en un solo sitio y viaja con su contrato.
 `SUITE-R39` **H** La frontera del proyecto se declara, y se dice qué la sostiene.
+`SUITE-R40` **H** La versión vigente se deriva; no se escribe dos veces.
 
 ### LEX — Nombres
 

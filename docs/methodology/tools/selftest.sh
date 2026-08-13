@@ -1027,6 +1027,17 @@ node -e "const f=require('fs'),p=process.argv[1],b=String.fromCharCode(92);f.wri
 chk   "escape degradado ⇒ falla su ejemplo"  "debería casar"  node "$PATDIR/verify-patrones.mjs"
 rm -rf "$PATDIR"
 
+# SUITE-R40: la version se deriva del CHANGELOG. La tuvo escrita a mano en una constante siendo
+# la autoridad contra la que se comprueban todos los documentos, y veinte declararon una version
+# atrasada durante dias mientras el verificador decia que todo estaba bien: comparaba contra su
+# propia copia equivocada. Se comprueba que el desajuste se ve, no que este ausente.
+VERDIR="$WORK/../version-desalineada"
+rm -rf "$VERDIR" && mkdir -p "$VERDIR/docs" && cp -r "$SUITE" "$VERDIR/docs/methodology"
+printf '{"name":"@a81biz/cauce","version":"9.9.9"}' > "$VERDIR/package.json"
+chk   "package.json desalineado ⇒ falla"    "SUITE-R40"    node "$SUITE/tools/verify-suite.mjs" "$VERDIR/docs/methodology"
+chk   "version.mjs ve el desalineado"       "package.json" node "$SUITE/tools/version.mjs" "$VERDIR/docs/methodology"
+rm -rf "$VERDIR"
+
 # El sello vive en un solo sitio: tres copias dejaron a una contradiciendo a las otras.
 chk   "una sola fórmula del sello"           "patrones.mjs"  bash -c 'grep -l "const selloDe = " "$0"/tools/*.mjs' "$SUITE"
 
