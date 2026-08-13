@@ -7,4 +7,4 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 
 | PT | Tipo | Sev | Estado | Implementación | Título |
 |:---|:---|:---|:---|:---|:---|
-| — | — | — | — | — | Sin refactors ni chores registrados |
+| PT-006 | CHORE | S3 | READY | EP-002 | PHASES declara dos mapeos que su regla no contiene; el del PR sube a RULES |

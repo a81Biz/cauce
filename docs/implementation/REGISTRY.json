@@ -15,8 +15,8 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 5,
-    "EP": 1,
+    "PT": 8,
+    "EP": 2,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -138,6 +138,72 @@
       "issue": 8,
       "validated_by": "Alberto Martínez",
       "validated": "2026-08-13"
+    },
+    {
+      "id": "EP-002",
+      "slug": "github-como-maquina-de-estados",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "IN_PROGRESS",
+      "structural": null,
+      "suite_version": "5.3.0",
+      "title": "GitHub responde qué va cuándo, sin abrir el repositorio",
+      "origin": "Intake humano 2026-08-13 · «ésta reapertura confirma aún más que necesitas usar github, así podemos usarlo hasta de máquina de estados para saber qué va cuándo»",
+      "created": "2026-08-13",
+      "issue": 9
+    },
+    {
+      "id": "PT-006",
+      "slug": "el-contrato-vuelve-a-su-regla",
+      "type": "CHORE",
+      "complexity": "TRIVIAL",
+      "severity": "S3",
+      "track": "STANDARD",
+      "status": "READY",
+      "structural": false,
+      "suite_version": "5.3.0",
+      "epic": "EP-002",
+      "phase": 1,
+      "title": "PHASES declara dos mapeos que su regla no contiene; el del PR sube a RULES con su comprobación",
+      "origin": "PT-003 · PT de seguimiento propuesto en su conclusión (FDGE-R42)",
+      "created": "2026-08-13",
+      "issue": 10
+    },
+    {
+      "id": "PT-007",
+      "slug": "el-issue-lleva-la-fase",
+      "type": "FEATURE",
+      "complexity": "STANDARD",
+      "severity": "S3",
+      "track": "STANDARD",
+      "status": "READY",
+      "structural": false,
+      "suite_version": "5.3.0",
+      "epic": "EP-002",
+      "phase": 1,
+      "title": "El issue declara en qué fase está y qué compuerta espera, derivado del registro",
+      "origin": "Intake humano 2026-08-13 · «usarlo hasta de máquina de estados para saber qué va cuándo»",
+      "created": "2026-08-13",
+      "issue": 11
+    },
+    {
+      "id": "PT-008",
+      "slug": "leer-lo-que-el-humano-escribe",
+      "type": "FEATURE",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "READY",
+      "structural": false,
+      "suite_version": "5.3.0",
+      "epic": "EP-002",
+      "phase": 1,
+      "title": "No se cierra fase con comentarios humanos sin responder",
+      "origin": "Intake humano 2026-08-13 · «me da la oportunidad de comentar cada uno y que puedas revisar mis comentarios sin perder control del contexto»",
+      "created": "2026-08-13",
+      "issue": 12
     }
   ]
 }
