@@ -28,16 +28,20 @@ Una fila sin firmante no es una firma. La plantilla sin rellenar **no exime**.
 
 | Huella | Firmada por | Fecha | Motivo |
 |:---|:---|:---|:---|
-| `81f93f2cf84b` | | | Fixture de `tools/selftest.sh`: contraseña sintética en un archivo falso bajo `$WORK/` para probar que el escáner la caza. |
-| `e108f6a8e526` | | | Fixture de `tools/selftest.sh`: `api_key` sintética en un archivo falso bajo `$WORK/`. |
-| `f9d1edd95ed2` | | | Fixture de `tools/selftest.sh`: contraseña sintética en un `.ini` falso bajo `$WORK/`. |
-| `887b91972240` | | | Fixture de `tools/selftest.sh`: evidencia falsa con contraseña sintética, para probar que la evidencia también se revisa. |
-| `431246f5a380` | | | Fixture de `tools/selftest.sh`: JWT sintético en evidencia falsa. No es un token emitido. |
+| `81f93f2cf84b` | Alberto Martínez | 2026-08-12 | Fixture de `tools/selftest.sh` (commit e88a63ba): contraseña sintética en un `src/` falso bajo `$WORK/`, para probar que el escáner la caza. |
+| `e108f6a8e526` | Alberto Martínez | 2026-08-12 | Fixture de `tools/selftest.sh` (commit e88a63ba): campo de credencial sintético en un `.json` falso bajo `$WORK/`. |
+| `f9d1edd95ed2` | Alberto Martínez | 2026-08-12 | Fixture de `tools/selftest.sh` (commit 7ef06b42): JWT sintético en una cabecera `Authorization` de evidencia falsa. No es un token emitido. |
+| `887b91972240` | Alberto Martínez | 2026-08-12 | Fixture de `tools/selftest.sh` (commit 7ef06b42): campo de credencial sintético en evidencia falsa, para probar que la evidencia también se revisa. |
+| `431246f5a380` | Alberto Martínez | 2026-08-12 | Fixture de `tools/selftest.sh` (commit 7ef06b42): contraseña sintética en un archivo de configuración falso bajo `$WORK/`. |
+| `7df736f055f2` | Alberto Martínez | 2026-08-12 | La nota explicativa de este mismo archivo, en el commit 8507e3ea que lo creó: citaba los valores de los fixtures. Ya no los cita, pero el commit es inmutable. |
 
-> Las cinco huellas de arriba están **verificadas y sin firmar**: comprobé que los seis hallazgos
-> (dos comparten huella) proceden de `tools/selftest.sh`, que crea archivos bajo `$WORK/` con
-> valores inventados —`SuperSecreta123`, `hunter2secret`, `abcd1234efgh5678`— para demostrar que
-> el escáner los detecta. Ninguno es una credencial emitida.
+> **Firmadas el 2026-08-12 por Alberto Martínez.** Las seis apariciones (dos comparten huella) proceden
+> de `tools/selftest.sh`, que crea archivos bajo `$WORK/` con valores inventados para demostrar
+> que el escáner los detecta. Ninguno es una credencial emitida.
 >
-> **Firmarlas es tuyo, no mío.** Escribe tu nombre y la fecha en cada fila que aceptes. Mientras
-> la columna esté vacía, la compuerta sigue bloqueando — que es lo correcto.
+> **Este archivo no cita los valores.** Al hacerlo, el escáner lo cazaba a él —el documento que
+> explica los falsos positivos se convertía en uno— y cada commit generaba una huella nueva. Se
+> describen; no se reproducen.
+>
+> Siguen apareciendo en cada revisión. Si alguno cambiara de valor, su huella cambiaría y
+> volvería a bloquear.

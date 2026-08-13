@@ -90,3 +90,25 @@ datos. La v4 corrige la causa, no solo los síntomas. **Al modificar la metodolo
 
 Ver [README.md](README.md) en la raíz (escenarios greenfield y legado) o
 [docs/methodology/README.md](docs/methodology/README.md) §4 para el detalle.
+
+---
+
+## Ramas   `SUITE-R06a` · `FDGE-R33`
+
+Una sola copia de trabajo. Ahora que existen el remoto y el paquete, el papel de «original» lo
+tiene GitHub, no una carpeta: mantener un directorio «original» **más** un clon recrea justo la
+divergencia que este marco existe para eliminar (`SUITE-R31`).
+
+| Rama | Para qué | Quién escribe |
+|:---|:---|:---|
+| `main` | **Segura.** Lo publicado y publicable. `publicar.yml` solo publica desde aquí. | Nadie directamente: llega por merge |
+| `desarrollo` | Donde se trabaja. | El trabajo diario |
+
+El merge de `desarrollo` a `main` **es** `G4`: la compuerta de integración, humana por
+definición. No es una convención de estilo — es la compuerta escrita en una herramienta que no
+depende de que nadie se acuerde.
+
+```bash
+git switch desarrollo      # trabajar
+npm run verify             # antes de proponer el merge
+```

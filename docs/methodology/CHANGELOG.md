@@ -8,7 +8,7 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
-## 5.2.2 — 2026-08-13
+## 5.2.2 — 2026-08-12
 
 ### La excepción se firma donde se puede firmar   `FND-R29`
 
