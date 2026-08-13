@@ -674,3 +674,41 @@ que diga lo que el código hace.
 
 Evidencia: docs/implementation/evidence/PT-021/ · selftest 287 → 291 casos · EP-004: 5 de 5 en G4
 Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## PT-022 — BUG: SUITE-R44 solo miraba las filas que existen
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-005
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-005, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: la entrada de CHANGELOG de EP-004 estaba escrita como fila del out-of-scope de dos
+tareas y ausente en las otras tres. La misma obligación copiada cinco veces —lo que SUITE-R38
+prohíbe— divergiendo a los dos días. Y las dos que la ESCRIBIERON fueron las que la compuerta
+bloqueó: declarar lo que aplazas salía más caro que callártelo, en la regla escrita contra «es
+imposible que se te pasen u olviden cosas».
+
+Qué se hizo: SUITE-R45. El lote es quien aplaza el cierre del lote, así que se declara en su
+intake —«## Cierre del lote»— y G4 comprueba que cada fila esté resuelta. Y SUITE-R44 se
+engancha: citar el propio lote vale si el lote declara ese cierre. Citarlo era gratis.
+
+Lo que NO hace, y va escrito en la regla: no comprueba que un out-of-scope esté completo. Lo que
+no está escrito no es detectable sin conocer el alcance real de la tarea, y forzarlo produciría
+filas copiadas para pasar. AC-03 queda PARCIAL en la trazabilidad y verified:false en el
+manifiesto, en vez de darse por bueno porque «el espíritu se cumple».
+
+Dos veces me bloqueé contra mi propia regla, y las dos ejecutando, no leyendo: escribí «merge y
+publicación» como fila de cierre —el merge no es algo que el lote resuelva al cerrar, ES cerrar—
+y exigí la sección a tres lotes ya CLOSED, que es reescribir historia con una regla que no
+existía cuando pasaron su compuerta.
+
+Defecto de método: la llamada quedó tras un `continue` de INTAKE-R09 y no se ejecutaba. Mismo
+defecto que PT-014 encontró en sincronizarCuerpos(), mismo archivo, dos días de diferencia. Lo
+delataron tres casos en rojo.
+
+Evidencia: docs/implementation/evidence/PT-022/ · selftest 291 → 299 casos
+Cierre a DONE pendiente de persona: SUITE-R06b.

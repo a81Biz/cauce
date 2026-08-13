@@ -629,6 +629,10 @@ function checkEpics() {
     const f = join(CHANGES, dir, 'intake.md');
     const txt = read(f);
     if (txt === null) { fail('INTAKE-R09', `${ep}: falta changes/${dir}/intake.md.`); continue; }
+    // SUITE-R45 va ANTES del control de completitud: que al intake le falte el analisis de
+    // solapamiento no dice nada sobre si el lote declara su cierre, y el `continue` de abajo
+    // dejaba la comprobacion sin ejecutar. Lo dijeron tres casos en rojo, no la lectura.
+    checkCierreDeLote(ep, txt, dir);
     const falta = [];
     if (!/Objetivo com[úu]n/i.test(txt)) falta.push('objetivo común');
     if (!/Criterio de [ée]xito del lote/i.test(txt)) falta.push('criterio de éxito del lote');
@@ -667,6 +671,73 @@ function checkEpics() {
     }
     ok('INTAKE-R09', `${ep}: intake del lote completo.`);
   }
+}
+
+/**
+ * `SUITE-R45` · PT-022 · Un lote declara qué se hace al cerrarlo.
+ *
+ * La entrada de `CHANGELOG` de EP-004 estaba escrita como fila del out-of-scope de DOS tareas y
+ * ausente en las otras TRES. La misma obligación copiada cinco veces —lo que SUITE-R38 prohíbe—
+ * divergiendo a los dos días. Y las dos que la escribieron fueron las que la compuerta bloqueó:
+ * declarar lo que aplazas salía más caro que callártelo.
+ *
+ * El lote es quien aplaza el cierre del lote. Ahí solo hay UN sitio donde escribirlo.
+ *
+ * Esto NO comprueba que un out-of-scope esté completo: lo que no está escrito no es detectable
+ * sin conocer el alcance real de la tarea, y fingir que se detecta sería peor que la omisión
+ * (RULE-06). Lo que cambia es que omitir una fila deje de PERDER algo.
+ */
+const RE_CIERRE_LOTE = /^##+\s*Cierre del lote/im;
+/** `SUITE-R45` · ¿el intake de este lote declara su sección de cierre? Lo usan las dos mitades
+ *  de PT-022: la que comprueba el lote y la que impide citarlo cuando no hay nada escrito. */
+function loteDeclaraCierre(ep) {
+  if (!existsSync(CHANGES)) return false;
+  const dir = readdirSync(CHANGES).find((d) => d.startsWith(ep + '-'));
+  return !!dir && RE_CIERRE_LOTE.test(read(join(CHANGES, dir, 'intake.md')) ?? '');
+}
+const RE_RESUELTA = /\bHECHO\b|\b(?:PT|EP)-\d+\b/;
+function checkCierreDeLote(ep, txt, dir) {
+  const alloc = (REGISTRO?.allocations ?? []).find((a) => a?.id === ep);
+  // Un lote CLOSED ya paso su G4 con las reglas de su momento. Exigirle una seccion que no
+  // existia entonces es reescribir historia — y este marco lo prohibe en todas partes menos,
+  // hasta aqui, en si mismo. La regla aplica a lo que todavia puede cerrarse.
+  if (alloc?.status === 'CLOSED') return;
+  const enG4 = gate === 'G4' || alloc?.status === 'DONE';
+  if (!RE_CIERRE_LOTE.test(txt)) {
+    const m = `${ep}: su intake no declara «## Cierre del lote». Lo que se resuelve al cerrar `
+      + `—la entrada de CHANGELOG.md, el número de versión, lo que sus tareas le hayan aplazado— `
+      + `vive ahí y en ningún otro sitio: escrito como fila en cada tarea, es la misma regla `
+      + `copiada N veces, y las copias divergen (SUITE-R38).`;
+    if (enG4) fail('SUITE-R45', m); else warn('SUITE-R45', m);
+    return;
+  }
+  // Las filas de la sección: tabla markdown, primera celda con el asunto y la última su estado.
+  // Se corta DESPUES del titulo: partir desde el propio «##» devuelve la cadena vacia y la
+  // seccion parecia sin filas aunque las tuviera. Lo dijo la ejecucion real, no un caso.
+  const desde = txt.slice(txt.search(RE_CIERRE_LOTE));
+  const cuerpo = desde.slice(desde.search(/\r?\n/) + 1).split(/^##+\s/m)[0];
+  const filas = cuerpo.split(/\r?\n/)
+    .filter((l) => /^\s*\|/.test(l) && !/^\s*\|[\s:|-]*\|?\s*$/.test(l))
+    .slice(1);                      // la primera es la cabecera
+  if (!filas.length) {
+    const m = `${ep}: «## Cierre del lote» está vacía. Una sección sin filas dice que no queda `
+      + `nada por hacer al cerrar, y eso es una afirmación, no un hueco que se rellena luego.`;
+    if (enG4) fail('SUITE-R45', m); else warn('SUITE-R45', m);
+    return;
+  }
+  const sinResolver = filas.filter((l) => !RE_RESUELTA.test(l.split('|').slice(-2)[0] ?? ''));
+  if (sinResolver.length && enG4) {
+    const cual = sinResolver.map((l) => `«${(l.split('|')[1] ?? '').trim().slice(0, 40)}»`).join(', ');
+    fail('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de «## Cierre del lote» sin resolver `
+      + `en G4: ${cual}. Cada una declara HECHO o el identificador al que se movió — un lote no `
+      + `cierra dejando sin responder lo que él mismo se asignó.`);
+    return;
+  }
+  if (sinResolver.length) {
+    warn('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de cierre aún sin resolver. En G4 bloquean.`);
+    return;
+  }
+  ok('SUITE-R45', `${ep}: cierre del lote declarado y resuelto (${filas.length} fila(s)).`);
 }
 
 // ─── FND-R13 · línea base de reconciliación ──────────────────────────────────
@@ -1131,7 +1202,17 @@ function checkAplazado(pt, rel, { gate }) {
     //
     // DONE es el estado en el que el trabajo del lote esta hecho y solo espera al humano. Ahi
     // ya no es una promesa. DRAFT e IN_PROGRESS siguen bloqueando, que era la intencion.
-    if (dest.id === yo?.epic && LOTE_COMPLETO.has(dest.status)) continue;
+    //
+    // PT-022 · y ademas el lote tiene que DECLARARLO. Citarlo era gratis: apuntar al lote no
+    // obligaba a nada, y por eso la misma obligacion acabo escrita en dos out-of-scope y
+    // ausente en tres. Ahora apuntar al lote cuesta escribirlo EN el lote, una sola vez.
+    if (dest.id === yo?.epic && LOTE_COMPLETO.has(dest.status)) {
+      if (!loteDeclaraCierre(dest.id)) {
+        problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no declara «## Cierre del lote» `
+          + `en su intake: la cita apunta a un sitio donde no hay nada escrito (SUITE-R45)`);
+      }
+      continue;
+    }
 
     // Si no, tiene que ser un aplazado que RECONOZCA de dónde viene. Citar no basta: sin
     // reciprocidad, apuntar a cualquier PT satisface la regla sin que nadie recoja nada.

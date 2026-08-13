@@ -84,3 +84,17 @@ Severidad declarada: S1 en las dos tareas. La compuerta premia documentar menos,
 corrompe el incentivo que el marco entero existe para crear.
 Estado: FIRMADA · G1 PASS
 ```
+
+## Cierre del lote   `SUITE-R45`
+
+| Qué se resuelve al cerrar | Estado |
+|:---|:---|
+| Entrada de `CHANGELOG.md` de `7.0.0` ampliada con `SUITE-R45` | pendiente |
+| Regenerar `CORE.md` | pendiente |
+| Escribir la sección de cierre en los lotes vivos | pendiente |
+| Auditar si `PT-018` declaró más cambios de especificación que no hizo | pendiente |
+
+> El merge y la publicación **no** son filas de esta sección: no son trabajo que el lote
+> absorba al cerrar, son el cierre mismo (`G4`, humano — `EXEC-R04`, `SUITE-R06a`). Listarlos
+> aquí sería un checklist que se pide completarse a sí mismo, y bloquearía la compuerta con la
+> compuerta.

@@ -165,3 +165,22 @@ de eso.
 
 **Registrado por:** el agente, al ejecutar. No altera lo firmado: añade una tarea al lote bajo
 la misma firma (`INTAKE-R08`).
+
+## Cierre del lote   `SUITE-R45`
+
+Lo que se resuelve al cerrar `EP-004` y no en ninguna de sus cinco tareas. Estaba escrito como
+fila en el `out-of-scope` de `PT-014` y `PT-018`, y ausente en `PT-011`, `PT-012` y `PT-013` —
+la misma obligación copiada cinco veces, divergiendo a los dos días. Aquí solo hay un sitio.
+
+| Qué se resuelve al cerrar | Estado |
+|:---|:---|
+| Entrada de `CHANGELOG.md` con guía de migración | HECHO — 7.0.0 |
+| Número de versión y alineación de los 21 documentos | HECHO — `version.mjs`, todo declara 7.0.0 |
+| Regenerar `CORE.md` tras tocar `RULES.md` | HECHO — `build-core.mjs` |
+| Pull request para `G4` | HECHO — #28 |
+| El punto muerto de `SUITE-R44` que este lote destapó en su propio `G4` | `EP-005` |
+
+> El merge y la publicación **no** son filas de esta sección: no son trabajo que el lote
+> absorba al cerrar, son el cierre mismo (`G4`, humano — `EXEC-R04`, `SUITE-R06a`). Listarlos
+> aquí sería un checklist que se pide completarse a sí mismo, y bloquearía la compuerta con la
+> compuerta.

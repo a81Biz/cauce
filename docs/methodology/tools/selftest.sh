@@ -1408,16 +1408,31 @@ oos '`PT-031`'
 chk   "si no reconoce su origen, falla"          "SUITE-R44"  V PT-001
 
 
+# PT-022 . un lote citado tiene que DECLARAR su cierre, asi que los fixtures de PT-021 lo llevan.
+ep_cierre() {  # $1 identificador del lote
+  mkdir -p "$WORK/changes/$1-lote"
+  printf '# %s
+
+## Cierre del lote
+
+| Que | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | HECHO |
+' "$1" > "$WORK/changes/$1-lote/intake.md"
+}
+
 # PT-021 . citar el PROPIO lote. Exigir CLOSED era un bloqueo por construccion: un lote llega a
 # CLOSED DESPUES del merge, y el merge ES G4. El patron legitimo «esto se hace al cerrar el
 # lote» no podia pasar nunca — lo encontro G4 de EP-004 bloqueando dos tareas por ESCRIBIR lo
 # que las otras tres callaron. DONE es trabajo hecho esperando al humano; ya no es una promesa.
 build_fixture
 reg_set "r.allocations.push({id:'EP-030',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-030'; r.counters.EP=30"
+ep_cierre EP-030
 oos '`EP-030`'
 chkno "el propio lote en DONE vale"          "SUITE-R44"  V --gate G4 PT-001
 build_fixture
 reg_set "r.allocations.push({id:'EP-031',type:'EP',slug:'lote',created:'2026-08-13',status:'CLOSED',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-031'; r.counters.EP=31"
+ep_cierre EP-031
 oos '`EP-031`'
 chkno "y en CLOSED tambien"                  "SUITE-R44"  V --gate G4 PT-001
 # La intencion original, intacta: mientras el lote sigue abierto es una intencion, no una asignacion.
@@ -1429,6 +1444,59 @@ build_fixture
 reg_set "r.allocations.push({id:'EP-033',type:'EP',slug:'lote',created:'2026-08-13',status:'DRAFT',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-033'; r.counters.EP=33"
 oos '`EP-033`'
 chk   "y en DRAFT tampoco"                   "SUITE-R44"  V PT-001
+
+
+# PT-022 . SUITE-R45 — un lote declara que se hace al cerrarlo.
+# La entrada de CHANGELOG de EP-004 estaba como fila en DOS out-of-scope y ausente en TRES: la
+# misma obligacion copiada cinco veces, divergiendo a los dos dias. Y las dos que la ESCRIBIERON
+# fueron las bloqueadas. El lote es quien aplaza el cierre del lote: ahi solo hay un sitio.
+ep_intake() { # $1 cuerpo de la seccion de cierre (vacio = sin seccion)
+  mkdir -p "$WORK/changes/EP-040-lote"
+  { echo "# EP-040 — lote"; echo; echo "## Objetivo común"; echo "x"; echo; echo "## Criterio de éxito del lote";
+    echo "x"; echo; echo "## Análisis de solapamiento"; echo "x"; echo; echo "## Qué NO entra"; echo "- OUT: y"; echo;
+    echo '```'; echo "Firmado por: Alberto Martínez"; echo "Fecha: 2026-08-13"; echo '```'; echo;
+    echo "| PT | Tipo |"; echo "|:---|:---|"; echo "| PT-001 | BUG |"; echo; printf '%s
+' "$1"; } > "$WORK/changes/EP-040-lote/intake.md"
+  reg_set "r.allocations.push({id:'EP-040',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-040'; r.counters.EP=40"
+}
+build_fixture; ep_intake ""
+chk   "un lote sin seccion de cierre no pasa G4"  "SUITE-R45"  V --gate G4 PT-001
+build_fixture; ep_intake "## Cierre del lote"
+chk   "y con la seccion vacia, tampoco"           "SUITE-R45"  V --gate G4 PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | pendiente |"
+chk   "una fila sin resolver bloquea en G4"       "SUITE-R45"  V --gate G4 PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | pendiente |"
+reg_set "r.allocations.find((a)=>a.id==='EP-040').status='IN_PROGRESS'"
+chk   "y con el lote abierto solo avisa"          "! SUITE-R45" V PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | HECHO |
+| Lo demas | PT-099 |"
+chkno "resuelta con HECHO o con un ID, pasa"      "✗ SUITE-R45"  V --gate G4 PT-001
+# Un lote CLOSED ya paso su G4 con las reglas de su momento: exigirselo es reescribir historia.
+build_fixture; ep_intake ""
+reg_set "r.allocations.find((a)=>a.id==='EP-040').status='CLOSED'"
+chkno "a un lote ya cerrado no se le exige"       "SUITE-R45"  V --gate G4 PT-001
+# La otra mitad: citar el propio lote deja de ser gratis — cuesta escribirlo EN el lote.
+build_fixture; ep_intake ""; oos '`EP-040`'
+chk   "citar un lote que no declara cierre falla" "SUITE-R44"  V PT-001
+build_fixture; ep_intake "## Cierre del lote
+
+| Qué | Estado |
+|:---|:---|
+| Entrada de CHANGELOG | HECHO |"
+oos '`EP-040`'
+chkno "citarlo cuando si lo declara, vale"        "SUITE-R44"  V PT-001
 
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"

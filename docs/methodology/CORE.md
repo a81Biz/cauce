@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: bd045cdae8b6 -->
-<!-- fuentes: RULES.md:be869c1bd884 LEXICON.md:921a4e08df55 EXECUTION-MODES.md:b2470301ee85 PHASES.md:d50c8bdeb4af -->
+<!-- cuerpo: 3802df59305f -->
+<!-- fuentes: RULES.md:a78fe2119790 LEXICON.md:921a4e08df55 EXECUTION-MODES.md:b2470301ee85 PHASES.md:e2805d0c4fbb -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -149,6 +149,7 @@ verifica un script y bloquea la integración.
 `SUITE-R42` **H** El merge se propone donde se pueda revisar.
 `SUITE-R43` **H** Lo que una persona escribe en la plataforma se lee.
 `SUITE-R44` **H** Cerrar un lote no borra lo que aplazó. La columna «Dónde va» de cada fila de out-of-scope.md es vocabulario cerrado: o — —no aplaza nada, queda fuera y punto— o la cita de un identificador del registro.…
+`SUITE-R45` **H** Un lote declara qué se hace al cerrarlo. El intake de un EP lleva una sección ## Cierre del lote con una fila por cosa que se resuelve en el cierre y no en ninguna de sus tareas —la entrada de CHANGELOG.md,…
 
 ### LEX — Nombres
 
@@ -614,10 +615,15 @@ REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECI
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
-APLAZAR   lo que el lote deja fuera y apunta a trabajo futuro se ASIGNA:      [SUITE-R44]
-          una allocation en DEFERRED con su issue, citada en out-of-scope.md.
-          En G4 bloquea. Un lote de esta suite perdio asi su razon de ser
-          durante cuatro versiones: estaba escrito y en ninguna lista.
+APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de   [SUITE-R44]
+          un identificador. Nada de prosa: no se interpreta. Y la cita es
+          RECIPROCA — hermano del lote vale siempre; el propio lote solo si
+          esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
+          «origin» mencionando el PT. En G4 bloquea.
+CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [SUITE-R45]
+          que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
+          bloquea. Existe porque la misma obligacion estaba copiada en dos
+          out-of-scope y ausente en tres — copiar una regla la hace diverger.
 LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
           node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
           Se distingue por MARCA de procedencia, no por autor: el agente comenta
