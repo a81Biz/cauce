@@ -1,0 +1,89 @@
+# INSTALL — lo que la instalación EJECUTÓ
+
+Append-only (`SUITE-R30`). `LAYOUT.md` guarda las **decisiones**; este archivo guarda los
+**hechos**. Lo que falla también se escribe: un registro que solo cuenta lo que salió bien no
+sirve para revertir, que es para lo que existe.
+
+`[L<n>]` es el número de la propuesta de `LAYOUT.md` que esa acción ejecuta. La correspondencia
+se **declara**, no se deduce.
+
+---
+
+## 2026-08-13 · [INSTALL SUITE] · 5.2.3
+Ejecutado por: Alberto Martínez
+Plan: docs/implementation/LAYOUT.md (firmado 2026-08-13)
+Rama: trabajo · main no se toca (`SUITE-R06a`); el merge es G4
+
+I0  TERRENO     plan-layout.mjs --write · raíz es repo git, 60 versionados, 0 movimientos      OK
+I0  SECRETOS    revisar-secretos.mjs . --historial · 400 commits · 7 firmados, 0 sin firmar    OK
+I0  ACCESOS     gh auth status · a81Biz · remoto https://github.com/a81Biz/cauce               OK
+I1  FRONTERA    [L1] .claude/settings.json · additionalDirectories [] + 7 deny de credencial   OK
+I2  VERSIONADO  [L3] .gitignore · !docs/implementation/*.log · graphify-out/ ignorado          OK
+I3  CREAR       docs/enterprise-documentation/ changes/ evidence/ QA/ PTSA/ · README en cada   OK
+I3  CREAR       ledgers: REGISTRY.json HISTORY.log INCIDENTS.log MIGRATION.log BACKLOG.md      OK
+I3  CREAR       REGISTRY.json · contadores a 0 · suite_version 5.2.3 · tracker github          OK
+I4  DEPS        node 22.21.1 · git 2.45.1 · python 3.11.4 · graphifyy importable · nada nuevo  OK
+I5  GRAFO       [L2] /graphify bin · 18 nodos, 20 aristas, 3 comunidades · graphify-out/       OK
+I6  CLAUDE      Part 2 — Methodology Suite · suite_version 5.2.3 · SUPERVISED · 1 firmante     OK
+I6  ADOPTAR     tracker.mjs espejo · 0 allocations vivas ↔ 0 issues abiertos · cuadra          OK
+I3  CREAR       HANDOFF.md con bloque ESTADO · SESSION_LOG.md                                  OK
+
+### Lo que NO se ejecutó, y por qué
+
+I2  MOVER       nada: plan-layout no propuso ningún movimiento                                 OK
+I4  DEPS        playwright · se instala cuando se vaya a usar QA, no al instalar               OK
+I6  COMPARAR    comparar-marco.mjs sin referencia: este repositorio ES la referencia           OK
+I6  ADOPTAR     tracker abrir --aplicar · nada vivo que migrar (`SUITE-R36`)                   OK
+
+### Correcciones aplicadas fuera del plan
+
+I2  CORREGIR    CLAUDE.md declaraba «Versión vigente: 4.0.0» · corregido a 5.2.3               OK
+
+### Hallazgos del marco — NO corregidos aquí (`SUITE-R06e`)
+
+I7  HALLAZGO    verify-fdge.mjs:48 fija SUITE_VERSION='5.2.0' · vigente 5.2.3 · SUITE-R40     FALLÓ
+    Es el defecto que `SUITE-R40` describe, en otra herramienta: el verificador que existe
+    para cazar versiones desalineadas es él mismo una copia más del número. Consecuencia
+    inmediata: `REGISTRY.suite_version` correcto (5.2.3) se reporta como desajuste y activa
+    el modo restringido de `SUITE-R17` sobre una migración que no existe. Mismo defecto en
+    `migrate.mjs:21` (`TARGET = '5.2.0'`). Decisión humana registrada: dejarlo y abrirlo como
+    PT después de Foundation, no arreglarlo de paso.
+
+I3  HALLAZGO    `QA/` y `qa/` son el mismo directorio en Windows y macOS                       FALLÓ
+    `I3` enumera dos espacios que se distinguen solo por la caja. Comprobado en este host:
+    se creó `QA/` y `qa/` resolvió al mismo directorio. Solo pueden coexistir en un sistema
+    de archivos sensible a la caja — Linux y la integración continua. Se creó `QA/` y las
+    pruebas irán a `QA/tests/`, que es la ruta que `verify-qa` abre como `qa/tests/`.
+
+---
+
+## 2026-08-13 · [INSTALL SUITE] · 5.2.3 · corrección posterior
+
+Corrige la entrada anterior: el hallazgo `SUITE-R40` quedó registrado como no corregido y
+después se decidió corregirlo. `SUITE-R09` es literal: la entrada de arriba no se edita.
+
+Decidido por: Alberto Martínez · respuesta literal: «Arreglar la constante primero».
+Motivo: el falso positivo activaba el modo restringido de `SUITE-R17` sobre una migración
+inexistente, y eso bloqueaba `[START FOUNDATION]`, que es lo único que faltaba.
+
+I7  CORREGIR    verify-fdge.mjs · SUITE_VERSION derivado del CHANGELOG, no fijado           OK
+I7  CORREGIR    verify-fdge.mjs · sin CHANGELOG la compuerta se declara NO EVALUABLE         OK
+I7  CORREGIR    migrate.mjs · TARGET derivado del CHANGELOG                                   OK
+I7  CORREGIR    selftest.sh · el fixture recibe CHANGELOG.md y deriva su suite_version        OK
+I7  CASO        selftest.sh · nuevo: «sin CHANGELOG ⇒ no evaluable» (SUITE-R40)               OK
+I7  NORMALIZAR  verify-fdge.mjs de CRLF a LF · lo exige .gitattributes «* text=auto eol=lf»   OK
+
+El fixture del selftest tenía la versión escrita a mano igual que el verificador: las dos
+copias estaban equivocadas en la misma dirección, así que el caso «versión desalineada ⇒
+restringido» pasaba sin comprobar nada. Corregir solo el verificador dejó cuatro casos verdes
+en rojo — que es la señal de que el arnés ya estaba midiendo contra sí mismo.
+
+`verify-fdge.mjs` se versionó antes de que existiera `.gitattributes`, así que su blob en
+`HEAD` lleva CRLF: su primer commit normaliza el archivo entero. El diff será grande y la
+diferencia real son 32 líneas.
+
+Sin entrada en `CHANGELOG.md` ni cambio de versión: decir qué cambió y si rompe compatibilidad
+no es mecánico, y publicar desde `main` es `SUITE-R06a`. Queda como decisión humana.
+
+I7  VERIFICAR   npm run verify · selftest OK · verify-suite sin errores · cobertura completa  OK
+I7  VERIFICAR   verify-fdge --all · 10 en verde · 1 aviso · 1 error: FND-R08 (Foundation)     OK

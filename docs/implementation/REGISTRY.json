@@ -1,0 +1,12 @@
+{
+  "suite_version": "5.2.3",
+  "execution_mode": "SUPERVISED",
+  "foundation": { "generated": "2026-08-13", "validated_by": "Alberto Martínez", "pt_at_generation": 0 },
+  "graph": { "generated": "2026-08-13", "scope": "bin", "pt_at_generation": 0 },
+  "tracker": { "plataforma": "github" },
+  "counters": {
+    "PT": 0, "EP": 0, "QA": 0, "QR": 0, "QD": 0,
+    "H": 0, "E": 0, "P": 0, "R": 0, "INC": 0
+  },
+  "allocations": []
+}

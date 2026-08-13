@@ -4,6 +4,14 @@ node_modules/
 .env.*
 !.env.example
 
+# Los ledgers append-only de la suite NUNCA caen bajo una regla `*.log` — SUITE-R37.
+# Sin ellos G4 no tiene qué verificar, PHASE 10 no tiene a qué volver y un clon pierde
+# la trazabilidad entera.
+!docs/implementation/*.log
+
+# Salida del grafo: regenerable, y su frescura vive en REGISTRY.graph — SUITE-R37.
+graphify-out/
+
 # Configuración local de Claude Code: es de la máquina, no del marco.
 .claude/settings.local.json
 

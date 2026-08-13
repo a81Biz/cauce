@@ -1,0 +1,12 @@
+# HISTORY — un registro por PT cerrado
+
+Append-only (`SUITE-R09`). Nunca se reescribe, reordena ni compacta: corregir una entrada
+pasada se hace con una entrada nueva que la referencia.
+
+Cada registro declara, como mínimo: `PT-NNN` · tipo · severidad · resultado · `Estructural: sí|no`
+(`FDGE-R44`, lo que hace computable la frescura del grafo) y la línea `Compuertas:` con quién
+resolvió cada una (`FDGE-R26`, `SUITE-R22`).
+
+Vacío: ningún PT ha cerrado todavía.
+
+---

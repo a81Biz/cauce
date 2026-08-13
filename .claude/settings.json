@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "additionalDirectories": [],
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.azure/**)",
+      "Read(~/.config/gh/**)",
+      "Read(~/.claude/.credentials.json)",
+      "Read(//**/.env)",
+      "Edit(//**/.env)"
+    ]
+  }
+}
