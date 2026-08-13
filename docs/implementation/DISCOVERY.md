@@ -12,4 +12,4 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-002 | BUG | S3 | DONE | EP-001 | audit.mjs declara «sin huecos» midiendo por componente, no por regla |
 | PT-003 | INVESTIGATION | S3 | CLOSED | EP-001 | SUITE-R35 declara milestone, issue y PR; el adaptador solo implementa issue |
 | PT-004 | BUG | S2 | DONE | EP-001 | verify-fdge exige artefactos de PHASE 4 a un PT en PHASE 1 |
-| PT-005 | BUG | S2 | READY | EP-001 | La excepción de secretos no sobrevive a un clon superficial, y la historia se da por revisada sin revisarla |
+| PT-005 | BUG | S2 | DONE | EP-001 | La excepción de secretos no sobrevive a un clon superficial, y la historia se da por revisada sin revisarla |

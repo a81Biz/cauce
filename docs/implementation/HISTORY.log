@@ -205,3 +205,45 @@ Pendientes que salen de este lote y NO le pertenecen (`FDGE-R50`):
 2. Llevar el contenido completo de cada fase al issue de GitHub, y comprobar que no se cierra
    fase con comentarios humanos sin responder. Aceptado el 2026-08-13.
 
+## PT-005 — BUG: la firma atada al hash, y la historia dada por revisada
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente del cierre del lote
+
+Qué fallaba, y fueron dos cosas. La huella de un hallazgo de historia incluía el hash del
+commit. `actions/checkout` clona con `fetch-depth: 1`, y en un `pull_request` ese único commit
+es el merge **sintético** que GitHub fabrica, distinto en cada propuesta: ninguna excepción
+firmada encajaba jamás y la compuerta quedaba en rojo permanente sobre todo PR — que es como
+funciona `G4`. Y el simétrico, peor: con un clon superficial la herramienta daba la historia
+por revisada habiendo visto un commit; un árbol limpio habría salido verde sin mirar.
+
+Causa raíz: la firma dependía de la profundidad del clon, un detalle del entorno que nada
+declaraba.
+
+Qué se hizo: el ámbito de un hallazgo de historia pasa a ser «la historia», no el commit. Un
+clon superficial se declara `SIN EVALUAR` con las dos formas de arreglarlo. CI clona con
+`fetch-depth: 0`. Las seis excepciones se refirmaron: mismo secreto, mismo motivo, otra
+fórmula.
+
+Resultado: `selftest` 211 → 219 casos. El job `marco` del PR #7 en verde, once pasos.
+
+Delta respecto al plan, y son dos errores propios:
+
+1. **Se commiteó el volcado del log de CI como evidencia, y ese log citaba los fixtures.**
+   `FDGE-R45` lo prohíbe y lo cazó el propio paso de secretos en la ejecución siguiente. El
+   archivo se redactó; el commit es inmutable, así que sus siete huellas quedan firmadas.
+2. **La primera tabla de refirmas asignó mal los motivos** —una fila decía «JWT» sobre una
+   contraseña— y las seis seguían eximiendo igual, porque la huella casa por valor y no por
+   texto. **Ninguna comprobación lo habría detectado.** Se cazó leyendo la salida.
+
+Descubrimiento de método: el caso inverso «los commits del fixture SÍ difieren» falló al
+escribirlo, porque git es determinista y dos repos creados en el mismo segundo con el mismo
+mensaje dan el mismo hash. Sin ese caso, el que comprueba que la huella no depende del commit
+habría pasado sin probar nada.
+

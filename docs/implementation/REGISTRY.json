@@ -34,7 +34,7 @@
       "complexity": null,
       "severity": null,
       "track": null,
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "structural": null,
       "suite_version": "5.2.3",
       "title": "El marco se hace cumplir a sí mismo",
@@ -127,15 +127,17 @@
       "complexity": "TRIVIAL",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "structural": false,
       "suite_version": "5.3.0",
       "epic": "EP-001",
-      "phase": 6,
+      "phase": 8,
       "title": "La excepción de secretos no sobrevive a un clon superficial, y la historia se da por revisada sin revisarla",
       "origin": "Hallazgo de ejecución 2026-08-13 · CI falló en el PR #7 con 7 hallazgos que en local no existen",
       "created": "2026-08-13",
-      "issue": 8
+      "issue": 8,
+      "validated_by": "Alberto Martínez",
+      "validated": "2026-08-13"
     }
   ]
 }
