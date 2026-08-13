@@ -85,3 +85,44 @@ npm run verify   → verify:patrones · verify:suite · core:check · audit · v
 
 `SUITE-R35` es **HARD**, tiene herramienta (`tools/tracker.mjs`, 205 líneas) y ninguna
 compuerta la ejecuta. Una regla que solo se cumple por buena voluntad es una recomendación.
+
+---
+
+## Revisiones
+
+> Append-only (`SUITE-R09`). El intake se firmó por lote el 2026-08-13.
+
+### Revisión 1 — 2026-08-13 · ampliación de archivos
+
+**Qué cambia.** El intake declaraba cuatro archivos (`verify-fdge.mjs`, `package.json`,
+`verificacion.yml`, `selftest.sh`). Se añaden dos:
+
+| Archivo | Por qué |
+|:---|:---|
+| `docs/methodology/tools/tracker.mjs` | los códigos de salida que distinguen «sin plataforma» de «sin acceso», la acción `notas` que `FDGE-R52` necesita, y las etiquetas de `AC-08` |
+| `bin/cauce.mjs` | mapear el código de salida nuevo en `cauce verify` |
+
+**Motivo.** La solución de `PHASE 3` mantiene el adaptador de plataforma en una sola
+herramienta: `verify-fdge` hace cumplir la regla y le pregunta a `tracker`, que es quien tiene
+el cliente CLI. La alternativa —un segundo cliente de GitHub dentro de `verify-fdge`— es la
+duplicación que este repositorio existe para eliminar.
+
+**No es desvío de complejidad** (`FDGE-R21`): es el mismo trabajo declarado, en los archivos
+donde vive. `tasks.md` queda actualizado y es lo que fija el scope lock (`FDGE-R20`).
+
+### Revisión 2 — 2026-08-13 · `AC-05` resuelto por decisión humana
+
+**Qué cambia.** `AC-05` decía «la ausencia de credencial no produce un rojo permanente» y
+dejaba abierto el comportamiento.
+
+**Decisión humana** del 2026-08-13, literal: «las credenciales necesitan estar desde antes,
+asegurarse que empieza con las credenciales». Y confirmado el reparto para los dos casos que
+el proyecto no controla:
+
+> El espejo **bloquea** donde la credencial es exigible —`npm run verify`, `push` a `main`,
+> `G4`— y sale **`SIN EVALUAR`** donde no puede estarlo: un PR desde un fork, que por diseño
+> de GitHub no recibe los secretos del repositorio, y una máquina recién instalada sin
+> `gh auth login`.
+
+Esto es `FND-R30` («los accesos se comprueban antes de necesitarlos») aplicada con la puerta
+que `RULE-06` exige para lo que no se puede comprobar.
