@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **5.1.0**
+> Suite version: **5.2.0**
 
 ---
 
@@ -16,6 +16,25 @@ fases intermedias emitiendo checkpoints y se detiene solo en las compuertas viva
 
 `EXEC-R01` · En todos los modos, cada fase produce un checkpoint legible. Auto-avanzar en
 silencio está prohibido.
+
+## Si tocas un patrón                                                    `SUITE-R38`
+
+Los patrones críticos viven en `tools/patrones.mjs`, cada uno con lo que **tiene** que casar y
+lo que **no** debe casar. Cambiar uno sin actualizar su contrato no compila el problema: lo
+esconde.
+
+```bash
+node docs/methodology/tools/verify-patrones.mjs
+```
+
+**Un patrón puede estar mal y compilar.** Ocho veces en este proyecto un escape se perdió al
+editar —`` quedó como el byte `0x08`, `\s` como la letra `s`— y el regex resultante era
+válido y no casaba nada. El verificador informaba «sin errores» porque no encontraba nada que
+reprochar: el fallo era indistinguible del éxito, y ninguna lectura lo veía —`/AC-d+/` y
+`/AC-\d+/` se parecen demasiado.
+
+Corre esto **antes** que nada: si un patrón se degradó, todo lo que venga después informa «sin
+errores» porque no encuentra nada, no porque no haya nada.
 
 ## La plataforma de trabajo                                              `SUITE-R35`
 

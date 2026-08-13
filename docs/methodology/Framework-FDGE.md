@@ -7,7 +7,7 @@
 > Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas y automatización: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 > Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md) · Prompts: [FDGE-Prompts.md](FDGE-Prompts.md)
 >
-> Suite version: **5.1.0**
+> Suite version: **5.2.0**
 
 ---
 

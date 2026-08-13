@@ -29,6 +29,9 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+// El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
+// normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
+import { selloDe } from './patrones.mjs';
 
 const args = process.argv.slice(2);
 const check = args.includes('--check');
@@ -276,11 +279,6 @@ node docs/methodology/tools/build-core.mjs --check
 `;
 }
 
-// El sello hashea el contenido NORMALIZADO, no los bytes crudos. Git entrega LF en Linux y
-// CRLF en Windows con autocrlf, asi que un sello sobre bytes daba «CORE.md desincronizado» en
-// el CI aunque nadie hubiera tocado nada: el marco no se podia certificar a si mismo fuera de
-// la maquina donde se genero. Es el mismo CRLF que ya dejo 25 reglas fuera de CORE.md.
-const selloDe = (txt) => createHash('sha1').update(txt.split(/\r?\n/).join('\n')).digest('hex').slice(0, 12);
 const src = ['RULES.md', 'LEXICON.md', 'EXECUTION-MODES.md', 'PHASES.md']
   .map((f) => `${f}:${selloDe(read(f))}`)
   .join(' ');

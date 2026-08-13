@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **5.1.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **5.2.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -208,7 +208,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
 
 ```json
 {
-  "suite_version": "5.1.0",
+  "suite_version": "5.2.0",
   "execution_mode": "SUPERVISED",
   "foundation": { "generated": "2026-08-01", "validated_by": "Ada Lovelace", "pt_at_generation": 38 },
   "graph": { "generated": "2026-08-01", "scope": "src/", "pt_at_generation": 38 },
@@ -228,7 +228,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
       "status": "READY",
       "phase": 1,
       "structural": false,
-      "suite_version": "5.1.0"
+      "suite_version": "5.2.0"
     }
   ]
 }
@@ -557,6 +557,8 @@ tools/
   audit.mjs           cobertura: enumera reglas, fases, triggers, artefactos y herramientas
   verify-ptsa.mjs     matriz de cobertura de una auditoría · precondición de certificar
   verify-qa.mjs       ciclo QA y roadmap FPGE · los dos componentes que no tenían ninguna
+  patrones.mjs        los patrones críticos, una vez y con su contrato · SUITE-R38
+  verify-patrones.mjs ejecuta ese contrato: un patrón degradado falla su propio ejemplo
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35

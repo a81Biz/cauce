@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: ab6827863e21 -->
-<!-- fuentes: RULES.md:e27f8d989a32 LEXICON.md:21c4e6b146b7 EXECUTION-MODES.md:452928b10446 PHASES.md:87ebe5e07b83 -->
+<!-- cuerpo: 5986dddb2696 -->
+<!-- fuentes: RULES.md:4106803ef661 LEXICON.md:b4e5eb13b99d EXECUTION-MODES.md:396f09590084 PHASES.md:bcfbae37d458 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -142,6 +142,7 @@ verifica un script y bloquea la integración.
 `SUITE-R35` **H** El registro asigna; la plataforma espeja. REGISTRY.json sigue siendo el único asignador de identificadores (SUITE-R08) y cada allocation guarda su número de issue. La plataforma —GitHub, Azure— responde qué…
 `SUITE-R36` **H** Al adoptar la plataforma, solo migra lo vivo.
 `SUITE-R37` **H** Qué se versiona, decidido de una vez. Evidencia, ledgers y docs/methodology/ sí: auditar un commit antiguo exige saber qué reglas lo gobernaban, y sin la carpeta eso depende de que el paquete siga…
+`SUITE-R38` **H** Un patrón crítico vive en un solo sitio y viaja con su contrato.
 
 ### LEX — Nombres
 

@@ -7,7 +7,7 @@
 > Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md) · Prompts: [FDGE-Prompts.md](FDGE-Prompts.md)
 > Admisión: [INTAKE/Intake-Protocol.md](INTAKE/Intake-Protocol.md)
 >
-> Suite version: **5.1.0**
+> Suite version: **5.2.0**
 
 ---
 
@@ -88,7 +88,7 @@ en el caso de `QR-NNN` se desalineaba al primer ciclo delta.
 
 ```json
 {
-  "suite_version": "5.1.0",
+  "suite_version": "5.2.0",
   "execution_mode": "SUPERVISED",
   "counters": {
     "PT": 42, "EP": 3, "QA": 87, "QR": 5, "QD": 12,

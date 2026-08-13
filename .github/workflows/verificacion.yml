@@ -25,6 +25,11 @@ jobs:
         with:
           node-version: '22'
 
+      # Primero los patrones: si un escape se degradó, todo lo que venga después informa
+      # «sin errores» porque no encuentra nada, no porque no haya nada.
+      - name: Los patrones cumplen su contrato
+        run: npm run verify:patrones
+
       - name: Coherencia interna
         run: npm run verify:suite
 

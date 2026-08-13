@@ -3,7 +3,7 @@
 > **Naturaleza: procedimental.** Método: [Framework-FIDE.md](Framework-FIDE.md) ·
 > Reglas: [RULES.md](../RULES.md) §Parte 10 · Vocabulario: [LEXICON.md](../LEXICON.md)
 >
-> Suite version: **5.1.0**
+> Suite version: **5.2.0**
 
 ---
 
@@ -146,7 +146,7 @@ README.md                    Índice del paquete, fecha de generación y scope
 
    REGISTRY.json inicial:
    {
-     "suite_version": "5.1.0",
+     "suite_version": "5.2.0",
      "execution_mode": "SUPERVISED",
      "counters": { "PT":0,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0 },
      "allocations": []
@@ -193,7 +193,7 @@ README.md                    Índice del paquete, fecha de generación y scope
    Declara mode: SUPERVISED en la sección de modo de ejecución.
 
 5. CIERRE
-   «Incubación FIDE completada. Suite 5.1.0 instalada, modo SUPERVISED.
+   «Incubación FIDE completada. Suite 5.2.0 instalada, modo SUPERVISED.
 
     Siguiente paso: `promote FPGE R-001` para llevar el primer ítem a FDGE PHASE 1 (Intake).
     Tendrás que firmar su Intake antes de que empiece la construcción.

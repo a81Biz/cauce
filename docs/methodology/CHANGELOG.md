@@ -8,6 +8,62 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 5.2.0 — 2026-08-12
+
+**Un patrón puede estar mal y compilar.** Esa es la frase entera del problema que esta versión
+ataca, después de ocho apariciones.
+
+### Qué pasaba
+
+Al editar, una secuencia de escape se perdía: `` quedaba como el byte `0x08`, `\s` como la
+letra `s`. El regex resultante es **sintácticamente válido** y no casa nada — o casa otra cosa.
+El verificador entonces informa «sin errores» porque no encuentra nada que reprochar, y **el
+fallo es indistinguible del éxito**. Ninguna revisión por lectura lo ve: `/AC-d+/` y `/AC-\d+/`
+se parecen demasiado.
+
+La 4.8.0 añadió un detector de bytes de control. Eso trata un síntoma: caza `` → `0x08` y no
+caza `\d` → `d`, que es el mismo fallo con un carácter imprimible. **Cazaba la mitad de los
+casos, y dejaba fuera la mitad silenciosa.**
+
+### Qué se hace ahora — `SUITE-R38`
+
+`tools/patrones.mjs` define los patrones críticos **una vez**, cada uno con lo que tiene que
+casar y lo que no debe casar. `tools/verify-patrones.mjs` ejecuta ese contrato: 10 patrones, 47
+comprobaciones.
+
+Un patrón degradado falla su propio ejemplo, con nombre y con el patrón impreso al lado. Para
+pasar por bueno tendrían que romperse el patrón **y** sus ejemplos en la misma dirección.
+
+Hacen falta las dos listas: solo `casa` deja pasar un patrón demasiado laxo; solo `noCasa`, uno
+que no casa nada. Es la misma exigencia que el marco le pone a un criterio de aceptación — si no
+se puede escribir la comprobación que lo tumba, no es un criterio.
+
+Corre **el primero** en el CI y en `npm run verify`: si un patrón se degradó, todo lo que venga
+después informa «sin errores» porque no encuentra nada, no porque no haya nada.
+
+### Y de paso, las tres copias del sello
+
+La fórmula estaba en `build-core`, `verify-suite` y `verify-fdge`. Normalizar dos dejó al tercero
+contradiciendo a los otros y cinco casos del selftest en rojo. Ahora hay una, en `patrones.mjs`,
+con su propio contrato: que el sello **no dependa del fin de línea** —la propiedad que rompió el
+primer CI del marco— y que dos contenidos distintos no den el mismo sello.
+
+### Publicar sin credencial
+
+El `NPM_TOKEN` se ha eliminado del repositorio y el workflow ya no lo usa: publica con **OIDC
+trusted publishing**, autenticándose como este repositorio y este workflow. No hay token que
+rotar, que filtrar ni que caducar — y un secreto muerto en el repositorio es exactamente lo que
+había hasta ahora.
+
+Requiere configurarlo una vez en npmjs.com → el paquete → Settings → Trusted Publisher.
+
+### Verificación
+
+`selftest.sh`: **171 casos**, con el bloque **S** — que incluye degradar un escape a propósito y
+comprobar que su ejemplo falla. `audit.mjs`: 531 elementos, 0 huecos.
+
+---
+
 ## 5.1.0 — 2026-08-12
 
 **El reanclaje se escribe.** La 5.0.0 dejó `FDGE-R52` diciendo «relee el estado antes de cada

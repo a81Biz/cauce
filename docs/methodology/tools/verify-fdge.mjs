@@ -30,12 +30,10 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
-// TERCER sitio donde se sella, y el que se quedo atras: build-core y verify-suite pasaron a
-// hashear contenido NORMALIZADO —git entrega LF en Linux y CRLF en Windows— y este siguio con
-// bytes crudos. Resultado: el nucleo estaba bien y verify-fdge lo declaraba desincronizado.
-// Tres copias de la misma formula es una copia de mas; queda anotado para cuando haya una sola.
-const selloDe = (txt) => createHash('sha1').update(txt.split(/\r?\n/).join('\n')).digest('hex').slice(0, 12);
 import { execFileSync } from 'node:child_process';
+// El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
+// normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
+import { selloDe } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -47,7 +45,7 @@ const errors = [];
 const warnings = [];
 const passed = [];
 let GRAPH = { state: 'UNKNOWN', reason: 'sin evaluar' };
-const SUITE_VERSION = '5.1.0';
+const SUITE_VERSION = '5.2.0';
 
 const fail = (rule, msg) => errors.push({ rule, msg });
 const warn = (rule, msg) => warnings.push({ rule, msg });
@@ -961,7 +959,7 @@ const all = argv.includes('--all');
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
 
-console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 5.1.0\n');
+console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 5.2.0\n');
 
 const reg = checkRegistry();
 REGISTRO = reg;

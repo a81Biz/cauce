@@ -5,7 +5,7 @@
 > explican su porqué; nunca reformulan el texto.
 > **Autoridad:** ver `LEX-R21`. Vocabulario: [LEXICON.md](LEXICON.md).
 >
-> Suite version: **5.1.0**
+> Suite version: **5.2.0**
 
 ---
 
@@ -85,6 +85,7 @@ reinterpretada por el `CLAUDE.md` de un proyecto destino. El `CLAUDE.md` del pro
 | `SUITE-R35` | HARD | **El registro asigna; la plataforma espeja.** `REGISTRY.json` sigue siendo el único asignador de identificadores (`SUITE-R08`) y cada `allocation` guarda su número de issue. La plataforma —GitHub, Azure— responde **qué está abierto y qué sigue**; el repositorio responde **qué se decidió y qué se probó**. El espejo se comprueba por enumeración en las dos direcciones: toda allocation viva tiene issue abierto, y todo issue abierto tiene allocation viva. **El issue referencia el intake; no lo copia** — dos copias del mismo texto divergen, que es la causa raíz que la v4 nació para eliminar. Declarar plataforma es opcional; con ella, el estado deja de vivir en la memoria del agente. |
 | `SUITE-R36` | HARD | **Al adoptar la plataforma, solo migra lo vivo.** Un proyecto en marcha lleva una implementación abierta y unas pocas tareas; lo cerrado **no es estado, es evidencia**, y se queda en el repositorio junto al código que lo produjo. Crear un issue por cada trabajo terminado llena la plataforma de cadáveres que el espejo tendría que reconciliar para siempre. La adopción **reduce** trabajo: solo lo que está abierto necesita estar consultable. |
 | `SUITE-R37` | HARD | **Qué se versiona, decidido de una vez.** Evidencia, ledgers y `docs/methodology/` **sí**: auditar un commit antiguo exige saber qué reglas lo gobernaban, y sin la carpeta eso depende de que el paquete siga publicado. La salida del grafo **no**: es regenerable y su frescura vive en `REGISTRY.graph`. Los ledgers append-only de la suite **nunca** caen bajo una regla `*.log` — sin ellos `G4` no tiene qué verificar, `PHASE 10` no tiene a qué volver y un clon pierde la trazabilidad entera. |
+| `SUITE-R38` | HARD | **Un patrón crítico vive en un solo sitio y viaja con su contrato.** `tools/patrones.mjs` los define una vez, cada uno con lo que **tiene** que casar y lo que **no** debe casar, y `tools/verify-patrones.mjs` ejecuta ese contrato. Un patrón puede estar mal **y compilar**: ocho veces en este proyecto una secuencia de escape se perdió al editar —`` quedó como el byte `0x08`, `\s` como la letra `s`— y el regex resultante era válido y no casaba nada. El verificador informaba «sin errores» porque no encontraba nada que reprochar: **el fallo era indistinguible del éxito**. Detectar bytes de control caza la mitad de los casos y deja fuera la silenciosa. Solo `casa` deja pasar un patrón demasiado laxo; solo `noCasa`, uno que no casa nada: hacen falta las dos listas. |
 | `SUITE-R13` | CHECK | **Versionado.** Todo proyecto destino declara `suite_version` en `REGISTRY.json` y en su `CLAUDE.md`. Un desajuste con `docs/methodology/CHANGELOG.md` se reporta al inicio de sesión. |
 
 ---

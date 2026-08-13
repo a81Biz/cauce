@@ -46,14 +46,14 @@ build_fixture() {
   mkdir -p docs/methodology/PTSA && cp "$SUITE"/PTSA/PTSA-V3-Especificacion-Oficial.md docs/methodology/PTSA/ 2>/dev/null || true
 
   cat > docs/implementation/REGISTRY.json <<'J'
-{ "suite_version":"5.1.0","execution_mode":"SUPERVISED",
+{ "suite_version":"5.2.0","execution_mode":"SUPERVISED",
   "graph":{"generated":"2026-08-05","scope":"src/","pt_at_generation":4},
   "counters":{"PT":4,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
   "allocations":[
-    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.1.0"},
-    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.1.0"},
-    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.1.0"},
-    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.1.0"}
+    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0"},
+    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.2.0"},
+    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0"},
+    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.2.0"}
   ] }
 J
 
@@ -787,7 +787,7 @@ chk   "INSTALL.log sin entradas ⇒ falla"     "no contiene ninguna entrada"  V 
 build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/^\| (\d+) \| (.+?) \| \| \|$/| $1 | $2 | ACEPTADO | /gm' "$WORK/docs/implementation/LAYOUT.md"
-printf "## 2026-08-06 · [INSTALL SUITE] · 5.1.0
+printf "## 2026-08-06 · [INSTALL SUITE] · 5.2.0
 Ejecutado por: Ada Lovelace
 
 I2  MOVER      [L1] 15 archivos .md  ·  raiz a docs/business/     OK
@@ -1013,6 +1013,22 @@ chk   "bitácora atrasada ⇒ falla"            "✗ FDGE-R52"  V PT-001
 # La portada del paquete no puede declarar una versión fósil.
 chkno "el README no fija una versión"        "Versión 4."  cat "$SUITE/../../README.md"
 chk   "el README nombra el paquete"          "@a81biz/cauce"  cat "$SUITE/../../README.md"
+
+# ─── S · los patrones cumplen su contrato ────────────────────────────────────
+echo "── S · patrones ──"
+
+chk   "los patrones cumplen su contrato"     "cumplen su contrato"  node "$SUITE/tools/verify-patrones.mjs"
+
+# La prueba de que sirve: se degrada un escape como han fallado las ocho veces.
+# \d → d es IMPRIMIBLE: el detector de bytes de control no lo ve, y este sí.
+PATDIR="$WORK/../patrones-degradados"
+rm -rf "$PATDIR" && mkdir -p "$PATDIR" && cp "$SUITE/tools/patrones.mjs" "$SUITE/tools/verify-patrones.mjs" "$PATDIR/"
+node -e "const f=require('fs'),p=process.argv[1],b=String.fromCharCode(92);f.writeFileSync(p,f.readFileSync(p,'utf8').replace('re: /'+b+'bAC-'+b+'d+','re: /'+b+'bAC-d+'))" "$PATDIR/patrones.mjs"
+chk   "escape degradado ⇒ falla su ejemplo"  "debería casar"  node "$PATDIR/verify-patrones.mjs"
+rm -rf "$PATDIR"
+
+# El sello vive en un solo sitio: tres copias dejaron a una contradiciendo a las otras.
+chk   "una sola fórmula del sello"           "patrones.mjs"  bash -c 'grep -l "const selloDe = " "$0"/tools/*.mjs' "$SUITE"
 
 # ─── C · coherencia de la metodología ───────────────────────────────────────
 echo "── C · metodología ──"

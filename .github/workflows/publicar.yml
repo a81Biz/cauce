@@ -55,6 +55,16 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
+      # Publicación SIN credencial: npm confía en este repositorio y este workflow, y GitHub
+      # se autentica con OIDC. No hay token que rotar, que filtrar ni que caducar — y un
+      # secreto muerto en el repositorio es exactamente lo que había antes de esto.
+      #
+      # Requiere configurarlo una vez en npmjs.com → el paquete → Settings → Trusted Publisher:
+      #   repositorio a81Biz/cauce · workflow publicar.yml
+      # Y npm 11.5.1 o superior, que es más nuevo que el que trae el runner.
+      - name: npm reciente, para OIDC
+        run: npm install -g npm@latest
+
       # El marco no se publica si no puede certificarse a sí mismo. Las cuatro bloquean.
       - name: Coherencia interna
         run: npm run verify:suite
@@ -78,8 +88,6 @@ jobs:
 
       - name: Publicar
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Qué quedó publicado
         run: |
