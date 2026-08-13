@@ -1,0 +1,12 @@
+{
+  "pt": "PT-012",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01","TS-05"], "tests": ["selftest.sh:4.12 ⇒ pide el bloque ESTADO","selftest.sh:con ESTADO ya escrito, no lo pide"], "evidence": ["salidas/legado-informe-antes.txt","salidas/legado-informe.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02"], "tests": ["selftest.sh:4.12 ⇒ enumera lo que llega"], "evidence": ["salidas/legado-informe.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-03","TS-07"], "tests": ["selftest.sh:4.12 ⇒ ofrece la plataforma","selftest.sh:sin plataforma ⇒ no exige el PR"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-04"], "tests": ["selftest.sh:4.12 ⇒ menciona las excepciones"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-01"], "tests": ["el bloque ESTADO se pide, no se escribe"], "evidence": ["salidas/legado-informe.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["TS-06"], "tests": ["selftest.sh:ya en 6.x, el tramo no aparece"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 266, "failed": 0, "coverage": 266, "baseline": 256 }
+}

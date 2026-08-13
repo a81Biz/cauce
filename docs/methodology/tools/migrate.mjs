@@ -197,6 +197,66 @@ if (lt('4.2.0') && reg) {
   }
 }
 
+// ── → 5.0.0 · el estado sale de la memoria del agente ───────────────────────
+// PT-012 · Este tramo NO EXISTÍA. Un proyecto en 4.12 recibía un informe de dos líneas —sella
+// la versión, actualiza el CLAUDE.md— y todo lo demás vivía en PROSA dentro del CHANGELOG de
+// dos versiones atrás. `SUITE-R19` pide listar como acción pendiente lo que no se automatiza,
+// y eso no se estaba haciendo para el salto que más cosas pide.
+//
+// Se DETECTA, no se recita: un tramo que imprima siempre los nueve pasos de los que te aplican
+// dos ensena a no leerlo. Es el patrón que ya usan los tramos de 3.x y 4.1.
+if (lt('5.0.0')) {
+  const handoff = rd('docs/implementation/HANDOFF.md');
+  if (handoff !== null && !/<!--\s*ESTADO\s*-->/.test(handoff)) {
+    need('escribir el bloque ESTADO al principio de HANDOFF.md (SUITE-R33). Campos fijos: '
+      + 'implementación · tarea · compuerta · siguiente · decisiones · no hacer · actualizado. '
+      + 'El formato está en INSTALL.md y en FDGE-Prompts.md. NO lo escribe esta herramienta: '
+      + 'declara qué compuerta espera y a quién, y cuál es la siguiente acción — eso no lo sabe '
+      + 'una máquina, y rellenarlo con plantilla produce un estado que miente. '
+      + 'Sin él, verify-fdge falla.');
+    need('escribirlo AL CERRAR CADA FASE, no al terminar la sesión: una sesión no siempre avisa '
+      + 'de que va a terminar, y SUITE-R34 lo comprueba contra git.');
+  }
+  const vivos = (reg?.allocations ?? []).filter(
+    (a) => ['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_DOMAIN',
+      'VALIDATION_PENDING', 'DONE'].includes(a?.status));
+  const sinFase = vivos.filter((a) => a?.phase === undefined || a?.phase === null);
+  if (sinFase.length) {
+    need(`declarar «phase» en ${sinFase.length} allocation(s) viva(s) de REGISTRY.json `
+      + `(${sinFase.map((a) => a.id).slice(0, 5).join(', ')}). Desde 6.0.0, los artefactos se `
+      + 'exigen DESDE la fase que los produce; sin fase declarada esas comprobaciones salen '
+      + 'SIN EVALUAR — ni aprueban ni bloquean.');
+  }
+  if (!reg?.tracker?.plataforma) {
+    need('OPCIONAL — declarar plataforma de trabajo: "tracker": { "plataforma": "github" }. '
+      + 'Con ella, el estado deja de vivir en la memoria del agente: cada tarea tiene su issue '
+      + 'con su fase y su compuerta, y el espejo se comprueba en las compuertas (SUITE-R35). '
+      + 'Sin ella no cambia nada. Declararla es una decisión humana, y activa además SUITE-R42 '
+      + '—G4 sobre un pull request— y SUITE-R43 —los comentarios se leen—.');
+  } else {
+    need(`plataforma «${reg.tracker.plataforma}» declarada: sincroniza el espejo antes de operar. `
+      + 'node docs/methodology/tools/tracker.mjs abrir --aplicar   (crea issues y etiquetas, '
+      + 'y sincroniza fase y compuerta) · luego «cerrar --aplicar» para lo ya terminado. '
+      + 'SUITE-R36: solo lo vivo — lo cerrado es evidencia y se queda en el repositorio.');
+  }
+  need('lo que llega nuevo en tools/: tracker (espejo con la plataforma) · revisar-secretos '
+    + '(árbol e historia, FND-R29) · comparar-marco · verify-patrones · version · patrones. '
+    + 'Y los documentos de FIDE/ más INTAKE/templates/TAREA.md.');
+  need('si el escáner de secretos encuentra un falso positivo, se firma en '
+    + 'docs/implementation/SECRETOS-EXCEPCIONES.md — una fila por huella, con nombre y motivo. '
+    + 'Firmar no silencia: la excepción sigue apareciendo en cada revisión (FND-R29).');
+}
+
+// ── → 6.0.0 · dos reglas vinculantes nuevas, ambas condicionales ────────────
+if (lt('6.0.0') && reg?.tracker?.plataforma) {
+  need('G4 pasa a resolverse sobre un pull request abierto para la rama (SUITE-R42). No es una '
+    + 'práctica nueva; ahora se comprueba. El agente no lo abre ni lo fusiona: '
+    + 'gh pr create --base main --head <tu-rama>');
+  need('un comentario humano sin responder en el issue de un PT bloquea su avance de fase '
+    + '(SUITE-R43). Se distingue por marca de procedencia, no por autor. Si ningún comentario '
+    + 'lleva marca, la comprobación sale SIN EVALUAR y se cura sola.');
+}
+
 // ── Estructura mínima común ─────────────────────────────────────────────────
 for (const [f, c] of [
   ['docs/implementation/INCIDENTS.log', '# INCIDENTS — un registro por INC-NNN (append-only)\n'],

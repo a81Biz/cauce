@@ -305,15 +305,17 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "6.0.1",
       "epic": "EP-004",
-      "phase": 1,
+      "phase": 8,
       "title": "migrate.mjs no tiene tramo 4.12 → 6.x: sella la versión y no dice nada más",
       "origin": "Medición 2026-08-13 · el informe entero de migrate sobre el proyecto legado son dos líneas",
       "created": "2026-08-13",
-      "issue": 19
+      "issue": 19,
+      "validated_by": "Alberto Martínez (por delegación)",
+      "validated": "2026-08-13"
     },
     {
       "id": "PT-013",

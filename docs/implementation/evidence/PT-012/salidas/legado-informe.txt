@@ -1,0 +1,23 @@
+migrate — Methodology Suite → 6.0.1
+Proyecto: C:\DevOps\Desarrollos\Inteligencia de Mercados Energéticos Mexicanos
+Versión detectada: 4.12.0
+Modo: informe (añade --apply para ejecutar)
+
+SE HARÍA AUTOMÁTICAMENTE
+  · REGISTRY.suite_version: 4.12.0 → 6.0.1
+
+REQUIERE UNA PERSONA
+  ! escribir el bloque ESTADO al principio de HANDOFF.md (SUITE-R33). Campos fijos: implementación · tarea · compuerta · siguiente · decisiones · no hacer · actualizado. El formato está en INSTALL.md y en FDGE-Prompts.md. NO lo escribe esta herramienta: declara qué compuerta espera y a quién, y cuál es la siguiente acción — eso no lo sabe una máquina, y rellenarlo con plantilla produce un estado que miente. Sin él, verify-fdge falla.
+  ! escribirlo AL CERRAR CADA FASE, no al terminar la sesión: una sesión no siempre avisa de que va a terminar, y SUITE-R34 lo comprueba contra git.
+  ! declarar «phase» en 2 allocation(s) viva(s) de REGISTRY.json (EP-009, EP-014). Desde 6.0.0, los artefactos se exigen DESDE la fase que los produce; sin fase declarada esas comprobaciones salen SIN EVALUAR — ni aprueban ni bloquean.
+  ! OPCIONAL — declarar plataforma de trabajo: "tracker": { "plataforma": "github" }. Con ella, el estado deja de vivir en la memoria del agente: cada tarea tiene su issue con su fase y su compuerta, y el espejo se comprueba en las compuertas (SUITE-R35). Sin ella no cambia nada. Declararla es una decisión humana, y activa además SUITE-R42 —G4 sobre un pull request— y SUITE-R43 —los comentarios se leen—.
+  ! lo que llega nuevo en tools/: tracker (espejo con la plataforma) · revisar-secretos (árbol e historia, FND-R29) · comparar-marco · verify-patrones · version · patrones. Y los documentos de FIDE/ más INTAKE/templates/TAREA.md.
+  ! si el escáner de secretos encuentra un falso positivo, se firma en docs/implementation/SECRETOS-EXCEPCIONES.md — una fila por huella, con nombre y motivo. Firmar no silencia: la excepción sigue apareciendo en cada revisión (FND-R29).
+  ! actualizar suite_version a 6.0.1 en el CLAUDE.md del proyecto.
+
+Nada se ha modificado. Ejecuta con --apply.
+
+1 automática(s) · 7 pendiente(s) de decisión humana.
+
+Mientras queden pendientes, el proyecto sigue en modo restringido (SUITE-R17):
+solo migrate, status * y terminar los PTs ya en vuelo. No se abre trabajo nuevo.

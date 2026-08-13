@@ -495,3 +495,42 @@ sí mismo. Se filtró en vez de volcarlo.
 Lo que este PT no resuelve y queda enumerado: la puerta de versión para que una regla nueva no
 se cobre sobre trabajo cerrado.
 
+## PT-012 — BUG: migrar desde 4.12
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `migrate.mjs` tenía tramos para `3.x → 4.x`, `< 4.1.0` y `< 4.2.0` y nada más. Un
+proyecto en 4.12 recibía un informe de **dos líneas** —sella la versión, actualiza el
+`CLAUDE.md`— y todo lo demás vivía en **prosa dentro del CHANGELOG** de dos versiones atrás,
+repartido entre las guías de la 5.0.0 y la 6.0.0.
+
+`SUITE-R19` pide listar como acción pendiente lo que no se automatiza. La herramienta cumplía
+la otra mitad —encadena `verify-fdge` al terminar— y no esta.
+
+Qué se hizo: dos tramos que **detectan**, no recitan. Comprueban si el `HANDOFF` tiene bloque
+`ESTADO`, si las allocations vivas declaran `phase`, si hay plataforma declarada, y enumeran lo
+que llega nuevo. El tramo de 6.0.0 solo aparece si el proyecto declara plataforma, porque
+`SUITE-R42` y `SUITE-R43` son condicionales.
+
+**El bloque `ESTADO` no lo escribe la herramienta**, y el mensaje explica por qué: declara qué
+compuerta espera y cuál es la siguiente acción, y rellenarlo con plantilla produciría un estado
+que miente.
+
+Resultado, medido contra el proyecto legado: **1 acción pendiente → 7**, todas detectadas sobre
+su estado real, incluido que `EP-009` y `EP-014` no declaran fase. `selftest` 256 → 266 casos.
+
+Delta: un aserto propio estaba mal —comprobaba que sin plataforma no se mencionara `SUITE-R42`,
+y sí se menciona explicando qué activaría declararla—. Lo dijo el caso; se corrigió a comprobar
+que no aparezca la exigencia.
+
+Deuda declarada: la lista de «qué llega nuevo» está **escrita a mano** y es un hecho copiado
+(`RULE-01`). Debería derivarse comparando el paquete con el destino. Queda enumerada en el
+out-of-scope, no narrada.
+

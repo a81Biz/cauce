@@ -303,6 +303,68 @@ chk "4.0.x · PT en vuelo conservado"   "PT-007"                          cat "$
 
 rm -rf "$MIG"
 
+
+# PT-012 · el tramo 4.12 -> 6.x, que NO EXISTIA. Un proyecto en 4.12 recibia un informe de dos
+# lineas y todo lo demas vivia en PROSA dentro del CHANGELOG de dos versiones atras. Se DETECTA,
+# no se recita: un tramo que imprima siempre nueve pasos de los que te aplican dos ensena a no
+# leerlo.
+mk_v412() {  # 4.12: registro moderno, sin bloque ESTADO, sin fase y sin plataforma
+  rm -rf "$MIG"; mkdir -p "$MIG"/docs/implementation "$MIG"/docs/methodology/tools
+  cd "$MIG"
+  cat > docs/implementation/REGISTRY.json <<'J'
+{ "suite_version":"4.12.0","execution_mode":"SUPERVISED",
+  "counters":{"PT":9,"EP":1,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
+  "allocations":[{"id":"PT-009","type":"BUG","severity":"S2","slug":"x","created":"2026-08-01","status":"IN_PROGRESS","suite_version":"4.12.0"}] }
+J
+  printf '# HANDOFF
+
+Prosa, sin bloque de estado.
+' > docs/implementation/HANDOFF.md
+  printf '## PT-009 — BUG: x
+Estado: DONE
+Estructural: no
+' > docs/implementation/HISTORY.log
+  cp "$SUITE"/tools/*.mjs docs/methodology/tools/
+  cp "$SUITE"/CHANGELOG.md docs/methodology/ 2>/dev/null || true
+}
+
+reg_mig() {   # $1 · cabecera del REGISTRY del fixture de migracion, sin tocar lo demas
+  cat > "$MIG/docs/implementation/REGISTRY.json" <<J
+{ $1,"execution_mode":"SUPERVISED",
+  "counters":{"PT":9,"EP":1,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
+  "allocations":[{"id":"PT-009","type":"BUG","severity":"S2","slug":"x","created":"2026-08-01","status":"IN_PROGRESS","suite_version":"4.12.0"}] }
+J
+}
+
+mk_v412
+chk "4.12 ⇒ pide el bloque ESTADO"        "SUITE-R33"     M
+chk "4.12 ⇒ pide declarar la fase"        "PT-009"        M
+chk "4.12 ⇒ ofrece la plataforma"         "OPCIONAL"      M
+chk "4.12 ⇒ enumera lo que llega"         "revisar-secretos"  M
+chk "4.12 ⇒ menciona las excepciones"     "SECRETOS-EXCEPCIONES"  M
+
+# Los inversos: lo que YA esta no se pide, y un proyecto en 6.x no ve el tramo.
+mk_v412 && printf '# HANDOFF
+
+<!-- ESTADO -->
+implementación: ninguna
+<!-- /ESTADO -->
+' > "$MIG/docs/implementation/HANDOFF.md"
+chkno "con ESTADO ya escrito, no lo pide"  "SUITE-R33"    M
+
+mk_v412 && reg_mig '"suite_version":"6.0.1"'
+chkno "ya en 6.x, el tramo no aparece"     "SUITE-R33"    M
+
+# Con plataforma declarada cambia lo que se pide: aparecen el espejo y las dos reglas nuevas.
+mk_v412 && reg_mig '"suite_version":"4.12.0","tracker":{"plataforma":"github"}'
+chk   "con plataforma ⇒ pide sincronizar"  "abrir --aplicar"  M
+chk   "con plataforma ⇒ avisa de R42"      "SUITE-R42"        M
+# El inverso correcto NO es «no menciona SUITE-R42»: sin plataforma sí se menciona, dentro del
+# mensaje que explica que activaria declararla. Lo que no debe aparecer es la EXIGENCIA. El
+# aserto estaba mal escrito y lo dijo el propio caso.
+mk_v412
+chkno "sin plataforma ⇒ no exige el PR"    "G4 pasa a resolverse"  M
+
 # ─── E · integridad de la reconciliación y la migración verificada ──────────
 echo "── E · reconciliación y migración verificada ──"
 build_fixture
