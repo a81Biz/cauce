@@ -1,0 +1,44 @@
+marco	Ningún secreto sin firmar	﻿2026-08-13T08:28:07.6533637Z ##[group]Run node docs/methodology/tools/revisar-secretos.mjs . --historial
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.6534393Z [36;1mnode docs/methodology/tools/revisar-secretos.mjs . --historial[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.6579084Z shell: /usr/bin/bash -e {0}
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.6579340Z ##[endgroup]
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8049814Z revisar-secretos · /home/runner/work/cauce/cauce
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8051363Z [2márbol de trabajo + historia (400 commits)[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8051808Z 
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8052844Z [31m[1mJWT en una cabecera Authorization[0m · 1 sitio(s)
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8053554Z   historia 3f8e23db:1
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8054790Z     [2mecho '{"authorization":"***
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8055924Z   [1mCorrección:[0m Si es de ejemplo, sustitúyelo por «REDACTADO». Si es real, caduca la sesión.
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8056630Z 
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8057087Z [31m[1mcampo de credencial con valor[0m · 2 sitio(s)
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8057484Z   historia 3f8e23db:1
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8057946Z     [2mecho '{"password":"hunter2secret"}' > "$WORK/docs/implementation/evide[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8058568Z   historia 3f8e23db:1
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8059161Z     [2mprintf '{ "api_key": "abcd1234efgh5678" }[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8060264Z   [1mCorrección:[0m A variable de entorno, y el archivo con el valor a .gitignore. Deja un .env.example con el nombre y sin el valor.
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8061187Z 
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8061699Z [31m[1mcontraseña en texto plano[0m · 4 sitio(s)
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8062447Z   historia 3f8e23db:1
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8063114Z     [2mprintf 'password = SuperSecreta123[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8063721Z   historia 3f8e23db:1
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8064565Z     [2mmkdir -p "$WORK/src" && printf 'const p = new Pool({ password: "SuperS[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8065144Z   historia 3f8e23db:1
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8065587Z     [2mmkdir -p "$WORK/src" && printf 'const p = new Pool({ password: "SuperS[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8065968Z   historia 3f8e23db:1
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8066391Z     [2mprintf 'const p = { password: "SuperSecreta123" };\n' > "$SECDIR/src/d[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8067185Z   [1mCorrección:[0m A variable de entorno. Si es de desarrollo, sigue siendo una contraseña que alguien reutilizará.
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8067621Z 
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8067901Z 7 hallazgo(s). Publicar un repositorio con esto dentro es irreversible:
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8068836Z un secreto en la historia sigue ahí después de borrarlo del archivo.
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8069116Z 
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8069482Z Si alguno es un falso positivo, la excepción se firma por escrito, con nombre y
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8070165Z motivo, en docs/implementation/SECRETOS-EXCEPCIONES.md — una fila por huella.
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8070805Z Sigue apareciendo en cada revisión: firmar no es silenciar (FND-R29).
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8071269Z   [2mf69473ceee6b  historia 3f8e23db:1[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8071631Z   [2ma597267dd10b  historia 3f8e23db:1[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8071988Z   [2m86b2f3aabc07  historia 3f8e23db:1[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8072654Z   [2m579a82ba2d9a  historia 3f8e23db:1[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8073017Z   [2mffdc445bf0bf  historia 3f8e23db:1[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8073354Z   [2m579a82ba2d9a  historia 3f8e23db:1[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8073685Z   [2m312931a1335e  historia 3f8e23db:1[0m
+marco	Ningún secreto sin firmar	2026-08-13T08:28:07.8131554Z ##[error]Process completed with exit code 1.

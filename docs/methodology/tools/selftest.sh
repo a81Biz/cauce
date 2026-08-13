@@ -1065,6 +1065,58 @@ git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "lo saco del archiv
 chk   "árbol limpio tras sacarlo"             "Sin hallazgos"   SEC "$WORK"
 chk   "pero la historia lo conserva"          "contraseña en texto plano"  SEC "$WORK" --historial
 
+# PT-005 · la firma de una excepcion no puede depender de la profundidad del clon, y un clon
+# superficial no puede darse por historia revisada.
+#
+# Se vio abriendo el PR de G4: CI fallo con 7 hallazgos que en local no existian. La huella
+# incluia el hash del commit, y `actions/checkout` clona con fetch-depth 1 — en un pull_request
+# ese unico commit es el merge SINTETICO de GitHub, distinto en cada PR. Ninguna firma encajaba.
+# Y el fallo simetrico es peor: con un commit visible la herramienta decia haber revisado la
+# historia. Un arbol limpio habria salido verde sin mirar.
+SEC() { node "$SUITE/tools/revisar-secretos.mjs" "$@"; }
+repo_con_secreto() {   # $1 destino · $2 marca que hace DISTINTO el hash del commit
+  # git es determinista: mismo contenido, mensaje, autor y segundo ⇒ MISMO hash. Dos repos
+  # creados a la vez daban commits identicos, y el caso inverso pasaba sin probar nada — lo dijo
+  # el propio caso. La marca cambia el MENSAJE; el contenido tiene que seguir siendo identico,
+  # porque es lo que la huella debe reconocer como el mismo secreto.
+  rm -rf "$1"; mkdir -p "$1/src"; ( cd "$1"
+    git init -q . && git config user.email t@t && git config user.name T
+    printf 'const p = { password: "Zanahoria99Fija" };\n' > src/a.js
+    git add -A && git commit -qm "uno-${2:-a}"
+    printf 'const p = { password: process.env.P };\n' > src/a.js
+    git add -A && git commit -qm "dos-${2:-a}" ) >/dev/null 2>&1
+}
+
+repo_con_secreto "$WORK/histrepo" alfa
+chk   "el secreto de la historia se caza"    "1 hallazgo"   SEC "$WORK/histrepo" --historial
+
+# EL MISMO secreto en dos repositorios distintos tiene commits distintos. Si la huella depende
+# del hash, cada uno produce una firma diferente y la excepcion firmada en uno no sirve en el
+# otro — que es exactamente lo que pasa en CI, donde el commit es el merge sintetico de GitHub.
+repo_con_secreto "$WORK/histrepo2" beta
+H1="$(SEC "$WORK/histrepo"  --historial 2>&1 | grep -oE '[0-9a-f]{12}  historia' | head -1 | cut -d' ' -f1)"
+H2="$(SEC "$WORK/histrepo2" --historial 2>&1 | grep -oE '[0-9a-f]{12}  historia' | head -1 | cut -d' ' -f1)"
+C1="$(cd "$WORK/histrepo" && git rev-parse --short=8 HEAD~1)"
+C2="$(cd "$WORK/histrepo2" && git rev-parse --short=8 HEAD~1)"
+chk   "los commits del fixture SÍ difieren"  "^DISTINTOS$"  bash -c "[ '$C1' != '$C2' ] && echo DISTINTOS || echo IGUALES"
+chk   "la huella no depende del commit"      "^IGUAL$"      bash -c "[ -n '$H1' ] && [ '$H1' = '$H2' ] && echo IGUAL || echo DISTINTA:'$H1'/'$H2'"
+
+# Y una firma hecha en un repositorio exime en el otro: es la misma huella, el mismo secreto.
+mkdir -p "$WORK/histrepo2/docs/implementation"
+printf '| Huella | Firmada por | Fecha | Motivo |\n|:--|:--|:--|:--|\n| %s | Ada Lovelace | 2026-08-13 | fixture |\n' "$H1" \
+  > "$WORK/histrepo2/docs/implementation/SECRETOS-EXCEPCIONES.md"
+chkno "firmada allí ⇒ exime aquí"            "hallazgo(s). Publicar"  SEC "$WORK/histrepo2" --historial
+
+# Clon superficial: la historia NO se da por revisada.
+rm -rf "$WORK/superficial"
+git clone -q --depth 1 "file://$WORK/histrepo" "$WORK/superficial" >/dev/null 2>&1
+chk   "clon superficial ⇒ SIN EVALUAR"       "SIN EVALUAR"   SEC "$WORK/superficial" --historial
+chk   "y dice cómo arreglarlo"               "fetch-depth"   SEC "$WORK/superficial" --historial
+chkno "no dice que revisó la historia"       "+ historia ("  SEC "$WORK/superficial" --historial
+
+# CI tiene que clonar la historia entera, o el paso de secretos miraria un solo commit.
+chk   "CI clona la historia entera"          "fetch-depth: 0"  cat "$SUITE/../../.github/workflows/verificacion.yml"
+
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"
 

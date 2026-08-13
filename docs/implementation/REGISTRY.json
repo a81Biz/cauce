@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 4,
+    "PT": 5,
     "EP": 1,
     "QA": 0,
     "QR": 0,
@@ -34,7 +34,7 @@
       "complexity": null,
       "severity": null,
       "track": null,
-      "status": "DONE",
+      "status": "IN_PROGRESS",
       "structural": null,
       "suite_version": "5.2.3",
       "title": "El marco se hace cumplir a sí mismo",
@@ -119,6 +119,23 @@
       "phase": 8,
       "validated_by": "Alberto Martínez",
       "validated": "2026-08-13"
+    },
+    {
+      "id": "PT-005",
+      "slug": "la-firma-atada-al-hash",
+      "type": "BUG",
+      "complexity": "TRIVIAL",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "VALIDATION_PENDING",
+      "structural": false,
+      "suite_version": "5.3.0",
+      "epic": "EP-001",
+      "phase": 6,
+      "title": "La excepción de secretos no sobrevive a un clon superficial, y la historia se da por revisada sin revisarla",
+      "origin": "Hallazgo de ejecución 2026-08-13 · CI falló en el PR #7 con 7 hallazgos que en local no existen",
+      "created": "2026-08-13",
+      "issue": 8
     }
   ]
 }

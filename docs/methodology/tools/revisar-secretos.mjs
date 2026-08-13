@@ -68,7 +68,7 @@ const RE_SEÑUELO = /señuelo|senuelo|fixture|de mentira|a propósito|a proposit
 let hallazgos = [];
 const rel = (p) => relative(ROOT, p).split(sep).join('/');
 
-function revisarTexto(texto, donde, esSeñuelo) {
+function revisarTexto(texto, donde, esSeñuelo, ambito = donde) {
   texto.split(/\r?\n/).forEach((linea, i) => {
     if (linea.length > 500) return;                 // minificados y datos, no código
     for (const [re, qué, cómo] of PATRONES) {
@@ -76,8 +76,17 @@ function revisarTexto(texto, donde, esSeñuelo) {
       if (esSeñuelo || RE_SEÑUELO.test(linea)) return;
       // La huella identifica ESTE hallazgo, no el archivo: incluye lo encontrado. Si el valor
       // cambia, la excepción firmada deja de cubrirlo — que es justo lo que debe pasar.
+      //
+      // PT-005 · El ÁMBITO no es siempre el «dónde». Para la historia, «dónde» lleva el hash del
+      // commit, y eso ataba la firma a la profundidad del clon: `actions/checkout` clona con
+      // fetch-depth 1 y en un `pull_request` ese único commit es el merge SINTÉTICO de GitHub,
+      // distinto en cada propuesta de merge. Ninguna excepción firmada encajaba jamás y la
+      // compuerta quedaba en rojo permanente sobre todo PR — que es como funciona G4.
+      // El ámbito de un hallazgo de historia es «la historia», no el commit donde apareció: es
+      // el mismo secreto, ya revisado. Si el VALOR cambia, la huella cambia — que es lo que
+      // FND-R29 promete y lo que sigue siendo cierto.
       const muestra = linea.trim().slice(0, 70);
-      const huella = createHash('sha1').update(`${qué}|${donde}|${muestra}`).digest('hex').slice(0, 12);
+      const huella = createHash('sha1').update(`${qué}|${ambito}|${muestra}`).digest('hex').slice(0, 12);
       hallazgos.push({ donde: `${donde}:${i + 1}`, qué, cómo, muestra, huella });
       return;
     }
@@ -104,18 +113,31 @@ function revisarTexto(texto, donde, esSeñuelo) {
 // ── la historia, que es donde no se borra ───────────────────────────────────
 // Un secreto sigue en la historia despues de quitarlo del archivo: publicar el repositorio lo
 // publica igual. Es caro de recorrer, asi que va tras --historial.
+// PT-005 · Un clon SUPERFICIAL no es una historia. `actions/checkout` clona con fetch-depth 1,
+// y ahi `git log` responde UN commit: la herramienta decia haber revisado la historia habiendo
+// visto casi nada. Un arbol limpio habria salido verde sin mirar — el falso verde por omision,
+// en la compuerta que protege lo irreversible. Lo que no se puede comprobar se DECLARA
+// (RULE-06): ni «revisado» ni un error, sino SIN EVALUAR y como arreglarlo (RULE-07).
 let historialRevisado = false;
+let historialSuperficial = false;
 if (CON_HISTORIAL && existsSync(join(ROOT, '.git'))) {
   try {
-    const diff = execFileSync('git', ['log', '-p', '--no-color', '--max-count=400'],
-      { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', maxBuffer: 200 * 1024 * 1024 });
-    historialRevisado = true;
-    let commit = '(sin commit)';
-    for (const linea of diff.split(/\r?\n/)) {
-      const m = linea.match(/^commit ([0-9a-f]{7,})/);
-      if (m) { commit = m[1].slice(0, 8); continue; }
-      if (!linea.startsWith('+') || linea.startsWith('+++')) continue;
-      revisarTexto(linea.slice(1), `historia ${commit}`, false);
+    const esSuperficial = execFileSync('git', ['rev-parse', '--is-shallow-repository'],
+      { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim() === 'true';
+    if (esSuperficial) {
+      historialSuperficial = true;
+    } else {
+      const diff = execFileSync('git', ['log', '-p', '--no-color', '--max-count=400'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', maxBuffer: 200 * 1024 * 1024 });
+      historialRevisado = true;
+      let commit = '(sin commit)';
+      for (const linea of diff.split(/\r?\n/)) {
+        const m = linea.match(/^commit ([0-9a-f]{7,})/);
+        if (m) { commit = m[1].slice(0, 8); continue; }
+        if (!linea.startsWith('+') || linea.startsWith('+++')) continue;
+        // El «dónde» conserva el commit para poder ir a buscarlo; el ÁMBITO de la huella, no.
+        revisarTexto(linea.slice(1), `historia ${commit}`, false, 'historia');
+      }
     }
   } catch { historialRevisado = false; }
 }
@@ -147,7 +169,17 @@ hallazgos = hallazgos.filter((h) => !excepciones.has(h.huella));
 // ── informe ─────────────────────────────────────────────────────────────────
 const c = { rojo: '\x1b[31m', verde: '\x1b[32m', dim: '\x1b[2m', neg: '\x1b[1m', fin: '\x1b[0m' };
 console.log(`revisar-secretos · ${ROOT}`);
-console.log(`${c.dim}árbol de trabajo${historialRevisado ? ' + historia (400 commits)' : ' · la historia NO se revisó: añade --historial'}${c.fin}\n`);
+const notaHistoria = historialSuperficial
+  ? ' · la historia SIN EVALUAR: el clon es superficial y solo ve un commit'
+  : (historialRevisado ? ' + historia (400 commits)' : ' · la historia NO se revisó: añade --historial');
+console.log(`${c.dim}árbol de trabajo${notaHistoria}${c.fin}\n`);
+if (historialSuperficial) {
+  console.log(`${c.neg}La historia queda SIN EVALUAR.${c.fin} Este clon es superficial: git solo responde por`);
+  console.log('un commit, así que revisarla aquí diría «revisado» habiendo mirado casi nada — y un');
+  console.log('árbol limpio saldría verde sin mirar. No se aprueba lo que no se ha podido comprobar.');
+  console.log(`  → en CI:    ${c.neg}actions/checkout@v4${c.fin} con ${c.neg}fetch-depth: 0${c.fin}`);
+  console.log(`  → en local: ${c.neg}git fetch --unshallow${c.fin}\n`);
+}
 
 const mostrarFirmadas = () => {
   if (!firmados.length) return;

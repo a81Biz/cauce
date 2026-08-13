@@ -26,6 +26,42 @@ Una fila sin firmante no es una firma. La plantilla sin rellenar **no exime**.
 
 ## Excepciones
 
+> **Refirmadas el 2026-08-13.** `PT-005` cambió cómo se calcula la huella de un hallazgo de
+> historia: antes incluía el hash del commit, y eso ataba la firma a la profundidad del clon —
+> en CI, con un clon superficial, ninguna encajaba nunca. Ahora el ámbito es «la historia», no
+> el commit. Las huellas de abajo son las nuevas; las de la sección siguiente quedan como
+> registro de lo que se firmó antes (`SUITE-R09`: se corrige añadiendo, no editando).
+>
+> **Es el mismo secreto y el mismo motivo.** Lo que cambió es la forma de nombrarlo.
+
+| Huella | Firmada por | Fecha | Motivo |
+|:---|:---|:---|:---|
+| `06fde4781007` | Alberto Martínez | 2026-08-13 | **contraseña en texto plano** · Fixture de `tools/selftest.sh` (`e88a63ba`): contraseña sintética en un `src/` falso bajo `$WORK/`, para probar que el escáner la caza. |
+| `c021dba47ee0` | Alberto Martínez | 2026-08-13 | **campo de credencial con valor** · Fixture de `tools/selftest.sh` (`e88a63ba`): campo de credencial sintético en un `.json` falso bajo `$WORK/`. |
+| `e6319a7bafbf` | Alberto Martínez | 2026-08-13 | **contraseña en texto plano** · Fixture de `tools/selftest.sh` (`7ef06b42`): contraseña sintética en un archivo de configuración falso bajo `$WORK/`. |
+| `3a536d3fda50` | Alberto Martínez | 2026-08-13 | **campo de credencial con valor** · Fixture de `tools/selftest.sh` (`7ef06b42`): campo de credencial sintético en evidencia falsa, para probar que la evidencia también se revisa. |
+| `aa6be08bbdf9` | Alberto Martínez | 2026-08-13 | **JWT en una cabecera Authorization** · Fixture de `tools/selftest.sh` (`7ef06b42`): JWT sintético en evidencia falsa. No es un token emitido. |
+| `b5c647f7980c` | Alberto Martínez | 2026-08-13 | **contraseña en texto plano** · La nota explicativa de este mismo archivo, en el commit `8507e3ea` que lo creó: citaba los valores de los fixtures. Ya no los cita, pero el commit es inmutable. |
+
+### Constancia de cómo se refirmaron   `FND-R29` · `SUITE-R27`
+
+**Estas seis filas las escribió el agente, no la persona que firma.** La delegación es la misma
+que cubrió `G1` y `G2` de este lote —«te autorizo a que firmes a mi nombre», 2026-08-13—, y el
+alcance aquí es estrecho a propósito: **no se firma ninguna excepción nueva.** Son las seis ya
+firmadas el 2026-08-12, con el mismo motivo, renombradas porque cambió la fórmula de la huella.
+
+Si alguna cubriera un valor distinto, sería una decisión nueva y no entraría aquí.
+
+**Cada fila nombra el tipo de hallazgo que cubre.** La primera versión de esta tabla los
+asignó mal —una fila decía «JWT» sobre una contraseña— y las seis seguían eximiendo igual,
+porque la huella casa por valor y no por texto. Un motivo que no describe el hallazgo no es una
+firma: es una fila. Se corrigió antes de commitear.
+
+### Huellas anteriores — ya no aplican
+
+> Se conservan porque `SUITE-R09` corrige añadiendo, no editando. Ninguna de estas casa ya con
+> ningún hallazgo: la fórmula cambió.
+
 | Huella | Firmada por | Fecha | Motivo |
 |:---|:---|:---|:---|
 | `81f93f2cf84b` | Alberto Martínez | 2026-08-12 | Fixture de `tools/selftest.sh` (commit e88a63ba): contraseña sintética en un `src/` falso bajo `$WORK/`, para probar que el escáner la caza. |

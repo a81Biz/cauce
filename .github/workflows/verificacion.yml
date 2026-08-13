@@ -26,7 +26,14 @@ jobs:
   marco:
     runs-on: ubuntu-latest
     steps:
+      # `FND-R29` · la revisión de secretos recorre la HISTORIA, y con el clon superficial que
+      # `actions/checkout` hace por defecto git solo responde por un commit. En un `pull_request`
+      # ese commit es el merge sintético de GitHub: los hallazgos se atribuían a un hash que no
+      # existe en ningún clon y ninguna excepción firmada encajaba. Con fetch-depth 0 la historia
+      # es la de verdad y las firmas vuelven a valer.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
