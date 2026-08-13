@@ -1027,6 +1027,24 @@ node -e "const f=require('fs'),p=process.argv[1],b=String.fromCharCode(92);f.wri
 chk   "escape degradado ⇒ falla su ejemplo"  "debería casar"  node "$PATDIR/verify-patrones.mjs"
 rm -rf "$PATDIR"
 
+# SUITE-R41: el destino ES cauce por IDENTIDAD, no por ruta. Comparar rutas solo acierta cuando
+# carga y destino son el mismo directorio; con el paquete instalado como dependencia de si mismo
+# el bin de node_modules tiene rutas distintas y anunciaba «49 archivos instalados» sobre el
+# repositorio que ES cauce. Se ejecuta el bin DESDE FUERA, que es el caso que fallaba.
+AUTODIR="$WORK/../autoalojado"
+rm -rf "$AUTODIR" && mkdir -p "$AUTODIR/docs/methodology"
+printf '{"name":"@a81biz/cauce","version":"0.0.0"}' > "$AUTODIR/package.json"
+BINCAUCE="$SUITE/../../bin/cauce.mjs"
+if [ -f "$BINCAUCE" ]; then
+chk   "destino que ES cauce ⇒ no se instala" "ES cauce" node "$BINCAUCE" install "$AUTODIR"
+# Y un destino cualquiera NO debe confundirse con cauce.
+OTRODIR="$WORK/../destino-normal"
+rm -rf "$OTRODIR" && mkdir -p "$OTRODIR"
+printf '{"name":"un-proyecto","version":"1.0.0"}' > "$OTRODIR/package.json"
+chkno "un proyecto normal NO es cauce"       "ES cauce" node "$BINCAUCE" install "$OTRODIR"
+fi
+rm -rf "$AUTODIR" "$OTRODIR"
+
 # FND-R29: la excepcion se firma donde se puede firmar. La herramienta exigia firmar por escrito
 # y no existia donde: en el repositorio de cauce el escaner caza los fixtures de este mismo
 # archivo y la compuerta quedaba en rojo permanente, que ensena a saltarsela. Se comprueba que

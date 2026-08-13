@@ -1253,3 +1253,27 @@ Sin este orden vuelve lo que ya pasó: `verify-suite` tenía la versión escrita
 autoridad contra la que se comprueban todos los documentos, veinte declararon una versión
 atrasada durante días y el verificador dijo que todo estaba bien — comparaba contra su propia
 copia equivocada.
+
+## Cauce sobre cauce   `SUITE-R41`
+
+El marco se gobierna con el marco. En su propio repositorio, `cauce install` **no instala nada**:
+reconoce el destino por **identidad** —el `package.json` declara el mismo nombre que el paquete—
+y se limita a regenerar el núcleo.
+
+Por identidad y no por ruta, porque comparar rutas solo acierta cuando la carga y el destino son
+el mismo directorio. Con el paquete instalado como dependencia de sí mismo hay **dos binarios**
+con el mismo nombre que se comportan distinto:
+
+| Invocación | Resuelve a | Antes |
+|:---|:---|:---|
+| `npx cauce` | el binario del repositorio | detectaba |
+| `node_modules/.bin/cauce` | el binario del paquete | **no** detectaba |
+
+El segundo es el que usa cualquier `npm run`, porque npm pone `node_modules/.bin` en el `PATH`.
+Anunciaba «49 archivos instalados» sobre el repositorio que es cauce. No hizo daño —los
+contenidos coincidían, y `SUITE-R31` para el caso divergente— pero el mensaje mentía, y depender
+de qué binario resolvió el shell no es una garantía.
+
+**Y no se instala como dependencia de sí mismo.** Deja dos copias completas del marco en el
+mismo repositorio, que solo pueden divergir: la avería que cauce existe para eliminar, dentro de
+cauce. Si aparece, la instalación lo dice y da el comando para quitarla.

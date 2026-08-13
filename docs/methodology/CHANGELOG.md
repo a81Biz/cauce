@@ -8,6 +8,41 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 5.2.3 — 2026-08-12
+
+### El destino ES cauce por identidad, no por ruta   `SUITE-R41`
+
+Se vio al montar la copia de trabajo en `C:\DevOps\Desarrollos` e instalar cauce dentro de
+cauce a propósito, para mirar qué pasaba. Pasan dos cosas.
+
+**Dos binarios con el mismo nombre, comportamiento distinto.** La detección de autoalojamiento
+comparaba rutas, y eso solo acierta cuando la carga y el destino son el mismo directorio:
+
+| Invocación | Resuelve a | Antes |
+|:---|:---|:---|
+| `npx cauce` | el binario del repositorio | detectaba |
+| `node_modules/.bin/cauce` | el binario del paquete | **no** detectaba |
+
+El segundo es el que usa cualquier `npm run`, porque npm pone `node_modules/.bin` en el `PATH`.
+Anunció «49 archivos en docs/methodology/» sobre el repositorio que **es** cauce. No hizo daño:
+los contenidos coincidían, y al introducir una edición sin commitear `SUITE-R31` lo paró en seco
+—el marco se defendió—. Pero el mensaje mentía, y depender de qué binario resolvió el shell no
+es una garantía. Ahora el destino es cauce cuando su `package.json` declara el mismo nombre que
+el paquete. Eso no depende de rutas.
+
+**Y la dependencia circular.** `npm i -D @a81biz/cauce` dentro de cauce deja
+`"@a81biz/cauce": "^5.2.2"` en sus propias devDependencies y **dos copias completas del marco**
+en el mismo repositorio: la de trabajo y la publicada. Solo pueden divergir. Es exactamente la
+avería que cauce existe para eliminar, dentro de cauce. La instalación la detecta y da el
+comando para quitarla.
+
+Dos casos del selftest lo prueban, incluido el que verifica que un proyecto normal **no** se
+confunde con cauce. Se ejecutan con el binario fuera del repositorio, que es el caso que fallaba.
+
+### Migración
+
+Ninguna. Si tu repositorio no es cauce, nada cambia.
+
 ## 5.2.2 — 2026-08-12
 
 ### La excepción se firma donde se puede firmar   `FND-R29`

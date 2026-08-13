@@ -3,7 +3,7 @@
 > Método: [Framework-FPGE.md](Framework-FPGE.md) · Procedimiento: [FPGE-Implementation.md](FPGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) §Parte 7 · Vocabulario: [LEXICON.md](LEXICON.md)
 >
-> Suite version: **5.2.2**
+> Suite version: **5.2.3**
 
 ---
 

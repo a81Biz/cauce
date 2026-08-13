@@ -7,7 +7,7 @@
 > 4. Claude te entrevistará, investigará, generará la documentación y el código base, y al
 >    terminar reemplazará este texto por la suite operativa completa.
 >
-> Suite version: **5.2.2**
+> Suite version: **5.2.3**
 
 ---
 
