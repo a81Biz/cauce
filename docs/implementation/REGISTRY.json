@@ -15,8 +15,8 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 20,
-    "EP": 4,
+    "PT": 22,
+    "EP": 5,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -444,6 +444,56 @@
       "title": "Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01)",
       "origin": "Aplazado por PT-004 · el grafo cubre «bin» y FDGE-R43 se satisface sobre un grafo que no describe el sistema",
       "issue": 27
+    },
+    {
+      "id": "EP-005",
+      "slug": "la-regla-no-puede-premiar-el-silencio",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "IN_PROGRESS",
+      "structural": null,
+      "suite_version": "7.0.0",
+      "phase": 1,
+      "title": "SUITE-R44 bloquea el cierre legitimo de un lote y no ve la fila que falta",
+      "origin": "Hallazgo en G4 de EP-004 · pregunta humana 2026-08-13: «por que habrian 3 de 5 tareas limpias?? deben ser las 5»",
+      "created": "2026-08-13",
+      "issue": 31
+    },
+    {
+      "id": "PT-021",
+      "slug": "citar-el-propio-lote-en-su-cierre",
+      "type": "BUG",
+      "complexity": "SIMPLE",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "VALIDATION_PENDING",
+      "structural": false,
+      "suite_version": "7.0.0",
+      "phase": 8,
+      "epic": "EP-005",
+      "title": "Citar el propio lote no puede pasar G4 nunca: CLOSED ocurre despues del merge",
+      "origin": "G4 de EP-004 bloqueada en PT-014 y PT-018",
+      "created": "2026-08-13",
+      "issue": 29
+    },
+    {
+      "id": "PT-022",
+      "slug": "la-fila-que-falta-no-se-ve",
+      "type": "BUG",
+      "complexity": "STANDARD",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "READY",
+      "structural": false,
+      "suite_version": "7.0.0",
+      "phase": 1,
+      "epic": "EP-005",
+      "title": "SUITE-R44 solo mira las filas que existen: omitirla es invisible y declararla bloquea",
+      "origin": "Pregunta humana 2026-08-13 · tres tareas pasan G4 por decir menos que las otras dos",
+      "created": "2026-08-13",
+      "issue": 30
     }
   ]
 }

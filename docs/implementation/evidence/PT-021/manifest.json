@@ -1,0 +1,9 @@
+{
+  "pt": "PT-021",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1","E2"], "tests": ["selftest.sh:el propio lote en DONE vale","selftest.sh:y en CLOSED tambien"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E3","E4"], "tests": ["selftest.sh:el lote IN_PROGRESS sigue sin valer","selftest.sh:y en DRAFT tampoco","comprobacion inversa: E1 cae y E3 sigue verde"], "evidence": ["salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E5"], "tests": ["ejecucion real: verify-fdge --gate G4 sobre las cinco tareas de EP-004"], "evidence": ["salidas/g4-cinco.txt"], "verified": true }
+  ],
+  "suite": { "passed": 291, "failed": 0, "coverage": 291, "baseline": 287 }
+}

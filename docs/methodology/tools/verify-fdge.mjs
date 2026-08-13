@@ -1088,6 +1088,10 @@ function checkHistory(pt, rel, type, { gate }) {
 // en la matriz de auditoría — «no existe la celda en blanco: es indistinguible de una que nadie
 // miró». Sin prosa no hay nada que adivinar.
 const RE_SOLO_GUION = /^[-–—\s]*$/;
+// PT-021 · los estados en los que el trabajo de un lote esta HECHO. DONE espera al humano en
+// G4; CLOSED ya paso por el. Ninguno de los dos es una promesa. Esta aqui y no en linea porque
+// SUITE-R38: un criterio que se repite escrito a mano diverge.
+const LOTE_COMPLETO = new Set(['DONE', 'CLOSED']);
 const RE_CITA_ID = /\b((?:PT|EP)-\d+)\b/;
 
 function checkAplazado(pt, rel, { gate }) {
@@ -1116,10 +1120,18 @@ function checkAplazado(pt, rel, { gate }) {
 
     // Un hermano del mismo lote lo cubre ahí, cerrado o no: no está aplazado.
     if (dest.epic && yo?.epic && dest.epic === yo.epic) continue;
-    // Citar el PROPIO lote vale solo si ya cerró: «lo hará este lote» es exactamente la
-    // promesa que falló con la migración del proyecto legado, y mientras el lote siga abierto
-    // no es una asignación, es una intención.
-    if (dest.id === yo?.epic && dest.status === 'CLOSED') continue;
+    // Citar el PROPIO lote vale cuando su trabajo esta COMPLETO. «Lo hara este lote» es la
+    // promesa que fallo con la migracion del proyecto legado: mientras el lote sigue abierto no
+    // es una asignacion, es una intencion.
+    //
+    // PT-021 · exigir CLOSED era un bloqueo por construccion. Un lote llega a CLOSED DESPUES
+    // del merge, y el merge ES G4 — asi que el patron legitimo «esto se hace al cerrar el lote»
+    // (la entrada de CHANGELOG, el numero de version) no podia satisfacer la regla NUNCA. Lo
+    // encontro G4 de EP-004 bloqueando dos tareas por escribir lo que las otras tres callaron.
+    //
+    // DONE es el estado en el que el trabajo del lote esta hecho y solo espera al humano. Ahi
+    // ya no es una promesa. DRAFT e IN_PROGRESS siguen bloqueando, que era la intencion.
+    if (dest.id === yo?.epic && LOTE_COMPLETO.has(dest.status)) continue;
 
     // Si no, tiene que ser un aplazado que RECONOZCA de dónde viene. Citar no basta: sin
     // reciprocidad, apuntar a cualquier PT satisface la regla sin que nadie recoja nada.

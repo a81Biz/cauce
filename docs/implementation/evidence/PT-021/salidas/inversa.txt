@@ -1,0 +1,5 @@
+# Comprobacion inversa (PT-021) — LOTE_COMPLETO revertida a ['CLOSED']
+
+  [31m✗[0m el propio lote en DONE vale  (apareció: SUITE-R44)
+  [32m✓[0m el lote IN_PROGRESS sigue sin valer
+selftest: HAY FALLOS · 291 casos

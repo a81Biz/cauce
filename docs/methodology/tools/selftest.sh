@@ -1407,6 +1407,29 @@ reg_set "r.allocations.push({id:'PT-031',type:'CHORE',severity:'S4',slug:'otro',
 oos '`PT-031`'
 chk   "si no reconoce su origen, falla"          "SUITE-R44"  V PT-001
 
+
+# PT-021 . citar el PROPIO lote. Exigir CLOSED era un bloqueo por construccion: un lote llega a
+# CLOSED DESPUES del merge, y el merge ES G4. El patron legitimo «esto se hace al cerrar el
+# lote» no podia pasar nunca — lo encontro G4 de EP-004 bloqueando dos tareas por ESCRIBIR lo
+# que las otras tres callaron. DONE es trabajo hecho esperando al humano; ya no es una promesa.
+build_fixture
+reg_set "r.allocations.push({id:'EP-030',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-030'; r.counters.EP=30"
+oos '`EP-030`'
+chkno "el propio lote en DONE vale"          "SUITE-R44"  V --gate G4 PT-001
+build_fixture
+reg_set "r.allocations.push({id:'EP-031',type:'EP',slug:'lote',created:'2026-08-13',status:'CLOSED',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-031'; r.counters.EP=31"
+oos '`EP-031`'
+chkno "y en CLOSED tambien"                  "SUITE-R44"  V --gate G4 PT-001
+# La intencion original, intacta: mientras el lote sigue abierto es una intencion, no una asignacion.
+build_fixture
+reg_set "r.allocations.push({id:'EP-032',type:'EP',slug:'lote',created:'2026-08-13',status:'IN_PROGRESS',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-032'; r.counters.EP=32"
+oos '`EP-032`'
+chk   "el lote IN_PROGRESS sigue sin valer"  "SUITE-R44"  V PT-001
+build_fixture
+reg_set "r.allocations.push({id:'EP-033',type:'EP',slug:'lote',created:'2026-08-13',status:'DRAFT',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-033'; r.counters.EP=33"
+oos '`EP-033`'
+chk   "y en DRAFT tampoco"                   "SUITE-R44"  V PT-001
+
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"
 

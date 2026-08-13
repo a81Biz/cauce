@@ -637,3 +637,40 @@ comprobación inversa —revertida la función a la identidad— deja el caso en
 
 Evidencia: docs/implementation/evidence/PT-014/ · selftest 281 → 287 casos
 Cierre a DONE autorizado por Alberto Martínez (SUITE-R06b, tipo BUG).
+
+## PT-021 — BUG: citar el propio lote no podía pasar G4 nunca
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: SIMPLE
+Track: STANDARD
+Implementación: EP-005
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-005, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `SUITE-R44` aceptaba la cita al propio lote solo si estaba CLOSED. Un lote llega a
+CLOSED DESPUÉS del merge, y el merge ES G4 — así que el patrón legítimo «esto se hace al cerrar
+el lote» (la entrada de CHANGELOG, el número de versión) no podía satisfacer la regla NUNCA.
+Bloqueo por construcción, escrito por mí un día antes en PT-018.
+
+Lo encontró G4 de EP-004 bloqueando dos tareas y no las otras tres, y lo hizo visible una
+pregunta humana: «¿por qué habrían 3 de 5 tareas limpias?? deben ser las 5». La diferencia no
+era corrección: las dos bloqueadas ESCRIBIERON la fila que las otras tres omitieron.
+
+Qué se hizo: LOTE_COMPLETO = {DONE, CLOSED}. DONE es el estado en el que el trabajo del lote
+está hecho y solo espera al humano; ahí ya no es una promesa. DRAFT e IN_PROGRESS siguen
+bloqueando, que era la intención original, y se comprueba con dos casos propios.
+
+Por qué no lo vio ningún caso: escribí el caso desde la mitad prohibitiva de la regla («el
+propio lote abierto no vale») y nunca el complementario. Un aserto que solo prueba lo que se
+prohíbe no detecta que lo que se permite es inalcanzable.
+
+Hallazgo fuera de alcance, corregido aquí: RULES.md seguía describiendo SUITE-R44 con la LISTA
+DE PALABRAS que PT-018 eliminó del código. PT-018 declaró ese cambio en su spec-changes.md y no
+lo hizo — la regla escrita y la ejecutada llevaban un día divergiendo, que es el defecto que la
+v4 nació para eliminar. verify-suite no lo ve: comprueba que la regla exista y esté citada, no
+que diga lo que el código hace.
+
+Evidencia: docs/implementation/evidence/PT-021/ · selftest 287 → 291 casos · EP-004: 5 de 5 en G4
+Cierre a DONE pendiente de persona: SUITE-R06b.

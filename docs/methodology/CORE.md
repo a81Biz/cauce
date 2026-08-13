@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: f510bea351bd -->
-<!-- fuentes: RULES.md:6adcc3c33bfd LEXICON.md:921a4e08df55 EXECUTION-MODES.md:b2470301ee85 PHASES.md:d50c8bdeb4af -->
+<!-- cuerpo: bd045cdae8b6 -->
+<!-- fuentes: RULES.md:be869c1bd884 LEXICON.md:921a4e08df55 EXECUTION-MODES.md:b2470301ee85 PHASES.md:d50c8bdeb4af -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -148,7 +148,7 @@ verifica un script y bloquea la integración.
 `SUITE-R41` **H** Cauce no se instala sobre sí mismo, y se reconoce por identidad.
 `SUITE-R42` **H** El merge se propone donde se pueda revisar.
 `SUITE-R43` **H** Lo que una persona escribe en la plataforma se lee.
-`SUITE-R44` **H** Cerrar un lote no borra lo que aplazó. Toda fila de out-of-scope.md que apunte a trabajo futuro cita el identificador que lo sostiene, y ese identificador es una allocation del registro —normalmente en…
+`SUITE-R44` **H** Cerrar un lote no borra lo que aplazó. La columna «Dónde va» de cada fila de out-of-scope.md es vocabulario cerrado: o — —no aplaza nada, queda fuera y punto— o la cita de un identificador del registro.…
 
 ### LEX — Nombres
 
