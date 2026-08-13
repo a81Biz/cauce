@@ -13,3 +13,5 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-003 | INVESTIGATION | S3 | CLOSED | EP-001 | SUITE-R35 declara milestone, issue y PR; el adaptador solo implementa issue |
 | PT-004 | BUG | S2 | DONE | EP-001 | verify-fdge exige artefactos de PHASE 4 a un PT en PHASE 1 |
 | PT-005 | BUG | S2 | DONE | EP-001 | La excepción de secretos no sobrevive a un clon superficial, y la historia se da por revisada sin revisarla |
+| PT-009 | BUG | S2 | DONE | EP-003 | tracker cerrar comenta sin marca y SUITE-R43 toma su propio mensaje por humano |
+| PT-010 | BUG | S2 | DONE | EP-003 | El cuerpo de un issue de EP dice «sin implementación» y su enlace al intake es un 404 |

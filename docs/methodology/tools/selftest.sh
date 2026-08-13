@@ -1196,6 +1196,31 @@ trlib "sin ninguna marca ⇒ no evaluable"    "^NO_EVALUABLE$" \
   "console.log(m.comentarioSinResponder([\"uno\",\"dos\"])===null?\"NO_EVALUABLE\":\"NO\")"
 chk   "SUITE-R43 existe en RULES"           "SUITE-R43"   cat "$SUITE/RULES.md"
 
+# PT-009 · la herramienta FIRMA lo que escribe. tracker cerrar comentaba sin marca, asi que
+# SUITE-R43 tomaba su propio mensaje de cierre por humano — la regla se cazo a si misma en la
+# primera ejecucion posterior a su creacion. Se arregla QUIEN ESCRIBE, no la regla.
+trlib "el cierre lleva la marca"           "cauce:agente"   "console.log(m.mensajeDeCierre({id:\"PT-1\",status:\"INTEGRATED\"}))"
+trlib "y no pierde lo que decia"           "INTEGRATED"   "console.log(m.mensajeDeCierre({id:\"PT-1\",status:\"INTEGRATED\"}))"
+# El inverso que importa: la regla NO se relaja. Si algun dia alguien decide que el mensaje de
+# cierre no cuente, este caso se pone rojo antes de que nadie lo note.
+chk   "SUITE-R43 sigue exigiendo respuesta"  "no avanza"   cat "$SUITE/RULES.md"
+
+# PT-010 · el cuerpo del issue se lee, y su enlace resuelve.
+#
+# El cuerpo de un issue de EP decia «sin implementacion» SOBRE LA IMPLEMENTACION —el generador
+# usaba un solo texto y un EP no tiene campo epic— y el enlace era relativo, que en el cuerpo de
+# un issue es un 404. Lo vio una persona mirando el tablero: ninguna comprobacion detecta que un
+# enlace resuelve ni que un texto se contradice.
+EP1='{id:"EP-9",type:"EP",slug:"x",status:"IN_PROGRESS"}'
+OPC='{url:"https://github.com/o/r",rama:"main",tareas:[{id:"PT-1",issue:5,title:"uno"},{id:"PT-2",issue:6,title:"dos"}]}'
+trlib "el EP no se niega a si mismo"      "^LIMPIO$"   "console.log(/sin implementación/.test(m.cuerpoDeIssue($EP1,$OPC))?\"HAY\":\"LIMPIO\")"
+trlib "y dice que ES una implementacion"  "Implementación abierta"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
+trlib "el enlace es absoluto"             "https://github.com/o/r"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
+trlib "enumera sus tareas con su issue"   "#5"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
+trlib "sin URL no se inventa"             "^SIN_ENLACE$"   "console.log(/https:/.test(m.cuerpoDeIssue($EP1,{}))?\"INVENTA\":\"SIN_ENLACE\")"
+trlib "sigue sin copiar el intake"        "No se copia aquí"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
+trlib "una tarea sí dice a qué lote va"   "EP-9"   "console.log(m.cuerpoDeIssue({id:\"PT-3\",type:\"BUG\",epic:\"EP-9\",slug:\"y\",severity:\"S2\"},$OPC))"
+
 build_fixture
 chkno "sin plataforma ⇒ G4 libre de R43"    "SUITE-R43"   V --gate G4 PT-001
 

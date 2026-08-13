@@ -1,0 +1,12 @@
+{
+  "pt": "PT-010",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01","TS-02","TS-07"], "tests": ["selftest.sh:el EP no se niega a si mismo","selftest.sh:y dice que ES una implementacion","selftest.sh:una tarea sí dice a qué lote va"], "evidence": ["salidas/cuerpo-ep-antes.txt","salidas/cuerpo-ep-despues.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-03"], "tests": ["selftest.sh:el enlace es absoluto"], "evidence": ["salidas/cuerpo-ep-despues.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-04"], "tests": ["selftest.sh:sin URL no se inventa"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-05"], "tests": ["selftest.sh:enumera sus tareas con su issue"], "evidence": ["salidas/cuerpo-ep-despues.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": [], "tests": ["ejecución real: tres cuerpos sincronizados"], "evidence": ["salidas/cuerpo-ep-despues.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["TS-06"], "tests": ["selftest.sh:sigue sin copiar el intake"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 251, "failed": 0, "coverage": 251, "baseline": 244 }
+}

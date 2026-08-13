@@ -1,0 +1,102 @@
+verify-fdge — cumplimiento mecánico de la Methodology Suite 6.0.0
+
+PASA
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+  ✓ FND-R05        11-Conventions.md declara 7 Hard Rules.
+  ✓ FND-R08        Foundation presente (archivos del núcleo verificados).
+  ✓ SUITE-R15      CORE.md presente y sincronizado.
+  ✓ SUITE-R06      Toda integración registrada lleva nombre humano.
+  ✓ FDGE-R48       EP-003 es la única implementación abierta.
+  ✓ FDGE-R49       EP-003 abierta · todo el trabajo vivo le pertenece.
+  ✓ SUITE-R33      Bloque ESTADO completo.
+  ✓ SUITE-R34      El estado es más reciente que el último trabajo.
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ FND-R22        Plan de terreno resuelto y firmado.
+  ✓ FND-R24        Declaración de Valor firmada por Alberto Martínez.
+  ✓ SUITE-R30      INSTALL.log con 28 acción(es) registrada(s), todas las decisiones con rastro.
+  ✓ FND-R13        Línea base de reconciliación completa.
+  ✓ INTAKE-R09     EP-001: intake del lote completo.
+  ✓ INTAKE-R09     EP-002: intake del lote completo.
+  ✓ INTAKE-R09     EP-003: intake del lote completo.
+  ✓ FDGE-R43       Grafo FRESH — generado 2026-08-13 sobre bin.
+  ✓ INTAKE-R08     PT-001: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-001: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R52       PT-001: 8 nota(s) de reanclaje en el issue #3 para PHASE 8.
+  ✓ FDGE-R45       PT-001: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-001: self-review completo.
+  ✓ FDGE-R29       PT-001: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-001: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-001: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-002: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-002: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R52       PT-002: 8 nota(s) de reanclaje en el issue #4 para PHASE 8.
+  ✓ FDGE-R45       PT-002: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-002: self-review completo.
+  ✓ FDGE-R29       PT-002: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-002: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-002: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-004: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-004: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R52       PT-004: 9 nota(s) de reanclaje en el issue #6 para PHASE 8.
+  ✓ FDGE-R45       PT-004: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-004: self-review completo.
+  ✓ FDGE-R29       PT-004: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-004: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-004: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-005: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-005: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-005: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-005: self-review completo.
+  ✓ FDGE-R29       PT-005: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-005: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-005: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-006: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-006: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-006: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-006: self-review completo.
+  ✓ FDGE-R29       PT-006: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-006: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-006: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-007: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-007: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-007: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-007: self-review completo.
+  ✓ FDGE-R29       PT-007: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-007: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-007: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-008: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-008: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-008: sin comentarios pendientes en el issue #12.
+  ✓ FDGE-R45       PT-008: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-008: self-review completo.
+  ✓ FDGE-R29       PT-008: registrado en HISTORY.log.
+  ✓ FDGE-R31       PT-008: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-008: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-009: firmado por lote EP-003.
+  ✓ FDGE-R51       PT-009: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-009: sin comentarios pendientes en el issue #14.
+  ✓ FDGE-R15       PT-009: 4 criterios con TS asignado (Test/Evidencia se exigen desde PHASE 6).
+  ✓ FDGE-R45       PT-009: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-009: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-009: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-010: firmado por lote EP-003.
+  ✓ FDGE-R51       PT-010: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-010: sin comentarios pendientes en el issue #15.
+  ✓ FDGE-R45       PT-010: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-010: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-010: sin errores de cumplimiento.
+
+AVISOS
+  ! SUITE-R43      PT-001: ningún comentario del issue #3 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-002: ningún comentario del issue #4 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-004: ningún comentario del issue #6 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-005: ningún comentario del issue #8 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-006: ningún comentario del issue #10 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-007: ningún comentario del issue #11 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! FDGE-R23       PT-009: aún sin evidence/PT-009/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-009: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R15       PT-010: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-010: aún sin evidence/PT-010/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-010: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+
+Sin errores. PTs verificados: 9.

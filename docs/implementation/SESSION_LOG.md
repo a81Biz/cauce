@@ -487,3 +487,91 @@ espejo                9 issues, sin divergencias
 **Parada final: `G4` y la publicación.** Las dos son humanas. `SUITE-R06` es la lista cerrada
 que ningún modo automatiza y `EXEC-R04` no admite excepción, así que la delegación de firma no
 las cubre — y tomarlas dejaría al marco sin la única compuerta que protege lo irreversible.
+
+---
+
+## 2026-08-13 · `G4` resuelta · los dos lotes integrados · tres defectos abiertos
+
+Merge del PR #7 por Alberto Martínez (`9ecb1d3`). GitGuardian se resolvió como falso positivo:
+las tres marcas eran la misma cadena sintética de los fixtures, ya firmada.
+
+Cierre posterior: siete PT a `INTEGRATED`, `EP-001` y `EP-002` a `CLOSED`, y
+`tracker cerrar --aplicar` cerró los nueve issues. Espejo **0 = 0**.
+
+**Tres defectos abiertos, todos en cómo `tracker` escribe en la plataforma.** Los dos primeros
+los vio el humano mirando el tablero; el tercero lo cazó la regla que acabábamos de crear.
+
+1. **El cuerpo de un issue de `EP` dice «sin implementación»** sobre la implementación misma.
+   El generador usa un solo texto para tarea y lote, y un `EP` no tiene campo `epic`.
+2. **El enlace al intake es relativo** y en el cuerpo de un issue de GitHub no resuelve: apunta
+   a `github.com/a81Biz/cauce/changes/…`, que es un 404. Por eso al abrir el issue de `EP-002`
+   no había «nada de EP-002»: lo único que había era un enlace roto.
+3. **`tracker cerrar` comenta sin la marca de procedencia**, así que `SUITE-R43` toma su propio
+   mensaje de cierre por un comentario humano. `verify-fdge --all` está en rojo por eso.
+
+El tercero es la mejor prueba de la sesión de que la regla funciona: nació en `PT-008` y lo
+primero que hizo fue cazar a la herramienta que la implementa, en la primera ejecución
+posterior. Nadie lo buscó.
+
+**No se han arreglado.** Los tres tocan `docs/methodology/` y no hay implementación abierta:
+abrir trabajo nuevo exige un `EP` con su `G1` firmada, y la delegación de `EP-002` se declaró
+acotada a ese lote.
+
+---
+
+## 2026-08-13 · `EP-003` · `PT-009` y `PT-010` en `VALIDATION_PENDING`
+
+Las dos tareas del lote recorridas de `PHASE 1` a `PHASE 6`. **Ninguna `G3` automática**: son
+`BUG` y `SUITE-R06b` no lo automatiza ningún modo — es la diferencia con `EP-002`.
+
+```
+selftest           241 → 251 casos
+verify-fdge --all  sin errores (estaba en rojo al empezar)
+```
+
+**`PT-009`.** `tracker cerrar` comentaba sin marca, así que `SUITE-R43` tomaba su propio
+mensaje de cierre por humano. El comentario ya publicado es inmutable: se **respondió** en vez
+de excluirlo de la comprobación, y `TS-05` existe para que nadie relaje la regla más adelante.
+
+En el self-review queda escrita una salida más cómoda que **no** se tomó: excluir los PT
+`INTEGRATED` de `SUITE-R43`. Es defendible sobre el texto de la regla y quita rojos — por eso
+no se hizo de paso.
+
+**`PT-010`.** El cuerpo de un issue de `EP` decía «sin implementación» sobre la implementación
+misma, y su enlace era relativo: un 404 desde un issue. Ahora distingue lote de tarea, enumera
+las tareas del lote con su issue y enlaza con URL absoluta a la rama por defecto. Sin URL
+derivable no se inventa.
+
+**Un defecto propio, cazado por su caso:** `contextoCuerpo` leía `adaptador.repo` al cargar el
+módulo, y `estado` corre **sin** adaptador — justo la acción que existe para funcionar sin
+credencial. Reventaba, y lo dijo su caso.
+
+**El límite que sigue ahí:** nada comprueba que un enlace resuelva. Haría falta red en una
+compuerta. Es lo que dejó pasar el defecto original y sigue sin cubrirse.
+
+---
+
+## 2026-08-13 · `EP-003` cerrado · versión `6.0.1` · a la espera de `G4`
+
+`G3` de `PT-009` y `PT-010` **resuelta por delegación**, ampliada ese mismo día por decisión
+del firmante. Está registrada como Revisión 1 del intake del lote, con lo que cuesta escrito:
+`G3` existe para que alguien mire la evidencia antes de dar un defecto por resuelto; firmada
+por delegación lo que queda es que la evidencia **está escrita y es contrastable**, no que
+alguien la haya leído.
+
+`G4` y la publicación siguen sin delegar — el propio firmante se las reservó.
+
+**Versión `6.0.1`**, `PATCH`: dos correcciones, ninguna regla nueva ni modificada.
+
+```
+selftest           241 → 251 casos
+verify-fdge --all  sin errores (estaba en rojo al empezar el lote)
+espejo             sin divergencias
+package.json 6.0.1 = CHANGELOG = los 21 documentos
+```
+
+**Lo que este lote deja como aprendizaje:** los dos defectos vinieron de sitios distintos y
+ninguno del análisis previo. Uno lo cazó una regla recién creada, sobre su propia herramienta.
+El otro lo vio una persona mirando el tablero, y **ninguna comprobación lo habría encontrado** —
+no hay nada que verifique que un enlace resuelve ni que un texto se contradice. El límite queda
+escrito en el `CHANGELOG` y en la trazabilidad en vez de fingir que está cubierto.

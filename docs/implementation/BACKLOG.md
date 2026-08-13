@@ -2,35 +2,24 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-## Implementación abierta
+## Implementación
 
-`EP-002` · **GitHub responde qué va cuándo, sin abrir el repositorio** · `IN_PROGRESS` ·
-issue [#9](https://github.com/a81Biz/cauce/issues/9) · `G1` PASS
+`EP-003` · **El issue se lee sin salir de GitHub** · `DONE` ·
+issue [#13](https://github.com/a81Biz/cauce/issues/13) — esperando `G4`.
 
-## PTs vivos
+| PT | Tipo | Sev | Estado | Issue |
+|:---|:---|:---|:---|:---|
+| PT-009 | BUG | S2 | DONE | [#14](https://github.com/a81Biz/cauce/issues/14) |
+| PT-010 | BUG | S2 | DONE | [#15](https://github.com/a81Biz/cauce/issues/15) |
 
-| Orden | PT | Tipo | Sev | Estado | Fase | Issue |
-|:--|:---|:---|:---|:---|:---|:---|
-| 1 | PT-006 | CHORE | S3 | READY | PHASE 1 | [#10](https://github.com/a81Biz/cauce/issues/10) |
-| 2 | PT-007 | FEATURE | S3 | READY | PHASE 1 | [#11](https://github.com/a81Biz/cauce/issues/11) |
-| 3 | PT-008 | FEATURE | S2 | READY | PHASE 1 | [#12](https://github.com/a81Biz/cauce/issues/12) |
+`G3` de las dos resuelta **por delegación**, con constancia en la Revisión 1 del intake del
+lote. Pasan a `INTEGRATED` tras el merge (`FDGE-R35`).
 
-## Solapamiento y orden   `FDGE-R40` · `EXEC-R08`
+## Lotes anteriores
 
-```
-PT-006 ↔ PT-007   tracker.mjs · selftest.sh                 → SERIALIZADOS
-PT-006 ↔ PT-008   verify-fdge.mjs · RULES.md · selftest.sh  → SERIALIZADOS
-PT-007 ↔ PT-008   tracker.mjs · selftest.sh                 → SERIALIZADOS
+`EP-001` y `EP-002`, ambos `CLOSED`, en `main` desde `9ecb1d3`.
 
-Orden:  1. PT-006   2. PT-007   3. PT-008
-```
+## Lo siguiente
 
-Los tres tocan `tracker.mjs` o `verify-fdge.mjs`, así que van en serie. Dentro de la serie el
-orden es por dependencia: `PT-006` deja el contrato dicho donde manda y es lo que los otros dos
-espejan; `PT-008` va al final porque necesita que el issue ya lleve estado.
-
-## Lote anterior
-
-`EP-001` · `DONE` · issue [#2](https://github.com/a81Biz/cauce/issues/2) — esperando `G4` en el
-PR [#7](https://github.com/a81Biz/cauce/pull/7). Sus cinco tareas cerradas; pasan a
-`INTEGRATED` tras el merge (`FDGE-R35`).
+`G4` sobre el PR de `trabajo` → `main`, y publicar `6.0.1`. **Las dos son humanas**
+(`EXEC-R04`, `SUITE-R06a`), y el firmante se las reservó explícitamente.

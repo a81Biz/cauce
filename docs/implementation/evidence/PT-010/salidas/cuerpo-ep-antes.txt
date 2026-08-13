@@ -1,0 +1,5 @@
+**EP** · severidad — · sin implementación
+
+Intake, criterios de aceptación y evidencia: [`changes/EP-002-github-como-maquina-de-estados/`](changes/EP-002-github-como-maquina-de-estados/)
+
+(el cuerpo de #9 antes del arreglo: se niega a sí mismo y el enlace es relativo)

@@ -1,0 +1,10 @@
+{
+  "pt": "PT-009",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01","TS-02"], "tests": ["selftest.sh:el cierre lleva la marca","selftest.sh:y no pierde lo que decia"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-04"], "tests": ["verify-fdge --all sobre este repositorio"], "evidence": ["salidas/verify-fdge-verde.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-05"], "tests": ["selftest.sh:SUITE-R43 sigue exigiendo respuesta"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-03"], "tests": ["selftest.sh:humano tras el agente ⇒ pendiente"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 244, "failed": 0, "coverage": 244, "baseline": 241 }
+}
