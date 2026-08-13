@@ -161,15 +161,17 @@
       "complexity": "TRIVIAL",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "5.3.0",
       "epic": "EP-002",
-      "phase": 1,
+      "phase": 8,
       "title": "PHASES declara dos mapeos que su regla no contiene; el del PR sube a RULES con su comprobación",
       "origin": "PT-003 · PT de seguimiento propuesto en su conclusión (FDGE-R42)",
       "created": "2026-08-13",
-      "issue": 10
+      "issue": 10,
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-13"
     },
     {
       "id": "PT-007",

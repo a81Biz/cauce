@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 910d3117044d -->
-<!-- fuentes: RULES.md:8b05583bec6b LEXICON.md:30fe4f948ce9 EXECUTION-MODES.md:e11f8324b6ba PHASES.md:2c64f2e002dd -->
+<!-- cuerpo: 249d32f42f39 -->
+<!-- fuentes: RULES.md:45b5e82ab229 LEXICON.md:30fe4f948ce9 EXECUTION-MODES.md:e11f8324b6ba PHASES.md:fdd5e0159ce4 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -146,6 +146,7 @@ verifica un script y bloquea la integración.
 `SUITE-R39` **H** La frontera del proyecto se declara, y se dice qué la sostiene.
 `SUITE-R40` **H** La versión vigente se deriva; no se escribe dos veces.
 `SUITE-R41` **H** Cauce no se instala sobre sí mismo, y se reconoce por identidad.
+`SUITE-R42` **H** El merge se propone donde se pueda revisar.
 
 ### LEX — Nombres
 
@@ -601,10 +602,11 @@ PARA G3 humana si BUG, en los tres modos. Resto: auto solo si las SIETE condicio
 
 ### La plataforma de trabajo — espejo, no fuente                     [SUITE-R35]
 ```
-CONTRATO  implementación abierta → milestone | epic work item
-          tarea                  → issue     | task work item
-          compuerta G4           → pull request         [FDGE-R33: el merge es humano]
+CONTRATO  tarea e implementación → issue | work item        [SUITE-R35: es lo que la regla dice]
+          compuerta G4           → pull request              [SUITE-R42]
           cierre de implementación → dispara [START QA] sobre lo entregado
+          NO hay mapeo para agrupar: la implementación YA tiene su issue. Un segundo
+          artefacto para el mismo hecho es la divergencia que SUITE-R35 impide.
 REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECIDIÓ.
           El issue REFERENCIA el intake, no lo copia: dos copias divergen.
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.

@@ -993,6 +993,17 @@ function checkHistory(pt, rel, type, { gate }) {
     } else if (r.codigo === 0) {
       ok('SUITE-R35', `${pt}: el espejo con ${REGISTRO.tracker.plataforma} cuadra.`);
     }
+
+    // SUITE-R42 · el merge se propone donde se pueda revisar. Se comprueba que el PR EXISTA;
+    // ni se abre ni se fusiona. Sin plataforma declarada esta rama no se pisa.
+    const p = correTracker(['pr']);
+    if (p.codigo === 1) {
+      fail('SUITE-R42', `${pt}: no hay pull request abierto para esta rama. G4 se resuelve sobre un PR.\n${p.salida.trim().split(/\r?\n/).filter((l) => l.includes('SUITE-R42')).map((l) => `        ${l.trim()}`).join('\n')}`);
+    } else if (p.codigo === 3) {
+      fail('SUITE-R42', `${pt}: hay plataforma declarada y no hay acceso, así que no se pudo comprobar el pull request. En G4 la credencial es exigible (FND-R30).`);
+    } else if (p.codigo === 0) {
+      ok('SUITE-R42', `${pt}: el merge se propone sobre un pull request abierto.`);
+    }
   }
 
   // ── FDGE-R34 · precondiciones de la compuerta G4 ──────────────────────────

@@ -960,7 +960,10 @@ reg_set "r.tracker={plataforma:'azure'}"
 chkno "azure declara el contrato, no miente"  "Sin divergencias"  TR espejo
 
 # El contrato tiene que viajar en el paquete, no en la cabeza de nadie.
-chk   "el contrato está en PHASES"            "milestone"       cat "$SUITE/PHASES.md"
+# El caso pedia «milestone» en PHASES. Se sustituye, no se relaja: afirmaba un contrato que
+# RULES.md nunca tuvo, y PT-006 lo retiro. Un aserto que exige el defecto lo perpetua.
+chk   "el contrato está en PHASES"            "pull request"    cat "$SUITE/PHASES.md"
+chk   "y cita la regla que lo manda"          "SUITE-R42"       cat "$SUITE/PHASES.md"
 chk   "el issue no copia el intake"           "no lo copia"     cat "$SUITE/tools/tracker.mjs"
 
 # PT-001 · la LÓGICA del espejo se prueba sin plataforma.
@@ -1116,6 +1119,32 @@ chkno "no dice que revisó la historia"       "+ historia ("  SEC "$WORK/superfi
 
 # CI tiene que clonar la historia entera, o el paso de secretos miraria un solo commit.
 chk   "CI clona la historia entera"          "fetch-depth: 0"  cat "$SUITE/../../.github/workflows/verificacion.yml"
+
+# PT-006 · el contrato de la plataforma vuelve a su regla.
+#
+# PHASES.md declaraba tres mapeos bajo el encabezado [SUITE-R35], y RULES.md no contiene ni
+# «milestone» ni «pull request». Un documento de procedimiento enunciaba obligaciones que su
+# regla no tiene, y LEX-R21 lo pone por debajo. El milestone se borra —cero en toda la
+# historia, y daria a un EP dos representaciones del mismo hecho—; el pull request sube a
+# RULES como SUITE-R42, condicionada a que el proyecto declare plataforma.
+chkno "PHASES ya no declara milestone"      "milestone"    cat "$SUITE/PHASES.md"
+chk   "SUITE-R42 existe en RULES"           "SUITE-R42"    cat "$SUITE/RULES.md"
+chk   "SUITE-R42 llega al núcleo"           "SUITE-R42"    cat "$SUITE/CORE.md"
+
+# La comprobacion tiene que poder fallar, y distinguir «no aplica» de «no pude mirar».
+trlib "sin plataforma ⇒ pr no aplica"       "^2$" \
+  "console.log(m.decidirSalida({}, ()=>true).codigo)"
+trlib "plataforma sin acceso ⇒ pr da 3"     "^3$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>false).codigo)"
+
+# Sin plataforma declarada, G4 no gana ninguna exigencia. Es la garantia de todo proyecto que
+# no espeja: sin este caso, la regla nueva romperia a todos los destinos ya instalados.
+build_fixture
+chkno "sin plataforma ⇒ G4 libre de R42"    "SUITE-R42"    V --gate G4 PT-001
+
+# Negativo a proposito: lo unico que hace creible que G4 siga siendo humana es que el codigo
+# NO pueda fusionar. Si algun dia aparece, este caso se pone rojo.
+chkno "tracker no puede fusionar"           "pr merge"     cat "$SUITE/tools/tracker.mjs"
 
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"
@@ -1279,7 +1308,10 @@ chk   "cobertura sin huecos"     "sin huecos"   node "$SUITE/tools/audit.mjs" "$
 # bateria que existe para cazar hechos copiados.
 A() { node "$SUITE/tools/audit.mjs" "$@"; }
 
-chk   "la cobertura lleva denominador"    "/ 167"        A "$SUITE"
+# El denominador se comprueba por FORMA, no por valor: la primera version puso «/ 167» y se
+# rompio en cuanto SUITE-R42 hizo 168 reglas — el hecho copiado, dentro del caso que existe
+# para cazar hechos copiados. RULE-01 aplicada al arnes.
+chk   "la cobertura lleva denominador"    "[0-9] / [0-9]"  A "$SUITE"
 chk   "declara las ejecutadas"            "ejecutadas"   A "$SUITE"
 chk   "declara las que nadie ejecuta"     "sin compuerta" A "$SUITE"
 chk   "declara las que nadie verifica"    "sin verificador" A "$SUITE"

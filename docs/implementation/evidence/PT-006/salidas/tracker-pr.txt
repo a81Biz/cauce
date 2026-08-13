@@ -1,0 +1,5 @@
+tracker · github · acción pr
+
+  · rama «trabajo» → pull request #7 abierto.
+
+Sin divergencias.

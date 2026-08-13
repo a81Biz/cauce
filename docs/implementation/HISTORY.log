@@ -247,3 +247,34 @@ escribirlo, porque git es determinista y dos repos creados en el mismo segundo c
 mensaje dan el mismo hash. Sin ese caso, el que comprueba que la huella no depende del commit
 habría pasado sin probar nada.
 
+## PT-006 — CHORE: el contrato vuelve a su regla
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-002
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-002, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 auto (EXEC-R06: no es BUG y verify-fdge pasó) · G4 pendiente del cierre del lote
+
+Qué fallaba: `PHASES.md` declaraba tres mapeos de plataforma bajo el encabezado `[SUITE-R35]`,
+y `RULES.md` no contiene ni «milestone» ni «pull request». Un documento de procedimiento
+enunciaba obligaciones que su regla no tiene, y `LEX-R21` lo pone por debajo de `RULES`.
+
+Qué se hizo: el milestone se retira —cero en toda la historia, y daría a un `EP` dos
+representaciones del mismo hecho—. El pull request sube a `RULES.md` como **`SUITE-R42`**,
+condicionada a que el proyecto declare plataforma, con comprobación en `verify-fdge --gate G4`
+vía `tracker pr`. El agente no abre el PR ni lo fusiona: comprueba que exista.
+
+Resultado: `selftest` 219 → 227 casos. `CORE.md` 230 reglas. `verify-suite` sin errores.
+
+Delta: `FDGE-Prompts.md` entró en el alcance porque `SUITE-R20` no permite que `PHASES` y los
+prompts diverjan — lo detectó el verificador, no el agente. Y dos casos existentes se
+sustituyeron: uno exigía «milestone» en `PHASES.md`, es decir afirmaba el contrato que esta
+tarea retira; el otro fijaba «/ 167» en la cobertura y se rompió al haber 168 reglas — lo había
+escrito el mismo agente en el PT que declaró que las cifras no se fijan.
+
+Consecuencia declarada: añadir una regla vinculante cambia lo que un proyecto debe tener para
+cumplir `G4`. La versión de este lote no puede ser `MINOR`.
+

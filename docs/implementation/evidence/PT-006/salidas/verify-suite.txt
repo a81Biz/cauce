@@ -1,0 +1,4 @@
+verify-suite — coherencia de la metodología (5.3.0)
+Documentos analizados: 34
+
+Sin errores de coherencia.

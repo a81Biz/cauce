@@ -67,3 +67,19 @@ declara bajo el encabezado `[SUITE-R35]`. `LEX-R21` pone `PHASES` por debajo de 
 Hay dos salidas coherentes —borrarlo, o subirlo— y la evidencia empuja a subirlo: la práctica
 ya existe (el PR #1 se abrió y se fusionó), abrir un PR no es automatizar `G4`, y es la única
 transición de la máquina de estados que hoy no comprueba nadie.
+
+---
+
+## Revisiones
+
+### Revisión 1 — 2026-08-13 · `FDGE-Prompts.md` entra en el alcance
+
+**Qué cambia.** `tasks.md` declaraba `RULES.md`, `PHASES.md`, `verify-fdge.mjs`, `tracker.mjs`,
+`selftest.sh` y `CORE.md`. Se añade `docs/methodology/FDGE-Prompts.md`.
+
+**Motivo.** Lo exigió `verify-suite`: `SUITE-R20` no permite que `PHASES.md` y los `*-Prompts.md`
+diverjan, y al citar `SUITE-R42` en el contrato el prompt se quedó atrás —«el humano en modo
+MANUAL no las vería»—. No es alcance nuevo: es el mismo cambio, en el archivo que la regla
+obliga a mantener sincronizado.
+
+Lo detectó una comprobación, no yo.

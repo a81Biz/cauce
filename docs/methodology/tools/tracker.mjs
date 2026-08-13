@@ -125,6 +125,14 @@ const ADAPTADORES = {
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return (JSON.parse(out).comments ?? []).map((c) => c.body ?? '');
     },
+    // SUITE-R42 · ¿hay pull request abierto para esta rama? Solo lectura: el agente NO abre el
+    // PR ni lo fusiona. Comprobar que exista es lo que hace verificable dónde se propuso G4;
+    // abrirlo se describe (EXEC-R07) y fusionarlo es humano sin excepción (EXEC-R04).
+    prDeLaRama(rama) {
+      const out = execFileSync('gh', ['pr', 'list', '--state', 'open', '--head', rama,
+        '--json', 'number'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+      return JSON.parse(out).map((p) => p.number);
+    },
     // FND-R30 · `abrir` necesita estas etiquetas y `gh issue create` falla sin ellas. Se
     // descubrió abriendo los issues de EP-001: no existían y hubo que crearlas a mano.
     etiquetas() {
@@ -297,7 +305,23 @@ function cerrar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe };
+// ── pr · ¿hay pull request abierto para la rama? (SUITE-R42) ────────────────
+// Sale 0 si lo hay y 1 si no, con los mismos códigos que `espejo` para 2 y 3: quien llama ya
+// sabe leerlos. No abre nada.
+function prAbierto() {
+  let rama = '';
+  try {
+    rama = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'],
+      { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+  } catch { console.error('No se pudo leer la rama actual: ¿es un repositorio git?'); process.exit(2); }
+  const nums = adaptador.prDeLaRama(rama);
+  if (nums.length) { notas.push(`rama «${rama}» → pull request #${nums[0]} abierto.`); return; }
+  fail('SUITE-R42', `no hay pull request abierto para la rama «${rama}». G4 se resuelve sobre un PR `
+    + 'para que el merge se proponga donde se pueda revisar. Ábrelo tú:  '
+    + `gh pr create --base main --head ${rama}`);
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);
