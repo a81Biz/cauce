@@ -218,6 +218,40 @@ for (const r of anidados) {
     + 'principal: con dos, «integrado» no significa lo mismo en cada sitio.');
 }
 
+// ── 7-bis. Vecindad: qué hay al lado de la raíz ─────────────────────────────
+// Cauce es por proyecto y eso ya funciona. Lo que NO esta cercado es el agente: ninguna regla
+// escrita en un .md impide que un proceso lea la carpeta de al lado. Ocurrio — en la primera
+// maquina donde se uso, el historial de permisos guarda ordenes concedidas para copiar la
+// metodologia a un proyecto hermano y crear directorios alli.
+//
+// Esto se REPORTA, no se cerca: la unica cerca que impone el nucleo es un contenedor, y cauce
+// no genera contenedores para stacks que no conoce (FND-R25: detectar y proponer, nunca
+// inventar). Una cerca por configuracion existe y es util, pero su alcance depende del arnes
+// y no se puede comprobar desde aqui — enviarla sin probarla seria el verde por omision que
+// este marco persigue.
+const PADRE = resolve(ROOT, '..');
+const hermanos = (() => {
+  if (PADRE === ROOT) return [];
+  return listar(PADRE)
+    .filter((e) => e.isDirectory() && !e.name.startsWith('.') && join(PADRE, e.name) !== ROOT)
+    .map((e) => e.name);
+})();
+if (hermanos.length) {
+  nota('vecindad', `${hermanos.length} proyecto(s) hermano(s) en ${rel(PADRE) === '.' ? PADRE : '..'}`,
+    `Alcanzables desde esta raíz: ${hermanos.slice(0, 6).join(', ')}${hermanos.length > 6 ? '…' : ''}. `
+    + 'Cauce es por proyecto y eso ya está resuelto; lo que no cerca ninguna regla escrita es el '
+    + 'agente. Dos niveles, con lo que garantiza cada uno: **configuración de permisos** '
+    + '(`.claude/settings.json`) ataja el alcance accidental y depende de que el arnés la '
+    + 'respete; **contenedor** con solo este proyecto montado lo impone el núcleo. Cauce no '
+    + 'genera contenedores: detecta si los hay y lo dice.');
+}
+const contenedores = ['docker-compose.yml', 'docker-compose.yaml', 'Dockerfile', '.devcontainer']
+  .filter((f) => existsSync(join(ROOT, f)));
+nota('vecindad', contenedores.length ? `contenedores: ${contenedores.join(', ')}` : 'sin contenedores',
+  contenedores.length
+    ? 'El proyecto ya se contiene. Montar solo su raíz al trabajar con el agente convierte la frontera en algo que impone el núcleo, no una convención.'
+    : 'La frontera del proyecto es hoy una convención. Si necesitas que la imponga el núcleo, el contenedor es trabajo propio del proyecto — no algo que cauce deba generar.');
+
 // ── 8. Dependencias ─────────────────────────────────────────────────────────
 const DEPS = [
   { nombre: 'node', probar: ['node', ['--version']], para: 'los verificadores de la suite', instalar: null },

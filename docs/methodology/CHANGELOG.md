@@ -15,13 +15,13 @@ ataca, después de ocho apariciones.
 
 ### Qué pasaba
 
-Al editar, una secuencia de escape se perdía: `` quedaba como el byte `0x08`, `\s` como la
+Al editar, una secuencia de escape se perdía: `\b` quedaba como el byte `0x08`, `\s` como la
 letra `s`. El regex resultante es **sintácticamente válido** y no casa nada — o casa otra cosa.
 El verificador entonces informa «sin errores» porque no encuentra nada que reprochar, y **el
 fallo es indistinguible del éxito**. Ninguna revisión por lectura lo ve: `/AC-d+/` y `/AC-\d+/`
 se parecen demasiado.
 
-La 4.8.0 añadió un detector de bytes de control. Eso trata un síntoma: caza `` → `0x08` y no
+La 4.8.0 añadió un detector de bytes de control. Eso trata un síntoma: caza `\b` → `0x08` y no
 caza `\d` → `d`, que es el mismo fallo con un carácter imprimible. **Cazaba la mitad de los
 casos, y dejaba fuera la mitad silenciosa.**
 
@@ -263,7 +263,7 @@ define a la pesada la volvería pesada otra vez.
 `selftest.sh`: **143 casos**, con el bloque **N**. `audit.mjs`: 496 elementos, 0 huecos.
 
 Y el detector de bytes de control de la 4.8.0 se ganó el sueldo: al escribir la comprobación de
-`FDGE-R51` un `` volvió a convertirse en `0x08` y lo cazó en la misma pasada.
+`FDGE-R51` un `\b` volvió a convertirse en `0x08` y lo cazó en la misma pasada.
 
 ---
 
@@ -654,7 +654,7 @@ del PT se commitea igual. Ahora escanea evidencia **y** directorio de trabajo.
 
 ### El fallo silencioso que lleva seis veces
 
-`` volvió a quedar como byte **0x08** dentro de una regex al editar. El regex compila, no
+`\b` volvió a quedar como byte **0x08** dentro de una regex al editar. El regex compila, no
 casa nada, y el verificador informa «sin errores» porque no encuentra nada que reprochar. Es
 invisible a cualquier revisión por lectura.
 
@@ -974,7 +974,7 @@ sospechosa, con el ID real que probablemente se quería citar.
 - Cifras de tokens desactualizadas en el README (eran de 4.2.0).
 - **Cuarto caso del mismo fallo de escape.** `new RegExp(\`\b${id}\b\`)` dentro de un
   template literal produce un byte de retroceso: el chequeo de residuos PTSA existía y no
-  podía dispararse. Eliminados **todos** los regex dinámicos con ``/`\s` del código, y
+  podía dispararse. Eliminados **todos** los regex dinámicos con `\b`/`\s` del código, y
   añadido un barrido que verifica que no vuelvan.
 
 ### `CORE.md` no era autosuficiente
@@ -1232,7 +1232,7 @@ regla ambigua se aplica mal justo en los casos límite, que es donde importa.
 - **Las fases de Foundation tenían nombres distintos en `LEXICON` y en su implementación.**
   Solo coincidía la 0. Alineadas, y ahora son siete.
 - `verify-fdge` tenía un byte de retroceso (`0x08`) incrustado en un regex —residuo de un
-  `` procesado por una herramienta de edición—, que lo hacía imposible de casar. El
+  `\b` procesado por una herramienta de edición—, que lo hacía imposible de casar. El
   chequeo existía y nunca podía dispararse. Mismo modo de fallo que apareció en el
   `CHANGELOG` de la 4.0.1: dos veces el mismo error de escape.
 - Antipatrones nuevos: **Documented Chaos**, **Phantom Graph**, **Context Bloat**.

@@ -28,7 +28,7 @@ node docs/methodology/tools/verify-patrones.mjs
 ```
 
 **Un patrón puede estar mal y compilar.** Ocho veces en este proyecto un escape se perdió al
-editar —`` quedó como el byte `0x08`, `\s` como la letra `s`— y el regex resultante era
+editar —`\b` quedó como el byte `0x08`, `\s` como la letra `s`— y el regex resultante era
 válido y no casaba nada. El verificador informaba «sin errores» porque no encontraba nada que
 reprochar: el fallo era indistinguible del éxito, y ninguna lectura lo veía —`/AC-d+/` y
 `/AC-\d+/` se parecen demasiado.

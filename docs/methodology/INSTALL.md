@@ -50,6 +50,24 @@ Y los accesos, en la misma parada (`FND-R30`): `gh auth status` o `az account sh
 proyecto va a declarar plataforma. Descubrir a mitad de sesión que falta un permiso es perder la
 sesión.
 
+Y la **frontera** (`SUITE-R39`). `plan-layout` enumera qué hay al lado de esta raíz. Cauce es
+por proyecto —eso ya está resuelto—, pero ninguna regla escrita impide que un proceso lea la
+carpeta vecina, y en la primera máquina donde se usó eso ya ocurrió. Dos niveles, con lo que
+garantiza cada uno:
+
+- **Configuración de permisos** (`.claude/settings.json`): ataja el alcance accidental. Es una
+  convención — depende de que el arnés la respete.
+- **Contenedor** con solo esta raíz montada: lo impone el núcleo.
+
+Elegir es humano, y **empezar sin ninguno de los dos es una opción legítima** que se escribe.
+Cauce no genera contenedores: inventar un Dockerfile para un stack que no conoce es imponer
+terreno (`FND-R25`). Si el proyecto ya se contiene, el terreno lo dice, y montar solo su raíz
+convierte la frontera en algo que no depende de que nadie la respete.
+
+Las credenciales de publicación se quedan **fuera** del contenedor si lo hay: `SUITE-R06a`
+mantiene el merge y la publicación en manos humanas, y meterlas dentro haría del recinto el
+sitio desde donde se publica.
+
 ### `I1` · Decisión — **G0**
 
 **El criterio ya está escrito en la herramienta, no en tu opinión del momento.** Eso es lo que

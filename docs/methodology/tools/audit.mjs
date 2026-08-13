@@ -346,14 +346,21 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
   // capa de escapado convierte \b en 0x08 y \s en «s», y el regex resultante es sintacticamente
   // valido pero no casa NADA. El fallo es silencioso —el verificador dice «sin errores» porque
   // no encuentra nada que reprochar— y por eso ninguna revision por lectura lo veia.
-  for (const [f, txt] of tools) {
+  //
+  // Y NO SOLO EN EL CODIGO. Este detector solo miraba herramientas, y por eso no vio que el
+  // texto de `SUITE-R38` —la regla que existe para cazar esto— tenia su propio `\b` degradado a
+  // 0x08. Una regla se cita, se copia y acaba en un patron: un byte de control ahi es la misma
+  // averia una capa mas arriba, y era invisible porque 0x08 no se ve al leer.
+  for (const [f, txt] of [...tools, ...mds]) {
+    const esDoc = f.endsWith('.md');
     const malos = [...txt].filter((c) => {
       const n = c.charCodeAt(0);
       return n < 32 && n !== 9 && n !== 10 && n !== 13;
     });
-    if (!malos.length) { tick('herramienta'); continue; }
+    const dim = esDoc ? 'documento' : 'herramienta';
+    if (!malos.length) { tick(dim); continue; }
     const cods = [...new Set(malos.map((c) => `0x${c.charCodeAt(0).toString(16).padStart(2, '0')}`))];
-    gap('herramienta', f, `${malos.length} byte(s) de control ${cods.join(' ')} en el código: una secuencia de escape se perdió al editar. El regex compila y no casa nada — el fallo es silencioso. → perl -i -pe 's/\\x08//g' ${f}`);
+    gap(dim, f, `${malos.length} byte(s) de control ${cods.join(' ')} en ${esDoc ? 'el texto' : 'el código'}: una secuencia de escape se perdió al editar. ${esDoc ? 'No se ve al leer, y si ese texto acaba en un patrón el patrón no casará nada.' : 'El regex compila y no casa nada — el fallo es silencioso.'} → perl -i -pe 's/\\x08//g' ${f}`);
   }
 }
 

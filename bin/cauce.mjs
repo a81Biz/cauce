@@ -86,6 +86,20 @@ function copiarCarga() {
 // ── comandos ────────────────────────────────────────────────────────────────
 const comandos = {
   install() {
+    // Autoalojamiento: cauce gobernándose con sus propias reglas. Aquí la carga y el destino
+    // son el mismo directorio, y copiar seria copiar cada archivo sobre si mismo — inofensivo
+    // pero mentiroso: diria «48 archivos instalados» sin haber instalado nada. Se dice.
+    if (CARGA === SUITE_EN_DESTINO) {
+      di(`${c.verde}cauce ${VERSION}${c.fin} · este repositorio ES cauce: la carga y el destino son el mismo sitio.`);
+      di(`${c.dim}No hay nada que copiar. Se regenera el núcleo y lo demás sigue igual.${c.fin}`);
+      di();
+      const r = corre('build-core.mjs', [SUITE_EN_DESTINO]);
+      di();
+      di(`Lo que falta para que se gobierne a sí mismo lo dice ${c.neg}cauce verify${c.fin}:`);
+      di(`${c.dim}registro, terreno, estado y la documentación de Foundation. Es la misma${c.fin}`);
+      di(`${c.dim}instalación conversacional que cualquier proyecto — sin excepción por ser este.${c.fin}`);
+      return r;
+    }
     const d = divergencia();
     if (!d.nueva && (d.difieren.length || d.soloDestino.length) && !FORZAR) {
       err(`El destino ya tiene una copia del marco y NO es idéntica a la de cauce ${VERSION}.`);
