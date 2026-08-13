@@ -325,3 +325,39 @@ este lote existe para eliminar. **No se ha hecho.** Queda como error abierto y c
 humana.
 
 **Parada: `G3`.** `PT-001` es un `BUG` y pasa a `VALIDATION_PENDING` (`SUITE-R06b`).
+
+---
+
+## 2026-08-13 · dos correcciones humanas sobre `PT-001`
+
+**1 · La guarda de fork se retira.** Pregunta humana: «¿cuándo se hizo un fork?». Comprobado:
+**cero forks**, y el único PR de la historia del repositorio salió de una rama propia. El
+`if:` que escribí protegía un caso que aquí no ha ocurrido nunca y que no se puede probar
+desde aquí — yo mismo lo había declarado «no verificado» en el self-review.
+
+La 5.2.1 ya resolvió esto descartando enviar un `.claude/settings.json` con reglas `deny`:
+«un control sin probar es el verde por omisión que este marco existe para cazar». Era lo
+mismo, en CI. Cuando aparezca el primer PR desde un fork habrá un caso real contra el que
+escribir, que es como se trata el adaptador de Azure.
+
+**2 · El recorrido de reanclaje, rehecho.** De las tres opciones presentadas —excepción
+firmada, rehacer el recorrido, revisar la regla— la decisión humana fue **rehacer el
+recorrido**. Doce notas nuevas, una por transición, con lo que ocurrió realmente en cada una y
+declarando cada una que se escribe retroactivamente. La fecha no se disimula.
+
+Se descartó revisar la regla para que una nota de rango contara por varias: es la forma más
+fácil de ablandar una regla justo cuando molesta, y la regla tenía razón.
+
+**Y una corrección de rumbo.** `G4` no se toca hasta que el lote entero esté cerrado: mandar a
+`main` es desplegar una versión, y la versión no está completa. El trabajo sigue en `trabajo`.
+
+**Estado de las compuertas**
+
+```
+verify-fdge --all            Sin errores. PTs verificados: 4.
+verify-fdge --gate G4 PT-004 Sin errores.        ← desbloqueada
+npm run verify               verde · 202 casos · incluye ya verify:espejo
+tracker espejo               5 vivas = 5 issues, sin divergencias
+```
+
+`PT-001` sigue en `VALIDATION_PENDING`, detenido en `G3`.

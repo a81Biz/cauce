@@ -59,11 +59,15 @@ jobs:
       # tenía herramienta y ninguna compuerta la ejecutaba: se podía planificar un lote entero
       # sin issues con las siete comprobaciones en verde. Lo encontró una persona, no un script.
       #
-      # Se salta en PRs desde un fork: GitHub no entrega los secretos del repositorio a un fork,
-      # así que ahí la credencial no puede estar por diseño. Bloquear sería un rojo permanente
-      # que el autor externo no puede resolver — y una compuerta siempre roja enseña a saltársela.
+      # Este paso llevó una guarda `if:` para saltarse los PRs desde un fork, donde GitHub no
+      # entrega los secretos del repositorio. Se quitó: este repositorio tiene CERO forks y el
+      # único PR de su historia salió de una rama propia, así que era una guarda para un caso
+      # que nunca ha ocurrido y que no se puede probar desde aquí. La 5.2.1 ya rechazó enviar un
+      # control que no se puede verificar —«un control sin probar es el verde por omisión que
+      # este marco existe para cazar»— y esto era lo mismo. Cuando aparezca el primer PR desde
+      # un fork habrá un caso real contra el que escribir, que es como se trata el adaptador de
+      # Azure: se escribe contra un caso, no contra ninguno.
       - name: El espejo con la plataforma cuadra
-        if: github.event.pull_request.head.repo.fork != true
         run: node docs/methodology/tools/tracker.mjs espejo
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

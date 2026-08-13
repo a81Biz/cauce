@@ -159,3 +159,42 @@ plataforma falsa ni ninguna bandera que solo use el arnés—: es separar adapta
 que es lo que hace la diferencia entre poder probar y no poder.
 
 `test-scenarios.md` queda reescrito en consecuencia.
+
+### Revisión 4 — 2026-08-13 · la guarda de fork se retira
+
+**Qué cambia.** El paso de CI que ejecuta el espejo llevaba
+`if: github.event.pull_request.head.repo.fork != true`. Se quita.
+
+**Motivo.** Pregunta humana del 2026-08-13: «¿cuándo se hizo un fork?». Comprobado:
+**cero forks**, y el único PR de la historia de este repositorio salió de una rama propia. La
+guarda protegía un caso que aquí no ha ocurrido nunca y que no se puede probar desde aquí —
+yo mismo lo había declarado en el self-review como «no verificado».
+
+El marco ya resolvió esto en la 5.2.1, descartando enviar un `.claude/settings.json` con
+reglas `deny`: «no se puede verificar desde aquí que bloqueen de verdad, y un control de
+seguridad sin probar es el verde por omisión que este marco existe para cazar». La guarda era
+lo mismo, en CI.
+
+Cuando aparezca el primer PR desde un fork habrá un caso real contra el que escribir — que es
+exactamente como se trata el adaptador de Azure: se escribe contra un caso, no contra ninguno.
+
+`AC-05` no cambia: el reparto entre bloquear y declarar sigue vivo en `tracker` (código `3`) y
+en `cauce verify`, y **eso sí está probado** por cuatro casos del arnés.
+
+### Revisión 5 — 2026-08-13 · el recorrido de reanclaje, rehecho
+
+**Qué cambia.** `FDGE-R52`, ya funcionando sobre el issue, denunció que `PT-001` y `PT-004`
+tenían el reanclaje **consolidado**: comentarios que cubrían varias transiciones de golpe en
+vez de una nota por transición.
+
+**Decisión humana** del 2026-08-13, entre tres opciones presentadas —firmar una excepción,
+rehacer el recorrido, o revisar la regla—: **rehacer el recorrido**.
+
+Se escribió una nota por transición en los issues #3 y #6, con lo que ocurrió realmente en
+cada una, y **cada una declara que se escribe retroactivamente**. La fecha no se disimula: el
+registro dice lo que pasó, incluido que se reanclaba mal y se corrigió.
+
+Se descartó revisar la regla para que una nota de rango contara por varias transiciones: es la
+forma más fácil de ablandar una regla justo cuando molesta, y la regla tenía razón.
+
+Resultado: `verify-fdge --all` **sin errores**, y `G4` de `PT-004` desbloqueada.
