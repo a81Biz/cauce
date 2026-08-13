@@ -1,12 +1,18 @@
 # El marco se gobierna con sus propias reglas.
 #
 # Hasta la 4.13.0, cauce exigía verificación mecánica a todos los proyectos y no la tenía él:
-# sus 130 casos, su auditoría de cobertura y su comprobación de núcleo se corrían a mano. Una
-# comprobación que alguien tiene que acordarse de correr es la que no se corre — es la misma
+# su batería de casos, su auditoría de cobertura y su comprobación de núcleo se corrían a mano.
+# Una comprobación que alguien tiene que acordarse de correr es la que no se corre — es la misma
 # clase de fallo que el marco documenta en otros sitios, aplicada a sí mismo.
 #
-# Las cuatro bloquean. No hay aquí ninguna comprobación «informativa»: si el marco no puede
+# Todas bloquean. No hay aquí ninguna comprobación «informativa»: si el marco no puede
 # certificarse a sí mismo, no se publica.
+#
+# Foundation `N6` y `N7` (00-Baseline §Divergencias D9 y D10) añadieron las dos últimas. Faltaban
+# las dos que este repositorio exige a sus proyectos destino y no se aplicaba a sí mismo:
+#   · la revisión de secretos, que `FND-R29` declara bloqueante y aquí no corría en ningún sitio;
+#   · `verify-fdge` sobre los artefactos PROPIOS. Corría contra los fixtures del selftest, que
+#     prueban que el verificador detecta defectos — no que este repositorio no los tenga.
 
 name: verificación
 
@@ -41,3 +47,16 @@ jobs:
 
       - name: Batería de casos
         run: npm run selftest
+
+      # `FND-R29` · nada se publica sin revisar secretos, y la revisión bloquea. Un secreto en
+      # la historia sigue ahí después de borrarlo del archivo, así que también se recorre la
+      # historia. Los falsos positivos se firman en SECRETOS-EXCEPCIONES.md: firmar no silencia
+      # —siguen apareciendo con quién los firmó— pero deja de bloquear.
+      - name: Ningún secreto sin firmar
+        run: node docs/methodology/tools/revisar-secretos.mjs . --historial
+
+      # `FDGE-R34` · verify-fdge sin errores es precondición de G4. Sobre los artefactos de este
+      # repositorio, no sobre los fixtures: desde que cauce se autoaloja, su propio merge a main
+      # necesita la misma comprobación que exige a los demás.
+      - name: Cumplimiento de los artefactos propios
+        run: node docs/methodology/tools/verify-fdge.mjs --all
