@@ -1,0 +1,14 @@
+{
+  "pt": "PT-001",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01","TS-03"], "tests": ["selftest.sh:viva sin issue ⇒ divergencia","selftest.sh:issue muerto ⇒ divergencia"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02"], "tests": ["selftest.sh:issue huérfano ⇒ divergencia"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-01","TS-02"], "tests": ["package.json:verify:espejo","verificacion.yml:El espejo con la plataforma cuadra"], "evidence": ["salidas/espejo-real.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-11"], "tests": ["selftest.sh:sin plataforma ⇒ G4 libre del espejo"], "evidence": ["salidas/g4-pt004-despues.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-07"], "tests": ["selftest.sh:declarada y sin acceso ⇒ 3","selftest.sh:sin acceso dice cómo entrar"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["TS-06","TS-11"], "tests": ["selftest.sh:sin plataforma ⇒ código 2","selftest.sh:sin plataforma ⇒ exige bitácora"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-07", "scenarios": ["TS-08","TS-09"], "tests": ["selftest.sh:sin plataforma ⇒ exige bitácora","selftest.sh:sin plataforma ⇒ bitácora al día"], "evidence": ["salidas/notas-pt004.txt","salidas/g4-pt004-despues.txt"], "verified": true },
+    { "ac": "AC-08", "scenarios": ["TS-13"], "tests": ["selftest.sh:etiquetas que faltan"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 202, "failed": 0, "coverage": 202, "baseline": 188 }
+}

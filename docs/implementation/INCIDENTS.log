@@ -1,0 +1,8 @@
+# INCIDENTS — un registro por `INC-NNN`
+
+Append-only (`SUITE-R09`). Un incidente se abre cuando un PT integrado se revierte
+(`PHASE 10`) o cuando se abre un carril `HOTFIX` (`FDGE-R22`).
+
+Vacío: ningún incidente abierto ni cerrado.
+
+---

@@ -12,9 +12,19 @@ set -u
 SUITE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="${1:-$(mktemp -d)}/mth-selftest"
 FAILED=0
+# La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`), también aquí: el fixture la tenía
+# escrita a mano y era una copia más del número —la misma avería que este arnés existe para
+# cazar, dentro del arnés—. Con la constante fijada en `verify-fdge` nadie lo notaba, porque
+# las dos copias estaban equivocadas en la misma dirección.
+VIGENTE="$(grep -m1 -oE '^## [0-9]+\.[0-9]+\.[0-9]+' "$SUITE/CHANGELOG.md" | cut -d' ' -f2)"
 
-pass() { printf "  \033[32m✓\033[0m %s\n" "$1"; }
-bad()  { printf "  \033[31m✗\033[0m %s\n" "$1"; FAILED=1; }
+# Cuántos casos hay se CUENTA, no se escribe. Estaba escrito a mano en dos sitios —«105 casos»
+# en el README y «130 casos» en el workflow— y ninguna de las dos cifras era la real: el mismo
+# hecho copiado divergiendo, que es lo que este repositorio existe para eliminar. Ahora la única
+# fuente es la ejecución.
+TOTAL=0
+pass() { TOTAL=$((TOTAL + 1)); printf "  \033[32m✓\033[0m %s\n" "$1"; }
+bad()  { TOTAL=$((TOTAL + 1)); printf "  \033[31m✗\033[0m %s\n" "$1"; FAILED=1; }
 # Una herramienta que REVIENTA no imprime el patron que se le busca, asi que chkno la daba
 # por buena: el arnes certificaba un verificador roto. Se rompio verify-qa a proposito y dos
 # casos siguieron en verde. Ahora un rastro de excepcion invalida el caso, pase lo que pase.
@@ -42,7 +52,10 @@ build_fixture() {
   printf '# Conventions\n\nRULE-01 a\nRULE-02 b\nRULE-03 c\n' > docs/enterprise-documentation/11-Conventions.md
   echo '{}' > graphify-out/graph.json
   cp "$SUITE"/tools/*.mjs docs/methodology/tools/
-  cp "$SUITE"/CORE.md "$SUITE"/CORE-PTSA.md "$SUITE"/PHASES.md "$SUITE"/RULES.md "$SUITE"/LEXICON.md "$SUITE"/EXECUTION-MODES.md docs/methodology/ 2>/dev/null || true
+  # El CHANGELOG viaja con la suite instalada (`SUITE-R37`) y es de donde las herramientas leen
+  # la versión vigente (`SUITE-R40`). Sin él en el fixture, la compuerta de migración quedaba
+  # sin evaluar y el caso «versión desalineada ⇒ restringido» pasaba por no comprobar nada.
+  cp "$SUITE"/CORE.md "$SUITE"/CORE-PTSA.md "$SUITE"/PHASES.md "$SUITE"/RULES.md "$SUITE"/LEXICON.md "$SUITE"/EXECUTION-MODES.md "$SUITE"/CHANGELOG.md docs/methodology/ 2>/dev/null || true
   mkdir -p docs/methodology/PTSA && cp "$SUITE"/PTSA/PTSA-V3-Especificacion-Oficial.md docs/methodology/PTSA/ 2>/dev/null || true
 
   cat > docs/implementation/REGISTRY.json <<'J'
@@ -56,6 +69,10 @@ build_fixture() {
     {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.2.0"}
   ] }
 J
+  # Solo la PRIMERA aparición: la del proyecto. Las de cada allocation se dejan como están —
+  # un PT abierto bajo una versión la conserva hasta cerrar (`SUITE-R18`), y el fixture debe
+  # poder representar eso.
+  perl -0pi -e "s/\"suite_version\":\"[\d.]+\"/\"suite_version\":\"$VIGENTE\"/" docs/implementation/REGISTRY.json
 
   intake() { # $1 dir · $2 id · $3 type · $4 sev · $5 track · $6 complexity
     mkdir -p "changes/$1"
@@ -208,6 +225,11 @@ build_fixture; rm -f "$WORK/docs/enterprise-documentation/11-Conventions.md"
 chk "Foundation sin archivo del núcleo" "FND-R08"           V PT-001
 build_fixture; reg_set "r.suite_version='4.2.0'"
 chk "versión desalineada ⇒ restringido" "SUITE-R17"         V PT-001
+# La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`). Sin él no hay contra qué comparar,
+# y lo que no puede comprobarse se declara: inventar un número —que es lo que hacía la constante
+# fijada— convierte la compuerta en una que dice «todo bien» sobre nada.
+build_fixture; reg_set "r.suite_version='4.2.0'"; rm -f "$WORK/docs/methodology/CHANGELOG.md"
+chk "sin CHANGELOG ⇒ no evaluable"      "SUITE-R40"         V PT-001
 build_fixture; reg_set "delete r.allocations[0].suite_version"
 chk "allocation sin sello de versión"   "SUITE-R18"         V PT-001
 
@@ -938,8 +960,80 @@ reg_set "r.tracker={plataforma:'azure'}"
 chkno "azure declara el contrato, no miente"  "Sin divergencias"  TR espejo
 
 # El contrato tiene que viajar en el paquete, no en la cabeza de nadie.
-chk   "el contrato está en PHASES"            "milestone"       cat "$SUITE/PHASES.md"
+# El caso pedia «milestone» en PHASES. Se sustituye, no se relaja: afirmaba un contrato que
+# RULES.md nunca tuvo, y PT-006 lo retiro. Un aserto que exige el defecto lo perpetua.
+chk   "el contrato está en PHASES"            "pull request"    cat "$SUITE/PHASES.md"
+chk   "y cita la regla que lo manda"          "SUITE-R42"       cat "$SUITE/PHASES.md"
 chk   "el issue no copia el intake"           "no lo copia"     cat "$SUITE/tools/tracker.mjs"
+
+# PT-001 · la LÓGICA del espejo se prueba sin plataforma.
+#
+# El plan original usaba un `gh` de mentira en el PATH. No funciona: en Windows node resuelve
+# el gh.exe real, y ningun caso de este arnes puede exigir gh AUTENTICADO porque el arnes corre
+# en CI, donde un PR desde un fork no recibe credenciales — seria el rojo permanente que
+# SUITE-R35 existe para evitar. Por eso el adaptador (habla gh) se separa de la comparacion
+# (funcion pura), y aqui se prueba la segunda. La conversacion real con GitHub se verifica por
+# ejecucion contra el repositorio y queda en evidence/, declarado en test-scenarios.md.
+trlib() { # $1 nombre · $2 patron esperado · $3 cuerpo JS que recibe el modulo como `m`
+  # La ruta va por ENTORNO, no como argumento: pasarla en argv[1] es exactamente lo que el
+  # guard de tracker entiende por «me estan ejecutando directamente», y el arnes se enganaba
+  # solo — importaba el modulo y ejecutaba la herramienta.
+  local out
+  out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else bad "$1  (no apareció: $2 · salió: $out)"; fi
+}
+
+V1='{id:"PT-100",status:"IN_PROGRESS"}'
+V2='{id:"PT-101",status:"DRAFT",issue:7}'
+I7='{number:7,title:"PT-101 x"}'
+I9='{number:9,title:"suelto"}'
+
+trlib "viva sin issue ⇒ divergencia"   "PT-100" \
+  "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
+trlib "issue huérfano ⇒ divergencia"   "#9" \
+  "console.log(JSON.stringify(m.compararEspejo([],[$I9])))"
+trlib "issue muerto ⇒ divergencia"     "PT-101" \
+  "console.log(JSON.stringify(m.compararEspejo([$V2],[])))"
+trlib "espejo exacto ⇒ sin divergencia" "SIN_DIVERGENCIAS" \
+  "console.log(m.compararEspejo([$V2],[$I7]).length?\"HAY\":\"SIN_DIVERGENCIAS\")"
+trlib "lo cerrado no se espeja"        "SIN_DIVERGENCIAS" \
+  "console.log(m.compararEspejo(m.vivasDe([{id:\"PT-102\",status:\"INTEGRATED\"}]),[]).length?\"HAY\":\"SIN_DIVERGENCIAS\")"
+trlib "etiquetas que faltan"           "tarea" \
+  "console.log(JSON.stringify(m.etiquetasQueFaltan([\"bug\"])))"
+
+# El contrato de salida: 2 y 3 son decisiones OPUESTAS y estaban fundidas en 2.
+# 2 = el proyecto eligio no declarar plataforma. 3 = la declaro y no hay acceso (FND-R30).
+#
+# La sonda de acceso se INYECTA en vez de manipular el PATH: quitar `gh` del PATH de forma
+# portable entre Windows y Ubuntu no es fiable —se probo y node siguio resolviendo el gh real—
+# y ademas dejaria a node fuera del PATH. Inyectarla prueba exactamente la misma decision.
+trlib "sin plataforma ⇒ código 2"      "^2$" \
+  "console.log(m.decidirSalida({}, ()=>true).codigo)"
+trlib "plataforma desconocida ⇒ 2"     "^2$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"inventada\"}}, ()=>true).codigo)"
+trlib "declarada y sin acceso ⇒ 3"     "^3$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>false).codigo)"
+trlib "sin acceso dice cómo entrar"    "gh auth login" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>false).mensaje)"
+trlib "declarada y con acceso ⇒ 0"     "^0$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>true).codigo)"
+
+# FDGE-R52 · sin plataforma declarada, el reanclaje sigue siendo bitacora.md. Es la garantía
+# para todo proyecto que no espeja: este PT no puede cambiarle el comportamiento a nadie.
+build_fixture
+printf 'Termina cuando: algo observable\n' >> "$WORK/changes/PT-001-login/intake.md"
+reg_set "r.allocations.filter(x=>x.id==='PT-001').forEach(x=>{x.phase=4})"
+rm -f "$WORK/changes/PT-001-login/bitacora.md"
+chk   "sin plataforma ⇒ exige bitácora"      "✗ FDGE-R52"  V PT-001
+printf '2026-08-12 · PHASE 1 → 2\ncierro: a\n\n2026-08-12 · PHASE 2 → 3\ncierro: b\n\n2026-08-12 · PHASE 3 → 4\ncierro: c\n' > "$WORK/changes/PT-001-login/bitacora.md"
+chk   "sin plataforma ⇒ bitácora al día"     "✓ FDGE-R52"  V PT-001
+
+# Sin plataforma, G4 no se bloquea por el espejo: la garantía de los proyectos que no espejan.
+# Si este caso se pone rojo, el cambio ha alcanzado a proyectos que no debia tocar.
+build_fixture
+chkno "sin plataforma ⇒ G4 libre del espejo" "SUITE-R35"  V --gate G4 PT-001
 
 # ─── Q · la compuerta de secretos ────────────────────────────────────────────
 echo "── Q · secretos ──"
@@ -973,6 +1067,137 @@ git -C "$WORK" add -A >/dev/null 2>&1
 git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "lo saco del archivo" >/dev/null 2>&1
 chk   "árbol limpio tras sacarlo"             "Sin hallazgos"   SEC "$WORK"
 chk   "pero la historia lo conserva"          "contraseña en texto plano"  SEC "$WORK" --historial
+
+# PT-005 · la firma de una excepcion no puede depender de la profundidad del clon, y un clon
+# superficial no puede darse por historia revisada.
+#
+# Se vio abriendo el PR de G4: CI fallo con 7 hallazgos que en local no existian. La huella
+# incluia el hash del commit, y `actions/checkout` clona con fetch-depth 1 — en un pull_request
+# ese unico commit es el merge SINTETICO de GitHub, distinto en cada PR. Ninguna firma encajaba.
+# Y el fallo simetrico es peor: con un commit visible la herramienta decia haber revisado la
+# historia. Un arbol limpio habria salido verde sin mirar.
+SEC() { node "$SUITE/tools/revisar-secretos.mjs" "$@"; }
+repo_con_secreto() {   # $1 destino · $2 marca que hace DISTINTO el hash del commit
+  # git es determinista: mismo contenido, mensaje, autor y segundo ⇒ MISMO hash. Dos repos
+  # creados a la vez daban commits identicos, y el caso inverso pasaba sin probar nada — lo dijo
+  # el propio caso. La marca cambia el MENSAJE; el contenido tiene que seguir siendo identico,
+  # porque es lo que la huella debe reconocer como el mismo secreto.
+  rm -rf "$1"; mkdir -p "$1/src"; ( cd "$1"
+    git init -q . && git config user.email t@t && git config user.name T
+    printf 'const p = { password: "Zanahoria99Fija" };\n' > src/a.js
+    git add -A && git commit -qm "uno-${2:-a}"
+    printf 'const p = { password: process.env.P };\n' > src/a.js
+    git add -A && git commit -qm "dos-${2:-a}" ) >/dev/null 2>&1
+}
+
+repo_con_secreto "$WORK/histrepo" alfa
+chk   "el secreto de la historia se caza"    "1 hallazgo"   SEC "$WORK/histrepo" --historial
+
+# EL MISMO secreto en dos repositorios distintos tiene commits distintos. Si la huella depende
+# del hash, cada uno produce una firma diferente y la excepcion firmada en uno no sirve en el
+# otro — que es exactamente lo que pasa en CI, donde el commit es el merge sintetico de GitHub.
+repo_con_secreto "$WORK/histrepo2" beta
+H1="$(SEC "$WORK/histrepo"  --historial 2>&1 | grep -oE '[0-9a-f]{12}  historia' | head -1 | cut -d' ' -f1)"
+H2="$(SEC "$WORK/histrepo2" --historial 2>&1 | grep -oE '[0-9a-f]{12}  historia' | head -1 | cut -d' ' -f1)"
+C1="$(cd "$WORK/histrepo" && git rev-parse --short=8 HEAD~1)"
+C2="$(cd "$WORK/histrepo2" && git rev-parse --short=8 HEAD~1)"
+chk   "los commits del fixture SÍ difieren"  "^DISTINTOS$"  bash -c "[ '$C1' != '$C2' ] && echo DISTINTOS || echo IGUALES"
+chk   "la huella no depende del commit"      "^IGUAL$"      bash -c "[ -n '$H1' ] && [ '$H1' = '$H2' ] && echo IGUAL || echo DISTINTA:'$H1'/'$H2'"
+
+# Y una firma hecha en un repositorio exime en el otro: es la misma huella, el mismo secreto.
+mkdir -p "$WORK/histrepo2/docs/implementation"
+printf '| Huella | Firmada por | Fecha | Motivo |\n|:--|:--|:--|:--|\n| %s | Ada Lovelace | 2026-08-13 | fixture |\n' "$H1" \
+  > "$WORK/histrepo2/docs/implementation/SECRETOS-EXCEPCIONES.md"
+chkno "firmada allí ⇒ exime aquí"            "hallazgo(s). Publicar"  SEC "$WORK/histrepo2" --historial
+
+# Clon superficial: la historia NO se da por revisada.
+rm -rf "$WORK/superficial"
+git clone -q --depth 1 "file://$WORK/histrepo" "$WORK/superficial" >/dev/null 2>&1
+chk   "clon superficial ⇒ SIN EVALUAR"       "SIN EVALUAR"   SEC "$WORK/superficial" --historial
+chk   "y dice cómo arreglarlo"               "fetch-depth"   SEC "$WORK/superficial" --historial
+chkno "no dice que revisó la historia"       "+ historia ("  SEC "$WORK/superficial" --historial
+
+# CI tiene que clonar la historia entera, o el paso de secretos miraria un solo commit.
+chk   "CI clona la historia entera"          "fetch-depth: 0"  cat "$SUITE/../../.github/workflows/verificacion.yml"
+
+# PT-006 · el contrato de la plataforma vuelve a su regla.
+#
+# PHASES.md declaraba tres mapeos bajo el encabezado [SUITE-R35], y RULES.md no contiene ni
+# «milestone» ni «pull request». Un documento de procedimiento enunciaba obligaciones que su
+# regla no tiene, y LEX-R21 lo pone por debajo. El milestone se borra —cero en toda la
+# historia, y daria a un EP dos representaciones del mismo hecho—; el pull request sube a
+# RULES como SUITE-R42, condicionada a que el proyecto declare plataforma.
+chkno "PHASES ya no declara milestone"      "milestone"    cat "$SUITE/PHASES.md"
+chk   "SUITE-R42 existe en RULES"           "SUITE-R42"    cat "$SUITE/RULES.md"
+chk   "SUITE-R42 llega al núcleo"           "SUITE-R42"    cat "$SUITE/CORE.md"
+
+# La comprobacion tiene que poder fallar, y distinguir «no aplica» de «no pude mirar».
+trlib "sin plataforma ⇒ pr no aplica"       "^2$" \
+  "console.log(m.decidirSalida({}, ()=>true).codigo)"
+trlib "plataforma sin acceso ⇒ pr da 3"     "^3$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>false).codigo)"
+
+# Sin plataforma declarada, G4 no gana ninguna exigencia. Es la garantia de todo proyecto que
+# no espeja: sin este caso, la regla nueva romperia a todos los destinos ya instalados.
+build_fixture
+chkno "sin plataforma ⇒ G4 libre de R42"    "SUITE-R42"    V --gate G4 PT-001
+
+# Negativo a proposito: lo unico que hace creible que G4 siga siendo humana es que el codigo
+# NO pueda fusionar. Si algun dia aparece, este caso se pone rojo.
+chkno "tracker no puede fusionar"           "pr merge"     cat "$SUITE/tools/tracker.mjs"
+
+# PT-007 · el issue lleva la FASE y la COMPUERTA, derivadas del registro.
+#
+# El tablero decia «que existe» y nada mas: para saber que va cuando habia que abrir
+# REGISTRY.json. Lo demostro EP-001 al reabrirse — quien mirara GitHub veia cinco issues
+# abiertos sin saber que cuatro estaban terminados y uno esperaba una compuerta humana.
+#
+# La compuerta NO se almacena: se deriva de la fase con el mapa de CORE.md §Fases. Un campo que
+# alguien tiene que actualizar es un hecho copiado (RULE-01).
+trlib "la etiqueta lleva la fase"        "fase: 4" \
+  "console.log(JSON.stringify(m.etiquetasDe({id:\"PT-1\",phase:4,status:\"READY\"})))"
+trlib "y la compuerta que espera"        "G2" \
+  "console.log(JSON.stringify(m.etiquetasDe({id:\"PT-1\",phase:4,status:\"READY\"})))"
+trlib "PHASE 5 no espera compuerta"      "^SIN_COMPUERTA$" \
+  "console.log(m.etiquetasDe({id:\"PT-1\",phase:5,status:\"IN_PROGRESS\"}).some(function(e){return /^G[1-4]$/.test(e)})?\"HAY\":\"SIN_COMPUERTA\")"
+trlib "sin fase declarada no revienta"   "^SIN_FASE$" \
+  "console.log(m.etiquetasDe({id:\"PT-1\",status:\"READY\"}).some(function(e){return e.indexOf(\"fase\")===0})?\"HAY\":\"SIN_FASE\")"
+
+# El espejo comprueba tambien las etiquetas: publicar el estado sin comprobarlo es escribir en
+# dos sitios y esperar que no se separen.
+trlib "etiqueta que no cuadra ⇒ divergencia" "fase" \
+  "console.log(JSON.stringify(m.compararEspejo([{id:\"PT-1\",status:\"READY\",issue:7,phase:4}],[{number:7,title:\"x\",labels:[{name:\"fase: 2\"},{name:\"G2\"}]}])))"
+trlib "etiquetas correctas ⇒ sin divergencia" "^SIN_DIVERGENCIAS$" \
+  "console.log(m.compararEspejo([{id:\"PT-1\",status:\"READY\",issue:7,phase:4}],[{number:7,title:\"x\",labels:[{name:\"fase: 4\"},{name:\"G2\"}]}]).length?\"HAY\":\"SIN_DIVERGENCIAS\")"
+
+# Sin plataforma declarada, nada de esto se exige. Garantia de los destinos ya instalados.
+build_fixture
+chk   "estado funciona sin plataforma"   "PT-00"   TR estado
+
+# PT-008 · lo que una persona escribe en la plataforma se lee.
+#
+# Durante la sesion que abrio EP-002 el agente escribio en los issues y NO releyo ninguno:
+# `gh issue view --json comments` existia y solo se usaba para contar reanclajes. Un comentario
+# humano podia quedar sin leer indefinidamente y nada lo senalaba.
+#
+# NO se distingue por autor: se midio y es imposible. El agente comenta con la credencial de la
+# persona, asi que los dos comentarios llevan el mismo login. Se distingue por MARCA de
+# procedencia, que es falsificable — y eso se declara, como SUITE-R27 declara que prueba una firma.
+M='<!-- cauce:agente -->'
+trlib "humano tras el agente ⇒ pendiente"   "^PENDIENTE$" \
+  "console.log(m.comentarioSinResponder([\"nota $M\",\"oye\"])===true?\"PENDIENTE\":\"NO\")"
+trlib "respondido ⇒ ya no pendiente"        "^LIMPIO$" \
+  "console.log(m.comentarioSinResponder([\"nota $M\",\"oye\",\"te leo $M\"])===false?\"LIMPIO\":\"NO\")"
+trlib "los del agente no cuentan"           "^LIMPIO$" \
+  "console.log(m.comentarioSinResponder([\"a $M\",\"b $M\"])===false?\"LIMPIO\":\"NO\")"
+trlib "sin comentarios no revienta"         "^LIMPIO$" \
+  "console.log(m.comentarioSinResponder([])===false?\"LIMPIO\":\"NO\")"
+trlib "sin ninguna marca ⇒ no evaluable"    "^NO_EVALUABLE$" \
+  "console.log(m.comentarioSinResponder([\"uno\",\"dos\"])===null?\"NO_EVALUABLE\":\"NO\")"
+chk   "SUITE-R43 existe en RULES"           "SUITE-R43"   cat "$SUITE/RULES.md"
+
+build_fixture
+chkno "sin plataforma ⇒ G4 libre de R43"    "SUITE-R43"   V --gate G4 PT-001
 
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"
@@ -1009,6 +1234,45 @@ cierro: c
 chk   "bitácora al día ⇒ pasa"               "✓ FDGE-R52"  V PT-001
 perl -0pi -e 's/2026-08-12 · PHASE 3 → 4.*//s' "$WORK/changes/PT-001-login/bitacora.md"
 chk   "bitácora atrasada ⇒ falla"            "✗ FDGE-R52"  V PT-001
+
+# PT-004 · un artefacto se exige DESDE la fase que lo produce, no antes.
+#
+# Sin esto, abrir un PT correctamente ponía CI en rojo: `verify-fdge --all` exigía
+# `traceability.md` (PHASE 4) y `discovery.md` (PHASE 2) a un PT recién salido de PHASE 1. La
+# fase ya se calculaba en checkPT y solo la consumía FDGE-R52. Una compuerta que se pone roja
+# sobre comportamiento correcto enseña a saltársela.
+#
+# Los cuatro primeros casos van en pares: uno comprueba que dejó de fallar donde no tocaba, y
+# el siguiente que SIGUE fallando donde sí. Sin el inverso, apagar la comprobación entera
+# pasaría los dos primeros.
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-004').forEach(x=>{x.phase=1})"
+rm -f "$WORK/changes/PT-004-pdf/traceability.md"
+chkno "PHASE 1 sin traceability ⇒ no falla"  "✗ FDGE-R15"  V PT-004
+chk   "PHASE 1 sin traceability ⇒ se avisa"  "! FDGE-R15"  V PT-004
+build_fixture
+rm -f "$WORK/changes/PT-004-pdf/traceability.md"
+chk   "PHASE 4 sin traceability ⇒ falla"     "✗ FDGE-R15"  V PT-004
+
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-002').forEach(x=>{x.phase=1})"
+rm -f "$WORK/changes/PT-002-pool/discovery.md"
+chkno "PHASE 1 sin discovery ⇒ no falla"     "✗ FDGE-R42"  V PT-002
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-002').forEach(x=>{x.phase=2})"
+rm -f "$WORK/changes/PT-002-pool/discovery.md"
+chk   "PHASE 2 sin discovery ⇒ falla"        "✗ FDGE-R42"  V PT-002
+
+# RULE-06 · lo que no se puede comprobar se DECLARA no evaluable. Un PT sin fase en ninguna
+# de las dos fuentes no incumple: es un PT sobre el que no se puede afirmar nada. Ni bloquea
+# ni pasa en silencio — y el aviso dice dónde escribir el campo (RULE-07).
+build_fixture
+reg_set "r.allocations.filter(x=>x.id==='PT-004').forEach(x=>{delete x.phase})"
+perl -0pi -e 's/^phase:.*\n//m' "$WORK/changes/PT-004-pdf/intake.md"
+rm -f "$WORK/changes/PT-004-pdf/traceability.md"
+chkno "sin fase declarada ⇒ no bloquea"      "✗ FDGE-R15"  V PT-004
+chk   "sin fase declarada ⇒ SIN EVALUAR"     "SIN EVALUAR" V PT-004
+chk   "el aviso dice dónde declararla"       "phase"       V PT-004
 
 # La portada del paquete no puede declarar una versión fósil.
 chkno "el README no fija una versión"        "Versión 4."  cat "$SUITE/../../README.md"
@@ -1085,8 +1349,52 @@ chk   "CORE.md sincronizado"     "sincronizado" node "$SUITE/tools/build-core.mj
 chk   "CORE-PTSA.md sincronizado" "CORE-PTSA.md sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
 chk   "cobertura sin huecos"     "sin huecos"   node "$SUITE/tools/audit.mjs" "$SUITE"
 
+# PT-002 · la cobertura mecanica se mide POR REGLA y se publica con su denominador.
+#
+# audit medía por COMPONENTE —hueco solo si un componente tenía CERO reglas verificadas— e
+# informaba «Cobertura completa: sin huecos» con 63 reglas HARD sin ningún script. No mentía
+# sobre lo que medía: mentía sobre lo que el lector entiende que ha medido. Y no vio ninguno de
+# los dos defectos de este mismo lote.
+#
+# Los casos comprueban FORMA y RANGOS, nunca el valor exacto: fijar «85» obligaría a
+# actualizarlo cada vez que se escriba una regla — un hecho copiado mas (RULE-01), dentro de la
+# bateria que existe para cazar hechos copiados.
+A() { node "$SUITE/tools/audit.mjs" "$@"; }
+
+# El denominador se comprueba por FORMA, no por valor: la primera version puso «/ 167» y se
+# rompio en cuanto SUITE-R42 hizo 168 reglas — el hecho copiado, dentro del caso que existe
+# para cazar hechos copiados. RULE-01 aplicada al arnes.
+chk   "la cobertura lleva denominador"    "[0-9] / [0-9]"  A "$SUITE"
+chk   "declara las ejecutadas"            "ejecutadas"   A "$SUITE"
+chk   "declara las que nadie ejecuta"     "sin compuerta" A "$SUITE"
+chk   "declara las que nadie verifica"    "sin verificador" A "$SUITE"
+chkno "ya no dice cobertura completa"     "Cobertura completa" A "$SUITE"
+# Se comprueba la FORMA de la enumeracion, no que aparezca una regla concreta: fijar un ID
+# obligaria a actualizar el caso cada vez que esa regla gane o pierda verificador — un hecho
+# copiado mas (RULE-01), dentro de la bateria que existe para cazarlos.
+chk   "enumera las que nadie verifica"    "SUITE-R"      A "$SUITE" --sin-verificar
+chk   "enumera las que nadie ejecuta"     "FND-R"        A "$SUITE" --sin-compuerta
+
+# El caso que distingue DERIVADO de INVENTADO: si el conjunto de compuertas se contara como
+# vacio o como todo, los casos de arriba pasarian igual. Aqui se exige que la cifra este
+# ESTRICTAMENTE entre 0 y el total.
+cat > "$WORK/derivada.mjs" <<'MJS'
+import { execFileSync } from 'node:child_process';
+const o = execFileSync(process.execPath, [process.env.MTH_AUDIT, process.env.MTH_SUITE], { encoding: 'utf8' });
+const m = o.match(/ejecutadas por una compuerta\s+(\d+)\s*\/\s*(\d+)/);
+console.log(m && +m[1] > 0 && +m[1] < +m[2] ? 'DERIVADA' : `NO_DERIVADA ${m ? m[0] : 'sin cifra'}`);
+MJS
+chk   "las ejecutadas ni 0 ni el total"   "DERIVADA" \
+  env MTH_AUDIT="$SUITE/tools/audit.mjs" MTH_SUITE="$SUITE" node "$WORK/derivada.mjs"
+
+# RULE-06 · sin poder leer quien invoca las herramientas, la cifra no se inventa: se declara.
+# Ni 0 (mentiria a la baja) ni el total (a la alta).
+rm -rf "$WORK/solo-suite"; mkdir -p "$WORK/solo-suite/docs"
+cp -r "$SUITE" "$WORK/solo-suite/docs/methodology"
+chk   "sin saber quién ejecuta ⇒ SIN EVALUAR" "SIN EVALUAR"  A "$WORK/solo-suite/docs/methodology"
+
 echo
-[ "$FAILED" -eq 0 ] && echo "selftest: OK" || echo "selftest: HAY FALLOS"
+[ "$FAILED" -eq 0 ] && echo "selftest: OK · $TOTAL casos" || echo "selftest: HAY FALLOS · $TOTAL casos"
 rm -rf "$WORK"
 exit "$FAILED"
 

@@ -1,0 +1,11 @@
+audit — cobertura de la Methodology Suite
+Base: C:\DevOps\Desarrollos\cauce\docs\methodology
+
+Cubiertos: 572  (regla:209 · regla-ptsa:80 · fase:40 · fase-diagrama:11 · compuerta:5 · trigger:25 · artefacto:32 · archivo:49 · plantilla:6 · estado:14 · tipo:5 · track:3 · severidad:4 · modo:3 · herramienta:45 · documento:34 · cobertura-mecanica:7)
+
+Cobertura mecánica de las reglas   (SUITE-R26 · aspira, no exige)
+  ejecutadas por una compuerta   90 / 167     · HARD 68 / 134
+  citadas sin compuerta que las corra   7        → --sin-compuerta las enumera
+  sin verificador                70        → --sin-verificar las enumera  (HARD 60)
+
+Auditoría sin huecos en los elementos auditados. Cobertura mecánica de reglas: 90/167.

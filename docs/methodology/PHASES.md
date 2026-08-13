@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **5.2.3**
+> Suite version: **6.0.0**
 
 ---
 
@@ -249,15 +249,20 @@ PARA G3 humana si BUG, en los tres modos. Resto: auto solo si las SIETE condicio
 
 ### La plataforma de trabajo — espejo, no fuente                     [SUITE-R35]
 ```
-CONTRATO  implementación abierta → milestone | epic work item
-          tarea                  → issue     | task work item
-          compuerta G4           → pull request         [FDGE-R33: el merge es humano]
+CONTRATO  tarea e implementación → issue | work item        [SUITE-R35: es lo que la regla dice]
+          compuerta G4           → pull request              [SUITE-R42]
           cierre de implementación → dispara [START QA] sobre lo entregado
+          NO hay mapeo para agrupar: la implementación YA tiene su issue. Un segundo
+          artefacto para el mismo hecho es la divergencia que SUITE-R35 impide.
 REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECIDIÓ.
           El issue REFERENCIA el intake, no lo copia: dos copias divergen.
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
+          node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
+          Se distingue por MARCA de procedencia, no por autor: el agente comenta
+          con la credencial de la persona. Falsificable, y declarado.
 NO        dejar que la plataforma asigne identificadores · copiar el intake al issue
           · usar MCP como único canal: la verificación corre donde no hay nadie delante
 ```

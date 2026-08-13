@@ -1,12 +1,18 @@
 # El marco se gobierna con sus propias reglas.
 #
 # Hasta la 4.13.0, cauce exigía verificación mecánica a todos los proyectos y no la tenía él:
-# sus 130 casos, su auditoría de cobertura y su comprobación de núcleo se corrían a mano. Una
-# comprobación que alguien tiene que acordarse de correr es la que no se corre — es la misma
+# su batería de casos, su auditoría de cobertura y su comprobación de núcleo se corrían a mano.
+# Una comprobación que alguien tiene que acordarse de correr es la que no se corre — es la misma
 # clase de fallo que el marco documenta en otros sitios, aplicada a sí mismo.
 #
-# Las cuatro bloquean. No hay aquí ninguna comprobación «informativa»: si el marco no puede
+# Todas bloquean. No hay aquí ninguna comprobación «informativa»: si el marco no puede
 # certificarse a sí mismo, no se publica.
+#
+# Foundation `N6` y `N7` (00-Baseline §Divergencias D9 y D10) añadieron las dos últimas. Faltaban
+# las dos que este repositorio exige a sus proyectos destino y no se aplicaba a sí mismo:
+#   · la revisión de secretos, que `FND-R29` declara bloqueante y aquí no corría en ningún sitio;
+#   · `verify-fdge` sobre los artefactos PROPIOS. Corría contra los fixtures del selftest, que
+#     prueban que el verificador detecta defectos — no que este repositorio no los tenga.
 
 name: verificación
 
@@ -20,7 +26,14 @@ jobs:
   marco:
     runs-on: ubuntu-latest
     steps:
+      # `FND-R29` · la revisión de secretos recorre la HISTORIA, y con el clon superficial que
+      # `actions/checkout` hace por defecto git solo responde por un commit. En un `pull_request`
+      # ese commit es el merge sintético de GitHub: los hallazgos se atribuían a un hash que no
+      # existe en ningún clon y ninguna excepción firmada encajaba. Con fetch-depth 0 la historia
+      # es la de verdad y las firmas vuelven a valer.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -41,3 +54,33 @@ jobs:
 
       - name: Batería de casos
         run: npm run selftest
+
+      # `FND-R29` · nada se publica sin revisar secretos, y la revisión bloquea. Un secreto en
+      # la historia sigue ahí después de borrarlo del archivo, así que también se recorre la
+      # historia. Los falsos positivos se firman en SECRETOS-EXCEPCIONES.md: firmar no silencia
+      # —siguen apareciendo con quién los firmó— pero deja de bloquear.
+      - name: Ningún secreto sin firmar
+        run: node docs/methodology/tools/revisar-secretos.mjs . --historial
+
+      # `SUITE-R35` · el registro asigna, la plataforma espeja. La regla es HARD desde la 5.0.0,
+      # tenía herramienta y ninguna compuerta la ejecutaba: se podía planificar un lote entero
+      # sin issues con las siete comprobaciones en verde. Lo encontró una persona, no un script.
+      #
+      # Este paso llevó una guarda `if:` para saltarse los PRs desde un fork, donde GitHub no
+      # entrega los secretos del repositorio. Se quitó: este repositorio tiene CERO forks y el
+      # único PR de su historia salió de una rama propia, así que era una guarda para un caso
+      # que nunca ha ocurrido y que no se puede probar desde aquí. La 5.2.1 ya rechazó enviar un
+      # control que no se puede verificar —«un control sin probar es el verde por omisión que
+      # este marco existe para cazar»— y esto era lo mismo. Cuando aparezca el primer PR desde
+      # un fork habrá un caso real contra el que escribir, que es como se trata el adaptador de
+      # Azure: se escribe contra un caso, no contra ninguno.
+      - name: El espejo con la plataforma cuadra
+        run: node docs/methodology/tools/tracker.mjs espejo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # `FDGE-R34` · verify-fdge sin errores es precondición de G4. Sobre los artefactos de este
+      # repositorio, no sobre los fixtures: desde que cauce se autoaloja, su propio merge a main
+      # necesita la misma comprobación que exige a los demás.
+      - name: Cumplimiento de los artefactos propios
+        run: node docs/methodology/tools/verify-fdge.mjs --all

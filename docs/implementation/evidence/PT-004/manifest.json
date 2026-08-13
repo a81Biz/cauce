@@ -1,0 +1,12 @@
+{
+  "pt": "PT-004",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01"], "tests": ["docs/methodology/tools/selftest.sh:PHASE 1 sin traceability ⇒ no falla"], "evidence": ["salidas/selftest-despues.txt", "salidas/verify-fdge-despues.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02"], "tests": ["docs/methodology/tools/selftest.sh:PHASE 1 sin discovery ⇒ no falla"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-03", "TS-04"], "tests": ["docs/methodology/tools/selftest.sh:PHASE 4 sin traceability ⇒ falla", "docs/methodology/tools/selftest.sh:PHASE 2 sin discovery ⇒ falla"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-05", "TS-06"], "tests": ["docs/methodology/tools/selftest.sh:el aviso dice dónde declararla"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-05"], "tests": ["docs/methodology/tools/selftest.sh:sin fase declarada ⇒ SIN EVALUAR"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["TS-07"], "tests": ["docs/methodology/tools/selftest.sh:188 casos"], "evidence": ["salidas/verify-fdge-antes.txt", "salidas/verify-fdge-despues.txt", "../PT-001/salidas/verify-fdge-final.txt"], "verified": true }
+  ],
+  "suite": { "passed": 188, "failed": 0, "coverage": 188, "baseline": 180 }
+}

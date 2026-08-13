@@ -28,12 +28,13 @@
  */
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { join, relative, sep, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe } from './patrones.mjs';
+import { selloDe, PATRONES } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -45,7 +46,22 @@ const errors = [];
 const warnings = [];
 const passed = [];
 let GRAPH = { state: 'UNKNOWN', reason: 'sin evaluar' };
-const SUITE_VERSION = '5.2.0';
+
+// La versión vigente NO se escribe aquí (`SUITE-R40`). Estuvo escrita a mano —`const
+// SUITE_VERSION = '5.2.0'`— siendo la autoridad de la compuerta de migración, y quedó tres
+// parches por detrás del CHANGELOG: un proyecto que declaraba la versión correcta entraba en
+// modo restringido por una migración que no existía, y el único modo de «arreglarlo» era
+// escribir en el registro un número falso. `verify-suite` ya tenía este mismo defecto y se
+// corrigió; esta copia sobrevivió, que es exactamente cómo se comporta el defecto que la v4
+// nació para eliminar.
+//
+// La fuente es la primera entrada del CHANGELOG que viaja con esta misma copia de la suite:
+// se resuelve desde la ubicación del script, no desde el cwd, para que dé lo mismo desde dónde
+// se invoque. Si no está, no se inventa un número: la compuerta se declara no evaluable.
+const CAMBIOS = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'CHANGELOG.md');
+const SUITE_VERSION = existsSync(CAMBIOS)
+  ? (readFileSync(CAMBIOS, 'utf8').match(PATRONES.VERSION_VIGENTE.re)?.[1] ?? null)
+  : null;
 
 const fail = (rule, msg) => errors.push({ rule, msg });
 const warn = (rule, msg) => warnings.push({ rule, msg });
@@ -130,7 +146,11 @@ function checkRegistry() {
   }
 
   // SUITE-R17 · compuerta de migración
-  if (reg.suite_version && reg.suite_version !== SUITE_VERSION) {
+  if (!SUITE_VERSION) {
+    warn('SUITE-R40', `No se pudo leer la versión vigente de ${relative(ROOT, CAMBIOS) || CAMBIOS}: `
+      + 'la compuerta de migración queda sin evaluar. Antes esto no se notaba porque el número '
+      + 'estaba escrito en el propio verificador, que es el defecto que la regla persigue.');
+  } else if (reg.suite_version && reg.suite_version !== SUITE_VERSION) {
     fail('SUITE-R17',
       `El proyecto declara suite_version ${reg.suite_version} y la vigente es ${SUITE_VERSION}. ` +
       'Modo restringido: solo migrate, status y terminar los PTs en vuelo. → node tools/migrate.mjs');
@@ -242,7 +262,7 @@ const BIN = /\.(png|jpe?g|gif|webp|pdf|zip|mp4|webm|ico|woff2?)$/i;
 // Escanea la evidencia Y el directorio de trabajo del PT. Mirar solo evidence/ dejaba fuera
 // el sitio MAS probable de una credencial: el intake, donde una persona pega el reporte de un
 // bug tal cual lo recibio, con su token dentro. Todo el directorio se commitea igual.
-function scanEvidence(pt, dirPT) {
+function scanEvidence(pt, dirPT) {
   const dirs = [join(EVIDENCE, pt), dirPT].filter((d) => d && existsSync(d));
   if (!dirs.length) return;
   const walkDir = (d, out = []) => {
@@ -662,6 +682,29 @@ const isEmptyCell = (v) => {
   return t === '' || t === '—' || t === '-' || t === '–' || /^t?bd$/i.test(t) || /^pendiente$/i.test(t);
 };
 
+// ─── SUITE-R35 · el espejo, preguntado a quien tiene el adaptador ────────────
+// PT-001 · verify-fdge NO habla con GitHub. Un segundo cliente de plataforma dentro de este
+// archivo obligaria a implementar Azure dos veces y a mantener dos clientes en sincronia: la
+// duplicacion que este repositorio existe para eliminar. Contrato de `tracker`:
+//   0 el espejo cuadra · 1 divergencia · 2 sin plataforma declarada · 3 declarada sin acceso
+function correTracker(args) {
+  const bin = join(dirname(fileURLToPath(import.meta.url)), 'tracker.mjs');
+  if (!existsSync(bin)) return { codigo: 2, salida: '' };
+  const r = spawnSync(process.execPath, [bin, ...args, ROOT], { encoding: 'utf8' });
+  // Si el proceso ni arranca, no se asume verde: eso es «nadie pudo mirar».
+  if (r.error || r.status === null) return { codigo: 3, salida: String(r.error?.message ?? '') };
+  return { codigo: r.status, salida: `${r.stdout ?? ''}${r.stderr ?? ''}` };
+}
+
+/** Notas de reanclaje del issue de un PT: número · `SIN_ACCESO` · `null` si no aplica. */
+function notasDelIssue(pt) {
+  const r = correTracker(['notas', pt]);
+  if (r.codigo === 3) return 'SIN_ACCESO';
+  if (r.codigo !== 0) return null;
+  const n = Number(String(r.salida).trim().split(/\r?\n/).pop());
+  return Number.isFinite(n) ? n : null;
+}
+
 function parseTraceability(md) {
   const rows = [];
   for (const line of md.split(/\r?\n/)) {
@@ -732,15 +775,80 @@ function checkPT(pt, { gate } = {}) {
     fail('FDGE-R53', `${pt}: el intake no declara cómo termina. Una tarea sin condición de cierre observable no tiene final: se estira hasta que nadie recuerda dónde empezó. Una línea basta — «Termina cuando: …».`);
   }
 
+  // PT-004 · La fase se DECLARA o no existe. No es lo mismo «PHASE 0» que «nadie lo escribio»:
+  // con `?? 0` los dos casos daban el mismo numero, y sobre un valor inventado la compuerta
+  // dice «todo bien» sobre nada — que es justo lo que RULE-06 prohibe. Fuentes, por precedencia:
+  // el YAML del intake manda sobre el registro, porque es lo que el PT dice de si mismo.
+  const faseDeclarada = (() => {
+    const yaml = intake.match(RE_PHASE_YAML)?.[1];
+    if (yaml !== undefined) return Number(yaml);
+    if (enRegistroPT?.phase !== undefined && enRegistroPT?.phase !== null) return Number(enRegistroPT.phase);
+    return null;              // nadie la declara: no evaluable, y se dice
+  })();
+  const fase = faseDeclarada ?? 0;
+
+  // Un artefacto se exige DESDE la fase que lo produce (CORE.md §Procedimiento por fase).
+  // Exigirlo antes ponia en rojo a todo PT recien abierto, y CI corre `verify-fdge --all`:
+  // un repositorio no podia tener trabajo en curso y la compuerta en verde a la vez. Una
+  // compuerta que se pone roja sobre comportamiento correcto ensena a saltarsela.
+  //
+  // Tres salidas, no dos (RULE-02): falta y toca -> error · falta y aun no toca -> aviso ·
+  // no se sabe en que fase esta -> SIN EVALUAR, que no es un aprobado.
+  const exigible = (regla, desde, artefacto) => {
+    if (faseDeclarada === null) {
+      warn(regla, `${pt}: no declara fase — la exigencia de ${artefacto} queda SIN EVALUAR. `
+        + 'Declara «phase: N» en el YAML de su intake.md o «phase» en su allocation de '
+        + 'REGISTRY.json. Sin fase no se puede afirmar que falte ni que sobre (RULE-06).');
+      return false;
+    }
+    if (faseDeclarada < desde) {
+      warn(regla, `${pt}: aún sin ${artefacto} — se escribe en PHASE ${desde} y el PT está en PHASE ${faseDeclarada}.`);
+      return false;
+    }
+    return true;
+  };
+
   // FDGE-R52 · el reanclaje se ESCRIBE. Una nota por transicion alcanzada, con fecha.
   // Releer no deja rastro y por eso no se podia exigir; escribir si, y ademas obliga a releer.
-  const fase = Number(intake.match(RE_PHASE_YAML)?.[1] ?? enRegistroPT?.phase ?? 0);
+  //
+  // PT-001 · CORE.md manda escribirlo «issue si hay plataforma · bitacora.md si no», y esto
+  // solo miraba bitacora.md. Cumplir el procedimiento al pie de la letra dejaba la compuerta en
+  // rojo, y ponerla verde exigia escribir el reanclaje DOS VECES — lo que SUITE-R35 prohibe.
+  // El verificador no habla con la plataforma: se lo pregunta a `tracker`, que es quien tiene
+  // el adaptador. La regla la hace cumplir quien verifica; el acceso lo encapsula quien lo tiene.
   if (rigeAqui && fase >= 2) {
+    const plataforma = REGISTRO?.tracker?.plataforma ?? null;
+    const notasPlataforma = plataforma && enRegistroPT?.issue ? notasDelIssue(pt) : null;
+    if (notasPlataforma === 'SIN_ACCESO') {
+      const m = `${pt}: hay plataforma declarada y no hay acceso desde aquí, así que el reanclaje del issue #${enRegistroPT.issue} queda SIN EVALUAR. La credencial se comprueba antes de necesitarla (FND-R30) — «gh auth login».`;
+      if (gate === 'G4') fail('FDGE-R52', m); else warn('FDGE-R52', m);
+    } else if (typeof notasPlataforma === 'number') {
+      if (notasPlataforma < fase - 1) {
+        fail('FDGE-R52', `${pt}: está en PHASE ${fase} y su issue #${enRegistroPT.issue} tiene ${notasPlataforma} nota(s) de reanclaje; faltan ${fase - 1 - notasPlataforma}. Cada transición de fase deja tres líneas —qué cierras, dónde estás, qué sigue— y con plataforma declarada van en el issue (CORE.md §El bloque ESTADO).`);
+      } else ok('FDGE-R52', `${pt}: ${notasPlataforma} nota(s) de reanclaje en el issue #${enRegistroPT.issue} para PHASE ${fase}.`);
+    } else {
     const bit = read(join(dir, 'bitacora.md'));
     const notas = bit === null ? 0 : (bit.match(RE_NOTA_BITACORA) ?? []).length;
     if (notas < fase - 1) {
       fail('FDGE-R52', `${pt}: está en PHASE ${fase} y su bitácora tiene ${notas} nota(s); faltan ${fase - 1 - notas}. Cada transición de fase deja tres líneas —qué cierras, dónde estás, qué sigue—: escribir obliga a releer, y releer no obliga a nada.`);
     } else ok('FDGE-R52', `${pt}: bitácora con ${notas} nota(s) para PHASE ${fase}.`);
+    }
+  }
+
+  // SUITE-R43 · lo que una persona escribe en la plataforma se lee. Existe porque durante la
+  // sesion que la motivo el agente escribio en nueve issues y no releyo ninguno.
+  if (REGISTRO?.tracker?.plataforma && enRegistroPT?.issue) {
+    const r = correTracker(['pendiente', pt]);
+    const cod = Number(String(r.salida).trim().split(/\r?\n/).pop());
+    if (r.codigo === 3) {
+      warn('SUITE-R43', `${pt}: sin acceso a la plataforma, los comentarios del issue #${enRegistroPT.issue} quedan SIN EVALUAR.`);
+    } else if (cod === 4) {
+      warn('SUITE-R43', `${pt}: ningún comentario del issue #${enRegistroPT.issue} lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).`);
+    } else if (cod === 1) {
+      fail('SUITE-R43', `${pt}: hay un comentario sin responder en el issue #${enRegistroPT.issue}, posterior a la última nota del agente. Lo que una persona se molestó en escribir se lee antes de avanzar de fase.`);
+    } else if (cod === 0) {
+      ok('SUITE-R43', `${pt}: sin comentarios pendientes en el issue #${enRegistroPT.issue}.`);
+    }
   }
 
   const dor = intake.match(RE_DOR)?.[1]?.toUpperCase();
@@ -770,8 +878,12 @@ function checkPT(pt, { gate } = {}) {
   // ── INVESTIGATION: exenta de trazabilidad y manifiesto (FDGE-R10) ──────────
   if (type === 'INVESTIGATION') {
     const disc = read(join(dir, 'discovery.md'));
-    if (disc === null) fail('FDGE-R42', `${pt}: falta ${rel}/discovery.md.`);
-    else if (!/^##\s*Conclusi[óo]n/im.test(disc)) {
+    // discovery.md lo produce PHASE 2 (2-B). Antes de eso su ausencia no es un defecto.
+    if (disc === null && exigible('FDGE-R42', 2, 'discovery.md')) {
+      fail('FDGE-R42', `${pt}: está en PHASE ${fase} y falta ${rel}/discovery.md, que produce PHASE 2.`);
+    } else if (disc === null) {
+      /* aviso ya emitido por exigible() */
+    } else if (!/^##\s*Conclusi[óo]n/im.test(disc)) {
       fail('FDGE-R42', `${pt}: discovery.md no tiene sección "## Conclusión". Una investigación no cierra sin ella.`);
     } else ok('FDGE-R42', `${pt}: investigación con conclusión documentada.`);
     checkHistory(pt, rel, type, { gate });
@@ -787,8 +899,12 @@ function checkPT(pt, { gate } = {}) {
 
   const trace = read(join(dir, 'traceability.md'));
   let acs = [];
-  if (trace === null) {
-    fail('FDGE-R15', `${pt}: falta ${rel}/traceability.md. Sin matriz no hay trazabilidad AC → TS → test → evidencia.`);
+  // traceability.md lo produce PHASE 4. Sus COLUMNAS ya distinguian fase (Test y Evidencia
+  // desde PHASE 6); lo que faltaba era distinguirla para la EXISTENCIA del archivo.
+  if (trace === null && exigible('FDGE-R15', 4, 'traceability.md')) {
+    fail('FDGE-R15', `${pt}: está en PHASE ${fase} y falta ${rel}/traceability.md, que produce PHASE 4. Sin matriz no hay trazabilidad AC → TS → test → evidencia.`);
+  } else if (trace === null) {
+    /* aviso ya emitido por exigible() */
   } else {
     const rows = parseTraceability(trace);
     if (!rows.length) fail('FDGE-R15', `${pt}: traceability.md no contiene ninguna fila AC-nn reconocible.`);
@@ -881,6 +997,31 @@ function checkHistory(pt, rel, type, { gate }) {
 
   if (gate !== 'G4') return;
 
+  // SUITE-R35 · el espejo es precondicion de G4. La regla es HARD desde la 5.0.0, tenia
+  // herramienta y NINGUNA compuerta la ejecutaba: se podia llegar hasta aqui sin que el trabajo
+  // existiera en la plataforma. En G4 la credencial SI es exigible (FND-R30).
+  if (REGISTRO?.tracker?.plataforma) {
+    const r = correTracker(['espejo']);
+    if (r.codigo === 1) {
+      fail('SUITE-R35', `${pt}: el espejo con ${REGISTRO.tracker.plataforma} no cuadra. Lo que está abierto tiene que poder consultarse sin leer el repositorio entero.\n${r.salida.trim().split(/\r?\n/).filter((l) => l.includes('SUITE-R35')).map((l) => `        ${l.trim()}`).join('\n')}`);
+    } else if (r.codigo === 3) {
+      fail('SUITE-R35', `${pt}: hay plataforma declarada y no hay acceso desde aquí, así que el espejo no se pudo comprobar. En G4 la credencial es exigible — «gh auth login» (FND-R30).`);
+    } else if (r.codigo === 0) {
+      ok('SUITE-R35', `${pt}: el espejo con ${REGISTRO.tracker.plataforma} cuadra.`);
+    }
+
+    // SUITE-R42 · el merge se propone donde se pueda revisar. Se comprueba que el PR EXISTA;
+    // ni se abre ni se fusiona. Sin plataforma declarada esta rama no se pisa.
+    const p = correTracker(['pr']);
+    if (p.codigo === 1) {
+      fail('SUITE-R42', `${pt}: no hay pull request abierto para esta rama. G4 se resuelve sobre un PR.\n${p.salida.trim().split(/\r?\n/).filter((l) => l.includes('SUITE-R42')).map((l) => `        ${l.trim()}`).join('\n')}`);
+    } else if (p.codigo === 3) {
+      fail('SUITE-R42', `${pt}: hay plataforma declarada y no hay acceso, así que no se pudo comprobar el pull request. En G4 la credencial es exigible (FND-R30).`);
+    } else if (p.codigo === 0) {
+      ok('SUITE-R42', `${pt}: el merge se propone sobre un pull request abierto.`);
+    }
+  }
+
   // ── FDGE-R34 · precondiciones de la compuerta G4 ──────────────────────────
   const idx = hist.indexOf(entries[0][0]);
   const next = hist.indexOf('\n## ', idx + 1);
@@ -959,7 +1100,7 @@ const all = argv.includes('--all');
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
 
-console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 5.2.0\n');
+console.log(`verify-fdge — cumplimiento mecánico de la Methodology Suite ${SUITE_VERSION ?? '(versión no determinada)'}\n`);
 
 const reg = checkRegistry();
 REGISTRO = reg;

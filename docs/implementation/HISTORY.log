@@ -1,0 +1,372 @@
+# HISTORY — un registro por PT cerrado
+
+Append-only (`SUITE-R09`). Nunca se reescribe, reordena ni compacta: corregir una entrada
+pasada se hace con una entrada nueva que la referencia.
+
+Cada registro declara, como mínimo: `PT-NNN` · tipo · severidad · resultado · `Estructural: sí|no`
+(`FDGE-R44`, lo que hace computable la frescura del grafo) y la línea `Compuertas:` con quién
+resolvió cada una (`FDGE-R26`, `SUITE-R22`).
+
+---
+
+## PT-004 — BUG: la compuerta no distingue la fase
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Commit: fb4ff48
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente
+
+Qué fallaba: `verify-fdge` exigía `traceability.md` (PHASE 4) y `discovery.md` (PHASE 2) a
+cualquier PT, incluido uno recién salido de PHASE 1. Como CI ejecuta `verify-fdge --all`,
+abrir trabajo correctamente ponía el job en rojo, y un repositorio no podía tener trabajo en
+curso y la compuerta en verde a la vez.
+
+Causa raíz: la fase se calculaba en `checkPT` (`verify-fdge.mjs:757`) y solo la consumía
+`FDGE-R52`. Las dos comprobaciones de existencia de artefactos no la consultaban.
+
+Qué se hizo: `faseDeclarada` distingue fase declarada de fase ausente —el `?? 0` fundía los
+dos casos, y sobre un valor inventado la compuerta dice «todo bien» sobre nada (`RULE-06`)—
+y una función `exigible()` da tres salidas: error si toca, aviso si aún no toca, `SIN EVALUAR`
+si nadie declaró la fase. Ninguna regla se relajó: `FDGE-R15` y `FDGE-R42` conservan su texto
+y `RULES.md` no se tocó.
+
+Resultado: `verify-fdge --all` de 4 errores a 1 · `selftest` de 180 a 188 casos, 0 fallos.
+
+Delta respecto al plan: `AC-06` queda PARCIAL. El error restante es `FDGE-R52`, que busca
+`bitacora.md` e ignora la plataforma declarada cuando `CORE.md` manda escribir el reanclaje
+en el issue. Pertenece a `PT-001` (`AC-07`). No se escribió `bitacora.md` para poner la
+compuerta en verde: duplicaría el reanclaje, que es lo que `SUITE-R35` prohíbe.
+
+Descubrimiento: el defecto apareció EJECUTANDO `PHASE 1` de las otras tareas del lote, no
+leyendo el código. Este repositorio se autoalojó el 2026-08-13 y `PT-004` es el primer PT que
+ha abierto: el verificador nunca se había ejecutado aquí contra un PT vivo.
+
+## PT-001 — BUG: el espejo entra en las compuertas
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Commit: 2ad50be · 82f877f
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente del cierre del lote
+
+Qué fallaba: `SUITE-R35` era HARD desde la 5.0.0, tenía herramienta (`tracker.mjs`) y ninguna
+compuerta la ejecutaba. Se podía abrir trabajo, avanzarlo y llegar a `G4` sin que nada
+comprobara que existía en la plataforma. Tres frentes más: `FDGE-R52` solo leía `bitacora.md`
+ignorando la plataforma que `CORE.md` manda usar; `tracker` usaba etiquetas que no creaba; y
+los códigos de salida `2` (sin plataforma) y `3` (sin acceso) estaban fundidos en uno.
+
+Causa raíz: una regla se publicó con su herramienta y sin su compuerta.
+
+Cómo se descubrió: **preguntando una persona**, no un verificador. Hasta ese momento el lote
+se había planificado entero sin issues y las siete comprobaciones pasaban en verde.
+
+Qué se hizo: `tracker` separa adaptador de lógica —la comparación es función pura y exportada,
+que es lo que permite probarla sin credenciales—, gana el código `3`, la acción `notas` y la
+preparación de sus etiquetas. `verify-fdge` no habla con GitHub: le pregunta a `tracker`.
+`npm run verify`, CI y `cauce verify` ejecutan el espejo. Ninguna regla cambió de texto.
+
+Resultado: `selftest` 188 → 202 casos, 0 fallos. Espejo real 5 = 5. `G4` de `PT-004`
+desbloqueada.
+
+Delta respecto al plan: cinco revisiones del intake, todas registradas. Dos por ampliación de
+alcance; una porque el plan de pruebas de `PHASE 4` resultó inviable —el `gh` de mentira no es
+portable y ningún caso del arnés puede exigir `gh` autenticado—; una por retirar la guarda de
+fork, que protegía un caso inexistente y no verificable; y una por rehacer el recorrido de
+reanclaje que `FDGE-R52` denunció con razón.
+
+Descubrimientos de ejecución: el arnés se engañaba a sí mismo pasando la ruta del módulo como
+`argv[1]`; `VIVOS` no contaba `DONE` ni `VALIDATION_PENDING` como vivos, y un PT que espera el
+merge es lo más abierto que hay; y `notas PT-NNN` colisionaba con el posicional de ruta.
+
+## PT-002 — BUG: la cobertura mecánica se mide por regla
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente del cierre del lote
+
+Qué fallaba: `audit` medía la cobertura mecánica POR COMPONENTE —hueco solo si un componente
+tenía cero reglas verificadas— e informaba «Cobertura completa: sin huecos» con 63 reglas HARD
+sin ningún script. No mentía sobre lo que medía: mentía sobre lo que el lector entiende que ha
+medido. No vio ninguno de los dos defectos de este mismo lote.
+
+Causa raíz: la unidad de medida es el componente y el informe habla como si fuera la regla.
+
+Qué se hizo: el conjunto de herramientas con compuerta se DERIVA de `package.json`, los
+workflows y `bin/cauce.mjs` — no se escribe (`RULE-01`). Tres estados por regla: ejecutada ·
+citada sin compuerta · sin verificador. Sin poder derivarlo, `SIN EVALUAR`: ni 0 ni el total
+(`RULE-06`). Banderas `--sin-verificar` y `--sin-compuerta` para enumerar.
+
+Resultado: 91/167 ejecutadas por una compuerta, HARD 69/134 · 7 citadas sin compuerta ·
+69 sin verificador. `selftest` 202 → 211 casos, 0 fallos.
+
+Ninguna regla cambió de texto y el código de salida tampoco: la cobertura informa, no bloquea.
+`SUITE-R26` dice «aspira» y sigue siendo correcta; un umbral empujaría a citar identificadores
+en comentarios para subir la cifra.
+
+Delta respecto al plan: una regresión propia. Cambiar la frase final rompió dos casos que
+greppeaban «sin huecos». Se resolvió conservando el literal en minúscula, no reescribiendo los
+asertos — cambiar el aserto para que encaje con la salida nueva es como se pierde la señal que
+ese aserto daba.
+
+Límite declarado: «citada» sigue siendo que el identificador aparezca en el texto de la
+herramienta, así que 91 es un LÍMITE SUPERIOR. Afinarlo exigiría interpretar código.
+
+## PT-003 — INVESTIGATION: el contrato de la plataforma
+Fecha: 2026-08-13
+Estado: CLOSED
+Severidad: S3
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G3 2026-08-13 Alberto Martínez
+
+Qué se preguntó: `SUITE-R35` declara tres mapeos —milestone, issue, pull request— y el
+adaptador implementa uno. ¿Se implementan los otros dos o se recorta el contrato?
+
+Qué se determinó: **la premisa era falsa.** `SUITE-R35` declara **un** mapeo. `RULES.md` tiene
+cero apariciones de «milestone» y cero de «pull request»; `LEXICON.md`, cero. El contrato de
+tres mapeos vive solo en `PHASES.md:250-256`, bajo el encabezado `[SUITE-R35]`.
+
+Un documento de procedimiento enunciaba dos obligaciones atribuyéndoselas a una regla que no
+las contiene. `LEX-R21` pone `PHASES` por debajo de `RULES`. El adaptador no incumple nada:
+cumple la regla entera. El defecto es de nivel de autoridad, no de cobertura — y es la avería
+que la v4 nació para eliminar en su forma más sutil: no dos copias que divergen, sino una
+copia que dice de más.
+
+Decisiones: el milestone **no se implementa y se retira del procedimiento** —cero milestones
+en toda la historia, `EP-001` ya tiene su propio issue, y añadirlo daría dos representaciones
+del mismo hecho en la misma plataforma—. El pull request **se conserva y sube a `RULES.md`**:
+la práctica ya existe (PR #1 fusionado), abrir un PR no es automatizar `G4` (`SUITE-R06a`
+prohíbe merge y push, no proponerlos) y es comprobable.
+
+Qué quedó sin determinar: si el mapeo `G4` → pull request sube como parte de `SUITE-R35` o
+como regla propia. Es normativo y lo decide una persona.
+
+PT de seguimiento propuesto (`FDGE-R42`): un `CHORE` con dos partes —retirar los dos mapeos de
+`PHASES.md` y añadir a `RULES.md` el del pull request con su comprobación—. No pertenece a
+`EP-001` (`FDGE-R50`): toca `RULES.md` y `CORE.md`, en el out-of-scope de todas sus tareas.
+
+## EP-001 — IMPLEMENTACIÓN: el marco se hace cumplir a sí mismo
+Fecha: 2026-08-13
+Estado: DONE
+Estructural: no
+Compuertas: G1 2026-08-13 Alberto Martínez (firma única por delegación, con constancia) · G4 pendiente
+
+Tareas, en el orden en que se ejecutaron:
+
+| PT | Tipo | Sev | Estado | Qué resolvió |
+|:---|:---|:---|:---|:---|
+| PT-004 | BUG | S2 | DONE | `verify-fdge` exigía artefactos de PHASE 4 a un PT en PHASE 1 |
+| PT-001 | BUG | S2 | DONE | `SUITE-R35` tenía herramienta y ninguna compuerta la ejecutaba |
+| PT-002 | BUG | S3 | DONE | `audit` decía «cobertura completa» con 63 reglas HARD sin script |
+| PT-003 | INVESTIGATION | S3 | CLOSED | El contrato de tres mapeos no estaba en la regla, sino en el procedimiento |
+
+Criterio de éxito del lote, contrastado: abrir trabajo sin dejar rastro consultable **ya no es
+posible sin que salte una compuerta** —`tracker espejo` corre en `npm run verify`, en CI y en
+`G4`— y el marco **publica cuánta de su propia letra sostiene una máquina**: 91/167, HARD
+69/134, con las 7 de la franja intermedia enumerables.
+
+Resultado acumulado: `selftest` 180 → 211 casos. `verify-fdge --all` sin errores. Espejo con
+GitHub cuadrando.
+
+Qué se aprendió, y no estaba en el plan:
+
+- **Tres de los cuatro defectos aparecieron EJECUTANDO el marco, no leyéndolo.** `PT-004` salió
+  al abrir los tres primeros PTs; el defecto de `FDGE-R52` salió al reanclar; `VIVOS` sin
+  `DONE` salió al correr el espejo de verdad.
+- **El defecto raíz de `PT-001` lo encontró una persona preguntando**, no un verificador. Hasta
+  ese momento el lote se había planificado entero sin issues y las siete comprobaciones
+  pasaban en verde.
+- **`FDGE-R52` cazó al agente tres veces** por consolidar el reanclaje en vez de escribir una
+  nota por transición. Las tres tenía razón. La primera vez se rehízo el recorrido por decisión
+  humana en vez de firmar una excepción.
+- Se retiró una guarda de CI para PRs desde fork: cero forks en la historia del repositorio y
+  no verificable desde aquí. La 5.2.1 ya sentó ese precedente.
+
+Pendientes que salen de este lote y NO le pertenecen (`FDGE-R50`):
+
+1. Retirar de `PHASES.md` los mapeos de milestone y pull request, y decidir si el del PR sube
+   a `RULES.md` con su comprobación. Propuesto por `PT-003`.
+2. Llevar el contenido completo de cada fase al issue de GitHub, y comprobar que no se cierra
+   fase con comentarios humanos sin responder. Aceptado el 2026-08-13.
+
+## PT-005 — BUG: la firma atada al hash, y la historia dada por revisada
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente del cierre del lote
+
+Qué fallaba, y fueron dos cosas. La huella de un hallazgo de historia incluía el hash del
+commit. `actions/checkout` clona con `fetch-depth: 1`, y en un `pull_request` ese único commit
+es el merge **sintético** que GitHub fabrica, distinto en cada propuesta: ninguna excepción
+firmada encajaba jamás y la compuerta quedaba en rojo permanente sobre todo PR — que es como
+funciona `G4`. Y el simétrico, peor: con un clon superficial la herramienta daba la historia
+por revisada habiendo visto un commit; un árbol limpio habría salido verde sin mirar.
+
+Causa raíz: la firma dependía de la profundidad del clon, un detalle del entorno que nada
+declaraba.
+
+Qué se hizo: el ámbito de un hallazgo de historia pasa a ser «la historia», no el commit. Un
+clon superficial se declara `SIN EVALUAR` con las dos formas de arreglarlo. CI clona con
+`fetch-depth: 0`. Las seis excepciones se refirmaron: mismo secreto, mismo motivo, otra
+fórmula.
+
+Resultado: `selftest` 211 → 219 casos. El job `marco` del PR #7 en verde, once pasos.
+
+Delta respecto al plan, y son dos errores propios:
+
+1. **Se commiteó el volcado del log de CI como evidencia, y ese log citaba los fixtures.**
+   `FDGE-R45` lo prohíbe y lo cazó el propio paso de secretos en la ejecución siguiente. El
+   archivo se redactó; el commit es inmutable, así que sus siete huellas quedan firmadas.
+2. **La primera tabla de refirmas asignó mal los motivos** —una fila decía «JWT» sobre una
+   contraseña— y las seis seguían eximiendo igual, porque la huella casa por valor y no por
+   texto. **Ninguna comprobación lo habría detectado.** Se cazó leyendo la salida.
+
+Descubrimiento de método: el caso inverso «los commits del fixture SÍ difieren» falló al
+escribirlo, porque git es determinista y dos repos creados en el mismo segundo con el mismo
+mensaje dan el mismo hash. Sin ese caso, el que comprueba que la huella no depende del commit
+habría pasado sin probar nada.
+
+## PT-006 — CHORE: el contrato vuelve a su regla
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-002
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-002, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 auto (EXEC-R06: no es BUG y verify-fdge pasó) · G4 pendiente del cierre del lote
+
+Qué fallaba: `PHASES.md` declaraba tres mapeos de plataforma bajo el encabezado `[SUITE-R35]`,
+y `RULES.md` no contiene ni «milestone» ni «pull request». Un documento de procedimiento
+enunciaba obligaciones que su regla no tiene, y `LEX-R21` lo pone por debajo de `RULES`.
+
+Qué se hizo: el milestone se retira —cero en toda la historia, y daría a un `EP` dos
+representaciones del mismo hecho—. El pull request sube a `RULES.md` como **`SUITE-R42`**,
+condicionada a que el proyecto declare plataforma, con comprobación en `verify-fdge --gate G4`
+vía `tracker pr`. El agente no abre el PR ni lo fusiona: comprueba que exista.
+
+Resultado: `selftest` 219 → 227 casos. `CORE.md` 230 reglas. `verify-suite` sin errores.
+
+Delta: `FDGE-Prompts.md` entró en el alcance porque `SUITE-R20` no permite que `PHASES` y los
+prompts diverjan — lo detectó el verificador, no el agente. Y dos casos existentes se
+sustituyeron: uno exigía «milestone» en `PHASES.md`, es decir afirmaba el contrato que esta
+tarea retira; el otro fijaba «/ 167» en la cobertura y se rompió al haber 168 reglas — lo había
+escrito el mismo agente en el PT que declaró que las cifras no se fijan.
+
+Consecuencia declarada: añadir una regla vinculante cambia lo que un proyecto debe tener para
+cumplir `G4`. La versión de este lote no puede ser `MINOR`.
+
+## PT-007 — FEATURE: el issue lleva la fase y la compuerta
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-002
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-002, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 auto (EXEC-R06) · G4 pendiente del cierre del lote
+
+Qué faltaba: el issue decía **que existe** y nada más. Para saber qué fase y qué compuerta
+había que abrir `REGISTRY.json`. Lo demostró `EP-001` al reabrirse: quien mirara GitHub veía
+cinco issues abiertos sin saber que cuatro estaban terminados y uno esperaba una compuerta.
+
+Qué se hizo: cada issue vivo lleva `fase: N` y, si una compuerta espera, `G1`..`G4`. Las dos se
+**derivan** —la fase de `REGISTRY.allocations[].phase`, la compuerta del mapa de fases— así que
+no hay campo nuevo que nadie tenga que actualizar. El espejo comprueba que coincidan:
+publicar el estado sin comprobarlo es escribir en dos sitios y esperar que no se separen.
+`tracker estado` imprime el tablero leyendo solo el registro, sin credencial ni plataforma.
+
+Resultado: `selftest` 227 → 234 casos. Nueve issues sincronizados y tres etiquetas creadas
+sobre el repositorio real; `tracker espejo` cuadra.
+
+Delta: `estado` se salta la compuerta de acceso a propósito —lo dijo un caso al ponerse rojo—
+porque no toca la plataforma, y exigirle credencial lo dejaba inútil justo donde más falta
+hace: en un proyecto que aún no espeja.
+
+Deuda declarada: `COMPUERTA_DE_FASE` copia en `tracker.mjs` el mapa que `CORE.md` §Fases
+declara. Es un hecho en dos sitios —lo que `RULE-01` persigue— y se eligió igualmente porque
+leerlo de `CORE.md` en tiempo de ejecución significaría parsear prosa. Si el mapa de fases
+cambia, esto se queda atrás en silencio.
+
+## PT-008 — FEATURE: no se cierra fase con comentarios humanos sin responder
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-002
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-002, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 auto (EXEC-R06) · G4 pendiente del cierre del lote
+
+Qué faltaba: durante la sesión que abrió `EP-002` el agente escribió en nueve issues y **no
+releyó ninguno**. `gh issue view --json comments` existía y solo se usaba para contar
+reanclajes. Un comentario humano podía quedar sin leer indefinidamente.
+
+Qué tumbó el análisis: `AC-03` pedía distinguir por **autor**. No se puede — medido antes de
+decidir: el agente comenta con la credencial de la persona y los dos comentarios llevan el
+mismo login. Exigir cuentas separadas sería imponer infraestructura que `SUITE-R22` descarta.
+
+Qué se hizo: `SUITE-R43`, condicionada a plataforma declarada. Se distingue por **marca de
+procedencia** —un comentario HTML invisible en lo que escribe el agente—, con su limitación
+declarada: es falsificable, como una firma. Si ningún comentario lleva marca, `SIN EVALUAR`.
+
+Resultado: `selftest` 234 → 241 casos. `audit` 92/169 reglas con verificador ejecutado.
+
+Delta: `PHASES.md` y `FDGE-Prompts.md` entraron en el alcance porque `audit` reportó
+«`SUITE-R43` no la cita ningún documento operativo» — una regla que solo vive en el código es
+un capricho del verificador. Lo detectó la herramienta que `PT-002` acababa de arreglar.
+
+Deuda declarada: la regla **nace sin morder** en este repositorio. Los comentarios ya escritos
+no llevan marca, así que los nueve issues salen `SIN EVALUAR` hasta que el agente escriba una
+nota marcada. Es deliberado y hay que saberlo.
+
+## EP-002 — IMPLEMENTACIÓN: GitHub responde qué va cuándo
+Fecha: 2026-08-13
+Estado: DONE
+Estructural: no
+Compuertas: G1 2026-08-13 Alberto Martínez (firma única delegada, con constancia) · G4 pendiente
+
+| PT | Tipo | Sev | Estado | Qué resolvió |
+|:---|:---|:---|:---|:---|
+| PT-006 | CHORE | S3 | DONE | `PHASES` declaraba dos mapeos que su regla no contenía; el del PR subió a `RULES` como `SUITE-R42` |
+| PT-007 | FEATURE | S3 | DONE | Cada issue lleva su fase y su compuerta, derivadas del registro |
+| PT-008 | FEATURE | S2 | DONE | `SUITE-R43`: lo que una persona escribe se lee antes de avanzar |
+
+Criterio de éxito contrastado: el tablero de GitHub responde «qué va cuándo» sin abrir el
+repositorio —`#11 [tarea, fase: 4, G2]`—, lo que el humano escriba no puede quedar sin leer, y
+el contrato de la plataforma está enunciado donde manda.
+
+La condición no negociable se respetó: **el registro asigna y GitHub espeja**. Todo el estado
+publicado se deriva de `REGISTRY.json`; ninguna lectura de la plataforma alimenta el registro.
+
+Resultado acumulado del lote: `selftest` 219 → 241 casos. Dos reglas nuevas, ambas condicionadas
+a plataforma declarada. `CORE.md` con 232 reglas.
+
+Qué se aprendió: las tres tareas encontraron algo que su análisis no había previsto —el prompt
+desincronizado, la compuerta de acceso que dejaba `estado` inútil, y que agente y humano
+comparten login—. Las tres veces lo dijo una comprobación, no el agente.
+

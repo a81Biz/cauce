@@ -1,0 +1,23 @@
+Fallo original de CI que motivó PT-005 · PR #7 · run 31682138067
+https://github.com/a81Biz/cauce/actions/runs/31682138067
+
+REDACTADO. El volcado íntegro del log se commiteó aquí por error y `FDGE-R45` lo prohíbe:
+el log citaba las líneas de los fixtures del selftest, así que la evidencia introducía en el
+árbol —y en la historia, que es append-only— exactamente lo que la compuerta persigue.
+
+Lo cazó el propio paso `Ningún secreto sin firmar` en la siguiente ejecución. Queda como el
+mejor ejemplo de la sesión de por qué `FDGE-R45` existe: un secreto que entra en la evidencia
+no se retira borrando el archivo.
+
+Lo que decía el log, sin reproducirlo:
+
+  paso           «Ningún secreto sin firmar» · exit 1
+  hallazgos      7, todos de tipo «contraseña en texto plano» y «campo de credencial»
+  atribuidos a   historia 3f8e23db:1
+  huellas        siete, ninguna coincidente con las seis firmadas el 2026-08-12
+
+`3f8e23db` no existe en ningún clon: es el merge sintético que GitHub fabrica para el evento
+`pull_request`. Con `fetch-depth: 1` era el único commit visible, y `git log -p` presentaba el
+árbol entero como líneas añadidas.
+
+Esa es la causa que PT-005 corrige.

@@ -1,0 +1,6 @@
+a81Biz
+a81Biz
+El agente y la persona comentan con el MISMO login. Medido con:
+  gh issue view 11 --json comments --jq '.comments[-1].author.login'  -> a81Biz
+  gh api user --jq .login                                             -> a81Biz
+Por eso AC-03 se reformulo: no se puede distinguir por autor.

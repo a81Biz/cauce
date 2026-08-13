@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 37dd9a455d71 -->
-<!-- fuentes: RULES.md:31ecaf98f27f LEXICON.md:1e8439f42567 EXECUTION-MODES.md:63725a2a7d98 PHASES.md:c42c54d4b401 -->
+<!-- cuerpo: 42cbaa8af917 -->
+<!-- fuentes: RULES.md:74b0b72abc95 LEXICON.md:b3f9519d328a EXECUTION-MODES.md:c8e5de46b6e6 PHASES.md:482dec15d77c -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -146,6 +146,8 @@ verifica un script y bloquea la integración.
 `SUITE-R39` **H** La frontera del proyecto se declara, y se dice qué la sostiene.
 `SUITE-R40` **H** La versión vigente se deriva; no se escribe dos veces.
 `SUITE-R41` **H** Cauce no se instala sobre sí mismo, y se reconoce por identidad.
+`SUITE-R42` **H** El merge se propone donde se pueda revisar.
+`SUITE-R43` **H** Lo que una persona escribe en la plataforma se lee.
 
 ### LEX — Nombres
 
@@ -601,15 +603,20 @@ PARA G3 humana si BUG, en los tres modos. Resto: auto solo si las SIETE condicio
 
 ### La plataforma de trabajo — espejo, no fuente                     [SUITE-R35]
 ```
-CONTRATO  implementación abierta → milestone | epic work item
-          tarea                  → issue     | task work item
-          compuerta G4           → pull request         [FDGE-R33: el merge es humano]
+CONTRATO  tarea e implementación → issue | work item        [SUITE-R35: es lo que la regla dice]
+          compuerta G4           → pull request              [SUITE-R42]
           cierre de implementación → dispara [START QA] sobre lo entregado
+          NO hay mapeo para agrupar: la implementación YA tiene su issue. Un segundo
+          artefacto para el mismo hecho es la divergencia que SUITE-R35 impide.
 REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECIDIÓ.
           El issue REFERENCIA el intake, no lo copia: dos copias divergen.
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
+          node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
+          Se distingue por MARCA de procedencia, no por autor: el agente comenta
+          con la credencial de la persona. Falsificable, y declarado.
 NO        dejar que la plataforma asigne identificadores · copiar el intake al issue
           · usar MCP como único canal: la verificación corre donde no hay nadie delante
 ```

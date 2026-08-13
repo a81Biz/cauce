@@ -1,0 +1,13 @@
+{
+  "pt": "PT-007",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01","TS-04"], "tests": ["selftest.sh:la etiqueta lleva la fase","selftest.sh:sin fase declarada no revienta"], "evidence": ["salidas/tablero-github.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02","TS-03"], "tests": ["selftest.sh:y la compuerta que espera","selftest.sh:PHASE 5 no espera compuerta"], "evidence": ["salidas/tablero-github.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-05"], "tests": ["selftest.sh:etiqueta que no cuadra ⇒ divergencia"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-05","TS-06"], "tests": ["selftest.sh:etiquetas correctas ⇒ sin divergencia"], "evidence": ["salidas/espejo-con-etiquetas.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-07"], "tests": ["selftest.sh:estado funciona sin plataforma"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["TS-08"], "tests": ["selftest.sh:estado funciona sin plataforma"], "evidence": ["salidas/tablero.txt"], "verified": true },
+    { "ac": "AC-07", "scenarios": ["TS-06"], "tests": ["ejecución real: tres etiquetas creadas al sincronizar"], "evidence": ["salidas/tablero-github.txt"], "verified": true }
+  ],
+  "suite": { "passed": 234, "failed": 0, "coverage": 234, "baseline": 227 }
+}

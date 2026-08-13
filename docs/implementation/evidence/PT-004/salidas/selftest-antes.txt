@@ -1,0 +1,9 @@
+  [31m✗[0m PHASE 1 sin traceability ⇒ no falla  (apareció: ✗ FDGE-R15)
+  [31m✗[0m PHASE 1 sin traceability ⇒ se avisa  (no apareció: ! FDGE-R15)
+  [32m✓[0m PHASE 4 sin traceability ⇒ falla
+  [31m✗[0m PHASE 1 sin discovery ⇒ no falla  (apareció: ✗ FDGE-R42)
+  [32m✓[0m PHASE 2 sin discovery ⇒ falla
+  [31m✗[0m sin fase declarada ⇒ no bloquea  (apareció: ✗ FDGE-R15)
+  [31m✗[0m sin fase declarada ⇒ SIN EVALUAR  (no apareció: SIN EVALUAR)
+  [31m✗[0m el aviso dice dónde declararla  (no apareció: phase)
+selftest: HAY FALLOS · 188 casos

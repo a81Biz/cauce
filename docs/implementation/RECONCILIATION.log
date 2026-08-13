@@ -1,0 +1,65 @@
+# RECONCILIATION — una entrada por decisión sobre un documento
+
+Append-only (`SUITE-R09`). Cada entrada lleva el motivo y la firma del ACK que la autorizó
+(`FND-R11`). Su línea base es [00-Baseline.md](../enterprise-documentation/00-Baseline.md).
+
+---
+
+## 2026-08-13 · Foundation PHASE 1 · G0
+ACK de: Alberto Martínez · respuesta literal: «ACK · las 7 normalizaciones»
+Línea base: docs/enterprise-documentation/00-Baseline.md (firmada 2026-08-13)
+
+### Decisiones del inventario
+
+```
+KEEP        docs/methodology/ · 34 documentos      es el producto, no documentación sobre él
+KEEP        docs/implementation/SECRETOS-EXCEPCIONES.md   registro vivo de FND-R29
+KEEP+SUB    README.md                              subordinado · FND-R12
+KEEP+SUB    CLAUDE.md                              subordinado · FND-R12
+KEEP        LICENSE · NOTICE                       no tratan arquitectura ni dominio
+ARCHIVE     ninguno
+SUPERSEDE   ninguno
+DELETE      ninguno
+```
+
+Nada se movió a `docs/_archive/`: no había documentación heredada que archivar. Lo reconciliado
+fueron **afirmaciones falsas en documentos vivos**.
+
+### Normalizaciones ejecutadas
+
+```
+N1  RECORTAR   README.md · §«Instalar: copiar la carpeta» y el procedimiento manual del
+               escenario B (158 líneas) → puntero a docs/methodology/INSTALL.md
+               Resuelve D1 (ruta C:/DevOps/claude inexistente), D2 (ordenaba ELIMINAR
+               documentación, contra FND-R11) y D3 (segunda estructura de instalación).
+
+N2  DERIVAR    selftest.sh cuenta sus casos y los imprime al terminar; README.md:235,
+               docs/methodology/README.md:1046 y :1110 y verificacion.yml:4 dejan de
+               declarar una cifra. Había cuatro números escritos a mano —105, 130, 34,
+               100— y ninguno era el real. Resuelve D4 y D5.
+
+N3  REESCRIBIR README.md §«Cuándo volver» y CLAUDE.md §«Qué es este repositorio»: el
+               repositorio se gobierna a sí mismo desde SUITE-R41 (D6). Y el árbol de
+               CLAUDE.md, que declaraba 2 herramientas de 15 y omitía CORE, PHASES e
+               INSTALL (D7).
+
+N4  DECIDIR    Modelo de ramas (D8): la rama de trabajo es `trabajo`, no `desarrollo`.
+               Se escribe la que hay. `origin/desarrollo` queda como rama sobrante y su
+               borrado es acción humana pendiente — SUITE-R06f no lo automatiza.
+
+N5  SUBORDINAR Cabecera FND-R12 en README.md y CLAUDE.md: qué documento del paquete manda
+               sobre arquitectura, convenciones e instalación.
+
+N6  CI         verificacion.yml y publicar.yml ejecutan revisar-secretos.mjs --historial.
+               D9: FND-R29 declara la revisión bloqueante y no corría en ningún workflow.
+               Se publicaba a npm sin revisar secretos, y npm no se despublica.
+
+N7  CI         verificacion.yml ejecuta verify-fdge --all sobre los artefactos propios.
+               D10: FDGE-R34 lo pide para G4 y solo corría contra los fixtures del
+               selftest, que prueban que el verificador detecta defectos — no que este
+               repositorio no los tenga.
+```
+
+Ningún archivo de código se movió: `FND-R17` reserva eso a un PT `REFACTOR` con
+`Estructural: sí`, y `FND-R18` exige que la estructura objetivo esté declarada en
+`11-Conventions.md` antes de proponer nada.

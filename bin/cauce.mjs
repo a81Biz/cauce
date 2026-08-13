@@ -175,10 +175,16 @@ const comandos = {
       ['verify-qa.mjs', [DESTINO]],
       ['verify-ptsa.mjs', [DESTINO]],
       ['revisar-secretos.mjs', [DESTINO]],
+      ['tracker.mjs', ['espejo']],
     ]) {
       di(`${c.dim}── ${script}${c.fin}`);
       const r = corre(script, args);
-      peor = Math.max(peor, r === 2 ? 0 : r);   // 2 = «nada que verificar aquí», no es fallo
+      // 2 = «nada que verificar aqui» · 3 = plataforma declarada y sin acceso desde ESTA
+      // maquina. Ninguno es un fallo del proyecto: `cauce verify` corre donde sea, incluida la
+      // de quien acaba de instalar y aun no ha hecho `gh auth login`. Donde la credencial SI es
+      // exigible —npm run verify del repositorio, CI y G4— si bloquea (FND-R30).
+      if (r === 3) di(`${c.dim}   ↑ sin acceso a la plataforma: el espejo queda SIN EVALUAR${c.fin}`);
+      peor = Math.max(peor, r === 2 || r === 3 ? 0 : r);
     }
     return peor;
   },

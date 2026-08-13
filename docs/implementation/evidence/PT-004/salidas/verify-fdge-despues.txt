@@ -1,0 +1,56 @@
+verify-fdge — cumplimiento mecánico de la Methodology Suite 5.2.3
+
+PASA
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+  ✓ FND-R05        11-Conventions.md declara 7 Hard Rules.
+  ✓ FND-R08        Foundation presente (archivos del núcleo verificados).
+  ✓ SUITE-R15      CORE.md presente y sincronizado.
+  ✓ SUITE-R06      Toda integración registrada lleva nombre humano.
+  ✓ FDGE-R48       EP-001 es la única implementación abierta.
+  ✓ FDGE-R49       EP-001 abierta · todo el trabajo vivo le pertenece.
+  ✓ SUITE-R33      Bloque ESTADO completo.
+  ✓ SUITE-R34      El estado es más reciente que el último trabajo.
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ FND-R22        Plan de terreno resuelto y firmado.
+  ✓ FND-R24        Declaración de Valor firmada por Alberto Martínez.
+  ✓ SUITE-R30      INSTALL.log con 28 acción(es) registrada(s), todas las decisiones con rastro.
+  ✓ FND-R13        Línea base de reconciliación completa.
+  ✓ INTAKE-R09     EP-001: intake del lote completo.
+  ✓ FDGE-R43       Grafo FRESH — generado 2026-08-13 sobre bin.
+  ✓ INTAKE-R08     PT-001: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-001: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-001: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-001: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-001: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-002: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-002: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-002: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-002: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-002: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-003: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-003: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R31       PT-003: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R10       PT-003: INVESTIGATION verificada (exenta de FDGE-R15 y FDGE-R23).
+  ✓ INTAKE-R08     PT-004: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-004: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R15       PT-004: 6 criterios con TS asignado (Test/Evidencia se exigen desde PHASE 6).
+  ✓ FDGE-R45       PT-004: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-004: self-review completo.
+  ✓ FDGE-R31       PT-004: presente en DISCOVERY.md con estado canónico.
+
+AVISOS
+  ! FDGE-R15       PT-001: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-001: aún sin evidence/PT-001/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-001: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R15       PT-002: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-002: aún sin evidence/PT-002/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-002: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R42       PT-003: aún sin discovery.md — se escribe en PHASE 2 y el PT está en PHASE 1.
+  ! FDGE-R29       PT-003: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R23       PT-004: aún sin evidence/PT-004/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-004: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+
+ERRORES
+  ✗ FDGE-R52       PT-004: está en PHASE 5 y su bitácora tiene 0 nota(s); faltan 4. Cada transición de fase deja tres líneas —qué cierras, dónde estás, qué sigue—: escribir obliga a releer, y releer no obliga a nada.
+
+1 error(es).

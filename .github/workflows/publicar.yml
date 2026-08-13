@@ -75,6 +75,13 @@ jobs:
       - name: Batería de casos
         run: npm run selftest
 
+      # `FND-R29` · «Instalar la suite implica que el repositorio va a publicarse, y publicar es
+      # irreversible donde importa». Esto es el publicar: npm no permite despublicar salvo en una
+      # ventana muy estrecha, y un secreto en la historia sigue ahí tras borrarlo del archivo.
+      # Faltaba —la regla existía y la compuerta no—; lo encontró Foundation (D9).
+      - name: Ningún secreto sin firmar
+        run: node docs/methodology/tools/revisar-secretos.mjs . --historial
+
       - name: Esta versión no puede existir ya
         run: |
           NOMBRE=$(node -p "require('./package.json').name")

@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **5.2.3**
+> Suite version: **6.0.0**
 
 ---
 
@@ -41,16 +41,31 @@ errores» porque no encuentra nada, no porque no haya nada.
 Opcional, y cuando está cambia lo que cuesta retomar: **qué está abierto pasa de leer doscientas
 líneas a una consulta**.
 
-| Concepto | GitHub | Azure DevOps |
-|:---|:---|:---|
-| implementación abierta | milestone | epic work item |
-| tarea | issue | task work item |
-| compuerta `G4` | pull request | pull request |
+| Concepto | GitHub | Azure DevOps | Regla |
+|:---|:---|:---|:---|
+| tarea e implementación | issue | work item | `SUITE-R35` |
+| compuerta `G4` | pull request | pull request | `SUITE-R42` |
 
 ```bash
 node docs/methodology/tools/tracker.mjs espejo            # comprueba las dos direcciones
 node docs/methodology/tools/tracker.mjs abrir --aplicar   # crea los issues que faltan
+node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto para la rama?
 ```
+
+**No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
+un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
+declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R43`: lo que escribas en el issue se lee antes de cerrar fase.** Se distingue por una
+marca invisible en los comentarios del agente, no por autor —comenta con tu credencial, así que
+el autor es el mismo—. Es falsificable, como una firma, y se declara.
+
+```bash
+node docs/methodology/tools/tracker.mjs pendiente PT-NNN
+```
+
+**`SUITE-R42`: el agente no abre el PR ni lo fusiona.** Comprueba que exista. Abrirlo se
+describe (`EXEC-R07`); fusionarlo es humano en los tres modos (`EXEC-R04`).
 
 **El registro asigna; la plataforma espeja.** `SUITE-R08` no se toca: si la plataforma asignara
 identificadores habría dos fuentes divergiendo, que es la causa raíz que la v4 nació para

@@ -1,0 +1,17 @@
+# MIGRATION — una entrada por migración de versión de suite
+
+Append-only (`SUITE-R09`). La escribe `tools/migrate.mjs --apply` (`SUITE-R19`), que deja
+listado como acción humana pendiente lo que no puede automatizarse — firmas retroactivas y
+decisiones de reconciliación — y nunca lo inventa.
+
+Instalación inicial en 5.2.3: no hubo migración desde ninguna versión previa.
+
+---
+
+## 2026-08-13 — 5.2.3 → 5.3.0
+Automático: 1 acción(es)
+Pendiente humano: 0 acción(es)
+
+## 2026-08-13 — 5.3.0 → 6.0.0
+Automático: 1 acción(es)
+Pendiente humano: 0 acción(es)

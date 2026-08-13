@@ -1,0 +1,12 @@
+{
+  "pt": "PT-008",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01"], "tests": ["selftest.sh:humano tras el agente ⇒ pendiente"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02"], "tests": ["selftest.sh:respondido ⇒ ya no pendiente"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-03"], "tests": ["selftest.sh:los del agente no cuentan"], "evidence": ["salidas/mismo-autor.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-07"], "tests": ["selftest.sh:sin plataforma ⇒ G4 libre de R43"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-04","TS-05"], "tests": ["selftest.sh:sin comentarios no revienta","selftest.sh:sin ninguna marca ⇒ no evaluable"], "evidence": ["salidas/verify-fdge.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["TS-06"], "tests": ["selftest.sh:SUITE-R43 existe en RULES"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 241, "failed": 0, "coverage": 241, "baseline": 234 }
+}

@@ -219,7 +219,15 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
     if (!opTxt.includes(a)) falta.push('ningún documento operativo lo usa');
     if (falta.length) gap('artefacto', a, falta.join(' · ')); else tick('artefacto');
   }
+  // Quién es «el instalador» cambió, y esta lista se quedó atrás. Era el README de la raíz,
+  // porque ahí vivía el procedimiento paso a paso — duplicado del de `INSTALL.md`, divergiendo
+  // de él, y ordenando en su versión borrar documentación contra `FND-R11`. Foundation lo
+  // recortó (`N1`), y con él desaparecieron las únicas menciones de tres ledgers: la auditoría
+  // pasó a reportar huecos que no lo eran. El instalador de verdad es `INSTALL.md`, y quien
+  // crea los artefactos de reconciliación es Foundation.
   const instalador = (existsSync(join(ROOT, 'README.md')) ? readFileSync(join(ROOT, 'README.md'), 'utf8') : '')
+    + (rd('INSTALL.md') ?? '')
+    + (rd('Foundation-Implementation.md') ?? '') + (rd('Foundation-Prompts.md') ?? '')
     + (rd('FIDE/FIDE-Implementation.md') ?? '') + (rd('FIDE/FIDE-CLAUDE-Launcher.md') ?? '');
   for (const a of [...new Set(arts)]) {
     const falta = [];
@@ -385,6 +393,61 @@ for (const [comp, c] of Object.entries(coberturaMecanica)) {
   } else tick('cobertura-mecanica');
 }
 
+// ── 8-bis. PT-002 · cobertura POR REGLA, no por componente ──────────────────
+// Lo de arriba solo declara hueco si un componente tiene CERO reglas verificadas: con 1 de 20,
+// pasa. Y el informe decia «Cobertura completa: sin huecos» con 63 reglas HARD sin ningun
+// script. No mentia sobre lo que medía — mentia sobre lo que el lector entiende que ha medido,
+// y no vio que SUITE-R35 llevaba tres versiones con herramienta y sin compuerta.
+//
+// SUITE-R11 y PTSA-R78 exigen publicar la cobertura junto al numero. Se le pedia a las
+// auditorias de PTSA y no a esta.
+
+/**
+ * Qué herramientas ejecuta alguna compuerta. Se DERIVA de quien las invoca —package.json, los
+ * workflows y el binario— y no se escribe: una lista a mano se queda atras el dia que se anada
+ * un paso a CI, que es la averia que este repositorio arrastra alli donde se copio un hecho
+ * (RULE-01, SUITE-R40). Devuelve null si no hay de donde derivarlo: eso es RULE-06, no cero.
+ */
+const herramientasConCompuerta = (() => {
+  const fuentes = [];
+  const leerSi = (p) => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
+  const pkg = leerSi(join(ROOT, 'package.json'));
+  if (pkg !== null) fuentes.push(pkg);
+  const bin = leerSi(join(ROOT, 'bin', 'cauce.mjs'));
+  if (bin !== null) fuentes.push(bin);
+  const wfDir = join(ROOT, '.github', 'workflows');
+  if (existsSync(wfDir)) {
+    for (const f of readdirSync(wfDir)) {
+      const t = leerSi(join(wfDir, f));
+      if (t !== null) fuentes.push(t);
+    }
+  }
+  if (!fuentes.length) return null;               // nadie a quien preguntar → no evaluable
+  const texto = fuentes.join('\n');
+  const invocadas = new Set();
+  for (const [ruta] of tools) {
+    const nombre = ruta.split('/').pop();
+    if (texto.includes(nombre)) invocadas.add(nombre);
+  }
+  return invocadas;
+})();
+
+const REGLAS_TODAS = [...RULES.matchAll(/^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(HARD|SOFT|CHECK)\s*\|/gm)]
+  .map((m) => ({ id: m[1], sev: m[2] }));
+
+const clasificar = (id) => {
+  const citadaPor = tools.filter(([, t]) => t.includes(id)).map(([r]) => r.split('/').pop());
+  if (!citadaPor.length) return 'sin-verificador';
+  if (herramientasConCompuerta === null) return 'sin-evaluar';
+  return citadaPor.some((n) => herramientasConCompuerta.has(n)) ? 'ejecutada' : 'sin-compuerta';
+};
+
+const COBERTURA = { ejecutada: [], 'sin-compuerta': [], 'sin-verificador': [], 'sin-evaluar': [] };
+for (const r of REGLAS_TODAS) COBERTURA[clasificar(r.id)].push(r);
+const soloHard = (a) => a.filter((r) => r.sev === 'HARD').length;
+const TOTAL_REGLAS = REGLAS_TODAS.length;
+const TOTAL_HARD = soloHard(REGLAS_TODAS);
+
 // ── Informe ─────────────────────────────────────────────────────────────────
 console.log(`audit — cobertura de la Methodology Suite\nBase: ${BASE}\n`);
 if (gaps.length) {
@@ -399,5 +462,41 @@ if (gaps.length) {
 const resumen = Object.entries(okCount).filter(([k]) => k !== 'total')
   .map(([k, v]) => `${k}:${v}`).join(' · ');
 console.log(`Cubiertos: ${okCount.total}  (${resumen})`);
-console.log(gaps.length ? `\n${gaps.length} hueco(s) de cobertura.` : '\nCobertura completa: sin huecos.');
+
+// ── Cobertura mecánica de las reglas ────────────────────────────────────────
+// Se publica el NUMERO con su denominador, no un adjetivo. Y no es un umbral: SUITE-R26 dice
+// que una regla HARD «aspira» a comprobacion mecanica, y hay reglas que ninguna maquina puede
+// comprobar —INTAKE-R01, FDGE-R17, QA-R01—. Publicar si; bloquear no.
+console.log('\nCobertura mecánica de las reglas   (SUITE-R26 · aspira, no exige)');
+if (herramientasConCompuerta === null) {
+  console.log('  ejecutadas por una compuerta   SIN EVALUAR — no se pudo leer quién invoca las');
+  console.log('                                 herramientas (package.json · workflows · bin/).');
+  console.log('                                 No se asume 0 ni el total: sería inventarlo (RULE-06).');
+  console.log(`  con verificador                ${COBERTURA['sin-evaluar'].length} / ${TOTAL_REGLAS}`);
+  console.log(`  sin verificador                ${COBERTURA['sin-verificador'].length}`);
+} else {
+  const e = COBERTURA.ejecutada, sc = COBERTURA['sin-compuerta'], sv = COBERTURA['sin-verificador'];
+  console.log(`  ejecutadas por una compuerta   ${e.length} / ${TOTAL_REGLAS}     · HARD ${soloHard(e)} / ${TOTAL_HARD}`);
+  console.log(`  citadas sin compuerta que las corra   ${sc.length}${sc.length ? '        → --sin-compuerta las enumera' : ''}`);
+  console.log(`  sin verificador                ${sv.length}${sv.length ? `        → --sin-verificar las enumera  (HARD ${soloHard(sv)})` : ''}`);
+}
+if (process.argv.includes('--sin-verificar')) {
+  console.log(`\nReglas sin ningún verificador (${COBERTURA['sin-verificador'].length}):`);
+  console.log(`  ${COBERTURA['sin-verificador'].map((r) => r.id).join(' ')}`);
+}
+if (process.argv.includes('--sin-compuerta')) {
+  console.log(`\nReglas cuyo verificador no lo ejecuta ninguna compuerta (${COBERTURA['sin-compuerta'].length}):`);
+  console.log(`  ${COBERTURA['sin-compuerta'].map((r) => r.id).join(' ')}`);
+}
+
+// El adjetivo se queda SOLO sobre lo que esta comprobacion mide de verdad.
+const cifra = herramientasConCompuerta === null
+  ? 'SIN EVALUAR' : `${COBERTURA.ejecutada.length}/${TOTAL_REGLAS}`;
+// La frase conserva el literal «sin huecos» a proposito: dos casos del arnes lo comprueban
+// desde antes, y cambiarlo obligaria a reescribir sus asertos — un hecho copiado moviendose
+// (RULE-01). Lo que se retira es el adjetivo ABSOLUTO: «completa» afirmaba sobre reglas que
+// esta comprobacion nunca miro.
+console.log(gaps.length
+  ? `\n${gaps.length} hueco(s) de cobertura.`
+  : `\nAuditoría sin huecos en los elementos auditados. Cobertura mecánica de reglas: ${cifra}.`);
 process.exit(gaps.length ? 1 : 0);
