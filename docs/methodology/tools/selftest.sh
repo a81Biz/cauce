@@ -46,14 +46,14 @@ build_fixture() {
   mkdir -p docs/methodology/PTSA && cp "$SUITE"/PTSA/PTSA-V3-Especificacion-Oficial.md docs/methodology/PTSA/ 2>/dev/null || true
 
   cat > docs/implementation/REGISTRY.json <<'J'
-{ "suite_version":"5.0.0","execution_mode":"SUPERVISED",
+{ "suite_version":"5.1.0","execution_mode":"SUPERVISED",
   "graph":{"generated":"2026-08-05","scope":"src/","pt_at_generation":4},
   "counters":{"PT":4,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
   "allocations":[
-    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.0.0"},
-    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.0.0"},
-    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.0.0"},
-    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.0.0"}
+    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.1.0"},
+    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.1.0"},
+    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.1.0"},
+    {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.1.0"}
   ] }
 J
 
@@ -75,6 +75,10 @@ reflejan mi intención: SÍ
 ```
 VEREDICTO: PASS
 ```
+
+## Cómo termina
+
+Termina cuando: el comportamiento esperado se observa en el sistema real
 M
     } > "changes/$1/intake.md"
   }
@@ -89,6 +93,45 @@ M
   printf '| AC | C | TS | Test | Evidencia | QA | E |\n|:-|:-|:-|:-|:-|:-|:-|\n| AC-01 | etiqueta | TS-01 | — | shots/a.png | — | ✓ |\n' > changes/PT-003-typo/traceability.md
   printf 'Tests: ninguno — FDGE-R18.\n' > changes/PT-003-typo/strategy.md
   printf '| AC | C | TS | Test | Evidencia | QA | E |\n|:-|:-|:-|:-|:-|:-|:-|\n| AC-01 | pdf | TS-01 | | | | |\n' > changes/PT-004-pdf/traceability.md
+
+  # Las reglas nuevas rigen para lo abierto bajo esta versión: el fixture las cumple.
+  for d in PT-001-login PT-002-pool PT-003-typo PT-004-pdf; do
+    printf '2026-08-05 · PHASE 1 → 2
+cierro: intake
+estoy en: análisis
+sigue: estrategia
+
+2026-08-05 · PHASE 2 → 3
+cierro: análisis
+estoy en: estrategia
+sigue: propuesta
+
+2026-08-05 · PHASE 3 → 4
+cierro: estrategia
+estoy en: propuesta
+sigue: G2
+
+2026-08-05 · PHASE 4 → 5
+cierro: G2
+estoy en: implementación
+sigue: evidencia
+
+2026-08-05 · PHASE 5 → 6
+cierro: código
+estoy en: evidencia
+sigue: G3
+
+2026-08-05 · PHASE 6 → 7
+cierro: evidencia
+estoy en: validación
+sigue: persistencia
+
+2026-08-05 · PHASE 7 → 8
+cierro: G3
+estoy en: persistencia
+sigue: integración
+' > "changes/$d/bitacora.md"
+  done
 
   mkdir -p docs/implementation/evidence/PT-001/api docs/implementation/evidence/PT-003/shots
   echo '{"status":200}' > docs/implementation/evidence/PT-001/api/ok.json
@@ -744,7 +787,7 @@ chk   "INSTALL.log sin entradas ⇒ falla"     "no contiene ninguna entrada"  V 
 build_fixture
 node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK" --write > /dev/null 2>&1 || true
 perl -0pi -e 's/^\| (\d+) \| (.+?) \| \| \|$/| $1 | $2 | ACEPTADO | /gm' "$WORK/docs/implementation/LAYOUT.md"
-printf "## 2026-08-06 · [INSTALL SUITE] · 5.0.0
+printf "## 2026-08-06 · [INSTALL SUITE] · 5.1.0
 Ejecutado por: Ada Lovelace
 
 I2  MOVER      [L1] 15 archivos .md  ·  raiz a docs/business/     OK
@@ -930,6 +973,46 @@ git -C "$WORK" add -A >/dev/null 2>&1
 git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "lo saco del archivo" >/dev/null 2>&1
 chk   "árbol limpio tras sacarlo"             "Sin hallazgos"   SEC "$WORK"
 chk   "pero la historia lo conserva"          "contraseña en texto plano"  SEC "$WORK" --historial
+
+# ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
+echo "── R · bitácora y cierre ──"
+
+# FDGE-R53 · una tarea sin condición de cierre no tiene final: se estira.
+build_fixture
+perl -0pi -e 's/Termina cuando:.*
+//' "$WORK/changes/PT-001-login/intake.md"
+chk   "sin condición de cierre ⇒ falla"      "✗ FDGE-R53"  V PT-001
+build_fixture
+printf 'Termina cuando: el login acepta la contraseña correcta
+' >> "$WORK/changes/PT-001-login/intake.md"
+chkno "con condición de cierre ⇒ pasa"       "✗ FDGE-R53"  V PT-001
+
+# FDGE-R52 · el reanclaje se ESCRIBE. Una nota por transición alcanzada.
+build_fixture
+printf 'Termina cuando: algo observable
+' >> "$WORK/changes/PT-001-login/intake.md"
+reg_set "r.allocations.filter(x=>x.id==='PT-001').forEach(x=>{x.phase=4})"
+perl -0pi -e 's/^phase:.*
+/phase: 4
+/m' "$WORK/changes/PT-001-login/intake.md"
+rm -f "$WORK/changes/PT-001-login/bitacora.md"   # el fixture ya la trae; aquí se prueba su ausencia
+chk   "PHASE 4 sin bitácora ⇒ falla"         "✗ FDGE-R52"  V PT-001
+printf '2026-08-12 · PHASE 1 → 2
+cierro: a
+
+2026-08-12 · PHASE 2 → 3
+cierro: b
+
+2026-08-12 · PHASE 3 → 4
+cierro: c
+' > "$WORK/changes/PT-001-login/bitacora.md"
+chk   "bitácora al día ⇒ pasa"               "✓ FDGE-R52"  V PT-001
+perl -0pi -e 's/2026-08-12 · PHASE 3 → 4.*//s' "$WORK/changes/PT-001-login/bitacora.md"
+chk   "bitácora atrasada ⇒ falla"            "✗ FDGE-R52"  V PT-001
+
+# La portada del paquete no puede declarar una versión fósil.
+chkno "el README no fija una versión"        "Versión 4."  cat "$SUITE/../../README.md"
+chk   "el README nombra el paquete"          "@a81biz/cauce"  cat "$SUITE/../../README.md"
 
 # ─── C · coherencia de la metodología ───────────────────────────────────────
 echo "── C · metodología ──"

@@ -1,6 +1,18 @@
-# AI Development Methodology Suite
+# cauce
 
-**Versión 4.5.0** — framework de gobernanza para desarrollo asistido por IA.
+**Marco de gobernanza para desarrollo asistido por IA.** Trazabilidad, evidencia y control
+humano sobre toda decisión irreversible.
+
+```bash
+npm i -D @a81biz/cauce
+npx cauce install
+```
+
+Y después, en Claude Code dentro del proyecto: **«instala el framework»**.
+
+Un cauce no empuja el agua: decide por dónde puede ir. Ninguna regla escrita en un documento
+obliga a un modelo a obedecerla — lo que este marco consigue es que lo correcto salga barato y
+lo incorrecto quede visible.
 
 ```
 FIDE → Foundation → FDGE (construir) → QA (verificar UX) → PTSA (auditar producto)
@@ -38,7 +50,7 @@ vinculantes. Se cargan en cada sesión (PHASE 0 de FDGE):
 | `docs/implementation/REGISTRY.json` | Versión de suite, modo, contadores de IDs, PTs vivos |
 | `docs/enterprise-documentation/` | Arquitectura, PRD, TRD, Conventions |
 | `docs/implementation/BACKLOG.md` | PTs vivos y su fase actual |
-| `docs/implementation/HANDOFF.md` | Estado actual del sistema |
+| `docs/implementation/HANDOFF.md` | Bloque `ESTADO`: qué está abierto y cuál es la siguiente acción (`SUITE-R33`) |
 | `docs/implementation/HISTORY.log` | Todo el trabajo previo, trazado por `PT-NNN` |
 | `docs/implementation/INCIDENTS.log` | Incidentes abiertos |
 | `PTSA/RESUMEN.md` | Health Score y hallazgos abiertos |
@@ -114,7 +126,7 @@ FIDE investiga el nicho, consensúa contigo la arquitectura, genera la documenta
 Instrucción lista para copiar y pegar en el proyecto destino:
 
 ```
-Aplica la Methodology Suite 4.5.0 al proyecto en <RUTA_ABSOLUTA_DEL_PROYECTO>.
+Aplica cauce al proyecto en <RUTA_ABSOLUTA_DEL_PROYECTO>.
 La fuente del framework está en C:/DevOps/claude/docs/methodology/.
 
 --- PASO 0 — INVENTARIO Y LIMPIEZA ---
@@ -156,13 +168,13 @@ La fuente del framework está en C:/DevOps/claude/docs/methodology/.
 2. Copia el contenido de Suite-CLAUDE-Template.md al CLAUDE.md del proyecto,
    después de sus secciones propias (créalo si no existe).
    Personaliza SOLO dos cosas:
-     - el bloque de modo:  suite_version: 4.5.0  ·  execution_mode: SUPERVISED
+     - el bloque de modo:  suite_version: <la del CHANGELOG>  ·  execution_mode: SUPERVISED
      - la Declaración de Valor (dominio, productos, reglas de validez) — es lo único
        específico del dominio que la suite necesita.
 
 3. Crea docs/implementation/ con:
      REGISTRY.json   ← asignador único de IDs. Contenido inicial:
-                       { "suite_version": "4.5.0", "execution_mode": "SUPERVISED",
+                       { "suite_version": "<la del CHANGELOG>", "execution_mode": "SUPERVISED",
                          "counters": {"PT":0,"EP":0,"QA":0,"QR":0,"QD":0,
                                       "H":0,"E":0,"P":0,"R":0,"INC":0},
                          "allocations": [] }

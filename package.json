@@ -1,6 +1,6 @@
 {
   "name": "@a81biz/cauce",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Marco de gobernanza para desarrollo asistido por IA: trazabilidad, evidencia y control humano sobre toda decisión irreversible.",
   "type": "module",
   "license": "Apache-2.0",
@@ -36,7 +36,8 @@
     "verify:suite": "node docs/methodology/tools/verify-suite.mjs docs/methodology",
     "core": "node docs/methodology/tools/build-core.mjs docs/methodology",
     "core:check": "node docs/methodology/tools/build-core.mjs --check docs/methodology",
-    "verify": "npm run verify:suite && npm run core:check && npm run audit && npm run selftest"
+    "verify": "npm run verify:suite && npm run core:check && npm run audit && npm run verify:secretos && npm run selftest",
+    "verify:secretos": "node docs/methodology/tools/revisar-secretos.mjs ."
   },
   "keywords": [
     "metodologia",

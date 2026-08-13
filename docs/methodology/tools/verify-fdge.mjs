@@ -47,7 +47,7 @@ const errors = [];
 const warnings = [];
 const passed = [];
 let GRAPH = { state: 'UNKNOWN', reason: 'sin evaluar' };
-const SUITE_VERSION = '5.0.0';
+const SUITE_VERSION = '5.1.0';
 
 const fail = (rule, msg) => errors.push({ rule, msg });
 const warn = (rule, msg) => warnings.push({ rule, msg });
@@ -71,6 +71,10 @@ const RE_SIGNED_BY = /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.
 // OJO: sin \b final. En JS, \b es ASCII: tras «Í» no hay frontera de palabra, de modo que
 // /S[ÍI]\b/ NO casa con «SÍ» — que es exactamente lo que escriben las tres plantillas.
 const RE_SIGN_CONFIRM = /reflejan?\s+mi\s+intención:\s*S[ÍI]/i;
+const RE_CIERRE = /^\s*>?\s*Termina cuando\s*:\s*\S/im;
+const RE_NOTA_BITACORA = /^\d{4}-\d{2}-\d{2}\s*·\s*PHASE/gim;
+const RE_SUITE_YAML = /^\s*suite_version\s*:\s*['\"]?([0-9.]+)/im;
+const RE_PHASE_YAML = /^\s*phase\s*:\s*(\d+)/im;
 const RE_SIGN_BATCH = /Firmado\s+por\s+lote:\s*(EP-\d+)/i;
 const RE_DOR = /(?:^|\n)\s*(?:VEREDICTO|DoR)\s*:\s*(PASS|FAIL|CHALLENGE)\b/i;
 const RE_DOR_OVERRIDE = /CHALLENGE\s+aceptado\s+por:\s*(?!\[)(\S.*)$/im;
@@ -87,6 +91,7 @@ const LEGACY_STATES = ['PENDING', 'OPEN', 'DISCOVERY_PENDING', 'ENRICHMENT_PENDI
   'CLOSED-WONTFIX', 'CLOSED-ACCEPTED'];
 
 // ─── SUITE-R08 / LEX-R06 — el registro es el único asignador ─────────────────
+let REGISTRO = null;   // lo rellena checkRegistry(); checkPT lo consulta para la fase
 function checkRegistry() {
   const p = join(IMPL, 'REGISTRY.json');
   if (!existsSync(p)) {
@@ -712,6 +717,34 @@ function checkPT(pt, { gate } = {}) {
   const heredaDelLote = RE_SIGN_BATCH.test(intake);
   if (heredaDelLote) ok('FDGE-R51', `${pt}: intake ligero · firma, veredicto y severidad heredados del lote.`);
 
+  const enRegistroPT = (REGISTRO?.allocations ?? []).find((a) => a?.id === pt);
+  // FDGE-R52/R53 solo rigen para trabajo abierto BAJO la version que las introdujo. SUITE-R18
+  // existe justo para esto: cada allocation lleva su suite_version y la conserva hasta cerrar.
+  // Sin esta puerta, adoptar la regla exigiria una bitacora retroactiva a cada PT ya integrado
+  // — obligar a rehacer trabajo valido es la forma mas rapida de que se abandone el marco.
+  const DESDE = [5, 1, 0];
+  const suiteDelPT = (intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? '0.0.0')
+    .split('.').map((n) => Number(n) || 0);
+  const rigeAqui = suiteDelPT[0] > DESDE[0]
+    || (suiteDelPT[0] === DESDE[0] && (suiteDelPT[1] > DESDE[1]
+      || (suiteDelPT[1] === DESDE[1] && suiteDelPT[2] >= DESDE[2])));
+
+  // FDGE-R53 · la deriva ocurre en tareas SIN FORMA. Una que declara como termina lo tiene.
+  if (rigeAqui && !RE_CIERRE.test(intake)) {
+    fail('FDGE-R53', `${pt}: el intake no declara cómo termina. Una tarea sin condición de cierre observable no tiene final: se estira hasta que nadie recuerda dónde empezó. Una línea basta — «Termina cuando: …».`);
+  }
+
+  // FDGE-R52 · el reanclaje se ESCRIBE. Una nota por transicion alcanzada, con fecha.
+  // Releer no deja rastro y por eso no se podia exigir; escribir si, y ademas obliga a releer.
+  const fase = Number(intake.match(RE_PHASE_YAML)?.[1] ?? enRegistroPT?.phase ?? 0);
+  if (rigeAqui && fase >= 2) {
+    const bit = read(join(dir, 'bitacora.md'));
+    const notas = bit === null ? 0 : (bit.match(RE_NOTA_BITACORA) ?? []).length;
+    if (notas < fase - 1) {
+      fail('FDGE-R52', `${pt}: está en PHASE ${fase} y su bitácora tiene ${notas} nota(s); faltan ${fase - 1 - notas}. Cada transición de fase deja tres líneas —qué cierras, dónde estás, qué sigue—: escribir obliga a releer, y releer no obliga a nada.`);
+    } else ok('FDGE-R52', `${pt}: bitácora con ${notas} nota(s) para PHASE ${fase}.`);
+  }
+
   const dor = intake.match(RE_DOR)?.[1]?.toUpperCase();
   if (!dor && !heredaDelLote) {
     fail('FDGE-R03', `${pt}: intake.md no registra el veredicto de G1 (VEREDICTO: PASS | FAIL | CHALLENGE).`);
@@ -928,9 +961,10 @@ const all = argv.includes('--all');
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
 
-console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 5.0.0\n');
+console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 5.1.0\n');
 
 const reg = checkRegistry();
+REGISTRO = reg;
 checkFoundation();
 checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');

@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **5.0.0**
+> Suite version: **5.1.0**
 
 ---
 
@@ -67,10 +67,32 @@ avisa de que va a terminar.
 que tocó `HANDOFF.md`, la sesión dejó trabajo sin estado y `SUITE-R03` no se cumple. Git es el
 único reloj que no depende de que alguien se acuerde.
 
-`FDGE-R52` · **Reléelo antes de cada transición de fase** y di en una línea dónde estás.
-`PHASE 0` lo lee una sola vez, al arrancar; en una sesión larga el contexto se comprime y las
-reglas salen de la ventana. Es la regla más débil del marco: consigue que la deriva se note,
-no impedirla.
+### El reanclaje se escribe                                                  `FDGE-R52`
+
+En cada transición de fase, tres líneas **en la tarea** — comentario del issue si hay
+plataforma, `changes/PT-NNN-slug/bitacora.md` si no:
+
+```
+2026-08-12 · PHASE 4 → 5
+cierro:   diseño aprobado en G2, middleware en vez de decorador
+estoy en: implementación, tocando src/middleware/
+sigue:    tests de integración y manifiesto de evidencia
+```
+
+**Escribir obliga a releer; releer no obliga a nada.** Esa es toda la diferencia, y es la razón
+de que la versión anterior de esta regla —«relee el estado»— fuera la más débil del marco: no
+se podía exigir ni comprobar. Una nota tiene fecha, es observable, y la siguiente sesión la
+encuentra sin preguntar.
+
+Append-only. Una bitácora que se reescribe deja de ser un rastro.
+
+### Toda tarea declara cómo termina                                          `FDGE-R53`
+
+Una línea, observable, en el intake. **La deriva ocurre en tareas sin forma**: la que declara su
+final lo tiene; la que no, se estira hasta que nadie recuerda dónde empezó.
+
+Si la condición de cierre necesita un «y además», son dos tareas. Partirlas ahí cuesta un
+minuto; descubrirlo en `G3` cuesta la fase entera.
 
 ## El bucle de la implementación                       `[IMPLEMENTACIÓN]` · `[CIERRA]`
 

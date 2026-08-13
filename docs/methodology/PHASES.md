@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **5.0.0**
+> Suite version: **5.1.0**
 
 ---
 
@@ -121,6 +121,12 @@ PARA siempre. Resumen ejecutivo y espera.
 ```
 
 ### PHASE 1 · Intake — **G1**
+```
+CIERRE   toda tarea declara EN UNA LÍNEA, observable, cómo termina.            [FDGE-R53]
+         La deriva ocurre en tareas SIN FORMA: la que declara su final lo tiene.
+         Si la condición necesita un «y además», son DOS tareas — y partirlas
+         aquí es más barato que descubrirlo en G3.
+```
 ```
 LEE  petición o QD/H/R de origen · BACKLOG · HISTORY · ROADMAP (duplicados)
 HAZ  1 asignar PT desde REGISTRY [SUITE-R08] · monotónico, nunca reutilizado [LEX-R04]
@@ -273,9 +279,11 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           Si hay trabajo posterior, la sesión terminó sin dejar el estado
           retomable. Se comprueba contra git, el único reloj que no depende
           de nadie.
-REANCLAJE antes de cambiar de fase y antes de abrir nada: RELEE el bloque y di
-          en una línea dónde estás. PHASE 0 lo lee UNA vez; después nada lo
-          devuelve a la ventana y en una sesión larga el contexto se comprime. [FDGE-R52]
+REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
+          qué cierras · dónde estás · qué sigue.
+          issue si hay plataforma · changes/PT-NNN-slug/bitacora.md si no.
+          Escribir obliga a releer; releer no obliga a nada — y no deja rastro.
+          Append-only: una bitácora que se reescribe deja de ser un rastro.
 NO        contar aquí lo que se hizo: eso es HISTORY.log y el relato de HANDOFF.
           Esto responde qué está abierto y qué sigue, y cabe en una pantalla.
 ```

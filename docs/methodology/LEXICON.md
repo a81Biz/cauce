@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **5.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **5.1.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -208,7 +208,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
 
 ```json
 {
-  "suite_version": "5.0.0",
+  "suite_version": "5.1.0",
   "execution_mode": "SUPERVISED",
   "foundation": { "generated": "2026-08-01", "validated_by": "Ada Lovelace", "pt_at_generation": 38 },
   "graph": { "generated": "2026-08-01", "scope": "src/", "pt_at_generation": 38 },
@@ -228,7 +228,7 @@ el instalador; `tools/verify-fdge.mjs` depende de los campos `status` y `executi
       "status": "READY",
       "phase": 1,
       "structural": false,
-      "suite_version": "5.0.0"
+      "suite_version": "5.1.0"
     }
   ]
 }
@@ -480,6 +480,7 @@ changes/PT-XXX-slug/
   test-scenarios.md    PHASE 4
   out-of-scope.md      PHASE 4
   traceability.md      PHASE 4→6 · matriz AC → TS → test → evidencia → caso QA
+  bitacora.md          append-only · tres líneas por transición de fase [FDGE-R52]
 ```
 
 `LEX-R13` · **Ningún archivo de trabajo de un PT vive en una ruta global.**

@@ -8,6 +8,64 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 5.1.0 — 2026-08-12
+
+**El reanclaje se escribe.** La 5.0.0 dejó `FDGE-R52` diciendo «relee el estado antes de cada
+transición de fase» y declarándola, en el propio texto, la regla más débil del marco. Lo era por
+un motivo concreto: **releer no deja rastro**. No se puede exigir ni comprobar.
+
+### `FDGE-R52`, reescrita
+
+Cada transición de fase deja tres líneas **en la tarea** —comentario del issue si hay
+plataforma, `changes/PT-NNN-slug/bitacora.md` si no—: qué se cierra, dónde se está, qué sigue.
+
+```
+2026-08-12 · PHASE 4 → 5
+cierro:   diseño aprobado en G2, middleware en vez de decorador
+estoy en: implementación, tocando src/middleware/
+sigue:    tests de integración y manifiesto de evidencia
+```
+
+**Escribir obliga a releer; releer no obliga a nada.** Esa es toda la diferencia. La nota tiene
+fecha, es observable y la encuentra la sesión siguiente sin preguntar — y `verify-fdge` puede
+exigirla: un PT en `PHASE n` necesita `n-1` notas. Append-only: una bitácora que se reescribe
+deja de ser un rastro.
+
+### `FDGE-R53` · toda tarea declara cómo termina
+
+Una línea observable en el intake. **La deriva ocurre en tareas sin forma**: la que declara su
+final lo tiene; la que no, se estira hasta que nadie recuerda dónde empezó. Si la condición
+necesita un «y además», son dos tareas — y partirlas ahí cuesta un minuto frente a descubrirlo
+en `G3`.
+
+### Ninguna de las dos invalida trabajo hecho
+
+Ambas rigen **solo para lo abierto bajo 5.1.0 o posterior**, usando el sello por asignación de
+`SUITE-R18`. Sin esa puerta, adoptarlas exigiría una bitácora retroactiva a cada PT ya
+integrado: en el proyecto que motivó todo esto, 101 PTs en `PHASE 9` — ocho notas cada uno.
+Obligar a rehacer trabajo válido es la forma más rápida de que un equipo abandone el marco.
+
+### La portada declaraba una versión de hace ocho
+
+`README.md` es la primera página del paquete en npm y de GitHub, y decía **4.5.0**. No mencionaba
+seis de las doce herramientas y sus instrucciones eran anteriores a que el paquete existiera.
+Nadie la miraba: `audit` enumera reglas, fases, artefactos y herramientas, y `verify-suite` busca
+el patrón `Suite version: **X**` — la portada usaba otra redacción y se escapó. El mismo verde
+por omisión, en la puerta de entrada.
+
+### Seis verificadores viajaban sin correr
+
+`cauce verify` invocaba tres de las doce herramientas. `verify-qa`, `verify-ptsa` y
+`revisar-secretos` se instalaban y no las llamaba nadie — un verificador que no se ejecuta es
+documentación. Ahora corren las seis, y el código de salida `2` («nada que verificar aquí») deja
+de contar como fallo.
+
+### Verificación
+
+`selftest.sh`: **168 casos**, con el bloque **R**. `audit.mjs`: 522 elementos, 0 huecos.
+
+---
+
 ## 5.0.0 — 2026-08-12
 
 **Fases D, E, F y G del plan.** Sube a `MAJOR` porque cambia lo que un proyecto debe tener para

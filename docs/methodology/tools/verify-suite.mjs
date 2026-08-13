@@ -35,7 +35,7 @@ if (!existsSync(BASE)) {
   process.exit(1);
 }
 
-const SUITE_VERSION = '5.0.0';
+const SUITE_VERSION = '5.1.0';
 const errors = [];
 const warnings = [];
 

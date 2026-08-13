@@ -117,13 +117,20 @@ const comandos = {
 
   verify() {
     let peor = 0;
+    // Las herramientas nuevas viajaban en el paquete y no las invocaba nadie: un verificador
+    // que no se ejecuta es documentacion. verify-qa y verify-ptsa salen con 2 cuando no hay
+    // nada que verificar, y eso no cuenta como fallo.
     for (const [script, args] of [
       ['verify-suite.mjs', [SUITE_EN_DESTINO]],
       ['build-core.mjs', ['--check', SUITE_EN_DESTINO]],
       ['verify-fdge.mjs', ['--all']],
+      ['verify-qa.mjs', [DESTINO]],
+      ['verify-ptsa.mjs', [DESTINO]],
+      ['revisar-secretos.mjs', [DESTINO]],
     ]) {
       di(`${c.dim}── ${script}${c.fin}`);
-      peor = Math.max(peor, corre(script, args));
+      const r = corre(script, args);
+      peor = Math.max(peor, r === 2 ? 0 : r);   // 2 = «nada que verificar aquí», no es fallo
     }
     return peor;
   },

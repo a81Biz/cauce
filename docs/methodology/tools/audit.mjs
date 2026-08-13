@@ -358,7 +358,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
 }
 
 // ── 8. SUITE-R26 · cobertura mecanica por componente ────────────────────────
-// La auditoria adversaria de la 5.0.0 midio esto por primera vez y encontro QA 0/19 y FPGE
+// La auditoria adversaria de la 5.1.0 midio esto por primera vez y encontro QA 0/19 y FPGE
 // 0/10: dos componentes enteros cuyas reglas solo se cumplian por buena voluntad. No se exige
 // el 100 % —hay reglas que ningun script puede comprobar— pero el hueco se declara.
 const coberturaMecanica = (() => {

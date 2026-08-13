@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 759674c3cc2d -->
-<!-- fuentes: RULES.md:7864f96d9f87 LEXICON.md:d3efb0fdf7b4 EXECUTION-MODES.md:3f6e807d752e PHASES.md:6acd7d06f28d -->
+<!-- cuerpo: ab6827863e21 -->
+<!-- fuentes: RULES.md:e27f8d989a32 LEXICON.md:21c4e6b146b7 EXECUTION-MODES.md:452928b10446 PHASES.md:87ebe5e07b83 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -275,7 +275,8 @@ verifica un script y bloquea la integración.
 `FDGE-R49` **H** Mientras haya una implementación abierta, todo le pertenece.
 `FDGE-R50` **H** Nueva o parte de: el criterio está escrito.
 `FDGE-R51` **H** El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.
-`FDGE-R52` **H** Reanclaje en cada transición de fase. Antes de cambiar de fase y antes de abrir nada nuevo, se relee el bloque ESTADO y se dice en una línea dónde se está. PHASE 0 lee el estado una vez, al arrancar;…
+`FDGE-R52` **H** El reanclaje se escribe, no se relee. Cada transición de fase deja tres líneas en la tarea —comentario del issue si hay plataforma, bitacora.md del PT si no—: qué se cierra · dónde se está · qué sigue.…
+`FDGE-R53` **H** Toda tarea declara cómo termina. Una línea, observable, en el intake: la condición que hace que la tarea esté hecha. La deriva ocurre en tareas sin forma: una tarea que declara su final lo tiene; una que…
 
 ### INTAKE — Admisión
 
@@ -469,6 +470,12 @@ PARA siempre. Resumen ejecutivo y espera.
 
 ### PHASE 1 · Intake — **G1**
 ```
+CIERRE   toda tarea declara EN UNA LÍNEA, observable, cómo termina.            [FDGE-R53]
+         La deriva ocurre en tareas SIN FORMA: la que declara su final lo tiene.
+         Si la condición necesita un «y además», son DOS tareas — y partirlas
+         aquí es más barato que descubrirlo en G3.
+```
+```
 LEE  petición o QD/H/R de origen · BACKLOG · HISTORY · ROADMAP (duplicados)
 HAZ  1 asignar PT desde REGISTRY [SUITE-R08] · monotónico, nunca reutilizado [LEX-R04]
        si no puedes escribirlo, PARA
@@ -620,9 +627,11 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           Si hay trabajo posterior, la sesión terminó sin dejar el estado
           retomable. Se comprueba contra git, el único reloj que no depende
           de nadie.
-REANCLAJE antes de cambiar de fase y antes de abrir nada: RELEE el bloque y di
-          en una línea dónde estás. PHASE 0 lo lee UNA vez; después nada lo
-          devuelve a la ventana y en una sesión larga el contexto se comprime. [FDGE-R52]
+REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
+          qué cierras · dónde estás · qué sigue.
+          issue si hay plataforma · changes/PT-NNN-slug/bitacora.md si no.
+          Escribir obliga a releer; releer no obliga a nada — y no deja rastro.
+          Append-only: una bitácora que se reescribe deja de ser un rastro.
 NO        contar aquí lo que se hizo: eso es HISTORY.log y el relato de HANDOFF.
           Esto responde qué está abierto y qué sigue, y cabe en una pantalla.
 ```

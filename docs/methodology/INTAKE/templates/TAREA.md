@@ -41,14 +41,23 @@ suite_version: X.Y.Z
 | AC-01 | | |
 | AC-02 | | |
 
-## 3. Qué NO entra   `[AGENTE]`
+## 3. Cómo termina   `[HUMANO o AGENTE]` — obligatorio   `FDGE-R53`
+
+> **Una línea, observable.** La condición que hace que esta tarea esté hecha.
+>
+> La deriva ocurre en tareas sin forma: la que declara su final lo tiene. Si esta línea necesita
+> un «y además», son dos tareas — y partirlas ahora cuesta un minuto.
+
+> Termina cuando:
+
+## 4. Qué NO entra   `[AGENTE]`
 
 > Lo que alguien podría dar por incluido y no lo está. Se escribe aquí para que la discusión
 > ocurra ahora y no en `G3`.
 
 - OUT:
 
-## 4. Firma
+## 5. Firma
 
 ```
 Firmado por lote: EP-NNN
