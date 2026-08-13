@@ -12,7 +12,7 @@
 > **Nombre canónico:** el componente se llama **FQAGE** en prosa normativa y **QA** en
 > triggers, rutas y nombres de archivo (`LEX-R03`). No hay una tercera grafía.
 >
-> Suite version: **6.0.1**
+> Suite version: **7.0.0**
 
 ---
 

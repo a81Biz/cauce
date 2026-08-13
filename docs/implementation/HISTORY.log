@@ -571,6 +571,69 @@ Agujero declarado y sin arreglo mecánico: **citar cualquier identificador satis
 `PT-012` citaba `PT-013` y pasaba, aunque `PT-013` no fuera a hacer ese trabajo. Comprueba que
 haya dónde volver, no que ese sitio sirva.
 
-2026-08-13 | PT-018 | PHASE 8 | Gramática cerrada para el destino de un out-of-scope. RE_APLAZA eliminada. selftest 275->281, 0 fallos. Avisos SUITE-R44 en el repositorio: 0. Al aplicarla aparecieron PT-019 (#26, migrar el proyecto legado) y PT-020 (#27). Defecto propio corregido:  degradado a 0x08 (SUITE-R38). Cierre a DONE pendiente de persona: SUITE-R06b.
-2026-08-13 | PT-018 | PHASE 9 | Cierre autorizado por Alberto Martinez (SUITE-R06b). Estado DONE.
-2026-08-13 | PT-014 | PHASE 8 | ordenDeApertura(): las tareas se crean antes que su lote, con la dependencia en un solo sentido. Cero llamadas nuevas. selftest 281->287. Hallazgo: sincronizarCuerpos() ya lo arreglaba y no se alcanzaba. Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## PT-018 — BUG: el destino de un out-of-scope es vocabulario cerrado, no prosa
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `SUITE-R44` nació en `PT-013` con dos agujeros declarados en su propia self-review,
+y los dos salían de lo mismo: la columna «Dónde va» admitía PROSA LIBRE. Con prosa libre la
+comprobación tiene que adivinar si una frase significa «aplazado» —una lista de palabras, a la
+que se le escapó «posteriores» en plural— y si el sitio al que apunta sirve —`PT-012` citaba a
+`PT-013`, que no iba a hacer ese trabajo, y pasaba—.
+
+Qué se hizo: quitar la prosa, no mejorar el detector. Ampliar la lista de palabras es perseguir
+el idioma: cada sinónimo que se añade deja fuera al siguiente. `RE_APLAZA` deja de existir. El
+destino es «—» o la cita de un identificador, y la cita debe ser RECÍPROCA: hermano del mismo
+lote vale siempre; el propio lote solo si ya cerró; cualquier otro debe ser una allocation
+DEFERRED cuyo `origin` mencione el PT. Es lo que `PTSA-R77` ya exige de su matriz y el marco no
+se exigía a sí mismo.
+
+Qué encontró al aplicarse: dos aplazados sin asignar que la versión anterior no veía —`PT-019`
+(#26), migrar el proyecto legado, que era el trabajo con el que se abrió la sesión, y `PT-020`
+(#27)—. Un caso de `PT-013` se SUSTITUYE, no se arregla: afirmaba que citar cualquier allocation
+basta, que es justo lo que este PT deroga.
+
+Defecto propio, y es el que este marco documenta ocho veces: el `\b` de `RE_CITA_ID` se degradó
+al byte de control 0x08. El regex compilaba sin error y no casaba nada — la comprobación estaba
+apagada y en verde. `SUITE-R38` existe para esto. Encontrado con `cat -A`.
+
+Evidencia: docs/implementation/evidence/PT-018/ · selftest 275 → 281 casos, avisos SUITE-R44: 0
+Cierre a DONE autorizado por Alberto Martínez (SUITE-R06b, tipo BUG).
+
+## PT-014 — BUG: el cuerpo del lote se compone antes de que sus tareas tengan número
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: `tracker abrir --aplicar` creaba los issues en el orden del registro, donde un lote
+va antes que sus tareas. Al componer el cuerpo del lote sus tareas aún no tenían número, y salía
+sin ellos: hacía falta repetir el comando. Lo vio el propio usuario al abrir `EP-004`.
+
+Qué se hizo: `ordenDeApertura()`, pura y exportada, que pone los `EP` al final. La dependencia
+entre cuerpos va en un solo sentido —el lote cita a sus tareas por NÚMERO, la tarea al lote por
+IDENTIFICADOR— así que no hay ciclo y un orden basta. Cero llamadas nuevas a la plataforma.
+
+Hallazgo: `sincronizarCuerpos()` YA arreglaba esto y no se alcanzaba — solo corre en la rama de
+`abrir()` en la que no hay nada que abrir. Por eso el defecto sobrevivió a `PT-010`, que es quien
+escribió esa función. Un arreglo inalcanzable se lee como protección y es peor que ninguno.
+
+Lo que no se verificó: abrir un lote real contra GitHub. No hay ninguno que abrir e inventar uno
+dejaría basura en el tablero. Se verificaron las dos piezas que componen el resultado, y la
+comprobación inversa —revertida la función a la identidad— deja el caso en rojo.
+
+Evidencia: docs/implementation/evidence/PT-014/ · selftest 281 → 287 casos
+Cierre a DONE autorizado por Alberto Martínez (SUITE-R06b, tipo BUG).

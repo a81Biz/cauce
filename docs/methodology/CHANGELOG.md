@@ -8,6 +8,88 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.0.0 — 2026-08-13
+
+**Una regla nueva y vinculante, y por eso sube a `MAJOR`.** `SUITE-R44` obliga a que la columna
+«Dónde va» de un `out-of-scope.md` sea vocabulario cerrado. Un archivo que hoy pasa con prosa
+pasará a fallar: **hay migración, y está abajo**.
+
+El lote nació de una frase: *«es imposible que se te pasen u olviden cosas, se supone que todo
+está apuntado»*. El marco perdía trabajo por el mismo sitio por el que lo perdería una persona
+— escribiéndolo en un párrafo y confiando en acordarse.
+
+### `SUITE-R44` · lo que un lote aplaza se asigna, no se narra
+
+Una fila de `out-of-scope.md` que aplaza trabajo tiene que decir **dónde vuelve**, y decirlo en
+un vocabulario que no haya que interpretar:
+
+| Escrito en «Dónde va» | Significa |
+|:---|:---|
+| `—` | no aplaza nada: queda fuera y punto |
+| `PT-NNN` · `EP-NNN` | aplaza, y ahí vuelve |
+
+Cualquier otra cosa —una frase, una celda vacía, «pendiente»— **falla**. Y la cita tiene que ser
+**recíproca**: un hermano del mismo lote vale siempre; el propio lote solo si ya cerró —«lo hará
+este lote» es justo la promesa que falló—; cualquier otro destino debe ser una allocation
+`DEFERRED` cuyo `origin` mencione el PT del que viene.
+
+`DEFERRED` deja de ser un estado declarado y muerto: queda **exento** de las exigencias de un PT
+en curso y **vivo** para el espejo, así que aplazar algo lo pone en el tablero con su issue
+abierto en vez de sacarlo.
+
+Fuera de `G4` avisa; en `G4` bloquea. Aplazar sigue permitido: lo que deja de estar permitido es
+aplazar sin decir a dónde.
+
+**La regla se probó sobre el propio repositorio y encontró cinco trabajos aplazados que no
+estaban asignados en ninguna parte**, incluido migrar un proyecto legado — el trabajo con el que
+se había abierto la sesión veinte tareas antes.
+
+### La migración de legado deja de estar rota
+
+- **`INTAKE-R08` leía los miembros de un lote de todo el texto del intake**, no de su tabla, así
+  que cualquier identificador citado de paso contaba como miembro. Sobre un proyecto real, los
+  hallazgos pasaron de **17 a 3**, y los tres son la migración misma.
+- **`migrate.mjs` no tenía tramo `4.12 → 6.x`**: recitaba lo que llega nuevo en vez de mirar el
+  proyecto. Ahora detecta el bloque `ESTADO` ausente, las allocations vivas sin `phase` y si la
+  plataforma está declarada. Sobre el mismo proyecto: de **1 acción pendiente a 7**.
+
+### Y dos defectos del propio marco
+
+- **`tracker abrir` componía el cuerpo del issue de un lote antes de que sus tareas tuvieran
+  número**, y hacía falta repetir el comando. Se crean las tareas primero: cero llamadas nuevas.
+  El arreglo ya existía en `sincronizarCuerpos()` y **no se alcanzaba** — un arreglo inalcanzable
+  se lee como protección y es peor que ninguno.
+- `verify-fdge` volvió a exigir los artefactos **desde la fase que los produce**, no antes.
+
+```
+selftest              266 → 287 casos
+cobertura mecánica    93/170 reglas con verificador que una compuerta ejecuta
+```
+
+### Migración desde 6.0.x
+
+**Un solo cambio, y es mecánico.** Revisa la columna «Dónde va» de cada `changes/*/out-of-scope.md`:
+
+```bash
+node docs/methodology/tools/verify-fdge.mjs --all
+```
+
+Cada aviso `SUITE-R44` señala una fila. Para cada una:
+
+1. **Si no aplaza trabajo** —queda fuera y ya está— escribe `—` en la celda. Es lo más frecuente.
+2. **Si lo aplaza dentro del mismo lote**, cita el `PT-NNN` hermano que lo recoge.
+3. **Si lo aplaza para después**, dale una allocation propia en `REGISTRY.json` con
+   `"status": "DEFERRED"` y un `origin` que mencione el PT del que sale, y cita su identificador.
+   Su issue queda abierto: aplazar algo lo pone en el tablero.
+
+No hay cambio de esquema, ni de nombres canónicos, ni migración de datos. Los `out-of-scope.md`
+de lotes **ya cerrados** no se tocan: la comprobación mira las allocations vivas.
+
+Si prefieres migrar sin prisa, `SUITE-R44` solo bloquea en `G4`: hasta entonces avisa, y puedes
+trabajar mientras ordenas los archivos.
+
+---
+
 ## 6.0.1 — 2026-08-13
 
 **Dos correcciones sobre lo que la 6.0.0 puso en la plataforma.** Ninguna regla nueva y ninguna

@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **6.0.1**
+> Suite version: **7.0.0**
 
 ---
 

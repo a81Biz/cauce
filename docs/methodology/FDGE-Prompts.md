@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **6.0.1**
+> Suite version: **7.0.0**
 
 ---
 
