@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **5.3.0**
+> Suite version: **6.0.0**
 
 ---
 
@@ -259,6 +259,10 @@ REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECI
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
+          node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
+          Se distingue por MARCA de procedencia, no por autor: el agente comenta
+          con la credencial de la persona. Falsificable, y declarado.
 NO        dejar que la plataforma asigne identificadores · copiar el intake al issue
           · usar MCP como único canal: la verificación corre donde no hay nadie delante
 ```

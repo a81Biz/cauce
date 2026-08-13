@@ -835,6 +835,22 @@ function checkPT(pt, { gate } = {}) {
     }
   }
 
+  // SUITE-R43 · lo que una persona escribe en la plataforma se lee. Existe porque durante la
+  // sesion que la motivo el agente escribio en nueve issues y no releyo ninguno.
+  if (REGISTRO?.tracker?.plataforma && enRegistroPT?.issue) {
+    const r = correTracker(['pendiente', pt]);
+    const cod = Number(String(r.salida).trim().split(/\r?\n/).pop());
+    if (r.codigo === 3) {
+      warn('SUITE-R43', `${pt}: sin acceso a la plataforma, los comentarios del issue #${enRegistroPT.issue} quedan SIN EVALUAR.`);
+    } else if (cod === 4) {
+      warn('SUITE-R43', `${pt}: ningún comentario del issue #${enRegistroPT.issue} lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).`);
+    } else if (cod === 1) {
+      fail('SUITE-R43', `${pt}: hay un comentario sin responder en el issue #${enRegistroPT.issue}, posterior a la última nota del agente. Lo que una persona se molestó en escribir se lee antes de avanzar de fase.`);
+    } else if (cod === 0) {
+      ok('SUITE-R43', `${pt}: sin comentarios pendientes en el issue #${enRegistroPT.issue}.`);
+    }
+  }
+
   const dor = intake.match(RE_DOR)?.[1]?.toUpperCase();
   if (!dor && !heredaDelLote) {
     fail('FDGE-R03', `${pt}: intake.md no registra el veredicto de G1 (VEREDICTO: PASS | FAIL | CHALLENGE).`);

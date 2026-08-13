@@ -449,3 +449,41 @@ package.json          5.3.0 = CHANGELOG
 **Siguiente:** `G4`. El PR de `trabajo` → `main`, y el merge lo aprieta una persona
 (`EXEC-R04`, `SUITE-R06a`). Después: `INTEGRATED` para los tres PT, `EP-001` a `CLOSED`, y
 publicar con `publicar.yml`, que es manual y desde `main`.
+
+---
+
+## 2026-08-13 · `EP-002` cerrado · versión `6.0.0` · a la espera de `G4`
+
+Tres tareas, todas con `G3` **automática** —ninguna es `BUG` y `verify-fdge` pasó (`EXEC-R06`)—
+y `G1`/`G2` firmadas por delegación con constancia.
+
+```
+PT-006  CHORE    SUITE-R42 · el contrato vuelve a su regla
+PT-007  FEATURE  el issue lleva la fase y la compuerta, derivadas
+PT-008  FEATURE  SUITE-R43 · lo que una persona escribe se lee
+```
+
+**Lo que el lote entrega:** el tablero de GitHub responde «qué va cuándo» sin abrir el
+repositorio, con la condición intacta de que el registro asigna y la plataforma espeja.
+
+**Y lo que se aprendió:** las tres tareas encontraron algo que su análisis no había previsto —un
+prompt desincronizado, una compuerta de acceso que dejaba `estado` inútil, y que agente y
+humano comparten login—. **Las tres veces lo dijo una comprobación, no el agente.**
+
+`AC-03` de `PT-008` se reformuló por eso: distinguir comentarios por autor es imposible cuando
+el agente usa la credencial de la persona. Se midió antes de decidir.
+
+**Versión `6.0.0`**, `MAJOR`: `SUITE-R42` y `SUITE-R43` son reglas vinculantes nuevas, que es el
+criterio con el que la 5.0.0 subió. Las dos condicionadas a plataforma declarada. La `5.3.0` no
+llegó a publicarse; su contenido va dentro y su entrada se conserva.
+
+```
+selftest              180 → 241 casos
+audit                 92/169 reglas con verificador que una compuerta ejecuta
+verify-fdge --all     sin errores
+espejo                9 issues, sin divergencias
+```
+
+**Parada final: `G4` y la publicación.** Las dos son humanas. `SUITE-R06` es la lista cerrada
+que ningún modo automatiza y `EXEC-R04` no admite excepción, así que la delegación de firma no
+las cubre — y tomarlas dejaría al marco sin la única compuerta que protege lo irreversible.

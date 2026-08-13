@@ -3,7 +3,7 @@
 > Método: [Framework-QA.md](Framework-QA.md) · Procedimiento: [QA-Implementation.md](QA-Implementation.md)
 > Reglas: [RULES.md](../RULES.md) §Parte 5 · Vocabulario: [LEXICON.md](../LEXICON.md)
 >
-> Suite version: **5.3.0**
+> Suite version: **6.0.0**
 
 ---
 

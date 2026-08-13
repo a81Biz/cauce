@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **5.3.0**
+> Suite version: **6.0.0**
 
 ---
 
@@ -55,6 +55,14 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 **No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R43`: lo que escribas en el issue se lee antes de cerrar fase.** Se distingue por una
+marca invisible en los comentarios del agente, no por autor —comenta con tu credencial, así que
+el autor es el mismo—. Es falsificable, como una firma, y se declara.
+
+```bash
+node docs/methodology/tools/tracker.mjs pendiente PT-NNN
+```
 
 **`SUITE-R42`: el agente no abre el PR ni lo fusiona.** Comprueba que exista. Abrirlo se
 describe (`EXEC-R07`); fusionarlo es humano en los tres modos (`EXEC-R04`).

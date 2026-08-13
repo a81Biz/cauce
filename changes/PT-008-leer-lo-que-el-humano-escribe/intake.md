@@ -67,3 +67,21 @@ Que la respuesta sea buena. Comprueba que exista una nota posterior del agente, 
 falsificable escribiendo cualquier cosa. Es la misma limitación que `SUITE-R27` reconoce en
 las firmas: lo que se puede mecanizar es que la afirmación sea **contrastable**, no que sea
 sincera. Se declara aquí para que nadie lea la compuerta como más de lo que es.
+
+---
+
+## Revisiones
+
+### Revisión 1 — 2026-08-13 · `AC-03` se reformula: no se puede distinguir por autor
+
+**Qué cambia.** `AC-03` decía «se distingue por **autor**, no por contenido». Pasa a: «se
+distingue por **marca de procedencia** en los comentarios del agente».
+
+**Motivo.** Medido en `PHASE 2`: el agente comenta con la credencial de `gh` de la persona, así
+que los dos comentarios llevan el mismo autor (`a81Biz`). No es una peculiaridad de este
+repositorio — `tracker` habla CLI para funcionar con un token, y ese token es de alguien.
+Distinguir por autor exigiría una cuenta de máquina, que es infraestructura que el marco no
+debe imponer.
+
+**Lo que la reformulación cuesta:** la marca es falsificable. Se declara, como `SUITE-R27`
+declara qué prueba una firma.

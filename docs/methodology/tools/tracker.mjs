@@ -111,6 +111,28 @@ export const etiquetasNecesarias = (allocs) => [...new Set([...ETIQUETAS,
 export const etiquetasQueFaltan = (existentes, necesarias = ETIQUETAS) =>
   necesarias.filter((e) => !(existentes ?? []).includes(e));
 
+// PT-008 · La MARCA de procedencia. No se distingue por autor porque NO SE PUEDE: el agente
+// comenta con la credencial de la persona, asi que los dos comentarios llevan el mismo login.
+// Se midio antes de decidirlo. La marca es un comentario HTML, invisible al renderizar.
+//
+// Es falsificable —cualquiera puede pegarla— y eso se declara, como SUITE-R27 declara que
+// prueba una firma: lo mecanizable es que la afirmacion sea contrastable, no que sea sincera.
+export const MARCA_AGENTE = '<!-- cauce:agente -->';
+
+/**
+ * ¿Hay un comentario humano posterior a la ultima nota del agente?
+ * `true` pendiente · `false` limpio · `null` NO SE PUEDE SABER — ningun comentario lleva marca,
+ * y eso no se aprueba ni se bloquea: se declara (RULE-06). Se cura solo en cuanto el agente
+ * escribe uno marcado, sin migracion y sin tocar la historia del issue.
+ */
+export function comentarioSinResponder(cuerpos) {
+  const lista = cuerpos ?? [];
+  if (!lista.length) return false;
+  const ultimoMarcado = lista.map((c) => String(c).includes(MARCA_AGENTE)).lastIndexOf(true);
+  if (ultimoMarcado === -1) return null;
+  return lista.slice(ultimoMarcado + 1).some((c) => !String(c).includes(MARCA_AGENTE));
+}
+
 /** Una nota de reanclaje declara una transición de fase (`FDGE-R52`), no es un comentario suelto. */
 export const RE_NOTA = /PHASE\s*\d+\s*(?:→|->|a)\s*\d+|PHASE\s*\d+\s*→/i;
 export const contarNotas = (textos) => (textos ?? []).filter((t) => RE_NOTA.test(String(t))).length;
@@ -418,12 +440,25 @@ function estado() {
   notas.push(`${eps.length} implementación(es) · ${pts.length} tarea(s) · leído del registro, sin tocar la plataforma.`);
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado };
+// ── pendiente · ¿queda un comentario humano sin responder? (SUITE-R43) ──────
+function pendienteDe() {
+  const pt = ARGS.slice(1).find((a) => /^PT-\d+$/.test(a));
+  if (!pt) { console.error('Uso: tracker.mjs pendiente PT-NNN [ruta]'); process.exit(2); }
+  const a = all.find((x) => x?.id === pt);
+  if (!a?.issue) { console.log('0'); return; }
+  const r = comentarioSinResponder(adaptador.comentarios(a.issue));
+  if (r === null) { console.log('4'); return; }   // no evaluable: ninguna marca
+  console.log(r ? '1' : '0');
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);
 }
-if (ACCION === 'notas') { try { notasDe(); process.exit(0); } catch (e) { console.error(String(e.message ?? e)); process.exit(1); } }
+if (ACCION === 'notas' || ACCION === 'pendiente') {
+  try { acciones[ACCION](); process.exit(0); } catch (e) { console.error(String(e.message ?? e)); process.exit(1); }
+}
 try { acciones[ACCION](); } catch (e) { console.error(String(e.message ?? e)); process.exit(1); }
 
 console.log(`tracker · ${PLATAFORMA} · acción ${ACCION}\n`);

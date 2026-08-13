@@ -8,6 +8,106 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 6.0.0 — 2026-08-13
+
+**Dos reglas nuevas, y por eso sube a `MAJOR`.** `SUITE-R42` y `SUITE-R43` cambian lo que un
+proyecto debe tener para cumplir `G4` y para avanzar de fase — el mismo criterio con el que la
+5.0.0 subió de versión mayor. Las dos están **condicionadas a que el proyecto declare
+plataforma**, que es opcional y humano: si no la declaras, nada de esto te alcanza.
+
+> **La 5.3.0 no llegó a publicarse.** Su contenido —el espejo en las compuertas, la fase que
+> distingue lo declarado de lo ausente, la cobertura por regla— está entero aquí dentro, y su
+> entrada se conserva abajo porque describe trabajo real y cerró `TD-05`.
+
+### El contrato de la plataforma decía de más   `SUITE-R42`
+
+`PHASES.md` declaraba tres mapeos —milestone, issue, pull request— bajo el encabezado
+`[SUITE-R35]`. **`RULES.md` tenía cero apariciones de «milestone» y cero de «pull request»**, y
+`LEXICON.md`, cero.
+
+Un documento de procedimiento enunciaba obligaciones atribuyéndoselas a una regla que no las
+contiene, y `LEX-R21` lo pone por debajo de `RULES`. Es la avería que la v4 nació para eliminar
+en su forma más difícil de ver: no dos copias que divergen, sino **una copia que dice de más**.
+
+El milestone se retira: cero en toda la historia del repositorio, y añadirlo daría a una
+implementación **dos representaciones del mismo hecho** en la misma plataforma. El pull request
+sube a `RULES.md` como `SUITE-R42`, porque la práctica ya existía y era la única transición sin
+nada que dijera dónde se propone el merge.
+
+**El agente no abre el PR ni lo fusiona.** Comprueba que exista.
+
+### GitHub responde qué va cuándo   `SUITE-R35`
+
+Cada issue vivo lleva ahora `fase: N` y, si una compuerta espera, `G1`..`G4`:
+
+```
+#11 PT-007 · el-issue-lleva-la-fase   [tarea, fase: 4, G2]
+```
+
+Las dos etiquetas se **derivan** —la fase del registro, la compuerta del mapa de fases— así que
+no hay campo nuevo que nadie tenga que actualizar, y el espejo comprueba que coincidan.
+`tracker estado` imprime el tablero leyendo solo el registro, sin credencial.
+
+**El registro asigna; la plataforma espeja.** Ninguna lectura de GitHub alimenta el registro: si
+el estado se pudiera editar allí habría dos fuentes divergiendo.
+
+Lo motivó una reapertura: `EP-001` se cerró y hubo que reabrirlo porque un defecto apareció en
+un job de CI que nadie miraba. Quien mirase el tablero veía cinco issues abiertos sin saber que
+cuatro estaban terminados y uno esperaba una compuerta humana.
+
+### Lo que una persona escribe se lee   `SUITE-R43`
+
+Durante la sesión que motivó esta versión el agente escribió en nueve issues y **no releyó
+ninguno**. `gh issue view --json comments` existía y solo se usaba para contar reanclajes.
+
+Ahora un comentario humano posterior a la última nota del agente **bloquea el avance de fase**.
+
+Se distingue por **marca de procedencia**, no por autor, y la razón se midió antes de decidirla:
+el agente comenta con la credencial de la persona, así que los dos comentarios llevan el mismo
+login. Exigir cuentas separadas sería imponer infraestructura que `SUITE-R22` descarta al
+declarar soportado al equipo de una sola persona.
+
+La marca es falsificable y la regla lo dice, igual que `SUITE-R27` dice qué prueba una firma: lo
+mecanizable es que la afirmación sea contrastable, no que sea sincera.
+
+### Verificación
+
+`selftest`: **241 casos** (eran 180 al empezar la sesión). `audit`: 92 de 169 reglas con
+verificador que una compuerta ejecuta. `verify-fdge --all` sin errores. Espejo cuadrando con
+nueve issues.
+
+Las tres tareas encontraron algo que su análisis no había previsto —un prompt desincronizado,
+una compuerta de acceso que dejaba una acción inútil, y que agente y humano comparten login—.
+**Las tres veces lo dijo una comprobación, no el agente.**
+
+### Migración desde 5.x
+
+**1.** `npm i -D @a81biz/cauce@6` y `npx cauce install`.
+
+**2. Si no declaras plataforma, no te afecta nada.** Las dos reglas nuevas están detrás de
+`REGISTRY.tracker.plataforma`, y hay casos del arnés que existen solo para garantizarlo.
+
+**3. Si la declaras, `G4` exigirá un pull request abierto para la rama.** No es una práctica
+nueva; es la que ya usabas, ahora comprobada:
+
+```bash
+node docs/methodology/tools/tracker.mjs pr        # ¿hay PR para esta rama?
+gh pr create --base main --head <tu-rama>         # ábrelo tú: el agente no lo hace
+```
+
+**4. Sincroniza el estado de tus issues** para que el tablero diga la verdad:
+
+```bash
+node docs/methodology/tools/tracker.mjs abrir --aplicar   # crea etiquetas y sincroniza
+node docs/methodology/tools/tracker.mjs estado            # el tablero, desde el registro
+```
+
+**5. `SUITE-R43` nace sin morder y se cura sola.** Tus comentarios anteriores no llevan marca,
+así que la comprobación sale `SIN EVALUAR` hasta que el agente escriba la primera nota marcada.
+No hay migración ni se toca la historia de ningún issue.
+
+Ningún PT en vuelo se invalida: `SUITE-R18` sigue sellando cada asignación con su versión.
+
 ## 5.3.0 — 2026-08-13
 
 **El marco se hace cumplir a sí mismo.** Tres reglas que existían con su herramienta y sin

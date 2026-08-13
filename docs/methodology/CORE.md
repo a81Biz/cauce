@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 249d32f42f39 -->
-<!-- fuentes: RULES.md:45b5e82ab229 LEXICON.md:30fe4f948ce9 EXECUTION-MODES.md:e11f8324b6ba PHASES.md:fdd5e0159ce4 -->
+<!-- cuerpo: 42cbaa8af917 -->
+<!-- fuentes: RULES.md:74b0b72abc95 LEXICON.md:b3f9519d328a EXECUTION-MODES.md:c8e5de46b6e6 PHASES.md:482dec15d77c -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -147,6 +147,7 @@ verifica un script y bloquea la integración.
 `SUITE-R40` **H** La versión vigente se deriva; no se escribe dos veces.
 `SUITE-R41` **H** Cauce no se instala sobre sí mismo, y se reconoce por identidad.
 `SUITE-R42` **H** El merge se propone donde se pueda revisar.
+`SUITE-R43` **H** Lo que una persona escribe en la plataforma se lee.
 
 ### LEX — Nombres
 
@@ -612,6 +613,10 @@ REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECI
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
+          node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
+          Se distingue por MARCA de procedencia, no por autor: el agente comenta
+          con la credencial de la persona. Falsificable, y declarado.
 NO        dejar que la plataforma asigne identificadores · copiar el intake al issue
           · usar MCP como único canal: la verificación corre donde no hay nadie delante
 ```

@@ -311,3 +311,62 @@ declara. Es un hecho en dos sitios —lo que `RULE-01` persigue— y se eligió 
 leerlo de `CORE.md` en tiempo de ejecución significaría parsear prosa. Si el mapa de fases
 cambia, esto se queda atrás en silencio.
 
+## PT-008 — FEATURE: no se cierra fase con comentarios humanos sin responder
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-002
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-002, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 auto (EXEC-R06) · G4 pendiente del cierre del lote
+
+Qué faltaba: durante la sesión que abrió `EP-002` el agente escribió en nueve issues y **no
+releyó ninguno**. `gh issue view --json comments` existía y solo se usaba para contar
+reanclajes. Un comentario humano podía quedar sin leer indefinidamente.
+
+Qué tumbó el análisis: `AC-03` pedía distinguir por **autor**. No se puede — medido antes de
+decidir: el agente comenta con la credencial de la persona y los dos comentarios llevan el
+mismo login. Exigir cuentas separadas sería imponer infraestructura que `SUITE-R22` descarta.
+
+Qué se hizo: `SUITE-R43`, condicionada a plataforma declarada. Se distingue por **marca de
+procedencia** —un comentario HTML invisible en lo que escribe el agente—, con su limitación
+declarada: es falsificable, como una firma. Si ningún comentario lleva marca, `SIN EVALUAR`.
+
+Resultado: `selftest` 234 → 241 casos. `audit` 92/169 reglas con verificador ejecutado.
+
+Delta: `PHASES.md` y `FDGE-Prompts.md` entraron en el alcance porque `audit` reportó
+«`SUITE-R43` no la cita ningún documento operativo» — una regla que solo vive en el código es
+un capricho del verificador. Lo detectó la herramienta que `PT-002` acababa de arreglar.
+
+Deuda declarada: la regla **nace sin morder** en este repositorio. Los comentarios ya escritos
+no llevan marca, así que los nueve issues salen `SIN EVALUAR` hasta que el agente escriba una
+nota marcada. Es deliberado y hay que saberlo.
+
+## EP-002 — IMPLEMENTACIÓN: GitHub responde qué va cuándo
+Fecha: 2026-08-13
+Estado: DONE
+Estructural: no
+Compuertas: G1 2026-08-13 Alberto Martínez (firma única delegada, con constancia) · G4 pendiente
+
+| PT | Tipo | Sev | Estado | Qué resolvió |
+|:---|:---|:---|:---|:---|
+| PT-006 | CHORE | S3 | DONE | `PHASES` declaraba dos mapeos que su regla no contenía; el del PR subió a `RULES` como `SUITE-R42` |
+| PT-007 | FEATURE | S3 | DONE | Cada issue lleva su fase y su compuerta, derivadas del registro |
+| PT-008 | FEATURE | S2 | DONE | `SUITE-R43`: lo que una persona escribe se lee antes de avanzar |
+
+Criterio de éxito contrastado: el tablero de GitHub responde «qué va cuándo» sin abrir el
+repositorio —`#11 [tarea, fase: 4, G2]`—, lo que el humano escriba no puede quedar sin leer, y
+el contrato de la plataforma está enunciado donde manda.
+
+La condición no negociable se respetó: **el registro asigna y GitHub espeja**. Todo el estado
+publicado se deriva de `REGISTRY.json`; ninguna lectura de la plataforma alimenta el registro.
+
+Resultado acumulado del lote: `selftest` 219 → 241 casos. Dos reglas nuevas, ambas condicionadas
+a plataforma declarada. `CORE.md` con 232 reglas.
+
+Qué se aprendió: las tres tareas encontraron algo que su análisis no había previsto —el prompt
+desincronizado, la compuerta de acceso que dejaba `estado` inútil, y que agente y humano
+comparten login—. Las tres veces lo dijo una comprobación, no el agente.
+

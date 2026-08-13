@@ -1174,6 +1174,31 @@ trlib "etiquetas correctas ⇒ sin divergencia" "^SIN_DIVERGENCIAS$" \
 build_fixture
 chk   "estado funciona sin plataforma"   "PT-00"   TR estado
 
+# PT-008 · lo que una persona escribe en la plataforma se lee.
+#
+# Durante la sesion que abrio EP-002 el agente escribio en los issues y NO releyo ninguno:
+# `gh issue view --json comments` existia y solo se usaba para contar reanclajes. Un comentario
+# humano podia quedar sin leer indefinidamente y nada lo senalaba.
+#
+# NO se distingue por autor: se midio y es imposible. El agente comenta con la credencial de la
+# persona, asi que los dos comentarios llevan el mismo login. Se distingue por MARCA de
+# procedencia, que es falsificable — y eso se declara, como SUITE-R27 declara que prueba una firma.
+M='<!-- cauce:agente -->'
+trlib "humano tras el agente ⇒ pendiente"   "^PENDIENTE$" \
+  "console.log(m.comentarioSinResponder([\"nota $M\",\"oye\"])===true?\"PENDIENTE\":\"NO\")"
+trlib "respondido ⇒ ya no pendiente"        "^LIMPIO$" \
+  "console.log(m.comentarioSinResponder([\"nota $M\",\"oye\",\"te leo $M\"])===false?\"LIMPIO\":\"NO\")"
+trlib "los del agente no cuentan"           "^LIMPIO$" \
+  "console.log(m.comentarioSinResponder([\"a $M\",\"b $M\"])===false?\"LIMPIO\":\"NO\")"
+trlib "sin comentarios no revienta"         "^LIMPIO$" \
+  "console.log(m.comentarioSinResponder([])===false?\"LIMPIO\":\"NO\")"
+trlib "sin ninguna marca ⇒ no evaluable"    "^NO_EVALUABLE$" \
+  "console.log(m.comentarioSinResponder([\"uno\",\"dos\"])===null?\"NO_EVALUABLE\":\"NO\")"
+chk   "SUITE-R43 existe en RULES"           "SUITE-R43"   cat "$SUITE/RULES.md"
+
+build_fixture
+chkno "sin plataforma ⇒ G4 libre de R43"    "SUITE-R43"   V --gate G4 PT-001
+
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"
 
