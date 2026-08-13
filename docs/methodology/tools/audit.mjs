@@ -219,7 +219,15 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
     if (!opTxt.includes(a)) falta.push('ningún documento operativo lo usa');
     if (falta.length) gap('artefacto', a, falta.join(' · ')); else tick('artefacto');
   }
+  // Quién es «el instalador» cambió, y esta lista se quedó atrás. Era el README de la raíz,
+  // porque ahí vivía el procedimiento paso a paso — duplicado del de `INSTALL.md`, divergiendo
+  // de él, y ordenando en su versión borrar documentación contra `FND-R11`. Foundation lo
+  // recortó (`N1`), y con él desaparecieron las únicas menciones de tres ledgers: la auditoría
+  // pasó a reportar huecos que no lo eran. El instalador de verdad es `INSTALL.md`, y quien
+  // crea los artefactos de reconciliación es Foundation.
   const instalador = (existsSync(join(ROOT, 'README.md')) ? readFileSync(join(ROOT, 'README.md'), 'utf8') : '')
+    + (rd('INSTALL.md') ?? '')
+    + (rd('Foundation-Implementation.md') ?? '') + (rd('Foundation-Prompts.md') ?? '')
     + (rd('FIDE/FIDE-Implementation.md') ?? '') + (rd('FIDE/FIDE-CLAUDE-Launcher.md') ?? '');
   for (const a of [...new Set(arts)]) {
     const falta = [];
