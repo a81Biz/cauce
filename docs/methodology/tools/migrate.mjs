@@ -16,9 +16,26 @@
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync, renameSync, statSync, appendFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { PATRONES } from './patrones.mjs';
 
-const TARGET = '5.2.0';
+// El destino de la migración es la versión vigente, y esa no se escribe aquí (`SUITE-R40`).
+// Estuvo fijada —`const TARGET = '5.2.0'`— y quedó tres parches por detrás del CHANGELOG: la
+// herramienta que existe para alinear versiones alineaba contra un número muerto, y habría
+// dejado el registro declarando una versión que ya no regía. Se lee del CHANGELOG que viaja
+// con esta copia de la suite, resuelto desde la ubicación del script.
+const CAMBIOS = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'CHANGELOG.md');
+if (!existsSync(CAMBIOS)) {
+  console.error(`Falta ${CAMBIOS}: sin él no se puede saber a qué versión migrar.`);
+  process.exit(2);
+}
+const mVer = readFileSync(CAMBIOS, 'utf8').match(PATRONES.VERSION_VIGENTE.re);
+if (!mVer) {
+  console.error('El CHANGELOG no abre con «## X.Y.Z — AAAA-MM-DD». Es de donde se lee la vigente.');
+  process.exit(2);
+}
+const TARGET = mVer[1];
 const args = process.argv.slice(2);
 const APPLY = args.includes('--apply');
 const ROOT = resolve(args.find((a) => !a.startsWith('--')) ?? process.cwd());

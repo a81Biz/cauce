@@ -12,9 +12,19 @@ set -u
 SUITE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="${1:-$(mktemp -d)}/mth-selftest"
 FAILED=0
+# La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`), también aquí: el fixture la tenía
+# escrita a mano y era una copia más del número —la misma avería que este arnés existe para
+# cazar, dentro del arnés—. Con la constante fijada en `verify-fdge` nadie lo notaba, porque
+# las dos copias estaban equivocadas en la misma dirección.
+VIGENTE="$(grep -m1 -oE '^## [0-9]+\.[0-9]+\.[0-9]+' "$SUITE/CHANGELOG.md" | cut -d' ' -f2)"
 
-pass() { printf "  \033[32m✓\033[0m %s\n" "$1"; }
-bad()  { printf "  \033[31m✗\033[0m %s\n" "$1"; FAILED=1; }
+# Cuántos casos hay se CUENTA, no se escribe. Estaba escrito a mano en dos sitios —«105 casos»
+# en el README y «130 casos» en el workflow— y ninguna de las dos cifras era la real: el mismo
+# hecho copiado divergiendo, que es lo que este repositorio existe para eliminar. Ahora la única
+# fuente es la ejecución.
+TOTAL=0
+pass() { TOTAL=$((TOTAL + 1)); printf "  \033[32m✓\033[0m %s\n" "$1"; }
+bad()  { TOTAL=$((TOTAL + 1)); printf "  \033[31m✗\033[0m %s\n" "$1"; FAILED=1; }
 # Una herramienta que REVIENTA no imprime el patron que se le busca, asi que chkno la daba
 # por buena: el arnes certificaba un verificador roto. Se rompio verify-qa a proposito y dos
 # casos siguieron en verde. Ahora un rastro de excepcion invalida el caso, pase lo que pase.
@@ -42,7 +52,10 @@ build_fixture() {
   printf '# Conventions\n\nRULE-01 a\nRULE-02 b\nRULE-03 c\n' > docs/enterprise-documentation/11-Conventions.md
   echo '{}' > graphify-out/graph.json
   cp "$SUITE"/tools/*.mjs docs/methodology/tools/
-  cp "$SUITE"/CORE.md "$SUITE"/CORE-PTSA.md "$SUITE"/PHASES.md "$SUITE"/RULES.md "$SUITE"/LEXICON.md "$SUITE"/EXECUTION-MODES.md docs/methodology/ 2>/dev/null || true
+  # El CHANGELOG viaja con la suite instalada (`SUITE-R37`) y es de donde las herramientas leen
+  # la versión vigente (`SUITE-R40`). Sin él en el fixture, la compuerta de migración quedaba
+  # sin evaluar y el caso «versión desalineada ⇒ restringido» pasaba por no comprobar nada.
+  cp "$SUITE"/CORE.md "$SUITE"/CORE-PTSA.md "$SUITE"/PHASES.md "$SUITE"/RULES.md "$SUITE"/LEXICON.md "$SUITE"/EXECUTION-MODES.md "$SUITE"/CHANGELOG.md docs/methodology/ 2>/dev/null || true
   mkdir -p docs/methodology/PTSA && cp "$SUITE"/PTSA/PTSA-V3-Especificacion-Oficial.md docs/methodology/PTSA/ 2>/dev/null || true
 
   cat > docs/implementation/REGISTRY.json <<'J'
@@ -56,6 +69,10 @@ build_fixture() {
     {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.2.0"}
   ] }
 J
+  # Solo la PRIMERA aparición: la del proyecto. Las de cada allocation se dejan como están —
+  # un PT abierto bajo una versión la conserva hasta cerrar (`SUITE-R18`), y el fixture debe
+  # poder representar eso.
+  perl -0pi -e "s/\"suite_version\":\"[\d.]+\"/\"suite_version\":\"$VIGENTE\"/" docs/implementation/REGISTRY.json
 
   intake() { # $1 dir · $2 id · $3 type · $4 sev · $5 track · $6 complexity
     mkdir -p "changes/$1"
@@ -208,6 +225,11 @@ build_fixture; rm -f "$WORK/docs/enterprise-documentation/11-Conventions.md"
 chk "Foundation sin archivo del núcleo" "FND-R08"           V PT-001
 build_fixture; reg_set "r.suite_version='4.2.0'"
 chk "versión desalineada ⇒ restringido" "SUITE-R17"         V PT-001
+# La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`). Sin él no hay contra qué comparar,
+# y lo que no puede comprobarse se declara: inventar un número —que es lo que hacía la constante
+# fijada— convierte la compuerta en una que dice «todo bien» sobre nada.
+build_fixture; reg_set "r.suite_version='4.2.0'"; rm -f "$WORK/docs/methodology/CHANGELOG.md"
+chk "sin CHANGELOG ⇒ no evaluable"      "SUITE-R40"         V PT-001
 build_fixture; reg_set "delete r.allocations[0].suite_version"
 chk "allocation sin sello de versión"   "SUITE-R18"         V PT-001
 
@@ -1086,7 +1108,7 @@ chk   "CORE-PTSA.md sincronizado" "CORE-PTSA.md sincronizado" node "$SUITE/tools
 chk   "cobertura sin huecos"     "sin huecos"   node "$SUITE/tools/audit.mjs" "$SUITE"
 
 echo
-[ "$FAILED" -eq 0 ] && echo "selftest: OK" || echo "selftest: HAY FALLOS"
+[ "$FAILED" -eq 0 ] && echo "selftest: OK · $TOTAL casos" || echo "selftest: HAY FALLOS · $TOTAL casos"
 rm -rf "$WORK"
 exit "$FAILED"
 

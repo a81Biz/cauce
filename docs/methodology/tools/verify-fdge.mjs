@@ -28,12 +28,13 @@
  */
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { join, relative, sep, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe } from './patrones.mjs';
+import { selloDe, PATRONES } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -45,7 +46,22 @@ const errors = [];
 const warnings = [];
 const passed = [];
 let GRAPH = { state: 'UNKNOWN', reason: 'sin evaluar' };
-const SUITE_VERSION = '5.2.0';
+
+// La versión vigente NO se escribe aquí (`SUITE-R40`). Estuvo escrita a mano —`const
+// SUITE_VERSION = '5.2.0'`— siendo la autoridad de la compuerta de migración, y quedó tres
+// parches por detrás del CHANGELOG: un proyecto que declaraba la versión correcta entraba en
+// modo restringido por una migración que no existía, y el único modo de «arreglarlo» era
+// escribir en el registro un número falso. `verify-suite` ya tenía este mismo defecto y se
+// corrigió; esta copia sobrevivió, que es exactamente cómo se comporta el defecto que la v4
+// nació para eliminar.
+//
+// La fuente es la primera entrada del CHANGELOG que viaja con esta misma copia de la suite:
+// se resuelve desde la ubicación del script, no desde el cwd, para que dé lo mismo desde dónde
+// se invoque. Si no está, no se inventa un número: la compuerta se declara no evaluable.
+const CAMBIOS = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'CHANGELOG.md');
+const SUITE_VERSION = existsSync(CAMBIOS)
+  ? (readFileSync(CAMBIOS, 'utf8').match(PATRONES.VERSION_VIGENTE.re)?.[1] ?? null)
+  : null;
 
 const fail = (rule, msg) => errors.push({ rule, msg });
 const warn = (rule, msg) => warnings.push({ rule, msg });
@@ -130,7 +146,11 @@ function checkRegistry() {
   }
 
   // SUITE-R17 · compuerta de migración
-  if (reg.suite_version && reg.suite_version !== SUITE_VERSION) {
+  if (!SUITE_VERSION) {
+    warn('SUITE-R40', `No se pudo leer la versión vigente de ${relative(ROOT, CAMBIOS) || CAMBIOS}: `
+      + 'la compuerta de migración queda sin evaluar. Antes esto no se notaba porque el número '
+      + 'estaba escrito en el propio verificador, que es el defecto que la regla persigue.');
+  } else if (reg.suite_version && reg.suite_version !== SUITE_VERSION) {
     fail('SUITE-R17',
       `El proyecto declara suite_version ${reg.suite_version} y la vigente es ${SUITE_VERSION}. ` +
       'Modo restringido: solo migrate, status y terminar los PTs en vuelo. → node tools/migrate.mjs');
@@ -242,7 +262,7 @@ const BIN = /\.(png|jpe?g|gif|webp|pdf|zip|mp4|webm|ico|woff2?)$/i;
 // Escanea la evidencia Y el directorio de trabajo del PT. Mirar solo evidence/ dejaba fuera
 // el sitio MAS probable de una credencial: el intake, donde una persona pega el reporte de un
 // bug tal cual lo recibio, con su token dentro. Todo el directorio se commitea igual.
-function scanEvidence(pt, dirPT) {
+function scanEvidence(pt, dirPT) {
   const dirs = [join(EVIDENCE, pt), dirPT].filter((d) => d && existsSync(d));
   if (!dirs.length) return;
   const walkDir = (d, out = []) => {
@@ -959,7 +979,7 @@ const all = argv.includes('--all');
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
 
-console.log('verify-fdge — cumplimiento mecánico de la Methodology Suite 5.2.0\n');
+console.log(`verify-fdge — cumplimiento mecánico de la Methodology Suite ${SUITE_VERSION ?? '(versión no determinada)'}\n`);
 
 const reg = checkRegistry();
 REGISTRO = reg;
