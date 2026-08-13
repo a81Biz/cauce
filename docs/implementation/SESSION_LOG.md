@@ -487,3 +487,32 @@ espejo                9 issues, sin divergencias
 **Parada final: `G4` y la publicación.** Las dos son humanas. `SUITE-R06` es la lista cerrada
 que ningún modo automatiza y `EXEC-R04` no admite excepción, así que la delegación de firma no
 las cubre — y tomarlas dejaría al marco sin la única compuerta que protege lo irreversible.
+
+---
+
+## 2026-08-13 · `G4` resuelta · los dos lotes integrados · tres defectos abiertos
+
+Merge del PR #7 por Alberto Martínez (`9ecb1d3`). GitGuardian se resolvió como falso positivo:
+las tres marcas eran la misma cadena sintética de los fixtures, ya firmada.
+
+Cierre posterior: siete PT a `INTEGRATED`, `EP-001` y `EP-002` a `CLOSED`, y
+`tracker cerrar --aplicar` cerró los nueve issues. Espejo **0 = 0**.
+
+**Tres defectos abiertos, todos en cómo `tracker` escribe en la plataforma.** Los dos primeros
+los vio el humano mirando el tablero; el tercero lo cazó la regla que acabábamos de crear.
+
+1. **El cuerpo de un issue de `EP` dice «sin implementación»** sobre la implementación misma.
+   El generador usa un solo texto para tarea y lote, y un `EP` no tiene campo `epic`.
+2. **El enlace al intake es relativo** y en el cuerpo de un issue de GitHub no resuelve: apunta
+   a `github.com/a81Biz/cauce/changes/…`, que es un 404. Por eso al abrir el issue de `EP-002`
+   no había «nada de EP-002»: lo único que había era un enlace roto.
+3. **`tracker cerrar` comenta sin la marca de procedencia**, así que `SUITE-R43` toma su propio
+   mensaje de cierre por un comentario humano. `verify-fdge --all` está en rojo por eso.
+
+El tercero es la mejor prueba de la sesión de que la regla funciona: nació en `PT-008` y lo
+primero que hizo fue cazar a la herramienta que la implementa, en la primera ejecución
+posterior. Nadie lo buscó.
+
+**No se han arreglado.** Los tres tocan `docs/methodology/` y no hay implementación abierta:
+abrir trabajo nuevo exige un `EP` con su `G1` firmada, y la delegación de `EP-002` se declaró
+acotada a ese lote.
