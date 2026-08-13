@@ -1,12 +1,12 @@
 # HANDOFF — estado retomable
 
 <!-- ESTADO -->
-implementación: ninguna abierta
-tarea:          ninguna
-compuerta:      ninguna pendiente · [FOUNDATION VALIDATED] emitido por Alberto Martínez el 2026-08-13, sin discrepancias
-siguiente:      decidir TD-05 antes de cualquier merge a main — si la corrección de SUITE-R40 lleva entrada de CHANGELOG y con qué número; después, [START PT] o [IMPLEMENTACIÓN] ya está habilitado
-decisiones:     G0 del terreno y G0 del baseline firmados el 2026-08-13 con las 7 normalizaciones ejecutadas · Declaración de Valor firmada con 4 productos P-001..P-004 · grafo con alcance «bin» por criterio de plan-layout, no ampliado (TD-01) · frontera por .claude/settings.json, no por contenedor · plataforma github · la corrección de SUITE-R40 sigue sin entrada de CHANGELOG, a propósito (TD-05)
-no hacer:       abrir PTs antes del [FOUNDATION VALIDATED] · corregir docs/methodology/ de paso (SUITE-R06e) · mergear a main sin G4 · publicar sin decidir antes si TD-05 lleva entrada de CHANGELOG y qué versión · borrar origin/desarrollo sin confirmar que no cuelga nada (SUITE-R06f)
+implementación: EP-001 · el-marco-se-hace-cumplir · DRAFT · issue #2
+tarea:          ninguna en curso · PT-001 #3, PT-002 #4, PT-003 #5 en DRAFT, detenidos en G1
+compuerta:      G1 pendiente · Alberto Martínez · VEREDICTO actual FAIL
+siguiente:      firmar §4 del intake de EP-001 y declarar la severidad de PT-001, PT-002 y PT-003 en §5; confirmar o corregir las transcripciones [HUMANO] de §1, §2 y §3. Con eso G1 pasa a PASS, EP-001 a IN_PROGRESS y arranca PT-001 en PHASE 2
+decisiones:     G0 del terreno y G0 del baseline firmados el 2026-08-13 con las 7 normalizaciones ejecutadas · Declaración de Valor firmada con 4 productos P-001..P-004 · grafo con alcance «bin» por criterio de plan-layout, no ampliado (TD-01) · frontera por .claude/settings.json, no por contenedor · plataforma github · la corrección de SUITE-R40 sigue sin entrada de CHANGELOG, a propósito (TD-05) · el lote se partió en dos por FDGE-R48: EP-001 hace cumplible el marco, la migración del proyecto legado va después y queda en el out-of-scope de EP-001 · orden PT-001 → PT-002 → PT-003 por solapamiento en selftest.sh
+no hacer:       avanzar a PHASE 2 sin la firma de G1 (FDGE-R01, FDGE-R05) · escribir la firma o la severidad en nombre del humano (INTAKE-R04, INTAKE-R06) · tocar docs/methodology/ antes de G2 y sin autorización explícita (SUITE-R06e, FDGE-R13) · citar en el intake de EP-001 identificadores de PTs ajenos al lote: el lector de miembros de INTAKE-R08 los toma por miembros · mergear a main sin G4 · publicar sin decidir TD-05 · borrar origin/desarrollo sin confirmar que no cuelga nada (SUITE-R06f)
 actualizado:    2026-08-13
 <!-- /ESTADO -->
 

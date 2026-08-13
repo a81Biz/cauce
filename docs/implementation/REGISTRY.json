@@ -1,12 +1,94 @@
 {
   "suite_version": "5.2.3",
   "execution_mode": "SUPERVISED",
-  "foundation": { "generated": "2026-08-13", "validated_by": "Alberto Martínez", "pt_at_generation": 0 },
-  "graph": { "generated": "2026-08-13", "scope": "bin", "pt_at_generation": 0 },
-  "tracker": { "plataforma": "github" },
-  "counters": {
-    "PT": 0, "EP": 0, "QA": 0, "QR": 0, "QD": 0,
-    "H": 0, "E": 0, "P": 0, "R": 0, "INC": 0
+  "foundation": {
+    "generated": "2026-08-13",
+    "validated_by": "Alberto Martínez",
+    "pt_at_generation": 0
   },
-  "allocations": []
+  "graph": {
+    "generated": "2026-08-13",
+    "scope": "bin",
+    "pt_at_generation": 0
+  },
+  "tracker": {
+    "plataforma": "github"
+  },
+  "counters": {
+    "PT": 3,
+    "EP": 1,
+    "QA": 0,
+    "QR": 0,
+    "QD": 0,
+    "H": 0,
+    "E": 0,
+    "P": 0,
+    "R": 0,
+    "INC": 0
+  },
+  "allocations": [
+    {
+      "id": "EP-001",
+      "slug": "el-marco-se-hace-cumplir",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "DRAFT",
+      "structural": null,
+      "suite_version": "5.2.3",
+      "title": "El marco se hace cumplir a sí mismo",
+      "origin": "Intake humano 2026-08-13 · «lo más importante es resolver la exigencia de seguir el marco de trabajo al pie de la letra»",
+      "created": "2026-08-13",
+      "issue": 2
+    },
+    {
+      "id": "PT-001",
+      "slug": "el-espejo-en-las-compuertas",
+      "type": "BUG",
+      "complexity": "TRIVIAL",
+      "severity": null,
+      "track": "STANDARD",
+      "status": "DRAFT",
+      "structural": false,
+      "suite_version": "5.2.3",
+      "epic": "EP-001",
+      "title": "SUITE-R35 tiene verificador y ninguna compuerta lo ejecuta",
+      "origin": "Intake humano 2026-08-13 · «no veo que uses github para dar de alta las tareas y desde ahí se desprenda el seguimiento para no perder lo que se está haciendo»",
+      "created": "2026-08-13",
+      "issue": 3
+    },
+    {
+      "id": "PT-002",
+      "slug": "cobertura-por-regla",
+      "type": "BUG",
+      "complexity": "TRIVIAL",
+      "severity": null,
+      "track": "STANDARD",
+      "status": "DRAFT",
+      "structural": false,
+      "suite_version": "5.2.3",
+      "epic": "EP-001",
+      "title": "audit.mjs declara «sin huecos» midiendo por componente, no por regla",
+      "origin": "Medición 2026-08-13 · 63 reglas HARD sin verificador y el informe en verde",
+      "created": "2026-08-13",
+      "issue": 4
+    },
+    {
+      "id": "PT-003",
+      "slug": "el-contrato-de-la-plataforma",
+      "type": "INVESTIGATION",
+      "complexity": "STANDARD",
+      "severity": null,
+      "track": "STANDARD",
+      "status": "DRAFT",
+      "structural": false,
+      "suite_version": "5.2.3",
+      "epic": "EP-001",
+      "title": "SUITE-R35 declara milestone, issue y PR; el adaptador solo implementa issue",
+      "origin": "Medición 2026-08-13 · tracker.mjs no menciona milestone ni pull request",
+      "created": "2026-08-13",
+      "issue": 5
+    }
+  ]
 }

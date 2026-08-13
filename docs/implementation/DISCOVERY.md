@@ -1,0 +1,13 @@
+# DISCOVERY — índice de bugs e investigaciones
+
+Índice, no contenido (`LEX-R12`). Una línea por PT; el análisis vive en
+`changes/PT-XXX-slug/`. Append-only: un PT que cambia de estado se edita en su fila, y los
+que se cierran se quedan (`SUITE-R09` rige el contenido, no la columna de estado).
+
+Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no asigna nada.
+
+| PT | Tipo | Sev | Estado | Implementación | Título |
+|:---|:---|:---|:---|:---|:---|
+| PT-001 | BUG | *pendiente* | DRAFT | EP-001 | SUITE-R35 tiene verificador y ninguna compuerta lo ejecuta |
+| PT-002 | BUG | *pendiente* | DRAFT | EP-001 | audit.mjs declara «sin huecos» midiendo por componente, no por regla |
+| PT-003 | INVESTIGATION | *pendiente* | DRAFT | EP-001 | SUITE-R35 declara milestone, issue y PR; el adaptador solo implementa issue |
