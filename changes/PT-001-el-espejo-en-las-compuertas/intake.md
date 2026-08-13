@@ -126,3 +126,36 @@ el proyecto no controla:
 
 Esto es `FND-R30` («los accesos se comprueban antes de necesitarlos») aplicada con la puerta
 que `RULE-06` exige para lo que no se puede comprobar.
+
+### Revisión 3 — 2026-08-13 · el adaptador se separa de la lógica
+
+**Qué cambia.** `PHASE 4` planteaba probar las ramas de plataforma con un `gh` de mentira en
+el `PATH`. **No funciona.** Comprobado el 2026-08-13 en sus dos formas —script con shebang y
+`.cmd`—: node siguió resolviendo el `gh.exe` real y devolvió los issues verdaderos del
+repositorio. Sombrear un ejecutable de forma portable entre Windows y Ubuntu no es fiable, y
+el arnés corre en los dos.
+
+Encima hay una restricción dura: **ningún caso del arnés puede exigir `gh` autenticado**,
+porque el arnés corre en CI y en un PR desde fork no hay credencial. Un caso así convertiría
+la batería en el rojo permanente que este mismo PT existe para evitar.
+
+Eso explica por qué el bloque `P` que ya existía solo probaba las rutas sin `gh`: no era una
+omisión, era el límite.
+
+**Decisión humana** del 2026-08-13, opción **B** de dos presentadas: separar en `tracker.mjs`
+el **adaptador** —que habla con `gh`— de la **lógica del espejo**, que pasa a ser una función
+pura: recibe las allocations vivas y los issues abiertos, y devuelve las divergencias. El
+arnés prueba la lógica sin plataforma ninguna.
+
+**Motivo de elegir B sobre A** (cobertura parcial declarada + evidencia de ejecución real):
+`SUITE-R35` lleva desde la 5.0.0 sin compuerta precisamente porque nada la ejercía. Dejar seis
+ramas nuevas sin caso repetiría el patrón que este lote arregla, y la primera regresión no la
+vería nadie.
+
+**Alcance.** Sigue siendo `tracker.mjs`, ya declarado en la Revisión 1. Lo que crece es la
+profundidad del cambio dentro de ese archivo: la lógica se extrae y el módulo gana un guard
+para poder importarse sin ejecutarse. No es un backdoor de pruebas —no se añade ninguna
+plataforma falsa ni ninguna bandera que solo use el arnés—: es separar adaptador de lógica,
+que es lo que hace la diferencia entre poder probar y no poder.
+
+`test-scenarios.md` queda reescrito en consecuencia.

@@ -55,6 +55,19 @@ jobs:
       - name: Ningún secreto sin firmar
         run: node docs/methodology/tools/revisar-secretos.mjs . --historial
 
+      # `SUITE-R35` · el registro asigna, la plataforma espeja. La regla es HARD desde la 5.0.0,
+      # tenía herramienta y ninguna compuerta la ejecutaba: se podía planificar un lote entero
+      # sin issues con las siete comprobaciones en verde. Lo encontró una persona, no un script.
+      #
+      # Se salta en PRs desde un fork: GitHub no entrega los secretos del repositorio a un fork,
+      # así que ahí la credencial no puede estar por diseño. Bloquear sería un rojo permanente
+      # que el autor externo no puede resolver — y una compuerta siempre roja enseña a saltársela.
+      - name: El espejo con la plataforma cuadra
+        if: github.event.pull_request.head.repo.fork != true
+        run: node docs/methodology/tools/tracker.mjs espejo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # `FDGE-R34` · verify-fdge sin errores es precondición de G4. Sobre los artefactos de este
       # repositorio, no sobre los fixtures: desde que cauce se autoaloja, su propio merge a main
       # necesita la misma comprobación que exige a los demás.

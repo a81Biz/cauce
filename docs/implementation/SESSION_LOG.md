@@ -278,3 +278,50 @@ Confirma el orden decidido en `G1`: `PT-001` va inmediatamente después porque e
 desbloquea el merge de lo ya hecho.
 
 **Siguiente:** `PT-001`, `PHASE 2`.
+
+---
+
+## 2026-08-13 · `PT-001` de `PHASE 3` a `PHASE 6` · detenido en `G3`
+
+`G2` aprobada por delegación, con constancia en `design.md` y `SUITE-R06e` acotada a los seis
+archivos de `tasks.md`.
+
+**Decisión de diseño:** una sola herramienta habla con la plataforma. `tracker` separa el
+adaptador de la lógica —la comparación del espejo es ahora función pura y exportada— y
+`verify-fdge` le pregunta en vez de tener su propio cliente de GitHub.
+
+**Decisión humana de `AC-05`**, del 2026-08-13: el espejo **bloquea** donde la credencial es
+exigible (`npm run verify`, `push` a `main`, `G4`) y sale **`SIN EVALUAR`** donde no puede
+estarlo (PR desde fork, máquina sin `gh auth login`). Código de salida `3`, antes fundido con
+el `2` de «sin plataforma declarada», que es una decisión opuesta.
+
+**Resultado medido**
+
+| | Antes | Después |
+|:---|:---|:---|
+| `selftest` | 188 casos | **202**, 0 fallos |
+| Espejo real | no se ejecutaba | 5 vivas = 5 issues, sin divergencias |
+| `G4` de `PT-004` | sin comprobar el espejo | `✓ SUITE-R35 el espejo con github cuadra` |
+
+**Tres defectos encontrados ejecutando, no leyendo**
+
+1. El arnés se engañaba a sí mismo: pasaba la ruta del módulo como `argv[1]`, que es
+   exactamente lo que el guard entiende por «me ejecutan directamente». Los 14 casos daban
+   rojo por la razón equivocada.
+2. `VIVOS` no incluía `DONE` ni `VALIDATION_PENDING`. Se vio al correr el espejo de verdad:
+   `PT-004` pasó a `DONE` esperando `G4` y su issue quedó denunciado como huérfano. Un PT que
+   espera el merge no es trabajo cerrado — le queda una compuerta humana.
+3. `tracker notas PT-004 .` resolvía la ruta como el directorio «PT-004».
+
+**Lo que la regla me pilló a mí**
+
+`FDGE-R52` ahora lee el issue, y lo primero que hizo fue acusarme: `PT-001` tiene 1 nota para
+`PHASE 4` y `PT-004` tiene 2 para `PHASE 8`. **Tiene razón.** Escribí comentarios consolidados
+—«PHASE 2 → 6» en uno solo— en vez de una nota por transición. La regla existe contra eso:
+reanclar al final no es reanclar, es resumir.
+
+Escribir las notas que faltan ahora, de golpe y con fecha de hoy, sería el falso verde que
+este lote existe para eliminar. **No se ha hecho.** Queda como error abierto y como decisión
+humana.
+
+**Parada: `G3`.** `PT-001` es un `BUG` y pasa a `VALIDATION_PENDING` (`SUITE-R06b`).

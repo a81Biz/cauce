@@ -31,7 +31,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe, PATRONES } from './patrones.mjs';
@@ -682,6 +682,29 @@ const isEmptyCell = (v) => {
   return t === '' || t === '—' || t === '-' || t === '–' || /^t?bd$/i.test(t) || /^pendiente$/i.test(t);
 };
 
+// ─── SUITE-R35 · el espejo, preguntado a quien tiene el adaptador ────────────
+// PT-001 · verify-fdge NO habla con GitHub. Un segundo cliente de plataforma dentro de este
+// archivo obligaria a implementar Azure dos veces y a mantener dos clientes en sincronia: la
+// duplicacion que este repositorio existe para eliminar. Contrato de `tracker`:
+//   0 el espejo cuadra · 1 divergencia · 2 sin plataforma declarada · 3 declarada sin acceso
+function correTracker(args) {
+  const bin = join(dirname(fileURLToPath(import.meta.url)), 'tracker.mjs');
+  if (!existsSync(bin)) return { codigo: 2, salida: '' };
+  const r = spawnSync(process.execPath, [bin, ...args, ROOT], { encoding: 'utf8' });
+  // Si el proceso ni arranca, no se asume verde: eso es «nadie pudo mirar».
+  if (r.error || r.status === null) return { codigo: 3, salida: String(r.error?.message ?? '') };
+  return { codigo: r.status, salida: `${r.stdout ?? ''}${r.stderr ?? ''}` };
+}
+
+/** Notas de reanclaje del issue de un PT: número · `SIN_ACCESO` · `null` si no aplica. */
+function notasDelIssue(pt) {
+  const r = correTracker(['notas', pt]);
+  if (r.codigo === 3) return 'SIN_ACCESO';
+  if (r.codigo !== 0) return null;
+  const n = Number(String(r.salida).trim().split(/\r?\n/).pop());
+  return Number.isFinite(n) ? n : null;
+}
+
 function parseTraceability(md) {
   const rows = [];
   for (const line of md.split(/\r?\n/)) {
@@ -787,12 +810,29 @@ function checkPT(pt, { gate } = {}) {
 
   // FDGE-R52 · el reanclaje se ESCRIBE. Una nota por transicion alcanzada, con fecha.
   // Releer no deja rastro y por eso no se podia exigir; escribir si, y ademas obliga a releer.
+  //
+  // PT-001 · CORE.md manda escribirlo «issue si hay plataforma · bitacora.md si no», y esto
+  // solo miraba bitacora.md. Cumplir el procedimiento al pie de la letra dejaba la compuerta en
+  // rojo, y ponerla verde exigia escribir el reanclaje DOS VECES — lo que SUITE-R35 prohibe.
+  // El verificador no habla con la plataforma: se lo pregunta a `tracker`, que es quien tiene
+  // el adaptador. La regla la hace cumplir quien verifica; el acceso lo encapsula quien lo tiene.
   if (rigeAqui && fase >= 2) {
+    const plataforma = REGISTRO?.tracker?.plataforma ?? null;
+    const notasPlataforma = plataforma && enRegistroPT?.issue ? notasDelIssue(pt) : null;
+    if (notasPlataforma === 'SIN_ACCESO') {
+      const m = `${pt}: hay plataforma declarada y no hay acceso desde aquí, así que el reanclaje del issue #${enRegistroPT.issue} queda SIN EVALUAR. La credencial se comprueba antes de necesitarla (FND-R30) — «gh auth login».`;
+      if (gate === 'G4') fail('FDGE-R52', m); else warn('FDGE-R52', m);
+    } else if (typeof notasPlataforma === 'number') {
+      if (notasPlataforma < fase - 1) {
+        fail('FDGE-R52', `${pt}: está en PHASE ${fase} y su issue #${enRegistroPT.issue} tiene ${notasPlataforma} nota(s) de reanclaje; faltan ${fase - 1 - notasPlataforma}. Cada transición de fase deja tres líneas —qué cierras, dónde estás, qué sigue— y con plataforma declarada van en el issue (CORE.md §El bloque ESTADO).`);
+      } else ok('FDGE-R52', `${pt}: ${notasPlataforma} nota(s) de reanclaje en el issue #${enRegistroPT.issue} para PHASE ${fase}.`);
+    } else {
     const bit = read(join(dir, 'bitacora.md'));
     const notas = bit === null ? 0 : (bit.match(RE_NOTA_BITACORA) ?? []).length;
     if (notas < fase - 1) {
       fail('FDGE-R52', `${pt}: está en PHASE ${fase} y su bitácora tiene ${notas} nota(s); faltan ${fase - 1 - notas}. Cada transición de fase deja tres líneas —qué cierras, dónde estás, qué sigue—: escribir obliga a releer, y releer no obliga a nada.`);
     } else ok('FDGE-R52', `${pt}: bitácora con ${notas} nota(s) para PHASE ${fase}.`);
+    }
   }
 
   const dor = intake.match(RE_DOR)?.[1]?.toUpperCase();
@@ -940,6 +980,20 @@ function checkHistory(pt, rel, type, { gate }) {
   }
 
   if (gate !== 'G4') return;
+
+  // SUITE-R35 · el espejo es precondicion de G4. La regla es HARD desde la 5.0.0, tenia
+  // herramienta y NINGUNA compuerta la ejecutaba: se podia llegar hasta aqui sin que el trabajo
+  // existiera en la plataforma. En G4 la credencial SI es exigible (FND-R30).
+  if (REGISTRO?.tracker?.plataforma) {
+    const r = correTracker(['espejo']);
+    if (r.codigo === 1) {
+      fail('SUITE-R35', `${pt}: el espejo con ${REGISTRO.tracker.plataforma} no cuadra. Lo que está abierto tiene que poder consultarse sin leer el repositorio entero.\n${r.salida.trim().split(/\r?\n/).filter((l) => l.includes('SUITE-R35')).map((l) => `        ${l.trim()}`).join('\n')}`);
+    } else if (r.codigo === 3) {
+      fail('SUITE-R35', `${pt}: hay plataforma declarada y no hay acceso desde aquí, así que el espejo no se pudo comprobar. En G4 la credencial es exigible — «gh auth login» (FND-R30).`);
+    } else if (r.codigo === 0) {
+      ok('SUITE-R35', `${pt}: el espejo con ${REGISTRO.tracker.plataforma} cuadra.`);
+    }
+  }
 
   // ── FDGE-R34 · precondiciones de la compuerta G4 ──────────────────────────
   const idx = hist.indexOf(entries[0][0]);

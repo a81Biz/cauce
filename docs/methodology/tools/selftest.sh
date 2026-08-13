@@ -963,6 +963,75 @@ chkno "azure declara el contrato, no miente"  "Sin divergencias"  TR espejo
 chk   "el contrato está en PHASES"            "milestone"       cat "$SUITE/PHASES.md"
 chk   "el issue no copia el intake"           "no lo copia"     cat "$SUITE/tools/tracker.mjs"
 
+# PT-001 · la LÓGICA del espejo se prueba sin plataforma.
+#
+# El plan original usaba un `gh` de mentira en el PATH. No funciona: en Windows node resuelve
+# el gh.exe real, y ningun caso de este arnes puede exigir gh AUTENTICADO porque el arnes corre
+# en CI, donde un PR desde un fork no recibe credenciales — seria el rojo permanente que
+# SUITE-R35 existe para evitar. Por eso el adaptador (habla gh) se separa de la comparacion
+# (funcion pura), y aqui se prueba la segunda. La conversacion real con GitHub se verifica por
+# ejecucion contra el repositorio y queda en evidence/, declarado en test-scenarios.md.
+trlib() { # $1 nombre · $2 patron esperado · $3 cuerpo JS que recibe el modulo como `m`
+  # La ruta va por ENTORNO, no como argumento: pasarla en argv[1] es exactamente lo que el
+  # guard de tracker entiende por «me estan ejecutando directamente», y el arnes se enganaba
+  # solo — importaba el modulo y ejecutaba la herramienta.
+  local out
+  out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else bad "$1  (no apareció: $2 · salió: $out)"; fi
+}
+
+V1='{id:"PT-100",status:"IN_PROGRESS"}'
+V2='{id:"PT-101",status:"DRAFT",issue:7}'
+I7='{number:7,title:"PT-101 x"}'
+I9='{number:9,title:"suelto"}'
+
+trlib "viva sin issue ⇒ divergencia"   "PT-100" \
+  "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
+trlib "issue huérfano ⇒ divergencia"   "#9" \
+  "console.log(JSON.stringify(m.compararEspejo([],[$I9])))"
+trlib "issue muerto ⇒ divergencia"     "PT-101" \
+  "console.log(JSON.stringify(m.compararEspejo([$V2],[])))"
+trlib "espejo exacto ⇒ sin divergencia" "SIN_DIVERGENCIAS" \
+  "console.log(m.compararEspejo([$V2],[$I7]).length?\"HAY\":\"SIN_DIVERGENCIAS\")"
+trlib "lo cerrado no se espeja"        "SIN_DIVERGENCIAS" \
+  "console.log(m.compararEspejo(m.vivasDe([{id:\"PT-102\",status:\"INTEGRATED\"}]),[]).length?\"HAY\":\"SIN_DIVERGENCIAS\")"
+trlib "etiquetas que faltan"           "tarea" \
+  "console.log(JSON.stringify(m.etiquetasQueFaltan([\"bug\"])))"
+
+# El contrato de salida: 2 y 3 son decisiones OPUESTAS y estaban fundidas en 2.
+# 2 = el proyecto eligio no declarar plataforma. 3 = la declaro y no hay acceso (FND-R30).
+#
+# La sonda de acceso se INYECTA en vez de manipular el PATH: quitar `gh` del PATH de forma
+# portable entre Windows y Ubuntu no es fiable —se probo y node siguio resolviendo el gh real—
+# y ademas dejaria a node fuera del PATH. Inyectarla prueba exactamente la misma decision.
+trlib "sin plataforma ⇒ código 2"      "^2$" \
+  "console.log(m.decidirSalida({}, ()=>true).codigo)"
+trlib "plataforma desconocida ⇒ 2"     "^2$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"inventada\"}}, ()=>true).codigo)"
+trlib "declarada y sin acceso ⇒ 3"     "^3$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>false).codigo)"
+trlib "sin acceso dice cómo entrar"    "gh auth login" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>false).mensaje)"
+trlib "declarada y con acceso ⇒ 0"     "^0$" \
+  "console.log(m.decidirSalida({tracker:{plataforma:\"github\"}}, ()=>true).codigo)"
+
+# FDGE-R52 · sin plataforma declarada, el reanclaje sigue siendo bitacora.md. Es la garantía
+# para todo proyecto que no espeja: este PT no puede cambiarle el comportamiento a nadie.
+build_fixture
+printf 'Termina cuando: algo observable\n' >> "$WORK/changes/PT-001-login/intake.md"
+reg_set "r.allocations.filter(x=>x.id==='PT-001').forEach(x=>{x.phase=4})"
+rm -f "$WORK/changes/PT-001-login/bitacora.md"
+chk   "sin plataforma ⇒ exige bitácora"      "✗ FDGE-R52"  V PT-001
+printf '2026-08-12 · PHASE 1 → 2\ncierro: a\n\n2026-08-12 · PHASE 2 → 3\ncierro: b\n\n2026-08-12 · PHASE 3 → 4\ncierro: c\n' > "$WORK/changes/PT-001-login/bitacora.md"
+chk   "sin plataforma ⇒ bitácora al día"     "✓ FDGE-R52"  V PT-001
+
+# Sin plataforma, G4 no se bloquea por el espejo: la garantía de los proyectos que no espejan.
+# Si este caso se pone rojo, el cambio ha alcanzado a proyectos que no debia tocar.
+build_fixture
+chkno "sin plataforma ⇒ G4 libre del espejo" "SUITE-R35"  V --gate G4 PT-001
+
 # ─── Q · la compuerta de secretos ────────────────────────────────────────────
 echo "── Q · secretos ──"
 SEC() { node "$SUITE/tools/revisar-secretos.mjs" "$@"; }
