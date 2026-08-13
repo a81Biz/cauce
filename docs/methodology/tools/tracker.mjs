@@ -204,6 +204,23 @@ export function cuerpoDeIssue(a, opciones = {}) {
 export const RE_NOTA = /PHASE\s*\d+\s*(?:→|->|a)\s*\d+|PHASE\s*\d+\s*→/i;
 export const contarNotas = (textos) => (textos ?? []).filter((t) => RE_NOTA.test(String(t))).length;
 
+/**
+ * PT-014 · En qué orden se crean los issues de una tanda.
+ *
+ * La dependencia entre cuerpos va en UN SOLO sentido: el de un lote enumera sus tareas **con su
+ * número**, y el de una tarea cita a su lote **por identificador**. Creando en el orden del
+ * registro —donde el lote va primero— su cuerpo se compone cuando sus tareas aún no tienen
+ * número, y salía sin ellos: hacía falta repetir el comando.
+ *
+ * No se pide dos veces ni se pospone nada: se crea antes lo que no depende de nadie. Con la
+ * dependencia en un sentido, un orden basta y no hay ciclo posible.
+ *
+ * Estable dentro de cada grupo (`Array.prototype.sort` lo es desde ES2019): dos tareas
+ * conservan el orden del registro, que es el que el humano ve.
+ */
+export const ordenDeApertura = (pendientes) =>
+  [...(pendientes ?? [])].sort((x, y) => (x?.type === 'EP' ? 1 : 0) - (y?.type === 'EP' ? 1 : 0));
+
 const ARGS = process.argv.slice(2);
 const ACCION = ARGS[0] ?? 'espejo';
 const APLICAR = ARGS.includes('--aplicar');
@@ -466,7 +483,9 @@ function abrir() {
     }
     if (errores.length) return;
   }
-  for (const a of pendientes) {
+  // PT-014 · las tareas antes que su lote, para que el cuerpo del lote las enumere con numero
+  // en esta misma pasada. Es un reordenamiento: ni una llamada mas a la plataforma.
+  for (const a of ordenDeApertura(pendientes)) {
     // El issue REFERENCIA el intake; no lo copia. Dos copias del mismo texto divergen — es la
     // causa raiz que la v4 nacio para eliminar, reintroducida por la puerta nueva.
     const cuerpo = cuerpoDeIssue(a, contextoCuerpo(a));

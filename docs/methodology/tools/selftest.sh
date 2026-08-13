@@ -1102,6 +1102,18 @@ V2='{id:"PT-101",status:"DRAFT",issue:7}'
 I7='{number:7,title:"PT-101 x"}'
 I9='{number:9,title:"suelto"}'
 
+# --- PT-014 . el cuerpo del lote, en una pasada ---------------------------
+# La dependencia va en un sentido: el lote cita a sus tareas por NUMERO, la tarea al lote por
+# ID. Creando en el orden del registro el lote nacia sin los numeros y habia que repetir.
+TANDA='[{"id":"EP-9","type":"EP"},{"id":"PT-90","type":"BUG","epic":"EP-9"},{"id":"PT-91","type":"BUG","epic":"EP-9"}]'
+trlib "el lote se crea el ultimo"           "PT-90,PT-91,EP-9"   "console.log(m.ordenDeApertura($TANDA).map((a)=>a.id).join(\",\"))"
+trlib "y no se pierde ni se duplica"        "^3$"   "console.log(m.ordenDeApertura($TANDA).length)"
+trlib "entre tareas, el orden del registro" "PT-90,PT-91"   "console.log(m.ordenDeApertura($TANDA).filter((a)=>a.type!==\"EP\").map((a)=>a.id).join(\",\"))"
+trlib "no muta la lista que recibe"         "EP-9,PT-90,PT-91"   "const t=$TANDA; m.ordenDeApertura(t); console.log(t.map((a)=>a.id).join(\",\"))"
+trlib "sin nada que abrir, no revienta"     "^0$"   "console.log(m.ordenDeApertura(undefined).length)"
+# Y la razon de todo: con ese orden el cuerpo del lote SI enumera numeros.
+trlib "el cuerpo del lote ya trae numero"   "#77"   "console.log(m.cuerpoDeIssue({id:\"EP-9\",type:\"EP\",slug:\"x\"},{tareas:[{id:\"PT-90\",issue:77,title:\"t\"}]}))"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

@@ -572,3 +572,5 @@ Agujero declarado y sin arreglo mecánico: **citar cualquier identificador satis
 haya dónde volver, no que ese sitio sirva.
 
 2026-08-13 | PT-018 | PHASE 8 | Gramática cerrada para el destino de un out-of-scope. RE_APLAZA eliminada. selftest 275->281, 0 fallos. Avisos SUITE-R44 en el repositorio: 0. Al aplicarla aparecieron PT-019 (#26, migrar el proyecto legado) y PT-020 (#27). Defecto propio corregido:  degradado a 0x08 (SUITE-R38). Cierre a DONE pendiente de persona: SUITE-R06b.
+2026-08-13 | PT-018 | PHASE 9 | Cierre autorizado por Alberto Martinez (SUITE-R06b). Estado DONE.
+2026-08-13 | PT-014 | PHASE 8 | ordenDeApertura(): las tareas se crean antes que su lote, con la dependencia en un solo sentido. Cero llamadas nuevas. selftest 281->287. Hallazgo: sincronizarCuerpos() ya lo arreglaba y no se alcanzaba. Cierre a DONE pendiente de persona: SUITE-R06b.

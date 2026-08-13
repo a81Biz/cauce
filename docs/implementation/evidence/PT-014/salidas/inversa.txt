@@ -1,0 +1,4 @@
+# Comprobacion inversa (PT-014) — ordenDeApertura revertida a la identidad
+
+  [31m✗[0m el lote se crea el ultimo  (no apareció: PT-90,PT-91,EP-9 · salió: EP-9,PT-90,PT-91)
+selftest: HAY FALLOS · 287 casos

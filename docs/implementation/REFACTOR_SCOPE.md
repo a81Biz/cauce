@@ -8,4 +8,5 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT | Tipo | Sev | Estado | Implementación | Título |
 |:---|:---|:---|:---|:---|:---|
 | PT-006 | CHORE | S3 | DONE | EP-002 | PHASES declara dos mapeos que su regla no contiene; el del PR sube a RULES |
-| PT-018 | BUG | S2 | VALIDATION_PENDING | EP-004 | El destino de un out-of-scope es vocabulario cerrado, no prosa |
+| PT-018 | BUG | S2 | DONE | EP-004 | El destino de un out-of-scope es vocabulario cerrado, no prosa |
+| PT-014 | BUG | S3 | VALIDATION_PENDING | EP-004 | El cuerpo del lote se compone antes de que sus tareas tengan numero |
