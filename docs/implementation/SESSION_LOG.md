@@ -244,3 +244,37 @@ parada **no la levanta ninguna delegación**: es la lista cerrada de acciones ir
 un campo de formulario.
 
 **Siguiente:** `G3` humana sobre `PT-004`. Después, `PHASE 8` y `PT-001`.
+
+---
+
+## 2026-08-13 · `G3` de `PT-004` · `PHASE 8` · `G4` bloqueada por el defecto de `PT-001`
+
+`G3` resuelta **en persona** por Alberto Martínez: `PT-004` a `DONE`. Es la única compuerta de
+esta sesión que no se resolvió por delegación, y no por criterio del agente: cerrar un `BUG`
+está en `SUITE-R06`, la lista cerrada que ningún modo de ejecución automatiza.
+
+`PHASE 8`: entrada en `HISTORY.log` con las cuatro compuertas y quién resolvió cada una,
+`Estructural: no`, índice a `DONE`, `REGISTRY` sellado con `validated_by`.
+
+**`G4` queda BLOQUEADA, y por el motivo que el lote predijo.**
+
+```
+$ verify-fdge --gate G4 PT-004
+✓ FDGE-R34   precondiciones de G4 satisfechas
+✗ FDGE-R52   está en PHASE 8 y su bitácora tiene 0 notas; faltan 7
+1 error(es). La compuerta G4 queda bloqueada.
+```
+
+`FDGE-R34` pasa: CI, `HISTORY.log`, manifiesto, self-review, trazabilidad y estado `DONE`,
+todo correcto. Lo que bloquea es `FDGE-R52` buscando `bitacora.md` mientras el reanclaje está
+donde `CORE.md` manda —los comentarios del issue #6—, que es el defecto recogido en `AC-07`
+de `PT-001`.
+
+El error **crece** con la fase: pedía 1 nota en `PHASE 2` y pide 7 en `PHASE 8`. Escribir esas
+siete notas ahora pondría `G4` en verde y sería un falso verde de manual: siete entradas
+redactadas de una vez para satisfacer un contador, duplicando un reanclaje que ya existe.
+
+Confirma el orden decidido en `G1`: `PT-001` va inmediatamente después porque es lo que
+desbloquea el merge de lo ya hecho.
+
+**Siguiente:** `PT-001`, `PHASE 2`.

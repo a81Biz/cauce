@@ -7,6 +7,41 @@ Cada registro declara, como mínimo: `PT-NNN` · tipo · severidad · resultado 
 (`FDGE-R44`, lo que hace computable la frescura del grafo) y la línea `Compuertas:` con quién
 resolvió cada una (`FDGE-R26`, `SUITE-R22`).
 
-Vacío: ningún PT ha cerrado todavía.
-
 ---
+
+## PT-004 — BUG: la compuerta no distingue la fase
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: TRIVIAL
+Track: STANDARD
+Implementación: EP-001
+Estructural: no
+Rama: trabajo
+Commit: fb4ff48
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-001, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 2026-08-13 Alberto Martínez · G4 pendiente
+
+Qué fallaba: `verify-fdge` exigía `traceability.md` (PHASE 4) y `discovery.md` (PHASE 2) a
+cualquier PT, incluido uno recién salido de PHASE 1. Como CI ejecuta `verify-fdge --all`,
+abrir trabajo correctamente ponía el job en rojo, y un repositorio no podía tener trabajo en
+curso y la compuerta en verde a la vez.
+
+Causa raíz: la fase se calculaba en `checkPT` (`verify-fdge.mjs:757`) y solo la consumía
+`FDGE-R52`. Las dos comprobaciones de existencia de artefactos no la consultaban.
+
+Qué se hizo: `faseDeclarada` distingue fase declarada de fase ausente —el `?? 0` fundía los
+dos casos, y sobre un valor inventado la compuerta dice «todo bien» sobre nada (`RULE-06`)—
+y una función `exigible()` da tres salidas: error si toca, aviso si aún no toca, `SIN EVALUAR`
+si nadie declaró la fase. Ninguna regla se relajó: `FDGE-R15` y `FDGE-R42` conservan su texto
+y `RULES.md` no se tocó.
+
+Resultado: `verify-fdge --all` de 4 errores a 1 · `selftest` de 180 a 188 casos, 0 fallos.
+
+Delta respecto al plan: `AC-06` queda PARCIAL. El error restante es `FDGE-R52`, que busca
+`bitacora.md` e ignora la plataforma declarada cuando `CORE.md` manda escribir el reanclaje
+en el issue. Pertenece a `PT-001` (`AC-07`). No se escribió `bitacora.md` para poner la
+compuerta en verde: duplicaría el reanclaje, que es lo que `SUITE-R35` prohíbe.
+
+Descubrimiento: el defecto apareció EJECUTANDO `PHASE 1` de las otras tareas del lote, no
+leyendo el código. Este repositorio se autoalojó el 2026-08-13 y `PT-004` es el primer PT que
+ha abierto: el verificador nunca se había ejecutado aquí contra un PT vivo.
