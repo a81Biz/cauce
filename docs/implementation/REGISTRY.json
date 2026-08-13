@@ -15,8 +15,8 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 8,
-    "EP": 2,
+    "PT": 10,
+    "EP": 3,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -210,6 +210,55 @@
       "issue": 12,
       "validated_by": "auto · EXEC-R06",
       "validated": "2026-08-13"
+    },
+    {
+      "id": "EP-003",
+      "slug": "el-issue-se-lee-solo",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "IN_PROGRESS",
+      "structural": null,
+      "suite_version": "6.0.0",
+      "title": "El issue se lee sin salir de GitHub, y la herramienta firma lo que escribe",
+      "origin": "Intake humano 2026-08-13 · «no hay nada de la EP-002» sobre el issue #9 · y «ya debes usar github como se planteó en el EP-002, sin excusas ni pretextos»",
+      "created": "2026-08-13",
+      "issue": 13
+    },
+    {
+      "id": "PT-009",
+      "slug": "tracker-firma-lo-que-escribe",
+      "type": "BUG",
+      "complexity": "TRIVIAL",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "READY",
+      "structural": false,
+      "suite_version": "6.0.0",
+      "epic": "EP-003",
+      "phase": 1,
+      "title": "tracker cerrar comenta sin marca y SUITE-R43 toma su propio mensaje por humano",
+      "origin": "Hallazgo de ejecución 2026-08-13 · verify-fdge --all en rojo tras el cierre posterior al merge",
+      "created": "2026-08-13",
+      "issue": 14
+    },
+    {
+      "id": "PT-010",
+      "slug": "el-cuerpo-del-issue-se-lee",
+      "type": "BUG",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "READY",
+      "structural": false,
+      "suite_version": "6.0.0",
+      "epic": "EP-003",
+      "phase": 1,
+      "title": "El cuerpo de un issue de EP dice «sin implementación» y su enlace al intake es un 404",
+      "origin": "Intake humano 2026-08-13 · «estoy viendo en los issue que no hay nada de la EP-002»",
+      "created": "2026-08-13",
+      "issue": 15
     }
   ]
 }
