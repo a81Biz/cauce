@@ -1042,8 +1042,8 @@ Un checklist que el agente rellena sobre sí mismo no es un control. Un control 
 puede fallar.
 
 ```bash
-# Batería completa: 5 casos límite bien formados + 11 defectos inyectados + coherencia.
-bash docs/methodology/tools/selftest.sh    # 34 casos: límite, defectos inyectados, migración
+# Batería completa: casos límite bien formados, defectos inyectados, migración y coherencia.
+bash docs/methodology/tools/selftest.sh    # imprime cuántos casos corrió
 
 # Coherencia de la propia metodología: vocabulario derogado, reglas citadas que no existen,
 # IDs definidos dos veces, obligaciones en documentos que solo explican, enlaces rotos,
@@ -1107,7 +1107,7 @@ medio camino, y comprueban que once defectos inyectados se detectan.
 | `tools/comparar-marco.mjs` | divergencia entre la copia del proyecto y la de referencia, **y en qué dirección** | cuando el proyecto corrige el marco, o al migrar |
 | `tools/migrate.mjs` | migración de versión, encadenada a verificación | al subir de versión |
 | `tools/audit.mjs` | cobertura: enumera reglas, fases, triggers, artefactos, herramientas | tras cualquier cambio en la suite |
-| `tools/selftest.sh` | 100 casos: límites, defectos inyectados, migración, seguridad | antes de publicar una versión |
+| `tools/selftest.sh` | límites, defectos inyectados, migración y seguridad · imprime el total al terminar | antes de publicar una versión |
 
 ---
 
