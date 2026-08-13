@@ -130,3 +130,70 @@ transcripciones `[HUMANO]` del intake del lote. El lote permanece en `DRAFT`.
 
 **Confianza al cerrar:** ALTA sobre el diagnóstico —los tres defectos están medidos con
 comandos reproducibles—; la ejecución no ha empezado.
+
+---
+
+## 2026-08-13 · `G1` PASS · `PT-004` admitido · `PHASE 2` de `PT-004`
+
+**Compuerta `G1` resuelta: PASS.** Las tres declaraciones que faltaban llegaron el mismo día:
+
+- Severidad de las cuatro tareas (`INTAKE-R04`) — `PT-004` S2 · `PT-001` S2 · `PT-002` S3 ·
+  `PT-003` S3. Declaradas por **delegación explícita**: «usa la severidad necesaria para que
+  comiences en cada PT». Ninguna es `S1`: nada de esto es sistema caído y `S1` habilitaría
+  `HOTFIX`, que no corresponde.
+- **Firma única por delegación** (`INTAKE-R06`): «te autorizo a que firmes a mi nombre». El
+  bloque lo escribió el agente y el intake lo dice — §4 lleva la constancia con la cita
+  literal, el alcance y lo que la autorización NO cubre (`G2`, `G3`, `G4`).
+- Confirmación de §1, §2 y §3.
+
+**Hueco anotado, fuera de alcance:** el marco no sabe representar una firma delegada. O el
+agente escribe el bloque como si lo hubiera escrito la persona, o se detiene. La convención
+usada —firmar y adjuntar constancia— se inventó en esta sesión y no es una regla.
+
+**`PT-004` admitido en el lote** por orden humana: «el bloqueo entra como cuarta tarea». No
+estaba previsto; apareció al ejecutar `PHASE 1`. Pasa a ser el **primero** del orden por
+dependencia de compuerta: mientras `verify-fdge` esté en rojo por un motivo ajeno a las
+demás tareas, ninguna puede demostrar que la dejó verde.
+
+Issue `PT-004` → #6. Espejo 5 = 5. Reanclaje (`FDGE-R52`) escrito como comentario en #2, #3,
+#4, #5 y #6.
+
+**`PHASE 2` de `PT-004`** — `context.md` y `discovery.md`.
+
+Causa raíz determinada: `checkPT()` **calcula** la fase en `verify-fdge.mjs:757` y la usa solo
+para `FDGE-R52`. Las dos comprobaciones de existencia de artefactos —`:792` `discovery.md`,
+`:808` `traceability.md`— no la consultan. Que sea descuido y no decisión lo prueba el propio
+código, que sí razona por fases para las **columnas** de la matriz (`:818`, `:820`).
+`afterPhase6` infiere la fase de la existencia de `manifest.json`, patrón que no puede
+funcionar para `traceability.md` porque el artefacto a inferir es el que se comprueba.
+
+Confianzas: RootCause 95 % · Architecture 85 % · Solution 70 %. Ninguna bajo el 70 %: sigue
+como `BUG` (`FDGE-R09`). El grafo tiene alcance `bin` y no cubre `tools/` (`TD-01`); se
+sustituyó por enumeración directa de consumidores, exhaustiva sobre 15 herramientas sin
+dependencias externas. Declarado en `context.md` (`FDGE-R08`).
+
+**Tercer defecto del mismo tipo, encontrado ejecutando `PHASE 2`:**
+
+```
+✗ FDGE-R52   PT-004: está en PHASE 2 y su bitácora tiene 0 nota(s); faltan 1.
+```
+
+`CORE.md` manda escribir el reanclaje «**issue si hay plataforma** · `bitacora.md` si no». Se
+escribió en el issue, que es lo correcto, y `verify-fdge` falló igual: solo busca
+`bitacora.md`. Cumplir el procedimiento deja la compuerta roja; ponerla verde exige duplicar
+el reanclaje, que es lo que `SUITE-R35` prohíbe. Recogido como `AC-07` de `PT-001`, con
+`AC-08` para la desviación de las etiquetas de `gh`.
+
+**Estado de la compuerta al cerrar la sesión**
+
+`verify-fdge --all`: **5 errores**, ninguno por trabajo mal hecho —
+3 son el defecto de `PT-004` sobre `PT-001`, `PT-002` y `PT-003`;
+1 es el defecto de `PT-004` sobre sí mismo;
+1 es el defecto nuevo de `FDGE-R52`.
+
+`npm run verify`: en verde, 180 casos.
+
+**No se fabricó ningún artefacto para poner el verificador en verde.** `traceability.md`,
+`discovery.md` ajenos y `bitacora.md` siguen sin existir porque sus fases no han ocurrido.
+
+**Siguiente:** `PHASE 3` de `PT-004`. Decisión abierta: de dónde sale la fase de un PT.

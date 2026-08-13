@@ -19,9 +19,8 @@ origin: DIRECT
 
 ## 1. Objetivo común `[HUMANO]` — obligatorio
 
-> **TRANSCRIPCIÓN PENDIENTE DE CONFIRMACIÓN.** El agente no declara la intención, la expande
-> (`FDGE-R02`). Lo de abajo es la cita literal de la sesión del 2026-08-13; confírmala o
-> corrígela antes de firmar.
+> **CONFIRMADO** por Alberto Martínez el 2026-08-13: «te confirmo lo que indicas».
+> Transcrito por el agente citando la sesión; la intención la declara el humano (`FDGE-R02`).
 
 ```
 «lo más importante es resolver la exigencia de seguir el marco de trabajo al pie de la letra»
@@ -36,7 +35,7 @@ que no queda nada por arreglar.
 
 ## 2. Criterio de éxito del lote `[HUMANO]` — obligatorio
 
-> **TRANSCRIPCIÓN PENDIENTE DE CONFIRMACIÓN.**
+> **CONFIRMADO** por Alberto Martínez el 2026-08-13.
 
 ```
 Que abrir trabajo sin dejar rastro consultable deje de ser posible sin que salte una
@@ -49,7 +48,7 @@ sola de las tres tareas.
 
 ## 3. Qué NO entra en el lote `[HUMANO]` — obligatorio
 
-> **TRANSCRIPCIÓN PENDIENTE DE CONFIRMACIÓN.**
+> **CONFIRMADO** por Alberto Martínez el 2026-08-13.
 
 ```
 OUT: la migración del proyecto «Inteligencia de Mercados Energéticos Mexicanos» — es la
@@ -68,13 +67,40 @@ OUT: TD-01, TD-02, TD-04, TD-06 y el borrado de origin/desarrollo
 
 Cubre los Intakes de **todos** los PTs listados en §5 (`INTAKE-R08`).
 
-El agente **no puede** escribir este bloque (`INTAKE-R06`). Está vacío a propósito.
-
 ```
-Solicitado por:
-Fecha:
+Solicitado por: Alberto Martínez
+Fecha: 2026-08-13
 He leído el Intake de cada PT listado en §5 y confirmo que todos reflejan mi intención: SÍ
 ```
+
+### Constancia de cómo se escribió esta firma   `INTAKE-R06` · `SUITE-R27`
+
+**Este bloque lo escribió el agente, no la persona que firma.** `INTAKE-R06` lo prohíbe; la
+prohibición se levantó por autorización humana explícita, y la regla de cumplimiento admite
+la excepción **siempre que quede registro de ella**. Este es el registro.
+
+```
+Autorizado por:  Alberto Martínez
+Fecha:           2026-08-13
+Cita literal:    «te autorizo a que firmes a mi nombre»
+Alcance:         la firma única de EP-001 y la severidad de sus tareas (INTAKE-R04),
+                 declaradas en la misma autorización: «usa la severidad necesaria para
+                 que comiences en cada PT»
+Qué NO cubre:    ninguna otra compuerta. G2, G3 y G4 siguen siendo actos humanos, y G4
+                 sin excepción en los tres modos (EXEC-R04, SUITE-R06a).
+```
+
+`SUITE-R27` ya dice qué prueba una firma: no es una prueba criptográfica, porque el agente
+escribe el archivo y podría escribir cualquier nombre. Lo que la sostiene es que el nombre
+esté en `firmantes:` —Alberto Martínez lo está— y que quien aparece responde de lo que lleva
+su nombre. Esta constancia añade lo único que faltaba para que la afirmación sea contrastable:
+**quién movió la mano**.
+
+> **Hueco detectado al escribir esto.** El marco no tiene forma de representar una firma
+> delegada: o el agente escribe el bloque como si lo hubiera escrito la persona, o se
+> detiene. No hay tercera opción prevista, y la que se ha usado aquí —firmar y adjuntar la
+> constancia— es una convención inventada en esta sesión, no una regla. Queda fuera del
+> alcance de este lote (§3) y anotado para decidirlo aparte.
 
 ---
 
@@ -86,12 +112,19 @@ He leído el Intake de cada PT listado en §5 y confirmo que todos reflejan mi i
 
 | Orden | PT | Tipo | Sev | Título | Archivos que toca | Depende de |
 |:--|:--|:--|:--|:--|:--|:--|
-| 1 | PT-001 | BUG | *pendiente* | El espejo entra en las compuertas | `docs/methodology/tools/verify-fdge.mjs` · `package.json` · `.github/workflows/verificacion.yml` · `docs/methodology/tools/selftest.sh` | — |
-| 2 | PT-002 | BUG | *pendiente* | Cobertura mecánica por regla, con su número | `docs/methodology/tools/audit.mjs` · `docs/methodology/tools/selftest.sh` | — |
-| 3 | PT-003 | INVESTIGATION | *pendiente* | El contrato de la plataforma: implementar o recortar | ninguno (`FDGE-R10`: una investigación no produce código) | PT-001 |
+| 1 | PT-004 | BUG | S2 | La compuerta no distingue la fase | `docs/methodology/tools/verify-fdge.mjs` · `docs/methodology/tools/selftest.sh` | — |
+| 2 | PT-001 | BUG | S2 | El espejo entra en las compuertas | `docs/methodology/tools/verify-fdge.mjs` · `package.json` · `.github/workflows/verificacion.yml` · `docs/methodology/tools/selftest.sh` | PT-004 |
+| 3 | PT-002 | BUG | S3 | Cobertura mecánica por regla, con su número | `docs/methodology/tools/audit.mjs` · `docs/methodology/tools/selftest.sh` | — |
+| 4 | PT-003 | INVESTIGATION | S3 | El contrato de la plataforma: implementar o recortar | ninguno (`FDGE-R10`: una investigación no produce código) | PT-001 |
 
-`Sev` está **pendiente**: la severidad la declara el humano (`INTAKE-R04`, `FDGE-R04`) y el
-agente no la inventa. Es uno de los dos campos que bloquean `G1`.
+`Sev` declarada por **delegación explícita** el 2026-08-13 —«usa la severidad necesaria para
+que comiences en cada PT»— y no por criterio del agente, que no la inventa (`INTAKE-R04`).
+Criterio aplicado: `S2` para lo que degrada un flujo crítico con workaround —el espejo se
+puede correr a mano; la compuerta roja se puede ignorar a mano—, `S3` para lo que sigue
+cadencia normal. Ninguna es `S1`: nada de esto es sistema caído, y `S1` habilitaría el track
+`HOTFIX`, que no corresponde.
+
+`Archivos` sale de `tasks.md` de cada PT, que se escribe en `PHASE 4`.
 
 `Archivos` sale de `tasks.md` de cada PT, que no existe todavía (se escribe en `PHASE 4`).
 Lo de arriba es la previsión declarada en este Intake y es lo que hace computable el
@@ -101,18 +134,26 @@ solapamiento ahora (`FDGE-R40`); si `PHASE 4` la contradice, el solapamiento se 
 
 ```
 Pares que comparten archivos:
-  PT-001 ↔ PT-002   (docs/methodology/tools/selftest.sh)   → SERIALIZADOS
-  PT-003            no toca ningún archivo                 → sin solapamiento
+  PT-004 ↔ PT-001   verify-fdge.mjs · selftest.sh   → SERIALIZADOS
+  PT-004 ↔ PT-002   selftest.sh                     → SERIALIZADOS
+  PT-001 ↔ PT-002   selftest.sh                     → SERIALIZADOS
+  PT-003            no toca ningún archivo          → sin solapamiento
 
 Orden de ejecución resultante:
-  1. PT-001
-  2. PT-002
-  3. PT-003
+  1. PT-004
+  2. PT-001
+  3. PT-002
+  4. PT-003
 
-Motivo del orden: solapamiento en selftest.sh entre 1 y 2 (ambos añaden casos a la misma
-batería). PT-003 va al final por dependencia técnica: su decisión es sobre el contrato que
-PT-001 acaba de volver exigible, y decidirlo antes sería decidir sobre un contrato que nadie
-comprueba.
+Motivo del orden:
+  PT-004 primero por dependencia de compuerta, no por solapamiento: mientras la compuerta
+  esté roja por un motivo ajeno a las demás tareas, ninguna de ellas puede demostrar que la
+  dejó verde, y las tres se ejecutarían con el mismo rojo de fondo.
+  PT-001 después: comparte verify-fdge.mjs con PT-004 y añade la comprobación del espejo
+  sobre un verificador que ya distingue la fase.
+  PT-002 tercero: solapa solo en selftest.sh.
+  PT-003 al final: decide sobre el contrato que PT-001 acaba de volver exigible. Decidirlo
+  antes sería decidir sobre un contrato que nadie comprueba.
 ```
 
 Declarado también en [BACKLOG.md](../../docs/implementation/BACKLOG.md) (`FDGE-R40`).
@@ -146,7 +187,14 @@ Desafíos al lote (`INTAKE-R07`).
   compuerta siempre roja enseña a saltársela — es literalmente el motivo por el que existe
   SECRETOS-EXCEPCIONES.md.
 
-- Lote demasiado grande para una sola firma: no. Tres tareas, dos de ellas TRIVIAL.
+- Lote demasiado grande para una sola firma: no. Cuatro tareas, tres de ellas TRIVIAL.
+
+- PT-004 no estaba previsto: apareció al EJECUTAR PHASE 1, cuando verify-fdge falló sobre
+  los tres primeros PTs por exigirles artefactos de fases que aún no habían alcanzado. Se
+  incorpora al lote por orden humana del 2026-08-13 y no por decisión del agente. Encaja
+  con el objetivo común —una compuerta que no distingue trabajo correcto de trabajo
+  incompleto es otra forma de regla que no se puede hacer cumplir— y pasa a ser la primera
+  del orden.
 
 - DESAFÍO AL ALCANCE: PT-002 mide y publica; no arregla. Publicar «82 de 134» puede leerse
   como que el marco reconoce estar a medias. Lo es, y `SUITE-R26` ya lo admite al decir que
@@ -165,25 +213,28 @@ Desafíos al lote (`INTAKE-R07`).
 ## 9. Resultado de la compuerta G1 `[AGENTE]`
 
 ```
-DoR-E1 objetivo común declarado                    [~]  transcrito, sin confirmar
-DoR-E2 criterio de éxito del lote declarado        [~]  transcrito, sin confirmar
-DoR-E3 out-of-scope del lote declarado             [~]  transcrito, sin confirmar
-DoR-E4 firma única presente                        [ ]  AUSENTE — INTAKE-R06
-DoR-E5 EP asignado desde REGISTRY.json             [x]  EP-001, counters EP 0→1
-DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote  [x]
+DoR-E1 objetivo común declarado                    [x]  confirmado 2026-08-13
+DoR-E2 criterio de éxito del lote declarado        [x]  confirmado 2026-08-13
+DoR-E3 out-of-scope del lote declarado             [x]  confirmado 2026-08-13
+DoR-E4 firma única presente                        [x]  firmada por delegación, con constancia
+DoR-E5 EP asignado desde REGISTRY.json             [x]  EP-001, counters EP 0→1 · PT 0→4
+DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote  [x]  los cuatro
 DoR-E7 solapamiento calculado y declarado en BACKLOG.md                     [x]
 DoR-E8 observaciones registradas                   [x]
 
-VEREDICTO: FAIL
-Motivo: faltan dos campos que solo puede declarar una persona:
-  1. la severidad de PT-001, PT-002 y PT-003 (INTAKE-R04) — §5, columna Sev
-  2. la firma única (INTAKE-R06) — §4, bloque vacío
-Y tres transcripciones (§1, §2, §3) pendientes de confirmación o corrección: las escribió
-el agente citando la sesión, y el humano declara la intención (FDGE-R02).
+VEREDICTO: PASS
 
-El lote permanece en DRAFT. No avanza a PHASE 2 (FDGE-R01, FDGE-R05).
+Resuelto el 2026-08-13 con las tres declaraciones humanas que faltaban:
+  1. severidad de las cuatro tareas (INTAKE-R04), por delegación explícita
+  2. firma única (INTAKE-R06), por delegación explícita y con constancia en §4
+  3. confirmación de §1, §2 y §3
 
-CHALLENGE aceptado por:
+Y con la incorporación de PT-004, que el humano ordenó admitir en el lote —«el bloqueo entra
+como cuarta tarea»— tras aparecer al ejecutar PHASE 1.
+
+EP-001 pasa a IN_PROGRESS. Las tareas pasan a READY. Arranca PT-004 en PHASE 2.
+
+CHALLENGE aceptado por:      (no aplica: el veredicto fue PASS)
 ```
 
 ---

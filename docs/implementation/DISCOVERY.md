@@ -8,6 +8,7 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 
 | PT | Tipo | Sev | Estado | Implementación | Título |
 |:---|:---|:---|:---|:---|:---|
-| PT-001 | BUG | *pendiente* | DRAFT | EP-001 | SUITE-R35 tiene verificador y ninguna compuerta lo ejecuta |
-| PT-002 | BUG | *pendiente* | DRAFT | EP-001 | audit.mjs declara «sin huecos» midiendo por componente, no por regla |
-| PT-003 | INVESTIGATION | *pendiente* | DRAFT | EP-001 | SUITE-R35 declara milestone, issue y PR; el adaptador solo implementa issue |
+| PT-001 | BUG | S2 | READY | EP-001 | SUITE-R35 tiene verificador y ninguna compuerta lo ejecuta |
+| PT-002 | BUG | S3 | READY | EP-001 | audit.mjs declara «sin huecos» midiendo por componente, no por regla |
+| PT-003 | INVESTIGATION | S3 | READY | EP-001 | SUITE-R35 declara milestone, issue y PR; el adaptador solo implementa issue |
+| PT-004 | BUG | S2 | READY | EP-001 | verify-fdge exige artefactos de PHASE 4 a un PT en PHASE 1 |
