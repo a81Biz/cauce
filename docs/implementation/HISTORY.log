@@ -712,3 +712,30 @@ delataron tres casos en rojo.
 
 Evidencia: docs/implementation/evidence/PT-022/ · selftest 291 → 299 casos
 Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## G4 — EP-004 y EP-005 · autorización de merge a main
+Fecha: 2026-08-13
+Compuerta: G4
+Autoriza: Alberto Martínez
+Alcance: PT-011, PT-012, PT-013, PT-014, PT-018 (EP-004) · PT-021, PT-022 (EP-005)
+Pull request: #28
+Versión: 7.0.0
+
+Texto de la autorización: «pon en done, cierra todo y haz el merge a main. Tienes mi VoBo y
+firma a mi nombre».
+
+SUITE-R06a y EXEC-R04 ponen el merge a la rama principal fuera de lo que se automatiza, y
+EXEC-R07 dice describir el comando en vez de ejecutarlo. La regla de cumplimiento del proyecto
+admite la excepción cuando un humano la autoriza DEJANDO REGISTRO: esta entrada es ese registro,
+y existe para que la excepción sea contrastable y no invisible.
+
+Límite honesto, el mismo que SUITE-R27 declara para las firmas: mecánicamente nada distingue
+este merge de uno hecho por una persona — lo ejecuta el agente. Lo que este registro aporta no
+es prueba, es TRAZA: queda dicho quién lo autorizó, con qué palabras y sobre qué alcance.
+
+Precondiciones verificadas antes de ejecutar:
+  verify-fdge --gate G4   las siete tareas, sin errores
+  verify-suite            sin errores de coherencia
+  selftest                299 casos, 0 fallos
+  tracker espejo          sin divergencias
+  version                 los 21 documentos y package.json declaran 7.0.0
