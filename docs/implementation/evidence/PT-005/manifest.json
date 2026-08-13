@@ -6,7 +6,7 @@
     { "ac": "AC-03", "scenarios": ["TS-03"], "tests": ["selftest.sh:clon superficial ⇒ SIN EVALUAR","selftest.sh:no dice que revisó la historia"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
     { "ac": "AC-04", "scenarios": ["TS-04"], "tests": ["selftest.sh:y dice cómo arreglarlo"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
     { "ac": "AC-05", "scenarios": ["TS-05"], "tests": ["selftest.sh:CI clona la historia entera"], "evidence": ["salidas/selftest-despues.txt"], "verified": true },
-    { "ac": "AC-06", "scenarios": ["TS-06"], "tests": ["ejecución real sobre el PR #7"], "evidence": ["salidas/ci-fallo-original.txt"], "verified": false },
+    { "ac": "AC-06", "scenarios": ["TS-06"], "tests": ["ejecución real sobre el PR #7 · run 31684220959"], "evidence": ["salidas/ci-fallo-original.txt","salidas/ci-verde.txt"], "verified": true },
     { "ac": "AC-07", "scenarios": ["TS-07"], "tests": ["selftest.sh:árbol sin .git"], "evidence": ["salidas/secretos-historial.txt"], "verified": true }
   ],
   "suite": { "passed": 219, "failed": 0, "coverage": 219, "baseline": 211 }

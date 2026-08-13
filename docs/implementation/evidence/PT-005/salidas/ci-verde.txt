@@ -1,0 +1,14 @@
+success  Set up job
+success  Run actions/checkout@v4
+success  Run actions/setup-node@v4
+success  Los patrones cumplen su contrato
+success  Coherencia interna
+success  Núcleo sincronizado con sus fuentes
+success  Cobertura de la auditoría
+success  Batería de casos
+success  Ningún secreto sin firmar
+success  El espejo con la plataforma cuadra
+success  Cumplimiento de los artefactos propios
+success  Post Run actions/setup-node@v4
+success  Post Run actions/checkout@v4
+success  Complete job
