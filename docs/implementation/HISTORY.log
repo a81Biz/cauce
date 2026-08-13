@@ -278,3 +278,36 @@ escrito el mismo agente en el PT que declaró que las cifras no se fijan.
 Consecuencia declarada: añadir una regla vinculante cambia lo que un proyecto debe tener para
 cumplir `G4`. La versión de este lote no puede ser `MINOR`.
 
+## PT-007 — FEATURE: el issue lleva la fase y la compuerta
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S3
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-002
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-002, firmada por delegación) · G2 2026-08-13 Alberto Martínez (por delegación) · G3 auto (EXEC-R06) · G4 pendiente del cierre del lote
+
+Qué faltaba: el issue decía **que existe** y nada más. Para saber qué fase y qué compuerta
+había que abrir `REGISTRY.json`. Lo demostró `EP-001` al reabrirse: quien mirara GitHub veía
+cinco issues abiertos sin saber que cuatro estaban terminados y uno esperaba una compuerta.
+
+Qué se hizo: cada issue vivo lleva `fase: N` y, si una compuerta espera, `G1`..`G4`. Las dos se
+**derivan** —la fase de `REGISTRY.allocations[].phase`, la compuerta del mapa de fases— así que
+no hay campo nuevo que nadie tenga que actualizar. El espejo comprueba que coincidan:
+publicar el estado sin comprobarlo es escribir en dos sitios y esperar que no se separen.
+`tracker estado` imprime el tablero leyendo solo el registro, sin credencial ni plataforma.
+
+Resultado: `selftest` 227 → 234 casos. Nueve issues sincronizados y tres etiquetas creadas
+sobre el repositorio real; `tracker espejo` cuadra.
+
+Delta: `estado` se salta la compuerta de acceso a propósito —lo dijo un caso al ponerse rojo—
+porque no toca la plataforma, y exigirle credencial lo dejaba inútil justo donde más falta
+hace: en un proyecto que aún no espeja.
+
+Deuda declarada: `COMPUERTA_DE_FASE` copia en `tracker.mjs` el mapa que `CORE.md` §Fases
+declara. Es un hecho en dos sitios —lo que `RULE-01` persigue— y se eligió igualmente porque
+leerlo de `CORE.md` en tiempo de ejecución significaría parsear prosa. Si el mapa de fases
+cambia, esto se queda atrás en silencio.
+

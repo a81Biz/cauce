@@ -1,0 +1,17 @@
+EP-001 · el-marco-se-hace-cumplir   DONE   #2
+  PT-001  BUG            S2  DONE                fase 8    —              #3
+  PT-002  BUG            S3  DONE                fase 8    —              #4
+  PT-003  INVESTIGATION  S3  CLOSED              fase 8    —              #5
+  PT-004  BUG            S2  DONE                fase 8    —              #6
+  PT-005  BUG            S2  DONE                fase 8    —              #8
+
+EP-002 · github-como-maquina-de-estados   IN_PROGRESS   #9
+  PT-006  CHORE          S3  DONE                fase 8    —              #10
+  PT-007  FEATURE        S3  IN_PROGRESS         fase 4    G2 pendiente   #11
+  PT-008  FEATURE        S2  READY               fase 1    G1 pendiente   #12
+
+tracker · github · acción estado
+
+  · 2 implementación(es) · 8 tarea(s) · leído del registro, sin tocar la plataforma.
+
+Sin divergencias.

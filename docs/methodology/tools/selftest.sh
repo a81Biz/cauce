@@ -1146,6 +1146,34 @@ chkno "sin plataforma ⇒ G4 libre de R42"    "SUITE-R42"    V --gate G4 PT-001
 # NO pueda fusionar. Si algun dia aparece, este caso se pone rojo.
 chkno "tracker no puede fusionar"           "pr merge"     cat "$SUITE/tools/tracker.mjs"
 
+# PT-007 · el issue lleva la FASE y la COMPUERTA, derivadas del registro.
+#
+# El tablero decia «que existe» y nada mas: para saber que va cuando habia que abrir
+# REGISTRY.json. Lo demostro EP-001 al reabrirse — quien mirara GitHub veia cinco issues
+# abiertos sin saber que cuatro estaban terminados y uno esperaba una compuerta humana.
+#
+# La compuerta NO se almacena: se deriva de la fase con el mapa de CORE.md §Fases. Un campo que
+# alguien tiene que actualizar es un hecho copiado (RULE-01).
+trlib "la etiqueta lleva la fase"        "fase: 4" \
+  "console.log(JSON.stringify(m.etiquetasDe({id:\"PT-1\",phase:4,status:\"READY\"})))"
+trlib "y la compuerta que espera"        "G2" \
+  "console.log(JSON.stringify(m.etiquetasDe({id:\"PT-1\",phase:4,status:\"READY\"})))"
+trlib "PHASE 5 no espera compuerta"      "^SIN_COMPUERTA$" \
+  "console.log(m.etiquetasDe({id:\"PT-1\",phase:5,status:\"IN_PROGRESS\"}).some(function(e){return /^G[1-4]$/.test(e)})?\"HAY\":\"SIN_COMPUERTA\")"
+trlib "sin fase declarada no revienta"   "^SIN_FASE$" \
+  "console.log(m.etiquetasDe({id:\"PT-1\",status:\"READY\"}).some(function(e){return e.indexOf(\"fase\")===0})?\"HAY\":\"SIN_FASE\")"
+
+# El espejo comprueba tambien las etiquetas: publicar el estado sin comprobarlo es escribir en
+# dos sitios y esperar que no se separen.
+trlib "etiqueta que no cuadra ⇒ divergencia" "fase" \
+  "console.log(JSON.stringify(m.compararEspejo([{id:\"PT-1\",status:\"READY\",issue:7,phase:4}],[{number:7,title:\"x\",labels:[{name:\"fase: 2\"},{name:\"G2\"}]}])))"
+trlib "etiquetas correctas ⇒ sin divergencia" "^SIN_DIVERGENCIAS$" \
+  "console.log(m.compararEspejo([{id:\"PT-1\",status:\"READY\",issue:7,phase:4}],[{number:7,title:\"x\",labels:[{name:\"fase: 4\"},{name:\"G2\"}]}]).length?\"HAY\":\"SIN_DIVERGENCIAS\")"
+
+# Sin plataforma declarada, nada de esto se exige. Garantia de los destinos ya instalados.
+build_fixture
+chk   "estado funciona sin plataforma"   "PT-00"   TR estado
+
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"
 

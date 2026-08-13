@@ -54,6 +54,24 @@ export const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOC
 export const vivasDe = (allocations) =>
   (Array.isArray(allocations) ? allocations : []).filter((a) => VIVOS.has(a?.status));
 
+// PT-007 · La compuerta NO se almacena: se DERIVA de la fase, con el mapa que `CORE.md` §Fases
+// ya declara. Un campo `gate` en el registro seria un hecho copiado que alguien tiene que
+// acordarse de actualizar (`RULE-01`), y este marco tiene cicatrices de eso.
+export const COMPUERTA_DE_FASE = { 1: 'G1', 4: 'G2', 7: 'G3', 9: 'G4' };
+
+/** Las etiquetas que el registro DERIVA para el issue de una allocation. Función pura. */
+export function etiquetasDe(alloc) {
+  const et = [alloc?.type === 'EP' ? 'implementación' : 'tarea'];
+  const f = alloc?.phase;
+  if (f !== undefined && f !== null) {
+    et.push(`fase: ${f}`);
+    const g = COMPUERTA_DE_FASE[Number(f)];
+    if (g) et.push(g);
+  }
+  return et;
+}
+const RE_DERIVADA = /^(fase: \d+|G[1-4])$/;
+
 /** Compara registro y plataforma EN LAS DOS DIRECCIONES. Sin efectos y sin red. */
 export function compararEspejo(vivas, issues) {
   const div = [];
@@ -63,6 +81,17 @@ export function compararEspejo(vivas, issues) {
       div.push({ regla: 'SUITE-R35', mensaje: `${a.id} está vivo (${a.status}) y no tiene issue. Lo que está abierto tiene que poder consultarse sin leer el repositorio entero.` });
     } else if (!porNumero.has(a.issue)) {
       div.push({ regla: 'SUITE-R35', mensaje: `${a.id} está vivo (${a.status}) y su issue #${a.issue} no está abierto. O el trabajo terminó y el registro no se enteró, o alguien cerró el issue a mano.` });
+    } else {
+      // El estado publicado tiene que ser el que el registro deriva. Publicarlo sin comprobarlo
+      // es escribir en dos sitios y esperar que no se separen — la avería que SUITE-R35 impide.
+      const i = porNumero.get(a.issue);
+      if (Array.isArray(i.labels)) {
+        const tiene = i.labels.map((l) => l.name ?? l).filter((n) => RE_DERIVADA.test(n)).sort();
+        const debe = etiquetasDe(a).filter((n) => RE_DERIVADA.test(n)).sort();
+        if (tiene.join('|') !== debe.join('|')) {
+          div.push({ regla: 'SUITE-R35', mensaje: `${a.id}: su issue #${a.issue} declara «${tiene.join(', ') || '—'}» y el registro dice «${debe.join(', ') || '—'}». El estado de la plataforma se DERIVA del registro: sincronízalo con  tracker abrir --aplicar` });
+        }
+      }
     }
   }
   const reclamados = new Set((vivas ?? []).map((a) => a.issue).filter(Boolean));
@@ -76,8 +105,11 @@ export function compararEspejo(vivas, issues) {
 
 /** Las etiquetas que `abrir` necesita y que la plataforma todavía no tiene (`FND-R30`). */
 export const ETIQUETAS = ['implementación', 'tarea'];
-export const etiquetasQueFaltan = (existentes) =>
-  ETIQUETAS.filter((e) => !(existentes ?? []).includes(e));
+/** Todas las que el registro puede llegar a publicar, incluidas las derivadas (PT-007). */
+export const etiquetasNecesarias = (allocs) => [...new Set([...ETIQUETAS,
+  ...(allocs ?? []).flatMap((a) => etiquetasDe(a))])];
+export const etiquetasQueFaltan = (existentes, necesarias = ETIQUETAS) =>
+  necesarias.filter((e) => !(existentes ?? []).includes(e));
 
 /** Una nota de reanclaje declara una transición de fase (`FDGE-R52`), no es un comentario suelto. */
 export const RE_NOTA = /PHASE\s*\d+\s*(?:→|->|a)\s*\d+|PHASE\s*\d+\s*→/i;
@@ -107,7 +139,7 @@ const ADAPTADORES = {
     comoAutenticarse: 'gh auth login',
     abiertos() {
       const out = execFileSync('gh', ['issue', 'list', '--state', 'open', '--limit', '500',
-        '--json', 'number,title,state'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+        '--json', 'number,title,state,labels'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return JSON.parse(out);
     },
     crear(titulo, cuerpo, etiquetas) {
@@ -141,6 +173,17 @@ const ADAPTADORES = {
           { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
         return JSON.parse(out).map((l) => l.name);
       } catch { return []; }
+    },
+    etiquetasDeIssue(numero) {
+      const out = execFileSync('gh', ['issue', 'view', String(numero), '--json', 'labels'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+      return (JSON.parse(out).labels ?? []).map((l) => l.name);
+    },
+    etiquetar(numero, poner, quitar) {
+      const args = ['issue', 'edit', String(numero)];
+      for (const e of poner ?? []) args.push('--add-label', e);
+      for (const e of quitar ?? []) args.push('--remove-label', e);
+      execFileSync('gh', args, { cwd: ROOT, stdio: 'pipe' });
     },
     crearEtiqueta(nombre) {
       execFileSync('gh', ['label', 'create', nombre, '--description',
@@ -210,7 +253,10 @@ if (!reg) { console.error('No hay docs/implementation/REGISTRY.json legible.'); 
 const PLATAFORMA = reg.tracker?.plataforma ?? null;
 
 
-const D = decidirSalida(reg, null);
+// PT-007 · `estado` lee SOLO el registro y no toca la plataforma — por eso responde «qué va
+// cuándo» sin credencial y sin plataforma declarada. Exigirle la compuerta de acceso lo dejaba
+// inútil justo donde más falta hace: en un proyecto que aún no espeja.
+const D = ACCION === 'estado' ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
   process.exit(D.codigo);
@@ -244,9 +290,38 @@ function notasDe() {
 }
 
 // ── abrir · crea los issues que faltan, con permiso ─────────────────────────
+// PT-007 · sincronizar las etiquetas derivadas de los issues que YA existen. Sin esto, el
+// estado se publicaba al abrir y nunca se actualizaba: el tablero diría «fase 1» para siempre.
+function sincronizarEtiquetas() {
+  const conIssue = vivas.filter((a) => a.issue);
+  if (!conIssue.length || !adaptador.etiquetasDeIssue) return;
+  for (const a of conIssue) {
+    const debe = etiquetasDe(a);
+    const tiene = adaptador.etiquetasDeIssue(a.issue);
+    const quitar = tiene.filter((n) => RE_DERIVADA.test(n) && !debe.includes(n));
+    const poner = debe.filter((n) => !tiene.includes(n));
+    if (!quitar.length && !poner.length) continue;
+    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: faltaría [${poner.join(', ')}] y sobraría [${quitar.join(', ')}]`); continue; }
+    try { adaptador.etiquetar(a.issue, poner, quitar); notas.push(`${a.id} #${a.issue} → ${debe.join(', ')}`); }
+    catch { fail('SUITE-R35', `${a.id}: no se pudieron sincronizar las etiquetas de #${a.issue}.`); }
+  }
+}
+
 function abrir() {
   const pendientes = vivas.filter((a) => !a.issue);
-  if (!pendientes.length) { notas.push('Nada que abrir: toda allocation viva tiene su issue.'); return; }
+  if (!pendientes.length) {
+    notas.push('Nada que abrir: toda allocation viva tiene su issue.');
+    if (adaptador.etiquetas) {
+      const faltan = etiquetasQueFaltan(adaptador.etiquetas(), etiquetasNecesarias(vivas));
+      for (const e of faltan) {
+        if (!APLICAR) { notas.push(`faltaría crear la etiqueta «${e}»`); continue; }
+        try { adaptador.crearEtiqueta(e); notas.push(`etiqueta «${e}» creada`); }
+        catch { fail('FND-R30', `falta la etiqueta «${e}» y no se pudo crear:  gh label create "${e}"`); }
+      }
+    }
+    sincronizarEtiquetas();
+    return;
+  }
   if (!APLICAR) {
     di(`${pendientes.length} allocation(s) viva(s) sin issue:`);
     for (const a of pendientes) di(`  ${a.id}  ${a.type}  ${a.slug ?? ''}`);
@@ -257,7 +332,7 @@ function abrir() {
   // FND-R30 · el terreno se prepara antes de necesitarlo. `gh issue create` falla si la
   // etiqueta no existe, y hasta ahora eso se descubria a mitad de la creacion del primer issue.
   if (adaptador.etiquetas) {
-    const faltan = etiquetasQueFaltan(adaptador.etiquetas());
+    const faltan = etiquetasQueFaltan(adaptador.etiquetas(), etiquetasNecesarias(vivas));
     for (const e of faltan) {
       try { adaptador.crearEtiqueta(e); notas.push(`etiqueta «${e}» creada`); }
       catch { fail('FND-R30', `falta la etiqueta «${e}» y no se pudo crear. Créala y repite:  gh label create "${e}"`); }
@@ -277,7 +352,7 @@ function abrir() {
       '> repositorio, versionado junto al código. No se copia aquí: dos copias del mismo texto',
       '> divergen.',
     ].join('\n');
-    const etiquetas = [a.type === 'EP' ? 'implementación' : 'tarea'];
+    const etiquetas = etiquetasDe(a);   // PT-007 · incluye fase y compuerta, derivadas
     const n = adaptador.crear(`${a.id} · ${a.slug ?? a.type}`, cuerpo, etiquetas);
     a.issue = n;
     notas.push(`${a.id} → issue #${n}`);
@@ -321,7 +396,29 @@ function prAbierto() {
     + `gh pr create --base main --head ${rama}`);
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto };
+// ── estado · el tablero, leyendo SOLO el registro (PT-007) ──────────────────
+// No toca la plataforma: por eso responde «qué va cuándo» sin credencial y sin plataforma
+// declarada. Las etiquetas responden lo mismo en GitHub; esto lo responde aquí.
+function estado() {
+  const eps = all.filter((a) => a?.type === 'EP');
+  const pts = all.filter((a) => a?.type !== 'EP');
+  const linea = (a) => {
+    const g = COMPUERTA_DE_FASE[Number(a.phase)];
+    return `  ${String(a.id).padEnd(8)}${String(a.type ?? '').padEnd(15)}${String(a.severity ?? '—').padEnd(4)}`
+      + `${String(a.status ?? '').padEnd(20)}${(a.phase !== undefined && a.phase !== null ? `fase ${a.phase}` : 'sin fase').padEnd(10)}`
+      + `${(g ? `${g} pendiente` : '—').padEnd(15)}${a.issue ? `#${a.issue}` : ''}`;
+  };
+  for (const ep of eps) {
+    di(`${ep.id} · ${ep.slug ?? ''}   ${ep.status}${ep.issue ? `   #${ep.issue}` : ''}`);
+    for (const pt of pts.filter((p) => p.epic === ep.id)) di(linea(pt));
+    di('');
+  }
+  const sueltos = pts.filter((p) => !p.epic);
+  if (sueltos.length) { di('Sin implementación'); for (const p of sueltos) di(linea(p)); di(''); }
+  notas.push(`${eps.length} implementación(es) · ${pts.length} tarea(s) · leído del registro, sin tocar la plataforma.`);
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);
