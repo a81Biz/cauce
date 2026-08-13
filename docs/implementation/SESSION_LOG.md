@@ -516,3 +516,35 @@ posterior. Nadie lo buscó.
 **No se han arreglado.** Los tres tocan `docs/methodology/` y no hay implementación abierta:
 abrir trabajo nuevo exige un `EP` con su `G1` firmada, y la delegación de `EP-002` se declaró
 acotada a ese lote.
+
+---
+
+## 2026-08-13 · `EP-003` · `PT-009` y `PT-010` en `VALIDATION_PENDING`
+
+Las dos tareas del lote recorridas de `PHASE 1` a `PHASE 6`. **Ninguna `G3` automática**: son
+`BUG` y `SUITE-R06b` no lo automatiza ningún modo — es la diferencia con `EP-002`.
+
+```
+selftest           241 → 251 casos
+verify-fdge --all  sin errores (estaba en rojo al empezar)
+```
+
+**`PT-009`.** `tracker cerrar` comentaba sin marca, así que `SUITE-R43` tomaba su propio
+mensaje de cierre por humano. El comentario ya publicado es inmutable: se **respondió** en vez
+de excluirlo de la comprobación, y `TS-05` existe para que nadie relaje la regla más adelante.
+
+En el self-review queda escrita una salida más cómoda que **no** se tomó: excluir los PT
+`INTEGRATED` de `SUITE-R43`. Es defendible sobre el texto de la regla y quita rojos — por eso
+no se hizo de paso.
+
+**`PT-010`.** El cuerpo de un issue de `EP` decía «sin implementación» sobre la implementación
+misma, y su enlace era relativo: un 404 desde un issue. Ahora distingue lote de tarea, enumera
+las tareas del lote con su issue y enlaza con URL absoluta a la rama por defecto. Sin URL
+derivable no se inventa.
+
+**Un defecto propio, cazado por su caso:** `contextoCuerpo` leía `adaptador.repo` al cargar el
+módulo, y `estado` corre **sin** adaptador — justo la acción que existe para funcionar sin
+credencial. Reventaba, y lo dijo su caso.
+
+**El límite que sigue ahí:** nada comprueba que un enlace resuelva. Haría falta red en una
+compuerta. Es lo que dejó pasar el defecto original y sigue sin cubrirse.
