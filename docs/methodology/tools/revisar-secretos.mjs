@@ -26,6 +26,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, relative, sep } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const ARGS = process.argv.slice(2);
 const ROOT = resolve(ARGS.find((a) => !a.startsWith('--')) ?? process.cwd());
@@ -64,7 +65,7 @@ const BINARIO = /\.(png|jpe?g|gif|webp|pdf|zip|gz|tgz|mp4|webm|ico|woff2?|ttf|eo
 // excluyen porque el archivo declara que lo son.
 const RE_SEÑUELO = /señuelo|senuelo|fixture|de mentira|a propósito|a proposito/i;
 
-const hallazgos = [];
+let hallazgos = [];
 const rel = (p) => relative(ROOT, p).split(sep).join('/');
 
 function revisarTexto(texto, donde, esSeñuelo) {
@@ -73,7 +74,11 @@ function revisarTexto(texto, donde, esSeñuelo) {
     for (const [re, qué, cómo] of PATRONES) {
       if (!re.test(linea)) continue;
       if (esSeñuelo || RE_SEÑUELO.test(linea)) return;
-      hallazgos.push({ donde: `${donde}:${i + 1}`, qué, cómo, muestra: linea.trim().slice(0, 70) });
+      // La huella identifica ESTE hallazgo, no el archivo: incluye lo encontrado. Si el valor
+      // cambia, la excepción firmada deja de cubrirlo — que es justo lo que debe pasar.
+      const muestra = linea.trim().slice(0, 70);
+      const huella = createHash('sha1').update(`${qué}|${donde}|${muestra}`).digest('hex').slice(0, 12);
+      hallazgos.push({ donde: `${donde}:${i + 1}`, qué, cómo, muestra, huella });
       return;
     }
   });
@@ -115,19 +120,55 @@ if (CON_HISTORIAL && existsSync(join(ROOT, '.git'))) {
   } catch { historialRevisado = false; }
 }
 
+// ── excepciones firmadas ────────────────────────────────────────────────────
+// La herramienta exigía firmar la excepción por escrito y NO existía dónde firmarla. En el
+// propio repositorio de cauce el escáner caza los fixtures del selftest —archivos falsos con
+// contraseñas falsas, creados para probar que el escáner funciona— y la compuerta quedaba en
+// rojo permanente. Una compuerta siempre roja enseña a saltársela: es peor que no tenerla.
+//
+// Esto NO silencia el escáner (FND-R29). Las excepciones se siguen mostrando, una por una, con
+// quién firmó y por qué. Lo único que cambia es que dejan de bloquear. Y la firma cubre una
+// huella concreta: si el valor cambia, vuelve a bloquear.
+const FIRMADAS = join(ROOT, 'docs', 'implementation', 'SECRETOS-EXCEPCIONES.md');
+const excepciones = new Map();
+if (existsSync(FIRMADAS)) {
+  const txt = readFileSync(FIRMADAS, 'utf8');
+  // | huella | firmada por | fecha | motivo |
+  for (const m of txt.matchAll(/^\|\s*`?([0-9a-f]{12})`?\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|/gm)) {
+    const [, huella, quien, fecha, motivo] = m;
+    // Una fila sin firmante no es una firma: es una fila. La plantilla sin rellenar no exime.
+    if (!quien || /^[-–—\s]*$/.test(quien) || /^\[.*\]$/.test(quien)) continue;
+    excepciones.set(huella, { quien, fecha, motivo });
+  }
+}
+const firmados = hallazgos.filter((h) => excepciones.has(h.huella));
+hallazgos = hallazgos.filter((h) => !excepciones.has(h.huella));
+
 // ── informe ─────────────────────────────────────────────────────────────────
 const c = { rojo: '\x1b[31m', verde: '\x1b[32m', dim: '\x1b[2m', neg: '\x1b[1m', fin: '\x1b[0m' };
 console.log(`revisar-secretos · ${ROOT}`);
 console.log(`${c.dim}árbol de trabajo${historialRevisado ? ' + historia (400 commits)' : ' · la historia NO se revisó: añade --historial'}${c.fin}\n`);
 
+const mostrarFirmadas = () => {
+  if (!firmados.length) return;
+  console.log(`${c.dim}${firmados.length} hallazgo(s) con excepción firmada — se muestran, no bloquean:${c.fin}`);
+  for (const h of firmados) {
+    const e = excepciones.get(h.huella);
+    console.log(`  ${c.dim}${h.huella}  ${h.donde}${c.fin}`);
+    console.log(`    ${c.dim}${h.qué} · firmada por ${e.quien} (${e.fecha}): ${e.motivo}${c.fin}`);
+  }
+  console.log('');
+};
 if (!hallazgos.length) {
-  console.log(`${c.verde}Sin hallazgos.${c.fin}`);
+  mostrarFirmadas();
+  console.log(`${c.verde}Sin hallazgos sin firmar.${c.fin}`);
   if (!historialRevisado && existsSync(join(ROOT, '.git'))) {
     console.log(`${c.dim}Antes de publicar, revisa también la historia: un secreto borrado del archivo sigue ahí.${c.fin}`);
   }
   process.exit(0);
 }
 
+mostrarFirmadas();
 const porQué = new Map();
 for (const h of hallazgos) {
   if (!porQué.has(h.qué)) porQué.set(h.qué, { cómo: h.cómo, sitios: [] });
@@ -143,6 +184,8 @@ for (const [qué, d] of porQué) {
 console.log(`${hallazgos.length} hallazgo(s). Publicar un repositorio con esto dentro es irreversible:`);
 console.log('un secreto en la historia sigue ahí después de borrarlo del archivo.');
 console.log('');
-console.log('Si alguno es un falso positivo, la excepción se firma como se firma el plan de');
-console.log('terreno: por escrito, con nombre y motivo. No se silencia el escáner.');
+console.log('Si alguno es un falso positivo, la excepción se firma por escrito, con nombre y');
+console.log(`motivo, en ${relative(ROOT, FIRMADAS).split(sep).join('/')} — una fila por huella.`);
+console.log('Sigue apareciendo en cada revisión: firmar no es silenciar (FND-R29).');
+for (const h of hallazgos) console.log(`  ${c.dim}${h.huella}  ${h.donde}${c.fin}`);
 process.exit(1);

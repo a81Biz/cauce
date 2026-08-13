@@ -8,6 +8,42 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 5.2.2 — 2026-08-13
+
+### La excepción se firma donde se puede firmar   `FND-R29`
+
+`revisar-secretos` terminaba diciendo «si alguno es un falso positivo, la excepción se firma por
+escrito, con nombre y motivo» — y **no existía dónde firmarla**. Una regla que no se puede
+cumplir mecánicamente no es una regla: es una recomendación con aspecto de compuerta.
+
+Se vio al ejecutar `I0-bis` sobre el propio repositorio de cauce: el escáner caza los fixtures
+de `tools/selftest.sh` —archivos falsos con contraseñas inventadas, creados precisamente para
+probar que el escáner funciona— y la compuerta quedaba en **rojo permanente**. Una compuerta
+siempre roja enseña a saltársela, y el día que aparezca un secreto de verdad nadie mirará.
+
+Ahora hay `docs/implementation/SECRETOS-EXCEPCIONES.md`, una fila por huella. Tres propiedades
+que lo separan de silenciar el escáner:
+
+- **Se sigue viendo.** La excepción aparece en cada revisión, con quién la firmó y por qué. Solo
+  deja de bloquear.
+- **La firma cubre una huella, no un archivo.** La huella incluye el valor encontrado: si el
+  valor cambia, vuelve a bloquear. No es un permiso permanente sobre una ruta.
+- **Una fila sin firmante no es una firma.** La plantilla sin rellenar no exime.
+
+Cuatro casos del selftest lo prueban, incluido el que comprueba que una fila en blanco sigue
+bloqueando.
+
+### Verificado end-to-end desde el registro
+
+5.2.1 se publicó y se instaló desde npm en un proyecto limpio: firma de registro **y atestación
+verificadas** —la procedencia OIDC funciona—, `install`, `verify` y `compare` correctos, y el
+terreno reportando la vecindad. Es la primera vez que el paquete se prueba sin tocar el disco
+de origen.
+
+### Migración
+
+Ninguna. Los proyectos sin falsos positivos no necesitan el archivo; se crea cuando hace falta.
+
 ## 5.2.1 — 2026-08-12
 
 ### La frontera del proyecto se declara, y se dice qué la sostiene

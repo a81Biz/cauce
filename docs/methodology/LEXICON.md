@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **5.2.1** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **5.2.2** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -438,6 +438,7 @@ MIGRATION.log          append-only   · una entrada por migración de versión d
 INCIDENTS.log          append-only   · un registro por INC-NNN
 LAYOUT.md              plan de terreno de la raíz · G0 · FND-R20..R23
 INSTALL.log            lo que la instalación EJECUTÓ · append-only · SUITE-R30
+SECRETOS-EXCEPCIONES.md  falsos positivos firmados por huella · FND-R29
 ROADMAP.md             sobrescribible · FPGE
 ROADMAP_HISTORY.log    append-only   · FPGE
 ```

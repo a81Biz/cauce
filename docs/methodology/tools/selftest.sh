@@ -1027,6 +1027,25 @@ node -e "const f=require('fs'),p=process.argv[1],b=String.fromCharCode(92);f.wri
 chk   "escape degradado ⇒ falla su ejemplo"  "debería casar"  node "$PATDIR/verify-patrones.mjs"
 rm -rf "$PATDIR"
 
+# FND-R29: la excepcion se firma donde se puede firmar. La herramienta exigia firmar por escrito
+# y no existia donde: en el repositorio de cauce el escaner caza los fixtures de este mismo
+# archivo y la compuerta quedaba en rojo permanente, que ensena a saltarsela. Se comprueba que
+# firmar deja de bloquear Y que una fila sin firmante NO exime.
+SECDIR="$WORK/../secretos-excepcion"
+rm -rf "$SECDIR" && mkdir -p "$SECDIR/src" "$SECDIR/docs/implementation"
+printf 'const p = { password: "SuperSecreta123" };\n' > "$SECDIR/src/db.js"
+chk   "secreto sin firmar ⇒ bloquea"       "Publicar un repositorio"  node "$SUITE/tools/revisar-secretos.mjs" "$SECDIR"
+HUELLA=$(node "$SUITE/tools/revisar-secretos.mjs" "$SECDIR" 2>/dev/null | grep -oE "[0-9a-f]{12}" | head -1)
+SECEXC="$SECDIR/docs/implementation/SECRETOS-EXCEPCIONES.md"
+# Fila con la huella pero SIN firmante: es una fila, no una firma.
+printf '| Huella | Firmada por | Fecha | Motivo |\n|:--|:--|:--|:--|\n| `%s` | | | prueba |\n' "$HUELLA" > "$SECEXC"
+chk   "fila sin firmante NO exime"         "Publicar un repositorio"  node "$SUITE/tools/revisar-secretos.mjs" "$SECDIR"
+# Firmada de verdad: deja de bloquear pero SIGUE VIENDOSE.
+printf '| Huella | Firmada por | Fecha | Motivo |\n|:--|:--|:--|:--|\n| `%s` | Ada Lovelace | 2026-08-13 | fixture |\n' "$HUELLA" > "$SECEXC"
+chk   "firmada ⇒ se ve y no bloquea"       "excepción firmada"  node "$SUITE/tools/revisar-secretos.mjs" "$SECDIR"
+chkno "firmada ⇒ ya no bloquea"            "Publicar un repositorio"  node "$SUITE/tools/revisar-secretos.mjs" "$SECDIR"
+rm -rf "$SECDIR"
+
 # SUITE-R40: la version se deriva del CHANGELOG. La tuvo escrita a mano en una constante siendo
 # la autoridad contra la que se comprueban todos los documentos, y veinte declararon una version
 # atrasada durante dias mientras el verificador decia que todo estaba bien: comparaba contra su
