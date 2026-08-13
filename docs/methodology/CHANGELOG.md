@@ -8,6 +8,55 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 5.2.1 — 2026-08-12
+
+### La frontera del proyecto se declara, y se dice qué la sostiene
+
+La pregunta era si hacía falta un contenedor para poder empezar. No hace falta: cauce ya es por
+proyecto —el paquete es una dependencia de desarrollo de cada uno y la suite se copia dentro—,
+y con las credenciales de publicación fuera, un contenedor aporta aislamiento, no una
+precondición.
+
+Lo que **no** está cercado es el agente. Ninguna regla escrita en un `.md` impide que un proceso
+lea la carpeta de al lado, y en la primera máquina donde se usó eso ya ocurrió: el historial de
+permisos guarda órdenes concedidas que alcanzaban un proyecto hermano. Hay once alcanzables
+desde esa raíz.
+
+`SUITE-R39` nombra los dos niveles **con lo que garantiza cada uno**: configuración de permisos,
+que ataja el alcance accidental y depende de que el arnés la respete; contenedor con solo esa
+raíz montada, que lo impone el núcleo. Elegir es humano, y **empezar sin ninguno de los dos es
+una opción legítima** — pero se escribe. `plan-layout` enumera la vecindad y detecta si el
+proyecto ya se contiene.
+
+**Cauce no genera contenedores.** Inventar un `Dockerfile` para un stack que no conoce es
+imponer terreno, justo lo que `FND-R25` prohíbe, y obligaría a mantener plantillas por lenguaje
+para siempre. Detecta si los hay y lo dice.
+
+Tampoco se envía una cerca que no se puede comprobar. Se consideró generar un
+`.claude/settings.json` con reglas `deny`, y se descartó: no se puede verificar desde aquí que
+bloqueen de verdad, y un control de seguridad sin probar es el verde por omisión que este marco
+existe para cazar.
+
+Las credenciales de publicación se quedan **fuera** de cualquier contenedor (`SUITE-R06a`): una
+credencial dentro del recinto convierte el recinto en el sitio desde donde se publica.
+
+### El detector de escapes degradados solo miraba el código
+
+Al escribir lo anterior apareció esto: el detector de bytes de control de la 4.8.0 recorría
+únicamente las herramientas. Por eso nadie vio que el texto de `SUITE-R38` —la regla que existe
+para cazar escapes degradados— tenía su propio `\b` convertido en el byte `0x08`.
+
+Extendido a los documentos, encontró **siete más** en `CHANGELOG.md` y `FDGE-Prompts.md`. Los
+siete estaban en párrafos que describen la avería. Un `0x08` no se ve al leer, y una regla se
+cita, se copia y acaba dentro de un patrón: es la misma avería una capa más arriba.
+
+566 elementos cubiertos, sin huecos.
+
+### Migración
+
+Ninguna. `SUITE-R39` se cumple escribiendo la decisión en `I0-bis`; los proyectos ya instalados
+la atienden en su próxima instalación o actualización.
+
 ## 5.2.0 — 2026-08-12
 
 **Un patrón puede estar mal y compilar.** Esa es la frase entera del problema que esta versión
