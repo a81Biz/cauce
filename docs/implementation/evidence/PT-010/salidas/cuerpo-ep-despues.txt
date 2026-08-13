@@ -1,0 +1,15 @@
+**Implementación abierta** · El issue se lee sin salir de GitHub, y la herramienta firma lo que escribe
+
+Tareas de este lote:
+
+- `PT-009` · #14 — tracker cerrar comenta sin marca y SUITE-R43 toma su propio mensaje por humano
+- `PT-010` · #15 — El cuerpo de un issue de EP dice «sin implementación» y su enlace al intake es un 404
+
+Intake, criterios de aceptación y evidencia: [`changes/EP-003-el-issue-se-lee-solo/`](https://github.com/a81Biz/cauce/tree/main/changes/EP-003-el-issue-se-lee-solo)
+
+> El enlace apunta a `main`. Hasta que el trabajo se integre, el
+> contenido vive en la rama de trabajo y este enlace puede no resolver todavía.
+
+> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el
+> repositorio, versionado junto al código. **No se copia aquí**: dos copias del mismo
+> texto divergen (`SUITE-R35`).

@@ -133,6 +133,69 @@ export function comentarioSinResponder(cuerpos) {
   return lista.slice(ultimoMarcado + 1).some((c) => !String(c).includes(MARCA_AGENTE));
 }
 
+/**
+ * PT-009 · El mensaje que `tracker` publica al cerrar un issue. Lleva la marca porque lo
+ * escribe la herramienta, y sin ella `SUITE-R43` lo contaba como humano: la regla que PT-008
+ * creó se cazó a sí misma en la primera ejecución posterior, sobre el propio tracker.
+ *
+ * Es una función y no una plantilla en línea para que un caso pueda comprobarlo sin hablar
+ * con la plataforma — el defecto existía justo porque nadie comprobaba lo que se escribía.
+ */
+export const mensajeDeCierre = (a) =>
+  `${a?.id} pasó a ${a?.status}. La evidencia está en el repositorio.
+
+${MARCA_AGENTE}`;
+
+/**
+ * PT-010 · El cuerpo de un issue. Puro y exportado.
+ *
+ * El anterior componia un solo texto para tarea y para lote, y como un EP no tiene campo
+ * `epic` caia en el else y escribia «sin implementacion» SOBRE LA IMPLEMENTACION. Y enlazaba
+ * en relativo: en el cuerpo de un issue eso resuelve contra la raiz del sitio, no contra el
+ * repositorio, asi que era un 404. Nadie lo detecto con una comprobacion — lo vio una persona
+ * mirando el tablero, y por eso «no habia nada» en el issue de EP-002.
+ *
+ * El enlace apunta a la RAMA POR DEFECTO, no a la de trabajo: un issue es un artefacto largo y
+ * una rama es corta. Antes del merge da 404, y el cuerpo lo dice para que no parezca un error.
+ *
+ * Sin `url` no se inventa ninguna: se escribe la ruta sin enlace y se dice por que (RULE-06).
+ */
+export function cuerpoDeIssue(a, opciones = {}) {
+  const { url, rama, tareas } = opciones;
+  const esLote = a?.type === 'EP';
+  const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
+  const enlace = url
+    ? `[\`${dir}/\`](${url}/tree/${rama ?? 'main'}/${dir})`
+    : `\`${dir}/\` — en el repositorio`;
+
+  const l = [];
+  l.push(esLote
+    ? `**Implementación abierta** · ${a.title ?? a.slug ?? ''}`
+    : `**${a?.type ?? 'PT'}** · severidad ${a?.severity ?? '—'} · ${a?.epic ? `de la implementación \`${a.epic}\`` : 'sin implementación asignada'}`);
+  l.push('');
+  if (esLote && (tareas ?? []).length) {
+    l.push('Tareas de este lote:');
+    l.push('');
+    for (const t of tareas) l.push(`- \`${t.id}\`${t.issue ? ` · #${t.issue}` : ''} — ${t.title ?? t.slug ?? ''}`);
+    l.push('');
+  }
+  l.push(`Intake, criterios de aceptación y evidencia: ${enlace}`);
+  if (!url) {
+    l.push('');
+    l.push('> No se pudo derivar la URL del repositorio, así que la ruta va sin enlace:');
+    l.push('> inventar una sería peor que no ponerla.');
+  } else {
+    l.push('');
+    l.push(`> El enlace apunta a \`${rama ?? 'main'}\`. Hasta que el trabajo se integre, el`);
+    l.push('> contenido vive en la rama de trabajo y este enlace puede no resolver todavía.');
+  }
+  l.push('');
+  l.push('> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el');
+  l.push('> repositorio, versionado junto al código. **No se copia aquí**: dos copias del mismo');
+  l.push('> texto divergen (`SUITE-R35`).');
+  return l.join(String.fromCharCode(10));
+}
+
 /** Una nota de reanclaje declara una transición de fase (`FDGE-R52`), no es un comentario suelto. */
 export const RE_NOTA = /PHASE\s*\d+\s*(?:→|->|a)\s*\d+|PHASE\s*\d+\s*→/i;
 export const contarNotas = (textos) => (textos ?? []).filter((t) => RE_NOTA.test(String(t))).length;
@@ -195,6 +258,20 @@ const ADAPTADORES = {
           { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
         return JSON.parse(out).map((l) => l.name);
       } catch { return []; }
+    },
+    // PT-010 · de donde sale el enlace absoluto. Si no se puede derivar, se devuelve null y el
+    // cuerpo escribe la ruta SIN enlace: inventar una URL seria peor que no ponerla (RULE-06).
+    repo() {
+      try {
+        const out = execFileSync('gh', ['repo', 'view', '--json', 'url,defaultBranchRef'],
+          { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+        const j = JSON.parse(out);
+        return { url: j.url ?? null, rama: j.defaultBranchRef?.name ?? null };
+      } catch { return { url: null, rama: null }; }
+    },
+    editarCuerpo(numero, cuerpo) {
+      execFileSync('gh', ['issue', 'edit', String(numero), '--body', cuerpo],
+        { cwd: ROOT, stdio: 'pipe' });
     },
     etiquetasDeIssue(numero) {
       const out = execFileSync('gh', ['issue', 'view', String(numero), '--json', 'labels'],
@@ -312,6 +389,29 @@ function notasDe() {
 }
 
 // ── abrir · crea los issues que faltan, con permiso ─────────────────────────
+// PT-010 · lo que `cuerpoDeIssue` necesita del entorno: la URL del repositorio, su rama por
+// defecto y —si es un lote— las tareas que lo componen, para que el issue diga de que va sin
+// salir de GitHub.
+// `estado` corre SIN plataforma, así que aquí no hay adaptador. Sin el `?.` esto reventaba
+// justo en la acción que existe para funcionar sin credencial — lo dijo su caso, no yo.
+const REPO = adaptador?.repo ? adaptador.repo() : { url: null, rama: null };
+const contextoCuerpo = (a) => ({
+  ...REPO,
+  tareas: a?.type === 'EP' ? all.filter((t) => t.epic === a.id) : undefined,
+});
+
+// PT-010 · sincronizar el CUERPO de los issues abiertos, no solo sus etiquetas. Sin esto el
+// arreglo no alcanzaria a los que ya existen — incluidos los de este mismo lote, que nacieron
+// con el cuerpo defectuoso.
+function sincronizarCuerpos() {
+  if (!adaptador.editarCuerpo) return;
+  for (const a of vivas.filter((x) => x.issue)) {
+    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se regeneraria el cuerpo`); continue; }
+    try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: cuerpo sincronizado`); }
+    catch { fail('SUITE-R35', `${a.id}: no se pudo sincronizar el cuerpo de #${a.issue}.`); }
+  }
+}
+
 // PT-007 · sincronizar las etiquetas derivadas de los issues que YA existen. Sin esto, el
 // estado se publicaba al abrir y nunca se actualizaba: el tablero diría «fase 1» para siempre.
 function sincronizarEtiquetas() {
@@ -342,6 +442,7 @@ function abrir() {
       }
     }
     sincronizarEtiquetas();
+    sincronizarCuerpos();
     return;
   }
   if (!APLICAR) {
@@ -364,16 +465,7 @@ function abrir() {
   for (const a of pendientes) {
     // El issue REFERENCIA el intake; no lo copia. Dos copias del mismo texto divergen — es la
     // causa raiz que la v4 nacio para eliminar, reintroducida por la puerta nueva.
-    const dir = a.slug ? `changes/${a.id}-${a.slug}` : `changes/${a.id}`;
-    const cuerpo = [
-      `**${a.type}** · severidad ${a.severity ?? '—'} · ${a.epic ? `implementación ${a.epic}` : 'sin implementación'}`,
-      '',
-      `Intake, criterios de aceptación y evidencia: [\`${dir}/\`](${dir}/)`,
-      '',
-      '> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el',
-      '> repositorio, versionado junto al código. No se copia aquí: dos copias del mismo texto',
-      '> divergen.',
-    ].join('\n');
+    const cuerpo = cuerpoDeIssue(a, contextoCuerpo(a));
     const etiquetas = etiquetasDe(a);   // PT-007 · incluye fase y compuerta, derivadas
     const n = adaptador.crear(`${a.id} · ${a.slug ?? a.type}`, cuerpo, etiquetas);
     a.issue = n;
@@ -397,7 +489,7 @@ function cerrar() {
     return;
   }
   for (const a of porCerrar) {
-    adaptador.cerrar(a.issue, `${a.id} pasó a ${a.status}. La evidencia está en el repositorio.`);
+    adaptador.cerrar(a.issue, mensajeDeCierre(a));
     notas.push(`#${a.issue} cerrado · ${a.id} ${a.status}`);
   }
 }
