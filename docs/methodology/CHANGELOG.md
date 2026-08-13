@@ -8,6 +8,146 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 5.3.0 — 2026-08-13
+
+**El marco se hace cumplir a sí mismo.** Tres reglas que existían con su herramienta y sin
+quien las ejecutara, y una compuerta que se ponía roja sobre comportamiento correcto. Sube a
+`MINOR`: ninguna regla cambia de texto y se añade capacidad. La guía de migración está al final
+y **hay un caso que puede poner tu `G4` en rojo la primera vez**: léela.
+
+### El espejo entra en las compuertas   `SUITE-R35`
+
+`SUITE-R35` es HARD desde la 5.0.0, tenía `tools/tracker.mjs` —205 líneas, completo— y
+**ninguna compuerta lo ejecutaba**. Se podía abrir trabajo, avanzarlo y llegar a `G4` sin que
+nada comprobara que existía en la plataforma.
+
+Lo encontró **una persona preguntando** por qué el trabajo no aparecía en GitHub. Hasta ese
+momento se había planificado una implementación entera sin issues y las siete comprobaciones
+pasaban en verde. Una regla que solo se cumple por buena voluntad es una recomendación, y esta
+llevaba tres versiones siéndolo.
+
+Ahora `tracker espejo` corre en `npm run verify`, en CI y en las precondiciones de `G4`.
+
+`tracker` separa el **adaptador** —que habla `gh`— de la **lógica** del espejo, que pasa a ser
+una función pura. No es un adorno: sombrear un ejecutable en el `PATH` no es portable entre
+Windows y Ubuntu, y ningún caso del arnés puede exigir `gh` autenticado porque el arnés corre
+en CI, donde un PR desde un fork no recibe credenciales. Sin esa separación, el espejo no se
+podía probar.
+
+Y el código de salida distingue dos cosas que estaban fundidas en una:
+
+```
+2  sin plataforma declarada          ← elección legítima del proyecto
+3  plataforma declarada, sin acceso  ← precondición incumplida (FND-R30)
+```
+
+**Dónde bloquea y dónde declara.** La credencial es exigible donde el proyecto opera —`npm run
+verify`, `push` a `main`, `G4`— y ahí su ausencia falla. Donde no puede estar, sale
+`SIN EVALUAR`: no aprueba, dice que nadie pudo mirar, y dice cómo.
+
+`FDGE-R52` lee ahora el reanclaje **donde `CORE.md` manda escribirlo**: los comentarios del
+issue si hay plataforma, `bitacora.md` si no. Antes solo miraba el archivo, así que cumplir el
+procedimiento al pie de la letra dejaba la compuerta roja y ponerla verde exigía escribir el
+reanclaje dos veces — lo que `SUITE-R35` prohíbe.
+
+`verify-fdge` **no habla con GitHub**: le pregunta a `tracker`. Un segundo cliente de
+plataforma obligaría a implementar Azure dos veces.
+
+### Un artefacto se exige desde la fase que lo produce   `FDGE-R15` · `FDGE-R42`
+
+`verify-fdge` exigía `traceability.md` —que produce `PHASE 4`— y `discovery.md` —`PHASE 2`— a
+cualquier PT, incluido uno recién salido de `PHASE 1`. Como CI ejecuta `verify-fdge --all`,
+**abrir trabajo correctamente ponía el job en rojo**: un repositorio no podía tener trabajo en
+curso y la compuerta en verde a la vez.
+
+La fase ya se calculaba y solo la consumía `FDGE-R52`. Ahora la consultan las dos
+comprobaciones, y se distingue **fase declarada** de **fase ausente**: el `?? 0` fundía los dos
+casos, y sobre un valor inventado la compuerta dice «todo bien» sobre nada. Sin fase declarada,
+`SIN EVALUAR` con instrucciones.
+
+Ninguna de las dos reglas se relaja: cambia **cuándo** se comprueban, no qué exigen.
+
+### La cobertura mecánica se mide por regla, y se publica   `SUITE-R26`
+
+`audit` medía la cobertura **por componente** —hueco solo si un componente tenía cero reglas
+verificadas— e informaba «Cobertura completa: sin huecos» con **63 reglas HARD sin ningún
+script**. No mentía sobre lo que medía: mentía sobre lo que el lector entiende que ha medido. Y
+no vio ninguno de los dos defectos de arriba.
+
+```
+Cobertura mecánica de las reglas   (SUITE-R26 · aspira, no exige)
+  ejecutadas por una compuerta      91 / 167     · HARD 69 / 134
+  citadas sin compuerta que las corra   7        → --sin-compuerta las enumera
+  sin verificador                      69        → --sin-verificar las enumera
+```
+
+El conjunto de herramientas con compuerta **se deriva** de `package.json`, los workflows y
+`bin/cauce.mjs`: una lista escrita a mano se queda atrás el día que se añada un paso.
+
+**No es un umbral.** `SUITE-R26` dice «aspira» y sigue siendo correcta; un mínimo empujaría a
+citar identificadores en comentarios para subir la cifra. La cifra es además un **límite
+superior**: «citada» sigue siendo que el identificador aparezca en el texto de la herramienta.
+
+Es `SUITE-R11` aplicada a la propia auditoría, que se lo exigía a las de PTSA y no a la suya.
+
+### El contrato de la plataforma decía de más
+
+`PHASES.md` declaraba tres mapeos —milestone, issue, pull request— bajo el encabezado
+`[SUITE-R35]`. **`RULES.md` tiene cero apariciones de «milestone» y cero de «pull request»**;
+`LEXICON.md`, cero.
+
+Un documento de procedimiento enunciaba obligaciones atribuyéndoselas a una regla que no las
+contiene, y `LEX-R21` lo pone por debajo de `RULES`. El adaptador no incumplía nada: cumplía la
+regla entera. Es la avería que la v4 nació para eliminar en su forma más sutil — no dos copias
+que divergen, sino **una copia que dice de más**.
+
+Queda diagnosticado y **no corregido en esta versión**: retirar los mapeos de `PHASES.md` y
+decidir si el del pull request sube a `RULES.md` toca reglas, y eso es una decisión normativa
+propia. Va en la siguiente.
+
+### `SUITE-R40`, versionada   `TD-05`
+
+`verify-fdge`, `migrate` y el fixture del selftest dejaron de fijar la versión en una constante.
+El cambio llevaba desde la 5.2.3 en el árbol de trabajo **sin entrada de CHANGELOG**, y
+`publicar.yml` publica desde `main`: sin decidirlo, se habría publicado un contenido que su
+CHANGELOG no describía. Queda dentro de esta entrada y `TD-05` se cierra.
+
+### Verificación
+
+`selftest`: **211 casos** (eran 180), con los bloques nuevos de fase, espejo y cobertura.
+`verify-fdge --all` sin errores sobre los artefactos propios. Espejo con GitHub cuadrando.
+
+Tres de los cuatro defectos aparecieron **ejecutando** el marco sobre sí mismo, no leyéndolo.
+
+### Migración
+
+**1. Actualiza.** `npm i -D @a81biz/cauce@5.3.0` y `npx cauce install`.
+
+**2. Si declaras plataforma y nunca corriste `tracker`, tu `G4` va a fallar la primera vez.**
+Es el único cambio que puede poner en rojo algo que antes pasaba. El requisito no es nuevo — la
+5.0.0 ya lo declaró— pero hasta ahora nadie lo comprobaba. Se resuelve con:
+
+```bash
+node docs/methodology/tools/tracker.mjs espejo            # qué falta
+node docs/methodology/tools/tracker.mjs abrir --aplicar   # crea los issues que faltan
+node docs/methodology/tools/tracker.mjs cerrar --aplicar  # cierra los de trabajo terminado
+```
+
+`SUITE-R36` sigue rigiendo: **solo lo vivo**. Lo cerrado es evidencia y se queda en el
+repositorio.
+
+**3. Si no declaras plataforma, no cambia nada.** Todas las ramas nuevas están detrás de
+`REGISTRY.tracker.plataforma`. Un caso del arnés lo comprueba precisamente para eso.
+
+**4. Declara la fase de tus PTs vivos.** `phase` en cada `allocation` de `REGISTRY.json`, o
+`phase:` en el YAML del intake. Sin ella, las comprobaciones de artefactos por fase salen
+`SIN EVALUAR` con instrucciones — no bloquean, pero tampoco aprueban.
+
+**5. Lo que deja de fallar solo.** Si tenías PTs abiertos antes de `PHASE 4` y CI en rojo por
+`FDGE-R15` o `FDGE-R42`, se arregla al actualizar. No hay nada que hacer.
+
+Ningún PT en vuelo se invalida: `SUITE-R18` sigue sellando cada asignación con su versión.
+
 ## 5.2.3 — 2026-08-12
 
 ### El destino ES cauce por identidad, no por ruta   `SUITE-R41`

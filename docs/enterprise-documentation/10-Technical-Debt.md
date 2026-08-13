@@ -59,7 +59,7 @@ estructuras según dónde se instaló.
 `QA/reports/` bajo un único directorio— y ajustar `verify-qa`. Toca `docs/methodology/`, así que
 es `SUITE-R06e`: se decide, no se hace de paso.
 
-### `TD-05` · La corrección de `SUITE-R40` está sin versionar
+### `TD-05` · La corrección de `SUITE-R40` está sin versionar   ✅ RESUELTA 2026-08-13
 
 `verify-fdge`, `migrate` y el fixture del selftest dejaron de fijar la versión en una constante
 ([INSTALL.log](../implementation/INSTALL.log), corrección posterior). El cambio está en el árbol
@@ -71,6 +71,11 @@ que no corresponde a lo que su `CHANGELOG` describe.
 
 **Recomendación:** decidir antes del merge si lleva entrada y con qué número, y ejecutar
 `version.mjs --aplicar`. Es `PATCH`: corrige comportamiento sin romper compatibilidad.
+
+**Resuelta el 2026-08-13.** Entró en la entrada de `5.3.0` del `CHANGELOG` junto al cierre de
+`EP-001`, y `version.mjs --aplicar` alineó los 21 documentos y `package.json`. Se decidió
+`MINOR` y no `PATCH` porque la entrada cubre además tres capacidades nuevas; la corrección de
+`SUITE-R40` por sí sola habría sido `PATCH`, como decía esta recomendación.
 
 ### `TD-06` · `origin/desarrollo` sobra
 

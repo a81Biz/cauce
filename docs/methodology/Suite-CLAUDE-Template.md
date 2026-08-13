@@ -3,7 +3,7 @@
 > Copiar al `CLAUDE.md` del proyecto, **después** de sus secciones propias (Project Overview,
 > Development Commands, Architecture).
 >
-> Suite version: **5.2.3** · Referencia: `docs/methodology/`
+> Suite version: **5.3.0** · Referencia: `docs/methodology/`
 
 ---
 

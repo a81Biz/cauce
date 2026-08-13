@@ -404,3 +404,48 @@ de reanclaje y se escribieron en el momento, no al final. Es la diferencia con l
 herramienta, así que **91 es un límite superior**. Afinarlo exigiría interpretar código.
 
 **Parada: `G3`.** `PT-002` es un `BUG` y pasa a `VALIDATION_PENDING` (`SUITE-R06b`).
+
+---
+
+## 2026-08-13 · `EP-001` cerrado · versión `5.3.0` · a la espera de `G4`
+
+`PT-003` cerrado en `CLOSED` tras `G3` humana. `EP-001` a `DONE` con su entrada propia en
+`HISTORY.log` enumerando las cuatro tareas.
+
+**Dos correcciones que hicieron las compuertas al cerrar:**
+
+1. `FDGE-R52` volvió a cazar un reanclaje consolidado en `PT-002` —«PHASE 6 → PHASE 8» en un
+   solo comentario—. Tercera vez, y la tercera con razón. Se escribieron separadas.
+2. El espejo denunció el issue #5 abierto sin allocation viva: `PT-003` está `CLOSED`, que es
+   terminal. `tracker cerrar --aplicar` lo cerró. Es la regla funcionando en la dirección que
+   nadie mira.
+
+**Versión decidida: `5.3.0`**, `MINOR` con guía de migración explícita. Ninguna regla cambia de
+texto y se añade capacidad. El único cambio que puede poner en rojo algo que antes pasaba es el
+espejo en `G4` para un proyecto que declare plataforma y nunca haya espejado — y ese requisito
+lo declaró ya la 5.0.0; lo que faltaba era quien lo comprobara. La guía lo dice y da los tres
+comandos que lo resuelven.
+
+`TD-05` **resuelta**: la corrección de `SUITE-R40` entró en la misma entrada. Se decidió `MINOR`
+y no el `PATCH` que recomendaba la deuda porque la entrada cubre además tres capacidades.
+
+`version.mjs --aplicar` alineó los 21 documentos y `package.json`. `build-core` regeneró el
+núcleo: 229 reglas, 69 % de reducción.
+
+**Y el marco se aplicó su propia compuerta de migración.** Al subir el CHANGELOG, `SUITE-R17`
+puso el repositorio en modo restringido por declarar 5.2.3 frente a la vigente 5.3.0.
+`migrate --apply` selló el registro y `CLAUDE.md` se actualizó a mano, que es lo que la propia
+herramienta lista como pendiente humano.
+
+**Estado**
+
+```
+npm run verify        verde · 211 casos
+verify-fdge --all     sin errores
+tracker espejo        sin divergencias
+package.json          5.3.0 = CHANGELOG
+```
+
+**Siguiente:** `G4`. El PR de `trabajo` → `main`, y el merge lo aprieta una persona
+(`EXEC-R04`, `SUITE-R06a`). Después: `INTEGRATED` para los tres PT, `EP-001` a `CLOSED`, y
+publicar con `publicar.yml`, que es manual y desde `main`.
