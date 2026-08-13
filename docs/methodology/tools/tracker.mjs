@@ -48,7 +48,11 @@ import { execFileSync } from 'node:child_process';
 // espera el merge no es trabajo cerrado — es lo más abierto que hay, porque lo que le queda es
 // una compuerta humana. `SUITE-R36` dice «solo lo vivo» y lo cerrado empieza en INTEGRATED.
 export const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED',
-  'BLOCKED_DOMAIN', 'VALIDATION_PENDING', 'DONE']);
+  'BLOCKED_DOMAIN', 'VALIDATION_PENDING', 'DONE',
+  // PT-013 · un aplazado esta VIVO para el espejo: su issue permanece abierto y en el tablero.
+  // Para la verificacion esta exento —no tiene intake ni fases— y esos dos signos opuestos son
+  // lo que hace que aplazar algo lo ponga a la vista en vez de sacarlo de ella.
+  'DEFERRED']);
 
 /** Las allocations que el espejo cubre. Lo cerrado es evidencia, no estado (`SUITE-R36`). */
 export const vivasDe = (allocations) =>

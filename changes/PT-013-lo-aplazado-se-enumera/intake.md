@@ -24,10 +24,11 @@ phase: 1
 
 | AC | Criterio | Cómo se comprueba |
 |:---|:---|:---|
-| AC-01 | Lo que un lote aplaza a otro es **enumerable** | Una salida lista todo lo aplazado que sigue sin recoger |
+| AC-01 | Lo que un lote aplaza **tiene identificador y su issue abierto** | Una allocation `DEFERRED` con su issue en el tablero |
 | AC-02 | Se **deriva** de lo que ya se escribe | De los `out-of-scope.md`, no de un registro nuevo (`RULE-01`) |
+| AC-07 | Un PT `DEFERRED` no se verifica como uno en curso | Sin intake ni fases, exigírselo sería un rojo permanente |
 | AC-03 | Aplazar sin decir a dónde se detecta | Un out-of-scope que difiere sin destino es un agujero |
-| AC-04 | Cerrar un lote con cosas aplazadas sin recoger **lo dice** | Al cerrar, se enumeran |
+| AC-04 | Cerrar un lote con algo aplazado sin recoger **no pasa `G4`** | `verify-fdge --gate G4` falla; fuera de `G4` avisa |
 | AC-05 | La regla existe en `RULES.md` | Una comprobación sin regla es un capricho del verificador |
 | AC-06 | No impide aplazar | Aplazar es legítimo; perderlo de vista no |
 
@@ -63,3 +64,35 @@ Lo aplazado estaba escrito en tres sitios —el out-of-scope del lote, el `HANDO
 Es exactamente la avería que `PTSA-R79` nombra para las auditorías: «la auditoría cierra cuando
 la matriz está completa, no cuando el auditor deja de encontrar hallazgos». El marco se lo
 exige a PTSA y no se lo exige a sí mismo cuando aplaza trabajo.
+
+---
+
+## Revisiones
+
+### Revisión 1 — 2026-08-13 · lo aplazado no se enumera: **se convierte en issue**
+
+**Qué cambia.** El intake pedía que lo aplazado fuera «enumerable» — una salida que lo listara.
+Sube a: **lo aplazado tiene identificador del registro y su propio issue abierto en GitHub**.
+
+**Autorización**, del 2026-08-13:
+
+> «debemos encontrar un mecanismo para que nada quede fuera de alcance o que se integre en un
+> issue en github para retomarlo al final y que no se pierda»
+
+**Por qué es mejor que enumerar.** Una lista hay que ir a mirarla. Un issue abierto **está en
+el tablero**, con su fase y su compuerta, y el espejo lo comprueba en cada verificación. La
+diferencia entre «está apuntado» y «no se puede perder» es exactamente esa.
+
+**Y encaja con lo que el marco ya tiene**, sin inventar nada:
+
+- `DEFERRED` **ya existe** como estado del ciclo de vida en `LEXICON` §5.1. Nunca se usaba.
+- El registro sigue asignando (`SUITE-R08`): lo aplazado es una asignación con estado
+  `DEFERRED`, no un issue suelto — un issue sin allocation sería denunciado como huérfano por
+  el propio espejo.
+- `tracker` ya sabe abrir, etiquetar y cerrar issues.
+
+**Lo que hay que decidir en `PHASE 3`** y no estaba: si un PT `DEFERRED` se verifica como
+cualquier otro —no puede: no tiene intake ni fases— o si queda exento como los terminales,
+pero **vivo** para el espejo, que es lo que mantiene su issue abierto.
+
+**`AC-01` y `AC-04` se reformulan** en consecuencia; los demás siguen.

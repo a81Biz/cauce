@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 14,
+    "PT": 17,
     "EP": 4,
     "QA": 0,
     "QR": 0,
@@ -324,15 +324,17 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "6.0.1",
       "epic": "EP-004",
-      "phase": 1,
+      "phase": 8,
       "title": "Lo que un lote aplaza queda en prosa y nada obliga a que vuelva",
       "origin": "Intake humano 2026-08-13 · «es imposible que se te pasen u olviden cosas»",
       "created": "2026-08-13",
-      "issue": 20
+      "issue": 20,
+      "validated_by": "Alberto Martínez (por delegación)",
+      "validated": "2026-08-13"
     },
     {
       "id": "PT-014",
@@ -350,6 +352,51 @@
       "origin": "Hallazgo de ejecución 2026-08-13 · al abrir EP-004 el cuerpo enumeró sus tareas sin su issue",
       "created": "2026-08-13",
       "issue": 21
+    },
+    {
+      "type": "CHORE",
+      "complexity": null,
+      "severity": "S4",
+      "track": null,
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "6.0.1",
+      "created": "2026-08-13",
+      "id": "PT-015",
+      "slug": "verificadores-para-las-hard-sin-uno",
+      "title": "Escribir verificador para las reglas HARD que hoy no tienen ninguno",
+      "origin": "Aplazado por PT-002 · «Esta tarea mide y publica; convertir una regla en script es otro trabajo»",
+      "issue": 22
+    },
+    {
+      "type": "CHORE",
+      "complexity": null,
+      "severity": "S4",
+      "track": null,
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "6.0.1",
+      "created": "2026-08-13",
+      "id": "PT-016",
+      "slug": "phase-obligatoria",
+      "title": "Decidir si `phase` pasa a ser obligatoria, y añadirla a la plantilla TAREA.md",
+      "origin": "Aplazado por PT-004 · haría fallar a todo proyecto ya instalado, así que es decisión con entrada de CHANGELOG",
+      "issue": 23
+    },
+    {
+      "type": "CHORE",
+      "complexity": null,
+      "severity": "S4",
+      "track": null,
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "6.0.1",
+      "created": "2026-08-13",
+      "id": "PT-017",
+      "slug": "derivar-lo-que-llega-nuevo",
+      "title": "migrate: derivar la lista de «qué llega nuevo» comparando paquete y destino",
+      "origin": "Aplazado por PT-012 · hoy está escrita a mano y es un hecho copiado (RULE-01)",
+      "issue": 24
     }
   ]
 }

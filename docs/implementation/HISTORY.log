@@ -534,3 +534,40 @@ Deuda declarada: la lista de «qué llega nuevo» está **escrita a mano** y es 
 (`RULE-01`). Debería derivarse comparando el paquete con el destino. Queda enumerada en el
 out-of-scope, no narrada.
 
+## PT-013 — BUG: lo aplazado se asigna, no se narra
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S2
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-004
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-004, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: aplazar trabajo se escribía en PROSA —una fila de `out-of-scope.md` con un destino
+tipo «decisión posterior»— y nada lo enumeraba, nada lo recogía y nada impedía cerrar un lote
+dejándolo atrás. `EP-001` aplazó la corrección que lo había motivado y nadie la recogió en
+cuatro versiones: estaba escrita en tres documentos y en ninguna lista que una compuerta tocara.
+
+Revisión del alcance por decisión humana: no basta con **enumerar**. Lo aplazado tiene
+identificador del registro y su **issue abierto** — «una lista hay que ir a mirarla; un issue
+está en el tablero».
+
+Qué se hizo: `SUITE-R44`. Toda fila de out-of-scope que apunte a trabajo futuro cita el
+identificador que lo sostiene. Fuera de `G4` avisa —aplazar durante el trabajo es legítimo—;
+en `G4` bloquea, que es donde el lote se cierra. Y `DEFERRED`, que existía en `LEXICON` §5.1
+sin que lo usara nadie, se vuelve usable: **exento** de las exigencias de un PT en curso y
+**vivo** para el espejo, de modo que su issue permanece abierto.
+
+Resultado: `selftest` 266 → 275 casos. Y lo primero que hizo la regla fue encontrar **tres
+aplazados del propio agente**, ya recogidos: `PT-015` (#22), `PT-016` (#23) y `PT-017` (#24).
+
+Delta: la heurística se escapaba los plurales —«Decisiones posteriores» no casaba
+`posterior`— y una fila quedó sin ver hasta compararlo a mano. Un detector con ese agujero
+es teatro.
+
+Agujero declarado y sin arreglo mecánico: **citar cualquier identificador satisface la regla**.
+`PT-012` citaba `PT-013` y pasaba, aunque `PT-013` no fuera a hacer ese trabajo. Comprueba que
+haya dónde volver, no que ese sitio sirva.
+

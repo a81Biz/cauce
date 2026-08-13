@@ -1336,6 +1336,37 @@ trlib "una tarea sí dice a qué lote va"   "EP-9"   "console.log(m.cuerpoDeIssu
 build_fixture
 chkno "sin plataforma ⇒ G4 libre de R43"    "SUITE-R43"   V --gate G4 PT-001
 
+
+# PT-013 · lo aplazado no se narra: se ASIGNA. Un out-of-scope que apunta a trabajo futuro sin
+# citar a nadie es como EP-001 perdio la migracion del proyecto legado durante cuatro versiones.
+# DEFERRED existia en LEXICON §5.1 y no lo usaba nadie.
+chk   "SUITE-R44 existe en RULES"          "SUITE-R44"   cat "$SUITE/RULES.md"
+chk   "SUITE-R44 llega al núcleo"          "SUITE-R44"   cat "$SUITE/CORE.md"
+
+oos() {   # $1 destino de la fila de out-of-scope del PT-001 del fixture
+  printf '# Fuera de alcance
+
+| Fuera | Por qué | Dónde va |
+|:--|:--|:--|
+| algo | porque sí | %s |
+' "$1"     > "$WORK/changes/PT-001-login/out-of-scope.md"
+}
+
+build_fixture; oos 'Decisión posterior'
+chk   "aplazar sin citar a nadie se ve"    "SUITE-R44"   V PT-001
+chk   "y fuera de G4 solo avisa"           "! SUITE-R44" V PT-001
+chk   "en G4 bloquea"                      "✗ SUITE-R44" V --gate G4 PT-001
+build_fixture; oos '`PT-004`'
+chkno "si cita una allocation, no se ve"   "SUITE-R44"   V PT-001
+build_fixture; oos '—'
+chkno "un guion no aplaza nada"            "SUITE-R44"   V PT-001
+
+# DEFERRED: exento para la verificacion, VIVO para el espejo. Las dos caras.
+build_fixture
+reg_set "r.allocations.push({id:'PT-020',type:'BUG',severity:'S3',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1'}); r.counters.PT=20"
+chkno "un DEFERRED no exige artefactos"    "PT-020"      V --all
+trlib "un DEFERRED sí es vivo"             "^VIVO$"   "console.log(m.vivasDe([{id:\"PT-020\",status:\"DEFERRED\"}]).length?\"VIVO\":\"NO\")"
+
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 echo "── R · bitácora y cierre ──"
 

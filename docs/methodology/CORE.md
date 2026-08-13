@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 15f7f2503891 -->
-<!-- fuentes: RULES.md:309ccf497db2 LEXICON.md:681acfd453bc EXECUTION-MODES.md:e2fb56073101 PHASES.md:15365a6be1e3 -->
+<!-- cuerpo: 39b9347237ff -->
+<!-- fuentes: RULES.md:14a3066ddd20 LEXICON.md:681acfd453bc EXECUTION-MODES.md:e2fb56073101 PHASES.md:74359e38a488 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -148,6 +148,7 @@ verifica un script y bloquea la integración.
 `SUITE-R41` **H** Cauce no se instala sobre sí mismo, y se reconoce por identidad.
 `SUITE-R42` **H** El merge se propone donde se pueda revisar.
 `SUITE-R43` **H** Lo que una persona escribe en la plataforma se lee.
+`SUITE-R44` **H** Cerrar un lote no borra lo que aplazó. Toda fila de out-of-scope.md que apunte a trabajo futuro cita el identificador que lo sostiene, y ese identificador es una allocation del registro —normalmente en…
 
 ### LEX — Nombres
 
@@ -613,6 +614,10 @@ REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECI
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+APLAZAR   lo que el lote deja fuera y apunta a trabajo futuro se ASIGNA:      [SUITE-R44]
+          una allocation en DEFERRED con su issue, citada en out-of-scope.md.
+          En G4 bloquea. Un lote de esta suite perdio asi su razon de ser
+          durante cuatro versiones: estaba escrito y en ninguna lista.
 LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
           node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
           Se distingue por MARCA de procedencia, no por autor: el agente comenta

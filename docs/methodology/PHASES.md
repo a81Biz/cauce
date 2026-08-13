@@ -259,6 +259,10 @@ REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECI
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
+APLAZAR   lo que el lote deja fuera y apunta a trabajo futuro se ASIGNA:      [SUITE-R44]
+          una allocation en DEFERRED con su issue, citada en out-of-scope.md.
+          En G4 bloquea. Un lote de esta suite perdio asi su razon de ser
+          durante cuatro versiones: estaba escrito y en ninguna lista.
 LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
           node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
           Se distingue por MARCA de procedencia, no por autor: el agente comenta

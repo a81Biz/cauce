@@ -56,6 +56,11 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
 
+**`SUITE-R44`: lo que el lote aplaza se asigna, no se narra.** Una fila de `out-of-scope.md`
+que apunte a trabajo futuro cita el identificador que lo sostiene — normalmente una allocation
+en `DEFERRED`, con su issue abierto. En `G4` bloquea; antes solo avisa, porque aplazar durante
+el trabajo es legítimo.
+
 **`SUITE-R43`: lo que escribas en el issue se lee antes de cerrar fase.** Se distingue por una
 marca invisible en los comentarios del agente, no por autor —comenta con tu credencial, así que
 el autor es el mismo—. Es falsificable, como una firma, y se declara.

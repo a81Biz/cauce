@@ -1,0 +1,32 @@
+EP-001 · el-marco-se-hace-cumplir   CLOSED   #2
+  PT-001  BUG            S2  INTEGRATED          fase 8    —              #3
+  PT-002  BUG            S3  INTEGRATED          fase 8    —              #4
+  PT-003  INVESTIGATION  S3  CLOSED              fase 8    —              #5
+  PT-004  BUG            S2  INTEGRATED          fase 8    —              #6
+  PT-005  BUG            S2  INTEGRATED          fase 8    —              #8
+
+EP-002 · github-como-maquina-de-estados   CLOSED   #9
+  PT-006  CHORE          S3  INTEGRATED          fase 8    —              #10
+  PT-007  FEATURE        S3  INTEGRATED          fase 8    —              #11
+  PT-008  FEATURE        S2  INTEGRATED          fase 8    —              #12
+
+EP-003 · el-issue-se-lee-solo   CLOSED   #13
+  PT-009  BUG            S2  INTEGRATED          fase 8    —              #14
+  PT-010  BUG            S2  INTEGRATED          fase 8    —              #15
+
+EP-004 · lo-aplazado-no-se-olvida   IN_PROGRESS   #17
+  PT-011  BUG            S2  DONE                fase 8    —              #18
+  PT-012  BUG            S2  DONE                fase 8    —              #19
+  PT-013  BUG            S2  IN_PROGRESS         fase 4    G2 pendiente   #20
+  PT-014  BUG            S3  READY               fase 1    G1 pendiente   #21
+
+Sin implementación
+  PT-015  CHORE          S4  DEFERRED            sin fase  —              #22
+  PT-016  CHORE          S4  DEFERRED            sin fase  —              #23
+  PT-017  CHORE          S4  DEFERRED            sin fase  —              #24
+
+tracker · github · acción estado
+
+  · 4 implementación(es) · 17 tarea(s) · leído del registro, sin tocar la plataforma.
+
+Sin divergencias.
