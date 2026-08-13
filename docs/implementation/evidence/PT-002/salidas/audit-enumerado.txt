@@ -1,0 +1,17 @@
+audit — cobertura de la Methodology Suite
+Base: C:\DevOps\Desarrollos\cauce\docs\methodology
+
+Cubiertos: 572  (regla:209 · regla-ptsa:80 · fase:40 · fase-diagrama:11 · compuerta:5 · trigger:25 · artefacto:32 · archivo:49 · plantilla:6 · estado:14 · tipo:5 · track:3 · severidad:4 · modo:3 · herramienta:45 · documento:34 · cobertura-mecanica:7)
+
+Cobertura mecánica de las reglas   (SUITE-R26 · aspira, no exige)
+  ejecutadas por una compuerta   90 / 167     · HARD 68 / 134
+  citadas sin compuerta que las corra   7        → --sin-compuerta las enumera
+  sin verificador                70        → --sin-verificar las enumera  (HARD 60)
+
+Reglas sin ningún verificador (70):
+  SUITE-R01 SUITE-R02 SUITE-R04 SUITE-R05 SUITE-R09 SUITE-R10 SUITE-R12 SUITE-R22 SUITE-R23 SUITE-R24 SUITE-R28 SUITE-R29 SUITE-R31 SUITE-R32 SUITE-R39 FND-R01 FND-R02 FND-R04 FND-R06 FND-R07 FND-R09 FND-R10 FND-R12 FND-R16 FND-R17 FND-R18 FDGE-R02 FDGE-R05 FDGE-R06 FDGE-R09 FDGE-R50 FDGE-R11 FDGE-R12 FDGE-R13 FDGE-R14 FDGE-R16 FDGE-R19 FDGE-R20 FDGE-R21 FDGE-R28 FDGE-R30 FDGE-R47 FDGE-R32 FDGE-R35 FDGE-R36 FDGE-R37 FDGE-R38 FDGE-R40 FDGE-R46 FDGE-R41 INTAKE-R02 INTAKE-R03 INTAKE-R05 INTAKE-R07 QA-R02 QA-R05 QA-R08 QA-R12 QA-R14 QA-R15 QA-R17 QA-R18 FPGE-R04 FPGE-R06 FPGE-R09 FPGE-R10 FIDE-R02 FIDE-R03 FIDE-R05 FIDE-R06
+
+Reglas cuyo verificador no lo ejecuta ninguna compuerta (7):
+  SUITE-R19 FND-R21 FND-R26 FND-R28 FDGE-R39 QA-R10 FIDE-R04
+
+Auditoría sin huecos en los elementos auditados. Cobertura mecánica de reglas: 90/167.

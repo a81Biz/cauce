@@ -70,7 +70,7 @@
       "complexity": "TRIVIAL",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "IN_PROGRESS",
+      "status": "VALIDATION_PENDING",
       "structural": false,
       "suite_version": "5.2.3",
       "epic": "EP-001",
@@ -78,7 +78,7 @@
       "origin": "Medición 2026-08-13 · 63 reglas HARD sin verificador y el informe en verde",
       "created": "2026-08-13",
       "issue": 4,
-      "phase": 4
+      "phase": 6
     },
     {
       "id": "PT-003",

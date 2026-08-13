@@ -1,0 +1,11 @@
+{
+  "pt": "PT-002",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["TS-01","TS-05","TS-06"], "tests": ["selftest.sh:la cobertura lleva denominador","selftest.sh:las ejecutadas ni 0 ni el total","selftest.sh:sin saber quién ejecuta ⇒ SIN EVALUAR"], "evidence": ["salidas/audit-despues.txt","salidas/audit-sin-evaluar.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["TS-02"], "tests": ["selftest.sh:declara las ejecutadas","selftest.sh:declara las que nadie ejecuta","selftest.sh:declara las que nadie verifica"], "evidence": ["salidas/audit-despues.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["TS-03"], "tests": ["selftest.sh:ya no dice cobertura completa"], "evidence": ["salidas/audit-antes.txt","salidas/audit-despues.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["TS-04"], "tests": ["selftest.sh:enumera las que nadie verifica","selftest.sh:enumera las que nadie ejecuta"], "evidence": ["salidas/audit-enumerado.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["TS-07"], "tests": ["selftest.sh:cobertura sin huecos"], "evidence": ["salidas/selftest-despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 211, "failed": 0, "coverage": 211, "baseline": 202 }
+}

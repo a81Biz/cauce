@@ -1215,6 +1215,47 @@ chk   "CORE.md sincronizado"     "sincronizado" node "$SUITE/tools/build-core.mj
 chk   "CORE-PTSA.md sincronizado" "CORE-PTSA.md sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
 chk   "cobertura sin huecos"     "sin huecos"   node "$SUITE/tools/audit.mjs" "$SUITE"
 
+# PT-002 · la cobertura mecanica se mide POR REGLA y se publica con su denominador.
+#
+# audit medía por COMPONENTE —hueco solo si un componente tenía CERO reglas verificadas— e
+# informaba «Cobertura completa: sin huecos» con 63 reglas HARD sin ningún script. No mentía
+# sobre lo que medía: mentía sobre lo que el lector entiende que ha medido. Y no vio ninguno de
+# los dos defectos de este mismo lote.
+#
+# Los casos comprueban FORMA y RANGOS, nunca el valor exacto: fijar «85» obligaría a
+# actualizarlo cada vez que se escriba una regla — un hecho copiado mas (RULE-01), dentro de la
+# bateria que existe para cazar hechos copiados.
+A() { node "$SUITE/tools/audit.mjs" "$@"; }
+
+chk   "la cobertura lleva denominador"    "/ 167"        A "$SUITE"
+chk   "declara las ejecutadas"            "ejecutadas"   A "$SUITE"
+chk   "declara las que nadie ejecuta"     "sin compuerta" A "$SUITE"
+chk   "declara las que nadie verifica"    "sin verificador" A "$SUITE"
+chkno "ya no dice cobertura completa"     "Cobertura completa" A "$SUITE"
+# Se comprueba la FORMA de la enumeracion, no que aparezca una regla concreta: fijar un ID
+# obligaria a actualizar el caso cada vez que esa regla gane o pierda verificador — un hecho
+# copiado mas (RULE-01), dentro de la bateria que existe para cazarlos.
+chk   "enumera las que nadie verifica"    "SUITE-R"      A "$SUITE" --sin-verificar
+chk   "enumera las que nadie ejecuta"     "FND-R"        A "$SUITE" --sin-compuerta
+
+# El caso que distingue DERIVADO de INVENTADO: si el conjunto de compuertas se contara como
+# vacio o como todo, los casos de arriba pasarian igual. Aqui se exige que la cifra este
+# ESTRICTAMENTE entre 0 y el total.
+cat > "$WORK/derivada.mjs" <<'MJS'
+import { execFileSync } from 'node:child_process';
+const o = execFileSync(process.execPath, [process.env.MTH_AUDIT, process.env.MTH_SUITE], { encoding: 'utf8' });
+const m = o.match(/ejecutadas por una compuerta\s+(\d+)\s*\/\s*(\d+)/);
+console.log(m && +m[1] > 0 && +m[1] < +m[2] ? 'DERIVADA' : `NO_DERIVADA ${m ? m[0] : 'sin cifra'}`);
+MJS
+chk   "las ejecutadas ni 0 ni el total"   "DERIVADA" \
+  env MTH_AUDIT="$SUITE/tools/audit.mjs" MTH_SUITE="$SUITE" node "$WORK/derivada.mjs"
+
+# RULE-06 · sin poder leer quien invoca las herramientas, la cifra no se inventa: se declara.
+# Ni 0 (mentiria a la baja) ni el total (a la alta).
+rm -rf "$WORK/solo-suite"; mkdir -p "$WORK/solo-suite/docs"
+cp -r "$SUITE" "$WORK/solo-suite/docs/methodology"
+chk   "sin saber quién ejecuta ⇒ SIN EVALUAR" "SIN EVALUAR"  A "$WORK/solo-suite/docs/methodology"
+
 echo
 [ "$FAILED" -eq 0 ] && echo "selftest: OK · $TOTAL casos" || echo "selftest: HAY FALLOS · $TOTAL casos"
 rm -rf "$WORK"

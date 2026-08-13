@@ -361,3 +361,46 @@ tracker espejo               5 vivas = 5 issues, sin divergencias
 ```
 
 `PT-001` sigue en `VALIDATION_PENDING`, detenido en `G3`.
+
+---
+
+## 2026-08-13 · `PT-002` de `PHASE 3` a `PHASE 6` · detenido en `G3`
+
+`G2` aprobada por delegación, con `SUITE-R06e` acotada a `audit.mjs` y `selftest.sh`.
+
+**Decisión de diseño:** el conjunto de herramientas con compuerta **se deriva** de
+`package.json`, los workflows y `bin/cauce.mjs`. Una lista escrita a mano se queda atrás el día
+que se añada un paso a CI — la avería que este repositorio arrastra allí donde se copió un
+hecho (`RULE-01`, `SUITE-R40`).
+
+Tres estados por regla y no dos. La franja del medio —citada por una herramienta que ninguna
+compuerta ejecuta— es donde vivió `SUITE-R35` durante tres versiones.
+
+**Resultado medido**
+
+```
+antes    Cobertura completa: sin huecos.
+
+ahora    ejecutadas por una compuerta   91 / 167   · HARD 69 / 134
+         citadas sin compuerta que las corra   7
+         sin verificador                69                 (HARD 59)
+
+selftest  202 → 211 casos, 0 fallos
+```
+
+Las 7 de la franja del medio: `SUITE-R19` `FND-R21` `FND-R26` `FND-R28` `FDGE-R39` `QA-R10`
+`FIDE-R04`. Todas de instalación o migración.
+
+**Una regresión propia.** Cambiar la frase final rompió dos casos existentes que greppeaban
+`sin huecos`. Se resolvió conservando el literal en minúscula, **no** reescribiendo los
+asertos: cambiar el aserto para que encaje con la salida nueva es como se pierde la señal que
+ese aserto daba.
+
+**Y `FDGE-R52` volvió a avisar, esta vez a tiempo.** Al llegar a `PHASE 6` faltaban dos notas
+de reanclaje y se escribieron en el momento, no al final. Es la diferencia con lo que pasó en
+`PT-001` y `PT-004`.
+
+**Límite declarado:** «citada» sigue siendo que el identificador aparezca en el texto de la
+herramienta, así que **91 es un límite superior**. Afinarlo exigiría interpretar código.
+
+**Parada: `G3`.** `PT-002` es un `BUG` y pasa a `VALIDATION_PENDING` (`SUITE-R06b`).
