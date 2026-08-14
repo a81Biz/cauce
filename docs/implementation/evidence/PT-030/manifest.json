@@ -1,0 +1,12 @@
+{
+  "pt": "PT-030",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1","E3"], "tests": ["selftest.sh:deriva que produce la fase","selftest.sh:nombra tambien la fase siguiente"], "evidence": ["salidas/selftest.txt","salidas/siguiente-real.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E2","E4","E11"], "tests": ["selftest.sh:y con que se cierra","selftest.sh:la compuerta se DERIVA de la fase","selftest.sh:y G4 sigue siendo humana"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E5","E6"], "tests": ["selftest.sh:un comentario sin responder bloquea","selftest.sh:y lo dice antes que nada"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E7","E9"], "tests": ["selftest.sh:sin phase declarada, sin evaluar","selftest.sh:sin allocation no hay trabajo"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E8","E10"], "tests": ["selftest.sh:lo terminado no tiene siguiente","selftest.sh:las once fases estan declaradas"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["E12","E13","E14"], "tests": ["selftest.sh:SUITE-R48 existe en RULES","selftest.sh:SUITE-R48 llega al núcleo","selftest.sh:y PHASES manda consultarlo"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 334, "failed": 0, "coverage": 334, "baseline": 320 }
+}

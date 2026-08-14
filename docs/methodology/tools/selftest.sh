@@ -1168,6 +1168,34 @@ trlib "el mensaje dice cuando cerrarlo"                "SUITE-R46"   "console.lo
 trlib "el huerfano de verdad sigue siendolo"           "ninguna allocation lo reclama"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[])))"
 trlib "y ese si bloquea"                               "false"   "console.log(!!m.compararEspejo([],[$I60],[])[0].pendienteDeCierre)"
 
+
+# PT-030 . SUITE-R48 — que sigue lo dice el TABLERO, no la memoria del agente.
+# En una sola sesion di un merge por terminado sin mirar la compuerta que corre despues, cerre
+# issues en un orden que ninguna regla decia, y declare un cambio de especificacion que no hice.
+# Cuatro veces decidi «que sigue» sin preguntarselo a nada.
+A4='{"id":"PT-070","status":"IN_PROGRESS","phase":4,"issue":70}'
+A1='{"id":"PT-071","status":"READY","phase":1,"issue":71}'
+SIN='{"id":"PT-072","status":"IN_PROGRESS","issue":72}'
+FIN='{"id":"PT-073","status":"INTEGRATED","phase":10,"issue":73}'
+trlib "deriva que produce la fase"           "design.md"   "console.log(JSON.stringify(m.queSigue($A4)))"
+trlib "y con que se cierra"                  "G2"   "console.log(m.queSigue($A4).compuerta)"
+trlib "nombra tambien la fase siguiente"     "PHASE 5"   "console.log(m.queSigue($A4).siguiente)"
+trlib "la compuerta se DERIVA de la fase"    "G1"   "console.log(m.queSigue($A1).compuerta)"
+# Un comentario humano sin responder BLOQUEA la respuesta: preguntar que sigue sin haber leido
+# la respuesta anterior es el defecto que la regla existe para impedir.
+trlib "un comentario sin responder bloquea"  "SUITE-R43"   "console.log(JSON.stringify(m.queSigue($A4,{comentarioPendiente:true}).bloqueos))"
+trlib "y lo dice antes que nada"             "RESUELVE PRIMERO"   "console.log(m.queSigue($A4,{comentarioPendiente:true}).siguiente)"
+# Sin fase declarada NO SE ADIVINA (RULE-06).
+trlib "sin phase declarada, sin evaluar"     "SIN EVALUAR"   "console.log(m.queSigue($SIN).siguiente)"
+trlib "lo terminado no tiene siguiente"      "evidencia, no estado"   "console.log(m.queSigue($FIN).siguiente)"
+trlib "sin allocation no hay trabajo"        "SUITE-R08"   "console.log(m.queSigue(null).error)"
+# La tabla de fases del tracker es la forma consultable de PHASES.md: once fases, 0 a 10.
+trlib "las once fases estan declaradas"      "^11$"   "console.log(Object.keys(m.FASES).length)"
+trlib "y G4 sigue siendo humana"             "HUMANA"   "console.log(m.FASES[9].cierra)"
+chk   "SUITE-R48 existe en RULES"            "SUITE-R48"   cat "$SUITE/RULES.md"
+chk   "SUITE-R48 llega al núcleo"            "SUITE-R48"   cat "$SUITE/CORE.md"
+chk   "y PHASES manda consultarlo"           "tracker.mjs siguiente" cat "$SUITE/PHASES.md"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

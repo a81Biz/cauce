@@ -56,6 +56,17 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
 
+**`SUITE-R48`: qué sigue lo dice el tablero, no tu memoria.** Antes de avanzar de fase:
+
+```bash
+node docs/methodology/tools/tracker.mjs siguiente PT-NNN
+```
+
+Deriva qué produce la fase actual, qué la cierra, qué compuerta le toca y qué la bloquea. Un
+comentario humano sin responder **bloquea la respuesta** (`SUITE-R43`): preguntar qué sigue sin
+haber leído la respuesta anterior es justo el defecto que esta regla impide. Sin `phase`
+declarada, `SIN EVALUAR` — no se adivina.
+
 **`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
 en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.
 Allí el registro es la foto del último merge y el tablero refleja el trabajo en curso: divergen

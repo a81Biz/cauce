@@ -1,0 +1,30 @@
+
+  PT-030  IN_PROGRESS  ·  PHASE 2 Descubrimiento  ·  #43
+  produce:    discovery.md
+  siguiente:  PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.
+
+  PT-031  READY  ·  PHASE 1 Intake  ·  #44
+  compuerta:  G1
+  produce:    intake.md
+  siguiente:  PHASE 1 · Intake — cierra con: G1 · firma humana (INTAKE-R06). Luego PHASE 2 · Descubrimiento.
+
+  PT-015  DEFERRED  ·  #22
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-016  DEFERRED  ·  #23
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-017  DEFERRED  ·  #24
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-019  DEFERRED  ·  #26
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-020  DEFERRED  ·  #27
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-023  DEFERRED  ·  #32
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-025  DEFERRED  ·  #35
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).

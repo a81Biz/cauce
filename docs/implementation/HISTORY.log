@@ -890,3 +890,36 @@ ni fila de cierre, sino allocation DEFERRED con su issue (SUITE-R44).
 El orden de SUITE-R46 funcionó de punta a punta: estado terminal apuntado ANTES del merge,
 merge, y `tracker cerrar --aplicar` permitido PORQUE main ya lo sabía. Trece issues cerrados sin
 una sola divergencia. El intento anterior, con el orden invertido, dejó nueve.
+
+## PT-030 — FEATURE: qué sigue lo dice el tablero, no la memoria del agente
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-007
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-007, delegada) · G2 · G3 2026-08-13 Alberto Martínez (delegadas) · G4 pendiente
+
+Qué fallaba: la respuesta a «qué sigue» no vivía en ningún sitio consultable. PHASES.md la
+describe en prosa y tracker responde «qué está abierto», pero el paso siguiente lo decidía el
+agente. En una sola sesión eso produjo cuatro fallos con la misma forma: un merge dado por
+terminado sin mirar la compuerta que corre después, issues cerrados en un orden que ninguna
+regla decía, un cambio de especificación declarado y no hecho, y cuatro puntos muertos entre
+reglas encontrados solo al ejecutar.
+
+Qué se hizo: SUITE-R48 y `tracker siguiente [PT-NNN]`. La tabla FASES declara qué produce cada
+fase y qué la cierra; queSigue() la cruza con el estado del registro y del issue. Un comentario
+humano sin responder BLOQUEA la respuesta y lo dice antes que nada. Sin `phase` declarada:
+SIN EVALUAR, no se adivina.
+
+LO QUE NO LOGRA, y va escrito en tres sitios: el intake pedía que el agente «no sepa hacer nada»
+sin consultar, y un comando NO PUEDE EXIGIR HABER SIDO LLAMADO. Lo entregado es más débil: la
+respuesta existe fuera de la memoria del agente y es citable. Antes ni eso había.
+
+Riesgo abierto que el revisor debe atacar: FASES duplica lo que PHASES.md dice en prosa y NADA
+comprueba que no diverjan. Es la copia que SUITE-R38 avisa.
+
+Evidencia: docs/implementation/evidence/PT-030/ · selftest 320 → 334 casos · cobertura 97/174
+Cierre a DONE pendiente de persona: SUITE-R06b.

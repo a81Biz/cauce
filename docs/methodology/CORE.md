@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 9b6210397153 -->
-<!-- fuentes: RULES.md:ae7eb7d32df5 LEXICON.md:39538a858f80 EXECUTION-MODES.md:4b20ea958c7a PHASES.md:2485c7436afa -->
+<!-- cuerpo: 41cca6679826 -->
+<!-- fuentes: RULES.md:2c36f842e60a LEXICON.md:39538a858f80 EXECUTION-MODES.md:4b20ea958c7a PHASES.md:fd3d6b5115e7 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -152,6 +152,7 @@ verifica un script y bloquea la integración.
 `SUITE-R45` **H** Un lote declara qué se hace al cerrarlo. El intake de un EP lleva una sección ## Cierre del lote con una fila por cosa que se resuelve en el cierre y no en ninguna de sus tareas —la entrada de CHANGELOG.md,…
 `SUITE-R46` **H** El tablero no se adelanta a la rama por defecto.
 `SUITE-R47` **H** El espejo se comprueba donde el registro asigna.
+`SUITE-R48` **H** Qué sigue lo dice el tablero, no la memoria del agente.
 
 ### LEX — Nombres
 
@@ -626,6 +627,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+SIGUIENTE antes de avanzar de fase, PREGUNTA al tablero. No de memoria.     [SUITE-R48]
+          node tools/tracker.mjs siguiente PT-NNN
+          Deriva que produce la fase, que la cierra, que compuerta toca y
+          que la bloquea. Un comentario humano sin responder BLOQUEA la
+          respuesta. Sin «phase» declarada: SIN EVALUAR, no se adivina.
 ESPEJO    bloquea en la rama de TRABAJO y en los PR; en la rama por defecto  [SUITE-R47]
           solo INFORMA: alli el registro es la foto del ultimo merge y el
           tablero sigue vivo, asi que divergen por construccion. Donde decide
