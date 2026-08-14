@@ -1,0 +1,15 @@
+# bash docs/methodology/tools/selftest.sh · 2026-08-14
+selftest: OK · 456 casos
+
+# los casos de PT-045:
+  [32m✓[0m un subcomando que no existe lo dice
+  [32m✓[0m y nombra el subcomando
+  [32m✓[0m y dice la version que corre
+  [32m✓[0m y da la salida por si es una copia vieja
+  [32m✓[0m su codigo de salida sigue siendo 2
+  [32m✓[0m sin subcomando NO es un error
+  [32m✓[0m y su codigo sigue siendo 0
+  [32m✓[0m --help tampoco es un error
+  [32m✓[0m npm start apunta al arranque
+  [32m✓[0m el manual declara el caso autoalojado
+  [32m✓[0m y el catalogo tambien

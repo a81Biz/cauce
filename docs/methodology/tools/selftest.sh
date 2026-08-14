@@ -1489,6 +1489,30 @@ _mn=$(printf '%s' "$_blq" | grep -n 'MANUAL.md' | head -1 | cut -d: -f1)
 _co=$(printf '%s' "$_blq" | grep -n 'CORE.md' | tail -1 | cut -d: -f1)
 chk   "el manual va antes que el núcleo"     "^ORDENADO$" sh -c "[ -n \"$_mn\" ] && [ -n \"$_co\" ] && [ \"$_mn\" -lt \"$_co\" ] && echo ORDENADO || echo REVISAR"
 
+# PT-045 · el arranque documentado no arrancaba, y el binario NO decia por que. Los codigos de
+# salida ya eran correctos —0 sin subcomando, 2 con uno desconocido— pero los dos casos imprimian
+# exactamente lo mismo: la unica diferencia era un numero que nadie ve. Alguien en una version
+# anterior a la que trae `start` recibia una ayuda muda donde `start` no aparecia, y concluia que
+# el manual mentia. Es lo que SUITE-R53 corrigio para las reglas, sin corregir aqui.
+C() { node "$RAIZ/bin/cauce.mjs" "$@"; }
+codigo_cauce() { node "$RAIZ/bin/cauce.mjs" "$@" >/dev/null 2>&1; echo $?; }
+
+chk   "un subcomando que no existe lo dice"  "no es un subcomando"  C arrancar
+chk   "y nombra el subcomando"               "«arrancar»"           C arrancar
+chk   "y dice la version que corre"          "$VIGENTE"             C arrancar
+chk   "y da la salida por si es una copia vieja" "@latest"          C arrancar
+chk   "su codigo de salida sigue siendo 2"   "^2$"                  codigo_cauce arrancar
+# Los que NO deben cambiar: pedir ayuda no es un error, y confundirlos en la direccion contraria
+# seria el mismo defecto con otro signo.
+chkno "sin subcomando NO es un error"        "no es un subcomando"  C
+chk   "y su codigo sigue siendo 0"           "^0$"                  codigo_cauce
+chkno "--help tampoco es un error"           "no es un subcomando"  C --help
+# El arranque QUE FUNCIONA dentro de cauce: npx resuelve el paquete local y no hay binario, ni
+# debe haberlo (SUITE-R41). Eso no es un defecto: es estar autoalojado, y se DECLARA.
+chk   "npm start apunta al arranque"         "cauce.mjs start"      cat "$RAIZ/package.json"
+chk   "el manual declara el caso autoalojado" "npm start"           cat "$SUITE/MANUAL.md"
+chk   "y el catalogo tambien"                "npm start"            cat "$SUITE/CASOS-DE-USO.md"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

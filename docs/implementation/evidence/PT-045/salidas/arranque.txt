@@ -1,0 +1,21 @@
+# PT-045 · el arranque, ejecutado. 2026-08-14
+
+== subcomando que no existe: antes decia lo mismo que la ayuda ==
+«arrancar» no es un subcomando de cauce 7.6.0.
+Si lo esperabas, tu copia puede ser anterior a la que lo trae:
+  npx @a81biz/cauce@latest arrancar
+
+exit=2   (esperado 2)
+
+== sin subcomando: sigue siendo ayuda, no error ==
+[1mcauce[0m 7.6.0 — marco de gobernanza para desarrollo asistido por IA
+
+exit=0   (esperado 0)
+
+== npm start: el arranque que SI funciona dentro de cauce ==
+[1mcauce[0m 7.6.0 — arranque
+
+[2mEl estado sale del tablero, no de la memoria del agente (SUITE-R49, SUITE-R50).[0m
+
+
+  PT-044  DONE  ·  PHASE 8 Persistencia  ·  #65

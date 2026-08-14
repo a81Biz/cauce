@@ -278,7 +278,20 @@ const comandos = {
   version() { di(`cauce ${VERSION}`); return 0; },
 };
 
-if (!comando || comando === '--help' || comando === '-h' || !comandos[comando]) {
+// PT-045 · pedir ayuda no es un error, y un subcomando que no existe SI lo es. Los dos casos
+// imprimian exactamente lo mismo y la unica diferencia era el codigo de salida, que nadie ve:
+// quien pedia `start` desde una version anterior a la que lo trae recibia una ayuda muda donde
+// `start` no aparecia, y concluia que el manual mentia. Es lo que SUITE-R53 corrigio para las
+// reglas —el fallo lleva a lo que hay que consultar— sin corregirse aqui, que es lo PRIMERO que
+// alguien ejecuta.
+const desconocido = Boolean(comando) && comando !== '--help' && comando !== '-h' && !comandos[comando];
+if (!comando || comando === '--help' || comando === '-h' || desconocido) {
+  if (desconocido) {
+    di(`«${comando}» no es un subcomando de cauce ${VERSION}.`);
+    di('Si lo esperabas, tu copia puede ser anterior a la que lo trae:');
+    di(`  npx @a81biz/cauce@latest ${comando}`);
+    di();
+  }
   di(`${c.neg}cauce${c.fin} ${VERSION} — marco de gobernanza para desarrollo asistido por IA`);
   di();
   di(`  ${c.neg}cauce start${c.fin}   [ruta]   EMPIEZA AQUÍ · el estado del tablero, y después el núcleo`);

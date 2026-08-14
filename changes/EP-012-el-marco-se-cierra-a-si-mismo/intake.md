@@ -4,7 +4,7 @@
 ---
 id: EP-012
 created: 2026-08-14
-status: IN_PROGRESS
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 ---
@@ -135,8 +135,8 @@ VEREDICTO: PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| Regenerar `CORE.md` | pendiente |
-| Qué pasa con `PT-029` (#40) y `PT-016` (#23), de los que estas tareas son el primer caso concreto | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | HECHO · `7.7.0`, `MINOR`: dos reglas ampliadas, ninguna nueva ni derogada. Los 21 documentos, `package.json`, `CLAUDE.md` y `REGISTRY` alineados |
+| Regenerar `CORE.md` | HECHO · `build-core --check` sincronizado |
+| Qué pasa con `PT-029` (#40) y `PT-016` (#23), de los que estas tareas son el primer caso concreto | HECHO · los dos **siguen abiertos con su alcance reducido y dicho**. `PT-029` pedía buscar más choques entre reglas: `PT-046` resolvió el primero encontrado, no la búsqueda. `PT-016` pedía decidir si `phase` pasa a ser obligatoria: `PT-044` hace que **mentir se vea**, no que alguien lo escriba — la decisión sigue sin tomarse. Sus `origin` citan ya a `PT-046` y `PT-044` |
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.

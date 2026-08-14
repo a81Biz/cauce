@@ -69,6 +69,17 @@ HUMANO       lo que no se automatiza nunca en ese caso
 | **Recorrido** | Imprime el estado del tablero y **después** el núcleo (`SUITE-R50`) |
 | **Fin** | Sabes qué está abierto y en qué fase, sin haberlo recordado |
 | **Humano** | Nada. Es solo lectura |
+| **Ojo** | Si un subcomando dice que **no existe**, tu copia es anterior a la que lo trae. El mensaje da la salida: `npx @a81biz/cauce@latest …` |
+
+### A6 · Estoy dentro del repositorio de cauce
+
+| | |
+|:---|:---|
+| **Entrada** | `npm start` |
+| **Recorrido** | El mismo que `A5` |
+| **Por qué otro comando** | `npx` ve que el `package.json` local declara ese mismo nombre, da el paquete por presente y busca un binario que **no existe ni debe existir**: instalarlo como dependencia de sí mismo dejaría dos copias completas del marco (`SUITE-R41`) |
+| **Fin** | Igual que `A5` |
+| **Humano** | Nada |
 
 ---
 

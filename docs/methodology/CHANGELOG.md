@@ -8,6 +8,105 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.7.0 — 2026-08-14
+
+**El marco se cierra a sí mismo.** Dos reglas ampliadas y ninguna nueva ni derogada: `MINOR`. Es
+la factura de `EP-011`, que cerró diciendo que el marco no se aplicaba a sí mismo y dejó tres
+defectos abiertos porque no podía arreglarlos dentro de sí.
+
+Salió de una instrucción de dos frases: *«hazlos en orden. Revisa que tú mismo estés usando
+correctamente el marco de trabajo, estés usando GitHub de forma correcta y estés siguiendo todas
+las fases como se indica»*. La segunda produjo más hallazgos que la primera.
+
+### `FDGE-R29` · una entrada de `HISTORY.log` mal escrita se puede corregir
+
+Tres reglas correctas por separado dejaban un callejón sin salida: `SUITE-R09` prohíbe editar una
+entrada, `FDGE-R29` exigía exactamente una por PT, y la comprobación leía **siempre la primera**.
+Una entrada mal formada bloqueaba `G4` **para siempre**.
+
+```markdown
+## PT-NNN — CORRIGE: [qué se corrige]
+Corrige: la entrada de YYYY-MM-DD
+Motivo: [por qué la original no cumple]
+[los campos que se rehacen]
+```
+
+`SUITE-R09` **ya prescribía** el mecanismo —«una entrada nueva que lo referencia»— y las entradas
+`REVERTIDO` ya demostraban que el patrón funciona. `G4` lee la **última** corrección para cada
+campo que declare y la original para los que no. **La original no se toca**: quien audite ve las
+dos y ve que hubo un error, que es justo lo que editar habría borrado. Una `CORRIGE` sin entrada
+original **falla**.
+
+### `SUITE-R35` · el registro asigna, y espeja **todo** lo que copie el estado
+
+La regla decía «la plataforma espeja» y su comprobación solo miraba hacia GitHub. El **YAML del
+intake** y la **línea de índice** son las otras dos copias del mismo hecho, y nada las comparaba.
+
+Consecuencia medida: cuatro tareas declaraban `phase: 1` con el registro en `9`, y como
+`FDGE-R52` solo corre desde `phase >= 2`, **nunca llegó a ejecutarse**. Un verificador dando
+verde por no haber mirado, dentro del verificador que lo hace cumplir.
+
+```
+divergencias en este repositorio al encender la comprobación   78
+tras sincronizar registro, YAML e índices                       0
+```
+
+No eran cuatro tareas: eran **32**. `PHASE 8` paso 5 se cumplió sobre el registro y nunca sobre
+las otras dos copias, durante 43 tareas.
+
+La precedencia no cambia —manda el YAML (`PT-004`), es lo que el PT dice de sí mismo— y se
+declara cuál se usó. Si a un lado le falta el dato **no se compara**.
+
+### `FDGE-R52` deja de exigir rastro a lo ya terminado
+
+Es una **relajación** y se dice. Sincronizar los 32 YAML encendía `FDGE-R52` sobre trabajo ya
+integrado, pidiendo ocho notas de reanclaje por tarea que nadie escribió; la única salida
+practicable era dejar el YAML mintiendo. **La regla empujaba al defecto que la otra persigue.**
+
+El reanclaje se escribe **mientras** se trabaja; pedírselo a un PT que ya pasó `G4` es pedir que
+se fabrique. Donde muerde sigue siendo `G4`, que corre con estado `DONE` —antes de integrar— y no
+pierde ni un caso de los que deciden algo. Es el mismo criterio que `rigeAqui` ya aplicaba.
+
+### El arranque dice qué hacer cuando no puede arrancar
+
+`npx @a81biz/cauce start` fallaba por dos causas sin relación: dentro del repositorio `npx`
+resuelve el paquete local y busca un binario que no debe existir (`SUITE-R41`); fuera, la
+publicada no tiene el subcomando. Y el binario **no decía nada**: los códigos de salida ya eran
+correctos, pero «no me diste subcomando» y «ese no existe» imprimían lo mismo.
+
+Ahora el segundo nombra el subcomando, dice la versión que corre y da la salida. `npm start` es
+el arranque que funciona en un repositorio autoalojado, y `MANUAL` y `CASOS-DE-USO` declaran los
+dos casos.
+
+### Lo que la auditoría encontró de su propio uso
+
+Cinco cosas, todas comprobadas contra el repositorio:
+
+- **`SESSION_LOG` sin una sola entrada** durante `EP-009`, `EP-010` y `EP-011`. `PHASE 0` la
+  produce, y `PHASE 0` no se ejecutó: doce tareas entrando directas a `PHASE 1`.
+- **`BACKLOG.md` ocho lotes sin regenerar**, declarando `EP-003` abierta y «publicar `6.0.1`»
+  como lo siguiente.
+- **Ningún PT ha creado su rama**: `PHASE 5` la exige y los 43 se implementaron sobre `trabajo`
+  (`PT-047`).
+- **El issue de una allocation `DEFERRED` enlaza a un directorio que no existe** (`PT-048`).
+- **El grafo describe `bin`**, no las herramientas (`PT-020`, `TD-01`).
+
+Y dos veces, durante el propio lote, `FDGE-R52` cazó al agente: una nota de transición escrita
+tarde y dos transiciones consolidadas en un comentario, que el `HANDOFF` prohíbe explícitamente.
+Las dos quedan dichas en su issue en vez de retrofechadas.
+
+```
+429 → 456 casos de prueba
+```
+
+### Lo que esta versión NO logra
+
+No hace que nadie mantenga `phase` al día: hace que **mentir se vea**. No hace que una corrección
+de `HISTORY.log` sea sincera: hace que la original quede al lado. Y no hace que
+`npx @a81biz/cauce start` funcione desde fuera — eso lo hace publicar.
+
+---
+
 ## 7.6.0 — 2026-08-14
 
 **El marco se usa a sí mismo.** Cuatro reglas nuevas —`SUITE-R52`, `SUITE-R53`, `SUITE-R54`,

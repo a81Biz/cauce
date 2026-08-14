@@ -8,11 +8,11 @@ id: PT-045
 type: BUG
 epic: EP-012
 track: STANDARD
-status: READY
+status: DONE
 created: 2026-08-14
 structural: no
 suite_version: 7.6.0
-phase: 1
+phase: 8
 ---
 ```
 

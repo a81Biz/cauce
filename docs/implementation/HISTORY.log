@@ -1388,3 +1388,72 @@ que deje de exigir rastro a lo YA TERMINADO —se escribe mientras se trabaja, y
 estado DONE, antes de integrar—. Es una relajación y se dice: mismo criterio que `rigeAqui`.
   78 divergencias → 0 · selftest 436 → 445 casos
 Trazabilidad externa: —
+
+## PT-045 — BUG: npx @a81biz/cauce start no arranca
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-012
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-14 Alberto Martínez (delegada, con constancia) · G4 pendiente
+Objetivo: que el comando con el que el manual dice que se empieza, empiece — o diga qué hacer.
+Causa raíz: DOS, sin relación entre sí. Dentro del repositorio, npx ve que el package.json local
+declara ese mismo nombre, da el paquete por presente y busca un binario en node_modules/.bin que
+no existe ni debe existir (SUITE-R41). Fuera, la publicada más alta es 7.1.0 y «start» nació en
+la 7.3.0. Y el binario NO decía nada: los códigos de salida ya eran correctos —0 sin subcomando,
+2 con uno desconocido— pero los dos casos imprimían exactamente lo mismo, así que la única
+diferencia era un número que nadie ve.
+Solución: el dispatcher distingue «no me diste subcomando» —pedir ayuda— de «ese no existe»
+—un error—, y en el segundo nombra el subcomando, dice la versión que corre y da la salida
+«npx @a81biz/cauce@latest …». npm start es el arranque que funciona aquí. MANUAL §4 y
+CASOS-DE-USO A5/A6 declaran las dos formas con la condición de cada una.
+Archivos modificados:
+  - bin/cauce.mjs · package.json
+  - docs/methodology/MANUAL.md · CASOS-DE-USO.md · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-045/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): según plan. Es la única de las tres tareas del lote que no se
+desvió.
+LO QUE NO ENTREGA, y el título promete: npx @a81biz/cauce start SIGUE sin arrancar desde fuera
+mientras la publicada sea 7.1.0. Lo que cambia es que dice por qué y qué hacer. La causa
+desaparece al publicar, y publicar está en el out-of-scope del lote por decisión humana.
+  selftest 445 → 456 casos
+Trazabilidad externa: —
+
+## EP-012 — CERRADO: el marco se cierra a sí mismo
+Fecha: 2026-08-14
+Estado: DONE
+Versión: 7.7.0
+Tareas: PT-046 (FDGE-R29) · PT-044 (SUITE-R35 · FDGE-R52) · PT-045 (el arranque)
+
+Nació de dos frases: «hazlos en orden. Revisa que tú mismo estés usando correctamente el marco de
+trabajo, estés usando github de forma correcta y estés siguiendo todas las fases como se indica».
+La segunda produjo más hallazgos que la primera.
+
+Lo que entrega: una entrada de HISTORY.log mal escrita se puede corregir sin editarla (CORRIGE);
+el YAML del intake y la línea de índice dejan de poder contradecir al registro en silencio; y el
+arranque dice qué hacer cuando no puede arrancar. 429 → 456 casos de prueba.
+
+LO QUE NO ENTREGA, y está escrito en cada tarea: no hace que nadie mantenga «phase» al día —hace
+que mentir se VEA—, no hace que una corrección sea sincera —hace que la original quede al lado—,
+y no hace que npx @a81biz/cauce start funcione desde fuera: eso lo hace publicar.
+
+Lo que la auditoría del propio uso encontró, todo comprobado contra el repositorio:
+  · SESSION_LOG sin una entrada durante tres lotes: PHASE 0 no se ejecutó en doce tareas
+  · BACKLOG.md ocho lotes sin regenerar, declarando EP-003 abierta y «publicar 6.0.1»
+  · ningún PT ha creado su rama: PHASE 5 la exige y los 43 van sobre «trabajo» (PT-047)
+  · el issue de una allocation DEFERRED enlaza a un directorio que no existe (PT-048)
+  · el grafo describe «bin», no las herramientas (PT-020, TD-01)
+
+Y dos veces DURANTE este lote FDGE-R52 cazó al agente: una nota de transición escrita tarde, y
+dos transiciones consolidadas en un comentario —lo que el HANDOFF prohíbe explícitamente—. Las
+dos quedan dichas en su issue en vez de retrofechadas.
+
+La medida que mejor resume el lote: 78 divergencias entre el registro, los YAML y los índices,
+acumuladas durante 43 tareas sin que nada las mirara. Ahora son 0, y volver a acumularlas avisa.
+
+Cierre del lote (SUITE-R45): las tres filas resueltas — CHANGELOG 7.7.0 con los 21 documentos
+alineados, CORE.md regenerado, y PT-029 y PT-016 declarados abiertos con su alcance reducido:
+PT-046 y PT-044 son su primer caso concreto, no su solución.

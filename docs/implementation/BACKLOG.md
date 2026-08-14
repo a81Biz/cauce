@@ -2,7 +2,7 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-14 tras el cierre de `EP-011`. **Llevaba ocho lotes sin regenerarse**
+> Regenerado el 2026-08-14 tras el cierre de `EP-012`.
 > —`PHASE 8` paso 3— y declaraba `EP-003` abierta, `PT-009` y `PT-010` en `DONE` y «publicar
 > `6.0.1`» como lo siguiente: un estado de tres versiones atrás, escrito con la misma seguridad
 > que si fuera el de hoy. Queda anotado aquí porque es la clase de avería que este marco existe
@@ -10,7 +10,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 ## Implementación abierta
 
-**Ninguna.** `EP-011` cerrado e integrado en `main` (`af79c6b`). `FDGE-R48` permite abrir una.
+**Ninguna.** `EP-012` cerrado, esperando `G4`. `EP-011` integrado en `main` (`af79c6b`).
 
 ## En curso
 
