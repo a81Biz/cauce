@@ -1,0 +1,72 @@
+{
+  "pt": "PT-033",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "scenarios": [
+        "E2",
+        "E8"
+      ],
+      "tests": [
+        "selftest.sh:el núcleo abre con la consulta",
+        "selftest.sh:la consulta va antes que las fases"
+      ],
+      "evidence": [
+        "salidas/selftest.txt",
+        "salidas/nucleo-abre-asi.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "scenarios": [
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:y dice el comando exacto",
+        "selftest.sh:«consultado» esta definido",
+        "selftest.sh:caduca en un turno"
+      ],
+      "evidence": [
+        "salidas/selftest.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "scenarios": [
+        "E6"
+      ],
+      "tests": [
+        "selftest.sh:sin poder consultar, SIN EVALUAR"
+      ],
+      "evidence": [
+        "salidas/selftest.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "scenarios": [
+        "E1",
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:SUITE-R49 existe en RULES",
+        "selftest.sh:PHASES manda citar, no copiar"
+      ],
+      "evidence": [
+        "salidas/selftest.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "suite": {
+    "passed": 349,
+    "failed": 0,
+    "coverage": 349,
+    "baseline": 340
+  }
+}

@@ -75,15 +75,19 @@ sobre una definición que aún no existe la inventaría, y sería la segunda cop
 ## 8. Firma   `INTAKE-R06`
 
 ```
-Estado: PENDIENTE DE FIRMA HUMANA
+Firmado por: Alberto Martínez (delegada — «firma con mi nombre EP-008 y continúas hasta terminar», 2026-08-13)
+Fecha: 2026-08-13
+Severidad declarada: S1 en las dos. Sin esto, todo lo anterior depende de que el agente se
+acuerde, y esta sesión demostró cuatro veces que no basta.
+Estado: FIRMADA · G1 PASS
 ```
 
 ## Cierre del lote   `SUITE-R45`
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| Regenerar `CORE.md` | pendiente |
-| `PT-032`, promovido a este lote, queda cubierto por `PT-033` y `PT-034` | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | HECHO — 7.3.0 |
+| Regenerar `CORE.md` | HECHO |
+| `PT-032`, promovido a este lote, queda cubierto por `PT-033` y `PT-034` | HECHO |
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.

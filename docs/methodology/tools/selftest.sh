@@ -10,6 +10,8 @@
 # Exit: 0 todo correcto · 1 algún caso falla
 set -u
 SUITE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# PT-034 · el binario publicado vive fuera de la suite: cauce start es su punto de entrada.
+RAIZ="$(cd "$SUITE/../.." && pwd)"
 WORK="${1:-$(mktemp -d)}/mth-selftest"
 FAILED=0
 # La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`), también aquí: el fixture la tenía
@@ -1207,6 +1209,39 @@ chk   "G4 humana en los tres modos"         "G4 es humana en los tres modos" cat
 chkno "la matriz ya no da ventajas por modo" "firma por lote, \`INTAKE-R08\`" cat "$SUITE/EXECUTION-MODES.md"
 chk   "verify-suite lo comprueba"           "EXEC-R08"   cat "$SUITE/tools/verify-suite.mjs"
 chk   "y con vocabulario cerrado, no prosa" "RE_ARTEFACTO" cat "$SUITE/tools/verify-suite.mjs"
+
+
+# PT-033 . SUITE-R49 — la convencion de arranque. SUITE-R48 dejo la respuesta consultable y un
+# comando NO PUEDE EXIGIR HABER SIDO LLAMADO. Esto pone la consulta ANTES que las reglas en lo
+# unico que el agente carga, y define «consultado» en un solo sitio para que PT-034 lo CITE.
+chk   "SUITE-R49 existe en RULES"            "SUITE-R49"   cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R49"   cat "$SUITE/CORE.md"
+chk   "el núcleo abre con la consulta"       "LO PRIMERO"  cat "$SUITE/CORE.md"
+chk   "y dice el comando exacto"             "tracker.mjs siguiente" cat "$SUITE/CORE.md"
+chk   "«consultado» esta definido"           "vale para"   cat "$SUITE/RULES.md"
+chk   "caduca en un turno"                   "un turno"    cat "$SUITE/CORE.md"
+chk   "sin poder consultar, SIN EVALUAR"     "SIN EVALUAR" cat "$SUITE/CORE.md"
+chk   "PHASES manda citar, no copiar"        "se CITA, no se copia" cat "$SUITE/PHASES.md"
+# La convencion va ANTES que las reglas: si quedara detras, se lee cuando ya se decidio.
+_lp=$(grep -n 'LO PRIMERO' "$SUITE/CORE.md" | head -1 | cut -d: -f1)
+_fa=$(grep -n '^## Fases' "$SUITE/CORE.md" | head -1 | cut -d: -f1)
+chk   "la consulta va antes que las fases"   "^ORDENADO$" sh -c "[ \"$_lp\" -lt \"$_fa\" ] && echo ORDENADO || echo INVERTIDO"
+
+
+# PT-034 . SUITE-R50 — el punto de ENTRADA es el tablero. SUITE-R48 dejo la respuesta
+# consultable y SUITE-R49 la puso lo primero en CORE.md, pero las dos dependen de que el agente
+# pregunte. Esto no: no existe el paso que saltarse.
+chk   "SUITE-R50 existe en RULES"            "SUITE-R50"   cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R50"   cat "$SUITE/CORE.md"
+chk   "cauce start existe"                   "start()"     cat "$RAIZ/bin/cauce.mjs"
+chk   "y sale en la ayuda como primero"      "EMPIEZA AQUÍ" cat "$RAIZ/bin/cauce.mjs"
+chk   "el arranque llama al tablero"         "siguiente"   cat "$RAIZ/bin/cauce.mjs"
+chk   "y cita la definicion, no la copia"    "SUITE-R49"   cat "$RAIZ/bin/cauce.mjs"
+chk   "sin plataforma lo DECLARA"            "SIN EVALUAR" cat "$RAIZ/bin/cauce.mjs"
+chk   "PHASES declara el arranque"           "SUITE-R50"   cat "$SUITE/PHASES.md"
+# Lo que NO puede pasar: que el arranque automatice una compuerta o sustituya al nucleo.
+chkno "el arranque no resuelve compuertas"   "gate\|--aplicar" sh -c "sed -n '/  start() {/,/^  },/p' \"$RAIZ/bin/cauce.mjs\""
+chk   "y el nucleo sigue siendo obligatorio" "SUITE-R15"   cat "$RAIZ/bin/cauce.mjs"
 
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"

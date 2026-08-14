@@ -985,3 +985,52 @@ Versión: 7.2.0
 Alcance: PT-030, PT-031 → INTEGRATED · EP-007 → CLOSED
 
 Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.
+
+## PT-033 — FEATURE: la convención de arranque
+Fecha: 2026-08-13 · Estado: DONE · Severidad: S1 · Implementación: EP-008 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-13 Alberto Martínez (delegadas) · G4 pendiente
+
+SUITE-R49. CORE.md —lo único que el agente carga— ABRE con la consulta al tablero, antes que las
+reglas, y «consultado» queda definido: se ejecutó `tracker siguiente` EN ESTE TURNO, su salida ES
+la respuesta, vale para un turno, y sin poder consultar se declara SIN EVALUAR. La definición
+vive en un solo sitio y PT-034 la CITA.
+
+Un criterio se RETIRÓ y la compuerta tuvo razón: «ninguna fase avanza sin que la consulta
+conste» no es comprobable —registrarlo sería un artefacto que el agente escribe sobre sí mismo,
+la prueba circular que SUITE-R27 declara insuficiente— y FDGE-R15 lo rechazó por no tener
+evidencia, igual que rechazó el AC-05 de PT-026. Lo cierra PT-034 por otra vía.
+
+Evidencia: evidence/PT-033/ · selftest 340 → 349 casos
+
+## PT-034 — FEATURE: el agente propio de cauce
+Fecha: 2026-08-13 · Estado: DONE · Severidad: S1 · Implementación: EP-008 · Rama: trabajo
+Estructural: sí
+Compuertas: G1 · G2 · G3 2026-08-13 Alberto Martínez (delegadas) · G4 pendiente
+
+SUITE-R50. `cauce start` imprime el estado del tablero y DESPUÉS el núcleo, en ese orden, y no
+hay forma de obtener lo segundo sin lo primero. No es un recordatorio: es el arranque.
+
+Hicieron falta tres intentos y las tres limitaciones estaban escritas antes de que nadie las
+señalara: SUITE-R48 dejó la respuesta consultable (un comando no puede exigir haber sido
+llamado), SUITE-R49 la puso lo primero (una convención se puede ignorar), y solo SUITE-R50 quita
+el paso en vez de recordarlo. Ver el hueco no es cerrarlo.
+
+Lo que sigue sin cerrarse, declarado: quien no ejecute `cauce start` no ve nada. No es un
+candado; es que la forma correcta sea la que el paquete ofrece y ponga primera.
+
+Los dos casos que más valen comprueban lo que NO hace: que el arranque no resuelva compuertas y
+que el núcleo siga siendo lo obligatorio. Un arranque que automatizara algo sería peor que no
+tenerlo.
+
+Evidencia: evidence/PT-034/ · selftest 349 → 359 casos · cobertura 98/176
+
+## G4 — EP-008 · integración
+Fecha: 2026-08-13
+Compuerta: G4
+integrado por: Alberto Martínez
+Autoriza: Alberto Martínez — «firma con mi nombre EP-008 y continúas hasta terminar»
+Versión: 7.3.0
+Alcance: PT-033, PT-034 → INTEGRATED · EP-008 → CLOSED
+
+Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.

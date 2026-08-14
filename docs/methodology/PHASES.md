@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **7.2.0**
+> Suite version: **7.3.0**
 
 ---
 
@@ -268,6 +268,15 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUITE-R50]
+          cauce start   →  estado del tablero, y DESPUES el nucleo
+          No hay forma de obtener lo segundo sin lo primero. Usa la
+          definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+LO PRIMERO  del turno: consultar el tablero. CORE.md abre con ello.       [SUITE-R49]
+          «Consultado» = se ejecuto `tracker siguiente` EN ESTE TURNO y su
+          salida es la respuesta. Vale para UN turno; si el anterior cambio
+          el registro o el tablero, caduco. Sin poder consultar: SIN EVALUAR.
+          La definicion vive en SUITE-R49 y se CITA, no se copia.
 SIGUIENTE antes de avanzar de fase, PREGUNTA al tablero. No de memoria.     [SUITE-R48]
           node tools/tracker.mjs siguiente PT-NNN
           Deriva que produce la fase, que la cierra, que compuerta toca y
