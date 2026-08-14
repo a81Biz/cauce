@@ -1,0 +1,11 @@
+{
+  "pt": "PT-037",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1"], "tests": ["selftest.sh:el catálogo existe"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E3"], "tests": ["selftest.sh:y cubre el proyecto legado"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E4","E5"], "tests": ["selftest.sh:y el arranque de sesion","selftest.sh:y los tres modos"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E2"], "tests": ["selftest.sh:el catálogo declara sus huecos"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E6"], "tests": ["selftest.sh:el catálogo tampoco (define severidades)"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 382, "failed": 0, "coverage": 382, "baseline": 371 }
+}

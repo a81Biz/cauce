@@ -6,7 +6,7 @@
 > Lanzador: [FIDE-CLAUDE-Launcher.md](FIDE-CLAUDE-Launcher.md)
 > Vocabulario: [LEXICON.md](../LEXICON.md)
 >
-> Suite version: **7.4.0**
+> Suite version: **7.5.0**
 
 ---
 

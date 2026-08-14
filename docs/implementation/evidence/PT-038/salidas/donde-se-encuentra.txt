@@ -1,0 +1,14 @@
+# Donde se encuentra el manual
+
+README.md:
+5:> **[MANUAL.md](docs/methodology/MANUAL.md)** — de cero a tu primer trabajo cerrado. Se lee
+
+docs/methodology/README.md:
+3:> **Si vienes a usar cauce y no a mantenerlo:** [`MANUAL.md`](MANUAL.md) y
+
+CLAUDE.md:
+35:├── MANUAL.md                     De cero al primer trabajo cerrado · para quien USA cauce
+
+docs/methodology/LEXICON.md:
+533:MANUAL.md                     ← de cero al primer trabajo cerrado · se lee entero una vez
+

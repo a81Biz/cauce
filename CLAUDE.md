@@ -11,7 +11,7 @@ se mantiene **bajo el marco** — desde `SUITE-R41` cauce se instala sobre sí m
 `REGISTRY.json`, su terreno firmado y sus compuertas. Un marco que se mantuviera al margen de
 sus propias reglas sería el primer argumento en su contra.
 
-**Versión vigente: 7.4.0** — ver [docs/methodology/CHANGELOG.md](docs/methodology/CHANGELOG.md).
+**Versión vigente: 7.5.0** — ver [docs/methodology/CHANGELOG.md](docs/methodology/CHANGELOG.md).
 
 > **Este archivo parametriza y orienta; no es la autoridad sobre el repositorio** (`FND-R12`).
 > Lo que diga sobre su arquitectura se subordina a
@@ -32,6 +32,8 @@ bin/cauce.mjs                     El binario publicado: install · verify · com
 docs/methodology/
 │
 │   ── AUTORIDAD ────────────────────────────────────────────────
+├── MANUAL.md                     De cero al primer trabajo cerrado · para quien USA cauce
+├── CASOS-DE-USO.md               El catálogo: cada caso con su ruta, y los huecos declarados
 ├── LEXICON.md                    Vocabulario canónico: fases, IDs, estados, archivos, triggers
 ├── RULES.md                      TODAS las reglas, con ID estable y severidad
 ├── EXECUTION-MODES.md            Compuertas, modos de ejecución, lotes EP-NNN
@@ -193,7 +195,7 @@ Orden de autoridad ante conflicto (`LEX-R21`):
 **Única sección que se personaliza.** Todo lo demás son punteros.
 
 ```yaml
-suite_version: 7.4.0
+suite_version: 7.5.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:                        # quién puede firmar un Intake y resolver una compuerta
   - Alberto Martínez
