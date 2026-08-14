@@ -295,6 +295,23 @@ if (FROM !== TARGET) {
 }
 
 // ── Informe ─────────────────────────────────────────────────────────────────
+// PT-043 . por que cada decision es humana. No se adivina del texto: se reconoce por lo que la
+// accion NOMBRA, y si no se reconoce se DICE - no se inventa un motivo (RULE-06).
+// PT-043 . el resumen corta por «. » (punto y espacio), no por «.»: cortar por punto partia
+// «7.5.0» y «SECRETOS-EXCEPCIONES.md». Lo dijo la salida real, no un caso.
+const resumen = (m) => { const t = String(m).trim(); const j = t.search(/\.\s/); return (j > 0 ? t.slice(0, j) : t).slice(0, 96); };
+
+const PORQUE = (m) => {
+  const t = String(m);
+  if (/llega nuevo/.test(t)) return 'Herramientas que tu proyecto no tenia. Miralas antes de que aparezcan en una compuerta.';
+  if (/ESTADO/.test(t)) return 'Declara que compuerta esperas y a quien. Rellenarlo con plantilla produce un estado que miente.';
+  if (/phase/.test(t)) return 'En que fase esta cada trabajo vivo. La maquina ve los archivos, no la intencion.';
+  if (/secreto|SECRETOS/i.test(t)) return 'Si una huella es falso positivo lo sabe quien conoce el dato. Firmar no silencia.';
+  if (/plataforma de trabajo/.test(t)) return 'Sacar el estado a un tablero es decision de equipo, no tecnica. Sin ella no cambia nada.';
+  if (/CLAUDE|suite_version/.test(t)) return 'El archivo que parametriza tu proyecto. Solo tu sabes que mas hay ahi.';
+  return 'No se reconoce el motivo de esta accion: se dice en vez de inventarlo (RULE-06).';
+};
+
 const P = (t, arr, mark) => {
   if (!arr.length) return;
   console.log(t);
@@ -327,8 +344,30 @@ if (APPLY) {
       : '\nProyecto verificado tras la migración.');
   }
 }
+// PT-043 . SUITE-R55 . las decisiones humanas se CONDUCEN, no se enumeran. Instalar SI acompana
+// -nueve fases conversacionales, SUITE-R28- y migrar tenia una lista. Sobre un proyecto real con
+// 127 allocations, eso es una sesion entera a ciegas. Aqui no se decide nada por nadie: se dice,
+// por cada una, QUE decide y POR QUE no puede decidirlo una maquina.
 if (manual.length) {
-  console.log('\nMientras queden pendientes, el proyecto sigue en modo restringido (SUITE-R17):');
+  console.log('');
+  console.log('-- que te toca decidir, y por que es tuyo --');
+  console.log('');
+  console.log(`Son ${manual.length}. No es burocracia: cada una es algo que una maquina no puede`);
+  console.log('saber sin inventarselo, y un estado inventado es peor que un estado ausente.');
+  console.log('');
+  let _i = 0;
+  for (const m of manual) {
+    _i += 1;
+    console.log(`  ${_i}/${manual.length} · ${resumen(m)}`);
+    console.log(`        ${PORQUE(m)}`);
+    console.log('');
+  }
+  console.log('Ninguna depende de otra: resuelvelas en el orden que quieras. Cuando esten,');
+  console.log('vuelve a ejecutar esto y te dira cuales quedan.');
+  console.log('');
+  console.log('Mientras queden pendientes, el proyecto sigue en modo restringido (SUITE-R17):');
   console.log('solo migrate, status * y terminar los PTs ya en vuelo. No se abre trabajo nuevo.');
+  console.log('No es un castigo: abrir trabajo sobre una migracion a medias produce artefactos');
+  console.log('que luego hay que rehacer, y nadie sabria cuales.');
 }
 process.exit(manual.length || verifyFailed ? 1 : 0);

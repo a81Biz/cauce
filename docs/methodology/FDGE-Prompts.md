@@ -73,6 +73,11 @@ segundo sin lo primero. No es un recordatorio: es el arranque, y por eso no depe
 se acuerde. Usa la definición de `SUITE-R49`; no escribe la suya. No automatiza ninguna
 compuerta, y el marco sigue siendo usable sin él.
 
+**`SUITE-R54`: el agente lee su manual.** Instalar **empieza** remitiendo a `MANUAL.md` y
+`CASOS-DE-USO.md`, no copiando archivos; y `cauce start` los pone por delante del núcleo. No
+obliga a leerlo —no se puede— pero no se arranca sin que se ponga delante. Si el manual no está,
+se **dice**: `CORE.md` es lo único obligatorio y fingir que está sería peor que su ausencia.
+
 **`SUITE-R53`: la regla se alcanza desde el fallo.** Todo mensaje de fallo cita su regla, y esa
 regla se **consulta** — deducirla no puede ser el camino:
 

@@ -1320,6 +1320,25 @@ chk   "las no comprobadas se declaran"       "no lo dirán con su nombre" node "
 chkno "no hay lista escrita de fallos"       "fallosPosibles = \[" cat "$RG"
 chk   "un ID de regla no es una ruta"        "RE_ID"        cat "$RAIZ/bin/cauce.mjs"
 
+
+# PT-042 . SUITE-R54 — el agente lee su manual. Instalar copiaba archivos que nadie leia: asi se
+# llego a tener 179 reglas y ningun manual. No obliga a leerlo —no se puede— pero no se arranca
+# sin que se ponga delante.
+chk   "SUITE-R54 existe en RULES"            "SUITE-R54"     cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R54"     cat "$SUITE/CORE.md"
+chk   "instalar remite al manual"            "MANUAL.md"     cat "$RAIZ/bin/cauce.mjs"
+chk   "y el arranque lo pone antes"          "Se lee ENTERO" cat "$RAIZ/bin/cauce.mjs"
+chk   "sin manual lo DICE"                   "No hay MANUAL.md" cat "$RAIZ/bin/cauce.mjs"
+chk   "y el marco sigue siendo usable"       "CORE.md es lo unico" cat "$RAIZ/bin/cauce.mjs"
+chk   "PHASES declara el manual"             "SUITE-R54"     cat "$SUITE/PHASES.md"
+# El manual va ANTES que el nucleo en el arranque: conocer las reglas no es saber usarlas.
+# El manual va antes que el nucleo en el bloque de `start`. Se comprueba sobre el FUENTE del
+# bloque —no ejecutando el binario contra un fixture, que arrastra el estado de otro proyecto.
+_blq=$(sed -n '/  start() {/,/^  },/p' "$RAIZ/bin/cauce.mjs")
+_mn=$(printf '%s' "$_blq" | grep -n 'MANUAL.md' | head -1 | cut -d: -f1)
+_co=$(printf '%s' "$_blq" | grep -n 'CORE.md' | tail -1 | cut -d: -f1)
+chk   "el manual va antes que el núcleo"     "^ORDENADO$" sh -c "[ -n \"$_mn\" ] && [ -n \"$_co\" ] && [ \"$_mn\" -lt \"$_co\" ] && echo ORDENADO || echo REVISAR"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

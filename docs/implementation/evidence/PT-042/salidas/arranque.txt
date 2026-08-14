@@ -1,0 +1,18 @@
+
+
+Sin divergencias.
+
+[1mY ahora, en este orden[0m:
+
+  1 · [1mMANUAL.md[0m        [2mcomo se usa esto. Se lee ENTERO una vez (SUITE-R54).[0m
+      C:\DevOps\Desarrollos\cauce\docs\methodology\MANUAL.md
+  2 · [1mCASOS-DE-USO.md[0m  [2mel caso que tengas delante, con su ruta.[0m
+  3 · [1mCORE.md[0m          [2mlas reglas. Lo unico que se carga en runtime (SUITE-R15).[0m
+
+
+[2mEse orden no es de cortesia. El estado va primero porque leer las reglas sin el[0m
+[2mestado es como se saltan las fases. Y el manual va antes que las reglas porque[0m
+[2mconocer 179 reglas no es lo mismo que saber usarlas — y nadie te obliga a leerlo,[0m
+[2masi que si te lo saltas, el unico perjudicado eres tu.[0m
+
+[2mY cuando algo falle:  [0m[1mcauce regla <ID>[0m[2m  — no lo deduzcas (SUITE-R53).[0m

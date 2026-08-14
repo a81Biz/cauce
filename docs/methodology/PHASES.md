@@ -277,6 +277,10 @@ ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUI
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
           definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+EL MANUAL instalar EMPIEZA por remitir al manual y al catalogo, no por      [SUITE-R54]
+          copiar. cauce start los pone POR DELANTE del nucleo. No obliga a
+          leerlo —no se puede— pero no se arranca sin que se ponga delante.
+          Si no esta, se DICE: CORE.md es lo unico obligatorio.
 LA REGLA  todo fallo cita su regla, y la regla se CONSULTA — no se deduce.  [SUITE-R53]
           cauce regla SUITE-RNN    que exige, donde vive, quien la comprueba
           cauce regla --fallos     TODO lo que puede fallar, DERIVADO del codigo

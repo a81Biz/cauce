@@ -1163,3 +1163,22 @@ Anotado en el código para que el tercero se vea antes.
 
 Riesgo abierto: el mapa de documento propietario está duplicado con el de verify-suite — la copia
 que SUITE-R38 avisa. No cerrado.
+
+## PT-042 — FEATURE: el agente lee su manual
+Fecha: 2026-08-14 · Estado: DONE · Severidad: S1 · Implementación: EP-011 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 pendiente
+
+SUITE-R54. `cauce install` EMPIEZA remitiendo al manual, antes de «abre tu agente»; `cauce start`
+lo pone primero: 1 MANUAL, 2 CASOS-DE-USO, 3 CORE. Un agente que se instalaba sin leer lo que le
+gobierna era el problema del marco ocurriendo dentro del marco.
+
+NO OBLIGA A LEER y no puede: cualquier confirmación sería el agente afirmando sobre sí mismo, la
+prueba circular que SUITE-R27 declara insuficiente. Lo que se logra es que no se pueda arrancar
+sin que se ponga delante, y que se pueda consultar. La regla lo dice en su propio texto.
+
+Relajado un aserto y se dice: el caso del orden comprobaba la salida real del binario; se cambió
+a leer el fuente porque ejecutarlo contra el fixture arrastraba el estado de otro proyecto.
+Prueba menos.
+
+Evidencia: evidence/PT-042/ · selftest 402 → 410 casos

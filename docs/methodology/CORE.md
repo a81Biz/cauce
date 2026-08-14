@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 89d8a570492a -->
-<!-- fuentes: RULES.md:e43500a6234e LEXICON.md:6f24a81e22a0 EXECUTION-MODES.md:8d952e8e9af1 PHASES.md:c7fb13b363fc -->
+<!-- cuerpo: 9b36ffb5f7a9 -->
+<!-- fuentes: RULES.md:b69772bdb9fc LEXICON.md:6f24a81e22a0 EXECUTION-MODES.md:8d952e8e9af1 PHASES.md:36d76c83c256 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -195,6 +195,7 @@ verifica un script y bloquea la integración.
 `SUITE-R51` **H** La jerarquía de la plataforma es estructura, no prosa, y el enlace del issue resuelve.
 `SUITE-R52` **H** Una petición se distingue de una conversación, y se declara cuál es.
 `SUITE-R53` **H** La regla se alcanza desde el fallo, y lo que puede fallar se deriva.
+`SUITE-R54` **H** El agente lee su manual, y puede consultarlo.
 
 ### LEX — Nombres
 
@@ -678,6 +679,10 @@ ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUI
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
           definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+EL MANUAL instalar EMPIEZA por remitir al manual y al catalogo, no por      [SUITE-R54]
+          copiar. cauce start los pone POR DELANTE del nucleo. No obliga a
+          leerlo —no se puede— pero no se arranca sin que se ponga delante.
+          Si no esta, se DICE: CORE.md es lo unico obligatorio.
 LA REGLA  todo fallo cita su regla, y la regla se CONSULTA — no se deduce.  [SUITE-R53]
           cauce regla SUITE-RNN    que exige, donde vive, quien la comprueba
           cauce regla --fallos     TODO lo que puede fallar, DERIVADO del codigo
