@@ -1243,6 +1243,27 @@ chk   "PHASES declara el arranque"           "SUITE-R50"   cat "$SUITE/PHASES.md
 chkno "el arranque no resuelve compuertas"   "gate\|--aplicar" sh -c "sed -n '/  start() {/,/^  },/p' \"$RAIZ/bin/cauce.mjs\""
 chk   "y el nucleo sigue siendo obligatorio" "SUITE-R15"   cat "$RAIZ/bin/cauce.mjs"
 
+
+# PT-035 . una tarea es SUB-ISSUE de su lote, no un enlace en su cuerpo. La jerarquia ya existe
+# en el registro y la plataforma la contaba en PROSA: dos representaciones del mismo hecho.
+J='[{"id":"EP-90","type":"EP","issue":90},{"id":"PT-91","epic":"EP-90","issue":91},{"id":"PT-92","epic":"EP-90","issue":92}]'
+trlib "calcula los anidamientos que faltan"   "^2$"   "console.log(m.anidamientosQueFaltan($J,{90:[]}).length)"
+trlib "y no repite el que ya esta"            "^1$"   "console.log(m.anidamientosQueFaltan($J,{90:[91]}).length)"
+trlib "nombra hijo y padre"                   "91"   "console.log(JSON.stringify(m.anidamientosQueFaltan($J,{90:[]})[0]))"
+# Si la plataforma no sabe responder, NO SE AFIRMA que falte: «no se» no es «no hay» (RULE-06).
+trlib "sin saber, no se afirma que falte"     "^0$"   "console.log(m.anidamientosQueFaltan($J,{90:null}).length)"
+trlib "una tarea sin lote no se anida"        "^0$"   "console.log(m.anidamientosQueFaltan([{id:\"PT-93\",issue:93}],{}).length)"
+chk   "SUITE-R51 existe en RULES"             "SUITE-R51"   cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                     "SUITE-R51"   cat "$SUITE/CORE.md"
+# PT-036 . el enlace apunta a donde el contenido ESTA. Un issue se abre al EMPEZAR el trabajo, y
+# entonces su contenido solo existe en la rama de trabajo: apuntar a la principal daba 404 en el
+# momento en que mas se lee. Lo dijo quien lo intento abrir, no un caso.
+trlib "lo vivo enlaza la rama de trabajo"     "tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
+trlib "lo integrado enlaza la principal"      "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-95',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
+trlib "sin saber la rama, cae en la principal" "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+trlib "y el cuerpo dice donde esta"           "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
+chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

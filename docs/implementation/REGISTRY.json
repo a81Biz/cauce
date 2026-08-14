@@ -1,5 +1,5 @@
 {
-  "suite_version": "7.3.0",
+  "suite_version": "7.4.0",
   "execution_mode": "SUPERVISED",
   "foundation": {
     "generated": "2026-08-13",
@@ -15,8 +15,8 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 34,
-    "EP": 8,
+    "PT": 36,
+    "EP": 10,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -426,8 +426,8 @@
       "created": "2026-08-13",
       "id": "PT-019",
       "slug": "migrar-el-proyecto-legado",
-      "title": "Migrar «Inteligencia de Mercados Energéticos Mexicanos» de 4.12.0 a 6.x",
-      "origin": "Aplazado por PT-011 y por EP-001 · es el trabajo con el que se abrió la sesión y el que EP-004 desbloquea",
+      "title": "Comprobar que CUALQUIER proyecto legado se puede migrar, y ejecutar la migracion de referencia",
+      "origin": "Aplazado por PT-011 y por EP-001 · es el trabajo con el que se abrió la sesión y el que EP-004 desbloquea · CORRECCION DE ALCANCE 2026-08-13 (humana): no es migrar ESE proyecto, es que cualquier legado se pueda migrar. Lo comprobable esta hecho (17 hallazgos a 0, migrate de 1 accion a 7); queda la migracion EFECTIVA, que depende de otro repositorio",
       "issue": 26
     },
     {
@@ -746,6 +746,72 @@
       "origin": "EP-008",
       "created": "2026-08-13",
       "issue": 47
+    },
+    {
+      "id": "EP-009",
+      "slug": "el-tablero-refleja-la-jerarquia-real",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "CLOSED",
+      "structural": null,
+      "suite_version": "7.3.0",
+      "phase": 1,
+      "title": "Una tarea de un lote es un sub-issue de su lote, no un enlace en el cuerpo",
+      "origin": "Hallazgo humano 2026-08-13 · «veo que en lugar de crear un sub-issue dependiente del padre creas todos y los enlazas, eso no me parece que sea la opcion correcta»",
+      "created": "2026-08-13",
+      "issue": 52
+    },
+    {
+      "id": "PT-035",
+      "slug": "sub-issues-en-vez-de-enlaces",
+      "type": "BUG",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "7.3.0",
+      "epic": "EP-009",
+      "phase": 10,
+      "title": "tracker enlaza las tareas en el cuerpo del lote en vez de declararlas sub-issues",
+      "origin": "EP-009",
+      "created": "2026-08-13",
+      "issue": 51
+    },
+    {
+      "id": "EP-010",
+      "slug": "el-manual-completo-de-uso",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "DRAFT",
+      "structural": null,
+      "suite_version": "7.3.0",
+      "phase": 1,
+      "title": "Un manual completo: todos los casos de uso desde cero, con su resolucion",
+      "origin": "Peticion humana 2026-08-13 · «falta la explicacion en el readme del uso, desde el inicio, la creacion de un nuevo proyecto, la instalacion del agente, sobre un trabajo nuevo, uno legado etc... abrimos una epica dedicada integramente a todos los casos de uso que puedan existir y a la resolucion de cada uno para que se pueda generar un manual completo de uso»",
+      "created": "2026-08-13",
+      "issue": 53
+    },
+    {
+      "id": "PT-036",
+      "slug": "el-enlace-del-issue-tiene-que-resolver",
+      "type": "BUG",
+      "complexity": "SIMPLE",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "7.3.0",
+      "epic": "EP-009",
+      "phase": 10,
+      "title": "El cuerpo del issue apunta a la rama por defecto, donde el contenido aun no esta: 404 en el momento en que mas se lee",
+      "origin": "Hallazgo humano 2026-08-13 · «si voy al enlace que indicas tiene tree/main/changes/EP-010... que no lleva a ningun lado, esta aun en local»",
+      "created": "2026-08-13",
+      "issue": 54
     }
   ]
 }

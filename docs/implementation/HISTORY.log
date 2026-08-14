@@ -1034,3 +1034,43 @@ Versión: 7.3.0
 Alcance: PT-033, PT-034 → INTEGRATED · EP-008 → CLOSED
 
 Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.
+
+## PT-035 — BUG: la jerarquía del tablero era prosa, no estructura
+Fecha: 2026-08-13 · Estado: DONE · Severidad: S2 · Implementación: EP-009 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-13 Alberto Martínez (delegadas) · G4 pendiente
+
+Hallazgo humano mirando el tablero: «en lugar de crear un sub-issue dependiente del padre creas
+todos y los enlazas». La jerarquía YA existía en el registro y tracker la publicaba NARRADA — dos
+representaciones del mismo hecho, que es lo que SUITE-R35 existe para impedir, causadas por la
+herramienta que existe para que eso no pase. No lo vi en meses de uso.
+
+SUITE-R51. anidamientosQueFaltan() pura; el adaptador usa la API de sub-issues, que pide el ID y
+no el número. `null` significa NO EVALUABLE y no se afirma que falte nada. Se aplica también a lo
+ya cerrado: el árbol se mira después de cerrar.
+
+Historia completa reanidada: 24 tareas bajo siete lotes.
+
+## PT-036 — BUG: el enlace del issue no resolvía
+Fecha: 2026-08-13 · Estado: DONE · Severidad: S2 · Implementación: EP-009 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-13 Alberto Martínez (delegadas) · G4 pendiente
+
+El cuerpo enlazaba la rama por defecto, donde el contenido aún no está: 404 EN EL MOMENTO EN QUE
+MÁS SE LEE un issue, al abrirlo. Y el cuerpo lo ADVERTÍA, que es peor — una advertencia convierte
+un fallo en característica documentada. Llevaba así desde PT-010.
+
+Ahora enlaza donde el contenido está: rama de trabajo mientras vive, rama por defecto al
+integrarse, y la transición la hace la resincronización.
+
+Con él salió el defecto de fondo: abrir() tenía DOS finales y solo uno completo. Cuarta vez en
+este archivo que un arreglo queda tras un `return` (PT-014, PT-022, PT-035). Cuatro veces no es
+descuido: era la forma de la función. Ahora tiene un final, cerrarPasada().
+
+## G4 — EP-009 · integración
+Fecha: 2026-08-13 · Compuerta: G4 · integrado por: Alberto Martínez
+Autoriza: Alberto Martínez — «necesito que quede todo corregido, que sólo nos falte el EP-010»
+Versión: 7.4.0
+Alcance: PT-035, PT-036 → INTEGRATED · EP-009 → CLOSED
+
+Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.

@@ -8,6 +8,52 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.4.0 — 2026-08-13
+
+**El tablero deja de contar la jerarquía en prosa.** Una regla nueva, ninguna modificada: `MINOR`.
+
+Salió de mirar el tablero, no el código: *«en lugar de crear un sub-issue dependiente del padre
+creas todos y los enlazas, eso no me parece que sea la opción correcta»*.
+
+### `SUITE-R51` · la jerarquía es estructura, y el enlace resuelve
+
+**Sub-issues, no enlaces.** Una tarea con `epic` es sub-issue de su lote en la plataforma. La
+jerarquía ya estaba en el registro y `tracker` la publicaba **narrada**, como una lista de
+enlaces en el cuerpo del lote:
+
+```
+un enlace no da progreso · no cierra en cascada · no sale en el árbol
+```
+
+Dos representaciones del mismo hecho —una estructural, otra en prosa— es exactamente lo que
+`SUITE-R35` existe para impedir, **y lo estaba causando la herramienta escrita para impedirlo**.
+Se aplica también a lo ya cerrado: el árbol se mira **después** de cerrar.
+
+**Y el enlace apunta a donde el contenido está.** El cuerpo enlazaba siempre la rama por defecto,
+donde el contenido aún no existe: **404 en el momento en que más se lee un issue**, al abrirlo.
+Ahora enlaza la rama de trabajo mientras la allocation vive y la rama por defecto cuando llega a
+`INTEGRATED`, y la transición la hace la resincronización.
+
+Lo peor no era el enlace: el cuerpo **lo advertía**. Una advertencia convierte un fallo en una
+característica documentada, y quien la lee asume que es así como tiene que ser.
+
+### Un defecto de forma, cazado a la cuarta
+
+`abrir()` tenía **dos finales** y solo uno estaba completo. Es el cuarto arreglo de este archivo
+que quedaba detrás de un `return` sin ejecutarse — `PT-014` en `sincronizarCuerpos()`, `PT-022`
+en `checkCierreDeLote()`, `PT-035` al anidar, `PT-036` al resincronizar.
+
+Cuatro veces no es descuido: **era la forma de la función**. Ahora tiene un final —
+`cerrarPasada()`— y un caso comprueba que exista. No arregla los cuatro defectos, que ya estaban
+arreglados: quita el sitio donde nacían.
+
+### Migración desde 7.3.0
+
+Ninguna acción. La primera ejecución de `tracker abrir --aplicar` reanida la historia completa y
+reenlaza los cuerpos. En este repositorio fueron **24 tareas bajo siete lotes**.
+
+---
+
 ## 7.3.0 — 2026-08-13
 
 **Consultar el tablero deja de depender de que el agente se acuerde.** Dos reglas nuevas,

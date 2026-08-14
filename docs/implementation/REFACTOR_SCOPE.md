@@ -20,3 +20,5 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-032 | FEATURE | S1 | CLOSED | EP-008 | Convencion o agente propio que ate al agente al tablero |
 | PT-033 | FEATURE | S1 | INTEGRATED | EP-008 | CORE.md abre con el tablero y «consultado» queda definido |
 | PT-034 | FEATURE | S1 | INTEGRATED | EP-008 | cauce start: el punto de entrada ES el tablero |
+| PT-035 | BUG | S2 | INTEGRATED | EP-009 | tracker enlazaba las tareas en prosa en vez de declararlas sub-issues |
+| PT-036 | BUG | S2 | INTEGRATED | EP-009 | El enlace del issue apuntaba a la rama por defecto: 404 al abrirlo |

@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.3.0**
+> Suite version: **7.4.0**
 
 ---
 
@@ -55,6 +55,12 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 **No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R51`: la jerarquía es estructura, y el enlace resuelve.** Una tarea con `epic` es
+**sub-issue** de su lote, no un enlace en su cuerpo — un enlace no da progreso, no cierra en
+cascada y no sale en el árbol. Y el cuerpo del issue enlaza **donde el contenido está**: la rama
+de trabajo mientras la allocation está viva, la rama por defecto cuando es `INTEGRATED`. Apuntar
+siempre a la principal daba 404 justo al abrir el issue, que es cuando más se lee.
 
 **`SUITE-R50`: el punto de entrada es el tablero.**
 

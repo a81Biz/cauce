@@ -240,11 +240,23 @@ ${MARCA_AGENTE}`;
  * Sin `url` no se inventa ninguna: se escribe la ruta sin enlace y se dice por que (RULE-06).
  */
 export function cuerpoDeIssue(a, opciones = {}) {
-  const { url, rama, tareas } = opciones;
+  const { url, rama, tareas, ramaTrabajo } = opciones;
   const esLote = a?.type === 'EP';
   const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
+  // PT-036 · el enlace apunta a donde el contenido ESTA, no a donde estara.
+  //
+  // PT-010 lo fijo en la rama por defecto razonando que «un issue es un artefacto largo y una
+  // rama es corta». El razonamiento es bueno y el resultado era un 404 EN EL MOMENTO EN QUE MAS
+  // SE LEE: un issue se abre al empezar el trabajo, y entonces su contenido solo existe en la
+  // rama de trabajo. Lo dijo quien lo intento abrir, no un caso.
+  //
+  // Mientras la allocation esta VIVA se enlaza la rama de trabajo, donde el contenido existe;
+  // cuando llega a INTEGRATED se reenlaza a la rama por defecto, que es donde se queda. El
+  // cuerpo se resincroniza en cada `abrir --aplicar`, asi que la transicion es automatica.
+  const viva = VIVOS.has(a?.status);
+  const ramaDelEnlace = (viva && ramaTrabajo) ? ramaTrabajo : (rama ?? 'main');
   const enlace = url
-    ? `[\`${dir}/\`](${url}/tree/${rama ?? 'main'}/${dir})`
+    ? `[\`${dir}/\`](${url}/tree/${ramaDelEnlace}/${dir})`
     : `\`${dir}/\` — en el repositorio`;
 
   const l = [];
@@ -265,14 +277,41 @@ export function cuerpoDeIssue(a, opciones = {}) {
     l.push('> inventar una sería peor que no ponerla.');
   } else {
     l.push('');
-    l.push(`> El enlace apunta a \`${rama ?? 'main'}\`. Hasta que el trabajo se integre, el`);
-    l.push('> contenido vive en la rama de trabajo y este enlace puede no resolver todavía.');
+    l.push(viva
+      ? `> El enlace apunta a \`${ramaDelEnlace}\`, que es donde el contenido existe ahora. Al`
+      : `> El enlace apunta a \`${ramaDelEnlace}\`, la rama por defecto: aquí es donde se queda.`);
+    if (viva) l.push(`> integrarse pasará a \`${rama ?? 'main'}\` y este cuerpo se actualizará solo.`);
   }
   l.push('');
   l.push('> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el');
   l.push('> repositorio, versionado junto al código. **No se copia aquí**: dos copias del mismo');
   l.push('> texto divergen (`SUITE-R35`).');
   return l.join(String.fromCharCode(10));
+}
+
+/**
+ * PT-035 · `SUITE-R51` · Que sub-issues le faltan a cada lote.
+ *
+ * La jerarquia ya existe en el registro —cada tarea declara su `epic`— y la plataforma la
+ * contaba en PROSA, enlazando en el cuerpo del lote. Un enlace es texto: no da progreso, no
+ * cierra en cascada y no sale en el arbol del tablero. Dos representaciones del mismo hecho, que
+ * es justo lo que `SUITE-R35` existe para impedir.
+ *
+ * `yaAnidados` a `null` significa NO EVALUABLE —la plataforma no lo sabe decir—: entonces no se
+ * afirma que falte nada, porque «no se» no es «no hay» (`RULE-06`).
+ */
+export function anidamientosQueFaltan(allocations, yaAnidados) {
+  const faltan = [];
+  const porId = new Map((allocations ?? []).map((a) => [a?.id, a]));
+  for (const a of allocations ?? []) {
+    if (!a?.epic || !a?.issue) continue;
+    const padre = porId.get(a.epic);
+    if (!padre?.issue) continue;
+    const hijos = yaAnidados?.[padre.issue];
+    if (hijos === null || hijos === undefined) continue;   // no evaluable para este padre
+    if (!hijos.includes(a.issue)) faltan.push({ padre: padre.issue, hijo: a.issue, id: a.id, epic: a.epic });
+  }
+  return faltan;
 }
 
 /** Una nota de reanclaje declara una transición de fase (`FDGE-R52`), no es un comentario suelto. */
@@ -364,6 +403,30 @@ const ADAPTADORES = {
       for (const e of etiquetas ?? []) args.push('--label', e);
       const out = execFileSync('gh', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
       return Number(out.split('/').pop());
+    },
+    // PT-035 · una tarea de un lote es un SUB-ISSUE de su lote, no un enlace en su cuerpo.
+    // El enlace es texto: no da progreso, no cierra en cascada y no aparece en el arbol del
+    // tablero. La jerarquia estaba en el registro y la plataforma la contaba en prosa —dos
+    // representaciones del mismo hecho, que es lo que SUITE-R35 existe para impedir.
+    //
+    // La API pide el ID del issue, no su numero: son cosas distintas y confundirlas da un 422
+    // silencioso si nadie lee la respuesta.
+    idDeIssue(numero) {
+      const out = execFileSync('gh', ['api', `repos/{owner}/{repo}/issues/${numero}`, '--jq', '.id'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+      return Number(out);
+    },
+    subIssues(numeroPadre) {
+      try {
+        const out = execFileSync('gh', ['api', `repos/{owner}/{repo}/issues/${numeroPadre}/sub_issues`,
+          '--jq', '.[].number'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+        return out ? out.split(/\r?\n/).map(Number) : [];
+      } catch { return null; }          // no evaluable: no se afirma que no haya (RULE-06)
+    },
+    anidar(numeroPadre, numeroHijo) {
+      const id = this.idDeIssue(numeroHijo);
+      execFileSync('gh', ['api', '-X', 'POST', `repos/{owner}/{repo}/issues/${numeroPadre}/sub_issues`,
+        '-F', `sub_issue_id=${id}`], { cwd: ROOT, stdio: 'pipe' });
     },
     cerrar(numero, motivo) {
       execFileSync('gh', ['issue', 'close', String(numero), '--comment', motivo],
@@ -568,8 +631,20 @@ function notasDe() {
 // `estado` corre SIN plataforma, así que aquí no hay adaptador. Sin el `?.` esto reventaba
 // justo en la acción que existe para funcionar sin credencial — lo dijo su caso, no yo.
 const REPO = adaptador?.repo ? adaptador.repo() : { url: null, rama: null };
+// PT-036 · la rama en la que se esta trabajando ahora mismo. Sin ella no se puede enlazar
+// «donde el contenido esta»; si no se sabe, se cae en la rama por defecto y el enlace vuelve a
+// poder dar 404 — pero eso se prefiere a inventar un nombre de rama (RULE-06).
+const RAMA_TRABAJO = (() => {
+  try {
+    const r = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'],
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return (r && r !== 'HEAD') ? r : null;
+  } catch { return null; }
+})();
+
 const contextoCuerpo = (a) => ({
   ...REPO,
+  ramaTrabajo: RAMA_TRABAJO,
   tareas: a?.type === 'EP' ? all.filter((t) => t.epic === a.id) : undefined,
 });
 
@@ -602,6 +677,29 @@ function sincronizarEtiquetas() {
   }
 }
 
+// PT-036 · EL UNICO final de `abrir()`. Todo lo que debe quedar sincronizado va aqui, para que
+// no vuelva a existir un camino que se lo salte: etiquetas, cuerpos y jerarquia.
+function cerrarPasada() {
+  sincronizarEtiquetas();
+  sincronizarCuerpos();
+  anidarSubIssues();
+}
+
+// PT-035 · declarar en la plataforma la jerarquia que el registro ya tiene.
+function anidarSubIssues() {
+  if (!adaptador.subIssues || !adaptador.anidar) return;
+  const padres = [...new Set(all.filter((a) => a?.epic).map((a) => a.epic))]
+    .map((id) => all.find((x) => x?.id === id)).filter((p) => p?.issue);
+  const yaAnidados = {};
+  for (const p of padres) yaAnidados[p.issue] = adaptador.subIssues(p.issue);
+  const faltan = anidamientosQueFaltan(all, yaAnidados);
+  for (const f of faltan) {
+    if (!APLICAR) { notas.push(`${f.id} #${f.hijo}: seria sub-issue de ${f.epic} #${f.padre}`); continue; }
+    try { adaptador.anidar(f.padre, f.hijo); notas.push(`${f.id} #${f.hijo} → sub-issue de ${f.epic} #${f.padre}`); }
+    catch { fail('SUITE-R51', `${f.id}: no se pudo anidar #${f.hijo} bajo #${f.padre}.`); }
+  }
+}
+
 function abrir() {
   const pendientes = vivas.filter((a) => !a.issue);
   if (!pendientes.length) {
@@ -614,8 +712,7 @@ function abrir() {
         catch { fail('FND-R30', `falta la etiqueta «${e}» y no se pudo crear:  gh label create "${e}"`); }
       }
     }
-    sincronizarEtiquetas();
-    sincronizarCuerpos();
+    cerrarPasada();
     return;
   }
   if (!APLICAR) {
@@ -646,6 +743,11 @@ function abrir() {
     a.issue = n;
     notas.push(`${a.id} → issue #${n}`);
   }
+  // PT-035 · PT-036 · la pasada que CREA termina igual que la que no crea. Es la CUARTA vez en
+  // este archivo que un arreglo queda detras de un `return` y no se ejecuta —PT-014 en
+  // sincronizarCuerpos(), PT-022 en checkCierreDeLote(), PT-035 al anidar—. Cuatro veces no es
+  // descuido: era que `abrir()` tenia dos finales y solo uno estaba completo. Ahora tiene uno.
+  cerrarPasada();
   writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
 }
 
