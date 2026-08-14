@@ -822,3 +822,27 @@ que el usuario mirase la CI dos veces, no yo.
 
 Evidencia: docs/implementation/evidence/PT-026/ · selftest 307 → 315 casos · cobertura 96/173
 Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## G4 — EP-004, EP-005 y EP-006 · integración
+Fecha: 2026-08-13
+Compuerta: G4
+integrado por: Alberto Martínez
+Autoriza: Alberto Martínez — «pasa todo en done, haz el integrated y haz el merge»
+Pull request: trabajo → main
+Versión: 7.1.0
+Alcance: PT-011, PT-012, PT-013, PT-014, PT-018 (EP-004)
+         PT-021, PT-022 (EP-005)
+         PT-024, PT-026 (EP-006)
+         → INTEGRATED · EP-004, EP-005, EP-006 → CLOSED
+
+ORDEN CORRECTO, el que SUITE-R46 fija y que el intento anterior no siguió:
+  1. estado terminal apuntado AQUÍ, antes de mergear   ← esta entrada
+  2. merge
+  3. tracker cerrar --aplicar
+
+El intento anterior hizo 2 → 3 → 1, y el paso 1 solo llega a la principal en el merge siguiente:
+por eso la compuerta de main quedó en rojo con nueve divergencias. Esta entrada existe para que
+el orden esté escrito donde se lee, no solo en la regla.
+
+Queda pendiente PT-027 (#37): confirmar que la CI de main queda verde. Es lo único que prueba
+EP-006 y solo se ve después del merge.
