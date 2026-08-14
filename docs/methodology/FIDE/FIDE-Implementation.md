@@ -3,7 +3,7 @@
 > **Naturaleza: procedimental.** Método: [Framework-FIDE.md](Framework-FIDE.md) ·
 > Reglas: [RULES.md](../RULES.md) §Parte 10 · Vocabulario: [LEXICON.md](../LEXICON.md)
 >
-> Suite version: **7.0.0**
+> Suite version: **7.1.0**
 
 ---
 

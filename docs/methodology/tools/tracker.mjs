@@ -428,10 +428,44 @@ const vivas = vivasDe(all);
 // el arnés puede probar sin credenciales.
 function espejo() {
   const issues = adaptador.abiertos();
-  for (const d of compararEspejo(vivas, issues)) fail(d.regla, d.mensaje);
+  const div = compararEspejo(vivas, issues);
+  // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
+  //
+  // El registro que asigna vive en la rama de trabajo. El de la rama por defecto es el del
+  // momento del merge, y el tablero sigue avanzando: comparar una foto contra algo vivo diverge
+  // SIEMPRE. No es una ventana de tiempo, es estructural — mientras haya trabajo en curso, y
+  // siempre lo hay, la compuerta de la principal estaria en rojo permanente. Eso es justo lo
+  // que SUITE-R35 existe para evitar, y se estaba causando desde dentro.
+  //
+  // Informar NO es callar: las divergencias se enumeran igual. Lo que cambia es que no bloquean
+  // ahi, porque desde ahi no se arreglan — el arreglo es siempre en la rama de trabajo.
+  if (esRamaPorDefecto()) {
+    for (const d of div) notas.push(`INFORMATIVO · ${d.regla} · ${d.mensaje}`);
+    notas.push(`Rama por defecto (${REPO.rama}): el espejo INFORMA y no bloquea (SUITE-R47). Aqui el `
+      + `registro es la foto del ultimo merge y el tablero refleja el trabajo en curso, asi que `
+      + `divergen por construccion. Donde decide es en G4, sobre la rama de trabajo:  `
+      + `node tools/verify-fdge.mjs --gate G4 PT-NNN`);
+    return;
+  }
+  for (const d of div) fail(d.regla, d.mensaje);
   if (!errores.length) {
     notas.push(`${vivas.length} allocation(s) viva(s) y ${issues.length} issue(s) abierto(s): el espejo cuadra.`);
   }
+}
+
+/**
+ * PT-026 · ¿estamos en la rama por defecto? Se compara la rama del clon con la que el adaptador
+ * declara. Si cualquiera de las dos no se sabe, la respuesta es **no**: ante la duda se bloquea,
+ * porque equivocarse hacia «informativo» apaga la compuerta y equivocarse hacia «bloquea» solo
+ * pide un arreglo de mas.
+ */
+function esRamaPorDefecto() {
+  if (!REPO.rama) return false;
+  try {
+    const actual = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'],
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return !!actual && actual === REPO.rama;
+  } catch { return false; }
 }
 
 // ── notas · cuántas notas de reanclaje lleva el issue de un PT (FDGE-R52) ────

@@ -1135,6 +1135,25 @@ trlib "y en ese caso no se cierra nada"               "^0$"   "console.log(m.cer
 # El espejo tiene que nombrar esta causa, no solo el sintoma.
 trlib "el espejo distingue el cierre adelantado"      "SUITE-R46"   "console.log(JSON.stringify(m.compararEspejo([{id:'PT-050',status:'DONE',issue:50}],[])))"
 
+
+# PT-026 . SUITE-R47 — el espejo bloquea donde el registro ASIGNA e informa donde es una foto.
+# Tras arreglar PT-024 la CI de main volvio a fallar, ahora por etiquetas: main tiene el registro
+# del momento del merge y el tablero sigue avanzando. Comparar una foto con algo vivo diverge
+# SIEMPRE — no es una ventana de tiempo, es estructural, y produce un rojo permanente que nadie
+# puede arreglar desde esa rama.
+V50='{"id":"PT-050","status":"DONE","issue":50,"phase":9}'
+I50='{"number":50,"title":"x","labels":[{"name":"fase: 8"}]}'
+trlib "la divergencia se detecta igual"        "SUITE-R35"   "console.log(JSON.stringify(m.compararEspejo([$V50],[$I50])))"
+trlib "y dice que etiqueta sobra o falta"      "fase: 9"   "console.log(JSON.stringify(m.compararEspejo([$V50],[$I50])))"
+# La logica de comparacion NO cambia con la rama: lo que cambia es si bloquea. Se separa a
+# proposito — un detector que dependiera de la rama seria dos detectores divergiendo (SUITE-R38).
+trlib "sin divergencia no inventa ninguna"     "^\[\]$"   "console.log(JSON.stringify(m.compararEspejo([{id:'PT-050',status:'DONE',issue:50,phase:8}],[$I50])))"
+chk   "SUITE-R47 existe en RULES"              "SUITE-R47"   cat "$SUITE/RULES.md"
+chk   "SUITE-R47 llega al núcleo"              "SUITE-R47"   cat "$SUITE/CORE.md"
+chk   "y PHASES dice donde bloquea"            "SUITE-R47"   cat "$SUITE/PHASES.md"
+chk   "el tracker distingue la rama"           "esRamaPorDefecto" cat "$SUITE/tools/tracker.mjs"
+chk   "ante la duda, bloquea"                  "equivocarse hacia" cat "$SUITE/tools/tracker.mjs"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

@@ -44,13 +44,24 @@ merge sin intervención manual.
 
 ## 5. Análisis de solapamiento   `INTAKE-R09`
 
-Una sola tarea. No hay solapamiento.
+Las dos tocan `tracker.mjs` y salen del mismo síntoma —la CI de `main` en rojo tras el merge—
+pero **son defectos distintos y no se solapan**:
+
+- `PT-024`: el tablero se adelantaba al **contenido** de la rama por defecto (issues cerrados
+  antes de tiempo). Se arregla en `cerrar`.
+- `PT-026`: el espejo se comprueba **en el sitio equivocado**. El registro que asigna vive en la
+  rama de trabajo; el de `main` es una foto del momento del merge, y compararla contra un
+  tablero que sigue avanzando diverge siempre, por construcción.
+
+`PT-024` primero: arreglar dónde se comprueba sin arreglar qué se cierra dejaría el cierre
+prematuro sin guarda y solo escondería su efecto.
 
 ## 6. Tareas del lote   `FDGE-R51`
 
 | PT | Tipo | Sev | Qué resuelve |
 |:---|:---|:---|:---|
 | `PT-024` | BUG | S1 | `cerrar` no se adelanta a la rama por defecto |
+| `PT-026` | BUG | S1 | El espejo se comprueba donde el registro **asigna**, no en la foto |
 
 ## 7. Cómo termina
 
@@ -75,8 +86,13 @@ Estado: FIRMADA · G1 PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | pendiente |
-| Número de versión | pendiente |
-| Regenerar `CORE.md` | pendiente |
+| Entrada de `CHANGELOG.md` | HECHO |
+| Número de versión | HECHO — 7.1.0 |
+| Regenerar `CORE.md` | HECHO |
+| Comprobar que la CI de `main` queda verde tras el merge | `PT-027` |
 
-> El merge y la publicación no son filas de esta sección: son el cierre mismo (`G4`).
+> El merge y la publicación no son filas de esta sección: son el cierre mismo (`G4`). Y lo que
+> se verifica **después** del cierre tampoco lo es: no se puede declarar resuelto antes de que
+> ocurra. Eso es trabajo aplazado y se **asigna** (`SUITE-R44`) — por eso la comprobación de la
+> CI es `PT-027` con su issue abierto, y no una fila que bloquearía la compuerta con la
+> compuerta. Es el tercer punto muerto de esta familia en dos días; queda escrito en la regla.

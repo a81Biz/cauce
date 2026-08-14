@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.0.0**
+> Suite version: **7.1.0**
 
 ---
 
@@ -55,6 +55,13 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 **No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
+en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.
+Allí el registro es la foto del último merge y el tablero refleja el trabajo en curso: divergen
+por construcción, no por una ventana de tiempo. Informar **no es callar** — las divergencias se
+enumeran marcadas `INFORMATIVO`. Donde la comprobación decide es en `G4`, sobre la rama de
+trabajo. Si no se puede saber en qué rama se está, se bloquea.
 
 **`SUITE-R46`: el tablero no se adelanta a la rama por defecto.** No se cierra el issue de una
 allocation cuyo estado terminal no está **todavía** en la rama por defecto. El orden es: apuntar

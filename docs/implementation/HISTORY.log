@@ -789,3 +789,36 @@ Aplazado con issue: PT-025, la misma guarda en el adaptador de Azure.
 
 Evidencia: docs/implementation/evidence/PT-024/ · selftest 299 → 307 casos · cobertura 95/172
 Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## PT-026 — BUG: el espejo comparaba en main una foto contra un tablero vivo
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-006
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-006, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: arreglado PT-024, la CI de main VOLVIÓ a fallar con otro mensaje —etiquetas en vez
+de issues cerrados—. Ese fue el dato: no era una ventana de tiempo, era estructural. main tiene
+el registro del momento del merge; el tablero refleja el trabajo, que sigue. Cualquier cosa que
+el tablero publique desde la rama de trabajo hace fallar a main, y publicar es lo que el tablero
+existe para hacer. Rojo permanente en una compuerta, que es lo que SUITE-R35 existe para evitar.
+
+Qué se hizo: SUITE-R47. `espejo` bloquea en la rama de trabajo y en los PR, e INFORMA sin
+bloquear en la rama por defecto, enumerando igual las divergencias y diciendo dónde sí se decide
+—G4, sobre la rama de trabajo—. La COMPARACIÓN no cambia con la rama: compararEspejo() sigue
+siendo la misma función pura, porque un detector que cambiara de criterio según dónde corre
+serían dos detectores divergiendo (SUITE-R38). Ante la duda sobre la rama, bloquea.
+
+Lo que no se verificó: AC-05, que la CI de main quede verde tras el merge. Es lo único que
+prueba la tarea y solo se comprueba mergeando. Queda PENDIENTE en la trazabilidad y
+verified:false en el manifiesto.
+
+Y si no hubiera vuelto a mirar tras PT-024, habría entregado una corrección de síntoma. Lo forzó
+que el usuario mirase la CI dos veces, no yo.
+
+Evidencia: docs/implementation/evidence/PT-026/ · selftest 307 → 315 casos · cobertura 96/173
+Cierre a DONE pendiente de persona: SUITE-R06b.

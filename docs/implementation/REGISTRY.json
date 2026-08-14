@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 25,
+    "PT": 27,
     "EP": 6,
     "QA": 0,
     "QR": 0,
@@ -558,9 +558,43 @@
       "epic": null,
       "phase": null,
       "title": "Comprobar el orden de cierre tambien en el adaptador de Azure",
-      "origin": "Aplazado por PT-024 · el adaptador existe pero no hay proyecto que lo use; escribirlo a ciegas seria codigo sin ejecucion",
+      "origin": "Aplazado por PT-024 y PT-026 · el adaptador de Azure existe pero no hay proyecto que lo use; escribir la guarda a ciegas seria codigo sin ejecucion",
       "created": "2026-08-13",
       "issue": 35
+    },
+    {
+      "id": "PT-026",
+      "slug": "el-espejo-se-comprueba-donde-el-registro-asigna",
+      "type": "BUG",
+      "complexity": "STANDARD",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "VALIDATION_PENDING",
+      "structural": false,
+      "suite_version": "7.0.0",
+      "epic": "EP-006",
+      "phase": 8,
+      "title": "El espejo compara en main una foto del registro contra un tablero vivo: diverge siempre",
+      "origin": "CI de main en rojo por segunda vez tras PT-024, ahora por etiquetas · el registro de main es del momento del merge y el tablero sigue avanzando",
+      "created": "2026-08-13",
+      "issue": 36
+    },
+    {
+      "id": "PT-027",
+      "slug": "confirmar-la-ci-de-main-tras-el-merge",
+      "type": "CHORE",
+      "complexity": "SIMPLE",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "7.0.0",
+      "epic": null,
+      "phase": null,
+      "title": "Confirmar que la CI de main queda verde tras el merge de EP-006",
+      "origin": "Aplazado por EP-006 · PT-026 · es lo unico que prueba el lote y solo se ve DESPUES del merge, asi que no puede ser criterio de la tarea ni fila de cierre",
+      "created": "2026-08-13",
+      "issue": 37
     }
   ]
 }
