@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.5.0**
+> Suite version: **7.6.0**
 
 ---
 
@@ -77,6 +77,18 @@ compuerta, y el marco sigue siendo usable sin él.
 `CASOS-DE-USO.md`, no copiando archivos; y `cauce start` los pone por delante del núcleo. No
 obliga a leerlo —no se puede— pero no se arranca sin que se ponga delante. Si el manual no está,
 se **dice**: `CORE.md` es lo único obligatorio y fingir que está sería peor que su ausencia.
+
+**`SUITE-R55`: migrar se conduce, no se enumera.**
+
+```bash
+node docs/methodology/tools/migrate.mjs .      # informa. No toca nada
+```
+
+Las decisiones que quedan van **numeradas**, y cada una dice qué decide y **por qué no puede
+decidirla una máquina**. El motivo se reconoce por lo que la acción nombra; si no se reconoce, se
+dice —y ese «no lo sé» suele señalar una fila que no debería existir—. El modo restringido se
+explica **al entrar en él** y no se relaja: la lista queda en `REGISTRY.migration_pending` y el
+código de salida sigue siendo `1`. No decide ninguna por ti, y no puede comprobar que las tomes.
 
 **`SUITE-R53`: la regla se alcanza desde el fallo.** Todo mensaje de fallo cita su regla, y esa
 regla se **consulta** — deducirla no puede ser el camino:

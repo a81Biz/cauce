@@ -1182,3 +1182,89 @@ a leer el fuente porque ejecutarlo contra el fixture arrastraba el estado de otr
 Prueba menos.
 
 Evidencia: evidence/PT-042/ · selftest 402 → 410 casos
+
+## PT-043 — FEATURE: migración guiada
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-011
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 pendiente
+
+SUITE-R55. `migrate` deja de imprimir una lista y CONDUCE: cada decisión pendiente va numerada,
+con qué se decide y por qué no puede decidirlo una máquina, y el modo restringido se explica al
+entrar en él. Instalar acompañaba en nueve fases conversacionales (SUITE-R28) y migrar dejaba una
+lista — y quien migra no eligió este marco: lo heredó.
+
+NO RELAJA SUITE-R17: la lista sigue en REGISTRY.migration_pending y el código de salida sigue
+siendo 1. No decide ninguna, no propone valores por defecto y no puede comprobar que se tomen.
+
+Causa raíz de los tres defectos corregidos: ninguno era visible leyendo.
+  1. Una de las siete no era una decisión, sino una advertencia sobre otra. Lo delató el propio
+     conductor al no saber darle motivo y decirlo (RULE-06). Se fundió en la decisión de la que
+     colgaba: 7 → 6 sobre el legado real.
+  2. resumen() seguía cortando a media palabra: la sesión anterior arregló el corte por «.» y
+     dejó detrás un slice(0,96) que partía 3 de cada 9 titulares. El caso que se probó fue el del
+     punto; el que ocurre siempre era el de la longitud.
+  3. El conductor reconocía 6 de las ~20 acciones que migrate emite. Los tramos 3.x y 4.0.x
+     salían enteros sin motivo. Medir sobre un solo fixture daba verde a la mitad del trabajo.
+
+Archivos modificados: docs/methodology/tools/migrate.mjs · tools/selftest.sh · RULES.md ·
+PHASES.md · FDGE-Prompts.md · CORE.md
+Evidencia: evidence/PT-043/ — legado.txt (proyecto real 4.12.0, 7 → 6 decisiones) ·
+selftest.txt (410 → 429 casos) · inversa.txt (los invariantes dan 2 y 3 cuando se reintroducen
+los defectos: un verificador que no puede fallar no verifica, SUITE-R38)
+Criterios: AC-01 ✓ AC-02 ✓ AC-03 ✓ AC-04 ✓
+
+Delta real vs planificado: MAYOR que el planificado. El intake declaraba «las siete decisiones»;
+al ejecutarlo contra las cuatro rutas de migración aparecieron ~20 acciones y solo 6 tenían
+motivo. Se cerraron las veinte.
+
+Desviación declarada: el cuerpo del conductor se implementó en 4ffd457, antes de que existiera su
+PHASE 4. FDGE-R13 pide 0 líneas antes de G2 y aquí no fue así. Se dice en vez de fechar los
+artefactos hacia atrás. Lo escrito en esta sesión sí siguió el orden: casos en rojo primero.
+
+Aplazado con su issue abierto (SUITE-R44): PT-044 #65 — el YAML de PT-039..PT-042 declara
+phase 1 mientras el registro dice phase 8, y eso desactivó FDGE-R52 en los cuatro · PT-045 #66 —
+npx @a81biz/cauce start, el arranque documentado, no arranca.
+
+Trazabilidad externa: —
+
+## EP-011 — CERRADO: el marco se usa a sí mismo
+Fecha: 2026-08-14
+Estado: DONE
+Versión: 7.6.0
+Tareas: PT-039 (SUITE-R52) · PT-040 y PT-041 (SUITE-R53) · PT-042 (SUITE-R54) · PT-043 (SUITE-R55)
+
+Nació de seis observaciones humanas que eran la misma: «¿qué es lo que puede fallar?» · «las diez
+ideas de las que se deduce la regla que no se ha leído, ¿cómo lo evitamos?» · «migrar un legado
+como está me parece hasta preocupante» · «ningún caso prueba que el manual sirve» · «ni tú mismo,
+esta sesión al menos, sigues o te obligas a seguir lo que ya tenemos» · «necesitamos distinguir
+entre las solicitudes de algo y la interacción por el intercambio de ideas».
+
+El marco existía y no se aplicaba a sí mismo. La prueba llegó sola: al ejecutar `tracker
+siguiente` para abrir el lote —lo primero que SUITE-R49 obliga a hacer y que llevaba sin hacerse
+toda la sesión— apareció un defecto real en el primer intento.
+
+Lo que entrega: cuatro reglas nuevas y ninguna modificada. Petición se distingue de conversación
+y se declara cuál es (R52). Lo que puede fallar se DERIVA de los fail() del código en vez de
+escribirse de memoria, y la regla se consulta desde el mensaje (R53). Instalar y arrancar
+EMPIEZAN por remitir al manual (R54). Y migrar CONDUCE sus decisiones humanas en vez de
+enumerarlas (R55). 382 → 429 casos de prueba.
+
+LO QUE NO ENTREGA, y está escrito en el texto de las cuatro reglas: no obliga a leer el manual,
+no obliga a tomar las decisiones de una migración, y no garantiza que el agente clasifique bien
+una petición. Ninguna de las tres es comprobable —serían el agente afirmando sobre sí mismo, la
+prueba circular que SUITE-R27 declara insuficiente—. Lo que se consigue es que nada de eso se
+pueda saltar en silencio.
+
+Lo que encontró EJECUTAR y no leer: cinco defectos en el código que este mismo lote escribía, y
+dos más que quedan abiertos con su issue en vez de callados — PT-044 (#65), el YAML de cuatro
+intakes de este lote declara una fase que el registro contradice, lo que desactivó FDGE-R52 en
+los cuatro; y PT-045 (#66), `npx @a81biz/cauce start` no arranca. La lección del lote, medida:
+los siete salieron de ejecutar contra un caso real, ninguno de leer.
+
+Cierre del lote (SUITE-R45): las tres filas resueltas — CHANGELOG 7.6.0 con los 21 documentos
+alineados, CORE.md regenerado, y el defecto de ROOT corregido con su caso.

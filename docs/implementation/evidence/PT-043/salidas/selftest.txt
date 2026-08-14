@@ -1,0 +1,23 @@
+# bash docs/methodology/tools/selftest.sh · 2026-08-14
+selftest: OK · 429 casos
+
+# los casos de PT-043 (SUITE-R55):
+  [32m✓[0m migrar CONDUCE, no enumera
+  [32m✓[0m el bloque se presenta por lo que es
+  [32m✓[0m cada decision dice por que es tuya
+  [32m✓[0m ninguna cae en el RULE-06 por defecto
+  [32m✓[0m ningun titular parte una palabra
+  [32m✓[0m el modo restringido se EXPLICA
+  [32m✓[0m y dice cual es, con su regla
+  [32m✓[0m y el codigo de salida sigue siendo 1
+  [32m✓[0m el «no lo se» sigue en el codigo
+  [32m✓[0m v3 tambien se conduce, sin huecos
+  [32m✓[0m v3 sin titulares partidos
+  [32m✓[0m 4.0.x tambien se conduce, sin huecos
+  [32m✓[0m con plataforma tambien se conduce
+  [32m✓[0m SUITE-R17 no se relaja: queda en el registro
+  [32m✓[0m sin pendientes no hay conductor
+  [32m✓[0m SUITE-R55 existe en RULES
+  [32m✓[0m y llega al nucleo
+  [32m✓[0m PHASES la cita
+  [32m✓[0m FDGE-Prompts la cita

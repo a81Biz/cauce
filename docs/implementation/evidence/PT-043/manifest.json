@@ -1,0 +1,11 @@
+{
+  "pt": "PT-043",
+  "generated": "2026-08-14",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Las decisiones humanas de la migracion se conducen una por una", "scenarios": ["E5","E6","E13"], "tests": ["selftest.sh:migrar CONDUCE, no enumera","selftest.sh:el bloque se presenta por lo que es","selftest.sh:sin pendientes no hay conductor"], "evidence": ["salidas/legado.txt","salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Cada una dice que decide, por que no puede decidirla la maquina y que pasa despues", "scenarios": ["E1","E2","E3","E4","E7","E8","E9"], "tests": ["selftest.sh:SUITE-R55 existe en RULES","selftest.sh:y llega al nucleo","selftest.sh:PHASES la cita","selftest.sh:FDGE-Prompts la cita","selftest.sh:cada decision dice por que es tuya","selftest.sh:ninguna cae en el RULE-06 por defecto","selftest.sh:ningun titular parte una palabra","selftest.sh:v3 tambien se conduce, sin huecos","selftest.sh:4.0.x tambien se conduce, sin huecos","selftest.sh:con plataforma tambien se conduce"], "evidence": ["salidas/legado.txt","salidas/selftest.txt","salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "El modo restringido se explica al entrar en el, no se descubre", "scenarios": ["E10"], "tests": ["selftest.sh:el modo restringido se EXPLICA","selftest.sh:y dice cual es, con su regla"], "evidence": ["salidas/legado.txt","salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Migrar sin resolverlas sigue siendo imposible: no se relaja SUITE-R17", "scenarios": ["E11","E12"], "tests": ["selftest.sh:SUITE-R17 no se relaja: queda en el registro","selftest.sh:y el codigo de salida sigue siendo 1"], "evidence": ["salidas/legado.txt","salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 429, "failed": 0, "skipped": 0, "coverage": 429, "baseline": 410 }
+}

@@ -8,11 +8,11 @@ id: PT-043
 type: FEATURE
 epic: EP-011
 track: STANDARD
-status: DRAFT
+status: DONE
 created: 2026-08-14
 structural: no
 suite_version: 7.5.0
-phase: 1
+phase: 9
 ---
 ```
 
@@ -33,9 +33,13 @@ Conducir las siete decisiones de migrar un legado, no enumerarlas.
 
 ## 3. Cómo termina   `[AGENTE]` — obligatorio   `FDGE-R53`
 
-> Termina cuando: se detalla en `PHASE 1` de esta tarea. El lote está firmado; el alcance
-> concreto se cierra al abrirla, no antes — inventarlo ahora sería el mismo defecto que
-> `EP-010` corrigió: escribir sin la lista.
+> Termina cuando: `migrate` sobre un proyecto legado real **conduce** sus decisiones humanas
+> —numeradas, cada una con qué decide y por qué no puede decidirla una máquina—, explica el modo
+> restringido al entrar en él, y esa obligación está escrita como `SUITE-R55` en `RULES.md` con
+> sus citas y con casos que la ejecutan.
+
+Escrita al abrir `PHASE 1`, que es donde `EP-011` la dejó pendiente. Lo que la hace observable:
+la salida del comando sobre un proyecto real, no la lectura del código.
 
 ## 4. Qué NO entra   `[AGENTE]`
 

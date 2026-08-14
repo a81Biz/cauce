@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 9b36ffb5f7a9 -->
-<!-- fuentes: RULES.md:b69772bdb9fc LEXICON.md:6f24a81e22a0 EXECUTION-MODES.md:8d952e8e9af1 PHASES.md:36d76c83c256 -->
+<!-- cuerpo: 97fbd27f16cd -->
+<!-- fuentes: RULES.md:996210603930 LEXICON.md:788b493f51c9 EXECUTION-MODES.md:05e5929814f6 PHASES.md:08fb6b5f1771 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -196,6 +196,7 @@ verifica un script y bloquea la integración.
 `SUITE-R52` **H** Una petición se distingue de una conversación, y se declara cuál es.
 `SUITE-R53` **H** La regla se alcanza desde el fallo, y lo que puede fallar se deriva.
 `SUITE-R54` **H** El agente lee su manual, y puede consultarlo.
+`SUITE-R55` **H** Las decisiones humanas de una migración se conducen, no se enumeran.
 
 ### LEX — Nombres
 
@@ -683,6 +684,12 @@ EL MANUAL instalar EMPIEZA por remitir al manual y al catalogo, no por      [SUI
           copiar. cauce start los pone POR DELANTE del nucleo. No obliga a
           leerlo —no se puede— pero no se arranca sin que se ponga delante.
           Si no esta, se DICE: CORE.md es lo unico obligatorio.
+MIGRAR    las decisiones humanas se CONDUCEN, no se enumeran.               [SUITE-R55]
+          numeradas · cada una dice QUE decide y POR QUE es tuya · el
+          motivo se RECONOCE y, si no, se dice (RULE-06) · el titular que
+          se corta se marca · el modo restringido se explica AL ENTRAR y
+          no se relaja: queda en REGISTRY.migration_pending y sale con 1.
+          No decide ninguna y no puede comprobar que se tomen.
 LA REGLA  todo fallo cita su regla, y la regla se CONSULTA — no se deduce.  [SUITE-R53]
           cauce regla SUITE-RNN    que exige, donde vive, quien la comprueba
           cauce regla --fallos     TODO lo que puede fallar, DERIVADO del codigo

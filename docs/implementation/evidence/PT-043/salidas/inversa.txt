@@ -1,0 +1,12 @@
+# Comprobacion INVERSA · PHASE 5. Los dos invariantes tienen que poder FALLAR.
+# Se reintrodujeron los dos defectos sobre una copia de migrate.mjs y se midieron
+# los mismos invariantes que selftest.sh ejecuta. Un verificador que no puede fallar
+# no verifica (SUITE-R38).
+
+== con los defectos reintroducidos ==
+decisiones sin motivo : 2   (esperado > 0)
+titulares partidos    : 3   (esperado > 0)
+
+== con la implementacion vigente ==
+decisiones sin motivo : 0   (esperado 0)
+titulares partidos    : 0   (esperado 0)

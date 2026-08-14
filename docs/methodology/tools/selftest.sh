@@ -367,6 +367,76 @@ chk   "con plataforma ⇒ avisa de R42"      "SUITE-R42"        M
 mk_v412
 chkno "sin plataforma ⇒ no exige el PR"    "G4 pasa a resolverse"  M
 
+# PT-043 · SUITE-R55 — las decisiones humanas se CONDUCEN, no se enumeran. Instalar acompana en
+# nueve fases conversacionales; migrar dejaba una lista y se iba, y migra quien NO eligio este
+# marco: lo heredo, y la lista esta escrita en el vocabulario que todavia no conoce.
+#
+# Las dos comprobaciones de abajo se MIDEN sobre la salida real, no se buscan como literal: un
+# `chk` de una frase concreta pasa aunque las otras ocho filas esten rotas. Los dos defectos que
+# corrigio esta tarea —una fila sin motivo y tres titulares partidos a media palabra— habrian
+# pasado por debajo de cualquier aserto de literal, y de hecho pasaron.
+sin_motivo()     { M 2>&1 | grep -c 'No se reconoce el motivo' || true; }
+codigo_migrate() { M >/dev/null 2>&1; echo $?; }
+# El invariante NO es de longitud —contar caracteres sobre UTF-8 mide bytes y miente—: un titular
+# que no se marca con «…» tiene que ser el texto COMPLETO de su accion, o su primera frase
+# completa. El texto completo esta impreso arriba, bajo «REQUIERE UNA PERSONA», asi que la
+# comprobacion es exacta y no depende de dónde se decidiera cortar.
+parte_palabra() {
+  M 2>&1 | awk '
+    /^  ! / { full[substr($0, 5)] = 1; next }
+    /^  [0-9]+\/[0-9]+ · / {
+      t = $0; sub(/^  [0-9]+\/[0-9]+ · /, "", t);
+      if (t ~ /…$/) next;
+      ok = 0; for (f in full) if (f == t || index(f, t ". ") == 1) ok = 1;
+      if (!ok) bad++;
+    }
+    END { print bad + 0 }'
+}
+
+mk_v412
+chk   "migrar CONDUCE, no enumera"          "1/"                     M
+chk   "el bloque se presenta por lo que es" "por que es tuyo"        M
+chk   "cada decision dice por que es tuya"  "La maquina ve los archivos"  M
+chk   "ninguna cae en el RULE-06 por defecto"  "^0$"                 sin_motivo
+chk   "ningun titular parte una palabra"    "^0$"                    parte_palabra
+chk   "el modo restringido se EXPLICA"      "No es un castigo"       M
+chk   "y dice cual es, con su regla"        "SUITE-R17"              M
+chk   "y el codigo de salida sigue siendo 1" "^1$"                   codigo_migrate
+# El RULE-06 sigue existiendo: hoy no lo dispara ninguna accion emitida —todas se reconocen— y
+# por eso se comprueba en el FUENTE. Se declara en el self-review: es la unica rama del conductor
+# sin caso de ejecucion, y una rama que no puede fallar tampoco puede probarse.
+chk   "el «no lo se» sigue en el codigo"    "No se reconoce el motivo"  cat "$SUITE/tools/migrate.mjs"
+
+# La conduccion no es solo del tramo 4.12: los saltos desde 3.x y 4.0.x emiten OTRAS acciones, y
+# cada una tiene que decir por que es tuya. Medirlo solo en 4.12 dejaba fuera a la mitad.
+mk_v3
+chk   "v3 tambien se conduce, sin huecos"   "^0$"                    sin_motivo
+chk   "v3 sin titulares partidos"           "^0$"                    parte_palabra
+mk_v40
+chk   "4.0.x tambien se conduce, sin huecos" "^0$"                   sin_motivo
+mk_v412 && reg_mig '"suite_version":"4.12.0","tracker":{"plataforma":"github"}'
+chk   "con plataforma tambien se conduce"   "^0$"                    sin_motivo
+
+# SUITE-R17 no se relaja: la lista queda EN EL REGISTRO, que es quien la hace cumplir despues.
+mk_v412
+M --apply > /dev/null 2>&1 || true
+chk   "SUITE-R17 no se relaja: queda en el registro" "migration_pending"  cat "$MIG/docs/implementation/REGISTRY.json"
+
+# Y el inverso: sin nada pendiente NO hay conductor. Recitar lo que no aplica ensena a no leerlo.
+mk_v412 && reg_mig "\"suite_version\":\"$VIGENTE\""
+printf '# HANDOFF\n\n<!-- ESTADO -->\nimplementación: ninguna\n<!-- /ESTADO -->\n' > "$MIG/docs/implementation/HANDOFF.md"
+touch "$MIG/docs/methodology/CORE.md" "$MIG/docs/methodology/CORE-PTSA.md"
+chkno "sin pendientes no hay conductor"     "por que es tuyo"        M
+
+# La regla y sus citas. Sin regla esto es un texto en una salida que la siguiente edicion quita
+# sin que nada lo note — que es como se perdio la mitad de lo que EP-011 esta recuperando.
+chk   "SUITE-R55 existe en RULES"           "SUITE-R55"   cat "$SUITE/RULES.md"
+chk   "y llega al nucleo"                   "SUITE-R55"   cat "$SUITE/CORE.md"
+chk   "PHASES la cita"                      "SUITE-R55"   cat "$SUITE/PHASES.md"
+chk   "FDGE-Prompts la cita"                "SUITE-R55"   cat "$SUITE/FDGE-Prompts.md"
+
+rm -rf "$MIG"
+
 # ─── E · integridad de la reconciliación y la migración verificada ──────────
 echo "── E · reconciliación y migración verificada ──"
 build_fixture

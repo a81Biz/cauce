@@ -4,10 +4,10 @@
 ---
 id: EP-011
 type: EP
-status: DRAFT
+status: DONE
 created: 2026-08-14
 suite_version: 7.5.0
-phase: 1
+phase: 9
 ---
 ```
 
@@ -110,8 +110,8 @@ Estado: FIRMADA · G1 PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| Regenerar `CORE.md` | pendiente |
-| El defecto de `ROOT` encontrado al abrir este lote, y su caso | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | HECHO · `7.6.0`, `MINOR`: cuatro reglas nuevas, ninguna modificada. Los 21 documentos y `package.json` alineados con `tools/version.mjs` |
+| Regenerar `CORE.md` | HECHO · `build-core --check` sincronizado, 244 reglas |
+| El defecto de `ROOT` encontrado al abrir este lote, y su caso | HECHO · `tracker.mjs:383` deja de tomar un `EP-NNN` por una ruta, con su caso «un EP-NNN no es una ruta» |
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.

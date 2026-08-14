@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **7.5.0**
+> Suite version: **7.6.0**
 
 ---
 
@@ -281,6 +281,12 @@ EL MANUAL instalar EMPIEZA por remitir al manual y al catalogo, no por      [SUI
           copiar. cauce start los pone POR DELANTE del nucleo. No obliga a
           leerlo —no se puede— pero no se arranca sin que se ponga delante.
           Si no esta, se DICE: CORE.md es lo unico obligatorio.
+MIGRAR    las decisiones humanas se CONDUCEN, no se enumeran.               [SUITE-R55]
+          numeradas · cada una dice QUE decide y POR QUE es tuya · el
+          motivo se RECONOCE y, si no, se dice (RULE-06) · el titular que
+          se corta se marca · el modo restringido se explica AL ENTRAR y
+          no se relaja: queda en REGISTRY.migration_pending y sale con 1.
+          No decide ninguna y no puede comprobar que se tomen.
 LA REGLA  todo fallo cita su regla, y la regla se CONSULTA — no se deduce.  [SUITE-R53]
           cauce regla SUITE-RNN    que exige, donde vive, quien la comprueba
           cauce regla --fallos     TODO lo que puede fallar, DERIVADO del codigo
