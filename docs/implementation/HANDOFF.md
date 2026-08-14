@@ -1,13 +1,13 @@
 # HANDOFF — estado retomable
 
 <!-- ESTADO -->
-implementación: EP-006 (#34) · el tablero no puede adelantarse a main
-tarea:          diez PT en INTEGRATED · EP-004, EP-005 y EP-006 listos · 7.1.0 · PR #38
-compuerta:      G4 autorizada por Alberto Martinez · estado terminal apuntado ANTES del merge (SUITE-R46)
-siguiente:      mergear PR #38, luego tracker cerrar --aplicar, luego PT-027 (#37) confirmar la CI de main. Despues: el tablero como maquina de estados (peticion humana), publicar 7.1.0 y PT-019 (#26)
+implementación: ninguna en curso · EP-004, EP-005 y EP-006 CLOSED · EP-007 (#41) en DRAFT esperando firma humana
+tarea:          ninguna en curso · 7.1.0 publicada en npm y en main · CI de main en verde
+compuerta:      ninguna pendiente · G4 de 7.1.0 resuelta y ejecutada, PT-027 lo confirmo
+siguiente:      firmar EP-007 (#41) — el agente no debe poder saber que sigue sin consultar el tablero, y SUPERVISED y AUTONOMOUS deben exigir lo mismo. Y PT-019 (#26): migrar el proyecto legado, que es el trabajo con el que se abrio la sesion. Los ocho DEFERRED siguen abiertos A PROPOSITO: cerrarlos es perderlos
 decisiones:     6.0.1 PUBLICADA en npm el 2026-08-13 y verificada desde un directorio limpio: el paquete trae SUITE-R42, SUITE-R43 y las funciones de tracker · en ESTE repositorio no hay paquete que instalar: es cauce, y SUITE-R41 lo prohíbe explícitamente · 6.0.1 decidida el 2026-08-13, PATCH: dos correcciones y ninguna regla nueva ni modificada · la delegación se AMPLIÓ a G3 el 2026-08-13 por decisión del firmante, con constancia en la Revisión 1 del intake de EP-003: SUITE-R06b lo pone en la lista de lo que ningún MODO automatiza, y esto es una persona autorizando una excepción con registro, que es lo que la regla de cumplimiento admite · G4 y la publicación siguen sin delegar · 6.0.0 decidida el 2026-08-13, MAJOR porque SUITE-R42 y SUITE-R43 son reglas vinculantes nuevas — el criterio con el que la 5.0.0 subió · la 5.3.0 nunca se publicó y su contenido va dentro de la 6.0.0 · la 6.0.0 nunca se publicó: la sustituyó la 6.0.1, que corrige los dos defectos que habrían llegado a npm con ella · EP-001 y EP-002 CLOSED, en main desde 9ecb1d3 (PR #7), con GitGuardian resuelto como falso positivo · el registro ASIGNA y GitHub ESPEJA: todo el estado publicado se deriva de REGISTRY.json y ninguna lectura de la plataforma lo alimenta · G1 y G2 se firman por delegación con constancia; G3 de un BUG, G4 y la publicación NO se delegan · los .md se quedan: verify-fdge lee archivos, un issue no está versionado y declarar plataforma es opcional · TD-05 resuelta en la entrada de 5.3.0
 no hacer:       relajar SUITE-R43 para que el mensaje de cierre no cuente: se arregla quien escribe, no la regla que lo detecta · copiar el intake al issue (SUITE-R35) · consolidar varias transiciones en un solo comentario: una nota por transición, al cerrar cada fase · commitear volcados de logs como evidencia sin redactar (FDGE-R45 — ya pasó una vez) · escribir guardas de CI para casos que no se pueden probar desde aquí · fabricar artefactos para poner una compuerta en verde · mergear a main ni publicar sin decisión humana (SUITE-R06, EXEC-R04) · borrar origin/desarrollo sin confirmar que no cuelga nada (SUITE-R06f)
-actualizado:    2026-08-13 · antes del merge de EP-006
+actualizado:    2026-08-13 · tras publicar 7.1.0 y cerrar PT-027
 <!-- /ESTADO -->
 
 ---
