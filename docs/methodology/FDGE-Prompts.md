@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.5.0**
+> Suite version: **7.6.0**
 
 ---
 
@@ -72,6 +72,40 @@ Imprime el estado del tablero y **después** el núcleo, en ese orden, y no hay 
 segundo sin lo primero. No es un recordatorio: es el arranque, y por eso no depende de que nadie
 se acuerde. Usa la definición de `SUITE-R49`; no escribe la suya. No automatiza ninguna
 compuerta, y el marco sigue siendo usable sin él.
+
+**`SUITE-R54`: el agente lee su manual.** Instalar **empieza** remitiendo a `MANUAL.md` y
+`CASOS-DE-USO.md`, no copiando archivos; y `cauce start` los pone por delante del núcleo. No
+obliga a leerlo —no se puede— pero no se arranca sin que se ponga delante. Si el manual no está,
+se **dice**: `CORE.md` es lo único obligatorio y fingir que está sería peor que su ausencia.
+
+**`SUITE-R55`: migrar se conduce, no se enumera.**
+
+```bash
+node docs/methodology/tools/migrate.mjs .      # informa. No toca nada
+```
+
+Las decisiones que quedan van **numeradas**, y cada una dice qué decide y **por qué no puede
+decidirla una máquina**. El motivo se reconoce por lo que la acción nombra; si no se reconoce, se
+dice —y ese «no lo sé» suele señalar una fila que no debería existir—. El modo restringido se
+explica **al entrar en él** y no se relaja: la lista queda en `REGISTRY.migration_pending` y el
+código de salida sigue siendo `1`. No decide ninguna por ti, y no puede comprobar que las tomes.
+
+**`SUITE-R53`: la regla se alcanza desde el fallo.** Todo mensaje de fallo cita su regla, y esa
+regla se **consulta** — deducirla no puede ser el camino:
+
+```bash
+npx @a81biz/cauce regla SUITE-R44      # qué exige, dónde vive, quién la comprueba
+npx @a81biz/cauce regla --fallos       # todo lo que puede fallar, DERIVADO del código
+```
+
+La lista de fallos no se escribe: sale de los `fail()` y `warn()` de las herramientas. Una lista
+escrita a mano se queda corta en cuanto alguien añade una comprobación.
+
+**`SUITE-R52`: ¿petición o conversación?** No todo mensaje abre trabajo. Una **petición** tiene
+condición de terminado —se puede escribir «termina cuando: …» (`FDGE-R53`)—; sin ella es
+**conversación**, y lo que produce es una respuesta, no una `allocation`. **Declara en una línea
+cuál has entendido** antes de actuar: no se te pide acertar, se te pide no decidirlo en silencio.
+Una conversación puede **acabar** en petición; no empieza siéndolo.
 
 **`SUITE-R49`: consultar el tablero es lo primero, y «consultado» está definido.** `CORE.md`
 abre con la consulta, antes que las reglas. **Consultado** significa: se ejecutó

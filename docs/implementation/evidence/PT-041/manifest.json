@@ -1,0 +1,9 @@
+{
+  "pt": "PT-041",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1","E2"], "tests": ["selftest.sh:una regla responde qué exige","selftest.sh:y quién la comprueba"], "evidence": ["salidas/regla.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E8"], "tests": ["selftest.sh:un ID de regla no es una ruta","MANUAL.md y CASOS-DE-USO.md remiten al comando"], "evidence": ["salidas/regla.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E3","E6"], "tests": ["selftest.sh:una regla que no existe lo DICE","selftest.sh:las no comprobadas se declaran"], "evidence": ["salidas/regla.txt"], "verified": true }
+  ],
+  "suite": { "passed": 402, "failed": 0, "coverage": 402, "baseline": 391 }
+}

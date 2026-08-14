@@ -11,7 +11,7 @@ se mantiene **bajo el marco** — desde `SUITE-R41` cauce se instala sobre sí m
 `REGISTRY.json`, su terreno firmado y sus compuertas. Un marco que se mantuviera al margen de
 sus propias reglas sería el primer argumento en su contra.
 
-**Versión vigente: 7.5.0** — ver [docs/methodology/CHANGELOG.md](docs/methodology/CHANGELOG.md).
+**Versión vigente: 7.6.0** — ver [docs/methodology/CHANGELOG.md](docs/methodology/CHANGELOG.md).
 
 > **Este archivo parametriza y orienta; no es la autoridad sobre el repositorio** (`FND-R12`).
 > Lo que diga sobre su arquitectura se subordina a
@@ -63,6 +63,7 @@ docs/methodology/
     │   instalación        plan-layout (terreno) · migrate · comparar-marco
     │   seguridad          revisar-secretos (árbol e historia)
     │   estado             tracker (espejo con GitHub o Azure)
+    │   consulta           regla — qué exige una regla y qué puede fallar, derivado
     │   compartido         patrones.mjs — los patrones críticos, con su contrato
     │   medición           audit (cobertura mecánica) · selftest.sh (la batería completa)
 ```
@@ -195,7 +196,7 @@ Orden de autoridad ante conflicto (`LEX-R21`):
 **Única sección que se personaliza.** Todo lo demás son punteros.
 
 ```yaml
-suite_version: 7.5.0
+suite_version: 7.6.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:                        # quién puede firmar un Intake y resolver una compuerta
   - Alberto Martínez

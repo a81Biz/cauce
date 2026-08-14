@@ -205,6 +205,16 @@ node docs/methodology/tools/tracker.mjs siguiente [PT-NNN]
 
 La salida **es** la respuesta, no una sugerencia (`SUITE-R49`).
 
+### D3 · ¿Qué exige esta regla que acaba de fallar?
+
+```bash
+node docs/methodology/tools/regla.mjs SUITE-R44     # qué exige, dónde vive, quién la comprueba
+node docs/methodology/tools/regla.mjs --fallos      # TODO lo que puede fallar, derivado
+```
+
+Deducirla no es el camino (`SUITE-R53`).
+
+
 ---
 
 ## E · Publicar y mantener

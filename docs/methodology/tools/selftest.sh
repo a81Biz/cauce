@@ -367,6 +367,76 @@ chk   "con plataforma ⇒ avisa de R42"      "SUITE-R42"        M
 mk_v412
 chkno "sin plataforma ⇒ no exige el PR"    "G4 pasa a resolverse"  M
 
+# PT-043 · SUITE-R55 — las decisiones humanas se CONDUCEN, no se enumeran. Instalar acompana en
+# nueve fases conversacionales; migrar dejaba una lista y se iba, y migra quien NO eligio este
+# marco: lo heredo, y la lista esta escrita en el vocabulario que todavia no conoce.
+#
+# Las dos comprobaciones de abajo se MIDEN sobre la salida real, no se buscan como literal: un
+# `chk` de una frase concreta pasa aunque las otras ocho filas esten rotas. Los dos defectos que
+# corrigio esta tarea —una fila sin motivo y tres titulares partidos a media palabra— habrian
+# pasado por debajo de cualquier aserto de literal, y de hecho pasaron.
+sin_motivo()     { M 2>&1 | grep -c 'No se reconoce el motivo' || true; }
+codigo_migrate() { M >/dev/null 2>&1; echo $?; }
+# El invariante NO es de longitud —contar caracteres sobre UTF-8 mide bytes y miente—: un titular
+# que no se marca con «…» tiene que ser el texto COMPLETO de su accion, o su primera frase
+# completa. El texto completo esta impreso arriba, bajo «REQUIERE UNA PERSONA», asi que la
+# comprobacion es exacta y no depende de dónde se decidiera cortar.
+parte_palabra() {
+  M 2>&1 | awk '
+    /^  ! / { full[substr($0, 5)] = 1; next }
+    /^  [0-9]+\/[0-9]+ · / {
+      t = $0; sub(/^  [0-9]+\/[0-9]+ · /, "", t);
+      if (t ~ /…$/) next;
+      ok = 0; for (f in full) if (f == t || index(f, t ". ") == 1) ok = 1;
+      if (!ok) bad++;
+    }
+    END { print bad + 0 }'
+}
+
+mk_v412
+chk   "migrar CONDUCE, no enumera"          "1/"                     M
+chk   "el bloque se presenta por lo que es" "por que es tuyo"        M
+chk   "cada decision dice por que es tuya"  "La maquina ve los archivos"  M
+chk   "ninguna cae en el RULE-06 por defecto"  "^0$"                 sin_motivo
+chk   "ningun titular parte una palabra"    "^0$"                    parte_palabra
+chk   "el modo restringido se EXPLICA"      "No es un castigo"       M
+chk   "y dice cual es, con su regla"        "SUITE-R17"              M
+chk   "y el codigo de salida sigue siendo 1" "^1$"                   codigo_migrate
+# El RULE-06 sigue existiendo: hoy no lo dispara ninguna accion emitida —todas se reconocen— y
+# por eso se comprueba en el FUENTE. Se declara en el self-review: es la unica rama del conductor
+# sin caso de ejecucion, y una rama que no puede fallar tampoco puede probarse.
+chk   "el «no lo se» sigue en el codigo"    "No se reconoce el motivo"  cat "$SUITE/tools/migrate.mjs"
+
+# La conduccion no es solo del tramo 4.12: los saltos desde 3.x y 4.0.x emiten OTRAS acciones, y
+# cada una tiene que decir por que es tuya. Medirlo solo en 4.12 dejaba fuera a la mitad.
+mk_v3
+chk   "v3 tambien se conduce, sin huecos"   "^0$"                    sin_motivo
+chk   "v3 sin titulares partidos"           "^0$"                    parte_palabra
+mk_v40
+chk   "4.0.x tambien se conduce, sin huecos" "^0$"                   sin_motivo
+mk_v412 && reg_mig '"suite_version":"4.12.0","tracker":{"plataforma":"github"}'
+chk   "con plataforma tambien se conduce"   "^0$"                    sin_motivo
+
+# SUITE-R17 no se relaja: la lista queda EN EL REGISTRO, que es quien la hace cumplir despues.
+mk_v412
+M --apply > /dev/null 2>&1 || true
+chk   "SUITE-R17 no se relaja: queda en el registro" "migration_pending"  cat "$MIG/docs/implementation/REGISTRY.json"
+
+# Y el inverso: sin nada pendiente NO hay conductor. Recitar lo que no aplica ensena a no leerlo.
+mk_v412 && reg_mig "\"suite_version\":\"$VIGENTE\""
+printf '# HANDOFF\n\n<!-- ESTADO -->\nimplementación: ninguna\n<!-- /ESTADO -->\n' > "$MIG/docs/implementation/HANDOFF.md"
+touch "$MIG/docs/methodology/CORE.md" "$MIG/docs/methodology/CORE-PTSA.md"
+chkno "sin pendientes no hay conductor"     "por que es tuyo"        M
+
+# La regla y sus citas. Sin regla esto es un texto en una salida que la siguiente edicion quita
+# sin que nada lo note — que es como se perdio la mitad de lo que EP-011 esta recuperando.
+chk   "SUITE-R55 existe en RULES"           "SUITE-R55"   cat "$SUITE/RULES.md"
+chk   "y llega al nucleo"                   "SUITE-R55"   cat "$SUITE/CORE.md"
+chk   "PHASES la cita"                      "SUITE-R55"   cat "$SUITE/PHASES.md"
+chk   "FDGE-Prompts la cita"                "SUITE-R55"   cat "$SUITE/FDGE-Prompts.md"
+
+rm -rf "$MIG"
+
 # ─── E · integridad de la reconciliación y la migración verificada ──────────
 echo "── E · reconciliación y migración verificada ──"
 build_fixture
@@ -1280,6 +1350,64 @@ chk   "el manual enlaza al catálogo"         "CASOS-DE-USO.md" cat "$SUITE/MANU
 # SUITE-R21 / LEX-R22 · el manual CITA reglas, no las define: ninguna severidad aqui.
 chkno "el manual no define severidades"      "| HARD |"      cat "$SUITE/MANUAL.md"
 chkno "el catálogo tampoco"                  "| HARD |"      cat "$SUITE/CASOS-DE-USO.md"
+
+
+# PT-039 . SUITE-R52 — peticion o conversacion. Sin esta distincion cada mensaje es una orden
+# potencial: se convierte una duda en trabajo (gasta compuertas, ensucia el tablero) o se trata
+# una orden como charla (pierde el trabajo). Se DECLARA, no se acierta en silencio.
+chk   "SUITE-R52 existe en RULES"            "SUITE-R52"    cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R52"    cat "$SUITE/CORE.md"
+chk   "el núcleo abre preguntando qué es"    "ANTES DE NADA" cat "$SUITE/CORE.md"
+chk   "define peticion por su cierre"        "condición de terminado" cat "$SUITE/CORE.md"
+chk   "y dice que se DECLARA"                "en silencio"  cat "$SUITE/CORE.md"
+chk   "una conversacion no abre allocation"  "No una allocation" cat "$SUITE/CORE.md"
+chk   "PHASES lo declara"                    "SUITE-R52"    cat "$SUITE/PHASES.md"
+# Va ANTES que consultar el tablero: preguntar «que sigue» ante una conversacion ya es tratarla
+# como trabajo.
+_qe=$(grep -n 'ANTES DE NADA' "$SUITE/CORE.md" | head -1 | cut -d: -f1)
+_lp=$(grep -n 'LO PRIMERO' "$SUITE/CORE.md" | head -1 | cut -d: -f1)
+chk   "y va antes de consultar el tablero"   "^ORDENADO$" sh -c "[ \"$_qe\" -lt \"$_lp\" ] && echo ORDENADO || echo INVERTIDO"
+# PT-039 . y el defecto que aparecio al USAR la herramienta: `siguiente EP-NNN` tomaba el
+# identificador del lote como RUTA del proyecto. Solo se excluia PT-NNN.
+chk   "un EP-NNN no es una ruta"             "(?:PT|EP)-" cat "$SUITE/tools/tracker.mjs"
+
+
+# PT-040 / PT-041 . SUITE-R53 — la regla se alcanza desde el fallo, y lo que puede fallar se
+# DERIVA. El manual decia «de las diez ideas se deduce la regla que no has leido»: una excusa.
+# Y su tabla de fallos estaba escrita DE MEMORIA — es derivable de los fail() del codigo.
+RG="$SUITE/tools/regla.mjs"
+chk   "regla.mjs existe"                     "regla"        cat "$RG"
+chk   "SUITE-R53 existe en RULES"            "SUITE-R53"    cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R53"    cat "$SUITE/CORE.md"
+chk   "una regla responde qué exige"         "definida en"  node "$RG" SUITE-R44 "$SUITE"
+chk   "y quién la comprueba"                 "la comprueba" node "$RG" SUITE-R44 "$SUITE"
+chk   "una regla que no existe lo DICE"      "No está definida" node "$RG" SUITE-R999 "$SUITE"
+chk   "los fallos se DERIVAN del código"     "derivadas del código" node "$RG" --fallos "$SUITE"
+chk   "y son mas de cincuenta"               "[0-9][0-9] reglas, derivadas" node "$RG" --fallos "$SUITE"
+chk   "las no comprobadas se declaran"       "no lo dirán con su nombre" node "$RG" --sin-comprobar "$SUITE"
+# La derivacion NO es una lista escrita: si se añade un fail(), aparece solo. Se comprueba que
+# lee del codigo y no de un documento.
+chkno "no hay lista escrita de fallos"       "fallosPosibles = \[" cat "$RG"
+chk   "un ID de regla no es una ruta"        "RE_ID"        cat "$RAIZ/bin/cauce.mjs"
+
+
+# PT-042 . SUITE-R54 — el agente lee su manual. Instalar copiaba archivos que nadie leia: asi se
+# llego a tener 179 reglas y ningun manual. No obliga a leerlo —no se puede— pero no se arranca
+# sin que se ponga delante.
+chk   "SUITE-R54 existe en RULES"            "SUITE-R54"     cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R54"     cat "$SUITE/CORE.md"
+chk   "instalar remite al manual"            "MANUAL.md"     cat "$RAIZ/bin/cauce.mjs"
+chk   "y el arranque lo pone antes"          "Se lee ENTERO" cat "$RAIZ/bin/cauce.mjs"
+chk   "sin manual lo DICE"                   "No hay MANUAL.md" cat "$RAIZ/bin/cauce.mjs"
+chk   "y el marco sigue siendo usable"       "CORE.md es lo unico" cat "$RAIZ/bin/cauce.mjs"
+chk   "PHASES declara el manual"             "SUITE-R54"     cat "$SUITE/PHASES.md"
+# El manual va ANTES que el nucleo en el arranque: conocer las reglas no es saber usarlas.
+# El manual va antes que el nucleo en el bloque de `start`. Se comprueba sobre el FUENTE del
+# bloque —no ejecutando el binario contra un fixture, que arrastra el estado de otro proyecto.
+_blq=$(sed -n '/  start() {/,/^  },/p' "$RAIZ/bin/cauce.mjs")
+_mn=$(printf '%s' "$_blq" | grep -n 'MANUAL.md' | head -1 | cut -d: -f1)
+_co=$(printf '%s' "$_blq" | grep -n 'CORE.md' | tail -1 | cut -d: -f1)
+chk   "el manual va antes que el núcleo"     "^ORDENADO$" sh -c "[ -n \"$_mn\" ] && [ -n \"$_co\" ] && [ \"$_mn\" -lt \"$_co\" ] && echo ORDENADO || echo REVISAR"
 
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"

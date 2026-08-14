@@ -1,0 +1,10 @@
+{
+  "pt": "PT-042",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E2"], "tests": ["selftest.sh:instalar remite al manual"], "evidence": ["salidas/arranque.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E3","E7"], "tests": ["selftest.sh:y el arranque lo pone antes","selftest.sh:el manual va antes que el núcleo"], "evidence": ["salidas/arranque.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E1","E6"], "tests": ["selftest.sh:SUITE-R54 existe en RULES","selftest.sh:PHASES declara el manual"], "evidence": ["salidas/arranque.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E4","E5"], "tests": ["selftest.sh:sin manual lo DICE","selftest.sh:y el marco sigue siendo usable"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 410, "failed": 0, "coverage": 410, "baseline": 402 }
+}

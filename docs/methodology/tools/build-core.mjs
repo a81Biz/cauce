@@ -295,6 +295,22 @@ Detalle y porqué: \`RULES.md\` · \`LEXICON.md\` · \`EXECUTION-MODES.md\` · \
 Los \`*-Prompts.md\` son la expansión legible de \`PHASES.md\` para copiar y pegar en modo
 \`MANUAL\`; en runtime no se cargan.
 
+## ANTES DE NADA — ¿te están pidiendo algo, o estáis pensando en voz alta?   \`SUITE-R52\`
+
+No todo mensaje abre trabajo. **Declara en una línea qué has entendido** y sigue; si te
+equivocas, te corregirán — lo que no vale es decidirlo en silencio.
+
+\`\`\`
+PETICIÓN       tiene condición de terminado: se puede escribir «termina cuando: …»
+               → abre PHASE 1, con lo pedido como origen
+CONVERSACIÓN   no la tiene: es una duda, una idea, una queja, un «¿qué opinas?»
+               → produce una RESPUESTA. No una allocation, no un issue, no compuertas
+\`\`\`
+
+Una conversación **puede acabar** en petición, y entonces lo conversado es su origen. Pero no
+empieza siéndolo. Convertir una duda en trabajo gasta compuertas y ensucia el tablero; tratar
+una orden como charla pierde el trabajo.
+
 ## LO PRIMERO — el estado sale del tablero, no de tu memoria   \`SUITE-R49\`
 
 **Antes de responder nada sobre el trabajo en curso, antes de tocar un archivo y antes de

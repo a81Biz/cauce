@@ -1,0 +1,11 @@
+{
+  "pt": "PT-039",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1","E3"], "tests": ["selftest.sh:SUITE-R52 existe en RULES","selftest.sh:define peticion por su cierre"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E2","E7"], "tests": ["selftest.sh:el núcleo abre preguntando qué es","selftest.sh:y va antes de consultar el tablero"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E4"], "tests": ["selftest.sh:y dice que se DECLARA"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E5","E6"], "tests": ["selftest.sh:una conversacion no abre allocation","selftest.sh:PHASES lo declara"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E8"], "tests": ["selftest.sh:un EP-NNN no es una ruta","ejecución real: siguiente EP-011 pasó de fallar a responder"], "evidence": ["salidas/defecto-real.txt"], "verified": true }
+  ],
+  "suite": { "passed": 391, "failed": 0, "coverage": 391, "baseline": 382 }
+}

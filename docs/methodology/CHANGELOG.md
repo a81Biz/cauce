@@ -8,6 +8,93 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.6.0 — 2026-08-14
+
+**El marco se usa a sí mismo.** Cuatro reglas nuevas —`SUITE-R52`, `SUITE-R53`, `SUITE-R54`,
+`SUITE-R55`—, ninguna modificada ni derogada: `MINOR`. Los proyectos instalados en `7.5.0`
+suben sin migración de artefactos.
+
+Salió de seis observaciones que eran **la misma**: el marco existía y no se aplicaba a sí mismo.
+
+> *«Leo que cuando algo falla hay 177 reglas de un mensaje, pero **¿qué es lo que puede
+> fallar?** […] **migrar un legado como está me parece hasta preocupante**, y lo peor es que
+> **ningún caso prueba que el manual sirve** […] Ni tú mismo, esta sesión al menos, sigue o se
+> obliga a seguir lo que ya tenemos.»*
+
+La última frase es el diagnóstico entero. La prueba de que era correcto llegó sola: al ejecutar
+`tracker siguiente` para abrir el lote —lo primero que `SUITE-R49` obliga a hacer y que llevaba
+sin hacerse toda la sesión— apareció un defecto real en el primer intento. **Usar la herramienta
+lo encontró; leerla no lo había encontrado nunca.**
+
+### `SUITE-R52` · petición o conversación
+
+No todo mensaje abre trabajo. Una **petición** tiene condición de terminado —«termina cuando: …»
+(`FDGE-R53`)—; sin ella es **conversación**, y produce una respuesta, no una `allocation`. El
+agente **declara** cuál ha entendido y puede ser corregido: no se le pide acertar, se le pide no
+decidirlo en silencio. Sin esta distinción cada mensaje es una orden potencial y las otras tres
+reglas se aplican a destiempo.
+
+### `SUITE-R53` · lo que puede fallar se deriva, y la regla se consulta
+
+```bash
+cauce regla SUITE-R44      # qué exige, dónde vive, quién la comprueba
+cauce regla --fallos       # TODO lo que puede fallar, derivado de los fail() del código
+cauce regla --sin-comprobar  # las que, si fallan, no lo dirán con su ID
+```
+
+La tabla «cuando algo falla» del manual estaba escrita **de memoria** y se quedaba corta en
+cuanto alguien añadía una comprobación. Ahora sale de los `fail()` y `warn()` reales. Y una
+regla que ningún verificador emite con su nombre **se declara como tal**: no significa que no se
+cumpla, significa que si falla no lo dirá con su ID.
+
+### `SUITE-R54` · el agente lee su manual
+
+`cauce install` **empieza** remitiendo a `MANUAL.md` y `CASOS-DE-USO.md`, antes de «abre tu
+agente»; `cauce start` los pone por delante del núcleo. **No obliga a leerlos y no puede** —
+cualquier confirmación sería el agente afirmando sobre sí mismo, la prueba circular que
+`SUITE-R27` declara insuficiente. Lo que hace es que no se pueda arrancar sin que se pongan
+delante. Si el manual no está, se **dice**: `CORE.md` es lo único obligatorio.
+
+### `SUITE-R55` · migrar se conduce, no se enumera
+
+Instalar acompañaba en nueve fases conversacionales (`SUITE-R28`); migrar imprimía una lista y se
+iba — y quien migra **no eligió** este marco: lo heredó, y la lista está escrita en el
+vocabulario que todavía no conoce. Ahora cada decisión pendiente va numerada, con qué se decide y
+**por qué no puede decidirlo una máquina**, y el modo restringido se explica al entrar en él.
+
+`SUITE-R17` **no se relaja**: la lista sigue en `REGISTRY.migration_pending` y el código de
+salida sigue siendo `1`. No se decide ninguna por nadie ni se proponen valores por defecto.
+
+### Lo que encontró ejecutar, y no leer
+
+Cinco defectos, todos en el código que este mismo lote acababa de escribir:
+
+- `tracker siguiente EP-NNN` tomaba el identificador del lote como **ruta del proyecto**: el
+  filtro excluía `PT-NNN` y no `EP-NNN`.
+- El resumen de `migrate` cortaba por `.` y partía `7.5.0` y `SECRETOS-EXCEPCIONES.md`; corregido
+  eso, **seguía** cortando a media palabra por longitud en 3 de cada 9 titulares. El caso que se
+  probó fue el del punto; el que ocurre siempre era el de la longitud.
+- Una de las «siete decisiones» de la migración no era una decisión: era una advertencia sobre
+  otra. **Lo delató el propio conductor** al no saber darle motivo y decirlo (`RULE-06`).
+- El conductor reconocía 6 de las ~20 acciones que `migrate` emite: los tramos `3.x` y `4.0.x`
+  salían enteros sin motivo. Medir sobre un solo fixture daba verde a la mitad del trabajo.
+- Y dos que quedan **abiertos con su issue**, no callados: el YAML de cuatro intakes de este lote
+  declara una fase que el registro contradice —lo que desactivó `FDGE-R52` en los cuatro
+  (`PT-044`)—, y `npx @a81biz/cauce start`, el arranque que el manual documenta, **no arranca**
+  (`PT-045`).
+
+```
+382 → 429 casos de prueba
+```
+
+### Lo que esta versión NO logra
+
+**No obliga a leer el manual, ni a tomar las decisiones de una migración, ni garantiza que el
+agente clasifique bien una petición.** Las cuatro reglas lo dicen en su propio texto. Lo que
+consiguen es que nada de eso se pueda saltar en silencio.
+
+---
+
 ## 7.5.0 — 2026-08-14
 
 **El marco pasa a tener manual.** Ninguna regla nueva ni modificada: `MINOR`. Lo que cambia no es

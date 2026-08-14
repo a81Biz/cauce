@@ -33,7 +33,12 @@ const PKG_PROPIO = JSON.parse(readFileSync(join(PAQUETE, 'package.json'), 'utf8'
 const VERSION = PKG_PROPIO.version;
 
 const [, , comando, ...resto] = process.argv;
-const DESTINO = resolve(resto.find((a) => !a.startsWith('--')) ?? process.cwd());
+// PT-041 · un identificador de regla NO es una ruta. `cauce regla SUITE-R46` resolvia DESTINO
+// como el directorio «SUITE-R46» y no encontraba la suite. Es EL MISMO defecto que aparecio el
+// mismo dia en `tracker` con `siguiente EP-011`: un argumento con forma de identificador colandose
+// como ruta. Dos sitios, misma causa — se anota aqui para que el tercero se vea antes.
+const RE_ID = /^[A-Z]+-R\d+$/;
+const DESTINO = resolve(resto.find((a) => !a.startsWith('--') && !RE_ID.test(a)) ?? process.cwd());
 const SUITE_EN_DESTINO = join(DESTINO, 'docs', 'methodology');
 const FORZAR = resto.includes('--forzar');
 
@@ -157,6 +162,15 @@ const comandos = {
     di(`${c.verde}cauce ${VERSION}${c.fin} · ${n} archivos en docs/methodology/`);
     const r = corre('build-core.mjs', [SUITE_EN_DESTINO]);
     di();
+    // PT-042 · SUITE-R54 · la instalacion EMPIEZA por leer, no por copiar. Copiar archivos que
+    // nadie lee es como llegamos a tener 179 reglas y ningun manual: el agente se instalaba sin
+    // saber que le gobierna.
+    di();
+    di(`${c.neg}Antes de nada, lee esto${c.fin} — en este orden:`);
+    di(`  1 · ${c.neg}docs/methodology/MANUAL.md${c.fin}        ${c.dim}como se usa. Entero, una vez.${c.fin}`);
+    di(`  2 · ${c.neg}docs/methodology/CASOS-DE-USO.md${c.fin}  ${c.dim}tu caso concreto.${c.fin}`);
+    di(`${c.dim}Instalar copia archivos; leerlos es lo que hace que sirvan (SUITE-R54).${c.fin}`);
+    di();
     di(`Ahora abre Claude Code aquí y escribe:  ${c.neg}instala el framework${c.fin}`);
     di(`${c.dim}El terreno, los movimientos, las dependencias y la Declaración de Valor se${c.fin}`);
     di(`${c.dim}deciden en conversación, no aquí (SUITE-R28). El procedimiento está en INSTALL.md.${c.fin}`);
@@ -230,13 +244,36 @@ const comandos = {
     if (cod === 2) di(`${c.dim}Sin plataforma declarada: el estado del tablero queda SIN EVALUAR (SUITE-R49).${c.fin}`);
     else if (cod === 3) di(`${c.dim}Plataforma declarada sin acceso: SIN EVALUAR. No se sustituye por una suposicion.${c.fin}`);
     di();
-    di(`${c.neg}Y ahora el nucleo${c.fin} — lo unico que se carga (SUITE-R15):`);
-    di(`  ${SUITE_EN_DESTINO}/CORE.md`);
+    // PT-042 · SUITE-R54 · el manual antes que el nucleo. Un agente que arranca sin haber leido
+    // lo que le gobierna es el problema que este marco existe para eliminar, dentro del marco.
+    const man = join(SUITE_EN_DESTINO, 'MANUAL.md');
+    di(`${c.neg}Y ahora, en este orden${c.fin}:`);
     di();
-    di(`${c.dim}Ese orden no es de cortesia: lo de arriba es el estado real y lo de abajo son las${c.fin}`);
-    di(`${c.dim}reglas. Leer las reglas sin el estado es como se saltan las fases.${c.fin}`);
+    if (existsSync(man)) {
+      di(`  1 · ${c.neg}MANUAL.md${c.fin}        ${c.dim}como se usa esto. Se lee ENTERO una vez (SUITE-R54).${c.fin}`);
+      di(`      ${man}`);
+      di(`  2 · ${c.neg}CASOS-DE-USO.md${c.fin}  ${c.dim}el caso que tengas delante, con su ruta.${c.fin}`);
+      di(`  3 · ${c.neg}CORE.md${c.fin}          ${c.dim}las reglas. Lo unico que se carga en runtime (SUITE-R15).${c.fin}`);
+    } else {
+      // No se finge que este: sin manual se dice, y el marco sigue siendo usable (RULE-06).
+      di(`  ${c.rojo}No hay MANUAL.md en el destino.${c.fin} El marco funciona igual —CORE.md es lo unico`);
+      di(`  obligatorio— pero nadie te va a explicar como se usa. Instalalo o traelo de la version.`);
+      di(`  ${c.neg}CORE.md${c.fin}  ${SUITE_EN_DESTINO}/CORE.md`);
+    }
+    di();
+    di();
+    di(`${c.dim}Ese orden no es de cortesia. El estado va primero porque leer las reglas sin el${c.fin}`);
+    di(`${c.dim}estado es como se saltan las fases. Y el manual va antes que las reglas porque${c.fin}`);
+    di(`${c.dim}conocer 179 reglas no es lo mismo que saber usarlas — y nadie te obliga a leerlo,${c.fin}`);
+    di(`${c.dim}asi que si te lo saltas, el unico perjudicado eres tu.${c.fin}`);
+    di();
+    di(`${c.dim}Y cuando algo falle:  ${c.fin}${c.neg}cauce regla <ID>${c.fin}${c.dim}  — no lo deduzcas (SUITE-R53).${c.fin}`);
     return 0;
   },
+
+  // PT-041 · la regla, en el momento en que importa. El manual decia «de las diez ideas se
+  // deduce la regla que no has leido»: eso era una excusa. Deducir no deberia hacer falta.
+  regla() { return corre('regla.mjs', [...resto.filter((a) => resolve(a) !== DESTINO), SUITE_EN_DESTINO]); },
 
   version() { di(`cauce ${VERSION}`); return 0; },
 };
@@ -249,6 +286,8 @@ if (!comando || comando === '--help' || comando === '-h' || !comandos[comando]) 
   di(`  ${c.neg}cauce verify${c.fin}  [ruta]   coherencia del marco, núcleo sincronizado y cumplimiento de los PT`);
   di(`  ${c.neg}cauce compare${c.fin} [ruta]   qué difiere entre la copia del proyecto y esta versión`);
   di(`  ${c.neg}cauce core${c.fin}    [ruta]   regenera CORE.md y CORE-PTSA.md`);
+  di(`  ${c.neg}cauce regla${c.fin}  SUITE-RNN  qué exige una regla, dónde vive y qué la comprueba`);
+  di(`  ${c.neg}cauce regla${c.fin}  --fallos   todo lo que puede fallar, derivado del código`);
   di();
   di(`${c.dim}La instalación de verdad es conversacional: tras «cauce install», dile a Claude${c.fin}`);
   di(`${c.dim}«instala el framework» y conducirá el terreno, los movimientos y las dependencias.${c.fin}`);
