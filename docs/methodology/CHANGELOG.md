@@ -8,6 +8,50 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.2.0 — 2026-08-13
+
+**El tablero deja de ser un sitio donde mirar y pasa a ser de donde sale la respuesta.** Dos
+reglas nuevas, ninguna modificada: `MINOR`.
+
+### `SUITE-R48` · qué sigue lo dice el tablero, no la memoria del agente
+
+```bash
+node docs/methodology/tools/tracker.mjs siguiente [PT-NNN]
+```
+
+Deriva —del registro cruzado con el estado real del issue— qué produce la fase actual, qué la
+cierra, qué compuerta le toca y qué la bloquea. Un comentario humano sin responder **bloquea la
+respuesta** (`SUITE-R43`): preguntar qué sigue sin haber leído lo anterior es el defecto en su
+forma más pura. Sin `phase` declarada, `SIN EVALUAR` — no se adivina.
+
+Se escribió porque el agente recorría las fases **de memoria**, y de memoria es exactamente como
+se saltan: en una sola sesión se dio un merge por terminado sin mirar la compuerta que corre
+después, se cerraron issues en un orden que ninguna regla decía, y se declaró un cambio de
+especificación que nunca se hizo.
+
+**Lo que esta regla NO hace, y está escrito en ella:** un comando **no puede exigir haber sido
+llamado**. La respuesta ahora existe fuera de la memoria del agente y es citable; obligar a
+mirarla es otro problema, y tiene su lote (`EP-008`).
+
+### `EXEC-R08` · los tres modos exigen lo mismo
+
+`MANUAL`, `SUPERVISED` y `AUTONOMOUS` cambian **quién** resuelve una compuerta y cuándo se pide
+confirmación. **Nunca qué se exige.** La matriz de compuertas solo contiene quién resuelve: si
+una celda cita un artefacto o una regla, ese modo trata distinto lo exigido y `verify-suite`
+falla. Vocabulario cerrado, no prosa — la lección de `SUITE-R44`.
+
+Salió con un caso real en la primera ejecución: la fila de `G1` declaraba la firma por lote como
+ventaja de `AUTONOMOUS`, y `INTAKE-R08` vale en los tres. Una ventaja aparente de un modo es una
+vara de medir más floja esperando a que alguien la elija sin decirlo.
+
+### Migración desde 7.1.0
+
+Ninguna acción obligatoria. `EXEC-R08` puede fallar sobre un `EXECUTION-MODES.md` personalizado
+cuya matriz cite artefactos o reglas: mueve esa explicación fuera de la matriz — la celda dice
+quién resuelve, y el porqué va en el texto de la regla.
+
+---
+
 ## 7.1.0 — 2026-08-13
 
 **La integración de la 7.0.0 se rompió, y en dos sitios distintos.** Ninguna regla se modifica y

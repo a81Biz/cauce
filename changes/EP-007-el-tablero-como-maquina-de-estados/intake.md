@@ -79,7 +79,7 @@ Estado: FIRMADA · G1 PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| Regenerar `CORE.md` | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | HECHO — 7.2.0 |
+| Regenerar `CORE.md` | HECHO |
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.
