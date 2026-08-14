@@ -8,6 +8,66 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.5.0 — 2026-08-14
+
+**El marco pasa a tener manual.** Ninguna regla nueva ni modificada: `MINOR`. Lo que cambia no es
+qué exige cauce, es que ahora se puede aprender sin haber estado presente mientras se escribía.
+
+Salió de una observación que dolía por exacta: *«falta la explicación en el README del uso, desde
+el inicio: la creación de un nuevo proyecto, la instalación del agente, sobre un trabajo nuevo,
+uno legado, etc.»*.
+
+**177 reglas, 15 herramientas, 382 casos de prueba — y ningún documento que respondiera «acabo de
+llegar, ¿qué hago?».** Lo que había estaba en cuatro sitios, ninguno completo, y ninguno cubría
+`cauce start`, que había nacido el día anterior. Es el mismo defecto que este marco corrige en el
+código: la información existe y no está donde se busca.
+
+### [`CASOS-DE-USO.md`](CASOS-DE-USO.md) · el catálogo
+
+**28 casos en seis familias**, cada uno con la misma forma:
+
+```
+ENTRADA      lo primero que se ejecuta o se dice
+RECORRIDO    los pasos, con quién los resuelve
+FIN          la condición observable de terminado
+HUMANO       lo que no se automatiza nunca en ese caso
+```
+
+Agrupado por **lo que la persona quiere hacer** —empezar, trabajar, comprobar, decidir, publicar,
+configurar— y no por componente: quien llega no sabe qué es FDGE.
+
+Y **cuatro huecos declarados**: Azure sin ejercitar, monorepo, varios agentes a la vez, migrar
+desde una suite que no sea cauce. Un catálogo que solo enumera lo que cubre miente por omisión —
+quien no encuentre su caso no sabría si no está soportado o si se nos olvidó.
+
+### [`MANUAL.md`](MANUAL.md) · de cero al primer trabajo cerrado
+
+Nueve secciones que se leen seguidas una vez. Dos no existían en ningún sitio:
+
+- **«Cuando algo falla»** — un marco de 177 reglas produce mensajes que parecen errores del
+  usuario. Sin esa tabla, un `SIN EVALUAR` se lee como «está bien» y una compuerta que bloquea se
+  lee como un estorbo.
+- **«Las diez ideas»** — los principios de los que se **deduce** la regla que no has leído. Es lo
+  único que escala a 177.
+
+Encontrable desde el `README` raíz —arriba del todo—, el `README` de la suite, `CLAUDE.md` y
+`LEXICON`.
+
+### Lo que este lote NO verifica, y es lo que importa
+
+**Ningún caso prueba que el manual sirva.** Comprueban que existe, que empieza por donde debe y
+que no duplica reglas. Que alguien de cero llegue al final solo lo dirá quien no haya estado
+presente mientras se escribía — y no lo hay todavía.
+
+Queda dicho aquí en vez de dejar que 382 casos en verde se lean como validación de algo que
+todavía no se ha probado.
+
+### Migración desde 7.4.0
+
+Ninguna acción. Dos documentos nuevos y tres enlaces.
+
+---
+
 ## 7.4.0 — 2026-08-13
 
 **El tablero deja de contar la jerarquía en prosa.** Una regla nueva, ninguna modificada: `MINOR`.

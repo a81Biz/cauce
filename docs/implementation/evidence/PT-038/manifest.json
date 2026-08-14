@@ -1,0 +1,12 @@
+{
+  "pt": "PT-038",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1"], "tests": ["selftest.sh:el manual existe"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E2"], "tests": ["selftest.sh:el manual manda empezar preguntando"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E3"], "tests": ["selftest.sh:y dice que G4 es tuya"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E4"], "tests": ["selftest.sh:el manual enlaza al catálogo"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E5"], "tests": ["selftest.sh:el manual no define severidades"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-06", "scenarios": ["E6"], "tests": ["ejecución real sobre los cuatro archivos"], "evidence": ["salidas/donde-se-encuentra.txt"], "verified": true }
+  ],
+  "suite": { "passed": 382, "failed": 0, "coverage": 382, "baseline": 371 }
+}

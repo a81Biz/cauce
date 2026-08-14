@@ -1,5 +1,9 @@
 # Methodology Suite — Manual de instrucciones
 
+> **Si vienes a usar cauce y no a mantenerlo:** [`MANUAL.md`](MANUAL.md) y
+> [`CASOS-DE-USO.md`](CASOS-DE-USO.md). Este documento es el manual de la **suite**, que es otra
+> cosa: describe sus componentes por dentro.
+
 > **Versión 5.2.0** · [CHANGELOG.md](CHANGELOG.md)
 >
 > Seis componentes que forman un ciclo gobernado de desarrollo de software asistido por IA.

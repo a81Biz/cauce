@@ -1,5 +1,14 @@
 # cauce
 
+> ## ¿Empiezas aquí?
+>
+> **[MANUAL.md](docs/methodology/MANUAL.md)** — de cero a tu primer trabajo cerrado. Se lee
+> entero una vez.
+> **[CASOS-DE-USO.md](docs/methodology/CASOS-DE-USO.md)** — el caso exacto que tengas delante,
+> con su ruta y con los huecos declarados.
+>
+> Y si ya está instalado: `npx @a81biz/cauce start`.
+
 **Marco de gobernanza para desarrollo asistido por IA.** Trazabilidad, evidencia y control
 humano sobre toda decisión irreversible.
 

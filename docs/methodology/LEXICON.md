@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **7.4.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **7.5.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -530,6 +530,8 @@ RULES.md                      ← reglas de componente
 EXECUTION-MODES.md            ← modos, compuertas, lotes
 PHASES.md                     ← procedimiento denso por fase
 CHANGELOG.md
+MANUAL.md                     ← de cero al primer trabajo cerrado · se lee entero una vez
+CASOS-DE-USO.md               ← el catálogo: cada caso con su ruta, y los huecos declarados
 Suite-CLAUDE-Template.md
 README.md
 

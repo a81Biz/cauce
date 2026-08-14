@@ -1264,6 +1264,23 @@ trlib "sin saber la rama, cae en la principal" "tree/main/"   "console.log(m.cue
 trlib "y el cuerpo dice donde esta"           "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
 
+
+# PT-037 / PT-038 . el catalogo y el manual. Un marco con 177 reglas y sin manual no lo puede
+# usar nadie que no haya estado presente mientras se escribia. El catalogo va primero: escribir
+# sin la lista produce un manual que cubre lo que se le ocurrio a quien lo escribio.
+chk   "el catálogo existe"                   "CASOS DE USO"  cat "$SUITE/CASOS-DE-USO.md"
+chk   "el manual existe"                     "MANUAL"        cat "$SUITE/MANUAL.md"
+chk   "el catálogo declara sus huecos"       "Huecos declarados" cat "$SUITE/CASOS-DE-USO.md"
+chk   "y cubre el proyecto legado"           "proyecto legado"   cat "$SUITE/CASOS-DE-USO.md"
+chk   "y el arranque de sesion"              "cauce start"       cat "$SUITE/CASOS-DE-USO.md"
+chk   "y los tres modos"                     "AUTONOMOUS"        cat "$SUITE/CASOS-DE-USO.md"
+chk   "el manual manda empezar preguntando"  "cauce start"   cat "$SUITE/MANUAL.md"
+chk   "y dice que G4 es tuya"                "G4"            cat "$SUITE/MANUAL.md"
+chk   "el manual enlaza al catálogo"         "CASOS-DE-USO.md" cat "$SUITE/MANUAL.md"
+# SUITE-R21 / LEX-R22 · el manual CITA reglas, no las define: ninguna severidad aqui.
+chkno "el manual no define severidades"      "| HARD |"      cat "$SUITE/MANUAL.md"
+chkno "el catálogo tampoco"                  "| HARD |"      cat "$SUITE/CASOS-DE-USO.md"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

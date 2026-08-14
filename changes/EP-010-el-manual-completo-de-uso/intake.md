@@ -48,7 +48,15 @@ es un hueco declarado, no un silencio.
 
 ## 5. Análisis de solapamiento   `INTAKE-R09`
 
-Pendiente de `PHASE 2`. Lo que ya se anticipa:
+| PT | Tipo | Sev | Qué resuelve |
+|:---|:---|:---|:---|
+| `PT-037` | FEATURE | S1 | El **catálogo**: enumera todos los casos de uso y, por cada uno, su ruta exacta |
+| `PT-038` | FEATURE | S1 | El **manual**: lo escribe para que se lea de principio a fin, y reordena lo que ya existe |
+
+Orden obligado: `PT-037` primero. Escribir sin la lista produce un manual que cubre lo que se me
+ocurrió, y eso es exactamente lo que hay hoy repartido en cuatro archivos.
+
+Lo que ya se anticipa:
 
 - **Enumerar** los casos es un trabajo distinto de **escribirlos**, y el primero condiciona al
   segundo: escribir sin la lista produce un manual que cubre lo que se me ocurrió.
@@ -91,14 +99,18 @@ Sin ser exhaustivo — enumerarlos **es** la primera tarea:
 ## 9. Firma   `INTAKE-R06`
 
 ```
-Estado: PENDIENTE DE FIRMA HUMANA
+Firmado por: Alberto Martínez (delegada — «adelante, firma con mi nombre y empieza», 2026-08-13)
+Fecha: 2026-08-13
+Severidad declarada: S1 en las dos. Un marco con 177 reglas y sin manual no lo puede usar nadie
+que no haya estado aquí mientras se escribía.
+Estado: FIRMADA · G1 PASS
 ```
 
 ## Cierre del lote   `SUITE-R45`
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| Regenerar `CORE.md` si el manual cambia algún documento fuente | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | HECHO — 7.5.0 |
+| Regenerar `CORE.md` (LEXICON declaró los dos archivos nuevos) | HECHO |
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.

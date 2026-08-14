@@ -1074,3 +1074,43 @@ Versión: 7.4.0
 Alcance: PT-035, PT-036 → INTEGRATED · EP-009 → CLOSED
 
 Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.
+
+## PT-037 — FEATURE: el catálogo de casos de uso
+Fecha: 2026-08-14 · Estado: DONE · Severidad: S1 · Implementación: EP-010 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 pendiente
+
+28 casos en seis familias, con forma fija —entrada, recorrido, fin, qué es humano— agrupados por
+lo que la persona quiere hacer y NO por componente: quien llega no sabe qué es FDGE. Y cuatro
+huecos DECLARADOS, porque un catálogo que solo enumera lo que cubre miente por omisión.
+
+Escribirlo obligó a admitir dos cosas: que Azure no está ejercitado —hay adaptador y ningún
+proyecto que lo use— y que migrar un legado deja el proyecto en modo restringido, así que no es
+«un rato al principio», es la primera sesión entera.
+
+Ningún caso puede probar que el catálogo esté COMPLETO. Por eso declara huecos y dice que un caso
+nuevo entra como PT.
+
+## PT-038 — FEATURE: el manual de uso
+Fecha: 2026-08-14 · Estado: DONE · Severidad: S1 · Implementación: EP-010 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 pendiente
+
+MANUAL.md en nueve secciones. Dos no existían en ningún sitio: «cuando algo falla» —sin ella un
+SIN EVALUAR se lee como «está bien»— y «las diez ideas», de las que se DEDUCE la regla no leída,
+que es lo único que escala a 177 reglas.
+
+Encontrable desde el README raíz (arriba del todo, que era la queja literal), el README de la
+suite, CLAUDE.md y LEXICON.
+
+LO QUE NO SE VERIFICA, y es lo que importa: ningún caso prueba que el manual SIRVA. Que alguien
+de cero llegue al final solo lo dirá quien no haya estado presente mientras se escribía, y no lo
+hay todavía. Es el único trabajo de esta sesión cuya validación exige a otra persona.
+
+## G4 — EP-010 · integración
+Fecha: 2026-08-14 · Compuerta: G4 · integrado por: Alberto Martínez
+Autoriza: Alberto Martínez — «adelante, firma con mi nombre y empieza, no pares hasta terminar»
+Versión: 7.5.0
+Alcance: PT-037, PT-038 → INTEGRATED · EP-010 → CLOSED
+
+Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.
