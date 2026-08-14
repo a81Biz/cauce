@@ -1,0 +1,11 @@
+{
+  "pt": "PT-036",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1"], "tests": ["selftest.sh:lo vivo enlaza la rama de trabajo"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E2"], "tests": ["selftest.sh:lo integrado enlaza la principal"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E3"], "tests": ["selftest.sh:sin saber la rama, cae en la principal"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E4"], "tests": ["selftest.sh:y el cuerpo dice donde esta"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E5"], "tests": ["ejecución real: el issue #53 pasó de tree/main a tree/trabajo en una pasada"], "evidence": ["salidas/enlace-real.txt"], "verified": true }
+  ],
+  "suite": { "passed": 371, "failed": 0, "coverage": 371, "baseline": 359 }
+}

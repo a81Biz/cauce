@@ -1,0 +1,5 @@
+**Implementación abierta** · Un manual completo: todos los casos de uso desde cero, con su resolucion
+
+Intake, criterios de aceptación y evidencia: [`changes/EP-010-el-manual-completo-de-uso/`](https://github.com/a81Biz/cauce/tree/trabajo/changes/EP-010-el-manual-completo-de-uso)
+
+> El enlace apunta a `trabajo`, que es donde el contenido existe ahora. Al

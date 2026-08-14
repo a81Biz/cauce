@@ -1,0 +1,11 @@
+{
+  "pt": "PT-035",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1"], "tests": ["ejecución real: 24 tareas anidadas bajo siete lotes"], "evidence": ["salidas/arbol-real.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E2","E3"], "tests": ["selftest.sh:y no repite el que ya esta","selftest.sh:nombra hijo y padre"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E4","E5"], "tests": ["selftest.sh:sin saber, no se afirma que falte","selftest.sh:una tarea sin lote no se anida"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E1"], "tests": ["ejecución real: EP-001 a EP-008, incluidos los CLOSED"], "evidence": ["salidas/arbol-real.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E6","E7"], "tests": ["selftest.sh:SUITE-R51 existe en RULES","selftest.sh:y llega al núcleo"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 371, "failed": 0, "coverage": 371, "baseline": 359 }
+}

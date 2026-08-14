@@ -677,6 +677,14 @@ function sincronizarEtiquetas() {
   }
 }
 
+// PT-036 · EL UNICO final de `abrir()`. Todo lo que debe quedar sincronizado va aqui, para que
+// no vuelva a existir un camino que se lo salte: etiquetas, cuerpos y jerarquia.
+function cerrarPasada() {
+  sincronizarEtiquetas();
+  sincronizarCuerpos();
+  anidarSubIssues();
+}
+
 // PT-035 · declarar en la plataforma la jerarquia que el registro ya tiene.
 function anidarSubIssues() {
   if (!adaptador.subIssues || !adaptador.anidar) return;
@@ -704,9 +712,7 @@ function abrir() {
         catch { fail('FND-R30', `falta la etiqueta «${e}» y no se pudo crear:  gh label create "${e}"`); }
       }
     }
-    sincronizarEtiquetas();
-    sincronizarCuerpos();
-    anidarSubIssues();
+    cerrarPasada();
     return;
   }
   if (!APLICAR) {
@@ -737,10 +743,11 @@ function abrir() {
     a.issue = n;
     notas.push(`${a.id} → issue #${n}`);
   }
-  // PT-035 · anidar TAMBIEN aqui. Es la tercera vez en este archivo que un arreglo queda
-  // detras de un `return` y no se ejecuta —PT-014 en sincronizarCuerpos(), PT-022 en
-  // checkCierreDeLote()—: un arreglo inalcanzable se lee como proteccion y es peor que ninguno.
-  anidarSubIssues();
+  // PT-035 · PT-036 · la pasada que CREA termina igual que la que no crea. Es la CUARTA vez en
+  // este archivo que un arreglo queda detras de un `return` y no se ejecuta —PT-014 en
+  // sincronizarCuerpos(), PT-022 en checkCierreDeLote(), PT-035 al anidar—. Cuatro veces no es
+  // descuido: era que `abrir()` tenia dos finales y solo uno estaba completo. Ahora tiene uno.
+  cerrarPasada();
   writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
 }
 

@@ -770,11 +770,11 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "IN_PROGRESS",
+      "status": "VALIDATION_PENDING",
       "structural": false,
       "suite_version": "7.3.0",
       "epic": "EP-009",
-      "phase": 2,
+      "phase": 8,
       "title": "tracker enlaza las tareas en el cuerpo del lote en vez de declararlas sub-issues",
       "origin": "EP-009",
       "created": "2026-08-13",
@@ -803,14 +803,15 @@
       "complexity": "SIMPLE",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "IN_PROGRESS",
+      "status": "VALIDATION_PENDING",
       "structural": false,
       "suite_version": "7.3.0",
       "epic": "EP-009",
-      "phase": 2,
+      "phase": 8,
       "title": "El cuerpo del issue apunta a la rama por defecto, donde el contenido aun no esta: 404 en el momento en que mas se lee",
       "origin": "Hallazgo humano 2026-08-13 · «si voy al enlace que indicas tiene tree/main/changes/EP-010... que no lleva a ningun lado, esta aun en local»",
-      "created": "2026-08-13"
+      "created": "2026-08-13",
+      "issue": 54
     }
   ]
 }

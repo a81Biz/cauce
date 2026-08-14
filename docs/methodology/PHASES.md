@@ -256,6 +256,11 @@ CONTRATO  tarea e implementación → issue | work item        [SUITE-R35: es lo
           artefacto para el mismo hecho es la divergencia que SUITE-R35 impide.
 REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECIDIÓ.
           El issue REFERENCIA el intake, no lo copia: dos copias divergen.
+JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SUITE-R51]
+          cuerpo: un enlace no da progreso ni cierra en cascada. Y el enlace
+          del issue apunta a DONDE EL CONTENIDO ESTA — rama de trabajo si
+          esta vivo, rama por defecto si ya es INTEGRATED.
+          node tools/tracker.mjs abrir --aplicar   lo mantiene
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan

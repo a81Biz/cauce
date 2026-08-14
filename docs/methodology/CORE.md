@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 1f73a4cd18b6 -->
-<!-- fuentes: RULES.md:2983b64ea07c LEXICON.md:610f88df35e3 EXECUTION-MODES.md:996044fcc7a0 PHASES.md:fc5280ee531b -->
+<!-- cuerpo: 8977db7c1d3b -->
+<!-- fuentes: RULES.md:f64ca32d5017 LEXICON.md:610f88df35e3 EXECUTION-MODES.md:996044fcc7a0 PHASES.md:eb2e6967d424 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -176,6 +176,7 @@ verifica un script y bloquea la integración.
 `SUITE-R48` **H** Qué sigue lo dice el tablero, no la memoria del agente.
 `SUITE-R49` **H** Consultar el tablero es lo primero, y «consultado» está definido.
 `SUITE-R50` **H** El punto de entrada es el tablero. cauce start imprime el estado del tablero y después el núcleo, en ese orden, y no hay forma de obtener lo segundo sin lo primero. No es un recordatorio: es el arranque.…
+`SUITE-R51` **H** La jerarquía de la plataforma es estructura, no prosa, y el enlace del issue resuelve.
 
 ### LEX — Nombres
 
@@ -638,6 +639,11 @@ CONTRATO  tarea e implementación → issue | work item        [SUITE-R35: es lo
           artefacto para el mismo hecho es la divergencia que SUITE-R35 impide.
 REPARTO   la plataforma responde QUÉ ESTÁ ABIERTO; el repositorio QUÉ SE DECIDIÓ.
           El issue REFERENCIA el intake, no lo copia: dos copias divergen.
+JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SUITE-R51]
+          cuerpo: un enlace no da progreso ni cierra en cascada. Y el enlace
+          del issue apunta a DONDE EL CONTENIDO ESTA — rama de trabajo si
+          esta vivo, rama por defecto si ya es INTEGRATED.
+          node tools/tracker.mjs abrir --aplicar   lo mantiene
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
