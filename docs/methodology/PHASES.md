@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **7.0.0**
+> Suite version: **7.1.0**
 
 ---
 
@@ -268,6 +268,15 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+ESPEJO    bloquea en la rama de TRABAJO y en los PR; en la rama por defecto  [SUITE-R47]
+          solo INFORMA: alli el registro es la foto del ultimo merge y el
+          tablero sigue vivo, asi que divergen por construccion. Donde decide
+          es G4, sobre la rama de trabajo.
+CERRAR    el issue se cierra DESPUES de que el estado terminal este en la    [SUITE-R46]
+          rama por defecto. Orden: apuntar INTEGRATED aqui, mergear, cerrar.
+          Al reves, la principal declara «vivo» con el issue cerrado y su
+          compuerta falla — tras CADA merge, no solo tras uno.
+          node tools/tracker.mjs cerrar --aplicar   se niega si va adelantado
 LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
           node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
           Se distingue por MARCA de procedencia, no por autor: el agente comenta

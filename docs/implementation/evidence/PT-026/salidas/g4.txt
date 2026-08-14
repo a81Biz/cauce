@@ -1,0 +1,7 @@
+# G4 sigue ejecutando el espejo y sigue bloqueando (rama de trabajo)
+
+PT-011   2 error(es). La compuerta G4 queda bloqueada.
+PT-014   2 error(es). La compuerta G4 queda bloqueada.
+PT-022   2 error(es). La compuerta G4 queda bloqueada.
+PT-024   2 error(es). La compuerta G4 queda bloqueada.
+PT-026   8 error(es). La compuerta G4 queda bloqueada.

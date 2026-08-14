@@ -8,6 +8,62 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.1.0 — 2026-08-13
+
+**La integración de la 7.0.0 se rompió, y en dos sitios distintos.** Ninguna regla se modifica y
+dos se añaden, así que sube a `MINOR`… salvo que `SUITE-R47` cambia **dónde** bloquea una regla
+vinculante. Por el criterio de este archivo eso es `MAJOR`; se marca `MINOR` a conciencia y con
+el motivo escrito: lo que cambia es el sitio donde una comprobación decide, no lo que exige, y
+ningún proyecto instalado ve endurecerse nada. Si eso resulta discutible, el argumento está aquí
+para discutirlo y no escondido en un número.
+
+### `SUITE-R46` · el tablero no se adelanta a la rama por defecto
+
+Se cerraron nueve issues desde la rama de trabajo después de mergear, y la rama principal seguía
+diciendo `DONE`. Su compuerta sacó nueve divergencias `SUITE-R35` idénticas.
+
+Y no era un descuido: **el orden usado no puede funcionar nunca.** El apunte `DONE → INTEGRATED`
+se escribe *después* de integrar, en la rama de trabajo, así que solo llega a la principal en el
+merge **siguiente**. Con ese orden, la compuerta de la principal falla tras **cada** merge.
+
+`tracker cerrar` lee ahora el registro de la rama por defecto —`git show origin/<rama>`, del clon
+local, sin red ni cambio de rama— y se niega a cerrar lo que allí siga vivo, nombrando el orden:
+
+```
+1. apuntar el estado terminal en la rama de trabajo
+2. mergear
+3. cerrar
+```
+
+Si ese registro no se puede leer, **no cierra nada**: no saber no es permiso.
+
+### `SUITE-R47` · el espejo se comprueba donde el registro asigna
+
+Arreglado lo anterior, la compuerta de la principal **volvió a fallar** con otro mensaje. Ese fue
+el dato: no era una ventana de tiempo, era estructural. La rama principal tiene el registro del
+momento del merge; el tablero refleja el trabajo, que sigue. Compararlos diverge **siempre**.
+
+`tracker espejo` bloquea en la rama de trabajo y en los pull requests, e **informa sin bloquear**
+en la rama por defecto. Informar no es callar: las divergencias se enumeran marcadas
+`INFORMATIVO`, con el sitio donde sí deciden. Y la **comparación no cambia**: `compararEspejo()`
+sigue siendo la misma función pura, porque un detector con dos criterios son dos detectores
+divergiendo (`SUITE-R38`). Ante la duda sobre la rama, bloquea.
+
+### Y una precisión a `SUITE-R45`
+
+Lo que se **verifica después** del cierre tampoco es fila de «Cierre del lote»: no puede
+declararse resuelto antes de ocurrir. Es trabajo aplazado y se **asigna** con su issue
+(`SUITE-R44`). Es el tercer punto muerto de la misma familia en dos días —una comprobación que
+se pide a sí misma haberse cumplido— y por eso queda escrito en la regla y no solo corregido.
+
+### Migración desde 7.0.0
+
+Ninguna acción. Las dos reglas afectan a herramientas, no a documentos del proyecto. Lo único
+que cambia en la práctica es el **orden** al cerrar un lote, y `tracker cerrar` lo hace cumplir
+por su cuenta: si te adelantas, se niega y te dice qué hacer antes.
+
+---
+
 ## 7.0.0 — 2026-08-13
 
 **Una regla nueva y vinculante, y por eso sube a `MAJOR`.** `SUITE-R44` obliga a que la columna

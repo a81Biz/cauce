@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.0.0**
+> Suite version: **7.1.0**
 
 ---
 
@@ -55,6 +55,21 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 **No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
+en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.
+Allí el registro es la foto del último merge y el tablero refleja el trabajo en curso: divergen
+por construcción, no por una ventana de tiempo. Informar **no es callar** — las divergencias se
+enumeran marcadas `INFORMATIVO`. Donde la comprobación decide es en `G4`, sobre la rama de
+trabajo. Si no se puede saber en qué rama se está, se bloquea.
+
+**`SUITE-R46`: el tablero no se adelanta a la rama por defecto.** No se cierra el issue de una
+allocation cuyo estado terminal no está **todavía** en la rama por defecto. El orden es: apuntar
+el estado terminal en la rama de trabajo, **mergear**, y cerrar después. Al revés, la principal
+queda declarando un estado vivo con el issue ya cerrado, y su compuerta falla **tras cada
+merge** — porque el apunte `DONE → INTEGRATED` se escribe después de integrar y solo llega a la
+principal en el merge siguiente. Si el registro de la principal no se puede leer, no se cierra
+nada: no saber no es permiso.
 
 **`SUITE-R45`: un lote declara qué se hace al cerrarlo.** El intake de un `EP` lleva una
 sección `## Cierre del lote` con una fila por cosa que se resuelve en el cierre y no en ninguna

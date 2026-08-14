@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 3802df59305f -->
-<!-- fuentes: RULES.md:a78fe2119790 LEXICON.md:921a4e08df55 EXECUTION-MODES.md:b2470301ee85 PHASES.md:e2805d0c4fbb -->
+<!-- cuerpo: 9b6210397153 -->
+<!-- fuentes: RULES.md:ae7eb7d32df5 LEXICON.md:39538a858f80 EXECUTION-MODES.md:4b20ea958c7a PHASES.md:2485c7436afa -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -150,6 +150,8 @@ verifica un script y bloquea la integración.
 `SUITE-R43` **H** Lo que una persona escribe en la plataforma se lee.
 `SUITE-R44` **H** Cerrar un lote no borra lo que aplazó. La columna «Dónde va» de cada fila de out-of-scope.md es vocabulario cerrado: o — —no aplaza nada, queda fuera y punto— o la cita de un identificador del registro.…
 `SUITE-R45` **H** Un lote declara qué se hace al cerrarlo. El intake de un EP lleva una sección ## Cierre del lote con una fila por cosa que se resuelve en el cierre y no en ninguna de sus tareas —la entrada de CHANGELOG.md,…
+`SUITE-R46` **H** El tablero no se adelanta a la rama por defecto.
+`SUITE-R47` **H** El espejo se comprueba donde el registro asigna.
 
 ### LEX — Nombres
 
@@ -624,6 +626,15 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+ESPEJO    bloquea en la rama de TRABAJO y en los PR; en la rama por defecto  [SUITE-R47]
+          solo INFORMA: alli el registro es la foto del ultimo merge y el
+          tablero sigue vivo, asi que divergen por construccion. Donde decide
+          es G4, sobre la rama de trabajo.
+CERRAR    el issue se cierra DESPUES de que el estado terminal este en la    [SUITE-R46]
+          rama por defecto. Orden: apuntar INTEGRATED aqui, mergear, cerrar.
+          Al reves, la principal declara «vivo» con el issue cerrado y su
+          compuerta falla — tras CADA merge, no solo tras uno.
+          node tools/tracker.mjs cerrar --aplicar   se niega si va adelantado
 LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
           node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
           Se distingue por MARCA de procedencia, no por autor: el agente comenta

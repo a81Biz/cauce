@@ -8,7 +8,10 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT | Tipo | Sev | Estado | Implementación | Título |
 |:---|:---|:---|:---|:---|:---|
 | PT-006 | CHORE | S3 | DONE | EP-002 | PHASES declara dos mapeos que su regla no contiene; el del PR sube a RULES |
-| PT-018 | BUG | S2 | DONE | EP-004 | El destino de un out-of-scope es vocabulario cerrado, no prosa |
-| PT-014 | BUG | S3 | DONE | EP-004 | El cuerpo del lote se compone antes de que sus tareas tengan numero |
-| PT-021 | BUG | S1 | DONE | EP-005 | Citar el propio lote no podia pasar G4 nunca: CLOSED ocurre despues del merge |
-| PT-022 | BUG | S1 | DONE | EP-005 | SUITE-R44 solo mira las filas que existen: omitirla es invisible |
+| PT-018 | BUG | S2 | INTEGRATED | EP-004 | El destino de un out-of-scope es vocabulario cerrado, no prosa |
+| PT-014 | BUG | S3 | INTEGRATED | EP-004 | El cuerpo del lote se compone antes de que sus tareas tengan numero |
+| PT-021 | BUG | S1 | INTEGRATED | EP-005 | Citar el propio lote no podia pasar G4 nunca: CLOSED ocurre despues del merge |
+| PT-022 | BUG | S1 | INTEGRATED | EP-005 | SUITE-R44 solo mira las filas que existen: omitirla es invisible |
+| PT-024 | BUG | S1 | INTEGRATED | EP-006 | El tablero se adelantaba a la rama por defecto y rompia la CI de main en cada merge |
+| PT-026 | BUG | S1 | INTEGRATED | EP-006 | El espejo comparaba en main una foto contra un tablero vivo |
+| PT-028 | BUG | S1 | INTEGRATED | EP-006 | Un cierre pendiente no es un huerfano: SUITE-R35 y SUITE-R46 chocaban |

@@ -1114,6 +1114,60 @@ trlib "sin nada que abrir, no revienta"     "^0$"   "console.log(m.ordenDeApertu
 # Y la razon de todo: con ese orden el cuerpo del lote SI enumera numeros.
 trlib "el cuerpo del lote ya trae numero"   "#77"   "console.log(m.cuerpoDeIssue({id:\"EP-9\",type:\"EP\",slug:\"x\"},{tareas:[{id:\"PT-90\",issue:77,title:\"t\"}]}))"
 
+
+# PT-024 . SUITE-R46 — el tablero no se adelanta a la rama por defecto.
+# Cerre nueve issues desde `trabajo` antes de que INTEGRATED llegara a main, y la CI de main
+# saco nueve divergencias SUITE-R35. No era un despiste: el apunte DONE->INTEGRATED se escribe
+# DESPUES de mergear, asi que solo llega a la principal en el merge SIGUIENTE — la CI de main
+# fallaria tras CADA merge.
+M1='[{"id":"PT-050","status":"DONE"}]'
+M2='[{"id":"PT-050","status":"INTEGRATED"}]'
+MUERTA='[{"id":"PT-050","issue":50,"status":"INTEGRATED"}]'
+trlib "si la principal aun la ve viva, no se cierra"  "^0$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M1).cerrables.length)"
+trlib "y se nombra cual va adelantada"                "PT-050"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M1).adelantadas.map((a)=>a.id).join(\",\"))"
+trlib "con el estado que la principal declara"        "DONE"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M1).adelantadas[0].statusEnPrincipal)"
+trlib "si la principal ya lo sabe, se cierra"         "^1$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M2).cerrables.length)"
+# Una allocation que nacio en esta rama no contradice nada de lo que la principal afirma.
+trlib "lo que la principal no conoce, se cierra"      "^1$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,[]).cerrables.length)"
+# No saber NO es permiso: sin registro de la principal no se cierra nada y se dice por que.
+trlib "sin poder leer la principal, no evaluable"     "false"   "console.log(m.cerrablesSinAdelantarse($MUERTA,null).evaluable)"
+trlib "y en ese caso no se cierra nada"               "^0$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,null).cerrables.length)"
+# El espejo tiene que nombrar esta causa, no solo el sintoma.
+trlib "el espejo distingue el cierre adelantado"      "SUITE-R46"   "console.log(JSON.stringify(m.compararEspejo([{id:'PT-050',status:'DONE',issue:50}],[])))"
+
+
+# PT-026 . SUITE-R47 — el espejo bloquea donde el registro ASIGNA e informa donde es una foto.
+# Tras arreglar PT-024 la CI de main volvio a fallar, ahora por etiquetas: main tiene el registro
+# del momento del merge y el tablero sigue avanzando. Comparar una foto con algo vivo diverge
+# SIEMPRE — no es una ventana de tiempo, es estructural, y produce un rojo permanente que nadie
+# puede arreglar desde esa rama.
+V50='{"id":"PT-050","status":"DONE","issue":50,"phase":9}'
+I50='{"number":50,"title":"x","labels":[{"name":"fase: 8"}]}'
+trlib "la divergencia se detecta igual"        "SUITE-R35"   "console.log(JSON.stringify(m.compararEspejo([$V50],[$I50])))"
+trlib "y dice que etiqueta sobra o falta"      "fase: 9"   "console.log(JSON.stringify(m.compararEspejo([$V50],[$I50])))"
+# La logica de comparacion NO cambia con la rama: lo que cambia es si bloquea. Se separa a
+# proposito — un detector que dependiera de la rama seria dos detectores divergiendo (SUITE-R38).
+trlib "sin divergencia no inventa ninguna"     "^\[\]$"   "console.log(JSON.stringify(m.compararEspejo([{id:'PT-050',status:'DONE',issue:50,phase:8}],[$I50])))"
+chk   "SUITE-R47 existe en RULES"              "SUITE-R47"   cat "$SUITE/RULES.md"
+chk   "SUITE-R47 llega al núcleo"              "SUITE-R47"   cat "$SUITE/CORE.md"
+chk   "y PHASES dice donde bloquea"            "SUITE-R47"   cat "$SUITE/PHASES.md"
+chk   "el tracker distingue la rama"           "esRamaPorDefecto" cat "$SUITE/tools/tracker.mjs"
+chk   "ante la duda, bloquea"                  "equivocarse hacia" cat "$SUITE/tools/tracker.mjs"
+
+
+# PT-028 . un cierre PENDIENTE no es un huerfano. Ejecutando el orden que SUITE-R46 acababa de
+# fijar —apuntar el estado terminal, mergear, cerrar— el espejo denuncio nueve issues como
+# «trabajo que el registro no conoce». Dos reglas mias chocando: G4 no podia pasar bajo el orden
+# que G4 exige.
+INT='{"id":"PT-060","status":"INTEGRATED","issue":60}'
+I60='{"number":60,"title":"x","labels":[]}'
+trlib "un issue de allocation terminal no es huerfano" "cierre pendiente"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[$INT])))"
+trlib "y se marca para no bloquear"                    "pendienteDeCierre"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[$INT])))"
+trlib "el mensaje dice cuando cerrarlo"                "SUITE-R46"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[$INT])))"
+# Lo que NO se relaja: un issue que nadie reclama sigue siendo trabajo fuera del registro.
+trlib "el huerfano de verdad sigue siendolo"           "ninguna allocation lo reclama"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[])))"
+trlib "y ese si bloquea"                               "false"   "console.log(!!m.compararEspejo([],[$I60],[])[0].pendienteDeCierre)"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

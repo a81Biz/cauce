@@ -1,0 +1,72 @@
+{
+  "pt": "PT-026",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "scenarios": [
+        "E6",
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:el tracker distingue la rama",
+        "selftest.sh:ante la duda, bloquea"
+      ],
+      "evidence": [
+        "salidas/selftest.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "scenarios": [
+        "E1",
+        "E2",
+        "E3"
+      ],
+      "tests": [
+        "selftest.sh:la divergencia se detecta igual",
+        "selftest.sh:y dice que etiqueta sobra o falta",
+        "selftest.sh:sin divergencia no inventa ninguna"
+      ],
+      "evidence": [
+        "salidas/selftest.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "scenarios": [
+        "E4",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:SUITE-R47 existe en RULES",
+        "selftest.sh:SUITE-R47 llega al núcleo",
+        "selftest.sh:y PHASES dice donde bloquea"
+      ],
+      "evidence": [
+        "salidas/selftest.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "scenarios": [
+        "E8"
+      ],
+      "tests": [
+        "verify-fdge --gate G4 sobre las tareas del lote, en la rama de trabajo"
+      ],
+      "evidence": [
+        "salidas/g4.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "suite": {
+    "passed": 315,
+    "failed": 0,
+    "coverage": 315,
+    "baseline": 307
+  }
+}
