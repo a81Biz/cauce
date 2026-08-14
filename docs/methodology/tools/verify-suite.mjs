@@ -471,6 +471,49 @@ console.log(`Documentos analizados: ${files.length}\n`);
 
 const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''}\n      ${x.msg}`;
 
+
+// ─── EXEC-R08 · PT-031 · los tres modos exigen LO MISMO ─────────────────────
+//
+// Un modo de ejecucion cambia QUIEN resuelve una compuerta y cuando se pide confirmacion.
+// Nunca QUE se exige: ni un artefacto menos, ni una regla que no se comprueba, ni evidencia
+// mas floja. Si un modo eximiera de algo, el marco tendria dos varas de medir y la mas floja
+// seria la tentacion permanente — y quien la eligiera lo haria sin decirlo.
+//
+// Se comprueba con VOCABULARIO CERRADO, no adivinando sobre prosa: PT-018 ya demostro que una
+// lista de palabras persigue el idioma y siempre se le escapa el siguiente sinonimo. Cada celda
+// de la matriz de compuertas dice quien resuelve; si cita un ARTEFACTO o una REGLA, esa celda
+// esta cambiando lo exigido y no quien lo resuelve.
+{
+  const f = join(BASE, 'EXECUTION-MODES.md');
+  if (existsSync(f)) {
+    const txt = readFileSync(f, 'utf8');
+    const i = txt.search(/^#+\s*\d*\.?\s*Matriz de compuertas/im);
+    if (i < 0) {
+      fail('EXEC-R08', 'EXECUTION-MODES.md', 0, 'no declara «Matriz de compuertas». Sin ella no se puede comprobar que los tres modos exijan lo mismo.');
+    } else {
+      const cuerpo = txt.slice(i).split(/^#+\s/m)[1] ?? txt.slice(i);
+      const lineas = cuerpo.split(/\r?\n/);
+      const RE_ARTEFACTO = /\b[a-z0-9-]+\.(?:md|json|mjs|sh)\b/i;
+      const RE_REGLA = /\b(?:SUITE|FDGE|INTAKE|LEX|FND|QA|PTSA|EXEC)-R\d+\b/;
+      lineas.forEach((l, n) => {
+        if (!/^\s*\|/.test(l)) return;
+        if (/^\s*\|[\s:|-]*\|?\s*$/.test(l)) return;
+        const celdas = l.split('|').slice(2, -1);      // fuera la etiqueta de fila
+        for (const c of celdas) {
+          if (RE_ARTEFACTO.test(c)) {
+            fail('EXEC-R08', 'EXECUTION-MODES.md', n + 1, `la matriz de compuertas cita un artefacto («${c.trim().slice(0, 40)}»). Un modo decide QUIEN resuelve, no QUE se exige: si un modo pide o exime un artefacto, hay dos varas de medir.`);
+          } else if (RE_REGLA.test(c)) {
+            fail('EXEC-R08', 'EXECUTION-MODES.md', n + 1, `la matriz de compuertas cita una regla («${c.trim().slice(0, 40)}»). Las reglas se comprueban igual en los tres modos; citarlas aqui sugiere que uno las trata distinto.`);
+          }
+        }
+      });
+      if (!/G4[^|]*\|[^|]*humano[^|]*\|[^|]*humano[^|]*\|[^|]*humano/i.test(cuerpo)) {
+        fail('EXEC-R08', 'EXECUTION-MODES.md', 0, 'la fila de G4 no declara ACK humano en los TRES modos. G4 es humana sin excepcion (EXEC-R04, SUITE-R06a).');
+      }
+    }
+  }
+}
+
 if (warnings.length) {
   console.log(`AVISOS (${warnings.length})`);
   for (const w of warnings.slice(0, 60)) console.log(fmt(w));

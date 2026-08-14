@@ -923,3 +923,36 @@ comprueba que no diverjan. Es la copia que SUITE-R38 avisa.
 
 Evidencia: docs/implementation/evidence/PT-030/ · selftest 320 → 334 casos · cobertura 97/174
 Cierre a DONE pendiente de persona: SUITE-R06b.
+
+## PT-031 — BUG: los tres modos de ejecución no exigían lo mismo
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-007
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-007, delegada) · G2 · G3 2026-08-13 Alberto Martínez (delegadas) · G4 pendiente
+
+Qué fallaba: la matriz de compuertas declaraba la firma por lote como algo de AUTONOMOUS —«ACK
+humano (admite firma por lote, INTAKE-R08)»— cuando INTAKE-R08 vale en los tres modos: EP-004 a
+EP-007 la usaron en SUPERVISED. La matriz concedía como ventaja de un modo algo que el marco ya
+daba a todos, y quien hubiera elegido AUTONOMOUS por eso habría tenido razón según el documento.
+
+Qué se hizo: EXEC-R08, en su documento propietario y con severidad. Un modo cambia QUIÉN
+resuelve una compuerta y cuándo se pide confirmación; nunca QUÉ se exige. verify-suite lo
+comprueba con VOCABULARIO CERRADO —una celda de la matriz que cite un artefacto o una regla está
+hablando de lo exigido y no de quién resuelve—, que es la lección de PT-018: quitar la prosa en
+vez de perseguir el idioma.
+
+El caso era real y salió en la PRIMERA ejecución, sin fixture.
+
+Limitación declarada: solo mira la matriz. Una exención escrita en la prosa de §4 no se ve, y
+detectarla en prosa libre es justo lo que PT-018 demostró que no funciona.
+
+Aplazado y asignado: PT-032, la convención o agente propio que ate al agente al tablero. PT-030
+dejó la respuesta consultable, pero un comando no puede exigir haber sido llamado.
+
+Evidencia: docs/implementation/evidence/PT-031/ · selftest 334 → 340 casos · cobertura 97/174
+Cierre a DONE pendiente de persona: SUITE-R06b.

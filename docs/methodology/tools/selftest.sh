@@ -1196,6 +1196,18 @@ chk   "SUITE-R48 existe en RULES"            "SUITE-R48"   cat "$SUITE/RULES.md"
 chk   "SUITE-R48 llega al núcleo"            "SUITE-R48"   cat "$SUITE/CORE.md"
 chk   "y PHASES manda consultarlo"           "tracker.mjs siguiente" cat "$SUITE/PHASES.md"
 
+
+# PT-031 . EXEC-R08 — los tres modos exigen LO MISMO. Un modo cambia QUIEN resuelve una
+# compuerta, nunca QUE se exige. La matriz declaraba la firma por lote como ventaja de
+# AUTONOMOUS cuando INTAKE-R08 vale en los tres: una ventaja aparente de un modo es una vara de
+# medir mas floja esperando a que alguien la elija sin decirlo.
+chk   "EXEC-R08 existe en su documento"     "EXEC-R08"   cat "$SUITE/EXECUTION-MODES.md"
+chk   "y llega al núcleo"                   "EXEC-R08"   cat "$SUITE/CORE.md"
+chk   "G4 humana en los tres modos"         "G4 es humana en los tres modos" cat "$SUITE/EXECUTION-MODES.md"
+chkno "la matriz ya no da ventajas por modo" "firma por lote, \`INTAKE-R08\`" cat "$SUITE/EXECUTION-MODES.md"
+chk   "verify-suite lo comprueba"           "EXEC-R08"   cat "$SUITE/tools/verify-suite.mjs"
+chk   "y con vocabulario cerrado, no prosa" "RE_ARTEFACTO" cat "$SUITE/tools/verify-suite.mjs"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

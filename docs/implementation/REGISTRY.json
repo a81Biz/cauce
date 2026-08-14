@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 31,
+    "PT": 32,
     "EP": 7,
     "QA": 0,
     "QR": 0,
@@ -653,11 +653,11 @@
       "complexity": "STANDARD",
       "severity": "S1",
       "track": "STANDARD",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.1.0",
       "epic": "EP-007",
-      "phase": 8,
+      "phase": 9,
       "title": "tracker siguiente: que toca y como se cierra, derivado del tablero y no del criterio del agente",
       "origin": "EP-007 · peticion humana: «que no sepa hacer nada si no consultas directamente a github»",
       "created": "2026-08-13",
@@ -670,15 +670,32 @@
       "complexity": "STANDARD",
       "severity": "S1",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "VALIDATION_PENDING",
       "structural": false,
       "suite_version": "7.1.0",
       "epic": "EP-007",
-      "phase": 1,
+      "phase": 8,
       "title": "MANUAL, SUPERVISED y AUTONOMOUS deben declarar las mismas obligaciones: solo cambia quien resuelve las compuertas",
       "origin": "EP-007 · peticion humana: «el marco trabaja de forma supervisada y autonoma, las dos deben tener lo mismo»",
       "created": "2026-08-13",
       "issue": 44
+    },
+    {
+      "id": "PT-032",
+      "slug": "atar-el-agente-al-tablero",
+      "type": "FEATURE",
+      "complexity": "STANDARD",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "7.1.0",
+      "epic": null,
+      "phase": null,
+      "title": "Convencion o agente propio de cauce que ate al agente al tablero sin que haya que recordarselo",
+      "origin": "Aplazado por EP-007 · PT-031 · peticion humana 2026-08-13: «no veo que uses github, es necesario que te lo diga en cada instruccion? deberiamos incluir alguna convencion para que no se te olvide o hacer un agente propio de cauce para que este amarrado». PT-030 dejo la respuesta consultable pero un comando no puede exigir haber sido llamado",
+      "created": "2026-08-13",
+      "issue": 45
     }
   ]
 }

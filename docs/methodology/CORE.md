@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 41cca6679826 -->
-<!-- fuentes: RULES.md:2c36f842e60a LEXICON.md:39538a858f80 EXECUTION-MODES.md:4b20ea958c7a PHASES.md:fd3d6b5115e7 -->
+<!-- cuerpo: 7ee99c87d87f -->
+<!-- fuentes: RULES.md:2c36f842e60a LEXICON.md:39538a858f80 EXECUTION-MODES.md:43ce7a91e6f8 PHASES.md:fd3d6b5115e7 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -192,7 +192,7 @@ verifica un script y bloquea la integración.
 `EXEC-R05` **H** G3 es humana para todo BUG en los tres modos (FDGE-R26, LEX-R08).
 `EXEC-R06` **H** Estas condiciones son verificables mecánicamente, no declarativas.
 `EXEC-R07` **H** Si un PT requiere una de estas acciones para completarse, el agente prepara todo lo demás, se detiene en el punto exacto y describe el comando a ejecutar.
-`EXEC-R08` **H** La ejecución de un lote es secuencial por defecto.
+`EXEC-R08` **H** HARD · Los tres modos exigen lo mismo. Un modo cambia quién resuelve una compuerta y cuándo se pide confirmación. Nunca cambia qué se exige: ni un artefacto menos, ni una regla que no se comprueba, ni…
 `EXEC-R09` **H** EXPRESS condensa; no colapsa. Las fases ocurren y se documentan; solo se agrupan en menos artefactos y menos compuertas. Omitir Intake, evidencia, validación, persistencia o integración está prohibido en…
 `EXEC-R10` **H** Si durante EXPRESS el agente detecta que el trabajo no es TRIVIAL, se detiene y el PT vuelve a PHASE 2 en track STANDARD (FDGE-R21).
 `EXEC-R11` **H** Un hotfix con documentación retroactiva vencida bloquea la apertura de todo PT nuevo.
