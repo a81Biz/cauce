@@ -8,7 +8,7 @@ id: PT-043
 type: FEATURE
 epic: EP-011
 track: STANDARD
-status: DONE
+status: INTEGRATED
 created: 2026-08-14
 structural: no
 suite_version: 7.5.0
@@ -51,3 +51,11 @@ la salida del comando sobre un proyecto real, no la lectura del código.
 ```
 Firmado por lote: EP-011
 ```
+
+## Estado de cierre   FDGE-R35
+
+`
+CLOSED · integrado en la rama por defecto el 2026-08-14
+G4 resuelta por Alberto Martinez: «Firma a mi nombre y cierra el trabajo, realiza el merge
+correctamente». El directorio se CONSERVA: es el registro de la propuesta.
+`

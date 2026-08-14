@@ -4,7 +4,7 @@
 ---
 id: EP-011
 type: EP
-status: DONE
+status: CLOSED
 created: 2026-08-14
 suite_version: 7.5.0
 phase: 9
