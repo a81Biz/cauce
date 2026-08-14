@@ -374,9 +374,13 @@ export const ordenDeApertura = (pendientes) =>
 const ARGS = process.argv.slice(2);
 const ACCION = ARGS[0] ?? 'espejo';
 const APLICAR = ARGS.includes('--aplicar');
-// El identificador de `notas PT-NNN` no es una ruta: sin excluirlo, `tracker notas PT-004 .`
+// PT-039 · el identificador de `notas PT-NNN` o `siguiente EP-NNN` no es una ruta: sin excluirlo,
+// `tracker siguiente EP-011` resolvia ROOT como el directorio «EP-011» y no encontraba el
+// registro. Solo se excluia PT-NNN; `siguiente` acepta las dos formas desde PT-030.
+// Lo encontro USAR la herramienta, no leerla.
+// `tracker notas PT-004 .`
 // resolvia ROOT como el directorio «PT-004» y no encontraba el registro.
-const ROOT = resolve(ARGS.slice(1).find((a) => !a.startsWith('--') && !/^PT-\d+$/.test(a)) ?? process.cwd());
+const ROOT = resolve(ARGS.slice(1).find((a) => !a.startsWith('--') && !/^(?:PT|EP)-\d+$/.test(a)) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
 
 const errores = [];

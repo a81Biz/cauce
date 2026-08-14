@@ -277,6 +277,11 @@ ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUI
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
           definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+QUE ES     antes de nada: ¿PETICION o CONVERSACION? Se DECLARA en una      [SUITE-R52]
+          linea y se puede corregir. Peticion = tiene condicion de terminado
+          («termina cuando: …», FDGE-R53). Sin ella es conversacion, y lo que
+          produce es una RESPUESTA, no una allocation. Una conversacion puede
+          ACABAR en peticion; no empieza siendolo.
 LO PRIMERO  del turno: consultar el tablero. CORE.md abre con ello.       [SUITE-R49]
           «Consultado» = se ejecuto `tracker siguiente` EN ESTE TURNO y su
           salida es la respuesta. Vale para UN turno; si el anterior cambio

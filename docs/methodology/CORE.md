@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: aa3153df63e4 -->
-<!-- fuentes: RULES.md:28c16d75e8f4 LEXICON.md:cbd71e3c9ef9 EXECUTION-MODES.md:8d952e8e9af1 PHASES.md:b056fae3ecf9 -->
+<!-- cuerpo: 4141fb7da75e -->
+<!-- fuentes: RULES.md:a81b53217c7f LEXICON.md:cbd71e3c9ef9 EXECUTION-MODES.md:8d952e8e9af1 PHASES.md:49e4739120bb -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -10,6 +10,22 @@ documentos completos solo se abren cuando una línea de aquí lo remite.
 Detalle y porqué: `RULES.md` · `LEXICON.md` · `EXECUTION-MODES.md` · `PHASES.md`.
 Los `*-Prompts.md` son la expansión legible de `PHASES.md` para copiar y pegar en modo
 `MANUAL`; en runtime no se cargan.
+
+## ANTES DE NADA — ¿te están pidiendo algo, o estáis pensando en voz alta?   `SUITE-R52`
+
+No todo mensaje abre trabajo. **Declara en una línea qué has entendido** y sigue; si te
+equivocas, te corregirán — lo que no vale es decidirlo en silencio.
+
+```
+PETICIÓN       tiene condición de terminado: se puede escribir «termina cuando: …»
+               → abre PHASE 1, con lo pedido como origen
+CONVERSACIÓN   no la tiene: es una duda, una idea, una queja, un «¿qué opinas?»
+               → produce una RESPUESTA. No una allocation, no un issue, no compuertas
+```
+
+Una conversación **puede acabar** en petición, y entonces lo conversado es su origen. Pero no
+empieza siéndolo. Convertir una duda en trabajo gasta compuertas y ensucia el tablero; tratar
+una orden como charla pierde el trabajo.
 
 ## LO PRIMERO — el estado sale del tablero, no de tu memoria   `SUITE-R49`
 
@@ -177,6 +193,7 @@ verifica un script y bloquea la integración.
 `SUITE-R49` **H** Consultar el tablero es lo primero, y «consultado» está definido.
 `SUITE-R50` **H** El punto de entrada es el tablero. cauce start imprime el estado del tablero y después el núcleo, en ese orden, y no hay forma de obtener lo segundo sin lo primero. No es un recordatorio: es el arranque.…
 `SUITE-R51` **H** La jerarquía de la plataforma es estructura, no prosa, y el enlace del issue resuelve.
+`SUITE-R52` **H** Una petición se distingue de una conversación, y se declara cuál es.
 
 ### LEX — Nombres
 
@@ -660,6 +677,11 @@ ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUI
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
           definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+QUE ES     antes de nada: ¿PETICION o CONVERSACION? Se DECLARA en una      [SUITE-R52]
+          linea y se puede corregir. Peticion = tiene condicion de terminado
+          («termina cuando: …», FDGE-R53). Sin ella es conversacion, y lo que
+          produce es una RESPUESTA, no una allocation. Una conversacion puede
+          ACABAR en peticion; no empieza siendolo.
 LO PRIMERO  del turno: consultar el tablero. CORE.md abre con ello.       [SUITE-R49]
           «Consultado» = se ejecuto `tracker siguiente` EN ESTE TURNO y su
           salida es la respuesta. Vale para UN turno; si el anterior cambio

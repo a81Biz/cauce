@@ -1281,6 +1281,26 @@ chk   "el manual enlaza al catálogo"         "CASOS-DE-USO.md" cat "$SUITE/MANU
 chkno "el manual no define severidades"      "| HARD |"      cat "$SUITE/MANUAL.md"
 chkno "el catálogo tampoco"                  "| HARD |"      cat "$SUITE/CASOS-DE-USO.md"
 
+
+# PT-039 . SUITE-R52 — peticion o conversacion. Sin esta distincion cada mensaje es una orden
+# potencial: se convierte una duda en trabajo (gasta compuertas, ensucia el tablero) o se trata
+# una orden como charla (pierde el trabajo). Se DECLARA, no se acierta en silencio.
+chk   "SUITE-R52 existe en RULES"            "SUITE-R52"    cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R52"    cat "$SUITE/CORE.md"
+chk   "el núcleo abre preguntando qué es"    "ANTES DE NADA" cat "$SUITE/CORE.md"
+chk   "define peticion por su cierre"        "condición de terminado" cat "$SUITE/CORE.md"
+chk   "y dice que se DECLARA"                "en silencio"  cat "$SUITE/CORE.md"
+chk   "una conversacion no abre allocation"  "No una allocation" cat "$SUITE/CORE.md"
+chk   "PHASES lo declara"                    "SUITE-R52"    cat "$SUITE/PHASES.md"
+# Va ANTES que consultar el tablero: preguntar «que sigue» ante una conversacion ya es tratarla
+# como trabajo.
+_qe=$(grep -n 'ANTES DE NADA' "$SUITE/CORE.md" | head -1 | cut -d: -f1)
+_lp=$(grep -n 'LO PRIMERO' "$SUITE/CORE.md" | head -1 | cut -d: -f1)
+chk   "y va antes de consultar el tablero"   "^ORDENADO$" sh -c "[ \"$_qe\" -lt \"$_lp\" ] && echo ORDENADO || echo INVERTIDO"
+# PT-039 . y el defecto que aparecio al USAR la herramienta: `siguiente EP-NNN` tomaba el
+# identificador del lote como RUTA del proyecto. Solo se excluia PT-NNN.
+chk   "un EP-NNN no es una ruta"             "(?:PT|EP)-" cat "$SUITE/tools/tracker.mjs"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

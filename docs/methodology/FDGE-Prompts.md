@@ -73,6 +73,12 @@ segundo sin lo primero. No es un recordatorio: es el arranque, y por eso no depe
 se acuerde. Usa la definición de `SUITE-R49`; no escribe la suya. No automatiza ninguna
 compuerta, y el marco sigue siendo usable sin él.
 
+**`SUITE-R52`: ¿petición o conversación?** No todo mensaje abre trabajo. Una **petición** tiene
+condición de terminado —se puede escribir «termina cuando: …» (`FDGE-R53`)—; sin ella es
+**conversación**, y lo que produce es una respuesta, no una `allocation`. **Declara en una línea
+cuál has entendido** antes de actuar: no se te pide acertar, se te pide no decidirlo en silencio.
+Una conversación puede **acabar** en petición; no empieza siéndolo.
+
 **`SUITE-R49`: consultar el tablero es lo primero, y «consultado» está definido.** `CORE.md`
 abre con la consulta, antes que las reglas. **Consultado** significa: se ejecutó
 `tracker siguiente` **en este turno**, y su salida **es** la respuesta — no una sugerencia que
