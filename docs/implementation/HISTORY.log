@@ -975,3 +975,13 @@ LO QUE NO ENTREGA, y por eso existe EP-008: un comando no puede exigir haber sid
 respuesta existe ahora fuera de la memoria del agente y es citable; obligar a mirarla es otro
 problema. PT-032 se promovió a EP-008 por decisión humana —«debería ser una épica completa por
 sí solo»— y se cierra porque su trabajo está en PT-033 y PT-034, no porque se abandone.
+
+## G4 — EP-007 · integración
+Fecha: 2026-08-13
+Compuerta: G4
+integrado por: Alberto Martínez
+Autoriza: Alberto Martínez — «G4 completo y haces el merge»
+Versión: 7.2.0
+Alcance: PT-030, PT-031 → INTEGRATED · EP-007 → CLOSED
+
+Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.
