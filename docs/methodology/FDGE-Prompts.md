@@ -73,6 +73,17 @@ segundo sin lo primero. No es un recordatorio: es el arranque, y por eso no depe
 se acuerde. Usa la definición de `SUITE-R49`; no escribe la suya. No automatiza ninguna
 compuerta, y el marco sigue siendo usable sin él.
 
+**`SUITE-R53`: la regla se alcanza desde el fallo.** Todo mensaje de fallo cita su regla, y esa
+regla se **consulta** — deducirla no puede ser el camino:
+
+```bash
+npx @a81biz/cauce regla SUITE-R44      # qué exige, dónde vive, quién la comprueba
+npx @a81biz/cauce regla --fallos       # todo lo que puede fallar, DERIVADO del código
+```
+
+La lista de fallos no se escribe: sale de los `fail()` y `warn()` de las herramientas. Una lista
+escrita a mano se queda corta en cuanto alguien añade una comprobación.
+
 **`SUITE-R52`: ¿petición o conversación?** No todo mensaje abre trabajo. Una **petición** tiene
 condición de terminado —se puede escribir «termina cuando: …» (`FDGE-R53`)—; sin ella es
 **conversación**, y lo que produce es una respuesta, no una `allocation`. **Declara en una línea

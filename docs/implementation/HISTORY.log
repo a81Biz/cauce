@@ -1114,3 +1114,52 @@ Versión: 7.5.0
 Alcance: PT-037, PT-038 → INTEGRATED · EP-010 → CLOSED
 
 Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.
+
+## PT-039 — FEATURE: petición o conversación
+Fecha: 2026-08-14 · Estado: DONE · Severidad: S1 · Implementación: EP-011 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 pendiente
+
+SUITE-R52. No todo mensaje abre trabajo: una petición tiene condición de terminado —«termina
+cuando: …», que FDGE-R53 ya exige a todo intake— y sin ella es conversación, que produce una
+RESPUESTA y no una allocation. El agente DECLARA cuál ha entendido y puede ser corregido: no se
+le pide acertar, se le pide no decidirlo en silencio.
+
+Va lo PRIMERO en CORE.md, antes de SUITE-R49, porque preguntar «qué sigue» ante una conversación
+ya es tratarla como trabajo.
+
+DEFECTO ENCONTRADO AL USARLO: `tracker siguiente EP-011` falló porque ROOT excluía PT-\d+ y no
+EP-\d+, así que el identificador del lote se tomaba como ruta. PT-030 añadió esa forma y no tocó
+el filtro. Apareció en el PRIMER intento de usar la herramienta para trabajar en vez de para
+demostrar que funcionaba — que es exactamente el diagnóstico de EP-011.
+
+Evidencia: evidence/PT-039/ · selftest 382 → 391 casos
+
+## PT-040 — FEATURE: qué puede fallar, derivado
+Fecha: 2026-08-14 · Estado: DONE · Severidad: S1 · Implementación: EP-011 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 pendiente
+
+La tabla del manual estaba escrita DE MEMORIA y ya se había quedado corta. `cauce regla --fallos`
+la deriva de los fail() y warn() del código: 90 reglas. No existe como dato, se calcula — si
+alguien añade una comprobación, aparece sola.
+
+Medido al hacerlo: 103 de 158 reglas declaradas NO emiten su nombre en ningún fallo. No significa
+que no se comprueben; significa que si fallan no lo dirán con su ID. `--sin-comprobar` las
+publica. Cifra incómoda y no esperada; la alternativa era no medirla.
+
+## PT-041 — FEATURE: la regla en el mensaje
+Fecha: 2026-08-14 · Estado: DONE · Severidad: S1 · Implementación: EP-011 · Rama: trabajo
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 pendiente
+
+SUITE-R53. `cauce regla <ID>` responde qué exige, dónde vive y quién la comprueba. La frase que
+esto corrige era mía: el manual decía que de las diez ideas «se deduce la regla que no has
+leído», y era una excusa — un marco no escala pidiendo que se infiera lo no leído.
+
+DEFECTO AL ENCHUFARLO: `cauce regla SUITE-R46` tomaba el ID como ruta. Es EL MISMO defecto que
+apareció horas antes en tracker con `siguiente EP-011`, en dos binarios distintos y el mismo día.
+Anotado en el código para que el tercero se vea antes.
+
+Riesgo abierto: el mapa de documento propietario está duplicado con el de verify-suite — la copia
+que SUITE-R38 avisa. No cerrado.

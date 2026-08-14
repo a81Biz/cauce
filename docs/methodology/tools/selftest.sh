@@ -1301,6 +1301,25 @@ chk   "y va antes de consultar el tablero"   "^ORDENADO$" sh -c "[ \"$_qe\" -lt 
 # identificador del lote como RUTA del proyecto. Solo se excluia PT-NNN.
 chk   "un EP-NNN no es una ruta"             "(?:PT|EP)-" cat "$SUITE/tools/tracker.mjs"
 
+
+# PT-040 / PT-041 . SUITE-R53 — la regla se alcanza desde el fallo, y lo que puede fallar se
+# DERIVA. El manual decia «de las diez ideas se deduce la regla que no has leido»: una excusa.
+# Y su tabla de fallos estaba escrita DE MEMORIA — es derivable de los fail() del codigo.
+RG="$SUITE/tools/regla.mjs"
+chk   "regla.mjs existe"                     "regla"        cat "$RG"
+chk   "SUITE-R53 existe en RULES"            "SUITE-R53"    cat "$SUITE/RULES.md"
+chk   "y llega al núcleo"                    "SUITE-R53"    cat "$SUITE/CORE.md"
+chk   "una regla responde qué exige"         "definida en"  node "$RG" SUITE-R44 "$SUITE"
+chk   "y quién la comprueba"                 "la comprueba" node "$RG" SUITE-R44 "$SUITE"
+chk   "una regla que no existe lo DICE"      "No está definida" node "$RG" SUITE-R999 "$SUITE"
+chk   "los fallos se DERIVAN del código"     "derivadas del código" node "$RG" --fallos "$SUITE"
+chk   "y son mas de cincuenta"               "[0-9][0-9] reglas, derivadas" node "$RG" --fallos "$SUITE"
+chk   "las no comprobadas se declaran"       "no lo dirán con su nombre" node "$RG" --sin-comprobar "$SUITE"
+# La derivacion NO es una lista escrita: si se añade un fail(), aparece solo. Se comprueba que
+# lee del codigo y no de un documento.
+chkno "no hay lista escrita de fallos"       "fallosPosibles = \[" cat "$RG"
+chk   "un ID de regla no es una ruta"        "RE_ID"        cat "$RAIZ/bin/cauce.mjs"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \

@@ -277,6 +277,10 @@ ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUI
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
           definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+LA REGLA  todo fallo cita su regla, y la regla se CONSULTA — no se deduce.  [SUITE-R53]
+          cauce regla SUITE-RNN    que exige, donde vive, quien la comprueba
+          cauce regla --fallos     TODO lo que puede fallar, DERIVADO del codigo
+          Una lista escrita a mano se queda corta; esta sale de los fail().
 QUE ES     antes de nada: ¿PETICION o CONVERSACION? Se DECLARA en una      [SUITE-R52]
           linea y se puede corregir. Peticion = tiene condicion de terminado
           («termina cuando: …», FDGE-R53). Sin ella es conversacion, y lo que

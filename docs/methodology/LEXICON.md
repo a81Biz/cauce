@@ -563,6 +563,7 @@ tools/
   patrones.mjs        los patrones críticos, una vez y con su contrato · SUITE-R38
   verify-patrones.mjs ejecuta ese contrato: un patrón degradado falla su propio ejemplo
   version.mjs         propaga la versión del CHANGELOG a documentos y paquete · SUITE-R40
+  regla.mjs           qué exige una regla y qué puede fallar, DERIVADO del código · SUITE-R53
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35

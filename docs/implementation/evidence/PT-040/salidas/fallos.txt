@@ -1,0 +1,20 @@
+[1mQué puede fallar[0m — 90 reglas, derivadas del código
+[2mEsta lista NO está escrita: sale de los fail() y warn() de tools/. Si alguien añade
+una comprobación, aparece sola.[0m
+
+  EXEC-R02     avisa          verify-fdge.mjs
+  EXEC-R08     bloquea        verify-suite.mjs
+  FDGE-R01     bloquea        verify-fdge.mjs
+  FDGE-R03     bloquea        verify-fdge.mjs
+  FDGE-R04     bloquea        verify-fdge.mjs
+  FDGE-R15     bloquea        verify-fdge.mjs
+  FDGE-R18     avisa          verify-fdge.mjs
+  FDGE-R22     bloquea        verify-fdge.mjs
+  FDGE-R23     bloquea/avisa  verify-fdge.mjs
+  FDGE-R25     bloquea        verify-fdge.mjs
+  FDGE-R26     bloquea        verify-fdge.mjs
+  FDGE-R27     bloquea        verify-fdge.mjs
+  FDGE-R29     bloquea/avisa  verify-fdge.mjs
+  FDGE-R31     bloquea        verify-fdge.mjs
+  FDGE-R34     bloquea        verify-fdge.mjs
+  FDGE-R42     bloquea        verify-fdge.mjs

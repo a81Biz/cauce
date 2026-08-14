@@ -33,7 +33,12 @@ const PKG_PROPIO = JSON.parse(readFileSync(join(PAQUETE, 'package.json'), 'utf8'
 const VERSION = PKG_PROPIO.version;
 
 const [, , comando, ...resto] = process.argv;
-const DESTINO = resolve(resto.find((a) => !a.startsWith('--')) ?? process.cwd());
+// PT-041 · un identificador de regla NO es una ruta. `cauce regla SUITE-R46` resolvia DESTINO
+// como el directorio «SUITE-R46» y no encontraba la suite. Es EL MISMO defecto que aparecio el
+// mismo dia en `tracker` con `siguiente EP-011`: un argumento con forma de identificador colandose
+// como ruta. Dos sitios, misma causa — se anota aqui para que el tercero se vea antes.
+const RE_ID = /^[A-Z]+-R\d+$/;
+const DESTINO = resolve(resto.find((a) => !a.startsWith('--') && !RE_ID.test(a)) ?? process.cwd());
 const SUITE_EN_DESTINO = join(DESTINO, 'docs', 'methodology');
 const FORZAR = resto.includes('--forzar');
 
@@ -238,6 +243,10 @@ const comandos = {
     return 0;
   },
 
+  // PT-041 · la regla, en el momento en que importa. El manual decia «de las diez ideas se
+  // deduce la regla que no has leido»: eso era una excusa. Deducir no deberia hacer falta.
+  regla() { return corre('regla.mjs', [...resto.filter((a) => resolve(a) !== DESTINO), SUITE_EN_DESTINO]); },
+
   version() { di(`cauce ${VERSION}`); return 0; },
 };
 
@@ -249,6 +258,8 @@ if (!comando || comando === '--help' || comando === '-h' || !comandos[comando]) 
   di(`  ${c.neg}cauce verify${c.fin}  [ruta]   coherencia del marco, núcleo sincronizado y cumplimiento de los PT`);
   di(`  ${c.neg}cauce compare${c.fin} [ruta]   qué difiere entre la copia del proyecto y esta versión`);
   di(`  ${c.neg}cauce core${c.fin}    [ruta]   regenera CORE.md y CORE-PTSA.md`);
+  di(`  ${c.neg}cauce regla${c.fin}  SUITE-RNN  qué exige una regla, dónde vive y qué la comprueba`);
+  di(`  ${c.neg}cauce regla${c.fin}  --fallos   todo lo que puede fallar, derivado del código`);
   di();
   di(`${c.dim}La instalación de verdad es conversacional: tras «cauce install», dile a Claude${c.fin}`);
   di(`${c.dim}«instala el framework» y conducirá el terreno, los movimientos y las dependencias.${c.fin}`);

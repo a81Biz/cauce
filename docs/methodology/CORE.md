@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 4141fb7da75e -->
-<!-- fuentes: RULES.md:a81b53217c7f LEXICON.md:cbd71e3c9ef9 EXECUTION-MODES.md:8d952e8e9af1 PHASES.md:49e4739120bb -->
+<!-- cuerpo: 89d8a570492a -->
+<!-- fuentes: RULES.md:e43500a6234e LEXICON.md:6f24a81e22a0 EXECUTION-MODES.md:8d952e8e9af1 PHASES.md:c7fb13b363fc -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -194,6 +194,7 @@ verifica un script y bloquea la integración.
 `SUITE-R50` **H** El punto de entrada es el tablero. cauce start imprime el estado del tablero y después el núcleo, en ese orden, y no hay forma de obtener lo segundo sin lo primero. No es un recordatorio: es el arranque.…
 `SUITE-R51` **H** La jerarquía de la plataforma es estructura, no prosa, y el enlace del issue resuelve.
 `SUITE-R52` **H** Una petición se distingue de una conversación, y se declara cuál es.
+`SUITE-R53` **H** La regla se alcanza desde el fallo, y lo que puede fallar se deriva.
 
 ### LEX — Nombres
 
@@ -677,6 +678,10 @@ ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUI
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
           definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+LA REGLA  todo fallo cita su regla, y la regla se CONSULTA — no se deduce.  [SUITE-R53]
+          cauce regla SUITE-RNN    que exige, donde vive, quien la comprueba
+          cauce regla --fallos     TODO lo que puede fallar, DERIVADO del codigo
+          Una lista escrita a mano se queda corta; esta sale de los fail().
 QUE ES     antes de nada: ¿PETICION o CONVERSACION? Se DECLARA en una      [SUITE-R52]
           linea y se puede corregir. Peticion = tiene condicion de terminado
           («termina cuando: …», FDGE-R53). Sin ella es conversacion, y lo que

@@ -1,0 +1,9 @@
+{
+  "pt": "PT-040",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E4","E7"], "tests": ["selftest.sh:los fallos se DERIVAN del código","selftest.sh:no hay lista escrita de fallos"], "evidence": ["salidas/fallos.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E5"], "tests": ["selftest.sh:y son mas de cincuenta"], "evidence": ["salidas/fallos.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E4"], "tests": ["por construcción: la lista se calcula, no existe como dato. Verificado leyendo la implementación, no con un caso"], "evidence": ["salidas/fallos.txt"], "verified": true }
+  ],
+  "suite": { "passed": 402, "failed": 0, "coverage": 402, "baseline": 391 }
+}

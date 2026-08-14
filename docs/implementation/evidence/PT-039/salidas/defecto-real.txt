@@ -1,0 +1,17 @@
+# El defecto que apareció al USAR la herramienta
+
+$ node docs/methodology/tools/tracker.mjs siguiente EP-011
+  No hay docs/implementation/REGISTRY.json legible.
+
+El filtro de ROOT excluía PT-\d+ pero no EP-\d+, así que «EP-011» se tomó como la RUTA del
+proyecto. PT-030 añadió la forma `siguiente EP-NNN` y nadie tocó el filtro.
+
+Tras la corrección:
+
+$ node docs/methodology/tools/tracker.mjs siguiente EP-011
+  EP-011  DRAFT  ·  PHASE 1 Intake  ·  #59
+  compuerta:  G1
+  produce:    intake.md
+  siguiente:  PHASE 1 · Intake — cierra con: G1 · firma humana (INTAKE-R06).
+
+Encontrado en el PRIMER intento de usarla. Leerla no lo había encontrado nunca.

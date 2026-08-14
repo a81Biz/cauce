@@ -1,0 +1,21 @@
+
+  [1mSUITE-R46[0m
+
+  [2mdefinida en[0m  RULES.md
+
+  El tablero no se adelanta a la rama por defecto. No se cierra el issue de una `allocation` 
+  cuyo estado terminal no está todavía en la rama por defecto. El orden es: apuntar el estado 
+  terminal en la rama de trabajo, mergear, y cerrar después. Al revés, la rama principal queda 
+  declarando un estado vivo con el issue ya cerrado, y su compuerta falla —tras cada merge, no 
+  solo tras uno—, porque el apunte `DONE → INTEGRATED` se escribe después de integrar y solo 
+  llega a la principal en el merge siguiente. Si el registro de la rama por defecto no se 
+  puede leer —clon superficial, `origin` ausente, rama sin traer— no se cierra nada y se dice 
+  por qué: no saber no es permiso (`SUITE-R38`). Existe porque cerrar nueve issues desde la 
+  rama de trabajo dejó la integración de esta suite en rojo con nueve divergencias 
+
+
+  [1mSUITE-R999[0m
+
+  [31mNo está definida en ningún documento del marco.[0m
+  [2mSi un mensaje la cita, ese mensaje apunta a una regla que no existe — y eso
+  es un defecto, no una laguna tuya.[0m

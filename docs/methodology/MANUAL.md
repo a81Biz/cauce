@@ -164,6 +164,8 @@ node docs/methodology/tools/verify-fdge.mjs --gate G4 PT-NNN    # ¿se puede mer
 node docs/methodology/tools/verify-suite.mjs docs/methodology    # coherencia del marco
 node docs/methodology/tools/tracker.mjs espejo                   # registro ↔ tablero
 node docs/methodology/tools/revisar-secretos.mjs                 # árbol e historia
+node docs/methodology/tools/regla.mjs SUITE-R44                   # qué exige una regla
+node docs/methodology/tools/regla.mjs --fallos                    # qué puede fallar, derivado
 ```
 
 Y tres verificaciones que no son comandos sino sesiones:
@@ -207,6 +209,23 @@ Publicar es aparte, es manual y es tuyo.
 | El espejo dice «cierre pendiente» | Normal entre el merge y el cierre. No bloquea |
 | `SIN EVALUAR` en el tablero | Sin plataforma o sin credencial. No es «no hay nada» |
 | Una compuerta bloquea y crees que no debería | Léelo entero antes de forzar: cuatro veces en la historia de este marco la compuerta tenía razón y quien la leyó, no |
+
+### Y no tienes que deducir nada
+
+Todo mensaje de fallo lleva su regla. **Pregúntale a la regla**:
+
+```bash
+npx @a81biz/cauce regla SUITE-R44      # qué exige, dónde vive, quién la comprueba
+npx @a81biz/cauce regla --fallos       # TODO lo que puede fallar, derivado del código
+```
+
+La lista de `--fallos` **no está escrita en ningún sitio**: sale de los `fail()` y `warn()` de las
+herramientas. Si alguien añade una comprobación, aparece sola — y si esta tabla se queda corta,
+esa lista no.
+
+Hoy son **90 reglas** las que pueden fallar con su nombre. Las demás se comprueban sin citarlo, y
+`regla --sin-comprobar` te dice cuáles: no es que no se cumplan, es que si fallan no lo dirán con
+su ID.
 
 ---
 

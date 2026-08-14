@@ -63,6 +63,7 @@ docs/methodology/
     │   instalación        plan-layout (terreno) · migrate · comparar-marco
     │   seguridad          revisar-secretos (árbol e historia)
     │   estado             tracker (espejo con GitHub o Azure)
+    │   consulta           regla — qué exige una regla y qué puede fallar, derivado
     │   compartido         patrones.mjs — los patrones críticos, con su contrato
     │   medición           audit (cobertura mecánica) · selftest.sh (la batería completa)
 ```

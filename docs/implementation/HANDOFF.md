@@ -2,12 +2,12 @@
 
 <!-- ESTADO -->
 implementación: EP-011 (#59) FIRMADA · el marco se usa a si mismo · cinco tareas
-tarea:          PT-039 (#60) SUITE-R52 implementada, falta su PHASE 4-8 · PT-040 a PT-043 en DRAFT
+tarea:          PT-039, PT-040 y PT-041 en VALIDATION_PENDING · PT-042 y PT-043 pendientes
 compuerta:      G1 del lote firmada · G2 de PT-039 pendiente
-siguiente:      cerrar PT-039 (artefactos de PHASE 4, evidencia, PHASE 8). Luego PT-040 y PT-041 juntos —comparten fuente: los fail() del codigo—, PT-042 y PT-043. NO PUBLICAR 7.5.0 hasta cerrar EP-011: decision humana explicita
+siguiente:      PT-042 (el agente lee su manual) y PT-043 (migracion guiada, la mas grande). Luego cerrar EP-011, version y G4. NO PUBLICAR hasta entonces: decision humana
 decisiones:     6.0.1 PUBLICADA en npm el 2026-08-13 y verificada desde un directorio limpio: el paquete trae SUITE-R42, SUITE-R43 y las funciones de tracker · en ESTE repositorio no hay paquete que instalar: es cauce, y SUITE-R41 lo prohíbe explícitamente · 6.0.1 decidida el 2026-08-13, PATCH: dos correcciones y ninguna regla nueva ni modificada · la delegación se AMPLIÓ a G3 el 2026-08-13 por decisión del firmante, con constancia en la Revisión 1 del intake de EP-003: SUITE-R06b lo pone en la lista de lo que ningún MODO automatiza, y esto es una persona autorizando una excepción con registro, que es lo que la regla de cumplimiento admite · G4 y la publicación siguen sin delegar · 6.0.0 decidida el 2026-08-13, MAJOR porque SUITE-R42 y SUITE-R43 son reglas vinculantes nuevas — el criterio con el que la 5.0.0 subió · la 5.3.0 nunca se publicó y su contenido va dentro de la 6.0.0 · la 6.0.0 nunca se publicó: la sustituyó la 6.0.1, que corrige los dos defectos que habrían llegado a npm con ella · EP-001 y EP-002 CLOSED, en main desde 9ecb1d3 (PR #7), con GitGuardian resuelto como falso positivo · el registro ASIGNA y GitHub ESPEJA: todo el estado publicado se deriva de REGISTRY.json y ninguna lectura de la plataforma lo alimenta · G1 y G2 se firman por delegación con constancia; G3 de un BUG, G4 y la publicación NO se delegan · los .md se quedan: verify-fdge lee archivos, un issue no está versionado y declarar plataforma es opcional · TD-05 resuelta en la entrada de 5.3.0
 no hacer:       relajar SUITE-R43 para que el mensaje de cierre no cuente: se arregla quien escribe, no la regla que lo detecta · copiar el intake al issue (SUITE-R35) · consolidar varias transiciones en un solo comentario: una nota por transición, al cerrar cada fase · commitear volcados de logs como evidencia sin redactar (FDGE-R45 — ya pasó una vez) · escribir guardas de CI para casos que no se pueden probar desde aquí · fabricar artefactos para poner una compuerta en verde · mergear a main ni publicar sin decisión humana (SUITE-R06, EXEC-R04) · borrar origin/desarrollo sin confirmar que no cuelga nada (SUITE-R06f)
-actualizado:    2026-08-14 · EP-011 abierta y PT-039 implementada
+actualizado:    2026-08-14 · tres de cinco tareas de EP-011
 <!-- /ESTADO -->
 
 ---
