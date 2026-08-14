@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 35,
+    "PT": 36,
     "EP": 10,
     "QA": 0,
     "QR": 0,
@@ -795,6 +795,22 @@
       "origin": "Peticion humana 2026-08-13 · «falta la explicacion en el readme del uso, desde el inicio, la creacion de un nuevo proyecto, la instalacion del agente, sobre un trabajo nuevo, uno legado etc... abrimos una epica dedicada integramente a todos los casos de uso que puedan existir y a la resolucion de cada uno para que se pueda generar un manual completo de uso»",
       "created": "2026-08-13",
       "issue": 53
+    },
+    {
+      "id": "PT-036",
+      "slug": "el-enlace-del-issue-tiene-que-resolver",
+      "type": "BUG",
+      "complexity": "SIMPLE",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "IN_PROGRESS",
+      "structural": false,
+      "suite_version": "7.3.0",
+      "epic": "EP-009",
+      "phase": 2,
+      "title": "El cuerpo del issue apunta a la rama por defecto, donde el contenido aun no esta: 404 en el momento en que mas se lee",
+      "origin": "Hallazgo humano 2026-08-13 · «si voy al enlace que indicas tiene tree/main/changes/EP-010... que no lleva a ningun lado, esta aun en local»",
+      "created": "2026-08-13"
     }
   ]
 }

@@ -240,11 +240,23 @@ ${MARCA_AGENTE}`;
  * Sin `url` no se inventa ninguna: se escribe la ruta sin enlace y se dice por que (RULE-06).
  */
 export function cuerpoDeIssue(a, opciones = {}) {
-  const { url, rama, tareas } = opciones;
+  const { url, rama, tareas, ramaTrabajo } = opciones;
   const esLote = a?.type === 'EP';
   const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
+  // PT-036 · el enlace apunta a donde el contenido ESTA, no a donde estara.
+  //
+  // PT-010 lo fijo en la rama por defecto razonando que «un issue es un artefacto largo y una
+  // rama es corta». El razonamiento es bueno y el resultado era un 404 EN EL MOMENTO EN QUE MAS
+  // SE LEE: un issue se abre al empezar el trabajo, y entonces su contenido solo existe en la
+  // rama de trabajo. Lo dijo quien lo intento abrir, no un caso.
+  //
+  // Mientras la allocation esta VIVA se enlaza la rama de trabajo, donde el contenido existe;
+  // cuando llega a INTEGRATED se reenlaza a la rama por defecto, que es donde se queda. El
+  // cuerpo se resincroniza en cada `abrir --aplicar`, asi que la transicion es automatica.
+  const viva = VIVOS.has(a?.status);
+  const ramaDelEnlace = (viva && ramaTrabajo) ? ramaTrabajo : (rama ?? 'main');
   const enlace = url
-    ? `[\`${dir}/\`](${url}/tree/${rama ?? 'main'}/${dir})`
+    ? `[\`${dir}/\`](${url}/tree/${ramaDelEnlace}/${dir})`
     : `\`${dir}/\` — en el repositorio`;
 
   const l = [];
@@ -265,8 +277,10 @@ export function cuerpoDeIssue(a, opciones = {}) {
     l.push('> inventar una sería peor que no ponerla.');
   } else {
     l.push('');
-    l.push(`> El enlace apunta a \`${rama ?? 'main'}\`. Hasta que el trabajo se integre, el`);
-    l.push('> contenido vive en la rama de trabajo y este enlace puede no resolver todavía.');
+    l.push(viva
+      ? `> El enlace apunta a \`${ramaDelEnlace}\`, que es donde el contenido existe ahora. Al`
+      : `> El enlace apunta a \`${ramaDelEnlace}\`, la rama por defecto: aquí es donde se queda.`);
+    if (viva) l.push(`> integrarse pasará a \`${rama ?? 'main'}\` y este cuerpo se actualizará solo.`);
   }
   l.push('');
   l.push('> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el');
@@ -617,8 +631,20 @@ function notasDe() {
 // `estado` corre SIN plataforma, así que aquí no hay adaptador. Sin el `?.` esto reventaba
 // justo en la acción que existe para funcionar sin credencial — lo dijo su caso, no yo.
 const REPO = adaptador?.repo ? adaptador.repo() : { url: null, rama: null };
+// PT-036 · la rama en la que se esta trabajando ahora mismo. Sin ella no se puede enlazar
+// «donde el contenido esta»; si no se sabe, se cae en la rama por defecto y el enlace vuelve a
+// poder dar 404 — pero eso se prefiere a inventar un nombre de rama (RULE-06).
+const RAMA_TRABAJO = (() => {
+  try {
+    const r = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'],
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return (r && r !== 'HEAD') ? r : null;
+  } catch { return null; }
+})();
+
 const contextoCuerpo = (a) => ({
   ...REPO,
+  ramaTrabajo: RAMA_TRABAJO,
   tareas: a?.type === 'EP' ? all.filter((t) => t.epic === a.id) : undefined,
 });
 
