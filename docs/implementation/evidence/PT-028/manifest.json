@@ -1,0 +1,10 @@
+{
+  "pt": "PT-028",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1"], "tests": ["selftest.sh:un issue de allocation terminal no es huerfano"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E2"], "tests": ["selftest.sh:y se marca para no bloquear"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E4","E5"], "tests": ["selftest.sh:el huerfano de verdad sigue siendolo","selftest.sh:y ese si bloquea"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E3"], "tests": ["selftest.sh:el mensaje dice cuando cerrarlo"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 320, "failed": 0, "coverage": 320, "baseline": 315 }
+}

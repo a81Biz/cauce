@@ -77,7 +77,7 @@ export function etiquetasDe(alloc) {
 const RE_DERIVADA = /^(fase: \d+|G[1-4])$/;
 
 /** Compara registro y plataforma EN LAS DOS DIRECCIONES. Sin efectos y sin red. */
-export function compararEspejo(vivas, issues) {
+export function compararEspejo(vivas, issues, todas) {
   const div = [];
   const porNumero = new Map((issues ?? []).map((i) => [i.number, i]));
   for (const a of vivas ?? []) {
@@ -98,11 +98,21 @@ export function compararEspejo(vivas, issues) {
       }
     }
   }
-  const reclamados = new Set((vivas ?? []).map((a) => a.issue).filter(Boolean));
+  // PT-028 · un issue reclamado por una allocation YA TERMINAL no es huérfano: es un cierre
+  // pendiente. El orden que SUITE-R46 fija —apuntar el estado terminal, mergear, cerrar— crea
+  // esa ventana a propósito, y sin distinguirla el espejo denunciaba como «trabajo que el
+  // registro no conoce» justo el estado que la regla anterior obliga a atravesar. Dos reglas
+  // mías chocando, encontrado ejecutando el orden que yo mismo acababa de escribir.
+  const vivos = new Set((vivas ?? []).map((a) => a.issue).filter(Boolean));
+  const porIssue = new Map((todas ?? vivas ?? []).filter((a) => a?.issue).map((a) => [a.issue, a]));
   for (const i of issues ?? []) {
-    if (!reclamados.has(i.number)) {
-      div.push({ regla: 'SUITE-R35', mensaje: `El issue #${i.number} «${String(i.title ?? '').slice(0, 50)}» está abierto y ninguna allocation viva lo reclama. Se está trabajando en algo que el registro no conoce.` });
+    if (vivos.has(i.number)) continue;
+    const duena = porIssue.get(i.number);
+    if (duena) {
+      div.push({ regla: 'SUITE-R35', mensaje: `El issue #${i.number} sigue abierto y ${duena.id} ya es ${duena.status}: es un cierre pendiente, no trabajo perdido. Ciérralo cuando el estado terminal esté en la rama por defecto (SUITE-R46):  tracker cerrar --aplicar`, pendienteDeCierre: true });
+      continue;
     }
+    div.push({ regla: 'SUITE-R35', mensaje: `El issue #${i.number} «${String(i.title ?? '').slice(0, 50)}» está abierto y ninguna allocation lo reclama. Se está trabajando en algo que el registro no conoce.` });
   }
   return div;
 }
@@ -428,7 +438,7 @@ const vivas = vivasDe(all);
 // el arnés puede probar sin credenciales.
 function espejo() {
   const issues = adaptador.abiertos();
-  const div = compararEspejo(vivas, issues);
+  const div = compararEspejo(vivas, issues, all);
   // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
   //
   // El registro que asigna vive en la rama de trabajo. El de la rama por defecto es el del
@@ -447,7 +457,14 @@ function espejo() {
       + `node tools/verify-fdge.mjs --gate G4 PT-NNN`);
     return;
   }
-  for (const d of div) fail(d.regla, d.mensaje);
+  // PT-028 · un cierre pendiente NO bloquea: es la ventana que SUITE-R46 obliga a atravesar
+  // —apuntar el estado terminal, mergear, cerrar—. Bloquear ahi seria exigir que se cerraran
+  // los issues antes del merge, que es exactamente lo que SUITE-R46 prohibe. Se dice, no se
+  // castiga: informar y bloquear no son lo mismo.
+  for (const d of div) {
+    if (d.pendienteDeCierre) notas.push(`PENDIENTE DE CIERRE · ${d.mensaje}`);
+    else fail(d.regla, d.mensaje);
+  }
   if (!errores.length) {
     notas.push(`${vivas.length} allocation(s) viva(s) y ${issues.length} issue(s) abierto(s): el espejo cuadra.`);
   }

@@ -14,3 +14,4 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-022 | BUG | S1 | INTEGRATED | EP-005 | SUITE-R44 solo mira las filas que existen: omitirla es invisible |
 | PT-024 | BUG | S1 | INTEGRATED | EP-006 | El tablero se adelantaba a la rama por defecto y rompia la CI de main en cada merge |
 | PT-026 | BUG | S1 | INTEGRATED | EP-006 | El espejo comparaba en main una foto contra un tablero vivo |
+| PT-028 | BUG | S1 | INTEGRATED | EP-006 | Un cierre pendiente no es un huerfano: SUITE-R35 y SUITE-R46 chocaban |

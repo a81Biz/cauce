@@ -62,6 +62,7 @@ prematuro sin guarda y solo escondería su efecto.
 |:---|:---|:---|:---|
 | `PT-024` | BUG | S1 | `cerrar` no se adelanta a la rama por defecto |
 | `PT-026` | BUG | S1 | El espejo se comprueba donde el registro **asigna**, no en la foto |
+| `PT-028` | BUG | S1 | Un cierre pendiente no es un huérfano: `SUITE-R46` y `SUITE-R35` chocaban |
 
 ## 7. Cómo termina
 
@@ -89,6 +90,8 @@ Estado: FIRMADA · G1 PASS
 | Entrada de `CHANGELOG.md` | HECHO |
 | Número de versión | HECHO — 7.1.0 |
 | Regenerar `CORE.md` | HECHO |
+| El choque entre `SUITE-R35` y `SUITE-R46` que apareció al ejecutar el orden nuevo | `PT-028` |
+| Buscar más reglas que se hagan imposibles entre sí | `PT-029` |
 | Comprobar que la CI de `main` queda verde tras el merge | `PT-027` |
 
 > El merge y la publicación no son filas de esta sección: son el cierre mismo (`G4`). Y lo que

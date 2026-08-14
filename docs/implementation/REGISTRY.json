@@ -1,5 +1,5 @@
 {
-  "suite_version": "7.0.0",
+  "suite_version": "7.1.0",
   "execution_mode": "SUPERVISED",
   "foundation": {
     "generated": "2026-08-13",
@@ -15,7 +15,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 27,
+    "PT": 29,
     "EP": 6,
     "QA": 0,
     "QR": 0,
@@ -595,6 +595,40 @@
       "origin": "Aplazado por EP-006 · PT-026 · es lo unico que prueba el lote y solo se ve DESPUES del merge, asi que no puede ser criterio de la tarea ni fila de cierre",
       "created": "2026-08-13",
       "issue": 37
+    },
+    {
+      "id": "PT-028",
+      "slug": "un-cierre-pendiente-no-es-un-huerfano",
+      "type": "BUG",
+      "complexity": "SIMPLE",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "7.1.0",
+      "epic": "EP-006",
+      "phase": 10,
+      "title": "SUITE-R35 denunciaba como huerfano el estado que SUITE-R46 obliga a atravesar",
+      "origin": "Hallazgo al ejecutar el orden de SUITE-R46 · apuntado INTEGRATED antes del merge, el espejo marco nueve issues como trabajo que el registro no conoce",
+      "created": "2026-08-13",
+      "issue": 39
+    },
+    {
+      "id": "PT-029",
+      "slug": "detectar-reglas-que-se-hacen-imposibles-entre-si",
+      "type": "CHORE",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "7.1.0",
+      "epic": null,
+      "phase": null,
+      "title": "Buscar mas choques entre reglas: una comprobacion que hace imposible el estado que otra obliga a atravesar",
+      "origin": "Aplazado por PT-028 · cuarto defecto de la misma familia en dos dias (SUITE-R44 con CLOSED, SUITE-R45 con el merge, SUITE-R45 con la verificacion posterior, SUITE-R35 con SUITE-R46). Lo que falta no es otra regla sino detectar esa FORMA",
+      "created": "2026-08-13",
+      "issue": 40
     }
   ]
 }

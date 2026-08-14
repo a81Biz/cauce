@@ -846,3 +846,32 @@ el orden esté escrito donde se lee, no solo en la regla.
 
 Queda pendiente PT-027 (#37): confirmar que la CI de main queda verde. Es lo único que prueba
 EP-006 y solo se ve después del merge.
+
+## PT-028 — BUG: un cierre pendiente no es un huérfano
+Fecha: 2026-08-13
+Estado: INTEGRATED
+integrado por: Alberto Martínez
+Severidad: S1
+Complejidad: SIMPLE
+Track: STANDARD
+Implementación: EP-006
+Estructural: no
+Rama: trabajo
+Compuertas: G1 · G2 · G3 2026-08-13 Alberto Martínez (delegadas) · G4 2026-08-13
+
+Qué fallaba: ejecutando el orden que SUITE-R46 acababa de fijar —apuntar el estado terminal,
+mergear, cerrar— el espejo denunció nueve issues como «trabajo que el registro no conoce».
+Falso: el registro los tenía en INTEGRATED y su issue seguía abierto PORQUE la regla anterior
+obliga a que lo esté hasta después del merge.
+
+Dos reglas mías chocando: G4 no podía pasar bajo el orden que G4 exige. Las dos son correctas
+por separado; el choque solo aparece EJECUTANDO.
+
+Qué se hizo: reclamar los issues desde TODAS las allocations, no solo las vivas, y distinguir
+tres casos — viva (normal), terminal (cierre pendiente, informa), nadie (huérfano, bloquea). La
+marca viaja en el dato y no en el texto.
+
+Cuarto defecto de la misma familia en dos días —una comprobación que hace imposible el estado
+que otra obliga a atravesar—. Aplazado y asignado: PT-029, buscar esa forma en el resto.
+
+Evidencia: docs/implementation/evidence/PT-028/ · selftest 315 → 320 casos

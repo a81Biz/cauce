@@ -1154,6 +1154,20 @@ chk   "y PHASES dice donde bloquea"            "SUITE-R47"   cat "$SUITE/PHASES.
 chk   "el tracker distingue la rama"           "esRamaPorDefecto" cat "$SUITE/tools/tracker.mjs"
 chk   "ante la duda, bloquea"                  "equivocarse hacia" cat "$SUITE/tools/tracker.mjs"
 
+
+# PT-028 . un cierre PENDIENTE no es un huerfano. Ejecutando el orden que SUITE-R46 acababa de
+# fijar —apuntar el estado terminal, mergear, cerrar— el espejo denuncio nueve issues como
+# «trabajo que el registro no conoce». Dos reglas mias chocando: G4 no podia pasar bajo el orden
+# que G4 exige.
+INT='{"id":"PT-060","status":"INTEGRATED","issue":60}'
+I60='{"number":60,"title":"x","labels":[]}'
+trlib "un issue de allocation terminal no es huerfano" "cierre pendiente"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[$INT])))"
+trlib "y se marca para no bloquear"                    "pendienteDeCierre"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[$INT])))"
+trlib "el mensaje dice cuando cerrarlo"                "SUITE-R46"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[$INT])))"
+# Lo que NO se relaja: un issue que nadie reclama sigue siendo trabajo fuera del registro.
+trlib "el huerfano de verdad sigue siendolo"           "ninguna allocation lo reclama"   "console.log(JSON.stringify(m.compararEspejo([],[$I60],[])))"
+trlib "y ese si bloquea"                               "false"   "console.log(!!m.compararEspejo([],[$I60],[])[0].pendienteDeCierre)"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \
