@@ -16,7 +16,7 @@
   },
   "counters": {
     "PT": 29,
-    "EP": 6,
+    "EP": 7,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -585,12 +585,12 @@
       "type": "CHORE",
       "complexity": "SIMPLE",
       "severity": "S1",
-      "track": "STANDARD",
-      "status": "DEFERRED",
+      "track": "EXPRESS",
+      "status": "CLOSED",
       "structural": false,
       "suite_version": "7.0.0",
       "epic": null,
-      "phase": null,
+      "phase": 10,
       "title": "Confirmar que la CI de main queda verde tras el merge de EP-006",
       "origin": "Aplazado por EP-006 · PT-026 · es lo unico que prueba el lote y solo se ve DESPUES del merge, asi que no puede ser criterio de la tarea ni fila de cierre",
       "created": "2026-08-13",
@@ -629,6 +629,22 @@
       "origin": "Aplazado por PT-028 · cuarto defecto de la misma familia en dos dias (SUITE-R44 con CLOSED, SUITE-R45 con el merge, SUITE-R45 con la verificacion posterior, SUITE-R35 con SUITE-R46). Lo que falta no es otra regla sino detectar esa FORMA",
       "created": "2026-08-13",
       "issue": 40
+    },
+    {
+      "id": "EP-007",
+      "slug": "el-tablero-como-maquina-de-estados",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "DRAFT",
+      "structural": null,
+      "suite_version": "7.1.0",
+      "phase": 1,
+      "title": "El agente no puede saber que sigue sin consultar el tablero, y SUPERVISED y AUTONOMOUS deben exigir lo mismo",
+      "origin": "Peticion humana 2026-08-13 · «que se te pasen las cosas significa que no usas github como maquina de estados entonces estas saltando pasos, fases o ignoras el marco; hay que evitar eso de forma que no sepa hacer nada si no consultas directamente a github para saber que sigue y como cerrar. El marco trabaja de forma supervisada y autonoma, las dos deben tener lo mismo»",
+      "created": "2026-08-13",
+      "issue": 41
     }
   ]
 }
