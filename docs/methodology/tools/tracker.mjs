@@ -63,6 +63,71 @@ export const vivasDe = (allocations) =>
 // acordarse de actualizar (`RULE-01`), y este marco tiene cicatrices de eso.
 export const COMPUERTA_DE_FASE = { 1: 'G1', 4: 'G2', 7: 'G3', 9: 'G4' };
 
+// PT-030 · Qué produce cada fase y qué la cierra. Es la MISMA tabla que PHASES.md describe en
+// prosa; aquí está en forma consultable para que la respuesta a «¿qué sigue?» se DERIVE y no la
+// improvise nadie. Si las dos divergen, verify-suite lo caza: PHASES.md manda sobre el texto,
+// esta tabla sobre lo ejecutable, y ninguna inventa fases que la otra no tenga.
+export const FASES = {
+  0:  { nombre: 'Contexto',      produce: [],                              cierra: 'leer el estado y el registro' },
+  1:  { nombre: 'Intake',        produce: ['intake.md'],                   cierra: 'G1 · firma humana (INTAKE-R06)' },
+  2:  { nombre: 'Descubrimiento',produce: ['discovery.md'],                cierra: 'dónde está el defecto, con archivo y línea' },
+  3:  { nombre: 'Estrategia',    produce: ['strategy.md'],                 cierra: 'los caminos descartados, con su por qué' },
+  4:  { nombre: 'Propuesta',     produce: ['design.md', 'tasks.md', 'test-scenarios.md', 'out-of-scope.md', 'spec-changes.md', 'traceability.md'], cierra: 'G2 · aprobación' },
+  5:  { nombre: 'Implementación',produce: [],                              cierra: 'los casos en verde y la comprobación inversa en rojo' },
+  6:  { nombre: 'Evidencia',     produce: ['manifest.json', 'self-review.md'], cierra: 'cada AC con su evidencia, o declarado no verificado' },
+  7:  { nombre: 'Validación',    produce: [],                              cierra: 'G3 · validación' },
+  8:  { nombre: 'Persistencia',  produce: ['HISTORY.log', 'índice'],       cierra: 'estado retomable (SUITE-R33/R34)' },
+  9:  { nombre: 'Integración',   produce: [],                              cierra: 'G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a)' },
+  10: { nombre: 'Cierre',        produce: [],                              cierra: 'estado terminal en la rama por defecto, y ENTONCES cerrar (SUITE-R46)' },
+};
+
+/**
+ * PT-030 · `SUITE-R48` · Qué toca ahora y cómo se cierra, DERIVADO del tablero.
+ *
+ * Existe porque el agente recorría las fases de memoria, y de memoria es exactamente como se
+ * saltan: en una sola sesión di un merge por terminado sin mirar la compuerta que corre después,
+ * cerré issues en un orden que ninguna regla decía, y declaré un cambio de especificación que no
+ * hice. Cuatro veces decidí «qué sigue» sin preguntárselo a nada.
+ *
+ * No inventa: cruza el estado del registro con la fase declarada y devuelve qué produce esa fase
+ * y qué la cierra. Función pura — quien llama le pasa lo que ya leyó.
+ */
+export function queSigue(alloc, opciones = {}) {
+  const { comentarioPendiente = false, issueAbierto = null } = opciones;
+  if (!alloc) return { error: 'no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay trabajo.' };
+  if (!VIVOS.has(alloc.status)) {
+    return { id: alloc.id, estado: alloc.status, terminado: true,
+      siguiente: `${alloc.id} ya es ${alloc.status}. Lo cerrado es evidencia, no estado (SUITE-R36).` };
+  }
+  const bloqueos = [];
+  // SUITE-R43 · lo que una persona escribió se lee ANTES de avanzar. Va primero porque puede
+  // cambiar todo lo demás: preguntar qué sigue sin haber leído la respuesta anterior es el
+  // defecto que esta acción existe para impedir.
+  if (comentarioPendiente) {
+    bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43).`);
+  }
+  if (!alloc.issue) bloqueos.push(`no tiene issue. Lo que está abierto se consulta en el tablero (SUITE-R35):  tracker abrir --aplicar`);
+  else if (issueAbierto === false) bloqueos.push(`su issue #${alloc.issue} no está abierto y ${alloc.id} sigue vivo (SUITE-R35).`);
+
+  const f = alloc.phase;
+  if (f === undefined || f === null) {
+    return { id: alloc.id, estado: alloc.status, fase: null, bloqueos,
+      siguiente: 'no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).' };
+  }
+  const actual = FASES[Number(f)];
+  const proxima = FASES[Number(f) + 1];
+  const compuerta = COMPUERTA_DE_FASE[Number(f)];
+  return {
+    id: alloc.id, estado: alloc.status, fase: Number(f), nombre: actual?.nombre ?? '¿?',
+    produce: actual?.produce ?? [], cierra: actual?.cierra ?? '¿?', compuerta: compuerta ?? null,
+    bloqueos,
+    siguiente: bloqueos.length
+      ? `RESUELVE PRIMERO lo de arriba. Después: ${actual?.cierra ?? '¿?'}`
+      : `PHASE ${f} · ${actual?.nombre ?? '¿?'} — cierra con: ${actual?.cierra ?? '¿?'}`
+      + (proxima ? `. Luego PHASE ${Number(f) + 1} · ${proxima.nombre}.` : '. Es la última fase.'),
+  };
+}
+
 /** Las etiquetas que el registro DERIVA para el issue de una allocation. Función pura. */
 export function etiquetasDe(alloc) {
   const et = [alloc?.type === 'EP' ? 'implementación' : 'tarea'];
@@ -688,7 +753,42 @@ function pendienteDe() {
   console.log(r ? '1' : '0');
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe };
+// ── siguiente · qué toca ahora y cómo se cierra, PREGUNTÁNDOSELO AL TABLERO ──
+// PT-030 · La respuesta no sale de la memoria del agente: sale del registro cruzado con el
+// estado real del issue. Consultar el tablero deja de ser una buena costumbre y pasa a ser el
+// único sitio donde está la respuesta.
+function siguienteDe() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  const objetivo = id
+    ? [all.find((x) => x?.id === id)]
+    : vivas.filter((a) => a?.type !== 'EP').sort((x, y) => (y.phase ?? -1) - (x.phase ?? -1));
+  if (!objetivo.length || !objetivo[0]) {
+    di(id ? `${id} no existe en el registro.` : 'Nada vivo en el registro: no hay trabajo abierto.');
+    return;
+  }
+  for (const a of objetivo) {
+    let pendiente = false;
+    let abierto = null;
+    if (a.issue && adaptador?.comentarios) {
+      try { pendiente = comentarioSinResponder(adaptador.comentarios(a.issue)) === true; } catch { /* sin acceso: no se afirma */ }
+    }
+    if (a.issue && adaptador?.abiertos) {
+      try { abierto = adaptador.abiertos().some((i) => i.number === a.issue); } catch { /* idem */ }
+    }
+    const r = queSigue(a, { comentarioPendiente: pendiente, issueAbierto: abierto });
+    di('');
+    di(`  ${r.id}  ${r.estado}${r.fase !== null && r.fase !== undefined ? `  ·  PHASE ${r.fase} ${r.nombre}` : ''}${a.issue ? `  ·  #${a.issue}` : ''}`);
+    if (r.compuerta) di(`  compuerta:  ${r.compuerta}`);
+    if (r.produce?.length) di(`  produce:    ${r.produce.join(' · ')}`);
+    for (const b of r.bloqueos ?? []) di(`  ✗ BLOQUEA:  ${b}`);
+    di(`  siguiente:  ${r.siguiente}`);
+  }
+  di('');
+  di('  Esto se DERIVA del registro y del tablero (SUITE-R48). No es una opinión: si algo aquí');
+  di('  no cuadra con lo que crees que toca, el que se equivoca no es el tablero.');
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

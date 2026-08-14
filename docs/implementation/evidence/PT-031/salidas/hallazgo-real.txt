@@ -1,0 +1,11 @@
+# EXEC-R08 — primera ejecucion sobre EXECUTION-MODES.md tal como estaba
+
+  ✗ EXEC-R08  EXECUTION-MODES.md:5
+    la matriz de compuertas cita una regla («ACK humano (admite firma por lote, `INTA»).
+    Las reglas se comprueban igual en los tres modos; citarlas aqui sugiere que uno las
+    trata distinto.
+
+La fila de G1 declaraba la firma por lote como algo de AUTONOMOUS. INTAKE-R08 vale en los
+tres modos: EP-004, EP-005, EP-006 y EP-007 la usaron en SUPERVISED.
+
+Corregido. Sin fixture: el caso era real.

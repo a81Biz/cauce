@@ -48,9 +48,17 @@ las mismas obligaciones —solo cambia quién resuelve las compuertas, no qué s
 
 ## 5. Análisis de solapamiento   `INTAKE-R09`
 
-Pendiente de `PHASE 2`. Se anticipa que toca `tracker`, `verify-fdge`, `EXECUTION-MODES.md` y
-`PHASES.md`, y que hay solapamiento fuerte entre la derivación del siguiente paso y la paridad
-entre modos: la segunda no se puede comprobar sin la primera.
+| PT | Tipo | Sev | Qué resuelve |
+|:---|:---|:---|:---|
+| `PT-030` | FEATURE | S1 | `tracker siguiente` deriva del tablero qué toca y cómo se cierra |
+| `PT-031` | BUG | S1 | Los tres modos de ejecución declaran las mismas obligaciones |
+
+Las dos tocan `tracker.mjs` y `EXECUTION-MODES.md`, pero en piezas distintas: `PT-030` **añade**
+una acción de solo lectura; `PT-031` comprueba que la tabla de modos no exima de nada.
+
+Orden obligado: `PT-030` primero. La paridad entre modos no se puede comprobar sin una respuesta
+derivada de qué exige cada fase — hoy esa respuesta vive en mi criterio, y comparar mi criterio
+consigo mismo no prueba nada.
 
 ## 6. Qué NO entra
 
@@ -60,14 +68,18 @@ entre modos: la segunda no se puede comprobar sin la primera.
 ## 7. Firma   `INTAKE-R06`
 
 ```
-Estado: PENDIENTE DE FIRMA HUMANA
+Firmado por: Alberto Martínez (delegada — «firma y avanza el EP-007, firma con mi nombre», 2026-08-13)
+Fecha: 2026-08-13
+Severidad declarada: S1 en las dos tareas. El diagnóstico es que el agente recorre las fases de
+memoria; de memoria es exactamente como se saltan, y esta sesión tiene cuatro ejemplos.
+Estado: FIRMADA · G1 PASS
 ```
 
 ## Cierre del lote   `SUITE-R45`
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| Regenerar `CORE.md` | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | HECHO — 7.2.0 |
+| Regenerar `CORE.md` | HECHO |
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.

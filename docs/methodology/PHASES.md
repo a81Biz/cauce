@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **7.1.0**
+> Suite version: **7.2.0**
 
 ---
 
@@ -268,6 +268,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+SIGUIENTE antes de avanzar de fase, PREGUNTA al tablero. No de memoria.     [SUITE-R48]
+          node tools/tracker.mjs siguiente PT-NNN
+          Deriva que produce la fase, que la cierra, que compuerta toca y
+          que la bloquea. Un comentario humano sin responder BLOQUEA la
+          respuesta. Sin «phase» declarada: SIN EVALUAR, no se adivina.
 ESPEJO    bloquea en la rama de TRABAJO y en los PR; en la rama por defecto  [SUITE-R47]
           solo INFORMA: alli el registro es la foto del ultimo merge y el
           tablero sigue vivo, asi que divergen por construccion. Donde decide

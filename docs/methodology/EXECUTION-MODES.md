@@ -3,7 +3,7 @@
 > **Estatus:** normativo. Define cuánta autonomía tiene el agente y dónde el humano decide.
 > **Autoridad:** ver `LEX-R21`. Reglas: [RULES.md](RULES.md). Vocabulario: [LEXICON.md](LEXICON.md).
 >
-> Suite version: **7.1.0**
+> Suite version: **7.2.0**
 
 ---
 
@@ -117,7 +117,7 @@ veces por lote (al admitirlo y al integrarlo) en lugar de cuatro veces por PT.
 
 | | `MANUAL` | `SUPERVISED` | `AUTONOMOUS` |
 |:---|:---|:---|:---|
-| **G1 — DoR** | ACK humano | ACK humano | ACK humano (admite firma por lote, `INTAKE-R08`) |
+| **G1 — DoR** | ACK humano | ACK humano | ACK humano |
 | **G2 — Proposal** | ACK humano | ACK humano | **Auto** si se cumplen las 5 condiciones de §5.1; ACK humano si no |
 | **G3 — Validation** | ACK humano | ACK humano si `type=BUG`; **auto** para `FEATURE`/`REFACTOR`/`CHORE` que cumplan §5.2 | Igual que `SUPERVISED` |
 | **G4 — Integration** | **ACK humano** | **ACK humano** | **ACK humano** |
@@ -125,6 +125,17 @@ veces por lote (al admitirlo y al integrarlo) en lugar de cuatro veces por PT.
 
 `EXEC-R04` · **G4 es humana en los tres modos, sin excepción** (`FDGE-R33`, `SUITE-R06a`).
 No existe configuración, urgencia ni tipo de trabajo que la automatice.
+
+`EXEC-R08` · `HARD` · **Los tres modos exigen lo mismo.** Un modo cambia **quién** resuelve una compuerta
+y cuándo se pide confirmación. **Nunca cambia qué se exige**: ni un artefacto menos, ni una regla
+que no se comprueba, ni evidencia más floja. La matriz de arriba solo contiene quién resuelve;
+que una celda citara un artefacto o una regla significaría que ese modo trata distinto lo
+exigido, y `verify-suite` lo comprueba con vocabulario cerrado en vez de adivinar sobre prosa
+(`SUITE-R38`, la lección de `PT-018`).
+
+Se escribió porque la fila de `G1` declaraba la firma por lote como algo de `AUTONOMOUS`, y
+`INTAKE-R08` vale en los tres: `EP-004` a `EP-007` la usaron en `SUPERVISED`. Una ventaja
+aparente de un modo es una vara de medir más floja esperando a que alguien la elija sin decirlo.
 
 `EXEC-R05` · **G3 es humana para todo `BUG` en los tres modos** (`FDGE-R26`, `LEX-R08`).
 Un bug lo declara resuelto quien lo sufrió, no quien lo arregló.

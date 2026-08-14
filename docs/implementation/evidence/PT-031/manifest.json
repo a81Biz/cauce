@@ -1,0 +1,10 @@
+{
+  "pt": "PT-031",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E4","E5","E6"], "tests": ["selftest.sh:la matriz ya no da ventajas por modo","selftest.sh:verify-suite lo comprueba","selftest.sh:y con vocabulario cerrado, no prosa"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E1","E2"], "tests": ["selftest.sh:EXEC-R08 existe en su documento","selftest.sh:y llega al núcleo"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E3"], "tests": ["selftest.sh:G4 humana en los tres modos"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E4"], "tests": ["ejecución real: la comprobación falló sobre el documento tal como estaba, sin fixture"], "evidence": ["salidas/hallazgo-real.txt"], "verified": true }
+  ],
+  "suite": { "passed": 340, "failed": 0, "coverage": 340, "baseline": 334 }
+}

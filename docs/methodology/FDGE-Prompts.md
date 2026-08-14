@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.1.0**
+> Suite version: **7.2.0**
 
 ---
 
@@ -55,6 +55,17 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 **No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R48`: qué sigue lo dice el tablero, no tu memoria.** Antes de avanzar de fase:
+
+```bash
+node docs/methodology/tools/tracker.mjs siguiente PT-NNN
+```
+
+Deriva qué produce la fase actual, qué la cierra, qué compuerta le toca y qué la bloquea. Un
+comentario humano sin responder **bloquea la respuesta** (`SUITE-R43`): preguntar qué sigue sin
+haber leído la respuesta anterior es justo el defecto que esta regla impide. Sin `phase`
+declarada, `SIN EVALUAR` — no se adivina.
 
 **`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
 en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.

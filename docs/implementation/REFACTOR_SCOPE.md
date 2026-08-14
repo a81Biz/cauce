@@ -15,3 +15,8 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-024 | BUG | S1 | INTEGRATED | EP-006 | El tablero se adelantaba a la rama por defecto y rompia la CI de main en cada merge |
 | PT-026 | BUG | S1 | INTEGRATED | EP-006 | El espejo comparaba en main una foto contra un tablero vivo |
 | PT-028 | BUG | S1 | INTEGRATED | EP-006 | Un cierre pendiente no es un huerfano: SUITE-R35 y SUITE-R46 chocaban |
+| PT-030 | FEATURE | S1 | INTEGRATED | EP-007 | tracker siguiente: que toca y como se cierra, derivado del tablero |
+| PT-031 | BUG | S1 | INTEGRATED | EP-007 | MANUAL, SUPERVISED y AUTONOMOUS deben declarar las mismas obligaciones |
+| PT-032 | FEATURE | S1 | CLOSED | EP-008 | Convencion o agente propio que ate al agente al tablero |
+| PT-033 | FEATURE | S1 | DRAFT | EP-008 | La convencion: el estado del tablero abre el contexto |
+| PT-034 | FEATURE | S1 | DRAFT | EP-008 | El agente propio de cauce: el tablero ES el punto de entrada |
