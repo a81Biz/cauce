@@ -29,6 +29,8 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-041 | FEATURE | S1 | VALIDATION_PENDING | EP-011 | La regla en el mensaje que la incumple |
 | PT-042 | FEATURE | S1 | READY | EP-011 | El agente lee su manual y sabe autorreferenciarse |
 | PT-043 | FEATURE | S1 | DONE | EP-011 | Migracion guiada: las decisiones se conducen |
-| PT-044 | BUG | S2 | DEFERRED | — | El YAML del intake declara una fase que el registro contradice |
-| PT-045 | BUG | S2 | DEFERRED | — | npx @a81biz/cauce start no arranca: el punto de entrada documentado falla |
-| PT-046 | BUG | S2 | DEFERRED | — | Una entrada de HISTORY mal formada bloquea G4 y ninguna regla permite corregirla |
+| PT-044 | BUG | S2 | READY | EP-012 | El YAML del intake declara una fase que el registro contradice |
+| PT-045 | BUG | S2 | READY | EP-012 | npx @a81biz/cauce start no arranca: el punto de entrada documentado falla |
+| PT-046 | BUG | S2 | IN_PROGRESS | EP-012 | Una entrada de HISTORY mal formada bloquea G4 y ninguna regla permite corregirla |
+| PT-047 | BUG | S3 | DEFERRED | — | PHASE 5 manda rama por PT y los 43 PT de este repositorio van sobre trabajo |
+| PT-048 | BUG | S3 | DEFERRED | — | El issue de una allocation DEFERRED enlaza a un directorio que no existe |

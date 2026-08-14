@@ -380,7 +380,7 @@
       "id": "PT-016",
       "slug": "phase-obligatoria",
       "title": "Decidir si `phase` pasa a ser obligatoria, y añadirla a la plantilla TAREA.md",
-      "origin": "Aplazado por PT-004 · haría fallar a todo proyecto ya instalado, así que es decisión con entrada de CHANGELOG",
+      "origin": "Aplazado por PT-004 · haría fallar a todo proyecto ya instalado, así que es decisión con entrada de CHANGELOG · Ampliado por PT-046 (EP-012): el formato canonico de HISTORY.log declara ocho campos que hoy no verifica nadie —Severidad, Complejidad, Track, Lote, Rama, Modo, Objetivo, Solucion—. Exigirlos rompe entradas validas de proyectos ya instalados, asi que se decide aqui y no se cuela en PT-046 (SUITE-R44).",
       "issue": 23
     },
     {
@@ -989,10 +989,10 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "IN_PROGRESS",
       "structural": false,
       "suite_version": "7.6.0",
-      "phase": 1,
+      "phase": 5,
       "title": "Una entrada de HISTORY.log mal formada bloquea G4 y ninguna regla permite corregirla",
       "origin": "PT-043 · cierre de EP-011. Encontrado ejecutando verify-fdge --gate G4 sobre PT-039..PT-042: sus entradas escriben «Fecha: ... · Estado: DONE · ...» en una sola linea y FDGE-R34 exige «^Estado:» al principio de linea, que es el formato canonico de FDGE-Implementation.md. G4 queda bloqueada en las cuatro. Y no hay salida escrita: SUITE-R09 prohibe editar una entrada existente, FDGE-R29 prohibe una segunda entrada que no sea de revert, y la comprobacion lee entries[0]. Corregirlo exige autorizacion humana explicita con registro, o cambiar una de las dos reglas.",
       "created": "2026-08-14",
