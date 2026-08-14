@@ -217,6 +217,40 @@ build_fixture; perl -pi -e 's/^Estado: DONE$/Estado: VALIDATION_PENDING/ if $. <
 chk "BUG sin validar intentando G4"     "FDGE-R34"          V --gate G4 PT-001
 build_fixture; perl -pi -e 's/G3 2026-08-05 Ada Lovelace/G3 auto/' "$WORK/docs/implementation/HISTORY.log"
 chk "BUG en DONE sin firma humana G3"   "FDGE-R26"          V --gate G4 PT-001
+
+# PT-046 · FDGE-R29 · corregir una entrada de HISTORY sin editarla.
+#
+# SUITE-R09 ya prescribe el mecanismo —«una entrada nueva que lo referencia»— y FDGE-R29 lo
+# cerraba: exactamente una entrada por PT, y la comprobacion leia SIEMPRE la primera. Tres
+# reglas correctas por separado dejaban una entrada mal escrita bloqueando G4 para siempre.
+# Lo encontro chocar contra el, no la busqueda que PT-029 proponia hace tres lotes.
+#
+# `mal_formada` reproduce el defecto real: Fecha y Estado condensados en una linea, que es
+# como salieron las cuatro entradas de EP-011.
+mal_formada() { perl -0pi -e 's/^Fecha: 2026-08-05\nEstado: DONE\n/Fecha: 2026-08-05 · Estado: DONE ·\n/m' "$WORK/docs/implementation/HISTORY.log"; }
+corrige() { printf '\n## PT-001 — CORRIGE: el encabezado condensaba Fecha y Estado\nCorrige: la entrada de 2026-08-05\nMotivo: no declaraba «Estado:» en su propia linea (FDGE-R29)\nEstado: %s\nEstructural: %s\n' "${1:-DONE}" "${2:-no}" >> "$WORK/docs/implementation/HISTORY.log"; }
+
+build_fixture; mal_formada
+chk "entrada condensada bloquea G4"     "✗ FDGE-R34"        V --gate G4 PT-001
+build_fixture; mal_formada; corrige
+chk "y una CORRIGE la desbloquea"       "Sin errores"       V --gate G4 PT-001
+build_fixture; mal_formada; corrige
+chkno "la CORRIGE no cuenta como segunda" "✗ FDGE-R29"      V --gate G4 PT-001
+# Estructural sale de la MISMA cabeza: corregir el Estado y dejar el Estructural leyendose de
+# la entrada vieja seria corregir la mitad, que es peor que no corregir.
+build_fixture; perl -0pi -e 's/^Estructural: no\n//m' "$WORK/docs/implementation/HISTORY.log"; corrige DONE si
+chk "la CORRIGE tambien aporta Estructural" "✓ FDGE-R44"    V PT-001
+# Con DOS correcciones manda la ULTIMA: corregir una correccion es legitimo y append-only.
+build_fixture; mal_formada; corrige VALIDATION_PENDING; corrige DONE
+chk "con dos correcciones manda la ultima" "Sin errores"    V --gate G4 PT-001
+# Y los dos que TIENEN que fallar. Sin ellos esto seria una via para declarar trabajo que
+# nunca ocurrio, y no lo sabriamos.
+# PT-004 no tiene entrada en HISTORY —esta en PHASE 4—, asi que una CORRIGE suya no corrige nada.
+build_fixture; printf '\n## PT-004 — CORRIGE: de la nada\nCorrige: la entrada de 2026-08-05\nEstado: DONE\nEstructural: no\n' >> "$WORK/docs/implementation/HISTORY.log"
+chk "una CORRIGE huerfana falla"        "✗ FDGE-R29"        V PT-004
+build_fixture
+chkno "sin CORRIGE nada cambia"         "CORRIGE"           V --gate G4 PT-001
+
 build_fixture; reg_set "r.counters.PT=1"
 chk "contador bajo el ID ya asignado"   "LEX-R04"           V --all
 build_fixture; perl -pi -e 's/IN_PROGRESS/PENDING/' "$WORK/docs/implementation/ENRICHMENT.md"

@@ -457,6 +457,27 @@ Compuertas: G1 2026-08-05 Ada Lovelace · G2 2026-08-05 Ada Lovelace · G3 auto 
 Trazabilidad externa: [QD-007] [H-021] [R-014]   — omitir las que no apliquen
 ```
 
+### Corregir una entrada ya escrita   `FDGE-R29`
+
+Una entrada de `HISTORY.log` **no se edita nunca** (`SUITE-R09`). Si salió mal, se añade:
+
+```markdown
+## PT-XXX — CORRIGE: [qué se corrige]
+Corrige: la entrada de YYYY-MM-DD
+Motivo: [por qué la original no cumple el formato canónico]
+[los campos que se rehacen, con la misma grafía de arriba]
+```
+
+Las comprobaciones de `G4` leen **la última corrección** para cada campo que declare y la
+entrada original para los que no, así que una corrección que solo arregla el `Estado:` no hace
+desaparecer el `Estructural:`. La entrada original **permanece**: es lo que se audita, y ver las
+dos es lo que dice que hubo un error — precisamente lo que editar habría borrado.
+
+Una corrección **sin entrada original a la que referirse falla**: sin ese cierre, `CORRIGE` sería
+una vía para declarar trabajo del que no hay registro.
+
+Es el mismo patrón que `## PT-XXX — REVERTIDO` (`FDGE-R36`), que este ledger ya admitía.
+
 ### `HANDOFF.md` — sobrescribible en **modo merge**
 
 `FDGE-R30` · Antes de escribir, leer el existente y **preservar** todas las validaciones

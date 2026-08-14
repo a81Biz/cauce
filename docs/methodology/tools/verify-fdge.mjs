@@ -1074,23 +1074,60 @@ function checkHistory(pt, rel, type, { gate }) {
   const hist = read(join(IMPL, 'HISTORY.log')) ?? '';
   const entries = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—`, 'gm'))];
   const reverted = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+REVERTIDO`, 'gm'))];
+  // PT-046 · FDGE-R29 · una entrada mal escrita se CORRIGE, no se edita.
+  //
+  // SUITE-R09 ya prescribia el mecanismo —«una entrada nueva que lo referencia»— y esta regla
+  // lo cerraba: exactamente una entrada por PT, y esta comprobacion leia SIEMPRE la primera.
+  // Tres reglas correctas por separado dejaban una entrada mal formada bloqueando G4 PARA
+  // SIEMPRE, sin salida escrita. No es una excepcion nueva: es la segunda instancia del patron
+  // que `reverted` ya usa —descontar por encabezado— y que FDGE-R36 ya obliga a aplicar.
+  const corrige = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+CORRIGE`, 'gm'))];
   if (entries.length === 0) {
     if (gate) fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log.`);
     else warn('FDGE-R29', `${pt}: aún sin entrada en HISTORY.log (se escribe en PHASE 8).`);
     return;
   }
-  if (entries.length - reverted.length > 1) {
-    fail('FDGE-R29', `${pt}: ${entries.length} entradas en HISTORY.log; se espera 1 más las de revert.`);
+  // Sin entrada original, una CORRIGE seria una via para declarar trabajo que nunca ocurrio.
+  // Es el caso que hace que esta puerta no sea un agujero.
+  if (corrige.length && entries.length - corrige.length - reverted.length === 0) {
+    fail('FDGE-R29', `${pt}: hay ${corrige.length} entrada(s) «CORRIGE» y ninguna entrada original a la que se refieran. Una corrección completa a la entrada que corrige; sin ella declararía un trabajo del que no hay registro.`);
     return;
   }
-  ok('FDGE-R29', `${pt}: registrado en HISTORY.log.`);
+  if (entries.length - reverted.length - corrige.length > 1) {
+    fail('FDGE-R29', `${pt}: ${entries.length} entradas en HISTORY.log; se espera 1 más las de revert y las de corrección.`);
+    return;
+  }
+  ok('FDGE-R29', `${pt}: registrado en HISTORY.log${corrige.length ? ` (con ${corrige.length} corrección(es))` : ''}.`);
+
+  // El cuerpo de una entrada, desde su encabezado hasta el siguiente.
+  //
+  // Por `m.index` y NO por `hist.indexOf(m[0])`: dos correcciones del mismo PT pueden llevar el
+  // mismo encabezado, y buscar por texto devuelve siempre la PRIMERA. Con eso, la segunda
+  // corrección no tenía efecto y nadie sabría por qué. Lo dijo el caso de las dos correcciones;
+  // leyendo el código no se ve, porque con una sola entrada las dos formas coinciden.
+  const cuerpoDe = (m) => {
+    const i = m.index;
+    const n = hist.indexOf('\n## ', i + 1);
+    return hist.slice(i, n === -1 ? undefined : n);
+  };
+  const original = entries.find((m) => !/\s+(?:CORRIGE|REVERTIDO)/.test(m[0])) ?? entries[0];
+  const cuerpoOriginal = cuerpoDe(original);
+  // La ULTIMA correccion, no la primera: corregir una correccion es legitimo y append-only.
+  const cuerpoCorrige = corrige.length ? cuerpoDe(corrige[corrige.length - 1]) : null;
+  // Un campo se lee de la correccion si lo declara, y de la original si no. Asi una CORRIGE que
+  // solo arregla el «Estado:» no hace desaparecer el «Estructural:» de la original — corregir la
+  // mitad y dejar la otra leyendose de la entrada vieja seria peor que no corregir.
+  const campo = (re) => (cuerpoCorrige?.match(re)?.[1]) ?? cuerpoOriginal.match(re)?.[1];
 
   // FDGE-R44 · marcado estructural — es lo que hace computable FDGE-R43
-  const i0 = hist.indexOf(entries[0][0]);
-  const nx = hist.indexOf('\n## ', i0 + 1);
-  const body = hist.slice(i0, nx === -1 ? undefined : nx);
-  if (!/^Estructural:\s*(sí|si|no)\s*$/im.test(body)) {
+  const estructural = campo(/^Estructural:\s*(sí|si|no)\s*$/im);
+  if (estructural === undefined) {
     fail('FDGE-R44', `${pt}: HISTORY.log no declara «Estructural: sí | no». Sin ella la frescura del grafo no es computable.`);
+  } else {
+    // Decir DE DONDE sale no es adorno: si el campo viene de una correccion, quien lea la
+    // salida tiene que poder saberlo sin abrir el ledger.
+    const deLaCorreccion = /^Estructural:\s*(sí|si|no)\s*$/im.test(cuerpoCorrige ?? '');
+    ok('FDGE-R44', `${pt}: declara «Estructural: ${estructural}»${deLaCorreccion ? ' en su corrección' : ''}.`);
   }
 
   if (gate !== 'G4') return;
@@ -1121,13 +1158,17 @@ function checkHistory(pt, rel, type, { gate }) {
   }
 
   // ── FDGE-R34 · precondiciones de la compuerta G4 ──────────────────────────
-  const idx = hist.indexOf(entries[0][0]);
-  const next = hist.indexOf('\n## ', idx + 1);
-  const entry = hist.slice(idx, next === -1 ? undefined : next);
-  const status = entry.match(/^Estado:\s*(\w+)/m)?.[1];
-  const declaredType = type ?? entry.match(/^##\s+\S+\s+—\s+(\w+):/m)?.[1];
+  const status = campo(/^Estado:\s*(\w+)/m);
+  // El TIPO sale siempre de la entrada original: el encabezado de una correccion dice «CORRIGE»,
+  // y tomarlo de ahi convertiria todo PT corregido en un tipo que no existe.
+  const declaredType = type ?? cuerpoOriginal.match(/^##\s+\S+\s+—\s+(\w+):/m)?.[1];
 
-  if (!status) { fail('FDGE-R34', `${pt}: la entrada de HISTORY.log no declara "Estado:".`); return; }
+  if (!status) {
+    fail('FDGE-R34', `${pt}: la entrada de HISTORY.log no declara "Estado:". `
+      + 'Si la entrada ya está escrita y es errónea, NO se edita (SUITE-R09): se añade una '
+      + '«## ' + pt + ' — CORRIGE: …» con el campo bien puesto, y esta comprobación la prefiere.');
+    return;
+  }
 
   if (declaredType === 'INVESTIGATION') {
     if (status !== 'CLOSED') fail('FDGE-R27', `${pt}: una INVESTIGATION cierra en CLOSED, no en "${status}".`);
@@ -1141,7 +1182,7 @@ function checkHistory(pt, rel, type, { gate }) {
   }
   // Un BUG en DONE debe llevar la firma humana de G3 (FDGE-R26).
   if (declaredType === 'BUG') {
-    const gates = entry.match(/^Compuertas:.*$/m)?.[0] ?? '';
+    const gates = (cuerpoCorrige?.match(/^Compuertas:.*$/m)?.[0]) ?? cuerpoOriginal.match(/^Compuertas:.*$/m)?.[0] ?? '';
     if (!/G3\s+\d{4}-\d{2}-\d{2}\s+\S+/.test(gates)) {
       fail('FDGE-R26',
         `${pt}: es un BUG en DONE sin firma humana de G3 en la línea "Compuertas:". ` +

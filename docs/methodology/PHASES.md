@@ -366,6 +366,12 @@ HAZ  1 HISTORY (append, formato canónico único):
         anterior, modo nuevo y motivo. Sin ese registro no se puede auditar por qué un PT
         tuvo las compuertas que tuvo.                                       [EXEC-R13]
      6 si Estructural: sí ⇒ solicitar regeneración del grafo y anotarlo en HANDOFF [FDGE-R32]
+CORREGIR una entrada YA ESCRITA que salio mal: NO se edita.            [FDGE-R29]
+       ## PT-NNN — CORRIGE: <que se corrige>
+       Corrige: la entrada de AAAA-MM-DD  /  Motivo: <por que>  /  <campos rehechos>
+       G4 lee la ULTIMA correccion para cada campo que declare, y la original para
+       los que no. La original NO se toca: es lo que se audita. Sin entrada
+       original, la CORRIGE falla — seria declarar trabajo sin registro.
 NO   editar entradas existentes de HISTORY · borrarlas · tocar código
 ```
 

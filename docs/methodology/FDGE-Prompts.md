@@ -1027,6 +1027,23 @@ Trazabilidad externa: [QD-XXX] [H-XXX] [R-XXX]     (omitir las que no apliquen)
 
 Append-only. NUNCA reescribas ni edites una entrada existente.               [SUITE-R09]
 
+### Si una entrada YA ESCRITA salió mal                                      [FDGE-R29]
+No se edita: se **corrige** con una entrada nueva que la referencia, que es lo que
+`SUITE-R09` ya prescribe y lo que las entradas `REVERTIDO` ya hacen.
+
+## PT-XXX — CORRIGE: [qué se corrige]
+Corrige: la entrada de YYYY-MM-DD
+Motivo: [por qué la original no cumple]
+[los campos que se rehacen, en el formato canónico de arriba]
+
+Las comprobaciones de `G4` leen **la última corrección** para cada campo que declare, y la
+entrada original para los que no: arreglar el `Estado:` no hace desaparecer el
+`Estructural:`. La original **no se toca** y sigue siendo lo que se audita — quien lea el
+ledger ve las dos y ve que hubo un error, que es justo lo que editar habría borrado.
+
+Una `CORRIGE` **sin entrada original falla**: sin ese cierre sería una vía para declarar
+trabajo del que no hay registro.
+
 ## 2. Sobrescribir HANDOFF.md en MODO MERGE                                  [FDGE-R30]
 ANTES de escribir, LEE el HANDOFF.md existente. PRESERVA todas las validaciones
 pendientes e investigaciones activas que NO se relacionen con este PT.

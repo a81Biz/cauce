@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 97fbd27f16cd -->
-<!-- fuentes: RULES.md:996210603930 LEXICON.md:788b493f51c9 EXECUTION-MODES.md:05e5929814f6 PHASES.md:08fb6b5f1771 -->
+<!-- cuerpo: 9fa3b6dfc00a -->
+<!-- fuentes: RULES.md:4ceefb925306 LEXICON.md:a898d578a643 EXECUTION-MODES.md:05e5929814f6 PHASES.md:4e300133bbc7 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -769,6 +769,12 @@ HAZ  1 HISTORY (append, formato canónico único):
         anterior, modo nuevo y motivo. Sin ese registro no se puede auditar por qué un PT
         tuvo las compuertas que tuvo.                                       [EXEC-R13]
      6 si Estructural: sí ⇒ solicitar regeneración del grafo y anotarlo en HANDOFF [FDGE-R32]
+CORREGIR una entrada YA ESCRITA que salio mal: NO se edita.            [FDGE-R29]
+       ## PT-NNN — CORRIGE: <que se corrige>
+       Corrige: la entrada de AAAA-MM-DD  /  Motivo: <por que>  /  <campos rehechos>
+       G4 lee la ULTIMA correccion para cada campo que declare, y la original para
+       los que no. La original NO se toca: es lo que se audita. Sin entrada
+       original, la CORRIGE falla — seria declarar trabajo sin registro.
 NO   editar entradas existentes de HISTORY · borrarlas · tocar código
 ```
 

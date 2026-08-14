@@ -1268,3 +1268,88 @@ los siete salieron de ejecutar contra un caso real, ninguno de leer.
 
 Cierre del lote (SUITE-R45): las tres filas resueltas — CHANGELOG 7.6.0 con los 21 documentos
 alineados, CORE.md regenerado, y el defecto de ROOT corregido con su caso.
+
+## PT-039 — CORRIGE: el encabezado condensaba «Fecha» y «Estado» en una línea
+Corrige: la entrada de 2026-08-14
+Motivo: escribía «Fecha: 2026-08-14 · Estado: DONE · …» en una sola línea. El formato canónico
+de FDGE-Implementation.md las declara en líneas separadas, y verify-fdge busca «^Estado:», así
+que G4 quedaba bloqueada sin salida. La entrada original NO se toca (SUITE-R09): esto la
+completa, no la sustituye.
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-011
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 2026-08-14 Alberto Martínez
+
+## PT-040 — CORRIGE: el encabezado condensaba «Fecha» y «Estado» en una línea
+Corrige: la entrada de 2026-08-14
+Motivo: mismo defecto de formato que PT-039. Ver esa corrección.
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-011
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 2026-08-14 Alberto Martínez
+
+## PT-041 — CORRIGE: el encabezado condensaba «Fecha» y «Estado» en una línea
+Corrige: la entrada de 2026-08-14
+Motivo: mismo defecto de formato que PT-039. Ver esa corrección.
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-011
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 2026-08-14 Alberto Martínez
+
+## PT-042 — CORRIGE: el encabezado condensaba «Fecha» y «Estado» en una línea
+Corrige: la entrada de 2026-08-14
+Motivo: mismo defecto de formato que PT-039. Ver esa corrección.
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-011
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-14 Alberto Martínez (delegadas) · G4 2026-08-14 Alberto Martínez
+
+## PT-046 — BUG: una entrada de HISTORY.log mal formada no se puede corregir
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-012
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-14 Alberto Martínez (delegada, con constancia) · G4 pendiente
+Objetivo: que un error de escritura en un ledger append-only deje de ser irreparable.
+Causa raíz: tres reglas correctas por separado y sin salida entre ellas. SUITE-R09 prohíbe editar
+una entrada; FDGE-R29 exigía exactamente una por PT; y verify-fdge leía SIEMPRE la primera. Una
+entrada mal formada bloqueaba G4 para siempre. SUITE-R09 ya prescribía el mecanismo —«una entrada
+nueva que lo referencia»— y era FDGE-R29 quien lo cerraba.
+Solución: FDGE-R29 admite «## PT-NNN — CORRIGE: …», el mismo patrón que las entradas REVERTIDO
+que esta regla ya descontaba. Las comprobaciones de G4 leen la ÚLTIMA corrección para cada campo
+que declare y la original para los que no, así que arreglar el Estado no hace desaparecer el
+Estructural. Una CORRIGE sin entrada original falla: sin ese cierre sería una vía para declarar
+trabajo del que no hay registro.
+Archivos modificados:
+  - docs/methodology/RULES.md · LEXICON.md · PHASES.md · FDGE-Prompts.md
+  - docs/methodology/FDGE-Implementation.md · CORE.md
+  - docs/methodology/tools/verify-fdge.mjs · tools/selftest.sh
+  - docs/implementation/HISTORY.log (cuatro entradas CORRIGE, ninguna edición)
+Evidencia: docs/implementation/evidence/PT-046/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): un defecto MÁS de lo planificado, y solo visible ejecutando. El caso
+de las DOS correcciones falló porque cuerpoDe localizaba la entrada por su TEXTO —indexOf— y dos
+correcciones del mismo PT pueden llevar el mismo encabezado: devolvía siempre la primera, y la
+segunda no tenía efecto. Se arregla con m.index. El indexOf ya estaba en el código original,
+latente e inofensivo mientras solo hubiera una entrada.
+  selftest 429 → 436 casos
+Trazabilidad externa: —

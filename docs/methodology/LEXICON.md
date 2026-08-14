@@ -429,7 +429,12 @@ FIDE añade un único documento propio, fuera del rango numerado de Foundation:
 
 ```
 REGISTRY.json          append + counters · asignador único de IDs
-HISTORY.log            append-only   · un registro por PT cerrado
+HISTORY.log            append-only   · un registro por PT cerrado, más las entradas
+                       de encabezado reservado que lo completan sin editarlo:
+                         ## PT-NNN — REVERTIDO: …   una reversión [FDGE-R36]
+                         ## PT-NNN — CORRIGE: …     una corrección [FDGE-R29]
+                       Los dos encabezados son vocabulario canónico: la comprobación
+                       los reconoce por ellos, no por su contenido.
 HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
 SESSION_LOG.md         append-only   · una entrada por sesión (antes SESSION_SUMMARY.md)
 BACKLOG.md             sobrescribible · índice de PTs vivos y su fase actual
