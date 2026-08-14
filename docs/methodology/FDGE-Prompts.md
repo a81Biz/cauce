@@ -125,6 +125,15 @@ comentario humano sin responder **bloquea la respuesta** (`SUITE-R43`): pregunta
 haber leído la respuesta anterior es justo el defecto que esta regla impide. Sin `phase`
 declarada, `SIN EVALUAR` — no se adivina.
 
+**`SUITE-R35`: espeja todo lo que copie el estado, no solo la plataforma.** El registro
+asigna; el **YAML del intake** y la **línea de índice** son las otras dos copias del mismo hecho.
+Si divergen se **dice**: aviso durante el trabajo, **error en `G4`**, que es donde el estado tiene
+que ser uno solo. Manda el YAML (`PT-004`: es lo que el PT dice de sí mismo) y se declara cuál se
+usó. Si a un lado le falta el dato, **no se compara** — un campo ausente no es una divergencia.
+
+Importa porque un `phase` olvidado **apaga comprobaciones**: `FDGE-R52` solo corre desde
+`phase >= 2`, y cuatro tareas pasaron su compuerta sin que se evaluara nunca.
+
 **`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
 en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.
 Allí el registro es la foto del último merge y el tablero refleja el trabajo en curso: divergen

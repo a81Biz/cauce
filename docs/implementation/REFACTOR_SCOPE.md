@@ -7,7 +7,7 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 
 | PT | Tipo | Sev | Estado | Implementación | Título |
 |:---|:---|:---|:---|:---|:---|
-| PT-006 | CHORE | S3 | DONE | EP-002 | PHASES declara dos mapeos que su regla no contiene; el del PR sube a RULES |
+| PT-006 | CHORE | S3 | INTEGRATED | EP-002 | PHASES declara dos mapeos que su regla no contiene; el del PR sube a RULES |
 | PT-018 | BUG | S2 | INTEGRATED | EP-004 | El destino de un out-of-scope es vocabulario cerrado, no prosa |
 | PT-014 | BUG | S3 | INTEGRATED | EP-004 | El cuerpo del lote se compone antes de que sus tareas tengan numero |
 | PT-021 | BUG | S1 | INTEGRATED | EP-005 | Citar el propio lote no podia pasar G4 nunca: CLOSED ocurre despues del merge |
@@ -24,12 +24,12 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-036 | BUG | S2 | INTEGRATED | EP-009 | El enlace del issue apuntaba a la rama por defecto: 404 al abrirlo |
 | PT-037 | FEATURE | S1 | INTEGRATED | EP-010 | El catalogo: 28 casos en seis familias, con sus huecos declarados |
 | PT-038 | FEATURE | S1 | INTEGRATED | EP-010 | El manual: de cero al primer trabajo cerrado |
-| PT-039 | FEATURE | S1 | VALIDATION_PENDING | EP-011 | Peticion o conversacion: se declara, no se decide en silencio |
-| PT-040 | FEATURE | S1 | VALIDATION_PENDING | EP-011 | Que puede fallar, derivado de los fail() reales |
-| PT-041 | FEATURE | S1 | VALIDATION_PENDING | EP-011 | La regla en el mensaje que la incumple |
-| PT-042 | FEATURE | S1 | READY | EP-011 | El agente lee su manual y sabe autorreferenciarse |
-| PT-043 | FEATURE | S1 | DONE | EP-011 | Migracion guiada: las decisiones se conducen |
-| PT-044 | BUG | S2 | READY | EP-012 | El YAML del intake declara una fase que el registro contradice |
+| PT-039 | FEATURE | S1 | INTEGRATED | EP-011 | Peticion o conversacion: se declara, no se decide en silencio |
+| PT-040 | FEATURE | S1 | INTEGRATED | EP-011 | Que puede fallar, derivado de los fail() reales |
+| PT-041 | FEATURE | S1 | INTEGRATED | EP-011 | La regla en el mensaje que la incumple |
+| PT-042 | FEATURE | S1 | INTEGRATED | EP-011 | El agente lee su manual y sabe autorreferenciarse |
+| PT-043 | FEATURE | S1 | INTEGRATED | EP-011 | Migracion guiada: las decisiones se conducen |
+| PT-044 | BUG | S2 | DONE | EP-012 | El YAML del intake declara una fase que el registro contradice |
 | PT-045 | BUG | S2 | READY | EP-012 | npx @a81biz/cauce start no arranca: el punto de entrada documentado falla |
 | PT-046 | BUG | S2 | DONE | EP-012 | Una entrada de HISTORY mal formada bloquea G4 y ninguna regla permite corregirla |
 | PT-047 | BUG | S3 | DEFERRED | — | PHASE 5 manda rama por PT y los 43 PT de este repositorio van sobre trabajo |

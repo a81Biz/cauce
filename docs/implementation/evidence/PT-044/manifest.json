@@ -1,0 +1,12 @@
+{
+  "pt": "PT-044",
+  "generated": "2026-08-14",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Una divergencia entre el YAML del intake y el registro se reporta", "scenarios": ["E1","E2","E7"], "tests": ["selftest.sh:YAML y registro con fases distintas","selftest.sh:YAML y registro con estados distintos","selftest.sh:en G4 la divergencia BLOQUEA"], "evidence": ["salidas/antes.txt","salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "La precedencia sigue siendo la de PT-004 y se dice cual se uso", "scenarios": ["E4"], "tests": ["selftest.sh:y dice cual de los dos se usa"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Si coinciden, ni error ni aviso; si falta un lado, no se inventa", "scenarios": ["E5","E6"], "tests": ["selftest.sh:si coinciden, ni una linea de mas","selftest.sh:sin fase en el registro no se inventa"], "evidence": ["salidas/selftest.txt","salidas/despues.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Los intakes quedan sincronizados y verify-fdge --all sin errores", "scenarios": ["E8"], "tests": ["selftest.sh:un PT vivo sin bitacora falla","selftest.sh:uno ya integrado, no: no se retrofecha"], "evidence": ["salidas/antes.txt","salidas/despues.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "El indice tampoco puede contradecir al registro", "scenarios": ["E3"], "tests": ["selftest.sh:el indice tampoco puede contradecir"], "evidence": ["salidas/despues.txt"], "verified": true }
+  ],
+  "suite": { "passed": 445, "failed": 0, "skipped": 0, "coverage": 445, "baseline": 436 }
+}

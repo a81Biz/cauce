@@ -1,0 +1,6 @@
+== DESPUES de sincronizar los 32 PT ==
+# 42 YAML y 71 lineas de indice puestos de acuerdo con el registro.
+# divergencias SUITE-R35 restantes:
+0
+
+Sin errores. PTs verificados: 35.

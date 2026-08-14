@@ -261,6 +261,12 @@ JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SU
           del issue apunta a DONDE EL CONTENIDO ESTA — rama de trabajo si
           esta vivo, rama por defecto si ya es INTEGRATED.
           node tools/tracker.mjs abrir --aplicar   lo mantiene
+ESPEJA    TODO lo que copie el estado, no solo la plataforma.              [SUITE-R35]
+          registro ↔ YAML del intake ↔ linea de indice. Si divergen se DICE:
+          aviso durante el trabajo, ERROR en G4. Manda el YAML (PT-004) y se
+          declara cual se uso. Falta un lado ⇒ no se compara: un campo ausente
+          no es una divergencia. Sin esto, un «phase: 1» olvidado APAGA
+          FDGE-R52 —que solo corre desde phase >= 2— sin avisar.
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan

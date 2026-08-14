@@ -1353,3 +1353,38 @@ segunda no tenía efecto. Se arregla con m.index. El indexOf ya estaba en el có
 latente e inofensivo mientras solo hubiera una entrada.
   selftest 429 → 436 casos
 Trazabilidad externa: —
+
+## PT-044 — BUG: el YAML del intake no puede mentirle al verificador
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-012
+Rama: trabajo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-14 Alberto Martínez (delegada, con constancia) · G4 pendiente
+Objetivo: que una divergencia entre el registro y las otras dos copias del estado —el YAML del
+intake y la línea de índice— se reporte, en vez de decidirse en silencio.
+Causa raíz: SUITE-R35 dice que el registro asigna y todo lo demás espeja, y su comprobación solo
+miraba hacia la plataforma. El YAML del intake manda sobre el registro (PT-004) y ganaba callado:
+un «phase: 1» olvidado dejaba `fase >= 2` sin cumplirse y FDGE-R52 no llegaba a ejecutarse nunca.
+Un verificador dando verde POR NO HABER MIRADO, dentro del verificador que lo hace cumplir.
+Solución: SUITE-R35 se amplía a los artefactos internos. Divergencia = aviso durante el trabajo y
+error en G4. La precedencia no cambia y se declara cuál se usó. Si falta un lado no se compara.
+Archivos modificados:
+  - docs/methodology/RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md
+  - docs/methodology/tools/verify-fdge.mjs · tools/selftest.sh
+  - 42 changes/PT-XXX/intake.md · los tres índices de docs/implementation/
+Evidencia: docs/implementation/evidence/PT-044/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): MUY superior. El intake preveía los cuatro PT de EP-011; ejecutar la
+comprobación recién escrita dio 78 divergencias en 32 PT — casi todo lo cerrado desde PT-001.
+PHASE 8 paso 5 se cumplió sobre el registro y nunca sobre las otras dos copias, durante 43 tareas.
+Y la estrategia estaba equivocada en un punto que solo dijo ejecutar: declarar la deuda de
+reanclaje con una entrada CORRIGE NO sirve, porque FDGE-R52 cuenta comentarios del issue y no
+entradas de HISTORY. Sin otra salida, sincronizar dejaba la CI en rojo y lo practicable era dejar
+el YAML mintiendo: la regla empujaba al defecto que esta tarea persigue. Se acotó FDGE-R52 para
+que deje de exigir rastro a lo YA TERMINADO —se escribe mientras se trabaja, y G4 corre con
+estado DONE, antes de integrar—. Es una relajación y se dice: mismo criterio que `rigeAqui`.
+  78 divergencias → 0 · selftest 436 → 445 casos
+Trazabilidad externa: —

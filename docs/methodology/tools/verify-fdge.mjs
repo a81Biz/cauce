@@ -89,6 +89,8 @@ const RE_CIERRE = /^\s*>?\s*Termina cuando\s*:\s*\S/im;
 const RE_NOTA_BITACORA = /^\d{4}-\d{2}-\d{2}\s*·\s*PHASE/gim;
 const RE_SUITE_YAML = /^\s*suite_version\s*:\s*['\"]?([0-9.]+)/im;
 const RE_PHASE_YAML = /^\s*phase\s*:\s*(\d+)/im;
+// PT-044 · el estado que el intake dice de sí mismo, para poder compararlo con el registro.
+const RE_STATUS_YAML = /^\s*status\s*:\s*([A-Z_]+)/im;
 const RE_SIGN_BATCH = /Firmado\s+por\s+lote:\s*(EP-\d+)/i;
 const RE_DOR = /(?:^|\n)\s*(?:VEREDICTO|DoR)\s*:\s*(PASS|FAIL|CHALLENGE)\b/i;
 const RE_DOR_OVERRIDE = /CHALLENGE\s+aceptado\s+por:\s*(?!\[)(\S.*)$/im;
@@ -883,6 +885,26 @@ function checkPT(pt, { gate } = {}) {
   })();
   const fase = faseDeclarada ?? 0;
 
+  // PT-044 · SUITE-R35 hacia DENTRO. La regla dice que el registro asigna y todo lo demas
+  // ESPEJA, y su comprobacion solo miraba hacia la plataforma. El YAML del intake y la linea de
+  // indice son las otras dos copias del mismo hecho, y nada las comparaba: cuatro tareas de
+  // EP-011 declararon «phase: 1» con el registro en 9, y con eso `fase >= 2` nunca se cumplia y
+  // FDGE-R52 no llegaba a ejecutarse. Un verificador que da verde POR NO HABER MIRADO es lo que
+  // RULE-06 prohibe, ocurriendo dentro del verificador que lo hace cumplir.
+  //
+  // La precedencia de PT-004 NO cambia —manda el YAML, es lo que el PT dice de si mismo—: lo
+  // que cambia es que ya no puede ganar en silencio.
+  const divergencia = (campo, aqui, alla, cual) => {
+    if (aqui === undefined || aqui === null || alla === undefined || alla === null) return;
+    if (String(aqui) === String(alla)) return;
+    const m = `${pt}: «${campo}» divergente — el registro dice «${alla}» y ${cual} «${aqui}». `
+      + 'Se usa el del intake (PT-004: es lo que el PT dice de sí mismo), y por eso se dice: un '
+      + 'YAML que se queda atrás apaga comprobaciones sin que nada avise.';
+    if (gate === 'G4') fail('SUITE-R35', m); else warn('SUITE-R35', m);
+  };
+  divergencia('phase', intake.match(RE_PHASE_YAML)?.[1], enRegistroPT?.phase, 'su intake dice');
+  divergencia('status', intake.match(RE_STATUS_YAML)?.[1], enRegistroPT?.status, 'su intake dice');
+
   // Un artefacto se exige DESDE la fase que lo produce (CORE.md §Procedimiento por fase).
   // Exigirlo antes ponia en rojo a todo PT recien abierto, y CI corre `verify-fdge --all`:
   // un repositorio no podia tener trabajo en curso y la compuerta en verde a la vez. Una
@@ -912,7 +934,17 @@ function checkPT(pt, { gate } = {}) {
   // rojo, y ponerla verde exigia escribir el reanclaje DOS VECES — lo que SUITE-R35 prohibe.
   // El verificador no habla con la plataforma: se lo pregunta a `tracker`, que es quien tiene
   // el adaptador. La regla la hace cumplir quien verifica; el acceso lo encapsula quien lo tiene.
-  if (rigeAqui && fase >= 2) {
+  // PT-044 · y deja de exigirse a lo YA TERMINADO. El reanclaje se escribe MIENTRAS se trabaja;
+  // pedirselo a un PT que ya paso G4 es pedir que se FABRIQUE, y un rastro fabricado es peor que
+  // ninguno. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no
+  // despues: la comprobacion no pierde ni un caso de los que decide algo.
+  //
+  // Sin este limite, sincronizar el YAML de 32 PT cerrados —que es lo que esta tarea hace—
+  // ponia la CI en rojo, y la unica salida practicable era dejar el YAML mintiendo: la regla
+  // empujaba exactamente al defecto que PT-044 persigue. Es el mismo criterio que `rigeAqui`,
+  // que ya existia para no exigir bitacora retroactiva a lo abierto antes de la 5.1.0.
+  const YA_TERMINADO = new Set(['INTEGRATED', 'CLOSED', 'REVERTED', 'REJECTED', 'DEFERRED']);
+  if (rigeAqui && fase >= 2 && !YA_TERMINADO.has(enRegistroPT?.status)) {
     const plataforma = REGISTRO?.tracker?.plataforma ?? null;
     const notasPlataforma = plataforma && enRegistroPT?.issue ? notasDelIssue(pt) : null;
     if (notasPlataforma === 'SIN_ACCESO') {
@@ -983,7 +1015,7 @@ function checkPT(pt, { gate } = {}) {
       fail('FDGE-R42', `${pt}: discovery.md no tiene sección "## Conclusión". Una investigación no cierra sin ella.`);
     } else ok('FDGE-R42', `${pt}: investigación con conclusión documentada.`);
     checkHistory(pt, rel, type, { gate });
-    checkIndex(pt);
+    checkIndex(pt, enRegistroPT, { gate });
     checkAplazado(pt, rel, { gate });
     if (errors.length === errAt) ok('FDGE-R10', `${pt}: INVESTIGATION verificada (exenta de FDGE-R15 y FDGE-R23).`);
     return;
@@ -1063,7 +1095,7 @@ function checkPT(pt, { gate } = {}) {
   } else ok('FDGE-R25', `${pt}: self-review completo.`);
 
   checkHistory(pt, rel, type, { gate });
-  checkIndex(pt);
+  checkIndex(pt, enRegistroPT, { gate });
   checkAplazado(pt, rel, { gate });
 
   if (errors.length === errAt) ok('FDGE-R34', `${pt}: sin errores de cumplimiento.`);
@@ -1279,7 +1311,7 @@ function checkAplazado(pt, rel, { gate }) {
 }
 
 // ─── FDGE-R31 / LEX-R07 · índice de origen ───────────────────────────────────
-function checkIndex(pt) {
+function checkIndex(pt, alloc, { gate } = {}) {
   const idxFiles = ['DISCOVERY.md', 'ENRICHMENT.md', 'REFACTOR_SCOPE.md'];
   const idxHit = idxFiles.find((f) => (read(join(IMPL, f)) ?? '').includes(pt));
   if (!idxHit) {
@@ -1294,6 +1326,14 @@ function checkIndex(pt) {
     fail('LEX-R07', `${pt}: la línea de índice en ${idxHit} no usa un estado canónico: "${line.trim()}"`);
   } else {
     ok('FDGE-R31', `${pt}: presente en ${idxHit} con estado canónico.`);
+    // PT-044 · canónico no es lo mismo que CIERTO. Esto daba verde sobre una línea que decía
+    // «READY» con el registro en «INTEGRATED»: comprobaba la FORMA del estado, no su verdad, y
+    // el índice es lo que FPGE lee para decidir qué construir a continuación.
+    const declarado = LIFECYCLE.find((st) => new RegExp(`\\b${st}\\b`).test(line));
+    if (alloc?.status && declarado && declarado !== alloc.status) {
+      const m = `${pt}: «estado» divergente — el registro dice «${alloc.status}» y su línea de índice en ${idxHit} dice «${declarado}». El índice ESPEJA el registro (SUITE-R35); el registro asigna.`;
+      if (gate === 'G4') fail('SUITE-R35', m); else warn('SUITE-R35', m);
+    }
   }
 }
 

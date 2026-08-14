@@ -4,7 +4,7 @@
 ---
 id: EP-006
 type: EP
-status: IN_PROGRESS
+status: CLOSED
 created: 2026-08-13
 suite_version: 7.0.0
 phase: 1
