@@ -1,0 +1,26 @@
+# La averia real, con la guarda puesta
+
+$ node tracker.mjs cerrar --aplicar   (main dice DONE; el registro local, DONE)
+
+main declara: EP-004=DONE PT-011=DONE PT-022=DONE
+
+Con el registro local puesto en INTEGRATED y main aun en DONE, cerrar se niega:
+node:internal/errors:540
+      throw error;
+      ^
+
+TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at pathToFileURL (node:url:1024:3)
+    at [eval]:3:8
+    at runScriptInThisContext (node:internal/vm:209:10)
+    at node:internal/process/execution:446:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:444:60)
+    at evalFunction (node:internal/process/execution:279:30)
+    at evalTypeScript (node:internal/process/execution:291:3)
+    at node:internal/main/eval_string:74:3 {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+
+Node.js v22.21.1
+  cerrables: 0 · adelantadas: PT-011 (main: DONE)

@@ -12,3 +12,4 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-014 | BUG | S3 | INTEGRATED | EP-004 | El cuerpo del lote se compone antes de que sus tareas tengan numero |
 | PT-021 | BUG | S1 | INTEGRATED | EP-005 | Citar el propio lote no podia pasar G4 nunca: CLOSED ocurre despues del merge |
 | PT-022 | BUG | S1 | INTEGRATED | EP-005 | SUITE-R44 solo mira las filas que existen: omitirla es invisible |
+| PT-024 | BUG | S1 | VALIDATION_PENDING | EP-006 | El tablero se adelantaba a la rama por defecto y rompia la CI de main en cada merge |

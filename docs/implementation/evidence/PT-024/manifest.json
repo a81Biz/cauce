@@ -1,0 +1,11 @@
+{
+  "pt": "PT-024",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E1"], "tests": ["selftest.sh:si la principal aun la ve viva, no se cierra"], "evidence": ["salidas/selftest.txt","salidas/negativa-real.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E4","E5"], "tests": ["selftest.sh:si la principal ya lo sabe, se cierra","selftest.sh:lo que la principal no conoce, se cierra"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E6","E7"], "tests": ["selftest.sh:sin poder leer la principal, no evaluable","selftest.sh:y en ese caso no se cierra nada"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E2","E3"], "tests": ["selftest.sh:y se nombra cual va adelantada","selftest.sh:con el estado que la principal declara","inversa: los tres caen"], "evidence": ["salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E8"], "tests": ["selftest.sh:el espejo distingue el cierre adelantado"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 307, "failed": 0, "coverage": 307, "baseline": 299 }
+}

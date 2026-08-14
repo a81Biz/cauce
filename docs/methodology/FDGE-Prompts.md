@@ -56,6 +56,14 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
 
+**`SUITE-R46`: el tablero no se adelanta a la rama por defecto.** No se cierra el issue de una
+allocation cuyo estado terminal no está **todavía** en la rama por defecto. El orden es: apuntar
+el estado terminal en la rama de trabajo, **mergear**, y cerrar después. Al revés, la principal
+queda declarando un estado vivo con el issue ya cerrado, y su compuerta falla **tras cada
+merge** — porque el apunte `DONE → INTEGRATED` se escribe después de integrar y solo llega a la
+principal en el merge siguiente. Si el registro de la principal no se puede leer, no se cierra
+nada: no saber no es permiso.
+
 **`SUITE-R45`: un lote declara qué se hace al cerrarlo.** El intake de un `EP` lleva una
 sección `## Cierre del lote` con una fila por cosa que se resuelve en el cierre y no en ninguna
 de sus tareas — la entrada de `CHANGELOG.md`, el número de versión, lo que sus tareas le hayan

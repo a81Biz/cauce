@@ -753,3 +753,39 @@ verify-suite sin errores, selftest 299 casos y el espejo sin divergencias.
 
 Queda pendiente de una persona la publicación a npm: publicar.yml lee main, que ya declara
 7.0.0, y npm todavía sirve 6.0.1.
+
+## PT-024 — BUG: el tablero se adelantaba a la rama por defecto
+Fecha: 2026-08-13
+Estado: DONE
+Severidad: S1
+Complejidad: STANDARD
+Track: STANDARD
+Implementación: EP-006
+Estructural: no
+Rama: trabajo
+Compuertas: G1 2026-08-13 Alberto Martínez (por lote EP-006, delegada) · G2 2026-08-13 Alberto Martínez (delegada) · G3 2026-08-13 Alberto Martínez (delegada) · G4 pendiente
+
+Qué fallaba: cerré nueve issues desde `trabajo` después de mergear, y `main` seguía diciendo
+DONE. Su CI sacó nueve divergencias SUITE-R35 idénticas: «está vivo (DONE) y su issue no está
+abierto».
+
+Y no era un descuido: el orden que usé NO PUEDE FUNCIONAR NUNCA. El apunte DONE → INTEGRATED se
+escribe después de integrar, en la rama de trabajo, así que solo llega a la principal en el
+merge SIGUIENTE. Con ese orden la CI de main fallaría tras CADA merge, aquí y en cualquier
+proyecto que instale la suite. El defecto estaba en el procedimiento y yo lo ejecuté al pie de
+la letra. Lo encontró el usuario mirando la CI, no yo mirando mi salida: di el merge por
+terminado antes de comprobar la compuerta que corre DESPUÉS del merge.
+
+Qué se hizo: SUITE-R46. `cerrar` lee el REGISTRY.json de la rama por defecto —git show
+origin/<rama>, del clon local, sin red ni cambio de rama— y se niega a cerrar lo que allí siga
+vivo, nombrando el orden correcto. Si ese registro no se puede leer, no cierra nada: no saber no
+es permiso. Y el mensaje de SUITE-R35 pasa de ofrecer dos lecturas a tres, con esta nombrada.
+
+La guarda va en `cerrar` y no en el espejo a propósito: relajar SUITE-R35 habría dejado verde el
+caso real cegando al detector, y «vivo con el issue cerrado» es lo que distingue un tablero al
+día de uno inventado.
+
+Aplazado con issue: PT-025, la misma guarda en el adaptador de Azure.
+
+Evidencia: docs/implementation/evidence/PT-024/ · selftest 299 → 307 casos · cobertura 95/172
+Cierre a DONE pendiente de persona: SUITE-R06b.

@@ -84,7 +84,7 @@ export function compararEspejo(vivas, issues) {
     if (!a.issue) {
       div.push({ regla: 'SUITE-R35', mensaje: `${a.id} está vivo (${a.status}) y no tiene issue. Lo que está abierto tiene que poder consultarse sin leer el repositorio entero.` });
     } else if (!porNumero.has(a.issue)) {
-      div.push({ regla: 'SUITE-R35', mensaje: `${a.id} está vivo (${a.status}) y su issue #${a.issue} no está abierto. O el trabajo terminó y el registro no se enteró, o alguien cerró el issue a mano.` });
+      div.push({ regla: 'SUITE-R35', mensaje: `${a.id} está vivo (${a.status}) y su issue #${a.issue} no está abierto. Tres lecturas: el trabajo terminó y el registro no se enteró; alguien cerró el issue a mano; o se cerró desde otra rama antes de que el estado terminal llegara aquí (SUITE-R46) — si esta es la rama por defecto y acabas de mergear, es la tercera.` });
     } else {
       // El estado publicado tiene que ser el que el registro deriva. Publicarlo sin comprobarlo
       // es escribir en dos sitios y esperar que no se separen — la avería que SUITE-R35 impide.
@@ -203,6 +203,42 @@ export function cuerpoDeIssue(a, opciones = {}) {
 /** Una nota de reanclaje declara una transición de fase (`FDGE-R52`), no es un comentario suelto. */
 export const RE_NOTA = /PHASE\s*\d+\s*(?:→|->|a)\s*\d+|PHASE\s*\d+\s*→/i;
 export const contarNotas = (textos) => (textos ?? []).filter((t) => RE_NOTA.test(String(t))).length;
+
+/**
+ * PT-024 · `SUITE-R46` · Qué issues pueden cerrarse SIN adelantarse a la rama por defecto.
+ *
+ * El tablero se deriva del registro (`SUITE-R35`), pero la compuerta corre sobre la rama por
+ * defecto. Cerrar un issue mirando solo el registro de la rama de trabajo deja `main` diciendo
+ * «DONE» —vivo— con el issue ya cerrado, y eso es una divergencia real: nueve salieron a la vez
+ * tras el merge de EP-004 y EP-005.
+ *
+ * Y no era un despiste: el apunte `DONE → INTEGRATED` se escribe DESPUES de mergear, en la rama
+ * de trabajo, asi que solo llega a la principal en el merge SIGUIENTE. Con ese orden la CI de
+ * `main` fallaria tras cada merge, no solo tras aquel.
+ *
+ * `enPrincipal` es el registro de la rama por defecto, o `null` si no se pudo leer. `null` NO
+ * se interpreta como permiso: sin saber lo que la principal sabe, no se cierra nada y se dice
+ * por que (`RULE-06`, `SUITE-R38`) — un fallo mudo aqui volveria a romper la integracion.
+ *
+ * Devuelve `{ cerrables, adelantadas, evaluable }`.
+ */
+export function cerrablesSinAdelantarse(muertas, enPrincipal) {
+  if (!Array.isArray(enPrincipal)) {
+    return { cerrables: [], adelantadas: [], evaluable: false };
+  }
+  const estadoEnPrincipal = new Map(enPrincipal.map((a) => [a?.id, a?.status]));
+  const cerrables = [];
+  const adelantadas = [];
+  for (const a of muertas ?? []) {
+    // Si la principal no la conoce, la allocation nacio en esta rama: cerrar su issue no
+    // contradice nada de lo que la principal afirma.
+    if (!estadoEnPrincipal.has(a?.id)) { cerrables.push(a); continue; }
+    const alla = estadoEnPrincipal.get(a.id);
+    if (VIVOS.has(alla)) adelantadas.push({ ...a, statusEnPrincipal: alla });
+    else cerrables.push(a);
+  }
+  return { cerrables, adelantadas, evaluable: true };
+}
 
 /**
  * PT-014 · En qué orden se crean los issues de una tanda.
@@ -497,12 +533,47 @@ function abrir() {
   writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
 }
 
+/**
+ * PT-024 · el `REGISTRY.json` tal y como lo ve la rama por defecto. Se lee del clon local, sin
+ * red y sin cambiar de rama: `git show origin/<rama>:<ruta>`. Devuelve `null` si no se puede —
+ * clon superficial, `origin` ausente, rama sin traer— y quien llama NO lo interpreta como
+ * permiso: no saber no es lo mismo que estar de acuerdo.
+ */
+function registroDePrincipal() {
+  const rama = REPO.rama;
+  if (!rama) return null;
+  try {
+    const salida = execFileSync('git', ['show', `origin/${rama}:docs/implementation/REGISTRY.json`],
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    const j = JSON.parse(salida);
+    return j.allocations ?? j.asignaciones ?? null;
+  } catch { return null; }
+}
+
 // ── cerrar · los issues cuyo trabajo ya no está vivo ────────────────────────
 function cerrar() {
   const muertas = all.filter((a) => a.issue && !VIVOS.has(a?.status));
   const issues = adaptador.abiertos();
   const abiertos = new Set(issues.map((i) => i.number));
-  const porCerrar = muertas.filter((a) => abiertos.has(a.issue));
+  const candidatas = muertas.filter((a) => abiertos.has(a.issue));
+  // PT-024 · SUITE-R46 · no adelantarse a la rama por defecto.
+  const { cerrables, adelantadas, evaluable } = cerrablesSinAdelantarse(candidatas, registroDePrincipal());
+  if (!evaluable) {
+    fail('SUITE-R46', `no se pudo leer el registro de la rama por defecto (${REPO.rama ?? '¿?'}), `
+      + `asi que no se cierra nada. Cerrar un issue cuyo estado terminal no esta todavia ahi deja `
+      + `a la principal diciendo «vivo» con el issue cerrado, y su compuerta en rojo. `
+      + `Trae la rama:  git fetch origin ${REPO.rama ?? 'main'}`);
+    return;
+  }
+  if (adelantadas.length) {
+    const cual = adelantadas.map((a) => `${a.id} (aqui ${a.status}, en ${REPO.rama} ${a.statusEnPrincipal})`).join(' · ');
+    fail('SUITE-R46', `${adelantadas.length} issue(s) no se cierran: su estado terminal todavia no `
+      + `esta en «${REPO.rama}». ${cual}. El orden es: apuntar el estado terminal AQUI, mergear, y `
+      + `cerrar DESPUES. Al reves, la principal queda diciendo «vivo» con el issue cerrado y su `
+      + `compuerta falla — y falla tras CADA merge, no solo tras este.`);
+    return;
+  }
+  const porCerrar = cerrables;
   if (!porCerrar.length) { notas.push('Nada que cerrar.'); return; }
   if (!APLICAR) {
     di(`${porCerrar.length} issue(s) de trabajo ya terminado:`);

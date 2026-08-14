@@ -1,0 +1,6 @@
+# Comprobacion inversa (PT-024) — la guarda devuelve siempre 'cerrable'
+
+  [31m✗[0m si la principal aun la ve viva, no se cierra  (no apareció: ^0$ · salió: 1)
+  [31m✗[0m y se nombra cual va adelantada  (no apareció: PT-050 · salió: )
+  [31m✗[0m con el estado que la principal declara  (no apareció: DONE · salió: IMPORT_FALLA Cannot read properties of undefined (reading 'statusEnPrincipal'))
+selftest: HAY FALLOS · 307 casos

@@ -15,8 +15,8 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 23,
-    "EP": 5,
+    "PT": 25,
+    "EP": 6,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -511,6 +511,56 @@
       "origin": "Aplazado por EP-005 · PT-021 encontro que PT-018 declaro reescribir SUITE-R44 en RULES.md y no lo hizo: la regla escrita y la ejecutada divergieron un dia. No se audito el resto",
       "created": "2026-08-13",
       "issue": 32
+    },
+    {
+      "id": "EP-006",
+      "slug": "el-tablero-no-puede-adelantarse-a-main",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "IN_PROGRESS",
+      "structural": null,
+      "suite_version": "7.0.0",
+      "phase": 1,
+      "title": "Cerrar un issue antes de que su estado terminal llegue a main rompe la CI de main en cada merge",
+      "origin": "Hallazgo humano 2026-08-13 · «el merge fallo, es necesario agregar algo que revise esos errores» · nueve divergencias SUITE-R35 en la CI de main",
+      "created": "2026-08-13",
+      "issue": 34
+    },
+    {
+      "id": "PT-024",
+      "slug": "no-cerrar-lo-que-main-no-sabe",
+      "type": "BUG",
+      "complexity": "STANDARD",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "VALIDATION_PENDING",
+      "structural": false,
+      "suite_version": "7.0.0",
+      "epic": "EP-006",
+      "phase": 8,
+      "title": "tracker cerrar cierra issues cuyo estado terminal aun no esta en la rama por defecto",
+      "origin": "CI de main en rojo tras el merge de EP-004 y EP-005: nueve allocations DONE con su issue cerrado",
+      "created": "2026-08-13",
+      "issue": 33
+    },
+    {
+      "id": "PT-025",
+      "slug": "la-guarda-de-cierre-en-azure",
+      "type": "CHORE",
+      "complexity": "SIMPLE",
+      "severity": "S3",
+      "track": "STANDARD",
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "7.0.0",
+      "epic": null,
+      "phase": null,
+      "title": "Comprobar el orden de cierre tambien en el adaptador de Azure",
+      "origin": "Aplazado por PT-024 · el adaptador existe pero no hay proyecto que lo use; escribirlo a ciegas seria codigo sin ejecucion",
+      "created": "2026-08-13",
+      "issue": 35
     }
   ]
 }

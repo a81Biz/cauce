@@ -268,6 +268,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+CERRAR    el issue se cierra DESPUES de que el estado terminal este en la    [SUITE-R46]
+          rama por defecto. Orden: apuntar INTEGRATED aqui, mergear, cerrar.
+          Al reves, la principal declara «vivo» con el issue cerrado y su
+          compuerta falla — tras CADA merge, no solo tras uno.
+          node tools/tracker.mjs cerrar --aplicar   se niega si va adelantado
 LEE       lo que el humano escriba en el issue ANTES de cerrar fase.          [SUITE-R43]
           node tools/tracker.mjs pendiente PT-NNN   → 1 si queda sin responder
           Se distingue por MARCA de procedencia, no por autor: el agente comenta

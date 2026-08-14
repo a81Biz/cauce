@@ -1114,6 +1114,27 @@ trlib "sin nada que abrir, no revienta"     "^0$"   "console.log(m.ordenDeApertu
 # Y la razon de todo: con ese orden el cuerpo del lote SI enumera numeros.
 trlib "el cuerpo del lote ya trae numero"   "#77"   "console.log(m.cuerpoDeIssue({id:\"EP-9\",type:\"EP\",slug:\"x\"},{tareas:[{id:\"PT-90\",issue:77,title:\"t\"}]}))"
 
+
+# PT-024 . SUITE-R46 — el tablero no se adelanta a la rama por defecto.
+# Cerre nueve issues desde `trabajo` antes de que INTEGRATED llegara a main, y la CI de main
+# saco nueve divergencias SUITE-R35. No era un despiste: el apunte DONE->INTEGRATED se escribe
+# DESPUES de mergear, asi que solo llega a la principal en el merge SIGUIENTE — la CI de main
+# fallaria tras CADA merge.
+M1='[{"id":"PT-050","status":"DONE"}]'
+M2='[{"id":"PT-050","status":"INTEGRATED"}]'
+MUERTA='[{"id":"PT-050","issue":50,"status":"INTEGRATED"}]'
+trlib "si la principal aun la ve viva, no se cierra"  "^0$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M1).cerrables.length)"
+trlib "y se nombra cual va adelantada"                "PT-050"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M1).adelantadas.map((a)=>a.id).join(\",\"))"
+trlib "con el estado que la principal declara"        "DONE"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M1).adelantadas[0].statusEnPrincipal)"
+trlib "si la principal ya lo sabe, se cierra"         "^1$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,$M2).cerrables.length)"
+# Una allocation que nacio en esta rama no contradice nada de lo que la principal afirma.
+trlib "lo que la principal no conoce, se cierra"      "^1$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,[]).cerrables.length)"
+# No saber NO es permiso: sin registro de la principal no se cierra nada y se dice por que.
+trlib "sin poder leer la principal, no evaluable"     "false"   "console.log(m.cerrablesSinAdelantarse($MUERTA,null).evaluable)"
+trlib "y en ese caso no se cierra nada"               "^0$"   "console.log(m.cerrablesSinAdelantarse($MUERTA,null).cerrables.length)"
+# El espejo tiene que nombrar esta causa, no solo el sintoma.
+trlib "el espejo distingue el cierre adelantado"      "SUITE-R46"   "console.log(JSON.stringify(m.compararEspejo([{id:'PT-050',status:'DONE',issue:50}],[])))"
+
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"
 trlib "issue huérfano ⇒ divergencia"   "#9" \
