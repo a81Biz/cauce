@@ -875,3 +875,18 @@ Cuarto defecto de la misma familia en dos días —una comprobación que hace im
 que otra obliga a atravesar—. Aplazado y asignado: PT-029, buscar esa forma en el resto.
 
 Evidencia: docs/implementation/evidence/PT-028/ · selftest 315 → 320 casos
+
+## PT-027 — CHORE: la CI de main queda verde tras el merge
+Fecha: 2026-08-13
+Estado: INTEGRATED
+integrado por: Alberto Martínez
+Implementación: EP-006 (aplazado)
+Rama: main
+
+Confirmado tras el merge de 7.1.0: la verificación de main termina en success. Es lo único que
+probaba EP-006 y solo se podía comprobar después del merge — por eso no fue criterio de PT-026
+ni fila de cierre, sino allocation DEFERRED con su issue (SUITE-R44).
+
+El orden de SUITE-R46 funcionó de punta a punta: estado terminal apuntado ANTES del merge,
+merge, y `tracker cerrar --aplicar` permitido PORQUE main ya lo sabía. Trece issues cerrados sin
+una sola divergencia. El intento anterior, con el orden invertido, dejó nueve.
