@@ -275,6 +275,31 @@ export function cuerpoDeIssue(a, opciones = {}) {
   return l.join(String.fromCharCode(10));
 }
 
+/**
+ * PT-035 · `SUITE-R51` · Que sub-issues le faltan a cada lote.
+ *
+ * La jerarquia ya existe en el registro —cada tarea declara su `epic`— y la plataforma la
+ * contaba en PROSA, enlazando en el cuerpo del lote. Un enlace es texto: no da progreso, no
+ * cierra en cascada y no sale en el arbol del tablero. Dos representaciones del mismo hecho, que
+ * es justo lo que `SUITE-R35` existe para impedir.
+ *
+ * `yaAnidados` a `null` significa NO EVALUABLE —la plataforma no lo sabe decir—: entonces no se
+ * afirma que falte nada, porque «no se» no es «no hay» (`RULE-06`).
+ */
+export function anidamientosQueFaltan(allocations, yaAnidados) {
+  const faltan = [];
+  const porId = new Map((allocations ?? []).map((a) => [a?.id, a]));
+  for (const a of allocations ?? []) {
+    if (!a?.epic || !a?.issue) continue;
+    const padre = porId.get(a.epic);
+    if (!padre?.issue) continue;
+    const hijos = yaAnidados?.[padre.issue];
+    if (hijos === null || hijos === undefined) continue;   // no evaluable para este padre
+    if (!hijos.includes(a.issue)) faltan.push({ padre: padre.issue, hijo: a.issue, id: a.id, epic: a.epic });
+  }
+  return faltan;
+}
+
 /** Una nota de reanclaje declara una transición de fase (`FDGE-R52`), no es un comentario suelto. */
 export const RE_NOTA = /PHASE\s*\d+\s*(?:→|->|a)\s*\d+|PHASE\s*\d+\s*→/i;
 export const contarNotas = (textos) => (textos ?? []).filter((t) => RE_NOTA.test(String(t))).length;
@@ -364,6 +389,30 @@ const ADAPTADORES = {
       for (const e of etiquetas ?? []) args.push('--label', e);
       const out = execFileSync('gh', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
       return Number(out.split('/').pop());
+    },
+    // PT-035 · una tarea de un lote es un SUB-ISSUE de su lote, no un enlace en su cuerpo.
+    // El enlace es texto: no da progreso, no cierra en cascada y no aparece en el arbol del
+    // tablero. La jerarquia estaba en el registro y la plataforma la contaba en prosa —dos
+    // representaciones del mismo hecho, que es lo que SUITE-R35 existe para impedir.
+    //
+    // La API pide el ID del issue, no su numero: son cosas distintas y confundirlas da un 422
+    // silencioso si nadie lee la respuesta.
+    idDeIssue(numero) {
+      const out = execFileSync('gh', ['api', `repos/{owner}/{repo}/issues/${numero}`, '--jq', '.id'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+      return Number(out);
+    },
+    subIssues(numeroPadre) {
+      try {
+        const out = execFileSync('gh', ['api', `repos/{owner}/{repo}/issues/${numeroPadre}/sub_issues`,
+          '--jq', '.[].number'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+        return out ? out.split(/\r?\n/).map(Number) : [];
+      } catch { return null; }          // no evaluable: no se afirma que no haya (RULE-06)
+    },
+    anidar(numeroPadre, numeroHijo) {
+      const id = this.idDeIssue(numeroHijo);
+      execFileSync('gh', ['api', '-X', 'POST', `repos/{owner}/{repo}/issues/${numeroPadre}/sub_issues`,
+        '-F', `sub_issue_id=${id}`], { cwd: ROOT, stdio: 'pipe' });
     },
     cerrar(numero, motivo) {
       execFileSync('gh', ['issue', 'close', String(numero), '--comment', motivo],
@@ -602,6 +651,21 @@ function sincronizarEtiquetas() {
   }
 }
 
+// PT-035 · declarar en la plataforma la jerarquia que el registro ya tiene.
+function anidarSubIssues() {
+  if (!adaptador.subIssues || !adaptador.anidar) return;
+  const padres = [...new Set(all.filter((a) => a?.epic).map((a) => a.epic))]
+    .map((id) => all.find((x) => x?.id === id)).filter((p) => p?.issue);
+  const yaAnidados = {};
+  for (const p of padres) yaAnidados[p.issue] = adaptador.subIssues(p.issue);
+  const faltan = anidamientosQueFaltan(all, yaAnidados);
+  for (const f of faltan) {
+    if (!APLICAR) { notas.push(`${f.id} #${f.hijo}: seria sub-issue de ${f.epic} #${f.padre}`); continue; }
+    try { adaptador.anidar(f.padre, f.hijo); notas.push(`${f.id} #${f.hijo} → sub-issue de ${f.epic} #${f.padre}`); }
+    catch { fail('SUITE-R51', `${f.id}: no se pudo anidar #${f.hijo} bajo #${f.padre}.`); }
+  }
+}
+
 function abrir() {
   const pendientes = vivas.filter((a) => !a.issue);
   if (!pendientes.length) {
@@ -616,6 +680,7 @@ function abrir() {
     }
     sincronizarEtiquetas();
     sincronizarCuerpos();
+    anidarSubIssues();
     return;
   }
   if (!APLICAR) {
@@ -646,6 +711,10 @@ function abrir() {
     a.issue = n;
     notas.push(`${a.id} → issue #${n}`);
   }
+  // PT-035 · anidar TAMBIEN aqui. Es la tercera vez en este archivo que un arreglo queda
+  // detras de un `return` y no se ejecuta —PT-014 en sincronizarCuerpos(), PT-022 en
+  // checkCierreDeLote()—: un arreglo inalcanzable se lee como proteccion y es peor que ninguno.
+  anidarSubIssues();
   writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
 }
 
