@@ -43,8 +43,11 @@ Toda tarea con `epic` es sub-issue de su lote en la plataforma, incluida la hist
 | PT | Tipo | Sev | Qué resuelve |
 |:---|:---|:---|:---|
 | `PT-035` | BUG | S2 | `tracker` declara sub-issues en vez de enlazar en prosa |
+| `PT-036` | BUG | S2 | El enlace del cuerpo apunta a donde el contenido **está**, no a donde estará |
 
-Una sola tarea. No hay solapamiento.
+Las dos tocan `cuerpoDeIssue()` y la pasada de `abrir`, pero en piezas distintas: `PT-035` añade
+estructura, `PT-036` corrige a dónde apunta el texto. Se descubrieron juntas porque ambas se ven
+**abriendo un issue y mirándolo**, no leyendo el código.
 
 ## 6. Qué NO entra
 
@@ -69,6 +72,6 @@ Estado: FIRMADA · G1 PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | HECHO — 7.4.0 |
 
 > El merge y lo posterior no son filas: `SUITE-R45`.

@@ -1066,3 +1066,11 @@ integrarse, y la transición la hace la resincronización.
 Con él salió el defecto de fondo: abrir() tenía DOS finales y solo uno completo. Cuarta vez en
 este archivo que un arreglo queda tras un `return` (PT-014, PT-022, PT-035). Cuatro veces no es
 descuido: era la forma de la función. Ahora tiene un final, cerrarPasada().
+
+## G4 — EP-009 · integración
+Fecha: 2026-08-13 · Compuerta: G4 · integrado por: Alberto Martínez
+Autoriza: Alberto Martínez — «necesito que quede todo corregido, que sólo nos falte el EP-010»
+Versión: 7.4.0
+Alcance: PT-035, PT-036 → INTEGRATED · EP-009 → CLOSED
+
+Orden de SUITE-R46 respetado: estado terminal apuntado AQUÍ, antes de mergear.
