@@ -8,6 +8,68 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 7.3.0 — 2026-08-13
+
+**Consultar el tablero deja de depender de que el agente se acuerde.** Dos reglas nuevas,
+ninguna modificada: `MINOR`.
+
+Hicieron falta **tres intentos**, y las tres limitaciones estaban escritas antes de que nadie las
+señalara:
+
+```
+7.2.0  SUITE-R48  la respuesta es consultable   → un comando no puede exigir haber sido llamado
+7.3.0  SUITE-R49  la consulta va lo primero     → una convención se puede ignorar
+7.3.0  SUITE-R50  arrancar ES consultar         → no existe el paso que saltarse
+```
+
+Ver el hueco no es lo mismo que cerrarlo, y llamar «hecho» a lo que solo está nombrado es cómo se
+acumulan tres versiones para un problema. Queda escrito porque el patrón importa más que el caso.
+
+### `SUITE-R49` · consultar es lo primero, y «consultado» está definido
+
+`CORE.md` —lo único que el agente carga— **abre** con la consulta al tablero, **antes que las
+reglas**. Un caso comprueba ese orden: detrás se lee cuando ya se ha decidido.
+
+Y **consultado** deja de significar nada y pasa a significar esto:
+
+| Pregunta | Respuesta |
+|:---|:---|
+| ¿Vale la consulta de hace tres turnos? | No. Vale para **un turno** |
+| ¿Vale recordar lo que dijo? | No. La salida **es** la respuesta; si discrepa del recuerdo, manda la salida |
+| ¿Y sin plataforma? | `SIN EVALUAR`, declarado. No se sustituye por lo que parezca |
+
+La definición vive **en un solo sitio** y quien la necesite la **cita**, no la copia
+(`SUITE-R38`).
+
+### `SUITE-R50` · el punto de entrada es el tablero
+
+```bash
+npx @a81biz/cauce start
+```
+
+Imprime el estado del tablero y **después** el núcleo, en ese orden, y no hay forma de obtener lo
+segundo sin lo primero. No es un recordatorio: es el arranque.
+
+**No automatiza ninguna compuerta y no sustituye a `CORE.md`** — dos casos comprueban
+precisamente eso, porque un arranque que automatizara algo sería peor que no tenerlo: convertiría
+el punto de entrada en un sitio donde saltarse cosas.
+
+**Lo que sigue sin cerrarse, y se dice:** quien no ejecute `cauce start` no ve nada. Esto no
+impide arrancar de otra forma; hace que la correcta sea la que el paquete ofrece y pone primera.
+El orden está en el código y no en un texto que alguien deba respetar, pero no es un candado.
+
+### Migración desde 7.2.0
+
+Ninguna acción. Regenera el núcleo para que `CORE.md` abra con la consulta:
+
+```bash
+npx @a81biz/cauce core
+```
+
+Y a partir de ahí, empieza las sesiones con `cauce start`.
+
+---
+
 ## 7.2.0 — 2026-08-13
 
 **El tablero deja de ser un sitio donde mirar y pasa a ser de donde sale la respuesta.** Dos

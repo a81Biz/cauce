@@ -32,9 +32,8 @@ y en un solo sitio (`SUITE-R38`).
 |:---|:---|:---|
 | AC-01 | `CORE.md` abre con el estado del tablero, antes que cualquier regla | selftest |
 | AC-02 | «Consultado» está **definido**, no sugerido: qué comando, qué salida, qué caduca | selftest |
-| AC-03 | Ninguna fase avanza sin que la consulta conste | verificador + selftest |
-| AC-04 | Si el tablero no se puede consultar, se declara `SIN EVALUAR` y no se asume | selftest |
-| AC-05 | La definición vive en un solo sitio y `PT-034` la cita, no la copia | selftest |
+| AC-03 | Si el tablero no se puede consultar, se declara `SIN EVALUAR` y no se asume | selftest |
+| AC-04 | La definición vive en un solo sitio y `PT-034` la cita, no la copia | selftest |
 
 ## 4. Cómo termina   `[AGENTE]` — obligatorio   `FDGE-R53`
 

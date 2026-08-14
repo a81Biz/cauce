@@ -207,12 +207,44 @@ const comandos = {
 
   core() { return corre('build-core.mjs', [SUITE_EN_DESTINO]); },
 
+  // PT-034 · `SUITE-R50` · el punto de ENTRADA es el tablero.
+  //
+  // `SUITE-R48` dejo la respuesta consultable y `SUITE-R49` la puso lo primero en CORE.md, pero
+  // las dos siguen dependiendo de que el agente pregunte: un comando no puede exigir haber sido
+  // llamado, y una convencion se puede ignorar — que es lo que ya pasaba.
+  //
+  // `cauce start` no es un recordatorio: es el arranque. Imprime el estado del tablero y DESPUES
+  // el nucleo, en ese orden, y no hay forma de obtener lo segundo sin lo primero. Quien arranca
+  // asi no puede llegar a su primera decision sin el estado delante.
+  //
+  // No automatiza nada ni resuelve ninguna compuerta: solo cambia que es lo primero que se ve.
+  start() {
+    di(`${c.neg}cauce${c.fin} ${VERSION} — arranque`);
+    di();
+    di(`${c.dim}El estado sale del tablero, no de la memoria del agente (SUITE-R49, SUITE-R50).${c.fin}`);
+    di();
+    // `tracker siguiente` sale 2 sin plataforma y 3 sin acceso. Ninguno de los dos es un fallo
+    // del arranque: es el SIN EVALUAR que SUITE-R49 obliga a declarar en vez de sustituir por
+    // lo que parezca. Se dice y se sigue — callarlo lo convertiria en «no hay nada abierto».
+    const cod = corre('tracker.mjs', ['siguiente', DESTINO]);
+    if (cod === 2) di(`${c.dim}Sin plataforma declarada: el estado del tablero queda SIN EVALUAR (SUITE-R49).${c.fin}`);
+    else if (cod === 3) di(`${c.dim}Plataforma declarada sin acceso: SIN EVALUAR. No se sustituye por una suposicion.${c.fin}`);
+    di();
+    di(`${c.neg}Y ahora el nucleo${c.fin} — lo unico que se carga (SUITE-R15):`);
+    di(`  ${SUITE_EN_DESTINO}/CORE.md`);
+    di();
+    di(`${c.dim}Ese orden no es de cortesia: lo de arriba es el estado real y lo de abajo son las${c.fin}`);
+    di(`${c.dim}reglas. Leer las reglas sin el estado es como se saltan las fases.${c.fin}`);
+    return 0;
+  },
+
   version() { di(`cauce ${VERSION}`); return 0; },
 };
 
 if (!comando || comando === '--help' || comando === '-h' || !comandos[comando]) {
   di(`${c.neg}cauce${c.fin} ${VERSION} — marco de gobernanza para desarrollo asistido por IA`);
   di();
+  di(`  ${c.neg}cauce start${c.fin}   [ruta]   EMPIEZA AQUÍ · el estado del tablero, y después el núcleo`);
   di(`  ${c.neg}cauce install${c.fin} [ruta]   instala el marco en un proyecto y genera su núcleo`);
   di(`  ${c.neg}cauce verify${c.fin}  [ruta]   coherencia del marco, núcleo sincronizado y cumplimiento de los PT`);
   di(`  ${c.neg}cauce compare${c.fin} [ruta]   qué difiere entre la copia del proyecto y esta versión`);

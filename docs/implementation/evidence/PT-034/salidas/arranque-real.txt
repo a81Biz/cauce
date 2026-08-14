@@ -1,0 +1,24 @@
+[1mcauce[0m 7.2.0 — arranque
+
+[2mEl estado sale del tablero, no de la memoria del agente (SUITE-R49, SUITE-R50).[0m
+
+
+  PT-033  VALIDATION_PENDING  ·  PHASE 8 Persistencia  ·  #46
+  produce:    HISTORY.log · índice
+  siguiente:  PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.
+
+  PT-034  READY  ·  PHASE 1 Intake  ·  #47
+  compuerta:  G1
+  produce:    intake.md
+  siguiente:  PHASE 1 · Intake — cierra con: G1 · firma humana (INTAKE-R06). Luego PHASE 2 · Descubrimiento.
+
+  PT-015  DEFERRED  ·  #22
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-016  DEFERRED  ·  #23
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-017  DEFERRED  ·  #24
+  siguiente:  no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).
+
+  PT-019  DEFERRED  ·  #26

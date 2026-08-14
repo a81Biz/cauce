@@ -1,6 +1,6 @@
 {
   "name": "@a81biz/cauce",
-  "version": "7.2.0",
+  "version": "7.3.0",
   "description": "Marco de gobernanza para desarrollo asistido por IA: trazabilidad, evidencia y control humano sobre toda decisión irreversible.",
   "type": "module",
   "license": "Apache-2.0",

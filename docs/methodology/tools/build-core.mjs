@@ -295,6 +295,27 @@ Detalle y porqué: \`RULES.md\` · \`LEXICON.md\` · \`EXECUTION-MODES.md\` · \
 Los \`*-Prompts.md\` son la expansión legible de \`PHASES.md\` para copiar y pegar en modo
 \`MANUAL\`; en runtime no se cargan.
 
+## LO PRIMERO — el estado sale del tablero, no de tu memoria   \`SUITE-R49\`
+
+**Antes de responder nada sobre el trabajo en curso, antes de tocar un archivo y antes de
+avanzar de fase**, ejecuta:
+
+\`\`\`bash
+node docs/methodology/tools/tracker.mjs siguiente
+\`\`\`
+
+Su salida es **la respuesta** a qué toca y cómo se cierra. No es una sugerencia que confirmar
+con lo que recuerdes: si lo que recuerdas no coincide, **el que se equivoca no es el tablero**.
+
+Una consulta vale para **un turno**. Si el turno anterior cambió el registro o el tablero, está
+caducada — vuelve a preguntar. Y si no se puede consultar —sin plataforma, sin credencial— se
+declara \`SIN EVALUAR\` y se dice; no se sustituye por lo que parezca.
+
+Esto está aquí, antes que las reglas, porque un agente que recorre las fases de memoria se las
+salta: se han dado por terminados merges sin mirar la compuerta que corre después, se han
+cerrado issues en órdenes que ninguna regla decía, y se han declarado cambios de especificación
+que nunca se hicieron. Ninguno fue por desconocer la regla. Todos por no preguntar.
+
 ## Fases
 
 \`\`\`

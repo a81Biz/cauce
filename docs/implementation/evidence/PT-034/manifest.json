@@ -1,0 +1,11 @@
+{
+  "pt": "PT-034",
+  "criteria": [
+    { "ac": "AC-01", "scenarios": ["E2","E3","E4"], "tests": ["selftest.sh:cauce start existe","selftest.sh:y sale en la ayuda como primero","selftest.sh:el arranque llama al tablero"], "evidence": ["salidas/arranque-real.txt"], "verified": true },
+    { "ac": "AC-02", "scenarios": ["E6"], "tests": ["selftest.sh:sin plataforma lo DECLARA"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "scenarios": ["E5"], "tests": ["selftest.sh:y cita la definicion, no la copia"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "scenarios": ["E9"], "tests": ["selftest.sh:y el nucleo sigue siendo obligatorio"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-05", "scenarios": ["E8"], "tests": ["selftest.sh:el arranque no resuelve compuertas"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 359, "failed": 0, "coverage": 359, "baseline": 349 }
+}

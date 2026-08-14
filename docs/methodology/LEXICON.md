@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **7.2.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **7.3.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 

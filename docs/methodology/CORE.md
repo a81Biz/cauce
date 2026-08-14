@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: e38115a310d8 -->
-<!-- fuentes: RULES.md:84712273239d LEXICON.md:d4b19caee1f7 EXECUTION-MODES.md:47964e65c917 PHASES.md:816fa41bcc08 -->
+<!-- cuerpo: 1f73a4cd18b6 -->
+<!-- fuentes: RULES.md:2983b64ea07c LEXICON.md:610f88df35e3 EXECUTION-MODES.md:996044fcc7a0 PHASES.md:fc5280ee531b -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -10,6 +10,27 @@ documentos completos solo se abren cuando una línea de aquí lo remite.
 Detalle y porqué: `RULES.md` · `LEXICON.md` · `EXECUTION-MODES.md` · `PHASES.md`.
 Los `*-Prompts.md` son la expansión legible de `PHASES.md` para copiar y pegar en modo
 `MANUAL`; en runtime no se cargan.
+
+## LO PRIMERO — el estado sale del tablero, no de tu memoria   `SUITE-R49`
+
+**Antes de responder nada sobre el trabajo en curso, antes de tocar un archivo y antes de
+avanzar de fase**, ejecuta:
+
+```bash
+node docs/methodology/tools/tracker.mjs siguiente
+```
+
+Su salida es **la respuesta** a qué toca y cómo se cierra. No es una sugerencia que confirmar
+con lo que recuerdes: si lo que recuerdas no coincide, **el que se equivoca no es el tablero**.
+
+Una consulta vale para **un turno**. Si el turno anterior cambió el registro o el tablero, está
+caducada — vuelve a preguntar. Y si no se puede consultar —sin plataforma, sin credencial— se
+declara `SIN EVALUAR` y se dice; no se sustituye por lo que parezca.
+
+Esto está aquí, antes que las reglas, porque un agente que recorre las fases de memoria se las
+salta: se han dado por terminados merges sin mirar la compuerta que corre después, se han
+cerrado issues en órdenes que ninguna regla decía, y se han declarado cambios de especificación
+que nunca se hicieron. Ninguno fue por desconocer la regla. Todos por no preguntar.
 
 ## Fases
 
@@ -153,6 +174,8 @@ verifica un script y bloquea la integración.
 `SUITE-R46` **H** El tablero no se adelanta a la rama por defecto.
 `SUITE-R47` **H** El espejo se comprueba donde el registro asigna.
 `SUITE-R48` **H** Qué sigue lo dice el tablero, no la memoria del agente.
+`SUITE-R49` **H** Consultar el tablero es lo primero, y «consultado» está definido.
+`SUITE-R50` **H** El punto de entrada es el tablero. cauce start imprime el estado del tablero y después el núcleo, en ese orden, y no hay forma de obtener lo segundo sin lo primero. No es un recordatorio: es el arranque.…
 
 ### LEX — Nombres
 
@@ -627,6 +650,15 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUITE-R50]
+          cauce start   →  estado del tablero, y DESPUES el nucleo
+          No hay forma de obtener lo segundo sin lo primero. Usa la
+          definicion de SUITE-R49; no escribe la suya. No automatiza nada.
+LO PRIMERO  del turno: consultar el tablero. CORE.md abre con ello.       [SUITE-R49]
+          «Consultado» = se ejecuto `tracker siguiente` EN ESTE TURNO y su
+          salida es la respuesta. Vale para UN turno; si el anterior cambio
+          el registro o el tablero, caduco. Sin poder consultar: SIN EVALUAR.
+          La definicion vive en SUITE-R49 y se CITA, no se copia.
 SIGUIENTE antes de avanzar de fase, PREGUNTA al tablero. No de memoria.     [SUITE-R48]
           node tools/tracker.mjs siguiente PT-NNN
           Deriva que produce la fase, que la cierra, que compuerta toca y

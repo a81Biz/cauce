@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.2.0**
+> Suite version: **7.3.0**
 
 ---
 
@@ -55,6 +55,24 @@ node docs/methodology/tools/tracker.mjs pr                # ¿hay PR abierto par
 **No hay mapeo para agrupar.** La implementación ya tiene su propio issue; un milestone sería
 un segundo artefacto para el mismo hecho, y eso es la divergencia que `SUITE-R35` impide. Se
 declaró aquí durante tres versiones y `RULES.md` nunca lo dijo — `PT-003` lo midió y se retiró.
+
+**`SUITE-R50`: el punto de entrada es el tablero.**
+
+```bash
+npx @a81biz/cauce start
+```
+
+Imprime el estado del tablero y **después** el núcleo, en ese orden, y no hay forma de obtener lo
+segundo sin lo primero. No es un recordatorio: es el arranque, y por eso no depende de que nadie
+se acuerde. Usa la definición de `SUITE-R49`; no escribe la suya. No automatiza ninguna
+compuerta, y el marco sigue siendo usable sin él.
+
+**`SUITE-R49`: consultar el tablero es lo primero, y «consultado» está definido.** `CORE.md`
+abre con la consulta, antes que las reglas. **Consultado** significa: se ejecutó
+`tracker siguiente` **en este turno**, y su salida **es** la respuesta — no una sugerencia que
+confirmar con lo que recuerdes. Vale para un turno: si el anterior cambió el registro o el
+tablero, caducó. Sin poder consultar, `SIN EVALUAR`. La definición vive en `SUITE-R49` y se
+**cita**, no se copia.
 
 **`SUITE-R48`: qué sigue lo dice el tablero, no tu memoria.** Antes de avanzar de fase:
 
