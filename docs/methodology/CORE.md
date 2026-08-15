@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 2cfb3cbfd038 -->
-<!-- fuentes: RULES.md:36f148abad00 LEXICON.md:51d97c07a204 EXECUTION-MODES.md:5661b023cf28 PHASES.md:c7e44eba5661 -->
+<!-- cuerpo: 9c61ba8f5b5e -->
+<!-- fuentes: RULES.md:ca36afcaf565 LEXICON.md:51d97c07a204 EXECUTION-MODES.md:5661b023cf28 PHASES.md:24ee90fac17c -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -149,7 +149,7 @@ verifica un script y bloquea la integración.
 `SUITE-R05` **H** Human Governance. Toda acción irreversible requiere decisión humana explícita. Ver SUITE-R06.
 `SUITE-R06` **H** Lista cerrada de acciones irreversibles. Ningún modo de ejecución automatiza: (a) merge o push a la rama principal; (b) cierre de un ítem de tipo BUG; (c) migración, borrado o transformación destructiva de…
 `SUITE-R07` **H** No Foundation Skip. Ningún componente opera sobre un proyecto sin docs/enterprise-documentation/ generada y validada con [FOUNDATION VALIDATED]. Ver FND-R08 para la verificación real.
-`SUITE-R08` **C** Un solo asignador de identificadores. Todo ID se obtiene de docs/implementation/REGISTRY.json. Derivarlo contando entradas en un .md o .json está prohibido (LEX-R04, LEX-R06).
+`SUITE-R08` **C** Un solo asignador de identificadores. Todo ID se obtiene de docs/implementation/REGISTRY.json. Derivarlo contando entradas en un .md o .json está prohibido (LEX-R04, LEX-R06). Y toda allocation de tipo PT…
 `SUITE-R09` **H** Append-only es literal. Un artefacto declarado append-only nunca se reescribe, reordena ni compacta. Corregir un error pasado se hace con una entrada nueva que lo referencia, no editando la anterior.
 `SUITE-R10` **H** Propiedad de artefactos. Cada artefacto tiene exactamente un componente dueño. Solo el dueño escribe en él. Ver la matriz de §Parte 9.
 `SUITE-R11` **S** Declared coverage. Ningún score (Health PTSA, QA Health, confianza de fase) es válido sin cobertura y freshness declaradas junto al número.
@@ -671,6 +671,11 @@ JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SU
           del issue apunta a DONDE EL CONTENIDO ESTA — rama de trabajo si
           esta vivo, rama por defecto si ya es INTEGRATED.
           node tools/tracker.mjs abrir --aplicar   lo mantiene
+LA FASE   toda allocation PT VIVA declara «phase». Falta ⇒ ERROR desde 8.0.0 [SUITE-R08]
+          EXENTOS: un EP —su ciclo no tiene fases de tarea— y lo ya terminado.
+          La frontera «se exige a lo VIVO» la comparten FDGE-R52, FDGE-R19 y
+          esta, desde ESTADOS_TERMINALES en patrones.mjs. DONE NO esta ahi: un
+          PT en DONE espera G4 y sigue vivo.
 ESPEJA    TODO lo que copie el estado, no solo la plataforma.              [SUITE-R35]
           registro ↔ YAML del intake ↔ linea de indice. Si divergen se DICE:
           aviso durante el trabajo, ERROR en G4. Manda el YAML (PT-004) y se

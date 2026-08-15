@@ -1494,3 +1494,49 @@ lotes. Y el fixture representaba un estado imposible: cuatro PT en PHASE 8 sin r
 ESTA TAREA ESTRENA LO QUE INTRODUCE: es la primera de 47 con rama propia.
   selftest 456 → 466 casos
 Trazabilidad externa: —
+
+## PT-016 — CHORE: phase obligatoria en el YAML del intake
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S4 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-016-phase-obligatoria
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-15 Alberto Martínez (delegada) · G4 pendiente
+Objetivo: que un PT vivo sin «phase» falle, en vez de desactivar en silencio todas las
+exigencias por fase.
+Causa raíz: la ausencia del campo salía SIN EVALUAR —correcto por RULE-06, que prefiere el «no lo
+sé» al falso verde— pero era GRATIS: apagaba de una vez traceability, manifest, self-review,
+FDGE-R52 y la rama de FDGE-R19 sin que nada fallara nunca. Y ninguna de las cinco plantillas de
+INTAKE/templates/ declaraba el campo, así que no declararlo era el camino por defecto.
+Solución: SUITE-R08 ampliada. Un PT vivo sin «phase» falla; un EP está exento —su ciclo no tiene
+fases de tarea y exigírsela sería inventar un dato— y lo ya terminado tampoco se retrofecha. Las
+cuatro plantillas de tarea traen el campo; EPIC-INTAKE.md NO, porque ponerlo ahí enseñaría a
+rellenarlo con un número inventado. migrate deja de decir «SIN EVALUAR» y dice que ahora falla.
+ALCANCE QUE CRECIÓ, y por qué se aceptó: al escribirlo apareció que FDGE-R52 (PT-044), FDGE-R19
+(PT-047) y esta regla preguntaban lo mismo —«¿está terminado?»— cada una con SU PROPIA COPIA de
+la lista. Tres copias nacidas HOY, en tres tareas del mismo lote, sin que ninguna viera a las
+otras. Se unifican en ESTADOS_TERMINALES, en patrones.mjs, con su contrato (SUITE-R38). DONE no
+está en ella: un PT en DONE espera G4 y sigue vivo, y añadirlo apagaría las tres a la vez.
+Archivos modificados:
+  - docs/methodology/tools/patrones.mjs · verify-fdge.mjs · migrate.mjs · selftest.sh
+  - docs/methodology/RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md
+  - docs/methodology/INTAKE/templates/ (cuatro plantillas de tarea)
+Evidencia: docs/implementation/evidence/PT-016/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): tres hallazgos de método, ninguno visible leyendo.
+  1. La comprobación quedó dentro de exigible(), que solo se llama si algún artefacto se
+     comprueba: un PT con todos sus artefactos NO la alcanzaba nunca. El caso salió en rojo con
+     la implementación ya terminada. Se movió a donde siempre corre, y de paso los cinco
+     «SIN EVALUAR» por artefacto pasan a ser uno.
+  2. Un caso tropezaba con su propio mensaje: chkno «SIN EVALUAR» fallaba porque el error nuevo
+     CITA la frase para explicar qué cambió.
+  3. Me salté la nota PHASE 3 → 4 por TERCERA vez, y siempre la misma transición: PHASE 4
+     produce seis artefactos, se empiezan a escribir y se da por hecha. No es despiste, es un
+     patrón: la nota debe escribirse ANTES de abrir el primer artefacto de la fase siguiente.
+Rompe compatibilidad: un proyecto instalado con PTs vivos sin «phase» pasa de verde a rojo. En
+ESTE repositorio, cero errores nuevos — los diez intakes sin el campo son seis EP y cuatro PT
+integrados. El lote sube MAJOR y escribe guía de migración (SUITE-R19).
+  selftest 466 → 479 casos
+Trazabilidad externa: —

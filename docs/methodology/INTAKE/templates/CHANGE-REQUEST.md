@@ -14,6 +14,7 @@ severity: S4               # [HUMANO] S1 | S2 | S3 | S4
 complexity:                # [AGENTE] se propone en PHASE 2
 track: STANDARD            # [AGENTE] STANDARD | EXPRESS (CHORE suele ser EXPRESS)
 status: DRAFT
+phase: 1                 # [AGENTE] OBLIGATORIO desde 8.0.0 · SUITE-R08
 created: YYYY-MM-DD
 origin: DIRECT             # DIRECT | H-NNN | R-NNN
 epic:                      # EP-NNN si pertenece a un lote

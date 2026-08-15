@@ -1,0 +1,29 @@
+# PT-016 · lo que rompe a proposito, medido en ESTE repositorio
+
+== intakes sin «phase» ==
+  changes/EP-001-el-marco-se-hace-cumplir/intake.md
+  changes/EP-002-github-como-maquina-de-estados/intake.md
+  changes/EP-003-el-issue-se-lee-solo/intake.md
+  changes/EP-004-lo-aplazado-no-se-olvida/intake.md
+  changes/EP-012-el-marco-se-cierra-a-si-mismo/intake.md
+  changes/EP-013-el-tablero-queda-limpio/intake.md
+  changes/PT-001-el-espejo-en-las-compuertas/intake.md
+  changes/PT-002-cobertura-por-regla/intake.md
+  changes/PT-003-el-contrato-de-la-plataforma/intake.md
+  changes/PT-004-la-compuerta-no-distingue-la-fase/intake.md
+
+== y por que NINGUNO falla: son seis EP y cuatro PT ya integrados ==
+  EP-001   EP       CLOSED
+  EP-002   EP       CLOSED
+  EP-003   EP       CLOSED
+  EP-004   EP       CLOSED
+  EP-012   EP       CLOSED
+  EP-013   EP       IN_PROGRESS
+  PT-001   BUG      INTEGRATED
+  PT-002   BUG      INTEGRATED
+  PT-003   INVESTIGATION CLOSED
+  PT-004   BUG      INTEGRATED
+
+== verify-fdge --all sobre este repositorio ==
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+1 error(es).

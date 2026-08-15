@@ -34,7 +34,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe, PATRONES } from './patrones.mjs';
+import { selloDe, PATRONES, ESTADOS_TERMINALES } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -885,6 +885,28 @@ function checkPT(pt, { gate } = {}) {
   })();
   const fase = faseDeclarada ?? 0;
 
+  // PT-016 · SUITE-R08 · «phase» deja de ser opcional para un PT VIVO.
+  //
+  // Hasta 8.0.0 su ausencia salia SIN EVALUAR, que no aprueba ni bloquea — correcto por RULE-06,
+  // pero GRATIS: apagaba de una vez traceability, manifest, self-review, FDGE-R52 y la rama de
+  // FDGE-R19 sin que nada fallara nunca. PT-044 cerro el caso de un «phase» que MIENTE; este es
+  // el de un «phase» que FALTA.
+  //
+  // Va AQUI y no dentro de exigible(): alli solo se llega si algun artefacto se comprueba, y un
+  // PT con todos sus artefactos presentes no lo alcanzaba nunca. Lo dijo el caso, no la lectura.
+  //
+  // Exentos: un EP —su ciclo no tiene fases de tarea, y exigirsela seria inventar un dato— y lo
+  // ya terminado, que es la misma frontera que FDGE-R52 y FDGE-R19, ahora compartida.
+  if (faseDeclarada === null) {
+    if (enRegistroPT?.type === 'EP' || ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+      warn('SUITE-R08', `${pt}: sin fase declarada — exento (${enRegistroPT?.type === 'EP' ? 'es un lote: su ciclo no tiene fases de tarea' : 'ya terminado: no se retrofecha'}).`);
+    } else {
+      fail('SUITE-R08', `${pt}: no declara «phase», y desde 8.0.0 eso ya no es SIN EVALUAR. `
+        + 'Declárala en el YAML de su intake.md o en su allocation de REGISTRY.json. Sin fase '
+        + 'ninguna exigencia por fase se evalúa, y no evaluarlas salía gratis.');
+    }
+  }
+
   // PT-044 · SUITE-R35 hacia DENTRO. La regla dice que el registro asigna y todo lo demas
   // ESPEJA, y su comprobacion solo miraba hacia la plataforma. El YAML del intake y la linea de
   // indice son las otras dos copias del mismo hecho, y nada las comparaba: cuatro tareas de
@@ -913,12 +935,10 @@ function checkPT(pt, { gate } = {}) {
   // Tres salidas, no dos (RULE-02): falta y toca -> error · falta y aun no toca -> aviso ·
   // no se sabe en que fase esta -> SIN EVALUAR, que no es un aprobado.
   const exigible = (regla, desde, artefacto) => {
-    if (faseDeclarada === null) {
-      warn(regla, `${pt}: no declara fase — la exigencia de ${artefacto} queda SIN EVALUAR. `
-        + 'Declara «phase: N» en el YAML de su intake.md o «phase» en su allocation de '
-        + 'REGISTRY.json. Sin fase no se puede afirmar que falte ni que sobre (RULE-06).');
-      return false;
-    }
+    // PT-016 · sin fase no se puede exigir nada, y SUITE-R08 ya lo dijo arriba UNA vez.
+    // Repetirlo por artefacto llenaba la salida de cinco «SIN EVALUAR» que decian lo mismo, y
+    // enterraban el unico mensaje que hay que leer.
+    if (faseDeclarada === null) return false;
     if (faseDeclarada < desde) {
       warn(regla, `${pt}: aún sin ${artefacto} — se escribe en PHASE ${desde} y el PT está en PHASE ${faseDeclarada}.`);
       return false;
@@ -943,8 +963,7 @@ function checkPT(pt, { gate } = {}) {
   // Se lee del REGISTRO y no de HISTORY.log, que ya declara «Rama:» sin que nadie lo compruebe:
   // HISTORY se escribe en PHASE 8 y la rama nace en PHASE 5, asi que comprobarlo alli llega
   // tres fases tarde. La rama ES estado, y el estado vive en el registro (SUITE-R35).
-  const YA_TERMINADO_RAMA = new Set(['INTEGRATED', 'CLOSED', 'REVERTED', 'REJECTED', 'DEFERRED']);
-  if (fase >= 5 && !YA_TERMINADO_RAMA.has(enRegistroPT?.status) && !enRegistroPT?.branch) {
+  if (fase >= 5 && !ESTADOS_TERMINALES.has(enRegistroPT?.status) && !enRegistroPT?.branch) {
     const m = `${pt}: está en PHASE ${fase} y no declara rama. PHASE 5 crea `
       + `«<type>/PT-NNN-slug» desde la rama de integración y la declara en `
       + `REGISTRY.allocations[].branch (FDGE-R19). El PR de la tarea es revisión, no G4.`;
@@ -962,8 +981,7 @@ function checkPT(pt, { gate } = {}) {
   // ponia la CI en rojo, y la unica salida practicable era dejar el YAML mintiendo: la regla
   // empujaba exactamente al defecto que PT-044 persigue. Es el mismo criterio que `rigeAqui`,
   // que ya existia para no exigir bitacora retroactiva a lo abierto antes de la 5.1.0.
-  const YA_TERMINADO = new Set(['INTEGRATED', 'CLOSED', 'REVERTED', 'REJECTED', 'DEFERRED']);
-  if (rigeAqui && fase >= 2 && !YA_TERMINADO.has(enRegistroPT?.status)) {
+  if (rigeAqui && fase >= 2 && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
     const plataforma = REGISTRO?.tracker?.plataforma ?? null;
     const notasPlataforma = plataforma && enRegistroPT?.issue ? notasDelIssue(pt) : null;
     if (notasPlataforma === 'SIN_ACCESO') {

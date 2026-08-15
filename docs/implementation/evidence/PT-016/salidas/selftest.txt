@@ -1,0 +1,17 @@
+# bash docs/methodology/tools/selftest.sh · 2026-08-15
+selftest: OK · 479 casos
+
+# los casos de PT-016 (SUITE-R08 · phase obligatoria):
+  [32m✓[0m un PT vivo sin phase FALLA
+  [32m✓[0m y deja de repetirlo por artefacto
+  [32m✓[0m con phase declarada, sin error
+  [32m✓[0m un EP sin phase esta EXENTO
+  [32m✓[0m lo ya integrado sin phase, exento
+  [32m✓[0m BUG-REPORT trae phase
+  [32m✓[0m FEATURE-REQUEST trae phase
+  [32m✓[0m CHANGE-REQUEST trae phase
+  [32m✓[0m TAREA trae phase
+  [32m✓[0m EPIC-INTAKE NO lo trae
+  [32m✓[0m la migracion avisa de que ahora falla
+  [32m✓[0m ESTADOS_TERMINALES en un solo sitio
+  [32m✓[0m DONE NO es terminal

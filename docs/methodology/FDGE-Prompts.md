@@ -148,6 +148,15 @@ main                 rama por defecto
 lugar de cuatro por PT. Declara la rama en `REGISTRY.allocations[].branch` — un PT vivo en
 `PHASE 5+` sin ella se reporta, y en `G4` bloquea. Lo ya terminado no se retrofecha.
 
+**`SUITE-R08`: la fase se declara o falla.** Toda allocation de tipo `PT` **viva** declara
+`phase`. Hasta la `8.0.0` faltar salía `SIN EVALUAR` —que no aprueba ni bloquea— pero era
+**gratis**: apagaba `traceability`, `manifest`, `self-review`, `FDGE-R52` y la rama de
+`FDGE-R19` de una vez. Ahora **falla**.
+
+Exentos: un `EP` —su ciclo no tiene fases de tarea— y lo ya terminado. Es la misma frontera que
+`FDGE-R52` y `FDGE-R19`, compartida desde `ESTADOS_TERMINALES`. **`DONE` no está ahí**: un
+`PT` en `DONE` espera `G4` y sigue vivo.
+
 **`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
 en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.
 Allí el registro es la foto del último merge y el tablero refleja el trabajo en curso: divergen
