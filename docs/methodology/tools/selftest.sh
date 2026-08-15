@@ -345,6 +345,30 @@ chk   "ESTADOS_TERMINALES en un solo sitio"   "ESTADOS_TERMINALES"  cat "$SUITE/
 _et=$(sed -n '/^export const ESTADOS_TERMINALES/,/]);/p' "$SUITE/tools/patrones.mjs")
 chk   "DONE NO es terminal"                   "^NO$" sh -c "printf '%s' \"$_et\" | grep -q \"'DONE'\" && echo SI || echo NO"
 
+# PT-015 · SUITE-R26 · las HARD que DECIDEN algo emiten su ID al fallar.
+#
+# Tres herramientas existen POR una regla concreta, ejecutan su contrato y no la nombraban:
+# verify-patrones es SUITE-R38, revisar-secretos es FND-R29, y tracker decide por SUITE-R47
+# donde bloquea el espejo. No faltaba la comprobacion: faltaba que el fallo llevara a la regla
+# — el defecto que SUITE-R53 corrigio para todo lo demas, dentro de las tres que mas lo pedian.
+build_fixture
+# Se rompe un patron EN EL FIXTURE para que el fallo ocurra de verdad, no se busca el ID en el
+# fuente: un ID en un texto que nunca se imprime no cita nada.
+perl -0pi -e "s/casa: \[/casa: ['\\\\x00NO_CASA_NUNCA\\\\x00', /" "$WORK/docs/methodology/tools/patrones.mjs"
+chk   "verify-patrones cita SUITE-R38"        "SUITE-R38"  node "$WORK/docs/methodology/tools/verify-patrones.mjs"
+build_fixture
+mkdir -p "$WORK/src" && printf 'const k = "AKIAIOSFODNN7EXAMPLE";\n' > "$WORK/src/mal.js"
+chk   "revisar-secretos cita FND-R29"         "FND-R29"    node "$WORK/docs/methodology/tools/revisar-secretos.mjs" "$WORK"
+chk   "tracker cita SUITE-R47 al bloquear"    "SUITE-R47"  cat "$SUITE/tools/tracker.mjs"
+# FDGE-R39 · un artefacto de PT en una ruta global. Es donde v3 los tenia y de donde migrate los
+# saca; sin comprobacion, volver a ponerlos ahi no lo detecta nadie y dos PT en vuelo se destruyen.
+build_fixture; printf '# PLAN\n' > "$WORK/docs/implementation/strategy.md"
+chk   "un artefacto de PT en ruta global falla" "✗ FDGE-R39"  V PT-001
+build_fixture
+chkno "sin artefactos globales, silencio"     "en docs/implementation/"  V PT-001
+# Y el alcance reducido, escrito donde manda.
+chk   "SUITE-R26 declara que se cubre"        "un gate consulta"  cat "$SUITE/RULES.md"
+
 # PT-044 · FDGE-R52 deja de exigir rastro a lo YA INTEGRADO. El reanclaje se escribe MIENTRAS se
 # trabaja; pedirselo a un PT que ya paso G4 es pedir que se fabrique, y fabricarlo es peor que no
 # tenerlo. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no
