@@ -180,10 +180,27 @@ aplazado. En `G4` cada fila declara `HECHO` o el identificador al que se movió.
 detectable, y fingir que lo es sería peor. Lo que cambia es que omitir una fila deje de perder
 nada, porque la obligación ya no vive en ella.
 
-**`SUITE-R44`: lo que el lote aplaza se asigna, no se narra.** Una fila de `out-of-scope.md`
-que apunte a trabajo futuro cita el identificador que lo sostiene — normalmente una allocation
-en `DEFERRED`, con su issue abierto. En `G4` bloquea; antes solo avisa, porque aplazar durante
-el trabajo es legítimo.
+**`SUITE-R44`: lo que el lote aplaza se asigna, no se narra.** La columna «Dónde va» de cada fila
+de `out-of-scope.md` es **vocabulario cerrado** — dos valores y ningún otro:
+
+```
+—              no aplaza nada: queda fuera y punto
+PT-NNN         el identificador que sostiene el trabajo
+EP-NNN         idem, si lo absorbe un lote
+```
+
+Una frase, una celda vacía o «pendiente» **fallan**: no se interpretan. Y la cita es **recíproca**,
+con tres casos que la regla distingue:
+
+```
+hermano del mismo lote     vale en cualquier estado — el lote responde de sus filas
+el propio lote             vale solo en DONE o CLOSED, no antes: «lo hará este lote»
+                           mientras sigue abierto es una intención, no una asignación
+cualquier otro destino     debe ser una allocation en DEFERRED cuyo campo «origin»
+                           MENCIONE el PT del que sale
+```
+
+En `G4` bloquea; antes solo avisa, porque aplazar durante el trabajo es legítimo y frecuente.
 
 **`SUITE-R43`: lo que escribas en el issue se lee antes de cerrar fase.** Se distingue por una
 marca invisible en los comentarios del agente, no por autor —comenta con tu credencial, así que

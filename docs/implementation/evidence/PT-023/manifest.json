@@ -1,0 +1,93 @@
+{
+  "pt": "PT-023",
+  "generated": "2026-08-15",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Cada fila de cada spec-changes.md comprobada contra el documento que dice cambiar",
+      "scenarios": [
+        "E6"
+      ],
+      "tests": [
+        "auditar-spec-changes.mjs"
+      ],
+      "evidence": [
+        "auditar-spec-changes.mjs",
+        "salidas/medida.txt",
+        "salidas/medida-antes-del-commit.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Lo que se declaro y no se hizo esta enumerado, no estimado",
+      "scenarios": [
+        "E7"
+      ],
+      "tests": [
+        "auditar-spec-changes.mjs"
+      ],
+      "evidence": [
+        "salidas/medida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El hallazgo conocido —FDGE-Prompts.md y SUITE-R44— queda corregido",
+      "scenarios": [
+        "E1",
+        "E2",
+        "E3",
+        "E4"
+      ],
+      "tests": [
+        "selftest.sh:el texto copiable dice vocabulario cerrado",
+        "selftest.sh:…y que la cita es reciproca",
+        "selftest.sh:…y nombra «—» como valor admitido",
+        "selftest.sh:…y distingue el propio lote en DONE",
+        "selftest.sh:y ya no dice «normalmente»",
+        "selftest.sh:el bloque de SUITE-R44 existe y no esta vacio"
+      ],
+      "evidence": [
+        "salidas/selftest.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Lo que no se puede comprobar mecanicamente se dice (RULE-06)",
+      "scenarios": [
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:el bloque de SUITE-R44 existe y no esta vacio"
+      ],
+      "evidence": [
+        "salidas/verify-suite.txt",
+        "self-review.md"
+      ],
+      "verified": true
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que una declaracion de spec-changes.md se haya cumplido.",
+      "por_que": "No es mecanizable, y esta MEDIDO: 110 filas, 4 candidatos, 3 falsos positivos. Tres formas de falso positivo, las tres observadas — (1) el trabajo entra bajo un commit del LOTE: PT-037 y PT-039 no tienen un solo commit que los nombre; (2) la declaracion la cumple OTRO PT: PT-022 escribio lo que PT-018 declaro, cuatro dias y un lote despues; (3) la medida corre ANTES del commit: el script marco al propio PT-023 mientras su cambio estaba sin commitear. Un control que se equivoca tres de cada cuatro veces no se lee: se silencia.",
+      "donde": "changes/PT-023-auditar-los-cambios-de-especificacion-declarados/self-review.md"
+    },
+    {
+      "afirmacion": "Que el texto copiable siga a la regla EN GENERAL.",
+      "por_que": "Los casos comprueban el contenido de UN documento, no la relacion entre SUITE-R20 y todas las reglas que los *-Prompts citan. Es menos de lo deseable y es todo lo que se puede afirmar sin mentir.",
+      "donde": "changes/PT-023-auditar-los-cambios-de-especificacion-declarados/test-scenarios.md"
+    }
+  ],
+  "suite": {
+    "passed": 507,
+    "failed": 0,
+    "skipped": 0,
+    "coverage": 507,
+    "baseline": 501
+  }
+}
