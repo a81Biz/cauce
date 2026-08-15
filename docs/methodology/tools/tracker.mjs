@@ -593,9 +593,19 @@ function espejo() {
   // —apuntar el estado terminal, mergear, cerrar—. Bloquear ahi seria exigir que se cerraran
   // los issues antes del merge, que es exactamente lo que SUITE-R46 prohibe. Se dice, no se
   // castiga: informar y bloquear no son lo mismo.
+  // PT-015 · `SUITE-R47` se citaba solo en la rama por defecto, donde el espejo INFORMA. Aquí,
+  // que es donde BLOQUEA, no se nombraba: la regla que decide dónde muerde no aparecía en el
+  // momento en que muerde. Se añade al mensaje sin cambiar cuándo bloquea (`SUITE-R53`).
   for (const d of div) {
     if (d.pendienteDeCierre) notas.push(`PENDIENTE DE CIERRE · ${d.mensaje}`);
     else fail(d.regla, d.mensaje);
+  }
+  // PT-015 · SUITE-R47 se emite UNA vez y con la rama CORRECTA. El primer intento uso REPO.rama
+  // —que es la rama POR DEFECTO— para decir «no es la rama por defecto», y lo repetia por cada
+  // divergencia. Las dos cosas las dijo ejecutarlo: leyendo, el nombre de la variable parecia
+  // el bueno.
+  if (div.some((d) => !d.pendienteDeCierre)) {
+    fail('SUITE-R47', `el espejo BLOQUEA aquí y no solo informa: «${RAMA_TRABAJO ?? '¿?'}» no es la rama por defecto («${REPO.rama ?? '¿?'}»), así que es donde el registro asigna.`);
   }
   if (!errores.length) {
     notas.push(`${vivas.length} allocation(s) viva(s) y ${issues.length} issue(s) abierto(s): el espejo cuadra.`);

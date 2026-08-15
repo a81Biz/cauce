@@ -1,0 +1,18 @@
+# PT-015 · el universo, antes y despues. Derivado, no contado a mano.
+
+== antes ==
+  105 de 161 sin verificador que las emita   ·   CHECK 0 · HARD 93 · SOFT 12
+
+== despues ==
+[1mReglas declaradas que ningún verificador emite[0m — 101 de 161
+
+== las cuatro que se cierran ==
+  SUITE-R38  verify-patrones — su contrato ERA la regla, y no la nombraba
+  FND-R29    revisar-secretos — la citaba solo en el pie de las excepciones
+  SUITE-R47  tracker — la citaba donde INFORMA, no donde BLOQUEA
+  FDGE-R39   nadie la comprobaba: artefactos de PT en rutas globales
+
+== y por que 105 -> 104 no bastaba ==
+  Citar la regla en el TEXTO no la cierra: 'regla --fallos' deriva de fail('ID', ...)
+  y una mencion en prosa no la ve — con razon, porque mencionar no es emitir.
+  Lo dijo ejecutar 'regla --sin-comprobar' DESPUES de darlo por arreglado.

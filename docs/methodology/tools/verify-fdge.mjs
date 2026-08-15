@@ -1263,6 +1263,33 @@ function checkHistory(pt, rel, type, { gate }) {
   ok('FDGE-R34', `${pt}: precondiciones de G4 satisfechas.`);
 }
 
+// ─── FDGE-R39 · aislamiento de estado ────────────────────────────────────────
+// PT-015 · «Todo archivo de trabajo de un PT vive bajo changes/PT-XXX-slug/. Ninguna ruta global
+// es sobrescribible por un PT. Sin esta regla, dos PTs en vuelo se destruyen mutuamente.»
+//
+// Era HARD y no la comprobaba nadie. Es donde v3 los tenia —PLAN_ACTUAL.md, PENDING_TASKS.md,
+// CONTEXT_ANALYSIS.md en docs/implementation/— y de donde `migrate` los saca; sin comprobacion,
+// volver a ponerlos ahi no lo detecta nadie hasta que dos tareas se pisan.
+//
+// Corre UNA VEZ por ejecucion y no por PT: es una propiedad del repositorio.
+// OJO con las mayusculas: en Windows y macOS el sistema de archivos NO distingue, y
+// `discovery.md` colisiona con el INDICE legitimo `DISCOVERY.md` —igual `enrichment.md` con
+// `ENRICHMENT.md` y `scope.md` con `REFACTOR_SCOPE.md`—. Los tres artefactos de PHASE 2 quedan
+// fuera de esta lista por eso, y se dice: incluirlos ponia en rojo cualquier repositorio sano.
+// Es la misma trampa que TD-04 anota para `QA/` y `qa/`, y la encontro ejecutar, no leer.
+const ARTEFACTOS_DE_PT = [
+  'strategy.md', 'tasks.md', 'context.md', 'design.md', 'test-scenarios.md',
+  'traceability.md', 'out-of-scope.md', 'spec-changes.md', 'intake.md',
+  'PLAN_ACTUAL.md', 'PENDING_TASKS.md', 'CONTEXT_ANALYSIS.md',
+];
+function checkAislamiento() {
+  const intrusos = ARTEFACTOS_DE_PT.filter((f) => existsSync(join(IMPL, f)));
+  if (!intrusos.length) { ok('FDGE-R39', 'ningún artefacto de PT vive en una ruta global.'); return; }
+  fail('FDGE-R39', `${intrusos.length} artefacto(s) de PT en docs/implementation/: ${intrusos.join(', ')}. `
+    + 'Todo archivo de trabajo de un PT vive bajo changes/PT-XXX-slug/. En una ruta global, dos '
+    + 'PTs en vuelo se sobrescriben — es el bloqueo estructural que la migración desde v3 deshace.');
+}
+
 // ─── SUITE-R44 · cerrar un lote no borra lo que aplazó ───────────────────────
 // Un lote de esta suite aplazó la corrección que lo había motivado y nadie la recogió en cuatro
 // versiones: estaba escrita en tres documentos y en ninguna lista que una compuerta tocara.
@@ -1417,6 +1444,7 @@ checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));
 checkInstallLog();
 checkReconciliation();
+checkAislamiento();
 checkEpics();
 GRAPH = graphState(reg);
 if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);

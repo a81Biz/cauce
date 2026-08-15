@@ -358,7 +358,7 @@
       "complexity": "STANDARD",
       "severity": "S4",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
       "created": "2026-08-13",
@@ -367,8 +367,9 @@
       "title": "Escribir verificador para las reglas HARD que hoy no tienen ninguno",
       "origin": "Aplazado por PT-002 · «Esta tarea mide y publica; convertir una regla en script es otro trabajo». Tambien aplazado por PT-040 y PT-041 (EP-011): las dos derivan lo que puede fallar de los fail() reales y dejan aqui escribir los verificadores que faltan — la cita tiene que ser reciproca (SUITE-R44).",
       "issue": 22,
-      "phase": 1,
-      "epic": "EP-013"
+      "phase": 8,
+      "epic": "EP-013",
+      "branch": "chore/PT-015-verificadores-para-las-hard-sin-uno"
     },
     {
       "type": "CHORE",
@@ -384,7 +385,7 @@
       "title": "Decidir si `phase` pasa a ser obligatoria, y añadirla a la plantilla TAREA.md",
       "origin": "Aplazado por PT-004 · haría fallar a todo proyecto ya instalado, así que es decisión con entrada de CHANGELOG · Ampliado por PT-046 (EP-012): el formato canonico de HISTORY.log declara ocho campos que hoy no verifica nadie —Severidad, Complejidad, Track, Lote, Rama, Modo, Objetivo, Solucion—. Exigirlos rompe entradas validas de proyectos ya instalados, asi que se decide aqui y no se cuela en PT-046 (SUITE-R44). · PT-044 (EP-012) hace que un phase que miente se VEA, no que alguien lo escriba: la decision de si pasa a ser obligatoria sigue sin tomarse, y es esta tarea.",
       "issue": 23,
-      "phase": 8,
+      "phase": 9,
       "epic": "EP-013",
       "branch": "chore/PT-016-phase-obligatoria"
     },

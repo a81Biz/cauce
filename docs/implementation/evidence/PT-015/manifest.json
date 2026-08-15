@@ -1,0 +1,11 @@
+{
+  "pt": "PT-015",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Esta enumerado cuales de las HARD sin verificador bloquean una compuerta", "scenarios": ["E6"], "tests": ["selftest.sh:SUITE-R26 declara que se cubre"], "evidence": ["salidas/universo.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Cada una de esas emite su ID al fallar", "scenarios": ["E1","E2","E3","E4","E5"], "tests": ["selftest.sh:verify-patrones cita SUITE-R38","selftest.sh:revisar-secretos cita FND-R29","selftest.sh:tracker cita SUITE-R47 al bloquear","selftest.sh:un artefacto de PT en ruta global falla","selftest.sh:sin artefactos globales, silencio"], "evidence": ["salidas/selftest.txt","salidas/universo.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "El alcance reducido esta escrito: que queda fuera y por que", "scenarios": ["E7"], "tests": ["selftest.sh:SUITE-R26 declara que se cubre"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "regla --sin-comprobar sigue declarando el resto con su numero", "scenarios": ["E8"], "tests": ["regla --sin-comprobar"], "evidence": ["salidas/universo.txt"], "verified": true }
+  ],
+  "suite": { "passed": 485, "failed": 0, "skipped": 0, "coverage": 485, "baseline": 479 }
+}

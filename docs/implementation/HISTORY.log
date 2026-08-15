@@ -1540,3 +1540,65 @@ ESTE repositorio, cero errores nuevos — los diez intakes sin el campo son seis
 integrados. El lote sube MAJOR y escribe guía de migración (SUITE-R19).
   selftest 466 → 479 casos
 Trazabilidad externa: —
+
+## PT-015 — CHORE: verificador para las HARD que deciden algo
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S4 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-015-verificadores-para-las-hard-sin-uno
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-15 Alberto Martínez (delegada) · G4 pendiente
+Objetivo: que las reglas HARD que deciden algo emitan su ID al fallar, y que el resto quede
+medido en vez de prometido.
+Causa raíz: 105 de 161 reglas no las emitía ningún verificador con su nombre. Y el hallazgo que
+ordenó la tarea: de esas 105, las CHECK son CERO — la clasificación ya funciona, porque CHECK
+significa «un script la verifica y bloquea». El hueco entero estaba en HARD, que SUITE-R26 solo
+declara que ASPIRA. Peor: TRES herramientas existen POR una regla concreta, ejecutan su contrato
+y no la nombraban — verify-patrones ES SUITE-R38, revisar-secretos ES FND-R29, y tracker decide
+por SUITE-R47 dónde bloquea. El defecto que SUITE-R53 corrigió para todo lo demás, dentro de las
+tres que más lo necesitaban.
+Solución: las cuatro emiten su ID. SUITE-R26 declara su alcance: las CHECK todas, y de las HARD
+las que un gate consulta o por las que una herramienta bloquea; el resto queda MEDIDO por
+regla --sin-comprobar, no prometido. Se añade FDGE-R39, que nadie comprobaba: ningún artefacto
+de PT puede vivir en una ruta global — es el bloqueo estructural que la migración desde v3
+deshace, y volver a ponerlos ahí no lo detectaba nadie.
+Archivos modificados:
+  - docs/methodology/tools/verify-patrones.mjs · revisar-secretos.mjs · tracker.mjs
+  - docs/methodology/tools/verify-fdge.mjs · selftest.sh
+  - docs/methodology/RULES.md · CORE.md
+Evidencia: docs/implementation/evidence/PT-015/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): cuatro hallazgos, ninguno visible leyendo.
+  1. CITAR la regla en el texto NO la cierra. Se «arregló», se volvió a medir, y seguía diciendo
+     104 en vez de 101: regla --fallos deriva de fail('ID', …) y una mención en prosa no la ve.
+     Mencionar no es emitir. Se vio solo por volver a medir después de darlo por hecho.
+  2. existsSync no distingue mayúsculas en Windows: «discovery.md» colisionaba con el ÍNDICE
+     legítimo «DISCOVERY.md», y FDGE-R39 ponía en rojo cualquier repositorio sano. Misma trampa
+     que TD-04 anota para QA/ y qa/.
+  3. El mensaje nuevo de SUITE-R47 MENTÍA: usaba REPO.rama —que ES la rama por defecto— para
+     decir «no es la rama por defecto», y se repetía una vez por divergencia.
+  4. Tercer aserto que tropieza con el OK de su propia regla, van tres en dos lotes. El inverso
+     correcto es la EXIGENCIA, nunca el ID.
+LO QUE NO ENTREGA, y el título promete: cuatro de 105. El alcance reducido está escrito EN LA
+REGLA, no solo en el self-review, y las 101 restantes quedan medidas.
+  reglas sin verificador 105 → 101 · selftest 479 → 485 casos
+Trazabilidad externa: —
+
+## PT-015 — CORRIGE: el delta no incluía el quinto hallazgo
+Corrige: la entrada de 2026-08-15
+Motivo: la entrada se escribió antes de que el CI del PR corriera. El quinto hallazgo —el más
+elocuente— apareció después, y una entrada que enumera cuatro cuando fueron cinco declara menos
+de lo que ocurrió. Se corrige añadiendo (FDGE-R29), no editando (SUITE-R09).
+Fecha: 2026-08-15
+Estado: DONE
+Estructural: no
+Delta (real vs planificado): CINCO hallazgos, no cuatro. El quinto: la regla que esta tarea
+añadió CAZÓ A ESTA MISMA TAREA. El caso escrito para comprobar que revisar-secretos CITA FND-R29
+metió la clave de ejemplo de AWS en el fuente de selftest.sh, y el escáner la detectó en la
+historia —bloqueando el PR con el mensaje que esta tarea acababa de escribir—. La causa quedó
+corregida en el mismo commit: el fixture ensambla la clave en dos mitades y el fuente ya no la
+contiene. La huella histórica lleva excepción firmada (08ee900870eb), autorizada explícitamente
+por el firmante el 2026-08-15 tras detenerse a preguntar: una excepción de secretos no estaba en
+la delegación de G1, G2 y G3, y ampliarla sola habría sido el deslizamiento que SUITE-R27 nombra.
