@@ -1030,15 +1030,16 @@
       "complexity": "STANDARD",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
-      "phase": 1,
+      "phase": 8,
       "title": "PHASE 5 manda crear rama por PT y los 43 PT de este repositorio se implementaron sobre trabajo",
       "origin": "EP-012 · PHASE 0. Encontrado auditando el propio uso del marco: PHASES.md:198 manda «git checkout -b <type>/PT-XXX-slug» y PHASE 4 obliga a proponer la rama, pero el CLAUDE.md de este repositorio declara solo main y trabajo. El marco y su uso autoalojado se contradicen y ninguna comprobacion lo detecta. Decidir cual de los dos cede es humano.",
       "created": "2026-08-14",
       "issue": 69,
-      "epic": "EP-013"
+      "epic": "EP-013",
+      "branch": "fix/PT-047-ningun-pt-ha-creado-su-rama"
     },
     {
       "id": "PT-048",

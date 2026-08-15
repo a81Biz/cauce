@@ -1,0 +1,14 @@
+# PT-047 · la primera rama por tarea en 47, y la comprobacion que faltaba
+
+== la rama, creada y declarada ==
+fix/PT-047-ningun-pt-ha-creado-su-rama
+REGISTRY.branch: fix/PT-047-ningun-pt-ha-creado-su-rama · phase 5
+
+== lo que NADIE comprobaba antes ==
+$ git log -1 --format=%H -- docs/methodology/tools/verify-fdge.mjs  (antes de PT-047)
+$ grep -c "Rama:" docs/methodology/tools/verify-fdge.mjs   ->  0
+ahora:
+$ grep -c "FDGE-R19" docs/methodology/tools/verify-fdge.mjs   ->  4
+
+== verify-fdge sobre esta misma tarea ==
+  ✓ FDGE-R19       PT-047: rama «fix/PT-047-ningun-pt-ha-creado-su-rama» declarada.

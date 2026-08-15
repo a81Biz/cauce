@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 4d78976f1490 -->
-<!-- fuentes: RULES.md:9947bf8bbc95 LEXICON.md:51d97c07a204 EXECUTION-MODES.md:5661b023cf28 PHASES.md:10e2e00e5849 -->
+<!-- cuerpo: 2cfb3cbfd038 -->
+<!-- fuentes: RULES.md:36f148abad00 LEXICON.md:51d97c07a204 EXECUTION-MODES.md:5661b023cf28 PHASES.md:c7e44eba5661 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -297,7 +297,7 @@ verifica un script y bloquea la integración.
 `FDGE-R16` **H** Toda tarea de tasks.md tiene objetivo único, input definido, output definido y método de validación.
 `FDGE-R17` **H** Tests first. Los tests derivados de test-scenarios.md existen y fallan antes de escribir la primera línea de implementación. Si no puedes escribir el test, no entendiste el requisito. En track HOTFIX, donde…
 `FDGE-R18` **S** Excepción de tests para cambios sin lógica.
-`FDGE-R19` **H** Commits atómicos. Un commit = un cambio lógico. Formato obligatorio: <type>: PT-XXX <descripción específica> con type ∈ feat·fix·refactor·test·docs·chore. Prohibidos: WIP, fix, changes, update, final, y…
+`FDGE-R19` **H** Commits atómicos, y una rama por tarea. Un commit = un cambio lógico. Formato obligatorio: <type>: PT-XXX <descripción específica> con type ∈ feat·fix·refactor·test·docs·chore. Prohibidos: WIP, fix,…
 `FDGE-R20` **H** Scope lock. Está prohibido tocar archivos fuera de lo declarado en tasks.md, y prohibido implementar cualquier ítem de out-of-scope.md.
 `FDGE-R21` **H** Alerta de desvío. Si durante la implementación el trabajo resulta más complejo de lo planificado: detención inmediata y reporte con evidencia. Un desvío dentro del scope declarado continúa con ACK. Un…
 `FDGE-R22` **H** Carril HOTFIX. Solo para severity: S1. Permite recorrer PHASE 1 → 5 → 6 → 9 con G1 y G4 vivas y G2/G3 diferidas. Obliga a: rama hotfix/PT-XXX-slug, un INC-NNN abierto, y completar PHASE 2, 3, 4, 7 y 8 de…
@@ -598,7 +598,14 @@ PARA G2. MANUAL,SUPERVISED→ACK. AUTONOMOUS→auto solo si las CINCO condicione
 ### PHASE 5 · Implementation
 ```
 LEE  design · tasks · test-scenarios · out-of-scope · traceability · 11-Conventions · graphify-out/
-HAZ  1 git checkout -b <type>/PT-XXX-slug
+HAZ  1 git checkout -b <type>/PT-XXX-slug        DESDE la rama de integracion [FDGE-R19]
+       tres niveles: <type>/PT-NNN-slug efimera -> rama de integracion
+       («trabajo») -> rama por defecto. El PR de la TAREA es revision y NO
+       es G4; G4 es el merge del LOTE a la rama por defecto y NO se
+       multiplica por tarea [EXEC-R03, FDGE-R33].
+       Declarala en REGISTRY.allocations[].branch: un PT vivo en PHASE 5+
+       sin rama se reporta, y en G4 bloquea. Lo ya terminado no se
+       retrofecha — pedir rama a lo integrado es pedir que se invente.
      2 TESTS EN ROJO desde test-scenarios [FDGE-R17]
        → test: PT-XXX add failing tests for <desc>
        excepción CHORE|TRIVIAL sin lógica ejecutable [FDGE-R18]: declarar en strategy.md;

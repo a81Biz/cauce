@@ -135,16 +135,25 @@ divergencia que este marco existe para eliminar (`SUITE-R31`).
 | Rama | Para qué | Quién escribe |
 |:---|:---|:---|
 | `main` | **Segura.** Lo publicado y publicable. `publicar.yml` solo publica desde aquí. | Nadie directamente: llega por merge |
-| `trabajo` | Donde se trabaja. | El trabajo diario |
+| `trabajo` | Rama de **integración**: recibe el PR de cada tarea. | Nadie directamente: llega por merge de una tarea |
+| `<type>/PT-NNN-slug` | **Efímera**, una por tarea. Nace de `trabajo` en `PHASE 5` y se borra al fusionarse. | El trabajo de esa tarea |
 
 El merge de `trabajo` a `main` **es** `G4`: la compuerta de integración, humana por
 definición. No es una convención de estilo — es la compuerta escrita en una herramienta que no
 depende de que nadie se acuerde.
 
+**El PR de una tarea a `trabajo` NO es `G4`**: es revisión. `G4` no se multiplica por tarea
+(`FDGE-R19`, `EXEC-R03`).
+
 ```bash
-git switch trabajo         # trabajar
-npm run verify             # antes de proponer el merge
+git switch trabajo                              # partir de la integración
+git checkout -b feature/PT-NNN-slug             # PHASE 5 · FDGE-R19
+npm run verify                                  # antes de proponer nada
 ```
+
+> Esta tabla declaró durante 46 tareas **dos** ramas y ninguna por tarea, mientras `PHASE 5`
+> mandaba crearla — en el documento que `SUITE-R00` dice que no puede derogar una regla.
+> Lo corrigió `PT-047`, y lo que lo hizo visible fue auditar el propio uso del marco, no leerlo.
 
 **`origin/desarrollo` sobra.** Este documento describía `desarrollo` como la rama de trabajo
 mientras el trabajo ocurría en `trabajo`: la compuerta `G4` estaba escrita sobre una rama que
