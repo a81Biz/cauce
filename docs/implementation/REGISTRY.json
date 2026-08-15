@@ -367,7 +367,7 @@
       "title": "Escribir verificador para las reglas HARD que hoy no tienen ninguno",
       "origin": "Aplazado por PT-002 · «Esta tarea mide y publica; convertir una regla en script es otro trabajo». Tambien aplazado por PT-040 y PT-041 (EP-011): las dos derivan lo que puede fallar de los fail() reales y dejan aqui escribir los verificadores que faltan — la cita tiene que ser reciproca (SUITE-R44).",
       "issue": 22,
-      "phase": 8,
+      "phase": 9,
       "epic": "EP-013",
       "branch": "chore/PT-015-verificadores-para-las-hard-sin-uno"
     },
@@ -1050,15 +1050,16 @@
       "complexity": "STANDARD",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
-      "phase": 1,
+      "phase": 8,
       "title": "El cuerpo del issue de una allocation DEFERRED enlaza a un directorio que no existe",
       "origin": "EP-012 · PHASE 0. Encontrado auditando GitHub: SUITE-R44 exime a un DEFERRED de tener artefactos, pero cuerpoDeIssue enlaza igual a changes/PT-NNN-slug/. PT-015, PT-025, PT-044, PT-045 y PT-046 apuntan a un 404. Es lo que PT-036 existe para impedir.",
       "created": "2026-08-14",
       "issue": 70,
-      "epic": "EP-013"
+      "epic": "EP-013",
+      "branch": "fix/PT-048-el-issue-de-un-deferred-enlaza-a-un-404"
     },
     {
       "id": "EP-013",
