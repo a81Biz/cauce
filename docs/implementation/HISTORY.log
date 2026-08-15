@@ -1822,3 +1822,59 @@ Lo que no resuelve: que lo que no se documenta no se usa, y lo que no se usa se 
 Eso no tiene comprobación y no la va a tener.
   selftest 507 → 520 casos · --gate G3 pasa por primera vez en la historia del marco
 Trazabilidad externa: —
+
+## EP-013 — CERRADO: el tablero queda limpio
+Fecha: 2026-08-15
+Estado: DONE
+Versión: 8.0.0
+Tareas: PT-047 (rama por PT) · PT-016 (phase obligatoria, MAJOR) · PT-015 (verificadores) ·
+        PT-048 (el issue de un aplazado) · PT-017 (migrate deriva) · PT-020 (el grafo) ·
+        PT-023 (el texto copiable) · PT-029 (las compuertas evaluables)
+
+Nació de una frase: «revisa los PT abiertos todos y definamos para cerrar ya, con la excepción de
+la tarea de la migración que usa otro desarrollo. Necesito que estemos limpios». Diez allocations
+llevaban DEFERRED desde hacía lotes; ocho se cierran y DOS SE QUEDAN FUERA CON SU MOTIVO ESCRITO,
+que es distinto de seguir aplazadas por inercia.
+
+Lo que entrega: «phase» obligatoria en toda allocation viva —y por eso MAJOR, con guía de
+migración—; la rama por PT declarada y comprobada tras 43 tareas hechas sobre «trabajo»; las tres
+compuertas anteriores a G4 dejan de ser inevaluables; el texto copiable deja de decir menos que la
+regla que cita; el grafo pasa de 18 a 500 nodos; y verificadores para las HARD que deciden algo.
+456 → 520 casos de prueba.
+
+LO QUE NO ENTREGA, y está escrito en cada tarea:
+  · un verificador de FDGE-R22. PT-023 lo MIDIÓ: 110 filas, 4 candidatos, 3 falsos positivos, y
+    cuatro causas ninguna afinable. No se escribe, y el motivo está en el HANDOFF para que no se
+    vuelva a proponer dentro de tres lotes
+  · detectar los choques entre reglas EN GENERAL. PT-029 caza UNA familia —la que se deriva de
+    cruzar fases con compuertas— y de los seis casos conocidos, CINCO son de otra
+  · que el grafo SIRVA. PT-020 escribió tres expectativas antes de generarlo y DOS FALLARON como
+    estaban escritas. Queda medido, no ajustado
+  · bajar a cero las reglas sin verificador. Quedan 62, 52 de ellas HARD, CONTADAS en TD-08 y
+    separadas en tres grupos: mezclarlas habría convertido una decisión del firmante en un
+    número que da miedo
+
+Lo que este lote enseña y no está en ninguna tarea por separado: CUATRO de los ocho hallazgos
+aparecieron EJECUTANDO algo, no leyéndolo, y dos de ellos aparecieron mientras se trabajaba en
+otra cosa. --gate G3 llevaba roto desde que existe el parámetro y lo encontró PT-020 por
+curiosidad en PHASE 7. REFACTOR_SCOPE.md tenía catorce filas pegadas en una línea desde la
+apertura de este mismo lote, y apareció al leerlo para otra cosa. La medida de PT-023 se
+desmintió a sí misma al reejecutarla después del commit.
+
+Tres veces el arnés o una regla cazaron al agente durante el lote, y las tres quedan dichas:
+  · SUITE-R34 puso la CI en rojo por separar el estado del trabajo en dos commits (PT-020)
+  · revento() marcó en rojo, dos veces seguidas, el caso derivado que estrenaba esa función
+  · FDGE-R52 volvió a cazar la transición PHASE 3 → 4 escrita tarde, tres veces. La cuarta se
+    publicó ANTES de escribir los artefactos, y se dijo por qué
+
+La medida que mejor resume el lote: tres compuertas de cuatro no se podían evaluar con la
+herramienta que existe para evaluarlas, y nadie lo notó porque la ruta rota era la ruta
+INDOCUMENTADA. Lo que no se documenta no se usa, y lo que no se usa se pudre en silencio.
+
+Cierre del lote (SUITE-R45): las cuatro filas resueltas — CHANGELOG 8.0.0 con guía de migración y
+los 21 documentos alineados, CORE.md regenerado (244 reglas, 69 % de reducción), TD-08 con las 62
+reglas sin verificador contadas y agrupadas, y PT-019 y PT-025 declarados fuera con su motivo y
+con lo que desbloquearía a cada uno. No es la misma espera: uno aguarda a un proyecto que existe,
+el otro a uno que no.
+
+G4 y la publicación NO se delegan: son del firmante.
