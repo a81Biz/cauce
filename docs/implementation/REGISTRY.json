@@ -520,7 +520,7 @@
       "structural": false,
       "suite_version": "7.7.0",
       "epic": "EP-013",
-      "phase": 8,
+      "phase": 9,
       "title": "Auditar si PT-018 declaro mas cambios de especificacion que no hizo",
       "origin": "Aplazado por EP-005 · PT-021 encontro que PT-018 declaro reescribir SUITE-R44 en RULES.md y no lo hizo: la regla escrita y la ejecutada divergieron un dia. No se audito el resto",
       "created": "2026-08-13",
