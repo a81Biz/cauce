@@ -1585,3 +1585,20 @@ LO QUE NO ENTREGA, y el título promete: cuatro de 105. El alcance reducido est�
 REGLA, no solo en el self-review, y las 101 restantes quedan medidas.
   reglas sin verificador 105 → 101 · selftest 479 → 485 casos
 Trazabilidad externa: —
+
+## PT-015 — CORRIGE: el delta no incluía el quinto hallazgo
+Corrige: la entrada de 2026-08-15
+Motivo: la entrada se escribió antes de que el CI del PR corriera. El quinto hallazgo —el más
+elocuente— apareció después, y una entrada que enumera cuatro cuando fueron cinco declara menos
+de lo que ocurrió. Se corrige añadiendo (FDGE-R29), no editando (SUITE-R09).
+Fecha: 2026-08-15
+Estado: DONE
+Estructural: no
+Delta (real vs planificado): CINCO hallazgos, no cuatro. El quinto: la regla que esta tarea
+añadió CAZÓ A ESTA MISMA TAREA. El caso escrito para comprobar que revisar-secretos CITA FND-R29
+metió la clave de ejemplo de AWS en el fuente de selftest.sh, y el escáner la detectó en la
+historia —bloqueando el PR con el mensaje que esta tarea acababa de escribir—. La causa quedó
+corregida en el mismo commit: el fixture ensambla la clave en dos mitades y el fuente ya no la
+contiene. La huella histórica lleva excepción firmada (08ee900870eb), autorizada explícitamente
+por el firmante el 2026-08-15 tras detenerse a preguntar: una excepción de secretos no estaba en
+la delegación de G1, G2 y G3, y ampliarla sola habría sido el deslizamiento que SUITE-R27 nombra.

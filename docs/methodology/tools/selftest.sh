@@ -357,7 +357,11 @@ build_fixture
 perl -0pi -e "s/casa: \[/casa: ['\\\\x00NO_CASA_NUNCA\\\\x00', /" "$WORK/docs/methodology/tools/patrones.mjs"
 chk   "verify-patrones cita SUITE-R38"        "SUITE-R38"  node "$WORK/docs/methodology/tools/verify-patrones.mjs"
 build_fixture
-mkdir -p "$WORK/src" && printf 'const k = "AKIAIOSFODNN7EXAMPLE";\n' > "$WORK/src/mal.js"
+# La clave se ENSAMBLA en dos mitades: si el fuente la contiene entera, el propio escaner la
+# caza en este archivo y en la historia — y lo hizo, en el primer CI de PT-015. Es la clave de
+# ejemplo que documenta AWS, no una emitida, pero eso no la hace menos detectable: un escaner
+# que distinguiera «de ejemplo» de «real» no serviria para nada.
+mkdir -p "$WORK/src" && printf 'const k = "AKIA%s";\n' 'IOSFODNN7EXAMPLE' > "$WORK/src/mal.js"
 chk   "revisar-secretos cita FND-R29"         "FND-R29"    node "$WORK/docs/methodology/tools/revisar-secretos.mjs" "$WORK"
 chk   "tracker cita SUITE-R47 al bloquear"    "SUITE-R47"  cat "$SUITE/tools/tracker.mjs"
 # FDGE-R39 · un artefacto de PT en una ruta global. Es donde v3 los tenia y de donde migrate los

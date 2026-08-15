@@ -50,6 +50,8 @@ Una fila sin firmante no es una firma. La plantilla sin rellenar **no exime**.
 | `cb0ab32cf2fe` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
 | `cbe7920fd6cc` | Alberto Martínez | 2026-08-13 | Volcado del log de CI commiteado por error como evidencia en `07c6cf6f`. El log citaba las líneas de los fixtures de `tools/selftest.sh`; **`FDGE-R45` lo prohíbe** y lo cazó el propio paso de secretos. El archivo se redactó en el commit siguiente, pero el commit es inmutable. Ninguna es una credencial emitida. |
 
+| `08ee900870eb` | Alberto Martínez | 2026-08-15 | **clave de acceso AWS** · Fixture de `tools/selftest.sh` (`976b8bec`), del caso que `PT-015` añadió para comprobar que `revisar-secretos` cita `FND-R29` al bloquear. Es la clave de **ejemplo que documenta AWS**, no una emitida. **La causa ya está corregida**: el fixture la ensambla en dos mitades, así que el fuente no la contiene y no vuelve a aparecer — pero el commit es inmutable. |
+
 > **Las siete de arriba comparten una sola causa** y por eso comparten motivo: son el mismo
 > volcado. No se les asigna un tipo fila por fila porque no pude confirmarlo uno a uno, y
 > escribir un tipo sin confirmarlo es el error que esta misma tabla cometió en su primera
@@ -68,6 +70,25 @@ Si alguna cubriera un valor distinto, sería una decisión nueva y no entraría 
 asignó mal —una fila decía «JWT» sobre una contraseña— y las seis seguían eximiendo igual,
 porque la huella casa por valor y no por texto. Un motivo que no describe el hallazgo no es una
 firma: es una fila. Se corrigió antes de commitear.
+
+### Constancia de la firma del 2026-08-15   `FND-R29` · `SUITE-R27`
+
+**Esta sí es una excepción nueva**, y por eso lleva su propia constancia en vez de ampararse en la
+de arriba —que dice explícitamente «no se firma ninguna excepción nueva»—.
+
+La escribió el agente con autorización explícita y citable del firmante, pedida **después** de que
+la compuerta bloqueara y **antes** de tocar el archivo:
+
+> «firma la fila a mi nombre, tienes mi vobo y continúa» — Alberto Martínez, 2026-08-15
+
+El agente se detuvo y preguntó en vez de firmar por precedente: las 13 filas anteriores son de la
+misma clase, pero una excepción de secretos no estaba en la delegación de `G1`, `G2` y `G3`, y
+extenderla sola habría sido el deslizamiento que `SUITE-R27` describe — una firma es una
+declaración de responsabilidad, y el agente no puede ampliar de quién.
+
+**Lo que la hace defendible además de autorizada:** la causa está corregida en el mismo commit que
+la firma. El valor no vuelve a entrar en el repositorio, y esta fila cubre solo el commit que ya
+existe.
 
 ### Huellas anteriores — ya no aplican
 
