@@ -313,6 +313,38 @@ chk   "PHASES la cita"                        "PT-NNN-slug"  cat "$SUITE/PHASES.
 chk   "SUITE-R42 dice PARA QUE rama"          "el del lote, no el de cada tarea" cat "$SUITE/RULES.md"
 chk   "el CLAUDE.md declara las efimeras"     "PT-NNN-slug"  cat "$RAIZ/CLAUDE.md"
 
+# PT-016 · SUITE-R08 · «phase» deja de ser opcional para un PT VIVO. Hasta hoy su ausencia salia
+# SIN EVALUAR, que no aprueba ni bloquea —correcto por RULE-06— pero era GRATIS: apagaba de una
+# vez traceability, manifest, self-review, FDGE-R52 y la rama de FDGE-R19, sin que nada fallara
+# nunca. PT-044 cerro el caso de un «phase» que MIENTE; este es el de un «phase» que FALTA.
+build_fixture; reg_set "delete r.allocations.find(a=>a.id==='PT-004').phase"
+chk   "un PT vivo sin phase FALLA"            "✗ SUITE-R08"  V PT-004
+build_fixture; reg_set "delete r.allocations.find(a=>a.id==='PT-004').phase"
+chkno "y deja de repetirlo por artefacto"     "la exigencia de"  V PT-004
+# Los que NO deben fallar. Un lote no tiene fase de TAREA y lo integrado no se retrofecha:
+# exigirselo es pedir que se invente el dato, que es el mismo defecto con el signo cambiado.
+build_fixture
+chkno "con phase declarada, sin error"        "✗ SUITE-R08"  V PT-004
+build_fixture; reg_set "r.allocations.push({id:'EP-099',type:'EP',slug:'x',created:'2026-08-06',status:'IN_PROGRESS',suite_version:'5.2.0'}); r.counters.EP=99"
+chkno "un EP sin phase esta EXENTO"           "✗ SUITE-R08"  V EP-099
+build_fixture; reg_set "const a=r.allocations.find(a=>a.id==='PT-004'); delete a.phase; a.status='INTEGRATED'"
+chkno "lo ya integrado sin phase, exento"     "✗ SUITE-R08"  V PT-004
+# Las plantillas: las de TAREA lo traen, la del LOTE no — ponerlo ahi ensenaria a rellenarlo
+# con un numero inventado.
+chk   "BUG-REPORT trae phase"                 "phase:"       cat "$SUITE/INTAKE/templates/BUG-REPORT.md"
+chk   "FEATURE-REQUEST trae phase"            "phase:"       cat "$SUITE/INTAKE/templates/FEATURE-REQUEST.md"
+chk   "CHANGE-REQUEST trae phase"             "phase:"       cat "$SUITE/INTAKE/templates/CHANGE-REQUEST.md"
+chk   "TAREA trae phase"                      "phase:"       cat "$SUITE/INTAKE/templates/TAREA.md"
+chkno "EPIC-INTAKE NO lo trae"                "^phase:"      cat "$SUITE/INTAKE/templates/EPIC-INTAKE.md"
+chk   "la migracion avisa de que ahora falla" "DEJA DE SER UN AVISO"  cat "$SUITE/tools/migrate.mjs"
+# SUITE-R38 · el patron critico vive en UN solo sitio y viaja con su contrato. Tres reglas de
+# este mismo lote preguntaban lo mismo con su propia copia de la lista.
+chk   "ESTADOS_TERMINALES en un solo sitio"   "ESTADOS_TERMINALES"  cat "$SUITE/tools/patrones.mjs"
+# Y el caso que protege a los otros nueve: DONE NO es terminal. Un PT en DONE espera G4 y sigue
+# vivo; anadirlo apagaria FDGE-R52, FDGE-R19 y SUITE-R08 A LA VEZ.
+_et=$(sed -n '/^export const ESTADOS_TERMINALES/,/]);/p' "$SUITE/tools/patrones.mjs")
+chk   "DONE NO es terminal"                   "^NO$" sh -c "printf '%s' \"$_et\" | grep -q \"'DONE'\" && echo SI || echo NO"
+
 # PT-044 · FDGE-R52 deja de exigir rastro a lo YA INTEGRADO. El reanclaje se escribe MIENTRAS se
 # trabaja; pedirselo a un PT que ya paso G4 es pedir que se fabrique, y fabricarlo es peor que no
 # tenerlo. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no

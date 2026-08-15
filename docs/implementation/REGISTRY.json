@@ -375,7 +375,7 @@
       "complexity": "STANDARD",
       "severity": "S4",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
       "created": "2026-08-13",
@@ -384,8 +384,9 @@
       "title": "Decidir si `phase` pasa a ser obligatoria, y añadirla a la plantilla TAREA.md",
       "origin": "Aplazado por PT-004 · haría fallar a todo proyecto ya instalado, así que es decisión con entrada de CHANGELOG · Ampliado por PT-046 (EP-012): el formato canonico de HISTORY.log declara ocho campos que hoy no verifica nadie —Severidad, Complejidad, Track, Lote, Rama, Modo, Objetivo, Solucion—. Exigirlos rompe entradas validas de proyectos ya instalados, asi que se decide aqui y no se cuela en PT-046 (SUITE-R44). · PT-044 (EP-012) hace que un phase que miente se VEA, no que alguien lo escriba: la decision de si pasa a ser obligatoria sigue sin tomarse, y es esta tarea.",
       "issue": 23,
-      "phase": 1,
-      "epic": "EP-013"
+      "phase": 8,
+      "epic": "EP-013",
+      "branch": "chore/PT-016-phase-obligatoria"
     },
     {
       "type": "CHORE",
@@ -1033,7 +1034,7 @@
       "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
-      "phase": 8,
+      "phase": 9,
       "title": "PHASE 5 manda crear rama por PT y los 43 PT de este repositorio se implementaron sobre trabajo",
       "origin": "EP-012 · PHASE 0. Encontrado auditando el propio uso del marco: PHASES.md:198 manda «git checkout -b <type>/PT-XXX-slug» y PHASE 4 obliga a proponer la rama, pero el CLAUDE.md de este repositorio declara solo main y trabajo. El marco y su uso autoalojado se contradicen y ninguna comprobacion lo detecta. Decidir cual de los dos cede es humano.",
       "created": "2026-08-14",

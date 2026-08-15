@@ -45,6 +45,22 @@ export const selloDe = (txt) => createHash('sha1')
  * Un patrón sin ambas listas no se admite: `verify-patrones` lo rechaza. Solo `casa` deja
  * pasar un patrón demasiado laxo; solo `noCasa`, uno que no casa nada.
  */
+/**
+ * PT-016 · `SUITE-R38` · Los estados en los que el trabajo de una allocation ESTA TERMINADO.
+ *
+ * Tres reglas preguntan lo mismo y cada una traia su copia de la lista: `FDGE-R52` desde
+ * `PT-044` —el reanclaje se escribe mientras se trabaja—, `FDGE-R19` desde `PT-047` —la rama no
+ * se retrofecha— y `SUITE-R08` desde esta tarea —la fase tampoco—. Tres copias del mismo hecho
+ * es exactamente lo que este marco existe para eliminar, y la cuarta habria divergido.
+ *
+ * `DONE` NO ESTA, y no es un olvido: un PT en `DONE` esta esperando `G4` y sigue vivo. Anadirlo
+ * apagaria las tres comprobaciones A LA VEZ, porque desde aqui comparten la constante. Su caso
+ * en `selftest.sh` existe para que anadirlo cueste un rojo.
+ */
+export const ESTADOS_TERMINALES = new Set([
+  'INTEGRATED', 'CLOSED', 'REVERTED', 'REJECTED', 'DEFERRED',
+]);
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

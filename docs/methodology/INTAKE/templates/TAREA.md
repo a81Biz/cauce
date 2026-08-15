@@ -16,6 +16,7 @@ type: FEATURE | BUG | CHORE | REFACTOR | INVESTIGATION
 epic: EP-NNN            # la implementación abierta — obligatorio en esta plantilla
 track: STANDARD | EXPRESS
 status: DRAFT
+phase: 1                 # [AGENTE] OBLIGATORIO desde 8.0.0 · SUITE-R08
 created: AAAA-MM-DD
 structural: no
 suite_version: X.Y.Z

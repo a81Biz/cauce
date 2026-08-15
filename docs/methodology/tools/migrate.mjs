@@ -226,8 +226,9 @@ if (lt('5.0.0')) {
   if (sinFase.length) {
     need(`declarar «phase» en ${sinFase.length} allocation(s) viva(s) de REGISTRY.json `
       + `(${sinFase.map((a) => a.id).slice(0, 5).join(', ')}). Desde 6.0.0, los artefactos se `
-      + 'exigen DESDE la fase que los produce; sin fase declarada esas comprobaciones salen '
-      + 'SIN EVALUAR — ni aprueban ni bloquean.');
+      + 'exigen DESDE la fase que los produce. Y desde 8.0.0 esto DEJA DE SER UN AVISO: un PT '
+      + 'vivo sin «phase» falla en verify-fdge (SUITE-R08). Un lote no la declara —su ciclo no '
+      + 'tiene fases de tarea— y lo ya terminado tampoco: no se retrofecha.');
   }
   if (!reg?.tracker?.plataforma) {
     need('OPCIONAL — declarar plataforma de trabajo: "tracker": { "plataforma": "github" }. '
