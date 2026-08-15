@@ -2223,6 +2223,48 @@ rm -rf "$WORK/solo-suite"; mkdir -p "$WORK/solo-suite/docs"
 cp -r "$SUITE" "$WORK/solo-suite/docs/methodology"
 chk   "sin saber quién ejecuta ⇒ SIN EVALUAR" "SIN EVALUAR"  A "$WORK/solo-suite/docs/methodology"
 
+# ─── PT-020 · el alcance del grafo cubre el codigo propio ───────────────────
+# El grafo se genero un dia sobre `bin` y ahi se quedo: 18 nodos, todos de cauce.mjs, mientras
+# 16 herramientas quedaban fuera. FDGE-R43 daba FRESH sobre lo que no habia mirado — una regla
+# que puede dar verde sin haber leido el codigo no verifica el codigo, verifica una fecha.
+# Estos casos no comprueban que el grafo sirva (eso no es mecanizable, y test-scenarios.md lo
+# declara): comprueban que el ALCANCE no vuelva a dejar fuera la mitad del ejecutable.
+G() { node -e '
+  const r = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+  const g = r.graph ?? {};
+  const dirs = String(g.scope ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const ultimo = Math.max(0, ...r.allocations.map((a) => Number(String(a.id).split("-")[1]) || 0));
+  console.log("SCOPE " + dirs.join(" | "));
+  console.log(dirs.includes("bin") && dirs.includes("docs/methodology/tools") ? "CUBRE_CODIGO_PROPIO" : "ALCANCE_INCOMPLETO");
+  // El alcance nombra directorios, no el repositorio entero: FND-R28 deja fuera dependencias,
+  // compilacion y fixtures, y `changes/` son directorios de markdown, no modulos.
+  console.log(dirs.some((d) => d === "." || d === "/" || d.startsWith("changes")) ? "ALCANCE_DESBORDADO" : "ALCANCE_ACOTADO");
+  // pt_at_generation en 0 hace que el grafo nazca STALE: FDGE-R43 compara contra los PT
+  // estructurales integrados DESDE su generacion, y con 0 son todos.
+  console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
+' "$RAIZ/docs/implementation/REGISTRY.json"; }
+
+chk   "el alcance del grafo cubre bin"       "SCOPE bin"              G
+chk   "…y las herramientas"                  "CUBRE_CODIGO_PROPIO"    G
+chk   "sin desbordar a la raiz ni a changes" "ALCANCE_ACOTADO"        G
+chk   "pt_at_generation no es 0"             "ANCLADO"                G
+# La comprobacion inversa: el mismo lector sobre el alcance de ayer tiene que decir que NO.
+cat > "$WORK/graph-viejo.json" <<'J'
+{ "graph":{"generated":"2026-08-13","scope":"bin","pt_at_generation":0}, "allocations":[{"id":"PT-001"}] }
+J
+chk   "el alcance viejo se declara incompleto" "ALCANCE_INCOMPLETO" \
+  sh -c 'RAIZ_FAKE=$(dirname "$1"); node -e "
+  const r = JSON.parse(require(\"node:fs\").readFileSync(process.argv[1], \"utf8\"));
+  const dirs = String(r.graph.scope).split(\",\").map((s) => s.trim()).filter(Boolean);
+  console.log(dirs.includes(\"bin\") && dirs.includes(\"docs/methodology/tools\") ? \"CUBRE_CODIGO_PROPIO\" : \"ALCANCE_INCOMPLETO\");
+  console.log(Number(r.graph.pt_at_generation) > 0 ? \"ANCLADO\" : \"SIN_ANCLAR\");
+" "$1"' _ "$WORK/graph-viejo.json"
+chk   "y su ancla se declara sin poner"        "SIN_ANCLAR" \
+  sh -c 'node -e "
+  const r = JSON.parse(require(\"node:fs\").readFileSync(process.argv[1], \"utf8\"));
+  console.log(Number(r.graph.pt_at_generation) > 0 ? \"ANCLADO\" : \"SIN_ANCLAR\");
+" "$1"' _ "$WORK/graph-viejo.json"
+
 echo
 [ "$FAILED" -eq 0 ] && echo "selftest: OK · $TOTAL casos" || echo "selftest: HAY FALLOS · $TOTAL casos"
 rm -rf "$WORK"

@@ -7,9 +7,9 @@
     "pt_at_generation": 0
   },
   "graph": {
-    "generated": "2026-08-13",
-    "scope": "bin",
-    "pt_at_generation": 0
+    "generated": "2026-08-15",
+    "scope": "bin, docs/methodology/tools",
+    "pt_at_generation": 48
   },
   "tracker": {
     "plataforma": "github"
@@ -403,7 +403,7 @@
       "title": "migrate: derivar la lista de «qué llega nuevo» comparando paquete y destino",
       "origin": "Aplazado por PT-012 · hoy está escrita a mano y es un hecho copiado (RULE-01)",
       "issue": 24,
-      "phase": 8,
+      "phase": 9,
       "epic": "EP-013",
       "branch": "chore/PT-017-derivar-lo-que-llega-nuevo"
     },
@@ -444,7 +444,7 @@
       "complexity": "STANDARD",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
       "created": "2026-08-13",
@@ -453,8 +453,11 @@
       "title": "Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01)",
       "origin": "Aplazado por PT-004 · el grafo cubre «bin» y FDGE-R43 se satisface sobre un grafo que no describe el sistema · Tambien aplazado por PT-045 (EP-012): PHASE 0 del lote lo volvio a medir — REGISTRY.graph declara scope «bin» y las herramientas viven en docs/methodology/tools/, asi que FDGE-R43 se satisface sobre un grafo que no describe el sistema (SUITE-R44, cita reciproca).",
       "issue": 27,
-      "phase": 1,
-      "epic": "EP-013"
+      "phase": 9,
+      "epic": "EP-013",
+      "branch": "chore/PT-020-ampliar-el-grafo-a-tools",
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-15"
     },
     {
       "id": "EP-005",

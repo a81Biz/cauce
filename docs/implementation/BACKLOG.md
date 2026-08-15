@@ -2,58 +2,64 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-14 al cerrar `EP-012`. Antes de eso llevaba **ocho lotes sin
-> regenerarse** —`PHASE 8` paso 3— y declaraba `EP-003` abierta, `PT-009` y `PT-010` en
-> `DONE` y «publicar `6.0.1`» como lo siguiente: un estado de tres versiones atrás, escrito con
-> la misma seguridad que si fuera el de hoy.
+> Regenerado el 2026-08-15 en `PHASE 8` de `PT-020`. Cada fila se **deriva** del registro
+> —`id`, `type`, `severity`, `status`, `phase`, `epic`, `issue`, `title`— y no se edita a mano.
+> Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres versiones
+> atrás con la misma seguridad que si fuera el de hoy; y `REFACTOR_SCOPE.md`, editado a mano,
+> acabó con catorce filas pegadas en una línea. La conclusión de los dos casos es la misma:
+> **un índice que se escribe a mano diverge, y solo hace falta tiempo.**
 
-## Implementación
+## Implementación — `EP-013`
 
-`EP-012` · **El marco se cierra a sí mismo** · `DONE` ·
-issue [#71](https://github.com/a81Biz/cauce/issues/71) — esperando `G4`.
+`EP-013` · **El tablero queda limpio** · `IN_PROGRESS` ·
+issue [#73](https://github.com/a81Biz/cauce/issues/73).
 
-| PT | Tipo | Sev | Estado | Issue |
+| PT | Tipo | Sev | Estado | Fase | Issue | Qué es |
+|:---|:---|:---|:---|:---|:---|:---|
+| PT-047 | BUG | S3 | DONE | 9 | [#69](https://github.com/a81Biz/cauce/issues/69) | Rama por PT de verdad: `FDGE-R19` declara la topología y `verify-fdge` la mira |
+| PT-015 | CHORE | S4 | DONE | 9 | [#22](https://github.com/a81Biz/cauce/issues/22) | Verificadores para las HARD que deciden algo y no tenían ninguno |
+| PT-016 | CHORE | S4 | DONE | 9 | [#23](https://github.com/a81Biz/cauce/issues/23) | `phase` obligatoria, con migración. **Rompe compatibilidad: MAJOR** |
+| PT-048 | BUG | S3 | DONE | 9 | [#70](https://github.com/a81Biz/cauce/issues/70) | El issue de un `DEFERRED` dice lo que hay en vez de enlazar a lo que no hay |
+| PT-017 | CHORE | S4 | DONE | 9 | [#24](https://github.com/a81Biz/cauce/issues/24) | `migrate` deriva «qué llega nuevo» comparando paquete y destino |
+| PT-020 | CHORE | S3 | DONE | 8 | [#27](https://github.com/a81Biz/cauce/issues/27) | El grafo cubre el código propio; las tres expectativas, contrastadas |
+| PT-023 | CHORE | S2 | READY | 1 | [#32](https://github.com/a81Biz/cauce/issues/32) | Auditar si `PT-018` declaró más cambios de especificación que no hizo |
+| PT-029 | CHORE | S2 | READY | 1 | [#40](https://github.com/a81Biz/cauce/issues/40) | Buscar más choques entre reglas |
+
+Las cinco primeras están integradas en `trabajo` (PRs #74–#78). `G4` es **una por lote**
+(`FDGE-R19`, `EXEC-R03`): el PR de una tarea a `trabajo` es revisión, no `G4`.
+
+`PT-047` fue **primera** y no por preferencia: cambia cómo se ejecutan las otras siete.
+
+## Aplazado — 2 allocations `DEFERRED`, las dos con su issue abierto
+
+`SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca. Y desde `PT-048`, el cuerpo de
+su issue dice que aún no tiene artefactos en vez de enlazar a un directorio que no existe.
+
+| PT | Tipo | Sev | Issue | Por qué sigue fuera |
 |:---|:---|:---|:---|:---|
-| PT-044 | BUG | S2 | DONE | [#65](https://github.com/a81Biz/cauce/issues/65) |
-| PT-045 | BUG | S2 | DONE | [#66](https://github.com/a81Biz/cauce/issues/66) |
-| PT-046 | BUG | S2 | DONE | [#67](https://github.com/a81Biz/cauce/issues/67) |
+| PT-019 | CHORE | S2 | [#26](https://github.com/a81Biz/cauce/issues/26) | Depende del proyecto legado «Inteligencia de Mercados Energéticos Mexicanos», y lo trabaja el firmante. Cierra cuando vaya allí |
+| PT-025 | CHORE | S3 | [#35](https://github.com/a81Biz/cauce/issues/35) | No hay proyecto de Azure que lo ejercite. Escribir la guarda a ciegas sería código sin ejecución |
 
-Las tres con `G1`, `G2` y `G3` firmadas **por delegación con constancia**. Pasan a
-`INTEGRATED` tras el merge (`FDGE-R35`).
-
-**Solapamiento** (`FDGE-R40`): `PT-046` ↔ `PT-044` comparten `tools/verify-fdge.mjs` y
-`tools/selftest.sh` — **serializados**, y en ese orden porque `PT-044` no tenía solución
-honesta sin `PT-046`. `PT-045` no comparte ningún archivo.
-
-## Aplazado — 10 allocations `DEFERRED`, todas con su issue abierto
-
-`SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
-
-| PT | Tipo | Sev | Issue | Qué es |
-|:---|:---|:---|:---|:---|
-| PT-019 | CHORE | S2 | [#26](https://github.com/a81Biz/cauce/issues/26) | Comprobar que CUALQUIER proyecto legado se puede migrar, y ejecutar la migracion de referencia |
-| PT-023 | CHORE | S2 | [#32](https://github.com/a81Biz/cauce/issues/32) | Auditar si PT-018 declaro mas cambios de especificacion que no hizo |
-| PT-029 | CHORE | S2 | [#40](https://github.com/a81Biz/cauce/issues/40) | Buscar mas choques entre reglas: una comprobacion que hace imposible el estado que otra obliga a atravesar |
-| PT-020 | CHORE | S3 | [#27](https://github.com/a81Biz/cauce/issues/27) | Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01) |
-| PT-025 | CHORE | S3 | [#35](https://github.com/a81Biz/cauce/issues/35) | Comprobar el orden de cierre tambien en el adaptador de Azure |
-| PT-047 | BUG | S3 | [#69](https://github.com/a81Biz/cauce/issues/69) | PHASE 5 manda crear rama por PT y los 43 PT de este repositorio se implementaron sobre trabajo |
-| PT-048 | BUG | S3 | [#70](https://github.com/a81Biz/cauce/issues/70) | El cuerpo del issue de una allocation DEFERRED enlaza a un directorio que no existe |
-| PT-015 | CHORE | S4 | [#22](https://github.com/a81Biz/cauce/issues/22) | Escribir verificador para las reglas HARD que hoy no tienen ninguno |
-| PT-016 | CHORE | S4 | [#23](https://github.com/a81Biz/cauce/issues/23) | Decidir si `phase` pasa a ser obligatoria, y añadirla a la plantilla TAREA.md |
-| PT-017 | CHORE | S4 | [#24](https://github.com/a81Biz/cauce/issues/24) | migrate: derivar la lista de «qué llega nuevo» comparando paquete y destino |
+Los dos motivos son distintos y conviene no mezclarlos: uno espera a un proyecto que existe,
+el otro a uno que no.
 
 ### Lo que este listado hace visible
 
 `PT-046` fue el primer caso concreto de `PT-029`, abierto tres lotes antes con esas mismas
-palabras. `PT-044` lo fue de `PT-016`. Los dos originales **siguen abiertos**: sus casos se
-resolvieron, su alcance no.
+palabras. `PT-044` lo fue de `PT-016`. `PT-020` acaba de encontrar el segundo caso de `PT-029`
+—`--gate G3` exige en `PHASE 7` lo que `PHASE 8` escribe— sin buscarlo. El patrón se repite: **el
+caso aparece antes que el alcance**, y el original sigue abierto mientras sus casos se cierran.
 
 ## Lotes cerrados
 
-`EP-001` a `EP-012`. `EP-011` en `main` desde `af79c6b` (**7.6.0**); `EP-012` esperando
-su `G4` (**7.7.0**).
+`EP-001` a `EP-012`. `EP-011` en `main` desde `af79c6b` (**7.6.0**); `EP-012` desde `c983b05`
+(**7.7.0**).
 
 ## Lo siguiente
+
+Cerrar `PT-023` y `PT-029`, resolver las cuatro filas de cierre de `EP-013` —`CHANGELOG` **8.0.0**
+con guía de migración, `CORE` regenerado, la deuda declarada y qué pasa con `PT-019` y `PT-025`—
+y preparar `G4`.
 
 Publicar está **pendiente por decisión humana explícita**: «no publicamos aún porque nos falta
 algo más». Publicar es `SUITE-R06g` y no se automatiza.
