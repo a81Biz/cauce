@@ -8,11 +8,11 @@ id: PT-023
 type: CHORE
 epic: EP-013
 track: STANDARD
-status: IN_PROGRESS
+status: DONE
 created: 2026-08-14
 structural: no
 suite_version: 7.7.0
-phase: 6
+phase: 8
 ---
 ```
 

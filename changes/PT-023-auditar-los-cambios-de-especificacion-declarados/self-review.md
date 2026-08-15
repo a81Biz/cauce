@@ -29,10 +29,26 @@ tres observadas:
 | 1 | El trabajo entra bajo un commit del **lote** | `PT-037` y `PT-039` no tienen **un solo** commit que los nombre, y sus dos declaraciones están cumplidas |
 | 2 | La declaración la cumple **otro PT** | `PT-022` (`EP-005`) escribió lo que `PT-018` (`EP-004`) declaró, cuatro días después, sin saberlo |
 | 3 | La medida corre **antes** del commit | El script marcó a **`PT-023`**, esta misma tarea, mientras su cambio estaba sin commitear |
+| 4 | **Mencionar** un PT en un mensaje de commit basta para «cumplir» su declaración | El commit de esta tarea nombra `PT-018` al explicar el defecto. Con eso, el defecto **desapareció de la medida** |
 
-La tercera apareció **ejecutando el script sobre el repositorio en el que se estaba trabajando**,
-y es la que mejor lo dice: el proxy mide **historia de git**, no verdad. Está en
-`salidas/medida-antes-del-commit.txt` porque un ejemplo vale más que el párrafo que lo explica.
+La cuarta es la que cierra la discusión, y apareció sola.
+
+```
+antes del commit de PT-023   PT-018 · FDGE-Prompts.md   ← el defecto, presente
+después del commit           (no aparece)               ← «cumplido»
+```
+
+El commit `fc33e2b` corrige `FDGE-Prompts.md` **y** menciona `PT-018` cinco veces al explicar por
+qué. El proxy busca el identificador en el mensaje: con eso, el trabajo de `PT-023` pasa a contar
+como trabajo de `PT-018` y **el defecto que esta tarea existe para documentar se borra de su
+propia medida**.
+
+No hay forma de arreglarlo sin prohibir nombrar otro PT en un mensaje de commit, que es
+exactamente lo contrario de lo que se quiere: los mensajes de este repositorio se citan entre sí
+a propósito. El indicador y el hábito que lo haría útil son incompatibles.
+
+Las tres primeras formas están en `salidas/medida-antes-del-commit.txt` y `salidas/medida.txt`;
+la cuarta es la **diferencia entre los dos archivos**, y por eso se conservan ambos.
 
 Un control con ese comportamiento no se lee: se silencia. Y un control silenciado es peor que
 ninguno, porque ocupa el sitio del que haría falta.

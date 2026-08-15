@@ -1,0 +1,9 @@
+PTs con spec-changes.md: 41
+Filas que nombran un documento: 111
+Filas cuyo documento NO aparece en ningun commit del PT: 3
+Filas cuyo documento no se pudo localizar: 0
+
+DECLARADO Y NO TOCADO
+  PT-018  docs/methodology/PHASES.md                      Cita la gramática donde se redacta el `out-of-scope`
+  PT-037  docs/methodology/CORE.md                        Regenerado
+  PT-039  docs/methodology/tools/build-core.mjs           El núcleo abre preguntándolo, antes de la consulta al tablero
