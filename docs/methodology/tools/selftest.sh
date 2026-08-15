@@ -1336,6 +1336,18 @@ import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=
   if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else bad "$1  (no apareció: $2 · salió: $out)"; fi
 }
 
+# PT-048 · el inverso de trlib, que NO EXISTIA. Se escribio un caso llamando a `trlibno` dando
+# por hecho que estaba, y bash lo trato como «orden no encontrada»: el caso no corrio y el arnes
+# NO se puso rojo — subio de 485 a 489 en vez de 490, y esa unica cifra fue todo el aviso.
+# Un caso que no se ejecuta es peor que no tenerlo: ocupa el sitio del que si comprobaria.
+trlibno() { # $1 nombre · $2 patron que NO debe aparecer · $3 cuerpo JS
+  local out
+  out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then bad "$1  (apareció: $2)"; else pass "$1"; fi
+}
+
 V1='{id:"PT-100",status:"IN_PROGRESS"}'
 V2='{id:"PT-101",status:"DRAFT",issue:7}'
 I7='{number:7,title:"PT-101 x"}'
@@ -1498,6 +1510,21 @@ chk   "y llega al núcleo"                     "SUITE-R51"   cat "$SUITE/CORE.md
 trlib "lo vivo enlaza la rama de trabajo"     "tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 trlib "lo integrado enlaza la principal"      "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-95',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 trlib "sin saber la rama, cae en la principal" "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+# PT-048 · el cuerpo NO enlaza a un directorio que no existe. SUITE-R44 exime a un DEFERRED de
+# tener artefactos y PT-036 dice donde apunta el enlace: las dos correctas, y juntas producian un
+# 404 en el UNICO artefacto que un aplazado tiene. Se mira el directorio, no el estado: un PT
+# recien asignado tampoco lo tiene hasta PHASE 1, y con el estado como criterio seguiria fallando.
+trlib "sin directorio no enlaza"           "aplazada"  "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+trlibno "y no deja una URL rota"           "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+trlib "y cita la regla que lo exime"       "SUITE-R44" "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+# Y la nota que EXPLICA el enlace tampoco sobrevive cuando no hay enlace: el primer intento dejo
+# «sin artefactos todavia» con «el enlace apunta a…» justo debajo. Lo vio mirar el issue
+# publicado, no leer el diff.
+trlibno "sin enlace, no explica el enlace"  "El enlace apunta"  "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+trlib "con directorio, el enlace sigue"    "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-98',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo',hayDirectorio:true}))"
+# El que protege a los demas: sin el dato, el comportamiento es el de HOY. Un undefined no es un
+# «no existe», y tratarlo como tal apagaria el enlace en TODOS los cuerpos.
+trlib "sin el dato, se comporta como hoy"  "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 trlib "y el cuerpo dice donde esta"           "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
 

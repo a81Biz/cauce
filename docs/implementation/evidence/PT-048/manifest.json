@@ -1,0 +1,11 @@
+{
+  "pt": "PT-048",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "El cuerpo de un issue sin directorio no enlaza a el", "scenarios": ["E1"], "tests": ["selftest.sh:sin directorio no enlaza","selftest.sh:y no deja una URL rota"], "evidence": ["salidas/selftest.txt","salidas/cuerpos.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Dice en su lugar que hay: una allocation aplazada (SUITE-R44)", "scenarios": ["E2"], "tests": ["selftest.sh:y cita la regla que lo exime","selftest.sh:sin enlace, no explica el enlace"], "evidence": ["salidas/cuerpos.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Con directorio, el enlace sigue igual que hoy", "scenarios": ["E3","E4","E5"], "tests": ["selftest.sh:con directorio, el enlace sigue","selftest.sh:sin el dato, se comporta como hoy"], "evidence": ["salidas/selftest.txt","salidas/cuerpos.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Comprobado sobre PT-019 y PT-025, las dos que quedan sin artefactos", "scenarios": ["E5"], "tests": ["tracker abrir --aplicar sobre los issues #26 y #35"], "evidence": ["salidas/cuerpos.txt"], "verified": true }
+  ],
+  "suite": { "passed": 491, "failed": 0, "skipped": 0, "coverage": 491, "baseline": 485 }
+}

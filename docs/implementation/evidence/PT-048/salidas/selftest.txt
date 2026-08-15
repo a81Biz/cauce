@@ -1,0 +1,9 @@
+# selftest · 2026-08-15
+selftest: OK · 491 casos
+
+  [32m✓[0m sin directorio no enlaza
+  [32m✓[0m y no deja una URL rota
+  [32m✓[0m y cita la regla que lo exime
+  [32m✓[0m sin enlace, no explica el enlace
+  [32m✓[0m con directorio, el enlace sigue
+  [32m✓[0m sin el dato, se comporta como hoy

@@ -1602,3 +1602,34 @@ corregida en el mismo commit: el fixture ensambla la clave en dos mitades y el f
 contiene. La huella histórica lleva excepción firmada (08ee900870eb), autorizada explícitamente
 por el firmante el 2026-08-15 tras detenerse a preguntar: una excepción de secretos no estaba en
 la delegación de G1, G2 y G3, y ampliarla sola habría sido el deslizamiento que SUITE-R27 nombra.
+
+## PT-048 — BUG: el issue de un DEFERRED enlaza a un directorio que no existe
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: fix/PT-048-el-issue-de-un-deferred-enlaza-a-un-404
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 Alberto Martínez (delegadas) · G4 pendiente
+Objetivo: que el cuerpo de un issue diga lo que hay en vez de enlazar a lo que no hay.
+Causa raíz: tracker.mjs componía el enlace SIEMPRE, y SUITE-R44 exime a un DEFERRED de tener
+artefactos. Las dos correctas por separado; juntas producían un 404 en el ÚNICO artefacto que una
+allocation aplazada tiene. PT-036 existía para esto y resolvió el caso de la rama, no el de que
+no haya contenido.
+Solución: se mira el DIRECTORIO, no el estado — un PT recién asignado tampoco lo tiene hasta que
+PHASE 1 lo crea, y con «status === DEFERRED» como criterio ese seguiría fallando. El dato viaja
+en el contexto y no se lee dentro de cuerpoDeIssue, que es pura y exportada a propósito.
+Archivos modificados: docs/methodology/tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-048/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): dos hallazgos.
+  1. UN CASO QUE NO SE EJECUTABA: se escribió «trlibno» dando por hecho que existía y bash lo
+     trató como orden no encontrada. El arnés NO se puso rojo — el contador subió de 485 a 489
+     en vez de 490, y esa única cifra fue todo el aviso. Se definió el ayudante.
+  2. El arreglo dejaba la nota que EXPLICA el enlace debajo de «sin artefactos todavía». Lo vio
+     mirar el issue publicado, no leer el diff.
+El defecto se estaba enmascarando mientras se arreglaba: las diez DEFERRED que apuntaban a un 404
+por la mañana eran dos al llegar aquí, porque EP-013 activó ocho y les creó el directorio.
+  selftest 485 → 491 casos
+Trazabilidad externa: —

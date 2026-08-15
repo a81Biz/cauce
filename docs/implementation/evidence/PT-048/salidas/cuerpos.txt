@@ -1,0 +1,23 @@
+# PT-048 · los dos issues que apuntaban a un 404, despues
+
+== PT-019 (#26) ==
+**CHORE** · severidad S2 · sin implementación asignada
+
+Intake, criterios de aceptación y evidencia: Sin artefactos todavía: es una allocation **aplazada** (`SUITE-R44`). Cuando se retome, su `PHASE 1` crea el directorio y este cuerpo se resincroniza solo.
+
+> El enlace apunta a `fix/PT-048-el-issue-de-un-deferred-enlaza-a-un-404`, que es donde el contenido existe ahora. Al
+> integrarse pasará a `main` y este cuerpo se actualizará solo.
+
+== PT-025 (#35) ==
+**CHORE** · severidad S3 · sin implementación asignada
+
+Intake, criterios de aceptación y evidencia: Sin artefactos todavía: es una allocation **aplazada** (`SUITE-R44`). Cuando se retome, su `PHASE 1` crea el directorio y este cuerpo se resincroniza solo.
+
+> El enlace apunta a `fix/PT-048-el-issue-de-un-deferred-enlaza-a-un-404`, que es donde el contenido existe ahora. Al
+> integrarse pasará a `main` y este cuerpo se actualizará solo.
+
+== y uno con directorio, para ver que no cambia ==
+**BUG** · severidad S3 · de la implementación `EP-013`
+
+Intake, criterios de aceptación y evidencia: [`changes/PT-048-el-issue-de-un-deferred-enlaza-a-un-404/`](https://github.com/a81Biz/cauce/tree/fix/PT-048-el-issue-de-un-deferred-enlaza-a-un-404/changes/PT-048-el-issue-de-un-deferred-enlaza-a-un-404)
+
