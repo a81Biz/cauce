@@ -134,6 +134,20 @@ usó. Si a un lado le falta el dato, **no se compara** — un campo ausente no e
 Importa porque un `phase` olvidado **apaga comprobaciones**: `FDGE-R52` solo corre desde
 `phase >= 2`, y cuatro tareas pasaron su compuerta sin que se evaluara nunca.
 
+**`FDGE-R19`: una rama por tarea, y tres niveles.**
+
+```
+<type>/PT-NNN-slug   efimera · nace de la rama de integracion en PHASE 5
+       ↓ PR de la TAREA · revision · NO es G4
+trabajo              rama de integracion
+       ↓ merge del LOTE · G4 · humana, una por lote
+main                 rama por defecto
+```
+
+`G4` **no se multiplica por tarea**: `EXEC-R03` existe para que decidas dos veces por lote en
+lugar de cuatro por PT. Declara la rama en `REGISTRY.allocations[].branch` — un PT vivo en
+`PHASE 5+` sin ella se reporta, y en `G4` bloquea. Lo ya terminado no se retrofecha.
+
 **`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
 en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.
 Allí el registro es la foto del último merge y el tablero refleja el trabajo en curso: divergen

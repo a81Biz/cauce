@@ -934,6 +934,25 @@ function checkPT(pt, { gate } = {}) {
   // rojo, y ponerla verde exigia escribir el reanclaje DOS VECES — lo que SUITE-R35 prohibe.
   // El verificador no habla con la plataforma: se lo pregunta a `tracker`, que es quien tiene
   // el adaptador. La regla la hace cumplir quien verifica; el acceso lo encapsula quien lo tiene.
+  // PT-047 · FDGE-R19 · la rama por PT. PHASE 5 la manda crear desde la primera version del
+  // marco, PHASE 4 obliga a proponerla, y NINGUN verificador la miraba: `grep "Rama:"` sobre
+  // este archivo no devolvia una sola linea. 46 tareas seguidas se implementaron sobre la rama
+  // de integracion sin que nada lo dijera, con el CLAUDE.md del repositorio declarando dos
+  // ramas y ninguna por tarea — en el documento que SUITE-R00 dice que no puede derogar nada.
+  //
+  // Se lee del REGISTRO y no de HISTORY.log, que ya declara «Rama:» sin que nadie lo compruebe:
+  // HISTORY se escribe en PHASE 8 y la rama nace en PHASE 5, asi que comprobarlo alli llega
+  // tres fases tarde. La rama ES estado, y el estado vive en el registro (SUITE-R35).
+  const YA_TERMINADO_RAMA = new Set(['INTEGRATED', 'CLOSED', 'REVERTED', 'REJECTED', 'DEFERRED']);
+  if (fase >= 5 && !YA_TERMINADO_RAMA.has(enRegistroPT?.status) && !enRegistroPT?.branch) {
+    const m = `${pt}: está en PHASE ${fase} y no declara rama. PHASE 5 crea `
+      + `«<type>/PT-NNN-slug» desde la rama de integración y la declara en `
+      + `REGISTRY.allocations[].branch (FDGE-R19). El PR de la tarea es revisión, no G4.`;
+    if (gate === 'G4') fail('FDGE-R19', m); else warn('FDGE-R19', m);
+  } else if (fase >= 5 && enRegistroPT?.branch) {
+    ok('FDGE-R19', `${pt}: rama «${enRegistroPT.branch}» declarada.`);
+  }
+
   // PT-044 · y deja de exigirse a lo YA TERMINADO. El reanclaje se escribe MIENTRAS se trabaja;
   // pedirselo a un PT que ya paso G4 es pedir que se FABRIQUE, y un rastro fabricado es peor que
   // ninguno. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no

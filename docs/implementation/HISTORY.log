@@ -1457,3 +1457,40 @@ acumuladas durante 43 tareas sin que nada las mirara. Ahora son 0, y volver a ac
 Cierre del lote (SUITE-R45): las tres filas resueltas — CHANGELOG 7.7.0 con los 21 documentos
 alineados, CORE.md regenerado, y PT-029 y PT-016 declarados abiertos con su alcance reducido:
 PT-046 y PT-044 son su primer caso concreto, no su solución.
+
+## PT-047 — BUG: ningún PT ha creado su rama
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: fix/PT-047-ningun-pt-ha-creado-su-rama
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-14 Alberto Martínez (delegada, con constancia) · G4 pendiente
+Objetivo: que el marco y su uso dejen de contradecirse sobre la rama por tarea.
+Causa raíz: PHASE 5 manda «git checkout -b <type>/PT-XXX-slug» desde la primera versión y PHASE 4
+obliga a proponerla, pero NINGÚN verificador la miraba — «grep "Rama:" verify-fdge.mjs» no
+devolvía una sola línea. El campo del formato canónico de HISTORY se escribía, se leía y no se
+contrastaba con nada. 46 tareas seguidas fueron sobre «trabajo», con el CLAUDE.md declarando dos
+ramas y ninguna por tarea, en el documento que SUITE-R00 dice que no puede derogar una regla.
+Solución: FDGE-R19 declara la topología en tres niveles —efímera por tarea → rama de integración
+→ rama por defecto—, SUITE-R42 deja de ser ambigua diciendo que el PR de G4 es el de la rama por
+defecto, y verify-fdge exige «REGISTRY.allocations[].branch» a todo PT vivo en PHASE 5+. Va al
+registro y no a HISTORY porque HISTORY se escribe en PHASE 8 y la rama nace en PHASE 5: la rama
+ES estado. Lo ya terminado no se retrofecha, con el criterio de PT-044.
+G4 NO SE MULTIPLICA: sigue siendo una por lote. El PR de una tarea a la rama de integración es
+revisión. La topología la confirmó el firmante antes de implementar —«sí, es correcto»— porque la
+alternativa habría convertido G4 en una compuerta por tarea: ocho en este lote.
+Archivos modificados:
+  - docs/methodology/RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md
+  - docs/methodology/tools/verify-fdge.mjs · tools/selftest.sh
+  - CLAUDE.md · docs/implementation/REGISTRY.json
+Evidencia: docs/implementation/evidence/PT-047/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): según plan en el alcance; dos correcciones que solo dijo ejecutar.
+El aserto inverso buscaba el ID de la regla y con rama declarada la regla emite su OK, así que el
+caso pasaba por el motivo equivocado — mismo defecto que SUITE-R42 en PT-043, segunda vez en dos
+lotes. Y el fixture representaba un estado imposible: cuatro PT en PHASE 8 sin rama.
+ESTA TAREA ESTRENA LO QUE INTRODUCE: es la primera de 47 con rama propia.
+  selftest 456 → 466 casos
+Trazabilidad externa: —

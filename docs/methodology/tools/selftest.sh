@@ -65,9 +65,9 @@ build_fixture() {
   "graph":{"generated":"2026-08-05","scope":"src/","pt_at_generation":4},
   "counters":{"PT":4,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
   "allocations":[
-    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0"},
-    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.2.0"},
-    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0"},
+    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0","branch":"fix/PT-001-login"},
+    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.2.0","branch":"investigate/PT-002-pool"},
+    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0","branch":"chore/PT-003-typo"},
     {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.2.0"}
   ] }
 J
@@ -285,6 +285,33 @@ chkno "sin fase en el registro no se inventa" "divergente"   V PT-004
 # En G4 deja de ser aviso: alli el estado tiene que ser uno solo.
 build_fixture; yaml_set PT-001-login phase 1
 chk   "en G4 la divergencia BLOQUEA"         "✗ SUITE-R35"   V --gate G4 PT-001
+
+# PT-047 · FDGE-R19 · la rama por PT. PHASE 5 manda «git checkout -b <type>/PT-XXX-slug» y
+# PHASE 4 obliga a proponerla; los 46 PT de este repositorio se hicieron sobre «trabajo» y
+# NADA lo detectaba: `grep "Rama:" verify-fdge.mjs` no devolvia una sola linea. El campo del
+# formato canonico de HISTORY se escribia, se leia y no se contrastaba con nada.
+#
+# La rama va al REGISTRO y no a HISTORY: HISTORY se escribe en PHASE 8 y la rama nace en
+# PHASE 5, asi que comprobarlo alli llega tres fases tarde. La rama ES estado.
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=5"
+chk   "un PT en PHASE 5 sin rama se reporta"  "FDGE-R19"     V PT-004
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=5; r.allocations.find(a=>a.id==='PT-004').branch='feature/PT-004-pdf'"
+chkno "con rama declarada, silencio"          "no declara rama"  V PT-004
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=5"; yaml_set PT-004-pdf phase 5
+chk   "en G4 la rama ausente BLOQUEA"         "✗ FDGE-R19"   V --gate G4 PT-004
+# Los que NO deben avisar. Sin el primero esto exigiria rama retroactiva a 46 tareas ya
+# integradas; sin el segundo, a toda tarea recien abierta. Un aviso que sale cuando no toca
+# es la forma mas rapida de que se ignore el que si toca.
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=9; r.allocations.find(a=>a.id==='PT-004').status='INTEGRATED'"
+chkno "lo ya integrado no se retrofecha"      "no declara rama"  V PT-004
+build_fixture
+chkno "en PHASE 4 todavia no toca"            "no declara rama"  V PT-004
+# La topologia, escrita donde manda y citada donde se ejecuta.
+chk   "FDGE-R19 declara la topologia"         "rama de integración" cat "$SUITE/RULES.md"
+chk   "y llega al nucleo"                     "FDGE-R19"     cat "$SUITE/CORE.md"
+chk   "PHASES la cita"                        "PT-NNN-slug"  cat "$SUITE/PHASES.md"
+chk   "SUITE-R42 dice PARA QUE rama"          "el del lote, no el de cada tarea" cat "$SUITE/RULES.md"
+chk   "el CLAUDE.md declara las efimeras"     "PT-NNN-slug"  cat "$RAIZ/CLAUDE.md"
 
 # PT-044 · FDGE-R52 deja de exigir rastro a lo YA INTEGRADO. El reanclaje se escribe MIENTRAS se
 # trabaja; pedirselo a un PT que ya paso G4 es pedir que se fabrique, y fabricarlo es peor que no

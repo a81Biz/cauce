@@ -1,0 +1,11 @@
+{
+  "pt": "PT-047",
+  "generated": "2026-08-14",
+  "criteria": [
+    { "ac": "AC-01", "statement": "La topologia de ramas esta declarada donde manda y citada donde se ejecuta", "scenarios": ["E1","E2","E3"], "tests": ["selftest.sh:FDGE-R19 declara la topologia","selftest.sh:y llega al nucleo","selftest.sh:PHASES la cita"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Un PT vivo en PHASE 5+ que no declara su rama se reporta", "scenarios": ["E4","E5","E6","E7","E8"], "tests": ["selftest.sh:un PT en PHASE 5 sin rama se reporta","selftest.sh:con rama declarada, silencio","selftest.sh:en G4 la rama ausente BLOQUEA","selftest.sh:lo ya integrado no se retrofecha","selftest.sh:en PHASE 4 todavia no toca"], "evidence": ["salidas/selftest.txt","salidas/inversa.txt","salidas/rama.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "El CLAUDE.md deja de contradecir a PHASE 5", "scenarios": ["E9"], "tests": ["selftest.sh:el CLAUDE.md declara las efimeras"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "G4 sigue siendo humana y no se multiplica sin decirlo", "scenarios": ["E10"], "tests": ["selftest.sh:SUITE-R42 dice PARA QUE rama"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 466, "failed": 0, "skipped": 0, "coverage": 466, "baseline": 456 }
+}

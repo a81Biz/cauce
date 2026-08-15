@@ -195,7 +195,14 @@ PARA G2. MANUAL,SUPERVISED→ACK. AUTONOMOUS→auto solo si las CINCO condicione
 ### PHASE 5 · Implementation
 ```
 LEE  design · tasks · test-scenarios · out-of-scope · traceability · 11-Conventions · graphify-out/
-HAZ  1 git checkout -b <type>/PT-XXX-slug
+HAZ  1 git checkout -b <type>/PT-XXX-slug        DESDE la rama de integracion [FDGE-R19]
+       tres niveles: <type>/PT-NNN-slug efimera -> rama de integracion
+       («trabajo») -> rama por defecto. El PR de la TAREA es revision y NO
+       es G4; G4 es el merge del LOTE a la rama por defecto y NO se
+       multiplica por tarea [EXEC-R03, FDGE-R33].
+       Declarala en REGISTRY.allocations[].branch: un PT vivo en PHASE 5+
+       sin rama se reporta, y en G4 bloquea. Lo ya terminado no se
+       retrofecha — pedir rama a lo integrado es pedir que se invente.
      2 TESTS EN ROJO desde test-scenarios [FDGE-R17]
        → test: PT-XXX add failing tests for <desc>
        excepción CHORE|TRIVIAL sin lógica ejecutable [FDGE-R18]: declarar en strategy.md;
