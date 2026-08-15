@@ -117,6 +117,49 @@ Escribirlo contra ningún caso real es lo que evitó que el de GitHub naciera co
 
 **Recomendación:** implementarlo cuando exista un proyecto que use Azure DevOps, no antes.
 
+### `TD-08` · 62 reglas sin verificador, 52 de ellas `HARD`   — declarada por `EP-013`
+
+`PT-015` escribió verificadores para las reglas `HARD` **que deciden algo**, y el firmante acotó
+ahí el alcance a propósito: *«acotar a las HARD que deciden algo; el resto, deuda medida»*.
+Esto es esa deuda, **contada** el 2026-08-15 con la herramienta, no estimada:
+
+```
+$ node docs/methodology/tools/audit.mjs docs/methodology
+  ejecutadas por una compuerta          110 / 181     · HARD  88 / 148
+  citadas sin compuerta que las corra     9
+  sin verificador                        62           · HARD  52
+```
+
+Las 62, enumeradas por `audit --sin-verificar`:
+
+```
+SUITE-R02 R04 R05 R10 R12 R22 R23 R24 R31 R32 R39
+FND-R01 R02 R06 R07 R09 R12 R16 R17 R18
+FDGE-R02 R05 R06 R09 R11 R12 R13 R14 R16 R20 R21 R28 R30 R32 R35 R37 R38 R40 R41 R46 R47 R50
+INTAKE-R02 R03 R05 R07
+QA-R02 R05 R08 R12 R14 R15 R17 R18
+FPGE-R04 R06 R09 R10 · FIDE-R02 R03 R05 R06
+```
+
+**No todas son deuda del mismo tipo, y mezclarlas sería el error.** Tres grupos:
+
+| Grupo | Ejemplos | Qué se puede hacer |
+|:---|:---|:---|
+| **Verificable y sin escribir** | `FDGE-R40` (solapamiento entre PTs), `INTAKE-R05` | Deuda real: hay datos en el repositorio para comprobarlas |
+| **Verificable solo con el sistema delante** | Las de `QA-*` —el navegador—, `FIDE-*` —una idea de negocio— | No se comprueban desde el repositorio y probablemente nunca se comprueben desde aquí |
+| **Sobre el juicio de una persona** | `FND-R12` (qué documento manda), `SUITE-R22` | `SUITE-R26` dice que una `HARD` **aspira** a comprobación mecánica; aquí la aspiración no se cumple y decirlo es el trabajo |
+
+`PT-023` midió lo mismo desde otro ángulo y llegó a la misma frontera: escribir un verificador
+que se equivoca tres de cada cuatro veces es peor que no tenerlo, porque se silencia y ocupa el
+sitio del que haría falta.
+
+**Consecuencia:** `SUITE-R26` dice «aspira, no exige», y `audit` publica el denominador en cada
+ejecución. Mientras la cifra esté a la vista, la deuda es una decisión; el día que se redondee a
+«cobertura completa», vuelve a ser un engaño — que es literalmente lo que `PT-002` corrigió.
+
+**Recomendación:** atacar el primer grupo por orden de daño, no de facilidad, y **no** convertir
+el segundo y el tercero en casillas que comprueban que un archivo existe.
+
 ## Hechos no determinados   `FND-R01`
 
 Lo que no pudo verificarse con una fuente citable en este repositorio:

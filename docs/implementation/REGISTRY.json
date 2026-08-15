@@ -1,5 +1,5 @@
 {
-  "suite_version": "7.7.0",
+  "suite_version": "8.0.0",
   "execution_mode": "SUPERVISED",
   "foundation": {
     "generated": "2026-08-13",
@@ -1078,10 +1078,10 @@
       "complexity": null,
       "severity": null,
       "track": null,
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "structural": null,
       "suite_version": "7.7.0",
-      "phase": 1,
+      "phase": 9,
       "title": "Cerrar las ocho aplazadas que si se pueden cerrar, y dejar el tablero con lo que de verdad depende de otra cosa",
       "origin": "Peticion humana 2026-08-14: «revisa los PT abiertos todos y definamos para cerrar ya, con la excepcion de la tarea de la migracion que usa otro desarrollo. Necesito que estemos limpios». Cuatro decisiones tomadas por el firmante en esa conversacion.",
       "created": "2026-08-14",

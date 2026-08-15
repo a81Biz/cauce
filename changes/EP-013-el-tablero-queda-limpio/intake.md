@@ -4,7 +4,7 @@
 ---
 id: EP-013
 created: 2026-08-14
-status: IN_PROGRESS
+status: DONE
 mode: SUPERVISED
 origin: DIRECT
 ---
@@ -145,9 +145,40 @@ VEREDICTO: PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión — **`MAJOR`**, con guía de migración por `PT-016` | pendiente |
-| Regenerar `CORE.md` | pendiente |
-| Declarar en `10-Technical-Debt.md` lo que queda medido y no resuelto: las reglas sin verificador que `PT-015` no cubre | pendiente |
-| Qué pasa con `PT-019` y `PT-025`, las dos que no entran | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión — **`MAJOR`**, con guía de migración por `PT-016` | HECHO |
+| Regenerar `CORE.md` | HECHO |
+| Declarar en `10-Technical-Debt.md` lo que queda medido y no resuelto: las reglas sin verificador que `PT-015` no cubre | HECHO |
+| Qué pasa con `PT-019` y `PT-025`, las dos que no entran | HECHO |
+
+### Cómo se resolvió cada una   `SUITE-R45`
+
+**1 · `CHANGELOG` 8.0.0 con guía de migración.** `MAJOR` por `SUITE-R08`: un proyecto instalado
+con PTs vivos sin `phase` pasa de verde a rojo. La guía da los tres pasos, deriva la fase de lo
+que hay en `changes/` cuando no se sabe, y dice explícitamente que **no se adivina hacia arriba**
+—poner una fase no alcanzada apaga las comprobaciones que esa fase habilita, que es el defecto que
+`PT-044` documentó—. `version.mjs --aplicar` alineó los 21 documentos y `package.json`.
+
+**2 · `CORE.md` regenerado.** 244 reglas, ~24 046 tokens frente a ~76 890 de los documentos
+completos: 69 % de reducción. `core:check` en verde.
+
+**3 · La deuda, contada.** `TD-08` en `10-Technical-Debt.md`: **62 reglas sin verificador, 52 de
+ellas `HARD`**, enumeradas con la herramienta y **separadas en tres grupos** —verificable y sin
+escribir · verificable solo con el sistema delante · sobre el juicio de una persona—. Mezclarlas
+habría convertido una decisión del firmante en un número que da miedo. El primer grupo es deuda
+real; los otros dos son el límite de `SUITE-R26`, que dice «aspira, no exige».
+
+**4 · `PT-019` y `PT-025` siguen `DEFERRED`, y los motivos son distintos.**
+
+| PT | Por qué sigue fuera | Qué lo desbloquea |
+|:---|:---|:---|
+| `PT-019` (#26) | Depende del proyecto legado «Inteligencia de Mercados Energéticos Mexicanos», que es el **caso de prueba** del marco y lo trabaja el firmante | Que el firmante vaya allí a trabajar. Hasta entonces solo se ejecuta `migrate` **sin** `--apply` |
+| `PT-025` (#35) | No existe un proyecto de Azure DevOps que lo ejercite. Escribir la guarda de cierre a ciegas sería código sin ejecución | Que aparezca un proyecto real en Azure |
+
+No es la misma espera: uno aguarda a un proyecto **que existe**, el otro a uno **que no**.
+Conviene no mezclarlos, porque el segundo podría no llegar nunca y eso también es una respuesta.
+
+Los dos conservan su issue abierto (`SUITE-R44`: aplazar algo lo **pone** en el tablero, no lo
+saca) y, desde `PT-048`, el cuerpo de ese issue dice que aún no tiene artefactos en vez de enlazar
+a un directorio que no existe.
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.
