@@ -61,6 +61,45 @@ export const ESTADOS_TERMINALES = new Set([
   'INTEGRATED', 'CLOSED', 'REVERTED', 'REJECTED', 'DEFERRED',
 ]);
 
+/**
+ * PT-029 · `SUITE-R38` · Desde que compuerta es exigible cada artefacto.
+ *
+ * Tres comprobaciones de `verify-fdge` decian `if (gate)` sin decir de QUE compuerta hablaban, y
+ * con eso `G1`, `G2` y `G3` heredaban las exigencias de `G4`: pedian en `PHASE 1` lo que el
+ * procedimiento escribe en `PHASE 8`. Las tres compuertas anteriores a `G4` NO SE PODIAN EVALUAR
+ * con la herramienta que existe para evaluarlas, y llevaban asi desde que existe el parametro.
+ *
+ * Nadie tropezo antes porque la ruta esta indocumentada: `CLAUDE.md` y la cabecera de la
+ * herramienta solo enseñan `--gate G4`, y `EXEC-R06` resuelve `G1`-`G3` con `verify-fdge` SIN
+ * `--gate`. Lo encontro `PT-020` ejecutando `--gate G3` por curiosidad — usandolo, no leyendolo.
+ *
+ * La FASE viaja al lado de la compuerta a proposito. Sin ella, `'G3'` es un numero que hay que
+ * creerse; con ella es derivable —`manifest.json` se escribe en `PHASE 6` y la primera compuerta
+ * posterior es `G3`— y su caso en `selftest.sh` comprueba esa RELACION, no el valor. Poner un
+ * artefacto en una compuerta anterior a su fase cuesta un rojo aunque la tabla sea coherente.
+ */
+export const ORDEN_COMPUERTAS = ['G1', 'G2', 'G3', 'G4'];
+
+export const EXIGIBLE_DESDE = {
+  'manifest.json': { desde: 'G3', fase: 6 },    // PHASE 6 lo escribe · G3 cierra PHASE 7
+  'self-review.md': { desde: 'G3', fase: 6 },   // idem
+  'HISTORY.log': { desde: 'G4', fase: 8 },      // PHASE 8 lo escribe · G4 cierra PHASE 9
+};
+
+/**
+ * Sin compuerta no se exige nada: `verify-fdge` sin `--gate` informa, no bloquea, y esa
+ * distincion es la que permite trabajar con el repositorio a medias sin la bateria en rojo.
+ *
+ * Un artefacto que no este en la tabla se exige desde cualquier compuerta: el defecto de partida
+ * era exigir de mas, y el defecto opuesto —relajar `G4` por olvidar una entrada— seria peor.
+ */
+export const exigibleEn = (gate, artefacto) => {
+  if (!gate) return false;
+  const e = EXIGIBLE_DESDE[artefacto];
+  if (!e) return true;
+  return ORDEN_COMPUERTAS.indexOf(gate) >= ORDEN_COMPUERTAS.indexOf(e.desde);
+};
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

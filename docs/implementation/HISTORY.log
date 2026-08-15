@@ -1768,3 +1768,57 @@ durante dos meses. Lo encontró una persona revisando el tablero. Algunas cosas 
 mirar, y el marco debería decirlo en vez de dar por hecho que toda regla acaba teniendo script.
   selftest 501 → 507 casos
 Trazabilidad externa: —
+
+## PT-029 — CHORE: las compuertas anteriores a G4 se pueden evaluar, y la forma queda cazada
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-029-detectar-reglas-que-se-hacen-imposibles-entre-si
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas, y --gate G3 verde) · G4 pendiente
+Objetivo: buscar —no recordar— los pares donde una comprobación hace imposible el estado que otra
+obliga a atravesar.
+Causa raíz: tres comprobaciones de verify-fdge decían «if (gate)» sin decir de QUÉ compuerta
+hablaban. Con eso G1, G2 y G3 heredaban las exigencias de G4: pedían en PHASE 1 lo que el
+procedimiento escribe en PHASE 8. TRES COMPUERTAS DE CUATRO NO SE PODÍAN EVALUAR con la
+herramienta que existe para evaluarlas, y llevaban así desde que existe el parámetro. En el mismo
+archivo había SEIS comprobaciones que sí distinguían (gate === 'G4'): la forma correcta estaba al
+lado. RULE-01 otra vez — el mismo hecho escrito tres veces sin decir al cerrar QUÉ.
+Solución: EXIGIBLE_DESDE en patrones.mjs, donde ya vive ESTADOS_TERMINALES y por la misma razón.
+Cada artefacto declara desde qué compuerta es exigible CON LA FASE AL LADO, y su caso comprueba la
+RELACIÓN —la compuerta tiene que ser la primera posterior a la fase— y no el valor. Poner
+manifest.json en G1 «porque sí» cuesta un rojo aunque la tabla sea coherente.
+Archivos modificados: docs/methodology/tools/patrones.mjs · verify-fdge.mjs · selftest.sh
+Evidencia: docs/implementation/evidence/PT-029/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): el entregable no son los tres arreglos, es el caso que caza la FORMA.
+Tres «if» corregidos dejan la batería verde y el problema entero, porque el cuarto se escribe
+igual. Ahora una comprobación que se active con CUALQUIER compuerta pone la batería en rojo el día
+que se escriba, no el día que alguien tropiece.
+Cómo se buscó: cruzando dos tablas que ya existían y nadie había cruzado — qué produce cada fase
+(dato en tracker.mjs) y qué exige cada comprobación y cuándo (verify-fdge.mjs). El buscador se
+versiona en la evidencia porque AC-02 pedía repetible, y una medida que no se puede repetir es una
+afirmación.
+Por qué no se había visto: la ruta rota era la ruta INDOCUMENTADA. CLAUDE.md y la cabecera de la
+herramienta solo enseñaban --gate G4, y EXEC-R06 resuelve G1-G3 con verify-fdge SIN --gate. Lo
+encontró PT-020 ejecutando --gate G3 por curiosidad en PHASE 7: usándolo, no leyéndolo.
+Lo que NO se detecta, declarado: este método cruza fases con compuertas y encuentra UNA familia.
+De los seis casos conocidos, CINCO son de otra — SUITE-R09 prohíbe editar una entrada de HISTORY y
+FDGE-R29 prohíbe añadir una segunda: no hay fase de por medio, hay dos prohibiciones que se
+cierran mutuamente, y detectarlo exigiría razonar sobre el CONTENIDO de las reglas. Y el caso caza
+la forma LITERAL: «if (gate !== undefined)» expresa lo mismo y no cae. Ampliar la lista de formas
+es perseguir el idioma, que es lo que SUITE-R44 ya decidió no hacer.
+El arnés se cazó a sí mismo dos veces: el caso derivado se escribió con un «import» estático cuyo
+especificador era una expresión, y luego con una traducción de ruta a URL hecha con sed que en
+Git-Bash daba «file:///». Las dos veces revento() lo marcó en ROJO en vez de dejarlo pasar por
+verde — la función que existe para que una herramienta rota no certifique nada, funcionando sobre
+el caso que la estrenaba.
+Encontrado de paso: había DOS casos con el nombre «la compuerta se DERIVA de la fase», el de
+tracker y el nuevo. Dos casos con el mismo nombre hacen ambiguo un rojo: la salida dice qué falló
+y no cuál. Renombrado.
+Lo que no resuelve: que lo que no se documenta no se usa, y lo que no se usa se pudre en silencio.
+Eso no tiene comprobación y no la va a tener.
+  selftest 507 → 520 casos · --gate G3 pasa por primera vez en la historia del marco
+Trazabilidad externa: —

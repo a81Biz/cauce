@@ -1,0 +1,22 @@
+=== FASES declaradas como dato en tracker.mjs ===
+  PHASE  0 Contexto         produce: —   cierra: leer el estado y el registro
+  PHASE  1 Intake           produce: intake.md   cierra: G1
+  PHASE  2 Descubrimiento   produce: discovery.md   cierra: dónde está el defecto, con archivo y línea
+  PHASE  3 Estrategia       produce: strategy.md   cierra: los caminos descartados, con su por qué
+  PHASE  4 Propuesta        produce: design.md · tasks.md · test-scenarios.md · out-of-scope.md · spec-changes.md · traceability.md   cierra: G2
+  PHASE  5 Implementación   produce: —   cierra: los casos en verde y la comprobación inversa en rojo
+  PHASE  6 Evidencia        produce: manifest.json · self-review.md   cierra: cada AC con su evidencia, o declarado no verificado
+  PHASE  7 Validación       produce: —   cierra: G3
+  PHASE  8 Persistencia     produce: HISTORY.log · índice   cierra: estado retomable (SUITE-R33/R34)
+  PHASE  9 Integración      produce: —   cierra: G4
+  PHASE 10 Cierre           produce: —   cierra: estado terminal en la rama por defecto, y ENTONCES cerrar (SUITE-R46)
+
+=== CHOQUE · comprobaciones que se activan con CUALQUIER compuerta ===
+  (frente a 6 que distinguen gate === 'G4', que es la forma correcta)
+  ninguna
+
+=== Cruce: que compuerta cierra cada fase, y que artefacto se exige ===
+  PHASE 1 cierra con G1. Artefactos que aun NO existen: discovery.md(P2) strategy.md(P3) design.md(P4) tasks.md(P4) test-scenarios.md(P4) out-of-scope.md(P4) spec-changes.md(P4) traceability.md(P4) manifest.json(P6) self-review.md(P6) HISTORY.log(P8) índice(P8)
+  PHASE 4 cierra con G2. Artefactos que aun NO existen: manifest.json(P6) self-review.md(P6) HISTORY.log(P8) índice(P8)
+  PHASE 7 cierra con G3. Artefactos que aun NO existen: HISTORY.log(P8) índice(P8)
+  PHASE 9 cierra con G4. Artefactos que aun NO existen: —

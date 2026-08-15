@@ -2244,6 +2244,65 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-029 · las compuertas anteriores a G4 se pueden evaluar ─────────────
+# Tres comprobaciones decian `if (gate)` sin decir de QUE compuerta hablaban, y con eso G1, G2 y
+# G3 heredaban las exigencias de G4: pedian en PHASE 1 lo que el procedimiento escribe en PHASE 8.
+# Las tres compuertas anteriores a G4 no se podian evaluar con la herramienta que existe para
+# evaluarlas, y llevaban asi desde que existe el parametro. Nadie tropezo porque la ruta esta
+# indocumentada: solo se enseña --gate G4.
+#
+# El fixture: PT-004 esta en PHASE 4 (IN_PROGRESS), sin manifest ni self-review ni HISTORY.
+GT() { node "$WORK/docs/methodology/tools/verify-fdge.mjs" --gate "$1" PT-004; }
+
+chkno "G1 no exige el manifiesto de PHASE 6"   "falta evidence/PT-004/manifest.json"  GT G1
+chkno "G1 tampoco el self-review"              "falta evidence/PT-004/self-review.md" GT G1
+chkno "G1 tampoco la entrada de HISTORY"       "PT-004: sin entrada en HISTORY.log"   GT G1
+chkno "G2 sigue sin exigir lo de PHASE 6"      "falta evidence/PT-004/manifest.json"  GT G2
+chkno "G3 no exige lo que PHASE 8 escribe"     "PT-004: sin entrada en HISTORY.log"   GT G3
+# La direccion contraria, que es la que hay que proteger: G4 es la ultima y NO relaja nada.
+chk   "G3 SI exige el manifiesto"              "falta evidence/PT-004/manifest.json"  GT G3
+chk   "G4 exige el manifiesto"                 "falta evidence/PT-004/manifest.json"  GT G4
+chk   "G4 exige el self-review"                "falta evidence/PT-004/self-review.md" GT G4
+chk   "G4 exige la entrada de HISTORY"         "PT-004: sin entrada en HISTORY.log"   GT G4
+# Sin compuerta no se exige nada: verify-fdge informa, no bloquea.
+chkno "sin compuerta, HISTORY solo se avisa"   "PT-004: sin entrada en HISTORY.log"   V PT-004
+
+# El hecho vive en UN sitio y su fase viaja al lado, para que la asignacion sea DERIVABLE en vez
+# de creible: la compuerta de un artefacto tiene que ser la primera POSTERIOR a su fase. Si
+# alguien pone manifest.json en G1 «porque si», este caso cae aunque la tabla sea coherente.
+cat > "$WORK/exigible.mjs" <<'MJS'
+// El especificador de un `import` estatico no puede ser una expresion: la primera version lo
+// escribio asi, reviento, y `revento()` lo caza — el arnes se caza a si mismo.
+import { pathToFileURL } from 'node:url';
+const { EXIGIBLE_DESDE, ORDEN_COMPUERTAS, exigibleEn } = await import(pathToFileURL(process.env.MTH_PATRONES).href);
+// PHASES: G1 cierra PHASE 1 · G2 cierra PHASE 4 · G3 cierra PHASE 7 · G4 cierra PHASE 9
+const CIERRA = { G1: 1, G2: 4, G3: 7, G4: 9 };
+const malas = [];
+for (const [art, e] of Object.entries(EXIGIBLE_DESDE)) {
+  const primera = ORDEN_COMPUERTAS.find((g) => CIERRA[g] > e.fase);
+  if (primera !== e.desde) malas.push(`${art}: fase ${e.fase} => ${primera}, declara ${e.desde}`);
+}
+if (!exigibleEn(undefined, 'HISTORY.log')) {} else malas.push('sin compuerta se exige algo');
+if (!exigibleEn('G4', 'HISTORY.log')) malas.push('G4 no exige HISTORY.log');
+if (!exigibleEn('G4', 'inventado.txt')) malas.push('un artefacto sin entrada deberia exigirse siempre');
+console.log(malas.length ? `INCOHERENTE ${malas.join(' | ')}` : 'DERIVADA');
+MJS
+# La ruta se pasa TAL CUAL y la convierte a URL el propio node (`pathToFileURL`). El primer
+# intento la traducia con `sed` desde bash y en Git-Bash quedaba «file:///», que no es absoluta:
+# traducir rutas a mano entre dos mundos es de las cosas que solo se ven ejecutando. Lo cazo
+# `revento()`, que existe justo para que una herramienta rota no pase por verde.
+chk   "EXIGIBLE_DESDE se DERIVA de la fase"    "DERIVADA" \
+  env MTH_PATRONES="$WORK/docs/methodology/tools/patrones.mjs" node "$WORK/exigible.mjs"
+
+# EL ENTREGABLE: cazar la FORMA, no los tres casos. Una comprobacion que se active con CUALQUIER
+# compuerta vuelve a hacer inevaluables las tres anteriores. Hoy hay cero; la cuarta que se
+# escriba pone esto en rojo el dia que se escriba.
+chkno "ninguna comprobacion se activa con cualquier compuerta" "if (gate) fail(" \
+  cat "$RAIZ/docs/methodology/tools/verify-fdge.mjs"
+# Y el caso de arriba no puede pasar por vacio: si el archivo no se lee, chkno pasaria solo.
+chk   "…y el archivo se leyo de verdad"        "gate === 'G4'" \
+  cat "$RAIZ/docs/methodology/tools/verify-fdge.mjs"
+
 # ─── PT-023 · el texto copiable dice lo que la regla dice ──────────────────
 # PT-018 declaro tres cambios de documento y ejecuto uno. El que quedo sin hacer era el de
 # FDGE-Prompts.md: el parrafo de SUITE-R44 seguia diciendo «cita el identificador que lo sostiene

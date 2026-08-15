@@ -1,0 +1,23 @@
+{
+  "pt": "PT-029",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Los pares conocidos estan enumerados con su evidencia", "scenarios": ["E1", "E2", "E3", "E4", "E5"], "tests": ["selftest.sh:G1 no exige el manifiesto de PHASE 6", "selftest.sh:G1 tampoco el self-review", "selftest.sh:G1 tampoco la entrada de HISTORY", "selftest.sh:G2 sigue sin exigir lo de PHASE 6", "selftest.sh:G3 no exige lo que PHASE 8 escribe", "selftest.sh:G3 SI exige el manifiesto", "selftest.sh:G4 exige el manifiesto", "selftest.sh:G4 exige el self-review", "selftest.sh:G4 exige la entrada de HISTORY"], "evidence": ["salidas/compuertas.txt", "salidas/inversa.txt", "salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Se busca de forma repetible, no por memoria de los que ya dolieron", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:EXIGIBLE_DESDE se DERIVA de la fase", "selftest.sh:sin compuerta, HISTORY solo se avisa"], "evidence": ["buscar-choques.mjs", "salidas/busqueda.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Lo que no se puede detectar mecanicamente se declara (RULE-06)", "scenarios": ["E8", "E9"], "tests": ["selftest.sh:ninguna comprobacion se activa con cualquier compuerta", "selftest.sh:…y el archivo se leyo de verdad"], "evidence": ["salidas/inversa.txt", "self-review.md"], "verified": true },
+    { "ac": "AC-04", "statement": "Lo que aparezca y no quepa se aplaza con su issue (SUITE-R44)", "scenarios": ["E1", "E2", "E3", "E4", "E5"], "tests": ["selftest.sh:G4 exige la entrada de HISTORY"], "evidence": ["salidas/compuertas.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que se detecten los choques entre reglas EN GENERAL.",
+      "por_que": "Este metodo cruza fases con compuertas y encuentra UNA familia. De los seis casos conocidos, CINCO son de otra: dos reglas que se contradicen sin fases de por medio. SUITE-R09 prohibe editar una entrada de HISTORY y FDGE-R29 prohibe anadir una segunda — no hay fase, hay dos prohibiciones que se cierran mutuamente, y detectarlo exigiria razonar sobre el CONTENIDO de las reglas.",
+      "donde": "self-review.md"
+    },
+    {
+      "afirmacion": "Que el caso E8 cace toda forma de la misma intencion.",
+      "por_que": "Caza la forma literal «if (gate) fail(». «if (gate !== undefined)» o «if (gate?.length)» expresan lo mismo y no caen. Ampliar la lista de formas es perseguir el idioma —lo que SUITE-R44 ya decidio no hacer— y el sinonimo que falte no se ve hasta que algo se ha perdido.",
+      "donde": "changes/PT-029-detectar-reglas-que-se-hacen-imposibles-entre-si/test-scenarios.md"
+    }
+  ],
+  "suite": { "passed": 520, "failed": 0, "skipped": 0, "coverage": 520, "baseline": 507 }
+}

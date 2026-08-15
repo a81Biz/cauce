@@ -637,15 +637,18 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
       "epic": "EP-013",
-      "phase": 1,
+      "phase": 8,
       "title": "Buscar mas choques entre reglas: una comprobacion que hace imposible el estado que otra obliga a atravesar",
       "origin": "Aplazado por PT-028 · cuarto defecto de la misma familia en dos dias (SUITE-R44 con CLOSED, SUITE-R45 con el merge, SUITE-R45 con la verificacion posterior, SUITE-R35 con SUITE-R46). Lo que falta no es otra regla sino detectar esa FORMA · Primer caso concreto encontrado y resuelto en PT-046 (EP-012): SUITE-R09 + FDGE-R29 + una comprobacion que leia siempre la primera entrada hacian imposible corregir un ledger. Esta tarea sigue abierta: pedia BUSCAR mas choques, y PT-046 resolvio el que aparecio al chocar con el.",
       "created": "2026-08-13",
-      "issue": 40
+      "issue": 40,
+      "branch": "chore/PT-029-detectar-reglas-que-se-hacen-imposibles-entre-si",
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-15"
     },
     {
       "id": "EP-007",
