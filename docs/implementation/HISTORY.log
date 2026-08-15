@@ -1715,3 +1715,56 @@ Para PT-029: verify-fdge.mjs:1155 exige la entrada de HISTORY con CUALQUIER gate
 PHASES sitúa G3 en PHASE 7 y HISTORY en PHASE 8. --gate G3 no puede pasar nunca, para ningún PT.
   selftest 495 → 501 casos · FDGE-R43 STALE → FRESH · grafo 18 → 500 nodos
 Trazabilidad externa: —
+
+## PT-023 — CHORE: el texto copiable dice lo que la regla dice, y el límite se declara
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-023-auditar-los-cambios-de-especificacion-declarados
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: comprobar si PT-018 declaró cambios de especificación que no hizo, y si el defecto es
+suyo o es de la forma.
+Causa raíz: FDGE-R22 obliga a declarar qué documentos cambian y nada comprueba que hayan cambiado.
+PT-018 declaró TRES y ejecutó UNO. El que quedó sin hacer era el de FDGE-Prompts.md: el párrafo de
+SUITE-R44 seguía diciendo «cita el identificador que lo sostiene — NORMALMENTE una allocation en
+DEFERRED», que es la prosa que SUITE-R44 existe para eliminar, dentro del documento que SUITE-R20
+manda que sea copiable TAL CUAL. Lo escribió PT-013, antes de PT-018. Peor que un documento sin
+actualizar: es del que se copia.
+Solución: el párrafo enuncia la forma —los dos valores admitidos y los tres casos de
+reciprocidad— y «normalmente» desaparece. Seis casos en selftest: cinco de contenido y uno que
+comprueba que HAY contenido.
+Archivos modificados: docs/methodology/FDGE-Prompts.md · docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-023/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): el entregable que importa no es la corrección, es el NO SE PUEDE con
+su cifra. La medida sobre las 40 spec-changes.md —110 filas— dio CUATRO candidatos y al abrirlos
+uno a uno TRES no eran defectos: PT-018/PHASES.md la cumplió PT-022 cuatro días y un lote después,
+y PT-037/CORE.md y PT-039/build-core.mjs están hechas bajo commits que no llevan su nombre. 75 %
+de falsos positivos, medido. Por eso NO se escribe el verificador de FDGE-R22: un control que se
+equivoca tres de cada cuatro veces no se lee, se silencia, y ocupa el sitio del que haría falta.
+Cuatro formas de falso positivo, las cuatro observadas y ninguna afinable:
+  1 el trabajo entra bajo un commit del LOTE
+  2 la declaración la cumple OTRO PT, y sigue cumplida
+  3 la medida corre ANTES del commit — el script marcó al propio PT-023
+  4 MENCIONAR un PT en un mensaje de commit basta para «cumplir» su declaración
+La cuarta apareció sola y cierra la discusión: el commit fc33e2b corrige FDGE-Prompts.md y nombra
+PT-018 cinco veces al explicar por qué, y con eso el defecto DESAPARECIÓ de la medida. No se
+arregla sin prohibir citar otro PT en un mensaje de commit, que es lo contrario de lo que se
+quiere. El indicador y el hábito que lo haría útil son incompatibles. Los dos archivos de medida
+se conservan porque la cuarta forma ES la diferencia entre ellos: borrar el primero habría dejado
+la evidencia más limpia y el argumento sin pruebas.
+El riesgo de esta tarea era cerrarla escribiendo el verificador para poder decir que la regla ya
+se comprueba. Lo impidió el ORDEN: medir, abrir los cuatro, y solo entonces decidir. Sin esa cifra
+se habría escrito y se habría sentido como progreso.
+Comprobación inversa en dos niveles: revertido el párrafo caen los cinco casos de contenido;
+ELIMINADO el bloque entero, el chkno de «normalmente» pasa POR VACÍO —un verde falso— y solo el
+sexto caso lo caza. Sin ese guardián, quitar el párrafo habría dejado la batería más verde que
+dejarlo mal.
+Lo que no resuelve: que PT-018 declarara tres cambios y ejecutara uno sin que nada lo notara
+durante dos meses. Lo encontró una persona revisando el tablero. Algunas cosas solo las caza
+mirar, y el marco debería decirlo en vez de dar por hecho que toda regla acaba teniendo script.
+  selftest 501 → 507 casos
+Trazabilidad externa: —

@@ -2244,6 +2244,29 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-023 · el texto copiable dice lo que la regla dice ──────────────────
+# PT-018 declaro tres cambios de documento y ejecuto uno. El que quedo sin hacer era el de
+# FDGE-Prompts.md: el parrafo de SUITE-R44 seguia diciendo «cita el identificador que lo sostiene
+# — NORMALMENTE una allocation en DEFERRED», que es la prosa que SUITE-R44 existe para eliminar,
+# dentro del documento que SUITE-R20 manda que sea copiable TAL CUAL.
+#
+# Estos casos NO comprueban que una declaracion de spec-changes.md se haya cumplido: eso no es
+# mecanizable y discovery.md lo mide —110 filas, 4 candidatos, 3 falsos positivos—. Comprueban el
+# contenido de UN documento, que es lo unico que se puede afirmar sin mentir.
+P="$RAIZ/docs/methodology/FDGE-Prompts.md"
+# El parrafo de SUITE-R44, acotado: desde su titular hasta el titular siguiente. Sin acotar, un
+# «normalmente» de cualquier otra parte del documento daria un rojo que no es este defecto.
+sr44() { sed -n '/`SUITE-R44`: lo que el lote aplaza/,/^\*\*`SUITE-R4[35]`/p' "$P"; }
+
+chk   "el texto copiable dice vocabulario cerrado" "vocabulario cerrado" sr44
+chk   "…y que la cita es reciproca"                "recíproca"           sr44
+chk   "…y nombra «—» como valor admitido"          "no aplaza nada"      sr44
+chk   "…y distingue el propio lote en DONE"        "DONE o CLOSED"       sr44
+chkno "y ya no dice «normalmente»"                 "normalmente"         sr44
+# La comprobacion inversa vive en el caso: si sr44() no acotara nada, chkno pasaria por vacio y
+# los cuatro chk caerian. Aqui se exige que el bloque EXISTA, para que el silencio no sea verde.
+chk   "el bloque de SUITE-R44 existe y no esta vacio" "SUITE-R44"        sr44
+
 chk   "el alcance del grafo cubre bin"       "SCOPE bin"              G
 chk   "…y las herramientas"                  "CUBRE_CODIGO_PROPIO"    G
 chk   "sin desbordar a la raiz ni a changes" "ALCANCE_ACOTADO"        G

@@ -1,0 +1,22 @@
+# Comprobacion inversa · PT-023 · 2026-08-15 · DOS niveles
+
+## Nivel 1 — el parrafo revertido al de PT-013 (con «normalmente»)
+  [31m✗[0m el texto copiable dice vocabulario cerrado  (no apareció: vocabulario cerrado)
+  [31m✗[0m …y que la cita es reciproca  (no apareció: recíproca)
+  [31m✗[0m …y nombra «—» como valor admitido  (no apareció: no aplaza nada)
+  [31m✗[0m …y distingue el propio lote en DONE  (no apareció: DONE o CLOSED)
+  [31m✗[0m y ya no dice «normalmente»  (apareció: normalmente)
+  [32m✓[0m el bloque de SUITE-R44 existe y no esta vacio
+selftest: HAY FALLOS · 507 casos
+
+## Nivel 2 — el bloque ELIMINADO por completo
+#  chkno pasa POR VACIO: es el verde falso que el sexto caso existe para cazar.
+  [32m✓[0m y ya no dice «normalmente»
+  [31m✗[0m el bloque de SUITE-R44 existe y no esta vacio  (no apareció: SUITE-R44)
+selftest: HAY FALLOS · 507 casos
+
+## Restaurado
+
+selftest: OK · 507 casos
+
+selftest: OK · 507 casos

@@ -17,7 +17,7 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-020 | CHORE | S3 | DONE | EP-013 | Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01) |
 | PT-021 | BUG | S1 | INTEGRATED | EP-005 | Citar el propio lote no puede pasar G4 nunca: CLOSED ocurre despues del merge |
 | PT-022 | BUG | S1 | INTEGRATED | EP-005 | SUITE-R44 solo mira las filas que existen: omitirla es invisible y declararla bloquea |
-| PT-023 | CHORE | S2 | READY | EP-013 | Auditar si PT-018 declaro mas cambios de especificacion que no hizo |
+| PT-023 | CHORE | S2 | DONE | EP-013 | Auditar si PT-018 declaro mas cambios de especificacion que no hizo |
 | PT-024 | BUG | S1 | INTEGRATED | EP-006 | tracker cerrar cierra issues cuyo estado terminal aun no esta en la rama por defecto |
 | PT-026 | BUG | S1 | INTEGRATED | EP-006 | El espejo compara en main una foto del registro contra un tablero vivo: diverge siempre |
 | PT-028 | BUG | S1 | INTEGRATED | EP-006 | SUITE-R35 denunciaba como huerfano el estado que SUITE-R46 obliga a atravesar |

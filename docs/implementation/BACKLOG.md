@@ -2,7 +2,7 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-15 en `PHASE 8` de `PT-020`. Cada fila se **deriva** del registro
+> Regenerado el 2026-08-15 en `PHASE 8` de `PT-023`. Cada fila se **deriva** del registro
 > —`id`, `type`, `severity`, `status`, `phase`, `epic`, `issue`, `title`— y no se edita a mano.
 > Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres versiones
 > atrás con la misma seguridad que si fuera el de hoy; y `REFACTOR_SCOPE.md`, editado a mano,
@@ -22,10 +22,10 @@ issue [#73](https://github.com/a81Biz/cauce/issues/73).
 | PT-048 | BUG | S3 | DONE | 9 | [#70](https://github.com/a81Biz/cauce/issues/70) | El issue de un `DEFERRED` dice lo que hay en vez de enlazar a lo que no hay |
 | PT-017 | CHORE | S4 | DONE | 9 | [#24](https://github.com/a81Biz/cauce/issues/24) | `migrate` deriva «qué llega nuevo» comparando paquete y destino |
 | PT-020 | CHORE | S3 | DONE | 8 | [#27](https://github.com/a81Biz/cauce/issues/27) | El grafo cubre el código propio; las tres expectativas, contrastadas |
-| PT-023 | CHORE | S2 | READY | 1 | [#32](https://github.com/a81Biz/cauce/issues/32) | Auditar si `PT-018` declaró más cambios de especificación que no hizo |
+| PT-023 | CHORE | S2 | DONE | 8 | [#32](https://github.com/a81Biz/cauce/issues/32) | El texto copiable dice lo que la regla dice, y el verificador de `FDGE-R22` se descarta con su cifra |
 | PT-029 | CHORE | S2 | READY | 1 | [#40](https://github.com/a81Biz/cauce/issues/40) | Buscar más choques entre reglas |
 
-Las cinco primeras están integradas en `trabajo` (PRs #74–#78). `G4` es **una por lote**
+Las seis primeras están integradas en `trabajo` (PRs #74–#79). `G4` es **una por lote**
 (`FDGE-R19`, `EXEC-R03`): el PR de una tarea a `trabajo` es revisión, no `G4`.
 
 `PT-047` fue **primera** y no por preferencia: cambia cómo se ejecutan las otras siete.
@@ -57,7 +57,7 @@ caso aparece antes que el alcance**, y el original sigue abierto mientras sus ca
 
 ## Lo siguiente
 
-Cerrar `PT-023` y `PT-029`, resolver las cuatro filas de cierre de `EP-013` —`CHANGELOG` **8.0.0**
+Cerrar `PT-029` —la última del lote—, resolver las cuatro filas de cierre de `EP-013` —`CHANGELOG` **8.0.0**
 con guía de migración, `CORE` regenerado, la deuda declarada y qué pasa con `PT-019` y `PT-025`—
 y preparar `G4`.
 
