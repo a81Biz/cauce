@@ -1664,3 +1664,54 @@ deja de explicarla. Anotado en el código y con su caso.
 Sobre el legado real: la lista escrita a mano decía 6; la derivada dice 7, e incluye regla.mjs.
   selftest 491 → 495 casos
 Trazabilidad externa: —
+
+## PT-020 — CHORE: el grafo cubre el código propio, y las expectativas se contrastan
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-020-ampliar-el-grafo-a-tools
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que REGISTRY.graph describa el código propio del marco, que son bin/ y
+docs/methodology/tools/.
+Causa raíz: el grafo se generó un día sobre «bin» y ahí se quedó. 18 nodos, todos de cauce.mjs,
+mientras 16 herramientas quedaban fuera — y FDGE-R43 daba FRESH sobre lo que no había mirado.
+Una regla que puede dar verde sin haber leído el código no verifica el código: verifica una fecha.
+Solución: scope pasa a «bin, docs/methodology/tools» y pt_at_generation de 0 a 48. Dejarlo en 0
+hacía nacer el grafo STALE el mismo día, porque FDGE-R43 compara contra los PT estructurales
+integrados DESDE su generación y con 0 son todos. Regenerado: 18 → 500 nodos, 635 aristas, 14
+comunidades sobre los 16 archivos. graphify-out/ no se versiona (SUITE-R37).
+Archivos modificados: docs/implementation/REGISTRY.json · docs/methodology/tools/selftest.sh ·
+docs/implementation/{REFACTOR_SCOPE,DISCOVERY,ENRICHMENT}.md
+Evidencia: docs/implementation/evidence/PT-020/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): el resultado que importa no es el grafo, son las tres expectativas
+que strategy.md escribió ANTES de generarlo. Dos de las tres fallaron como estaban escritas:
+  1 patrones.mjs como nodo central       SE CUMPLE. 17 de las 19 aristas entre archivos
+                                         apuntan a él, todas EXTRACTED. SUITE-R38 deja de
+                                         tener que creerse: se ve.
+  2 verify-fdge como «el mayor»          NO. Es el 2.º por nodos (60 vs 62 de audit.mjs).
+                                         «El mayor» no nombraba una métrica. Por acoplamiento
+                                         sí lo es: los 5 primeros god nodes son suyos y
+                                         audit.mjs no coloca ninguno en el top-10.
+  3 la huérfana se ve aislada            SE CUMPLE, y dice otra cosa: no es una, son 8 de 16.
+                                         «Aislado ⇒ sobra» no se sostiene con la mitad del
+                                         código aislado. Son CLIs independientes, y esa es la
+                                         forma que el marco quiso.
+No se ajustó el alcance para que salieran las tres. La casilla marcada es peor que el hueco
+declarado, y esto es lo que se gana escribiendo las expectativas antes: se puede fallar.
+Hallazgo no buscado: dos aristas «calls» entre archivos son falsos positivos. verify-fdge.mjs
+importa SOLO ./patrones.mjs; divergencia() y cuerpoDe() son funciones locales suyas que comparten
+nombre con otras de cauce.mjs y build-core.mjs, y el extractor resuelve por nombre y no por
+ámbito. Marcadas INFERRED 0.8, así que el rastro de auditoría funcionó — pero 0.8 se lee como
+«casi seguro». Declarado y no corregido a mano: graphify-out/ es regenerable (SUITE-R37) y la
+corrección se perdería en la siguiente generación sin avisar.
+Encontrado de paso: REFACTOR_SCOPE.md tenía 14 filas pegadas en una sola línea con estados
+obsoletos, desde 7d4cf1e — la apertura de este mismo lote. Los tres índices se reconstruyen ahora
+DERIVANDO del registro (SUITE-R35) en vez de editarse a mano: 33 + 3 + 2 filas, 0 divergencias.
+Para PT-029: verify-fdge.mjs:1155 exige la entrada de HISTORY con CUALQUIER gate, no solo G4, y
+PHASES sitúa G3 en PHASE 7 y HISTORY en PHASE 8. --gate G3 no puede pasar nunca, para ningún PT.
+  selftest 495 → 501 casos · FDGE-R43 STALE → FRESH · grafo 18 → 500 nodos
+Trazabilidad externa: —

@@ -1,0 +1,43 @@
+AC-01 · REGISTRY.graph
+  {"generated": "2026-08-15", "scope": "bin, docs/methodology/tools", "pt_at_generation": 48}
+  graph.json: 500 nodos, 635 aristas
+
+AC-02 · nodos por archivo del alcance
+    62  audit.mjs
+    60  verify-fdge.mjs
+    57  verify-suite.mjs
+    48  tracker.mjs
+    41  migrate.mjs
+    38  plan-layout.mjs
+    36  build-core.mjs
+    33  verify-ptsa.mjs
+    32  verify-qa.mjs
+    21  revisar-secretos.mjs
+    20  regla.mjs
+    18  cauce.mjs
+    13  version.mjs
+    11  comparar-marco.mjs
+     5  patrones.mjs
+     5  verify-patrones.mjs
+
+AC-04 · archivos del grafo fuera del alcance declarado (FND-R28)
+  ninguno
+
+Expectativas de strategy.md · las aristas ENTRE archivos, todas
+  build-core.mjs         --calls       --> patrones.mjs         [EXTRACTED] x1
+  build-core.mjs         --imports     --> patrones.mjs         [EXTRACTED] x1
+  build-core.mjs         --imports_from--> patrones.mjs         [EXTRACTED] x1
+  migrate.mjs            --imports     --> patrones.mjs         [EXTRACTED] x1
+  migrate.mjs            --imports_from--> patrones.mjs         [EXTRACTED] x1
+  verify-fdge.mjs        --calls       --> build-core.mjs       [INFERRED] x1
+  verify-fdge.mjs        --calls       --> cauce.mjs            [INFERRED] x1
+  verify-fdge.mjs        --imports     --> patrones.mjs         [EXTRACTED] x3
+  verify-fdge.mjs        --imports_from--> patrones.mjs         [EXTRACTED] x1
+  verify-patrones.mjs    --imports     --> patrones.mjs         [EXTRACTED] x2
+  verify-patrones.mjs    --imports_from--> patrones.mjs         [EXTRACTED] x1
+  verify-suite.mjs       --imports     --> patrones.mjs         [EXTRACTED] x2
+  verify-suite.mjs       --imports_from--> patrones.mjs         [EXTRACTED] x1
+  version.mjs            --imports     --> patrones.mjs         [EXTRACTED] x1
+  version.mjs            --imports_from--> patrones.mjs         [EXTRACTED] x1
+
+  sin ninguna arista entre archivos (8): audit.mjs, comparar-marco.mjs, plan-layout.mjs, regla.mjs, revisar-secretos.mjs, tracker.mjs, verify-ptsa.mjs, verify-qa.mjs

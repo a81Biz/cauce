@@ -21,6 +21,25 @@ grafo que no los contiene.
 `plan-layout` que un `tools/` con `.mjs` es código propio aunque cuelgue de `docs/`. Lo segundo
 sirve a todos los proyectos; lo primero, solo a este.
 
+> **RESUELTA por `PT-020` el 2026-08-15** — por la primera vía, la que sirve solo a este
+> repositorio. `REGISTRY.graph.scope` pasa a `bin, docs/methodology/tools` y `pt_at_generation`
+> de `0` a `48`; el grafo va de **18 nodos** —todos de `bin/cauce.mjs`— a **500 nodos, 635
+> aristas y 14 comunidades** sobre los 16 archivos. `FDGE-R43`: `STALE` → `FRESH`. Seis casos
+> nuevos en `selftest.sh` (495 → 501) impiden volver al alcance de ayer, y la comprobación
+> inversa se ejecutó: revertido el registro, los dos casos que deben caer caen.
+>
+> **La segunda vía sigue abierta**, y con ella la parte de esta deuda que importa a los demás
+> proyectos: `plan-layout` sigue sin reconocer `tools/` con `.mjs` bajo `docs/` como código
+> propio, así que **cualquier instalación nueva nace con este mismo defecto** y hay que
+> corregirlo a mano. Aquí se arregló el síntoma en un repositorio; la causa está en la
+> herramienta que calcula el alcance.
+>
+> Y lo que `PT-020` midió abre una pregunta que no existía: **13 de las 14 comunidades son un
+> archivo cada una**, y 8 de los 16 archivos no comparten una sola arista. El grafo describe
+> bien y dice poco, porque hay poco que decir — 16 CLI casi autónomos. Queda medido en
+> [`changes/PT-020-ampliar-el-grafo-a-tools/self-review.md`](../../changes/PT-020-ampliar-el-grafo-a-tools/self-review.md),
+> junto con las **dos de tres** expectativas que no se cumplieron como estaban escritas.
+
 ### `TD-02` · `verify-fdge.mjs` concentra siete familias de reglas en 1 027 líneas
 
 Junto a `selftest.sh` (1 110) son el 39 % del código. `verify-fdge` verifica `SUITE-*`, `FND-*`,

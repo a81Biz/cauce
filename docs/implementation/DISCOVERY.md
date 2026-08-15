@@ -19,6 +19,6 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-012 | BUG | S2 | INTEGRATED | EP-004 | migrate.mjs no tiene tramo 4.12 → 6.x |
 | PT-013 | BUG | S2 | INTEGRATED | EP-004 | Lo que un lote aplaza queda en prosa y nada obliga a que vuelva |
 | PT-014 | BUG | S3 | INTEGRATED | EP-004 | El cuerpo de un lote se escribe antes de que sus tareas tengan issue |
-| PT-015 | CHORE | S4 | DEFERRED | — | Escribir verificador para las reglas HARD que hoy no tienen ninguno |
-| PT-016 | CHORE | S4 | DEFERRED | — | Decidir si phase pasa a ser obligatoria, y añadirla a TAREA.md |
-| PT-017 | CHORE | S4 | DEFERRED | — | migrate: derivar la lista de «qué llega nuevo» |
+| PT-015 | CHORE | S4 | DONE | EP-013 | Escribir verificador para las reglas HARD que hoy no tienen ninguno |
+| PT-016 | CHORE | S4 | DONE | EP-013 | Decidir si phase pasa a ser obligatoria, y añadirla a TAREA.md |
+| PT-017 | CHORE | S4 | DONE | EP-013 | migrate: derivar la lista de «qué llega nuevo» |
