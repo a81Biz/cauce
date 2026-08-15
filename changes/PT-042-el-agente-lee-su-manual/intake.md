@@ -8,11 +8,11 @@ id: PT-042
 type: FEATURE
 epic: EP-011
 track: STANDARD
-status: DRAFT
+status: INTEGRATED
 created: 2026-08-14
 structural: no
 suite_version: 7.5.0
-phase: 1
+phase: 9
 ---
 ```
 

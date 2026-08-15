@@ -606,3 +606,48 @@ nunca volvió a abrirse.
 
 Tres lotes, diez tareas y tres versiones después, el trabajo que originó la sesión está donde
 estaba. Queda escrito aquí para que no se pierda.
+
+---
+
+## 2026-08-14 · PHASE 0 · Context — la primera entrada en tres lotes
+
+Escrita porque **faltaba**. `PHASE 0` produce una entrada aquí y no se escribió ninguna durante
+`EP-009`, `EP-010` ni `EP-011`: tres lotes, doce tareas, tres versiones. La última entrada de
+arriba es de la `6.0.1`.
+
+```
+último PT integrado   PT-043 (EP-011, CLOSED) · main af79c6b
+modo                  SUPERVISED · sin restricción automática (EXEC-R14): sin INC abierto,
+                      sin hotfix con deuda vencida, sin migración pendiente
+suite_version         7.6.0 · REGISTRY, CLAUDE.md, 21 documentos y package.json alineados
+PTs vivos             11, todos DEFERRED. Ninguno en curso
+Foundation            presente y validada · pt_at_generation 0, hoy 43 integrados ⇒ ANTIGUA
+grafo                 STALE — scope «bin», generado con pt_at_generation 0, y PT-034 estructural
+                      integrado desde entonces (FDGE-R43). Bloquea G2 en PTs MAJOR
+CORE.md               presente y sincronizado (build-core --check)
+espejo                11 allocations vivas y 11 issues abiertos: cuadra
+confianza             MEDIA. Lo que la baja está enumerado abajo, no promediado
+```
+
+### Lo que esta lectura encontró de mi propio uso del marco
+
+Cinco cosas, todas comprobadas contra el repositorio y ninguna recordada:
+
+1. **`SESSION_LOG` sin entradas** durante tres lotes. `PHASE 0` la exige y `PHASE 0` no se
+   ejecutó: se entró directo a `PHASE 1` en los doce PTs. Esta entrada es la corrección.
+2. **`BACKLOG.md` lleva ocho lotes sin regenerar** (`PHASE 8` paso 3). Declara `EP-003` como
+   implementación abierta, `PT-009` y `PT-010` en `DONE`, y «publicar `6.0.1`» como lo
+   siguiente. Quien lo lea recibe un estado de tres versiones atrás.
+3. **Ningún PT ha creado su rama.** `PHASE 5` paso 1 manda `git checkout -b <type>/PT-XXX-slug`
+   y `PHASE 4` obliga a proponerla. Los 43 PTs de este repositorio se han implementado sobre
+   `trabajo`, y el `CLAUDE.md` declara dos ramas y ninguna por tarea. **El marco y su propio uso
+   se contradicen**, y nada lo detecta.
+4. **El issue de una allocation `DEFERRED` enlaza a un directorio que no existe.** `SUITE-R44`
+   la exime de tener artefactos, pero `cuerpoDeIssue` enlaza igual: `PT-015`, `PT-025`, `PT-044`,
+   `PT-045` y `PT-046` apuntan a un 404. Es lo que `PT-036` existe para impedir.
+5. **El grafo describe `bin`**, no el código del marco. `FND-R28` pide el código propio y las
+   herramientas viven en `docs/methodology/tools/`. `FDGE-R43` se satisface sobre un grafo que no
+   describe el sistema — ya estaba escrito como `TD-01`, y sigue.
+
+Las tres primeras son mías, de esta sesión y de las dos anteriores. Las dos últimas son del
+marco.

@@ -8,11 +8,11 @@ id: PT-030
 type: FEATURE
 epic: EP-007
 track: STANDARD
-status: IN_PROGRESS
+status: INTEGRATED
 created: 2026-08-13
 structural: no
 suite_version: 7.1.0
-phase: 4
+phase: 10
 ---
 ```
 

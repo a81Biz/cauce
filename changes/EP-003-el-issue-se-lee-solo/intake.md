@@ -4,7 +4,7 @@
 ---
 id: EP-003
 created: 2026-08-13
-status: IN_PROGRESS
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 ---

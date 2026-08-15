@@ -1,0 +1,13 @@
+# bash docs/methodology/tools/selftest.sh · 2026-08-14
+selftest: OK · 445 casos
+
+# los casos de PT-044 (SUITE-R35 hacia dentro):
+  [32m✓[0m YAML y registro con fases distintas
+  [32m✓[0m y dice cual de los dos se usa
+  [32m✓[0m YAML y registro con estados distintos
+  [32m✓[0m el indice tampoco puede contradecir
+  [32m✓[0m si coinciden, ni una linea de mas
+  [32m✓[0m sin fase en el registro no se inventa
+  [32m✓[0m en G4 la divergencia BLOQUEA
+  [32m✓[0m un PT vivo sin bitacora falla
+  [32m✓[0m uno ya integrado, no: no se retrofecha

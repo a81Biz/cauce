@@ -1,0 +1,4 @@
+PT-039    ✓ FDGE-R34       PT-039: precondiciones de G4 satisfechas.
+PT-040    ✓ FDGE-R34       PT-040: precondiciones de G4 satisfechas.
+PT-041    ✓ FDGE-R34       PT-041: precondiciones de G4 satisfechas.
+PT-042    ✓ FDGE-R34       PT-042: precondiciones de G4 satisfechas.

@@ -8,11 +8,11 @@ id: PT-010
 type: BUG
 epic: EP-003
 track: STANDARD
-status: READY
+status: INTEGRATED
 created: 2026-08-13
 structural: no
 suite_version: 6.0.0
-phase: 1
+phase: 8
 ---
 ```
 

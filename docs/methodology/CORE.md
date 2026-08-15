@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 97fbd27f16cd -->
-<!-- fuentes: RULES.md:996210603930 LEXICON.md:788b493f51c9 EXECUTION-MODES.md:05e5929814f6 PHASES.md:08fb6b5f1771 -->
+<!-- cuerpo: 4d78976f1490 -->
+<!-- fuentes: RULES.md:9947bf8bbc95 LEXICON.md:51d97c07a204 EXECUTION-MODES.md:5661b023cf28 PHASES.md:10e2e00e5849 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -664,6 +664,12 @@ JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SU
           del issue apunta a DONDE EL CONTENIDO ESTA — rama de trabajo si
           esta vivo, rama por defecto si ya es INTEGRATED.
           node tools/tracker.mjs abrir --aplicar   lo mantiene
+ESPEJA    TODO lo que copie el estado, no solo la plataforma.              [SUITE-R35]
+          registro ↔ YAML del intake ↔ linea de indice. Si divergen se DICE:
+          aviso durante el trabajo, ERROR en G4. Manda el YAML (PT-004) y se
+          declara cual se uso. Falta un lado ⇒ no se compara: un campo ausente
+          no es una divergencia. Sin esto, un «phase: 1» olvidado APAGA
+          FDGE-R52 —que solo corre desde phase >= 2— sin avisar.
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
@@ -769,6 +775,12 @@ HAZ  1 HISTORY (append, formato canónico único):
         anterior, modo nuevo y motivo. Sin ese registro no se puede auditar por qué un PT
         tuvo las compuertas que tuvo.                                       [EXEC-R13]
      6 si Estructural: sí ⇒ solicitar regeneración del grafo y anotarlo en HANDOFF [FDGE-R32]
+CORREGIR una entrada YA ESCRITA que salio mal: NO se edita.            [FDGE-R29]
+       ## PT-NNN — CORRIGE: <que se corrige>
+       Corrige: la entrada de AAAA-MM-DD  /  Motivo: <por que>  /  <campos rehechos>
+       G4 lee la ULTIMA correccion para cada campo que declare, y la original para
+       los que no. La original NO se toca: es lo que se audita. Sin entrada
+       original, la CORRIGE falla — seria declarar trabajo sin registro.
 NO   editar entradas existentes de HISTORY · borrarlas · tocar código
 ```
 

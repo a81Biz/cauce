@@ -9,7 +9,7 @@
 ---
 id: EP-001
 created: 2026-08-13
-status: DRAFT
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 ---

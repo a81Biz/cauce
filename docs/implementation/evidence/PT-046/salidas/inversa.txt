@@ -1,0 +1,9 @@
+# Comprobacion INVERSA · PT-046 · PHASE 5
+# Un verificador que no puede fallar no verifica (SUITE-R38). Se reintroduce el defecto
+# que el caso de las DOS correcciones encontro —buscar la entrada por texto en vez de por
+# su indice, que con encabezados iguales devuelve siempre la primera— y se mira si cae.
+
+== con el defecto reintroducido (indexOf en vez de m.index) ==
+  ✗ FDGE-R34       PT-001: estado "VALIDATION_PENDING". G4 exige DONE. CLOSED es POSTERIOR a INTEGRATED (LEXICON §5.1): exigirlo aquí sería un bloqueo circular.
+== con la implementacion vigente ==
+Sin errores. PTs verificados: 1.

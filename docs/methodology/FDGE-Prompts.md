@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **7.6.0**
+> Suite version: **7.7.0**
 
 ---
 
@@ -124,6 +124,15 @@ Deriva qué produce la fase actual, qué la cierra, qué compuerta le toca y qu�
 comentario humano sin responder **bloquea la respuesta** (`SUITE-R43`): preguntar qué sigue sin
 haber leído la respuesta anterior es justo el defecto que esta regla impide. Sin `phase`
 declarada, `SIN EVALUAR` — no se adivina.
+
+**`SUITE-R35`: espeja todo lo que copie el estado, no solo la plataforma.** El registro
+asigna; el **YAML del intake** y la **línea de índice** son las otras dos copias del mismo hecho.
+Si divergen se **dice**: aviso durante el trabajo, **error en `G4`**, que es donde el estado tiene
+que ser uno solo. Manda el YAML (`PT-004`: es lo que el PT dice de sí mismo) y se declara cuál se
+usó. Si a un lado le falta el dato, **no se compara** — un campo ausente no es una divergencia.
+
+Importa porque un `phase` olvidado **apaga comprobaciones**: `FDGE-R52` solo corre desde
+`phase >= 2`, y cuatro tareas pasaron su compuerta sin que se evaluara nunca.
 
 **`SUITE-R47`: el espejo se comprueba donde el registro asigna.** `tracker espejo` **bloquea**
 en la rama de trabajo y en los pull requests, e **informa sin bloquear** en la rama por defecto.
@@ -1026,6 +1035,23 @@ Compuertas: G1 YYYY-MM-DD [nombre] · G2 YYYY-MM-DD [nombre|auto] · G3 YYYY-MM-
 Trazabilidad externa: [QD-XXX] [H-XXX] [R-XXX]     (omitir las que no apliquen)
 
 Append-only. NUNCA reescribas ni edites una entrada existente.               [SUITE-R09]
+
+### Si una entrada YA ESCRITA salió mal                                      [FDGE-R29]
+No se edita: se **corrige** con una entrada nueva que la referencia, que es lo que
+`SUITE-R09` ya prescribe y lo que las entradas `REVERTIDO` ya hacen.
+
+## PT-XXX — CORRIGE: [qué se corrige]
+Corrige: la entrada de YYYY-MM-DD
+Motivo: [por qué la original no cumple]
+[los campos que se rehacen, en el formato canónico de arriba]
+
+Las comprobaciones de `G4` leen **la última corrección** para cada campo que declare, y la
+entrada original para los que no: arreglar el `Estado:` no hace desaparecer el
+`Estructural:`. La original **no se toca** y sigue siendo lo que se audita — quien lea el
+ledger ve las dos y ve que hubo un error, que es justo lo que editar habría borrado.
+
+Una `CORRIGE` **sin entrada original falla**: sin ese cierre sería una vía para declarar
+trabajo del que no hay registro.
 
 ## 2. Sobrescribir HANDOFF.md en MODO MERGE                                  [FDGE-R30]
 ANTES de escribir, LEE el HANDOFF.md existente. PRESERVA todas las validaciones

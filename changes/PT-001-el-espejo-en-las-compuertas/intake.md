@@ -8,7 +8,7 @@ id: PT-001
 type: BUG
 epic: EP-001
 track: STANDARD
-status: DRAFT
+status: INTEGRATED
 created: 2026-08-13
 structural: no
 suite_version: 5.2.3

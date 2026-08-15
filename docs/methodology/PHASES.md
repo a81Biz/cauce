@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **7.6.0**
+> Suite version: **7.7.0**
 
 ---
 
@@ -261,6 +261,12 @@ JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SU
           del issue apunta a DONDE EL CONTENIDO ESTA — rama de trabajo si
           esta vivo, rama por defecto si ya es INTEGRATED.
           node tools/tracker.mjs abrir --aplicar   lo mantiene
+ESPEJA    TODO lo que copie el estado, no solo la plataforma.              [SUITE-R35]
+          registro ↔ YAML del intake ↔ linea de indice. Si divergen se DICE:
+          aviso durante el trabajo, ERROR en G4. Manda el YAML (PT-004) y se
+          declara cual se uso. Falta un lado ⇒ no se compara: un campo ausente
+          no es una divergencia. Sin esto, un «phase: 1» olvidado APAGA
+          FDGE-R52 —que solo corre desde phase >= 2— sin avisar.
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan
@@ -366,6 +372,12 @@ HAZ  1 HISTORY (append, formato canónico único):
         anterior, modo nuevo y motivo. Sin ese registro no se puede auditar por qué un PT
         tuvo las compuertas que tuvo.                                       [EXEC-R13]
      6 si Estructural: sí ⇒ solicitar regeneración del grafo y anotarlo en HANDOFF [FDGE-R32]
+CORREGIR una entrada YA ESCRITA que salio mal: NO se edita.            [FDGE-R29]
+       ## PT-NNN — CORRIGE: <que se corrige>
+       Corrige: la entrada de AAAA-MM-DD  /  Motivo: <por que>  /  <campos rehechos>
+       G4 lee la ULTIMA correccion para cada campo que declare, y la original para
+       los que no. La original NO se toca: es lo que se audita. Sin entrada
+       original, la CORRIGE falla — seria declarar trabajo sin registro.
 NO   editar entradas existentes de HISTORY · borrarlas · tocar código
 ```
 

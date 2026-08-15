@@ -1,5 +1,5 @@
 {
-  "suite_version": "7.6.0",
+  "suite_version": "7.7.0",
   "execution_mode": "SUPERVISED",
   "foundation": {
     "generated": "2026-08-13",
@@ -15,8 +15,8 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 46,
-    "EP": 11,
+    "PT": 48,
+    "EP": 12,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -380,7 +380,7 @@
       "id": "PT-016",
       "slug": "phase-obligatoria",
       "title": "Decidir si `phase` pasa a ser obligatoria, y añadirla a la plantilla TAREA.md",
-      "origin": "Aplazado por PT-004 · haría fallar a todo proyecto ya instalado, así que es decisión con entrada de CHANGELOG",
+      "origin": "Aplazado por PT-004 · haría fallar a todo proyecto ya instalado, así que es decisión con entrada de CHANGELOG · Ampliado por PT-046 (EP-012): el formato canonico de HISTORY.log declara ocho campos que hoy no verifica nadie —Severidad, Complejidad, Track, Lote, Rama, Modo, Objetivo, Solucion—. Exigirlos rompe entradas validas de proyectos ya instalados, asi que se decide aqui y no se cuela en PT-046 (SUITE-R44). · PT-044 (EP-012) hace que un phase que miente se VEA, no que alguien lo escriba: la decision de si pasa a ser obligatoria sigue sin tomarse, y es esta tarea.",
       "issue": 23
     },
     {
@@ -442,7 +442,7 @@
       "id": "PT-020",
       "slug": "ampliar-el-grafo-a-tools",
       "title": "Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01)",
-      "origin": "Aplazado por PT-004 · el grafo cubre «bin» y FDGE-R43 se satisface sobre un grafo que no describe el sistema",
+      "origin": "Aplazado por PT-004 · el grafo cubre «bin» y FDGE-R43 se satisface sobre un grafo que no describe el sistema · Tambien aplazado por PT-045 (EP-012): PHASE 0 del lote lo volvio a medir — REGISTRY.graph declara scope «bin» y las herramientas viven en docs/methodology/tools/, asi que FDGE-R43 se satisface sobre un grafo que no describe el sistema (SUITE-R44, cita reciproca).",
       "issue": 27
     },
     {
@@ -626,7 +626,7 @@
       "epic": null,
       "phase": null,
       "title": "Buscar mas choques entre reglas: una comprobacion que hace imposible el estado que otra obliga a atravesar",
-      "origin": "Aplazado por PT-028 · cuarto defecto de la misma familia en dos dias (SUITE-R44 con CLOSED, SUITE-R45 con el merge, SUITE-R45 con la verificacion posterior, SUITE-R35 con SUITE-R46). Lo que falta no es otra regla sino detectar esa FORMA",
+      "origin": "Aplazado por PT-028 · cuarto defecto de la misma familia en dos dias (SUITE-R44 con CLOSED, SUITE-R45 con el merge, SUITE-R45 con la verificacion posterior, SUITE-R35 con SUITE-R46). Lo que falta no es otra regla sino detectar esa FORMA · Primer caso concreto encontrado y resuelto en PT-046 (EP-012): SUITE-R09 + FDGE-R29 + una comprobacion que leia siempre la primera entrada hacian imposible corregir un ledger. Esta tarea sigue abierta: pedia BUSCAR mas choques, y PT-046 resolvio el que aparecio al chocar con el.",
       "created": "2026-08-13",
       "issue": 40
     },
@@ -952,49 +952,100 @@
       "id": "PT-044",
       "slug": "el-yaml-del-intake-no-puede-mentir",
       "type": "BUG",
-      "complexity": null,
+      "complexity": "STANDARD",
       "severity": "S2",
-      "track": null,
-      "status": "DEFERRED",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
       "structural": false,
-      "suite_version": "7.5.0",
-      "phase": null,
+      "suite_version": "7.6.0",
+      "phase": 9,
       "title": "El YAML del intake declara una fase y un estado que el registro contradice",
       "origin": "PT-043 · out-of-scope. Encontrado ejecutando tracker espejo y verify-fdge: PT-039..PT-042 declaran status DRAFT y phase 1 en su intake.md mientras el registro dice VALIDATION_PENDING y phase 8. El YAML manda sobre el registro en verify-fdge, asi que FDGE-R52 nunca se evaluo en esos cuatro.",
       "created": "2026-08-14",
-      "issue": 65
+      "issue": 65,
+      "epic": "EP-012"
     },
     {
       "id": "PT-045",
       "slug": "npx-cauce-start-no-arranca",
       "type": "BUG",
-      "complexity": null,
+      "complexity": "STANDARD",
       "severity": "S2",
-      "track": null,
-      "status": "DEFERRED",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
       "structural": false,
-      "suite_version": "7.5.0",
-      "phase": null,
+      "suite_version": "7.6.0",
+      "phase": 9,
       "title": "npx @a81biz/cauce start no arranca: el punto de entrada documentado falla",
       "origin": "PT-043 · out-of-scope. Encontrado ejecutando el arranque que MANUAL.md y CASOS-DE-USO.md documentan: dentro del repositorio de cauce npx resuelve el paquete local y no encuentra el binario; fuera, la version publicada mas alta es 7.1.0 y no tiene el subcomando start. SUITE-R50 dice que no hay forma de obtener el nucleo sin el tablero, y hoy no hay forma de obtener ninguno de los dos por la via documentada.",
       "created": "2026-08-14",
-      "issue": 66
+      "issue": 66,
+      "epic": "EP-012"
     },
     {
       "id": "PT-046",
       "slug": "una-entrada-de-history-mal-formada-no-se-puede-corregir",
       "type": "BUG",
-      "complexity": null,
+      "complexity": "STANDARD",
       "severity": "S2",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "7.6.0",
+      "phase": 9,
+      "title": "Una entrada de HISTORY.log mal formada bloquea G4 y ninguna regla permite corregirla",
+      "origin": "PT-043 · cierre de EP-011. Encontrado ejecutando verify-fdge --gate G4 sobre PT-039..PT-042: sus entradas escriben «Fecha: ... · Estado: DONE · ...» en una sola linea y FDGE-R34 exige «^Estado:» al principio de linea, que es el formato canonico de FDGE-Implementation.md. G4 queda bloqueada en las cuatro. Y no hay salida escrita: SUITE-R09 prohibe editar una entrada existente, FDGE-R29 prohibe una segunda entrada que no sea de revert, y la comprobacion lee entries[0]. Corregirlo exige autorizacion humana explicita con registro, o cambiar una de las dos reglas.",
+      "created": "2026-08-14",
+      "issue": 67,
+      "epic": "EP-012"
+    },
+    {
+      "id": "EP-012",
+      "slug": "el-marco-se-cierra-a-si-mismo",
+      "type": "EP",
+      "complexity": null,
+      "severity": null,
+      "track": null,
+      "status": "CLOSED",
+      "structural": null,
+      "suite_version": "7.6.0",
+      "phase": 9,
+      "title": "Cerrar lo que EP-011 dejo abierto: el ledger que no se puede corregir, el YAML que miente y el arranque que no arranca",
+      "origin": "Peticion humana 2026-08-14: «hazlos en orden. Revisa que tu mismo estes usando correctamente el marco de trabajo, estes usando github de forma correcta y estes siguiendo todas las fases como se indica»",
+      "created": "2026-08-14",
+      "issue": 71
+    },
+    {
+      "id": "PT-047",
+      "slug": "ningun-pt-ha-creado-su-rama",
+      "type": "BUG",
+      "complexity": null,
+      "severity": "S3",
       "track": null,
       "status": "DEFERRED",
       "structural": false,
       "suite_version": "7.6.0",
       "phase": null,
-      "title": "Una entrada de HISTORY.log mal formada bloquea G4 y ninguna regla permite corregirla",
-      "origin": "PT-043 · cierre de EP-011. Encontrado ejecutando verify-fdge --gate G4 sobre PT-039..PT-042: sus entradas escriben «Fecha: ... · Estado: DONE · ...» en una sola linea y FDGE-R34 exige «^Estado:» al principio de linea, que es el formato canonico de FDGE-Implementation.md. G4 queda bloqueada en las cuatro. Y no hay salida escrita: SUITE-R09 prohibe editar una entrada existente, FDGE-R29 prohibe una segunda entrada que no sea de revert, y la comprobacion lee entries[0]. Corregirlo exige autorizacion humana explicita con registro, o cambiar una de las dos reglas.",
+      "title": "PHASE 5 manda crear rama por PT y los 43 PT de este repositorio se implementaron sobre trabajo",
+      "origin": "EP-012 · PHASE 0. Encontrado auditando el propio uso del marco: PHASES.md:198 manda «git checkout -b <type>/PT-XXX-slug» y PHASE 4 obliga a proponer la rama, pero el CLAUDE.md de este repositorio declara solo main y trabajo. El marco y su uso autoalojado se contradicen y ninguna comprobacion lo detecta. Decidir cual de los dos cede es humano.",
       "created": "2026-08-14",
-      "issue": 67
+      "issue": 69
+    },
+    {
+      "id": "PT-048",
+      "slug": "el-issue-de-un-deferred-enlaza-a-un-404",
+      "type": "BUG",
+      "complexity": null,
+      "severity": "S3",
+      "track": null,
+      "status": "DEFERRED",
+      "structural": false,
+      "suite_version": "7.6.0",
+      "phase": null,
+      "title": "El cuerpo del issue de una allocation DEFERRED enlaza a un directorio que no existe",
+      "origin": "EP-012 · PHASE 0. Encontrado auditando GitHub: SUITE-R44 exime a un DEFERRED de tener artefactos, pero cuerpoDeIssue enlaza igual a changes/PT-NNN-slug/. PT-015, PT-025, PT-044, PT-045 y PT-046 apuntan a un 404. Es lo que PT-036 existe para impedir.",
+      "created": "2026-08-14",
+      "issue": 70
     }
   ]
 }

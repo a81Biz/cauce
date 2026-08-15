@@ -1,0 +1,11 @@
+{
+  "pt": "PT-045",
+  "generated": "2026-08-14",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Un subcomando desconocido dice que pasa y que hacer, no «no se reconoce»", "scenarios": ["E1","E2","E3","E4"], "tests": ["selftest.sh:un subcomando que no existe lo dice","selftest.sh:y nombra el subcomando","selftest.sh:y dice la version que corre","selftest.sh:y da la salida por si es una copia vieja","selftest.sh:su codigo de salida sigue siendo 2"], "evidence": ["salidas/arranque.txt","salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Dentro del repositorio de cauce el arranque documentado funciona", "scenarios": ["E7"], "tests": ["selftest.sh:npm start apunta al arranque"], "evidence": ["salidas/arranque.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "El manual y el catalogo declaran el comando que de verdad funciona en cada caso", "scenarios": ["E5","E6","E8","E9"], "tests": ["selftest.sh:el manual declara el caso autoalojado","selftest.sh:y el catalogo tambien","selftest.sh:sin subcomando NO es un error","selftest.sh:y su codigo sigue siendo 0"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "SUITE-R50 sigue en pie: el tablero antes que el nucleo", "scenarios": ["E10"], "tests": ["selftest.sh:el manual va antes que el núcleo"], "evidence": ["salidas/arranque.txt"], "verified": true }
+  ],
+  "suite": { "passed": 456, "failed": 0, "skipped": 0, "coverage": 456, "baseline": 445 }
+}

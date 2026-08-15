@@ -1,0 +1,11 @@
+{
+  "pt": "PT-046",
+  "generated": "2026-08-14",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Existe una forma declarada de corregir una entrada de HISTORY.log sin editarla", "scenarios": ["E1","E2","E3","E4","E5"], "tests": ["selftest.sh:y una CORRIGE la desbloquea","selftest.sh:la CORRIGE no cuenta como segunda"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "SUITE-R09 no se relaja: la entrada original sigue intacta y es la que se audita", "scenarios": ["E10","E11"], "tests": ["selftest.sh:sin CORRIGE nada cambia","git diff --numstat"], "evidence": ["salidas/git-intactas.txt","salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Las precondiciones de G4 leen la correccion cuando existe y la original cuando no", "scenarios": ["E6","E7","E9"], "tests": ["selftest.sh:la CORRIGE tambien aporta Estructural","selftest.sh:con dos correcciones manda la ultima"], "evidence": ["salidas/cuatro-compuertas.txt","salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Una entrada CORRIGE sin entrada original falla, y lo dice", "scenarios": ["E8"], "tests": ["selftest.sh:una CORRIGE huerfana falla"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 436, "failed": 0, "skipped": 0, "coverage": 436, "baseline": 429 }
+}

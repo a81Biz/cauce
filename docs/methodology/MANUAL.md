@@ -96,8 +96,17 @@ hace válido** lo sabe quien conoce el negocio. La firmas tú, y PTSA audita con
 ### Empieza preguntando
 
 ```bash
-npx @a81biz/cauce start
+npx @a81biz/cauce start      # en tu proyecto
+npm start                    # si estás dentro del repositorio de cauce
 ```
+
+> La segunda no es un capricho. Dentro de cauce, `npx` ve que el `package.json` local declara
+> ese mismo nombre, da el paquete por presente y busca un binario que no existe **ni debe
+> existir**: instalarlo como dependencia de sí mismo dejaría dos copias completas del marco
+> (`SUITE-R41`). No es un defecto que arreglar — es lo que significa estar autoalojado.
+>
+> Y si un subcomando te dice que **no existe**, tu copia puede ser anterior a la que lo trae: el
+> propio mensaje te da la salida (`npx @a81biz/cauce@latest …`).
 
 Te da el estado del tablero y **después** el núcleo, en ese orden. No es cortesía: leer las
 reglas sin el estado es como se saltan las fases (`SUITE-R50`).

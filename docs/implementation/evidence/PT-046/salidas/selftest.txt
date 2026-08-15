@@ -1,0 +1,11 @@
+# bash docs/methodology/tools/selftest.sh · 2026-08-14
+selftest: OK · 436 casos
+
+# los casos de PT-046 (FDGE-R29 · la entrada CORRIGE):
+  [32m✓[0m entrada condensada bloquea G4
+  [32m✓[0m y una CORRIGE la desbloquea
+  [32m✓[0m la CORRIGE no cuenta como segunda
+  [32m✓[0m la CORRIGE tambien aporta Estructural
+  [32m✓[0m con dos correcciones manda la ultima
+  [32m✓[0m una CORRIGE huerfana falla
+  [32m✓[0m sin CORRIGE nada cambia

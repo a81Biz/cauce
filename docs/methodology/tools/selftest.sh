@@ -76,9 +76,12 @@ J
   # poder representar eso.
   perl -0pi -e "s/\"suite_version\":\"[\d.]+\"/\"suite_version\":\"$VIGENTE\"/" docs/implementation/REGISTRY.json
 
-  intake() { # $1 dir · $2 id · $3 type · $4 sev · $5 track · $6 complexity
+  # PT-044 · el `status` del YAML tiene que coincidir con el del registro: el fixture lo tenia
+  # en READY para los cuatro mientras el registro decia DONE, CLOSED, DONE e IN_PROGRESS. Era el
+  # mismo defecto que esta tarea persigue, dentro del arnes que la prueba.
+  intake() { # $1 dir · $2 id · $3 type · $4 sev · $5 track · $6 complexity · $7 status
     mkdir -p "changes/$1"
-    { printf -- '---\nid: %s\ntype: %s\nseverity: %s\ntrack: %s\ncomplexity: %s\nstatus: READY\n---\n\n' "$2" "$3" "$4" "$5" "$6"
+    { printf -- '---\nid: %s\ntype: %s\nseverity: %s\ntrack: %s\ncomplexity: %s\nstatus: %s\n---\n\n' "$2" "$3" "$4" "$5" "$6" "${7:-READY}"
       cat <<'M'
 ## 10. Firma `[HUMANO]`
 
@@ -102,10 +105,10 @@ M
     } > "changes/$1/intake.md"
   }
 
-  intake PT-001-login       PT-001 BUG           S2 STANDARD STANDARD
-  intake PT-002-pool        PT-002 INVESTIGATION S3 STANDARD STANDARD
-  intake PT-003-typo        PT-003 CHORE         S4 EXPRESS  TRIVIAL
-  intake PT-004-pdf         PT-004 FEATURE       S3 STANDARD MAJOR
+  intake PT-001-login       PT-001 BUG           S2 STANDARD STANDARD DONE
+  intake PT-002-pool        PT-002 INVESTIGATION S3 STANDARD STANDARD CLOSED
+  intake PT-003-typo        PT-003 CHORE         S4 EXPRESS  TRIVIAL DONE
+  intake PT-004-pdf         PT-004 FEATURE       S3 STANDARD MAJOR IN_PROGRESS
 
   printf '| AC | C | TS | Test | Evidencia | QA | E |\n|:-|:-|:-|:-|:-|:-|:-|\n| AC-01 | login ok | TS-01 | tests/a.spec.ts:24 | api/ok.json | QA-014 | ✓ |\n' > changes/PT-001-login/traceability.md
   printf '## PT-002\n\n## Conclusión\nSe agota el pool.\nEvidencia: logs/pool.txt\nSin determinar: por qué no se libera.\nPT de seguimiento: PT-005.\n' > changes/PT-002-pool/discovery.md
@@ -217,6 +220,83 @@ build_fixture; perl -pi -e 's/^Estado: DONE$/Estado: VALIDATION_PENDING/ if $. <
 chk "BUG sin validar intentando G4"     "FDGE-R34"          V --gate G4 PT-001
 build_fixture; perl -pi -e 's/G3 2026-08-05 Ada Lovelace/G3 auto/' "$WORK/docs/implementation/HISTORY.log"
 chk "BUG en DONE sin firma humana G3"   "FDGE-R26"          V --gate G4 PT-001
+
+# PT-046 · FDGE-R29 · corregir una entrada de HISTORY sin editarla.
+#
+# SUITE-R09 ya prescribe el mecanismo —«una entrada nueva que lo referencia»— y FDGE-R29 lo
+# cerraba: exactamente una entrada por PT, y la comprobacion leia SIEMPRE la primera. Tres
+# reglas correctas por separado dejaban una entrada mal escrita bloqueando G4 para siempre.
+# Lo encontro chocar contra el, no la busqueda que PT-029 proponia hace tres lotes.
+#
+# `mal_formada` reproduce el defecto real: Fecha y Estado condensados en una linea, que es
+# como salieron las cuatro entradas de EP-011.
+mal_formada() { perl -0pi -e 's/^Fecha: 2026-08-05\nEstado: DONE\n/Fecha: 2026-08-05 · Estado: DONE ·\n/m' "$WORK/docs/implementation/HISTORY.log"; }
+corrige() { printf '\n## PT-001 — CORRIGE: el encabezado condensaba Fecha y Estado\nCorrige: la entrada de 2026-08-05\nMotivo: no declaraba «Estado:» en su propia linea (FDGE-R29)\nEstado: %s\nEstructural: %s\n' "${1:-DONE}" "${2:-no}" >> "$WORK/docs/implementation/HISTORY.log"; }
+
+build_fixture; mal_formada
+chk "entrada condensada bloquea G4"     "✗ FDGE-R34"        V --gate G4 PT-001
+build_fixture; mal_formada; corrige
+chk "y una CORRIGE la desbloquea"       "Sin errores"       V --gate G4 PT-001
+build_fixture; mal_formada; corrige
+chkno "la CORRIGE no cuenta como segunda" "✗ FDGE-R29"      V --gate G4 PT-001
+# Estructural sale de la MISMA cabeza: corregir el Estado y dejar el Estructural leyendose de
+# la entrada vieja seria corregir la mitad, que es peor que no corregir.
+build_fixture; perl -0pi -e 's/^Estructural: no\n//m' "$WORK/docs/implementation/HISTORY.log"; corrige DONE si
+chk "la CORRIGE tambien aporta Estructural" "✓ FDGE-R44"    V PT-001
+# Con DOS correcciones manda la ULTIMA: corregir una correccion es legitimo y append-only.
+build_fixture; mal_formada; corrige VALIDATION_PENDING; corrige DONE
+chk "con dos correcciones manda la ultima" "Sin errores"    V --gate G4 PT-001
+# Y los dos que TIENEN que fallar. Sin ellos esto seria una via para declarar trabajo que
+# nunca ocurrio, y no lo sabriamos.
+# PT-004 no tiene entrada en HISTORY —esta en PHASE 4—, asi que una CORRIGE suya no corrige nada.
+build_fixture; printf '\n## PT-004 — CORRIGE: de la nada\nCorrige: la entrada de 2026-08-05\nEstado: DONE\nEstructural: no\n' >> "$WORK/docs/implementation/HISTORY.log"
+chk "una CORRIGE huerfana falla"        "✗ FDGE-R29"        V PT-004
+build_fixture
+chkno "sin CORRIGE nada cambia"         "CORRIGE"           V --gate G4 PT-001
+
+# PT-044 · SUITE-R35 hacia DENTRO. La regla dice que el registro asigna y todo lo demas espeja,
+# y `tracker espejo` lo comprobaba solo contra la plataforma. El YAML del intake y la linea de
+# indice son las OTRAS dos copias del mismo hecho, y nada las miraba: cuatro tareas de EP-011
+# declararon «phase: 1» con el registro en 9, y eso APAGO FDGE-R52 sin que nada avisara. Un
+# verificador que da verde por no haber mirado es lo que RULE-06 prohibe, dentro del verificador.
+# Pone una clave en el YAML del intake: la sustituye si esta, y la ANADE si no. El fixture no
+# declara `phase`, asi que sustituir a secas no hacia nada y el caso pasaba por no probar nada.
+yaml_set() {
+  if grep -qE "^$2:" "$WORK/changes/$1/intake.md"; then
+    perl -0pi -e "s/^$2:.*\$/$2: $3/m" "$WORK/changes/$1/intake.md"
+  else
+    perl -0pi -e "s/^(id: .*\n)/\$1$2: $3\n/m" "$WORK/changes/$1/intake.md"
+  fi
+}
+
+build_fixture; yaml_set PT-004-pdf phase 1
+chk   "YAML y registro con fases distintas"  "SUITE-R35"     V PT-004
+build_fixture; yaml_set PT-004-pdf phase 1
+chk   "y dice cual de los dos se usa"        "Se usa el del intake"  V PT-004
+build_fixture; yaml_set PT-004-pdf status DRAFT
+chk   "YAML y registro con estados distintos" "SUITE-R35"    V PT-004
+build_fixture; perl -0pi -e 's/IN_PROGRESS/READY/' "$WORK/docs/implementation/ENRICHMENT.md"
+chk   "el indice tampoco puede contradecir"  "SUITE-R35"     V PT-004
+# Los que NO deben avisar. Un verificador que avisa siempre es ruido, y el ruido se ignora.
+build_fixture
+chkno "si coinciden, ni una linea de mas"    "divergente"    V PT-004
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=null"; yaml_set PT-004-pdf phase 4
+chkno "sin fase en el registro no se inventa" "divergente"   V PT-004
+# En G4 deja de ser aviso: alli el estado tiene que ser uno solo.
+build_fixture; yaml_set PT-001-login phase 1
+chk   "en G4 la divergencia BLOQUEA"         "✗ SUITE-R35"   V --gate G4 PT-001
+
+# PT-044 · FDGE-R52 deja de exigir rastro a lo YA INTEGRADO. El reanclaje se escribe MIENTRAS se
+# trabaja; pedirselo a un PT que ya paso G4 es pedir que se fabrique, y fabricarlo es peor que no
+# tenerlo. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no
+# despues. Sin este limite, sincronizar los YAML de 32 PT cerrados ponia la CI en rojo y la unica
+# salida practicable era dejar el YAML mintiendo: la regla empujaba al defecto que persigue.
+build_fixture; rm -f "$WORK/changes/PT-001-login/bitacora.md"
+chk   "un PT vivo sin bitacora falla"        "✗ FDGE-R52"    V PT-001
+build_fixture; rm -f "$WORK/changes/PT-001-login/bitacora.md"
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='INTEGRATED'"; yaml_set PT-001-login status INTEGRATED
+chkno "uno ya integrado, no: no se retrofecha" "✗ FDGE-R52"  V PT-001
+
 build_fixture; reg_set "r.counters.PT=1"
 chk "contador bajo el ID ya asignado"   "LEX-R04"           V --all
 build_fixture; perl -pi -e 's/IN_PROGRESS/PENDING/' "$WORK/docs/implementation/ENRICHMENT.md"
@@ -1408,6 +1488,30 @@ _blq=$(sed -n '/  start() {/,/^  },/p' "$RAIZ/bin/cauce.mjs")
 _mn=$(printf '%s' "$_blq" | grep -n 'MANUAL.md' | head -1 | cut -d: -f1)
 _co=$(printf '%s' "$_blq" | grep -n 'CORE.md' | tail -1 | cut -d: -f1)
 chk   "el manual va antes que el núcleo"     "^ORDENADO$" sh -c "[ -n \"$_mn\" ] && [ -n \"$_co\" ] && [ \"$_mn\" -lt \"$_co\" ] && echo ORDENADO || echo REVISAR"
+
+# PT-045 · el arranque documentado no arrancaba, y el binario NO decia por que. Los codigos de
+# salida ya eran correctos —0 sin subcomando, 2 con uno desconocido— pero los dos casos imprimian
+# exactamente lo mismo: la unica diferencia era un numero que nadie ve. Alguien en una version
+# anterior a la que trae `start` recibia una ayuda muda donde `start` no aparecia, y concluia que
+# el manual mentia. Es lo que SUITE-R53 corrigio para las reglas, sin corregir aqui.
+C() { node "$RAIZ/bin/cauce.mjs" "$@"; }
+codigo_cauce() { node "$RAIZ/bin/cauce.mjs" "$@" >/dev/null 2>&1; echo $?; }
+
+chk   "un subcomando que no existe lo dice"  "no es un subcomando"  C arrancar
+chk   "y nombra el subcomando"               "«arrancar»"           C arrancar
+chk   "y dice la version que corre"          "$VIGENTE"             C arrancar
+chk   "y da la salida por si es una copia vieja" "@latest"          C arrancar
+chk   "su codigo de salida sigue siendo 2"   "^2$"                  codigo_cauce arrancar
+# Los que NO deben cambiar: pedir ayuda no es un error, y confundirlos en la direccion contraria
+# seria el mismo defecto con otro signo.
+chkno "sin subcomando NO es un error"        "no es un subcomando"  C
+chk   "y su codigo sigue siendo 0"           "^0$"                  codigo_cauce
+chkno "--help tampoco es un error"           "no es un subcomando"  C --help
+# El arranque QUE FUNCIONA dentro de cauce: npx resuelve el paquete local y no hay binario, ni
+# debe haberlo (SUITE-R41). Eso no es un defecto: es estar autoalojado, y se DECLARA.
+chk   "npm start apunta al arranque"         "cauce.mjs start"      cat "$RAIZ/package.json"
+chk   "el manual declara el caso autoalojado" "npm start"           cat "$SUITE/MANUAL.md"
+chk   "y el catalogo tambien"                "npm start"            cat "$SUITE/CASOS-DE-USO.md"
 
 trlib "viva sin issue ⇒ divergencia"   "PT-100" \
   "console.log(JSON.stringify(m.compararEspejo([$V1],[])))"

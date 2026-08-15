@@ -1,0 +1,7 @@
+# AC-02 · las cuatro entradas originales NO se tocaron. Lo dice git, no yo.
+# git diff HEAD -- docs/implementation/HISTORY.log  |  lineas borradas o modificadas:
+0
+# (0 = solo adiciones)
+
+# anadidas / borradas / archivo:
+51	0	docs/implementation/HISTORY.log

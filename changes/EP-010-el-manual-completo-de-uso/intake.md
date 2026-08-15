@@ -4,7 +4,7 @@
 ---
 id: EP-010
 type: EP
-status: DRAFT
+status: CLOSED
 created: 2026-08-13
 suite_version: 7.3.0
 phase: 1
