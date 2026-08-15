@@ -509,7 +509,25 @@ mk_v412
 chk "4.12 ⇒ pide el bloque ESTADO"        "SUITE-R33"     M
 chk "4.12 ⇒ pide declarar la fase"        "PT-009"        M
 chk "4.12 ⇒ ofrece la plataforma"         "OPCIONAL"      M
-chk "4.12 ⇒ enumera lo que llega"         "revisar-secretos"  M
+# PT-017 · la lista se DERIVA restando los dos directorios. Estaba escrita a mano: nombraba 6 de
+# 16 y no mencionaba regla.mjs ni audit.mjs, nacidas despues. Quien la lee es quien MENOS puede
+# detectar que esta incompleta — esta migrando, no conoce la suite.
+#
+# El caso anterior asertaba «revisar-secretos» porque estaba en la CONSTANTE. Derivar lo rompio,
+# con razon: ahora la lista dice lo que FALTA en el destino, y el fixture las tiene todas. Se
+# quitan dos del destino para que la resta tenga algo que decir.
+mk_v412; rm -f "$MIG/docs/methodology/tools/regla.mjs" "$MIG/docs/methodology/tools/revisar-secretos.mjs"
+chk   "la lista sale de comparar"           "regla.mjs"        M
+chk   "y nombra las dos que faltan"         "revisar-secretos" M
+mk_v412
+chk   "y conserva la frase que PT-043 usa"  "lo que llega nuevo"  cat "$SUITE/tools/migrate.mjs"
+# Sin tools/ en el destino la resta da 16, y eso es cierto pero INUTIL como aviso.
+mk_v412; rm -rf "$MIG/docs/methodology/tools"; cp "$SUITE"/tools/patrones.mjs "$MIG/docs/methodology/" 2>/dev/null
+chk   "sin tools/ dice la suite entera"     "suite entera"  node "$SUITE/tools/migrate.mjs" "$MIG"
+# Y el que evita el ruido: un destino al dia no produce fila.
+mk_v412; cp "$SUITE"/tools/*.mjs "$MIG/docs/methodology/tools/" 2>/dev/null; cp "$SUITE"/tools/selftest.sh "$MIG/docs/methodology/tools/" 2>/dev/null
+chkno "destino al dia, sin fila"            "llega nuevo"  M
+mk_v412
 chk "4.12 ⇒ menciona las excepciones"     "SECRETOS-EXCEPCIONES"  M
 
 # Los inversos: lo que YA esta no se pide, y un proyecto en 6.x no ve el tramo.

@@ -1,0 +1,8 @@
+# selftest · 2026-08-15
+selftest: OK · 495 casos
+
+  [32m✓[0m la lista sale de comparar
+  [32m✓[0m y nombra las dos que faltan
+  [32m✓[0m y conserva la frase que PT-043 usa
+  [32m✓[0m sin tools/ dice la suite entera
+  [32m✓[0m destino al dia, sin fila

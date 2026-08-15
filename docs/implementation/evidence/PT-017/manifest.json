@@ -1,0 +1,10 @@
+{
+  "pt": "PT-017", "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "La lista sale de comparar el paquete con el destino, no de una constante", "scenarios": ["E1","E5"], "tests": ["selftest.sh:la lista sale de comparar","selftest.sh:y nombra las dos que faltan","selftest.sh:y conserva la frase que PT-043 usa"], "evidence": ["salidas/selftest.txt","salidas/lista.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Anadir un archivo a tools/ aparece en el informe sin tocar el codigo", "scenarios": ["E2"], "tests": ["selftest.sh:la lista sale de comparar"], "evidence": ["salidas/lista.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Si no se puede comparar, se dice; no se cae a la lista escrita a mano", "scenarios": ["E3"], "tests": ["selftest.sh:sin tools/ dice la suite entera"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Un destino ya al dia no produce una fila vacia", "scenarios": ["E4"], "tests": ["selftest.sh:destino al dia, sin fila"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 495, "failed": 0, "skipped": 0, "coverage": 495, "baseline": 491 }
+}
