@@ -453,7 +453,7 @@
       "title": "Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01)",
       "origin": "Aplazado por PT-004 · el grafo cubre «bin» y FDGE-R43 se satisface sobre un grafo que no describe el sistema · Tambien aplazado por PT-045 (EP-012): PHASE 0 del lote lo volvio a medir — REGISTRY.graph declara scope «bin» y las herramientas viven en docs/methodology/tools/, asi que FDGE-R43 se satisface sobre un grafo que no describe el sistema (SUITE-R44, cita reciproca).",
       "issue": 27,
-      "phase": 8,
+      "phase": 9,
       "epic": "EP-013",
       "branch": "chore/PT-020-ampliar-el-grafo-a-tools",
       "validated_by": "auto · EXEC-R06",
