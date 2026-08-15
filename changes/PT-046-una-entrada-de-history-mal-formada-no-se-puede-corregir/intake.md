@@ -8,7 +8,7 @@ id: PT-046
 type: BUG
 epic: EP-012
 track: STANDARD
-status: DONE
+status: INTEGRATED
 created: 2026-08-14
 structural: no
 suite_version: 7.6.0
@@ -61,4 +61,12 @@ Observable y contrastable: la comprobación es un comando, y que no se tocaron l
 
 ```
 Firmado por lote: EP-012
+```
+
+## Estado de cierre   `FDGE-R35`
+
+```
+CLOSED · integrado en la rama por defecto el 2026-08-14
+G4 resuelta por Alberto Martinez: «tienes mi VoBo para G4, realiza el merge y el tracker
+para cerrar». El directorio se CONSERVA: es el registro de la propuesta.
 ```

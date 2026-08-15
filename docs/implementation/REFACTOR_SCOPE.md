@@ -1,4 +1,4 @@
-# REFACTOR_SCOPE — índice de refactors y chores
+| PT-046 | BUG | S2 | INTEGRATED || PT-045 | BUG | S2 | INTEGRATED || PT-044 | BUG | S2 | INTEGRATED |# REFACTOR_SCOPE — índice de refactors y chores
 
 Índice, no contenido (`LEX-R12`). Una línea por PT; el alcance vive en
 `changes/PT-XXX-slug/`.
