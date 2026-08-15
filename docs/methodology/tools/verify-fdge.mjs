@@ -10,7 +10,18 @@
  *   node verify-fdge.mjs PT-042              verifica un PT
  *   node verify-fdge.mjs PT-042 PT-043       verifica varios
  *   node verify-fdge.mjs --all               todos los PTs no terminales
- *   node verify-fdge.mjs --gate G4 PT-042    solo las precondiciones de G4
+ *   node verify-fdge.mjs --gate G1 PT-042    solo las precondiciones de G1
+ *   node verify-fdge.mjs --gate G2 PT-042    ídem G2 · --gate G3 · --gate G4
+ *
+ * Cada compuerta exige lo que existe cuando ella cierra, no lo de la siguiente: `manifest.json`
+ * y `self-review.md` se escriben en PHASE 6, así que los pide `G3` en adelante; la entrada de
+ * `HISTORY.log` se escribe en PHASE 8 y solo la pide `G4`. La tabla está en `patrones.mjs`
+ * (`EXIGIBLE_DESDE`), con la fase al lado del valor para que sea derivable.
+ *
+ * Hasta PT-029 esta cabecera solo enseñaba `--gate G4`, y las tres comprobaciones de arriba
+ * decían `if (gate)` sin distinguir cuál: `G1`, `G2` y `G3` heredaban las exigencias de `G4` y
+ * NO SE PODÍAN EVALUAR. La ruta indocumentada y la ruta rota eran la misma, que es por lo que
+ * llevaba así desde que existe el parámetro.
  *
  * Exit 0 sin errores · 1 con errores. Pensado para el paso de CI que bloquea G4 (FDGE-R34).
  * Sin dependencias externas. Node >= 18.
@@ -34,7 +45,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe, PATRONES, ESTADOS_TERMINALES } from './patrones.mjs';
+import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -1094,7 +1105,7 @@ function checkPT(pt, { gate } = {}) {
 
   // ── FDGE-R23 · manifiesto de evidencia ────────────────────────────────────
   if (manifest === null) {
-    if (gate) fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
+    if (exigibleEn(gate, 'manifest.json')) fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
     else warn('FDGE-R23', `${pt}: aún sin evidence/${pt}/manifest.json (normal antes de PHASE 6).`);
   } else if (manifest === undefined) {
     fail('FDGE-R23', `${pt}: manifest.json no es JSON válido.`);
@@ -1126,7 +1137,7 @@ function checkPT(pt, { gate } = {}) {
   // ── FDGE-R25 · self-review ────────────────────────────────────────────────
   const sr = read(join(evDir, 'self-review.md'));
   if (sr === null) {
-    if (gate || afterPhase6) fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
+    if (exigibleEn(gate, 'self-review.md') || afterPhase6) fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
   } else if (/SELF_REVIEW_BLOCKERS_FOUND/.test(sr)) {
     fail('FDGE-R25', `${pt}: el self-review está en SELF_REVIEW_BLOCKERS_FOUND.`);
   } else ok('FDGE-R25', `${pt}: self-review completo.`);
@@ -1152,7 +1163,7 @@ function checkHistory(pt, rel, type, { gate }) {
   // que `reverted` ya usa —descontar por encabezado— y que FDGE-R36 ya obliga a aplicar.
   const corrige = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+CORRIGE`, 'gm'))];
   if (entries.length === 0) {
-    if (gate) fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log.`);
+    if (exigibleEn(gate, 'HISTORY.log')) fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log.`);
     else warn('FDGE-R29', `${pt}: aún sin entrada en HISTORY.log (se escribe en PHASE 8).`);
     return;
   }

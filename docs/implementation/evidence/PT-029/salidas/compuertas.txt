@@ -1,0 +1,20 @@
+# Las cuatro compuertas, tras PT-029 · sobre PT-029 en PHASE 5
+# G1 y G2 limpias · G3 exige lo de PHASE 6 · G4 exige ademas lo de PHASE 8. G4 NO relaja nada.
+
+--- --gate G1 ---
+Sin errores. PTs verificados: 1.
+
+--- --gate G2 ---
+Sin errores. PTs verificados: 1.
+
+--- --gate G3 ---
+  ✗ FDGE-R23       PT-029: falta evidence/PT-029/manifest.json. Sin manifiesto no hay PHASE 7.
+  ✗ FDGE-R25       PT-029: falta evidence/PT-029/self-review.md.
+2 error(es). La compuerta G3 queda bloqueada.
+
+--- --gate G4 ---
+  ✗ SUITE-R45      EP-013: 4 fila(s) de «## Cierre del lote» sin resolver en G4: «Entrada de `CHANGELOG.md` y número de ve», «Regenerar `CORE.md`», «Declarar en `10-Technical-Debt.md` lo qu», «Qué pasa con `PT-019` y `PT-025`, las do». Cada una declara HECHO o el identificador al que se movió — un lote no cierra dejando sin responder lo que él mismo se asignó.
+  ✗ FDGE-R23       PT-029: falta evidence/PT-029/manifest.json. Sin manifiesto no hay PHASE 7.
+  ✗ FDGE-R25       PT-029: falta evidence/PT-029/self-review.md.
+  ✗ FDGE-R29       PT-029: sin entrada en HISTORY.log.
+4 error(es). La compuerta G4 queda bloqueada.

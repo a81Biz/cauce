@@ -21,7 +21,7 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-024 | BUG | S1 | INTEGRATED | EP-006 | tracker cerrar cierra issues cuyo estado terminal aun no esta en la rama por defecto |
 | PT-026 | BUG | S1 | INTEGRATED | EP-006 | El espejo compara en main una foto del registro contra un tablero vivo: diverge siempre |
 | PT-028 | BUG | S1 | INTEGRATED | EP-006 | SUITE-R35 denunciaba como huerfano el estado que SUITE-R46 obliga a atravesar |
-| PT-029 | CHORE | S2 | READY | EP-013 | Buscar mas choques entre reglas: una comprobacion que hace imposible el estado que otra obliga a atravesar |
+| PT-029 | CHORE | S2 | DONE | EP-013 | Buscar mas choques entre reglas: una comprobacion que hace imposible el estado que otra obliga a atravesar |
 | PT-030 | FEATURE | S1 | INTEGRATED | EP-007 | tracker siguiente: que toca y como se cierra, derivado del tablero y no del criterio del agente |
 | PT-031 | BUG | S1 | INTEGRATED | EP-007 | MANUAL, SUPERVISED y AUTONOMOUS deben declarar las mismas obligaciones: solo cambia quien resuelve las compuertas |
 | PT-032 | FEATURE | S1 | CLOSED | EP-008 | Convencion o agente propio de cauce que ate al agente al tablero sin que haya que recordarselo |
