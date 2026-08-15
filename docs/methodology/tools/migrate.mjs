@@ -26,6 +26,8 @@ import { PATRONES } from './patrones.mjs';
 // dejado el registro declarando una versión que ya no regía. Se lee del CHANGELOG que viaja
 // con esta copia de la suite, resuelto desde la ubicación del script.
 const CAMBIOS = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'CHANGELOG.md');
+// PT-017 · el directorio de herramientas DEL PAQUETE: es donde vive este mismo script.
+const TOOLS_PAQUETE = resolve(dirname(fileURLToPath(import.meta.url)));
 if (!existsSync(CAMBIOS)) {
   console.error(`Falta ${CAMBIOS}: sin él no se puede saber a qué versión migrar.`);
   process.exit(2);
@@ -242,9 +244,36 @@ if (lt('5.0.0')) {
       + 'y sincroniza fase y compuerta) · luego «cerrar --aplicar» para lo ya terminado. '
       + 'SUITE-R36: solo lo vivo — lo cerrado es evidencia y se queda en el repositorio.');
   }
-  need('lo que llega nuevo en tools/: tracker (espejo con la plataforma) · revisar-secretos '
-    + '(árbol e historia, FND-R29) · comparar-marco · verify-patrones · version · patrones. '
-    + 'Y los documentos de FIDE/ más INTAKE/templates/TAREA.md.');
+  // PT-017 · la lista se DERIVA restando los dos directorios. Estaba escrita a mano —nombraba
+  // seis de dieciseis— y ya no mencionaba `regla.mjs` ni `audit.mjs`, nacidas despues. Es el
+  // hecho copiado de RULE-01 envejeciendo solo, con el agravante de que quien la lee es QUIEN
+  // MENOS puede detectar que esta incompleta: esta migrando, no conoce la suite.
+  //
+  // La frase «lo que llega nuevo» NO SE PUEDE TOCAR: el PORQUE de PT-043 reconoce esta accion
+  // por ella y le da su motivo. Sin la frase, la fila cae en el RULE-06 por defecto y el
+  // conductor deja de explicarla. Tiene su caso en selftest.sh.
+  const listaDe = (d) => { try { return readdirSync(d).filter((f) => /.(mjs|sh)$/.test(f)); } catch { return null; } };
+  const enPaquete = listaDe(TOOLS_PAQUETE);
+  const enDestino = listaDe(join(ROOT, 'docs', 'methodology', 'tools'));
+  if (enPaquete === null) {
+    // Tres salidas, no dos: no poder leer el paquete NO se sustituye por la lista vieja. Eso
+    // seria cambiar «no lo se» por un dato caducado, que es lo que RULE-06 prohibe.
+    need('lo que llega nuevo en tools/: NO SE PUDO COMPARAR — no se leyó el directorio del '
+      + 'paquete, así que no se enumera nada en vez de repetir una lista escrita a mano que '
+      + 'podría estar vieja. Míralo tú: docs/methodology/tools/ del paquete instalado.');
+  } else if (enDestino === null) {
+    need(`lo que llega nuevo en tools/: la suite entera — ${enPaquete.length} herramientas. Tu `
+      + 'proyecto no tiene docs/methodology/tools/, así que llegan todas y se instalan con el '
+      + 'paquete, no una a una. El manual las presenta; «cauce regla» responde por cada una.');
+  } else {
+    const nuevas = enPaquete.filter((f) => !enDestino.includes(f));
+    if (nuevas.length) {
+      need(`lo que llega nuevo en tools/: ${nuevas.length} que tu proyecto no tenía — `
+        + `${nuevas.join(' · ')}. Y los documentos de FIDE/ más INTAKE/templates/TAREA.md.`);
+    }
+    // Sin diferencias no se emite fila: nadie decide sobre una lista vacia, y un aviso que
+    // aparece cuando no toca es como se aprende a ignorar el que si toca.
+  }
   need('si el escáner de secretos encuentra un falso positivo, se firma en '
     + 'docs/implementation/SECRETOS-EXCEPCIONES.md — una fila por huella, con nombre y motivo. '
     + 'Firmar no silencia: la excepción sigue apareciendo en cada revisión (FND-R29).');

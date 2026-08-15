@@ -394,7 +394,7 @@
       "complexity": "STANDARD",
       "severity": "S4",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
       "created": "2026-08-13",
@@ -403,8 +403,9 @@
       "title": "migrate: derivar la lista de «qué llega nuevo» comparando paquete y destino",
       "origin": "Aplazado por PT-012 · hoy está escrita a mano y es un hecho copiado (RULE-01)",
       "issue": 24,
-      "phase": 1,
-      "epic": "EP-013"
+      "phase": 8,
+      "epic": "EP-013",
+      "branch": "chore/PT-017-derivar-lo-que-llega-nuevo"
     },
     {
       "id": "PT-018",
@@ -1053,7 +1054,7 @@
       "status": "DONE",
       "structural": false,
       "suite_version": "7.7.0",
-      "phase": 8,
+      "phase": 9,
       "title": "El cuerpo del issue de una allocation DEFERRED enlaza a un directorio que no existe",
       "origin": "EP-012 · PHASE 0. Encontrado auditando GitHub: SUITE-R44 exime a un DEFERRED de tener artefactos, pero cuerpoDeIssue enlaza igual a changes/PT-NNN-slug/. PT-015, PT-025, PT-044, PT-045 y PT-046 apuntan a un 404. Es lo que PT-036 existe para impedir.",
       "created": "2026-08-14",
