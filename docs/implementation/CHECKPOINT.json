@@ -3,18 +3,21 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/PT-059-no-empezar-lo-que-no-se-puede-terminar",
-  "sha": "a61ff84e99d5589c2c7f70758f0810eab57a771d",
-  "sha_corto": "a61ff84",
+  "sha": "74dad56a1d2b31df2f41d3fb4a6bb81f7f8ef038",
+  "sha_corto": "74dad56",
   "sucio": true,
   "archivos": [
     "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-18"
 }

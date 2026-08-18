@@ -1,0 +1,40 @@
+{
+  "pt": "PT-059",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "SAFE / MARGINAL / UNSAFE con el criterio de cada uno derivado y no escrito a mano", "scenarios": ["E1", "E2", "E3", "E15", "E16", "E21"], "tests": ["selftest.sh:coste bajo el precedente ⇒ SAFE", "selftest.sh:…y el motivo lleva las dos cifras", "selftest.sh:…y habla de PRECEDENTE", "selftest.sh:HOLGURA esta exportada", "selftest.sh:…y se puede cambiar sin tocar la funcion", "selftest.sh:viabilidad da un veredicto"], "evidence": ["salidas/viabilidad-real.txt", "salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "En MARGINAL no se inician operaciones grandes: solo lo atomico", "scenarios": ["E4", "E5"], "tests": ["selftest.sh:dentro de la holgura ⇒ MARGINAL", "selftest.sh:…y restringe a lo ATOMICO"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "En UNSAFE no se ejecuta: checkpoint, handoff y parada", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:muy por encima ⇒ UNSAFE", "selftest.sh:…y pide checkpoint, handoff y parada", "selftest.sh:…y dice que hay evidencia EN CONTRA"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "BLOCKED_BY_CONTEXT es estado de tarea, esta en LEXICON, y no es terminal", "scenarios": ["E17", "E18", "E19", "E20"], "tests": ["selftest.sh:BLOCKED_BY_CONTEXT existe", "selftest.sh:…y NO es terminal", "selftest.sh:…y SI es vivo", "selftest.sh:esta en LEXICON", "selftest.sh:…y dice que NO es un fallo", "selftest.sh:verify-fdge lo cuenta como vivo"], "evidence": ["salidas/verify-suite.txt", "salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Con el presupuesto en SIN EVALUAR, la compuerta no aprueba por omision", "scenarios": ["E8", "E9", "E10", "E11", "E22"], "tests": ["selftest.sh:coste SIN EVALUAR ⇒ MARGINAL", "selftest.sh:…y NUNCA SAFE", "selftest.sh:precedente SIN EVALUAR ⇒ MARGINAL", "selftest.sh:…y dice CUAL de los dos falta", "selftest.sh:…y que no se aprueba por omision", "selftest.sh:funciona sin credencial"], "evidence": ["salidas/inversa.txt", "salidas/viabilidad-real.txt"], "verified": true },
+    { "ac": "AC-06", "statement": "Un lote entero en UNSAFE para siempre se declara, no se repite en bucle", "scenarios": ["E12", "E13", "E14"], "tests": ["selftest.sh:por encima del techo historico ⇒ UNSAFE", "selftest.sh:…y lo marca como NUNCA", "selftest.sh:…y pide PARTIR la tarea", "selftest.sh:y se decide ANTES que el SIN EVALUAR", "selftest.sh:lo que cabe no se marca NUNCA"], "evidence": ["salidas/inversa.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el veredicto ACIERTE.",
+      "por_que": "Mide PRECEDENTE, no capacidad. La sesion mayor de este repositorio hizo cuatro veces mas que la menor (29286 contra 6812), asi que la senal es ruidosa por construccion. Lo garantizado es que la salida diga siempre de que sale y con que naturaleza.",
+      "donde": "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que HOLGURA = 1.5 sea el numero correcto.",
+      "por_que": "Es un juicio, declarado con nombre en el codigo como MINIMO_REFERENCIA en PT-057. Lo que si esta medido es que decide, y el caso «se puede cambiar sin tocar la funcion» comprueba que moverlo cambia el veredicto.",
+      "donde": "docs/methodology/tools/patrones.mjs"
+    },
+    {
+      "afirmacion": "Que AC-06 llegue a dispararse alguna vez.",
+      "por_que": "Hoy la mayor referencia de coste es 1982 lineas y la mayor sesion registrada 29286: un 7 %. La comprobacion existe sin activarse, y eso es lo que se quiere de una salvaguarda — pero significa que su comportamiento en produccion no esta observado, solo probado.",
+      "donde": "docs/implementation/evidence/PT-059/salidas/viabilidad-real.txt"
+    },
+    {
+      "afirmacion": "Que alguien OBEDEZCA un UNSAFE.",
+      "por_que": "Nada impide seguir. Lo que queda es que el veredicto y su motivo esten escritos ANTES de empezar, no despues de quedarse a medias.",
+      "donde": "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que «un dia» sea una buena aproximacion a «una sesion».",
+      "por_que": "Es lo unico observable desde git, y no es lo mismo: dos sesiones el mismo dia cuentan como una, y una sesion que cruza la medianoche cuenta como dos. El precedente sale de ahi, asi que hereda ese error. Nada en el repositorio registra cuando empieza y acaba una sesion.",
+      "donde": "docs/methodology/tools/tracker.mjs"
+    }
+  ],
+  "suite": { "passed": 784, "failed": 0, "skipped": 0, "coverage": 784, "baseline": 738 }
+}

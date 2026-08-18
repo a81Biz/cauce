@@ -1,0 +1,18 @@
+# PT-059 · comprobación inversa
+
+Se neutralizaron LAS DOS decisiones que sostienen la tarea:
+  1. SIN EVALUAR pasa a devolver SAFE en vez de MARGINAL  (aprobar por omision)
+  2. AC-06 deja de comprobarse PRIMERO
+
+Caen cuatro casos. Dos importan especialmente:
+
+  · «coste SIN EVALUAR ⇒ MARGINAL» sale SAFE. Como el disponible es SIN EVALUAR
+    SIEMPRE, esa seria la respuesta NORMAL: aprobaria todo pareciendo que evalua.
+  · «y se decide ANTES que el SIN EVALUAR» sale false. Ese caso vigila el ORDEN de
+    las comprobaciones y es el UNICO que lo hace: sin el, una reordenacion inocente
+    devolveria MARGINAL para una tarea que nunca cabria.
+
+  [31m✗[0m coste SIN EVALUAR ⇒ MARGINAL  (no apareció: ^MARGINAL$ · salió: SAFE)
+  [31m✗[0m …y NUNCA SAFE  (apareció: SAFE · salió: SAFE)
+  [31m✗[0m precedente SIN EVALUAR ⇒ MARGINAL  (no apareció: ^MARGINAL$ · salió: SAFE)
+  [31m✗[0m y se decide ANTES que el SIN EVALUAR  (no apareció: ^true$ · salió: false)
