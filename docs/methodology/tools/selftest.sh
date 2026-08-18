@@ -2494,6 +2494,91 @@ chk   "…y que NO mide"                           "el contexto restante del mod
 chk   "…y por que el asunto y no el cuerpo"      "solo del asunto"       cat "$SUITE/LEXICON.md"
 chk   "…y que el umbral es un juicio"            "juicio declarado"      cat "$SUITE/LEXICON.md"
 
+# ─── PT-059 · no empezar lo que no se puede terminar ───────────────────────
+# «Nunca comenzar una unidad de trabajo que probablemente no pueda completarse dentro del
+# presupuesto disponible.» El problema: PHASE 2 midio que ese presupuesto NO EXISTE. «disponible =
+# total - gastado» sale SIN EVALUAR siempre, porque el total es el contexto del modelo.
+#
+# Asi que la compuerta compara contra el PRECEDENTE —lo mayor que esta sesion ya completo—, que si
+# es observable. SAFE no promete que quepa: dice que ya se pudo con algo asi.
+sec "── PT-059 · la compuerta de viabilidad ──"
+
+# E1-E3 · SAFE, y el motivo dice de que sale.
+V1="m.viabilidadDe(m.cifra(689,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "coste bajo el precedente ⇒ SAFE"     "^SAFE$"       "console.log($V1.veredicto)"
+PL "…y el motivo lleva las dos cifras"   "4210"         "console.log($V1.motivo)"
+PL "…y tambien la del coste"             "689"          "console.log($V1.motivo)"
+# La palabra importa: SAFE no promete capacidad, dice que hay precedente.
+PL "…y habla de PRECEDENTE"              "PRECEDENTE"   "console.log($V1.motivo)"
+PLNO "…y NO promete que quepa"           "garantiza\|asegura\|cabe seguro"  "console.log($V1.motivo)"
+
+# E4-E5 · MARGINAL por holgura: pasa de lo hecho pero no mucho.
+V4="m.viabilidadDe(m.cifra(5000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "dentro de la holgura ⇒ MARGINAL"     "^MARGINAL$"   "console.log($V4.veredicto)"
+PL "…y restringe a lo ATOMICO"           "ATOMICO"      "console.log($V4.motivo)"
+
+# E6-E7 · UNSAFE con evidencia EN CONTRA.
+V6="m.viabilidadDe(m.cifra(20000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "muy por encima ⇒ UNSAFE"             "^UNSAFE$"     "console.log($V6.veredicto)"
+PL "…y pide checkpoint, handoff y parada"  "checkpoint, handoff y parada"  "console.log($V6.motivo)"
+PL "…y dice que hay evidencia EN CONTRA"   "EN CONTRA"  "console.log($V6.motivo)"
+
+# E8-E11 · AC-05 · EL CORAZON. El disponible es SIN EVALUAR siempre, asi que esto no es un borde:
+# si cayera en SAFE aprobaria por omision, y si cayera en UNSAFE bloquearia TODO para siempre y la
+# compuerta acabaria apagada — que es no proteger el dia que tiene razon.
+SE="m.cifra(null,m.SIN_EVALUAR)"
+PL "coste SIN EVALUAR ⇒ MARGINAL"        "^MARGINAL$"   "console.log(m.viabilidadDe($SE,m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO)).veredicto)"
+PLNO "…y NUNCA SAFE"                     "SAFE"         "console.log(m.viabilidadDe($SE,m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO)).veredicto)"
+PL "precedente SIN EVALUAR ⇒ MARGINAL"   "^MARGINAL$"   "console.log(m.viabilidadDe(m.cifra(689,m.ESTIMADO),$SE,m.cifra(29286,m.MEDIDO)).veredicto)"
+PL "…y dice CUAL de los dos falta"       "el precedente"  "console.log(m.viabilidadDe(m.cifra(689,m.ESTIMADO),$SE,m.cifra(29286,m.MEDIDO)).motivo)"
+PL "…o el otro, segun cual sea"          "el coste"     "console.log(m.viabilidadDe($SE,m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO)).motivo)"
+PL "…y que no se aprueba por omision"    "NO SE APRUEBA POR OMISION"  "console.log(m.viabilidadDe($SE,$SE,$SE).motivo)"
+
+# E12-E14 · AC-06 · «no cabria NUNCA» es otra cosa que «no cabe ahora», y se decide ANTES.
+NUNCA="m.viabilidadDe(m.cifra(40000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "por encima del techo historico ⇒ UNSAFE"  "^UNSAFE$"  "console.log($NUNCA.veredicto)"
+PL "…y lo marca como NUNCA"              "^true$"       "console.log($NUNCA.nunca)"
+PL "…y pide PARTIR la tarea"             "PARTIR"       "console.log($NUNCA.motivo)"
+PL "…y dice que no se reintente"         "no reintentarla"  "console.log($NUNCA.motivo)"
+# El ORDEN importa: si el SIN EVALUAR del precedente se comprobara antes, una tarea que NUNCA
+# cabria saldria MARGINAL y el bucle infinito se produciria igual.
+PL "y se decide ANTES que el SIN EVALUAR"  "^true$"     "console.log(m.viabilidadDe(m.cifra(40000,m.ESTIMADO),$SE,m.cifra(29286,m.MEDIDO)).nunca)"
+# Y al reves: lo que cabe en el techo NO se marca nunca.
+PLNO "lo que cabe no se marca NUNCA"     "^true$"       "console.log($V1.nunca)"
+
+# E15-E16 · HOLGURA es un juicio declarado, y movible.
+PL "HOLGURA esta exportada"              "^1.5$"        "console.log(m.HOLGURA)"
+PL "…y se puede cambiar sin tocar la funcion"  "^UNSAFE$"  "console.log(m.viabilidadDe(m.cifra(5000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO),1.0).veredicto)"
+chk   "…y se declara como JUICIO"        "Es un JUICIO"  cat "$SUITE/tools/patrones.mjs"
+PL "VEREDICTOS son TRES"                 "^3$"          "console.log(m.VEREDICTOS.length)"
+
+# E17-E20 · AC-04 · BLOCKED_BY_CONTEXT: estado de tarea, vivo, no terminal.
+PL "BLOCKED_BY_CONTEXT existe"           "BLOCKED_BY_CONTEXT"  "console.log(m.BLOCKED_BY_CONTEXT)"
+PLNO "…y NO es terminal"                 "BLOCKED_BY_CONTEXT"  "console.log([...m.ESTADOS_TERMINALES].join(\" \"))"
+trlib "…y SI es vivo"                    "BLOCKED_BY_CONTEXT"  "console.log([...m.VIVOS].join(\" \"))"
+chk   "esta en LEXICON"                  "BLOCKED_BY_CONTEXT"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que NO es un fallo"       "No es un fallo"      cat "$SUITE/LEXICON.md"
+chk   "…y que lo desbloquea otra sesion"  "empezar otra sesión"  cat "$SUITE/LEXICON.md"
+# verify-fdge tambien tiene que verlo vivo, o una tarea esperando desapareceria de su recuento.
+chk   "verify-fdge lo cuenta como vivo"  "BLOCKED_BY_CONTEXT"  cat "$SUITE/tools/verify-fdge.mjs"
+
+# E19-E20 · el vocabulario de veredictos en LEXICON (LEX-R21).
+chk   "SAFE esta en LEXICON"             "SAFE"          cat "$SUITE/LEXICON.md"
+chk   "MARGINAL esta en LEXICON"         "MARGINAL"      cat "$SUITE/LEXICON.md"
+chk   "UNSAFE esta en LEXICON"           "UNSAFE"        cat "$SUITE/LEXICON.md"
+chk   "…y que el disponible no existe"   "no existe"     cat "$SUITE/LEXICON.md"
+chk   "…y que no cabe ahora no es nunca"  "bucle infinito"  cat "$SUITE/LEXICON.md"
+
+# E21-E22 · la accion, sobre el repositorio REAL.
+chk   "viabilidad da un veredicto"       "veredicto"     TRR viabilidad PT-059
+chk   "…con el coste y su naturaleza"    "ESTIMADO\|SIN EVALUAR"  TRR viabilidad PT-059
+chk   "…y el precedente con la suya"     "mayor hecho"   TRR viabilidad PT-059
+chk   "…y el techo historico"            "techo historico"  TRR viabilidad PT-059
+chk   "…y dice que mide PRECEDENTE"      "mide PRECEDENTE"  TRR viabilidad PT-059
+chk   "…y que solo CONSULTA"             "CONSULTA"      TRR viabilidad PT-059
+chk   "funciona sin credencial"          "veredicto"     TRRNOGH viabilidad PT-059
+chkno "un PT que no existe no se inventa"  "veredicto"   TRR viabilidad PT-777
+
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
 # checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que

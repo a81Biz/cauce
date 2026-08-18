@@ -35,7 +35,11 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 // PT-052 · partir lineas se hace con la funcion compartida: RE_LINEA contempla CRLF, y dos
 // formas de partir lineas en el repositorio serian dos fuentes del mismo hecho (SUITE-R38).
-import { lineas, ESTADOS_TERMINALES } from './patrones.mjs';
+import {
+  lineas, ESTADOS_TERMINALES,
+  // PT-058 · cada cifra dice que es · PT-059 · el veredicto de viabilidad
+  cifra, textoCifra, MEDIDO, ESTIMADO, SIN_EVALUAR, viabilidadDe,
+} from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
 
@@ -52,7 +56,10 @@ const SALTO = String.fromCharCode(10);
 // PT-004 pasó a DONE esperando su G4 y su issue quedó denunciado como huérfano. Un PT que
 // espera el merge no es trabajo cerrado — es lo más abierto que hay, porque lo que le queda es
 // una compuerta humana. `SUITE-R36` dice «solo lo vivo» y lo cerrado empieza en INTEGRATED.
-export const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED',
+// PT-059 · BLOCKED_BY_CONTEXT entra aqui. La tarea NO esta fallando: no debe ejecutarse
+// todavia. Si no fuera «vivo» desapareceria del tablero sin estar cerrada, y el marco habria
+// convertido «no es el momento» en «ya esta».
+export const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_BY_CONTEXT',
   'BLOCKED_DOMAIN', 'VALIDATION_PENDING', 'DONE',
   // PT-013 · un aplazado esta VIVO para el espejo: su issue permanece abierto y en el tablero.
   // Para la verificacion esta exento —no tiene intake ni fases— y esos dos signos opuestos son
@@ -834,7 +841,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1246,6 +1253,100 @@ function coste() {
   di('  trabajo entero en un commit.');
 }
 
+// ── viabilidad · ¿se puede empezar esto AHORA? ──────────────────────────────
+//
+// Las tres cifras se DERIVAN, y cada una llega con su naturaleza (PT-058):
+//   coste        de las tareas cerradas de su tipo (PT-057) → ESTIMADO, o SIN EVALUAR si <5
+//   precedente   lo mayor completado HOY                    → MEDIDO, o SIN EVALUAR si nada
+//   techo        la mayor sesion registrada jamas            → MEDIDO
+//
+// El «presupuesto disponible» NO aparece porque no existe: PHASE 2 lo midio.
+
+/** Lo que cada dia de trabajo movio. Un dia es la unica aproximacion observable a una sesion. */
+function porSesion() {
+  const crudo = gitDe(['log', '--no-merges', '--format=%H %cs']) ?? '';
+  const dias = new Map();
+  for (const l of lineas(crudo).filter(Boolean)) {
+    const corte = l.indexOf(' ');
+    if (corte < 0) continue;
+    const sha = l.slice(0, corte);
+    const dia = l.slice(corte + 1).trim();
+    if (!dias.has(dia)) dias.set(dia, []);
+    dias.get(dia).push(sha);
+  }
+  const out = [];
+  for (const [dia, shas] of dias) {
+    let n = 0;
+    for (const sha of shas) {
+      for (const x of lineas(gitDe(['show', '--numstat', '--format=', '--no-renames', sha]) ?? '')) {
+        const [mas, menos, f] = x.split('	');
+        if (!f) continue;
+        n += (Number(mas) || 0) + (Number(menos) || 0);
+      }
+    }
+    out.push({ dia, commits: shas.length, lineas: n });
+  }
+  return out;
+}
+
+function viabilidad() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) throw new Error('viabilidad necesita una allocation:  tracker viabilidad PT-059');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
+
+  const conDato = cerradasConCoste().filter((c) => !c.sinCommit);
+  const ref = costeDe(conDato, { tipo: a.type, complejidad: a.complexity ?? null });
+  const coste = ref.referencia
+    ? cifra(ref.referencia.lineas.mediana, ESTIMADO)
+    : cifra(null, SIN_EVALUAR);
+
+  const sesiones = porSesion();
+  const hoy = gitDe(['log', '-1', '--format=%cs']);
+  // El precedente es lo mayor COMPLETADO en esta sesion. Si la sesion acaba de empezar no hay
+  // con que comparar, y eso es SIN EVALUAR — no cero.
+  const mayorHoy = Math.max(0, ...conDato
+    .filter((c) => ultimoDiaDe(c.id) === hoy)
+    .map((c) => c.lineas));
+  const precedente = mayorHoy > 0 ? cifra(mayorHoy, MEDIDO) : cifra(null, SIN_EVALUAR);
+  const techo = sesiones.length
+    ? cifra(Math.max(...sesiones.map((s) => s.lineas)), MEDIDO)
+    : cifra(null, SIN_EVALUAR);
+
+  const v = viabilidadDe(coste, precedente, techo);
+  di('');
+  di(`  ${a.id} · ${a.type}/${a.complexity ?? '?'}`);
+  di(`    coste tipico    ${textoCifra(coste)}${ref.casos ? `   de ${ref.casos} cerradas` : ''}`);
+  di(`    mayor hecho     ${textoCifra(precedente)}   en esta sesion (${hoy})`);
+  di(`    techo historico ${textoCifra(techo)}   la mayor sesion registrada`);
+  di('');
+  di(`    veredicto       ${v.veredicto}${v.nunca ? '  ·  NUNCA CABRIA' : ''}`);
+  di('');
+  for (const linea of envolver(v.motivo, 88)) di(`  ${linea}`);
+  di('');
+  di('  Esto mide PRECEDENTE, no capacidad: el presupuesto disponible es SIN EVALUAR siempre,');
+  di('  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d). Y CONSULTA:');
+  di('  escribir el estado de una tarea es de «tracker avanzar».');
+}
+
+/** Corta un texto en lineas de ancho maximo, sin partir palabras. */
+function envolver(texto, ancho) {
+  const out = [];
+  let fila = '';
+  for (const palabra of String(texto).split(/\s+/)) {
+    if ((fila + ' ' + palabra).trim().length > ancho) { out.push(fila.trim()); fila = palabra; }
+    else fila += ' ' + palabra;
+  }
+  if (fila.trim()) out.push(fila.trim());
+  return out;
+}
+
+/** El dia del ULTIMO commit propio de una tarea. */
+function ultimoDiaDe(id) {
+  const s = gitDe(['log', '--no-merges', '-1', '--format=%cs', '--grep', `^[a-z]*: ${id}`, '-E']);
+  return s || null;
+}
+
 function siguienteDe() {
   let cp = null;
   try { cp = JSON.parse(readFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), 'utf8')); }
@@ -1603,7 +1704,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);
