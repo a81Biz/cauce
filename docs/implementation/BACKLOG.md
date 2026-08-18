@@ -2,70 +2,62 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-18 en `PHASE 8` de `PT-054`, la última del lote. Cada fila se **deriva** del registro
-> —`id`, `type`, `severity`, `status`, `phase`, `epic`, `issue`, `title`— y no se edita a mano.
-> Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres versiones
-> atrás con la misma seguridad que si fuera el de hoy; y `REFACTOR_SCOPE.md`, editado a mano,
-> acabó con catorce filas pegadas en una línea. La conclusión de los dos casos es la misma:
-> **un índice que se escribe a mano diverge, y solo hace falta tiempo.**
+> Regenerado el 2026-08-18 al abrir `EP-015`. Cada fila se **deriva** del registro y no se edita a
+> mano. Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres
+> versiones atrás; y `REFACTOR_SCOPE.md`, editado a mano, acabó con catorce filas pegadas en una
+> línea. La conclusión de los dos casos es la misma: **un índice que se escribe a mano diverge, y
+> solo hace falta tiempo.**
 
-## Lote esperando `G4` — `EP-014`
+## Implementación abierta — `EP-015`
 
-`EP-014` · **La fontanería de la transición** · `DONE` · **8.1.0** ·
-issue [#89](https://github.com/a81Biz/cauce/issues/89) — esperando `G4`.
+`EP-015` · **La continuidad de sesión** · `IN_PROGRESS` ·
+issue [#90](https://github.com/a81Biz/cauce/issues/90).
 
 | Orden | PT | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
-| 1 | PT-049 | S3 | **DONE** | 8 | [#83](https://github.com/a81Biz/cauce/issues/83) | El verde se **cuenta**, no se enumera: `-q` con el recuento intacto. **541 → 2** y **507 → 47** |
-| 2 | PT-050 | S3 | **DONE** | 8 | [#84](https://github.com/a81Biz/cauce/issues/84) | `selftest --solo <patrón>`: **209 → 138 s**, y las **cuatro** puertas cerradas |
-| 3 | PT-051 | S4 | **DONE** | 8 | [#85](https://github.com/a81Biz/cauce/issues/85) | `regla <ID> --donde`: las **213 emisiones** con su línea, y las 62 sin verificador una a una |
-| 4 | PT-052 | S2 | **DONE** | 8 | [#86](https://github.com/a81Biz/cauce/issues/86) | `CHECKPOINT.json` + `LEX-R26`: **si no se deriva, no entra**. Y el `sha` tiene que ser alcanzable |
-| 5 | PT-053 | S1 | **DONE** | 8 | [#87](https://github.com/a81Biz/cauce/issues/87) | `tracker avanzar`: los **cinco** actos en uno, atómicos, y **sin `--nota` no avanza** |
-| 6 | PT-054 | S2 | **DONE** | 8 | [#88](https://github.com/a81Biz/cauce/issues/88) | `cauce/<usuario>`: la proyección **derivada**, escrita con fontanería sin tocar el árbol |
+| 1 | PT-056 | S1 | READY | 1 | [#103](https://github.com/a81Biz/cauce/issues/103) | **`STATE_MISMATCH`**: que el árbol **corresponda** al `sha`, no solo que exista |
+| 2 | PT-057 | S2 | READY | 1 | [#104](https://github.com/a81Biz/cauce/issues/104) | El coste de una tarea, **derivado** de las 56 cerradas |
+| 3 | PT-058 | S1 | READY | 1 | [#105](https://github.com/a81Biz/cauce/issues/105) | `MEDIDO` / `ESTIMADO` / `SIN EVALUAR`: cada cifra declara **qué es** |
+| 4 | PT-059 | S1 | READY | 1 | [#106](https://github.com/a81Biz/cauce/issues/106) | La compuerta `SAFE`/`MARGINAL`/`UNSAFE` y `BLOCKED_BY_CONTEXT` |
+| 5 | PT-060 | S2 | READY | 1 | [#107](https://github.com/a81Biz/cauce/issues/107) | `SESSION.json` y el handoff **derivado** |
 
-**El orden no es preferencia.** `PT-049` y `PT-050` cambian cómo se ejecutan las otras cuatro —la
-misma lógica por la que `PT-047` fue primera en `EP-013`—. `PT-053` va después de `PT-052` porque
-`avanzar` **escribe** el checkpoint, y definir el artefacto después de quien lo produce deja que
-el formato lo decida la implementación.
+**`PT-056` va primera y no es preferencia.** Es el único hueco que `EP-014` dejó **a medias** —el
+`sha` se comprueba alcanzable, no correspondiente— y todo lo que viene detrás confía en que el
+checkpoint diga la verdad.
 
-**Solapamiento** (`FDGE-R40`): `tools/tracker.mjs` lo tocan **tres** tareas seguidas —`PT-052`,
-`PT-053`, `PT-054`—. Es el más denso del lote y por eso van consecutivas. Ejecución **secuencial**;
-ningún par en paralelo.
+**`PT-058` va antes que `PT-059`** porque una compuerta que decide sobre cifras sin saber de qué
+tipo son **es** el `estimated_used: 67` que `LEX-R26` dejó fuera.
 
-## Aplazado — 4 allocations `DEFERRED`, todas con su issue abierto
+**Solapamiento** (`FDGE-R40`): `tools/tracker.mjs` lo tocan **cuatro** tareas y `LEXICON` tres.
+Ejecución **secuencial**; ningún par en paralelo.
+
+## Aplazado — 3 allocations `DEFERRED`, todas con su issue abierto
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
 | Id | Tipo | Issue | Por qué sigue fuera |
 |:---|:---|:---|:---|
-| EP-015 | EP | [#90](https://github.com/a81Biz/cauce/issues/90) | **Continuidad de sesión.** Depende de `PT-052` y `PT-053`: sin el checkpoint estructurado y sin la transición atómica no hay dónde evaluar el presupuesto ni de dónde derivar el handoff |
-| EP-016 | EP | [#91](https://github.com/a81Biz/cauce/issues/91) | **Topología y multiusuario.** Depende de `PT-054`. Va último porque es el único que puede romper compatibilidad — `SUITE-R08`, `FDGE-R19`, `SUITE-R42`, `EXEC-R03` |
+| EP-016 | EP | [#91](https://github.com/a81Biz/cauce/issues/91) | **Topología y multiusuario.** Recibe de `PT-054` el mecanismo de proyección hecho; le faltan los rangos de ID y la identidad. Va último: es el único que puede romper compatibilidad |
+| PT-055 | BUG | [#94](https://github.com/a81Biz/cauce/issues/94) | `--gate G4` exige las filas de cierre de **todos** los lotes abiertos, no del que evalúa. Tercer caso de la familia de `PT-029` |
 | PT-019 | CHORE | [#26](https://github.com/a81Biz/cauce/issues/26) | Depende del proyecto legado que trabaja el firmante. Cierra cuando vaya allí |
 | PT-025 | CHORE | [#35](https://github.com/a81Biz/cauce/issues/35) | No hay proyecto de Azure que lo ejercite. Escribir la guarda a ciegas sería código sin ejecución |
 
-Los cuatro motivos son distintos y conviene no mezclarlos: dos esperan a un lote que **va a
-ocurrir**, uno a un proyecto **que existe**, y uno a un proyecto **que no**.
-
 ## Lotes cerrados
 
-`EP-001` a `EP-013`. `EP-013` en `main` desde `2c20db8` (**8.0.0**), con `G4` resuelta el
-2026-08-15 y **una excepción declarada**: `--gate G4` bloqueaba por las filas de cierre de
-`EP-014` —no de `EP-013`, que estaba verde—. Se integró con ese rojo dicho, y el defecto quedó
-abierto como `PT-055` (#94). `EP-011` en `main` desde `af79c6b` (**7.6.0**); `EP-012` desde `c983b05`
-(**7.7.0**).
+`EP-001` a `EP-014`. **`EP-014` en `main` desde `abab74b` (8.1.0)**, con `G4` resuelta el
+2026-08-18 y **sin una sola excepción declarada** — a diferencia de `EP-013`, cuyo `G4` se integró
+con un rojo dicho y dejó `PT-055` abierto.
+
+`EP-013` en `main` desde `2c20db8` (**8.0.0**) · `EP-012` desde `c983b05` (**7.7.0**) · `EP-011`
+desde `af79c6b` (**7.6.0**).
 
 ## Lo siguiente
 
-**`G4`.** El pull request de `trabajo` a `main`, que es donde se resuelve. Lo abre y lo fusiona
-el firmante (`SUITE-R42`, `EXEC-R04`, `SUITE-R06a`): el agente lo **describe** y se detiene.
+`PT-056` · `PHASE 1` → `PHASE 2`. Desde `EP-014`, la transición se hace con **un comando**:
 
 ```bash
-gh pr create --base main --head trabajo
+node docs/methodology/tools/tracker.mjs avanzar PT-056 --a 2 --nota "..."
 ```
 
-Después, **`EP-015`** (#90) — la continuidad de sesión — según la decisión 5 del firmante.
-
-`EP-013` está **en `main`** desde `2c20db8` (**8.0.0**): `G4` resuelta el 2026-08-15.
-
-Publicar sigue **pendiente por decisión humana explícita**, sostenida en cuatro lotes.
+Publicar sigue **pendiente por decisión humana explícita**, sostenida en cinco lotes.
 Es `SUITE-R06g` y no se automatiza.
