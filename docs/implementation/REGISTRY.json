@@ -1147,15 +1147,18 @@
       "complexity": "STANDARD",
       "severity": "S4",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 1,
+      "phase": 9,
       "title": "regla <ID> --donde: archivo y linea del fail() que la ejecuta",
       "origin": "Balance de EP-013 · para tocar una regla hay que abrir verify-fdge.mjs (1490 lineas) buscando donde vive. regla ya deriva los fallos del codigo: sabe donde estan",
       "created": "2026-08-15",
-      "issue": 85
+      "issue": 85,
+      "branch": "chore/PT-051-donde-vive-la-comprobacion-de-una-regla",
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-15"
     },
     {
       "id": "PT-052",

@@ -1,0 +1,23 @@
+{
+  "pt": "PT-051",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "--donde da archivo y linea de cada fail() que emite ese ID", "scenarios": ["E1", "E3", "E4"], "tests": ["selftest.sh:--donde da archivo Y linea", "selftest.sh:…y dice si bloquea o solo avisa", "selftest.sh:dos emisiones dan lineas DISTINTAS", "selftest.sh:…y una COMENTADA no cuenta"], "evidence": ["salidas/donde.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Sale de leer el codigo, no de una tabla escrita a mano", "scenarios": ["E7", "E8", "E9"], "tests": ["selftest.sh:herramientas se deriva de emisiones", "selftest.sh:…y la linea sale de m.index", "selftest.sh:…nunca de indexOf", "selftest.sh:no hay lista escrita de fallos"], "evidence": ["salidas/donde.txt", "salidas/completa.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Una regla sin verificador lo dice, y no devuelve una lista vacia", "scenarios": ["E5", "E6"], "tests": ["selftest.sh:una sin verificador lo DICE", "selftest.sh:…y no devuelve una lista vacia", "selftest.sh:…y cita TD-08 en vez de recalcularlo", "selftest.sh:--donde sin regla es un error"], "evidence": ["salidas/donde.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Una regla con verificador en varias herramientas las enumera todas", "scenarios": ["E2"], "tests": ["selftest.sh:…enumera TODAS las herramientas", "selftest.sh:…y tambien verify-fdge"], "evidence": ["salidas/donde.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la linea informada sea la UTIL para quien pregunta.",
+      "por_que": "--donde responde DONDE SE EMITE, no POR QUE SE LLEGA AHI. Un fail() dentro de una funcion auxiliar da una linea correcta y aun asi el lector puede querer ver quien la llama. Eso exige analizar el flujo de llamadas y no es derivable de una expresion regular. Esta con «—» en el out-of-scope.",
+      "donde": "changes/PT-051-donde-vive-la-comprobacion-de-una-regla/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que la guarda de comentarios cubra TODA forma de comentario.",
+      "por_que": "Es una heuristica de linea: mira si la linea empieza por //, * o /*. Un fail() en la misma linea que codigo, detras de un bloque /* */, se contaria. Basta para lo que hay —de 214 coincidencias, UNA estaba en comentario y era la que esta misma tarea acababa de escribir— y su limite se declara, porque una heuristica sin limite escrito se acaba leyendo como una garantia.",
+      "donde": "docs/methodology/tools/regla.mjs"
+    }
+  ],
+  "suite": { "passed": 563, "failed": 0, "skipped": 0, "coverage": 563, "baseline": 550 }
+}
