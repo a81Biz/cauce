@@ -125,5 +125,6 @@ registra. Es la decisión 4 del firmante y el `out-of-scope` del intake. Lo que 
 commits y líneas — **señales observables**, que es literalmente lo que se pidió.
 
 Y esto da el coste **típico de un tipo de tarea**, no el de una tarea concreta: la dispersión
-dentro de un grupo (665 a 1966 líneas de mediana entre grupos, y más dentro) hace que prometer lo
-segundo sea vender una predicción donde hay una referencia.
+dentro de un grupo —`CHORE/STANDARD` va de **398 a 2491** líneas y `BUG/TRIVIAL` de **242 a
+2591**, un factor de diez— hace que prometer lo segundo sea vender una predicción donde hay una
+referencia.
