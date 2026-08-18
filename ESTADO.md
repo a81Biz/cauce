@@ -14,7 +14,7 @@ Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-057 | CHORE | READY | 6 | — | — |
+| PT-057 | CHORE | READY | 7 | — | — |
 | PT-058 | CHORE | READY | 1 | — | — |
 | PT-059 | CHORE | READY | 1 | — | — |
 | PT-060 | CHORE | READY | 1 | — | — |
