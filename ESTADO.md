@@ -11,13 +11,13 @@ Proyectado el 2026-08-18 · 12 allocation(es) viva(s).
 |:---|:---|:---|:---|:---|:---|
 | PT-019 | CHORE | DEFERRED | — | — | — |
 | PT-025 | CHORE | DEFERRED | — | — | — |
-| EP-014 | EP | IN_PROGRESS | 1 | — | — |
+| EP-014 | EP | DONE | 9 | — | — |
 | PT-049 | CHORE | DONE | 9 | chore/PT-049-el-verde-se-cuenta-no-se-enumera | — |
 | PT-050 | CHORE | DONE | 9 | chore/PT-050-reejecutar-solo-el-bloque-en-el-que-se-trabaja | — |
 | PT-051 | CHORE | DONE | 9 | chore/PT-051-donde-vive-la-comprobacion-de-una-regla | — |
 | PT-052 | CHORE | DONE | 9 | chore/PT-052-el-checkpoint-es-un-artefacto-no-una-nota | — |
 | PT-053 | CHORE | DONE | 9 | chore/PT-053-la-transicion-de-fase-es-un-solo-acto | — |
-| PT-054 | CHORE | DONE | 9 | chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge | 2b97137 |
+| PT-054 | CHORE | DONE | 9 | chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge | — |
 | EP-015 | EP | DEFERRED | — | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
