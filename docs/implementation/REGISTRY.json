@@ -1327,15 +1327,16 @@
       "complexity": "STANDARD",
       "severity": "S1",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "IN_PROGRESS",
       "structural": false,
       "suite_version": "8.1.0",
       "epic": "EP-015",
-      "phase": 1,
+      "phase": 2,
       "title": "La compuerta de presupuesto: SAFE, MARGINAL, UNSAFE, y el estado BLOCKED_BY_CONTEXT",
       "origin": "Especificacion de la Capa de Continuidad, secciones 3 y 10 · «nunca comenzar una unidad de trabajo que probablemente no pueda completarse». BLOCKED_BY_CONTEXT NO es un fallo: es no-todavia, y por eso es un estado de TAREA y no de sesion",
       "created": "2026-08-18",
-      "issue": 106
+      "issue": 106,
+      "branch": "chore/PT-059-no-empezar-lo-que-no-se-puede-terminar"
     },
     {
       "id": "PT-060",
