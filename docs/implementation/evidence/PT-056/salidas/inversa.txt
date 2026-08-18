@@ -1,0 +1,23 @@
+# PT-056 · comprobación inversa — el criterio neutralizado
+
+Se puso `if (false && …)` en las dos condiciones de `estadoDelArbol` y se corrió la
+batería filtrada. Tres casos caen. Los que siguen en verde son los que afirman que algo
+NO es discrepancia: con el criterio muerto no distinguen, y es honesto que no lo hagan.
+
+criterio NEUTRALIZADO
+── Q · secretos ──
+── R · bitácora y cierre ──
+── S · patrones ──
+── C · metodología ──
+── PT-056 · el arbol corresponde al checkpoint ──
+  [32m✓[0m un arbol SUCIO no es discrepancia
+  [31m✗[0m la discrepancia dice el campo  (no apareció: sha · salió: [])
+  [32m✓[0m un sha ANTECESOR no es discrepancia
+  [31m✗[0m …y no saberlo cuenta como discrepancia  (no apareció: ^false$ · salió: true)
+  [32m✓[0m un sha null no es discrepancia
+  [31m✗[0m …y dice cual es la discrepancia ENTERA  (no apareció: declarado chore/OTRA)
+  [32m✓[0m …y dice que sucio NO es discrepancia
+
+selftest: HAY FALLOS · 7 de 657 casos
+
+[exited with code 0]

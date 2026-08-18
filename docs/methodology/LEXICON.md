@@ -439,6 +439,10 @@ HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
                        responde por el PROYECTO: qué implementación, qué tarea, qué sigue
 CHECKPOINT.json        sobrescribible · el estado de la tarea EN CURSO, legible por máquina
                        responde por la TAREA, y es UNO: escribirlo sobre otra la sustituye
+                       STATE_MISMATCH · la CONDICION que se reporta cuando el arbol no
+                       corresponde a lo que declara. NO es un «status» del registro: durante
+                       una discrepancia la tarea sigue IN_PROGRESS, y lo que esta mal es la
+                       correspondencia entre la foto y el arbol           [LEX-R26]
 SESSION_LOG.md         append-only   · una entrada por sesión (antes SESSION_SUMMARY.md)
 BACKLOG.md             sobrescribible · índice de PTs vivos y su fase actual
 RECONCILIATION.log     append-only   · una entrada por decisión sobre un documento legado
@@ -478,7 +482,34 @@ El `sha` que declara tiene que ser **alcanzable**, no solo tener forma de SHA. U
 apunta a un commit inexistente es la peor de las dos averías posibles — **el que no existe se nota;
 el que miente, no**.
 
-Que el **árbol corresponda** a ese `sha` es otra comprobación y no está aquí.
+Y el **árbol tiene que corresponder**: el `HEAD` actual y la rama actual son los que el checkpoint
+declara. Un `sha` alcanzable que describe un árbol que ya no existe **miente sin que nada lo note**
+— el checkpoint apunta a un commit real y el trabajo continúa sobre otro estado.
+
+La condición se llama **`STATE_MISMATCH`** y la comprobación **detiene**: reanudar con una
+discrepancia es una decisión humana (`SUITE-R06`), y la herramienta **propone** el comando que la
+resolvería sin ejecutarlo — reescribir el checkpoint borraría la única prueba de que hubo
+divergencia.
+
+**Ir por detrás tampoco lo es.** Entre dos transiciones de fase hay varios commits —medido: hasta
+diez por tarea en `EP-014`, contra nueve transiciones—, así que el `sha` declarado deja de ser
+`HEAD` en cuanto se commitea. Lo que distingue no es la igualdad sino la **historia**: un commit
+que es **antecesor** del actual describe un estado del que el de ahora desciende. Uno que no lo es
+está en otra rama o en una historia reescrita, y ahí sí. No poder decidirlo cuenta como
+discrepancia: no haberlo demostrado no es haberlo desmentido (`RULE-06`).
+
+Y **no poder leer la rama tampoco es divergir**: en `detached HEAD` —el estado en que
+`actions/checkout` deja el repositorio— `git rev-parse --abbrev-ref HEAD` devuelve la cadena
+`HEAD`, que no es el nombre de ninguna rama. Tratarla como valor hacía que la comprobación se
+disparara contra sí misma en cada PR.
+
+**Un árbol sucio NO es una discrepancia.** Cambios sin commitear son el estado normal de una tarea
+en curso, y la lista de archivos cambia sin parar mientras se trabaja: medido, pasó de 3 a 5 con el
+`sha` intacto en el tiempo de escribir tres párrafos. Solo `sha` y `rama` sostienen la
+correspondencia; `sucio` y `archivos` describen **progreso**, no divergencia.
+
+Y **no tener checkpoint no es una discrepancia**: no hay nada que contrastar. No saber y no haber
+son cosas distintas.
 
 `LEX-R12` · Estos tres archivos son **append-only e índices**. Contienen una línea por PT
 con su ID, título, tipo, estado canónico y ruta. **Nunca** contienen el cuerpo del análisis

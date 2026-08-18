@@ -1,0 +1,16 @@
+# PT-056 · el caso peligroso, sobre el repositorio real
+
+Un SHA que EXISTE pero describe otro arbol pasaba entera la comprobacion de PT-052.
+
+$ (checkpoint alterado a abab74b — el merge de EP-014, un commit real)
+
+  ✗ LEX-R26  CHECKPOINT.json de PT-056 NO corresponde al arbol (STATE_MISMATCH) —
+             sha: declarado abab74b, real 87710a9. El commit existe, pero el trabajo va
+             por otro sitio: decidir cual manda es humano (SUITE-R06).
+
+## Y lo inverso: ir por detras NO es mentir
+
+Tras el commit de PHASE 5 el checkpoint quedo en 87710a9 con HEAD en a277dad:
+
+checkpoint: a277dad · HEAD: a277dad
+  ✓ LEX-R26        CHECKPOINT.json: PT-056 en PHASE 6, sobre un commit alcanzable y con el arbol correspondiente.

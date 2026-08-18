@@ -1267,15 +1267,16 @@
       "complexity": "STANDARD",
       "severity": "S1",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "IN_PROGRESS",
       "structural": false,
       "suite_version": "8.1.0",
       "epic": "EP-015",
-      "phase": 1,
+      "phase": 9,
       "title": "STATE_MISMATCH: al retomar, comprobar que el arbol CORRESPONDA al sha declarado, no solo que exista",
       "origin": "EP-014 · PT-052 puso el sha en CHECKPOINT.json y verify-fdge exige que sea ALCANZABLE, pero NADA comprueba que el arbol sea el suyo. Un checkpoint puede declarar un sha real y describir un arbol que ya no existe: es la unica de las tres cosas que EP-015 recibe a medias, y la mas peligrosa — un estado que miente sin que nada lo note",
       "created": "2026-08-18",
-      "issue": 103
+      "issue": 103,
+      "branch": "chore/PT-056-el-arbol-corresponde-al-checkpoint"
     },
     {
       "id": "PT-057",

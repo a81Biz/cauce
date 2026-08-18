@@ -1,17 +1,18 @@
 {
-  "pt": "PT-054",
+  "pt": "PT-056",
   "type": "CHORE",
-  "epic": "EP-014",
-  "status": "DONE",
+  "epic": "EP-015",
+  "status": "IN_PROGRESS",
   "phase": 9,
   "fase": "Integración",
-  "rama": "chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge",
-  "sha": "2b97137800416da4d14a8d43393c3d994325b2ab",
-  "sha_corto": "2b97137",
+  "rama": "chore/PT-056-el-arbol-corresponde-al-checkpoint",
+  "sha": "29991889a059e6a95f3db8017d48502de83af861",
+  "sha_corto": "2999188",
   "sucio": true,
   "archivos": [
-    "docs/implementation/REGISTRY.json",
-    "hanges/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/intake.md"
+    "changes/PT-056-el-arbol-corresponde-al-checkpoint/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": "G4",
   "produce": [],
