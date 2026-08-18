@@ -3,21 +3,19 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial",
   "sha": "523bb488085957fe8699a5618b4ee2e93620c0ad",
   "sha_corto": "523bb48",
   "sucio": true,
   "archivos": [
     "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }
