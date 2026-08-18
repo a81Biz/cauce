@@ -1,0 +1,16 @@
+# PT-057 · comprobación inversa
+
+Se neutralizaron LAS DOS decisiones que sostienen la tarea:
+  1. el umbral de AC-03  ->  if (false && grupo.length < minimo)
+  2. la mediana          ->  sustituida por la media
+
+Caen ocho casos, y tres son sobre el REPOSITORIO REAL — no solo los de laboratorio.
+
+  [31m✗[0m la mediana ignora el caso extremo  (no apareció: ^1$ · salió: 21)
+  [31m✗[0m …y no es la media  (apareció: ^2[01])
+  [31m✗[0m con cuatro NO extrapola  (no apareció: ^null$ · salió: {"commits":{"mediana":1,"min":1,"max":1,"n":4},"archivos":{"mediana":2,"min":2,"max":2,"n":4},"lineas":{"mediana":50,"min":50,"max":50,"n":4}})
+  [31m✗[0m …y dice cuantas hay y cuantas faltan  (no apareció: solo 4, y hacen falta 5 · salió: undefined)
+  [31m✗[0m …y ensena los casos EN CRUDO  (no apareció: ^4$ · salió: IMPORT_FALLA Cannot read properties of undefined (reading 'length'))
+  [31m✗[0m un grupo pequeno se declara SIN REFERENCIA  (no apareció: SIN REFERENCIA)
+  [31m✗[0m …y no da mediana de una sola tarea  (apareció: ^ *lineas  *[0-9])
+  [31m✗[0m …pero ensena el caso que hay  (no apareció: commits [0-9] · archivos)

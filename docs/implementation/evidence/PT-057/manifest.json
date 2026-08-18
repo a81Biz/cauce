@@ -1,0 +1,33 @@
+{
+  "pt": "PT-057",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "El coste se deriva de tareas cerradas: archivos, commits, notas, casos", "scenarios": ["E1", "E2", "E3", "E15"], "tests": ["selftest.sh:la mediana ignora el caso extremo", "selftest.sh:el rango va con la mediana", "selftest.sh:con cinco tareas SI hay referencia", "selftest.sh:coste da una cifra para un grupo grande", "selftest.sh:…y de cuantas cerradas sale"], "evidence": ["salidas/coste-real.txt", "salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Se puede comparar una tarea nueva con las de su mismo tipo y complejidad", "scenarios": ["E4", "E5", "E6"], "tests": ["selftest.sh:filtra por tipo Y complejidad", "selftest.sh:filtra solo por tipo", "selftest.sh:sin filtro, todas", "selftest.sh:sin filtro salen todos los grupos", "selftest.sh:la cifra no es la misma para todo grupo"], "evidence": ["salidas/coste-real.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Con pocas tareas cerradas de ese tipo lo dice; no extrapola en silencio", "scenarios": ["E7", "E8", "E9", "E10", "E11", "E16"], "tests": ["selftest.sh:con cuatro NO extrapola", "selftest.sh:…y dice cuantas hay y cuantas faltan", "selftest.sh:…y ensena los casos EN CRUDO", "selftest.sh:con NINGUNA, motivo distinto", "selftest.sh:sin referencia NO devuelve cero", "selftest.sh:un grupo pequeno se declara SIN REFERENCIA", "selftest.sh:…y no da mediana de una sola tarea"], "evidence": ["salidas/coste-real.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Ninguna cifra sale de la memoria del agente ni de una tabla escrita a mano", "scenarios": ["E12", "E13", "E14", "E17", "E18"], "tests": ["selftest.sh:el dueno es el PT del asunto", "selftest.sh:…el PRIMERO si hay varios", "selftest.sh:…y no el segundo", "selftest.sh:un asunto sin PT no tiene dueno", "selftest.sh:MINIMO_REFERENCIA esta exportado", "selftest.sh:…y se declara como JUICIO, no resultado", "selftest.sh:coste funciona SIN credencial", "selftest.sh:la cifra no es la misma para todo grupo"], "evidence": ["salidas/coste-real.txt", "salidas/audit.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la referencia SIRVA para decidir.",
+      "por_que": "Se comprueba que sale de las tareas cerradas, que dice de cuantas y que con pocas se calla. Si 1966 lineas es mucho o poco para tu tarea es un juicio, y esta tarea no lo hace: lo hara PT-059 con lo que PT-058 le de.",
+      "donde": "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que el umbral de CINCO sea el correcto.",
+      "por_que": "No hay dato que lo demuestre. Esta declarado como juicio, con nombre y comentario en el codigo, para que se pueda discutir en vez de quedar enterrado en un `if`. Lo que si esta medido es que decide: cuatro grupos dan referencia y cuatro no.",
+      "donde": "docs/methodology/tools/tracker.mjs"
+    },
+    {
+      "afirmacion": "Que la referencia describa el PRESENTE.",
+      "por_que": "BUG/TRIVIAL sale mas caro que BUG/STANDARD porque sus tareas son anteriores a FDGE-R19, cuando un commit llevaba el trabajo entero. La cifra describe con verdad un pasado que ya no aplica. La salida dice de CUANTAS tareas sale, no de CUANDO — y ponderar por antiguedad cambia que significa la referencia, asi que va a PT-058 declarado.",
+      "donde": "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que las 8 cerradas sin commit propio no sesguen la referencia.",
+      "por_que": "Se excluyen y se DICE cuantas son, pero excluirlas no es neutral: son trabajo anterior a la convencion de mensajes, o sea el mas antiguo. La referencia esta calculada sobre las 45 que si tienen commit, y eso la inclina hacia lo reciente sin haberlo medido.",
+      "donde": "docs/implementation/evidence/PT-057/salidas/coste-real.txt"
+    }
+  ],
+  "suite": { "passed": 706, "failed": 0, "skipped": 0, "coverage": 706, "baseline": 663 }
+}
