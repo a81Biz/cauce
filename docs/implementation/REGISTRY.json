@@ -1331,7 +1331,7 @@
       "structural": false,
       "suite_version": "8.1.0",
       "epic": "EP-015",
-      "phase": 3,
+      "phase": 4,
       "title": "La compuerta de presupuesto: SAFE, MARGINAL, UNSAFE, y el estado BLOCKED_BY_CONTEXT",
       "origin": "Especificacion de la Capa de Continuidad, secciones 3 y 10 · «nunca comenzar una unidad de trabajo que probablemente no pueda completarse». BLOCKED_BY_CONTEXT NO es un fallo: es no-todavia, y por eso es un estado de TAREA y no de sesion",
       "created": "2026-08-18",

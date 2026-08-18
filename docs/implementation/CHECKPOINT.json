@@ -3,20 +3,25 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/PT-059-no-empezar-lo-que-no-se-puede-terminar",
-  "sha": "93282c8ef2ffba0350c190344fb6a138316810ff",
-  "sha_corto": "93282c8",
+  "sha": "4f3cb28dd014d819b108c57170a41d63e8c592ed",
+  "sha_corto": "4f3cb28",
   "sucio": true,
   "archivos": [
     "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-18"
 }
