@@ -3,21 +3,18 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra",
-  "sha": "1ebe25500f5e8b57de3abaf239d576f2eee77dcd",
-  "sha_corto": "1ebe255",
+  "sha": "90008958b294e3a1ffdb99d0b1b582a0bfa35daa",
+  "sha_corto": "9000895",
   "sucio": true,
   "archivos": [
     "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-18"
 }
