@@ -8,6 +8,80 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 8.1.0 — 2026-08-18
+
+**La fontanería de la transición.** Seis tareas, una regla nueva y un artefacto nuevo, y nada que
+rompa: `MINOR`. Es el lote que hace **ejecutable** lo que `PHASES.md` ya describía.
+
+Sale de una medida, no de una intuición. `EP-013` cerró con un balance que contó lo que costaba
+trabajar: **107 transiciones de fase en dos lotes, cinco actos manuales cada una, y ocho fallos de
+CI** — los ocho por hacer cuatro de los cinco. Y `FDGE-R52`, la regla que exige la nota de
+reanclaje, cazó **la misma transición tres veces**; la tercera **con el fallo anunciado en la
+propia nota**.
+
+> Predecir el fallo no lo evita. Una disciplina que depende de acordarse falla aunque uno se
+> acuerde, si el acto sigue siendo manual.
+
+### `tracker avanzar` · la transición de fase en un acto
+
+```
+tracker avanzar PT-NNN --a N --nota "..."
+```
+
+Siete actos donde había siete gestos: **registro, YAML del intake, checkpoint, sello del `HANDOFF`,
+espejo, nota y proyección.** El orden lo decide la **reversibilidad** —lo irreversible al final, y
+todo lo anterior se restaura si algo falla— y **sin `--nota` no avanza**: no es un aviso, es una
+negativa.
+
+**Los actos eran cinco en el diseño y resultaron siete.** El espejo lo descubrió `npm run verify`
+en rojo, y el sello del `HANDOFF` lo descubrió la CI **con el comando ya integrado**. Que el propio
+enumerador de los actos se dejara dos es la mejor prueba de que hacía falta.
+
+### `CHECKPOINT.json` · el estado de la tarea, legible por máquina
+
+`LEX-R26`, nueva: **un campo que solo pueda rellenar la memoria no entra.** Todo se deriva del
+registro, de git o de una tabla que el marco ya calcula, y el `sha` que declara tiene que ser
+**alcanzable** — un checkpoint que apunta a nada miente **con la autoridad de un dato
+estructurado**, y el que no existe se nota mientras el que miente no.
+
+Responde por la **tarea**; `HANDOFF.md` sigue respondiendo por el **proyecto**. No compiten.
+
+### `cauce/<usuario>` · ver en qué se trabaja sin esperar al merge
+
+Una rama **derivada** —solo la escribe la herramienta— con el estado agregado de todo lo vivo y el
+SHA de cada rama. Se escribe con fontanería de git, **sin tocar el árbol de trabajo**, así que
+ocurre mientras se trabaja en otra rama.
+
+Cada commit lleva la marca `cauce:proyeccion`; uno sin ella se **reporta**, porque una rama
+derivada en la que alguien escribe deja de serlo. Publicarla es `--publicar`: **el lote quita los
+actos de registrar, no los de publicar.**
+
+### Y las tres que abaratan mirar
+
+- **`-q`** en `selftest` y `verify-fdge`: **541 → 2** y **518 → 30** líneas, con el recuento
+  intacto. Un «sin errores» sin denominador es lo que `PT-002` corrigió.
+- **`selftest --solo <patrón>`**: 209 → 138 s. Y la salida dice **cuántos de cuántos**, porque un
+  subconjunto que parece la batería es peor que no tener subconjunto.
+- **`regla <ID> --donde`**: archivo y línea de las **213 emisiones**. Al ponerle el número de línea,
+  la herramienta delató que contaba emisiones **dentro de comentarios** — llevaba haciéndolo
+  siempre y era invisible sin la línea.
+
+`selftest`: **520 → 618 casos**.
+
+### Lo que este lote NO hizo, y está medido
+
+- **No se escribió el verificador de `FDGE-R22`.** `PT-023` lo midió en `EP-013`: 75 % de falsos
+  positivos, cuatro causas y ninguna afinable. Está en el «no hacer» del `HANDOFF` para que no se
+  vuelva a proponer.
+- **No se detectan los choques entre reglas en general.** `PT-029` caza **una** familia; de los seis
+  casos conocidos, cinco son de otra.
+- **`avanzar` no resuelve compuertas ni hace commit.** Las primeras son humanas sin excepción
+  (`EXEC-R04`); lo segundo decidiría **qué entra en el commit**, y agrupar es decisión de la tarea.
+- **La proyección no resuelve la convivencia de dos personas.** El usuario es uno, el de
+  `git config`. Eso es `EP-016`.
+
+---
+
 ## 8.0.0 — 2026-08-15
 
 **El tablero queda limpio.** Ocho tareas, y `MAJOR` por una sola de ellas: `SUITE-R08` pasa a

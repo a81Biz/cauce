@@ -1878,3 +1878,384 @@ con lo que desbloquearía a cada uno. No es la misma espera: uno aguarda a un pr
 el otro a uno que no.
 
 G4 y la publicación NO se delegan: son del firmante.
+
+## PT-049 — CHORE: el verde se cuenta, no se enumera
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-049-el-verde-se-cuenta-no-se-enumera
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas, y --gate G3 verde) · G4 pendiente
+Objetivo: que selftest y verify-fdge digan qué falló y sobre cuántos, sin enumerar los cientos de
+✓ que no informan.
+Causa raíz: no había forma de pedirlo. Medido en EP-013: la batería imprime 541 líneas y el
+verificador 507, y en un árbol sano el 96 % y el 89 % son el bloque verde. La batería se ejecutó
+más de quince veces en una sola sesión.
+Solución: una bandera explícita, mismo comportamiento, distinta impresión. Tres invariantes, y las
+tres con caso: el RECUENTO se imprime siempre —un «sin errores» sin denominador es lo que PT-002
+corrigió—, con fallos -q los enumera TODOS, y el código de salida es idéntico con y sin -q. Si -q
+pudiera cambiar el exit habría dos verdades sobre el mismo árbol.
+Archivos modificados: docs/methodology/tools/verify-fdge.mjs · docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-049/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): tres hallazgos, los tres ejecutando y ninguno leyendo.
+  1 -q dejaba 21 líneas y DIECINUEVE eran cabeceras de sección vacías. El diseño no lo previó
+    porque las cabeceras son «echo» sueltos, no pass(). Borrarlas habría dejado un rojo sin saber
+    a qué bloque pertenece, así que se RECUERDAN: sec() guarda la cabecera y sale sola delante del
+    primer fallo de su bloque. En verde no aparece ninguna; en rojo, las que hacen falta.
+  2 cuatro casos nacieron rojos y ninguno era del cambio, sino de cómo los escribí: un patrón con
+    «[» sin cerrar —chk usa grep BRE, y eso es un ERROR de sintaxis, no un «no casa»— y dos que
+    hacían «cat» del archivo entero, que contiene la palabra SyntaxError dentro de revento(), así
+    que el arnés daba la herramienta por reventada.
+  3 EL CUARTO ES EL MISMO DE SIEMPRE, y ya van cuatro en esta sesión: el caso que comprueba que el
+    recuento no mira QUIET buscaba su línea con sed -n "/selftest: OK/p", y eso casaba TAMBIÉN las
+    dos líneas que definen el caso, una de las cuales dice QUIET. El caso se cazaba a sí mismo.
+    Antes fueron SUITE-R42 en PT-043, FDGE-R19 en PT-047 y FDGE-R39 en PT-015. La lectura no lo ve
+    nunca. Ahora se busca por POSICIÓN (tail -4) y queda anotado en el código.
+Lo medido y NO hecho: verify-fdge -q deja 47 líneas y 43 son AVISOS, 19 de ellos diciendo «aún no
+toca» sobre artefactos que el procedimiento escribe más adelante. Acallarlos bajaría a 27 y se
+sentiría como progreso. No entra: no es lo que la tarea firmó, y decidir el alcance a mitad de la
+implementación es lo que PT-023 midió que sale mal. Queda medido en discovery y con «—» en el
+out-of-scope, por si merece intake propio.
+Límite declarado: seis de los dieciséis casos comprueban la FORMA del código de selftest, no su
+comportamiento — ejecutar la batería dentro de la batería triplicaría su coste. Lo ejecutado de
+verdad está en la evidencia, con las cuatro salidas: cada herramienta en sus dos modos, porque la
+afirmación de esta tarea es una comparación y una comparación con un solo lado es una afirmación.
+Comprobación inversa en las dos direcciones: poner el recuento detrás de la guarda de QUIET pone
+en rojo «…y no mira QUIET»; poner -q también sobre el bloque ERRORES pone en rojo los dos casos
+que lo protegen.
+  selftest 541 → 2 lineas (-99,6 %) · verify-fdge 507 → 47 (-90,7 %) · casos 520 → 536
+Trazabilidad externa: —
+
+## PT-050 — CHORE: reejecutar solo el bloque en el que se trabaja
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-050-reejecutar-solo-el-bloque-en-el-que-se-trabaja
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas, y --gate G3 verde) · G4 pendiente
+Objetivo: que iterar sobre un bloque de casos no obligue a ejecutar los 550, y que el subconjunto
+no pueda confundirse con la batería.
+Causa raíz: no había forma de pedir menos. Medido: 209 s por vuelta, 181 reconstrucciones del
+fixture, y quince vueltas en una sola sesión para estrenar seis casos.
+Solución: --solo <patrón> filtra ANTES de ejecutar el comando del caso, y la salida dice CUÁNTOS
+DE CUÁNTOS. Un subconjunto que parece la batería es peor que no tener subconjunto: es PT-002 con
+otro nombre, y la salida se lee fuera de contexto. Un patrón sin coincidencias es ROJO —el verde
+por vacío es lo que PT-023 encontró ejecutando— y --solo sin valor es error, porque un patrón
+vacío casaría con todo y la bandera diría que filtró cuando no filtró nada.
+Archivos modificados: docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-050/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): TRES veces corrigió la ejecución lo que estaba escrito.
+  1 «LAS DOS ÚNICAS PUERTAS» ERA FALSO. El discovery afirmó que todo caso pasa por chk/chkno; con
+    el filtro puesto seguían corriendo 83: 82 entran por trlib/trlibno y uno estaba escrito a mano
+    con su propio if/pass/bad. CUATRO puertas, no dos. La cifra lo delató exacta —536-453=83— y
+    fue LA MISMA con patrón y sin él, que es lo que hizo evidente que el filtro no filtraba en vez
+    de que filtrara mal. El caso escrito a mano puenteaba además revento(), así que llevaba sin la
+    protección del arnés desde que se escribió: un caso que se salta el arnés se salta todo lo que
+    el arnés protege.
+  2 EL FILTRO SE PAGABA A SÍ MISMO. La primera versión lanzaba grep -F por caso —536 procesos— y
+    el ahorro cayó al 32 %. `case ... in *"$SOLO"*` casa igual de literal y no lanza nada.
+  3 LA CIFRA PROMETIDA FALLÓ TRES VECES: 99 % estimado sin medir en el balance de EP-013, 55 % en
+    la estrategia —medido, pero con trlib ejecutándose en el aislamiento, así que no era el
+    suelo—, y 34 % de verdad: 209 s → 138 s. Cada estimación estuvo más cerca y ninguna acertó
+    hasta ejecutar la definitiva. El discovery lleva la corrección DEBAJO, no reescrita.
+La familia de siempre, dos veces más en esta tarea: sed -n "/NINGUN CASO CASA/,/^fi/p" arrancaba
+en la línea del propio caso y se tragaba medio archivo hasta el siguiente fi, incluida una palabra
+que dispara revento(); y sed -n "/necesita un patron/p" casaba su propia definición, así que habría
+pasado aunque el mensaje real desapareciera. Van CINCO en la sesión. Ahora se extrae por POSICIÓN
+o por una cadena que la definición no contiene. Es el candidato más claro a caso mecánico que ha
+salido del lote, y no se abre: el firmante prohibió expandir EP-014.
+FDGE-R52 cazó otra cosa que no era de estilo sino de ARITMÉTICA: consolidar las transiciones 3→4 y
+4→5 en un comentario dejó el issue con cuatro notas cuando PHASE 6 exige cinco. Consolidar no es
+un atajo con coste cero: es una nota que no existe. Se publicó separada, tarde, diciendo por qué.
+Lo que no da: el 66 % del reloj sigue ahí. Son las 181 reconstrucciones del fixture, y quitarlas
+exige partir selftest.sh — que cinco de las seis tareas de EP-014 van a tocar. AC-02 deja la
+limitación a la vista en CADA ejecución: «6 de 550» no se confunde con la batería.
+  209 s → 138 s (-34 %) · casos 536 → 550 · cuatro puertas cerradas
+Trazabilidad externa: —
+
+## PT-051 — CHORE: dónde vive la comprobación de una regla
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S4 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-051-donde-vive-la-comprobacion-de-una-regla
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que «regla <ID>» diga dónde está la comprobación, con archivo y línea, en vez de obligar
+a abrir 1 490 líneas buscándola.
+Causa raíz: la herramienta ya recorría cada emisión una a una y TIRABA el m.index, quedándose solo
+con el nombre del archivo. Medido: 95 reglas, 213 emisiones, 2,2 de media por regla.
+Solución: fallosPosibles conserva cada emisión con su archivo, su línea y su tipo. La forma
+pública —herramientas, bloquea, avisa— se DERIVA de esa lista, así que ninguna salida existente
+cambia y el caso «no hay lista escrita de fallos», anterior a esta tarea, sigue verde.
+Archivos modificados: docs/methodology/tools/regla.mjs · docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-051/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): la tarea destapó un defecto ANTERIOR a ella, y era mío el disparo.
+La primera versión escribió el patrón literal de una emisión DENTRO DE SU PROPIO COMENTARIO, y
+--donde lo delató en la primera ejecución: «regla.mjs:69». El defecto —fallosPosibles casa dentro
+de comentarios— existía desde siempre y era INVISIBLE: sin número de línea, un archivo de más en
+la lista de «quién la comprueba» no llama la atención de nadie. Bastó PONER LA LÍNEA para que
+saltara. Medido: de 214 coincidencias, UNA en comentario, la que esta tarea acababa de escribir.
+Se arregló en los dos sentidos —el comentario ya no lleva el patrón, y hay guarda— y el límite de
+la guarda se declara: es una heurística de línea, y una emisión tras un bloque de comentario en la
+misma línea que código se contaría. Una heurística sin límite escrito se acaba leyendo como una
+garantía.
+El caso que discrimina: con m.index las dos emisiones de prueba dan «2,5»; con indexOf(m[0]) dan
+«2,2». CON UNA SOLA EMISIÓN POR ARCHIVO LAS DOS IMPLEMENTACIONES DAN LO MISMO, así que un caso
+escrito sin pensarlo habría pasado con la rota — y la rota da una línea PLAUSIBLE: quien la abriera
+vería código y creería que es el que busca. Es el defecto que PT-043 documentó leyendo las entradas
+CORRIGE de HISTORY.log: segunda vez en el repositorio, primera que se le escribe un caso.
+Un descuido al ejecutar la inversa, dicho: el segundo restaurado se lo tragó un «|| true» mal
+puesto y el árbol quedó un momento sin la guarda. Lo delató el grep de comprobación posterior —la
+disciplina de comprobar DESPUÉS de restaurar— y se repuso antes del commit.
+Y FDGE-R52 volvió a cazar la consolidación de dos transiciones, esta vez habiéndola ANUNCIADO en
+la propia nota: predecir el fallo no lo evita. Consolidé sabiendo el coste, lo dije, y hubo que
+publicar una nota más — el trabajo que consolidar pretendía ahorrar. Es el argumento de PT-053,
+que viene después: una disciplina que depende de acordarse falla AUNQUE UNO SE ACUERDE, si el acto
+sigue siendo manual.
+Lo que no da: --donde responde DÓNDE SE EMITE, no POR QUÉ SE LLEGA AHÍ. Y las 62 reglas sin
+verificador siguen sin tenerlo; lo que cambia es que ahora se ven una a una en vez de como una
+cifra en TD-08.
+  casos 550 → 563 · 95 reglas · 213 emisiones localizadas
+Trazabilidad externa: —
+
+## PT-052 — CHORE: el checkpoint es un artefacto, no una nota
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-052-el-checkpoint-es-un-artefacto-no-una-nota
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que el estado de una tarea en curso sea legible por máquina y esté atado al commit del
+código, sin crear una fuente nueva.
+Causa raíz: el estado existía —HANDOFF, la fase del registro, las notas de reanclaje— y en ningún
+formato que un programa pudiera leer. Y nada ataba la gobernanza al commit: hoy los ata que viajen
+en el MISMO commit, y ese vínculo desaparece en cuanto PT-054 proyecte a otra rama.
+Solución: CHECKPOINT.json, uno, sobrescrito, con TODOS los campos derivados del registro, de git o
+de una tabla que el marco ya calcula. LEX-R26 lo convierte en obligación: si no se deriva, NO
+ENTRA. La acción «tracker checkpoint PT-NNN» lo escribe, y verify-fdge exige que el sha declarado
+sea ALCANZABLE — no que tenga forma de sha.
+Archivos modificados: docs/methodology/LEXICON.md · PHASES.md · FDGE-Prompts.md · INSTALL.md ·
+CORE.md · tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-052/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): EL SPEC-CHANGES PASÓ DE UNA FILA A SEIS, y las cinco añadidas las
+pidió la ejecución, no la lectura. Declaré LEXICON.md y nada más; después:
+  audit         «LEX-R26: no la cita ningún documento operativo»
+  audit         «CHECKPOINT.json: ningún instalador lo crea · ningún documento operativo lo usa»
+  verify-suite  «PHASES.md cita LEX-R26 que FDGE-Prompts.md no menciona»
+El tercero es la lección de PT-023 aplicándose sola —el texto copiable no puede decir menos que la
+regla que cita— y la diferencia con aquel caso es instructiva: allí tardó DOS MESES en verse
+porque nadie lo comprobaba; aquí saltó en la primera ejecución porque verify-suite sí lo comprueba.
+PT-023 midió que nada comprueba que una declaración de spec-changes se cumpla, y sigue siendo
+cierto. Lo que el marco sí impide es que un nombre nuevo quede HUÉRFANO, y eso cubrió el hueco
+desde otro ángulo.
+Tres decisiones, con su porqué:
+  1 LEX-R26 es una REGLA, no una descripción. Un contrato de campos sin regla que lo sostenga
+    permite añadir un campo libre mañana con el documento siguiendo cierto. Es la decisión 4 del
+    firmante aplicada a un sitio donde no se había discutido: no era solo sobre el presupuesto de
+    sesión, es sobre cualquier campo de cualquier artefacto estructurado.
+  2 NO SE SIEMBRA en la instalación, y INSTALL.md dice por qué: sin tarea no hay nada que derivar,
+    y un archivo con campos en blanco sería una afirmación falsa con forma de dato. Es la razón de
+    SUITE-R32 al revés: aquí lo correcto es que NO EXISTA hasta que haya algo cierto que decir.
+  3 CORRE SIN PLATAFORMA, como «estado», y por una razón más fuerte: el momento en que más falta
+    hace un checkpoint es aquel en que puede no haber credencial —retomar en una sesión nueva—.
+    Exigirle plataforma habría hecho que el estado dependiera de la red para poder escribirse.
+Dos casos míos nacieron mal, y los dos por lo mismo: asertaban sobre un mundo que no era el que
+había. «un sha real pasa» esperaba «commit alcanzable» y el fixture NO es un repositorio git, así
+que sha sale null y la herramienta LO DICE —RULE-06 funcionando y yo esperando lo contrario—; y
+«con su fase: 4» era una aserción SOBRE EL ORDEN DE EJECUCIÓN, no sobre el código: pasaba o fallaba
+según qué bloque hubiera mutado el fixture antes. Se resolvió llamando a build_fixture al entrar.
+Consecuencia de PT-050 que su propia tarea no dijo: --solo salta los CASOS pero no el SETUP entre
+ellos, así que una mutación que asume que el caso anterior corrió revienta con un filtro puesto, y
+revienta ruidosamente. Queda guardada y anotada. Es el tipo de límite que solo aparece cuando
+alguien USA la herramienta para algo distinto de aquello para lo que la probó.
+Lo que NO da, declarado para que EP-015 no lo herede como hecho: STATE_MISMATCH. Se comprueba que
+el commit EXISTA, no que el árbol sea el suyo. Un checkpoint puede declarar un SHA real y describir
+un árbol que ya no existe.
+  casos 563 → 579 · CORE 244 → 245 reglas · seis documentos tocados
+Trazabilidad externa: —
+
+## PT-053 — CHORE: la transición de fase es un solo acto
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-053-la-transicion-de-fase-es-un-solo-acto
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que avanzar de fase sea UN acto, y que el que se olvida —la nota— impida avanzar si falta.
+Causa raíz: 107 transiciones en dos lotes por cinco actos manuales, ~535 operaciones. Y falla
+siempre en el mismo punto por una razón que no es de disciplina: avanzar el registro se nota en el
+siguiente verify, y escribir la nota no se nota hasta que alguien CUENTA. Un acto sin consecuencia
+inmediata, repetido 107 veces, se salta.
+Solución: «tracker avanzar PT-NNN --a N --nota» hace los cinco actos —registro, YAML, checkpoint,
+espejo y nota— con el orden decidido por la REVERSIBILIDAD: lo irreversible al final, y todo lo
+anterior se restaura si algo falla. Sin --nota NO AVANZA: no es un aviso, es una negativa, porque
+avisar es lo que FDGE-R52 ya hace DESPUÉS y cazó tres veces en un solo lote.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-053/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): CUATRO correcciones de la ejecución, y las cuatro con la lección ya
+escrita en el repositorio.
+  1 EL VALOR DE UNA BANDERA SE COLÓ EN EL POSICIONAL. «avanzar PT-053 --a 6» resolvía ROOT como el
+    directorio «6». TERCERA vez en el lote: -q en PT-049, --solo en PT-050, --a aquí. Las tres
+    sabiendo del defecto, porque las dos anteriores están escritas en el código y en el HANDOFF.
+    Ahora las banderas con valor viven en UNA lista y la detección de ROOT la consulta.
+  2 LAS VALIDACIONES CORRÍAN DESPUÉS DE LA COMPUERTA DE ACCESO. En el fixture, «sin --nota» se
+    contestaba con un mensaje sobre la plataforma: el diagnóstico equivocado para el defecto real.
+    Ahora todo lo que no necesita red se valida primero, y la exigencia de plataforma es una
+    validación más dentro del comando.
+  3 VOLVÍ A ASERTAR CONTRA UN ESTADO QUE OTRO BLOQUE HABÍA MUTADO. El mismo error que PT-052
+    cometió y corrigió dos tareas antes, con su comentario en el código. Saberlo no bastó.
+  4 Y EL PEOR: avanzar hacía CUATRO DE CINCO. Con el comando escrito, probado y con su propia
+    transición hecha, npm run verify salió en rojo — le faltaba EL ESPEJO, y la etiqueta «fase: N»
+    del issue cambia en cada transición. Exactamente el defecto que la tarea existe para impedir,
+    dentro de la tarea. No lo vi leyendo el diseño, que listaba los cinco: lo dijo ejecutar la
+    verificación completa.
+Al añadir el espejo aparecieron DOS actos irreversibles, y su orden no es indiferente: una etiqueta
+desincronizada es DERIVADA y se rehace sola con «abrir --aplicar»; una nota que falta no se rehace,
+y es lo que este comando existe para impedir. LO QUE SE PUEDE RECUPERAR VA PRIMERO.
+La prueba que más vale: la nota de la transición 5→6 de esta misma tarea la publicó avanzar, no
+gh issue comment. Es la primera transición del repositorio que ocurre en un solo acto. Y la
+atomicidad se probó rompiéndola: inyectado un fallo en el paso irreversible, los tres escritos
+volvieron a como estaban.
+El argumento de la tarea, confirmado por la tarea: existe porque «una disciplina que depende de
+acordarse falla aunque uno se acuerde», y en su propia implementación esa frase se cumplió CUATRO
+VECES. No es retórica del intake: es lo que pasó mientras se escribía.
+Lo que no resuelve, declarado: nada impide editar REGISTRY.phase a mano. La medida de si funcionó
+no está en esta tarea — será contar, en EP-015, cuántas veces FDGE-R52 vuelve a cazar la misma
+transición. En EP-014 fueron TRES, y está escrito antes de saber el resultado.
+  casos 579 → 600 · la transicion pasa de 5 actos manuales a 1
+Trazabilidad externa: —
+
+## PT-054 — CHORE: ver en qué se trabaja sin esperar al merge
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que exista UN sitio donde ver en qué se trabaja, sin fusionar nada y sin saber de
+antemano qué rama mirar.
+Causa raíz: la visibilidad existe y está repartida en TRECE ramas de tarea, y «trabajo» solo agrega
+tras fusionar cada una.
+Solución: «tracker proyectar» escribe la rama DERIVADA cauce/<usuario> con FONTANERÍA —hash-object,
+mktree, commit-tree, update-ref— que NO TOCA EL ÁRBOL DE TRABAJO. Contiene ESTADO.md, una fila por
+allocation viva con el SHA de SU rama, y el CHECKPOINT.json de la tarea en curso. Cada commit lleva
+la marca «cauce:proyeccion»; uno sin ella se REPORTA, porque una rama derivada en la que alguien
+escribe deja de serlo — y no se borra: decidir qué hacer con el trabajo de alguien es humano.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-054/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): CORREGÍ MI PROPIA ESTRATEGIA AL IMPLEMENTARLA. En PHASE 3 escribí «va
+dentro del respaldo de avanzar: si la proyección falla, la transición entera se revierte». Es
+IMPOSIBLE: la nota ya se publicó y un comentario no se despublica, así que revertir los archivos
+dejaría UNA NOTA SOBRE UNA TRANSICIÓN QUE EL REGISTRO NIEGA — el registro falso que todo ese orden
+existe para impedir. Lo correcto es lo contrario: la proyección es LO MÁS RECUPERABLE de todo
+—enteramente derivada, se rehace con un comando— así que va la ÚLTIMA y su fallo NO revierte nada.
+Lo razoné mal y lo dijo implementarlo.
+La proyección enseñó algo a la primera: las ramas de PT-049..PT-053 se BORRARON al fusionar, así
+que su SHA sale «—». NO hereda uno prestado. Un SHA de otra rama habría sido plausible y falso, que
+es la peor combinación, y AC-04 y RULE-06 lo impidieron sin que nadie lo forzara.
+Y la primera transición de esta tarea FALLÓ: la etiqueta «fase: 3» no existía —nadie había llegado
+a esa fase— y avanzar no las creaba, como sí hace abrir. Reventó en el quinto acto con el registro
+y el YAML ya escritos, Y NADA QUEDÓ APLICADO: la fase se quedó en 2. La atomicidad de PT-053 no era
+una prueba de laboratorio — era el comando protegiéndose la primera vez que algo salió mal por una
+razón que nadie había previsto.
+AVANZAR ACABÓ CON SIETE ACTOS, no cinco: registro, YAML, checkpoint, sello del HANDOFF, espejo,
+nota y proyección. Y los dos que se descubrieron los dijo EJECUTAR, no leer: el espejo lo dijo
+npm run verify y el sello lo dijo la CI. Eso es, en sí, la medida de por qué el comando hacía
+falta: si un humano tenía que acordarse de siete actos, se olvidaba de dos incluso cuando su única
+tarea era enumerarlos.
+Publicar es «--publicar» y no va en avanzar. Empujar en cada transición daría la visibilidad sin
+NINGÚN acto manual —lo que este lote persigue— pero convertiría un acto de PUBLICACIÓN en un efecto
+colateral. La frontera que se respeta: el lote quita los actos de REGISTRAR, no los de PUBLICAR.
+Lo que no resuelve: la convivencia de dos personas. El usuario es UNO, el de git config, y EP-016
+recibe el mecanismo hecho para que solo tenga que añadir la identidad. Y la marca es FALSIFICABLE,
+como una firma: el mismo límite que SUITE-R43 tiene con las notas, y por eso se declara.
+  casos 603 → 618 · trece ramas en una tabla
+Trazabilidad externa: —
+
+## EP-014 — CERRADO: la fontanería de la transición
+Fecha: 2026-08-18
+Estado: DONE
+Versión: 8.1.0
+Tareas: PT-049 (-q) · PT-050 (--solo) · PT-051 (regla --donde) · PT-052 (CHECKPOINT.json) ·
+        PT-053 (tracker avanzar) · PT-054 (cauce/<usuario>)
+
+Nació de un balance, no de una intuición: EP-013 midió 107 transiciones de fase en dos lotes, cinco
+actos manuales cada una y ocho fallos de CI —los ocho por hacer cuatro de los cinco—. Y FDGE-R52
+cazó LA MISMA transición tres veces; la tercera con el fallo ANUNCIADO en la propia nota.
+
+Lo que entrega: la transición de fase en UN acto, con la nota obligatoria como argumento; el estado
+de la tarea en curso legible por máquina; una rama derivada donde ver en qué se trabaja sin fusionar
+nada; y tres herramientas que abaratan mirar el repositorio. 520 → 618 casos.
+
+LO QUE NO ENTREGA, y está escrito en cada tarea:
+  · el verificador de FDGE-R22. PT-023 lo midió en EP-013 y no se escribe
+  · detectar los choques entre reglas EN GENERAL: PT-029 caza una familia de seis
+  · que avanzar resuelva compuertas o haga commit. Lo primero es humano sin excepción
+    (EXEC-R04); lo segundo decidiría QUÉ ENTRA en el commit, y agrupar es decisión de la tarea
+  · la convivencia de dos personas. El usuario es UNO, el de git config: eso es EP-016
+  · STATE_MISMATCH. Se comprueba que el commit EXISTA, no que el árbol sea el suyo: eso es EP-015
+
+LO QUE ESTE LOTE ENSEÑÓ, y no está en ninguna tarea por separado:
+
+LOS ACTOS DE UNA TRANSICIÓN NO ERAN CINCO: ERAN SIETE. El intake contó los que se hacían a mano. El
+espejo lo descubrió npm run verify en rojo, con el comando ya escrito y probado; el sello del
+HANDOFF lo descubrió la CI, con el comando ya INTEGRADO en su propia PHASE 9. Que el propio
+enumerador de los actos se dejara dos es la mejor prueba de que el comando hacía falta: si un
+humano tenía que acordarse de siete, se olvidaba de dos incluso cuando su única tarea era
+enumerarlos.
+
+Y el patrón se repitió en las SEIS tareas: cada una encontró, EJECUTANDO, algo que su propio diseño
+daba por resuelto.
+  PT-049  las cabeceras de sección dejaban 19 líneas vacías en -q, y borrarlas habría dejado un
+          rojo sin saber a qué bloque pertenece. Se RECUERDAN
+  PT-050  «las dos únicas puertas» eran CUATRO: 82 casos entraban por trlib/trlibno y uno estaba
+          escrito a mano, puenteando también revento(). La cifra lo delató exacta: 536-453=83
+  PT-051  al poner el número de línea, la herramienta delató que contaba emisiones DENTRO DE
+          COMENTARIOS. Llevaba haciéndolo siempre y era invisible sin la línea
+  PT-052  el spec-changes pasó de una fila a SEIS, y las cinco las pidieron audit y verify-suite
+  PT-053  cuatro correcciones, y las cuatro con la lección ya escrita en el repositorio
+  PT-054  corrigió su propia estrategia al implementarla: «si la proyección falla, la transición
+          se revierte» es IMPOSIBLE, porque la nota ya se publicó y no se despublica
+
+Ninguno de esos hallazgos se ve leyendo.
+
+La medida del lote, con su propia instrumentación:
+  selftest, por vuelta      541 lineas ->   2 con -q        -99,6 %
+  verify-fdge --all         507 lineas ->  30 con -q        -94,1 %
+  selftest, tiempo          209 s      -> 138 s con --solo  -34 %
+  casos                     520 -> 618
+  cobertura mecanica        110/181 -> 112/181 · reglas sin verificador 62 -> 60
+  transiciones con avanzar  12 de 48, y las OCHO de PT-054: la primera tarea del repositorio
+                            hecha ENTERA con un comando por transición
+
+Y la medida honesta de si funcionó NO es ésa: está declarada en PT-053 y se cobra en EP-015 —
+cuántas veces FDGE-R52 vuelve a cazar la misma transición. En EP-014 fueron TRES, todas antes de
+que avanzar existiera.
+
+Cierre del lote (SUITE-R45): las cuatro filas resueltas — CHANGELOG 8.1.0 MINOR con los 21
+documentos alineados, CORE.md regenerado tres veces (244 → 245 reglas), el lote medido con su
+propia instrumentación, y lo que EP-015 y EP-016 reciben hecho frente a lo que tienen que añadir.
+
+Una advertencia que EP-015 necesita antes de empezar: la especificación de la que nace pide en su
+§5 un checkpoint con «decisions», «blockers» y «estimated_used». Ninguno se deriva de nada, y
+LEX-R26 los deja fuera POR CRITERIO, no por olvido.
+
+G4 y la publicación NO se delegan: son del firmante.

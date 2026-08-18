@@ -1,0 +1,18 @@
+# Atomicidad · PT-053 · 2026-08-18
+
+## Estado ANTES
+  registro:   phase = 6
+  YAML:       phase: 6
+  checkpoint: PHASE 6
+
+## Se rompe el paso IRREVERSIBLE (publicar la nota) a proposito
+  inyectado el fallo en el paso 5")
+fallo simulado al publicar la nota
+
+  NADA quedo aplicado: los archivos volvieron a como estaban. Cuatro de cinco no es una version degradada del exito, es el defecto que este comando existe para impedir.
+  exit=0
+
+## Estado DESPUES · los tres tienen que estar como estaban
+  registro:   phase = 6
+  YAML:       phase: 6
+  checkpoint: PHASE 6

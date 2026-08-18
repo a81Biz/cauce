@@ -1,0 +1,24 @@
+{
+  "pt": "PT-052",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Declara tarea, fase, rama, SHA, archivos tocados y siguiente accion", "scenarios": ["E1", "E2", "E3"], "tests": ["selftest.sh:checkpoint escribe el archivo", "selftest.sh:…y declara de que PT es", "selftest.sh:…con su fase", "selftest.sh:…y la siguiente accion, DERIVADA", "selftest.sh:…y el SHA del codigo"], "evidence": ["salidas/checkpoint.txt", "salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Se sobrescribe, no se apila: es el estado actual", "scenarios": ["E4"], "tests": ["selftest.sh:se SOBRESCRIBE: ahora es de PT-001", "selftest.sh:…y no quedo el anterior"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Todo campo sale de git o del registro; ninguno de la memoria", "scenarios": ["E5", "E6"], "tests": ["selftest.sh:un PT que no esta en el registro FALLA", "selftest.sh:sin git, el sha se declara null"], "evidence": ["salidas/checkpoint.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "El SHA que declara existe y es alcanzable", "scenarios": ["E7", "E8"], "tests": ["selftest.sh:un sha que NO existe BLOQUEA", "selftest.sh:…y lo dice como lo que es", "selftest.sh:sin el campo sha, tambien", "selftest.sh:no tenerlo NO es un defecto"], "evidence": ["salidas/checkpoint.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "El nombre y la forma estan en LEXICON antes que en el codigo", "scenarios": ["E9", "E10"], "tests": ["selftest.sh:CHECKPOINT.json esta en LEXICON", "selftest.sh:…con su contrato de campos", "selftest.sh:…y dice que todo se DERIVA"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el arbol CORRESPONDA al SHA declarado.",
+      "por_que": "Se comprueba que el commit EXISTA, no que el directorio de trabajo sea el suyo. Un checkpoint puede declarar un SHA real y describir un arbol que ya no existe: eso es STATE_MISMATCH y es de EP-015. Prometerlo aqui le habria dejado una casilla marcada en vez de un punto de partida.",
+      "donde": "changes/PT-052-el-checkpoint-es-un-artefacto-no-una-nota/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que los campos BASTEN para retomar una tarea sin releer nada.",
+      "por_que": "Se comprueba que cada campo se derive de una fuente. Que el conjunto alcance para reanudar solo lo dira EP-015 intentandolo: es un juicio, no una asercion, y se declara antes de que parezca una verificacion.",
+      "donde": "changes/PT-052-el-checkpoint-es-un-artefacto-no-una-nota/test-scenarios.md"
+    }
+  ],
+  "suite": { "passed": 579, "failed": 0, "skipped": 0, "coverage": 579, "baseline": 563 }
+}

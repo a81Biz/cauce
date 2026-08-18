@@ -29,10 +29,13 @@
  * CRLF: todo parseo por lineas usa split(/\r?\n/).
  */
 
-import { readFileSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+// PT-052 · partir lineas se hace con la funcion compartida: RE_LINEA contempla CRLF, y dos
+// formas de partir lineas en el repositorio serian dos fuentes del mismo hecho (SUITE-R38).
+import { lineas, ESTADOS_TERMINALES } from './patrones.mjs';
 
 // ─── Lógica pura · exportada para poder probarla sin plataforma ──────────────
 // PT-001 · El adaptador habla con `gh`; la comparación no habla con nadie.
@@ -197,6 +200,50 @@ export const etiquetasQueFaltan = (existentes, necesarias = ETIQUETAS) =>
 // Es falsificable —cualquiera puede pegarla— y eso se declara, como SUITE-R27 declara que
 // prueba una firma: lo mecanizable es que la afirmacion sea contrastable, no que sea sincera.
 export const MARCA_AGENTE = '<!-- cauce:agente -->';
+
+/**
+ * PT-054 · La marca de un commit de PROYECCION.
+ *
+ * `cauce/<usuario>` es DERIVADA por decision del firmante: solo la escribe la herramienta. Pero
+ * una rama derivada en la que alguien escribe DEJA DE SERLO, y no se notaria — `cauce/alberto` con
+ * un commit humano se ve exactamente igual que sin el. La marca es lo unico que los distingue.
+ *
+ * Es el mismo mecanismo que MARCA_AGENTE usa con las notas: invisible al leer, comprobable al
+ * verificar. Y falsificable, como una firma — por eso se DECLARA en vez de presumirse.
+ */
+export const MARCA_PROYECCION = 'cauce:proyeccion';
+
+/** El nombre de la rama derivada de una persona. Una referencia de git no admite cualquier cosa. */
+export const ramaDe = (usuario) => {
+  const n = String(usuario ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return n ? `cauce/${n}` : null;
+};
+
+/** El cuerpo de ESTADO.md: una fila por allocation VIVA, con el SHA de SU rama. Funcion pura. */
+export function estadoProyectado(vivas, shaDe, fecha) {
+  const filas = vivas.map((a) => {
+    // El SHA sale de la punta de SU rama, no de la actual: una tarea sin rama creada lo declara
+    // VACIO en vez de heredar el de otra. Un SHA prestado seria una afirmacion falsa (RULE-06).
+    const sha = a.branch ? (shaDe(a.branch) ?? '') : '';
+    return `| ${a.id} | ${a.type ?? ''} | ${a.status ?? ''} | ${a.phase ?? '—'} | ${a.branch ?? '—'} | ${sha ? sha.slice(0, 7) : '—'} |`;
+  });
+  return [
+    '# ESTADO — proyección derivada de cauce',
+    '',
+    '> **Esta rama la escribe una herramienta.** Cada commit lleva la marca `cauce:proyeccion`, y',
+    '> uno sin ella se reporta: una rama derivada en la que alguien escribe deja de serlo.',
+    '>',
+    '> No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.',
+    '',
+    `Proyectado el ${fecha ?? 'sin fecha'} · ${vivas.length} allocation(es) viva(s).`,
+    '',
+    '| Id | Tipo | Estado | Fase | Rama | SHA |',
+    '|:---|:---|:---|:---|:---|:---|',
+    ...filas,
+    '',
+  ].join('\n');
+}
 
 /**
  * ¿Hay un comentario humano posterior a la ultima nota del agente?
@@ -401,7 +448,16 @@ const APLICAR = ARGS.includes('--aplicar');
 // Lo encontro USAR la herramienta, no leerla.
 // `tracker notas PT-004 .`
 // resolvia ROOT como el directorio «PT-004» y no encontraba el registro.
-const ROOT = resolve(ARGS.slice(1).find((a) => !a.startsWith('--') && !/^(?:PT|EP)-\d+$/.test(a)) ?? process.cwd());
+// PT-053 · y el VALOR de una bandera tampoco es una ruta. `avanzar PT-053 --a 6 --nota "..."`
+// resolvia ROOT como el directorio «6». Es la TERCERA vez en EP-014 que el valor de una bandera
+// se cuela en el posicional —`-q` en PT-049, `--solo` en PT-050, `--a` aqui— y las tres veces lo
+// dijo EJECUTARLO, sabiendo del defecto. Por eso las banderas con valor se declaran en UN sitio:
+// la lista es lo que hace que la cuarta no repita el error.
+const CON_VALOR = new Set(['--a', '--nota']);
+const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
+  !a.startsWith('--')
+  && !/^(?:PT|EP)-\d+$/.test(a)
+  && !CON_VALOR.has(xs[i - 1])) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
 
 const errores = [];
@@ -461,6 +517,12 @@ const ADAPTADORES = {
       const out = execFileSync('gh', ['issue', 'view', String(numero), '--json', 'comments'],
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return (JSON.parse(out).comments ?? []).map((c) => c.body ?? '');
+    },
+    // PT-053 · el UNICO acto irreversible de `avanzar`, y por eso va el ultimo. Publicar la nota
+    // no se puede deshacer; escribir cuatro archivos si.
+    comentar(numero, cuerpo) {
+      execFileSync('gh', ['issue', 'comment', String(numero), '--body', cuerpo],
+        { cwd: ROOT, stdio: 'pipe' });
     },
     // SUITE-R42 · ¿hay pull request abierto para esta rama? Solo lectura: el agente NO abre el
     // PR ni lo fusiona. Comprobar que exista es lo que hace verificable dónde se propuso G4;
@@ -563,6 +625,30 @@ export function decidirSalida(reg, sonda, adaptadores = ADAPTADORES) {
 // ─── El programa. Solo corre si me ejecutan directamente ────────────────────
 // Importarme para probar la lógica de arriba no debe leer un registro, abrir un proceso ni
 // exigir credenciales. Sin este guard, importar el módulo ejecutaba la herramienta entera.
+/** Funcion PURA: el checkpoint que corresponde a una allocation, dado lo que git dice. */
+export function checkpointDe(alloc, git = {}) {
+  if (!alloc) return null;
+  const r = queSigue(alloc);
+  const sha = git.sha ?? null;
+  return {
+    pt: alloc.id,
+    type: alloc.type ?? null,
+    epic: alloc.epic ?? null,
+    status: alloc.status ?? null,
+    phase: alloc.phase ?? null,
+    fase: r.nombre ?? null,
+    rama: alloc.branch ?? git.rama ?? null,
+    sha,
+    sha_corto: sha ? sha.slice(0, 7) : null,
+    sucio: git.sucio ?? null,
+    archivos: git.archivos ?? [],
+    compuerta: r.compuerta ?? null,
+    produce: r.produce ?? [],
+    siguiente: r.siguiente ?? null,
+    generado: git.fecha ?? null,
+  };
+}
+
 const EJECUTADO_DIRECTO = !!process.argv[1]
   && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
 
@@ -575,7 +661,18 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 // PT-007 · `estado` lee SOLO el registro y no toca la plataforma — por eso responde «qué va
 // cuándo» sin credencial y sin plataforma declarada. Exigirle la compuerta de acceso lo dejaba
 // inútil justo donde más falta hace: en un proyecto que aún no espeja.
-const D = ACCION === 'estado' ? { codigo: 0 } : decidirSalida(reg, null);
+//
+// PT-052 · `checkpoint` va en la misma lista, y por una razón más fuerte: es un artefacto DEL
+// REPOSITORIO —todos sus campos salen del registro y de git— y el momento en que más falta hace
+// es justo aquel en el que puede no haber credencial: retomar en una sesión nueva. Exigirle
+// plataforma habría hecho que el estado dependiera de la red para poder escribirse.
+// PT-053 · `avanzar` tambien entra aqui, y NO porque no necesite plataforma —la exige, es lo
+// contrario que `checkpoint`— sino porque sus validaciones que NO necesitan red tienen que
+// correr PRIMERO. Salir en la compuerta de acceso hacia que «sin --nota» y «saltar una fase»
+// se contestaran con un mensaje sobre la plataforma: el diagnostico equivocado para el
+// defecto real. La exigencia de plataforma es una validacion mas, y va dentro.
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar']);
+const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
   process.exit(D.codigo);
@@ -929,7 +1026,287 @@ function siguienteDe() {
   di('  no cuadra con lo que crees que toca, el que se equivoca no es el tablero.');
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe };
+// ── checkpoint · el estado de la tarea EN CURSO, legible por maquina ────────
+// PT-052 · LEX-R26 · TODO campo se DERIVA. Ninguno se recuerda.
+//
+// El criterio no es de estilo: un campo que solo puede rellenar la memoria del agente miente
+// CON LA AUTORIDAD DE UN DATO ESTRUCTURADO, y eso es peor que decirlo en prosa — la prosa se lee
+// con la duda puesta y un JSON no. La especificacion de la que sale EP-015 pedia «decisions»,
+// «blockers» y un «estimated_used: 67» que nadie puede medir; ninguno entra.
+//
+// Es UNO y se sobrescribe: el estado en curso es el de la tarea que se esta tocando. N archivos
+// serian N-1 mintiendo desde el momento de escribirse. Por eso declara de que `pt` es — leerlo
+// sin mirar ese campo es el error que lo haria peligroso.
+const gitDe = (args) => {
+  try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
+  catch { return null; }
+};
+
+function checkpoint() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) { throw new Error('checkpoint necesita una allocation:  tracker checkpoint PT-052'); }
+  const a = all.find((x) => x?.id === id);
+  // RULE-06 · si no esta en el registro no se inventan los campos: se dice.
+  if (!a) { throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay checkpoint.`); }
+
+  const sucio = gitDe(['status', '--porcelain']);
+  const cp = checkpointDe(a, {
+    sha: gitDe(['rev-parse', 'HEAD']),
+    rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+    fecha: gitDe(['log', '-1', '--format=%cs']),
+    sucio: sucio === null ? null : sucio.length > 0,
+    archivos: lineas(sucio ?? '').filter(Boolean).map((l) => l.slice(3)).sort(),
+  });
+
+  if (ARGS.includes('--ver')) { di(JSON.stringify(cp, null, 2)); return; }
+  writeFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), JSON.stringify(cp, null, 2) + '\n');
+  notas.push(`CHECKPOINT.json escrito: ${cp.pt} · PHASE ${cp.phase} ${cp.fase} · ${cp.sha_corto ?? 'sin sha'}` +
+    (cp.sucio ? ` · ${cp.archivos.length} archivo(s) sin commitear` : ''));
+}
+
+// ── proyectar · ver en que se trabaja sin esperar al merge ──────────────────
+// PT-054 · Medido: 13 ramas de tarea en el remoto. La visibilidad existe y esta repartida en trece
+// sitios, asi que para ver en que se trabaja hay que saber DE ANTEMANO que rama mirar — que es lo
+// que la pregunta pretende evitar. Y `trabajo` solo agrega TRAS FUSIONAR cada tarea.
+//
+// La rama es DERIVADA por decision del firmante, no autorada: mover la gobernania a otra rama
+// romperia el vinculo que ata un cambio a su evidencia —que viajen en el MISMO commit— y dejaria
+// a SUITE-R34 comparando fechas entre dos ramas, que no significa nada.
+//
+// Se escribe con FONTANERIA, que no toca el arbol de trabajo:
+//   hash-object -w  ->  mktree  ->  commit-tree  ->  update-ref
+// Las alternativas —worktree, checkout— tocan el directorio donde se esta trabajando, y la peor
+// deja al usuario EN OTRA RAMA si falla a mitad.
+function proyectar({ silencioso = false } = {}) {
+  const usuario = gitDe(['config', 'user.name']);
+  const rama = ramaDe(usuario);
+  // RULE-06 · sin usuario no se proyecta. Una rama «cauce/desconocido» seria peor que ninguna:
+  // agregaria el trabajo de todos bajo un nombre que no es de nadie.
+  if (!rama) {
+    const m = 'sin «git config user.name» no se puede saber de quien es la proyeccion: no se proyecta (RULE-06).';
+    if (silencioso) return { rama: null, motivo: m };
+    notas.push(m);
+    return { rama: null, motivo: m };
+  }
+
+  const gitEntrada = (args, entrada) => execFileSync('git', args,
+    { cwd: ROOT, encoding: 'utf8', input: entrada, stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+
+  // Un commit sin la marca es HUMANO. Se REPORTA y no se borra: decidir que hacer con el trabajo
+  // de alguien es humano (SUITE-R06), y borrarlo seria reescribirlo sin preguntar.
+  const padre = gitDe(['rev-parse', '--verify', `refs/heads/${rama}`]);
+  let ajenos = 0;
+  if (padre) {
+    const msgs = gitDe(['log', '--format=%s%n%b', `refs/heads/${rama}`]) ?? '';
+    const sinMarca = (gitDe(['log', '--format=%H', `refs/heads/${rama}`]) ?? '').split(/\r?\n/).filter(Boolean)
+      .filter((sha) => !(gitDe(['log', '-1', '--format=%s%n%b', sha]) ?? '').includes(MARCA_PROYECCION));
+    ajenos = sinMarca.length;
+    void msgs;
+  }
+
+  const fecha = gitDe(['log', '-1', '--format=%cs']);
+  const contenido = {
+    'ESTADO.md': estadoProyectado(vivas, (r) => gitDe(['rev-parse', '--verify', r]), fecha),
+  };
+  const cp = join(IMPL, 'CHECKPOINT.json');
+  if (existsSync(cp)) contenido['CHECKPOINT.json'] = readFileSync(cp, 'utf8');
+
+  const entradas = Object.entries(contenido).map(([nombre, txt]) => {
+    const blob = gitEntrada(['hash-object', '-w', '--stdin'], txt);
+    return `100644 blob ${blob}\t${nombre}`;
+  });
+  const arbol = gitEntrada(['mktree'], entradas.join('\n') + '\n');
+  const mensaje = `${MARCA_PROYECCION} · estado de ${vivas.length} allocation(es) viva(s) · ${fecha ?? ''}`;
+  const args = ['commit-tree', arbol, '-m', mensaje];
+  if (padre) args.push('-p', padre);
+  const commit = gitEntrada(args, '');
+  execFileSync('git', ['update-ref', `refs/heads/${rama}`, commit], { cwd: ROOT, stdio: 'pipe' });
+
+  if (ajenos) {
+    fail('SUITE-R31', `«${rama}» tiene ${ajenos} commit(s) SIN la marca «${MARCA_PROYECCION}»: alguien escribio a mano `
+      + 'en una rama DERIVADA, y entonces deja de serlo. No se borra nada — decidir que hacer con eso es humano (SUITE-R06).');
+  }
+  if (!silencioso) {
+    notas.push(`${rama} ← ${commit.slice(0, 7)} · ${vivas.length} allocation(es), ${Object.keys(contenido).length} archivo(s)`);
+    if (ARGS.includes('--publicar')) {
+      try {
+        execFileSync('git', ['push', '-q', 'origin', `${rama}:${rama}`], { cwd: ROOT, stdio: 'pipe' });
+        notas.push(`publicada en origin/${rama}`);
+      } catch (e) { fail('SUITE-R35', `no se pudo publicar «${rama}»: ${String(e.message ?? e).split('\n')[0]}`); }
+    } else {
+      notas.push('local. Publicarla es una decision, no un efecto colateral:  tracker proyectar --publicar');
+    }
+  }
+  return { rama, commit, ajenos };
+}
+
+// ── avanzar · la transicion de fase, en UN acto ─────────────────────────────
+// PT-053 · Medido en EP-013 y EP-014: 107 transiciones x 5 actos manuales = ~535 operaciones.
+// FDGE-R52 cazo LA MISMA transicion tres veces en un solo lote, y la tercera con el fallo
+// ANUNCIADO en la propia nota — predecir el fallo no lo evita.
+//
+// Por que falla siempre en el mismo punto, y no es disciplina:
+//   avanzar el registro  ->  se nota en el siguiente verify
+//   escribir la nota     ->  no se nota hasta que alguien CUENTA
+// Un acto sin consecuencia inmediata, repetido 107 veces, se salta.
+//
+// EL ORDEN LO DECIDE LA REVERSIBILIDAD. Lo irreversible —publicar el comentario— va el ULTIMO, y
+// todo lo anterior se restaura si algo falla. La alternativa dejaria, ante un fallo tardio, UNA
+// NOTA SOBRE UNA TRANSICION QUE NO OCURRIO: un registro falso es peor que un estado incompleto,
+// porque el incompleto lo caza el verificador y el falso parece correcto.
+function avanzar() {
+  const id = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+  const iA = ARGS.indexOf('--a');
+  const destino = iA >= 0 ? Number(ARGS[iA + 1]) : NaN;
+  const iN = ARGS.indexOf('--nota');
+  const nota = iN >= 0 ? String(ARGS[iN + 1] ?? '') : null;
+
+  // ── 0 · VALIDAR · todas, ANTES de tocar nada ──────────────────────────────
+  if (!id) throw new Error('avanzar necesita una allocation:  tracker avanzar PT-053 --a 6 --nota "..."');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay transicion.`);
+  if (ESTADOS_TERMINALES.has(a.status)) {
+    throw new Error(`${id} esta en ${a.status}. Lo cerrado es evidencia, no estado (SUITE-R36): no avanza.`);
+  }
+  // La nota es LA razon del comando. Sin ella no se avanza — no es un aviso, es una NEGATIVA:
+  // avisar es lo que FDGE-R52 ya hace, DESPUES, y cazo tres veces en un solo lote.
+  if (nota === null || !nota.trim()) {
+    throw new Error('avanzar exige --nota con contenido. Es el acto que se olvida, y por eso es la unica forma de invocar el comando (FDGE-R52).');
+  }
+  const actual = Number(a.phase);
+  if (!Number.isInteger(destino)) throw new Error('avanzar necesita --a con la fase destino.');
+  // Ni salta ni retrocede: saltar apaga las comprobaciones que la fase saltada habilita, que es
+  // el defecto que PT-044 documento.
+  if (destino !== actual + 1) {
+    throw new Error(`${id} esta en PHASE ${actual} y --a dice ${destino}. Solo se avanza a la SIGUIENTE: `
+      + 'saltar apaga las comprobaciones que la fase saltada habilita, y retroceder no es una transicion.');
+  }
+  if (!FASES[destino]) throw new Error(`PHASE ${destino} no existe en el procedimiento.`);
+  if (!a.issue) throw new Error(`${id} no tiene issue: la nota no tendria donde ir (SUITE-R35).  tracker abrir --aplicar`);
+  if (!adaptador?.comentar) throw new Error('sin plataforma con la que comentar, la nota no tiene donde ir. avanzar la EXIGE (FDGE-R52).');
+  // El acceso tambien es una validacion: mejor no escribir nada que escribir y revertir.
+  if (adaptador.disponible && !adaptador.disponible()) {
+    throw new Error('hay plataforma declarada y no hay acceso: la nota no podria publicarse (FND-R30).  gh auth login');
+  }
+
+  if (ARGS.includes('--ver')) {
+    notas.push(`--ver: ${id} PHASE ${actual} -> ${destino} ${FASES[destino].nombre}. Valido, y NO se ha escrito nada.`);
+    return;
+  }
+
+  // ── RESPALDO ──────────────────────────────────────────────────────────────
+  // «antes === null» importa: CHECKPOINT.json puede NO EXISTIR antes del primer avanzar, y
+  // restaurarlo significa BORRARLO. Un archivo vacio donde no habia nada es un estado que no
+  // existia, y eso es lo que su caso comprueba.
+  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const tocados = [join(IMPL, 'REGISTRY.json'), fIntake, join(IMPL, 'CHECKPOINT.json'), join(IMPL, 'HANDOFF.md')];
+  const respaldo = tocados.map((f) => ({ f, antes: existsSync(f) ? readFileSync(f, 'utf8') : null }));
+  const restaurar = () => {
+    for (const { f, antes } of respaldo) {
+      if (antes === null) { try { rmSync(f, { force: true }); } catch { /* no habia nada que quitar */ } }
+      else writeFileSync(f, antes);
+    }
+  };
+
+  try {
+    // 1 · el registro ASIGNA
+    a.phase = destino;
+    writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
+
+    // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo
+    if (existsSync(fIntake)) {
+      const txt = readFileSync(fIntake, 'utf8');
+      const nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
+      if (nuevo === txt) throw new Error(`el intake de ${id} no declara «phase»: no se puede sincronizar (SUITE-R08).`);
+      writeFileSync(fIntake, nuevo);
+    }
+
+    // 3 · el checkpoint · PT-052
+    const sucio = gitDe(['status', '--porcelain']);
+    const cp = checkpointDe(a, {
+      sha: gitDe(['rev-parse', 'HEAD']),
+      rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+      fecha: gitDe(['log', '-1', '--format=%cs']),
+      sucio: sucio === null ? null : sucio.length > 0,
+      archivos: lineas(sucio ?? '').filter(Boolean).map((l) => l.slice(3)).sort(),
+    });
+    writeFileSync(join(IMPL, 'CHECKPOINT.json'), JSON.stringify(cp, null, 2) + '\n');
+
+    // 4 · EL ESTADO · SUITE-R34 · no puede quedarse mas viejo que el trabajo
+    //
+    // FALTABA, y lo dijo la CI en rojo — la TERCERA vez que SUITE-R34 caza este patron en la
+    // sesion. `avanzar` escribe en `changes/` (el YAML del intake), asi que sin tocar HANDOFF.md
+    // el estado queda atras y la compuerta bloquea. El comando VIOLABA POR CONSTRUCCION la regla
+    // que dice que el estado viaja con el trabajo.
+    //
+    // Solo se estampa la linea «actualizado:», que es DERIVABLE: la fecha sale de git y el hecho
+    // —que PT-NNN esta en PHASE N— sale del registro. El resto de HANDOFF.md es prosa humana y no
+    // se toca: estamparla seria inventar, y LEX-R26 dice que lo que no se deriva no se escribe.
+    const fHandoff = join(IMPL, 'HANDOFF.md');
+    if (existsSync(fHandoff)) {
+      const h = readFileSync(fHandoff, 'utf8');
+      const sello = `actualizado:    ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${id} en PHASE ${destino} ${FASES[destino].nombre}`;
+      const nuevoH = h.replace(/^actualizado:.*$/m, sello);
+      if (nuevoH !== h) writeFileSync(fHandoff, nuevoH);
+    }
+
+    // 5 · EL ESPEJO · SUITE-R35 · el registro asigna, la plataforma espeja
+    //
+    // FALTABA, y lo dijo `npm run verify` en rojo: `avanzar` prometia acabar con el «cuatro de
+    // cinco» y hacia cuatro de cinco. La etiqueta «fase: N» del issue cambia en CADA transicion.
+    //
+    // Va ANTES de la nota y despues de los escritos, y el orden entre los dos actos irreversibles
+    // no es indiferente: una etiqueta desincronizada es DERIVADA y se rehace sola con
+    // `abrir --aplicar`; una nota que falta no se rehace, y es justo lo que este comando existe
+    // para impedir. Lo que se puede recuperar va primero.
+    if (adaptador.etiquetasDeIssue && adaptador.etiquetar) {
+      const debe = etiquetasDe(a);
+      const tiene = adaptador.etiquetasDeIssue(a.issue);
+      const quitar = tiene.filter((n) => RE_DERIVADA.test(n) && !debe.includes(n));
+      const poner = debe.filter((n) => !tiene.includes(n));
+      // La etiqueta «fase: N» de una fase a la que nadie ha llegado aun NO EXISTE en el
+      // repositorio, y `etiquetar` falla con «not found». `abrir` las crea; `avanzar` no lo hacia
+      // y reventaba en el quinto acto — lo dijo la primera transicion de PT-054, y la atomicidad
+      // funciono en vivo: NADA quedo aplicado, la fase se quedo donde estaba.
+      if (adaptador.crearEtiqueta) {
+        const existen = adaptador.etiquetas ? adaptador.etiquetas() : null;
+        for (const e of poner) {
+          if (existen && !existen.includes(e)) adaptador.crearEtiqueta(e);
+        }
+      }
+      if (quitar.length || poner.length) adaptador.etiquetar(a.issue, poner, quitar);
+    }
+
+    // 6 · LA NOTA · irreversible, y por eso la ultima
+    const r = queSigue(a);
+    const cuerpo = `${MARCA_AGENTE}\n**PHASE ${actual} → ${destino}** · \`${id}\`\n\n${nota.trim()}\n\n`
+      + `**Dónde:** \`PHASE ${destino}\` · ${FASES[destino].nombre}. **Sigue:** ${r.siguiente}`;
+    adaptador.comentar(a.issue, cuerpo);
+
+    // 7 · LA PROYECCION · PT-054 · va DESPUES de la nota, y esto CORRIGE lo que la estrategia
+    // de PT-054 escribio.
+    //
+    // Alli dije «va dentro del respaldo: si la proyeccion falla, la transicion entera se
+    // revierte». Es IMPOSIBLE: la nota ya se publico y un comentario no se despublica. Revertir
+    // los archivos dejaria una nota sobre una transicion que el registro niega — el registro
+    // falso que todo este orden existe para impedir.
+    //
+    // Lo correcto es lo contrario: la proyeccion es lo MAS recuperable de todo —esta enteramente
+    // derivada y se rehace con `tracker proyectar`—, asi que va la ultima y su fallo NO revierte
+    // nada. La transicion ya ocurrio y esta registrada; la proyeccion es una vista.
+    try { proyectar({ silencioso: true }); }
+    catch (e) { notas.push(`la proyeccion no se pudo escribir (${String(e.message ?? e).split('\n')[0]}). La transicion SI ocurrio: rehazla con  tracker proyectar`); }
+
+    notas.push(`${id}: PHASE ${actual} -> ${destino} ${FASES[destino].nombre}`);
+    notas.push(`registro, intake, CHECKPOINT y el sello del HANDOFF escritos; espejo, nota y proyeccion`);
+  } catch (e) {
+    restaurar();
+    throw new Error(`${String(e.message ?? e)}\n\n  NADA quedo aplicado: los archivos volvieron a como estaban. `
+      + 'Cuatro de cinco no es una version degradada del exito, es el defecto que este comando existe para impedir.');
+  }
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

@@ -1,0 +1,11 @@
+# Comprobacion inversa · PT-051 · 2026-08-15
+
+## AC-01 · con indexOf en vez de m.index, las DOS emisiones dan la MISMA linea
+  revertido a indexOf(m[0])
+
+selftest: HAY FALLOS · 1 de 563 casos
+
+## AC-01 · sin la guarda de comentarios, uno comentado se cuenta
+  guarda de comentarios quitada
+
+selftest: HAY FALLOS · 1 de 563 casos

@@ -8,11 +8,11 @@ id: PT-052
 type: CHORE
 epic: EP-014
 track: STANDARD
-status: READY
+status: INTEGRATED
 created: 2026-08-15
 structural: no
 suite_version: 8.0.0
-phase: 1
+phase: 10
 ---
 ```
 
@@ -69,4 +69,13 @@ mecánica de sesión.
 
 ```
 Firmado por lote: EP-014
+```
+
+## Estado de cierre   `FDGE-R35`
+
+```
+INTEGRATED · integrado en la rama por defecto el 2026-08-18
+G4 de EP-014 resuelta por Alberto Martinez: «haz el PR y el merge con lo que falte
+de G4 para las tareas». El directorio se CONSERVA: es el registro de la propuesta
+y de su evidencia.
 ```

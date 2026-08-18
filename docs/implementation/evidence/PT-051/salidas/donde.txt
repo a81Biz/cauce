@@ -1,0 +1,35 @@
+# regla --donde, ejecutado · PT-051 · 2026-08-15
+
+## Una regla con un solo verificador
+
+  SUITE-R34    verify-fdge.mjs:472        fail
+
+  1 emisión(es). «fail» bloquea; «warn» solo lo dice.
+
+## Una emitida OCHO veces, desde DOS herramientas
+
+  SUITE-R35    tracker.mjs:698            fail
+  SUITE-R35    tracker.mjs:715            fail
+  SUITE-R35    verify-fdge.mjs:937        fail
+  SUITE-R35    verify-fdge.mjs:937        warn
+  SUITE-R35    verify-fdge.mjs:1222       fail
+  SUITE-R35    verify-fdge.mjs:1224       fail
+  SUITE-R35    verify-fdge.mjs:1411       fail
+  SUITE-R35    verify-fdge.mjs:1411       warn
+
+  8 emisión(es). «fail» bloquea; «warn» solo lo dice.
+
+## Una de las 62 SIN verificador (TD-08)
+
+  SUITE-R22   ningún verificador la emite con su nombre.
+  No es un fallo de esta consulta: 62 reglas están así, contadas en
+  10-Technical-Debt.md (TD-08). Es deuda MEDIDA.
+
+## --donde sin regla
+  --donde necesita una regla:  regla SUITE-R34 --donde
+  exit=0
+
+## La forma publica NO cambia
+
+  la comprueba  verify-fdge.mjs   (BLOQUEA)
+

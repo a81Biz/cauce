@@ -1,0 +1,60 @@
+
+> @a81biz/cauce@8.0.0 verify
+> npm run verify:patrones && npm run verify:suite && npm run core:check && npm run audit && npm run verify:secretos && npm run verify:espejo && npm run selftest
+
+
+> @a81biz/cauce@8.0.0 verify:patrones
+> node docs/methodology/tools/verify-patrones.mjs
+
+verify-patrones — 11 patrones · 52 comprobaciones
+
+[32mTodos los patrones cumplen su contrato.[0m
+
+> @a81biz/cauce@8.0.0 verify:suite
+> node docs/methodology/tools/verify-suite.mjs docs/methodology
+
+verify-suite — coherencia de la metodología (8.0.0)
+Documentos analizados: 36
+
+Sin errores de coherencia.
+
+> @a81biz/cauce@8.0.0 core:check
+> node docs/methodology/tools/build-core.mjs --check docs/methodology
+
+CORE.md sincronizado.
+CORE-PTSA.md sincronizado.
+
+> @a81biz/cauce@8.0.0 audit
+> node docs/methodology/tools/audit.mjs docs/methodology
+
+audit — cobertura de la Methodology Suite
+Base: C:\DevOps\Desarrollos\cauce\docs\methodology
+
+Cubiertos: 596  (regla:224 · regla-ptsa:80 · fase:40 · fase-diagrama:11 · compuerta:5 · trigger:25 · artefacto:33 · archivo:52 · plantilla:6 · estado:14 · tipo:5 · track:3 · severidad:4 · modo:3 · herramienta:48 · documento:36 · cobertura-mecanica:7)
+
+Cobertura mecánica de las reglas   (SUITE-R26 · aspira, no exige)
+  ejecutadas por una compuerta   111 / 181     · HARD 88 / 148
+  citadas sin compuerta que las corra   9        → --sin-compuerta las enumera
+  sin verificador                61        → --sin-verificar las enumera  (HARD 52)
+
+Auditoría sin huecos en los elementos auditados. Cobertura mecánica de reglas: 111/181.
+
+> @a81biz/cauce@8.0.0 verify:secretos
+> node docs/methodology/tools/revisar-secretos.mjs .
+
+revisar-secretos · C:\DevOps\Desarrollos\cauce
+[2márbol de trabajo · la historia NO se revisó: añade --historial[0m
+
+[32mSin hallazgos sin firmar.[0m
+[2mAntes de publicar, revisa también la historia: un secreto borrado del archivo sigue ahí.[0m
+
+> @a81biz/cauce@8.0.0 verify:espejo
+> node docs/methodology/tools/tracker.mjs espejo
+
+tracker · github · acción espejo
+
+
+  ✗ SUITE-R35    PT-053: su issue #87 declara «G1, fase: 1» y el registro dice «fase: 6». El estado de la plataforma se DERIVA del registro: sincronízalo con  tracker abrir --aplicar
+  ✗ SUITE-R47    el espejo BLOQUEA aquí y no solo informa: «chore/PT-053-la-transicion-de-fase-es-un-solo-acto» no es la rama por defecto («main»), así que es donde el registro asigna.
+
+2 divergencia(s) entre el registro y la plataforma.

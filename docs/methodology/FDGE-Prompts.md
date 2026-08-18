@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **8.0.0**
+> Suite version: **8.1.0**
 
 ---
 
@@ -201,6 +201,22 @@ cualquier otro destino     debe ser una allocation en DEFERRED cuyo campo «orig
 ```
 
 En `G4` bloquea; antes solo avisa, porque aplazar durante el trabajo es legítimo y frecuente.
+
+**`LEX-R26`: el checkpoint no lleva campos que solo puedas rellenar tú.** `CHECKPOINT.json` es el
+estado de la **tarea** en curso —`HANDOFF.md` responde por el **proyecto**— y todos sus campos se
+derivan: del registro, de git, o de una tabla que el marco ya calcula.
+
+```bash
+node docs/methodology/tools/tracker.mjs checkpoint PT-NNN        lo escribe
+node docs/methodology/tools/tracker.mjs checkpoint PT-NNN --ver  lo imprime sin tocarlo
+```
+
+Si un dato hace falta y no se deriva, **se declara como hueco y no se escribe**. Un campo así
+miente con la autoridad de un dato estructurado, y eso es peor que decirlo en prosa: la prosa se
+lee con la duda puesta y un JSON no.
+
+Y el `sha` que declara tiene que ser **alcanzable**. Un checkpoint que apunta a un commit que no
+existe es la peor de las dos averías posibles — el que no existe se nota; el que miente, no.
 
 **`SUITE-R43`: lo que escribas en el issue se lee antes de cerrar fase.** Se distingue por una
 marca invisible en los comentarios del agente, no por autor —comenta con tu credencial, así que

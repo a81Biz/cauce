@@ -1,0 +1,20 @@
+{
+  "pt": "PT-054",
+  "type": "CHORE",
+  "epic": "EP-014",
+  "status": "DONE",
+  "phase": 9,
+  "fase": "Integración",
+  "rama": "chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge",
+  "sha": "2b97137800416da4d14a8d43393c3d994325b2ab",
+  "sha_corto": "2b97137",
+  "sucio": true,
+  "archivos": [
+    "docs/implementation/REGISTRY.json",
+    "hanges/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/intake.md"
+  ],
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "generado": "2026-08-18"
+}

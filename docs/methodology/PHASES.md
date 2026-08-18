@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **8.0.0**
+> Suite version: **8.1.0**
 
 ---
 
@@ -108,6 +108,11 @@ NO      abrir dos a la vez · preguntar en cada arreglo si es nuevo · cobrar
 ### PHASE 0 · Context
 ```
 LEE  enterprise-documentation/README · REGISTRY.json · BACKLOG · HANDOFF
+     CHECKPOINT.json si existe: el estado de la TAREA en curso, mientras HANDOFF
+     responde por el PROYECTO. Todos sus campos se DERIVAN y ninguno se recuerda
+     —un campo que solo pueda rellenar la memoria miente con la autoridad de un
+     dato estructurado— y el «sha» que declara tiene que existir     [LEX-R26]
+       node tools/tracker.mjs checkpoint PT-NNN     lo escribe
      HISTORY(3 últimos) · INCIDENTS · changes/ · graphify-out/
 HAZ  comprobar: CORE.md presente y sincronizado [SUITE-R15, LEX-R25] · modo declarado; sin
      él se asume SUPERVISED [EXEC-R02] · solo un humano lo cambia [EXEC-R12]

@@ -6,13 +6,45 @@
 #   A) cuatro casos límite bien formados → deben pasar en verde
 #   B) once defectos inyectados → cada uno debe ser detectado
 #
-# Uso:  bash tools/selftest.sh [dir-temporal]
+# Uso:  bash tools/selftest.sh [dir-temporal] [-q]
+#       -q  silencia la ENUMERACION de los casos que pasan. El recuento, los fallos y el
+#           codigo de salida NO cambian.
 # Exit: 0 todo correcto · 1 algún caso falla
 set -u
 SUITE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # PT-034 · el binario publicado vive fuera de la suite: cauce start es su punto de entrada.
 RAIZ="$(cd "$SUITE/../.." && pwd)"
-WORK="${1:-$(mktemp -d)}/mth-selftest"
+# PT-049 · `-q` calla la ENUMERACION de los casos que pasan, y NADA mas. El recuento final se
+# imprime siempre —un «OK» sin denominador es lo que PT-002 corrigio—, `bad()` no lleva guarda
+# —un fallo se ve en cualquier modo— y el `exit` no depende del modo: imprime, no decide.
+#
+# Y se FILTRA de los posicionales antes de calcular WORK. `selftest.sh [dir-temporal]` toma $1
+# como ruta, asi que sin este filtro `selftest.sh -q` habria creado «-q/mth-selftest». Es de las
+# cosas que solo se ven ejecutando, y tiene su caso.
+QUIET=""
+POS=""
+# PT-050 · `--solo <patron>` TOMA UN VALOR, asi que consume DOS posiciones. Sin esto el patron
+# acabaria en el posicional y de ahi en WORK — que es exactamente el defecto que PT-049 encontro
+# con `-q`, en su forma simple. Y `--solo` sin valor es un ERROR: un patron vacio casaria con
+# todo, y la bandera diria que filtro cuando no filtro nada.
+SOLO=""
+_espera_solo=""
+for _a in "$@"; do
+  # El VALOR de --solo se consume ANTES de mirar si parece una bandera. Sin esto,
+  # `--solo "-q"` se comia la bandera y dejaba --solo sin valor: el patron mas natural para
+  # buscar los casos de PT-049 era justo ese. Lo dijo ejecutarlo.
+  if [ -n "$_espera_solo" ]; then SOLO="$_a"; _espera_solo=""; continue; fi
+  case "$_a" in
+    -q|--quiet) QUIET=1 ;;
+    --solo)     _espera_solo=1 ;;
+    *) [ -n "$POS" ] || POS="$_a" ;;
+  esac
+done
+if [ -n "$_espera_solo" ]; then
+  echo "selftest: --solo necesita un patron. Sin el casaria con todo, y entonces no filtra: miente." >&2
+  exit 2
+fi
+WORK="${POS:-$(mktemp -d)}/mth-selftest"
 FAILED=0
 # La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`), también aquí: el fixture la tenía
 # escrita a mano y era una copia más del número —la misma avería que este arnés existe para
@@ -25,20 +57,55 @@ VIGENTE="$(grep -m1 -oE '^## [0-9]+\.[0-9]+\.[0-9]+' "$SUITE/CHANGELOG.md" | cut
 # hecho copiado divergiendo, que es lo que este repositorio existe para eliminar. Ahora la única
 # fuente es la ejecución.
 TOTAL=0
-pass() { TOTAL=$((TOTAL + 1)); printf "  \033[32m✓\033[0m %s\n" "$1"; }
-bad()  { TOTAL=$((TOTAL + 1)); printf "  \033[31m✗\033[0m %s\n" "$1"; FAILED=1; }
+# PT-049 · contar e imprimir se separan aqui. `TOTAL` sube SIEMPRE —es la cifra derivada que
+# hace del «OK» un veredicto y no una afirmacion— y solo la enumeracion se calla. `bad()` no
+# lleva guarda a proposito: -q no es un modo que ademas esconda.
+pass() { TOTAL=$((TOTAL + 1)); [ -n "$QUIET" ] || printf "  \033[32m✓\033[0m %s\n" "$1"; }
+# En -q la cabecera de seccion no se imprime al llegar: se RECUERDA, y sale sola delante del
+# primer fallo de su bloque. Sin esto, `-q` sobre una bateria verde dejaba 21 lineas de las que
+# 19 eran cabeceras sin nada debajo — lo dijo EJECUTARLO, no el diseño. Y borrarlas del todo
+# habria dejado el rojo sin saber a que bloque pertenece.
+SEC=""; SEC_VISTA=""
+sec() { SEC="$1"; SEC_VISTA=""; [ -n "$QUIET" ] || echo "$1"; }
+bad()  {
+  TOTAL=$((TOTAL + 1))
+  if [ -n "$QUIET" ] && [ -z "$SEC_VISTA" ] && [ -n "$SEC" ]; then echo "$SEC"; SEC_VISTA=1; fi
+  printf "  \033[31m✗\033[0m %s\n" "$1"; FAILED=1
+}
 # Una herramienta que REVIENTA no imprime el patron que se le busca, asi que chkno la daba
 # por buena: el arnes certificaba un verificador roto. Se rompio verify-qa a proposito y dos
 # casos siguieron en verde. Ahora un rastro de excepcion invalida el caso, pase lo que pase.
 revento() { printf '%s' "$1" | grep -qE 'SyntaxError|ReferenceError|TypeError|RangeError|node:internal|at file:///'; }
+# PT-050 · `chk` y `chkno` son las DOS UNICAS puertas por las que pasa cualquier caso: filtrar
+# aqui cubre los 453 sin tocar ninguno, y sin que añadir uno mañana obligue a acordarse de nada.
+#
+# UNIVERSO sube SIEMPRE y TOTAL solo cuando el caso se EJECUTA. Son dos cifras porque un
+# subconjunto que parece la bateria es peor que no tener subconjunto — es PT-002 con otro nombre,
+# y la salida se lee fuera de contexto: en una evidencia, en un PR, tres lotes despues.
+#
+# El patron casa LITERAL (grep -F): un nombre lleva «», ·, … y parentesis, y pedir que se escapen
+# convertiria el filtro en un acertijo — ademas de que un parentesis sin cerrar seria un error de
+# sintaxis en vez de un «no casa», que es el defecto con el que PT-049 tropezo escribiendo casos.
+UNIVERSO=0
+# El emparejamiento es NATIVO de bash, no `grep -F`. La primera version lanzaba un proceso por
+# caso —536 procesos— y el ahorro medido cayo del 55 % al 32 %: el filtro se pagaba a si mismo.
+# `case ... in *"$SOLO"*` casa LITERAL igual que grep -F y no lanza nada.
+salta() {
+  UNIVERSO=$((UNIVERSO + 1))
+  [ -z "$SOLO" ] && return 1
+  case "$1" in *"$SOLO"*) return 1 ;; esac
+  return 0
+}
 chk() {
   local name="$1" pat="$2"; shift 2
+  salta "$name" && return
   local out; out="$("$@" 2>&1)"
   if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
   if printf '%s' "$out" | grep -q -- "$pat"; then pass "$name"; else bad "$name  (no apareció: $pat)"; fi
 }
 chkno() {
   local name="$1" pat="$2"; shift 2
+  salta "$name" && return
   local out; out="$("$@" 2>&1)"
   if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
   if printf '%s' "$out" | grep -q -- "$pat"; then bad "$name  (apareció: $pat)"; else pass "$name"; fi
@@ -195,7 +262,7 @@ fs.writeFileSync(p, JSON.stringify(r,null,2));
 " "$WORK/docs/implementation/REGISTRY.json" "$1"; }
 
 # ─── A · casos límite bien formados ─────────────────────────────────────────
-echo "── A · casos límite (deben pasar en verde) ──"
+sec "── A · casos límite (deben pasar en verde) ──"
 build_fixture
 chk  "BUG validado, listo para G4"   "Sin errores" V --gate G4 PT-001
 chk  "INVESTIGATION sin AC"          "Sin errores" V PT-002
@@ -204,7 +271,7 @@ chk  "FEATURE a medio camino"        "Sin errores" V PT-004
 chk  "MAJOR con grafo fresco"        "Grafo FRESH" V PT-004
 
 # ─── B · defectos inyectados ────────────────────────────────────────────────
-echo "── B · defectos inyectados (deben detectarse) ──"
+sec "── B · defectos inyectados (deben detectarse) ──"
 
 build_fixture; rm -rf "$WORK/graphify-out"
 chk "MAJOR sin grafo bloquea G2"        "✗ FDGE-R43"        V PT-004
@@ -404,7 +471,7 @@ chk "allocation sin sello de versión"   "SUITE-R18"         V PT-001
 
 
 # ─── D · migración desde cada versión ───────────────────────────────────────
-echo "── D · migración ──"
+sec "── D · migración ──"
 MIG="$WORK-mig"
 
 mk_v3() {   # proyecto v3 típico: sin REGISTRY, archivos globales, PTSA en español
@@ -623,7 +690,7 @@ chk   "FDGE-Prompts la cita"                "SUITE-R55"   cat "$SUITE/FDGE-Promp
 rm -rf "$MIG"
 
 # ─── E · integridad de la reconciliación y la migración verificada ──────────
-echo "── E · reconciliación y migración verificada ──"
+sec "── E · reconciliación y migración verificada ──"
 build_fixture
 chk "sin baseline ⇒ avisa de RECONCILE"  "FND-R15"    V PT-001
 build_fixture
@@ -661,7 +728,7 @@ M --apply > /tmp/mig.out 2>&1 || true
 chk "migración encadena verify-fdge"     "verify-fdge --all"  cat /tmp/mig.out
 
 # ─── F · instalación completa ────────────────────────────────────────────────
-echo "── F · instalación ──"
+sec "── F · instalación ──"
 build_fixture
 rm -f "$WORK/docs/methodology/CORE.md"
 chk "proyecto sin CORE.md ⇒ falla"        "SUITE-R15"   V --all
@@ -679,7 +746,7 @@ perl -0pi -e 's/GENERADO por tools/EDITADO A MANO por/' "$WORK/docs/methodology/
 chk "CORE.md editado a mano ⇒ falla"      "SUITE-R16"   V --all
 
 # ─── G · robustez y seguridad ───────────────────────────────────────────────
-echo "── G · robustez y seguridad ──"
+sec "── G · robustez y seguridad ──"
 build_fixture; reg_set "r.allocations='no-array'"
 chk "allocations no-array sin crash"     "no es un array"    V --all
 build_fixture; echo 'null' > "$WORK/docs/implementation/REGISTRY.json"
@@ -694,12 +761,15 @@ echo '{"password":"hunter2secret"}' > "$WORK/docs/implementation/evidence/PT-001
 chk "password en evidencia ⇒ falla"      "FDGE-R45"          V PT-001
 build_fixture
 chk "evidencia limpia ⇒ pasa"            "✓ FDGE-R45"        V PT-001
-printf "  " ; cd /tmp && rm -rf bcx && mkdir bcx && cd bcx
-if node "$SUITE/tools/build-core.mjs" . 2>&1 | grep -q 'Falta la fuente'; then pass "build-core sin fuentes ⇒ mensaje claro"; else bad "build-core sin fuentes"; fi
+cd /tmp && rm -rf bcx && mkdir bcx && cd bcx
+# PT-050 · era el UNICO caso escrito a mano, con su propio if/pass/bad. Puenteaba el filtro
+# de --solo y tambien revento(): un caso que se salta el arnes se salta todo lo que el
+# arnes protege. Ahora entra por chk como los demas.
+chk "build-core sin fuentes ⇒ mensaje claro"  "Falta la fuente"  node "$SUITE/tools/build-core.mjs" .
 cd "$WORK" 2>/dev/null || true
 
 # ─── H · lotes ───────────────────────────────────────────────────────────────
-echo "── H · lotes ──"
+sec "── H · lotes ──"
 mk_epic() {
   mkdir -p "$WORK/changes/EP-001-validacion"
   cat > "$WORK/changes/EP-001-validacion/intake.md" <<'M'
@@ -787,7 +857,7 @@ chk   "sin tabla, respaldo al barrido completo"  "PT-001: pertenece"  V --all
 chk   "el CHANGELOG dice dónde estaba"           "PT-011"  grep -h "PT-011" "$SUITE/CHANGELOG.md"
 
 # ─── I · auditoría PTSA por enumeración ──────────────────────────────────────
-echo "── I · PTSA por enumeración ──"
+sec "── I · PTSA por enumeración ──"
 VP() { node "$WORK/docs/methodology/tools/verify-ptsa.mjs" "$WORK"; }
 
 mk_ptsa() {
@@ -837,7 +907,7 @@ perl -0pi -e 's/<!-- fuentes: PTSA[^>]*-->/<!-- fuentes: PTSA\/x.md:000000000000
 chk  "overlay PTSA obsoleto ⇒ falla"       "CORE-PTSA.md está DESINCRONIZADO" node "$WORK/docs/methodology/tools/build-core.mjs" --check "$WORK/docs/methodology"
 
 # ─── K · integridad del núcleo, firmas e irreversibles ───────────────────────
-echo "── K · integridad y firmas ──"
+sec "── K · integridad y firmas ──"
 BC() { node "$WORK/docs/methodology/tools/build-core.mjs" --check "$WORK/docs/methodology"; }
 
 build_fixture
@@ -873,7 +943,7 @@ build_fixture
 chkno "sin CLAUDE.md ⇒ aviso, no crash"        "✗ SUITE-R27" V --all
 
 # ─── J · QA y FPGE ───────────────────────────────────────────────────────────
-echo "── J · QA y FPGE ──"
+sec "── J · QA y FPGE ──"
 VQ() { node "$WORK/docs/methodology/tools/verify-qa.mjs" "$WORK"; }
 
 mk_qa() {
@@ -936,7 +1006,7 @@ build_fixture
 chkno "sin QA/ ni ROADMAP ⇒ no rompe"      "✗"          VQ
 
 # ─── L · falsificación y ataques a los verificadores ─────────────────────────
-echo "── L · falsificación ──"
+sec "── L · falsificación ──"
 BC2() { node "$WORK/docs/methodology/tools/build-core.mjs" --check "$WORK/docs/methodology"; }
 
 # El sello de cuerpo protege del descuido; quien lo recalcula solo cae con la REGENERACIÓN.
@@ -1021,7 +1091,7 @@ cp /tmp/mth-vq.bak "$SUITE/tools/verify-qa.mjs" && rm -f /tmp/mth-vq.bak
 chk   "auditor en verde tras restaurar"      "sin huecos"  node "$SUITE/tools/audit.mjs" "$SUITE"
 
 # ─── M · terreno de la raíz ──────────────────────────────────────────────────
-echo "── M · terreno ──"
+sec "── M · terreno ──"
 PL() { node "$WORK/docs/methodology/tools/plan-layout.mjs" "$WORK"; }
 
 # El caso que dio origen a la regla: repo git anidado con el codigo dentro, raiz fuera de el.
@@ -1203,7 +1273,7 @@ I2  MOVER      [L99] algo que nadie aprobo                    OK
 chk   "etiqueta sin decisión ⇒ falla"         "que nadie aprobó"  V --all
 
 # ─── N · la implementación como unidad abierta ───────────────────────────────
-echo "── N · implementación abierta ──"
+sec "── N · implementación abierta ──"
 
 # FDGE-R48 · dos abiertas dejan sin respuesta a «esto es lo mismo».
 build_fixture
@@ -1244,7 +1314,7 @@ chk   "TAREA.md en el paquete"                 "Firmado por lote"  cat "$SUITE/I
 chkno "TAREA.md no pide firma propia"          "Solicitado por"    cat "$SUITE/INTAKE/templates/TAREA.md"
 
 # ─── O · continuidad: el bloque ESTADO y su frescura ─────────────────────────
-echo "── O · continuidad ──"
+sec "── O · continuidad ──"
 
 build_fixture
 printf '# HANDOFF
@@ -1315,7 +1385,7 @@ git -C "$WORK" -c user.name=t -c user.email=t@t commit -q -m "trabajo despues de
 chk   "trabajo posterior al estado ⇒ falla"   "✗ SUITE-R34"  V --all
 
 # ─── P · el espejo con la plataforma ─────────────────────────────────────────
-echo "── P · plataforma ──"
+sec "── P · plataforma ──"
 TR() { node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
 
 # Sin plataforma declarada no se exige nada: el repositorio sigue siendo válido solo.
@@ -1347,6 +1417,7 @@ trlib() { # $1 nombre · $2 patron esperado · $3 cuerpo JS que recibe el modulo
   # La ruta va por ENTORNO, no como argumento: pasarla en argv[1] es exactamente lo que el
   # guard de tracker entiende por «me estan ejecutando directamente», y el arnes se enganaba
   # solo — importaba el modulo y ejecutaba la herramienta.
+  salta "$1" && return
   local out
   out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
 import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
@@ -1359,6 +1430,7 @@ import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=
 # NO se puso rojo — subio de 485 a 489 en vez de 490, y esa unica cifra fue todo el aviso.
 # Un caso que no se ejecuta es peor que no tenerlo: ocupa el sitio del que si comprobaria.
 trlibno() { # $1 nombre · $2 patron que NO debe aparecer · $3 cuerpo JS
+  salta "$1" && return
   local out
   out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
 import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
@@ -1691,7 +1763,7 @@ build_fixture
 chkno "sin plataforma ⇒ G4 libre del espejo" "SUITE-R35"  V --gate G4 PT-001
 
 # ─── Q · la compuerta de secretos ────────────────────────────────────────────
-echo "── Q · secretos ──"
+sec "── Q · secretos ──"
 SEC() { node "$SUITE/tools/revisar-secretos.mjs" "$@"; }
 
 build_fixture
@@ -2030,7 +2102,7 @@ oos '`EP-040`'
 chkno "citarlo cuando si lo declara, vale"        "SUITE-R44"  V PT-001
 
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
-echo "── R · bitácora y cierre ──"
+sec "── R · bitácora y cierre ──"
 
 # FDGE-R53 · una tarea sin condición de cierre no tiene final: se estira.
 build_fixture
@@ -2109,7 +2181,7 @@ chkno "el README no fija una versión"        "Versión 4."  cat "$SUITE/../../R
 chk   "el README nombra el paquete"          "@a81biz/cauce"  cat "$SUITE/../../README.md"
 
 # ─── S · los patrones cumplen su contrato ────────────────────────────────────
-echo "── S · patrones ──"
+sec "── S · patrones ──"
 
 chk   "los patrones cumplen su contrato"     "cumplen su contrato"  node "$SUITE/tools/verify-patrones.mjs"
 
@@ -2173,7 +2245,7 @@ rm -rf "$VERDIR"
 chk   "una sola fórmula del sello"           "patrones.mjs"  bash -c 'grep -l "const selloDe = " "$0"/tools/*.mjs' "$SUITE"
 
 # ─── C · coherencia de la metodología ───────────────────────────────────────
-echo "── C · metodología ──"
+sec "── C · metodología ──"
 chk   "verify-suite en verde"    "Sin errores" node "$SUITE/tools/verify-suite.mjs" "$SUITE"
 chk   "CORE.md sincronizado"     "sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
 chk   "CORE-PTSA.md sincronizado" "CORE-PTSA.md sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
@@ -2243,6 +2315,299 @@ G() { node -e '
   // estructurales integrados DESDE su generacion, y con 0 son todos.
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
+
+# ─── PT-054 · ver en que se trabaja sin esperar al merge ───────────────────
+# Medido: 13 ramas de tarea en el remoto. La visibilidad existe y esta repartida en trece sitios,
+# asi que hay que saber DE ANTEMANO que rama mirar. La rama cauce/<usuario> agrega, y es DERIVADA
+# por decision del firmante: mover la gobernanza romperia el vinculo que ata un cambio a su
+# evidencia —que viajen en el MISMO commit— y dejaria a SUITE-R34 comparando fechas entre ramas.
+_tr2="$SUITE/tools/tracker.mjs"
+
+# La FONTANERIA es lo que sostiene el diseño: no toca el arbol de trabajo. Con worktree o checkout,
+# un fallo a mitad dejaria al usuario EN OTRA RAMA mientras trabaja.
+chk   "proyecta con fontaneria, sin checkout"  "hash-object" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y con mktree"                          "mktree" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y commit-tree con su padre"            "commit-tree" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chkno "NO hace checkout ni worktree"           "worktree" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# Cada fila lleva el SHA de SU rama. Una tarea sin rama lo declara VACIO: un SHA prestado seria
+# una afirmacion falsa (RULE-06).
+chk   "cada fila lleva el SHA de SU rama"      "shaDe(a.branch)" \
+  sh -c 'sed -n "/^export function estadoProyectado/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y sin rama NO hereda el de otra"       "a.branch ?" \
+  sh -c 'sed -n "/^export function estadoProyectado/,/^}/p" "$1"' _ "$_tr2"
+# La marca es lo UNICO que distingue una rama derivada de una que ya no lo es.
+chk   "cada commit lleva la marca"             "MARCA_PROYECCION" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "un commit sin marca se REPORTA"         "escribio a mano" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y no se borra: eso es humano"          "No se borra nada" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# RULE-06 · sin usuario no se proyecta. «cauce/desconocido» agregaria el trabajo de todos bajo un
+# nombre que no es de nadie.
+chk   "sin usuario NO se proyecta"             "no se proyecta (RULE-06)" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# El nombre se normaliza: una referencia de git no admite cualquier cosa.
+cat > "$WORK/rama.mjs" <<'MJS'
+import { pathToFileURL } from 'node:url';
+const { ramaDe } = await import(pathToFileURL(process.env.MTH_TR).href);
+console.log(ramaDe('Alberto Martínez') === 'cauce/alberto-martinez' ? 'NORMALIZA' : 'NO ' + ramaDe('Alberto Martínez'));
+console.log(ramaDe('') === null && ramaDe(null) === null ? 'SIN_USUARIO_NULL' : 'INVENTA');
+MJS
+chk   "el nombre se normaliza a una ref valida" "NORMALIZA" \
+  env MTH_TR="$SUITE/tools/tracker.mjs" node "$WORK/rama.mjs"
+chk   "…y sin nombre devuelve null, no inventa" "SIN_USUARIO_NULL" \
+  env MTH_TR="$SUITE/tools/tracker.mjs" node "$WORK/rama.mjs"
+# Publicar es una decision, no un efecto colateral.
+chk   "sin --publicar se queda LOCAL"          "no un efecto colateral" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# Y en avanzar va la ULTIMA, y su fallo NO revierte: la nota ya se publico y no se despublica.
+chk   "en avanzar la proyeccion va la ULTIMA"  "LA PROYECCION" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y su fallo NO revierte la transicion"  "La transicion SI ocurrio" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr2"
+
+# ─── PT-053 · la transicion de fase es un solo acto ────────────────────────
+# 107 transiciones en dos lotes x 5 actos manuales = ~535 operaciones. FDGE-R52 cazo LA MISMA
+# transicion tres veces en EP-014, y la tercera con el fallo ANUNCIADO en la propia nota:
+# predecir el fallo no lo evita.
+#
+# El fixture NO declara plataforma, asi que aqui se comprueban las VALIDACIONES —que corren antes
+# de tocar nada y antes de necesitar la red—. El camino completo y la atomicidad se ejecutan
+# contra el repositorio real y estan en la evidencia: la nota de la transicion 5->6 de esta misma
+# tarea la publico `avanzar`, no `gh issue comment`.
+AV() { node "$WORK/docs/methodology/tools/tracker.mjs" avanzar "$@" "$WORK"; }
+# El fixture se reconstruye aqui. Bloques anteriores mutan la fase de PT-004 —la ponen en 5,
+# la ponen en null— y asertar contra un estado que otro caso cambio es asertar sobre el
+# ORDEN, no sobre el codigo. Es el mismo error que PT-052 cometio y corrigio, dos tareas
+# antes: saberlo no basta, hay que escribirlo en el bloque.
+build_fixture
+
+chk   "sin --nota NO avanza"                   "exige --nota"             AV PT-004 --a 5
+chk   "…y lo dice como negativa, no aviso"     "el acto que se olvida"    AV PT-004 --a 5
+chk   "una --nota vacia tampoco vale"          "exige --nota"             AV PT-004 --a 5 --nota "   "
+chk   "saltar una fase NO avanza"              "Solo se avanza a la SIGUIENTE"  AV PT-004 --a 8 --nota "x"
+chk   "…y dice por que"                        "apaga las comprobaciones" AV PT-004 --a 8 --nota "x"
+chk   "retroceder tampoco"                     "Solo se avanza a la SIGUIENTE"  AV PT-004 --a 2 --nota "x"
+chk   "un PT que no existe NO avanza"          "no existe en el registro" AV PT-777 --a 2 --nota "x"
+chk   "un PT terminal NO avanza"               "no avanza"                AV PT-002 --a 9 --nota "x"
+chk   "…citando que lo cerrado es evidencia"   "SUITE-R36"                AV PT-002 --a 9 --nota "x"
+# El fixture no le da issue a PT-004, asi que la validacion que salta es esa — y es la correcta:
+# sin issue la nota no tendria donde ir. Asertar el mensaje de la plataforma aqui habria sido
+# asertar sobre un mundo que no es el del fixture, que ya paso dos veces en PT-052.
+chk   "sin issue NO avanza"                    "no tendria donde ir"      AV PT-004 --a 5 --nota "x"
+chk   "…citando el espejo"                     "SUITE-R35"                AV PT-004 --a 5 --nota "x"
+# Y ninguna de las anteriores toco el registro: las validaciones corren ANTES de escribir.
+chk   "ninguna validacion toco el registro"    '"phase":4'   cat "$WORK/docs/implementation/REGISTRY.json"
+
+# La forma del codigo: el orden lo decide la REVERSIBILIDAD y lo irreversible va el ultimo.
+_tr="$SUITE/tools/tracker.mjs"
+chk   "la nota se publica la ULTIMA"           "irreversible, y por eso la ultima" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "hay respaldo antes de escribir"         "const respaldo = tocados.map" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "y restauracion si algo falla"           "restaurar();" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+# Restaurar un archivo que NO EXISTIA lo BORRA. Dejarlo vacio seria un estado que no existia.
+chk   "restaurar lo que no existia lo BORRA"   "antes === null" \
+  sh -c 'sed -n "/const restaurar/,/^  };/p" "$1"' _ "$_tr"
+# El VALOR de una bandera no es una ruta. Tercera vez en el lote: -q, --solo, --a.
+chk   "el valor de una bandera no es ROOT"     "CON_VALOR.has" \
+  sh -c 'sed -n "/^const ROOT/,/process.cwd/p" "$1"' _ "$_tr"
+chk   "…y las banderas con valor van en UN sitio" "CON_VALOR = new Set" cat "$_tr"
+# LEX-R21 · el nombre vive en LEXICON.
+chk   "avanzar esta en LEXICON"                "avanzar"    cat "$SUITE/LEXICON.md"
+# El SELLO del HANDOFF es otro acto, y tambien faltaba: la CI lo dijo en rojo con el comando ya
+# integrado en su propia PHASE 9. `avanzar` escribe en changes/ (el YAML), asi que sin tocar
+# HANDOFF.md el estado queda MAS VIEJO QUE EL TRABAJO y SUITE-R34 bloquea: el comando violaba POR
+# CONSTRUCCION la regla que dice que el estado viaja con el trabajo. Solo se estampa la linea
+# «actualizado:», que es derivable; el resto es prosa humana y no se toca.
+chk   "el sello del HANDOFF es un acto"       "EL ESTADO" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "…y solo estampa «actualizado:»"        "prosa humana y no" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "…y HANDOFF.md entra en el respaldo"    "HANDOFF.md" \
+  sh -c 'sed -n "/const tocados/p" "$1"' _ "$_tr"
+# El ESPEJO es el quinto acto, y faltaba: `npm run verify` lo dijo en rojo con avanzar ya
+# escrito. Va ANTES de la nota y el orden entre los dos actos irreversibles no es
+# indiferente — una etiqueta desincronizada es DERIVADA y se rehace con `abrir --aplicar`;
+# una nota que falta no se rehace, y es lo que este comando existe para impedir.
+chk   "el espejo es el quinto acto"           "EL ESPEJO" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "…y va ANTES de la nota"                "recuperar va primero" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+
+# ─── PT-052 · el checkpoint es un artefacto, no una nota ───────────────────
+# El estado de una tarea en curso existia —HANDOFF, la fase del registro, las notas de reanclaje—
+# pero en ningun formato que un programa pudiera leer. Y nada ataba la gobernanza al commit del
+# codigo: hoy los ata que viajen en el MISMO commit, y ese vinculo desaparece en cuanto PT-054
+# proyecte a otra rama.
+#
+# LEX-R26 · TODO campo se DERIVA. Un campo que solo pueda rellenar la memoria miente CON LA
+# AUTORIDAD DE UN DATO ESTRUCTURADO, que es peor que decirlo en prosa.
+CPJ="$WORK/docs/implementation/CHECKPOINT.json"
+TR() { node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
+
+# El fixture se reconstruye aqui: bloques anteriores mutan la fase de PT-004, y asertar un
+# valor concreto sobre un estado que otro caso cambio es una asercion sobre el orden, no
+# sobre el codigo. Lo dijo ejecutarlo.
+build_fixture
+chk   "checkpoint escribe el archivo"          "CHECKPOINT.json escrito"  TR checkpoint PT-004
+chk   "…y declara de que PT es"                '"pt": "PT-004"'           cat "$CPJ"
+chk   "…con su fase"                           '"phase": 4'               cat "$CPJ"
+chk   "…y la siguiente accion, DERIVADA"       '"siguiente"'              cat "$CPJ"
+chk   "…y el SHA del codigo"                   '"sha"'                    cat "$CPJ"
+# Es UNO: escribirlo sobre otra tarea lo SUSTITUYE. N archivos serian N-1 mintiendo.
+TR checkpoint PT-001 >/dev/null 2>&1
+chk   "se SOBRESCRIBE: ahora es de PT-001"     '"pt": "PT-001"'           cat "$CPJ"
+chkno "…y no quedo el anterior"                '"pt": "PT-004"'           cat "$CPJ"
+# RULE-06 · sin allocation no se inventan los campos: se dice.
+chk   "un PT que no esta en el registro FALLA" "no existe en el registro" TR checkpoint PT-777
+# LEX-R26 · el SHA tiene que ser ALCANZABLE, no tener forma de SHA.
+#
+# Las mutaciones van GUARDADAS con `[ -f ]`. --solo (PT-050) salta los CASOS pero no el setup que
+# hay entre ellos, asi que con un filtro puesto este bloque corria sin que ninguna de las lineas
+# anteriores hubiera creado el archivo — y reventaba. Es una consecuencia de --solo que su propia
+# tarea no dijo, y aqui queda: el setup entre casos tiene que tolerar que los casos no corran.
+cp_set() { [ -f "$CPJ" ] || return 0; MTH_CP="$CPJ" node -e "$1"; }
+
+# El fixture NO es un repositorio git, asi que `sha` sale null — y la herramienta lo DICE en
+# vez de inventarse uno. Es RULE-06 funcionando, y comprobarlo aqui vale mas que fingir un
+# repo: el caso del sha ALCANZABLE corre sobre el repositorio real y esta en la evidencia.
+chk   "sin git, el sha se declara null"        "se genero sin git"        V PT-001
+cp_set 'const fs=require("node:fs");const p=process.env.MTH_CP;const c=JSON.parse(fs.readFileSync(p,"utf8"));c.sha="0".repeat(40);fs.writeFileSync(p,JSON.stringify(c,null,2));'
+chk   "un sha que NO existe BLOQUEA"           "NO existe en este repositorio"  V PT-001
+chk   "…y lo dice como lo que es"              "miente con la autoridad"        V PT-001
+cp_set 'const fs=require("node:fs");const p=process.env.MTH_CP;const c=JSON.parse(fs.readFileSync(p,"utf8"));delete c.sha;fs.writeFileSync(p,JSON.stringify(c,null,2));'
+chk   "sin el campo sha, tambien"              "no declara: sha"                V PT-001
+rm -f "$CPJ"
+chkno "no tenerlo NO es un defecto"            "LEX-R26"                        V PT-001
+# LEX-R21 · el nombre vive en LEXICON, y ANTES que en el codigo.
+chk   "CHECKPOINT.json esta en LEXICON"        "CHECKPOINT.json"   cat "$SUITE/LEXICON.md"
+chk   "…con su contrato de campos"             "LEX-R26"           cat "$SUITE/LEXICON.md"
+chk   "…y dice que todo se DERIVA"             "no entra en"       cat "$SUITE/LEXICON.md"
+
+# ─── PT-051 · donde vive la comprobacion de una regla ──────────────────────
+# `regla` decia el ARCHIVO y callaba la linea. verify-fdge.mjs tiene 1490 lineas: saber que la
+# comprobacion esta «en verify-fdge.mjs» deja el mismo trabajo que no saber nada. La informacion
+# ya se recorria —el m.index de cada fail()— y se tiraba.
+RG2() { node "$SUITE/tools/regla.mjs" "$@"; }
+
+chk   "--donde da archivo Y linea"            "verify-fdge.mjs:"    RG2 SUITE-R34 --donde
+chk   "…y dice si bloquea o solo avisa"       "fail"                RG2 SUITE-R34 --donde
+chk   "…enumera TODAS las herramientas"       "tracker.mjs:"        RG2 SUITE-R35 --donde
+chk   "…y tambien verify-fdge"                "verify-fdge.mjs:"    RG2 SUITE-R35 --donde
+chk   "una sin verificador lo DICE"           "ningún verificador"  RG2 SUITE-R22 --donde
+chkno "…y no devuelve una lista vacia"        "0 emisión"           RG2 SUITE-R22 --donde
+chk   "…y cita TD-08 en vez de recalcularlo"  "TD-08"               RG2 SUITE-R22 --donde
+chk   "--donde sin regla es un error"         "necesita una regla"  RG2 --donde
+
+# EL CASO CENTRAL, y el unico que discrimina: DOS emisiones en el mismo archivo tienen que dar
+# lineas DISTINTAS. Con una sola, `m.index` e `indexOf` dan lo mismo y el caso pasaria con las dos
+# implementaciones — que es como PT-043 se encontro el defecto en las entradas CORRIGE.
+cat > "$WORK/lineas.mjs" <<'MJS'
+import { pathToFileURL } from 'node:url';
+const { fallosPosibles } = await import(pathToFileURL(process.env.MTH_REGLA).href);
+const texto = ["linea 1", "fail('ZZ-R99', 'primera');", "linea 3", "linea 4",
+               "fail('ZZ-R99', 'segunda');", "// fail('ZZ-R98', 'comentada')"].join("\n");
+const e = fallosPosibles([{ archivo: 'x.mjs', texto }]);
+const zz = e.find((t) => t.id === 'ZZ-R99');
+const lineas = zz.emisiones.map((x) => x.linea);
+console.log(lineas.join(',') === '2,5' ? 'LINEAS_DISTINTAS' : 'MISMA_LINEA ' + lineas.join(','));
+console.log(e.some((t) => t.id === 'ZZ-R98') ? 'CUENTA_COMENTARIOS' : 'IGNORA_COMENTARIOS');
+MJS
+chk   "dos emisiones dan lineas DISTINTAS"    "LINEAS_DISTINTAS" \
+  env MTH_REGLA="$SUITE/tools/regla.mjs" node "$WORK/lineas.mjs"
+chk   "…y una COMENTADA no cuenta"            "IGNORA_COMENTARIOS" \
+  env MTH_REGLA="$SUITE/tools/regla.mjs" node "$WORK/lineas.mjs"
+# La forma publica se DERIVA: lo que existia antes de PT-051 sigue significando lo mismo.
+chk   "herramientas se deriva de emisiones"   "herramientas: \[...new Set" \
+  sh -c 'sed -n "/^export function fallosPosibles/,/^}/p" "$1"' _ "$SUITE/tools/regla.mjs"
+chk   "…y la linea sale de m.index"           "lineaDe(texto, m.index)" \
+  sh -c 'sed -n "/^export function fallosPosibles/,/^}/p" "$1"' _ "$SUITE/tools/regla.mjs"
+chkno "…nunca de indexOf"                     "indexOf(m\[0\])" \
+  sh -c 'sed -n "/^export function fallosPosibles/,/^}/p" "$1"' _ "$SUITE/tools/regla.mjs"
+
+# ─── PT-050 · reejecutar solo el bloque en el que se trabaja ───────────────
+# Medido antes de escribir nada: la bateria son 205 s y 181 reconstrucciones del fixture. El
+# `discovery` afirmo que chk y chkno eran «las dos unicas puertas» — y EJECUTARLO lo desmintio:
+# 82 casos entran por trlib/trlibno y uno estaba escrito a mano con su propio if/pass/bad.
+# CUATRO puertas, no dos. Estos casos existen para que la quinta no se abra sin darse cuenta.
+_st2="$SUITE/tools/selftest.sh"
+chk   "el filtro esta en chk"                 'salta "$name" && return'  sh -c 'sed -n "/^chk() {/,/^}/p" "$1"' _ "$_st2"
+chk   "…y en chkno"                           'salta "$name" && return'  sh -c 'sed -n "/^chkno() {/,/^}/p" "$1"' _ "$_st2"
+chk   "…y en trlib, la tercera puerta"        'salta "$1" && return'     sh -c 'sed -n "/^trlib() {/,/^}/p" "$1"' _ "$_st2"
+chk   "…y en trlibno, la cuarta"              'salta "$1" && return'     sh -c 'sed -n "/^trlibno() {/,/^}/p" "$1"' _ "$_st2"
+# El filtro va ANTES de ejecutar el comando del caso: de ahi sale el ahorro. Si fuera despues,
+# se ejecutaria igual y solo se callaria la linea — que es lo que ya hace -q.
+chk   "el filtro va antes de ejecutar"        'salta "$name" && return'  sh -c 'sed -n "/^chk() {/,/local out/p" "$1"' _ "$_st2"
+# El universo sube fuera de la guarda: el DENOMINADOR no puede depender del filtro.
+chk   "el universo sube fuera de la guarda"   'UNIVERSO + 1'             sh -c 'sed -n "/^salta() {/,/SOLO\" \]/p" "$1"' _ "$_st2"
+chk   "…y casa LITERAL, sin regex"            'case "$1" in \*"$SOLO"\*' sh -c 'sed -n "/^salta() {/,/^}/p" "$1"' _ "$_st2"
+chkno "…sin lanzar un proceso por caso"       'grep -qF'                 sh -c 'sed -n "/^salta() {/,/^}/p" "$1"' _ "$_st2"
+# Un patron que no casa nada es ROJO. Un verde por vacio es lo que PT-023 encontro ejecutando.
+# Por POSICION, no por texto: `sed -n "/NINGUN CASO CASA/,/^fi/p"` arrancaba en ESTA MISMA LINEA
+# —que contiene ese texto al definirse— y se tragaba medio archivo hasta el siguiente «fi»,
+# incluida una palabra que dispara revento(). Es la MISMA familia que PT-049 documento, y van
+# dos veces en esta tarea: la lectura no la ve nunca.
+chk   "sin coincidencias, es rojo"            'exit 1'                   sh -c 'tail -14 "$1"' _ "$_st2"
+chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c 'tail -12 "$1"' _ "$_st2"
+# --solo sin valor: un patron vacio casaria con todo y la bandera mentiria.
+# Se extrae por «>&2» y no por el texto del mensaje: buscar «necesita un patron» habria casado
+# TAMBIEN esta misma linea, y el caso habria pasado aunque el mensaje real desapareciera. Es la
+# quinta vez en la sesion que aparece la asercion que casa su propia definicion.
+chk   "--solo sin valor es un error"          'necesita un patron'       sh -c 'sed -n "/>&2/p" "$1"' _ "$_st2"
+chk   "…y el valor se consume ANTES del case" '_espera_solo" \]; then SOLO' sh -c 'sed -n "/^for _a in/,/^done/p" "$1"' _ "$_st2"
+# Las dos cifras solo aparecen cuando hay algo que distinguir.
+chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       sh -c 'tail -12 "$1"' _ "$_st2"
+chkno "…y sin --solo, una sola"               'de $UNIVERSO casos'       sh -c 'tail -3 "$1"' _ "$_st2"
+
+# ─── PT-049 · el verde se CUENTA, no se enumera ────────────────────────────
+# Medido antes de escribir nada: selftest imprime 541 lineas y verify-fdge 507, y en un arbol
+# sano el 96 % y el 89 % son el bloque verde. La bateria se ejecuto >15 veces en una sola sesion.
+#
+# `-q` calla la ENUMERACION del verde. NO calla el recuento —un «sin errores» sin denominador es
+# lo que PT-002 corrigio—, NO calla los fallos, y NO toca el codigo de salida: imprime, no decide.
+
+# --- verify-fdge · comportamiento REAL, sobre el fixture ---
+chkno "-q no imprime el bloque PASA"          "PASA"                V --all -q
+chk   "…y los AVISOS siguen saliendo"         "AVISOS"              V --all -q
+chk   "…y el recuento NO se calla"            "PTs verificados"     V PT-001 -q
+chk   "sin -q el bloque PASA sigue estando"   "PASA"                V --all
+# Con un error, -q no esconde nada: el bloque ERRORES sale igual.
+chk   "-q no esconde el bloque ERRORES"       "ERRORES"             V --gate G4 PT-004 -q
+chk   "…y dice cuantos son"                   "error(es)"           V --gate G4 PT-004 -q
+
+# --- selftest · la FORMA de su propio codigo ---
+# Aqui se comprueba la forma y no el comportamiento, y se dice por que: ejecutar la bateria
+# DENTRO de la bateria triplicaria su coste —cada vuelta son 2-4 minutos— para comprobar seis
+# casos. Es un limite declarado, no un hueco: `bash tools/selftest.sh -q` se ejecuta a mano y su
+# salida se captura en la evidencia de PT-049.
+_st="$SUITE/tools/selftest.sh"
+chk   "pass() lleva la guarda de -q"          'QUIET" ] || printf'   sh -c 'sed -n "/^pass()/p" "$1"' _ "$_st"
+chkno "bad() NO lleva guarda: un fallo se ve" 'QUIET" ] || printf'   sh -c 'sed -n "/^bad()/,/^}/p" "$1"' _ "$_st"
+# El patron NO puede llevar «[»: `chk` usa grep BRE y un corchete sin cerrar es un error de
+# sintaxis, no un «no casa». Y NO se puede hacer `cat` del archivo entero: contiene la palabra
+# «SyntaxError» dentro de revento(), asi que el propio arnes lo daria por reventado. Las dos
+# cosas las dijo ejecutarlo — cuatro casos en rojo que no eran del cambio, sino de como los
+# escribi.
+chk   "TOTAL sube antes que la guarda"        'pass() { TOTAL='     sh -c 'sed -n "/^pass()/p" "$1"' _ "$_st"
+# El recuento se busca por POSICION —las ultimas lineas— y no por su texto. Buscarlo con
+# `sed -n "/selftest: OK/p"` casaba tambien ESTAS DOS LINEAS, que contienen ese texto al
+# definirse, y una de ellas dice «QUIET»: el caso se cazaba a si mismo. Es la cuarta vez en la
+# sesion que aparece esta familia —la asercion que casa su propia definicion— y aqui queda por
+# escrito, porque el patron se repite y la lectura no lo ve.
+chk   "el recuento final existe"              'selftest: OK'        sh -c 'tail -4 "$1"' _ "$_st"
+chkno "…y no mira QUIET"                      'QUIET'               sh -c 'tail -4 "$1"' _ "$_st"
+chk   "-q se FILTRA de los posicionales"      'quiet) QUIET=1'      sh -c 'sed -n "/quiet) QUIET/p" "$1"' _ "$_st"
+chk   "…y WORK sale del posicional filtrado"  'POS:-'               sh -c 'sed -n "/^WORK=/p" "$1"' _ "$_st"
+chkno "…no del primer argumento crudo"        '{1:-'                sh -c 'sed -n "/^WORK=/p" "$1"' _ "$_st"
+# La cabecera de seccion en -q no se pierde: se recuerda y sale delante del primer fallo.
+chk   "la cabecera se recuerda para el fallo" 'SEC_VISTA=1'         sh -c 'sed -n "/^bad()/,/^}/p" "$1"' _ "$_st"
+chk   "…y sin -q se imprime al llegar"        'QUIET" ] || echo "$1"'  sh -c 'sed -n "/^sec()/p" "$1"' _ "$_st"
 
 # ─── PT-029 · las compuertas anteriores a G4 se pueden evaluar ─────────────
 # Tres comprobaciones decian `if (gate)` sin decir de QUE compuerta hablaban, y con eso G1, G2 y
@@ -2348,7 +2713,18 @@ chk   "y su ancla se declara sin poner"        "SIN_ANCLAR" \
 " "$1"' _ "$WORK/graph-viejo.json"
 
 echo
-[ "$FAILED" -eq 0 ] && echo "selftest: OK · $TOTAL casos" || echo "selftest: HAY FALLOS · $TOTAL casos"
+# PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
+# coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que
+# distinguir. Y un patron que no casa NADA es ROJO — un verde por vacio es lo que PT-023
+# encontro ejecutando: el silencio parece exito.
+if [ -n "$SOLO" ] && [ "$TOTAL" -eq 0 ]; then
+  echo "selftest: NINGUN CASO CASA «$SOLO» · 0 de $UNIVERSO casos"
+  rm -rf "$WORK"
+  exit 1
+fi
+_cuantos="$TOTAL"
+[ -n "$SOLO" ] && _cuantos="$TOTAL de $UNIVERSO"
+[ "$FAILED" -eq 0 ] && echo "selftest: OK · $_cuantos casos" || echo "selftest: HAY FALLOS · $_cuantos casos"
 rm -rf "$WORK"
 exit "$FAILED"
 

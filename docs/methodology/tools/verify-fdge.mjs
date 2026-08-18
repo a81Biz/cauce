@@ -10,6 +10,7 @@
  *   node verify-fdge.mjs PT-042              verifica un PT
  *   node verify-fdge.mjs PT-042 PT-043       verifica varios
  *   node verify-fdge.mjs --all               todos los PTs no terminales
+ *   node verify-fdge.mjs --all -q            silencia la ENUMERACIÓN del verde, no el recuento
  *   node verify-fdge.mjs --gate G1 PT-042    solo las precondiciones de G1
  *   node verify-fdge.mjs --gate G2 PT-042    ídem G2 · --gate G3 · --gate G4
  *
@@ -428,6 +429,35 @@ function checkValor(foundationLista) {
 // el default invertido lo raro es abrir y cerrar; y lo que esta abierto lo dice el registro,
 // no la memoria del agente — asi sobrevive a que la sesion termine.
 const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_DOMAIN']);
+// LEX-R26 · el checkpoint declara un SHA, y ese SHA tiene que EXISTIR.
+//
+// PT-052 · Un checkpoint que apunta a un commit inexistente miente CON LA AUTORIDAD DE UN DATO
+// ESTRUCTURADO: el que no existe se nota, el que miente no. Se comprueba que sea ALCANZABLE, no
+// que tenga forma de SHA — la forma la cumple cualquier cadena de cuarenta hexadecimales.
+//
+// NO se comprueba que el arbol CORRESPONDA a ese SHA. Eso es STATE_MISMATCH y es de EP-015:
+// darlo por hecho aqui haria que el lote siguiente heredase una casilla marcada.
+function checkCheckpoint() {
+  const f = join(IMPL, 'CHECKPOINT.json');
+  if (!existsSync(f)) return;                       // no tenerlo no es un defecto: aun no toca
+  let cp;
+  try { cp = JSON.parse(read(f) ?? ''); }
+  catch { fail('LEX-R26', 'CHECKPOINT.json no es JSON valido: un estado ilegible es peor que ninguno.'); return; }
+  const falta = ['pt', 'phase', 'sha'].filter((k) => cp?.[k] === undefined);
+  if (falta.length) {
+    fail('LEX-R26', `CHECKPOINT.json no declara: ${falta.join(', ')}. Sin eso no dice de que tarea es ni sobre que codigo.`);
+    return;
+  }
+  if (cp.sha === null) { warn('LEX-R26', 'CHECKPOINT.json declara «sha: null»: se genero sin git y lo DICE (RULE-06).'); return; }
+  try {
+    execFileSync('git', ['cat-file', '-e', `${cp.sha}^{commit}`], { cwd: ROOT, stdio: 'pipe' });
+    ok('LEX-R26', `CHECKPOINT.json: ${cp.pt} en PHASE ${cp.phase}, sobre un commit alcanzable.`);
+  } catch {
+    fail('LEX-R26', `CHECKPOINT.json declara el commit ${String(cp.sha).slice(0, 8)}, que NO existe en este repositorio. `
+      + 'Un checkpoint que apunta a nada miente con la autoridad de un dato estructurado.');
+  }
+}
+
 // SUITE-R33/R34 · el estado, y su frescura contra git.
 //
 // SUITE-R03 dice desde la 4.0.0 que ninguna sesion depende de la memoria del agente. Nada lo
@@ -1437,6 +1467,15 @@ if (gateIdx >= 0 && !/^G[1-4]$/.test(gate ?? '')) {
   process.exit(2);
 }
 const all = argv.includes('--all');
+// PT-049 · `-q` calla la ENUMERACION del verde y nada mas. No toca los avisos, no toca los
+// errores, y NO toca el recuento final: un «sin errores» sin denominador es exactamente lo que
+// PT-002 corrigio, y PT-023 lo volvio a encontrar en otra forma —el silencio parece exito—.
+// Tampoco toca `process.exit`: el modo IMPRIME, no decide. Si pudiera cambiar el veredicto
+// habria dos verdades sobre el mismo arbol, y esa es la averia que este marco persigue.
+//
+// Medido antes de escribirlo: de 507 lineas, 454 son el bloque PASA. Lo que sobrevive a `-q`
+// no es el verde, son 43 AVISOS —19 de ellos diciendo «aun no toca»—, y eso es otra tarea.
+const quiet = argv.includes('-q') || argv.includes('--quiet');
 // Los PT son los argumentos posicionales, excluyendo el valor de --gate.
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
@@ -1450,6 +1489,7 @@ checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
 checkImplementacion(reg);
 checkEstado();
+checkCheckpoint();
 checkFirmas();
 checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));
@@ -1469,7 +1509,7 @@ for (const pt of pts) checkPT(pt, { gate });
 
 // ─── Informe ─────────────────────────────────────────────────────────────────
 const pad = (s, n) => String(s).padEnd(n);
-if (passed.length) {
+if (passed.length && !quiet) {
   console.log('PASA');
   for (const p of passed) console.log(`  ✓ ${pad(p.rule, 14)} ${p.msg}`);
   console.log('');
