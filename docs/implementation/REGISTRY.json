@@ -1111,7 +1111,7 @@
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 8,
+      "phase": 9,
       "title": "selftest y verify-fdge en modo silencioso: solo los fallos, con el recuento intacto",
       "origin": "Balance de EP-013 · 541 + 454 lineas por ejecucion, mas de quince ejecuciones en una sesion. El recuento NO es opcional: un «sin errores» sin denominador es lo que PT-002 corrigio",
       "created": "2026-08-15",
