@@ -3,11 +3,11 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial",
-  "sha": "7a203abc2a97a91380cc385bbb19e25018d7fc00",
-  "sha_corto": "7a203ab",
+  "sha": "be9d7db13af127d06a1da39941881f7bb2a9de20",
+  "sha_corto": "be9d7db",
   "sucio": true,
   "archivos": [
     "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/intake.md",
@@ -15,8 +15,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-18"
 }
