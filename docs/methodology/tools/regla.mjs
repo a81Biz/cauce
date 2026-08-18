@@ -63,20 +63,52 @@ export function definicionDe(id, leer = lee) {
  * Se deriva y no se escribe: la tabla del manual estaba a mano y ya se había quedado corta.
  * Devuelve, por regla, en qué herramientas se emite y si bloquea o solo avisa.
  */
+/**
+ * PT-051 · La linea de una emision se cuenta hasta `m.index`, NUNCA hasta `indexOf(m[0])`.
+ *
+ * Con dos emisiones identicas en el mismo archivo —el caso real: SUITE-R35 emitida dos veces en
+ * verify-fdge.mjs— `indexOf` devolveria LA MISMA LINEA para las dos, y esa linea seria plausible:
+ * quien la abriera veria codigo y creeria que es el que busca. Una linea equivocada y creible es
+ * peor que ninguna.
+ *
+ * Es el mismo defecto que PT-043 encontro leyendo las entradas CORRIGE de HISTORY.log, y su caso
+ * en selftest usa DOS emisiones a proposito: con una sola, las dos formas dan lo mismo.
+ *
+ * Y una COMENTADA no cuenta. El primer borrado de esta funcion escribio el patron literal en este
+ * mismo comentario, y `--donde` lo delato al instante: «regla.mjs:69». Antes de PT-051 el defecto
+ * ya existia y era invisible, porque sin numero de linea un archivo de mas en la lista no llama
+ * la atencion. La guarda es una heuristica de linea —basta para lo que hay— y su limite se
+ * declara: un `fail()` en la misma linea que codigo, detras de un `/* … *​/`, se contaria.
+ */
+const lineaDe = (texto, indice) => String(texto).slice(0, indice).split(/\r?\n/).length;
+const esComentario = (texto, indice) => {
+  const desde = String(texto).lastIndexOf('\n', indice - 1) + 1;
+  const inicio = String(texto).slice(desde, indice).trimStart();
+  return inicio.startsWith('//') || inicio.startsWith('*') || inicio.startsWith('/*');
+};
+
 export function fallosPosibles(fuentes) {
   const RE = /\b(fail|warn)\(\s*'([A-Z]+-R\d+)'/g;
   const por = new Map();
   for (const { archivo, texto } of fuentes ?? []) {
     for (const m of String(texto).matchAll(RE)) {
       const [, tipo, id] = m;
-      if (!por.has(id)) por.set(id, { id, bloquea: false, avisa: false, herramientas: new Set() });
-      const e = por.get(id);
-      if (tipo === 'fail') e.bloquea = true; else e.avisa = true;
-      e.herramientas.add(archivo);
+      if (esComentario(texto, m.index)) continue;
+      if (!por.has(id)) por.set(id, { id, emisiones: [] });
+      por.get(id).emisiones.push({ archivo, linea: lineaDe(texto, m.index), tipo });
     }
   }
+  // La forma publica se DERIVA de las emisiones: `herramientas`, `bloquea` y `avisa` existian
+  // antes de PT-051 y siguen significando lo mismo. Guardarlas aparte habria creado dos fuentes
+  // del mismo hecho, que es lo que SUITE-R38 prohibe.
   return [...por.values()]
-    .map((e) => ({ ...e, herramientas: [...e.herramientas].sort() }))
+    .map((e) => ({
+      id: e.id,
+      emisiones: e.emisiones.sort((a, b) => a.archivo.localeCompare(b.archivo) || a.linea - b.linea),
+      herramientas: [...new Set(e.emisiones.map((x) => x.archivo))].sort(),
+      bloquea: e.emisiones.some((x) => x.tipo === 'fail'),
+      avisa: e.emisiones.some((x) => x.tipo === 'warn'),
+    }))
     .sort((a, b) => a.id.localeCompare(b.id));
 }
 
@@ -90,6 +122,38 @@ const EJECUTADO_DIRECTO = !!process.argv[1]
 
 if (EJECUTADO_DIRECTO) {
   const id = ARGS.find((a) => /^[A-Z]+-R\d+$/.test(a));
+
+  // PT-051 · `--donde` publica lo que `fallosPosibles` ya recorria y tiraba: el m.index de cada
+  // emision. verify-fdge.mjs tiene 1490 lineas, asi que saber que la comprobacion esta «en
+  // verify-fdge.mjs» deja el mismo trabajo que no saber nada.
+  //
+  // Se enumeran TODAS: hay 213 emisiones para 95 reglas, 2,2 de media. Dar solo la primera seria
+  // elegir por quien pregunta y callar las otras 1,2.
+  if (ARGS.includes('--donde')) {
+    if (!id) {
+      di(`  ${c.rojo}--donde necesita una regla:  regla SUITE-R34 --donde${c.fin}`);
+      process.exit(2);
+    }
+    const e = fallosPosibles(fuentes()).find((t) => t.id === id);
+    di();
+    if (!e) {
+      // RULE-06 · «no tiene verificador» y «no encontre nada» son DOS respuestas, y una lista
+      // vacia las confunde. La cifra de TD-08 se CITA, no se recalcula: audit es quien la mide.
+      di(`  ${c.neg}${id}${c.fin}   ${c.rojo}ningún verificador la emite con su nombre.${c.fin}`);
+      di(`  ${c.dim}No es un fallo de esta consulta: 62 reglas están así, contadas en`);
+      di(`  10-Technical-Debt.md (TD-08). Es deuda MEDIDA.${c.fin}`);
+      di();
+      process.exit(0);
+    }
+    for (const x of e.emisiones) {
+      const t = x.tipo === 'fail' ? `${c.rojo}fail${c.fin}` : `${c.dim}warn${c.fin}`;
+      di(`  ${c.neg}${id.padEnd(12)}${c.fin} ${`${x.archivo}:${x.linea}`.padEnd(26)} ${t}`);
+    }
+    di();
+    di(`  ${c.dim}${e.emisiones.length} emisión(es). «fail» bloquea; «warn» solo lo dice.${c.fin}`);
+    di();
+    process.exit(0);
+  }
 
   if (ARGS.includes('--fallos') || ARGS.includes('--sin-comprobar')) {
     const todos = fallosPosibles(fuentes());

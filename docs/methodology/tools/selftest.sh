@@ -2316,6 +2316,47 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-051 · donde vive la comprobacion de una regla ──────────────────────
+# `regla` decia el ARCHIVO y callaba la linea. verify-fdge.mjs tiene 1490 lineas: saber que la
+# comprobacion esta «en verify-fdge.mjs» deja el mismo trabajo que no saber nada. La informacion
+# ya se recorria —el m.index de cada fail()— y se tiraba.
+RG2() { node "$SUITE/tools/regla.mjs" "$@"; }
+
+chk   "--donde da archivo Y linea"            "verify-fdge.mjs:"    RG2 SUITE-R34 --donde
+chk   "…y dice si bloquea o solo avisa"       "fail"                RG2 SUITE-R34 --donde
+chk   "…enumera TODAS las herramientas"       "tracker.mjs:"        RG2 SUITE-R35 --donde
+chk   "…y tambien verify-fdge"                "verify-fdge.mjs:"    RG2 SUITE-R35 --donde
+chk   "una sin verificador lo DICE"           "ningún verificador"  RG2 SUITE-R22 --donde
+chkno "…y no devuelve una lista vacia"        "0 emisión"           RG2 SUITE-R22 --donde
+chk   "…y cita TD-08 en vez de recalcularlo"  "TD-08"               RG2 SUITE-R22 --donde
+chk   "--donde sin regla es un error"         "necesita una regla"  RG2 --donde
+
+# EL CASO CENTRAL, y el unico que discrimina: DOS emisiones en el mismo archivo tienen que dar
+# lineas DISTINTAS. Con una sola, `m.index` e `indexOf` dan lo mismo y el caso pasaria con las dos
+# implementaciones — que es como PT-043 se encontro el defecto en las entradas CORRIGE.
+cat > "$WORK/lineas.mjs" <<'MJS'
+import { pathToFileURL } from 'node:url';
+const { fallosPosibles } = await import(pathToFileURL(process.env.MTH_REGLA).href);
+const texto = ["linea 1", "fail('ZZ-R99', 'primera');", "linea 3", "linea 4",
+               "fail('ZZ-R99', 'segunda');", "// fail('ZZ-R98', 'comentada')"].join("\n");
+const e = fallosPosibles([{ archivo: 'x.mjs', texto }]);
+const zz = e.find((t) => t.id === 'ZZ-R99');
+const lineas = zz.emisiones.map((x) => x.linea);
+console.log(lineas.join(',') === '2,5' ? 'LINEAS_DISTINTAS' : 'MISMA_LINEA ' + lineas.join(','));
+console.log(e.some((t) => t.id === 'ZZ-R98') ? 'CUENTA_COMENTARIOS' : 'IGNORA_COMENTARIOS');
+MJS
+chk   "dos emisiones dan lineas DISTINTAS"    "LINEAS_DISTINTAS" \
+  env MTH_REGLA="$SUITE/tools/regla.mjs" node "$WORK/lineas.mjs"
+chk   "…y una COMENTADA no cuenta"            "IGNORA_COMENTARIOS" \
+  env MTH_REGLA="$SUITE/tools/regla.mjs" node "$WORK/lineas.mjs"
+# La forma publica se DERIVA: lo que existia antes de PT-051 sigue significando lo mismo.
+chk   "herramientas se deriva de emisiones"   "herramientas: \[...new Set" \
+  sh -c 'sed -n "/^export function fallosPosibles/,/^}/p" "$1"' _ "$SUITE/tools/regla.mjs"
+chk   "…y la linea sale de m.index"           "lineaDe(texto, m.index)" \
+  sh -c 'sed -n "/^export function fallosPosibles/,/^}/p" "$1"' _ "$SUITE/tools/regla.mjs"
+chkno "…nunca de indexOf"                     "indexOf(m\[0\])" \
+  sh -c 'sed -n "/^export function fallosPosibles/,/^}/p" "$1"' _ "$SUITE/tools/regla.mjs"
+
 # ─── PT-050 · reejecutar solo el bloque en el que se trabaja ───────────────
 # Medido antes de escribir nada: la bateria son 205 s y 181 reconstrucciones del fixture. El
 # `discovery` afirmo que chk y chkno eran «las dos unicas puertas» — y EJECUTARLO lo desmintio:

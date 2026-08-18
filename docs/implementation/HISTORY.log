@@ -1978,3 +1978,51 @@ exige partir selftest.sh — que cinco de las seis tareas de EP-014 van a tocar.
 limitación a la vista en CADA ejecución: «6 de 550» no se confunde con la batería.
   209 s → 138 s (-34 %) · casos 536 → 550 · cuatro puertas cerradas
 Trazabilidad externa: —
+
+## PT-051 — CHORE: dónde vive la comprobación de una regla
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S4 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-051-donde-vive-la-comprobacion-de-una-regla
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que «regla <ID>» diga dónde está la comprobación, con archivo y línea, en vez de obligar
+a abrir 1 490 líneas buscándola.
+Causa raíz: la herramienta ya recorría cada emisión una a una y TIRABA el m.index, quedándose solo
+con el nombre del archivo. Medido: 95 reglas, 213 emisiones, 2,2 de media por regla.
+Solución: fallosPosibles conserva cada emisión con su archivo, su línea y su tipo. La forma
+pública —herramientas, bloquea, avisa— se DERIVA de esa lista, así que ninguna salida existente
+cambia y el caso «no hay lista escrita de fallos», anterior a esta tarea, sigue verde.
+Archivos modificados: docs/methodology/tools/regla.mjs · docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-051/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): la tarea destapó un defecto ANTERIOR a ella, y era mío el disparo.
+La primera versión escribió el patrón literal de una emisión DENTRO DE SU PROPIO COMENTARIO, y
+--donde lo delató en la primera ejecución: «regla.mjs:69». El defecto —fallosPosibles casa dentro
+de comentarios— existía desde siempre y era INVISIBLE: sin número de línea, un archivo de más en
+la lista de «quién la comprueba» no llama la atención de nadie. Bastó PONER LA LÍNEA para que
+saltara. Medido: de 214 coincidencias, UNA en comentario, la que esta tarea acababa de escribir.
+Se arregló en los dos sentidos —el comentario ya no lleva el patrón, y hay guarda— y el límite de
+la guarda se declara: es una heurística de línea, y una emisión tras un bloque de comentario en la
+misma línea que código se contaría. Una heurística sin límite escrito se acaba leyendo como una
+garantía.
+El caso que discrimina: con m.index las dos emisiones de prueba dan «2,5»; con indexOf(m[0]) dan
+«2,2». CON UNA SOLA EMISIÓN POR ARCHIVO LAS DOS IMPLEMENTACIONES DAN LO MISMO, así que un caso
+escrito sin pensarlo habría pasado con la rota — y la rota da una línea PLAUSIBLE: quien la abriera
+vería código y creería que es el que busca. Es el defecto que PT-043 documentó leyendo las entradas
+CORRIGE de HISTORY.log: segunda vez en el repositorio, primera que se le escribe un caso.
+Un descuido al ejecutar la inversa, dicho: el segundo restaurado se lo tragó un «|| true» mal
+puesto y el árbol quedó un momento sin la guarda. Lo delató el grep de comprobación posterior —la
+disciplina de comprobar DESPUÉS de restaurar— y se repuso antes del commit.
+Y FDGE-R52 volvió a cazar la consolidación de dos transiciones, esta vez habiéndola ANUNCIADO en
+la propia nota: predecir el fallo no lo evita. Consolidé sabiendo el coste, lo dije, y hubo que
+publicar una nota más — el trabajo que consolidar pretendía ahorrar. Es el argumento de PT-053,
+que viene después: una disciplina que depende de acordarse falla AUNQUE UNO SE ACUERDE, si el acto
+sigue siendo manual.
+Lo que no da: --donde responde DÓNDE SE EMITE, no POR QUÉ SE LLEGA AHÍ. Y las 62 reglas sin
+verificador siguen sin tenerlo; lo que cambia es que ahora se ven una a una en vez de como una
+cifra en TD-08.
+  casos 550 → 563 · 95 reglas · 213 emisiones localizadas
+Trazabilidad externa: —
