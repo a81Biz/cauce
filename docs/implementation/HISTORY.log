@@ -2026,3 +2026,62 @@ verificador siguen sin tenerlo; lo que cambia es que ahora se ven una a una en v
 cifra en TD-08.
   casos 550 → 563 · 95 reglas · 213 emisiones localizadas
 Trazabilidad externa: —
+
+## PT-052 — CHORE: el checkpoint es un artefacto, no una nota
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-052-el-checkpoint-es-un-artefacto-no-una-nota
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que el estado de una tarea en curso sea legible por máquina y esté atado al commit del
+código, sin crear una fuente nueva.
+Causa raíz: el estado existía —HANDOFF, la fase del registro, las notas de reanclaje— y en ningún
+formato que un programa pudiera leer. Y nada ataba la gobernanza al commit: hoy los ata que viajen
+en el MISMO commit, y ese vínculo desaparece en cuanto PT-054 proyecte a otra rama.
+Solución: CHECKPOINT.json, uno, sobrescrito, con TODOS los campos derivados del registro, de git o
+de una tabla que el marco ya calcula. LEX-R26 lo convierte en obligación: si no se deriva, NO
+ENTRA. La acción «tracker checkpoint PT-NNN» lo escribe, y verify-fdge exige que el sha declarado
+sea ALCANZABLE — no que tenga forma de sha.
+Archivos modificados: docs/methodology/LEXICON.md · PHASES.md · FDGE-Prompts.md · INSTALL.md ·
+CORE.md · tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-052/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): EL SPEC-CHANGES PASÓ DE UNA FILA A SEIS, y las cinco añadidas las
+pidió la ejecución, no la lectura. Declaré LEXICON.md y nada más; después:
+  audit         «LEX-R26: no la cita ningún documento operativo»
+  audit         «CHECKPOINT.json: ningún instalador lo crea · ningún documento operativo lo usa»
+  verify-suite  «PHASES.md cita LEX-R26 que FDGE-Prompts.md no menciona»
+El tercero es la lección de PT-023 aplicándose sola —el texto copiable no puede decir menos que la
+regla que cita— y la diferencia con aquel caso es instructiva: allí tardó DOS MESES en verse
+porque nadie lo comprobaba; aquí saltó en la primera ejecución porque verify-suite sí lo comprueba.
+PT-023 midió que nada comprueba que una declaración de spec-changes se cumpla, y sigue siendo
+cierto. Lo que el marco sí impide es que un nombre nuevo quede HUÉRFANO, y eso cubrió el hueco
+desde otro ángulo.
+Tres decisiones, con su porqué:
+  1 LEX-R26 es una REGLA, no una descripción. Un contrato de campos sin regla que lo sostenga
+    permite añadir un campo libre mañana con el documento siguiendo cierto. Es la decisión 4 del
+    firmante aplicada a un sitio donde no se había discutido: no era solo sobre el presupuesto de
+    sesión, es sobre cualquier campo de cualquier artefacto estructurado.
+  2 NO SE SIEMBRA en la instalación, y INSTALL.md dice por qué: sin tarea no hay nada que derivar,
+    y un archivo con campos en blanco sería una afirmación falsa con forma de dato. Es la razón de
+    SUITE-R32 al revés: aquí lo correcto es que NO EXISTA hasta que haya algo cierto que decir.
+  3 CORRE SIN PLATAFORMA, como «estado», y por una razón más fuerte: el momento en que más falta
+    hace un checkpoint es aquel en que puede no haber credencial —retomar en una sesión nueva—.
+    Exigirle plataforma habría hecho que el estado dependiera de la red para poder escribirse.
+Dos casos míos nacieron mal, y los dos por lo mismo: asertaban sobre un mundo que no era el que
+había. «un sha real pasa» esperaba «commit alcanzable» y el fixture NO es un repositorio git, así
+que sha sale null y la herramienta LO DICE —RULE-06 funcionando y yo esperando lo contrario—; y
+«con su fase: 4» era una aserción SOBRE EL ORDEN DE EJECUCIÓN, no sobre el código: pasaba o fallaba
+según qué bloque hubiera mutado el fixture antes. Se resolvió llamando a build_fixture al entrar.
+Consecuencia de PT-050 que su propia tarea no dijo: --solo salta los CASOS pero no el SETUP entre
+ellos, así que una mutación que asume que el caso anterior corrió revienta con un filtro puesto, y
+revienta ruidosamente. Queda guardada y anotada. Es el tipo de límite que solo aparece cuando
+alguien USA la herramienta para algo distinto de aquello para lo que la probó.
+Lo que NO da, declarado para que EP-015 no lo herede como hecho: STATE_MISMATCH. Se comprueba que
+el commit EXISTA, no que el árbol sea el suyo. Un checkpoint puede declarar un SHA real y describir
+un árbol que ya no existe.
+  casos 563 → 579 · CORE 244 → 245 reglas · seis documentos tocados
+Trazabilidad externa: —

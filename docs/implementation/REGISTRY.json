@@ -1167,15 +1167,18 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 1,
+      "phase": 8,
       "title": "CHECKPOINT.json: el estado de la tarea en curso, estructurado y con el SHA del codigo",
       "origin": "Decision del firmante 2026-08-15 · seccion 5 de la Capa de Continuidad. Hoy el estado en curso vive en prosa (notas de reanclaje) y en un .md sobrescrito (HANDOFF). Falta que sea legible por maquina y que ate la gobernanza al commit del codigo",
       "created": "2026-08-15",
-      "issue": 86
+      "issue": 86,
+      "branch": "chore/PT-052-el-checkpoint-es-un-artefacto-no-una-nota",
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-18"
     },
     {
       "id": "PT-053",

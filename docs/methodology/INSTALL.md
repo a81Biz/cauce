@@ -135,6 +135,11 @@ así que un `PTSA/` creado y nunca escrito desaparece en el primer clon — y `v
 reporta como «nada que auditar», que es lo mismo que diría si la auditoría no aplicara. Y los ledgers vacíos con su cabecera
 (`REGISTRY.json`, `HISTORY.log`, `INCIDENTS.log`, `SESSION_LOG.md`, `MIGRATION.log`).
 
+`CHECKPOINT.json` **no se siembra vacío**, y es deliberado: todos sus campos se derivan de
+una tarea (`LEX-R26`), así que sin tarea no hay nada que derivar y un archivo con campos en
+blanco sería una afirmación falsa con forma de dato. Aparece con la primera —
+`tracker checkpoint PT-NNN`— y desde ahí se sobrescribe.
+
 **Qué se versiona** (`SUITE-R37`), decidido de una vez para no volver sobre ello:
 
 | | |
