@@ -25,5 +25,5 @@
       "donde": "docs/methodology/tools/tracker.mjs"
     }
   ],
-  "suite": { "passed": 657, "failed": 0, "skipped": 0, "coverage": 657, "baseline": 618 }
+  "suite": { "passed": 660, "failed": 0, "skipped": 0, "coverage": 660, "baseline": 618 }
 }

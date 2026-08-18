@@ -105,11 +105,16 @@ export function queSigue(alloc, opciones = {}) {
       siguiente: `${alloc.id} ya es ${alloc.status}. Lo cerrado es evidencia, no estado (SUITE-R36).` };
   }
   const bloqueos = [];
+  const avisos = [];
   // SUITE-R43 · lo que una persona escribió se lee ANTES de avanzar. Va primero porque puede
   // cambiar todo lo demás: preguntar qué sigue sin haber leído la respuesta anterior es el
   // defecto que esta acción existe para impedir.
-  if (comentarioPendiente) {
+  if (comentarioPendiente === true) {
     bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43).`);
+  } else if (comentarioPendiente === null) {
+    // PT-056 · RULE-06 · no es «no hay»: es que nadie pudo mirar. Callarlo convertiria SUITE-R43
+    // en una garantia que se apaga sola cuando no hay credencial.
+    avisos.push('SUITE-R43 SIN EVALUAR: no se pudo consultar el tablero, asi que no se sabe si hay un comentario sin responder.');
   }
   // PT-056 · STATE_MISMATCH · el arbol no corresponde al checkpoint. Va aqui porque «que sigue»
   // se responde SOBRE UN ESTADO: si el estado no es el declarado, la respuesta es sobre otro
@@ -120,7 +125,7 @@ export function queSigue(alloc, opciones = {}) {
 
   const f = alloc.phase;
   if (f === undefined || f === null) {
-    return { id: alloc.id, estado: alloc.status, fase: null, bloqueos,
+    return { id: alloc.id, estado: alloc.status, fase: null, bloqueos, avisos,
       siguiente: 'no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).' };
   }
   const actual = FASES[Number(f)];
@@ -129,7 +134,7 @@ export function queSigue(alloc, opciones = {}) {
   return {
     id: alloc.id, estado: alloc.status, fase: Number(f), nombre: actual?.nombre ?? '¿?',
     produce: actual?.produce ?? [], cierra: actual?.cierra ?? '¿?', compuerta: compuerta ?? null,
-    bloqueos,
+    bloqueos, avisos,
     siguiente: bloqueos.length
       ? `RESUELVE PRIMERO lo de arriba. Después: ${actual?.cierra ?? '¿?'}`
       : `PHASE ${f} · ${actual?.nombre ?? '¿?'} — cierra con: ${actual?.cierra ?? '¿?'}`
@@ -735,13 +740,28 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 // correr PRIMERO. Salir en la compuerta de acceso hacia que «sin --nota» y «saltar una fase»
 // se contestaran con un mensaje sobre la plataforma: el diagnostico equivocado para el
 // defecto real. La exigencia de plataforma es una validacion mas, y va dentro.
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar']);
+// PT-056 · `siguiente` entra aqui. Responde «que toca» DERIVANDOLO del registro (SUITE-R48); del
+// tablero saca dos datos —si hay un comentario sin responder y si el issue sigue abierto— que ya
+// van envueltos en try/catch porque son opcionales. Exigir credencial para responder algo que se
+// deriva de un archivo del repositorio dejaba la accion inservible justo donde importa: en CI, que
+// es donde se decide un merge, y donde no hay `gh auth`. Lo encontro PT-056 al ver sus cuatro
+// casos rojos en CI y verdes en local.
+//
+// Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
+// garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
   process.exit(D.codigo);
 }
 const adaptador = ADAPTADORES[PLATAFORMA];
+// ¿Se puede mirar el tablero de verdad? `siguiente` ya no lo exige, asi que tiene que poder
+// distinguir «no hay comentarios pendientes» de «nadie pudo mirar».
+const HAY_TABLERO = (() => {
+  if (!adaptador) return false;
+  try { return decidirSalida(reg, null).codigo === 0; } catch { return false; }
+})();
 
 // ── Qué está vivo según el registro ─────────────────────────────────────────
 const all = Array.isArray(reg.allocations) ? reg.allocations : [];
@@ -1072,12 +1092,13 @@ function siguienteDe() {
     return;
   }
   for (const a of objetivo) {
-    let pendiente = false;
+    // `null` = no se pudo mirar. `false` = se miro y no hay. La diferencia se REPORTA.
+    let pendiente = HAY_TABLERO ? false : null;
     let abierto = null;
-    if (a.issue && adaptador?.comentarios) {
+    if (HAY_TABLERO && a.issue && adaptador?.comentarios) {
       try { pendiente = comentarioSinResponder(adaptador.comentarios(a.issue)) === true; } catch { /* sin acceso: no se afirma */ }
     }
-    if (a.issue && adaptador?.abiertos) {
+    if (HAY_TABLERO && a.issue && adaptador?.abiertos) {
       try { abierto = adaptador.abiertos().some((i) => i.number === a.issue); } catch { /* idem */ }
     }
     // Solo se contrasta contra el checkpoint SI ES EL DE ESTA allocation: el checkpoint es UNO
@@ -1096,6 +1117,7 @@ function siguienteDe() {
     if (r.produce?.length) di(`  produce:    ${r.produce.join(' · ')}`);
     // Un bloqueo puede ser de varias lineas (STATE_MISMATCH enumera cada discrepancia): se
     // indentan TODAS, o la continuacion se lee como si fuera otra cosa.
+    for (const v of r.avisos ?? []) di(`  · ${v}`);
     for (const b of r.bloqueos ?? []) {
       const [cabeza, ...resto] = String(b).split(SALTO);
       di(`  ✗ BLOQUEA:  ${cabeza}`);

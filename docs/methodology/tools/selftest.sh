@@ -2405,6 +2405,17 @@ else
   # Y esto lo impide en adelante: si `siguiente` no llega a producir su cabecera, el bloque
   # entero es una asercion sobre nada.
   chk   "tracker siguiente llega a correr"         "PT-004  IN_PROGRESS"    TR6 siguiente PT-004
+  # …y SIN credencial tambien. Los cuatro casos de abajo pasaban en local y fallaban en CI: la
+  # accion exigia acceso al tablero para responder algo que DERIVA del registro (SUITE-R48), y en
+  # CI no hay «gh auth». Un arnes que solo esta verde donde el agente trabaja no protege el merge,
+  # que es donde se decide. Se simula quitando gh del PATH y dejando git y node.
+  SIN_GH="$WORK/.sin-gh"; mkdir -p "$SIN_GH"
+  _bin() { dirname "$(command -v "$1")"; }
+  TR6NOGH() { PATH="$(_bin node):$(_bin git):$SIN_GH" node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
+  chk   "…y sin credencial de tablero, tambien"    "PT-004  IN_PROGRESS"    TR6NOGH siguiente PT-004
+  # RULE-06 · no es «no hay comentarios»: es que nadie pudo mirar. Callarlo apagaria SUITE-R43 en
+  # silencio justo donde no hay quien lo note.
+  chk   "…diciendo que SUITE-R43 no se evaluo"     "SUITE-R43 SIN EVALUAR"  TR6NOGH siguiente PT-004
 
   TR6 checkpoint PT-004 >/dev/null 2>&1
   # La foto recien tomada corresponde por construccion: es la comprobacion POSITIVA, y sin ella
@@ -2422,6 +2433,7 @@ else
   chk   "…y dice cual es la discrepancia ENTERA"  "declarado chore/OTRA"   V6 PT-004
   chk   "…y que decidir es humano"                "SUITE-R06"              V6 PT-004
   chk   "tracker siguiente BLOQUEA"               "BLOQUEA"                TR6 siguiente PT-004
+  chk   "…y sin credencial BLOQUEA igual"         "STATE_MISMATCH"         TR6NOGH siguiente PT-004
   chk   "…nombrando la condicion"                 "STATE_MISMATCH"         TR6 siguiente PT-004
   chk   "…y propone el comando"                   "tracker checkpoint PT-004"  TR6 siguiente PT-004
   chk   "…y no dice que siga como si nada"        "RESUELVE PRIMERO"       TR6 siguiente PT-004

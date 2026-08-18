@@ -8,7 +8,7 @@ textoDiscrepancia(e)        dice CUÁL es y PROPONE el comando · no lo ejecuta
 tracker siguiente           BLOQUEA antes de decir qué toca
 verify-fdge                 FALLA · LEX-R26
 LEXICON · LEX-R26           la correspondencia y STATE_MISMATCH, sin regla nueva
-casos                       618 → 657
+casos                       618 → 660
 ```
 
 ## El hueco que cierra
@@ -59,6 +59,15 @@ a correr»— cuya única función es impedir que los siguientes afirmen sobre n
 
 Y por quinta vez en dos lotes, una aserción casaba consigo misma: el patrón `"[a-z]*ocs/` para
 comprobar que ningún path pierde letras casaba también con `"docs/`. Se cambió por `"ocs/`.
+
+**Y un tercero, que encontró CI y no yo:** los cuatro casos de `tracker siguiente` pasaban en
+local y fallaban en el runner. La acción exigía **credencial de tablero** para responder algo que
+se deriva del registro (`SUITE-R48`), y en CI no hay `gh auth`. Un arnés que solo está verde donde
+trabaja el agente **no protege el merge**, que es donde se decide. `siguiente` pasa a
+`SIN_PLATAFORMA` — y sin tablero, `SUITE-R43` se reporta como `SIN EVALUAR` en vez de callarse:
+una garantía que se apaga en silencio es peor que una que no existe.
+
+Tres casos nuevos corren con `gh` fuera del `PATH`. 657 → 660.
 
 ## Lo que no repara, a propósito
 

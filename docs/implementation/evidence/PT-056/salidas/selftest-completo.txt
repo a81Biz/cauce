@@ -534,12 +534,15 @@
   [32m✓[0m …y PROPONE el comando
   [32m✓[0m …sin ejecutarlo ni repararlo
   [32m✓[0m tracker siguiente llega a correr
+  [32m✓[0m …y sin credencial de tablero, tambien
+  [32m✓[0m …diciendo que SUITE-R43 no se evaluo
   [32m✓[0m recien escrito, verify-fdge lo da bueno
   [32m✓[0m …y tracker siguiente NO bloquea
   [32m✓[0m otra rama: verify-fdge FALLA
   [32m✓[0m …y dice cual es la discrepancia ENTERA
   [32m✓[0m …y que decidir es humano
   [32m✓[0m tracker siguiente BLOQUEA
+  [32m✓[0m …y sin credencial BLOQUEA igual
   [32m✓[0m …nombrando la condicion
   [32m✓[0m …y propone el comando
   [32m✓[0m …y no dice que siga como si nada
@@ -676,4 +679,4 @@
   [32m✓[0m el alcance viejo se declara incompleto
   [32m✓[0m y su ancla se declara sin poner
 
-selftest: OK · 657 casos
+selftest: OK · 660 casos

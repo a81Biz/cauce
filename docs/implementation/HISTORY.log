@@ -2303,7 +2303,14 @@ SILENCIO, no porque la herramienta callara. Es el defecto de PT-023 otra vez, de
 lo persigue. Ahora un caso —«tracker siguiente llega a correr»— existe solo para impedir que los
 siguientes afirmen sobre nada. Y por quinta vez en dos lotes una aserción casaba consigo misma: el
 patrón «[a-z]*ocs/» casaba también con «docs/».
-Casos: 618 → 657. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
+CORRIGE su propio arnés, encontrado por CI: los cuatro casos de «tracker siguiente» pasaban en
+local y fallaban en CI porque la acción exigía credencial de tablero para responder algo que se
+DERIVA del registro (SUITE-R48), y en CI no hay «gh auth». «siguiente» pasa a SIN_PLATAFORMA, y lo
+que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar y se REPORTA
+como SIN EVALUAR, porque una garantía que se apaga en silencio es peor que una que no existe
+(RULE-06). Tres casos nuevos corren con «gh» fuera del PATH, que es el entorno donde se decide un
+merge — un arnés verde solo donde trabaja el agente no protege nada.
+Casos: 618 → 660. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
 verdes son exactamente los que afirman que algo NO es discrepancia.
 Sin regla nueva: LEX-R26 se amplía, que es lo que spec-changes.md declaró en PHASE 4.
 No verificado: que alguien HAGA CASO al bloqueo; que «sha» y «rama» basten —un árbol con el mismo
