@@ -580,6 +580,40 @@ PTSA/
 contenido de auditoría en español conservan su nombre (`RESUMEN.md`, `PENDIENTES.md`) por
 compatibilidad con la especificación normativa de PTSA.
 
+### 6.5b Referencia de coste   `PT-057`
+
+**Referencia de coste**: lo que **suele** costar un tipo de tarea en este repositorio, derivado de
+las tareas **cerradas** de su mismo `type` y `complexity`. No se guarda en ningún archivo: se
+recalcula al preguntar, porque una copia diverge en cuanto se cierra la tarea siguiente
+(`SUITE-R38`).
+
+```
+tracker coste [tipo] [complejidad]
+
+de dónde sale     REGISTRY.json     el tipo y la complejidad de cada allocation
+                  git               commits, archivos y líneas de cada tarea cerrada
+qué mide          commits · archivos · líneas — señales OBSERVABLES
+qué NO mide       tokens · el contexto restante del modelo · el coste de UNA tarea concreta
+```
+
+**A quién pertenece un commit.** El primer `PT-NNN` del **asunto**, y solo del asunto. El cuerpo
+cita tareas anteriores —«CORRIGE `PT-052`»— y eso es **lo correcto** en una bitácora append-only;
+medido: 61 de 162 commits nombran más de un `PT` y uno nombra diez. Atribuir por el cuerpo hacía
+que `BUG/TRIVIAL` y `BUG/STANDARD` salieran idénticos hasta la línea.
+
+**Mediana con su rango, nunca media.** Los grupos van de 6 a 13 tareas y la dispersión llega a un
+factor de diez —`BUG/TRIVIAL` de 242 a 2591 líneas—: una media la arrastra un solo caso, y una
+cifra central sin dispersión se lee como una predicción.
+
+**`MINIMO_REFERENCIA`** · Por debajo de ese número de tareas cerradas **no hay cifra**: se dice
+cuántas hay y se enseñan los casos en crudo. Una mediana de una tarea no es una mediana, y una
+media de dos presentada como una de treinta engaña por precisión aparente. El valor es un
+**juicio declarado**, no un resultado: vive con nombre en el código para que se pueda discutir.
+
+**Lo que la referencia no dice.** De **cuántas** tareas sale, sí; de **cuándo**, no. Las tareas
+anteriores a `FDGE-R19` llevaban el trabajo entero en un commit, así que la cifra puede describir
+con verdad un pasado que ya no aplica.
+
 ### 6.6 Documentos de metodología — `docs/methodology/`
 
 ```
