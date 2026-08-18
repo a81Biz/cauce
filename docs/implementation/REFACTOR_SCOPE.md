@@ -41,7 +41,7 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-046 | BUG | S2 | INTEGRATED | EP-012 | Una entrada de HISTORY.log mal formada bloquea G4 y ninguna regla permite corregirla |
 | PT-047 | BUG | S3 | INTEGRATED | EP-013 | PHASE 5 manda crear rama por PT y los 43 PT de este repositorio se implementaron sobre trabajo |
 | PT-048 | BUG | S3 | INTEGRATED | EP-013 | El cuerpo del issue de una allocation DEFERRED enlaza a un directorio que no existe |
-| PT-049 | CHORE | S3 | READY | EP-014 | selftest y verify-fdge en modo silencioso: solo los fallos, con el recuento intacto |
+| PT-049 | CHORE | S3 | DONE | EP-014 | selftest y verify-fdge en modo silencioso: solo los fallos, con el recuento intacto |
 | PT-050 | CHORE | S3 | READY | EP-014 | selftest --solo <patron>: iterar un caso nuevo sin pagar la bateria entera |
 | PT-051 | CHORE | S4 | READY | EP-014 | regla <ID> --donde: archivo y linea del fail() que la ejecuta |
 | PT-052 | CHORE | S2 | READY | EP-014 | CHECKPOINT.json: el estado de la tarea en curso, estructurado y con el SHA del codigo |

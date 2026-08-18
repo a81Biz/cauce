@@ -1,0 +1,507 @@
+verify-fdge — cumplimiento mecánico de la Methodology Suite 8.0.0
+
+PASA
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+  ✓ FND-R05        11-Conventions.md declara 7 Hard Rules.
+  ✓ FND-R08        Foundation presente (archivos del núcleo verificados).
+  ✓ SUITE-R15      CORE.md presente y sincronizado.
+  ✓ SUITE-R06      Toda integración registrada lleva nombre humano.
+  ✓ FDGE-R48       EP-014 es la única implementación abierta.
+  ✓ FDGE-R49       EP-014 abierta · todo el trabajo vivo le pertenece.
+  ✓ SUITE-R33      Bloque ESTADO completo.
+  ✓ SUITE-R34      El estado es más reciente que el último trabajo.
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ FND-R22        Plan de terreno resuelto y firmado.
+  ✓ FND-R24        Declaración de Valor firmada por Alberto Martínez.
+  ✓ SUITE-R30      INSTALL.log con 28 acción(es) registrada(s), todas las decisiones con rastro.
+  ✓ FND-R13        Línea base de reconciliación completa.
+  ✓ FDGE-R39       ningún artefacto de PT vive en una ruta global.
+  ✓ INTAKE-R09     EP-001: intake del lote completo.
+  ✓ INTAKE-R09     EP-002: intake del lote completo.
+  ✓ INTAKE-R09     EP-003: intake del lote completo.
+  ✓ INTAKE-R09     EP-004: intake del lote completo.
+  ✓ INTAKE-R09     EP-005: intake del lote completo.
+  ✓ INTAKE-R09     EP-006: intake del lote completo.
+  ✓ INTAKE-R09     EP-007: intake del lote completo.
+  ✓ INTAKE-R09     EP-008: intake del lote completo.
+  ✓ INTAKE-R09     EP-009: intake del lote completo.
+  ✓ INTAKE-R09     EP-010: intake del lote completo.
+  ✓ INTAKE-R09     EP-011: intake del lote completo.
+  ✓ INTAKE-R09     EP-012: intake del lote completo.
+  ✓ INTAKE-R09     EP-013: intake del lote completo.
+  ✓ INTAKE-R09     EP-014: intake del lote completo.
+  ✓ FDGE-R43       Grafo FRESH — generado 2026-08-15 sobre bin, docs/methodology/tools.
+  ✓ INTAKE-R08     PT-001: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-001: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-001: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-001: self-review completo.
+  ✓ FDGE-R29       PT-001: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-001: declara «Estructural: no».
+  ✓ FDGE-R31       PT-001: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-001: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-002: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-002: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-002: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-002: self-review completo.
+  ✓ FDGE-R29       PT-002: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-002: declara «Estructural: no».
+  ✓ FDGE-R31       PT-002: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-002: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-004: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-004: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-004: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-004: self-review completo.
+  ✓ FDGE-R29       PT-004: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-004: declara «Estructural: no».
+  ✓ FDGE-R31       PT-004: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-004: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-005: firmado por lote EP-001.
+  ✓ FDGE-R51       PT-005: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-005: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-005: self-review completo.
+  ✓ FDGE-R29       PT-005: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-005: declara «Estructural: no».
+  ✓ FDGE-R31       PT-005: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-005: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-006: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-006: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-006: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-006: self-review completo.
+  ✓ FDGE-R29       PT-006: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-006: declara «Estructural: no».
+  ✓ FDGE-R31       PT-006: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-006: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-007: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-007: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R45       PT-007: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-007: self-review completo.
+  ✓ FDGE-R29       PT-007: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-007: declara «Estructural: no».
+  ✓ FDGE-R31       PT-007: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-007: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-008: firmado por lote EP-002.
+  ✓ FDGE-R51       PT-008: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-008: sin comentarios pendientes en el issue #12.
+  ✓ FDGE-R45       PT-008: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-008: self-review completo.
+  ✓ FDGE-R29       PT-008: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-008: declara «Estructural: no».
+  ✓ FDGE-R31       PT-008: presente en ENRICHMENT.md con estado canónico.
+  ✓ FDGE-R34       PT-008: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-009: firmado por lote EP-003.
+  ✓ FDGE-R51       PT-009: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-009: sin comentarios pendientes en el issue #14.
+  ✓ FDGE-R45       PT-009: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-009: self-review completo.
+  ✓ FDGE-R29       PT-009: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-009: declara «Estructural: no».
+  ✓ FDGE-R31       PT-009: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-009: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-010: firmado por lote EP-003.
+  ✓ FDGE-R51       PT-010: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-010: sin comentarios pendientes en el issue #15.
+  ✓ FDGE-R45       PT-010: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-010: self-review completo.
+  ✓ FDGE-R29       PT-010: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-010: declara «Estructural: no».
+  ✓ FDGE-R31       PT-010: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-010: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-011: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-011: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-011: sin comentarios pendientes en el issue #18.
+  ✓ FDGE-R45       PT-011: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-011: self-review completo.
+  ✓ FDGE-R29       PT-011: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-011: declara «Estructural: no».
+  ✓ FDGE-R31       PT-011: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-011: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-012: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-012: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-012: sin comentarios pendientes en el issue #19.
+  ✓ FDGE-R45       PT-012: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-012: self-review completo.
+  ✓ FDGE-R29       PT-012: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-012: declara «Estructural: no».
+  ✓ FDGE-R31       PT-012: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-012: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-013: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-013: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-013: sin comentarios pendientes en el issue #20.
+  ✓ FDGE-R45       PT-013: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-013: self-review completo.
+  ✓ FDGE-R29       PT-013: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-013: declara «Estructural: no».
+  ✓ FDGE-R31       PT-013: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-013: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-014: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-014: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-014: sin comentarios pendientes en el issue #21.
+  ✓ FDGE-R45       PT-014: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-014: self-review completo.
+  ✓ FDGE-R29       PT-014: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-014: declara «Estructural: no».
+  ✓ FDGE-R31       PT-014: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-014: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-015: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-015: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-015: rama «chore/PT-015-verificadores-para-las-hard-sin-uno» declarada.
+  ✓ SUITE-R43      PT-015: sin comentarios pendientes en el issue #22.
+  ✓ FDGE-R45       PT-015: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-015: self-review completo.
+  ✓ FDGE-R29       PT-015: registrado en HISTORY.log (con 1 corrección(es)).
+  ✓ FDGE-R44       PT-015: declara «Estructural: no» en su corrección.
+  ✓ FDGE-R31       PT-015: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-015: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-016: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-016: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-016: rama «chore/PT-016-phase-obligatoria» declarada.
+  ✓ SUITE-R43      PT-016: sin comentarios pendientes en el issue #23.
+  ✓ FDGE-R45       PT-016: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-016: self-review completo.
+  ✓ FDGE-R29       PT-016: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-016: declara «Estructural: no».
+  ✓ FDGE-R31       PT-016: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-016: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-017: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-017: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-017: rama «chore/PT-017-derivar-lo-que-llega-nuevo» declarada.
+  ✓ SUITE-R43      PT-017: sin comentarios pendientes en el issue #24.
+  ✓ FDGE-R45       PT-017: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-017: self-review completo.
+  ✓ FDGE-R29       PT-017: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-017: declara «Estructural: no».
+  ✓ FDGE-R31       PT-017: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-017: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-018: firmado por lote EP-004.
+  ✓ FDGE-R51       PT-018: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-018: sin comentarios pendientes en el issue #25.
+  ✓ FDGE-R45       PT-018: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-018: self-review completo.
+  ✓ FDGE-R29       PT-018: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-018: declara «Estructural: no».
+  ✓ FDGE-R31       PT-018: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-018: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-020: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-020: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-020: rama «chore/PT-020-ampliar-el-grafo-a-tools» declarada.
+  ✓ SUITE-R43      PT-020: sin comentarios pendientes en el issue #27.
+  ✓ FDGE-R45       PT-020: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-020: self-review completo.
+  ✓ FDGE-R29       PT-020: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-020: declara «Estructural: no».
+  ✓ FDGE-R31       PT-020: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-020: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-021: firmado por lote EP-005.
+  ✓ FDGE-R51       PT-021: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-021: sin comentarios pendientes en el issue #29.
+  ✓ FDGE-R45       PT-021: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-021: self-review completo.
+  ✓ FDGE-R29       PT-021: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-021: declara «Estructural: no».
+  ✓ FDGE-R31       PT-021: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-021: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-022: firmado por lote EP-005.
+  ✓ FDGE-R51       PT-022: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-022: sin comentarios pendientes en el issue #30.
+  ✓ FDGE-R45       PT-022: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-022: self-review completo.
+  ✓ FDGE-R29       PT-022: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-022: declara «Estructural: no».
+  ✓ FDGE-R31       PT-022: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-022: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-023: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-023: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-023: rama «chore/PT-023-auditar-los-cambios-de-especificacion-declarados» declarada.
+  ✓ SUITE-R43      PT-023: sin comentarios pendientes en el issue #32.
+  ✓ FDGE-R45       PT-023: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-023: self-review completo.
+  ✓ FDGE-R29       PT-023: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-023: declara «Estructural: no».
+  ✓ FDGE-R31       PT-023: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-023: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-024: firmado por lote EP-006.
+  ✓ FDGE-R51       PT-024: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-024: sin comentarios pendientes en el issue #33.
+  ✓ FDGE-R45       PT-024: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-024: self-review completo.
+  ✓ FDGE-R29       PT-024: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-024: declara «Estructural: no».
+  ✓ FDGE-R31       PT-024: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-024: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-026: firmado por lote EP-006.
+  ✓ FDGE-R51       PT-026: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-026: sin comentarios pendientes en el issue #36.
+  ✓ FDGE-R45       PT-026: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-026: self-review completo.
+  ✓ FDGE-R29       PT-026: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-026: declara «Estructural: no».
+  ✓ FDGE-R31       PT-026: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-026: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-028: firmado por lote EP-006.
+  ✓ FDGE-R51       PT-028: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-028: sin comentarios pendientes en el issue #39.
+  ✓ FDGE-R45       PT-028: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-028: self-review completo.
+  ✓ FDGE-R29       PT-028: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-028: declara «Estructural: no».
+  ✓ FDGE-R31       PT-028: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-028: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-029: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-029: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-029: rama «chore/PT-029-detectar-reglas-que-se-hacen-imposibles-entre-si» declarada.
+  ✓ SUITE-R43      PT-029: sin comentarios pendientes en el issue #40.
+  ✓ FDGE-R45       PT-029: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-029: self-review completo.
+  ✓ FDGE-R29       PT-029: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-029: declara «Estructural: no».
+  ✓ FDGE-R31       PT-029: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-029: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-030: firmado por lote EP-007.
+  ✓ FDGE-R51       PT-030: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-030: sin comentarios pendientes en el issue #43.
+  ✓ FDGE-R45       PT-030: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-030: self-review completo.
+  ✓ FDGE-R29       PT-030: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-030: declara «Estructural: no».
+  ✓ FDGE-R31       PT-030: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-030: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-031: firmado por lote EP-007.
+  ✓ FDGE-R51       PT-031: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-031: sin comentarios pendientes en el issue #44.
+  ✓ FDGE-R45       PT-031: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-031: self-review completo.
+  ✓ FDGE-R29       PT-031: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-031: declara «Estructural: no».
+  ✓ FDGE-R31       PT-031: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-031: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-033: firmado por lote EP-008.
+  ✓ FDGE-R51       PT-033: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-033: sin comentarios pendientes en el issue #46.
+  ✓ FDGE-R45       PT-033: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-033: self-review completo.
+  ✓ FDGE-R29       PT-033: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-033: declara «Estructural: no».
+  ✓ FDGE-R31       PT-033: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-033: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-034: firmado por lote EP-008.
+  ✓ FDGE-R51       PT-034: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-034: sin comentarios pendientes en el issue #47.
+  ✓ FDGE-R45       PT-034: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-034: self-review completo.
+  ✓ FDGE-R29       PT-034: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-034: declara «Estructural: sí».
+  ✓ FDGE-R31       PT-034: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-034: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-035: firmado por lote EP-009.
+  ✓ FDGE-R51       PT-035: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-035: sin comentarios pendientes en el issue #51.
+  ✓ FDGE-R45       PT-035: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-035: self-review completo.
+  ✓ FDGE-R29       PT-035: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-035: declara «Estructural: no».
+  ✓ FDGE-R31       PT-035: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-035: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-036: firmado por lote EP-009.
+  ✓ FDGE-R51       PT-036: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-036: sin comentarios pendientes en el issue #54.
+  ✓ FDGE-R45       PT-036: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-036: self-review completo.
+  ✓ FDGE-R29       PT-036: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-036: declara «Estructural: no».
+  ✓ FDGE-R31       PT-036: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-036: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-037: firmado por lote EP-010.
+  ✓ FDGE-R51       PT-037: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-037: sin comentarios pendientes en el issue #56.
+  ✓ FDGE-R45       PT-037: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-037: self-review completo.
+  ✓ FDGE-R29       PT-037: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-037: declara «Estructural: no».
+  ✓ FDGE-R31       PT-037: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-037: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-038: firmado por lote EP-010.
+  ✓ FDGE-R51       PT-038: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-038: sin comentarios pendientes en el issue #57.
+  ✓ FDGE-R45       PT-038: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-038: self-review completo.
+  ✓ FDGE-R29       PT-038: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-038: declara «Estructural: no».
+  ✓ FDGE-R31       PT-038: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-038: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-039: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-039: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-039: sin comentarios pendientes en el issue #60.
+  ✓ FDGE-R45       PT-039: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-039: self-review completo.
+  ✓ FDGE-R29       PT-039: registrado en HISTORY.log (con 1 corrección(es)).
+  ✓ FDGE-R44       PT-039: declara «Estructural: no» en su corrección.
+  ✓ FDGE-R31       PT-039: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-039: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-040: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-040: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-040: sin comentarios pendientes en el issue #61.
+  ✓ FDGE-R45       PT-040: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-040: self-review completo.
+  ✓ FDGE-R29       PT-040: registrado en HISTORY.log (con 1 corrección(es)).
+  ✓ FDGE-R44       PT-040: declara «Estructural: no» en su corrección.
+  ✓ FDGE-R31       PT-040: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-040: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-041: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-041: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-041: sin comentarios pendientes en el issue #62.
+  ✓ FDGE-R45       PT-041: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-041: self-review completo.
+  ✓ FDGE-R29       PT-041: registrado en HISTORY.log (con 1 corrección(es)).
+  ✓ FDGE-R44       PT-041: declara «Estructural: no» en su corrección.
+  ✓ FDGE-R31       PT-041: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-041: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-042: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-042: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-042: sin comentarios pendientes en el issue #63.
+  ✓ FDGE-R45       PT-042: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-042: self-review completo.
+  ✓ FDGE-R29       PT-042: registrado en HISTORY.log (con 1 corrección(es)).
+  ✓ FDGE-R44       PT-042: declara «Estructural: no» en su corrección.
+  ✓ FDGE-R31       PT-042: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-042: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-043: firmado por lote EP-011.
+  ✓ FDGE-R51       PT-043: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-043: sin comentarios pendientes en el issue #64.
+  ✓ FDGE-R45       PT-043: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-043: self-review completo.
+  ✓ FDGE-R29       PT-043: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-043: declara «Estructural: no».
+  ✓ FDGE-R31       PT-043: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-043: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-044: firmado por lote EP-012.
+  ✓ FDGE-R51       PT-044: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-044: sin comentarios pendientes en el issue #65.
+  ✓ FDGE-R45       PT-044: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-044: self-review completo.
+  ✓ FDGE-R29       PT-044: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-044: declara «Estructural: no».
+  ✓ FDGE-R31       PT-044: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-044: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-045: firmado por lote EP-012.
+  ✓ FDGE-R51       PT-045: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-045: sin comentarios pendientes en el issue #66.
+  ✓ FDGE-R45       PT-045: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-045: self-review completo.
+  ✓ FDGE-R29       PT-045: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-045: declara «Estructural: no».
+  ✓ FDGE-R31       PT-045: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-045: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-046: firmado por lote EP-012.
+  ✓ FDGE-R51       PT-046: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-046: sin comentarios pendientes en el issue #67.
+  ✓ FDGE-R45       PT-046: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-046: self-review completo.
+  ✓ FDGE-R29       PT-046: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-046: declara «Estructural: no».
+  ✓ FDGE-R31       PT-046: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-046: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-047: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-047: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-047: rama «fix/PT-047-ningun-pt-ha-creado-su-rama» declarada.
+  ✓ SUITE-R43      PT-047: sin comentarios pendientes en el issue #69.
+  ✓ FDGE-R45       PT-047: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-047: self-review completo.
+  ✓ FDGE-R29       PT-047: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-047: declara «Estructural: no».
+  ✓ FDGE-R31       PT-047: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-047: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-048: firmado por lote EP-013.
+  ✓ FDGE-R51       PT-048: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-048: rama «fix/PT-048-el-issue-de-un-deferred-enlaza-a-un-404» declarada.
+  ✓ SUITE-R43      PT-048: sin comentarios pendientes en el issue #70.
+  ✓ FDGE-R45       PT-048: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-048: self-review completo.
+  ✓ FDGE-R29       PT-048: registrado en HISTORY.log.
+  ✓ FDGE-R44       PT-048: declara «Estructural: no».
+  ✓ FDGE-R31       PT-048: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-048: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-049: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-049: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R19       PT-049: rama «chore/PT-049-el-verde-se-cuenta-no-se-enumera» declarada.
+  ✓ FDGE-R52       PT-049: 5 nota(s) de reanclaje en el issue #83 para PHASE 6.
+  ✓ SUITE-R43      PT-049: sin comentarios pendientes en el issue #83.
+  ✓ FDGE-R15       PT-049: 4 criterios con TS asignado (Test/Evidencia se exigen desde PHASE 6).
+  ✓ FDGE-R45       PT-049: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-049: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-049: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-050: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-050: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-050: sin comentarios pendientes en el issue #84.
+  ✓ FDGE-R45       PT-050: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-050: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-050: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-051: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-051: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-051: sin comentarios pendientes en el issue #85.
+  ✓ FDGE-R45       PT-051: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-051: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-051: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-052: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-052: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-052: sin comentarios pendientes en el issue #86.
+  ✓ FDGE-R45       PT-052: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-052: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-052: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-053: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-053: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-053: sin comentarios pendientes en el issue #87.
+  ✓ FDGE-R45       PT-053: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-053: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-053: sin errores de cumplimiento.
+  ✓ INTAKE-R08     PT-054: firmado por lote EP-014.
+  ✓ FDGE-R51       PT-054: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ SUITE-R43      PT-054: sin comentarios pendientes en el issue #88.
+  ✓ FDGE-R45       PT-054: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-054: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-054: sin errores de cumplimiento.
+
+AVISOS
+  ! SUITE-R45      EP-014: 4 fila(s) de cierre aún sin resolver. En G4 bloquean.
+  ! SUITE-R43      PT-001: ningún comentario del issue #3 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-002: ningún comentario del issue #4 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R44      PT-002: 1 fila(s) de changes/PT-002-cobertura-por-regla/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-002. Sin eso, aplazar es narrar. «Escribir verificadores para las 63 reglas HA» cita PT-015, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R43      PT-004: ningún comentario del issue #6 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R44      PT-004: 3 fila(s) de changes/PT-004-la-compuerta-no-distingue-la-fase/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-004. Sin eso, aplazar es narrar. «Hacer `phase` obligatoria y fallar sin ella» cita PT-016, que no está DEFERRED ni es hermano de este lote · «Añadir `phase:` a `INTAKE/templates/TAREA.md» cita PT-016, que no está DEFERRED ni es hermano de este lote · «Ampliar el grafo a `docs/methodology/tools/`» cita PT-020, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R43      PT-005: ningún comentario del issue #8 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-006: ningún comentario del issue #10 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R43      PT-007: ningún comentario del issue #11 lleva marca de procedencia, así que no se puede distinguir quién escribió qué: SIN EVALUAR. Se resuelve solo en cuanto el agente escriba una nota (RULE-06).
+  ! SUITE-R44      PT-012: 1 fila(s) de changes/PT-012-migrar-desde-4-12/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-012. Sin eso, aplazar es narrar. «Derivar la lista de «qué llega nuevo» compar» cita PT-017, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R35      PT-015: «estado» divergente — el registro dice «INTEGRATED» y su línea de índice en DISCOVERY.md dice «DONE». El índice ESPEJA el registro (SUITE-R35); el registro asigna.
+  ! SUITE-R35      PT-016: «estado» divergente — el registro dice «INTEGRATED» y su línea de índice en DISCOVERY.md dice «DONE». El índice ESPEJA el registro (SUITE-R35); el registro asigna.
+  ! SUITE-R35      PT-017: «estado» divergente — el registro dice «INTEGRATED» y su línea de índice en DISCOVERY.md dice «DONE». El índice ESPEJA el registro (SUITE-R35); el registro asigna.
+  ! FDGE-R23       PT-022: AC-03 marcado verified:false.
+  ! SUITE-R44      PT-028: 1 fila(s) de changes/PT-028-un-cierre-pendiente-no-es-un-huerfano/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-028. Sin eso, aplazar es narrar. «Revisar si hay más choques entre reglas escr» cita PT-029, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-031: 1 fila(s) de changes/PT-031-los-tres-modos-exigen-lo-mismo/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-031. Sin eso, aplazar es narrar. «Una convención o agente propio que ate al ag» cita PT-032, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-035: 1 fila(s) de changes/PT-035-sub-issues-en-vez-de-enlaces/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-035. Sin eso, aplazar es narrar. «Sub-issues en el adaptador de Azure» cita PT-025, que está DEFERRED pero su «origin» no menciona PT-035: la cita no es recíproca
+  ! SUITE-R44      PT-036: 1 fila(s) de changes/PT-036-el-enlace-del-issue-tiene-que-resolver/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-036. Sin eso, aplazar es narrar. «El manual de uso» cita EP-010, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-037: 1 fila(s) de changes/PT-037-el-catalogo-de-casos-de-uso/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-037. Sin eso, aplazar es narrar. «Ejercitar Azure para poder documentarlo» cita PT-025, que está DEFERRED pero su «origin» no menciona PT-037: la cita no es recíproca
+  ! SUITE-R44      PT-040: 1 fila(s) de changes/PT-040-que-puede-fallar/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-040. Sin eso, aplazar es narrar. «Escribir verificador para las reglas sin uno» cita PT-015, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-041: 1 fila(s) de changes/PT-041-la-regla-en-el-mensaje/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-041. Sin eso, aplazar es narrar. «Escribir verificador para las reglas sin uno» cita PT-015, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-043: 2 fila(s) de changes/PT-043-migracion-guiada/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-043. Sin eso, aplazar es narrar. «El YAML de `PT-039`…`PT-042` declara `phase:» cita PT-044, que no está DEFERRED ni es hermano de este lote · «`npx @a81biz/cauce start` no arranca» cita PT-045, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-044: 1 fila(s) de changes/PT-044-el-yaml-del-intake-no-puede-mentir/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-044. Sin eso, aplazar es narrar. «Hacer `phase` obligatoria en la plantilla» cita PT-016, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-045: 1 fila(s) de changes/PT-045-npx-cauce-start-no-arranca/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-045. Sin eso, aplazar es narrar. «El grafo, que describe `bin` y no las herram» cita PT-020, que no está DEFERRED ni es hermano de este lote
+  ! SUITE-R44      PT-046: 1 fila(s) de changes/PT-046-una-entrada-de-history-mal-formada-no-se-puede-corregir/out-of-scope.md no declaran su destino con el vocabulario cerrado. O es «—» —no aplaza— o cita un identificador que lo sostiene: un hermano del lote, o una allocation DEFERRED cuyo «origin» mencione PT-046. Sin eso, aplazar es narrar. «Comprobar los otros ocho campos del formato » cita PT-016, que no está DEFERRED ni es hermano de este lote
+  ! FDGE-R23       PT-049: aún sin evidence/PT-049/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-049: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R15       PT-050: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-050: aún sin evidence/PT-050/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-050: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R15       PT-051: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-051: aún sin evidence/PT-051/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-051: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R15       PT-052: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-052: aún sin evidence/PT-052/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-052: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R15       PT-053: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-053: aún sin evidence/PT-053/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-053: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+  ! FDGE-R15       PT-054: aún sin traceability.md — se escribe en PHASE 4 y el PT está en PHASE 1.
+  ! FDGE-R23       PT-054: aún sin evidence/PT-054/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-054: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+
+Sin errores. PTs verificados: 49.
