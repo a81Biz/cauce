@@ -14,6 +14,6 @@ Proyectado el 2026-08-18 · 8 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-058 | CHORE | READY | 4 | — | — |
+| PT-058 | CHORE | IN_PROGRESS | 5 | chore/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra | 516288e |
 | PT-059 | CHORE | READY | 1 | — | — |
 | PT-060 | CHORE | READY | 1 | — | — |
