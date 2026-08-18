@@ -4,7 +4,7 @@
 ---
 id: EP-013
 created: 2026-08-14
-status: DONE
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 ---
@@ -182,3 +182,60 @@ saca) y, desde `PT-048`, el cuerpo de ese issue dice que aún no tiene artefacto
 a un directorio que no existe.
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.
+
+---
+
+## Constancia de la compuerta `G4`   `EXEC-R04` · `SUITE-R06a`
+
+```
+G4 resuelta el 2026-08-15 por Alberto Martinez:
+
+  «Cierra primero G4 de EP-013. Una vez integrado en main, sincroniza la rama de
+   trabajo conforme al procedimiento existente, ejecuta la verificacion y, si queda
+   verde, inicia PT-049. No modifiques el alcance de EP-014 ni adelantes tareas del
+   lote.»
+
+Pull request de «trabajo» a «main»: #93.
+```
+
+SUITE-R42 dice que el agente no abre ni fusiona el PR de la rama por defecto, y EXEC-R04 y
+SUITE-R06a dejan el merge en manos humanas sin excepcion. Esto es una persona autorizando con
+registro, que es lo que la regla de cumplimiento admite, y ocurrio igual en EP-011 (6eb9825) y
+EP-012 (4dd9b01).
+
+### Excepcion declarada, y por que
+
+`--gate G4 EP-013` **bloqueo**, y no por una fila de este lote:
+
+```
+✓ SUITE-R45   EP-013: cierre del lote declarado y resuelto (4 fila(s))
+✓ SUITE-R42   el merge se propone sobre un pull request abierto
+✓ CI del PR #93: verify-fdge --all sin errores sobre 49 PT
+
+✗ SUITE-R45   EP-014: 4 fila(s) de «## Cierre del lote» sin resolver en G4
+```
+
+`checkEpics()` recorre **todos** los `EP-*` de `changes/` y `enG4 = gate === 'G4'` es global, no
+del lote que la compuerta evalua (`verify-fdge.mjs:640` y `:724`). Con eso, cerrar un lote exige
+que **cualquier otro lote abierto** tenga resueltas unas filas que describen trabajo aun no hecho.
+
+Es el **tercer caso** de la familia que `PT-029` catalogo: una comprobacion que hace imposible el
+estado que otra regla obliga a atravesar. `FDGE-R49` contempla que haya un lote abierto mientras
+ocurre otra cosa; `SUITE-R45` supone que el lote que cierra **es** el lote abierto. Esa suposicion
+se cumplio en `EP-011`, `EP-012` y `EP-013` porque cada uno nacio despues de cerrar el anterior, y
+se rompio al abrir `EP-014` antes de esta compuerta — decision del agente, señalada en el intake
+de `EP-014` como precedente roto pero no vista como bloqueo.
+
+**Lo que NO se hizo para desbloquearla.** `RE_RESUELTA` acepta cualquier `PT-nnn` en la celda, asi
+que escribir «→ PT-053» en las cuatro filas de `EP-014` las habria dado por resueltas y la
+compuerta se habria puesto verde. Eso es «fabricar artefactos para poner una compuerta en verde»,
+que esta en el «no hacer» del `HANDOFF`.
+
+**Lo que se hizo.** El firmante autorizo la excepcion sabiendo cual era, y el defecto queda
+**registrado como `PT-055`**, `DEFERRED`, con su issue abierto (`SUITE-R44`: aplazar algo lo pone
+en el tablero). Arreglarlo aqui habria expandido `EP-014`, que el firmante prohibio en el mismo
+acto.
+
+Es el mismo patron que la `G4` de `EP-011`: integrar con una comprobacion en rojo, **declarada** y
+abierta como allocation — entonces fue `PT-046`, y ese `PT-046` acabo cerrando el callejon que lo
+motivo.

@@ -8,11 +8,11 @@ id: PT-023
 type: CHORE
 epic: EP-013
 track: STANDARD
-status: DONE
+status: INTEGRATED
 created: 2026-08-14
 structural: no
 suite_version: 7.7.0
-phase: 9
+phase: 10
 ---
 ```
 
@@ -44,4 +44,12 @@ Que se sepa **cuántas veces** un `spec-changes.md` declaró un cambio que no se
 
 ```
 Firmado por lote: EP-013
+```
+
+## Estado de cierre   `FDGE-R35`
+
+```
+INTEGRATED · integrado en la rama por defecto el 2026-08-15
+G4 de EP-013 resuelta por Alberto Martinez: «Cierra primero G4 de EP-013». El
+directorio se CONSERVA: es el registro de la propuesta y de su evidencia.
 ```
