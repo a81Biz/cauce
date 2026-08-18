@@ -1,0 +1,16 @@
+# bash docs/methodology/tools/selftest.sh · 2026-08-14
+selftest: OK · 466 casos
+
+# los casos de PT-047 (FDGE-R19 · la rama por tarea):
+  [32m✓[0m un PT en PHASE 5 sin rama se reporta
+  [32m✓[0m con rama declarada, silencio
+  [32m✓[0m en G4 la rama ausente BLOQUEA
+  [32m✓[0m lo ya integrado no se retrofecha
+  [32m✓[0m en PHASE 4 todavia no toca
+  [32m✓[0m FDGE-R19 declara la topologia
+  [32m✓[0m y llega al nucleo
+  [32m✓[0m PHASES la cita
+  [32m✓[0m SUITE-R42 dice PARA QUE rama
+  [32m✓[0m el CLAUDE.md declara las efimeras
+  [32m✓[0m y llega al nucleo
+  [32m✓[0m PHASES la cita

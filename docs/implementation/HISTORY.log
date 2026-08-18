@@ -1457,3 +1457,424 @@ acumuladas durante 43 tareas sin que nada las mirara. Ahora son 0, y volver a ac
 Cierre del lote (SUITE-R45): las tres filas resueltas — CHANGELOG 7.7.0 con los 21 documentos
 alineados, CORE.md regenerado, y PT-029 y PT-016 declarados abiertos con su alcance reducido:
 PT-046 y PT-044 son su primer caso concreto, no su solución.
+
+## PT-047 — BUG: ningún PT ha creado su rama
+Fecha: 2026-08-14
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: fix/PT-047-ningun-pt-ha-creado-su-rama
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-14 Alberto Martínez (delegada, con constancia) · G4 pendiente
+Objetivo: que el marco y su uso dejen de contradecirse sobre la rama por tarea.
+Causa raíz: PHASE 5 manda «git checkout -b <type>/PT-XXX-slug» desde la primera versión y PHASE 4
+obliga a proponerla, pero NINGÚN verificador la miraba — «grep "Rama:" verify-fdge.mjs» no
+devolvía una sola línea. El campo del formato canónico de HISTORY se escribía, se leía y no se
+contrastaba con nada. 46 tareas seguidas fueron sobre «trabajo», con el CLAUDE.md declarando dos
+ramas y ninguna por tarea, en el documento que SUITE-R00 dice que no puede derogar una regla.
+Solución: FDGE-R19 declara la topología en tres niveles —efímera por tarea → rama de integración
+→ rama por defecto—, SUITE-R42 deja de ser ambigua diciendo que el PR de G4 es el de la rama por
+defecto, y verify-fdge exige «REGISTRY.allocations[].branch» a todo PT vivo en PHASE 5+. Va al
+registro y no a HISTORY porque HISTORY se escribe en PHASE 8 y la rama nace en PHASE 5: la rama
+ES estado. Lo ya terminado no se retrofecha, con el criterio de PT-044.
+G4 NO SE MULTIPLICA: sigue siendo una por lote. El PR de una tarea a la rama de integración es
+revisión. La topología la confirmó el firmante antes de implementar —«sí, es correcto»— porque la
+alternativa habría convertido G4 en una compuerta por tarea: ocho en este lote.
+Archivos modificados:
+  - docs/methodology/RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md
+  - docs/methodology/tools/verify-fdge.mjs · tools/selftest.sh
+  - CLAUDE.md · docs/implementation/REGISTRY.json
+Evidencia: docs/implementation/evidence/PT-047/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): según plan en el alcance; dos correcciones que solo dijo ejecutar.
+El aserto inverso buscaba el ID de la regla y con rama declarada la regla emite su OK, así que el
+caso pasaba por el motivo equivocado — mismo defecto que SUITE-R42 en PT-043, segunda vez en dos
+lotes. Y el fixture representaba un estado imposible: cuatro PT en PHASE 8 sin rama.
+ESTA TAREA ESTRENA LO QUE INTRODUCE: es la primera de 47 con rama propia.
+  selftest 456 → 466 casos
+Trazabilidad externa: —
+
+## PT-016 — CHORE: phase obligatoria en el YAML del intake
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S4 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-016-phase-obligatoria
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-15 Alberto Martínez (delegada) · G4 pendiente
+Objetivo: que un PT vivo sin «phase» falle, en vez de desactivar en silencio todas las
+exigencias por fase.
+Causa raíz: la ausencia del campo salía SIN EVALUAR —correcto por RULE-06, que prefiere el «no lo
+sé» al falso verde— pero era GRATIS: apagaba de una vez traceability, manifest, self-review,
+FDGE-R52 y la rama de FDGE-R19 sin que nada fallara nunca. Y ninguna de las cinco plantillas de
+INTAKE/templates/ declaraba el campo, así que no declararlo era el camino por defecto.
+Solución: SUITE-R08 ampliada. Un PT vivo sin «phase» falla; un EP está exento —su ciclo no tiene
+fases de tarea y exigírsela sería inventar un dato— y lo ya terminado tampoco se retrofecha. Las
+cuatro plantillas de tarea traen el campo; EPIC-INTAKE.md NO, porque ponerlo ahí enseñaría a
+rellenarlo con un número inventado. migrate deja de decir «SIN EVALUAR» y dice que ahora falla.
+ALCANCE QUE CRECIÓ, y por qué se aceptó: al escribirlo apareció que FDGE-R52 (PT-044), FDGE-R19
+(PT-047) y esta regla preguntaban lo mismo —«¿está terminado?»— cada una con SU PROPIA COPIA de
+la lista. Tres copias nacidas HOY, en tres tareas del mismo lote, sin que ninguna viera a las
+otras. Se unifican en ESTADOS_TERMINALES, en patrones.mjs, con su contrato (SUITE-R38). DONE no
+está en ella: un PT en DONE espera G4 y sigue vivo, y añadirlo apagaría las tres a la vez.
+Archivos modificados:
+  - docs/methodology/tools/patrones.mjs · verify-fdge.mjs · migrate.mjs · selftest.sh
+  - docs/methodology/RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md
+  - docs/methodology/INTAKE/templates/ (cuatro plantillas de tarea)
+Evidencia: docs/implementation/evidence/PT-016/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): tres hallazgos de método, ninguno visible leyendo.
+  1. La comprobación quedó dentro de exigible(), que solo se llama si algún artefacto se
+     comprueba: un PT con todos sus artefactos NO la alcanzaba nunca. El caso salió en rojo con
+     la implementación ya terminada. Se movió a donde siempre corre, y de paso los cinco
+     «SIN EVALUAR» por artefacto pasan a ser uno.
+  2. Un caso tropezaba con su propio mensaje: chkno «SIN EVALUAR» fallaba porque el error nuevo
+     CITA la frase para explicar qué cambió.
+  3. Me salté la nota PHASE 3 → 4 por TERCERA vez, y siempre la misma transición: PHASE 4
+     produce seis artefactos, se empiezan a escribir y se da por hecha. No es despiste, es un
+     patrón: la nota debe escribirse ANTES de abrir el primer artefacto de la fase siguiente.
+Rompe compatibilidad: un proyecto instalado con PTs vivos sin «phase» pasa de verde a rojo. En
+ESTE repositorio, cero errores nuevos — los diez intakes sin el campo son seis EP y cuatro PT
+integrados. El lote sube MAJOR y escribe guía de migración (SUITE-R19).
+  selftest 466 → 479 casos
+Trazabilidad externa: —
+
+## PT-015 — CHORE: verificador para las HARD que deciden algo
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S4 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-015-verificadores-para-las-hard-sin-uno
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 2026-08-14 Alberto Martínez (delegada) · G2 2026-08-14 Alberto Martínez (delegada) · G3 2026-08-15 Alberto Martínez (delegada) · G4 pendiente
+Objetivo: que las reglas HARD que deciden algo emitan su ID al fallar, y que el resto quede
+medido en vez de prometido.
+Causa raíz: 105 de 161 reglas no las emitía ningún verificador con su nombre. Y el hallazgo que
+ordenó la tarea: de esas 105, las CHECK son CERO — la clasificación ya funciona, porque CHECK
+significa «un script la verifica y bloquea». El hueco entero estaba en HARD, que SUITE-R26 solo
+declara que ASPIRA. Peor: TRES herramientas existen POR una regla concreta, ejecutan su contrato
+y no la nombraban — verify-patrones ES SUITE-R38, revisar-secretos ES FND-R29, y tracker decide
+por SUITE-R47 dónde bloquea. El defecto que SUITE-R53 corrigió para todo lo demás, dentro de las
+tres que más lo necesitaban.
+Solución: las cuatro emiten su ID. SUITE-R26 declara su alcance: las CHECK todas, y de las HARD
+las que un gate consulta o por las que una herramienta bloquea; el resto queda MEDIDO por
+regla --sin-comprobar, no prometido. Se añade FDGE-R39, que nadie comprobaba: ningún artefacto
+de PT puede vivir en una ruta global — es el bloqueo estructural que la migración desde v3
+deshace, y volver a ponerlos ahí no lo detectaba nadie.
+Archivos modificados:
+  - docs/methodology/tools/verify-patrones.mjs · revisar-secretos.mjs · tracker.mjs
+  - docs/methodology/tools/verify-fdge.mjs · selftest.sh
+  - docs/methodology/RULES.md · CORE.md
+Evidencia: docs/implementation/evidence/PT-015/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): cuatro hallazgos, ninguno visible leyendo.
+  1. CITAR la regla en el texto NO la cierra. Se «arregló», se volvió a medir, y seguía diciendo
+     104 en vez de 101: regla --fallos deriva de fail('ID', …) y una mención en prosa no la ve.
+     Mencionar no es emitir. Se vio solo por volver a medir después de darlo por hecho.
+  2. existsSync no distingue mayúsculas en Windows: «discovery.md» colisionaba con el ÍNDICE
+     legítimo «DISCOVERY.md», y FDGE-R39 ponía en rojo cualquier repositorio sano. Misma trampa
+     que TD-04 anota para QA/ y qa/.
+  3. El mensaje nuevo de SUITE-R47 MENTÍA: usaba REPO.rama —que ES la rama por defecto— para
+     decir «no es la rama por defecto», y se repetía una vez por divergencia.
+  4. Tercer aserto que tropieza con el OK de su propia regla, van tres en dos lotes. El inverso
+     correcto es la EXIGENCIA, nunca el ID.
+LO QUE NO ENTREGA, y el título promete: cuatro de 105. El alcance reducido está escrito EN LA
+REGLA, no solo en el self-review, y las 101 restantes quedan medidas.
+  reglas sin verificador 105 → 101 · selftest 479 → 485 casos
+Trazabilidad externa: —
+
+## PT-015 — CORRIGE: el delta no incluía el quinto hallazgo
+Corrige: la entrada de 2026-08-15
+Motivo: la entrada se escribió antes de que el CI del PR corriera. El quinto hallazgo —el más
+elocuente— apareció después, y una entrada que enumera cuatro cuando fueron cinco declara menos
+de lo que ocurrió. Se corrige añadiendo (FDGE-R29), no editando (SUITE-R09).
+Fecha: 2026-08-15
+Estado: DONE
+Estructural: no
+Delta (real vs planificado): CINCO hallazgos, no cuatro. El quinto: la regla que esta tarea
+añadió CAZÓ A ESTA MISMA TAREA. El caso escrito para comprobar que revisar-secretos CITA FND-R29
+metió la clave de ejemplo de AWS en el fuente de selftest.sh, y el escáner la detectó en la
+historia —bloqueando el PR con el mensaje que esta tarea acababa de escribir—. La causa quedó
+corregida en el mismo commit: el fixture ensambla la clave en dos mitades y el fuente ya no la
+contiene. La huella histórica lleva excepción firmada (08ee900870eb), autorizada explícitamente
+por el firmante el 2026-08-15 tras detenerse a preguntar: una excepción de secretos no estaba en
+la delegación de G1, G2 y G3, y ampliarla sola habría sido el deslizamiento que SUITE-R27 nombra.
+
+## PT-048 — BUG: el issue de un DEFERRED enlaza a un directorio que no existe
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: fix/PT-048-el-issue-de-un-deferred-enlaza-a-un-404
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 Alberto Martínez (delegadas) · G4 pendiente
+Objetivo: que el cuerpo de un issue diga lo que hay en vez de enlazar a lo que no hay.
+Causa raíz: tracker.mjs componía el enlace SIEMPRE, y SUITE-R44 exime a un DEFERRED de tener
+artefactos. Las dos correctas por separado; juntas producían un 404 en el ÚNICO artefacto que una
+allocation aplazada tiene. PT-036 existía para esto y resolvió el caso de la rama, no el de que
+no haya contenido.
+Solución: se mira el DIRECTORIO, no el estado — un PT recién asignado tampoco lo tiene hasta que
+PHASE 1 lo crea, y con «status === DEFERRED» como criterio ese seguiría fallando. El dato viaja
+en el contexto y no se lee dentro de cuerpoDeIssue, que es pura y exportada a propósito.
+Archivos modificados: docs/methodology/tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-048/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): dos hallazgos.
+  1. UN CASO QUE NO SE EJECUTABA: se escribió «trlibno» dando por hecho que existía y bash lo
+     trató como orden no encontrada. El arnés NO se puso rojo — el contador subió de 485 a 489
+     en vez de 490, y esa única cifra fue todo el aviso. Se definió el ayudante.
+  2. El arreglo dejaba la nota que EXPLICA el enlace debajo de «sin artefactos todavía». Lo vio
+     mirar el issue publicado, no leer el diff.
+El defecto se estaba enmascarando mientras se arreglaba: las diez DEFERRED que apuntaban a un 404
+por la mañana eran dos al llegar aquí, porque EP-013 activó ocho y les creó el directorio.
+  selftest 485 → 491 casos
+Trazabilidad externa: —
+
+## PT-017 — CHORE: migrate deriva «qué llega nuevo»
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S4 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-017-derivar-lo-que-llega-nuevo
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 Alberto Martínez (delegadas) · G4 pendiente
+Objetivo: que la lista de «qué llega nuevo» salga de comparar el paquete con el destino.
+Causa raíz: estaba escrita a mano. Nombraba 6 de 16 y ya no mencionaba regla.mjs ni audit.mjs,
+nacidas después — el hecho copiado de RULE-01 envejeciendo solo, con el agravante de que quien la
+lee es QUIEN MENOS puede detectar que está incompleta: está migrando, no conoce la suite.
+Solución: se restan los dos directorios, que migrate ya resolvía. Tres salidas, no dos: la resta
+normal; «la suite entera» si el destino no tiene tools/ —dieciséis nombres no son un aviso—; y si
+no se puede leer el paquete se DICE, porque volver a la constante sería sustituir «no lo sé» por
+un dato viejo (RULE-06). Sin diferencias no se emite fila.
+Archivos modificados: docs/methodology/tools/migrate.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-017/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): un hallazgo. El caso anterior asertaba la CONSTANTE —comprobaba que
+un texto contuviera «revisar-secretos», no que la herramienta hiciera su trabajo— y al derivar se
+puso rojo con razón: el fixture las tiene todas y la resta daba vacío. Se reescribió quitando dos
+del destino.
+Acoplamiento declarado antes de tocarlo: el PORQUE de PT-043 reconoce esta acción por la frase
+«lo que llega nuevo». Si el texto la pierde, la fila cae en el RULE-06 por defecto y el conductor
+deja de explicarla. Anotado en el código y con su caso.
+Sobre el legado real: la lista escrita a mano decía 6; la derivada dice 7, e incluye regla.mjs.
+  selftest 491 → 495 casos
+Trazabilidad externa: —
+
+## PT-020 — CHORE: el grafo cubre el código propio, y las expectativas se contrastan
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-020-ampliar-el-grafo-a-tools
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que REGISTRY.graph describa el código propio del marco, que son bin/ y
+docs/methodology/tools/.
+Causa raíz: el grafo se generó un día sobre «bin» y ahí se quedó. 18 nodos, todos de cauce.mjs,
+mientras 16 herramientas quedaban fuera — y FDGE-R43 daba FRESH sobre lo que no había mirado.
+Una regla que puede dar verde sin haber leído el código no verifica el código: verifica una fecha.
+Solución: scope pasa a «bin, docs/methodology/tools» y pt_at_generation de 0 a 48. Dejarlo en 0
+hacía nacer el grafo STALE el mismo día, porque FDGE-R43 compara contra los PT estructurales
+integrados DESDE su generación y con 0 son todos. Regenerado: 18 → 500 nodos, 635 aristas, 14
+comunidades sobre los 16 archivos. graphify-out/ no se versiona (SUITE-R37).
+Archivos modificados: docs/implementation/REGISTRY.json · docs/methodology/tools/selftest.sh ·
+docs/implementation/{REFACTOR_SCOPE,DISCOVERY,ENRICHMENT}.md
+Evidencia: docs/implementation/evidence/PT-020/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): el resultado que importa no es el grafo, son las tres expectativas
+que strategy.md escribió ANTES de generarlo. Dos de las tres fallaron como estaban escritas:
+  1 patrones.mjs como nodo central       SE CUMPLE. 17 de las 19 aristas entre archivos
+                                         apuntan a él, todas EXTRACTED. SUITE-R38 deja de
+                                         tener que creerse: se ve.
+  2 verify-fdge como «el mayor»          NO. Es el 2.º por nodos (60 vs 62 de audit.mjs).
+                                         «El mayor» no nombraba una métrica. Por acoplamiento
+                                         sí lo es: los 5 primeros god nodes son suyos y
+                                         audit.mjs no coloca ninguno en el top-10.
+  3 la huérfana se ve aislada            SE CUMPLE, y dice otra cosa: no es una, son 8 de 16.
+                                         «Aislado ⇒ sobra» no se sostiene con la mitad del
+                                         código aislado. Son CLIs independientes, y esa es la
+                                         forma que el marco quiso.
+No se ajustó el alcance para que salieran las tres. La casilla marcada es peor que el hueco
+declarado, y esto es lo que se gana escribiendo las expectativas antes: se puede fallar.
+Hallazgo no buscado: dos aristas «calls» entre archivos son falsos positivos. verify-fdge.mjs
+importa SOLO ./patrones.mjs; divergencia() y cuerpoDe() son funciones locales suyas que comparten
+nombre con otras de cauce.mjs y build-core.mjs, y el extractor resuelve por nombre y no por
+ámbito. Marcadas INFERRED 0.8, así que el rastro de auditoría funcionó — pero 0.8 se lee como
+«casi seguro». Declarado y no corregido a mano: graphify-out/ es regenerable (SUITE-R37) y la
+corrección se perdería en la siguiente generación sin avisar.
+Encontrado de paso: REFACTOR_SCOPE.md tenía 14 filas pegadas en una sola línea con estados
+obsoletos, desde 7d4cf1e — la apertura de este mismo lote. Los tres índices se reconstruyen ahora
+DERIVANDO del registro (SUITE-R35) en vez de editarse a mano: 33 + 3 + 2 filas, 0 divergencias.
+Para PT-029: verify-fdge.mjs:1155 exige la entrada de HISTORY con CUALQUIER gate, no solo G4, y
+PHASES sitúa G3 en PHASE 7 y HISTORY en PHASE 8. --gate G3 no puede pasar nunca, para ningún PT.
+  selftest 495 → 501 casos · FDGE-R43 STALE → FRESH · grafo 18 → 500 nodos
+Trazabilidad externa: —
+
+## PT-023 — CHORE: el texto copiable dice lo que la regla dice, y el límite se declara
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-023-auditar-los-cambios-de-especificacion-declarados
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: comprobar si PT-018 declaró cambios de especificación que no hizo, y si el defecto es
+suyo o es de la forma.
+Causa raíz: FDGE-R22 obliga a declarar qué documentos cambian y nada comprueba que hayan cambiado.
+PT-018 declaró TRES y ejecutó UNO. El que quedó sin hacer era el de FDGE-Prompts.md: el párrafo de
+SUITE-R44 seguía diciendo «cita el identificador que lo sostiene — NORMALMENTE una allocation en
+DEFERRED», que es la prosa que SUITE-R44 existe para eliminar, dentro del documento que SUITE-R20
+manda que sea copiable TAL CUAL. Lo escribió PT-013, antes de PT-018. Peor que un documento sin
+actualizar: es del que se copia.
+Solución: el párrafo enuncia la forma —los dos valores admitidos y los tres casos de
+reciprocidad— y «normalmente» desaparece. Seis casos en selftest: cinco de contenido y uno que
+comprueba que HAY contenido.
+Archivos modificados: docs/methodology/FDGE-Prompts.md · docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-023/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): el entregable que importa no es la corrección, es el NO SE PUEDE con
+su cifra. La medida sobre las 40 spec-changes.md —110 filas— dio CUATRO candidatos y al abrirlos
+uno a uno TRES no eran defectos: PT-018/PHASES.md la cumplió PT-022 cuatro días y un lote después,
+y PT-037/CORE.md y PT-039/build-core.mjs están hechas bajo commits que no llevan su nombre. 75 %
+de falsos positivos, medido. Por eso NO se escribe el verificador de FDGE-R22: un control que se
+equivoca tres de cada cuatro veces no se lee, se silencia, y ocupa el sitio del que haría falta.
+Cuatro formas de falso positivo, las cuatro observadas y ninguna afinable:
+  1 el trabajo entra bajo un commit del LOTE
+  2 la declaración la cumple OTRO PT, y sigue cumplida
+  3 la medida corre ANTES del commit — el script marcó al propio PT-023
+  4 MENCIONAR un PT en un mensaje de commit basta para «cumplir» su declaración
+La cuarta apareció sola y cierra la discusión: el commit fc33e2b corrige FDGE-Prompts.md y nombra
+PT-018 cinco veces al explicar por qué, y con eso el defecto DESAPARECIÓ de la medida. No se
+arregla sin prohibir citar otro PT en un mensaje de commit, que es lo contrario de lo que se
+quiere. El indicador y el hábito que lo haría útil son incompatibles. Los dos archivos de medida
+se conservan porque la cuarta forma ES la diferencia entre ellos: borrar el primero habría dejado
+la evidencia más limpia y el argumento sin pruebas.
+El riesgo de esta tarea era cerrarla escribiendo el verificador para poder decir que la regla ya
+se comprueba. Lo impidió el ORDEN: medir, abrir los cuatro, y solo entonces decidir. Sin esa cifra
+se habría escrito y se habría sentido como progreso.
+Comprobación inversa en dos niveles: revertido el párrafo caen los cinco casos de contenido;
+ELIMINADO el bloque entero, el chkno de «normalmente» pasa POR VACÍO —un verde falso— y solo el
+sexto caso lo caza. Sin ese guardián, quitar el párrafo habría dejado la batería más verde que
+dejarlo mal.
+Lo que no resuelve: que PT-018 declarara tres cambios y ejecutara uno sin que nada lo notara
+durante dos meses. Lo encontró una persona revisando el tablero. Algunas cosas solo las caza
+mirar, y el marco debería decirlo en vez de dar por hecho que toda regla acaba teniendo script.
+  selftest 501 → 507 casos
+Trazabilidad externa: —
+
+## PT-029 — CHORE: las compuertas anteriores a G4 se pueden evaluar, y la forma queda cazada
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-013
+Rama: chore/PT-029-detectar-reglas-que-se-hacen-imposibles-entre-si
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas, y --gate G3 verde) · G4 pendiente
+Objetivo: buscar —no recordar— los pares donde una comprobación hace imposible el estado que otra
+obliga a atravesar.
+Causa raíz: tres comprobaciones de verify-fdge decían «if (gate)» sin decir de QUÉ compuerta
+hablaban. Con eso G1, G2 y G3 heredaban las exigencias de G4: pedían en PHASE 1 lo que el
+procedimiento escribe en PHASE 8. TRES COMPUERTAS DE CUATRO NO SE PODÍAN EVALUAR con la
+herramienta que existe para evaluarlas, y llevaban así desde que existe el parámetro. En el mismo
+archivo había SEIS comprobaciones que sí distinguían (gate === 'G4'): la forma correcta estaba al
+lado. RULE-01 otra vez — el mismo hecho escrito tres veces sin decir al cerrar QUÉ.
+Solución: EXIGIBLE_DESDE en patrones.mjs, donde ya vive ESTADOS_TERMINALES y por la misma razón.
+Cada artefacto declara desde qué compuerta es exigible CON LA FASE AL LADO, y su caso comprueba la
+RELACIÓN —la compuerta tiene que ser la primera posterior a la fase— y no el valor. Poner
+manifest.json en G1 «porque sí» cuesta un rojo aunque la tabla sea coherente.
+Archivos modificados: docs/methodology/tools/patrones.mjs · verify-fdge.mjs · selftest.sh
+Evidencia: docs/implementation/evidence/PT-029/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): el entregable no son los tres arreglos, es el caso que caza la FORMA.
+Tres «if» corregidos dejan la batería verde y el problema entero, porque el cuarto se escribe
+igual. Ahora una comprobación que se active con CUALQUIER compuerta pone la batería en rojo el día
+que se escriba, no el día que alguien tropiece.
+Cómo se buscó: cruzando dos tablas que ya existían y nadie había cruzado — qué produce cada fase
+(dato en tracker.mjs) y qué exige cada comprobación y cuándo (verify-fdge.mjs). El buscador se
+versiona en la evidencia porque AC-02 pedía repetible, y una medida que no se puede repetir es una
+afirmación.
+Por qué no se había visto: la ruta rota era la ruta INDOCUMENTADA. CLAUDE.md y la cabecera de la
+herramienta solo enseñaban --gate G4, y EXEC-R06 resuelve G1-G3 con verify-fdge SIN --gate. Lo
+encontró PT-020 ejecutando --gate G3 por curiosidad en PHASE 7: usándolo, no leyéndolo.
+Lo que NO se detecta, declarado: este método cruza fases con compuertas y encuentra UNA familia.
+De los seis casos conocidos, CINCO son de otra — SUITE-R09 prohíbe editar una entrada de HISTORY y
+FDGE-R29 prohíbe añadir una segunda: no hay fase de por medio, hay dos prohibiciones que se
+cierran mutuamente, y detectarlo exigiría razonar sobre el CONTENIDO de las reglas. Y el caso caza
+la forma LITERAL: «if (gate !== undefined)» expresa lo mismo y no cae. Ampliar la lista de formas
+es perseguir el idioma, que es lo que SUITE-R44 ya decidió no hacer.
+El arnés se cazó a sí mismo dos veces: el caso derivado se escribió con un «import» estático cuyo
+especificador era una expresión, y luego con una traducción de ruta a URL hecha con sed que en
+Git-Bash daba «file:///». Las dos veces revento() lo marcó en ROJO en vez de dejarlo pasar por
+verde — la función que existe para que una herramienta rota no certifique nada, funcionando sobre
+el caso que la estrenaba.
+Encontrado de paso: había DOS casos con el nombre «la compuerta se DERIVA de la fase», el de
+tracker y el nuevo. Dos casos con el mismo nombre hacen ambiguo un rojo: la salida dice qué falló
+y no cuál. Renombrado.
+Lo que no resuelve: que lo que no se documenta no se usa, y lo que no se usa se pudre en silencio.
+Eso no tiene comprobación y no la va a tener.
+  selftest 507 → 520 casos · --gate G3 pasa por primera vez en la historia del marco
+Trazabilidad externa: —
+
+## EP-013 — CERRADO: el tablero queda limpio
+Fecha: 2026-08-15
+Estado: DONE
+Versión: 8.0.0
+Tareas: PT-047 (rama por PT) · PT-016 (phase obligatoria, MAJOR) · PT-015 (verificadores) ·
+        PT-048 (el issue de un aplazado) · PT-017 (migrate deriva) · PT-020 (el grafo) ·
+        PT-023 (el texto copiable) · PT-029 (las compuertas evaluables)
+
+Nació de una frase: «revisa los PT abiertos todos y definamos para cerrar ya, con la excepción de
+la tarea de la migración que usa otro desarrollo. Necesito que estemos limpios». Diez allocations
+llevaban DEFERRED desde hacía lotes; ocho se cierran y DOS SE QUEDAN FUERA CON SU MOTIVO ESCRITO,
+que es distinto de seguir aplazadas por inercia.
+
+Lo que entrega: «phase» obligatoria en toda allocation viva —y por eso MAJOR, con guía de
+migración—; la rama por PT declarada y comprobada tras 43 tareas hechas sobre «trabajo»; las tres
+compuertas anteriores a G4 dejan de ser inevaluables; el texto copiable deja de decir menos que la
+regla que cita; el grafo pasa de 18 a 500 nodos; y verificadores para las HARD que deciden algo.
+456 → 520 casos de prueba.
+
+LO QUE NO ENTREGA, y está escrito en cada tarea:
+  · un verificador de FDGE-R22. PT-023 lo MIDIÓ: 110 filas, 4 candidatos, 3 falsos positivos, y
+    cuatro causas ninguna afinable. No se escribe, y el motivo está en el HANDOFF para que no se
+    vuelva a proponer dentro de tres lotes
+  · detectar los choques entre reglas EN GENERAL. PT-029 caza UNA familia —la que se deriva de
+    cruzar fases con compuertas— y de los seis casos conocidos, CINCO son de otra
+  · que el grafo SIRVA. PT-020 escribió tres expectativas antes de generarlo y DOS FALLARON como
+    estaban escritas. Queda medido, no ajustado
+  · bajar a cero las reglas sin verificador. Quedan 62, 52 de ellas HARD, CONTADAS en TD-08 y
+    separadas en tres grupos: mezclarlas habría convertido una decisión del firmante en un
+    número que da miedo
+
+Lo que este lote enseña y no está en ninguna tarea por separado: CUATRO de los ocho hallazgos
+aparecieron EJECUTANDO algo, no leyéndolo, y dos de ellos aparecieron mientras se trabajaba en
+otra cosa. --gate G3 llevaba roto desde que existe el parámetro y lo encontró PT-020 por
+curiosidad en PHASE 7. REFACTOR_SCOPE.md tenía catorce filas pegadas en una línea desde la
+apertura de este mismo lote, y apareció al leerlo para otra cosa. La medida de PT-023 se
+desmintió a sí misma al reejecutarla después del commit.
+
+Tres veces el arnés o una regla cazaron al agente durante el lote, y las tres quedan dichas:
+  · SUITE-R34 puso la CI en rojo por separar el estado del trabajo en dos commits (PT-020)
+  · revento() marcó en rojo, dos veces seguidas, el caso derivado que estrenaba esa función
+  · FDGE-R52 volvió a cazar la transición PHASE 3 → 4 escrita tarde, tres veces. La cuarta se
+    publicó ANTES de escribir los artefactos, y se dijo por qué
+
+La medida que mejor resume el lote: tres compuertas de cuatro no se podían evaluar con la
+herramienta que existe para evaluarlas, y nadie lo notó porque la ruta rota era la ruta
+INDOCUMENTADA. Lo que no se documenta no se usa, y lo que no se usa se pudre en silencio.
+
+Cierre del lote (SUITE-R45): las cuatro filas resueltas — CHANGELOG 8.0.0 con guía de migración y
+los 21 documentos alineados, CORE.md regenerado (244 reglas, 69 % de reducción), TD-08 con las 62
+reglas sin verificador contadas y agrupadas, y PT-019 y PT-025 declarados fuera con su motivo y
+con lo que desbloquearía a cada uno. No es la misma espera: uno aguarda a un proyecto que existe,
+el otro a uno que no.
+
+G4 y la publicación NO se delegan: son del firmante.

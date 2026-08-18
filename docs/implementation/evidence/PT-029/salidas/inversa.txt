@@ -1,0 +1,20 @@
+# Comprobacion inversa · PT-029 · 2026-08-15
+# Revertidas las tres comprobaciones a 'if (gate)': las compuertas vuelven a ser una sola
+# y el caso que caza la FORMA se pone rojo.
+
+revertido
+
+--- las cuatro compuertas sobre PT-029 (PHASE 5) ---
+  --gate G1 : 3 error(es)
+  --gate G2 : 3 error(es)
+  --gate G3 : 3 error(es)
+  --gate G4 : 4 error(es)
+
+--- selftest: los casos de PT-029 ---
+  [31m✗[0m G1 no exige el manifiesto de PHASE 6  (apareció: falta evidence/PT-004/manifest.json)
+  [31m✗[0m G1 tampoco el self-review  (apareció: falta evidence/PT-004/self-review.md)
+  [31m✗[0m G1 tampoco la entrada de HISTORY  (apareció: PT-004: sin entrada en HISTORY.log)
+  [31m✗[0m G2 sigue sin exigir lo de PHASE 6  (apareció: falta evidence/PT-004/manifest.json)
+  [31m✗[0m G3 no exige lo que PHASE 8 escribe  (apareció: PT-004: sin entrada en HISTORY.log)
+  [31m✗[0m ninguna comprobacion se activa con cualquier compuerta  (apareció: if (gate) fail()
+selftest: HAY FALLOS · 520 casos

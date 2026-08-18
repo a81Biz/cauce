@@ -1,0 +1,12 @@
+# Comprobacion INVERSA · PT-047 · PHASE 5
+# Sin el bloque de FDGE-R19, un PT en PHASE 5 sin rama deja de detectarse.
+# Un verificador que no puede fallar no verifica (SUITE-R38).
+
+== con la comprobacion desactivada ==
+parche aplicado, ocurrencias: 1
+
+== con la implementacion vigente, sobre esta misma tarea ==
+  ✓ FDGE-R19       PT-047: rama «fix/PT-047-ningun-pt-ha-creado-su-rama» declarada.
+
+== y sobre un PT en PHASE 5 al que se le quita la rama ==
+  ! FDGE-R19       PT-047: está en PHASE 5 y no declara rama. PHASE 5 crea «<type>/PT-NNN-slug» desde la rama de integración y la declara en REGISTRY.allocations[].branch (FDGE-R19). El PR de la tarea es revisión, no G4.

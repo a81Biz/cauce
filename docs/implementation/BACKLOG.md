@@ -2,58 +2,76 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-14 al cerrar `EP-012`. Antes de eso llevaba **ocho lotes sin
-> regenerarse** —`PHASE 8` paso 3— y declaraba `EP-003` abierta, `PT-009` y `PT-010` en
-> `DONE` y «publicar `6.0.1`» como lo siguiente: un estado de tres versiones atrás, escrito con
-> la misma seguridad que si fuera el de hoy.
+> Regenerado el 2026-08-15 al abrir `EP-014`. Cada fila se **deriva** del registro
+> —`id`, `type`, `severity`, `status`, `phase`, `epic`, `issue`, `title`— y no se edita a mano.
+> Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres versiones
+> atrás con la misma seguridad que si fuera el de hoy; y `REFACTOR_SCOPE.md`, editado a mano,
+> acabó con catorce filas pegadas en una línea. La conclusión de los dos casos es la misma:
+> **un índice que se escribe a mano diverge, y solo hace falta tiempo.**
 
-## Implementación
+## Implementación abierta — `EP-014`
 
-`EP-012` · **El marco se cierra a sí mismo** · `DONE` ·
-issue [#71](https://github.com/a81Biz/cauce/issues/71) — esperando `G4`.
+`EP-014` · **La fontanería de la transición** · `IN_PROGRESS` ·
+issue [#89](https://github.com/a81Biz/cauce/issues/89).
 
-| PT | Tipo | Sev | Estado | Issue |
-|:---|:---|:---|:---|:---|
-| PT-044 | BUG | S2 | DONE | [#65](https://github.com/a81Biz/cauce/issues/65) |
-| PT-045 | BUG | S2 | DONE | [#66](https://github.com/a81Biz/cauce/issues/66) |
-| PT-046 | BUG | S2 | DONE | [#67](https://github.com/a81Biz/cauce/issues/67) |
+| Orden | PT | Sev | Estado | Fase | Issue | Qué resuelve |
+|:---|:---|:---|:---|:---|:---|:---|
+| 1 | PT-049 | S3 | READY | 1 | [#83](https://github.com/a81Biz/cauce/issues/83) | El verde se **cuenta**, no se enumera: `-q` con el recuento intacto |
+| 2 | PT-050 | S3 | READY | 1 | [#84](https://github.com/a81Biz/cauce/issues/84) | `selftest --solo <patrón>`: iterar sin pagar la batería entera |
+| 3 | PT-051 | S4 | READY | 1 | [#85](https://github.com/a81Biz/cauce/issues/85) | `regla <ID> --donde`: archivo y línea del `fail()` que la ejecuta |
+| 4 | PT-052 | S2 | READY | 1 | [#86](https://github.com/a81Biz/cauce/issues/86) | `CHECKPOINT.json`: el estado en curso, estructurado y atado al SHA |
+| 5 | PT-053 | S1 | READY | 1 | [#87](https://github.com/a81Biz/cauce/issues/87) | `tracker avanzar`: los cinco actos, atómicos, con la nota obligatoria |
+| 6 | PT-054 | S2 | READY | 1 | [#88](https://github.com/a81Biz/cauce/issues/88) | `cauce/<usuario>`: la proyección **derivada** |
 
-Las tres con `G1`, `G2` y `G3` firmadas **por delegación con constancia**. Pasan a
-`INTEGRATED` tras el merge (`FDGE-R35`).
+**El orden no es preferencia.** `PT-049` y `PT-050` cambian cómo se ejecutan las otras cuatro —la
+misma lógica por la que `PT-047` fue primera en `EP-013`—. `PT-053` va después de `PT-052` porque
+`avanzar` **escribe** el checkpoint, y definir el artefacto después de quien lo produce deja que
+el formato lo decida la implementación.
 
-**Solapamiento** (`FDGE-R40`): `PT-046` ↔ `PT-044` comparten `tools/verify-fdge.mjs` y
-`tools/selftest.sh` — **serializados**, y en ese orden porque `PT-044` no tenía solución
-honesta sin `PT-046`. `PT-045` no comparte ningún archivo.
+**Solapamiento** (`FDGE-R40`): `tools/tracker.mjs` lo tocan **tres** tareas seguidas —`PT-052`,
+`PT-053`, `PT-054`—. Es el más denso del lote y por eso van consecutivas. Ejecución **secuencial**;
+ningún par en paralelo.
 
-## Aplazado — 10 allocations `DEFERRED`, todas con su issue abierto
+## Aplazado — 4 allocations `DEFERRED`, todas con su issue abierto
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
-| PT | Tipo | Sev | Issue | Qué es |
-|:---|:---|:---|:---|:---|
-| PT-019 | CHORE | S2 | [#26](https://github.com/a81Biz/cauce/issues/26) | Comprobar que CUALQUIER proyecto legado se puede migrar, y ejecutar la migracion de referencia |
-| PT-023 | CHORE | S2 | [#32](https://github.com/a81Biz/cauce/issues/32) | Auditar si PT-018 declaro mas cambios de especificacion que no hizo |
-| PT-029 | CHORE | S2 | [#40](https://github.com/a81Biz/cauce/issues/40) | Buscar mas choques entre reglas: una comprobacion que hace imposible el estado que otra obliga a atravesar |
-| PT-020 | CHORE | S3 | [#27](https://github.com/a81Biz/cauce/issues/27) | Ampliar el alcance del grafo a docs/methodology/tools/ (TD-01) |
-| PT-025 | CHORE | S3 | [#35](https://github.com/a81Biz/cauce/issues/35) | Comprobar el orden de cierre tambien en el adaptador de Azure |
-| PT-047 | BUG | S3 | [#69](https://github.com/a81Biz/cauce/issues/69) | PHASE 5 manda crear rama por PT y los 43 PT de este repositorio se implementaron sobre trabajo |
-| PT-048 | BUG | S3 | [#70](https://github.com/a81Biz/cauce/issues/70) | El cuerpo del issue de una allocation DEFERRED enlaza a un directorio que no existe |
-| PT-015 | CHORE | S4 | [#22](https://github.com/a81Biz/cauce/issues/22) | Escribir verificador para las reglas HARD que hoy no tienen ninguno |
-| PT-016 | CHORE | S4 | [#23](https://github.com/a81Biz/cauce/issues/23) | Decidir si `phase` pasa a ser obligatoria, y añadirla a la plantilla TAREA.md |
-| PT-017 | CHORE | S4 | [#24](https://github.com/a81Biz/cauce/issues/24) | migrate: derivar la lista de «qué llega nuevo» comparando paquete y destino |
+| Id | Tipo | Issue | Por qué sigue fuera |
+|:---|:---|:---|:---|
+| EP-015 | EP | [#90](https://github.com/a81Biz/cauce/issues/90) | **Continuidad de sesión.** Depende de `PT-052` y `PT-053`: sin el checkpoint estructurado y sin la transición atómica no hay dónde evaluar el presupuesto ni de dónde derivar el handoff |
+| EP-016 | EP | [#91](https://github.com/a81Biz/cauce/issues/91) | **Topología y multiusuario.** Depende de `PT-054`. Va último porque es el único que puede romper compatibilidad — `SUITE-R08`, `FDGE-R19`, `SUITE-R42`, `EXEC-R03` |
+| PT-019 | CHORE | [#26](https://github.com/a81Biz/cauce/issues/26) | Depende del proyecto legado que trabaja el firmante. Cierra cuando vaya allí |
+| PT-025 | CHORE | [#35](https://github.com/a81Biz/cauce/issues/35) | No hay proyecto de Azure que lo ejercite. Escribir la guarda a ciegas sería código sin ejecución |
 
-### Lo que este listado hace visible
+Los cuatro motivos son distintos y conviene no mezclarlos: dos esperan a un lote que **va a
+ocurrir**, uno a un proyecto **que existe**, y uno a un proyecto **que no**.
 
-`PT-046` fue el primer caso concreto de `PT-029`, abierto tres lotes antes con esas mismas
-palabras. `PT-044` lo fue de `PT-016`. Los dos originales **siguen abiertos**: sus casos se
-resolvieron, su alcance no.
+## Lote esperando `G4`
+
+`EP-013` · **El tablero queda limpio** · `DONE` · **8.0.0** ·
+issue [#73](https://github.com/a81Biz/cauce/issues/73).
+
+Las ocho tareas integradas en `trabajo` (PRs #74–#82) y las cuatro filas de cierre resueltas.
+Falta el pull request de `trabajo` a `main`, que **lo abre y lo fusiona el firmante**
+(`SUITE-R42`, `EXEC-R04`, `SUITE-R06a`).
+
+> **`main` va dos lotes por detrás del tablero** mientras eso no ocurra. `FDGE-R48` permite abrir
+> `EP-014` —cuenta `VIVOS`, y `DONE` no está— y `SUITE-R46` habla de **cerrar**, no de abrir. Pero
+> el precedente es el contrario: `EP-013` nació después de que `EP-012` fuera `CLOSED`. No rompe
+> ninguna regla y conviene que se vea.
 
 ## Lotes cerrados
 
-`EP-001` a `EP-012`. `EP-011` en `main` desde `af79c6b` (**7.6.0**); `EP-012` esperando
-su `G4` (**7.7.0**).
+`EP-001` a `EP-012`. `EP-011` en `main` desde `af79c6b` (**7.6.0**); `EP-012` desde `c983b05`
+(**7.7.0**).
 
 ## Lo siguiente
 
-Publicar está **pendiente por decisión humana explícita**: «no publicamos aún porque nos falta
-algo más». Publicar es `SUITE-R06g` y no se automatiza.
+`PT-049` · `PHASE 1` → `PHASE 2`. Y, en paralelo y a cargo del firmante, la `G4` de `EP-013`:
+
+```bash
+gh pr create --base main --head trabajo
+```
+
+Publicar sigue **pendiente por decisión humana explícita**, sostenida en cuatro lotes.
+Es `SUITE-R06g` y no se automatiza.

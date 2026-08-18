@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **7.7.0**
+> Suite version: **8.0.0**
 
 ---
 
@@ -195,7 +195,14 @@ PARA G2. MANUAL,SUPERVISED→ACK. AUTONOMOUS→auto solo si las CINCO condicione
 ### PHASE 5 · Implementation
 ```
 LEE  design · tasks · test-scenarios · out-of-scope · traceability · 11-Conventions · graphify-out/
-HAZ  1 git checkout -b <type>/PT-XXX-slug
+HAZ  1 git checkout -b <type>/PT-XXX-slug        DESDE la rama de integracion [FDGE-R19]
+       tres niveles: <type>/PT-NNN-slug efimera -> rama de integracion
+       («trabajo») -> rama por defecto. El PR de la TAREA es revision y NO
+       es G4; G4 es el merge del LOTE a la rama por defecto y NO se
+       multiplica por tarea [EXEC-R03, FDGE-R33].
+       Declarala en REGISTRY.allocations[].branch: un PT vivo en PHASE 5+
+       sin rama se reporta, y en G4 bloquea. Lo ya terminado no se
+       retrofecha — pedir rama a lo integrado es pedir que se invente.
      2 TESTS EN ROJO desde test-scenarios [FDGE-R17]
        → test: PT-XXX add failing tests for <desc>
        excepción CHORE|TRIVIAL sin lógica ejecutable [FDGE-R18]: declarar en strategy.md;
@@ -261,6 +268,11 @@ JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SU
           del issue apunta a DONDE EL CONTENIDO ESTA — rama de trabajo si
           esta vivo, rama por defecto si ya es INTEGRATED.
           node tools/tracker.mjs abrir --aplicar   lo mantiene
+LA FASE   toda allocation PT VIVA declara «phase». Falta ⇒ ERROR desde 8.0.0 [SUITE-R08]
+          EXENTOS: un EP —su ciclo no tiene fases de tarea— y lo ya terminado.
+          La frontera «se exige a lo VIVO» la comparten FDGE-R52, FDGE-R19 y
+          esta, desde ESTADOS_TERMINALES en patrones.mjs. DONE NO esta ahi: un
+          PT en DONE espera G4 y sigue vivo.
 ESPEJA    TODO lo que copie el estado, no solo la plataforma.              [SUITE-R35]
           registro ↔ YAML del intake ↔ linea de indice. Si divergen se DICE:
           aviso durante el trabajo, ERROR en G4. Manda el YAML (PT-004) y se

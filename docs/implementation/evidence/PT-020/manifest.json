@@ -1,0 +1,23 @@
+{
+  "pt": "PT-020",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "REGISTRY.graph.scope incluye docs/methodology/tools/", "scenarios": ["E1"], "tests": ["selftest.sh:el alcance del grafo cubre bin", "selftest.sh:…y las herramientas"], "evidence": ["salidas/grafo.txt", "salidas/selftest.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "El grafo regenerado contiene las herramientas", "scenarios": ["E3"], "tests": ["selftest.sh:…y las herramientas"], "evidence": ["salidas/grafo.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "FDGE-R43 deja de dar por bueno un grafo que no describe el sistema", "scenarios": ["E4"], "tests": ["selftest.sh:pt_at_generation no es 0", "selftest.sh:y su ancla se declara sin poner"], "evidence": ["salidas/verify-fdge.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "El alcance excluye dependencias, fixtures y mocks (FND-R28)", "scenarios": ["E2"], "tests": ["selftest.sh:sin desbordar a la raiz ni a changes"], "evidence": ["salidas/grafo.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el grafo SIRVA para decidir.",
+      "por_que": "No es mecanizable: las tres expectativas de strategy.md se contrastan a ojo. Dos de las tres no se cumplieron como estaban escritas y queda medido en self-review.md. Declararlo es preferible a un caso que compruebe que un archivo existe y llamarlo verificacion (RULE-06).",
+      "donde": "changes/PT-020-ampliar-el-grafo-a-tools/self-review.md"
+    },
+    {
+      "afirmacion": "Que las dos aristas calls entre archivos sean ciertas.",
+      "por_que": "Son falsos positivos: verify-fdge.mjs importa solo ./patrones.mjs, y divergencia() y cuerpoDe() son funciones locales suyas que comparten nombre con otras. El extractor resuelve por nombre y no por ambito. Estan marcadas INFERRED 0.8, no EXTRACTED, asi que el rastro de auditoria funciono. No se corrigen a mano: graphify-out/ es regenerable (SUITE-R37) y la correccion se perderia sin avisar.",
+      "donde": "salidas/grafo.txt"
+    }
+  ],
+  "suite": { "passed": 501, "failed": 0, "skipped": 0, "coverage": 501, "baseline": 495 }
+}

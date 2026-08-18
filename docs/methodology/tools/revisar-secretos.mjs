@@ -213,7 +213,13 @@ for (const [qué, d] of porQué) {
   console.log(`  ${c.neg}Corrección:${c.fin} ${d.cómo}`);
   console.log('');
 }
-console.log(`${hallazgos.length} hallazgo(s). Publicar un repositorio con esto dentro es irreversible:`);
+// PT-015 · el bloqueo CITA su regla. Esta herramienta ES la comprobacion de FND-R29 —«nada se
+// publica sin revisar secretos, y la revision bloquea»— y solo la nombraba en el pie de las
+// excepciones firmadas. Quien viera el bloqueo tenia que deducir de donde venia (SUITE-R53).
+// PT-015 · el ID se EMITE como dato, no dentro del texto: `regla --fallos` deriva de
+// `fail('ID', …)` y una cita en prosa no la ve. Mencionar no es emitir.
+const fail = (regla, msg) => console.log(`${c.rojo}${regla}${c.fin}  ${msg}`);
+fail('FND-R29', `${hallazgos.length} hallazgo(s). Publicar un repositorio con esto dentro es irreversible:`);
 console.log('un secreto en la historia sigue ahí después de borrarlo del archivo.');
 console.log('');
 console.log('Si alguno es un falso positivo, la excepción se firma por escrito, con nombre y');

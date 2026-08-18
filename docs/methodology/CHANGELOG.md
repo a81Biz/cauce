@@ -8,6 +8,156 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 8.0.0 — 2026-08-15
+
+**El tablero queda limpio.** Ocho tareas, y `MAJOR` por una sola de ellas: `SUITE-R08` pasa a
+exigir `phase` en toda allocation viva, y un proyecto instalado con PTs sin ese campo pasa de
+verde a rojo. La guía de migración está al final de esta entrada y es obligatoria (`SUITE-R19`).
+
+Salió de una instrucción de una frase: *«revisa los PT abiertos todos y definamos para cerrar ya,
+con la excepción de la tarea de la migración que usa otro desarrollo. Necesito que estemos
+limpios»*. Diez allocations llevaban `DEFERRED` desde hacía lotes; ocho se cerraron y **dos se
+quedaron fuera con su motivo escrito**, que es distinto de seguir aplazadas por inercia.
+
+Lo que este lote enseña no está en ninguna de las ocho por separado: **cuatro de los ocho
+hallazgos aparecieron ejecutando algo, no leyéndolo**, y dos de ellos aparecieron mientras se
+trabajaba en otra cosa.
+
+### `SUITE-R08` · toda allocation viva declara su fase   **rompe compatibilidad**
+
+Sin `phase`, `tracker siguiente` no puede derivar qué toca —y adivinarlo es lo que esa acción
+existe para impedir (`RULE-06`)—. La exigencia es solo para lo **vivo**: un `PT` en estado
+terminal conserva lo que tenía, y un `EP` está exento porque un lote no recorre fases.
+
+Es la tercera vez que aparece la misma frontera —«lo que es exigible, lo es de lo **vivo**»— tras
+`FDGE-R52` (el reanclaje no se retrofecha) y `FDGE-R19` (la rama tampoco). Las tres traían su
+copia de la lista de estados terminales; ahora hay **una**, en `patrones.mjs`, con su contrato.
+
+### `FDGE-R19` · la topología de ramas está declarada, y `verify-fdge` la mira
+
+`PHASE 5` mandaba crear una rama por tarea y **los 43 PT de este repositorio se implementaron
+sobre `trabajo`**. La regla no mentía: nadie la comprobaba. Ahora un PT vivo en `PHASE 5` o
+posterior que no declara su rama se reporta, y en `G4` bloquea.
+
+El `CLAUDE.md` declaraba **dos** ramas y ninguna por tarea, en el documento que `SUITE-R00` dice
+que no puede derogar una regla. Lo hizo visible **auditar el uso** del marco, no leerlo.
+
+### Las tres compuertas que no se podían evaluar
+
+`FDGE-R23`, `FDGE-R25` y `FDGE-R29` se activaban con `if (gate)` sin distinguir cuál. Con eso
+`G1`, `G2` y `G3` heredaban las exigencias de `G4`: pedían en `PHASE 1` lo que el procedimiento
+escribe en `PHASE 8`. **Tres compuertas de cuatro eran inevaluables desde que existe el
+parámetro**, porque la ruta rota era la ruta **indocumentada** — la cabecera solo enseñaba
+`--gate G4`.
+
+`EXIGIBLE_DESDE` (`patrones.mjs`) declara desde qué compuerta es exigible cada artefacto **con su
+fase al lado**, para que la asignación sea derivable en vez de creíble. Y un caso nuevo falla si
+vuelve a aparecer una comprobación que se active con cualquier compuerta: se caza la **forma**,
+no los tres casos.
+
+### `SUITE-R44` · el texto copiable dice lo que la regla dice
+
+`PT-018` declaró tres cambios de documento y ejecutó uno. El que faltaba era el de
+`FDGE-Prompts.md`, donde el párrafo de `SUITE-R44` seguía diciendo *«normalmente una allocation en
+`DEFERRED`»* — la prosa que esa misma regla existe para eliminar, en el documento del que se copia.
+
+De paso quedó **medido** que verificar que una declaración de `spec-changes.md` se cumplió **no es
+mecanizable**: 110 filas, 4 candidatos, **3 falsos positivos**. Ese verificador no se escribe, y el
+motivo está en el `HANDOFF` para que no se vuelva a proponer.
+
+### El resto
+
+- **`migrate`** deriva «qué llega nuevo» comparando el paquete con el destino, en vez de una lista
+  escrita a mano que nombraba 6 de 16 herramientas.
+- **El issue de un aplazado** dice lo que hay en lugar de enlazar a un directorio que `SUITE-R44`
+  garantiza que no existe.
+- **El grafo** cubre el código propio —`bin` y `docs/methodology/tools`—: de 18 nodos a 500.
+  `FDGE-R43` dejaba de poder dar verde sobre lo que no había mirado.
+- **Verificadores** para las reglas `HARD` que deciden algo y no tenían ninguno. Las que quedan
+  sin cubrir están **contadas** en `10-Technical-Debt.md`, no estimadas.
+
+`selftest`: **456 → 520 casos**.
+
+---
+
+## Guía de migración · 7.7.0 → 8.0.0   `SUITE-R19`
+
+**Un solo cambio rompe compatibilidad**: `SUITE-R08` exige `phase` en toda allocation viva.
+
+### Qué falla, y cómo se ve
+
+```bash
+node docs/methodology/tools/verify-fdge.mjs --all
+✗ SUITE-R08   PT-0NN: no declara «phase» en el registro.
+```
+
+Un proyecto que hoy está en verde pasa a rojo si tiene PTs vivos sin ese campo. No hay pérdida de
+datos ni de historia: falta un campo, y la corrección es escribirlo.
+
+### Los tres pasos
+
+**1 · Ver a quién le falta.** No hay que buscar a mano:
+
+```bash
+node docs/methodology/tools/verify-fdge.mjs --all 2>&1 | grep SUITE-R08
+```
+
+**2 · Escribir la fase de cada uno.** En `docs/implementation/REGISTRY.json`, para cada allocation
+**viva** de tipo `PT` —es decir, cuyo `status` **no** sea `INTEGRATED`, `CLOSED`, `REVERTED`,
+`REJECTED` ni `DEFERRED`—:
+
+```json
+{ "id": "PT-0NN", "status": "IN_PROGRESS", "phase": 5, ... }
+```
+
+La fase es **la que el PT ha alcanzado de verdad**, no la que debería. Si no se sabe, se deriva de
+lo que hay en `changes/PT-NNN-slug/`:
+
+```
+solo intake.md ................................ phase 1
++ discovery.md ................................ phase 2
++ strategy.md ................................. phase 3
++ los seis de PHASE 4 ......................... phase 4
++ evidence/PT-NNN/manifest.json ............... phase 6
++ entrada en HISTORY.log ...................... phase 8
+```
+
+**No se adivina hacia arriba.** Poner una fase que el PT no ha alcanzado apaga las comprobaciones
+que esa fase habilita, que es exactamente el defecto que `PT-044` documentó.
+
+**3 · Sincronizar el YAML del intake.** `verify-fdge` usa el del intake cuando ambos existen
+(`PT-004`: es lo que el PT dice de sí mismo), así que los dos tienen que coincidir:
+
+```yaml
+---
+id: PT-0NN
+phase: 5
+---
+```
+
+Si divergen, `SUITE-R35` lo avisa con las dos cifras.
+
+### Qué NO hay que tocar
+
+- **Los `EP`.** Un lote no recorre fases y está exento. Añadirle `phase` no rompe nada, pero no
+  hace falta.
+- **Los PT terminales.** `INTEGRATED`, `CLOSED`, `REVERTED`, `REJECTED` y `DEFERRED` conservan lo
+  que tengan. La exigencia es solo para lo vivo, y retrofechar sería inventar.
+- **Las plantillas ya instaladas.** Las cuatro de `INTAKE/templates/` traen `phase` desde esta
+  versión; las tareas ya abiertas se corrigen en el registro, no reescribiendo su plantilla.
+
+### Comprobar que la migración terminó
+
+```bash
+node docs/methodology/tools/verify-fdge.mjs --all     # sin errores de SUITE-R08
+node docs/methodology/tools/tracker.mjs siguiente     # ningún PT «SIN EVALUAR»
+```
+
+El segundo es el que importa: un PT sin `phase` aparecía como `SIN EVALUAR` y el tablero no podía
+decir qué tocaba. Cuando todos declaran su fase, esa columna deja de existir.
+
+---
+
 ## 7.7.0 — 2026-08-14
 
 **El marco se cierra a sí mismo.** Dos reglas ampliadas y ninguna nueva ni derogada: `MINOR`. Es

@@ -7,5 +7,5 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 
 | PT | Sev | Estado | Implementación | Título |
 |:---|:---|:---|:---|:---|
-| PT-007 | S3 | INTEGRATED | EP-002 | El issue declara en qué fase está y qué compuerta espera |
-| PT-008 | S2 | INTEGRATED | EP-002 | No se cierra fase con comentarios humanos sin responder |
+| PT-007 | S3 | INTEGRATED | INTEGRATED | EP-002 |
+| PT-008 | S2 | INTEGRATED | INTEGRATED | EP-002 |

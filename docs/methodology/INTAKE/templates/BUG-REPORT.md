@@ -16,6 +16,7 @@ severity: S2               # [HUMANO] S1 | S2 | S3 | S4
 complexity:                # [AGENTE] TRIVIAL | STANDARD | MAJOR — se propone en PHASE 2
 track: STANDARD            # [AGENTE] STANDARD | EXPRESS | HOTFIX (HOTFIX solo si severity=S1)
 status: DRAFT              # [AGENTE] DRAFT hasta que G1 dé PASS
+phase: 1                 # [AGENTE] OBLIGATORIO desde 8.0.0 · SUITE-R08
 created: YYYY-MM-DD
 origin: DIRECT             # DIRECT | QD-NNN | H-NNN | R-NNN
 ---

@@ -10,7 +10,18 @@
  *   node verify-fdge.mjs PT-042              verifica un PT
  *   node verify-fdge.mjs PT-042 PT-043       verifica varios
  *   node verify-fdge.mjs --all               todos los PTs no terminales
- *   node verify-fdge.mjs --gate G4 PT-042    solo las precondiciones de G4
+ *   node verify-fdge.mjs --gate G1 PT-042    solo las precondiciones de G1
+ *   node verify-fdge.mjs --gate G2 PT-042    ídem G2 · --gate G3 · --gate G4
+ *
+ * Cada compuerta exige lo que existe cuando ella cierra, no lo de la siguiente: `manifest.json`
+ * y `self-review.md` se escriben en PHASE 6, así que los pide `G3` en adelante; la entrada de
+ * `HISTORY.log` se escribe en PHASE 8 y solo la pide `G4`. La tabla está en `patrones.mjs`
+ * (`EXIGIBLE_DESDE`), con la fase al lado del valor para que sea derivable.
+ *
+ * Hasta PT-029 esta cabecera solo enseñaba `--gate G4`, y las tres comprobaciones de arriba
+ * decían `if (gate)` sin distinguir cuál: `G1`, `G2` y `G3` heredaban las exigencias de `G4` y
+ * NO SE PODÍAN EVALUAR. La ruta indocumentada y la ruta rota eran la misma, que es por lo que
+ * llevaba así desde que existe el parámetro.
  *
  * Exit 0 sin errores · 1 con errores. Pensado para el paso de CI que bloquea G4 (FDGE-R34).
  * Sin dependencias externas. Node >= 18.
@@ -34,7 +45,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe, PATRONES } from './patrones.mjs';
+import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -885,6 +896,28 @@ function checkPT(pt, { gate } = {}) {
   })();
   const fase = faseDeclarada ?? 0;
 
+  // PT-016 · SUITE-R08 · «phase» deja de ser opcional para un PT VIVO.
+  //
+  // Hasta 8.0.0 su ausencia salia SIN EVALUAR, que no aprueba ni bloquea — correcto por RULE-06,
+  // pero GRATIS: apagaba de una vez traceability, manifest, self-review, FDGE-R52 y la rama de
+  // FDGE-R19 sin que nada fallara nunca. PT-044 cerro el caso de un «phase» que MIENTE; este es
+  // el de un «phase» que FALTA.
+  //
+  // Va AQUI y no dentro de exigible(): alli solo se llega si algun artefacto se comprueba, y un
+  // PT con todos sus artefactos presentes no lo alcanzaba nunca. Lo dijo el caso, no la lectura.
+  //
+  // Exentos: un EP —su ciclo no tiene fases de tarea, y exigirsela seria inventar un dato— y lo
+  // ya terminado, que es la misma frontera que FDGE-R52 y FDGE-R19, ahora compartida.
+  if (faseDeclarada === null) {
+    if (enRegistroPT?.type === 'EP' || ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+      warn('SUITE-R08', `${pt}: sin fase declarada — exento (${enRegistroPT?.type === 'EP' ? 'es un lote: su ciclo no tiene fases de tarea' : 'ya terminado: no se retrofecha'}).`);
+    } else {
+      fail('SUITE-R08', `${pt}: no declara «phase», y desde 8.0.0 eso ya no es SIN EVALUAR. `
+        + 'Declárala en el YAML de su intake.md o en su allocation de REGISTRY.json. Sin fase '
+        + 'ninguna exigencia por fase se evalúa, y no evaluarlas salía gratis.');
+    }
+  }
+
   // PT-044 · SUITE-R35 hacia DENTRO. La regla dice que el registro asigna y todo lo demas
   // ESPEJA, y su comprobacion solo miraba hacia la plataforma. El YAML del intake y la linea de
   // indice son las otras dos copias del mismo hecho, y nada las comparaba: cuatro tareas de
@@ -913,12 +946,10 @@ function checkPT(pt, { gate } = {}) {
   // Tres salidas, no dos (RULE-02): falta y toca -> error · falta y aun no toca -> aviso ·
   // no se sabe en que fase esta -> SIN EVALUAR, que no es un aprobado.
   const exigible = (regla, desde, artefacto) => {
-    if (faseDeclarada === null) {
-      warn(regla, `${pt}: no declara fase — la exigencia de ${artefacto} queda SIN EVALUAR. `
-        + 'Declara «phase: N» en el YAML de su intake.md o «phase» en su allocation de '
-        + 'REGISTRY.json. Sin fase no se puede afirmar que falte ni que sobre (RULE-06).');
-      return false;
-    }
+    // PT-016 · sin fase no se puede exigir nada, y SUITE-R08 ya lo dijo arriba UNA vez.
+    // Repetirlo por artefacto llenaba la salida de cinco «SIN EVALUAR» que decian lo mismo, y
+    // enterraban el unico mensaje que hay que leer.
+    if (faseDeclarada === null) return false;
     if (faseDeclarada < desde) {
       warn(regla, `${pt}: aún sin ${artefacto} — se escribe en PHASE ${desde} y el PT está en PHASE ${faseDeclarada}.`);
       return false;
@@ -934,6 +965,24 @@ function checkPT(pt, { gate } = {}) {
   // rojo, y ponerla verde exigia escribir el reanclaje DOS VECES — lo que SUITE-R35 prohibe.
   // El verificador no habla con la plataforma: se lo pregunta a `tracker`, que es quien tiene
   // el adaptador. La regla la hace cumplir quien verifica; el acceso lo encapsula quien lo tiene.
+  // PT-047 · FDGE-R19 · la rama por PT. PHASE 5 la manda crear desde la primera version del
+  // marco, PHASE 4 obliga a proponerla, y NINGUN verificador la miraba: `grep "Rama:"` sobre
+  // este archivo no devolvia una sola linea. 46 tareas seguidas se implementaron sobre la rama
+  // de integracion sin que nada lo dijera, con el CLAUDE.md del repositorio declarando dos
+  // ramas y ninguna por tarea — en el documento que SUITE-R00 dice que no puede derogar nada.
+  //
+  // Se lee del REGISTRO y no de HISTORY.log, que ya declara «Rama:» sin que nadie lo compruebe:
+  // HISTORY se escribe en PHASE 8 y la rama nace en PHASE 5, asi que comprobarlo alli llega
+  // tres fases tarde. La rama ES estado, y el estado vive en el registro (SUITE-R35).
+  if (fase >= 5 && !ESTADOS_TERMINALES.has(enRegistroPT?.status) && !enRegistroPT?.branch) {
+    const m = `${pt}: está en PHASE ${fase} y no declara rama. PHASE 5 crea `
+      + `«<type>/PT-NNN-slug» desde la rama de integración y la declara en `
+      + `REGISTRY.allocations[].branch (FDGE-R19). El PR de la tarea es revisión, no G4.`;
+    if (gate === 'G4') fail('FDGE-R19', m); else warn('FDGE-R19', m);
+  } else if (fase >= 5 && enRegistroPT?.branch) {
+    ok('FDGE-R19', `${pt}: rama «${enRegistroPT.branch}» declarada.`);
+  }
+
   // PT-044 · y deja de exigirse a lo YA TERMINADO. El reanclaje se escribe MIENTRAS se trabaja;
   // pedirselo a un PT que ya paso G4 es pedir que se FABRIQUE, y un rastro fabricado es peor que
   // ninguno. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no
@@ -943,8 +992,7 @@ function checkPT(pt, { gate } = {}) {
   // ponia la CI en rojo, y la unica salida practicable era dejar el YAML mintiendo: la regla
   // empujaba exactamente al defecto que PT-044 persigue. Es el mismo criterio que `rigeAqui`,
   // que ya existia para no exigir bitacora retroactiva a lo abierto antes de la 5.1.0.
-  const YA_TERMINADO = new Set(['INTEGRATED', 'CLOSED', 'REVERTED', 'REJECTED', 'DEFERRED']);
-  if (rigeAqui && fase >= 2 && !YA_TERMINADO.has(enRegistroPT?.status)) {
+  if (rigeAqui && fase >= 2 && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
     const plataforma = REGISTRO?.tracker?.plataforma ?? null;
     const notasPlataforma = plataforma && enRegistroPT?.issue ? notasDelIssue(pt) : null;
     if (notasPlataforma === 'SIN_ACCESO') {
@@ -1057,7 +1105,7 @@ function checkPT(pt, { gate } = {}) {
 
   // ── FDGE-R23 · manifiesto de evidencia ────────────────────────────────────
   if (manifest === null) {
-    if (gate) fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
+    if (exigibleEn(gate, 'manifest.json')) fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
     else warn('FDGE-R23', `${pt}: aún sin evidence/${pt}/manifest.json (normal antes de PHASE 6).`);
   } else if (manifest === undefined) {
     fail('FDGE-R23', `${pt}: manifest.json no es JSON válido.`);
@@ -1089,7 +1137,7 @@ function checkPT(pt, { gate } = {}) {
   // ── FDGE-R25 · self-review ────────────────────────────────────────────────
   const sr = read(join(evDir, 'self-review.md'));
   if (sr === null) {
-    if (gate || afterPhase6) fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
+    if (exigibleEn(gate, 'self-review.md') || afterPhase6) fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
   } else if (/SELF_REVIEW_BLOCKERS_FOUND/.test(sr)) {
     fail('FDGE-R25', `${pt}: el self-review está en SELF_REVIEW_BLOCKERS_FOUND.`);
   } else ok('FDGE-R25', `${pt}: self-review completo.`);
@@ -1115,7 +1163,7 @@ function checkHistory(pt, rel, type, { gate }) {
   // que `reverted` ya usa —descontar por encabezado— y que FDGE-R36 ya obliga a aplicar.
   const corrige = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+CORRIGE`, 'gm'))];
   if (entries.length === 0) {
-    if (gate) fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log.`);
+    if (exigibleEn(gate, 'HISTORY.log')) fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log.`);
     else warn('FDGE-R29', `${pt}: aún sin entrada en HISTORY.log (se escribe en PHASE 8).`);
     return;
   }
@@ -1224,6 +1272,33 @@ function checkHistory(pt, rel, type, { gate }) {
     ok('FDGE-R26', `${pt}: BUG validado por un humano en G3.`);
   }
   ok('FDGE-R34', `${pt}: precondiciones de G4 satisfechas.`);
+}
+
+// ─── FDGE-R39 · aislamiento de estado ────────────────────────────────────────
+// PT-015 · «Todo archivo de trabajo de un PT vive bajo changes/PT-XXX-slug/. Ninguna ruta global
+// es sobrescribible por un PT. Sin esta regla, dos PTs en vuelo se destruyen mutuamente.»
+//
+// Era HARD y no la comprobaba nadie. Es donde v3 los tenia —PLAN_ACTUAL.md, PENDING_TASKS.md,
+// CONTEXT_ANALYSIS.md en docs/implementation/— y de donde `migrate` los saca; sin comprobacion,
+// volver a ponerlos ahi no lo detecta nadie hasta que dos tareas se pisan.
+//
+// Corre UNA VEZ por ejecucion y no por PT: es una propiedad del repositorio.
+// OJO con las mayusculas: en Windows y macOS el sistema de archivos NO distingue, y
+// `discovery.md` colisiona con el INDICE legitimo `DISCOVERY.md` —igual `enrichment.md` con
+// `ENRICHMENT.md` y `scope.md` con `REFACTOR_SCOPE.md`—. Los tres artefactos de PHASE 2 quedan
+// fuera de esta lista por eso, y se dice: incluirlos ponia en rojo cualquier repositorio sano.
+// Es la misma trampa que TD-04 anota para `QA/` y `qa/`, y la encontro ejecutar, no leer.
+const ARTEFACTOS_DE_PT = [
+  'strategy.md', 'tasks.md', 'context.md', 'design.md', 'test-scenarios.md',
+  'traceability.md', 'out-of-scope.md', 'spec-changes.md', 'intake.md',
+  'PLAN_ACTUAL.md', 'PENDING_TASKS.md', 'CONTEXT_ANALYSIS.md',
+];
+function checkAislamiento() {
+  const intrusos = ARTEFACTOS_DE_PT.filter((f) => existsSync(join(IMPL, f)));
+  if (!intrusos.length) { ok('FDGE-R39', 'ningún artefacto de PT vive en una ruta global.'); return; }
+  fail('FDGE-R39', `${intrusos.length} artefacto(s) de PT en docs/implementation/: ${intrusos.join(', ')}. `
+    + 'Todo archivo de trabajo de un PT vive bajo changes/PT-XXX-slug/. En una ruta global, dos '
+    + 'PTs en vuelo se sobrescriben — es el bloqueo estructural que la migración desde v3 deshace.');
 }
 
 // ─── SUITE-R44 · cerrar un lote no borra lo que aplazó ───────────────────────
@@ -1380,6 +1455,7 @@ checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));
 checkInstallLog();
 checkReconciliation();
+checkAislamiento();
 checkEpics();
 GRAPH = graphState(reg);
 if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);

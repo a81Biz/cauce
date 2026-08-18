@@ -1,0 +1,10 @@
+# bash docs/methodology/tools/selftest.sh · 2026-08-15
+selftest: OK · 485 casos
+
+# los casos de PT-015:
+  [32m✓[0m verify-patrones cita SUITE-R38
+  [32m✓[0m revisar-secretos cita FND-R29
+  [32m✓[0m tracker cita SUITE-R47 al bloquear
+  [32m✓[0m un artefacto de PT en ruta global falla
+  [32m✓[0m sin artefactos globales, silencio
+  [32m✓[0m SUITE-R26 declara que se cubre

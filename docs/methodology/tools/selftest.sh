@@ -65,9 +65,9 @@ build_fixture() {
   "graph":{"generated":"2026-08-05","scope":"src/","pt_at_generation":4},
   "counters":{"PT":4,"EP":0,"QA":0,"QR":0,"QD":0,"H":0,"E":0,"P":0,"R":0,"INC":0},
   "allocations":[
-    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0"},
-    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.2.0"},
-    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0"},
+    {"id":"PT-001","type":"BUG","severity":"S2","slug":"login","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0","branch":"fix/PT-001-login"},
+    {"id":"PT-002","type":"INVESTIGATION","severity":"S3","slug":"pool","created":"2026-08-05","status":"CLOSED","phase":8,"structural":false,"suite_version":"5.2.0","branch":"investigate/PT-002-pool"},
+    {"id":"PT-003","type":"CHORE","severity":"S4","slug":"typo","created":"2026-08-05","status":"DONE","phase":8,"structural":false,"suite_version":"5.2.0","branch":"chore/PT-003-typo"},
     {"id":"PT-004","type":"FEATURE","severity":"S3","slug":"pdf","created":"2026-08-06","status":"IN_PROGRESS","phase":4,"structural":false,"suite_version":"5.2.0"}
   ] }
 J
@@ -286,6 +286,93 @@ chkno "sin fase en el registro no se inventa" "divergente"   V PT-004
 build_fixture; yaml_set PT-001-login phase 1
 chk   "en G4 la divergencia BLOQUEA"         "✗ SUITE-R35"   V --gate G4 PT-001
 
+# PT-047 · FDGE-R19 · la rama por PT. PHASE 5 manda «git checkout -b <type>/PT-XXX-slug» y
+# PHASE 4 obliga a proponerla; los 46 PT de este repositorio se hicieron sobre «trabajo» y
+# NADA lo detectaba: `grep "Rama:" verify-fdge.mjs` no devolvia una sola linea. El campo del
+# formato canonico de HISTORY se escribia, se leia y no se contrastaba con nada.
+#
+# La rama va al REGISTRO y no a HISTORY: HISTORY se escribe en PHASE 8 y la rama nace en
+# PHASE 5, asi que comprobarlo alli llega tres fases tarde. La rama ES estado.
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=5"
+chk   "un PT en PHASE 5 sin rama se reporta"  "FDGE-R19"     V PT-004
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=5; r.allocations.find(a=>a.id==='PT-004').branch='feature/PT-004-pdf'"
+chkno "con rama declarada, silencio"          "no declara rama"  V PT-004
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=5"; yaml_set PT-004-pdf phase 5
+chk   "en G4 la rama ausente BLOQUEA"         "✗ FDGE-R19"   V --gate G4 PT-004
+# Los que NO deben avisar. Sin el primero esto exigiria rama retroactiva a 46 tareas ya
+# integradas; sin el segundo, a toda tarea recien abierta. Un aviso que sale cuando no toca
+# es la forma mas rapida de que se ignore el que si toca.
+build_fixture; reg_set "r.allocations.find(a=>a.id==='PT-004').phase=9; r.allocations.find(a=>a.id==='PT-004').status='INTEGRATED'"
+chkno "lo ya integrado no se retrofecha"      "no declara rama"  V PT-004
+build_fixture
+chkno "en PHASE 4 todavia no toca"            "no declara rama"  V PT-004
+# La topologia, escrita donde manda y citada donde se ejecuta.
+chk   "FDGE-R19 declara la topologia"         "rama de integración" cat "$SUITE/RULES.md"
+chk   "y llega al nucleo"                     "FDGE-R19"     cat "$SUITE/CORE.md"
+chk   "PHASES la cita"                        "PT-NNN-slug"  cat "$SUITE/PHASES.md"
+chk   "SUITE-R42 dice PARA QUE rama"          "el del lote, no el de cada tarea" cat "$SUITE/RULES.md"
+chk   "el CLAUDE.md declara las efimeras"     "PT-NNN-slug"  cat "$RAIZ/CLAUDE.md"
+
+# PT-016 · SUITE-R08 · «phase» deja de ser opcional para un PT VIVO. Hasta hoy su ausencia salia
+# SIN EVALUAR, que no aprueba ni bloquea —correcto por RULE-06— pero era GRATIS: apagaba de una
+# vez traceability, manifest, self-review, FDGE-R52 y la rama de FDGE-R19, sin que nada fallara
+# nunca. PT-044 cerro el caso de un «phase» que MIENTE; este es el de un «phase» que FALTA.
+build_fixture; reg_set "delete r.allocations.find(a=>a.id==='PT-004').phase"
+chk   "un PT vivo sin phase FALLA"            "✗ SUITE-R08"  V PT-004
+build_fixture; reg_set "delete r.allocations.find(a=>a.id==='PT-004').phase"
+chkno "y deja de repetirlo por artefacto"     "la exigencia de"  V PT-004
+# Los que NO deben fallar. Un lote no tiene fase de TAREA y lo integrado no se retrofecha:
+# exigirselo es pedir que se invente el dato, que es el mismo defecto con el signo cambiado.
+build_fixture
+chkno "con phase declarada, sin error"        "✗ SUITE-R08"  V PT-004
+build_fixture; reg_set "r.allocations.push({id:'EP-099',type:'EP',slug:'x',created:'2026-08-06',status:'IN_PROGRESS',suite_version:'5.2.0'}); r.counters.EP=99"
+chkno "un EP sin phase esta EXENTO"           "✗ SUITE-R08"  V EP-099
+build_fixture; reg_set "const a=r.allocations.find(a=>a.id==='PT-004'); delete a.phase; a.status='INTEGRATED'"
+chkno "lo ya integrado sin phase, exento"     "✗ SUITE-R08"  V PT-004
+# Las plantillas: las de TAREA lo traen, la del LOTE no — ponerlo ahi ensenaria a rellenarlo
+# con un numero inventado.
+chk   "BUG-REPORT trae phase"                 "phase:"       cat "$SUITE/INTAKE/templates/BUG-REPORT.md"
+chk   "FEATURE-REQUEST trae phase"            "phase:"       cat "$SUITE/INTAKE/templates/FEATURE-REQUEST.md"
+chk   "CHANGE-REQUEST trae phase"             "phase:"       cat "$SUITE/INTAKE/templates/CHANGE-REQUEST.md"
+chk   "TAREA trae phase"                      "phase:"       cat "$SUITE/INTAKE/templates/TAREA.md"
+chkno "EPIC-INTAKE NO lo trae"                "^phase:"      cat "$SUITE/INTAKE/templates/EPIC-INTAKE.md"
+chk   "la migracion avisa de que ahora falla" "DEJA DE SER UN AVISO"  cat "$SUITE/tools/migrate.mjs"
+# SUITE-R38 · el patron critico vive en UN solo sitio y viaja con su contrato. Tres reglas de
+# este mismo lote preguntaban lo mismo con su propia copia de la lista.
+chk   "ESTADOS_TERMINALES en un solo sitio"   "ESTADOS_TERMINALES"  cat "$SUITE/tools/patrones.mjs"
+# Y el caso que protege a los otros nueve: DONE NO es terminal. Un PT en DONE espera G4 y sigue
+# vivo; anadirlo apagaria FDGE-R52, FDGE-R19 y SUITE-R08 A LA VEZ.
+_et=$(sed -n '/^export const ESTADOS_TERMINALES/,/]);/p' "$SUITE/tools/patrones.mjs")
+chk   "DONE NO es terminal"                   "^NO$" sh -c "printf '%s' \"$_et\" | grep -q \"'DONE'\" && echo SI || echo NO"
+
+# PT-015 · SUITE-R26 · las HARD que DECIDEN algo emiten su ID al fallar.
+#
+# Tres herramientas existen POR una regla concreta, ejecutan su contrato y no la nombraban:
+# verify-patrones es SUITE-R38, revisar-secretos es FND-R29, y tracker decide por SUITE-R47
+# donde bloquea el espejo. No faltaba la comprobacion: faltaba que el fallo llevara a la regla
+# — el defecto que SUITE-R53 corrigio para todo lo demas, dentro de las tres que mas lo pedian.
+build_fixture
+# Se rompe un patron EN EL FIXTURE para que el fallo ocurra de verdad, no se busca el ID en el
+# fuente: un ID en un texto que nunca se imprime no cita nada.
+perl -0pi -e "s/casa: \[/casa: ['\\\\x00NO_CASA_NUNCA\\\\x00', /" "$WORK/docs/methodology/tools/patrones.mjs"
+chk   "verify-patrones cita SUITE-R38"        "SUITE-R38"  node "$WORK/docs/methodology/tools/verify-patrones.mjs"
+build_fixture
+# La clave se ENSAMBLA en dos mitades: si el fuente la contiene entera, el propio escaner la
+# caza en este archivo y en la historia — y lo hizo, en el primer CI de PT-015. Es la clave de
+# ejemplo que documenta AWS, no una emitida, pero eso no la hace menos detectable: un escaner
+# que distinguiera «de ejemplo» de «real» no serviria para nada.
+mkdir -p "$WORK/src" && printf 'const k = "AKIA%s";\n' 'IOSFODNN7EXAMPLE' > "$WORK/src/mal.js"
+chk   "revisar-secretos cita FND-R29"         "FND-R29"    node "$WORK/docs/methodology/tools/revisar-secretos.mjs" "$WORK"
+chk   "tracker cita SUITE-R47 al bloquear"    "SUITE-R47"  cat "$SUITE/tools/tracker.mjs"
+# FDGE-R39 · un artefacto de PT en una ruta global. Es donde v3 los tenia y de donde migrate los
+# saca; sin comprobacion, volver a ponerlos ahi no lo detecta nadie y dos PT en vuelo se destruyen.
+build_fixture; printf '# PLAN\n' > "$WORK/docs/implementation/strategy.md"
+chk   "un artefacto de PT en ruta global falla" "✗ FDGE-R39"  V PT-001
+build_fixture
+chkno "sin artefactos globales, silencio"     "en docs/implementation/"  V PT-001
+# Y el alcance reducido, escrito donde manda.
+chk   "SUITE-R26 declara que se cubre"        "un gate consulta"  cat "$SUITE/RULES.md"
+
 # PT-044 · FDGE-R52 deja de exigir rastro a lo YA INTEGRADO. El reanclaje se escribe MIENTRAS se
 # trabaja; pedirselo a un PT que ya paso G4 es pedir que se fabrique, y fabricarlo es peor que no
 # tenerlo. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no
@@ -422,7 +509,25 @@ mk_v412
 chk "4.12 ⇒ pide el bloque ESTADO"        "SUITE-R33"     M
 chk "4.12 ⇒ pide declarar la fase"        "PT-009"        M
 chk "4.12 ⇒ ofrece la plataforma"         "OPCIONAL"      M
-chk "4.12 ⇒ enumera lo que llega"         "revisar-secretos"  M
+# PT-017 · la lista se DERIVA restando los dos directorios. Estaba escrita a mano: nombraba 6 de
+# 16 y no mencionaba regla.mjs ni audit.mjs, nacidas despues. Quien la lee es quien MENOS puede
+# detectar que esta incompleta — esta migrando, no conoce la suite.
+#
+# El caso anterior asertaba «revisar-secretos» porque estaba en la CONSTANTE. Derivar lo rompio,
+# con razon: ahora la lista dice lo que FALTA en el destino, y el fixture las tiene todas. Se
+# quitan dos del destino para que la resta tenga algo que decir.
+mk_v412; rm -f "$MIG/docs/methodology/tools/regla.mjs" "$MIG/docs/methodology/tools/revisar-secretos.mjs"
+chk   "la lista sale de comparar"           "regla.mjs"        M
+chk   "y nombra las dos que faltan"         "revisar-secretos" M
+mk_v412
+chk   "y conserva la frase que PT-043 usa"  "lo que llega nuevo"  cat "$SUITE/tools/migrate.mjs"
+# Sin tools/ en el destino la resta da 16, y eso es cierto pero INUTIL como aviso.
+mk_v412; rm -rf "$MIG/docs/methodology/tools"; cp "$SUITE"/tools/patrones.mjs "$MIG/docs/methodology/" 2>/dev/null
+chk   "sin tools/ dice la suite entera"     "suite entera"  node "$SUITE/tools/migrate.mjs" "$MIG"
+# Y el que evita el ruido: un destino al dia no produce fila.
+mk_v412; cp "$SUITE"/tools/*.mjs "$MIG/docs/methodology/tools/" 2>/dev/null; cp "$SUITE"/tools/selftest.sh "$MIG/docs/methodology/tools/" 2>/dev/null
+chkno "destino al dia, sin fila"            "llega nuevo"  M
+mk_v412
 chk "4.12 ⇒ menciona las excepciones"     "SECRETOS-EXCEPCIONES"  M
 
 # Los inversos: lo que YA esta no se pide, y un proyecto en 6.x no ve el tramo.
@@ -1249,6 +1354,18 @@ import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=
   if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else bad "$1  (no apareció: $2 · salió: $out)"; fi
 }
 
+# PT-048 · el inverso de trlib, que NO EXISTIA. Se escribio un caso llamando a `trlibno` dando
+# por hecho que estaba, y bash lo trato como «orden no encontrada»: el caso no corrio y el arnes
+# NO se puso rojo — subio de 485 a 489 en vez de 490, y esa unica cifra fue todo el aviso.
+# Un caso que no se ejecuta es peor que no tenerlo: ocupa el sitio del que si comprobaria.
+trlibno() { # $1 nombre · $2 patron que NO debe aparecer · $3 cuerpo JS
+  local out
+  out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then bad "$1  (apareció: $2)"; else pass "$1"; fi
+}
+
 V1='{id:"PT-100",status:"IN_PROGRESS"}'
 V2='{id:"PT-101",status:"DRAFT",issue:7}'
 I7='{number:7,title:"PT-101 x"}'
@@ -1411,6 +1528,21 @@ chk   "y llega al núcleo"                     "SUITE-R51"   cat "$SUITE/CORE.md
 trlib "lo vivo enlaza la rama de trabajo"     "tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 trlib "lo integrado enlaza la principal"      "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-95',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 trlib "sin saber la rama, cae en la principal" "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+# PT-048 · el cuerpo NO enlaza a un directorio que no existe. SUITE-R44 exime a un DEFERRED de
+# tener artefactos y PT-036 dice donde apunta el enlace: las dos correctas, y juntas producian un
+# 404 en el UNICO artefacto que un aplazado tiene. Se mira el directorio, no el estado: un PT
+# recien asignado tampoco lo tiene hasta PHASE 1, y con el estado como criterio seguiria fallando.
+trlib "sin directorio no enlaza"           "aplazada"  "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+trlibno "y no deja una URL rota"           "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+trlib "y cita la regla que lo exime"       "SUITE-R44" "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+# Y la nota que EXPLICA el enlace tampoco sobrevive cuando no hay enlace: el primer intento dejo
+# «sin artefactos todavia» con «el enlace apunta a…» justo debajo. Lo vio mirar el issue
+# publicado, no leer el diff.
+trlibno "sin enlace, no explica el enlace"  "El enlace apunta"  "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
+trlib "con directorio, el enlace sigue"    "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-98',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo',hayDirectorio:true}))"
+# El que protege a los demas: sin el dato, el comportamiento es el de HOY. Un undefined no es un
+# «no existe», y tratarlo como tal apagaria el enlace en TODOS los cuerpos.
+trlib "sin el dato, se comporta como hoy"  "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 trlib "y el cuerpo dice donde esta"           "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
 
@@ -2090,6 +2222,130 @@ chk   "las ejecutadas ni 0 ni el total"   "DERIVADA" \
 rm -rf "$WORK/solo-suite"; mkdir -p "$WORK/solo-suite/docs"
 cp -r "$SUITE" "$WORK/solo-suite/docs/methodology"
 chk   "sin saber quién ejecuta ⇒ SIN EVALUAR" "SIN EVALUAR"  A "$WORK/solo-suite/docs/methodology"
+
+# ─── PT-020 · el alcance del grafo cubre el codigo propio ───────────────────
+# El grafo se genero un dia sobre `bin` y ahi se quedo: 18 nodos, todos de cauce.mjs, mientras
+# 16 herramientas quedaban fuera. FDGE-R43 daba FRESH sobre lo que no habia mirado — una regla
+# que puede dar verde sin haber leido el codigo no verifica el codigo, verifica una fecha.
+# Estos casos no comprueban que el grafo sirva (eso no es mecanizable, y test-scenarios.md lo
+# declara): comprueban que el ALCANCE no vuelva a dejar fuera la mitad del ejecutable.
+G() { node -e '
+  const r = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+  const g = r.graph ?? {};
+  const dirs = String(g.scope ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const ultimo = Math.max(0, ...r.allocations.map((a) => Number(String(a.id).split("-")[1]) || 0));
+  console.log("SCOPE " + dirs.join(" | "));
+  console.log(dirs.includes("bin") && dirs.includes("docs/methodology/tools") ? "CUBRE_CODIGO_PROPIO" : "ALCANCE_INCOMPLETO");
+  // El alcance nombra directorios, no el repositorio entero: FND-R28 deja fuera dependencias,
+  // compilacion y fixtures, y `changes/` son directorios de markdown, no modulos.
+  console.log(dirs.some((d) => d === "." || d === "/" || d.startsWith("changes")) ? "ALCANCE_DESBORDADO" : "ALCANCE_ACOTADO");
+  // pt_at_generation en 0 hace que el grafo nazca STALE: FDGE-R43 compara contra los PT
+  // estructurales integrados DESDE su generacion, y con 0 son todos.
+  console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
+' "$RAIZ/docs/implementation/REGISTRY.json"; }
+
+# ─── PT-029 · las compuertas anteriores a G4 se pueden evaluar ─────────────
+# Tres comprobaciones decian `if (gate)` sin decir de QUE compuerta hablaban, y con eso G1, G2 y
+# G3 heredaban las exigencias de G4: pedian en PHASE 1 lo que el procedimiento escribe en PHASE 8.
+# Las tres compuertas anteriores a G4 no se podian evaluar con la herramienta que existe para
+# evaluarlas, y llevaban asi desde que existe el parametro. Nadie tropezo porque la ruta esta
+# indocumentada: solo se enseña --gate G4.
+#
+# El fixture: PT-004 esta en PHASE 4 (IN_PROGRESS), sin manifest ni self-review ni HISTORY.
+GT() { node "$WORK/docs/methodology/tools/verify-fdge.mjs" --gate "$1" PT-004; }
+
+chkno "G1 no exige el manifiesto de PHASE 6"   "falta evidence/PT-004/manifest.json"  GT G1
+chkno "G1 tampoco el self-review"              "falta evidence/PT-004/self-review.md" GT G1
+chkno "G1 tampoco la entrada de HISTORY"       "PT-004: sin entrada en HISTORY.log"   GT G1
+chkno "G2 sigue sin exigir lo de PHASE 6"      "falta evidence/PT-004/manifest.json"  GT G2
+chkno "G3 no exige lo que PHASE 8 escribe"     "PT-004: sin entrada en HISTORY.log"   GT G3
+# La direccion contraria, que es la que hay que proteger: G4 es la ultima y NO relaja nada.
+chk   "G3 SI exige el manifiesto"              "falta evidence/PT-004/manifest.json"  GT G3
+chk   "G4 exige el manifiesto"                 "falta evidence/PT-004/manifest.json"  GT G4
+chk   "G4 exige el self-review"                "falta evidence/PT-004/self-review.md" GT G4
+chk   "G4 exige la entrada de HISTORY"         "PT-004: sin entrada en HISTORY.log"   GT G4
+# Sin compuerta no se exige nada: verify-fdge informa, no bloquea.
+chkno "sin compuerta, HISTORY solo se avisa"   "PT-004: sin entrada en HISTORY.log"   V PT-004
+
+# El hecho vive en UN sitio y su fase viaja al lado, para que la asignacion sea DERIVABLE en vez
+# de creible: la compuerta de un artefacto tiene que ser la primera POSTERIOR a su fase. Si
+# alguien pone manifest.json en G1 «porque si», este caso cae aunque la tabla sea coherente.
+cat > "$WORK/exigible.mjs" <<'MJS'
+// El especificador de un `import` estatico no puede ser una expresion: la primera version lo
+// escribio asi, reviento, y `revento()` lo caza — el arnes se caza a si mismo.
+import { pathToFileURL } from 'node:url';
+const { EXIGIBLE_DESDE, ORDEN_COMPUERTAS, exigibleEn } = await import(pathToFileURL(process.env.MTH_PATRONES).href);
+// PHASES: G1 cierra PHASE 1 · G2 cierra PHASE 4 · G3 cierra PHASE 7 · G4 cierra PHASE 9
+const CIERRA = { G1: 1, G2: 4, G3: 7, G4: 9 };
+const malas = [];
+for (const [art, e] of Object.entries(EXIGIBLE_DESDE)) {
+  const primera = ORDEN_COMPUERTAS.find((g) => CIERRA[g] > e.fase);
+  if (primera !== e.desde) malas.push(`${art}: fase ${e.fase} => ${primera}, declara ${e.desde}`);
+}
+if (!exigibleEn(undefined, 'HISTORY.log')) {} else malas.push('sin compuerta se exige algo');
+if (!exigibleEn('G4', 'HISTORY.log')) malas.push('G4 no exige HISTORY.log');
+if (!exigibleEn('G4', 'inventado.txt')) malas.push('un artefacto sin entrada deberia exigirse siempre');
+console.log(malas.length ? `INCOHERENTE ${malas.join(' | ')}` : 'DERIVADA');
+MJS
+# La ruta se pasa TAL CUAL y la convierte a URL el propio node (`pathToFileURL`). El primer
+# intento la traducia con `sed` desde bash y en Git-Bash quedaba «file:///», que no es absoluta:
+# traducir rutas a mano entre dos mundos es de las cosas que solo se ven ejecutando. Lo cazo
+# `revento()`, que existe justo para que una herramienta rota no pase por verde.
+chk   "EXIGIBLE_DESDE se DERIVA de la fase"    "DERIVADA" \
+  env MTH_PATRONES="$WORK/docs/methodology/tools/patrones.mjs" node "$WORK/exigible.mjs"
+
+# EL ENTREGABLE: cazar la FORMA, no los tres casos. Una comprobacion que se active con CUALQUIER
+# compuerta vuelve a hacer inevaluables las tres anteriores. Hoy hay cero; la cuarta que se
+# escriba pone esto en rojo el dia que se escriba.
+chkno "ninguna comprobacion se activa con cualquier compuerta" "if (gate) fail(" \
+  cat "$RAIZ/docs/methodology/tools/verify-fdge.mjs"
+# Y el caso de arriba no puede pasar por vacio: si el archivo no se lee, chkno pasaria solo.
+chk   "…y el archivo se leyo de verdad"        "gate === 'G4'" \
+  cat "$RAIZ/docs/methodology/tools/verify-fdge.mjs"
+
+# ─── PT-023 · el texto copiable dice lo que la regla dice ──────────────────
+# PT-018 declaro tres cambios de documento y ejecuto uno. El que quedo sin hacer era el de
+# FDGE-Prompts.md: el parrafo de SUITE-R44 seguia diciendo «cita el identificador que lo sostiene
+# — NORMALMENTE una allocation en DEFERRED», que es la prosa que SUITE-R44 existe para eliminar,
+# dentro del documento que SUITE-R20 manda que sea copiable TAL CUAL.
+#
+# Estos casos NO comprueban que una declaracion de spec-changes.md se haya cumplido: eso no es
+# mecanizable y discovery.md lo mide —110 filas, 4 candidatos, 3 falsos positivos—. Comprueban el
+# contenido de UN documento, que es lo unico que se puede afirmar sin mentir.
+P="$RAIZ/docs/methodology/FDGE-Prompts.md"
+# El parrafo de SUITE-R44, acotado: desde su titular hasta el titular siguiente. Sin acotar, un
+# «normalmente» de cualquier otra parte del documento daria un rojo que no es este defecto.
+sr44() { sed -n '/`SUITE-R44`: lo que el lote aplaza/,/^\*\*`SUITE-R4[35]`/p' "$P"; }
+
+chk   "el texto copiable dice vocabulario cerrado" "vocabulario cerrado" sr44
+chk   "…y que la cita es reciproca"                "recíproca"           sr44
+chk   "…y nombra «—» como valor admitido"          "no aplaza nada"      sr44
+chk   "…y distingue el propio lote en DONE"        "DONE o CLOSED"       sr44
+chkno "y ya no dice «normalmente»"                 "normalmente"         sr44
+# La comprobacion inversa vive en el caso: si sr44() no acotara nada, chkno pasaria por vacio y
+# los cuatro chk caerian. Aqui se exige que el bloque EXISTA, para que el silencio no sea verde.
+chk   "el bloque de SUITE-R44 existe y no esta vacio" "SUITE-R44"        sr44
+
+chk   "el alcance del grafo cubre bin"       "SCOPE bin"              G
+chk   "…y las herramientas"                  "CUBRE_CODIGO_PROPIO"    G
+chk   "sin desbordar a la raiz ni a changes" "ALCANCE_ACOTADO"        G
+chk   "pt_at_generation no es 0"             "ANCLADO"                G
+# La comprobacion inversa: el mismo lector sobre el alcance de ayer tiene que decir que NO.
+cat > "$WORK/graph-viejo.json" <<'J'
+{ "graph":{"generated":"2026-08-13","scope":"bin","pt_at_generation":0}, "allocations":[{"id":"PT-001"}] }
+J
+chk   "el alcance viejo se declara incompleto" "ALCANCE_INCOMPLETO" \
+  sh -c 'RAIZ_FAKE=$(dirname "$1"); node -e "
+  const r = JSON.parse(require(\"node:fs\").readFileSync(process.argv[1], \"utf8\"));
+  const dirs = String(r.graph.scope).split(\",\").map((s) => s.trim()).filter(Boolean);
+  console.log(dirs.includes(\"bin\") && dirs.includes(\"docs/methodology/tools\") ? \"CUBRE_CODIGO_PROPIO\" : \"ALCANCE_INCOMPLETO\");
+  console.log(Number(r.graph.pt_at_generation) > 0 ? \"ANCLADO\" : \"SIN_ANCLAR\");
+" "$1"' _ "$WORK/graph-viejo.json"
+chk   "y su ancla se declara sin poner"        "SIN_ANCLAR" \
+  sh -c 'node -e "
+  const r = JSON.parse(require(\"node:fs\").readFileSync(process.argv[1], \"utf8\"));
+  console.log(Number(r.graph.pt_at_generation) > 0 ? \"ANCLADO\" : \"SIN_ANCLAR\");
+" "$1"' _ "$WORK/graph-viejo.json"
 
 echo
 [ "$FAILED" -eq 0 ] && echo "selftest: OK · $TOTAL casos" || echo "selftest: HAY FALLOS · $TOTAL casos"

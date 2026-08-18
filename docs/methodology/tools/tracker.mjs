@@ -240,7 +240,7 @@ ${MARCA_AGENTE}`;
  * Sin `url` no se inventa ninguna: se escribe la ruta sin enlace y se dice por que (RULE-06).
  */
 export function cuerpoDeIssue(a, opciones = {}) {
-  const { url, rama, tareas, ramaTrabajo } = opciones;
+  const { url, rama, tareas, ramaTrabajo, hayDirectorio } = opciones;
   const esLote = a?.type === 'EP';
   const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
   // PT-036 · el enlace apunta a donde el contenido ESTA, no a donde estara.
@@ -255,9 +255,23 @@ export function cuerpoDeIssue(a, opciones = {}) {
   // cuerpo se resincroniza en cada `abrir --aplicar`, asi que la transicion es automatica.
   const viva = VIVOS.has(a?.status);
   const ramaDelEnlace = (viva && ramaTrabajo) ? ramaTrabajo : (rama ?? 'main');
-  const enlace = url
-    ? `[\`${dir}/\`](${url}/tree/${ramaDelEnlace}/${dir})`
-    : `\`${dir}/\` — en el repositorio`;
+  // PT-048 · un enlace a un directorio que NO EXISTE es un 404 en el unico artefacto que una
+  // allocation aplazada tiene. `SUITE-R44` la exime de tener artefactos y `PT-036` dice donde
+  // apunta el enlace: las dos correctas por separado, y juntas producian el 404.
+  //
+  // Se mira el DIRECTORIO, no el estado: un PT recien asignado tampoco lo tiene hasta que
+  // `PHASE 1` lo crea, y con `status === 'DEFERRED'` como criterio ese seguiria fallando.
+  // Es `RULE-06` aplicado a un dato que se puede mirar en vez de inferir.
+  //
+  // `=== false` y no `!hayDirectorio`: si el dato no viaja —una llamada antigua, un caso que no
+  // lo pase— el comportamiento tiene que ser el de HOY. Un `undefined` no es un «no existe», y
+  // tratarlo como tal apagaria el enlace en TODOS los cuerpos.
+  const enlace = hayDirectorio === false
+    ? 'Sin artefactos todavía: es una allocation **aplazada** (`SUITE-R44`). Cuando se retome, '
+      + 'su `PHASE 1` crea el directorio y este cuerpo se resincroniza solo.'
+    : (url
+      ? `[\`${dir}/\`](${url}/tree/${ramaDelEnlace}/${dir})`
+      : `\`${dir}/\` — en el repositorio`);
 
   const l = [];
   l.push(esLote
@@ -275,6 +289,13 @@ export function cuerpoDeIssue(a, opciones = {}) {
     l.push('');
     l.push('> No se pudo derivar la URL del repositorio, así que la ruta va sin enlace:');
     l.push('> inventar una sería peor que no ponerla.');
+  } else if (hayDirectorio === false) {
+    // PT-048 · sin enlace, la nota que EXPLICA el enlace sobra. Se quedo ahi en el primer
+    // intento —el cuerpo decia «sin artefactos todavia» y debajo «el enlace apunta a…»— y lo
+    // vio mirar el issue publicado, no leer el diff.
+    l.push('');
+    l.push('> Un aplazado no tiene intake ni ha recorrido fases: eso es lo que `SUITE-R44` quiere.');
+    l.push('> Aplazarlo lo **pone** en el tablero, no lo saca.');
   } else {
     l.push('');
     l.push(viva
@@ -593,9 +614,19 @@ function espejo() {
   // —apuntar el estado terminal, mergear, cerrar—. Bloquear ahi seria exigir que se cerraran
   // los issues antes del merge, que es exactamente lo que SUITE-R46 prohibe. Se dice, no se
   // castiga: informar y bloquear no son lo mismo.
+  // PT-015 · `SUITE-R47` se citaba solo en la rama por defecto, donde el espejo INFORMA. Aquí,
+  // que es donde BLOQUEA, no se nombraba: la regla que decide dónde muerde no aparecía en el
+  // momento en que muerde. Se añade al mensaje sin cambiar cuándo bloquea (`SUITE-R53`).
   for (const d of div) {
     if (d.pendienteDeCierre) notas.push(`PENDIENTE DE CIERRE · ${d.mensaje}`);
     else fail(d.regla, d.mensaje);
+  }
+  // PT-015 · SUITE-R47 se emite UNA vez y con la rama CORRECTA. El primer intento uso REPO.rama
+  // —que es la rama POR DEFECTO— para decir «no es la rama por defecto», y lo repetia por cada
+  // divergencia. Las dos cosas las dijo ejecutarlo: leyendo, el nombre de la variable parecia
+  // el bueno.
+  if (div.some((d) => !d.pendienteDeCierre)) {
+    fail('SUITE-R47', `el espejo BLOQUEA aquí y no solo informa: «${RAMA_TRABAJO ?? '¿?'}» no es la rama por defecto («${REPO.rama ?? '¿?'}»), así que es donde el registro asigna.`);
   }
   if (!errores.length) {
     notas.push(`${vivas.length} allocation(s) viva(s) y ${issues.length} issue(s) abierto(s): el espejo cuadra.`);
@@ -650,6 +681,10 @@ const contextoCuerpo = (a) => ({
   ...REPO,
   ramaTrabajo: RAMA_TRABAJO,
   tareas: a?.type === 'EP' ? all.filter((t) => t.epic === a.id) : undefined,
+  // PT-048 · el dato viaja en el contexto y NO se lee dentro de `cuerpoDeIssue`: esa funcion es
+  // pura y exportada a proposito —para que un caso pueda comprobarla sin hablar con la
+  // plataforma ni con el disco—, y meterle un `existsSync` la habria devuelto a ser inprobable.
+  hayDirectorio: existsSync(join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`)),
 });
 
 // PT-010 · sincronizar el CUERPO de los issues abiertos, no solo sus etiquetas. Sin esto el

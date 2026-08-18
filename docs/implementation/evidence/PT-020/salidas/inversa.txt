@@ -1,0 +1,29 @@
+# Comprobacion inversa · PT-020 · 2026-08-15
+# Se revierte REGISTRY.graph al alcance de ayer y se comprueba que los casos CAEN.
+
+REGISTRY.graph revertido a: {"generated":"2026-08-13","scope":"bin","pt_at_generation":0}
+
+--- selftest.sh · los seis casos de PT-020 ---
+  [32m✓[0m el alcance del grafo cubre bin
+  [31m✗[0m …y las herramientas  (no apareció: CUBRE_CODIGO_PROPIO)
+  [32m✓[0m sin desbordar a la raiz ni a changes
+  [31m✗[0m pt_at_generation no es 0  (no apareció: ANCLADO)
+  [32m✓[0m el alcance viejo se declara incompleto
+  [32m✓[0m y su ancla se declara sin poner
+selftest: HAY FALLOS · 501 casos
+
+--- verify-fdge PT-020 · FDGE-R43 ---
+  ✓ SUITE-R43      PT-020: sin comentarios pendientes en el issue #27.
+  ! FDGE-R43       Grafo STALE — PT estructural(es) integrados desde su generación: PT-034. Bloquea G2 en PTs MAJOR.
+
+--- restaurado ---
+REGISTRY.graph: {"generated":"2026-08-15","scope":"bin, docs/methodology/tools","pt_at_generation":48}
+  [32m✓[0m el alcance del grafo cubre bin
+  [32m✓[0m …y las herramientas
+  [32m✓[0m sin desbordar a la raiz ni a changes
+  [32m✓[0m pt_at_generation no es 0
+  [32m✓[0m el alcance viejo se declara incompleto
+  [32m✓[0m y su ancla se declara sin poner
+selftest: OK · 501 casos
+  ✓ FDGE-R43       Grafo FRESH — generado 2026-08-15 sobre bin, docs/methodology/tools.
+  ✓ SUITE-R43      PT-020: sin comentarios pendientes en el issue #27.

@@ -72,8 +72,18 @@ if (!errores.length) {
   console.log(`${c.verde}Todos los patrones cumplen su contrato.${c.fin}`);
   process.exit(0);
 }
-for (const e of errores) console.log(`  ${c.rojo}✗${c.fin} ${e}`);
-console.log(`\n${errores.length} patrón(es) incumplen su contrato.`);
+// PT-015 · el fallo CITA su regla. Esta herramienta ES la comprobación de `SUITE-R38` —«un
+// patrón crítico vive en un solo sitio y viaja con su contrato»— y no la nombraba: quien viera
+// el error tenía que deducir de qué regla venía, que es exactamente lo que `SUITE-R53` dice que
+// no puede ser el camino.
+//
+// Y el ID se EMITE como dato, no se mete en el texto: `regla --fallos` deriva de `fail('ID', …)`
+// y una cita en la prosa no la ve — con razón, porque mencionar no es emitir. Escribirlo dentro
+// del template dejaba la regla igual de invisible para la derivación, y eso lo dijo ejecutar
+// `regla --sin-comprobar` después de «arreglarlo».
+const fail = (regla, msg) => console.log(`  ${c.rojo}✗${c.fin} ${regla}  ${msg}`);
+for (const e of errores) fail('SUITE-R38', e);
+console.log(`\n${errores.length} patrón(es) incumplen su contrato (SUITE-R38).`);
 console.log('Un patrón que no casa lo que dice casar convierte un verificador en decoración:');
 console.log('informa «sin errores» porque no encuentra nada, no porque no haya nada.');
 process.exit(1);

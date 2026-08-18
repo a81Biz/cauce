@@ -651,3 +651,46 @@ Cinco cosas, todas comprobadas contra el repositorio y ninguna recordada:
 
 Las tres primeras son mías, de esta sesión y de las dos anteriores. Las dos últimas son del
 marco.
+
+---
+
+## 2026-08-15 · `EP-013` cerrado · 8.0.0 sellada
+
+`PHASE 0` ejecutada al arrancar y **antes de cada transición de fase**, por instrucción explícita
+del firmante: *«antes de cada transición de fase, ejecuta `tracker siguiente`. No de memoria»*.
+Se cumplió en las ocho tareas; las desviaciones están dichas en el issue de cada una, no aquí.
+
+**Lo que la sesión entregó:** las ocho tareas de `EP-013` en `DONE` e integradas en `trabajo`
+(PRs #74–#82), las cuatro filas de cierre resueltas, `CHANGELOG` **8.0.0** con guía de migración,
+los 21 documentos alineados y `CORE.md` regenerado. `selftest` **456 → 520**.
+
+**Lo que la sesión aprendió, y no estaba en ninguna tarea:**
+
+1. **Cuatro de los ocho hallazgos aparecieron ejecutando, no leyendo**, y dos de ellos mientras se
+   trabajaba en otra cosa. `--gate G3` llevaba roto desde que existe el parámetro; lo encontró
+   `PT-020` por curiosidad. `REFACTOR_SCOPE.md` tenía catorce filas pegadas en una línea desde la
+   apertura de este mismo lote; apareció al leerlo para otra cosa.
+2. **La ruta rota fue siempre la ruta indocumentada.** Tres compuertas de cuatro no se podían
+   evaluar porque la cabecera solo enseñaba `--gate G4`. Lo que no se documenta no se usa, y lo
+   que no se usa se pudre en silencio.
+3. **Un índice escrito a mano diverge; solo hace falta tiempo.** `REFACTOR_SCOPE` corrupto,
+   `BACKLOG` ocho lotes desactualizado. Los cuatro se derivan ahora del registro, y el `HANDOFF`
+   lo prohíbe explícitamente.
+4. **Medir antes de decidir cambió dos decisiones.** `PT-023` iba a escribir un verificador de
+   `FDGE-R22`; la medida dio 75 % de falsos positivos y no se escribió. `PT-020` iba a dar por
+   bueno el grafo; dos de sus tres expectativas fallaron y quedó dicho.
+
+**Lo que cazó al agente, tres veces, y las tres quedan dichas:**
+
+```
+SUITE-R34   la CI en rojo por separar el estado del trabajo en dos commits (PT-020)
+revento()   dos veces seguidas, el caso derivado que estrenaba esa misma funcion (PT-029)
+FDGE-R52    la transicion PHASE 3 -> 4 escrita tarde, tres veces. La cuarta se
+            publico ANTES de escribir los artefactos, y se dijo por que
+```
+
+Y un descuido propio sin regla que lo cace: se escribió un `intake.md` duplicado para `PT-023`
+**sin comprobar antes si ya existía** —existía, firmado por el lote el día anterior—. Se retiró y
+se usó el original. Nada lo habría detectado: el directorio con otro slug estaba a la vista.
+
+**Dónde queda:** `G4` pendiente. Es del firmante y no se delega (`EXEC-R04`, `SUITE-R06a`).

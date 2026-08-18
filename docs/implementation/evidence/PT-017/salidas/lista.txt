@@ -1,0 +1,10 @@
+# PT-017 · la lista, antes y despues
+
+== antes: escrita a mano, 6 de 16, sin regla.mjs ni audit.mjs ==
+  tracker · revisar-secretos · comparar-marco · verify-patrones · version · patrones
+
+== despues: derivada, sobre el legado real ==
+  ! lo que llega nuevo en tools/: 7 que tu proyecto no tenía — comparar-marco.mjs · patrones.mjs · regla.mjs · revisar-secretos.mjs · tracker.mjs · verify-patrones.mjs · version.mjs. Y los documentos de FIDE/ más INTAKE/templates/TAREA.md.
+  ! si el escáner de secretos encuentra un falso positivo, se firma en docs/implementation/SECRETOS-EXCEPCIONES.md — una fila por huella, con nombre y motivo. Firmar no silencia: la excepción sigue apareciendo en cada revisión (FND-R29).
+--
+  4/6 · lo que llega nuevo en tools/: 7 que tu proyecto no tenía — comparar-marco.mjs ·…

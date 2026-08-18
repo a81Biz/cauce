@@ -1,0 +1,11 @@
+{
+  "pt": "PT-016",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Un intake sin phase FALLA, en vez de quedar SIN EVALUAR", "scenarios": ["E1","E2","E3","E4","E5"], "tests": ["selftest.sh:un PT vivo sin phase FALLA","selftest.sh:y deja de repetirlo por artefacto","selftest.sh:con phase declarada, sin error","selftest.sh:un EP sin phase esta EXENTO","selftest.sh:lo ya integrado sin phase, exento"], "evidence": ["salidas/selftest.txt","salidas/impacto.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Las plantillas de tarea lo declaran obligatorio; la del lote no", "scenarios": ["E6","E7"], "tests": ["selftest.sh:BUG-REPORT trae phase","selftest.sh:FEATURE-REQUEST trae phase","selftest.sh:CHANGE-REQUEST trae phase","selftest.sh:TAREA trae phase","selftest.sh:EPIC-INTAKE NO lo trae"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Un proyecto instalado no se rompe sin aviso: la migracion lo enumera", "scenarios": ["E8"], "tests": ["selftest.sh:la migracion avisa de que ahora falla"], "evidence": ["salidas/selftest.txt","salidas/impacto.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "La frontera vive en un solo sitio con contrato, y DONE no esta en ella", "scenarios": ["E9","E10"], "tests": ["selftest.sh:ESTADOS_TERMINALES en un solo sitio","selftest.sh:DONE NO es terminal"], "evidence": ["salidas/selftest.txt"], "verified": true }
+  ],
+  "suite": { "passed": 479, "failed": 0, "skipped": 0, "coverage": 479, "baseline": 466 }
+}
