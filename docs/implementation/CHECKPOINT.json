@@ -1,16 +1,17 @@
 {
-  "pt": "PT-053",
+  "pt": "PT-054",
   "type": "CHORE",
   "epic": "EP-014",
   "status": "DONE",
   "phase": 9,
   "fase": "Integración",
-  "rama": "chore/PT-053-la-transicion-de-fase-es-un-solo-acto",
-  "sha": "3478417d4c3d207edfa5fd02f30616812c690576",
-  "sha_corto": "3478417",
+  "rama": "chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge",
+  "sha": "2b97137800416da4d14a8d43393c3d994325b2ab",
+  "sha_corto": "2b97137",
   "sucio": true,
   "archivos": [
-    "ocs/methodology/tools/tracker.mjs"
+    "docs/implementation/REGISTRY.json",
+    "hanges/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/intake.md"
   ],
   "compuerta": "G4",
   "produce": [],

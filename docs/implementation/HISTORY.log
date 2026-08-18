@@ -2139,3 +2139,53 @@ no está en esta tarea — será contar, en EP-015, cuántas veces FDGE-R52 vuel
 transición. En EP-014 fueron TRES, y está escrito antes de saber el resultado.
   casos 579 → 600 · la transicion pasa de 5 actos manuales a 1
 Trazabilidad externa: —
+
+## PT-054 — CHORE: ver en qué se trabaja sin esperar al merge
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que exista UN sitio donde ver en qué se trabaja, sin fusionar nada y sin saber de
+antemano qué rama mirar.
+Causa raíz: la visibilidad existe y está repartida en TRECE ramas de tarea, y «trabajo» solo agrega
+tras fusionar cada una.
+Solución: «tracker proyectar» escribe la rama DERIVADA cauce/<usuario> con FONTANERÍA —hash-object,
+mktree, commit-tree, update-ref— que NO TOCA EL ÁRBOL DE TRABAJO. Contiene ESTADO.md, una fila por
+allocation viva con el SHA de SU rama, y el CHECKPOINT.json de la tarea en curso. Cada commit lleva
+la marca «cauce:proyeccion»; uno sin ella se REPORTA, porque una rama derivada en la que alguien
+escribe deja de serlo — y no se borra: decidir qué hacer con el trabajo de alguien es humano.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-054/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): CORREGÍ MI PROPIA ESTRATEGIA AL IMPLEMENTARLA. En PHASE 3 escribí «va
+dentro del respaldo de avanzar: si la proyección falla, la transición entera se revierte». Es
+IMPOSIBLE: la nota ya se publicó y un comentario no se despublica, así que revertir los archivos
+dejaría UNA NOTA SOBRE UNA TRANSICIÓN QUE EL REGISTRO NIEGA — el registro falso que todo ese orden
+existe para impedir. Lo correcto es lo contrario: la proyección es LO MÁS RECUPERABLE de todo
+—enteramente derivada, se rehace con un comando— así que va la ÚLTIMA y su fallo NO revierte nada.
+Lo razoné mal y lo dijo implementarlo.
+La proyección enseñó algo a la primera: las ramas de PT-049..PT-053 se BORRARON al fusionar, así
+que su SHA sale «—». NO hereda uno prestado. Un SHA de otra rama habría sido plausible y falso, que
+es la peor combinación, y AC-04 y RULE-06 lo impidieron sin que nadie lo forzara.
+Y la primera transición de esta tarea FALLÓ: la etiqueta «fase: 3» no existía —nadie había llegado
+a esa fase— y avanzar no las creaba, como sí hace abrir. Reventó en el quinto acto con el registro
+y el YAML ya escritos, Y NADA QUEDÓ APLICADO: la fase se quedó en 2. La atomicidad de PT-053 no era
+una prueba de laboratorio — era el comando protegiéndose la primera vez que algo salió mal por una
+razón que nadie había previsto.
+AVANZAR ACABÓ CON SIETE ACTOS, no cinco: registro, YAML, checkpoint, sello del HANDOFF, espejo,
+nota y proyección. Y los dos que se descubrieron los dijo EJECUTAR, no leer: el espejo lo dijo
+npm run verify y el sello lo dijo la CI. Eso es, en sí, la medida de por qué el comando hacía
+falta: si un humano tenía que acordarse de siete actos, se olvidaba de dos incluso cuando su única
+tarea era enumerarlos.
+Publicar es «--publicar» y no va en avanzar. Empujar en cada transición daría la visibilidad sin
+NINGÚN acto manual —lo que este lote persigue— pero convertiría un acto de PUBLICACIÓN en un efecto
+colateral. La frontera que se respeta: el lote quita los actos de REGISTRAR, no los de PUBLICAR.
+Lo que no resuelve: la convivencia de dos personas. El usuario es UNO, el de git config, y EP-016
+recibe el mecanismo hecho para que solo tenga que añadir la identidad. Y la marca es FALSIFICABLE,
+como una firma: el mismo límite que SUITE-R43 tiene con las notas, y por eso se declara.
+  casos 603 → 618 · trece ramas en una tabla
+Trazabilidad externa: —

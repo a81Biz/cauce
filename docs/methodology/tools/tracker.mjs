@@ -202,6 +202,50 @@ export const etiquetasQueFaltan = (existentes, necesarias = ETIQUETAS) =>
 export const MARCA_AGENTE = '<!-- cauce:agente -->';
 
 /**
+ * PT-054 · La marca de un commit de PROYECCION.
+ *
+ * `cauce/<usuario>` es DERIVADA por decision del firmante: solo la escribe la herramienta. Pero
+ * una rama derivada en la que alguien escribe DEJA DE SERLO, y no se notaria — `cauce/alberto` con
+ * un commit humano se ve exactamente igual que sin el. La marca es lo unico que los distingue.
+ *
+ * Es el mismo mecanismo que MARCA_AGENTE usa con las notas: invisible al leer, comprobable al
+ * verificar. Y falsificable, como una firma — por eso se DECLARA en vez de presumirse.
+ */
+export const MARCA_PROYECCION = 'cauce:proyeccion';
+
+/** El nombre de la rama derivada de una persona. Una referencia de git no admite cualquier cosa. */
+export const ramaDe = (usuario) => {
+  const n = String(usuario ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return n ? `cauce/${n}` : null;
+};
+
+/** El cuerpo de ESTADO.md: una fila por allocation VIVA, con el SHA de SU rama. Funcion pura. */
+export function estadoProyectado(vivas, shaDe, fecha) {
+  const filas = vivas.map((a) => {
+    // El SHA sale de la punta de SU rama, no de la actual: una tarea sin rama creada lo declara
+    // VACIO en vez de heredar el de otra. Un SHA prestado seria una afirmacion falsa (RULE-06).
+    const sha = a.branch ? (shaDe(a.branch) ?? '') : '';
+    return `| ${a.id} | ${a.type ?? ''} | ${a.status ?? ''} | ${a.phase ?? '—'} | ${a.branch ?? '—'} | ${sha ? sha.slice(0, 7) : '—'} |`;
+  });
+  return [
+    '# ESTADO — proyección derivada de cauce',
+    '',
+    '> **Esta rama la escribe una herramienta.** Cada commit lleva la marca `cauce:proyeccion`, y',
+    '> uno sin ella se reporta: una rama derivada en la que alguien escribe deja de serlo.',
+    '>',
+    '> No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.',
+    '',
+    `Proyectado el ${fecha ?? 'sin fecha'} · ${vivas.length} allocation(es) viva(s).`,
+    '',
+    '| Id | Tipo | Estado | Fase | Rama | SHA |',
+    '|:---|:---|:---|:---|:---|:---|',
+    ...filas,
+    '',
+  ].join('\n');
+}
+
+/**
  * ¿Hay un comentario humano posterior a la ultima nota del agente?
  * `true` pendiente · `false` limpio · `null` NO SE PUEDE SABER — ningun comentario lleva marca,
  * y eso no se aprueba ni se bloquea: se declara (RULE-06). Se cura solo en cuanto el agente
@@ -627,7 +671,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 // correr PRIMERO. Salir en la compuerta de acceso hacia que «sin --nota» y «saltar una fase»
 // se contestaran con un mensaje sobre la plataforma: el diagnostico equivocado para el
 // defecto real. La exigencia de plataforma es una validacion mas, y va dentro.
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1020,6 +1064,82 @@ function checkpoint() {
     (cp.sucio ? ` · ${cp.archivos.length} archivo(s) sin commitear` : ''));
 }
 
+// ── proyectar · ver en que se trabaja sin esperar al merge ──────────────────
+// PT-054 · Medido: 13 ramas de tarea en el remoto. La visibilidad existe y esta repartida en trece
+// sitios, asi que para ver en que se trabaja hay que saber DE ANTEMANO que rama mirar — que es lo
+// que la pregunta pretende evitar. Y `trabajo` solo agrega TRAS FUSIONAR cada tarea.
+//
+// La rama es DERIVADA por decision del firmante, no autorada: mover la gobernania a otra rama
+// romperia el vinculo que ata un cambio a su evidencia —que viajen en el MISMO commit— y dejaria
+// a SUITE-R34 comparando fechas entre dos ramas, que no significa nada.
+//
+// Se escribe con FONTANERIA, que no toca el arbol de trabajo:
+//   hash-object -w  ->  mktree  ->  commit-tree  ->  update-ref
+// Las alternativas —worktree, checkout— tocan el directorio donde se esta trabajando, y la peor
+// deja al usuario EN OTRA RAMA si falla a mitad.
+function proyectar({ silencioso = false } = {}) {
+  const usuario = gitDe(['config', 'user.name']);
+  const rama = ramaDe(usuario);
+  // RULE-06 · sin usuario no se proyecta. Una rama «cauce/desconocido» seria peor que ninguna:
+  // agregaria el trabajo de todos bajo un nombre que no es de nadie.
+  if (!rama) {
+    const m = 'sin «git config user.name» no se puede saber de quien es la proyeccion: no se proyecta (RULE-06).';
+    if (silencioso) return { rama: null, motivo: m };
+    notas.push(m);
+    return { rama: null, motivo: m };
+  }
+
+  const gitEntrada = (args, entrada) => execFileSync('git', args,
+    { cwd: ROOT, encoding: 'utf8', input: entrada, stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+
+  // Un commit sin la marca es HUMANO. Se REPORTA y no se borra: decidir que hacer con el trabajo
+  // de alguien es humano (SUITE-R06), y borrarlo seria reescribirlo sin preguntar.
+  const padre = gitDe(['rev-parse', '--verify', `refs/heads/${rama}`]);
+  let ajenos = 0;
+  if (padre) {
+    const msgs = gitDe(['log', '--format=%s%n%b', `refs/heads/${rama}`]) ?? '';
+    const sinMarca = (gitDe(['log', '--format=%H', `refs/heads/${rama}`]) ?? '').split(/\r?\n/).filter(Boolean)
+      .filter((sha) => !(gitDe(['log', '-1', '--format=%s%n%b', sha]) ?? '').includes(MARCA_PROYECCION));
+    ajenos = sinMarca.length;
+    void msgs;
+  }
+
+  const fecha = gitDe(['log', '-1', '--format=%cs']);
+  const contenido = {
+    'ESTADO.md': estadoProyectado(vivas, (r) => gitDe(['rev-parse', '--verify', r]), fecha),
+  };
+  const cp = join(IMPL, 'CHECKPOINT.json');
+  if (existsSync(cp)) contenido['CHECKPOINT.json'] = readFileSync(cp, 'utf8');
+
+  const entradas = Object.entries(contenido).map(([nombre, txt]) => {
+    const blob = gitEntrada(['hash-object', '-w', '--stdin'], txt);
+    return `100644 blob ${blob}\t${nombre}`;
+  });
+  const arbol = gitEntrada(['mktree'], entradas.join('\n') + '\n');
+  const mensaje = `${MARCA_PROYECCION} · estado de ${vivas.length} allocation(es) viva(s) · ${fecha ?? ''}`;
+  const args = ['commit-tree', arbol, '-m', mensaje];
+  if (padre) args.push('-p', padre);
+  const commit = gitEntrada(args, '');
+  execFileSync('git', ['update-ref', `refs/heads/${rama}`, commit], { cwd: ROOT, stdio: 'pipe' });
+
+  if (ajenos) {
+    fail('SUITE-R31', `«${rama}» tiene ${ajenos} commit(s) SIN la marca «${MARCA_PROYECCION}»: alguien escribio a mano `
+      + 'en una rama DERIVADA, y entonces deja de serlo. No se borra nada — decidir que hacer con eso es humano (SUITE-R06).');
+  }
+  if (!silencioso) {
+    notas.push(`${rama} ← ${commit.slice(0, 7)} · ${vivas.length} allocation(es), ${Object.keys(contenido).length} archivo(s)`);
+    if (ARGS.includes('--publicar')) {
+      try {
+        execFileSync('git', ['push', '-q', 'origin', `${rama}:${rama}`], { cwd: ROOT, stdio: 'pipe' });
+        notas.push(`publicada en origin/${rama}`);
+      } catch (e) { fail('SUITE-R35', `no se pudo publicar «${rama}»: ${String(e.message ?? e).split('\n')[0]}`); }
+    } else {
+      notas.push('local. Publicarla es una decision, no un efecto colateral:  tracker proyectar --publicar');
+    }
+  }
+  return { rama, commit, ajenos };
+}
+
 // ── avanzar · la transicion de fase, en UN acto ─────────────────────────────
 // PT-053 · Medido en EP-013 y EP-014: 107 transiciones x 5 actos manuales = ~535 operaciones.
 // FDGE-R52 cazo LA MISMA transicion tres veces en un solo lote, y la tercera con el fallo
@@ -1144,6 +1264,16 @@ function avanzar() {
       const tiene = adaptador.etiquetasDeIssue(a.issue);
       const quitar = tiene.filter((n) => RE_DERIVADA.test(n) && !debe.includes(n));
       const poner = debe.filter((n) => !tiene.includes(n));
+      // La etiqueta «fase: N» de una fase a la que nadie ha llegado aun NO EXISTE en el
+      // repositorio, y `etiquetar` falla con «not found». `abrir` las crea; `avanzar` no lo hacia
+      // y reventaba en el quinto acto — lo dijo la primera transicion de PT-054, y la atomicidad
+      // funciono en vivo: NADA quedo aplicado, la fase se quedo donde estaba.
+      if (adaptador.crearEtiqueta) {
+        const existen = adaptador.etiquetas ? adaptador.etiquetas() : null;
+        for (const e of poner) {
+          if (existen && !existen.includes(e)) adaptador.crearEtiqueta(e);
+        }
+      }
       if (quitar.length || poner.length) adaptador.etiquetar(a.issue, poner, quitar);
     }
 
@@ -1153,8 +1283,22 @@ function avanzar() {
       + `**Dónde:** \`PHASE ${destino}\` · ${FASES[destino].nombre}. **Sigue:** ${r.siguiente}`;
     adaptador.comentar(a.issue, cuerpo);
 
+    // 7 · LA PROYECCION · PT-054 · va DESPUES de la nota, y esto CORRIGE lo que la estrategia
+    // de PT-054 escribio.
+    //
+    // Alli dije «va dentro del respaldo: si la proyeccion falla, la transicion entera se
+    // revierte». Es IMPOSIBLE: la nota ya se publico y un comentario no se despublica. Revertir
+    // los archivos dejaria una nota sobre una transicion que el registro niega — el registro
+    // falso que todo este orden existe para impedir.
+    //
+    // Lo correcto es lo contrario: la proyeccion es lo MAS recuperable de todo —esta enteramente
+    // derivada y se rehace con `tracker proyectar`—, asi que va la ultima y su fallo NO revierte
+    // nada. La transicion ya ocurrio y esta registrada; la proyeccion es una vista.
+    try { proyectar({ silencioso: true }); }
+    catch (e) { notas.push(`la proyeccion no se pudo escribir (${String(e.message ?? e).split('\n')[0]}). La transicion SI ocurrio: rehazla con  tracker proyectar`); }
+
     notas.push(`${id}: PHASE ${actual} -> ${destino} ${FASES[destino].nombre}`);
-    notas.push(`registro, intake, CHECKPOINT y el sello del HANDOFF escritos; espejo y nota, en el issue #${a.issue}`);
+    notas.push(`registro, intake, CHECKPOINT y el sello del HANDOFF escritos; espejo, nota y proyeccion`);
   } catch (e) {
     restaurar();
     throw new Error(`${String(e.message ?? e)}\n\n  NADA quedo aplicado: los archivos volvieron a como estaban. `
@@ -1162,7 +1306,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

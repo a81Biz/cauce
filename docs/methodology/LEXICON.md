@@ -598,9 +598,16 @@ tools/
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35
                       acciones: espejo · abrir · cerrar · notas · pr · estado · pendiente
                                 siguiente · checkpoint  [LEX-R26] · avanzar  [FDGE-R52]
+                                proyectar  [SUITE-R31]
                       «avanzar PT-NNN --a N --nota» hace la transicion en UN acto: registro,
                       YAML, checkpoint y nota. Lo irreversible —la nota— va el ULTIMO, y si
                       algo falla NADA queda aplicado. SIN --nota NO AVANZA.
+                      «proyectar» escribe la rama DERIVADA cauce/<usuario>: un agregado de
+                      lo vivo, con el SHA de cada rama. Solo la escribe la herramienta y
+                      cada commit lleva la marca «cauce:proyeccion»; uno sin ella se
+                      REPORTA, porque una rama derivada en la que alguien escribe deja de
+                      serlo. Es LOCAL: publicarla es «--publicar», una decision y no un
+                      efecto colateral.
   revisar-secretos.mjs  árbol e historia antes de publicar · bloquea y propone · FND-R29
   selftest.sh         batería de casos límite, defectos inyectados y migración
 ```

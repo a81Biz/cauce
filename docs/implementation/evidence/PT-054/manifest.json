@@ -1,0 +1,30 @@
+{
+  "pt": "PT-054",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "avanzar proyecta a cauce/<usuario> el estado de lo vivo", "scenarios": ["E1", "E2", "E11"], "tests": ["selftest.sh:proyecta con fontaneria, sin checkout", "selftest.sh:…y con mktree", "selftest.sh:…y commit-tree con su padre", "selftest.sh:en avanzar la proyeccion va la ULTIMA"], "evidence": ["salidas/proyectar.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "La rama de tarea conserva artefactos y codigo juntos: el arbol no se toca", "scenarios": ["E3"], "tests": ["selftest.sh:NO hace checkout ni worktree"], "evidence": ["salidas/proyectar.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Todo lo proyectado se deriva; un commit humano se detecta y se dice", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:cada commit lleva la marca", "selftest.sh:un commit sin marca se REPORTA", "selftest.sh:…y no se borra: eso es humano"], "evidence": ["salidas/proyectar.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Cada entrada lleva el SHA de la rama de la que sale", "scenarios": ["E4", "E5"], "tests": ["selftest.sh:cada fila lleva el SHA de SU rama", "selftest.sh:…y sin rama NO hereda el de otra"], "evidence": ["salidas/proyectar.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Sin usuario no se proyecta, y se dice (RULE-06)", "scenarios": ["E8", "E9"], "tests": ["selftest.sh:sin usuario NO se proyecta", "selftest.sh:el nombre se normaliza a una ref valida", "selftest.sh:…y sin nombre devuelve null, no inventa"], "evidence": ["salidas/selftest.txt"], "verified": true },
+    { "ac": "AC-06", "statement": "No crea, mueve ni borra ramas remotas sin decirlo (SUITE-R06f)", "scenarios": ["E10", "E12"], "tests": ["selftest.sh:sin --publicar se queda LOCAL", "selftest.sh:…y su fallo NO revierte la transicion"], "evidence": ["salidas/proyectar.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que alguien MIRE la proyeccion.",
+      "por_que": "Se comprueba que exista, que agregue y que diga la verdad. Que sirva para lo que se pidio —ver en que se trabaja sin preguntar— solo lo dira usarla, y es un juicio.",
+      "donde": "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que dos proyecciones no se pisen.",
+      "por_que": "Aqui el usuario es UNO, el de git config. La convivencia de dos personas es EP-016, y prometerlo aqui le dejaria una casilla marcada en vez del mecanismo hecho.",
+      "donde": "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que la marca no se pueda falsificar.",
+      "por_que": "Un humano puede escribir «cauce:proyeccion» en su commit. Es falsificable, como una firma —el mismo limite que SUITE-R43 tiene con las notas del agente— y por eso se DECLARA en vez de presumirse.",
+      "donde": "docs/methodology/tools/tracker.mjs"
+    }
+  ],
+  "suite": { "passed": 618, "failed": 0, "skipped": 0, "coverage": 618, "baseline": 603 }
+}

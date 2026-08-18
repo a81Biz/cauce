@@ -2316,6 +2316,60 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-054 · ver en que se trabaja sin esperar al merge ───────────────────
+# Medido: 13 ramas de tarea en el remoto. La visibilidad existe y esta repartida en trece sitios,
+# asi que hay que saber DE ANTEMANO que rama mirar. La rama cauce/<usuario> agrega, y es DERIVADA
+# por decision del firmante: mover la gobernanza romperia el vinculo que ata un cambio a su
+# evidencia —que viajen en el MISMO commit— y dejaria a SUITE-R34 comparando fechas entre ramas.
+_tr2="$SUITE/tools/tracker.mjs"
+
+# La FONTANERIA es lo que sostiene el diseño: no toca el arbol de trabajo. Con worktree o checkout,
+# un fallo a mitad dejaria al usuario EN OTRA RAMA mientras trabaja.
+chk   "proyecta con fontaneria, sin checkout"  "hash-object" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y con mktree"                          "mktree" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y commit-tree con su padre"            "commit-tree" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chkno "NO hace checkout ni worktree"           "worktree" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# Cada fila lleva el SHA de SU rama. Una tarea sin rama lo declara VACIO: un SHA prestado seria
+# una afirmacion falsa (RULE-06).
+chk   "cada fila lleva el SHA de SU rama"      "shaDe(a.branch)" \
+  sh -c 'sed -n "/^export function estadoProyectado/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y sin rama NO hereda el de otra"       "a.branch ?" \
+  sh -c 'sed -n "/^export function estadoProyectado/,/^}/p" "$1"' _ "$_tr2"
+# La marca es lo UNICO que distingue una rama derivada de una que ya no lo es.
+chk   "cada commit lleva la marca"             "MARCA_PROYECCION" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "un commit sin marca se REPORTA"         "escribio a mano" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y no se borra: eso es humano"          "No se borra nada" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# RULE-06 · sin usuario no se proyecta. «cauce/desconocido» agregaria el trabajo de todos bajo un
+# nombre que no es de nadie.
+chk   "sin usuario NO se proyecta"             "no se proyecta (RULE-06)" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# El nombre se normaliza: una referencia de git no admite cualquier cosa.
+cat > "$WORK/rama.mjs" <<'MJS'
+import { pathToFileURL } from 'node:url';
+const { ramaDe } = await import(pathToFileURL(process.env.MTH_TR).href);
+console.log(ramaDe('Alberto Martínez') === 'cauce/alberto-martinez' ? 'NORMALIZA' : 'NO ' + ramaDe('Alberto Martínez'));
+console.log(ramaDe('') === null && ramaDe(null) === null ? 'SIN_USUARIO_NULL' : 'INVENTA');
+MJS
+chk   "el nombre se normaliza a una ref valida" "NORMALIZA" \
+  env MTH_TR="$SUITE/tools/tracker.mjs" node "$WORK/rama.mjs"
+chk   "…y sin nombre devuelve null, no inventa" "SIN_USUARIO_NULL" \
+  env MTH_TR="$SUITE/tools/tracker.mjs" node "$WORK/rama.mjs"
+# Publicar es una decision, no un efecto colateral.
+chk   "sin --publicar se queda LOCAL"          "no un efecto colateral" \
+  sh -c 'sed -n "/^function proyectar/,/^}/p" "$1"' _ "$_tr2"
+# Y en avanzar va la ULTIMA, y su fallo NO revierte: la nota ya se publico y no se despublica.
+chk   "en avanzar la proyeccion va la ULTIMA"  "LA PROYECCION" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr2"
+chk   "…y su fallo NO revierte la transicion"  "La transicion SI ocurrio" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr2"
+
 # ─── PT-053 · la transicion de fase es un solo acto ────────────────────────
 # 107 transiciones en dos lotes x 5 actos manuales = ~535 operaciones. FDGE-R52 cazo LA MISMA
 # transicion tres veces en EP-014, y la tercera con el fallo ANUNCIADO en la propia nota:
