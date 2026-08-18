@@ -2366,6 +2366,17 @@ chk   "el valor de una bandera no es ROOT"     "CON_VALOR.has" \
 chk   "…y las banderas con valor van en UN sitio" "CON_VALOR = new Set" cat "$_tr"
 # LEX-R21 · el nombre vive en LEXICON.
 chk   "avanzar esta en LEXICON"                "avanzar"    cat "$SUITE/LEXICON.md"
+# El SELLO del HANDOFF es otro acto, y tambien faltaba: la CI lo dijo en rojo con el comando ya
+# integrado en su propia PHASE 9. `avanzar` escribe en changes/ (el YAML), asi que sin tocar
+# HANDOFF.md el estado queda MAS VIEJO QUE EL TRABAJO y SUITE-R34 bloquea: el comando violaba POR
+# CONSTRUCCION la regla que dice que el estado viaja con el trabajo. Solo se estampa la linea
+# «actualizado:», que es derivable; el resto es prosa humana y no se toca.
+chk   "el sello del HANDOFF es un acto"       "EL ESTADO" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "…y solo estampa «actualizado:»"        "prosa humana y no" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "…y HANDOFF.md entra en el respaldo"    "HANDOFF.md" \
+  sh -c 'sed -n "/const tocados/p" "$1"' _ "$_tr"
 # El ESPEJO es el quinto acto, y faltaba: `npm run verify` lo dijo en rojo con avanzar ya
 # escrito. Va ANTES de la nota y el orden entre los dos actos irreversibles no es
 # indiferente — una etiqueta desincronizada es DERIVADA y se rehace con `abrir --aplicar`;

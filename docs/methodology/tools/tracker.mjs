@@ -1079,7 +1079,7 @@ function avanzar() {
   // restaurarlo significa BORRARLO. Un archivo vacio donde no habia nada es un estado que no
   // existia, y eso es lo que su caso comprueba.
   const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
-  const tocados = [join(IMPL, 'REGISTRY.json'), fIntake, join(IMPL, 'CHECKPOINT.json')];
+  const tocados = [join(IMPL, 'REGISTRY.json'), fIntake, join(IMPL, 'CHECKPOINT.json'), join(IMPL, 'HANDOFF.md')];
   const respaldo = tocados.map((f) => ({ f, antes: existsSync(f) ? readFileSync(f, 'utf8') : null }));
   const restaurar = () => {
     for (const { f, antes } of respaldo) {
@@ -1112,7 +1112,25 @@ function avanzar() {
     });
     writeFileSync(join(IMPL, 'CHECKPOINT.json'), JSON.stringify(cp, null, 2) + '\n');
 
-    // 4 · EL ESPEJO · SUITE-R35 · el registro asigna, la plataforma espeja
+    // 4 · EL ESTADO · SUITE-R34 · no puede quedarse mas viejo que el trabajo
+    //
+    // FALTABA, y lo dijo la CI en rojo — la TERCERA vez que SUITE-R34 caza este patron en la
+    // sesion. `avanzar` escribe en `changes/` (el YAML del intake), asi que sin tocar HANDOFF.md
+    // el estado queda atras y la compuerta bloquea. El comando VIOLABA POR CONSTRUCCION la regla
+    // que dice que el estado viaja con el trabajo.
+    //
+    // Solo se estampa la linea «actualizado:», que es DERIVABLE: la fecha sale de git y el hecho
+    // —que PT-NNN esta en PHASE N— sale del registro. El resto de HANDOFF.md es prosa humana y no
+    // se toca: estamparla seria inventar, y LEX-R26 dice que lo que no se deriva no se escribe.
+    const fHandoff = join(IMPL, 'HANDOFF.md');
+    if (existsSync(fHandoff)) {
+      const h = readFileSync(fHandoff, 'utf8');
+      const sello = `actualizado:    ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${id} en PHASE ${destino} ${FASES[destino].nombre}`;
+      const nuevoH = h.replace(/^actualizado:.*$/m, sello);
+      if (nuevoH !== h) writeFileSync(fHandoff, nuevoH);
+    }
+
+    // 5 · EL ESPEJO · SUITE-R35 · el registro asigna, la plataforma espeja
     //
     // FALTABA, y lo dijo `npm run verify` en rojo: `avanzar` prometia acabar con el «cuatro de
     // cinco» y hacia cuatro de cinco. La etiqueta «fase: N» del issue cambia en CADA transicion.
@@ -1129,14 +1147,14 @@ function avanzar() {
       if (quitar.length || poner.length) adaptador.etiquetar(a.issue, poner, quitar);
     }
 
-    // 5 · LA NOTA · irreversible, y por eso la ultima
+    // 6 · LA NOTA · irreversible, y por eso la ultima
     const r = queSigue(a);
     const cuerpo = `${MARCA_AGENTE}\n**PHASE ${actual} → ${destino}** · \`${id}\`\n\n${nota.trim()}\n\n`
       + `**Dónde:** \`PHASE ${destino}\` · ${FASES[destino].nombre}. **Sigue:** ${r.siguiente}`;
     adaptador.comentar(a.issue, cuerpo);
 
     notas.push(`${id}: PHASE ${actual} -> ${destino} ${FASES[destino].nombre}`);
-    notas.push(`registro, intake y CHECKPOINT.json escritos; espejo y nota, en el issue #${a.issue}`);
+    notas.push(`registro, intake, CHECKPOINT y el sello del HANDOFF escritos; espejo y nota, en el issue #${a.issue}`);
   } catch (e) {
     restaurar();
     throw new Error(`${String(e.message ?? e)}\n\n  NADA quedo aplicado: los archivos volvieron a como estaban. `

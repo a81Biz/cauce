@@ -6,12 +6,11 @@
   "phase": 9,
   "fase": "Integración",
   "rama": "chore/PT-053-la-transicion-de-fase-es-un-solo-acto",
-  "sha": "9c603caebe1ee8088dd27168df13bef3e3005706",
-  "sha_corto": "9c603ca",
+  "sha": "3478417d4c3d207edfa5fd02f30616812c690576",
+  "sha_corto": "3478417",
   "sucio": true,
   "archivos": [
-    "docs/implementation/REGISTRY.json",
-    "hanges/PT-053-la-transicion-de-fase-es-un-solo-acto/intake.md"
+    "ocs/methodology/tools/tracker.mjs"
   ],
   "compuerta": "G4",
   "produce": [],
