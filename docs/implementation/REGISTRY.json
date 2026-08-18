@@ -1311,7 +1311,7 @@
       "structural": false,
       "suite_version": "8.1.0",
       "epic": "EP-015",
-      "phase": 5,
+      "phase": 6,
       "title": "MEDIDO / ESTIMADO / SIN EVALUAR: el presupuesto declara la naturaleza de cada dato, no solo su valor",
       "origin": "Decision 4 del firmante, segunda mitad · «nunca presentar una estimacion como una medicion». Sin esa distincion el presupuesto seria exactamente el estimated_used: 67 que LEX-R26 dejo fuera de CHECKPOINT.json por criterio",
       "created": "2026-08-18",
