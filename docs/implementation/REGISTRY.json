@@ -1207,15 +1207,18 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 1,
+      "phase": 8,
       "title": "cauce/<usuario>: proyeccion DERIVADA del estado de gobernanza, escrita solo por la herramienta",
       "origin": "Decision del firmante 2026-08-15 · rama derivada, no autorada: el commit atomico y la trazabilidad quedan intactos, y lo derivado no diverge. La identidad multiusuario y los rangos de ID son de EP-016",
       "created": "2026-08-15",
-      "issue": 88
+      "issue": 88,
+      "branch": "chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge",
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-18"
     },
     {
       "id": "EP-015",
