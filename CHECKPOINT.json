@@ -1,21 +1,22 @@
 {
-  "pt": "PT-056",
+  "pt": "PT-057",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-056-el-arbol-corresponde-al-checkpoint",
-  "sha": "29991889a059e6a95f3db8017d48502de83af861",
-  "sha_corto": "2999188",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial",
+  "sha": "7a203abc2a97a91380cc385bbb19e25018d7fc00",
+  "sha_corto": "7a203ab",
   "sucio": true,
   "archivos": [
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }

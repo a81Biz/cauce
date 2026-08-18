@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 10 allocation(es) viva(s).
+Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
@@ -14,8 +14,7 @@ Proyectado el 2026-08-18 · 10 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-056 | CHORE | IN_PROGRESS | 9 | chore/PT-056-el-arbol-corresponde-al-checkpoint | 2999188 |
-| PT-057 | CHORE | READY | 1 | — | — |
+| PT-057 | CHORE | READY | 2 | — | — |
 | PT-058 | CHORE | READY | 1 | — | — |
 | PT-059 | CHORE | READY | 1 | — | — |
 | PT-060 | CHORE | READY | 1 | — | — |
