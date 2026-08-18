@@ -14,7 +14,7 @@ Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-057 | CHORE | READY | 7 | — | — |
+| PT-057 | CHORE | IN_PROGRESS | 8 | chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial | 523bb48 |
 | PT-058 | CHORE | READY | 1 | — | — |
 | PT-059 | CHORE | READY | 1 | — | — |
 | PT-060 | CHORE | READY | 1 | — | — |
