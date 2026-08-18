@@ -1,0 +1,32 @@
+# CHECKPOINT.json, ejecutado · PT-052 · 2026-08-18
+
+## El artefacto, sobre el repositorio real
+{
+  "pt": "PT-052",
+  "type": "CHORE",
+  "epic": "EP-014",
+  "status": "IN_PROGRESS",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "chore/PT-052-el-checkpoint-es-un-artefacto-no-una-nota",
+  "sha": "a451bb3b624ff70b884f1a1761f808b59d54424c",
+  "sha_corto": "a451bb3",
+  "sucio": true,
+  "archivos": [
+    "changes/PT-052-el-checkpoint-es-un-artefacto-no-una-nota/design.md",
+    "changes/PT-052-el-checkpoint-es-un-artefacto-no-una-nota/discovery.md",
+  ...
+
+## verify-fdge: el sha declarado es ALCANZABLE
+  ✓ LEX-R26        CHECKPOINT.json: PT-052 en PHASE 6, sobre un commit alcanzable.
+
+## Con un sha inventado: BLOQUEA
+  ✗ LEX-R26        CHECKPOINT.json declara el commit 00000000, que NO existe en este repositorio. Un checkpoint que apunta a nada miente con la autoridad de un dato estructurado.
+1 error(es).
+
+## Restaurado
+  ✓ LEX-R26        CHECKPOINT.json: PT-052 en PHASE 6, sobre un commit alcanzable.
+
+## Sin plataforma declarada, tambien escribe (artefacto DEL REPOSITORIO)
+   probado sobre un fixture minimo sin REGISTRY.tracker:
+   · CHECKPOINT.json escrito: PT-004 · PHASE 4 Propuesta · sin sha

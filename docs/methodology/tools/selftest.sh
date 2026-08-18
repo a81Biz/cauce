@@ -2316,6 +2316,56 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-052 · el checkpoint es un artefacto, no una nota ───────────────────
+# El estado de una tarea en curso existia —HANDOFF, la fase del registro, las notas de reanclaje—
+# pero en ningun formato que un programa pudiera leer. Y nada ataba la gobernanza al commit del
+# codigo: hoy los ata que viajen en el MISMO commit, y ese vinculo desaparece en cuanto PT-054
+# proyecte a otra rama.
+#
+# LEX-R26 · TODO campo se DERIVA. Un campo que solo pueda rellenar la memoria miente CON LA
+# AUTORIDAD DE UN DATO ESTRUCTURADO, que es peor que decirlo en prosa.
+CPJ="$WORK/docs/implementation/CHECKPOINT.json"
+TR() { node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
+
+# El fixture se reconstruye aqui: bloques anteriores mutan la fase de PT-004, y asertar un
+# valor concreto sobre un estado que otro caso cambio es una asercion sobre el orden, no
+# sobre el codigo. Lo dijo ejecutarlo.
+build_fixture
+chk   "checkpoint escribe el archivo"          "CHECKPOINT.json escrito"  TR checkpoint PT-004
+chk   "…y declara de que PT es"                '"pt": "PT-004"'           cat "$CPJ"
+chk   "…con su fase"                           '"phase": 4'               cat "$CPJ"
+chk   "…y la siguiente accion, DERIVADA"       '"siguiente"'              cat "$CPJ"
+chk   "…y el SHA del codigo"                   '"sha"'                    cat "$CPJ"
+# Es UNO: escribirlo sobre otra tarea lo SUSTITUYE. N archivos serian N-1 mintiendo.
+TR checkpoint PT-001 >/dev/null 2>&1
+chk   "se SOBRESCRIBE: ahora es de PT-001"     '"pt": "PT-001"'           cat "$CPJ"
+chkno "…y no quedo el anterior"                '"pt": "PT-004"'           cat "$CPJ"
+# RULE-06 · sin allocation no se inventan los campos: se dice.
+chk   "un PT que no esta en el registro FALLA" "no existe en el registro" TR checkpoint PT-777
+# LEX-R26 · el SHA tiene que ser ALCANZABLE, no tener forma de SHA.
+#
+# Las mutaciones van GUARDADAS con `[ -f ]`. --solo (PT-050) salta los CASOS pero no el setup que
+# hay entre ellos, asi que con un filtro puesto este bloque corria sin que ninguna de las lineas
+# anteriores hubiera creado el archivo — y reventaba. Es una consecuencia de --solo que su propia
+# tarea no dijo, y aqui queda: el setup entre casos tiene que tolerar que los casos no corran.
+cp_set() { [ -f "$CPJ" ] || return 0; MTH_CP="$CPJ" node -e "$1"; }
+
+# El fixture NO es un repositorio git, asi que `sha` sale null — y la herramienta lo DICE en
+# vez de inventarse uno. Es RULE-06 funcionando, y comprobarlo aqui vale mas que fingir un
+# repo: el caso del sha ALCANZABLE corre sobre el repositorio real y esta en la evidencia.
+chk   "sin git, el sha se declara null"        "se genero sin git"        V PT-001
+cp_set 'const fs=require("node:fs");const p=process.env.MTH_CP;const c=JSON.parse(fs.readFileSync(p,"utf8"));c.sha="0".repeat(40);fs.writeFileSync(p,JSON.stringify(c,null,2));'
+chk   "un sha que NO existe BLOQUEA"           "NO existe en este repositorio"  V PT-001
+chk   "…y lo dice como lo que es"              "miente con la autoridad"        V PT-001
+cp_set 'const fs=require("node:fs");const p=process.env.MTH_CP;const c=JSON.parse(fs.readFileSync(p,"utf8"));delete c.sha;fs.writeFileSync(p,JSON.stringify(c,null,2));'
+chk   "sin el campo sha, tambien"              "no declara: sha"                V PT-001
+rm -f "$CPJ"
+chkno "no tenerlo NO es un defecto"            "LEX-R26"                        V PT-001
+# LEX-R21 · el nombre vive en LEXICON, y ANTES que en el codigo.
+chk   "CHECKPOINT.json esta en LEXICON"        "CHECKPOINT.json"   cat "$SUITE/LEXICON.md"
+chk   "…con su contrato de campos"             "LEX-R26"           cat "$SUITE/LEXICON.md"
+chk   "…y dice que todo se DERIVA"             "no entra en"       cat "$SUITE/LEXICON.md"
+
 # ─── PT-051 · donde vive la comprobacion de una regla ──────────────────────
 # `regla` decia el ARCHIVO y callaba la linea. verify-fdge.mjs tiene 1490 lineas: saber que la
 # comprobacion esta «en verify-fdge.mjs» deja el mismo trabajo que no saber nada. La informacion

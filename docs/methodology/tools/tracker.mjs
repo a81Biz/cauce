@@ -33,6 +33,9 @@ import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+// PT-052 · partir lineas se hace con la funcion compartida: RE_LINEA contempla CRLF, y dos
+// formas de partir lineas en el repositorio serian dos fuentes del mismo hecho (SUITE-R38).
+import { lineas } from './patrones.mjs';
 
 // ─── Lógica pura · exportada para poder probarla sin plataforma ──────────────
 // PT-001 · El adaptador habla con `gh`; la comparación no habla con nadie.
@@ -563,6 +566,30 @@ export function decidirSalida(reg, sonda, adaptadores = ADAPTADORES) {
 // ─── El programa. Solo corre si me ejecutan directamente ────────────────────
 // Importarme para probar la lógica de arriba no debe leer un registro, abrir un proceso ni
 // exigir credenciales. Sin este guard, importar el módulo ejecutaba la herramienta entera.
+/** Funcion PURA: el checkpoint que corresponde a una allocation, dado lo que git dice. */
+export function checkpointDe(alloc, git = {}) {
+  if (!alloc) return null;
+  const r = queSigue(alloc);
+  const sha = git.sha ?? null;
+  return {
+    pt: alloc.id,
+    type: alloc.type ?? null,
+    epic: alloc.epic ?? null,
+    status: alloc.status ?? null,
+    phase: alloc.phase ?? null,
+    fase: r.nombre ?? null,
+    rama: alloc.branch ?? git.rama ?? null,
+    sha,
+    sha_corto: sha ? sha.slice(0, 7) : null,
+    sucio: git.sucio ?? null,
+    archivos: git.archivos ?? [],
+    compuerta: r.compuerta ?? null,
+    produce: r.produce ?? [],
+    siguiente: r.siguiente ?? null,
+    generado: git.fecha ?? null,
+  };
+}
+
 const EJECUTADO_DIRECTO = !!process.argv[1]
   && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
 
@@ -575,7 +602,13 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 // PT-007 · `estado` lee SOLO el registro y no toca la plataforma — por eso responde «qué va
 // cuándo» sin credencial y sin plataforma declarada. Exigirle la compuerta de acceso lo dejaba
 // inútil justo donde más falta hace: en un proyecto que aún no espeja.
-const D = ACCION === 'estado' ? { codigo: 0 } : decidirSalida(reg, null);
+//
+// PT-052 · `checkpoint` va en la misma lista, y por una razón más fuerte: es un artefacto DEL
+// REPOSITORIO —todos sus campos salen del registro y de git— y el momento en que más falta hace
+// es justo aquel en el que puede no haber credencial: retomar en una sesión nueva. Exigirle
+// plataforma habría hecho que el estado dependiera de la red para poder escribirse.
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint']);
+const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
   process.exit(D.codigo);
@@ -929,7 +962,45 @@ function siguienteDe() {
   di('  no cuadra con lo que crees que toca, el que se equivoca no es el tablero.');
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe };
+// ── checkpoint · el estado de la tarea EN CURSO, legible por maquina ────────
+// PT-052 · LEX-R26 · TODO campo se DERIVA. Ninguno se recuerda.
+//
+// El criterio no es de estilo: un campo que solo puede rellenar la memoria del agente miente
+// CON LA AUTORIDAD DE UN DATO ESTRUCTURADO, y eso es peor que decirlo en prosa — la prosa se lee
+// con la duda puesta y un JSON no. La especificacion de la que sale EP-015 pedia «decisions»,
+// «blockers» y un «estimated_used: 67» que nadie puede medir; ninguno entra.
+//
+// Es UNO y se sobrescribe: el estado en curso es el de la tarea que se esta tocando. N archivos
+// serian N-1 mintiendo desde el momento de escribirse. Por eso declara de que `pt` es — leerlo
+// sin mirar ese campo es el error que lo haria peligroso.
+const gitDe = (args) => {
+  try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
+  catch { return null; }
+};
+
+function checkpoint() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) { throw new Error('checkpoint necesita una allocation:  tracker checkpoint PT-052'); }
+  const a = all.find((x) => x?.id === id);
+  // RULE-06 · si no esta en el registro no se inventan los campos: se dice.
+  if (!a) { throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay checkpoint.`); }
+
+  const sucio = gitDe(['status', '--porcelain']);
+  const cp = checkpointDe(a, {
+    sha: gitDe(['rev-parse', 'HEAD']),
+    rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+    fecha: gitDe(['log', '-1', '--format=%cs']),
+    sucio: sucio === null ? null : sucio.length > 0,
+    archivos: lineas(sucio ?? '').filter(Boolean).map((l) => l.slice(3)).sort(),
+  });
+
+  if (ARGS.includes('--ver')) { di(JSON.stringify(cp, null, 2)); return; }
+  writeFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), JSON.stringify(cp, null, 2) + '\n');
+  notas.push(`CHECKPOINT.json escrito: ${cp.pt} · PHASE ${cp.phase} ${cp.fase} · ${cp.sha_corto ?? 'sin sha'}` +
+    (cp.sucio ? ` · ${cp.archivos.length} archivo(s) sin commitear` : ''));
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

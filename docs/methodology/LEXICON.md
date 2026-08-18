@@ -436,6 +436,9 @@ HISTORY.log            append-only   · un registro por PT cerrado, más las ent
                        Los dos encabezados son vocabulario canónico: la comprobación
                        los reconoce por ellos, no por su contenido.
 HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
+                       responde por el PROYECTO: qué implementación, qué tarea, qué sigue
+CHECKPOINT.json        sobrescribible · el estado de la tarea EN CURSO, legible por máquina
+                       responde por la TAREA, y es UNO: escribirlo sobre otra la sustituye
 SESSION_LOG.md         append-only   · una entrada por sesión (antes SESSION_SUMMARY.md)
 BACKLOG.md             sobrescribible · índice de PTs vivos y su fase actual
 RECONCILIATION.log     append-only   · una entrada por decisión sobre un documento legado
@@ -455,6 +458,27 @@ DISCOVERY.md           índice de bugs e investigaciones → apunta a changes/PT
 ENRICHMENT.md          índice de features               → apunta a changes/PT-XXX/enrichment.md
 REFACTOR_SCOPE.md      índice de refactors              → apunta a changes/PT-XXX/scope.md
 ```
+
+**El contrato de `CHECKPOINT.json`** — todos sus campos se **derivan**; ninguno se recuerda:
+
+```
+pt · type · epic · status · phase · rama    ← REGISTRY.json          [SUITE-R08]
+fase · compuerta · produce · siguiente      ← la tabla de fases, ya derivada
+sha · sha_corto                             ← git rev-parse HEAD
+sucio · archivos                            ← git status --porcelain
+generado                                    ← la fecha del commit HEAD
+```
+
+`LEX-R26` · **Un campo que solo pueda rellenar la memoria no entra en `CHECKPOINT.json`.** Si un
+dato hace falta y no se deriva de `REGISTRY.json`, de git o de una tabla que el marco ya calcula,
+se declara como hueco y no se escribe. Un campo así miente **con la autoridad de un dato
+estructurado**, que es peor que decirlo en prosa: la prosa se lee con la duda puesta y un JSON no.
+
+El `sha` que declara tiene que ser **alcanzable**, no solo tener forma de SHA. Un checkpoint que
+apunta a un commit inexistente es la peor de las dos averías posibles — **el que no existe se nota;
+el que miente, no**.
+
+Que el **árbol corresponda** a ese `sha` es otra comprobación y no está aquí.
 
 `LEX-R12` · Estos tres archivos son **append-only e índices**. Contienen una línea por PT
 con su ID, título, tipo, estado canónico y ruta. **Nunca** contienen el cuerpo del análisis

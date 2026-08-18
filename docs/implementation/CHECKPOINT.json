@@ -1,0 +1,22 @@
+{
+  "pt": "PT-052",
+  "type": "CHORE",
+  "epic": "EP-014",
+  "status": "DONE",
+  "phase": 9,
+  "fase": "Integración",
+  "rama": "chore/PT-052-el-checkpoint-es-un-artefacto-no-una-nota",
+  "sha": "65effffc9a96e6157c28aa3f766715926a653278",
+  "sha_corto": "65effff",
+  "sucio": true,
+  "archivos": [
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/REGISTRY.json",
+    "hanges/PT-052-el-checkpoint-es-un-artefacto-no-una-nota/intake.md"
+  ],
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "generado": "2026-08-18"
+}

@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 814f321b26fa -->
-<!-- fuentes: RULES.md:e894ba4b0046 LEXICON.md:1b91bd6e1e77 EXECUTION-MODES.md:27ccf016ff35 PHASES.md:c8fdb176f310 -->
+<!-- cuerpo: f01bae6d1900 -->
+<!-- fuentes: RULES.md:e894ba4b0046 LEXICON.md:e1e37924fcb7 EXECUTION-MODES.md:27ccf016ff35 PHASES.md:0816506e8d3c -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -225,6 +225,7 @@ verifica un script y bloquea la integración.
 `LEX-R23` **H** Un ID se define en exactamente un documento.
 `LEX-R24` **H** Sub-identificadores. Una regla con cláusulas enumeradas admite sub-IDs con letra minúscula pegada: SUITE-R06a, SUITE-R06f. Solo para citar una cláusula concreta; la regla sigue siendo una sola y se define…
 `LEX-R25` **H** CORE.md, CORE-PTSA.md, PHASES.md, tools/ y los directorios templates/ forman parte del paquete instalable.
+`LEX-R26` **H** Un campo que solo pueda rellenar la memoria no entra en CHECKPOINT.json.
 
 ### EXEC — Compuertas y modos
 
@@ -511,6 +512,11 @@ NO      abrir dos a la vez · preguntar en cada arreglo si es nuevo · cobrar
 ### PHASE 0 · Context
 ```
 LEE  enterprise-documentation/README · REGISTRY.json · BACKLOG · HANDOFF
+     CHECKPOINT.json si existe: el estado de la TAREA en curso, mientras HANDOFF
+     responde por el PROYECTO. Todos sus campos se DERIVAN y ninguno se recuerda
+     —un campo que solo pueda rellenar la memoria miente con la autoridad de un
+     dato estructurado— y el «sha» que declara tiene que existir     [LEX-R26]
+       node tools/tracker.mjs checkpoint PT-NNN     lo escribe
      HISTORY(3 últimos) · INCIDENTS · changes/ · graphify-out/
 HAZ  comprobar: CORE.md presente y sincronizado [SUITE-R15, LEX-R25] · modo declarado; sin
      él se asume SUPERVISED [EXEC-R02] · solo un humano lo cambia [EXEC-R12]

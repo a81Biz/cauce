@@ -2,7 +2,7 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-15 en `PHASE 8` de `PT-051`. Cada fila se **deriva** del registro
+> Regenerado el 2026-08-18 en `PHASE 8` de `PT-052`. Cada fila se **deriva** del registro
 > —`id`, `type`, `severity`, `status`, `phase`, `epic`, `issue`, `title`— y no se edita a mano.
 > Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres versiones
 > atrás con la misma seguridad que si fuera el de hoy; y `REFACTOR_SCOPE.md`, editado a mano,
@@ -19,7 +19,7 @@ issue [#89](https://github.com/a81Biz/cauce/issues/89).
 | 1 | PT-049 | S3 | **DONE** | 8 | [#83](https://github.com/a81Biz/cauce/issues/83) | El verde se **cuenta**, no se enumera: `-q` con el recuento intacto. **541 → 2** y **507 → 47** |
 | 2 | PT-050 | S3 | **DONE** | 8 | [#84](https://github.com/a81Biz/cauce/issues/84) | `selftest --solo <patrón>`: **209 → 138 s**, y las **cuatro** puertas cerradas |
 | 3 | PT-051 | S4 | **DONE** | 8 | [#85](https://github.com/a81Biz/cauce/issues/85) | `regla <ID> --donde`: las **213 emisiones** con su línea, y las 62 sin verificador una a una |
-| 4 | PT-052 | S2 | READY | 1 | [#86](https://github.com/a81Biz/cauce/issues/86) | `CHECKPOINT.json`: el estado en curso, estructurado y atado al SHA |
+| 4 | PT-052 | S2 | **DONE** | 8 | [#86](https://github.com/a81Biz/cauce/issues/86) | `CHECKPOINT.json` + `LEX-R26`: **si no se deriva, no entra**. Y el `sha` tiene que ser alcanzable |
 | 5 | PT-053 | S1 | READY | 1 | [#87](https://github.com/a81Biz/cauce/issues/87) | `tracker avanzar`: los cinco actos, atómicos, con la nota obligatoria |
 | 6 | PT-054 | S2 | READY | 1 | [#88](https://github.com/a81Biz/cauce/issues/88) | `cauce/<usuario>`: la proyección **derivada** |
 
@@ -56,8 +56,9 @@ abierto como `PT-055` (#94). `EP-011` en `main` desde `af79c6b` (**7.6.0**); `EP
 
 ## Lo siguiente
 
-`PT-052` · `CHECKPOINT.json`. Es la primera tarea del lote que **no** es fontanería de lectura:
-empieza la parte que `EP-015` necesita para existir.
+`PT-053` · `tracker avanzar`. Es el candidato con más rendimiento del balance de `EP-013`, y ahora
+tiene **tres casos propios** en vez de una estimación: `FDGE-R52` cazó la transición en `PT-049`,
+en `PT-050` y en `PT-051` — la última **con el fallo anunciado en la propia nota**.
 
 `EP-013` está **en `main`** desde `2c20db8` (**8.0.0**): `G4` resuelta el 2026-08-15.
 

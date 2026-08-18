@@ -429,6 +429,35 @@ function checkValor(foundationLista) {
 // el default invertido lo raro es abrir y cerrar; y lo que esta abierto lo dice el registro,
 // no la memoria del agente — asi sobrevive a que la sesion termine.
 const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_DOMAIN']);
+// LEX-R26 · el checkpoint declara un SHA, y ese SHA tiene que EXISTIR.
+//
+// PT-052 · Un checkpoint que apunta a un commit inexistente miente CON LA AUTORIDAD DE UN DATO
+// ESTRUCTURADO: el que no existe se nota, el que miente no. Se comprueba que sea ALCANZABLE, no
+// que tenga forma de SHA — la forma la cumple cualquier cadena de cuarenta hexadecimales.
+//
+// NO se comprueba que el arbol CORRESPONDA a ese SHA. Eso es STATE_MISMATCH y es de EP-015:
+// darlo por hecho aqui haria que el lote siguiente heredase una casilla marcada.
+function checkCheckpoint() {
+  const f = join(IMPL, 'CHECKPOINT.json');
+  if (!existsSync(f)) return;                       // no tenerlo no es un defecto: aun no toca
+  let cp;
+  try { cp = JSON.parse(read(f) ?? ''); }
+  catch { fail('LEX-R26', 'CHECKPOINT.json no es JSON valido: un estado ilegible es peor que ninguno.'); return; }
+  const falta = ['pt', 'phase', 'sha'].filter((k) => cp?.[k] === undefined);
+  if (falta.length) {
+    fail('LEX-R26', `CHECKPOINT.json no declara: ${falta.join(', ')}. Sin eso no dice de que tarea es ni sobre que codigo.`);
+    return;
+  }
+  if (cp.sha === null) { warn('LEX-R26', 'CHECKPOINT.json declara «sha: null»: se genero sin git y lo DICE (RULE-06).'); return; }
+  try {
+    execFileSync('git', ['cat-file', '-e', `${cp.sha}^{commit}`], { cwd: ROOT, stdio: 'pipe' });
+    ok('LEX-R26', `CHECKPOINT.json: ${cp.pt} en PHASE ${cp.phase}, sobre un commit alcanzable.`);
+  } catch {
+    fail('LEX-R26', `CHECKPOINT.json declara el commit ${String(cp.sha).slice(0, 8)}, que NO existe en este repositorio. `
+      + 'Un checkpoint que apunta a nada miente con la autoridad de un dato estructurado.');
+  }
+}
+
 // SUITE-R33/R34 · el estado, y su frescura contra git.
 //
 // SUITE-R03 dice desde la 4.0.0 que ninguna sesion depende de la memoria del agente. Nada lo
@@ -1460,6 +1489,7 @@ checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
 checkImplementacion(reg);
 checkEstado();
+checkCheckpoint();
 checkFirmas();
 checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));
