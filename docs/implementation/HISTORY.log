@@ -2259,3 +2259,53 @@ Una advertencia que EP-015 necesita antes de empezar: la especificación de la q
 LEX-R26 los deja fuera POR CRITERIO, no por olvido.
 
 G4 y la publicación NO se delegan: son del firmante.
+
+## PT-056 — CHORE: el árbol corresponde al checkpoint (STATE_MISMATCH)
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-056-el-arbol-corresponde-al-checkpoint
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · G4 pendiente
+Objetivo: que un checkpoint no pueda afirmar un estado que ya no existe sin que nada lo note.
+Causa raíz: PT-052 dejó el «sha» y verify-fdge exige que sea ALCANZABLE. Eso impide la avería
+obvia —apuntar a nada— y no impide la peligrosa: un SHA REAL que describe un árbol que ya no
+existe pasaba la comprobación entera. Medido: con el checkpoint apuntando a abab74b —el merge de
+EP-014, un commit perfectamente real— daba verde.
+Solución: «estadoDelArbol(cp, git)», pura y exportada, con TRES resultados: corresponde
+true/false/null. «null» es no tener checkpoint, que no es lo mismo que tener uno equivocado. Solo
+«sha» y «rama» sostienen la correspondencia; «sucio» y «archivos» describen progreso. La usan los
+dos consumidores: «tracker siguiente» BLOQUEA antes de decir qué toca, y verify-fdge FALLA. No
+repara: PROPONE «tracker checkpoint PT-NNN», porque reescribir el checkpoint borraría la única
+prueba de que hubo divergencia y decidir cuál manda es de SUITE-R06.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs ·
+tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-056/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): EL DISEÑO DE PHASE 4 HABRÍA BLOQUEADO DESPUÉS DE CADA COMMIT. Exigía
+«sha === HEAD». PHASE 2 ya había medido el dato que lo desmiente —EP-014 hizo hasta DIEZ commits
+por tarea contra NUEVE transiciones de fase— y no sacó la consecuencia: el sha declarado deja de
+ser HEAD en cuanto se commitea. Lo que distingue no es la igualdad sino la HISTORIA: antecesor de
+HEAD va por detrás y no miente; lo que no lo es está en otra rama o en una historia reescrita. No
+poder decidirlo cuenta como discrepancia (RULE-06). Tres escenarios nuevos, E16-E18, que PHASE 4
+no tenía. Es el mismo defecto que test-scenarios.md describe para E4 y E5 —un criterio que salta
+siempre no se lee el día que es cierto— sin verlo en el criterio de al lado.
+CORRIGE PT-052: «gitDe» hacía trim() de TODA la salida de «git status --porcelain», lo que se come
+el espacio inicial de la primera línea cuando el cambio no está indexado; el slice(3) posterior
+cortaba un carácter del path. El CHECKPOINT.json vivo declaraba «hanges/…/intake.md»: un artefacto
+de gobernanza afirmando una ruta que no existe. Lo encontró mirar el archivo que la herramienta
+produce, no leer la herramienta.
+CORRIGE el arnés: los cuatro casos de «tracker siguiente» pasaban por VACÍO. La acción se planta si
+el proyecto no declara plataforma y el fixture no la declaraba, así que el chkno daba verde por
+SILENCIO, no porque la herramienta callara. Es el defecto de PT-023 otra vez, dentro del arnés que
+lo persigue. Ahora un caso —«tracker siguiente llega a correr»— existe solo para impedir que los
+siguientes afirmen sobre nada. Y por quinta vez en dos lotes una aserción casaba consigo misma: el
+patrón «[a-z]*ocs/» casaba también con «docs/».
+Casos: 618 → 657. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
+verdes son exactamente los que afirman que algo NO es discrepancia.
+Sin regla nueva: LEX-R26 se amplía, que es lo que spec-changes.md declaró en PHASE 4.
+No verificado: que alguien HAGA CASO al bloqueo; que «sha» y «rama» basten —un árbol con el mismo
+sha y contenido manipulado sin commitear pasa—; y que la descendencia sea cómoda tras un rebase
+legítimo, que obliga a rehacer el checkpoint.

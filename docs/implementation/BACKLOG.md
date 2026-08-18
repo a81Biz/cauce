@@ -2,7 +2,7 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-18 al abrir `EP-015`. Cada fila se **deriva** del registro y no se edita a
+> Regenerado el 2026-08-18 al cerrar `PT-056` en `PHASE 8`. Cada fila se **deriva** del registro y no se edita a
 > mano. Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres
 > versiones atrás; y `REFACTOR_SCOPE.md`, editado a mano, acabó con catorce filas pegadas en una
 > línea. La conclusión de los dos casos es la misma: **un índice que se escribe a mano diverge, y
@@ -15,7 +15,7 @@ issue [#90](https://github.com/a81Biz/cauce/issues/90).
 
 | Orden | PT | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
-| 1 | PT-056 | S1 | READY | 1 | [#103](https://github.com/a81Biz/cauce/issues/103) | **`STATE_MISMATCH`**: que el árbol **corresponda** al `sha`, no solo que exista |
+| 1 | PT-056 | S1 | IN_PROGRESS | 7 | [#103](https://github.com/a81Biz/cauce/issues/103) | **`STATE_MISMATCH`**: que el árbol **corresponda** al `sha`, no solo que exista |
 | 2 | PT-057 | S2 | READY | 1 | [#104](https://github.com/a81Biz/cauce/issues/104) | El coste de una tarea, **derivado** de las 56 cerradas |
 | 3 | PT-058 | S1 | READY | 1 | [#105](https://github.com/a81Biz/cauce/issues/105) | `MEDIDO` / `ESTIMADO` / `SIN EVALUAR`: cada cifra declara **qué es** |
 | 4 | PT-059 | S1 | READY | 1 | [#106](https://github.com/a81Biz/cauce/issues/106) | La compuerta `SAFE`/`MARGINAL`/`UNSAFE` y `BLOCKED_BY_CONTEXT` |
