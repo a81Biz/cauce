@@ -2,9 +2,9 @@
   "pt": "PT-054",
   "type": "CHORE",
   "epic": "EP-014",
-  "status": "IN_PROGRESS",
-  "phase": 6,
-  "fase": "Evidencia",
+  "status": "DONE",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge",
   "sha": "e3501e688b1dbcca725a0bf82f7872f703153210",
   "sha_corto": "e3501e6",
@@ -13,6 +13,7 @@
     "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/design.md",
     "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/discovery.md",
     "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/out-of-scope.md",
+    "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/self-review.md",
     "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/spec-changes.md",
     "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/strategy.md",
     "changes/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/tasks.md",
@@ -22,14 +23,15 @@
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REFACTOR_SCOPE.md",
     "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-054/",
+    "docs/methodology/CORE.md",
+    "docs/methodology/LEXICON.md",
+    "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/tracker.mjs",
     "hanges/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/intake.md"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-18"
 }
