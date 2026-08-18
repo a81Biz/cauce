@@ -1,5 +1,5 @@
 {
-  "suite_version": "8.0.0",
+  "suite_version": "8.1.0",
   "execution_mode": "SUPERVISED",
   "foundation": {
     "generated": "2026-08-13",
@@ -1091,11 +1091,11 @@
       "id": "EP-014",
       "slug": "la-fontaneria-de-la-transicion",
       "type": "EP",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "structural": false,
       "suite_version": "8.0.0",
       "created": "2026-08-15",
-      "phase": 1,
+      "phase": 9,
       "title": "La fontaneria de la transicion: un solo acto atomico, y el ciclo de iteracion deja de costar la bateria entera",
       "origin": "Balance de EP-013 · 65 transiciones de fase x 5 actos manuales = ~325 operaciones en una sesion, y 8 fallos de CI salieron de hacer cuatro de los cinco. Y la bateria imprime 541 lineas por vuelta, de las que 540 dicen OK",
       "issue": 89

@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 63a9ce1bcdc5 -->
-<!-- fuentes: RULES.md:e894ba4b0046 LEXICON.md:6ad51af87c85 EXECUTION-MODES.md:27ccf016ff35 PHASES.md:0816506e8d3c -->
+<!-- cuerpo: ddee7a8e0f72 -->
+<!-- fuentes: RULES.md:a019b19102da LEXICON.md:4a9bfd2626f9 EXECUTION-MODES.md:1006dad6b6ce PHASES.md:e175f1ebdb2e -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.

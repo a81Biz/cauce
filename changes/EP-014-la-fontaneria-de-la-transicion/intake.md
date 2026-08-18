@@ -4,7 +4,7 @@
 ---
 id: EP-014
 created: 2026-08-15
-status: IN_PROGRESS
+status: DONE
 mode: SUPERVISED
 origin: DIRECT
 ---
@@ -180,9 +180,71 @@ VEREDICTO: PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión — **`MINOR`** si ninguna tarea añade regla vinculante | pendiente |
-| Regenerar `CORE.md` si `PT-052` o `PT-053` tocan `LEXICON` o `PHASES` | pendiente |
-| Medir el lote **con su propia instrumentación**: operaciones por transición y fallos de CI, contra la línea base de `EP-013` | pendiente |
-| Qué queda para `EP-015` y qué para `EP-016`, con lo aprendido construyendo la fontanería | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión — **`MINOR`** si ninguna tarea añade regla vinculante | HECHO |
+| Regenerar `CORE.md` si `PT-052` o `PT-053` tocan `LEXICON` o `PHASES` | HECHO |
+| Medir el lote **con su propia instrumentación**: operaciones por transición y fallos de CI, contra la línea base de `EP-013` | HECHO |
+| Qué queda para `EP-015` y qué para `EP-016`, con lo aprendido construyendo la fontanería | HECHO |
+
+### Cómo se resolvió cada una   `SUITE-R45`
+
+**1 · `CHANGELOG` 8.1.0, `MINOR`.** Una regla nueva —`LEX-R26`— y un artefacto nuevo, sin romper
+nada: ningún proyecto instalado tiene hoy un `CHECKPOINT.json` que pueda quedar en rojo, y
+`INSTALL.md` declara que **no se siembra** precisamente para que no lo tenga. La condición que la
+fila planteaba —«`MINOR` si ninguna tarea añade regla vinculante»— **no se cumplió**, y sigue
+siendo `MINOR`: `SUITE-R19` reserva `MAJOR` para lo que rompe compatibilidad, no para lo que añade.
+
+**2 · `CORE.md` regenerado tres veces**, una por cada tarea que tocó `LEXICON`: `PT-052`
+(`CHECKPOINT.json` y `LEX-R26`), `PT-053` (`avanzar`) y `PT-054` (`proyectar`). 244 → **245
+reglas**.
+
+**3 · El lote, medido con su propia instrumentación:**
+
+```
+                              EP-013        EP-014
+notas de reanclaje              75            48
+selftest, por vuelta           541 lineas     2 con -q      (-99,6 %)
+verify-fdge --all              507 lineas    30 con -q      (-94,1 %)
+selftest, tiempo               209 s        138 s con --solo (-34 %)
+casos                          520 → 456… 520   520 → 618   (+98)
+cobertura mecanica             110/181       112/181
+reglas sin verificador          62            60
+transiciones con «avanzar»       0            12 de 48
+```
+
+La cifra que importa es la última. **`avanzar` existió durante las dos últimas tareas**, y en ese
+tramo hizo **12 transiciones** — las **ocho** de `PT-054` incluidas, que es la primera tarea del
+repositorio hecha **entera** con un solo comando por transición.
+
+**Y la medida honesta de si funcionó no es ésa.** Está declarada en `PT-053` y se cobra en
+`EP-015`: **cuántas veces `FDGE-R52` vuelve a cazar la misma transición.** En `EP-014` fueron
+**tres**, todas antes de que `avanzar` existiera.
+
+**4 · Qué queda para `EP-015` y para `EP-016`.**
+
+| Para | Qué recibe hecho | Qué tiene que añadir |
+|:---|:---|:---|
+| `EP-015` | `CHECKPOINT.json` con `LEX-R26` —si no se deriva, no entra— y el `sha` **alcanzable** | El presupuesto derivado del historial, `SAFE`/`MARGINAL`/`UNSAFE`, `BLOCKED_BY_CONTEXT`, el handoff automático y **`STATE_MISMATCH`**: que el **árbol corresponda** al SHA, que aquí no se comprueba |
+| `EP-016` | `proyectar` y la rama `cauce/<usuario>` derivada, con su marca | Los rangos de ID reservados, el usuario en la rama de tarea, y qué rama resuelve `G4` con varias personas |
+
+**Y una advertencia que `EP-015` necesita antes de empezar:** la especificación de la que nace pide
+en su §5 un checkpoint con `decisions`, `blockers` y `estimated_used`. **Ninguno se deriva de
+nada**, y `LEX-R26` los deja fuera por criterio, no por olvido. Está en el «no hacer» del `HANDOFF`
+con esas palabras.
+
+### Lo que este lote enseñó, y no está en ninguna tarea
+
+**Los actos de una transición no eran cinco: eran siete.** El intake contó los que se hacían a
+mano; el espejo lo descubrió `npm run verify` en rojo y el sello del `HANDOFF` lo descubrió la CI,
+**con el comando ya escrito y una de las dos veces ya integrado**.
+
+Eso es, en sí, el argumento del lote: **si un humano tenía que acordarse de siete actos, se
+olvidaba de dos incluso cuando su única tarea era enumerarlos.**
+
+Y el patrón que se repitió en las seis tareas: **cada una encontró, ejecutando, algo que su propio
+diseño daba por resuelto.** `PT-050` descubrió que las «dos únicas puertas» eran cuatro. `PT-051`
+descubrió que la herramienta contaba emisiones dentro de comentarios. `PT-052` vio su
+`spec-changes` pasar de una fila a seis. `PT-054` corrigió su propia estrategia al implementarla.
+
+Ninguno de esos hallazgos se ve leyendo.
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.

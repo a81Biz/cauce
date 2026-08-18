@@ -9,10 +9,10 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 > acabó con catorce filas pegadas en una línea. La conclusión de los dos casos es la misma:
 > **un índice que se escribe a mano diverge, y solo hace falta tiempo.**
 
-## Implementación abierta — `EP-014`
+## Lote esperando `G4` — `EP-014`
 
-`EP-014` · **La fontanería de la transición** · `IN_PROGRESS` ·
-issue [#89](https://github.com/a81Biz/cauce/issues/89).
+`EP-014` · **La fontanería de la transición** · `DONE` · **8.1.0** ·
+issue [#89](https://github.com/a81Biz/cauce/issues/89) — esperando `G4`.
 
 | Orden | PT | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -56,8 +56,14 @@ abierto como `PT-055` (#94). `EP-011` en `main` desde `af79c6b` (**7.6.0**); `EP
 
 ## Lo siguiente
 
-**Cerrar `EP-014`**: sus cuatro filas de `## Cierre del lote`, la entrada de `CHANGELOG` y `CORE`
-regenerado. Después, `G4` — que es del firmante.
+**`G4`.** El pull request de `trabajo` a `main`, que es donde se resuelve. Lo abre y lo fusiona
+el firmante (`SUITE-R42`, `EXEC-R04`, `SUITE-R06a`): el agente lo **describe** y se detiene.
+
+```bash
+gh pr create --base main --head trabajo
+```
+
+Después, **`EP-015`** (#90) — la continuidad de sesión — según la decisión 5 del firmante.
 
 `EP-013` está **en `main`** desde `2c20db8` (**8.0.0**): `G4` resuelta el 2026-08-15.
 
