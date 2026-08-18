@@ -3,18 +3,19 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "chore/PT-059-no-empezar-lo-que-no-se-puede-terminar",
-  "sha": "7cdd684e5aad4296dbafbdce77dee45adb560282",
-  "sha_corto": "7cdd684",
+  "sha": "0140533b46040d74f7a895dd72bf19a7b279803a",
+  "sha_corto": "0140533",
   "sucio": true,
   "archivos": [
     "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }
