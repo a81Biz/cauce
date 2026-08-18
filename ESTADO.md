@@ -14,5 +14,5 @@ Proyectado el 2026-08-18 · 7 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-059 | CHORE | IN_PROGRESS | 2 | chore/PT-059-no-empezar-lo-que-no-se-puede-terminar | 6107771 |
+| PT-059 | CHORE | IN_PROGRESS | 3 | chore/PT-059-no-empezar-lo-que-no-se-puede-terminar | 93282c8 |
 | PT-060 | CHORE | READY | 1 | — | — |

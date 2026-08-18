@@ -3,11 +3,11 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/PT-059-no-empezar-lo-que-no-se-puede-terminar",
-  "sha": "61077717e6daeabf06c61f9e8e44187cb974a9da",
-  "sha_corto": "6107771",
+  "sha": "93282c8ef2ffba0350c190344fb6a138316810ff",
+  "sha_corto": "93282c8",
   "sucio": true,
   "archivos": [
     "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/intake.md",
@@ -15,8 +15,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-18"
 }
