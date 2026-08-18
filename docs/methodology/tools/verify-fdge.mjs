@@ -47,6 +47,9 @@ import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mjs';
+// PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
+// criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
+import { estadoDelArbol } from './tracker.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -435,8 +438,12 @@ const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', '
 // ESTRUCTURADO: el que no existe se nota, el que miente no. Se comprueba que sea ALCANZABLE, no
 // que tenga forma de SHA — la forma la cumple cualquier cadena de cuarenta hexadecimales.
 //
-// NO se comprueba que el arbol CORRESPONDA a ese SHA. Eso es STATE_MISMATCH y es de EP-015:
-// darlo por hecho aqui haria que el lote siguiente heredase una casilla marcada.
+// PT-056 · Y ademas el arbol tiene que CORRESPONDER: STATE_MISMATCH.
+//
+// Alcanzable impide la averia obvia —apuntar a nada— y NO impide la peligrosa: un SHA real que
+// describe un arbol que ya no existe. Ese pasa la comprobacion anterior entera. Solo `sha` y
+// `rama` se contrastan: la lista de archivos cambia mientras se trabaja (medido: de 3 a 5 con el
+// sha intacto), y un criterio que salta siempre no se lee el dia que es cierto.
 function checkCheckpoint() {
   const f = join(IMPL, 'CHECKPOINT.json');
   if (!existsSync(f)) return;                       // no tenerlo no es un defecto: aun no toca
@@ -451,11 +458,38 @@ function checkCheckpoint() {
   if (cp.sha === null) { warn('LEX-R26', 'CHECKPOINT.json declara «sha: null»: se genero sin git y lo DICE (RULE-06).'); return; }
   try {
     execFileSync('git', ['cat-file', '-e', `${cp.sha}^{commit}`], { cwd: ROOT, stdio: 'pipe' });
-    ok('LEX-R26', `CHECKPOINT.json: ${cp.pt} en PHASE ${cp.phase}, sobre un commit alcanzable.`);
   } catch {
     fail('LEX-R26', `CHECKPOINT.json declara el commit ${String(cp.sha).slice(0, 8)}, que NO existe en este repositorio. `
       + 'Un checkpoint que apunta a nada miente con la autoridad de un dato estructurado.');
+    return;
   }
+  // PT-056 · STATE_MISMATCH. Se deriva del mismo git, no del checkpoint: contrastar un archivo
+  // consigo mismo no comprueba nada.
+  const real = (args) => {
+    try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
+    catch { return null; }
+  };
+  // Un checkpoint cuyo commit es ANTECESOR del actual va por detras, no miente: entre dos
+  // transiciones de fase hay varios commits, y exigir igualdad haria fallar CI despues de cada uno.
+  let desc = null;
+  try { execFileSync('git', ['merge-base', '--is-ancestor', cp.sha, 'HEAD'], { cwd: ROOT, stdio: 'pipe' }); desc = true; }
+  catch (err) { desc = err?.status === 1 ? false : null; }
+  const e = estadoDelArbol(cp, {
+    sha: real(['rev-parse', 'HEAD']),
+    rama: real(['rev-parse', '--abbrev-ref', 'HEAD']),
+    descendiente: desc,
+  });
+  if (e.corresponde === false) {
+    // Acortar SOLO lo que parece un SHA. `slice(0, 7)` a secas dejaba «chore/O» donde decia
+    // «chore/OTRA-RAMA»: un mensaje que trunca el dato por el que se detiene no sirve de nada.
+    const corto = (s) => (/^[0-9a-f]{40}$/.test(String(s)) ? String(s).slice(0, 7) : String(s));
+    const d = e.discrepancias.map((x) => `${x.campo}: declarado ${corto(x.declarado)}, real ${corto(x.real)}`);
+    fail('LEX-R26', `CHECKPOINT.json de ${cp.pt} NO corresponde al arbol (STATE_MISMATCH) — ${d.join(' · ')}. `
+      + 'El commit existe, pero el trabajo va por otro sitio: decidir cual manda es humano (SUITE-R06). '
+      + `Si el arbol es el bueno:  tracker checkpoint ${cp.pt}`);
+    return;
+  }
+  ok('LEX-R26', `CHECKPOINT.json: ${cp.pt} en PHASE ${cp.phase}, sobre un commit alcanzable y con el arbol correspondiente.`);
 }
 
 // SUITE-R33/R34 · el estado, y su frescura contra git.

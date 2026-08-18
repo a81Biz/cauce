@@ -2316,6 +2316,147 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
+# PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
+# checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que
+# ya no existe. Ese pasa la comprobacion anterior entera, y sobre el decidirian el presupuesto
+# y la compuerta de EP-015.
+#
+# Los casos de la funcion pura no necesitan git: se le pasa el estado. Los de las dos
+# herramientas SI, y por eso mas abajo el fixture se hace repositorio — la correspondencia no se
+# puede comprobar sin algo con lo que corresponder.
+sec "── PT-056 · el arbol corresponde al checkpoint ──"
+
+# E1..E3 · solo `sha` y `rama` sostienen la correspondencia.
+CPOK='{pt:"PT-1",sha:"a".repeat(40),rama:"chore/x"}'
+trlib "sha y rama iguales ⇒ corresponde"      "^true$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"chore/x\"}).corresponde)"
+trlib "sha distinto ⇒ NO corresponde"         "^false$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\"}).corresponde)"
+trlib "rama distinta ⇒ NO corresponde"        "^false$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+
+# E4/E5 · lo que separa esto de una herramienta que molesta. Medido en PHASE 2: la lista de
+# archivos paso de 3 a 5 con el sha intacto en el tiempo de escribir tres parrafos. Si eso fuera
+# discrepancia el aviso saltaria SIEMPRE — y entonces el dia que sea real tampoco se leeria.
+trlib "un arbol SUCIO no es discrepancia"     "^true$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"chore/x\",sucio:true}).corresponde)"
+trlib "otra lista de archivos tampoco"        "^true$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"chore/x\",archivos:[\"p\",\"q\"]}).corresponde)"
+
+# E6/E7 · el mensaje ES el producto. «Hay diferencias» obliga a investigar justo cuando el
+# estado no es de fiar.
+DOS="m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"otra\"})"
+trlib "la discrepancia dice el campo"         "sha"        "console.log(JSON.stringify($DOS.discrepancias))"
+trlib "…lo declarado"                         "aaaaaaaa"   "console.log(JSON.stringify($DOS.discrepancias))"
+trlib "…y lo real"                            "bbbbbbbb"   "console.log(JSON.stringify($DOS.discrepancias))"
+trlib "con dos, enumera LAS DOS"              "^2$"        "console.log($DOS.discrepancias.length)"
+trlib "…y el texto las lleva las dos"         "rama"       "console.log(m.textoDiscrepancia($DOS))"
+
+# Un commit ANTECESOR del actual no es discrepancia: va por detras, no miente. Sin esto el aviso
+# saltaria despues de CADA commit —EP-014 hizo hasta diez por tarea contra nueve transiciones— y un
+# aviso que salta siempre no se lee el dia que es cierto.
+trlib "un sha ANTECESOR no es discrepancia"   "^true$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\",descendiente:true}).corresponde)"
+trlib "…pero uno de OTRA historia si"         "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\",descendiente:false}).corresponde)"
+# RULE-06 · no poder demostrar que desciende no es haberlo demostrado.
+trlib "…y no saberlo cuenta como discrepancia"  "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\",descendiente:null}).corresponde)"
+
+# E8 · tres resultados, no dos. No tener foto y tener una foto equivocada son cosas distintas.
+trlib "sin checkpoint ⇒ null, no false"       "^null$"     "console.log(JSON.stringify(m.estadoDelArbol(null).corresponde))"
+trlib "…y lo dice en vez de callarlo"         "sin checkpoint"  "console.log(m.estadoDelArbol(null).motivo)"
+# E9 · no se contrasta lo que no se declaro: `sha: null` ya lo avisa PT-052, y decirlo dos veces
+# convierte un aviso en ruido.
+trlib "un sha null no es discrepancia"        "^true$" \
+  "console.log(m.estadoDelArbol({pt:\"P\",sha:null,rama:\"chore/x\"},{sha:\"z\",rama:\"chore/x\"}).corresponde)"
+
+# E11/E12 · el texto NO repara: propone. Reescribir el checkpoint al detectar el desfase borraria
+# la unica prueba de que hubo divergencia, y decidir cual manda es de SUITE-R06.
+trlib "el texto lo llama por su nombre"       "STATE_MISMATCH"   "console.log(m.textoDiscrepancia($DOS))"
+trlib "…dice que reanudar es HUMANO"          "SUITE-R06"        "console.log(m.textoDiscrepancia($DOS))"
+trlib "…y PROPONE el comando"                 "tracker checkpoint PT-1"  "console.log(m.textoDiscrepancia($DOS))"
+trlibno "…sin ejecutarlo ni repararlo"        "reparad\|corregido\|arreglad"  "console.log(m.textoDiscrepancia($DOS))"
+
+# E10/E13 · las dos herramientas, sobre un repositorio DE VERDAD. El fixture no era git y por eso
+# PT-052 dejo el caso del sha alcanzable fuera del arnes; aqui no se puede: la correspondencia
+# necesita un HEAD contra el que corresponder.
+build_fixture
+CP6="$WORK/docs/implementation/CHECKPOINT.json"
+TR6() { node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
+V6()  { node "$WORK/docs/methodology/tools/verify-fdge.mjs" "$@" "$WORK"; }
+
+GIT6=""
+if command -v git >/dev/null 2>&1; then
+  ( cd "$WORK" \
+    && git init -q 2>/dev/null \
+    && git config user.email t@t && git config user.name t \
+    && git add -A >/dev/null 2>&1 \
+    && git commit -qm "fixture PT-056" >/dev/null 2>&1 ) && GIT6="si"
+fi
+
+if [ -z "$GIT6" ]; then
+  # RULE-06 · si no se pudo comprobar, se DICE. Un bloque que se salta en silencio es un verde
+  # por vacio, que es justo lo que PT-023 encontro ejecutando.
+  bad "PT-056: sin git no se pudo probar STATE_MISMATCH sobre las herramientas"
+else
+  # `siguiente` se planta si el proyecto no declara plataforma, y el fixture no la declaraba: los
+  # cuatro casos de `siguiente` pasaban por VACIO —la herramienta no llegaba a correr— y el
+  # `chkno` daba verde por silencio. Es el defecto que PT-023 encontro ejecutando, otra vez.
+  node -e 'const fs=require("node:fs"),p=process.argv[1];const r=JSON.parse(fs.readFileSync(p,"utf8"));r.tracker={plataforma:"github"};fs.writeFileSync(p,JSON.stringify(r,null,2));' "$WORK/docs/implementation/REGISTRY.json"
+  # Y esto lo impide en adelante: si `siguiente` no llega a producir su cabecera, el bloque
+  # entero es una asercion sobre nada.
+  chk   "tracker siguiente llega a correr"         "PT-004  IN_PROGRESS"    TR6 siguiente PT-004
+
+  TR6 checkpoint PT-004 >/dev/null 2>&1
+  # La foto recien tomada corresponde por construccion: es la comprobacion POSITIVA, y sin ella
+  # la negativa no prueba nada — un fail que siempre falla no distingue.
+  chk   "recien escrito, verify-fdge lo da bueno"  "arbol correspondiente"  V6 PT-004
+  chkno "…y tracker siguiente NO bloquea"          "STATE_MISMATCH"         TR6 siguiente PT-004
+
+  # Y ahora el caso peligroso: un SHA que EXISTE pero no es el del arbol. Pasaba entero la
+  # comprobacion de PT-052.
+  cp6_set() { [ -f "$CP6" ] || return 0; MTH_CP6="$CP6" node -e "$1"; }
+  cp6_set 'const fs=require("node:fs");const p=process.env.MTH_CP6;const c=JSON.parse(fs.readFileSync(p,"utf8"));c.rama="chore/OTRA";fs.writeFileSync(p,JSON.stringify(c,null,2));'
+  chk   "otra rama: verify-fdge FALLA"            "STATE_MISMATCH"         V6 PT-004
+  # El mensaje llevaba la rama truncada a siete caracteres —«chore/O»— porque acortaba TODO como
+  # si fuera un SHA. Un aviso que corta justo el dato por el que se detiene no sirve de nada.
+  chk   "…y dice cual es la discrepancia ENTERA"  "declarado chore/OTRA"   V6 PT-004
+  chk   "…y que decidir es humano"                "SUITE-R06"              V6 PT-004
+  chk   "tracker siguiente BLOQUEA"               "BLOQUEA"                TR6 siguiente PT-004
+  chk   "…nombrando la condicion"                 "STATE_MISMATCH"         TR6 siguiente PT-004
+  chk   "…y propone el comando"                   "tracker checkpoint PT-004"  TR6 siguiente PT-004
+  chk   "…y no dice que siga como si nada"        "RESUELVE PRIMERO"       TR6 siguiente PT-004
+
+  # E14 · rehacer la foto la vuelve a hacer corresponder. Es lo que el mensaje propone, y si no
+  # funcionara el mensaje estaria mandando a un sitio que no arregla nada.
+  TR6 checkpoint PT-004 >/dev/null 2>&1
+  chk   "rehacer el checkpoint lo resuelve"       "arbol correspondiente"  V6 PT-004
+  chkno "…y el bloqueo desaparece"                "STATE_MISMATCH"         TR6 siguiente PT-004
+
+  # El checkpoint de OTRA tarea no dice nada de esta: es UNO (LEX-R26), y contrastar contra el
+  # ajeno bloquearia por un estado que no es el suyo.
+  TR6 checkpoint PT-001 >/dev/null 2>&1
+  chkno "el checkpoint ajeno no bloquea a PT-004" "STATE_MISMATCH"         TR6 siguiente PT-004
+fi
+
+# E15 · LEX-R21 · el nombre vive en LEXICON, y antes que en el codigo.
+chk   "STATE_MISMATCH esta en LEXICON"          "STATE_MISMATCH"     cat "$SUITE/LEXICON.md"
+chk   "…y LEX-R26 exige la correspondencia"     "tiene que corresponder"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que sucio NO es discrepancia"    "NO es una discrepancia"  cat "$SUITE/LEXICON.md"
+chkno "…y no lo convierte en un status"         "status.*STATE_MISMATCH"  cat "$SUITE/LEXICON.md"
+
+# CORRIGE PT-052 · `gitDe` hacia trim() de TODA la salida de `git status --porcelain`, y eso se
+# comia el espacio inicial de la PRIMERA linea cuando el cambio no estaba indexado; el slice(3)
+# posterior cortaba un caracter del path. El CHECKPOINT.json vivo declaraba «hanges/…/intake.md».
+# Lo encontro ejecutar la herramienta, no leerla.
+chk   "gitDe distingue crudo de recortado"      "crudo"   cat "$SUITE/tools/tracker.mjs"
+if [ -n "$GIT6" ]; then
+  ( cd "$WORK" && printf 'x\n' >> docs/implementation/HANDOFF.md 2>/dev/null || true )
+  TR6 checkpoint PT-004 >/dev/null 2>&1
+  # El patron es la ruta SIN su primera letra: «[a-z]*ocs/» casaria tambien con «docs/» y el
+  # caso pasaria sin comprobar nada — la quinta vez en el lote que una asercion casa consigo misma.
+  chkno "ningun path del checkpoint pierde letras"  '"ocs/'  cat "$CP6"
+fi
+
 # ─── PT-054 · ver en que se trabaja sin esperar al merge ───────────────────
 # Medido: 13 ramas de tarea en el remoto. La visibilidad existe y esta repartida en trece sitios,
 # asi que hay que saber DE ANTEMANO que rama mirar. La rama cauce/<usuario> agrega, y es DERIVADA

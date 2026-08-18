@@ -37,6 +37,8 @@ import { execFileSync } from 'node:child_process';
 // formas de partir lineas en el repositorio serian dos fuentes del mismo hecho (SUITE-R38).
 import { lineas, ESTADOS_TERMINALES } from './patrones.mjs';
 
+const SALTO = String.fromCharCode(10);
+
 // ─── Lógica pura · exportada para poder probarla sin plataforma ──────────────
 // PT-001 · El adaptador habla con `gh`; la comparación no habla con nadie.
 //
@@ -96,7 +98,7 @@ export const FASES = {
  * y qué la cierra. Función pura — quien llama le pasa lo que ya leyó.
  */
 export function queSigue(alloc, opciones = {}) {
-  const { comentarioPendiente = false, issueAbierto = null } = opciones;
+  const { comentarioPendiente = false, issueAbierto = null, arbol = null } = opciones;
   if (!alloc) return { error: 'no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay trabajo.' };
   if (!VIVOS.has(alloc.status)) {
     return { id: alloc.id, estado: alloc.status, terminado: true,
@@ -109,6 +111,10 @@ export function queSigue(alloc, opciones = {}) {
   if (comentarioPendiente) {
     bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43).`);
   }
+  // PT-056 · STATE_MISMATCH · el arbol no corresponde al checkpoint. Va aqui porque «que sigue»
+  // se responde SOBRE UN ESTADO: si el estado no es el declarado, la respuesta es sobre otro
+  // trabajo. `corresponde: null` (sin checkpoint) NO bloquea — no tener foto no es tener una mala.
+  if (arbol && arbol.corresponde === false) bloqueos.push(textoDiscrepancia(arbol));
   if (!alloc.issue) bloqueos.push(`no tiene issue. Lo que está abierto se consulta en el tablero (SUITE-R35):  tracker abrir --aplicar`);
   else if (issueAbierto === false) bloqueos.push(`su issue #${alloc.issue} no está abierto y ${alloc.id} sigue vivo (SUITE-R35).`);
 
@@ -626,6 +632,64 @@ export function decidirSalida(reg, sonda, adaptadores = ADAPTADORES) {
 // Importarme para probar la lógica de arriba no debe leer un registro, abrir un proceso ni
 // exigir credenciales. Sin este guard, importar el módulo ejecutaba la herramienta entera.
 /** Funcion PURA: el checkpoint que corresponde a una allocation, dado lo que git dice. */
+/**
+ * PT-056 · STATE_MISMATCH · ¿el arbol CORRESPONDE a lo que el checkpoint declara?
+ *
+ * PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
+ * checkpoint que apunta a nada— y NO impide la peligrosa: un sha real que describe un arbol que ya
+ * no existe. Ese MIENTE SIN QUE NADA LO NOTE, y el presupuesto, la compuerta y el handoff de
+ * EP-015 decidirian sobre el.
+ *
+ * SOLO `sha` y `rama` sostienen la correspondencia. `sucio` y `archivos` describen PROGRESO:
+ * medido en PHASE 2, la lista paso de 3 a 5 archivos con el sha intacto en el tiempo de escribir
+ * tres parrafos. Si fueran criterio, la discrepancia seria el ESTADO NORMAL y el aviso se
+ * ignoraria desde el primer dia — y entonces el dia que fuera real tampoco se leeria.
+ *
+ * TRES resultados, no dos. `corresponde: null` cuando no hay checkpoint: no tener foto y tener una
+ * foto equivocada son cosas distintas, y es RULE-06 en la forma que este repositorio ya usa.
+ *
+ * NO repara. Reescribir el checkpoint al detectar el desfase borraria la unica prueba de que hubo
+ * divergencia, y decidir si el arbol o la foto es lo bueno es humano (SUITE-R06).
+ */
+export function estadoDelArbol(cp, git = {}) {
+  if (!cp) return { corresponde: null, pt: null, discrepancias: [], motivo: 'sin checkpoint: no hay nada que contrastar' };
+  const d = [];
+  // No se contrasta lo que no se declaro: un checkpoint con `sha: null` ya lo avisa PT-052.
+  //
+  // Y `sha !== HEAD` NO es, por si solo, una discrepancia. PHASE 2 lo midio: las tareas de EP-014
+  // hicieron hasta DIEZ commits contra NUEVE transiciones de fase, asi que la ventana en la que el
+  // sha declarado ya no es HEAD es el ESTADO HABITUAL entre transiciones. Exigir igualdad haria
+  // saltar el aviso despues de cada commit — y un aviso que salta siempre no se lee el dia que es
+  // cierto, que es justo lo que esta comprobacion existe para impedir.
+  //
+  // Lo que distingue es de que HISTORIA es: un checkpoint cuyo commit es ANTECESOR del actual
+  // describe un estado del que el de ahora desciende — va por detras, no miente. Uno que no lo es
+  // esta en otra rama o en una historia reescrita, y ahi si.
+  //
+  // `descendiente` lo deriva quien llama (`git merge-base --is-ancestor`): esta funcion no toca
+  // git. Si nadie lo derivo llega `null`, y entonces un sha distinto SI cuenta: no poder demostrar
+  // que desciende no es haberlo demostrado.
+  if (cp.sha && git.sha && cp.sha !== git.sha && git.descendiente !== true) {
+    d.push({ campo: 'sha', declarado: cp.sha, real: git.sha });
+  }
+  if (cp.rama && git.rama && cp.rama !== git.rama) d.push({ campo: 'rama', declarado: cp.rama, real: git.rama });
+  return { corresponde: d.length === 0, pt: cp.pt ?? null, discrepancias: d };
+}
+
+/** El texto de una discrepancia. Dice CUAL es y PROPONE el comando — no lo ejecuta (AC-04, AC-05). */
+export function textoDiscrepancia(e) {
+  const filas = e.discrepancias.map((x) => {
+    const corto = (s) => (/^[0-9a-f]{40}$/.test(String(s)) ? String(s).slice(0, 7) : String(s));
+    return `${x.campo.padEnd(6)} declarado ${corto(x.declarado)}   real ${corto(x.real)}`;
+  });
+  return [
+    `STATE_MISMATCH · el arbol no corresponde al checkpoint de ${e.pt ?? '¿?'} (LEX-R26):`,
+    ...filas.map((f) => `  ${f}`),
+    'Reanudar con esta discrepancia es una DECISION HUMANA (SUITE-R06). Si el checkpoint esta',
+    `viejo y el arbol es el bueno:  tracker checkpoint ${e.pt ?? 'PT-NNN'}`,
+  ].join('\n');
+}
+
 export function checkpointDe(alloc, git = {}) {
   if (!alloc) return null;
   const r = queSigue(alloc);
@@ -996,6 +1060,9 @@ function pendienteDe() {
 // estado real del issue. Consultar el tablero deja de ser una buena costumbre y pasa a ser el
 // único sitio donde está la respuesta.
 function siguienteDe() {
+  let cp = null;
+  try { cp = JSON.parse(readFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), 'utf8')); }
+  catch { /* sin checkpoint o ilegible: no se afirma nada. verify-fdge es quien juzga el archivo. */ }
   const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
   const objetivo = id
     ? [all.find((x) => x?.id === id)]
@@ -1013,12 +1080,27 @@ function siguienteDe() {
     if (a.issue && adaptador?.abiertos) {
       try { abierto = adaptador.abiertos().some((i) => i.number === a.issue); } catch { /* idem */ }
     }
-    const r = queSigue(a, { comentarioPendiente: pendiente, issueAbierto: abierto });
+    // Solo se contrasta contra el checkpoint SI ES EL DE ESTA allocation: el checkpoint es UNO
+    // (LEX-R26) y el de otra tarea no dice nada de esta.
+    const arbol = cp?.pt === a.id
+      ? estadoDelArbol(cp, {
+        sha: gitDe(['rev-parse', 'HEAD']),
+        rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+        descendiente: desciendeDe(cp.sha),
+      })
+      : null;
+    const r = queSigue(a, { comentarioPendiente: pendiente, issueAbierto: abierto, arbol });
     di('');
     di(`  ${r.id}  ${r.estado}${r.fase !== null && r.fase !== undefined ? `  ·  PHASE ${r.fase} ${r.nombre}` : ''}${a.issue ? `  ·  #${a.issue}` : ''}`);
     if (r.compuerta) di(`  compuerta:  ${r.compuerta}`);
     if (r.produce?.length) di(`  produce:    ${r.produce.join(' · ')}`);
-    for (const b of r.bloqueos ?? []) di(`  ✗ BLOQUEA:  ${b}`);
+    // Un bloqueo puede ser de varias lineas (STATE_MISMATCH enumera cada discrepancia): se
+    // indentan TODAS, o la continuacion se lee como si fuera otra cosa.
+    for (const b of r.bloqueos ?? []) {
+      const [cabeza, ...resto] = String(b).split(SALTO);
+      di(`  ✗ BLOQUEA:  ${cabeza}`);
+      for (const l of resto) di(`              ${l}`);
+    }
     di(`  siguiente:  ${r.siguiente}`);
   }
   di('');
@@ -1037,9 +1119,30 @@ function siguienteDe() {
 // Es UNO y se sobrescribe: el estado en curso es el de la tarea que se esta tocando. N archivos
 // serian N-1 mintiendo desde el momento de escribirse. Por eso declara de que `pt` es — leerlo
 // sin mirar ese campo es el error que lo haria peligroso.
-const gitDe = (args) => {
-  try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
-  catch { return null; }
+/**
+ * ¿El commit declarado es ANTECESOR del actual? `null` si no se puede decidir — y `null` no es
+ * `false`: no poder demostrarlo no es haber demostrado lo contrario (RULE-06).
+ */
+const desciendeDe = (sha) => {
+  if (!sha) return null;
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', sha, 'HEAD'], { cwd: ROOT, stdio: 'pipe' });
+    return true;
+  } catch (e) {
+    // Codigo 1 = respondio que NO. Cualquier otro = no pudo responder, y eso no es un no.
+    return e?.status === 1 ? false : null;
+  }
+};
+
+const gitDe = (args, { crudo = false } = {}) => {
+  try {
+    const s = execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+    // PT-056 · CORRIGE PT-052 · `status --porcelain` empieza cada linea con DOS columnas de estado,
+    // y la primera es un ESPACIO cuando el cambio no esta indexado. `trim()` se lo comia y el
+    // `slice(3)` posterior cortaba un caracter del path: el CHECKPOINT.json vigente declaraba
+    // «hanges/…/intake.md». Un artefacto de gobernanza que afirma una ruta que no existe.
+    return crudo ? (s.endsWith(SALTO) ? s.slice(0, -1) : s) : s.trim();
+  } catch { return null; }
 };
 
 function checkpoint() {
@@ -1049,7 +1152,7 @@ function checkpoint() {
   // RULE-06 · si no esta en el registro no se inventan los campos: se dice.
   if (!a) { throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay checkpoint.`); }
 
-  const sucio = gitDe(['status', '--porcelain']);
+  const sucio = gitDe(['status', '--porcelain'], { crudo: true });
   const cp = checkpointDe(a, {
     sha: gitDe(['rev-parse', 'HEAD']),
     rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
@@ -1222,7 +1325,7 @@ function avanzar() {
     }
 
     // 3 · el checkpoint · PT-052
-    const sucio = gitDe(['status', '--porcelain']);
+    const sucio = gitDe(['status', '--porcelain'], { crudo: true });
     const cp = checkpointDe(a, {
       sha: gitDe(['rev-parse', 'HEAD']),
       rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
