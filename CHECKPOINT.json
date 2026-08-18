@@ -3,20 +3,25 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/PT-058-cada-cifra-dice-que-es",
-  "sha": "609131d2ce709a8bf7531c421221fe982430dac3",
-  "sha_corto": "609131d",
+  "sha": "4cdae3bb163221f139663b1f377bfb0ffbdf15fa",
+  "sha_corto": "4cdae3b",
   "sucio": true,
   "archivos": [
     "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-18"
 }
