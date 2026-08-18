@@ -1211,7 +1211,7 @@
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 8,
+      "phase": 9,
       "title": "cauce/<usuario>: proyeccion DERIVADA del estado de gobernanza, escrita solo por la herramienta",
       "origin": "Decision del firmante 2026-08-15 · rama derivada, no autorada: el commit atomico y la trazabilidad quedan intactos, y lo derivado no diverge. La identidad multiusuario y los rangos de ID son de EP-016",
       "created": "2026-08-15",
