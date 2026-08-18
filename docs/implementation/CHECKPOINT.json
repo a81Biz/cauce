@@ -1,21 +1,22 @@
 {
-  "pt": "PT-056",
+  "pt": "PT-057",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "470cdea63a0c4778a43530c506e9960f8e859002",
-  "sha_corto": "470cdea",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial",
+  "sha": "7a203abc2a97a91380cc385bbb19e25018d7fc00",
+  "sha_corto": "7a203ab",
   "sucio": true,
   "archivos": [
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/REGISTRY.json",
-    "docs/methodology/tools/tracker.mjs"
+    "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PT-056 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }
