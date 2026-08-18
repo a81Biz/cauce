@@ -465,9 +465,15 @@ const APLICAR = ARGS.includes('--aplicar');
 // dijo EJECUTARLO, sabiendo del defecto. Por eso las banderas con valor se declaran en UN sitio:
 // la lista es lo que hace que la cuarta no repita el error.
 const CON_VALOR = new Set(['--a', '--nota']);
+// PT-057 · `coste` recibe TIPO y COMPLEJIDAD como posicionales, y sin esta guarda el primero se
+// tomaba por ROOT: «tracker coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
+// CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
+// ahora estos—, y las cuatro se arreglan con una regla de FORMA, no con un caso mas.
+const ES_ETIQUETA = /^[A-Z][A-Z_]*$/;
 const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
   !a.startsWith('--')
   && !/^(?:PT|EP)-\d+$/.test(a)
+  && !ES_ETIQUETA.test(a)
   && !CON_VALOR.has(xs[i - 1])) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
 
@@ -636,6 +642,77 @@ export function decidirSalida(reg, sonda, adaptadores = ADAPTADORES) {
 // ─── El programa. Solo corre si me ejecutan directamente ────────────────────
 // Importarme para probar la lógica de arriba no debe leer un registro, abrir un proceso ni
 // exigir credenciales. Sin este guard, importar el módulo ejecutaba la herramienta entera.
+// ── PT-057 · la referencia de coste ─────────────────────────────────────────
+//
+// El umbral de AC-03. Es un JUICIO, no un resultado: nada demuestra que cinco sea el numero.
+// Vive aqui, con nombre, para que se pueda DISCUTIR — no enterrado dentro de un `if`.
+//
+// Lo que si esta medido es que decide. Con cinco: dan referencia BUG/STANDARD (13),
+// CHORE/STANDARD (13), BUG/TRIVIAL (7) y FEATURE/STANDARD (6); se quedan sin ella
+// INVESTIGATION/STANDARD, CHORE/TRIVIAL y CHORE/SIMPLE (1 tarea cada uno) y BUG/SIMPLE (3).
+export const MINIMO_REFERENCIA = 5;
+
+/**
+ * De QUIEN es un commit. El primer PT del ASUNTO, y solo del asunto.
+ *
+ * PHASE 2 lo midio: 61 de 162 commits nombran mas de un PT y uno nombra DIEZ, porque el cuerpo
+ * cita las tareas anteriores —«CORRIGE PT-052», «el mismo defecto que PT-023 encontro»— y eso es
+ * lo CORRECTO en una bitacora append-only (SUITE-R09). Atribuir por `--grep` daba a una tarea el
+ * trabajo de otras, y con esa medicion BUG/TRIVIAL y BUG/STANDARD salian identicos HASTA LA
+ * LINEA: 5 commits, 65 archivos, 2708 lineas los dos. Una cifra falsa con toda la autoridad de
+ * un numero derivado del historial real.
+ */
+export const duenoDe = (asunto) => (String(asunto ?? '').match(/PT-\d{3}/) ?? [null])[0];
+
+/**
+ * Mediana y rango. NUNCA media.
+ *
+ * Los grupos son de 6 a 13 tareas y la dispersion llega a un factor de diez —BUG/TRIVIAL va de
+ * 242 a 2591 lineas—: una media la arrastra un solo caso. Y el rango viaja SIEMPRE con la
+ * mediana, porque una cifra central sin dispersion se lee como una prediccion.
+ */
+export function resumen(xs) {
+  const v = [...(xs ?? [])].map((x) => Number(x) || 0).sort((a, b) => a - b);
+  if (!v.length) return null;
+  const mediana = v.length % 2
+    ? v[(v.length - 1) / 2]
+    : Math.round((v[v.length / 2 - 1] + v[v.length / 2]) / 2);
+  return { mediana, min: v[0], max: v[v.length - 1], n: v.length };
+}
+
+/**
+ * La referencia de coste de un tipo de tarea, DERIVADA de las cerradas.
+ *
+ * `cerradas` son objetos {id, type, complexity, commits, archivos, lineas} que quien llama ya
+ * derivo de git y del registro: esta funcion no toca git ni el disco.
+ *
+ * TRES resultados, como `estadoDelArbol`: hay referencia, hay datos pero POCOS, y no hay nada.
+ * Las tres situaciones son distintas y por eso las tres respuestas lo son. Devolver cero o NaN
+ * en lugar de `null` los meteria en PT-058 y PT-059 COMO SI FUERAN MEDIDAS, que es exactamente
+ * lo que PT-056 acaba de demostrar que es peor que no tener el dato.
+ */
+export function costeDe(cerradas, opciones = {}) {
+  const { tipo = null, complejidad = null, minimo = MINIMO_REFERENCIA } = opciones;
+  const grupo = (cerradas ?? []).filter((c) =>
+    (!tipo || c?.type === tipo) && (!complejidad || c?.complexity === complejidad));
+  const base = { tipo, complejidad, casos: grupo.length, minimo };
+  if (!grupo.length) {
+    return { ...base, referencia: null, motivo: 'ninguna tarea cerrada de este tipo' };
+  }
+  if (grupo.length < minimo) {
+    // Se enseñan los casos EN CRUDO. No es lo mismo no tener dato que tener pocos, y esconder
+    // los pocos que hay obligaria a ir a buscarlos a mano justo cuando menos se sabe.
+    return {
+      ...base,
+      referencia: null,
+      motivo: `solo ${grupo.length}, y hacen falta ${minimo}`,
+      casos_crudos: grupo.map((c) => ({ id: c.id, commits: c.commits, archivos: c.archivos, lineas: c.lineas })),
+    };
+  }
+  const m = (campo) => resumen(grupo.map((c) => c?.[campo]));
+  return { ...base, referencia: { commits: m('commits'), archivos: m('archivos'), lineas: m('lineas') } };
+}
+
 /** Funcion PURA: el checkpoint que corresponde a una allocation, dado lo que git dice. */
 /**
  * PT-056 · STATE_MISMATCH · ¿el arbol CORRESPONDE a lo que el checkpoint declara?
@@ -757,7 +834,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1087,6 +1164,88 @@ function pendienteDe() {
 // PT-030 · La respuesta no sale de la memoria del agente: sale del registro cruzado con el
 // estado real del issue. Consultar el tablero deja de ser una buena costumbre y pasa a ser el
 // único sitio donde está la respuesta.
+// ── coste · lo que suele costar un tipo de tarea, DERIVADO de las cerradas ──
+//
+// Ninguna cifra sale de la memoria del agente ni de una tabla escrita a mano (AC-04): el tipo y
+// la complejidad los pone REGISTRY.json, y commits, archivos y lineas los pone git.
+
+/** Las tareas cerradas con su coste, derivado. Es lo unico que toca git en todo esto. */
+function cerradasConCoste() {
+  const CERRADO = new Set(['INTEGRATED', 'CLOSED']);
+  const cer = all.filter((a) => a?.id?.startsWith('PT-') && CERRADO.has(a.status));
+  // Un solo recorrido de la historia: 162 commits hoy, y `git show` por commit seria lento.
+  // Separador: un espacio. El SHA no lleva ninguno, asi que el primero parte limpio — y un
+  // byte de control aqui sobrevive al editor pero no a la revision (lo marca `audit`).
+  const crudo = gitDe(['log', '--all', '--no-merges', '--format=%H %s']) ?? '';
+  const porPt = new Map();
+  for (const linea of lineas(crudo).filter(Boolean)) {
+    const corte = linea.indexOf(' ');
+    const sha = corte < 0 ? linea : linea.slice(0, corte);
+    const asunto = corte < 0 ? '' : linea.slice(corte + 1);
+    const id = duenoDe(asunto);
+    if (!id) continue;
+    if (!porPt.has(id)) porPt.set(id, []);
+    porPt.get(id).push(String(sha).trim());
+  }
+  return cer.map((a) => {
+    const shas = porPt.get(a.id) ?? [];
+    const archivos = new Set();
+    let lineasTocadas = 0;
+    for (const sha of shas) {
+      for (const l of lineas(gitDe(['show', '--numstat', '--format=', '--no-renames', sha]) ?? '')) {
+        const [mas, menos, f] = l.split('	');
+        if (!f) continue;
+        archivos.add(f);
+        lineasTocadas += (Number(mas) || 0) + (Number(menos) || 0);
+      }
+    }
+    return { id: a.id, type: a.type, complexity: a.complexity ?? null,
+      commits: shas.length, archivos: archivos.size, lineas: lineasTocadas, sinCommit: !shas.length };
+  });
+}
+
+function coste() {
+  const args = ARGS.slice(1).filter((x) => !x.startsWith('-'));
+  // El ROOT tambien llega como posicional. Se distingue por forma: los tipos y complejidades son
+  // MAYUSCULAS sin separadores; una ruta no lo es.
+  const [tipo = null, complejidad = null] = args.filter((x) => /^[A-Z_]+$/.test(x));
+  const todas = cerradasConCoste();
+  const conDato = todas.filter((c) => !c.sinCommit);
+  const sinDato = todas.length - conDato.length;
+
+  const grupos = tipo || complejidad
+    ? [[tipo, complejidad]]
+    : [...new Set(conDato.map((c) => `${c.type}/${c.complexity}`))].map((k) => k.split('/'));
+
+  const filas = grupos
+    .map(([tp, cx]) => costeDe(conDato, { tipo: tp || null, complejidad: cx || null }))
+    .sort((a, b) => b.casos - a.casos);
+
+  for (const r of filas) {
+    const nombre = [r.tipo ?? '*', r.complejidad ?? '*'].join('/');
+    di('');
+    if (r.referencia) {
+      di(`  ${nombre} · ${r.casos} tareas cerradas`);
+      for (const [k, v] of Object.entries(r.referencia)) {
+        di(`    ${k.padEnd(9)} ${String(v.mediana).padStart(5)}     (${v.min} – ${v.max})`);
+      }
+    } else {
+      di(`  ${nombre} · ${r.casos} ${r.casos === 1 ? 'tarea' : 'tareas'} — SIN REFERENCIA (${r.motivo})`);
+      for (const c of r.casos_crudos ?? []) {
+        di(`    ${c.id}    commits ${c.commits} · archivos ${c.archivos} · lineas ${c.lineas}`);
+      }
+      // RULE-06 · no se da una cifra que no se sostiene. Los casos estan ahi; el juicio es humano.
+      di('    Una mediana de una tarea no es una mediana. Ahi esta lo que hay.');
+    }
+  }
+  di('');
+  di(`  Derivado de ${conDato.length} de las ${todas.length} tareas cerradas. ${sinDato} no tienen`);
+  di('  commit propio: no costaron cero, es que NO SE PUEDE SABER — trabajo anterior a la');
+  di('  convencion de mensajes. Es una REFERENCIA de su tipo, no una prediccion de tu tarea:');
+  di('  dice de CUANTAS tareas sale, no de CUANDO, y las anteriores a FDGE-R19 llevaban el');
+  di('  trabajo entero en un commit.');
+}
+
 function siguienteDe() {
   let cp = null;
   try { cp = JSON.parse(readFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), 'utf8')); }
@@ -1444,7 +1603,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

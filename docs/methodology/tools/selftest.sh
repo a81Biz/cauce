@@ -2316,6 +2316,105 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-057 · lo que cuesta una tarea sale del historial ───────────────────
+# Ninguna cifra sale de la memoria del agente ni de una tabla escrita a mano: el tipo y la
+# complejidad los pone REGISTRY.json, y commits, archivos y lineas los pone git.
+#
+# El hallazgo de PHASE 2 es que la senal OBVIA esta contaminada: 61 de 162 commits nombran mas de
+# un PT y uno nombra DIEZ, porque el cuerpo cita las tareas anteriores y eso es lo CORRECTO en una
+# bitacora append-only. Con `--grep PT-NNN`, BUG/TRIVIAL y BUG/STANDARD salian identicos hasta la
+# linea. La atribucion es el ASUNTO.
+sec "── PT-057 · la referencia de coste ──"
+
+# E2 · mediana, NUNCA media. Es lo que separa esto de una cifra que engana: los grupos son de 6 a
+# 13 tareas con rangos de hasta diez veces, y una media la arrastra un solo caso.
+trlib "la mediana ignora el caso extremo"    "^1$"     "console.log(m.resumen([1,1,1,1,100]).mediana)"
+trlibno "…y no es la media"                  "^2[01]"  "console.log(m.resumen([1,1,1,1,100]).mediana)"
+trlib "con numero par, promedia las dos"     "^3$"     "console.log(m.resumen([2,2,4,4]).mediana)"
+# E3 · el rango viaja SIEMPRE con la mediana: una cifra central sin dispersion se lee como una
+# prediccion, que es lo que el out-of-scope dice que esto no es.
+trlib "el rango va con la mediana"           "\"min\":1"    "console.log(JSON.stringify(m.resumen([1,1,1,1,100])))"
+trlib "…por los dos lados"                   "\"max\":100"  "console.log(JSON.stringify(m.resumen([1,1,1,1,100])))"
+trlib "…y cuantos casos son"                 "\"n\":5"      "console.log(JSON.stringify(m.resumen([1,1,1,1,100])))"
+trlib "sin datos NO devuelve cero"           "^null$"       "console.log(JSON.stringify(m.resumen([])))"
+
+# E12-E14 · la atribucion. El primer PT del ASUNTO, y solo del asunto.
+trlib "el dueno es el PT del asunto"         "^PT-056$"  "console.log(m.duenoDe(\"fix: PT-056 · algo\"))"
+trlib "…el PRIMERO si hay varios"            "^PT-056$"  "console.log(m.duenoDe(\"fix: PT-056 corrige PT-052\"))"
+trlibno "…y no el segundo"                   "PT-052"    "console.log(m.duenoDe(\"fix: PT-056 corrige PT-052\"))"
+trlib "un asunto sin PT no tiene dueno"      "^null$"    "console.log(JSON.stringify(m.duenoDe(\"chore: sin identificador\")))"
+trlib "…y nada no revienta"                  "^null$"    "console.log(JSON.stringify(m.duenoDe(undefined)))"
+
+# E1 · con datos suficientes hay referencia, y son las tres medidas.
+C5='Array.from({length:5},(_,i)=>({id:"PT-"+i,type:"CHORE",complexity:"STANDARD",commits:1,archivos:2,lineas:100}))'
+trlib "con cinco tareas SI hay referencia"   "\"mediana\":100" "console.log(JSON.stringify(m.costeDe($C5,{tipo:\"CHORE\",complejidad:\"STANDARD\"}).referencia.lineas))"
+trlib "…y las tres medidas"                  "commits.*archivos.*lineas" "console.log(Object.keys(m.costeDe($C5,{}).referencia).join(\" archivos lineas\").slice(0,0)+Object.keys(m.costeDe($C5,{}).referencia).join(\" \"))"
+
+# E4-E6 · las dimensiones de comparacion salen del registro (AC-02).
+MIX='[{id:"A",type:"CHORE",complexity:"STANDARD",commits:1,archivos:1,lineas:10},{id:"B",type:"BUG",complexity:"STANDARD",commits:9,archivos:9,lineas:90},{id:"C",type:"CHORE",complexity:"TRIVIAL",commits:5,archivos:5,lineas:50}]'
+trlib "filtra por tipo Y complejidad"        "^1$"  "console.log(m.costeDe($MIX,{tipo:\"CHORE\",complejidad:\"STANDARD\",minimo:1}).casos)"
+trlib "filtra solo por tipo"                 "^2$"  "console.log(m.costeDe($MIX,{tipo:\"CHORE\",minimo:1}).casos)"
+trlib "sin filtro, todas"                    "^3$"  "console.log(m.costeDe($MIX,{minimo:1}).casos)"
+
+# E7-E10 · AC-03. TRES situaciones distintas, tres respuestas distintas.
+C4='Array.from({length:4},(_,i)=>({id:"PT-"+i,type:"BUG",complexity:"SIMPLE",commits:1,archivos:2,lineas:50}))'
+trlib "con cuatro NO extrapola"              "^null$"  "console.log(JSON.stringify(m.costeDe($C4,{tipo:\"BUG\"}).referencia))"
+trlib "…y dice cuantas hay y cuantas faltan" "solo 4, y hacen falta 5"  "console.log(m.costeDe($C4,{tipo:\"BUG\"}).motivo)"
+trlib "…y ensena los casos EN CRUDO"         "^4$"  "console.log(m.costeDe($C4,{tipo:\"BUG\"}).casos_crudos.length)"
+trlib "con NINGUNA, motivo distinto"         "ninguna tarea cerrada"  "console.log(m.costeDe([],{tipo:\"X\"}).motivo)"
+trlibno "…y sin casos crudos que ensenar"    "casos_crudos"  "console.log(JSON.stringify(m.costeDe([],{tipo:\"X\"})))"
+# El cero seria lo peligroso: entraria en PT-058 y PT-059 COMO SI FUERA UNA MEDIDA. Es lo que
+# PT-056 acaba de demostrar que es peor que no tener el dato.
+trlibno "sin referencia NO devuelve cero"    "\"referencia\":0"  "console.log(JSON.stringify(m.costeDe($C4,{tipo:\"BUG\"})))"
+# E11 · el umbral es una OPCION, no un numero enterrado en un if.
+trlib "el umbral se puede mover"             "^50$"  "console.log(m.costeDe($C4,{tipo:\"BUG\",minimo:3}).referencia.lineas.mediana)"
+# E18 · y esta declarado con nombre, para que se pueda discutir.
+trlib "MINIMO_REFERENCIA esta exportado"     "^5$"   "console.log(m.MINIMO_REFERENCIA)"
+chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/tools/tracker.mjs"
+
+# E15-E17 · la accion, sobre el REPOSITORIO REAL. Aqui no vale el fixture: la referencia sale de
+# las tareas cerradas de este repositorio, y son las que hay.
+# El ROOT va EXPLICITO: el arnes corre con el fixture como directorio actual, asi que sin esto
+# `coste` leia el REGISTRY del fixture —cuatro tareas de mentira— y las aserciones sobre las
+# cifras reales no comprobaban nada. Es el mismo defecto que PT-023 persigue: verde por vacio.
+RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
+TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+chk   "coste da una cifra para un grupo grande"  "CHORE/STANDARD · 1[0-9] tareas cerradas"  TRR coste CHORE STANDARD
+chk   "…con su rango"                            "( *[0-9]* – [0-9]*)"   TRR coste CHORE STANDARD
+chk   "…y de cuantas cerradas sale"              "de las .* tareas cerradas"  TRR coste CHORE STANDARD
+chk   "…y avisa de las que no se pueden saber"   "NO SE PUEDE SABER"     TRR coste CHORE STANDARD
+chk   "…y que es referencia, no prediccion"      "no una prediccion"     TRR coste CHORE STANDARD
+chk   "un grupo pequeno se declara SIN REFERENCIA"  "SIN REFERENCIA"     TRR coste CHORE SIMPLE
+# El patron NO puede ser «mediana»: la salida EXPLICA que una mediana de una tarea no es una
+# mediana, asi que casaba con su propia explicacion. Se busca la FORMA de una medida —la linea
+# «lineas <numero>»— que es lo que no debe estar. Sexta vez en tres lotes.
+chkno "…y no da mediana de una sola tarea"       "^ *lineas  *[0-9]"     TRR coste CHORE SIMPLE
+chk   "…pero ensena el caso que hay"             "commits [0-9] · archivos"  TRR coste CHORE SIMPLE
+chk   "sin filtro salen todos los grupos"        "BUG/STANDARD"          TRR coste
+# El posicional en MAYUSCULAS no es una ruta: sin esta guarda, «coste CHORE STANDARD» buscaba el
+# registro dentro de ./CHORE. Cuarta vez en dos lotes que un argumento nuevo se cuela por ROOT.
+chkno "un tipo no se confunde con el ROOT"       "REGISTRY.json legible" TRR coste CHORE STANDARD
+# E17 · lo que CI le enseno a PT-056: una accion que se deriva del registro y de git no puede
+# exigir credencial de plataforma, o queda inservible justo donde se decide un merge.
+SIN_GH2="$WORK/.sin-gh2"; mkdir -p "$SIN_GH2"
+_bin2() { dirname "$(command -v "$1")"; }
+TRRNOGH() { PATH="$(_bin2 node):$(_bin2 git):$SIN_GH2" node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+chk   "coste funciona SIN credencial"            "CHORE/STANDARD"        TRRNOGH coste CHORE STANDARD
+
+# AC-04 · la cifra tiene que salir de git, y esto lo comprueba de la unica forma que no se engaña
+# a si misma: cambiando el filtro y viendo que la cifra CAMBIA.
+chkno "la cifra no es la misma para todo grupo"  "^$"  sh -c '
+  a=$(node "$1" coste CHORE STANDARD "$2" | grep -E "^ +lineas" | tr -s " " | cut -d" " -f3)
+  b=$(node "$1" coste BUG STANDARD   "$2" | grep -E "^ +lineas" | tr -s " " | cut -d" " -f3)
+  [ -n "$a" ] && [ -n "$b" ] && [ "$a" != "$b" ] && echo DISTINTAS || echo IGUALES' _ "$SUITE/tools/tracker.mjs" "$RAIZ_REAL"
+
+# LEX-R21 · el nombre vive en LEXICON, y ANTES que en el codigo.
+chk   "«referencia de coste» esta en LEXICON"    "Referencia de coste"   cat "$SUITE/LEXICON.md"
+chk   "…con de donde sale"                       "señales OBSERVABLES"   cat "$SUITE/LEXICON.md"
+chk   "…y que NO mide"                           "el contexto restante del modelo"  cat "$SUITE/LEXICON.md"
+chk   "…y por que el asunto y no el cuerpo"      "solo del asunto"       cat "$SUITE/LEXICON.md"
+chk   "…y que el umbral es un juicio"            "juicio declarado"      cat "$SUITE/LEXICON.md"
+
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
 # checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que

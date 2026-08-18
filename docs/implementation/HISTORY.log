@@ -2326,3 +2326,59 @@ Sin regla nueva: LEX-R26 se amplía, que es lo que spec-changes.md declaró en P
 No verificado: que alguien HAGA CASO al bloqueo; que «sha» y «rama» basten —un árbol con el mismo
 sha y contenido manipulado sin commitear pasa—; y que la descendencia sea cómoda tras un rebase
 legítimo, que obliga a rehacer el checkpoint.
+
+## PT-057 — CHORE: lo que cuesta una tarea sale del historial
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · G4 del lote EP-015 pendiente y sin delegar
+Objetivo: que exista una cifra de lo que cuesta una tarea, derivada de las tareas cerradas que este
+repositorio ya tiene, y no de una estimación escrita a mano.
+Causa raíz: no había ninguna. El presupuesto de sesión que EP-015 necesita tenía que apoyarse en
+algo, y la decisión 4 del firmante fijó en qué: señales observables e historial real, nunca una
+cifra de tokens que el marco no puede medir.
+Solución: «tracker coste [tipo] [complejidad]», con tres funciones puras detrás. costeDe() devuelve
+TRES resultados como estadoDelArbol —hay referencia, hay datos pero pocos y se enseñan en crudo, o
+no hay nada—, nunca un cero: un cero entraría en PT-058 y PT-059 como si fuera una medida.
+resumen() da mediana con rango y nunca media. duenoDe() atribuye un commit por el ASUNTO.
+MINIMO_REFERENCIA = 5 se exporta con nombre porque es un JUICIO, no un resultado.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-057/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): LA SEÑAL OBVIA ESTABA CONTAMINADA Y CASI LA ACEPTO. Buscar los commits
+de una tarea con «--grep PT-NNN» atribuye a una tarea el trabajo de otras: 61 de 162 commits nombran
+más de un PT y uno nombra DIEZ, porque el cuerpo cita las tareas anteriores —«CORRIGE PT-052»— y eso
+es lo CORRECTO en una bitácora append-only. Con esa medición BUG/TRIVIAL y BUG/STANDARD salían
+idénticos hasta la línea: 5 commits, 65 archivos, 2708 líneas los dos. La herramienta habría dicho
+que un TRIVIAL cuesta lo mismo que un STANDARD, con toda la autoridad de un número derivado del
+historial real.
+Y el resultado que no esperaba: la señal con MEJOR cobertura es la PEOR predictora. changes/PT-NNN/
+existe para 52 de 53 tareas cerradas y mide nueve o diez artefactos SIEMPRE, porque es exactamente
+lo que el marco exige en PHASE 4. Está saturada por construcción: cuenta cumplimiento del
+procedimiento, no esfuerzo. Habría sido la elección natural por parecer la más limpia.
+DOS DEFECTOS QUE ENCONTRARON LAS HERRAMIENTAS DEL PROPIO MARCO. «audit» vio cuatro bytes de control
+0x1F crudos en tracker.mjs: una secuencia de escape que se convirtió en el byte literal al editar,
+que FUNCIONABA —por eso las pruebas pasaban— y era invisible al leer. Es exactamente el hueco que
+esa comprobación existe para detectar. Y el arnés corría «coste» con el fixture como raíz, así que
+leía el registro de mentira con cuatro tareas: los casos sobre las cifras reales no comprobaban
+nada. Verde por vacío, el defecto de PT-023 otra vez.
+CORRIGE la detección de ROOT: «coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
+CUARTA vez en dos lotes que un argumento nuevo se cuela por ahí —-q, --solo, --a y ahora las
+etiquetas— así que se resuelve por FORMA (ES_ETIQUETA) y no con un caso más.
+SEXTA vez del patrón «la aserción casa con el texto de al lado»: el caso que comprueba que NO se da
+mediana con una sola tarea buscaba la palabra «mediana», que aparece en la frase que lo explica.
+LO QUE LA TAREA SE HIZO A SÍ MISMA: dos cifras INVENTADAS en dos fases distintas. En PHASE 3 los
+rangos «73 – 9012»; en PHASE 4, que el CHORE/SIMPLE era PT-035 cuando es PT-027. Las dos se cazaron
+midiendo antes de commitear, pero las dos se escribieron —con los datos delante, en la tarea cuyo
+AC-04 dice que ninguna cifra puede salir de la memoria del agente.
+Casos: 663 → 706. Inversa en rojo: neutralizado el umbral y cambiada la mediana por media caen ocho
+casos, tres de ellos sobre el repositorio real.
+Sin regla nueva: entra vocabulario en LEXICON §6.5b, no obligación.
+No verificado: que la referencia SIRVA para decidir (es PT-059); que CINCO sea el umbral correcto,
+declarado como juicio; que la cifra describa el PRESENTE, porque BUG/TRIVIAL sale más caro por ser
+anterior a FDGE-R19; y que las 8 cerradas sin commit propio no sesguen —son las más antiguas, así
+que excluirlas inclina la referencia hacia lo reciente.
