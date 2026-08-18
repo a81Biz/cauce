@@ -8,7 +8,7 @@ textoDiscrepancia(e)        dice CUÁL es y PROPONE el comando · no lo ejecuta
 tracker siguiente           BLOQUEA antes de decir qué toca
 verify-fdge                 FALLA · LEX-R26
 LEXICON · LEX-R26           la correspondencia y STATE_MISMATCH, sin regla nueva
-casos                       618 → 660
+casos                       618 → 662
 ```
 
 ## El hueco que cierra
@@ -68,6 +68,14 @@ trabaja el agente **no protege el merge**, que es donde se decide. `siguiente` p
 una garantía que se apaga en silencio es peor que una que no existe.
 
 Tres casos nuevos corren con `gh` fuera del `PATH`. 657 → 660.
+
+**Y un cuarto, que CI encontró disparando la comprobación contra sí misma:** `actions/checkout`
+deja el repositorio en **detached HEAD**, donde `git rev-parse --abbrev-ref HEAD` devuelve la
+cadena `HEAD` — que no es el nombre de ninguna rama, sino no poder leerlo. Tratarla como valor
+habría hecho fallar **cada PR** del framework. 660 → 662.
+
+Las dos veces el defecto era el mismo en distinto sitio: **probé donde trabajo, no donde se
+decide.**
 
 ## Lo que no repara, a propósito
 

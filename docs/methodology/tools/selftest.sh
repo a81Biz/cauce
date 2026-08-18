@@ -2361,6 +2361,12 @@ trlib "…pero uno de OTRA historia si"         "^false$"   "console.log(m.estad
 # RULE-06 · no poder demostrar que desciende no es haberlo demostrado.
 trlib "…y no saberlo cuenta como discrepancia"  "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\",descendiente:null}).corresponde)"
 
+# Detached HEAD · `rev-parse --abbrev-ref HEAD` devuelve la cadena «HEAD», que no es el nombre de
+# ninguna rama: es no poder leerlo. Es lo que deja actions/checkout, y sin esto la comprobacion se
+# disparaba contra si misma en CADA PR — incluido el primero de esta misma tarea.
+trlib "detached HEAD no es otra rama"         "^true$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"HEAD\"}).corresponde)"
+trlibno "…y no aparece como discrepancia"     "HEAD"   "console.log(JSON.stringify(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"HEAD\"}).discrepancias))"
+
 # E8 · tres resultados, no dos. No tener foto y tener una foto equivocada son cosas distintas.
 trlib "sin checkpoint ⇒ null, no false"       "^null$"     "console.log(JSON.stringify(m.estadoDelArbol(null).corresponde))"
 trlib "…y lo dice en vez de callarlo"         "sin checkpoint"  "console.log(m.estadoDelArbol(null).motivo)"

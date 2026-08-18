@@ -677,7 +677,12 @@ export function estadoDelArbol(cp, git = {}) {
   if (cp.sha && git.sha && cp.sha !== git.sha && git.descendiente !== true) {
     d.push({ campo: 'sha', declarado: cp.sha, real: git.sha });
   }
-  if (cp.rama && git.rama && cp.rama !== git.rama) d.push({ campo: 'rama', declarado: cp.rama, real: git.rama });
+  // `git rev-parse --abbrev-ref HEAD` devuelve la cadena «HEAD» cuando el repositorio esta en
+  // detached HEAD, que es EXACTAMENTE lo que deja `actions/checkout` en CI. Eso no es el nombre de
+  // una rama: es no poder leerlo, y tratarlo como valor hacia que la comprobacion se disparara
+  // contra si misma en cada PR. Lo encontro CI en el primer PR de PT-056, no yo.
+  const ramaReal = git.rama === 'HEAD' ? null : git.rama;
+  if (cp.rama && ramaReal && cp.rama !== ramaReal) d.push({ campo: 'rama', declarado: cp.rama, real: ramaReal });
   return { corresponde: d.length === 0, pt: cp.pt ?? null, discrepancias: d };
 }
 

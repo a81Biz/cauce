@@ -498,6 +498,11 @@ que es **antecesor** del actual describe un estado del que el de ahora desciende
 está en otra rama o en una historia reescrita, y ahí sí. No poder decidirlo cuenta como
 discrepancia: no haberlo demostrado no es haberlo desmentido (`RULE-06`).
 
+Y **no poder leer la rama tampoco es divergir**: en `detached HEAD` —el estado en que
+`actions/checkout` deja el repositorio— `git rev-parse --abbrev-ref HEAD` devuelve la cadena
+`HEAD`, que no es el nombre de ninguna rama. Tratarla como valor hacía que la comprobación se
+disparara contra sí misma en cada PR.
+
 **Un árbol sucio NO es una discrepancia.** Cambios sin commitear son el estado normal de una tarea
 en curso, y la lista de archivos cambia sin parar mientras se trabaja: medido, pasó de 3 a 5 con el
 `sha` intacto en el tiempo de escribir tres párrafos. Solo `sha` y `rama` sostienen la

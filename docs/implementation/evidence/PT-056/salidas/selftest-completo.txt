@@ -526,6 +526,8 @@
   [32m✓[0m un sha ANTECESOR no es discrepancia
   [32m✓[0m …pero uno de OTRA historia si
   [32m✓[0m …y no saberlo cuenta como discrepancia
+  [32m✓[0m detached HEAD no es otra rama
+  [32m✓[0m …y no aparece como discrepancia
   [32m✓[0m sin checkpoint ⇒ null, no false
   [32m✓[0m …y lo dice en vez de callarlo
   [32m✓[0m un sha null no es discrepancia
@@ -679,4 +681,4 @@
   [32m✓[0m el alcance viejo se declara incompleto
   [32m✓[0m y su ancla se declara sin poner
 
-selftest: OK · 660 casos
+selftest: OK · 662 casos

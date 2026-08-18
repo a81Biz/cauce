@@ -2310,7 +2310,13 @@ que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evalu
 como SIN EVALUAR, porque una garantía que se apaga en silencio es peor que una que no existe
 (RULE-06). Tres casos nuevos corren con «gh» fuera del PATH, que es el entorno donde se decide un
 merge — un arnés verde solo donde trabaja el agente no protege nada.
-Casos: 618 → 660. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
+CORRIGE otra vez, y el mismo error: la comprobación se disparó contra SÍ MISMA en CI. La acción
+«actions/checkout» deja el repositorio en detached HEAD, donde «git rev-parse --abbrev-ref HEAD»
+devuelve la cadena «HEAD», que no es el nombre de ninguna rama sino NO PODER LEERLO. Sin
+normalizarlo, la comprobación habría bloqueado CADA PR del framework — el primero, el suyo. Las dos
+veces el defecto fue el mismo en distinto sitio: probar donde trabaja el agente y no donde se
+decide un merge.
+Casos: 618 → 662. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
 verdes son exactamente los que afirman que algo NO es discrepancia.
 Sin regla nueva: LEX-R26 se amplía, que es lo que spec-changes.md declaró en PHASE 4.
 No verificado: que alguien HAGA CASO al bloqueo; que «sha» y «rama» basten —un árbol con el mismo
