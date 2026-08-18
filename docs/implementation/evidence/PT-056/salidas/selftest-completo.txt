@@ -550,6 +550,7 @@
   [32m✓[0m …y no dice que siga como si nada
   [32m✓[0m rehacer el checkpoint lo resuelve
   [32m✓[0m …y el bloqueo desaparece
+  [32m✓[0m la rama declarada solo vale si existe
   [32m✓[0m el checkpoint ajeno no bloquea a PT-004
   [32m✓[0m STATE_MISMATCH esta en LEXICON
   [32m✓[0m …y LEX-R26 exige la correspondencia
@@ -681,4 +682,4 @@
   [32m✓[0m el alcance viejo se declara incompleto
   [32m✓[0m y su ancla se declara sin poner
 
-selftest: OK · 662 casos
+selftest: OK · 663 casos

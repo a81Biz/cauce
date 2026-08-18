@@ -8,7 +8,7 @@ textoDiscrepancia(e)        dice CUÁL es y PROPONE el comando · no lo ejecuta
 tracker siguiente           BLOQUEA antes de decir qué toca
 verify-fdge                 FALLA · LEX-R26
 LEXICON · LEX-R26           la correspondencia y STATE_MISMATCH, sin regla nueva
-casos                       618 → 662
+casos                       618 → 663
 ```
 
 ## El hueco que cierra
@@ -74,7 +74,11 @@ deja el repositorio en **detached HEAD**, donde `git rev-parse --abbrev-ref HEAD
 cadena `HEAD` — que no es el nombre de ninguna rama, sino no poder leerlo. Tratarla como valor
 habría hecho fallar **cada PR** del framework. 660 → 662.
 
-Las dos veces el defecto era el mismo en distinto sitio: **probé donde trabajo, no donde se
+**Y un quinto, que salió al integrar:** al fusionar, la rama de tarea se borra, y el checkpoint la
+tomaba de `alloc.branch` — así que pasaba a afirmar una **referencia muerta**, justo lo que
+`STATE_MISMATCH` existe para impedir. La rama declarada solo vale si existe. 662 → 663.
+
+Las tres veces el defecto era el mismo en distinto sitio: **probé donde trabajo, no donde se
 decide.**
 
 ## Lo que no repara, a propósito

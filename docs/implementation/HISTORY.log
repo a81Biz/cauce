@@ -2268,7 +2268,7 @@ Lote: EP-015
 Rama: chore/PT-056-el-arbol-corresponde-al-checkpoint
 Modo de ejecución: SUPERVISED
 Estructural: no
-Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · G4 pendiente
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · integrada en «trabajo» el 2026-08-18 por PR #109, autorizado por Alberto Martinez: «Autoriza el merge del PR #109 a trabajo. PT-056 queda aceptado» — el PR a «trabajo» es REVISION, no G4 · G4 del lote EP-015 pendiente y sin delegar
 Objetivo: que un checkpoint no pueda afirmar un estado que ya no existe sin que nada lo note.
 Causa raíz: PT-052 dejó el «sha» y verify-fdge exige que sea ALCANZABLE. Eso impide la avería
 obvia —apuntar a nada— y no impide la peligrosa: un SHA REAL que describe un árbol que ya no
@@ -2316,7 +2316,11 @@ devuelve la cadena «HEAD», que no es el nombre de ninguna rama sino NO PODER L
 normalizarlo, la comprobación habría bloqueado CADA PR del framework — el primero, el suyo. Las dos
 veces el defecto fue el mismo en distinto sitio: probar donde trabaja el agente y no donde se
 decide un merge.
-Casos: 618 → 662. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
+CORRIGE una tercera vez, y la encontro INTEGRAR esta misma tarea: al fusionar, la rama de tarea se
+borra, y el checkpoint la tomaba de «alloc.branch» — asi que pasaba a afirmar una referencia
+muerta, que es exactamente lo que STATE_MISMATCH existe para impedir. La rama declarada solo vale
+si existe; si no, se deriva la real.
+Casos: 618 → 663. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
 verdes son exactamente los que afirman que algo NO es discrepancia.
 Sin regla nueva: LEX-R26 se amplía, que es lo que spec-changes.md declaró en PHASE 4.
 No verificado: que alguien HAGA CASO al bloqueo; que «sha» y «rama» basten —un árbol con el mismo

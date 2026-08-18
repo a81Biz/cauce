@@ -2,20 +2,20 @@
   "pt": "PT-056",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-056-el-arbol-corresponde-al-checkpoint",
-  "sha": "29991889a059e6a95f3db8017d48502de83af861",
-  "sha_corto": "2999188",
+  "status": "INTEGRATED",
+  "phase": 10,
+  "fase": null,
+  "rama": "trabajo",
+  "sha": "470cdea63a0c4778a43530c506e9960f8e859002",
+  "sha_corto": "470cdea",
   "sucio": true,
   "archivos": [
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/intake.md",
     "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/methodology/tools/tracker.mjs"
   ],
-  "compuerta": "G4",
+  "compuerta": null,
   "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "siguiente": "PT-056 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-18"
 }

@@ -2450,6 +2450,12 @@ else
   chk   "rehacer el checkpoint lo resuelve"       "arbol correspondiente"  V6 PT-004
   chkno "…y el bloqueo desaparece"                "STATE_MISMATCH"         TR6 siguiente PT-004
 
+  # Al integrar, la rama de tarea se BORRA. El checkpoint la tomaba de alloc.branch y pasaba a
+  # afirmar una referencia muerta — que es exactamente lo que STATE_MISMATCH existe para impedir.
+  # Salio al integrar esta misma tarea: PT-056 se fusiono, su rama desaparecio, y el checkpoint
+  # siguio declarandola.
+  chk   "la rama declarada solo vale si existe"   "\"rama\": \"master\""  sh -c 'cat "$1"' _ "$CP6"
+
   # El checkpoint de OTRA tarea no dice nada de esta: es UNO (LEX-R26), y contrastar contra el
   # ajeno bloquearia por un estado que no es el suyo.
   TR6 checkpoint PT-001 >/dev/null 2>&1

@@ -711,7 +711,10 @@ export function checkpointDe(alloc, git = {}) {
     status: alloc.status ?? null,
     phase: alloc.phase ?? null,
     fase: r.nombre ?? null,
-    rama: alloc.branch ?? git.rama ?? null,
+    // PT-056 · la rama DECLARADA solo vale si existe. Al integrar, la rama de tarea se borra y el
+    // checkpoint pasaba a afirmar una referencia muerta — que es exactamente lo que STATE_MISMATCH
+    // existe para impedir. Quien llama dice si sigue viva; si no lo dice, se cree lo declarado.
+    rama: (git.ramaDeclaradaViva === false ? git.rama : (alloc.branch ?? git.rama)) ?? null,
     sha,
     sha_corto: sha ? sha.slice(0, 7) : null,
     sucio: git.sucio ?? null,
@@ -1180,9 +1183,14 @@ function checkpoint() {
   if (!a) { throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay checkpoint.`); }
 
   const sucio = gitDe(['status', '--porcelain'], { crudo: true });
+  const ramaReal = gitDe(['rev-parse', '--abbrev-ref', 'HEAD']);
+  const declaradaViva = a.branch
+    ? (() => { try { execFileSync('git', ['rev-parse', '--verify', `refs/heads/${a.branch}`], { cwd: ROOT, stdio: 'pipe' }); return true; } catch { return false; } })()
+    : null;
   const cp = checkpointDe(a, {
     sha: gitDe(['rev-parse', 'HEAD']),
-    rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+    rama: ramaReal === 'HEAD' ? null : ramaReal,
+    ramaDeclaradaViva: declaradaViva,
     fecha: gitDe(['log', '-1', '--format=%cs']),
     sucio: sucio === null ? null : sucio.length > 0,
     archivos: lineas(sucio ?? '').filter(Boolean).map((l) => l.slice(3)).sort(),
