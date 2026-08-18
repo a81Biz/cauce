@@ -2085,3 +2085,57 @@ el commit EXISTA, no que el árbol sea el suyo. Un checkpoint puede declarar un 
 un árbol que ya no existe.
   casos 563 → 579 · CORE 244 → 245 reglas · seis documentos tocados
 Trazabilidad externa: —
+
+## PT-053 — CHORE: la transición de fase es un solo acto
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-053-la-transicion-de-fase-es-un-solo-acto
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (siete condiciones medidas) · G4 pendiente
+Objetivo: que avanzar de fase sea UN acto, y que el que se olvida —la nota— impida avanzar si falta.
+Causa raíz: 107 transiciones en dos lotes por cinco actos manuales, ~535 operaciones. Y falla
+siempre en el mismo punto por una razón que no es de disciplina: avanzar el registro se nota en el
+siguiente verify, y escribir la nota no se nota hasta que alguien CUENTA. Un acto sin consecuencia
+inmediata, repetido 107 veces, se salta.
+Solución: «tracker avanzar PT-NNN --a N --nota» hace los cinco actos —registro, YAML, checkpoint,
+espejo y nota— con el orden decidido por la REVERSIBILIDAD: lo irreversible al final, y todo lo
+anterior se restaura si algo falla. Sin --nota NO AVANZA: no es un aviso, es una negativa, porque
+avisar es lo que FDGE-R52 ya hace DESPUÉS y cazó tres veces en un solo lote.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-053/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): CUATRO correcciones de la ejecución, y las cuatro con la lección ya
+escrita en el repositorio.
+  1 EL VALOR DE UNA BANDERA SE COLÓ EN EL POSICIONAL. «avanzar PT-053 --a 6» resolvía ROOT como el
+    directorio «6». TERCERA vez en el lote: -q en PT-049, --solo en PT-050, --a aquí. Las tres
+    sabiendo del defecto, porque las dos anteriores están escritas en el código y en el HANDOFF.
+    Ahora las banderas con valor viven en UNA lista y la detección de ROOT la consulta.
+  2 LAS VALIDACIONES CORRÍAN DESPUÉS DE LA COMPUERTA DE ACCESO. En el fixture, «sin --nota» se
+    contestaba con un mensaje sobre la plataforma: el diagnóstico equivocado para el defecto real.
+    Ahora todo lo que no necesita red se valida primero, y la exigencia de plataforma es una
+    validación más dentro del comando.
+  3 VOLVÍ A ASERTAR CONTRA UN ESTADO QUE OTRO BLOQUE HABÍA MUTADO. El mismo error que PT-052
+    cometió y corrigió dos tareas antes, con su comentario en el código. Saberlo no bastó.
+  4 Y EL PEOR: avanzar hacía CUATRO DE CINCO. Con el comando escrito, probado y con su propia
+    transición hecha, npm run verify salió en rojo — le faltaba EL ESPEJO, y la etiqueta «fase: N»
+    del issue cambia en cada transición. Exactamente el defecto que la tarea existe para impedir,
+    dentro de la tarea. No lo vi leyendo el diseño, que listaba los cinco: lo dijo ejecutar la
+    verificación completa.
+Al añadir el espejo aparecieron DOS actos irreversibles, y su orden no es indiferente: una etiqueta
+desincronizada es DERIVADA y se rehace sola con «abrir --aplicar»; una nota que falta no se rehace,
+y es lo que este comando existe para impedir. LO QUE SE PUEDE RECUPERAR VA PRIMERO.
+La prueba que más vale: la nota de la transición 5→6 de esta misma tarea la publicó avanzar, no
+gh issue comment. Es la primera transición del repositorio que ocurre en un solo acto. Y la
+atomicidad se probó rompiéndola: inyectado un fallo en el paso irreversible, los tres escritos
+volvieron a como estaban.
+El argumento de la tarea, confirmado por la tarea: existe porque «una disciplina que depende de
+acordarse falla aunque uno se acuerde», y en su propia implementación esa frase se cumplió CUATRO
+VECES. No es retórica del intake: es lo que pasó mientras se escribía.
+Lo que no resuelve, declarado: nada impide editar REGISTRY.phase a mano. La medida de si funcionó
+no está en esta tarea — será contar, en EP-015, cuántas veces FDGE-R52 vuelve a cazar la misma
+transición. En EP-014 fueron TRES, y está escrito antes de saber el resultado.
+  casos 579 → 600 · la transicion pasa de 5 actos manuales a 1
+Trazabilidad externa: —

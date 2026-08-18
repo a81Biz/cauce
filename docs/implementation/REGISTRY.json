@@ -1187,15 +1187,18 @@
       "complexity": "STANDARD",
       "severity": "S1",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 1,
+      "phase": 8,
       "title": "tracker avanzar PT-NNN --a N --nota: los cinco actos de una transicion, atomicos y con la nota obligatoria",
       "origin": "Balance de EP-013 · FDGE-R52 cazo la misma transicion tres veces, y SUITE-R34 y SUITE-R35 pusieron la CI en rojo ocho veces por hacer cuatro de los cinco actos. Una disciplina que falla siempre en el mismo punto no es un problema de disciplina",
       "created": "2026-08-15",
-      "issue": 87
+      "issue": 87,
+      "branch": "chore/PT-053-la-transicion-de-fase-es-un-solo-acto",
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-18"
     },
     {
       "id": "PT-054",

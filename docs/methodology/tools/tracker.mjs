@@ -29,13 +29,13 @@
  * CRLF: todo parseo por lineas usa split(/\r?\n/).
  */
 
-import { readFileSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 // PT-052 · partir lineas se hace con la funcion compartida: RE_LINEA contempla CRLF, y dos
 // formas de partir lineas en el repositorio serian dos fuentes del mismo hecho (SUITE-R38).
-import { lineas } from './patrones.mjs';
+import { lineas, ESTADOS_TERMINALES } from './patrones.mjs';
 
 // ─── Lógica pura · exportada para poder probarla sin plataforma ──────────────
 // PT-001 · El adaptador habla con `gh`; la comparación no habla con nadie.
@@ -404,7 +404,16 @@ const APLICAR = ARGS.includes('--aplicar');
 // Lo encontro USAR la herramienta, no leerla.
 // `tracker notas PT-004 .`
 // resolvia ROOT como el directorio «PT-004» y no encontraba el registro.
-const ROOT = resolve(ARGS.slice(1).find((a) => !a.startsWith('--') && !/^(?:PT|EP)-\d+$/.test(a)) ?? process.cwd());
+// PT-053 · y el VALOR de una bandera tampoco es una ruta. `avanzar PT-053 --a 6 --nota "..."`
+// resolvia ROOT como el directorio «6». Es la TERCERA vez en EP-014 que el valor de una bandera
+// se cuela en el posicional —`-q` en PT-049, `--solo` en PT-050, `--a` aqui— y las tres veces lo
+// dijo EJECUTARLO, sabiendo del defecto. Por eso las banderas con valor se declaran en UN sitio:
+// la lista es lo que hace que la cuarta no repita el error.
+const CON_VALOR = new Set(['--a', '--nota']);
+const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
+  !a.startsWith('--')
+  && !/^(?:PT|EP)-\d+$/.test(a)
+  && !CON_VALOR.has(xs[i - 1])) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
 
 const errores = [];
@@ -464,6 +473,12 @@ const ADAPTADORES = {
       const out = execFileSync('gh', ['issue', 'view', String(numero), '--json', 'comments'],
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return (JSON.parse(out).comments ?? []).map((c) => c.body ?? '');
+    },
+    // PT-053 · el UNICO acto irreversible de `avanzar`, y por eso va el ultimo. Publicar la nota
+    // no se puede deshacer; escribir cuatro archivos si.
+    comentar(numero, cuerpo) {
+      execFileSync('gh', ['issue', 'comment', String(numero), '--body', cuerpo],
+        { cwd: ROOT, stdio: 'pipe' });
     },
     // SUITE-R42 · ¿hay pull request abierto para esta rama? Solo lectura: el agente NO abre el
     // PR ni lo fusiona. Comprobar que exista es lo que hace verificable dónde se propuso G4;
@@ -607,7 +622,12 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 // REPOSITORIO —todos sus campos salen del registro y de git— y el momento en que más falta hace
 // es justo aquel en el que puede no haber credencial: retomar en una sesión nueva. Exigirle
 // plataforma habría hecho que el estado dependiera de la red para poder escribirse.
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint']);
+// PT-053 · `avanzar` tambien entra aqui, y NO porque no necesite plataforma —la exige, es lo
+// contrario que `checkpoint`— sino porque sus validaciones que NO necesitan red tienen que
+// correr PRIMERO. Salir en la compuerta de acceso hacia que «sin --nota» y «saltar una fase»
+// se contestaran con un mensaje sobre la plataforma: el diagnostico equivocado para el
+// defecto real. La exigencia de plataforma es una validacion mas, y va dentro.
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1000,7 +1020,131 @@ function checkpoint() {
     (cp.sucio ? ` · ${cp.archivos.length} archivo(s) sin commitear` : ''));
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint };
+// ── avanzar · la transicion de fase, en UN acto ─────────────────────────────
+// PT-053 · Medido en EP-013 y EP-014: 107 transiciones x 5 actos manuales = ~535 operaciones.
+// FDGE-R52 cazo LA MISMA transicion tres veces en un solo lote, y la tercera con el fallo
+// ANUNCIADO en la propia nota — predecir el fallo no lo evita.
+//
+// Por que falla siempre en el mismo punto, y no es disciplina:
+//   avanzar el registro  ->  se nota en el siguiente verify
+//   escribir la nota     ->  no se nota hasta que alguien CUENTA
+// Un acto sin consecuencia inmediata, repetido 107 veces, se salta.
+//
+// EL ORDEN LO DECIDE LA REVERSIBILIDAD. Lo irreversible —publicar el comentario— va el ULTIMO, y
+// todo lo anterior se restaura si algo falla. La alternativa dejaria, ante un fallo tardio, UNA
+// NOTA SOBRE UNA TRANSICION QUE NO OCURRIO: un registro falso es peor que un estado incompleto,
+// porque el incompleto lo caza el verificador y el falso parece correcto.
+function avanzar() {
+  const id = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+  const iA = ARGS.indexOf('--a');
+  const destino = iA >= 0 ? Number(ARGS[iA + 1]) : NaN;
+  const iN = ARGS.indexOf('--nota');
+  const nota = iN >= 0 ? String(ARGS[iN + 1] ?? '') : null;
+
+  // ── 0 · VALIDAR · todas, ANTES de tocar nada ──────────────────────────────
+  if (!id) throw new Error('avanzar necesita una allocation:  tracker avanzar PT-053 --a 6 --nota "..."');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay transicion.`);
+  if (ESTADOS_TERMINALES.has(a.status)) {
+    throw new Error(`${id} esta en ${a.status}. Lo cerrado es evidencia, no estado (SUITE-R36): no avanza.`);
+  }
+  // La nota es LA razon del comando. Sin ella no se avanza — no es un aviso, es una NEGATIVA:
+  // avisar es lo que FDGE-R52 ya hace, DESPUES, y cazo tres veces en un solo lote.
+  if (nota === null || !nota.trim()) {
+    throw new Error('avanzar exige --nota con contenido. Es el acto que se olvida, y por eso es la unica forma de invocar el comando (FDGE-R52).');
+  }
+  const actual = Number(a.phase);
+  if (!Number.isInteger(destino)) throw new Error('avanzar necesita --a con la fase destino.');
+  // Ni salta ni retrocede: saltar apaga las comprobaciones que la fase saltada habilita, que es
+  // el defecto que PT-044 documento.
+  if (destino !== actual + 1) {
+    throw new Error(`${id} esta en PHASE ${actual} y --a dice ${destino}. Solo se avanza a la SIGUIENTE: `
+      + 'saltar apaga las comprobaciones que la fase saltada habilita, y retroceder no es una transicion.');
+  }
+  if (!FASES[destino]) throw new Error(`PHASE ${destino} no existe en el procedimiento.`);
+  if (!a.issue) throw new Error(`${id} no tiene issue: la nota no tendria donde ir (SUITE-R35).  tracker abrir --aplicar`);
+  if (!adaptador?.comentar) throw new Error('sin plataforma con la que comentar, la nota no tiene donde ir. avanzar la EXIGE (FDGE-R52).');
+  // El acceso tambien es una validacion: mejor no escribir nada que escribir y revertir.
+  if (adaptador.disponible && !adaptador.disponible()) {
+    throw new Error('hay plataforma declarada y no hay acceso: la nota no podria publicarse (FND-R30).  gh auth login');
+  }
+
+  if (ARGS.includes('--ver')) {
+    notas.push(`--ver: ${id} PHASE ${actual} -> ${destino} ${FASES[destino].nombre}. Valido, y NO se ha escrito nada.`);
+    return;
+  }
+
+  // ── RESPALDO ──────────────────────────────────────────────────────────────
+  // «antes === null» importa: CHECKPOINT.json puede NO EXISTIR antes del primer avanzar, y
+  // restaurarlo significa BORRARLO. Un archivo vacio donde no habia nada es un estado que no
+  // existia, y eso es lo que su caso comprueba.
+  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const tocados = [join(IMPL, 'REGISTRY.json'), fIntake, join(IMPL, 'CHECKPOINT.json')];
+  const respaldo = tocados.map((f) => ({ f, antes: existsSync(f) ? readFileSync(f, 'utf8') : null }));
+  const restaurar = () => {
+    for (const { f, antes } of respaldo) {
+      if (antes === null) { try { rmSync(f, { force: true }); } catch { /* no habia nada que quitar */ } }
+      else writeFileSync(f, antes);
+    }
+  };
+
+  try {
+    // 1 · el registro ASIGNA
+    a.phase = destino;
+    writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
+
+    // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo
+    if (existsSync(fIntake)) {
+      const txt = readFileSync(fIntake, 'utf8');
+      const nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
+      if (nuevo === txt) throw new Error(`el intake de ${id} no declara «phase»: no se puede sincronizar (SUITE-R08).`);
+      writeFileSync(fIntake, nuevo);
+    }
+
+    // 3 · el checkpoint · PT-052
+    const sucio = gitDe(['status', '--porcelain']);
+    const cp = checkpointDe(a, {
+      sha: gitDe(['rev-parse', 'HEAD']),
+      rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+      fecha: gitDe(['log', '-1', '--format=%cs']),
+      sucio: sucio === null ? null : sucio.length > 0,
+      archivos: lineas(sucio ?? '').filter(Boolean).map((l) => l.slice(3)).sort(),
+    });
+    writeFileSync(join(IMPL, 'CHECKPOINT.json'), JSON.stringify(cp, null, 2) + '\n');
+
+    // 4 · EL ESPEJO · SUITE-R35 · el registro asigna, la plataforma espeja
+    //
+    // FALTABA, y lo dijo `npm run verify` en rojo: `avanzar` prometia acabar con el «cuatro de
+    // cinco» y hacia cuatro de cinco. La etiqueta «fase: N» del issue cambia en CADA transicion.
+    //
+    // Va ANTES de la nota y despues de los escritos, y el orden entre los dos actos irreversibles
+    // no es indiferente: una etiqueta desincronizada es DERIVADA y se rehace sola con
+    // `abrir --aplicar`; una nota que falta no se rehace, y es justo lo que este comando existe
+    // para impedir. Lo que se puede recuperar va primero.
+    if (adaptador.etiquetasDeIssue && adaptador.etiquetar) {
+      const debe = etiquetasDe(a);
+      const tiene = adaptador.etiquetasDeIssue(a.issue);
+      const quitar = tiene.filter((n) => RE_DERIVADA.test(n) && !debe.includes(n));
+      const poner = debe.filter((n) => !tiene.includes(n));
+      if (quitar.length || poner.length) adaptador.etiquetar(a.issue, poner, quitar);
+    }
+
+    // 5 · LA NOTA · irreversible, y por eso la ultima
+    const r = queSigue(a);
+    const cuerpo = `${MARCA_AGENTE}\n**PHASE ${actual} → ${destino}** · \`${id}\`\n\n${nota.trim()}\n\n`
+      + `**Dónde:** \`PHASE ${destino}\` · ${FASES[destino].nombre}. **Sigue:** ${r.siguiente}`;
+    adaptador.comentar(a.issue, cuerpo);
+
+    notas.push(`${id}: PHASE ${actual} -> ${destino} ${FASES[destino].nombre}`);
+    notas.push(`registro, intake y CHECKPOINT.json escritos; espejo y nota, en el issue #${a.issue}`);
+  } catch (e) {
+    restaurar();
+    throw new Error(`${String(e.message ?? e)}\n\n  NADA quedo aplicado: los archivos volvieron a como estaban. `
+      + 'Cuatro de cinco no es una version degradada del exito, es el defecto que este comando existe para impedir.');
+  }
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

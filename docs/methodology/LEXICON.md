@@ -596,6 +596,11 @@ tools/
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35
+                      acciones: espejo · abrir · cerrar · notas · pr · estado · pendiente
+                                siguiente · checkpoint  [LEX-R26] · avanzar  [FDGE-R52]
+                      «avanzar PT-NNN --a N --nota» hace la transicion en UN acto: registro,
+                      YAML, checkpoint y nota. Lo irreversible —la nota— va el ULTIMO, y si
+                      algo falla NADA queda aplicado. SIN --nota NO AVANZA.
   revisar-secretos.mjs  árbol e historia antes de publicar · bloquea y propone · FND-R29
   selftest.sh         batería de casos límite, defectos inyectados y migración
 ```

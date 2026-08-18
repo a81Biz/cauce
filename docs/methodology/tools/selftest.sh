@@ -2316,6 +2316,65 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-053 · la transicion de fase es un solo acto ────────────────────────
+# 107 transiciones en dos lotes x 5 actos manuales = ~535 operaciones. FDGE-R52 cazo LA MISMA
+# transicion tres veces en EP-014, y la tercera con el fallo ANUNCIADO en la propia nota:
+# predecir el fallo no lo evita.
+#
+# El fixture NO declara plataforma, asi que aqui se comprueban las VALIDACIONES —que corren antes
+# de tocar nada y antes de necesitar la red—. El camino completo y la atomicidad se ejecutan
+# contra el repositorio real y estan en la evidencia: la nota de la transicion 5->6 de esta misma
+# tarea la publico `avanzar`, no `gh issue comment`.
+AV() { node "$WORK/docs/methodology/tools/tracker.mjs" avanzar "$@" "$WORK"; }
+# El fixture se reconstruye aqui. Bloques anteriores mutan la fase de PT-004 —la ponen en 5,
+# la ponen en null— y asertar contra un estado que otro caso cambio es asertar sobre el
+# ORDEN, no sobre el codigo. Es el mismo error que PT-052 cometio y corrigio, dos tareas
+# antes: saberlo no basta, hay que escribirlo en el bloque.
+build_fixture
+
+chk   "sin --nota NO avanza"                   "exige --nota"             AV PT-004 --a 5
+chk   "…y lo dice como negativa, no aviso"     "el acto que se olvida"    AV PT-004 --a 5
+chk   "una --nota vacia tampoco vale"          "exige --nota"             AV PT-004 --a 5 --nota "   "
+chk   "saltar una fase NO avanza"              "Solo se avanza a la SIGUIENTE"  AV PT-004 --a 8 --nota "x"
+chk   "…y dice por que"                        "apaga las comprobaciones" AV PT-004 --a 8 --nota "x"
+chk   "retroceder tampoco"                     "Solo se avanza a la SIGUIENTE"  AV PT-004 --a 2 --nota "x"
+chk   "un PT que no existe NO avanza"          "no existe en el registro" AV PT-777 --a 2 --nota "x"
+chk   "un PT terminal NO avanza"               "no avanza"                AV PT-002 --a 9 --nota "x"
+chk   "…citando que lo cerrado es evidencia"   "SUITE-R36"                AV PT-002 --a 9 --nota "x"
+# El fixture no le da issue a PT-004, asi que la validacion que salta es esa — y es la correcta:
+# sin issue la nota no tendria donde ir. Asertar el mensaje de la plataforma aqui habria sido
+# asertar sobre un mundo que no es el del fixture, que ya paso dos veces en PT-052.
+chk   "sin issue NO avanza"                    "no tendria donde ir"      AV PT-004 --a 5 --nota "x"
+chk   "…citando el espejo"                     "SUITE-R35"                AV PT-004 --a 5 --nota "x"
+# Y ninguna de las anteriores toco el registro: las validaciones corren ANTES de escribir.
+chk   "ninguna validacion toco el registro"    '"phase":4'   cat "$WORK/docs/implementation/REGISTRY.json"
+
+# La forma del codigo: el orden lo decide la REVERSIBILIDAD y lo irreversible va el ultimo.
+_tr="$SUITE/tools/tracker.mjs"
+chk   "la nota se publica la ULTIMA"           "irreversible, y por eso la ultima" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "hay respaldo antes de escribir"         "const respaldo = tocados.map" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "y restauracion si algo falla"           "restaurar();" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+# Restaurar un archivo que NO EXISTIA lo BORRA. Dejarlo vacio seria un estado que no existia.
+chk   "restaurar lo que no existia lo BORRA"   "antes === null" \
+  sh -c 'sed -n "/const restaurar/,/^  };/p" "$1"' _ "$_tr"
+# El VALOR de una bandera no es una ruta. Tercera vez en el lote: -q, --solo, --a.
+chk   "el valor de una bandera no es ROOT"     "CON_VALOR.has" \
+  sh -c 'sed -n "/^const ROOT/,/process.cwd/p" "$1"' _ "$_tr"
+chk   "…y las banderas con valor van en UN sitio" "CON_VALOR = new Set" cat "$_tr"
+# LEX-R21 · el nombre vive en LEXICON.
+chk   "avanzar esta en LEXICON"                "avanzar"    cat "$SUITE/LEXICON.md"
+# El ESPEJO es el quinto acto, y faltaba: `npm run verify` lo dijo en rojo con avanzar ya
+# escrito. Va ANTES de la nota y el orden entre los dos actos irreversibles no es
+# indiferente — una etiqueta desincronizada es DERIVADA y se rehace con `abrir --aplicar`;
+# una nota que falta no se rehace, y es lo que este comando existe para impedir.
+chk   "el espejo es el quinto acto"           "EL ESPEJO" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+chk   "…y va ANTES de la nota"                "recuperar va primero" \
+  sh -c 'sed -n "/^function avanzar/,/^}/p" "$1"' _ "$_tr"
+
 # ─── PT-052 · el checkpoint es un artefacto, no una nota ───────────────────
 # El estado de una tarea en curso existia —HANDOFF, la fase del registro, las notas de reanclaje—
 # pero en ningun formato que un programa pudiera leer. Y nada ataba la gobernanza al commit del
