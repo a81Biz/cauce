@@ -3,18 +3,21 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/PT-056-el-arbol-corresponde-al-checkpoint",
-  "sha": "049cb3dd6dab3dcaf78ff43082eb81c252e317a1",
-  "sha_corto": "049cb3d",
+  "sha": "29991889a059e6a95f3db8017d48502de83af861",
+  "sha_corto": "2999188",
   "sucio": true,
   "archivos": [
     "changes/PT-056-el-arbol-corresponde-al-checkpoint/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-18"
 }
