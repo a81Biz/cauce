@@ -1,21 +1,22 @@
 {
-  "pt": "PT-058",
+  "pt": "PT-059",
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra",
-  "sha": "fa5cea2cc278951c5e43491c11a139c1bcd939db",
-  "sha_corto": "fa5cea2",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-059-no-empezar-lo-que-no-se-puede-terminar",
+  "sha": "61077717e6daeabf06c61f9e8e44187cb974a9da",
+  "sha_corto": "6107771",
   "sucio": true,
   "archivos": [
-    "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }
