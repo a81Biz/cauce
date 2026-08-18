@@ -2316,6 +2316,85 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-058 · cada cifra dice de qué naturaleza es ─────────────────────────
+# Decision 4 del firmante: distinguir MEDIDO, ESTIMADO y SIN EVALUAR, y NUNCA presentar una
+# estimacion como una medicion.
+#
+# PHASE 2 midio que estas palabras YA se usaban: «SIN EVALUAR» 50 veces en trece archivos —seis
+# documentos normativos, incluido RULES.md, y siete herramientas— y CERO en LEXICON, que es lo que
+# LEX-R21 prohibe. Y los 50 usos eran PROSA: sobre prosa no hay forma de que «una cifra sin
+# naturaleza» falle, asi que esto es un TIPO.
+sec "── PT-058 · la naturaleza de una cifra ──"
+
+PL() { # $1 nombre · $2 patron · $3 cuerpo JS que recibe patrones.mjs como `m`
+  salta "$1" && return
+  local out
+  out="$(MTH_PAT="$SUITE/tools/patrones.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else bad "$1  (no apareció: $2 · salió: $out)"; fi
+}
+PLNO() { # el inverso
+  salta "$1" && return
+  local out
+  out="$(MTH_PAT="$SUITE/tools/patrones.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then bad "$1  (apareció: $2 · salió: $out)"; else pass "$1"; fi
+}
+
+# E1-E3 · la naturaleza va CON el valor, y no se le puede quitar despues.
+PL "una cifra lleva su valor"          "\"valor\":1974"          "console.log(JSON.stringify(m.cifra(1974,m.MEDIDO)))"
+PL "…y su naturaleza"                  "\"naturaleza\":\"MEDIDO\""  "console.log(JSON.stringify(m.cifra(1974,m.MEDIDO)))"
+PL "…y ESTIMADO tambien"               "ESTIMADO"                "console.log(JSON.stringify(m.cifra(1974,m.ESTIMADO)))"
+# Congelada: si se pudiera reetiquetar despues, la naturaleza seria una sugerencia.
+PL "la cifra es INMUTABLE"             "^MEDIDO$"                "const c=m.cifra(1,m.MEDIDO);try{c.naturaleza=\"ESTIMADO\";}catch(e){};console.log(c.naturaleza)"
+
+# E4-E6 · AC-04 · una cifra sin naturaleza no entra. Es lo que hace comprobable todo lo demas.
+PL "sin naturaleza LANZA"              "no declarada"            "try{m.cifra(1974);console.log(\"NO_LANZO\")}catch(e){console.log(e.message)}"
+PL "una cuarta naturaleza LANZA"       "no declarada"            "try{m.cifra(1974,\"PROBABLE\");console.log(\"NO_LANZO\")}catch(e){console.log(e.message)}"
+PL "…y el error dice cuales valen"     "MEDIDO, ESTIMADO, SIN EVALUAR"  "try{m.cifra(1974)}catch(e){console.log(e.message)}"
+# No se asume la peor «por prudencia»: eso convertiria un olvido en un dato valido que se propaga.
+PLNO "…y NO asume una por su cuenta"   "\"naturaleza\""          "try{console.log(JSON.stringify(m.cifra(1974)))}catch(e){console.log(\"LANZO\")}"
+
+# E7-E10 · AC-03 · el caso que da nombre a la tarea. SIN EVALUAR no vale cero.
+PL "SIN EVALUAR no tiene valor"        "\"valor\":null"          "console.log(JSON.stringify(m.cifra(0,m.SIN_EVALUAR)))"
+PLNO "…ni siquiera un cero explicito"  "\"valor\":0"             "console.log(JSON.stringify(m.cifra(0,m.SIN_EVALUAR)))"
+PL "restar con SIN EVALUAR contagia"   "SIN EVALUAR"             "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+# Si el 100 sobreviviera, el presupuesto diria que queda TODO justo cuando no sabe nada.
+PLNO "…y el valor NO sobrevive"        "\"valor\":100"           "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+PL "sumar contagia igual"              "SIN EVALUAR"             "console.log(JSON.stringify(m.sumar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+PLNO "…y tampoco suma el valor"        "\"valor\":100"           "console.log(JSON.stringify(m.sumar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+
+# E11-E13 · el contagio hacia la PEOR, y sin depender del orden de los operandos.
+PL "medido con medido sigue MEDIDO"    "\"naturaleza\":\"MEDIDO\""   "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(30,m.MEDIDO))))"
+PL "…y el valor se calcula"            "\"valor\":70"            "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(30,m.MEDIDO))))"
+PL "medido con estimado da ESTIMADO"   "ESTIMADO"                "console.log(m.restar(m.cifra(100,m.MEDIDO),m.cifra(50,m.ESTIMADO)).naturaleza)"
+# La misma regla al reves: si dependiera del orden, se cumpliria la mitad de las veces.
+PL "…y al reves TAMBIEN"               "ESTIMADO"                "console.log(m.restar(m.cifra(50,m.ESTIMADO),m.cifra(100,m.MEDIDO)).naturaleza)"
+PL "peorNaturaleza es la peor"         "^SIN EVALUAR$"           "console.log(m.peorNaturaleza(m.MEDIDO,m.SIN_EVALUAR,m.ESTIMADO))"
+PL "…y lo desconocido cuenta como lo peor"  "^SIN EVALUAR$"      "console.log(m.peorNaturaleza(m.MEDIDO,\"INVENTADA\"))"
+
+# E14-E15 · AC-02 · vocabulario CERRADO y ORDENADO. El orden ES la regla de contagio.
+PL "NATURALEZAS son TRES"              "^3$"                     "console.log(m.NATURALEZAS.length)"
+PL "…de mejor a peor"                  "MEDIDO,ESTIMADO,SIN EVALUAR"  "console.log(m.NATURALEZAS.join(\",\"))"
+
+# E17-E18 · la naturaleza va PEGADA al numero. Separadas, «1974» se lee como una medida.
+PL "el texto pega la naturaleza"       "1974 (ESTIMADO)"         "console.log(m.textoCifra(m.cifra(1974,m.ESTIMADO)))"
+PLNO "…y SIN EVALUAR no ensena numero" "[0-9]"                   "console.log(m.textoCifra(m.cifra(99,m.SIN_EVALUAR)))"
+
+# E16 · AC-02 · verify-suite comprueba la CONSTANTE, no la prosa.
+chk   "verify-suite exige que sean tres"  "NATURALEZAS"  cat "$SUITE/tools/verify-suite.mjs"
+chk   "…y que esten en LEXICON"           "no esta declarada en LEXICON"  cat "$SUITE/tools/verify-suite.mjs"
+
+# E19-E20 · AC-05 · LEX-R21 · el vocabulario vive en LEXICON, y ANTES que en el codigo.
+chk   "MEDIDO esta en LEXICON"            "MEDIDO"        cat "$SUITE/LEXICON.md"
+chk   "ESTIMADO esta en LEXICON"          "ESTIMADO"      cat "$SUITE/LEXICON.md"
+chk   "SIN EVALUAR esta en LEXICON"       "SIN EVALUAR"   cat "$SUITE/LEXICON.md"
+chk   "…y dice que NO es cero"            "NO es cero"    cat "$SUITE/LEXICON.md"
+chk   "…y que el orden es la regla"        "peor"          cat "$SUITE/LEXICON.md"
+chk   "…y que sin naturaleza no existe"   "no existe"     cat "$SUITE/LEXICON.md"
+
 # ─── PT-057 · lo que cuesta una tarea sale del historial ───────────────────
 # Ninguna cifra sale de la memoria del agente ni de una tabla escrita a mano: el tipo y la
 # complejidad los pone REGISTRY.json, y commits, archivos y lineas los pone git.

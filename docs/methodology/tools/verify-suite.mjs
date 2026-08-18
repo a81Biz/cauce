@@ -30,7 +30,7 @@ import { join, relative, dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe, PATRONES } from './patrones.mjs';
+import { selloDe, PATRONES, NATURALEZAS, MEDIDO, ESTIMADO, SIN_EVALUAR } from './patrones.mjs';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
 if (!existsSync(BASE)) {
@@ -311,6 +311,32 @@ for (const f of files) {
   }
 }
 
+
+// ── 6b. PT-058 · la naturaleza de una cifra es vocabulario CERRADO (LEX-R21) ──
+//
+// Se comprueba la CONSTANTE, no la prosa. Perseguir el idioma es lo que SUITE-R44 ya decidio no
+// hacer, y la constante es donde el vocabulario es cerrado de verdad: anadir un cuarto valor deja
+// de ser un `if` mas y pasa a ser una decision visible que pone esto en rojo.
+{
+  const esperadas = [MEDIDO, ESTIMADO, SIN_EVALUAR];
+  if (NATURALEZAS.length !== esperadas.length) {
+    fail('LEX-R21', 'tools/patrones.mjs', 0,
+      `NATURALEZAS tiene ${NATURALEZAS.length} valores y son TRES: ${esperadas.join(' · ')}. `
+      + 'Una cifra poco fiable ES una estimacion; ampliar el vocabulario es perseguir el idioma.');
+  } else if (esperadas.some((n, i) => NATURALEZAS[i] !== n)) {
+    // El ORDEN es la regla de contagio, no una convencion: si cambia, «la peor gana» cambia con el.
+    fail('LEX-R21', 'tools/patrones.mjs', 0,
+      `NATURALEZAS tiene otros valores o en otro orden. Son, de mejor a peor: ${esperadas.join(' · ')}.`);
+  }
+  // LEX-R21 · y declaradas en LEXICON antes que en el codigo.
+  const lex = existsSync(join(BASE, 'LEXICON.md')) ? readFileSync(join(BASE, 'LEXICON.md'), 'utf8') : '';
+  for (const n of esperadas) {
+    if (!lex.includes(n)) {
+      fail('LEX-R21', 'LEXICON.md', 0,
+        `«${n}» se usa en el codigo y no esta declarada en LEXICON. El nombre va aqui primero.`);
+    }
+  }
+}
 
 // ── 7. SUITE-R16 · CORE.md sincronizado con sus fuentes ──────────────────────
 {

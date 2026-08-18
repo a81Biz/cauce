@@ -100,6 +100,83 @@ export const exigibleEn = (gate, artefacto) => {
   return ORDEN_COMPUERTAS.indexOf(gate) >= ORDEN_COMPUERTAS.indexOf(e.desde);
 };
 
+// ── PT-058 · la naturaleza de una cifra ─────────────────────────────────────
+//
+// Decision 4 del firmante: distinguir MEDIDO, ESTIMADO y SIN EVALUAR, y NUNCA presentar una
+// estimacion como una medicion.
+//
+// PHASE 2 midio que estas palabras YA se usaban: «SIN EVALUAR» aparecia 50 veces en trece
+// archivos —seis documentos normativos, incluido RULES.md, y siete herramientas— y CERO en
+// LEXICON, que es exactamente lo que LEX-R21 prohibe. Esto no amplia el marco: lo pone al dia
+// con su propia regla.
+//
+// Y los 50 usos eran PROSA. Sobre prosa no hay forma de que «una cifra sin naturaleza» falle,
+// asi que esto es un TIPO, no una convencion de redaccion.
+
+export const MEDIDO = 'MEDIDO';
+export const ESTIMADO = 'ESTIMADO';
+export const SIN_EVALUAR = 'SIN EVALUAR';
+
+// Cerrado, y ORDENADO de mejor a peor. El orden ES la regla de contagio, no una convencion de
+// escritura: anadir un cuarto valor aqui pone en rojo la comprobacion de verify-suite, que es
+// lo que lo hace cerrado de verdad y no una lista de buenas intenciones.
+//
+// El valor de SIN_EVALUAR lleva ESPACIO porque es la cadena que ya aparece en los trece
+// archivos. Cambiarla obligaria a tocarlos todos para no ganar nada.
+export const NATURALEZAS = [MEDIDO, ESTIMADO, SIN_EVALUAR];
+
+/**
+ * Una cifra que dice QUE ES.
+ *
+ * Sin naturaleza LANZA. Podria asumirse la peor —SIN EVALUAR— y seria conservador, pero
+ * convertiria un olvido del programador en un dato valido que se propaga en silencio. Lanzar lo
+ * detiene donde se escribio, que es el unico sitio donde alguien puede arreglarlo.
+ *
+ * SIN EVALUAR no tiene valor: vale null. Un cero sobrevive a cualquier suma y desaparece del
+ * resultado, asi que un presupuesto sin datos pareceria HOLGADO — el marco arrancaria trabajo
+ * justo cuando menos sabe. Es la tercera vez en EP-015 que la respuesta correcta es null:
+ * «corresponde» en PT-056 y «referencia» en PT-057.
+ */
+export function cifra(valor, naturaleza) {
+  if (!NATURALEZAS.includes(naturaleza)) {
+    throw new Error('cifra(): naturaleza no declarada. Tiene que ser una de: '
+      + NATURALEZAS.join(', ') + '. Una cifra sin naturaleza no entra (LEX-R21).');
+  }
+  return Object.freeze({ valor: naturaleza === SIN_EVALUAR ? null : valor, naturaleza });
+}
+
+/**
+ * La PEOR de varias naturalezas. Una resta entre un dato medido y una estimacion ES una
+ * estimacion, y el orden de los operandos no puede cambiarlo: seria una regla que se cumple la
+ * mitad de las veces.
+ */
+export const peorNaturaleza = (...ns) => NATURALEZAS[Math.max(...ns.map((n) => {
+  const i = NATURALEZAS.indexOf(n);
+  return i < 0 ? NATURALEZAS.length - 1 : i;   // lo que no se reconoce se trata como lo peor
+}))];
+
+/**
+ * Operar dos cifras. La naturaleza contagia hacia la peor, y con SIN EVALUAR el valor desaparece.
+ *
+ * NO revienta: devuelve SIN EVALUAR con valor null, que es la respuesta correcta —no se sabe—.
+ * Reventar invitaria a un fallback a cero en quien llama, que es el defecto que esto persigue.
+ */
+const operar = (a, b, f) => {
+  const n = peorNaturaleza(a?.naturaleza, b?.naturaleza);
+  return n === SIN_EVALUAR ? cifra(null, SIN_EVALUAR) : cifra(f(a.valor, b.valor), n);
+};
+
+export const sumar = (a, b) => operar(a, b, (x, y) => x + y);
+export const restar = (a, b) => operar(a, b, (x, y) => x - y);
+
+/**
+ * El texto de una cifra. La naturaleza va PEGADA al numero, no en una nota al pie: en el momento
+ * en que se separan, «1974» se lee como una medida.
+ */
+export const textoCifra = (c) => (c?.naturaleza === SIN_EVALUAR
+  ? SIN_EVALUAR
+  : `${c?.valor} (${c?.naturaleza})`);
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
