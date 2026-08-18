@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
+Proyectado el 2026-08-18 · 8 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
@@ -14,7 +14,6 @@ Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-057 | CHORE | IN_PROGRESS | 9 | chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial | 523bb48 |
-| PT-058 | CHORE | READY | 1 | — | — |
+| PT-058 | CHORE | READY | 2 | — | — |
 | PT-059 | CHORE | READY | 1 | — | — |
 | PT-060 | CHORE | READY | 1 | — | — |

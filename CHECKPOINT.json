@@ -1,21 +1,22 @@
 {
-  "pt": "PT-057",
+  "pt": "PT-058",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial",
-  "sha": "523bb488085957fe8699a5618b4ee2e93620c0ad",
-  "sha_corto": "523bb48",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-058-cada-cifra-dice-que-es",
+  "sha": "0fc89f9c1abec73db97bf6fbf6030f467b8fcc87",
+  "sha_corto": "0fc89f9",
   "sucio": true,
   "archivos": [
-    "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }
