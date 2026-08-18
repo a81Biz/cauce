@@ -3,8 +3,8 @@
   "type": "CHORE",
   "epic": "EP-014",
   "status": "DONE",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge",
   "sha": "e3501e688b1dbcca725a0bf82f7872f703153210",
   "sha_corto": "e3501e6",
@@ -30,8 +30,11 @@
     "docs/methodology/tools/tracker.mjs",
     "hanges/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/intake.md"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-18"
 }
