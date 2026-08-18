@@ -3,29 +3,21 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/PT-056-el-arbol-corresponde-al-checkpoint",
-  "sha": "87710a9ce5e0a584c1279e81c06c842f653aa2bc",
-  "sha_corto": "87710a9",
+  "sha": "a277dadbac22d40c07c540128523d3af9e7fc42c",
+  "sha_corto": "a277dad",
   "sucio": true,
   "archivos": [
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/design.md",
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/discovery.md",
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/out-of-scope.md",
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/spec-changes.md",
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/strategy.md",
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/tasks.md",
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/test-scenarios.md",
-    "changes/PT-056-el-arbol-corresponde-al-checkpoint/traceability.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/REFACTOR_SCOPE.md",
-    "docs/implementation/REGISTRY.json",
-    "hanges/PT-056-el-arbol-corresponde-al-checkpoint/intake.md"
+    "changes/PT-056-el-arbol-corresponde-al-checkpoint/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-18"
 }
