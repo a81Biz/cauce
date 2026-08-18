@@ -2335,7 +2335,7 @@ Lote: EP-015
 Rama: chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial
 Modo de ejecución: SUPERVISED
 Estructural: no
-Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · G4 del lote EP-015 pendiente y sin delegar
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · integrada en «trabajo» el 2026-08-18 por PR #110, autorizado por Alberto Martinez con condicion: «que mantenga exactamente el alcance de PT-057 y que despues del merge se verifique el estado de trabajo». El alcance se comprobo sobre el diff ANTES de fusionar —24 archivos, cero lineas eliminadas en tracker.mjs, y las menciones a PT-058/059/060 son declaraciones de out-of-scope, no implementacion— y la verificacion posterior esta abajo · G4 del lote EP-015 pendiente y sin delegar
 Objetivo: que exista una cifra de lo que cuesta una tarea, derivada de las tareas cerradas que este
 repositorio ya tiene, y no de una estimación escrita a mano.
 Causa raíz: no había ninguna. El presupuesto de sesión que EP-015 necesita tenía que apoyarse en

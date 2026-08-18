@@ -2,20 +2,18 @@
   "pt": "PT-057",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial",
-  "sha": "523bb488085957fe8699a5618b4ee2e93620c0ad",
-  "sha_corto": "523bb48",
+  "status": "INTEGRATED",
+  "phase": 10,
+  "fase": null,
+  "rama": "trabajo",
+  "sha": "57c86f907f5f31e33c91757a33ad06ce87199939",
+  "sha_corto": "57c86f9",
   "sucio": true,
   "archivos": [
-    "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/intake.md",
-    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
+  "compuerta": null,
   "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "siguiente": "PT-057 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-18"
 }
