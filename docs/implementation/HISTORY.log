@@ -2189,3 +2189,73 @@ recibe el mecanismo hecho para que solo tenga que añadir la identidad. Y la mar
 como una firma: el mismo límite que SUITE-R43 tiene con las notas, y por eso se declara.
   casos 603 → 618 · trece ramas en una tabla
 Trazabilidad externa: —
+
+## EP-014 — CERRADO: la fontanería de la transición
+Fecha: 2026-08-18
+Estado: DONE
+Versión: 8.1.0
+Tareas: PT-049 (-q) · PT-050 (--solo) · PT-051 (regla --donde) · PT-052 (CHECKPOINT.json) ·
+        PT-053 (tracker avanzar) · PT-054 (cauce/<usuario>)
+
+Nació de un balance, no de una intuición: EP-013 midió 107 transiciones de fase en dos lotes, cinco
+actos manuales cada una y ocho fallos de CI —los ocho por hacer cuatro de los cinco—. Y FDGE-R52
+cazó LA MISMA transición tres veces; la tercera con el fallo ANUNCIADO en la propia nota.
+
+Lo que entrega: la transición de fase en UN acto, con la nota obligatoria como argumento; el estado
+de la tarea en curso legible por máquina; una rama derivada donde ver en qué se trabaja sin fusionar
+nada; y tres herramientas que abaratan mirar el repositorio. 520 → 618 casos.
+
+LO QUE NO ENTREGA, y está escrito en cada tarea:
+  · el verificador de FDGE-R22. PT-023 lo midió en EP-013 y no se escribe
+  · detectar los choques entre reglas EN GENERAL: PT-029 caza una familia de seis
+  · que avanzar resuelva compuertas o haga commit. Lo primero es humano sin excepción
+    (EXEC-R04); lo segundo decidiría QUÉ ENTRA en el commit, y agrupar es decisión de la tarea
+  · la convivencia de dos personas. El usuario es UNO, el de git config: eso es EP-016
+  · STATE_MISMATCH. Se comprueba que el commit EXISTA, no que el árbol sea el suyo: eso es EP-015
+
+LO QUE ESTE LOTE ENSEÑÓ, y no está en ninguna tarea por separado:
+
+LOS ACTOS DE UNA TRANSICIÓN NO ERAN CINCO: ERAN SIETE. El intake contó los que se hacían a mano. El
+espejo lo descubrió npm run verify en rojo, con el comando ya escrito y probado; el sello del
+HANDOFF lo descubrió la CI, con el comando ya INTEGRADO en su propia PHASE 9. Que el propio
+enumerador de los actos se dejara dos es la mejor prueba de que el comando hacía falta: si un
+humano tenía que acordarse de siete, se olvidaba de dos incluso cuando su única tarea era
+enumerarlos.
+
+Y el patrón se repitió en las SEIS tareas: cada una encontró, EJECUTANDO, algo que su propio diseño
+daba por resuelto.
+  PT-049  las cabeceras de sección dejaban 19 líneas vacías en -q, y borrarlas habría dejado un
+          rojo sin saber a qué bloque pertenece. Se RECUERDAN
+  PT-050  «las dos únicas puertas» eran CUATRO: 82 casos entraban por trlib/trlibno y uno estaba
+          escrito a mano, puenteando también revento(). La cifra lo delató exacta: 536-453=83
+  PT-051  al poner el número de línea, la herramienta delató que contaba emisiones DENTRO DE
+          COMENTARIOS. Llevaba haciéndolo siempre y era invisible sin la línea
+  PT-052  el spec-changes pasó de una fila a SEIS, y las cinco las pidieron audit y verify-suite
+  PT-053  cuatro correcciones, y las cuatro con la lección ya escrita en el repositorio
+  PT-054  corrigió su propia estrategia al implementarla: «si la proyección falla, la transición
+          se revierte» es IMPOSIBLE, porque la nota ya se publicó y no se despublica
+
+Ninguno de esos hallazgos se ve leyendo.
+
+La medida del lote, con su propia instrumentación:
+  selftest, por vuelta      541 lineas ->   2 con -q        -99,6 %
+  verify-fdge --all         507 lineas ->  30 con -q        -94,1 %
+  selftest, tiempo          209 s      -> 138 s con --solo  -34 %
+  casos                     520 -> 618
+  cobertura mecanica        110/181 -> 112/181 · reglas sin verificador 62 -> 60
+  transiciones con avanzar  12 de 48, y las OCHO de PT-054: la primera tarea del repositorio
+                            hecha ENTERA con un comando por transición
+
+Y la medida honesta de si funcionó NO es ésa: está declarada en PT-053 y se cobra en EP-015 —
+cuántas veces FDGE-R52 vuelve a cazar la misma transición. En EP-014 fueron TRES, todas antes de
+que avanzar existiera.
+
+Cierre del lote (SUITE-R45): las cuatro filas resueltas — CHANGELOG 8.1.0 MINOR con los 21
+documentos alineados, CORE.md regenerado tres veces (244 → 245 reglas), el lote medido con su
+propia instrumentación, y lo que EP-015 y EP-016 reciben hecho frente a lo que tienen que añadir.
+
+Una advertencia que EP-015 necesita antes de empezar: la especificación de la que nace pide en su
+§5 un checkpoint con «decisions», «blockers» y «estimated_used». Ninguno se deriva de nada, y
+LEX-R26 los deja fuera POR CRITERIO, no por olvido.
+
+G4 y la publicación NO se delegan: son del firmante.
