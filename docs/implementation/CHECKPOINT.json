@@ -3,21 +3,18 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "READY",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial",
-  "sha": "4d8edb4d5eaa7cf0ad0a54b2160b88eb4231ac94",
-  "sha_corto": "4d8edb4",
+  "sha": "0980b6cd7448751776fc1b123abab2ec5339247d",
+  "sha_corto": "0980b6c",
   "sucio": true,
   "archivos": [
     "changes/PT-057-lo-que-cuesta-una-tarea-sale-del-historial/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-18"
 }
