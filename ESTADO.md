@@ -17,7 +17,7 @@ Proyectado el 2026-08-18 · 12 allocation(es) viva(s).
 | PT-051 | CHORE | DONE | 9 | chore/PT-051-donde-vive-la-comprobacion-de-una-regla | — |
 | PT-052 | CHORE | DONE | 9 | chore/PT-052-el-checkpoint-es-un-artefacto-no-una-nota | — |
 | PT-053 | CHORE | DONE | 9 | chore/PT-053-la-transicion-de-fase-es-un-solo-acto | — |
-| PT-054 | CHORE | IN_PROGRESS | 5 | chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge | e3501e6 |
+| PT-054 | CHORE | IN_PROGRESS | 6 | chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge | e3501e6 |
 | EP-015 | EP | DEFERRED | — | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
