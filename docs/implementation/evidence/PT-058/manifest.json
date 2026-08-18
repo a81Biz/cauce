@@ -1,0 +1,34 @@
+{
+  "pt": "PT-058",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Toda cifra del presupuesto declara MEDIDO, ESTIMADO o SIN EVALUAR", "scenarios": ["E1", "E2", "E3", "E11", "E12", "E13", "E17"], "tests": ["selftest.sh:una cifra lleva su valor", "selftest.sh:…y su naturaleza", "selftest.sh:la cifra es INMUTABLE", "selftest.sh:medido con medido sigue MEDIDO", "selftest.sh:medido con estimado da ESTIMADO", "selftest.sh:…y al reves TAMBIEN", "selftest.sh:el texto pega la naturaleza"], "evidence": ["salidas/selftest-completo.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Las tres son vocabulario cerrado: no hay una cuarta ni prosa", "scenarios": ["E14", "E15", "E16"], "tests": ["selftest.sh:NATURALEZAS son TRES", "selftest.sh:…de mejor a peor", "selftest.sh:verify-suite exige que sean tres", "selftest.sh:…y que esten en LEXICON"], "evidence": ["salidas/verify-suite.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "SIN EVALUAR no vale cero: no saber y no haber son cosas distintas", "scenarios": ["E7", "E8", "E9", "E10", "E18"], "tests": ["selftest.sh:SIN EVALUAR no tiene valor", "selftest.sh:…ni siquiera un cero explicito", "selftest.sh:restar con SIN EVALUAR contagia", "selftest.sh:…y el valor NO sobrevive", "selftest.sh:sumar contagia igual", "selftest.sh:…y SIN EVALUAR no ensena numero"], "evidence": ["salidas/inversa.txt", "salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Una cifra sin naturaleza declarada falla; no se asume la mas favorable", "scenarios": ["E4", "E5", "E6"], "tests": ["selftest.sh:sin naturaleza LANZA", "selftest.sh:una cuarta naturaleza LANZA", "selftest.sh:…y el error dice cuales valen", "selftest.sh:…y NO asume una por su cuenta"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "El vocabulario esta en LEXICON antes que en el codigo (LEX-R21)", "scenarios": ["E19", "E20"], "tests": ["selftest.sh:MEDIDO esta en LEXICON", "selftest.sh:ESTIMADO esta en LEXICON", "selftest.sh:SIN EVALUAR esta en LEXICON", "selftest.sh:…y dice que NO es cero", "selftest.sh:…y que sin naturaleza no existe"], "evidence": ["salidas/vocabulario-existente.txt", "salidas/verify-suite.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que alguien USE cifra() en vez de un numero pelado.",
+      "por_que": "Nada obliga a envolver. Lo que queda garantizado es que lo envuelto no puede mentir: no hay forma de construir una cifra sin naturaleza, ni de que SIN EVALUAR traiga un valor.",
+      "donde": "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que los 50 usos de SIN EVALUAR en prosa digan la verdad.",
+      "por_que": "Siguen siendo texto en mensajes de siete herramientas y seis documentos. Esta tarea declara el vocabulario y NO los reescribe: es un refactor de trece archivos sin mejora hoy y con riesgo en herramientas que CI ejecuta. Declarado en el out-of-scope.",
+      "donde": "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que la inversa demuestre el caso E13.",
+      "por_que": "«…y al reves TAMBIEN» siguio verde con el criterio neutralizado, porque la neutralizacion tomaba la naturaleza del primer operando y con (ESTIMADO, MEDIDO) acierta por casualidad. El caso distingue —se probo con el par inverso— pero esa inversa concreta no lo demuestra.",
+      "donde": "docs/implementation/evidence/PT-058/salidas/inversa.txt"
+    },
+    {
+      "afirmacion": "Que las tres naturalezas sean SUFICIENTES.",
+      "por_que": "Son las que fijo el firmante en la decision 4. Si hiciera falta una cuarta, verify-suite se pone en rojo — que es lo que se quiere: que ampliar el vocabulario sea una decision visible y no un `if` mas. Pero que tres basten para lo que PT-059 y PT-060 necesiten no esta demostrado: esta apostado.",
+      "donde": "docs/methodology/LEXICON.md"
+    }
+  ],
+  "suite": { "passed": 738, "failed": 0, "skipped": 0, "coverage": 738, "baseline": 706 }
+}

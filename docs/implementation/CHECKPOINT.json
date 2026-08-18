@@ -1,19 +1,21 @@
 {
-  "pt": "PT-057",
+  "pt": "PT-058",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "57c86f907f5f31e33c91757a33ad06ce87199939",
-  "sha_corto": "57c86f9",
+  "status": "IN_PROGRESS",
+  "phase": 9,
+  "fase": "Integración",
+  "rama": "chore/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra",
+  "sha": "fa5cea2cc278951c5e43491c11a139c1bcd939db",
+  "sha_corto": "fa5cea2",
   "sucio": true,
   "archivos": [
+    "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PT-057 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }

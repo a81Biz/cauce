@@ -614,6 +614,39 @@ media de dos presentada como una de treinta engaña por precisión aparente. El 
 anteriores a `FDGE-R19` llevaban el trabajo entero en un commit, así que la cifra puede describir
 con verdad un pasado que ya no aplica.
 
+### 6.5c Naturaleza de una cifra   `PT-058`
+
+Toda cifra que el marco presente declara **de qué naturaleza es**. El vocabulario es **cerrado** y
+son exactamente tres, ordenadas de mejor a peor:
+
+```
+MEDIDO        se contó de algo que se puede volver a contar — git, el registro, el disco
+ESTIMADO      se derivó de datos medidos, pero describe algo que nadie midió
+SIN EVALUAR   no se sabe, y se dice · NO es cero
+```
+
+**El orden es la regla**, no una convención de escritura: al operar dos cifras, el resultado lleva
+la **peor** de las dos naturalezas. Una resta entre un dato medido y una estimación **es** una
+estimación, y presentarla como medida es exactamente lo que estas tres palabras existen para
+impedir.
+
+**`SIN EVALUAR` no vale cero.** Una cifra `SIN EVALUAR` no tiene valor: vale `null`. Un cero
+sobrevive a cualquier suma y desaparece del resultado, así que un presupuesto sin datos parecería
+**holgado** — el marco arrancaría trabajo justo cuando menos sabe. No saber y no haber son cosas
+distintas, y la diferencia tiene que sobrevivir a las operaciones.
+
+**Una cifra sin naturaleza no existe.** Construirla **falla**. No se asume la más favorable, y
+tampoco la más conservadora: asumir cualquiera convertiría un olvido en un dato válido que se
+propaga en silencio.
+
+**Qué NO es `MEDIDO`.** El contexto restante del modelo no se puede medir desde el marco: es
+`SIN EVALUAR` y se dice. Fabricar ahí un número sería un dato falso con forma de medida.
+
+> Estas tres palabras **ya se usaban**. `SIN EVALUAR` aparecía 50 veces en trece archivos —seis
+> documentos normativos, incluido `RULES.md`, y siete herramientas— y **cero** en este documento,
+> que es justo lo que `LEX-R21` prohíbe. Declararlas no amplía el marco: lo pone al día con su
+> propia regla.
+
 ### 6.6 Documentos de metodología — `docs/methodology/`
 
 ```

@@ -1,0 +1,20 @@
+# PT-058 · el vocabulario que ya existia sin declarar
+
+Medido en PHASE 2, antes de tocar nada:
+
+  SIN EVALUAR en LEXICON (antes): 0
+docs/methodology/CASOS-DE-USO.md:1
+docs/methodology/CHANGELOG.md:9
+docs/methodology/FDGE-Prompts.md:3
+docs/methodology/LEXICON.md:4
+docs/methodology/MANUAL.md:2
+docs/methodology/PHASES.md:2
+docs/methodology/RULES.md:5
+docs/methodology/tools/audit.mjs:2
+docs/methodology/tools/build-core.mjs:1
+docs/methodology/tools/migrate.mjs:1
+docs/methodology/tools/patrones.mjs:7
+docs/methodology/tools/revisar-secretos.mjs:3
+docs/methodology/tools/selftest.sh:20
+docs/methodology/tools/tracker.mjs:2
+docs/methodology/tools/verify-fdge.mjs:7

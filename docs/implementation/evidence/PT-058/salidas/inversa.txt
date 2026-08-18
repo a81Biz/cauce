@@ -1,0 +1,24 @@
+# PT-058 · comprobación inversa
+
+Se neutralizaron LAS DOS decisiones que sostienen la tarea:
+  1. SIN EVALUAR pasa a valer 0 en vez de null
+  2. operar() deja de contagiar: toma la naturaleza del primer operando
+
+Caen SIETE casos. El mas elocuente:
+
+  restar(100 MEDIDO, SIN EVALUAR)  ->  {valor:100, naturaleza:MEDIDO}
+
+El presupuesto diria que queda TODO cuando no sabe nada, y con la autoridad
+de un dato medido.
+
+UNO no cayo, y se declara: «…y al reves TAMBIEN» sigue verde porque la
+neutralizacion toma la naturaleza del primer operando y con (ESTIMADO, MEDIDO)
+acierta por casualidad.
+
+  [31m✗[0m SIN EVALUAR no tiene valor  (no apareció: "valor":null · salió: {"valor":0,"naturaleza":"SIN EVALUAR"})
+  [31m✗[0m …ni siquiera un cero explicito  (apareció: "valor":0 · salió: {"valor":0,"naturaleza":"SIN EVALUAR"})
+  [31m✗[0m restar con SIN EVALUAR contagia  (no apareció: SIN EVALUAR · salió: {"valor":100,"naturaleza":"MEDIDO"})
+  [31m✗[0m …y el valor NO sobrevive  (apareció: "valor":100 · salió: {"valor":100,"naturaleza":"MEDIDO"})
+  [31m✗[0m sumar contagia igual  (no apareció: SIN EVALUAR · salió: {"valor":100,"naturaleza":"MEDIDO"})
+  [31m✗[0m …y tampoco suma el valor  (apareció: "valor":100 · salió: {"valor":100,"naturaleza":"MEDIDO"})
+  [31m✗[0m medido con estimado da ESTIMADO  (no apareció: ESTIMADO · salió: MEDIDO)
