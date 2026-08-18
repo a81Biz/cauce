@@ -1928,3 +1928,53 @@ en rojo «…y no mira QUIET»; poner -q también sobre el bloque ERRORES pone e
 que lo protegen.
   selftest 541 → 2 lineas (-99,6 %) · verify-fdge 507 → 47 (-90,7 %) · casos 520 → 536
 Trazabilidad externa: —
+
+## PT-050 — CHORE: reejecutar solo el bloque en el que se trabaja
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-050-reejecutar-solo-el-bloque-en-el-que-se-trabaja
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas, y --gate G3 verde) · G4 pendiente
+Objetivo: que iterar sobre un bloque de casos no obligue a ejecutar los 550, y que el subconjunto
+no pueda confundirse con la batería.
+Causa raíz: no había forma de pedir menos. Medido: 209 s por vuelta, 181 reconstrucciones del
+fixture, y quince vueltas en una sola sesión para estrenar seis casos.
+Solución: --solo <patrón> filtra ANTES de ejecutar el comando del caso, y la salida dice CUÁNTOS
+DE CUÁNTOS. Un subconjunto que parece la batería es peor que no tener subconjunto: es PT-002 con
+otro nombre, y la salida se lee fuera de contexto. Un patrón sin coincidencias es ROJO —el verde
+por vacío es lo que PT-023 encontró ejecutando— y --solo sin valor es error, porque un patrón
+vacío casaría con todo y la bandera diría que filtró cuando no filtró nada.
+Archivos modificados: docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-050/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): TRES veces corrigió la ejecución lo que estaba escrito.
+  1 «LAS DOS ÚNICAS PUERTAS» ERA FALSO. El discovery afirmó que todo caso pasa por chk/chkno; con
+    el filtro puesto seguían corriendo 83: 82 entran por trlib/trlibno y uno estaba escrito a mano
+    con su propio if/pass/bad. CUATRO puertas, no dos. La cifra lo delató exacta —536-453=83— y
+    fue LA MISMA con patrón y sin él, que es lo que hizo evidente que el filtro no filtraba en vez
+    de que filtrara mal. El caso escrito a mano puenteaba además revento(), así que llevaba sin la
+    protección del arnés desde que se escribió: un caso que se salta el arnés se salta todo lo que
+    el arnés protege.
+  2 EL FILTRO SE PAGABA A SÍ MISMO. La primera versión lanzaba grep -F por caso —536 procesos— y
+    el ahorro cayó al 32 %. `case ... in *"$SOLO"*` casa igual de literal y no lanza nada.
+  3 LA CIFRA PROMETIDA FALLÓ TRES VECES: 99 % estimado sin medir en el balance de EP-013, 55 % en
+    la estrategia —medido, pero con trlib ejecutándose en el aislamiento, así que no era el
+    suelo—, y 34 % de verdad: 209 s → 138 s. Cada estimación estuvo más cerca y ninguna acertó
+    hasta ejecutar la definitiva. El discovery lleva la corrección DEBAJO, no reescrita.
+La familia de siempre, dos veces más en esta tarea: sed -n "/NINGUN CASO CASA/,/^fi/p" arrancaba
+en la línea del propio caso y se tragaba medio archivo hasta el siguiente fi, incluida una palabra
+que dispara revento(); y sed -n "/necesita un patron/p" casaba su propia definición, así que habría
+pasado aunque el mensaje real desapareciera. Van CINCO en la sesión. Ahora se extrae por POSICIÓN
+o por una cadena que la definición no contiene. Es el candidato más claro a caso mecánico que ha
+salido del lote, y no se abre: el firmante prohibió expandir EP-014.
+FDGE-R52 cazó otra cosa que no era de estilo sino de ARITMÉTICA: consolidar las transiciones 3→4 y
+4→5 en un comentario dejó el issue con cuatro notas cuando PHASE 6 exige cinco. Consolidar no es
+un atajo con coste cero: es una nota que no existe. Se publicó separada, tarde, diciendo por qué.
+Lo que no da: el 66 % del reloj sigue ahí. Son las 181 reconstrucciones del fixture, y quitarlas
+exige partir selftest.sh — que cinco de las seis tareas de EP-014 van a tocar. AC-02 deja la
+limitación a la vista en CADA ejecución: «6 de 550» no se confunde con la batería.
+  209 s → 138 s (-34 %) · casos 536 → 550 · cuatro puertas cerradas
+Trazabilidad externa: —

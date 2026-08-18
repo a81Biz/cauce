@@ -23,12 +23,27 @@ RAIZ="$(cd "$SUITE/../.." && pwd)"
 # cosas que solo se ven ejecutando, y tiene su caso.
 QUIET=""
 POS=""
+# PT-050 · `--solo <patron>` TOMA UN VALOR, asi que consume DOS posiciones. Sin esto el patron
+# acabaria en el posicional y de ahi en WORK — que es exactamente el defecto que PT-049 encontro
+# con `-q`, en su forma simple. Y `--solo` sin valor es un ERROR: un patron vacio casaria con
+# todo, y la bandera diria que filtro cuando no filtro nada.
+SOLO=""
+_espera_solo=""
 for _a in "$@"; do
+  # El VALOR de --solo se consume ANTES de mirar si parece una bandera. Sin esto,
+  # `--solo "-q"` se comia la bandera y dejaba --solo sin valor: el patron mas natural para
+  # buscar los casos de PT-049 era justo ese. Lo dijo ejecutarlo.
+  if [ -n "$_espera_solo" ]; then SOLO="$_a"; _espera_solo=""; continue; fi
   case "$_a" in
     -q|--quiet) QUIET=1 ;;
+    --solo)     _espera_solo=1 ;;
     *) [ -n "$POS" ] || POS="$_a" ;;
   esac
 done
+if [ -n "$_espera_solo" ]; then
+  echo "selftest: --solo necesita un patron. Sin el casaria con todo, y entonces no filtra: miente." >&2
+  exit 2
+fi
 WORK="${POS:-$(mktemp -d)}/mth-selftest"
 FAILED=0
 # La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`), también aquí: el fixture la tenía
@@ -61,14 +76,36 @@ bad()  {
 # por buena: el arnes certificaba un verificador roto. Se rompio verify-qa a proposito y dos
 # casos siguieron en verde. Ahora un rastro de excepcion invalida el caso, pase lo que pase.
 revento() { printf '%s' "$1" | grep -qE 'SyntaxError|ReferenceError|TypeError|RangeError|node:internal|at file:///'; }
+# PT-050 · `chk` y `chkno` son las DOS UNICAS puertas por las que pasa cualquier caso: filtrar
+# aqui cubre los 453 sin tocar ninguno, y sin que añadir uno mañana obligue a acordarse de nada.
+#
+# UNIVERSO sube SIEMPRE y TOTAL solo cuando el caso se EJECUTA. Son dos cifras porque un
+# subconjunto que parece la bateria es peor que no tener subconjunto — es PT-002 con otro nombre,
+# y la salida se lee fuera de contexto: en una evidencia, en un PR, tres lotes despues.
+#
+# El patron casa LITERAL (grep -F): un nombre lleva «», ·, … y parentesis, y pedir que se escapen
+# convertiria el filtro en un acertijo — ademas de que un parentesis sin cerrar seria un error de
+# sintaxis en vez de un «no casa», que es el defecto con el que PT-049 tropezo escribiendo casos.
+UNIVERSO=0
+# El emparejamiento es NATIVO de bash, no `grep -F`. La primera version lanzaba un proceso por
+# caso —536 procesos— y el ahorro medido cayo del 55 % al 32 %: el filtro se pagaba a si mismo.
+# `case ... in *"$SOLO"*` casa LITERAL igual que grep -F y no lanza nada.
+salta() {
+  UNIVERSO=$((UNIVERSO + 1))
+  [ -z "$SOLO" ] && return 1
+  case "$1" in *"$SOLO"*) return 1 ;; esac
+  return 0
+}
 chk() {
   local name="$1" pat="$2"; shift 2
+  salta "$name" && return
   local out; out="$("$@" 2>&1)"
   if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
   if printf '%s' "$out" | grep -q -- "$pat"; then pass "$name"; else bad "$name  (no apareció: $pat)"; fi
 }
 chkno() {
   local name="$1" pat="$2"; shift 2
+  salta "$name" && return
   local out; out="$("$@" 2>&1)"
   if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
   if printf '%s' "$out" | grep -q -- "$pat"; then bad "$name  (apareció: $pat)"; else pass "$name"; fi
@@ -724,8 +761,11 @@ echo '{"password":"hunter2secret"}' > "$WORK/docs/implementation/evidence/PT-001
 chk "password en evidencia ⇒ falla"      "FDGE-R45"          V PT-001
 build_fixture
 chk "evidencia limpia ⇒ pasa"            "✓ FDGE-R45"        V PT-001
-printf "  " ; cd /tmp && rm -rf bcx && mkdir bcx && cd bcx
-if node "$SUITE/tools/build-core.mjs" . 2>&1 | grep -q 'Falta la fuente'; then pass "build-core sin fuentes ⇒ mensaje claro"; else bad "build-core sin fuentes"; fi
+cd /tmp && rm -rf bcx && mkdir bcx && cd bcx
+# PT-050 · era el UNICO caso escrito a mano, con su propio if/pass/bad. Puenteaba el filtro
+# de --solo y tambien revento(): un caso que se salta el arnes se salta todo lo que el
+# arnes protege. Ahora entra por chk como los demas.
+chk "build-core sin fuentes ⇒ mensaje claro"  "Falta la fuente"  node "$SUITE/tools/build-core.mjs" .
 cd "$WORK" 2>/dev/null || true
 
 # ─── H · lotes ───────────────────────────────────────────────────────────────
@@ -1377,6 +1417,7 @@ trlib() { # $1 nombre · $2 patron esperado · $3 cuerpo JS que recibe el modulo
   # La ruta va por ENTORNO, no como argumento: pasarla en argv[1] es exactamente lo que el
   # guard de tracker entiende por «me estan ejecutando directamente», y el arnes se enganaba
   # solo — importaba el modulo y ejecutaba la herramienta.
+  salta "$1" && return
   local out
   out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
 import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
@@ -1389,6 +1430,7 @@ import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=
 # NO se puso rojo — subio de 485 a 489 en vez de 490, y esa unica cifra fue todo el aviso.
 # Un caso que no se ejecuta es peor que no tenerlo: ocupa el sitio del que si comprobaria.
 trlibno() { # $1 nombre · $2 patron que NO debe aparecer · $3 cuerpo JS
+  salta "$1" && return
   local out
   out="$(MTH_TRACKER="$SUITE/tools/tracker.mjs" node -e "const {pathToFileURL}=require(\"url\");
 import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
@@ -2274,6 +2316,40 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-050 · reejecutar solo el bloque en el que se trabaja ───────────────
+# Medido antes de escribir nada: la bateria son 205 s y 181 reconstrucciones del fixture. El
+# `discovery` afirmo que chk y chkno eran «las dos unicas puertas» — y EJECUTARLO lo desmintio:
+# 82 casos entran por trlib/trlibno y uno estaba escrito a mano con su propio if/pass/bad.
+# CUATRO puertas, no dos. Estos casos existen para que la quinta no se abra sin darse cuenta.
+_st2="$SUITE/tools/selftest.sh"
+chk   "el filtro esta en chk"                 'salta "$name" && return'  sh -c 'sed -n "/^chk() {/,/^}/p" "$1"' _ "$_st2"
+chk   "…y en chkno"                           'salta "$name" && return'  sh -c 'sed -n "/^chkno() {/,/^}/p" "$1"' _ "$_st2"
+chk   "…y en trlib, la tercera puerta"        'salta "$1" && return'     sh -c 'sed -n "/^trlib() {/,/^}/p" "$1"' _ "$_st2"
+chk   "…y en trlibno, la cuarta"              'salta "$1" && return'     sh -c 'sed -n "/^trlibno() {/,/^}/p" "$1"' _ "$_st2"
+# El filtro va ANTES de ejecutar el comando del caso: de ahi sale el ahorro. Si fuera despues,
+# se ejecutaria igual y solo se callaria la linea — que es lo que ya hace -q.
+chk   "el filtro va antes de ejecutar"        'salta "$name" && return'  sh -c 'sed -n "/^chk() {/,/local out/p" "$1"' _ "$_st2"
+# El universo sube fuera de la guarda: el DENOMINADOR no puede depender del filtro.
+chk   "el universo sube fuera de la guarda"   'UNIVERSO + 1'             sh -c 'sed -n "/^salta() {/,/SOLO\" \]/p" "$1"' _ "$_st2"
+chk   "…y casa LITERAL, sin regex"            'case "$1" in \*"$SOLO"\*' sh -c 'sed -n "/^salta() {/,/^}/p" "$1"' _ "$_st2"
+chkno "…sin lanzar un proceso por caso"       'grep -qF'                 sh -c 'sed -n "/^salta() {/,/^}/p" "$1"' _ "$_st2"
+# Un patron que no casa nada es ROJO. Un verde por vacio es lo que PT-023 encontro ejecutando.
+# Por POSICION, no por texto: `sed -n "/NINGUN CASO CASA/,/^fi/p"` arrancaba en ESTA MISMA LINEA
+# —que contiene ese texto al definirse— y se tragaba medio archivo hasta el siguiente «fi»,
+# incluida una palabra que dispara revento(). Es la MISMA familia que PT-049 documento, y van
+# dos veces en esta tarea: la lectura no la ve nunca.
+chk   "sin coincidencias, es rojo"            'exit 1'                   sh -c 'tail -14 "$1"' _ "$_st2"
+chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c 'tail -12 "$1"' _ "$_st2"
+# --solo sin valor: un patron vacio casaria con todo y la bandera mentiria.
+# Se extrae por «>&2» y no por el texto del mensaje: buscar «necesita un patron» habria casado
+# TAMBIEN esta misma linea, y el caso habria pasado aunque el mensaje real desapareciera. Es la
+# quinta vez en la sesion que aparece la asercion que casa su propia definicion.
+chk   "--solo sin valor es un error"          'necesita un patron'       sh -c 'sed -n "/>&2/p" "$1"' _ "$_st2"
+chk   "…y el valor se consume ANTES del case" '_espera_solo" \]; then SOLO' sh -c 'sed -n "/^for _a in/,/^done/p" "$1"' _ "$_st2"
+# Las dos cifras solo aparecen cuando hay algo que distinguir.
+chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       sh -c 'tail -12 "$1"' _ "$_st2"
+chkno "…y sin --solo, una sola"               'de $UNIVERSO casos'       sh -c 'tail -3 "$1"' _ "$_st2"
+
 # ─── PT-049 · el verde se CUENTA, no se enumera ────────────────────────────
 # Medido antes de escribir nada: selftest imprime 541 lineas y verify-fdge 507, y en un arbol
 # sano el 96 % y el 89 % son el bloque verde. La bateria se ejecuto >15 veces en una sola sesion.
@@ -2422,7 +2498,18 @@ chk   "y su ancla se declara sin poner"        "SIN_ANCLAR" \
 " "$1"' _ "$WORK/graph-viejo.json"
 
 echo
-[ "$FAILED" -eq 0 ] && echo "selftest: OK · $TOTAL casos" || echo "selftest: HAY FALLOS · $TOTAL casos"
+# PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
+# coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que
+# distinguir. Y un patron que no casa NADA es ROJO — un verde por vacio es lo que PT-023
+# encontro ejecutando: el silencio parece exito.
+if [ -n "$SOLO" ] && [ "$TOTAL" -eq 0 ]; then
+  echo "selftest: NINGUN CASO CASA «$SOLO» · 0 de $UNIVERSO casos"
+  rm -rf "$WORK"
+  exit 1
+fi
+_cuantos="$TOTAL"
+[ -n "$SOLO" ] && _cuantos="$TOTAL de $UNIVERSO"
+[ "$FAILED" -eq 0 ] && echo "selftest: OK · $_cuantos casos" || echo "selftest: HAY FALLOS · $_cuantos casos"
 rm -rf "$WORK"
 exit "$FAILED"
 

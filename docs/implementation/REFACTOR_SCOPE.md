@@ -42,7 +42,7 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-047 | BUG | S3 | INTEGRATED | EP-013 | PHASE 5 manda crear rama por PT y los 43 PT de este repositorio se implementaron sobre trabajo |
 | PT-048 | BUG | S3 | INTEGRATED | EP-013 | El cuerpo del issue de una allocation DEFERRED enlaza a un directorio que no existe |
 | PT-049 | CHORE | S3 | DONE | EP-014 | selftest y verify-fdge en modo silencioso: solo los fallos, con el recuento intacto |
-| PT-050 | CHORE | S3 | READY | EP-014 | selftest --solo <patron>: iterar un caso nuevo sin pagar la bateria entera |
+| PT-050 | CHORE | S3 | DONE | EP-014 | selftest --solo <patron>: iterar un caso nuevo sin pagar la bateria entera |
 | PT-051 | CHORE | S4 | READY | EP-014 | regla <ID> --donde: archivo y linea del fail() que la ejecuta |
 | PT-052 | CHORE | S2 | READY | EP-014 | CHECKPOINT.json: el estado de la tarea en curso, estructurado y con el SHA del codigo |
 | PT-053 | CHORE | S1 | READY | EP-014 | tracker avanzar PT-NNN --a N --nota: los cinco actos de una transicion, atomicos y con la nota obligatoria |

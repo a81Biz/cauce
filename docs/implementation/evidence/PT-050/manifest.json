@@ -1,0 +1,23 @@
+{
+  "pt": "PT-050",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "--solo <patron> ejecuta unicamente los casos cuyo nombre casa", "scenarios": ["E1", "E2", "E10"], "tests": ["selftest.sh:el filtro esta en chk", "selftest.sh:…y en chkno", "selftest.sh:…y en trlib, la tercera puerta", "selftest.sh:…y en trlibno, la cuarta", "selftest.sh:el filtro va antes de ejecutar"], "evidence": ["salidas/solo.txt", "salidas/completa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Dice cuantos ejecuto de cuantos hay", "scenarios": ["E3", "E4", "E5"], "tests": ["selftest.sh:el universo sube fuera de la guarda", "selftest.sh:con --solo la salida lleva dos cifras", "selftest.sh:…y sin --solo, una sola"], "evidence": ["salidas/solo.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Un patron que no casa nada falla, no pasa por vacio", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:sin coincidencias, es rojo", "selftest.sh:…y lo dice con el patron", "selftest.sh:--solo sin valor es un error"], "evidence": ["salidas/solo.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "El fixture se construye igual: comprueba menos casos, no menos por caso", "scenarios": ["E8", "E9"], "tests": ["selftest.sh:…y el valor se consume ANTES del case", "selftest.sh:…y casa LITERAL, sin regex", "selftest.sh:…sin lanzar un proceso por caso"], "evidence": ["salidas/solo.txt", "salidas/completa.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el ahorro sea suficiente para iterar comodo.",
+      "por_que": "Medido: 209 s a 138 s, un 34 %. El suelo son las 181 reconstrucciones del fixture, no el filtro. Que 138 s baste es un juicio, no una asercion. Y la cifra prometida fallo TRES veces: 99 % estimado sin medir en el balance de EP-013, 55 % en la estrategia con trlib ejecutandose en el aislamiento, 34 % de verdad.",
+      "donde": "changes/PT-050-reejecutar-solo-el-bloque-en-el-que-se-trabaja/self-review.md"
+    },
+    {
+      "afirmacion": "El COMPORTAMIENTO de --solo, comprobado por la propia bateria.",
+      "por_que": "Catorce casos comprueban la FORMA del codigo de selftest: ejecutar la bateria dentro de la bateria triplicaria su coste. Los cuatro caminos reales —patron que casa, patron que no casa, sin valor, y un patron que parece bandera— estan en salidas/solo.txt con sus codigos de salida. Es el MISMO limite que PT-049, y que aparezca dos tareas seguidas es un dato: mientras selftest no pueda probarse a si mismo barato, reaparecera.",
+      "donde": "changes/PT-050-reejecutar-solo-el-bloque-en-el-que-se-trabaja/test-scenarios.md"
+    }
+  ],
+  "suite": { "passed": 550, "failed": 0, "skipped": 0, "coverage": 550, "baseline": 536 }
+}
