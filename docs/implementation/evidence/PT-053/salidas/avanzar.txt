@@ -1,0 +1,22 @@
+# avanzar, ejecutado sobre el repositorio real · PT-053 · 2026-08-18
+
+## La transicion 5 -> 6 de esta misma tarea, en UN acto
+  · PT-053: PHASE 5 -> 6 Evidencia
+  · registro, intake y CHECKPOINT.json escritos; nota publicada en el issue #87
+
+  registro     phase = 6
+  YAML         phase: 6
+  checkpoint   PT-053 PHASE 6 Evidencia
+  nota         publicada por avanzar, NO por gh issue comment
+
+## Las validaciones, todas ANTES de tocar nada
+  avanzar PT-053 --a 7                  : avanzar exige --nota con contenido. Es el acto que se olvida, y por eso es la unica forma de inv
+  avanzar PT-053 --a 7 --nota           : avanzar exige --nota con contenido. Es el acto que se olvida, y por eso es la unica forma de inv
+  avanzar PT-053 --a 9 --nota x         : PT-053 esta en PHASE 6 y --a dice 9. Solo se avanza a la SIGUIENTE: saltar apaga las comprobacio
+  avanzar PT-053 --a 4 --nota x         : PT-053 esta en PHASE 6 y --a dice 4. Solo se avanza a la SIGUIENTE: saltar apaga las comprobacio
+  avanzar PT-999 --a 2 --nota x       : PT-999 no existe en el registro. El registro asigna (SUITE-R08): sin allocation 
+
+  el registro NO cambio: phase = 6
+
+## --ver valida y no escribe
+  · --ver: PT-053 PHASE 6 -> 7 Validación. Valido, y NO se ha escrito nada.

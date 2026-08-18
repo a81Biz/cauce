@@ -1,0 +1,133 @@
+{
+  "pt": "PT-053",
+  "generated": "2026-08-18",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "avanzar ejecuta los SEIS actos: registro, YAML, checkpoint, sello del HANDOFF, espejo y nota",
+      "scenarios": [
+        "E1",
+        "E2",
+        "E14"
+      ],
+      "tests": [
+        "selftest.sh:la nota se publica la ULTIMA",
+        "selftest.sh:hay respaldo antes de escribir",
+        "selftest.sh:avanzar esta en LEXICON",
+        "selftest.sh:el espejo es el quinto acto",
+        "selftest.sh:…y va ANTES de la nota",
+        "selftest.sh:el sello del HANDOFF es un acto",
+        "selftest.sh:…y solo estampa «actualizado:»",
+        "selftest.sh:…y HANDOFF.md entra en el respaldo"
+      ],
+      "evidence": [
+        "salidas/avanzar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Sin --nota no avanza. No es un aviso: es una negativa",
+      "scenarios": [
+        "E3",
+        "E4"
+      ],
+      "tests": [
+        "selftest.sh:sin --nota NO avanza",
+        "selftest.sh:…y lo dice como negativa, no aviso",
+        "selftest.sh:una --nota vacia tampoco vale"
+      ],
+      "evidence": [
+        "salidas/avanzar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Es atomico: si un paso falla, ninguno queda aplicado",
+      "scenarios": [
+        "E5",
+        "E6"
+      ],
+      "tests": [
+        "selftest.sh:y restauracion si algo falla",
+        "selftest.sh:restaurar lo que no existia lo BORRA"
+      ],
+      "evidence": [
+        "salidas/atomicidad.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La fase destino se valida: no se salta ni retrocede en silencio",
+      "scenarios": [
+        "E7",
+        "E8",
+        "E9"
+      ],
+      "tests": [
+        "selftest.sh:saltar una fase NO avanza",
+        "selftest.sh:…y dice por que",
+        "selftest.sh:retroceder tampoco"
+      ],
+      "evidence": [
+        "salidas/avanzar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Sin acceso lo dice y no avanza a medias",
+      "scenarios": [
+        "E10",
+        "E11",
+        "E12"
+      ],
+      "tests": [
+        "selftest.sh:sin issue NO avanza",
+        "selftest.sh:…citando el espejo",
+        "selftest.sh:un PT que no existe NO avanza",
+        "selftest.sh:un PT terminal NO avanza",
+        "selftest.sh:ninguna validacion toco el registro"
+      ],
+      "evidence": [
+        "salidas/avanzar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-06",
+      "statement": "avanzar esta en LEXICON con las demas acciones del tracker",
+      "scenarios": [
+        "E13"
+      ],
+      "tests": [
+        "selftest.sh:avanzar esta en LEXICON"
+      ],
+      "evidence": [
+        "salidas/selftest.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que avanzar SE USE, en vez de editar REGISTRY.phase a mano.",
+      "por_que": "Nada lo impide sin quitar el acceso al archivo, y quitarlo romperia todo lo demas. Lo que hay es que FDGE-R52 lo cazara DESPUES —que es donde estabamos— pero ahora con un camino facil que no lo requiere. La medida de si funciono no esta en esta tarea: sera contar, en EP-015, cuantas veces FDGE-R52 vuelve a cazar la misma transicion. En EP-014 fueron TRES, y esta escrito antes de saber el resultado.",
+      "donde": "changes/PT-053-la-transicion-de-fase-es-un-solo-acto/test-scenarios.md"
+    },
+    {
+      "afirmacion": "El camino completo y la atomicidad, comprobados por la propia bateria.",
+      "por_que": "El fixture no declara plataforma, asi que en la bateria se comprueban las VALIDACIONES —que corren antes de necesitar la red— y la FORMA del codigo. El camino completo se ejecuto contra el repositorio real: la nota de la transicion 5->6 de esta misma tarea la publico avanzar. Y la atomicidad se probo inyectando un fallo en el paso irreversible, con el estado capturado antes y despues.",
+      "donde": "changes/PT-053-la-transicion-de-fase-es-un-solo-acto/test-scenarios.md"
+    }
+  ],
+  "suite": {
+    "passed": 603,
+    "failed": 0,
+    "skipped": 0,
+    "coverage": 603,
+    "baseline": 579
+  }
+}

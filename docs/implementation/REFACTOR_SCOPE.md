@@ -45,6 +45,6 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-050 | CHORE | S3 | DONE | EP-014 | selftest --solo <patron>: iterar un caso nuevo sin pagar la bateria entera |
 | PT-051 | CHORE | S4 | DONE | EP-014 | regla <ID> --donde: archivo y linea del fail() que la ejecuta |
 | PT-052 | CHORE | S2 | DONE | EP-014 | CHECKPOINT.json: el estado de la tarea en curso, estructurado y con el SHA del codigo |
-| PT-053 | CHORE | S1 | READY | EP-014 | tracker avanzar PT-NNN --a N --nota: los cinco actos de una transicion, atomicos y con la nota obligatoria |
+| PT-053 | CHORE | S1 | DONE | EP-014 | tracker avanzar PT-NNN --a N --nota: los cinco actos de una transicion, atomicos y con la nota obligatoria |
 | PT-054 | CHORE | S2 | READY | EP-014 | cauce/<usuario>: proyeccion DERIVADA del estado de gobernanza, escrita solo por la herramienta |
 | PT-055 | BUG | S2 | DEFERRED | — | --gate G4 exige las filas de cierre de TODOS los lotes abiertos, no del que la compuerta evalua |
