@@ -531,6 +531,9 @@
   [32m✓[0m el valor de una bandera no es ROOT
   [32m✓[0m …y las banderas con valor van en UN sitio
   [32m✓[0m avanzar esta en LEXICON
+  [32m✓[0m el sello del HANDOFF es un acto
+  [32m✓[0m …y solo estampa «actualizado:»
+  [32m✓[0m …y HANDOFF.md entra en el respaldo
   [32m✓[0m el espejo es el quinto acto
   [32m✓[0m …y va ANTES de la nota
   [32m✓[0m checkpoint escribe el archivo
@@ -618,4 +621,4 @@
   [32m✓[0m el alcance viejo se declara incompleto
   [32m✓[0m y su ancla se declara sin poner
 
-selftest: OK · 600 casos
+selftest: OK · 603 casos

@@ -75,11 +75,34 @@ nota que falta            no se rehace · es lo que el comando existe para imped
 una etiqueta adelantada: trivial de arreglar, y `SUITE-R35` la caza. Al revés habría dejado
 abierto el hueco que la tarea combate.
 
+### 5 · Y otra vez: faltaba **el sello del `HANDOFF`**
+
+Con `avanzar` ya integrado en su **propia** `PHASE 9`, la CI volvió a salir en rojo:
+
+```
+✗ SUITE-R34   Hubo trabajo en changes/ despues del ultimo estado.
+```
+
+`avanzar` escribe el YAML del intake —que vive en `changes/`— y **no tocaba `HANDOFF.md`**. El
+estado quedaba más viejo que el trabajo: **el comando violaba por construcción la regla que dice
+que el estado viaja con el trabajo.**
+
+**Es la segunda vez en esta tarea que un acto faltaba y lo dijo ejecutar la verificación
+completa**, no leer el diseño: primero el espejo (`SUITE-R35`), ahora el sello (`SUITE-R34`). Los
+dos estaban en la lista del descubrimiento y **ninguno** en la implementación.
+
+Solo se estampa la línea `actualizado:`, que es **derivable** —la fecha sale de git y el hecho del
+registro—. El resto de `HANDOFF.md` es prosa humana y no se toca: estamparla sería inventar, y
+`LEX-R26` dice que lo que no se deriva no se escribe.
+
+**Los actos son seis, no cinco.** El intake decía cinco porque contaba los que se hacían a mano; el
+sexto —el sello— era el que nadie hacía, y por eso la CI lo cazó tres veces en la sesión.
+
 ## El argumento de la tarea, confirmado por la tarea
 
 `PT-053` existe porque *una disciplina que depende de acordarse falla aunque uno se acuerde*. En su
-propia implementación esa frase se cumplió **cuatro veces**, y las cuatro con la lección ya
-escrita en el repositorio.
+propia implementación esa frase se cumplió **cinco veces**, y las cinco con la lección ya
+escrita en el repositorio. Dos de ellas eran **actos que el propio comando no hacía**.
 
 No es retórica del intake. Es lo que pasó mientras se implementaba.
 

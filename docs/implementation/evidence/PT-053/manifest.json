@@ -4,7 +4,7 @@
   "criteria": [
     {
       "ac": "AC-01",
-      "statement": "avanzar ejecuta los cinco actos y escribe el checkpoint",
+      "statement": "avanzar ejecuta los SEIS actos: registro, YAML, checkpoint, sello del HANDOFF, espejo y nota",
       "scenarios": [
         "E1",
         "E2",
@@ -15,7 +15,10 @@
         "selftest.sh:hay respaldo antes de escribir",
         "selftest.sh:avanzar esta en LEXICON",
         "selftest.sh:el espejo es el quinto acto",
-        "selftest.sh:…y va ANTES de la nota"
+        "selftest.sh:…y va ANTES de la nota",
+        "selftest.sh:el sello del HANDOFF es un acto",
+        "selftest.sh:…y solo estampa «actualizado:»",
+        "selftest.sh:…y HANDOFF.md entra en el respaldo"
       ],
       "evidence": [
         "salidas/avanzar.txt"
@@ -121,10 +124,10 @@
     }
   ],
   "suite": {
-    "passed": 600,
+    "passed": 603,
     "failed": 0,
     "skipped": 0,
-    "coverage": 600,
+    "coverage": 603,
     "baseline": 579
   }
 }
