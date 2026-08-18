@@ -17,6 +17,14 @@
 | E13 | AC-02 | `verify-fdge` con discrepancia | **falla**, como el resto de `LEX-R26` |
 | E14 | AC-01 | Tras `tracker avanzar`, el checkpoint **corresponde** | `corresponde: true` |
 | E15 | AC-01 | `LEX-R26` declara la correspondencia y `STATE_MISMATCH` está en `LEXICON` | los dos |
+| E16 | AC-03 | …con un `sha` **antecesor** de `HEAD` | `corresponde: true` — va por detrás, no miente |
+| E17 | AC-02 | …con un `sha` que **no** es antecesor | `corresponde: false` — otra historia |
+| E18 | AC-02 | …sin poder decidir la descendencia | `corresponde: false` (`RULE-06`) |
+
+**`E16`–`E18` no estaban en `PHASE 4`.** El diseño exigía `sha === HEAD`, y con eso el aviso
+saltaría **después de cada commit**: `PHASE 2` ya había medido que `EP-014` hizo hasta diez commits
+por tarea contra nueve transiciones de fase, y no sacó la consecuencia. Lo que distingue no es la
+igualdad sino la historia.
 
 **`E4` y `E5` son los que separan esto de una herramienta que molesta.** Medido en `PHASE 2`: la
 lista de archivos pasó de 3 a 5 con el `sha` intacto, en el tiempo de escribir tres párrafos. Si
