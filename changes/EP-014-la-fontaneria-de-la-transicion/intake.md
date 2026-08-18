@@ -4,7 +4,7 @@
 ---
 id: EP-014
 created: 2026-08-15
-status: DONE
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 ---
@@ -248,3 +248,29 @@ descubrió que la herramienta contaba emisiones dentro de comentarios. `PT-052` 
 Ninguno de esos hallazgos se ve leyendo.
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.
+
+---
+
+## Constancia de la compuerta `G4`   `EXEC-R04` · `SUITE-R06a`
+
+```
+G4 resuelta el 2026-08-18 por Alberto Martinez:
+
+  «haz el PR y el merge con lo que falte de G4 para las tareas y lo que sea
+   bloqueante a mi nombre para que avanzar y continuas con la EP»
+
+Pull request de «trabajo» a «main»: #102.
+```
+
+`SUITE-R42` dice que el agente no abre ni fusiona el PR de la rama por defecto, y `EXEC-R04` y
+`SUITE-R06a` dejan el merge en manos humanas sin excepcion. Esto es **una persona autorizando con
+registro**, que es lo que la regla de cumplimiento admite y lo que ya ocurrio en `EP-011`
+(`6eb9825`), `EP-012` (`4dd9b01`) y `EP-013` (`2c20db8`).
+
+**Sin excepciones declaradas.** A diferencia de `EP-013` —donde `--gate G4` bloqueaba por las filas
+de cierre de un lote recien abierto— aqui las seis tareas y el lote llegan con todas sus
+precondiciones en verde. El unico bloqueo era `SUITE-R42`, que **el propio PR resuelve**: es la
+comprobacion existiendo para lo que existe, no una traba.
+
+El defecto que aquella excepcion abrio sigue en el tablero como `PT-055` (#94), sin cerrar y sin
+disimular.
