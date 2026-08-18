@@ -1131,7 +1131,7 @@
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 8,
+      "phase": 9,
       "title": "selftest --solo <patron>: iterar un caso nuevo sin pagar la bateria entera",
       "origin": "Balance de EP-013 · cada vuelta cuesta 2-4 minutos y 541 lineas para comprobar seis casos",
       "created": "2026-08-15",
