@@ -3,24 +3,30 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/PT-056-el-arbol-corresponde-al-checkpoint",
   "sha": "87710a9ce5e0a584c1279e81c06c842f653aa2bc",
   "sha_corto": "87710a9",
   "sucio": true,
   "archivos": [
     "changes/PT-056-el-arbol-corresponde-al-checkpoint/discovery.md",
+    "changes/PT-056-el-arbol-corresponde-al-checkpoint/strategy.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REFACTOR_SCOPE.md",
     "docs/implementation/REGISTRY.json",
     "hanges/PT-056-el-arbol-corresponde-al-checkpoint/intake.md"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-18"
 }
