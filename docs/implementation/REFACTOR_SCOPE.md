@@ -50,6 +50,6 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-055 | BUG | S2 | DEFERRED | — | --gate G4 exige las filas de cierre de TODOS los lotes abiertos, no del que la compuerta evalua |
 | PT-056 | CHORE | S1 | INTEGRATED | EP-015 | STATE_MISMATCH: al retomar, comprobar que el arbol CORRESPONDA al sha declarado, no solo que exista |
 | PT-057 | CHORE | S2 | INTEGRATED | EP-015 | El coste de una tarea, DERIVADO del historial del repositorio y nunca de una cifra de tokens |
-| PT-058 | CHORE | S1 | READY | EP-015 | MEDIDO / ESTIMADO / SIN EVALUAR: el presupuesto declara la naturaleza de cada dato, no solo su valor |
+| PT-058 | CHORE | S1 | IN_PROGRESS | EP-015 | MEDIDO / ESTIMADO / SIN EVALUAR: el presupuesto declara la naturaleza de cada dato, no solo su valor |
 | PT-059 | CHORE | S1 | READY | EP-015 | La compuerta de presupuesto: SAFE, MARGINAL, UNSAFE, y el estado BLOCKED_BY_CONTEXT |
 | PT-060 | CHORE | S2 | READY | EP-015 | SESSION.json y el handoff derivado: la sesion como recurso efimero, con su propia maquina de estados |

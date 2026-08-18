@@ -2382,3 +2382,51 @@ No verificado: que la referencia SIRVA para decidir (es PT-059); que CINCO sea e
 declarado como juicio; que la cifra describa el PRESENTE, porque BUG/TRIVIAL sale más caro por ser
 anterior a FDGE-R19; y que las 8 cerradas sin commit propio no sesguen —son las más antiguas, así
 que excluirlas inclina la referencia hacia lo reciente.
+
+## PT-058 — CHORE: el presupuesto dice de qué tipo es cada cifra
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · G4 del lote EP-015 con VoBo del firmante
+Objetivo: que cada cifra del presupuesto lleve de qué naturaleza es, y que esa naturaleza sea un
+dato comprobable y no una convención de redacción.
+Causa raíz: el vocabulario YA EXISTÍA sin declarar. «SIN EVALUAR» aparecía 50 veces en trece
+archivos —seis documentos normativos, incluido RULES.md, y siete herramientas— y CERO en LEXICON,
+que es exactamente lo que LEX-R21 prohíbe. MEDIDO y ESTIMADO no existían. Y los 50 usos eran PROSA:
+sobre texto no hay forma de que «una cifra sin naturaleza» falle.
+Solución: un TIPO en patrones.mjs. «cifra(valor, naturaleza)» es inmutable y sin naturaleza LANZA;
+SIN EVALUAR vale null y nunca cero; «sumar» y «restar» contagian hacia la PEOR naturaleza, con
+NATURALEZAS como lista cerrada y ORDENADA —el orden ES la regla—; «textoCifra» pega la naturaleza
+al número. verify-suite comprueba la CONSTANTE, no la prosa.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs ·
+tools/verify-suite.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-058/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): LA TAREA RESULTÓ SER OTRA. No introduce vocabulario nuevo: regulariza
+el que el marco llevaba OCHO LOTES usando sin declarar. verify-suite no lo veía porque comprueba
+vocabulario DEROGADO (LEX-R20) —una lista cerrada escrita a mano— y no lo contrario: un término
+usado como si fuera canónico sin estar declarado. Son dos comprobaciones distintas y sólo existía
+una.
+LA INVERSA ES LA MEJOR EVIDENCIA DE ESTA TAREA. Con SIN EVALUAR valiendo 0 y sin contagio,
+«restar(100 MEDIDO, SIN EVALUAR)» devolvía «{valor: 100, naturaleza: MEDIDO}»: el presupuesto de
+PT-059 diría que queda TODO justo cuando no sabe nada, y lo diría con la autoridad de un dato
+medido. Es el «estimated_used: 67» que LEX-R26 dejó fuera de CHECKPOINT.json por criterio, con otra
+cara. Siete casos caen.
+TERCERA VEZ EN EL LOTE que la respuesta correcta es null —«corresponde» en PT-056, «referencia» en
+PT-057, «valor» aquí— y no se planificó: sale de que las tres tareas tocan la misma frontera entre
+no saber y no haber, y de que en las tres el cero era la respuesta cómoda y falsa.
+DEFECTO PROPIO: escribí los ocho artefactos de PHASE 4 en «changes/PT-058-cada-cifra-dice-que-es»,
+inventándome el slug, cuando el registro dice «el-presupuesto-dice-de-que-tipo-es-cada-cifra». Lo
+detectó --gate G2 al no encontrar el intake, que seguía donde debía. El slug lo ASIGNA el registro
+igual que el ID (SUITE-R08): es el mismo error que AC-04 persigue en las cifras, un dato de memoria
+presentado como si fuera derivado.
+Casos: 706 → 738.
+Sin regla nueva: entra vocabulario en LEXICON §6.5c. Esto CUMPLE LEX-R21, no la amplía.
+No verificado: que alguien USE cifra() en vez de un número pelado —nada obliga a envolver, pero lo
+envuelto no puede mentir—; que los 50 usos en prosa digan la verdad, que quedan sin tocar por
+decisión declarada; que la inversa demuestre E13, porque ese caso siguió verde por casualidad del
+par elegido; y que TRES naturalezas basten para PT-059 y PT-060, que está apostado, no demostrado.
