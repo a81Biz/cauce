@@ -1127,15 +1127,18 @@
       "complexity": "STANDARD",
       "severity": "S3",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "DONE",
       "structural": false,
       "suite_version": "8.0.0",
       "epic": "EP-014",
-      "phase": 1,
+      "phase": 9,
       "title": "selftest --solo <patron>: iterar un caso nuevo sin pagar la bateria entera",
       "origin": "Balance de EP-013 · cada vuelta cuesta 2-4 minutos y 541 lineas para comprobar seis casos",
       "created": "2026-08-15",
-      "issue": 84
+      "issue": 84,
+      "branch": "chore/PT-050-reejecutar-solo-el-bloque-en-el-que-se-trabaja",
+      "validated_by": "auto · EXEC-R06",
+      "validated": "2026-08-15"
     },
     {
       "id": "PT-051",
