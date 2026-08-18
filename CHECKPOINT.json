@@ -3,18 +3,21 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra",
-  "sha": "90008958b294e3a1ffdb99d0b1b582a0bfa35daa",
-  "sha_corto": "9000895",
+  "sha": "fa5cea2cc278951c5e43491c11a139c1bcd939db",
+  "sha_corto": "fa5cea2",
   "sucio": true,
   "archivos": [
     "changes/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-18"
 }
