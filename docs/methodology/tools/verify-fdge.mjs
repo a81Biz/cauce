@@ -10,6 +10,7 @@
  *   node verify-fdge.mjs PT-042              verifica un PT
  *   node verify-fdge.mjs PT-042 PT-043       verifica varios
  *   node verify-fdge.mjs --all               todos los PTs no terminales
+ *   node verify-fdge.mjs --all -q            silencia la ENUMERACIÓN del verde, no el recuento
  *   node verify-fdge.mjs --gate G1 PT-042    solo las precondiciones de G1
  *   node verify-fdge.mjs --gate G2 PT-042    ídem G2 · --gate G3 · --gate G4
  *
@@ -1437,6 +1438,15 @@ if (gateIdx >= 0 && !/^G[1-4]$/.test(gate ?? '')) {
   process.exit(2);
 }
 const all = argv.includes('--all');
+// PT-049 · `-q` calla la ENUMERACION del verde y nada mas. No toca los avisos, no toca los
+// errores, y NO toca el recuento final: un «sin errores» sin denominador es exactamente lo que
+// PT-002 corrigio, y PT-023 lo volvio a encontrar en otra forma —el silencio parece exito—.
+// Tampoco toca `process.exit`: el modo IMPRIME, no decide. Si pudiera cambiar el veredicto
+// habria dos verdades sobre el mismo arbol, y esa es la averia que este marco persigue.
+//
+// Medido antes de escribirlo: de 507 lineas, 454 son el bloque PASA. Lo que sobrevive a `-q`
+// no es el verde, son 43 AVISOS —19 de ellos diciendo «aun no toca»—, y eso es otra tarea.
+const quiet = argv.includes('-q') || argv.includes('--quiet');
 // Los PT son los argumentos posicionales, excluyendo el valor de --gate.
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
 const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
@@ -1469,7 +1479,7 @@ for (const pt of pts) checkPT(pt, { gate });
 
 // ─── Informe ─────────────────────────────────────────────────────────────────
 const pad = (s, n) => String(s).padEnd(n);
-if (passed.length) {
+if (passed.length && !quiet) {
   console.log('PASA');
   for (const p of passed) console.log(`  ✓ ${pad(p.rule, 14)} ${p.msg}`);
   console.log('');

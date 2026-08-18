@@ -1,0 +1,15 @@
+# Comprobacion inversa · PT-049 · 2026-08-15
+
+## AC-02 · si el recuento se calla en -q, el caso CAE
+  recuento puesto detras de la guarda de QUIET
+  [31m✗[0m …y no mira QUIET  (apareció: QUIET)
+selftest: HAY FALLOS · 536 casos
+
+## AC-03 · si -q escondiera tambien los ERRORES, el caso CAE
+  -q puesto tambien sobre el bloque ERRORES
+  [31m✗[0m -q no esconde el bloque ERRORES  (no apareció: ERRORES)
+  [31m✗[0m …y dice cuantos son  (no apareció: error(es))
+selftest: HAY FALLOS · 536 casos
+
+## Restaurado
+selftest: OK · 536 casos

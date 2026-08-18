@@ -1878,3 +1878,53 @@ con lo que desbloquearía a cada uno. No es la misma espera: uno aguarda a un pr
 el otro a uno que no.
 
 G4 y la publicación NO se delegan: son del firmante.
+
+## PT-049 — CHORE: el verde se cuenta, no se enumera
+Fecha: 2026-08-15
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-014
+Rama: chore/PT-049-el-verde-se-cuenta-no-se-enumera
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-15 auto EXEC-R06 (siete condiciones medidas, y --gate G3 verde) · G4 pendiente
+Objetivo: que selftest y verify-fdge digan qué falló y sobre cuántos, sin enumerar los cientos de
+✓ que no informan.
+Causa raíz: no había forma de pedirlo. Medido en EP-013: la batería imprime 541 líneas y el
+verificador 507, y en un árbol sano el 96 % y el 89 % son el bloque verde. La batería se ejecutó
+más de quince veces en una sola sesión.
+Solución: una bandera explícita, mismo comportamiento, distinta impresión. Tres invariantes, y las
+tres con caso: el RECUENTO se imprime siempre —un «sin errores» sin denominador es lo que PT-002
+corrigió—, con fallos -q los enumera TODOS, y el código de salida es idéntico con y sin -q. Si -q
+pudiera cambiar el exit habría dos verdades sobre el mismo árbol.
+Archivos modificados: docs/methodology/tools/verify-fdge.mjs · docs/methodology/tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-049/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): tres hallazgos, los tres ejecutando y ninguno leyendo.
+  1 -q dejaba 21 líneas y DIECINUEVE eran cabeceras de sección vacías. El diseño no lo previó
+    porque las cabeceras son «echo» sueltos, no pass(). Borrarlas habría dejado un rojo sin saber
+    a qué bloque pertenece, así que se RECUERDAN: sec() guarda la cabecera y sale sola delante del
+    primer fallo de su bloque. En verde no aparece ninguna; en rojo, las que hacen falta.
+  2 cuatro casos nacieron rojos y ninguno era del cambio, sino de cómo los escribí: un patrón con
+    «[» sin cerrar —chk usa grep BRE, y eso es un ERROR de sintaxis, no un «no casa»— y dos que
+    hacían «cat» del archivo entero, que contiene la palabra SyntaxError dentro de revento(), así
+    que el arnés daba la herramienta por reventada.
+  3 EL CUARTO ES EL MISMO DE SIEMPRE, y ya van cuatro en esta sesión: el caso que comprueba que el
+    recuento no mira QUIET buscaba su línea con sed -n "/selftest: OK/p", y eso casaba TAMBIÉN las
+    dos líneas que definen el caso, una de las cuales dice QUIET. El caso se cazaba a sí mismo.
+    Antes fueron SUITE-R42 en PT-043, FDGE-R19 en PT-047 y FDGE-R39 en PT-015. La lectura no lo ve
+    nunca. Ahora se busca por POSICIÓN (tail -4) y queda anotado en el código.
+Lo medido y NO hecho: verify-fdge -q deja 47 líneas y 43 son AVISOS, 19 de ellos diciendo «aún no
+toca» sobre artefactos que el procedimiento escribe más adelante. Acallarlos bajaría a 27 y se
+sentiría como progreso. No entra: no es lo que la tarea firmó, y decidir el alcance a mitad de la
+implementación es lo que PT-023 midió que sale mal. Queda medido en discovery y con «—» en el
+out-of-scope, por si merece intake propio.
+Límite declarado: seis de los dieciséis casos comprueban la FORMA del código de selftest, no su
+comportamiento — ejecutar la batería dentro de la batería triplicaría su coste. Lo ejecutado de
+verdad está en la evidencia, con las cuatro salidas: cada herramienta en sus dos modos, porque la
+afirmación de esta tarea es una comparación y una comparación con un solo lado es una afirmación.
+Comprobación inversa en las dos direcciones: poner el recuento detrás de la guarda de QUIET pone
+en rojo «…y no mira QUIET»; poner -q también sobre el bloque ERRORES pone en rojo los dos casos
+que lo protegen.
+  selftest 541 → 2 lineas (-99,6 %) · verify-fdge 507 → 47 (-90,7 %) · casos 520 → 536
+Trazabilidad externa: —

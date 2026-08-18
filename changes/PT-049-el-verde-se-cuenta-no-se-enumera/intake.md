@@ -8,11 +8,11 @@ id: PT-049
 type: CHORE
 epic: EP-014
 track: STANDARD
-status: READY
+status: DONE
 created: 2026-08-15
 structural: no
 suite_version: 8.0.0
-phase: 1
+phase: 9
 ---
 ```
 

@@ -1,0 +1,23 @@
+{
+  "pt": "PT-049",
+  "generated": "2026-08-15",
+  "criteria": [
+    { "ac": "AC-01", "statement": "-q reduce la salida a los fallos y el recuento, en las dos herramientas", "scenarios": ["E1", "E2", "E5", "E11"], "tests": ["selftest.sh:-q no imprime el bloque PASA", "selftest.sh:…y los AVISOS siguen saliendo", "selftest.sh:sin -q el bloque PASA sigue estando", "selftest.sh:pass() lleva la guarda de -q"], "evidence": ["salidas/selftest.txt", "salidas/selftest-q.txt", "salidas/verify-fdge.txt", "salidas/verify-fdge-q.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "El recuento nunca se calla: sin denominador no hay veredicto", "scenarios": ["E3", "E4"], "tests": ["selftest.sh:…y el recuento NO se calla", "selftest.sh:el recuento final existe", "selftest.sh:…y no mira QUIET", "selftest.sh:TOTAL sube antes que la guarda"], "evidence": ["salidas/selftest-q.txt", "salidas/verify-fdge-q.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Con fallos, -q los enumera todos", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:-q no esconde el bloque ERRORES", "selftest.sh:…y dice cuantos son", "selftest.sh:bad() NO lleva guarda: un fallo se ve", "selftest.sh:la cabecera se recuerda para el fallo"], "evidence": ["salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "El codigo de salida es identico con y sin -q", "scenarios": ["E8", "E9", "E10"], "tests": ["selftest.sh:-q se FILTRA de los posicionales", "selftest.sh:…y WORK sale del posicional filtrado", "selftest.sh:…no del primer argumento crudo"], "evidence": ["salidas/selftest.txt", "salidas/selftest-q.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "El COMPORTAMIENTO de -q en selftest, comprobado por la propia bateria.",
+      "por_que": "Seis de los dieciseis casos comprueban la FORMA del codigo de selftest, no su comportamiento: ejecutar la bateria dentro de la bateria triplicaria su coste —2 a 4 minutos por vuelta— para comprobar seis casos. Lo que si se ejecuto de verdad esta en la evidencia: selftest.sh y selftest.sh -q completos, y la inversa en las dos direcciones. Es un limite declarado, no un hueco, y PT-050 lo hara barato.",
+      "donde": "changes/PT-049-el-verde-se-cuenta-no-se-enumera/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que la salida en -q siga siendo suficiente para decidir.",
+      "por_que": "Se puede comprobar que el recuento esta y que los fallos estan; que eso baste para confiar en un «sin errores» es un juicio, no una asercion. Por eso -q NO es el defecto: la primera lectura sigue siendo la completa.",
+      "donde": "changes/PT-049-el-verde-se-cuenta-no-se-enumera/test-scenarios.md"
+    }
+  ],
+  "suite": { "passed": 536, "failed": 0, "skipped": 0, "coverage": 536, "baseline": 520 }
+}
