@@ -1,20 +1,23 @@
 {
-  "pt": "PT-054",
+  "pt": "PT-056",
   "type": "CHORE",
-  "epic": "EP-014",
-  "status": "DONE",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge",
-  "sha": "2b97137800416da4d14a8d43393c3d994325b2ab",
-  "sha_corto": "2b97137",
+  "epic": "EP-015",
+  "status": "IN_PROGRESS",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-056-el-arbol-corresponde-al-checkpoint",
+  "sha": "87710a9ce5e0a584c1279e81c06c842f653aa2bc",
+  "sha_corto": "87710a9",
   "sucio": true,
   "archivos": [
+    "docs/implementation/REFACTOR_SCOPE.md",
     "docs/implementation/REGISTRY.json",
-    "hanges/PT-054-ver-en-que-se-trabaja-sin-esperar-al-merge/intake.md"
+    "hanges/PT-056-el-arbol-corresponde-al-checkpoint/intake.md"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }
