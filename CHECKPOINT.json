@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-076-el-arnes-no-escribe-en-el-repositorio-real",
   "sha": "6743f93adbf01d91ae96149b8b9305c0b0f94713",
   "sha_corto": "6743f93",
@@ -20,11 +20,8 @@
     "docs/implementation/evidence/PT-076/salidas/huella.txt",
     "docs/implementation/evidence/PT-076/salidas/selftest-completo.txt"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
