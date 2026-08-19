@@ -14,7 +14,7 @@ Proyectado el 2026-08-19 · 14 allocation(es) viva(s).
 | EP-017 |  | READY | 1 | — | — |
 | PT-066 | BUG | READY | 1 | — | — |
 | PT-067 | BUG | READY | 1 | — | — |
-| PT-068 | BUG | READY | 7 | fix/alberto-martinez/PT-068-la-marca-de-sesion-es-de-quien-la-abre | 746c4d7 |
+| PT-068 | BUG | READY | 8 | fix/alberto-martinez/PT-068-la-marca-de-sesion-es-de-quien-la-abre | 746c4d7 |
 | PT-069 | FEATURE | READY | 1 | — | — |
 | PT-070 | BUG | READY | 1 | — | — |
 | PT-071 | BUG | READY | 1 | — | — |

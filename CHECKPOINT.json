@@ -3,22 +3,29 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "fix/alberto-martinez/PT-068-la-marca-de-sesion-es-de-quien-la-abre",
   "sha": "746c4d74e0f9bdd138434d85c19ecc26a70903a0",
   "sha_corto": "746c4d7",
   "sucio": true,
   "archivos": [
+    "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/acciones-humanas.md",
     "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/intake.md",
+    "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-068/manifest.json",
-    "docs/implementation/evidence/PT-068/salidas/selftest-completo.txt"
+    "docs/implementation/evidence/PT-068/salidas/selftest-completo.txt",
+    "docs/implementation/evidence/PT-068/self-review.md"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-19"
 }
