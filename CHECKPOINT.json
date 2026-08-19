@@ -3,11 +3,11 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-065-la-sesion-es-de-alguien",
-  "sha": "55508852d1e3c55a719eed1201b5fcdc81e3f570",
-  "sha_corto": "5550885",
+  "sha": "599e1cf253f5d8a5fbdbe0323aedea246470d112",
+  "sha_corto": "599e1cf",
   "sucio": true,
   "archivos": [
     "changes/PT-065-la-sesion-es-de-alguien/intake.md",
@@ -15,8 +15,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-18"
 }
