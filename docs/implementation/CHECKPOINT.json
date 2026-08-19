@@ -3,18 +3,19 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
-  "sha": "96b52695eb6752186d0db383d6054a879af6f17d",
-  "sha_corto": "96b5269",
+  "sha": "8ab60488a74df9fd12661fdfcf500eb9a988ba17",
+  "sha_corto": "8ab6048",
   "sucio": true,
   "archivos": [
     "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }
