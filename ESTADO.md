@@ -14,4 +14,4 @@ Proyectado el 2026-08-18 · 6 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-060 | CHORE | IN_PROGRESS | 2 | chore/PT-060-la-sesion-es-el-worker-no-el-estado | ea4e867 |
+| PT-060 | CHORE | IN_PROGRESS | 3 | chore/PT-060-la-sesion-es-el-worker-no-el-estado | b14b419 |
