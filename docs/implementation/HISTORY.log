@@ -2931,3 +2931,58 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-068 — BUG: la marca de sesión es de quien la abre
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-068-la-marca-de-sesion-es-de-quien-la-abre
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que nadie derive como suyo el trabajo de otra persona.
+
+Causa raíz: PT-065 movió la ESCRITURA a SESSION-<persona>.json y dejó DOS lecturas apuntando al
+viejo SESSION.json — viabilidad siempre (tracker.mjs:1359) y sesion como respaldo incondicional
+(:1485). Una identidad no declarada heredaba 32 commits y 13 194 líneas ajenas, ETIQUETADAS
+MEDIDO. Y el mismo tracker daba dos respuestas sobre qué sesión está abierta.
+Pasó los seis AC de PT-065 porque todos sus casos construyen la marca A MANO y llaman a
+funciones puras: ninguno ejercitaba de qué archivo sale, que es lo único que aquella tarea
+cambió — y su propio out-of-scope lo decía.
+
+Solución: marcaDe() en patrones.mjs, en UN solo sitio (SUITE-R38). El respaldo NO se quita
+—AC-05 de PT-065 exige que un proyecto de una sola persona no cambie— sino que se distingue de
+QUIÉN es: sin persona es mía; de otra persona, null y se dice. Más sesionesUnicas() para que
+nadie salga dos veces, y los dos mensajes que nombraban un archivo que ya no se escribe.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: evidence/PT-068/ · manifest.json · self-review.md ·
+  salidas/antes-identidad-ajena.txt · salidas/caso-real.txt · salidas/inversa.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-07 ✓, los siete.
+  ANTES   sesion desde 258be16 · 32 commits · 13 194 lineas (MEDIDO)
+  DESPUES no hay sesion abierta
+  AC-07   antes sesion 7735ff4 y viabilidad 258be16; ahora las dos 7735ff4
+selftest 1005 -> 1016, cero fallos. PT-076 sin regresión: huellas idénticas.
+Inversa: devuelto el respaldo incondicional, vuelve a heredar 34 commits. E2/E3/E4 SIGUEN
+  pasando en la inversa, que es la prueba de que AC-05 no se rompió.
+
+Delta real vs planificado: 2 funciones en vez de 1 —sesionesUnicas hizo falta para AC-02— y 11
+  casos en vez de 8, dos de ellos reparaciones de casos ajenos.
+
+No verificado, declarado: que los quince veredictos de EP-017 sean correctos —se registraron
+  antes de este arreglo; rehacerlos es PT-074— y que dos personas trabajando a la vez de verdad
+  no se pisen, que sigue simulado con GIT_CONFIG desde PT-065.
+
+Tres desviaciones declaradas, y la primera es la que importa: mi primer arreglo NO arreglaba
+  nada y mi propio caso lo daba por bueno, porque le pasaba una cadena en vez del null que
+  personaLocal() devuelve de verdad. Es el mismo defecto que esta tarea arregla, cometido
+  dentro de ella. Las otras dos: romper un caso citando literalmente el mensaje que se
+  eliminaba (familia PT-051) y una aserción que falló por mayúsculas — la QUINTA del lote que
+  no casa con lo que existe.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: —

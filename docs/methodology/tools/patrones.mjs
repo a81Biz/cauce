@@ -486,6 +486,57 @@ export const archivoSesion = (persona) =>
 export const sesionesAjenas = (marcas, yo) =>
   (marcas ?? []).filter((m) => m?.persona && m.persona !== yo);
 
+/**
+ * PT-068 · De quien es la marca de sesion que se va a leer.
+ *
+ * PT-065 movio la ESCRITURA a SESSION-<persona>.json y dejo DOS lecturas apuntando al viejo
+ * SESSION.json: viabilidad siempre, y sesion como respaldo. Reproducido contra el repositorio
+ * real: una identidad no declarada heredaba 32 commits y 13 194 lineas ajenas, ETIQUETADAS
+ * MEDIDO — no una estimacion optimista, sino un dato con autoridad de medida sobre trabajo
+ * de otra persona.
+ *
+ * El respaldo NO se quita: AC-05 de PT-065 exige que un proyecto de UNA sola persona no cambie,
+ * y los anteriores a la 8.3.0 solo tienen SESSION.json, sin campo «persona». Lo que faltaba no
+ * era quitar el respaldo: era distinguir de QUIEN es.
+ *
+ *   sin archivo propio + SESSION.json SIN persona     -> mia (proyecto de una sola persona)
+ *   sin archivo propio + SESSION.json de OTRA persona -> null, y se DICE
+ *   con archivo propio                                -> mia
+ *
+ * «null» no es un fallo: sesionDe(null) ya responde «no se abrio una sesion» desde PT-060, con
+ * sus casos. Aqui solo se llega a esa rama cuando corresponde.
+ */
+export function marcaDe(persona, leer) {
+  // Sin persona NO hay archivo propio. archivoSesion(null) devuelve «SESSION.json», asi que
+  // preguntarlo aqui haria que una identidad no declarada leyera el huerfano COMO SI FUERA
+  // SUYO — que es exactamente el defecto. Lo dijo la ejecucion: personaLocal() devuelve null
+  // para quien no esta declarado, y la primera version de esta funcion seguia heredando 33
+  // commits ajenos.
+  const propia = persona ? leer(archivoSesion(persona)) : null;
+  if (propia) return propia;
+  const vieja = leer('SESSION.json');
+  if (!vieja) return null;
+  if (!vieja.persona) return vieja;
+  return persona && normalizaRef(vieja.persona) === normalizaRef(persona) ? vieja : null;
+}
+
+/**
+ * PT-068 · Una persona, UNA sesion. Con SESSION.json declarando a Alberto y
+ * SESSION-alberto-martinez.json tambien, Alberto salia DOS veces en «Otras sesiones abiertas»:
+ * una sesion fantasma, que es justo lo que el HANDOFF avisa de no crear.
+ *
+ * Gana la marca del archivo PROPIO —marcada con «__propia»—, que es el que se escribe.
+ */
+export function sesionesUnicas(marcas) {
+  const porPersona = new Map();
+  for (const m of marcas ?? []) {
+    if (!m) continue;
+    const k = normalizaRef(m.persona ?? '');
+    if (!porPersona.has(k) || m.__propia) porPersona.set(k, m);
+  }
+  return [...porPersona.values()];
+}
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
