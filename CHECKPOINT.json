@@ -3,18 +3,21 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea",
-  "sha": "e4c8cb1fea4e7cc587f5d3da2e62c039ca00b68d",
-  "sha_corto": "e4c8cb1",
+  "sha": "0c807016929a98512998e8c45ec4b15a2e0f4864",
+  "sha_corto": "0c80701",
   "sucio": true,
   "archivos": [
     "changes/PT-063-el-usuario-vive-en-la-rama-de-tarea/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-18"
 }
