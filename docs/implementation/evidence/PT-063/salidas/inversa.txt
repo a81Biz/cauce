@@ -1,0 +1,12 @@
+# PT-063 · comprobación inversa
+
+Se neutralizaron las dos decisiones de compatibilidad:
+  1. sin usuario resuelto, la rama pasa a meter «desconocido»
+  2. ramaLlevaUsuario deja de mirar el final y acepta dos niveles
+
+Caen dos casos, y son exactamente los de AC-04: un proyecto de una persona tendria
+«chore/desconocido/...» —una rama con el nombre de nadie— y las 22 ramas existentes
+dejarian de detectarse como de dos niveles.
+
+  [31m✗[0m sin usuario, dos niveles  (no apareció: ^chore/PT-063-slug$ · salió: chore/desconocido/PT-063-slug)
+  [31m✗[0m una rama de dos niveles no lleva usuario  (no apareció: ^false$ · salió: true)

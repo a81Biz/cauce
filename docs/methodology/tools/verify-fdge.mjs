@@ -51,7 +51,7 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mj
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
 // PT-062 · los rangos reservados
-import { solapes, seSolapan } from './patrones.mjs';
+import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -1084,6 +1084,20 @@ function checkPT(pt, { gate } = {}) {
     if (gate === 'G4') fail('FDGE-R19', m); else warn('FDGE-R19', m);
   } else if (fase >= 5 && enRegistroPT?.branch) {
     ok('FDGE-R19', `${pt}: rama «${enRegistroPT.branch}» declarada.`);
+    // PT-063 · AVISA, no falla. Las 22 ramas declaradas cuando esto se escribio son de DOS
+    // niveles y fallarian todas (AC-04), y renombrarlas rompe los PR abiertos sobre ellas.
+    //
+    // El aviso DICE DESDE CUANDO aplica: una rama de antes de la 8.3.0 no es un incumplimiento,
+    // es una rama de antes. Lo que NO se hace es fallar «a partir de la proxima version»: una
+    // comprobacion que cambia de severidad con el tiempo es una que nadie puede razonar.
+    //
+    // Y solo si hay «personas» declaradas: sin ellas no hay usuario que poner, y el aviso seria
+    // una exigencia imposible de cumplir.
+    if ((REGISTRO?.personas ?? []).length && !ramaLlevaUsuario(enRegistroPT.branch)) {
+      warn('FDGE-R19', `${pt}: la rama «${enRegistroPT.branch}» no lleva usuario. Desde 8.3.0 el `
+        + 'formato es «<type>/<usuario>/PT-NNN-slug». Las ramas anteriores siguen valiendo: una '
+        + 'rama abierta se termina como empezo.');
+    }
   }
 
   // PT-044 · y deja de exigirse a lo YA TERMINADO. El reanclaje se escribe MIENTRAS se trabaja;

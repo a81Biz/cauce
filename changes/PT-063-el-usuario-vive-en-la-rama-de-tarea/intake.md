@@ -12,7 +12,7 @@ status: READY
 created: 2026-08-18
 structural: no
 suite_version: 8.2.0
-phase: 4
+phase: 5
 ---
 ```
 
