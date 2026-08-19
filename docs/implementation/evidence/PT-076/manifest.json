@@ -1,0 +1,41 @@
+{
+  "pt": "PT-076",
+  "generated": "2026-08-19",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Ningun caso escribe en el repositorio real", "scenarios": ["E1"], "tests": ["md5sum de SESSION-<persona>.json y SESSION_LOG.md antes y despues de la pasada completa"], "evidence": ["salidas/huella.txt", "salidas/selftest-completo.txt"], "verified": true, "nota": "Es el criterio de verdad: una huella no se satisface por accidente. Los demas AC explican por que." },
+    { "ac": "AC-02", "statement": "Los casos que necesitan historial real siguen leyendolo", "scenarios": ["E2"], "tests": ["selftest.sh:coste sigue leyendo el historial real"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "Es la razon por la que TRR no se elimina: sobre el fixture, coste mediria cuatro tareas de mentira." },
+    { "ac": "AC-03", "statement": "sesion abrir y cerrar se prueban en el fixture y comprueban lo mismo", "scenarios": ["E3", "E4", "E5"], "tests": ["selftest.sh:sesion abrir escribe la marca del FIXTURE", "selftest.sh:…y abrir otra vez la sobrescribe", "selftest.sh:sesion cerrar da el handoff", "selftest.sh:…y dice que NO borra la marca", "selftest.sh:…y que HANDOFF.md queda INTACTO"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Algo falla si vuelve a colarse una accion que escribe por TRR", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:ninguna accion que escriba va por TRR"], "evidence": ["salidas/inversa.txt"], "verified": true, "limite": "La guarda DERIVA del codigo que acciones escriben, pero TRES disparadores se nombran a mano —abrir, cerrar, --registrar— porque derivarlos exigiria saber en que rama de cada funcion cae el writeFileSync. Una heuristica equivocada ahi haria fallar casos correctos, que es peor que no tenerla (PT-023). Un disparador nuevo en sesion, viabilidad o asignar NO lo veria esta guarda; lo ve AC-01." },
+    { "ac": "AC-05", "statement": "Las 140 entradas ya escritas se declaran", "scenarios": ["E8"], "tests": ["selftest.sh:las entradas del arnes estan declaradas"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "SUITE-R09 hace el ledger append-only: limpiarlo destruiria la prueba de que ocurrio. Mismo criterio que PT-046 con una entrada mal formada de HISTORY.log." }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que ninguna accion escriba INDIRECTAMENTE en el repositorio real.",
+      "por_que": "La guarda de forma es una heuristica de texto sobre el cuerpo de cada funcion: detecta writeFileSync directo. Una accion que escriba llamando a otra que escribe no se detecta. Hoy ninguna lo hace. Es el mismo limite que PT-051 dejo declarado para fallosPosibles en regla.mjs.",
+      "donde": "changes/PT-076-el-arnes-no-escribe-en-el-repositorio-real/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que las 140 entradas ya escritas no confundan a quien lea el historial.",
+      "por_que": "Se DECLARAN, que es lo unico que SUITE-R09 permite. Que alguien lea la nota antes de contar sesiones no se puede comprobar desde aqui — es el mismo limite que PT-065 declaro con las sesiones ajenas: se enseñan, que se miren no se comprueba.",
+      "donde": "docs/implementation/SESSION_LOG.md"
+    },
+    {
+      "afirmacion": "Que los quince veredictos de viabilidad de EP-017 sean correctos.",
+      "por_que": "NO lo son, y se sabe: se registraron con medido_en 258be16, la sesion huerfana, antes de este arreglo. Se vuelven a registrar cuando cierre PT-068, y el campo medido_en deja constancia de contra que se midio cada vez. Rehacerlos ahora seria medirlos contra una base todavia a medio arreglar.",
+      "donde": "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/intake.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "El bloque de casos corria antes de existir la funcion que usan.",
+      "regla": "—",
+      "detalle": "Insertado en la linea 2170 cuando TRR() se define en la 2598. Dos casos fallaban por eso y no por el arreglo. Lo dijo la ejecucion, no la lectura."
+    },
+    {
+      "que": "La guarda de forma era demasiado gruesa.",
+      "regla": "AC-06 de PT-075",
+      "detalle": "Marcaba viabilidad y sesion como inseguras por PODER escribir, sin mirar si la invocacion llevaba el disparador. Habria fallado contra trabajo correcto, que es el fallo que PT-075 prohibe y que ya cometi alli una vez."
+    }
+  ],
+  "suite": { "passed": null, "failed": null, "skipped": 0, "coverage": null, "baseline": 997 }
+}

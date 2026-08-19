@@ -2683,7 +2683,9 @@ chk   "…y que HANDOFF.md queda INTACTO"            "INTACTO"     TR sesion cer
 chk   "coste sigue leyendo el historial real"   "tareas cerradas"   TRR coste CHORE STANDARD
 
 # E8 · AC-05 · las 140 ya escritas se DECLARAN. SUITE-R09 es append-only: no se borran.
-chk   "las entradas del arnes estan declaradas" "escritas por el arnes"  cat "$RAIZ_REAL/docs/implementation/SESSION_LOG.md"
+# El patron va SIN ACENTOS y sobre la cabecera, que es lo estable: la redaccion del cuerpo
+# puede cambiar y «escribio el arnes» lleva dos tildes que el grep del arnes no casa.
+chk   "las entradas del arnes estan declaradas" "Aviso sobre este archivo"  cat "$RAIZ_REAL/docs/implementation/SESSION_LOG.md"
 
 # El patron NO se ata a un numero concreto: la cifra CRECE con cada tarea cerrada, y atarla
 # convierte un caso en una bomba de relojeria. Paso con «1[0-9]» al llegar a 20.
