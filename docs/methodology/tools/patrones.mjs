@@ -440,6 +440,29 @@ export const ramaLlevaUsuario = (rama) => {
   return p.length >= 3 && /^(PT|EP)-\d+/.test(p[p.length - 1]);
 };
 
+// ── PT-064 · de quien es cada commit ────────────────────────────────────────
+//
+// PHASE 2 midio que NINGUNA cifra pedia el autor: las tres derivaciones piden el SHA, el asunto y
+// la fecha. Con una persona da igual; con dos, cada una mezcla el trabajo de las dos, y sobre
+// ellas decide la compuerta de PT-059.
+
+/**
+ * Filtra por persona, SOLO si hay a quien filtrar.
+ *
+ * Con `persona` null devuelve TODO: es el caso de un proyecto sin «personas» declaradas, y es lo
+ * que hace que esta tarea no rompa EP-015 (AC-05).
+ */
+export const soloDe = (items, persona) =>
+  (persona ? (items ?? []).filter((x) => x?.persona === persona) : (items ?? []));
+
+/**
+ * Cuantos quedaron fuera por no tener persona declarada.
+ *
+ * Se DICE, no se resta en silencio: un commit sin persona no se adjudica por parecido (PT-061), y
+ * si ademas desapareciera sin contarse, las cifras encogerian sin que nada lo explicara.
+ */
+export const sinPersona = (items) => (items ?? []).filter((x) => !x?.persona).length;
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

@@ -1262,3 +1262,223 @@ sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la 
 ## 2026-08-18 · sesion abierta en `e4c8cb1`
 
 <!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 37392ac (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 5 Implementación
+sobre        37392ac  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion abierta en `37392ac`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `6c0bc18`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 6c0bc18 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 9 Integración
+sobre        57abee6  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 6c0bc18 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 9 Integración
+sobre        57abee6  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 6c0bc18 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-064 · PHASE 9 Integración
+sobre        57abee6  chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+sigue        PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.
+```
+
+## 2026-08-18 · sesion abierta en `6c0bc18`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.

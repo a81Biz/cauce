@@ -2675,3 +2675,54 @@ REGLA MODIFICADA: FDGE-R19. Es el MAJOR del lote, y la única tarea de EP-016 qu
 No verificado: la guía de migración, que es fila de cierre del lote; que dos personas trabajen sin
 pisarse, porque necesita dos personas; que alguien use «tracker rama», que propone y no crea; y que
 el aviso se lea — hay uno vivo ahora mismo, señalando esta tarea.
+
+## PT-064 — CHORE: de quién es cada commit
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que el coste, el precedente y el techo dejen de mezclar el trabajo de dos personas.
+Causa raíz: EP-015 lo dejó declarado y sin cerrar. Medido en PHASE 2: las tres derivaciones piden
+el SHA, el asunto y la fecha, y NINGUNA pide el autor.
+Solución: «commitsConAutor» resuelve cada commit a persona declarada (PT-061). El precedente y el
+techo se filtran SIEMPRE por la persona local; el coste, a petición —«--mio», «--de»— y dice de
+quién es SIEMPRE. Un commit sin persona no se reparte y se cuenta.
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-064/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): LAS TRES CIFRAS SE ROMPÍAN DISTINTO, y por eso no se arreglan igual.
+El precedente sale FALSO —compara contra trabajo ajeno y decide si empezar ahora—; el techo sale
+INFLADO —el día de dos personas cuenta como una sesión, y la salvaguarda de AC-06 de PT-059 no
+saltaría—; y el coste típico mezclado NO es un defecto obvio: más casos es mejor referencia. La
+asimetría del filtrado responde a eso: las dos primeras contestan «¿puedo YO, ahora?» y la tercera
+«¿cuánto suele costar ESTO?».
+EL RIESGO OBVIO NO NECESITÓ CÓDIGO. Filtrar por persona deja los grupos más pequeños, y con dos
+personas caerían por debajo de MINIMO_REFERENCIA. No hizo falta nada: costeDe ya devuelve SIN
+REFERENCIA con su motivo y viabilidadDe con una cifra SIN EVALUAR devuelve MARGINAL sin aprobar por
+omisión. EP-015 dejó el comportamiento correcto para este caso ANTES de que el caso existiera.
+EL SEPARADOR NO PODÍA SER UN ESPACIO. PT-057 usó uno porque el SHA no lleva ninguno; aquí el campo
+es un NOMBRE, y «Alberto Martínez» se habría partido en dos. Es el tipo de detalle que sólo se ve
+al añadir el campo, no al leer el código anterior.
+SÉPTIMA VEZ de la detección de ROOT —«--de» no estaba en CON_VALOR— y la primera cuyo valor EMPIEZA
+en mayúscula, que ES_ETIQUETA no filtra. El patrón ya no es una lista incompleta: es que declarar
+la opción es el único mecanismo y hay que acordarse.
+Y UN CASO PROPIO QUE ERA UNA BOMBA DE RELOJERÍA: el de PT-057 asertaba «CHORE/STANDARD · 1[0-9]
+tareas cerradas» y falló al llegar a 20 — no porque nada se rompiera, sino porque el número creció.
+Atar una aserción a una cifra que crece con cada tarea cerrada garantiza que fallará algún día sin
+que eso signifique nada.
+Y OCTAVA VEZ DEL PATRÓN, encontrada por CI: dos casos pasaban en local y fallaban en el runner
+porque «--mio» depende de «git config user.name» DE LA MÁQUINA. Es el mismo defecto que EP-015
+encontró cuatro veces —probar donde trabaja el agente y no donde se decide— y aquí reaparece con
+otra cara. Los casos usan ahora un nombre declarado, que no depende de dónde corran.
+Casos: 930 → 955.
+Sin cambios de especificación, y el spec-changes lo dice con la palabra «ninguno»: FDGE-R22 pide
+declarar el cambio antes de hacerlo, y «no hay cambio» es una declaración.
+No verificado: que las cifras por persona sean ÚTILES —con grupos pequeños, SIN REFERENCIA será
+frecuente: es el precio de no mezclar—; que dos personas se comporten así; que nadie use esto para
+comparar personas; y que la persona de una tarea sea la correcta cuando dos la tocan — es la de su
+PRIMER commit propio, quien la empezó, y repartirla entre dos sería inventar una fracción.

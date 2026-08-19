@@ -1,20 +1,21 @@
 {
-  "pt": "PT-063",
+  "pt": "PT-064",
   "type": "CHORE",
   "epic": "EP-016",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "96506d2ae7a1666fc7f50eeebaa1ab1c8a9515aa",
-  "sha_corto": "96506d2",
+  "status": "IN_PROGRESS",
+  "phase": 9,
+  "fase": "Integración",
+  "rama": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
+  "sha": "57abee6ab09b307201427da37260763101774428",
+  "sha_corto": "57abee6",
   "sucio": true,
   "archivos": [
-    "docs/implementation/REFACTOR_SCOPE.md",
+    "changes/PT-064-de-quien-es-cada-commit/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PT-063 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }

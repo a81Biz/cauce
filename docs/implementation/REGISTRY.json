@@ -1447,15 +1447,16 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "IN_PROGRESS",
       "structural": false,
       "suite_version": "8.2.0",
       "epic": "EP-016",
-      "phase": 1,
+      "phase": 9,
       "title": "De quien es cada commit: el coste, el precedente y el techo dejan de mezclar personas",
       "origin": "EP-015 lo dejo declarado y sin cerrar: «un dia» es la aproximacion a «una sesion», y con varias personas el dia de dos son dos sesiones que porSesion() cuenta como UNA. El techo historico del que depende AC-06 de PT-059 sale inflado, y el precedente mezcla trabajo ajeno",
       "created": "2026-08-18",
-      "issue": 119
+      "issue": 119,
+      "branch": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit"
     },
     {
       "id": "PT-065",
