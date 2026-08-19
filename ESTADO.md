@@ -13,5 +13,5 @@ Proyectado el 2026-08-18 · 6 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-064 | CHORE | IN_PROGRESS | 2 | chore/alberto-martinez/PT-064-de-quien-es-cada-commit | 8bf2397 |
+| PT-064 | CHORE | IN_PROGRESS | 3 | chore/alberto-martinez/PT-064-de-quien-es-cada-commit | 27f64bc |
 | PT-065 | CHORE | READY | 1 | — | — |
