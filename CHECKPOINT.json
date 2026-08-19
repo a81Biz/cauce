@@ -3,20 +3,30 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "trabajo",
   "sha": "7412eeb67c6c35e55eb8c7ef8642a1e58b4d1ba5",
   "sha_corto": "7412eeb",
   "sucio": true,
   "archivos": [
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/design.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/discovery.md",
     "changes/PT-075-una-regla-sin-verificador-no-ocurre/intake.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/out-of-scope.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/spec-changes.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/strategy.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/tasks.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/test-scenarios.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/traceability.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-19"
 }
