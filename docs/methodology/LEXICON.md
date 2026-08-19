@@ -781,8 +781,23 @@ ninguno**: dan confianza sin darla.
 **Un rango agotado se dice**, y no se invade el siguiente: invadirlo reproduce la colisión que los
 rangos evitan, pero más tarde y con trabajo hecho encima.
 
+**La rama de tarea lleva al usuario** (`PT-063`) · `<type>/<usuario>/PT-NNN-slug`. El `<usuario>`
+es el **nombre canónico**, normalizado igual que en `cauce/<usuario>`: minúsculas, sin acentos,
+guiones. Las dos ramas del marco normalizan con el mismo código — si divergieran, la misma persona
+tendría dos nombres según qué rama se mire.
+
+```
+cauce/<usuario>                       la proyección DERIVADA del estado (PT-054)
+<type>/<usuario>/PT-NNN-slug          la rama efímera de una tarea (FDGE-R19)
+trabajo                               UNA · la rama de integración, sin usuario
+```
+
+**`trabajo` sigue siendo una** y **`G4` sigue siendo una por lote** (`EXEC-R03`): el usuario vive
+en la rama de **tarea**, no en la de integración. Un cuarto nivel obligaría a decidir quién integra
+el trabajo de quién antes de `trabajo`.
+
 **Sin `personas` declaradas, el marco funciona como si no existieran.** Un proyecto de una sola
-persona no tiene que declarar nada.
+persona no tiene que declarar nada, y su rama de tarea sigue siendo `<type>/PT-NNN-slug`.
 
 ### 6.6 Documentos de metodología — `docs/methodology/`
 

@@ -1,0 +1,32 @@
+# PT-063 · sobre el repositorio real
+
+$ tracker rama PT-063
+
+
+  chore/alberto-martinez/PT-063-el-usuario-vive-en-la-rama-de-tarea
+
+  Asi debe llamarse. NO se crea: crear una rama toca el arbol de trabajo, y si falla
+  a mitad deja a quien la usa en otro sitio. Lo que no se automatiza se describe:
+
+    git switch trabajo
+    git checkout -b chore/alberto-martinez/PT-063-el-usuario-vive-en-la-rama-de-tarea
+tracker · github · acción rama
+
+
+Sin divergencias.
+
+## AC-04 EN VIVO · la propia tarea que introduce el formato
+
+La rama de PT-063 se creo ANTES de que el formato existiera, asi que es de dos
+niveles. Y el aviso lo dice sin bloquear — que es exactamente AC-04:
+
+  ✓ FDGE-R19       PT-063: rama «chore/PT-063-el-usuario-vive-en-la-rama-de-tarea» declarada.
+  ! FDGE-R19       PT-063: la rama «chore/PT-063-el-usuario-vive-en-la-rama-de-tarea» no lleva usuario. Desde 8.3.0 el formato es «<type>/<usuario>/PT-NNN-slug». Las ramas anteriores siguen valiendo: una rama abierta se termina como empezo.
+
+No hay mejor demostracion de AC-04 que esta: la tarea que cambia el formato tiene
+una rama del formato anterior, y el marco la deja terminar como empezo.
+
+## Y verify-fdge sigue sin errores
+
+
+Sin errores. PTs verificados: 1.

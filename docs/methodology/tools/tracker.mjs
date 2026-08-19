@@ -45,6 +45,8 @@ import {
   personaDe, personaLocal,
   // PT-062 · los IDs por rangos reservados
   siguienteEnRango, solapes,
+  // PT-063 · el usuario en la rama de tarea
+  normalizaRef, ramaDeTarea, ramaLlevaUsuario,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -238,9 +240,10 @@ export const MARCA_AGENTE = '<!-- cauce:agente -->';
 export const MARCA_PROYECCION = 'cauce:proyeccion';
 
 /** El nombre de la rama derivada de una persona. Una referencia de git no admite cualquier cosa. */
+// PT-063 · el normalizador se comparte con la rama de tarea (normalizaRef): si cada una
+// normalizara por su cuenta, la misma persona tendria dos nombres segun que rama se mire.
 export const ramaDe = (usuario) => {
-  const n = String(usuario ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const n = normalizaRef(usuario);
   return n ? `cauce/${n}` : null;
 };
 
@@ -852,7 +855,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1509,6 +1512,36 @@ function asignar() {
   notas.push(`${id} asignado y escrito en REGISTRY.json`);
 }
 
+// ── rama · como debe llamarse la de una tarea ───────────────────────────────
+//
+// PROPONE, no crea: crear una rama toca el arbol de trabajo y si falla a mitad deja a quien la
+// usa en otro sitio (PT-054). Lo que no se automatiza se describe (EXEC-R07).
+function rama() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) throw new Error('rama necesita una allocation:  tracker rama PT-063');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
+
+  const yo = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+    reg.personas ?? []).persona;
+  const propuesta = ramaDeTarea(a.type, a.id, a.slug, yo);
+  const integracion = 'trabajo';
+
+  di('');
+  di(`  ${propuesta}`);
+  di('');
+  if (!yo) {
+    di('  Sin persona resuelta: dos niveles, como siempre. Un proyecto de una sola persona');
+    di('  no tiene que declarar nada (LEXICON 6.5f).');
+    di('');
+  }
+  di('  Asi debe llamarse. NO se crea: crear una rama toca el arbol de trabajo, y si falla');
+  di('  a mitad deja a quien la usa en otro sitio. Lo que no se automatiza se describe:');
+  di('');
+  di(`    git switch ${integracion}`);
+  di(`    git checkout -b ${propuesta}`);
+}
+
 function personas() {
   const decl = reg.personas ?? [];
   const crudo = gitDe(['log', '--format=%an%x09%ae']) ?? '';
@@ -1927,7 +1960,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

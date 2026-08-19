@@ -1427,15 +1427,16 @@
       "complexity": "STANDARD",
       "severity": "S1",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "IN_PROGRESS",
       "structural": false,
       "suite_version": "8.2.0",
       "epic": "EP-016",
-      "phase": 1,
+      "phase": 9,
       "title": "El usuario vive en la rama de tarea: <type>/<usuario>/PT-NNN-slug",
       "origin": "Decision 3 del firmante 2026-08-15: el usuario vive en la RAMA DE TAREA y «trabajo» sigue siendo unica, para no anadir un cuarto nivel ni multiplicar G4 contra EXEC-R03. Toca FDGE-R19, que hoy fija «<type>/PT-NNN-slug»: es el unico cambio del lote que puede romper compatibilidad",
       "created": "2026-08-18",
-      "issue": 118
+      "issue": 118,
+      "branch": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea"
     },
     {
       "id": "PT-064",

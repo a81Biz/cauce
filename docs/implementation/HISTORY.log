@@ -2628,3 +2628,50 @@ construcción y eso es un argumento; que nadie asigne a mano, que verify-fdge de
 no puede impedir; que los rangos elegidos sean los correctos, que es decisión de equipo; y que este
 repositorio los use — NO los declara, es de una persona, y todo se probó declarándolos
 temporalmente y restaurando el registro después.
+
+## PT-063 — CHORE: el usuario vive en la rama de tarea
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/PT-063-el-usuario-vive-en-la-rama-de-tarea
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que la rama de tarea diga de quién es, sin añadir un cuarto nivel ni multiplicar G4.
+Causa raíz: decisión 3 del firmante. La topología asumía una sola persona.
+Solución: FDGE-R19 MODIFICADA — la rama efímera pasa a «<type>/<usuario>/PT-NNN-slug» con el
+nombre canónico de PT-061. «normalizaRef» se extrae y lo comparten las dos ramas del marco.
+«tracker rama PT-NNN» propone el nombre y NO la crea. verify-fdge AVISA si una rama viva no lleva
+usuario, y dice desde qué versión aplica.
+Archivos modificados: docs/methodology/RULES.md · LEXICON.md · CORE.md · tools/patrones.mjs ·
+tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-063/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 PARCIAL
+Delta (real vs planificado): EL CAMBIO ES MÁS PEQUEÑO DE LO QUE EL LOTE DECLARÓ, y se dice porque
+escribirlo al revés habría sido más cómodo. PHASE 2 midió que el formato de rama NO SE COMPRUEBA:
+FDGE-R19 lo fija y ninguna herramienta lo parsea — verify-fdge mira que la rama EXISTA. 22 ramas
+declaradas, todas de dos niveles, y CERO comprobaciones que se rompan. Sigue siendo MAJOR porque
+cambia el texto de una regla HARD, pero la migración es LEER.
+LA DECISIÓN DIFÍCIL FUE LA SEVERIDAD. Fallar rompería AC-04 —las 22 existentes fallarían todas—; no
+comprobar nada deja la regla como el texto que nadie aplica, que es EXACTAMENTE el defecto que
+FDGE-R19 documenta en su propio enunciado. Avisa, y el aviso DICE DESDE CUÁNDO aplica. Lo que NO se
+hizo: fallar «a partir de la próxima versión» — una comprobación que cambia de severidad con el
+tiempo es una que nadie puede razonar.
+AC-04 QUEDÓ DEMOSTRADO POR ACCIDENTE, y es la mejor evidencia de la tarea: la rama de ESTA MISMA
+tarea es de dos niveles, porque se creó antes de que el formato existiera. El aviso la señala y no
+bloquea. La tarea que cambia el formato se termina como empezó.
+AC-06 QUEDA PARCIAL Y SE DECLARA. Tiene dos mitades: FDGE-R19 dice el formato nuevo —hecho y
+comprobado— y el CHANGELOG trae guía de migración —que se escribe al cerrar EP-016 y es una de sus
+filas de cierre—. Marcarlo VERIFICADO aquí sería marcar una casilla que no está hecha, que es lo
+que SUITE-R45 existe para impedir.
+Y se comprobó lo que NO cambia: «trabajo» sigue siendo una, G4 sigue siendo una por lote, y
+FDGE-R19 sigue diciendo todo lo demás que decía —commits atómicos, prefijos, tres niveles, que el
+PR de tarea es revisión—. Un caso que sólo mirase el formato nuevo pasaría aunque el resto se
+hubiera perdido.
+Casos: 899 → 930.
+REGLA MODIFICADA: FDGE-R19. Es el MAJOR del lote, y la única tarea de EP-016 que toca RULES.md.
+No verificado: la guía de migración, que es fila de cierre del lote; que dos personas trabajen sin
+pisarse, porque necesita dos personas; que alguien use «tracker rama», que propone y no crea; y que
+el aviso se lea — hay uno vivo ahora mismo, señalando esta tarea.

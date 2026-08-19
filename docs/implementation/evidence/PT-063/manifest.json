@@ -1,0 +1,35 @@
+{
+  "pt": "PT-063",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "La rama de tarea lleva al usuario: <type>/<usuario>/PT-NNN-slug", "scenarios": ["E1", "E2", "E3", "E12"], "tests": ["selftest.sh:la rama lleva al usuario", "selftest.sh:…y el tipo en minusculas", "selftest.sh:…y el usuario normalizado", "selftest.sh:rama propone el nombre"], "evidence": ["salidas/rama-real.txt", "salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "trabajo sigue siendo unica: no hay trabajo/<usuario>", "scenarios": ["E8", "E9"], "tests": ["selftest.sh:no existe «trabajo/<usuario>» en RULES", "selftest.sh:…ni en LEXICON", "selftest.sh:…y LEXICON dice que «trabajo» es UNA"], "evidence": ["salidas/verify-suite.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "G4 sigue siendo una por lote (EXEC-R03)", "scenarios": ["E10", "E11"], "tests": ["selftest.sh:FDGE-R19 sigue diciendo que G4 no se multiplica", "selftest.sh:…y que el PR de tarea es revision", "selftest.sh:EXEC-R03 sigue existiendo"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Una rama con el formato anterior sigue valiendo: se termina como empezo", "scenarios": ["E5", "E6", "E7", "E13", "E14"], "tests": ["selftest.sh:sin usuario, dos niveles", "selftest.sh:una rama de dos niveles no lleva usuario", "selftest.sh:verify-fdge avisa, no falla", "selftest.sh:…y que las anteriores siguen valiendo"], "evidence": ["salidas/rama-real.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "El usuario sale de la identidad declarada (PT-061), no de git config a pelo", "scenarios": ["E4", "E15"], "tests": ["selftest.sh:…y el canonico, no el de git config", "selftest.sh:…que habria dado otra rama", "selftest.sh:…con el MISMO normalizador que cauce/", "selftest.sh:…y solo con personas declaradas"], "evidence": ["salidas/rama-real.txt"], "verified": true },
+    { "ac": "AC-06", "statement": "FDGE-R19 dice el formato nuevo, y el CHANGELOG trae guia de migracion", "scenarios": ["E16", "E17"], "tests": ["selftest.sh:FDGE-R19 dice el formato nuevo", "selftest.sh:…y sigue exigiendo commits atomicos", "selftest.sh:…y los TRES niveles", "selftest.sh:…y que sin personas sigue el de antes"], "evidence": ["salidas/verify-suite.txt"], "verified": false, "nota": "La guia de migracion se escribe al CERRAR el lote, no en esta tarea. El formato en FDGE-R19 si esta verificado; la guia queda como fila de cierre de EP-016." }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "La guia de migracion.",
+      "por_que": "AC-06 tiene dos mitades y solo una se cumple aqui: FDGE-R19 dice el formato nuevo y esta comprobado, pero la guia de migracion se escribe en el CHANGELOG al cerrar el lote —es una fila de cierre de EP-016—. Declararla verificada aqui seria marcar una casilla que no esta hecha.",
+      "donde": "changes/EP-016-topologia-y-multiusuario/intake.md"
+    },
+    {
+      "afirmacion": "Que dos personas trabajen sin pisarse en las ramas.",
+      "por_que": "El formato lo hace posible; que ocurra necesita dos personas. Todo lo probado es con una.",
+      "donde": "changes/PT-063-el-usuario-vive-en-la-rama-de-tarea/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que alguien use «tracker rama».",
+      "por_que": "PROPONE; crear la rama sigue siendo un comando que se escribe a mano, por decision de PT-054 —crear una rama toca el arbol de trabajo— y por EXEC-R07.",
+      "donde": "docs/methodology/tools/tracker.mjs"
+    },
+    {
+      "afirmacion": "Que el aviso se lea.",
+      "por_que": "Si cada verificacion lo repite, se ignora. Es por PT VIVO y no por rama del remoto, pero que alguien haga caso no se comprueba desde aqui. Y hay un caso vivo: la rama de ESTA tarea es de dos niveles y el aviso la senala.",
+      "donde": "docs/implementation/evidence/PT-063/salidas/rama-real.txt"
+    }
+  ],
+  "suite": { "passed": 930, "failed": 0, "skipped": 0, "coverage": 930, "baseline": 899 }
+}

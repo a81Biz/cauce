@@ -402,6 +402,44 @@ export function solapes(personas = [], prefijo = 'PT') {
   return out;
 }
 
+// ── PT-063 · el usuario vive en la rama de tarea ────────────────────────────
+//
+// Decision 3 del firmante: el usuario vive en la RAMA DE TAREA y «trabajo» sigue siendo unica,
+// para no anadir un cuarto nivel ni multiplicar G4 contra EXEC-R03.
+
+/**
+ * Normaliza un nombre para una referencia de git. LO USAN LAS DOS ramas del marco —«cauce/
+ * <usuario>» (PT-054) y la rama de tarea— y por eso vive aqui: si cada una normalizara por su
+ * cuenta, la misma persona tendria dos nombres segun que rama se mire.
+ */
+export const normalizaRef = (nombre) => String(nombre ?? '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase().trim()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+/**
+ * Como debe llamarse la rama de una tarea.
+ *
+ * El usuario sale del nombre CANONICO (PT-061), no de «git config» a pelo: desde la maquina que
+ * produjo los 9 commits de «a81Biz», leerlo directo habria dado «chore/a81biz/PT-063-…» — otra
+ * rama para la misma persona.
+ *
+ * Sin usuario resuelto, DOS niveles como siempre: un proyecto de una persona no cambia nada.
+ */
+export function ramaDeTarea(tipo, id, slug, usuario = null) {
+  const t = String(tipo ?? 'chore').toLowerCase();
+  const u = usuario ? normalizaRef(usuario) : null;
+  const cola = `${id}-${slug}`;
+  return u ? `${t}/${u}/${cola}` : `${t}/${cola}`;
+}
+
+/** ¿Lleva usuario esta rama? Tres niveles, con el identificador al final. */
+export const ramaLlevaUsuario = (rama) => {
+  const p = String(rama ?? '').split('/');
+  return p.length >= 3 && /^(PT|EP)-\d+/.test(p[p.length - 1]);
+};
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

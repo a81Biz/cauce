@@ -2797,6 +2797,64 @@ chk   "…y que NO se namespacea"           "NO se namespacea"   cat "$SUITE/LEX
 chk   "…y que tocarse ya es solaparse"    "solo se tocan por un extremo"  cat "$SUITE/LEXICON.md"
 chk   "…y que agotado no se invade"       "no se invade"       cat "$SUITE/LEXICON.md"
 
+# ─── PT-063 · el usuario vive en la rama de tarea ──────────────────────────
+# Decision 3 del firmante: el usuario vive en la RAMA DE TAREA y «trabajo» sigue siendo unica.
+#
+# PHASE 2 midio que el formato NO SE COMPRUEBA: FDGE-R19 lo fija y ninguna herramienta lo parsea.
+# 22 ramas declaradas, todas de dos niveles, y cero comprobaciones que se rompan.
+sec "── PT-063 · el usuario en la rama de tarea ──"
+
+# E1-E4 · el formato nuevo, con el nombre CANONICO.
+PL "la rama lleva al usuario"             "chore/alberto-martinez/PT-063"  "console.log(m.ramaDeTarea(\"chore\",\"PT-063\",\"slug\",\"Alberto Martínez\"))"
+PL "…y el tipo en minusculas"             "^chore/"   "console.log(m.ramaDeTarea(\"CHORE\",\"PT-063\",\"slug\",\"Alberto Martínez\"))"
+PL "…y el usuario normalizado"            "alberto-martinez"  "console.log(m.normalizaRef(\"Alberto Martínez\"))"
+# El mismo normalizador que «cauce/<usuario>»: si divergieran, la misma persona tendria dos
+# nombres segun que rama se mire.
+trlib "…con el MISMO normalizador que cauce/"  "cauce/alberto-martinez"  "console.log(m.ramaDe(\"Alberto Martínez\"))"
+PL "…y el canonico, no el de git config"  "alberto-martinez"  "console.log(m.ramaDeTarea(\"chore\",\"PT-1\",\"s\",\"Alberto Martínez\"))"
+PLNO "…que habria dado otra rama"         "a81biz"    "console.log(m.ramaDeTarea(\"chore\",\"PT-1\",\"s\",\"Alberto Martínez\"))"
+
+# E5-E7 · AC-04 · sin usuario, DOS niveles. Un proyecto de una persona no cambia nada.
+PL "sin usuario, dos niveles"             "^chore/PT-063-slug$"  "console.log(m.ramaDeTarea(\"chore\",\"PT-063\",\"slug\"))"
+PL "una rama de dos niveles no lleva usuario"  "^false$"  "console.log(m.ramaLlevaUsuario(\"chore/PT-063-slug\"))"
+PL "…y una de tres si"                    "^true$"    "console.log(m.ramaLlevaUsuario(\"chore/alberto-martinez/PT-063-slug\"))"
+PLNO "…y «trabajo» no cuenta como rama de tarea"  "^true$"  "console.log(m.ramaLlevaUsuario(\"trabajo\"))"
+
+# E8-E9 · AC-02 · «trabajo» sigue siendo UNA. Es un criterio sobre lo que NO debe pasar, y esos
+# son los que mas facil se dan por buenos sin mirar.
+chkno "no existe «trabajo/<usuario>» en RULES"   "trabajo/<usuario>"  cat "$SUITE/RULES.md"
+chkno "…ni en LEXICON"                           "trabajo/<usuario>"  cat "$SUITE/LEXICON.md"
+chk   "…y LEXICON dice que «trabajo» es UNA"     "sigue siendo una"   cat "$SUITE/LEXICON.md"
+
+# E10-E11 · AC-03 · G4 sigue siendo UNA por lote.
+chk   "FDGE-R19 sigue diciendo que G4 no se multiplica"  "no se multiplica por tarea"  cat "$SUITE/RULES.md"
+chk   "…y que el PR de tarea es revision"        "no es .G4"          cat "$SUITE/RULES.md"
+chk   "EXEC-R03 sigue existiendo"                "EXEC-R03"           cat "$SUITE/RULES.md"
+
+# E12-E13 · la accion PROPONE, no crea.
+chk   "rama propone el nombre"            "PT-063"              TRR rama PT-063
+chk   "…y dice que NO se crea"            "NO se crea"          TRR rama PT-063
+chk   "…y describe el comando"            "git checkout -b"     TRR rama PT-063
+chk   "…y de donde nace"                  "git switch trabajo"  TRR rama PT-063
+
+# E14-E15 · la comprobacion AVISA y dice desde cuando.
+chk   "verify-fdge avisa, no falla"       "warn..FDGE-R19"      cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y dice desde que version"         "Desde 8.3.0"         cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y que las anteriores siguen valiendo"  "se termina como empezo"  cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y solo con personas declaradas"   "personas ?? \[\]).length"     cat "$SUITE/tools/verify-fdge.mjs"
+# Y NO se falla «a partir de la proxima version»: una comprobacion que cambia de severidad con el
+# tiempo es una que nadie puede razonar.
+chk   "…y se dice por que no se falla con el tiempo"  "cambia de severidad con el tiempo"  cat "$SUITE/tools/verify-fdge.mjs"
+
+# E16-E17 · FDGE-R19 dice el formato nuevo Y SIGUE DICIENDO todo lo demas. Un caso que solo
+# mirase el formato pasaria aunque el resto de la regla se hubiera perdido.
+chk   "FDGE-R19 dice el formato nuevo"    "usuario>/PT-NNN-slug"  cat "$SUITE/RULES.md"
+chk   "…y sigue exigiendo commits atomicos"  "Commits atómicos"   cat "$SUITE/RULES.md"
+chk   "…y sus prefijos"                   "refactor"              cat "$SUITE/RULES.md"
+chk   "…y los TRES niveles"               "tres niveles"          cat "$SUITE/RULES.md"
+chk   "…y que la rama va al registro"     "branch"                cat "$SUITE/RULES.md"
+chk   "…y que sin personas sigue el de antes"  "sin personas declaradas"  cat "$SUITE/RULES.md"
+
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
 # checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que
