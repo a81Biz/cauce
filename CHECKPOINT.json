@@ -3,23 +3,22 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre",
   "sha": "ab50d99b4fc8d0853fc1d39779106b2637a35927",
   "sha_corto": "ab50d99",
   "sucio": true,
   "archivos": [
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/acciones-humanas.md",
     "changes/PT-075-una-regla-sin-verificador-no-ocurre/intake.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
