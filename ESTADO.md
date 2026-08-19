@@ -5,13 +5,12 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-19 · 16 allocation(es) viva(s).
+Proyectado el 2026-08-19 · 15 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
 | PT-019 | CHORE | REOPENED | 1 | — | — |
 | PT-025 | CHORE | DEFERRED | — | — | — |
-| PT-055 | BUG | REOPENED | 9 | fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre | 697604e |
 | EP-017 |  | READY | 1 | — | — |
 | PT-066 | BUG | READY | 1 | — | — |
 | PT-067 | BUG | READY | 1 | — | — |
@@ -22,6 +21,6 @@ Proyectado el 2026-08-19 · 16 allocation(es) viva(s).
 | PT-072 | INVESTIGATION | READY | 1 | — | — |
 | PT-073 | CHORE | READY | 1 | — | — |
 | PT-074 | BUG | READY | 1 | — | — |
-| PT-076 | BUG | READY | 1 | — | — |
+| PT-076 | BUG | READY | 2 | — | — |
 | PT-077 | BUG | READY | 1 | — | — |
-| PT-078 |  | DRAFT | — | — | — |
+| PT-078 | FEATURE | READY | 1 | — | — |
