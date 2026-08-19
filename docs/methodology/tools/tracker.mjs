@@ -43,6 +43,8 @@ import {
   sesionDe, handoffDeSesion,
   // PT-061 · quien es quien
   personaDe, personaLocal,
+  // PT-062 · los IDs por rangos reservados
+  siguienteEnRango, solapes,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -475,7 +477,7 @@ const APLICAR = ARGS.includes('--aplicar');
 // se cuela en el posicional —`-q` en PT-049, `--solo` en PT-050, `--a` aqui— y las tres veces lo
 // dijo EJECUTARLO, sabiendo del defecto. Por eso las banderas con valor se declaran en UN sitio:
 // la lista es lo que hace que la cuarta no repita el error.
-const CON_VALOR = new Set(['--a', '--nota']);
+const CON_VALOR = new Set(['--a', '--nota', '--slug']);
 // PT-057 · `coste` recibe TIPO y COMPLEJIDAD como posicionales, y sin esta guarda el primero se
 // tomaba por ROOT: «tracker coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
 // CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
@@ -850,7 +852,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1449,6 +1451,64 @@ function sesion() {
 // Los NO DECLARADOS salen SIEMPRE, no bajo una bandera: el riesgo de esta tabla es que se quede
 // vieja en silencio, y esconderlo detras de una opcion es garantizar que nadie lo mire.
 
+// ── asignar · lo UNICO que escribe un identificador ─────────────────────────
+//
+// PHASE 2 de PT-062 midio que NADIE asignaba: SUITE-R08 decia que el registro asigna y ninguna
+// accion lo hacia — lo hacia quien editaba el archivo a mano. La regla era una afirmacion sin
+// nadie que la ejecutara.
+
+/** Los numeros ya usados de un prefijo, derivados de las allocations. */
+const usadosDe = (prefijo) => all
+  // El escapado dentro de un RegExp construido con plantilla necesita DOS barras: con una,
+  // el patron busca la letra «d» literal y no casa nada — y «asignar» decia 0 usados
+  // mientras «personas» decia 65. Lo vio ejecutar las dos seguidas.
+  .map((a) => String(a?.id ?? '').match(new RegExp('^' + prefijo + '-(\\d+)$')))
+  .filter(Boolean)
+  .map((m) => Number(m[1]));
+
+function asignar() {
+  const prefijo = ARGS.slice(1).find((a) => /^[A-Z]+$/.test(a)) ?? 'PT';
+  const iSlug = ARGS.indexOf('--slug');
+  const slug = iSlug >= 0 ? ARGS[iSlug + 1] : null;
+  const soloVer = ARGS.includes('--ver');
+  if (!slug && !soloVer) {
+    throw new Error('asignar necesita un slug:  tracker asignar PT --slug lo-que-sea');
+  }
+
+  const yo = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+    reg.personas ?? []).persona;
+  const mia = (reg.personas ?? []).find((p) => p?.nombre === yo);
+  const usados = usadosDe(prefijo);
+
+  let numero;
+  let deDonde;
+  if (mia?.rango?.[prefijo]) {
+    const r = siguienteEnRango(prefijo, mia.rango[prefijo], usados);
+    if (r.numero == null) { throw new Error(r.motivo); }
+    numero = r.numero;
+    const [d, h] = mia.rango[prefijo];
+    deDonde = `del rango de ${yo}: ${prefijo} [${d}-${h}] · ${usados.filter((n) => n >= d && n <= h).length} usados`;
+  } else {
+    // AC-06 · sin rangos, EXACTAMENTE como hoy: el contador global.
+    numero = Number(reg.counters?.[prefijo] ?? Math.max(0, ...usados)) + 1;
+    deDonde = mia
+      ? `${yo} no declara rango para ${prefijo}: del contador global, como siempre`
+      : 'sin rangos declarados: del contador global, como siempre';
+  }
+
+  const id = `${prefijo}-${String(numero).padStart(3, '0')}`;
+  di('');
+  di(`  ${id}${slug ? ` · ${slug}` : ''}`);
+  di(`  ${deDonde}`);
+  if (soloVer) { di(''); di('  --ver: no se ha escrito nada.'); return; }
+
+  reg.counters = reg.counters ?? {};
+  if (!mia?.rango?.[prefijo]) reg.counters[prefijo] = numero;
+  reg.allocations.push({ id, slug, created: gitDe(['log', '-1', '--format=%cs']), status: 'DRAFT' });
+  writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + SALTO);
+  notas.push(`${id} asignado y escrito en REGISTRY.json`);
+}
+
 function personas() {
   const decl = reg.personas ?? [];
   const crudo = gitDe(['log', '--format=%an%x09%ae']) ?? '';
@@ -1472,7 +1532,16 @@ function personas() {
     di('  persona no hace falta declarar nada (LEXICON 6.5f).');
   }
   for (const [nombre, ids] of porPersona) {
-    di(`  ${nombre}`);
+    const p = decl.find((x) => x?.nombre === nombre);
+    const r = p?.rango?.PT;
+    if (r) {
+      const usados = all.map((a) => String(a?.id ?? '').match(/^PT-(\d+)$/)).filter(Boolean)
+        .map((m) => Number(m[1])).filter((n) => n >= r[0] && n <= r[1]);
+      const sig = siguienteEnRango('PT', r, usados);
+      di(`  ${nombre}`.padEnd(30) + `PT [${r[0]}-${r[1]}] · ${usados.length} usados · siguiente ${sig.numero ?? 'AGOTADO'}`);
+    } else {
+      di(`  ${nombre}`);
+    }
     for (const i of ids.sort((a, b) => b.n - a.n)) {
       di(`    ${i.nombre} <${i.correo}>`.padEnd(52) + `${i.n} commits`);
     }
@@ -1858,7 +1927,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);
