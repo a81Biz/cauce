@@ -2734,6 +2734,69 @@ chk   "…y que el par casa ENTERO"          "casa entero"       cat "$SUITE/LEX
 chk   "…y que no es «firmantes:»"          "NO es"             cat "$SUITE/LEXICON.md"
 chk   "…y que no dice que puede nadie"     "no dice qué puede" cat "$SUITE/LEXICON.md"
 
+# ─── PT-062 · los IDs se reparten por rangos reservados ────────────────────
+# PHASE 2 lo REPRODUJO en un repositorio de prueba: si Ana y Bruno asignan PT-066 a la vez, el
+# CONTADOR se fusiona SIN CONFLICTO —los dos escribieron 66— y el conflicto queda reducido a una
+# linea de «slug». Quien lo resuelva elige un texto y la otra tarea DESAPARECE ENTERA.
+#
+# El dano no es el conflicto: es que el conflicto PARECE PEQUENO.
+sec "── PT-062 · rangos reservados ──"
+
+# E1-E3 · el siguiente se DERIVA de lo usado DENTRO del rango.
+PL "rango vacio da el primero"            "^100$"  "console.log(m.siguienteEnRango(\"PT\",[100,200],[]).numero)"
+PL "…y con usados, el siguiente"          "^102$"  "console.log(m.siguienteEnRango(\"PT\",[100,200],[100,101]).numero)"
+# Los de FUERA no cuentan: los 65 PT de este repositorio se asignaron sin rango, y si contaran
+# para el de otra persona su primer ID saltaria sin motivo.
+PL "los de FUERA del rango no cuentan"    "^100$"  "console.log(m.siguienteEnRango(\"PT\",[100,200],[1,2,65]).numero)"
+PL "sin rango declarado ⇒ null"           "^null$" "console.log(JSON.stringify(m.siguienteEnRango(\"PT\",null,[]).numero))"
+PL "…y lo dice"                           "no declara rango"  "console.log(m.siguienteEnRango(\"PT\",null,[]).motivo)"
+
+# E5-E6 · AC-05 · agotado se DICE. Invadir el siguiente reproduce la colision, mas tarde.
+PL "un rango agotado NO invade"           "^null$" "console.log(JSON.stringify(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).numero))"
+PL "…y dice que esta AGOTADO"             "AGOTADO"  "console.log(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).motivo)"
+PL "…y cuantos hay"                       "3 usados" "console.log(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).motivo)"
+PL "…y que ampliarlo es humano"           "decision humana"  "console.log(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).motivo)"
+
+# E7-E10 · seSolapan. Tocarse por un extremo YA es solaparse: ese numero compartido es
+# exactamente el que las dos personas pediran a la vez.
+PL "rangos disjuntos NO se solapan"       "^false$"  "console.log(m.seSolapan([1,10],[11,20]))"
+PL "solape parcial SI"                    "^true$"   "console.log(m.seSolapan([1,10],[5,20]))"
+PL "uno dentro de otro tambien"           "^true$"   "console.log(m.seSolapan([1,100],[10,20]))"
+PL "…y TOCARSE por un extremo tambien"    "^true$"   "console.log(m.seSolapan([1,100],[100,200]))"
+PLNO "…y no revienta con basura"          "true"     "console.log(m.seSolapan(null,[1,2]))"
+# E11-E12 · solapes sobre una tabla.
+TRES='[{nombre:"A",rango:{PT:[1,100]}},{nombre:"B",rango:{PT:[100,200]}},{nombre:"C",rango:{PT:[300,400]}}]'
+PL "solapes encuentra el par"             "^1$"      "console.log(m.solapes($TRES).length)"
+PL "…y nombra a los dos"                  "\"a\":\"A\""  "console.log(JSON.stringify(m.solapes($TRES)))"
+PL "…y al otro"                           "\"b\":\"B\""  "console.log(JSON.stringify(m.solapes($TRES)))"
+PL "sin solapes, lista vacia"             "^0$"      "console.log(m.solapes([{nombre:\"A\",rango:{PT:[1,10]}},{nombre:\"B\",rango:{PT:[11,20]}}]).length)"
+
+# E13-E16 · la accion, sobre el repositorio REAL.
+chk   "asignar da un ID"                  "PT-0"     TRR asignar PT --slug prueba --ver
+# AC-03 · decision 2 del firmante: el identificador NO se namespacea.
+chkno "…y NO lleva el nombre de nadie"    "alberto"  TRR asignar PT --slug prueba --ver
+chk   "…y dice de donde sale"             "contador global\|del rango de"  TRR asignar PT --slug prueba --ver
+chk   "--ver no escribe nada"             "no se ha escrito nada"  TRR asignar PT --slug prueba --ver
+# AC-06 · sin rangos, como hoy. Este repositorio no los declara.
+chk   "sin rangos, del contador global"   "contador global"  TRR asignar PT --slug prueba --ver
+chk   "…y sin slug se niega"              "necesita un slug"  TRR asignar PT
+
+# E17-E19 · las dos comprobaciones de verify-fdge, y que sin rangos no comprueban nada.
+chk   "verify-fdge detecta rangos solapados"  "SOLAPADOS"  cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y una allocation fuera de todo rango"  "fuera de todos los rangos"  cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y solo si hay rangos declarados"      "sin ellos no hay nada"   cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y dice por que se comprueba aqui"     "aunque nadie"  cat "$SUITE/tools/verify-fdge.mjs"
+
+# E20 · personas enseña el rango cuando lo hay.
+chk   "personas puede ensenar el rango"   "siguiente"  cat "$SUITE/tools/tracker.mjs"
+
+# LEX-R21 · el vocabulario en LEXICON.
+chk   "«rango» esta en LEXICON"           "Rango reservado"  cat "$SUITE/LEXICON.md"
+chk   "…y que el registro sigue asignando"  "sigue asignando"  cat "$SUITE/LEXICON.md"
+chk   "…y que NO se namespacea"           "NO se namespacea"   cat "$SUITE/LEXICON.md"
+chk   "…y que tocarse ya es solaparse"    "solo se tocan por un extremo"  cat "$SUITE/LEXICON.md"
+chk   "…y que agotado no se invade"       "no se invade"       cat "$SUITE/LEXICON.md"
+
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
 # checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que

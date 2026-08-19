@@ -1,0 +1,26 @@
+# PT-062 · la colisión, REPRODUCIDA en PHASE 2
+
+Ana y Bruno parten del mismo registro (PT: 65) y cada uno asigna PT-066.
+
+$ git merge ana
+Auto-merging REGISTRY.json
+CONFLICT (content): Merge conflict in REGISTRY.json
+
+Y esto es lo que hay dentro:
+
+  "counters": { "PT": 66 },        <- fusionado SIN conflicto: los dos pusieron 66
+  "allocations": [
+    { "id": "PT-065", "slug": "x" },
+    { "id": "PT-066",
+<<<<<<< HEAD
+      "slug": "lo-de-bruno"
+=======
+      "slug": "lo-de-ana"
+>>>>>>> ana
+
+El contador NO entro en conflicto. El conflicto quedo reducido a UNA LINEA de slug,
+y quien lo resuelva elige un texto: la otra tarea DESAPARECE ENTERA, con el contador
+diciendo 66 como si nada.
+
+El dano no es el conflicto: es que el conflicto PARECE PEQUENO.
+

@@ -760,6 +760,27 @@ contraria** — si fuera simétrica, las dos listas serían copias del mismo hec
 firmara una persona; esta tabla tampoco lo prueba. Dice **a quién atribuir** un commit, no quién lo
 escribió.
 
+**Rango reservado** (`PT-062`) · Una persona puede declarar de qué tramo de identificadores saca
+los suyos:
+
+```
+rango: { "PT": [1, 999] }      los dos extremos INCLUSIVE
+```
+
+**El registro sigue asignando** (`SUITE-R08`): el rango dice **de dónde** sale el número, no quién
+lo da. Y el siguiente ID se **deriva** de lo ya asignado dentro del rango — un contador por persona
+sería un segundo sitio donde vive el mismo hecho.
+
+**El identificador NO se namespacea.** Sigue siendo `PT-NNN`: `LEX-R04` los declara permanentes, y
+`PT-alberto-001` rompería cada referencia escrita en las tareas ya cerradas.
+
+**Dos rangos que se solapan fallan** —incluso si solo se tocan por un extremo, porque ese número
+compartido es exactamente el que las dos personas pedirán a la vez—. Solapados son **peores que
+ninguno**: dan confianza sin darla.
+
+**Un rango agotado se dice**, y no se invade el siguiente: invadirlo reproduce la colisión que los
+rangos evitan, pero más tarde y con trabajo hecho encima.
+
 **Sin `personas` declaradas, el marco funciona como si no existieran.** Un proyecto de una sola
 persona no tiene que declarar nada.
 

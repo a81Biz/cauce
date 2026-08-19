@@ -348,6 +348,60 @@ export function personaDe(autor, personas = []) {
 export const personaLocal = (nombre, correo, personas = []) =>
   personaDe({ nombre, correo }, personas);
 
+// ── PT-062 · los IDs se reparten por rangos reservados ──────────────────────
+//
+// PHASE 2 lo reprodujo: si Ana y Bruno asignan PT-066 a la vez, el CONTADOR se fusiona SIN
+// CONFLICTO —los dos escribieron 66, git lo da por acordado— y el conflicto queda reducido a una
+// linea de «slug». Quien lo resuelva elige un texto y la otra tarea DESAPARECE ENTERA. El dano no
+// es el conflicto: es que el conflicto PARECE PEQUENO.
+
+/**
+ * El siguiente ID del rango de una persona. El numero, o null CON MOTIVO.
+ *
+ * Se DERIVA de lo ya asignado dentro del rango, no de un contador aparte: un contador por persona
+ * seria un segundo sitio donde vive el mismo hecho, y divergiria (SUITE-R38).
+ */
+export function siguienteEnRango(prefijo, rango, usados = []) {
+  if (!Array.isArray(rango) || rango.length !== 2) {
+    return { numero: null, motivo: `esta persona no declara rango para ${prefijo}` };
+  }
+  const [desde, hasta] = rango;
+  // Los que estan FUERA del rango no cuentan: los 65 PT de este repositorio se asignaron sin
+  // rango, y si contaran para el de otra persona su primer ID saltaria a 66 sin motivo.
+  const dentro = (usados ?? []).filter((n) => n >= desde && n <= hasta);
+  const siguiente = dentro.length ? Math.max(...dentro) + 1 : desde;
+  if (siguiente > hasta) {
+    return { numero: null,
+      motivo: `rango ${prefijo} [${desde}-${hasta}] AGOTADO: ${dentro.length} usados y el ultimo `
+        + `es ${Math.max(...dentro)}. Ampliar el rango es una decision humana; invadir el `
+        + 'siguiente reproduce la colision que los rangos evitan.' };
+  }
+  return { numero: siguiente, motivo: null };
+}
+
+/**
+ * ¿Se solapan dos rangos? Tocarse por un extremo YA es solaparse: ese numero compartido es
+ * exactamente el que las dos personas pediran a la vez.
+ */
+export const seSolapan = (a, b) =>
+  Array.isArray(a) && Array.isArray(b) && a.length === 2 && b.length === 2
+  && a[0] <= b[1] && b[0] <= a[1];
+
+/** Todos los solapes de una tabla de personas, para un prefijo. */
+export function solapes(personas = [], prefijo = 'PT') {
+  const out = [];
+  const con = (personas ?? []).filter((p) => Array.isArray(p?.rango?.[prefijo]));
+  for (let i = 0; i < con.length; i += 1) {
+    for (let j = i + 1; j < con.length; j += 1) {
+      if (seSolapan(con[i].rango[prefijo], con[j].rango[prefijo])) {
+        out.push({ a: con[i].nombre, b: con[j].nombre,
+          rangoA: con[i].rango[prefijo], rangoB: con[j].rango[prefijo] });
+      }
+    }
+  }
+  return out;
+}
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

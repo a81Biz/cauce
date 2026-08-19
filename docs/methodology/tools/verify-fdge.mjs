@@ -50,6 +50,8 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mj
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
+// PT-062 · los rangos reservados
+import { solapes, seSolapan } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -445,6 +447,42 @@ const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', '
 // describe un arbol que ya no existe. Ese pasa la comprobacion anterior entera. Solo `sha` y
 // `rama` se contrastan: la lista de archivos cambia mientras se trabaja (medido: de 3 a 5 con el
 // sha intacto), y un criterio que salta siempre no se lee el dia que es cierto.
+// PT-062 · SUITE-R08 · los rangos reservados.
+//
+// Las dos comprobaciones solo corren SI HAY RANGOS declarados: sin ellos no hay nada que
+// comprobar, y exigirlos seria imponer trabajo a un proyecto de una persona.
+function checkRangos() {
+  const personas = REGISTRO?.personas ?? [];
+  const conRango = personas.filter((p) => p?.rango && Object.keys(p.rango).length);
+  if (!conRango.length) return;
+
+  const prefijos = [...new Set(conRango.flatMap((p) => Object.keys(p.rango)))];
+  for (const pre of prefijos) {
+    // Solapados son PEORES que ninguno: dan confianza sin darla, y la colision aparece cuando ya
+    // hay trabajo hecho. Se comprueba AQUI y no solo al asignar, para que se vea aunque nadie
+    // asigne ese dia.
+    for (const s of solapes(personas, pre)) {
+      fail('SUITE-R08', `rangos ${pre} SOLAPADOS: «${s.a}» [${s.rangoA.join('-')}] y «${s.b}» `
+        + `[${s.rangoB.join('-')}] comparten numeros. Tocarse por un extremo ya es solaparse: `
+        + 'ese numero es el que las dos personas pediran a la vez.');
+    }
+    // Y esto cubre lo que la accion NO puede impedir: alguien asigna a mano —como se hizo hasta
+    // PT-062— y se salta su rango. La accion no lo ve; esto si, y antes de cualquier compuerta.
+    const rangos = conRango.filter((p) => Array.isArray(p.rango[pre])).map((p) => p.rango[pre]);
+    for (const a of REGISTRO?.allocations ?? []) {
+      const m = String(a?.id ?? '').match(new RegExp(`^${pre}-(\\d+)$`));
+      if (!m) continue;
+      const n = Number(m[1]);
+      if (!rangos.some((r) => n >= r[0] && n <= r[1])) {
+        fail('SUITE-R08', `${a.id} esta fuera de todos los rangos ${pre} declarados `
+          + `(${rangos.map((r) => `[${r.join('-')}]`).join(' ')}). O se asigno a mano saltandose `
+          + 'un rango, o falta ampliar el de alguien: el registro asigna, y tiene que poder decir '
+          + 'de quien es cada numero.');
+      }
+    }
+  }
+}
+
 function checkCheckpoint() {
   const f = join(IMPL, 'CHECKPOINT.json');
   if (!existsSync(f)) return;                       // no tenerlo no es un defecto: aun no toca
@@ -1525,6 +1563,7 @@ checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
 checkImplementacion(reg);
 checkEstado();
 checkCheckpoint();
+checkRangos();
 checkFirmas();
 checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));
