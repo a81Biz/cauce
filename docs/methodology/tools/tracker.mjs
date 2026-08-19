@@ -50,7 +50,7 @@ import {
   // PT-064 · de quien es cada commit
   soloDe, sinPersona,
   // PT-065 · la sesion es de alguien
-  archivoSesion, sesionesAjenas,
+  archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -1356,7 +1356,10 @@ function viabilidad() {
   const hoy = gitDe(['log', '-1', '--format=%cs']);
   // PT-060 · si hay sesion abierta, el precedente sale de la SESION REAL. Sin marca sale del dia,
   // que es una APROXIMACION —PHASE 2 de PT-060 lo midio: coinciden por casualidad— y se DICE.
-  const marcaSesion = leerJSON(join(IMPL, 'SESSION.json'));
+  // PT-068 · la MISMA marca que lee «sesion». Antes leia SESSION.json siempre, asi que el
+  // mismo tracker daba dos respuestas sobre que sesion esta abierta: sesion decia 7735ff4 y
+  // viabilidad 258be16. Los quince veredictos de EP-017 se registraron con esa base.
+  const marcaSesion = marcaDe(yo, (f) => leerJSON(join(IMPL, f)));
   // El precedente es lo mayor COMPLETADO en esta sesion. Si la sesion acaba de empezar no hay
   // con que comparar, y eso es SIN EVALUAR — no cero.
   const deLaSesion = marcaSesion?.desde ? new Set(movidoDesde(marcaSesion.desde).tareas) : null;
@@ -1441,11 +1444,13 @@ const yoSoy = () => personaLocal(gitDe(['config', 'user.name']), gitDe(['config'
 const F_SESION = () => join(IMPL, archivoSesion(yoSoy()));
 
 /** Todas las marcas de sesion que hay en el disco, para ver las ajenas (AC-06). */
-const marcasDeSesion = () => {
+const marcasDeSesion = () => sesionesUnicas(todasLasMarcas());
+const todasLasMarcas = () => {
   try {
     return readdirSync(IMPL)
       .filter((f) => /^SESSION(-.+)?\.json$/.test(f))
-      .map((f) => leerJSON(join(IMPL, f)))
+      // PT-068 · se marca cual viene del archivo PROPIO para que gane al deduplicar.
+      .map((f) => { const m = leerJSON(join(IMPL, f)); return m && f !== 'SESSION.json' ? { ...m, __propia: true } : m; })
       .filter(Boolean);
   } catch { return []; }
 };
@@ -1481,8 +1486,10 @@ function apilarEnLog(texto) {
 
 function sesion() {
   const sub = ARGS.slice(1).find((a) => ['abrir', 'cerrar'].includes(a)) ?? 'ver';
-  // La PROPIA primero; si no hay, SESSION.json — un proyecto de una persona no cambia nada.
-  const marca = leerJSON(F_SESION()) ?? leerJSON(join(IMPL, 'SESSION.json'));
+  // PT-068 · la propia; y el respaldo SOLO si no declara otra persona. Un proyecto de una sola
+  // persona no cambia (AC-05 de PT-065); una identidad ajena deja de heredar trabajo que no es
+  // suyo.
+  const marca = marcaDe(yoSoy(), (f) => leerJSON(join(IMPL, f)));
   const cp = leerJSON(join(IMPL, 'CHECKPOINT.json'));
 
   if (sub === 'abrir') {
@@ -1494,7 +1501,7 @@ function sesion() {
     writeFileSync(F_SESION(), JSON.stringify(nueva, null, 2) + SALTO);
     apilarEnLog(`## ${nueva.abierta} · sesion abierta en \`${desde.slice(0, 7)}\`` + SALTO + SALTO
       + '<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.');
-    notas.push(`SESSION.json escrito: desde ${desde.slice(0, 7)}`);
+    notas.push(`${archivoSesion(nueva.persona)} escrito: desde ${desde.slice(0, 7)}`);
     di('');
     di(`  sesion abierta desde ${desde.slice(0, 7)}`);
     return;
@@ -1510,9 +1517,10 @@ function sesion() {
     apilarEnLog(`## ${gitDe(['log', '-1', '--format=%cs'])} · sesion cerrada` + SALTO + SALTO
       + '<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:' + SALTO + SALTO
       + '```' + SALTO + h + SALTO + '```');
-    // NO se borra SESSION.json: la sesion siguiente lo sobrescribe al abrir. Borrarlo dejaria un
-    // hueco donde antes habia un dato.
-    di('  Apilado en SESSION_LOG.md. SESSION.json NO se borra: la sesion siguiente lo sobrescribe.');
+    // PT-068 · el mensaje decia «SESSION.json NO se borra: la sesion siguiente lo sobrescribe»,
+    // y era FALSO desde PT-065: nadie vuelve a escribir SESSION.json. Se dice lo que ocurre.
+    di(`  Apilado en SESSION_LOG.md. ${archivoSesion(yoSoy())} NO se borra: al abrir la siguiente`);
+    di('  se sobrescribe. Un SESSION.json antiguo, si lo hay, ya no se escribe (PT-068).');
     di('  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.');
     return;
   }

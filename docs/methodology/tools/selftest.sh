@@ -2597,6 +2597,57 @@ chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/t
 RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
 TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
 
+# ─── PT-068 · la marca de sesion es de quien la abre ─────────────────────────
+sec "── PT-068 · la marca es de quien la abre ──"
+
+# PT-065 movio la ESCRITURA a SESSION-<persona>.json y dejo DOS lecturas apuntando al viejo
+# SESSION.json: viabilidad siempre, y sesion como respaldo. Reproducido contra el repositorio
+# real: una identidad no declarada heredaba 32 commits y 13 194 lineas ajenas, etiquetadas
+# MEDIDO — un dato con autoridad de medida sobre trabajo de otro.
+#
+# El respaldo NO se puede quitar: AC-05 de PT-065 exige que un proyecto de UNA sola persona no
+# cambie, y los anteriores a la 8.3.0 solo tienen SESSION.json. Lo que se distingue es de QUIEN
+# es la marca. Las tres ramas de marcaDe() tienen su caso, y E2/E3/E4 son las que protegen el
+# caso mayoritario: si cayeran, el arreglo habria roto el proyecto de una sola persona.
+MD() { PL "$@"; }   # las tres ramas se prueban sobre la funcion pura, con el lector inyectado
+
+# E1 · identidad NO declarada, SESSION.json de OTRA persona -> no hay sesion mia.
+# La persona va como NULL, que es la ruta REAL: personaLocal() devuelve null para quien no esta
+# declarado, y archivoSesion(null) es «SESSION.json». La primera version de marcaDe preguntaba
+# por el archivo propio SIN comprobar que hubiera persona, asi que una identidad no declarada
+# leia el huerfano COMO SI FUERA SUYO y seguia heredando 33 commits ajenos. El caso con una
+# CADENA pasaba y no cubria eso: lo dijo la ejecucion contra el repositorio, no la lectura.
+PL   "marca ajena no se hereda"            "^null$" \
+     "console.log(JSON.stringify(m.marcaDe(null,(f)=>f==='SESSION.json'?{persona:'Alberto Martínez',desde:'aaa'}:null)))"
+PL   "…tampoco preguntando por nombre"     "^null$" \
+     "console.log(JSON.stringify(m.marcaDe('ci-runner',(f)=>f==='SESSION.json'?{persona:'Alberto Martínez',desde:'aaa'}:null)))"
+# E2 · SESSION.json SIN persona -> es mia. Es el proyecto de una sola persona (AC-05).
+PL   "sin persona, la marca es mia"        "aaa" \
+     "console.log(JSON.stringify(m.marcaDe('quien-sea',(f)=>f==='SESSION.json'?{desde:'aaa'}:null)))"
+# E3 · SESSION.json con MI nombre -> es mia.
+PL   "con mi nombre, es mia"               "aaa" \
+     "console.log(JSON.stringify(m.marcaDe('Alberto Martínez',(f)=>f==='SESSION.json'?{persona:'Alberto Martínez',desde:'aaa'}:null)))"
+# E4 · existe la propia Y una ajena -> gana la propia.
+PL   "la propia gana al respaldo"          "mia" \
+     "console.log(JSON.stringify(m.marcaDe('Ada',(f)=>f.startsWith('SESSION-')?{persona:'Ada',desde:'mia'}:{persona:'Otro',desde:'suya'})))"
+
+# E5 · AC-02 · una persona NO aparece dos veces. Con SESSION.json y SESSION-<yo>.json los dos
+# con el mismo nombre, salia DOS veces: una sesion fantasma, que es lo que el HANDOFF avisa.
+DOS='[{"persona":"Ada","desde":"a","__propia":true},{"persona":"Ada","desde":"b"},{"persona":"Bob","desde":"c"}]'
+PL   "una persona, una sola sesion"        "^2$" \
+     "console.log(m.sesionesUnicas($DOS).length)"
+PL   "…y gana el archivo propio"           "\"a\"" \
+     "console.log(JSON.stringify(m.sesionesUnicas($DOS).find((x)=>x.persona==='Ada').desde))"
+
+# E6 · AC-07 · viabilidad y sesion leen la MISMA marca. Dos lecturas del mismo hecho divergen
+# (SUITE-R38), y divergian: sesion decia 7735ff4 y viabilidad 258be16.
+chkno "viabilidad no lee SESSION.json a pelo"  "leerJSON(join(IMPL, 'SESSION.json'))"  cat "$SUITE/tools/tracker.mjs"
+chk   "las dos lecturas usan marcaDe"          "marcaDe("   cat "$SUITE/tools/tracker.mjs"
+
+# E7/E8 · AC-03 y AC-04 · los mensajes dejan de mentir.
+chkno "sesion abrir no dice SESSION.json"   "SESSION.json escrito"  cat "$SUITE/tools/tracker.mjs"
+chkno "…ni cerrar afirma que se sobrescribe"  "la sesion siguiente lo sobrescribe"  cat "$SUITE/tools/tracker.mjs"
+
 # ─── PT-076 · el arnes no escribe en el repositorio real ─────────────────────
 sec "── PT-076 · el arnes no escribe donde se decide ──"
 
