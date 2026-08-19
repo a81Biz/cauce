@@ -1471,7 +1471,7 @@
       "structural": false,
       "suite_version": "8.2.0",
       "epic": "EP-016",
-      "phase": 3,
+      "phase": 4,
       "title": "La sesion es de alguien: SESSION.json deja de ser uno para todos",
       "origin": "EP-015 lo dejo declarado: SESSION.json es de UNA sesion y al abrir se sobrescribe. Con dos personas trabajando, la marca de una borra la de la otra sin que nada lo note",
       "created": "2026-08-18",
