@@ -2986,3 +2986,50 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-074 — BUG: la compuerta de viabilidad necesita una fase que la abra
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-074-la-compuerta-de-viabilidad-necesita-una-fase
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que el veredicto de viabilidad se VEA. El firmante lo pidió tres veces.
+
+Causa raíz: cuerpoDeIssue() no incluía «viabilidad». SUITE-R35 dice que el registro asigna y la
+plataforma ESPEJA; el veredicto es estado —lo escribe tracker viabilidad --registrar (FDGE-R54)—
+y vivía sólo en REGISTRY.allocations[].viabilidad, invisible desde el tablero.
+Las otras tres causas de que no se viera las cerraron PT-075 (ninguna fase lo invocaba), PT-076
+(la batería pisaba la marca) y PT-068 (dos lecturas iban al archivo huérfano).
+
+Solución: una línea en el cuerpo del issue con el VEREDICTO, la NATURALEZA de la cifra y el
+MEDIDO_EN; más la consecuencia de MARGINAL y UNSAFE, porque el issue existe para consultarse sin
+abrir el repositorio y un veredicto sin consecuencia no sirve para decidir. Sin viabilidad NO se
+emite nada: inventar «SIN EVALUAR» donde sólo hay un hueco es lo que RULE-06 prohíbe.
+Y los quince veredictos de EP-017 re-registrados: medido_en 258be16 -> 7735ff4.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: evidence/PT-074/ · manifest.json · self-review.md ·
+  salidas/issue-espejado.txt · salidas/re-registro.txt · salidas/inversa.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+  ANTES   **INVESTIGATION** · severidad S1 · de la implementación EP-017
+  DESPUES Viabilidad (FDGE-R54): MARGINAL · coste — (SIN EVALUAR) · medida contra 7735ff4
+selftest 1016 -> 1022, cero fallos. PT-076 sin regresión: huellas idénticas.
+
+Delta real vs planificado: dos inversas en vez de una. La PRIMERA dio verde en los tres casos y
+  se habría guardado como evidencia: str.replace no encontró el patrón —saltos CRLF— y no falla
+  cuando no casa, hace nada EN SILENCIO. Sin assert, una inversa que no revierte certifica lo
+  contrario de lo que pretende. Es PT-050 aplicado a la herramienta de verificar, y el SEXTO
+  fallo de esta familia en el lote.
+
+No verificado, declarado: que FDGE-R54 se OBEDEZCA y no sólo conste y se vea —no observable
+  desde el repositorio, declarado desde PT-075— y que PT-072 y PT-019 dejen de ser MARGINAL, que
+  ocurrirá cuando exista precedente MAJOR: es la compuerta funcionando, no un defecto.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: —

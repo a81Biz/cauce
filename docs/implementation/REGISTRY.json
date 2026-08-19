@@ -1812,7 +1812,7 @@
       "severity": "S2",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 5,
+      "phase": 9,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
