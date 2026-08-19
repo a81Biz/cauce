@@ -1,21 +1,22 @@
 {
-  "pt": "PT-063",
+  "pt": "PT-064",
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea",
-  "sha": "5d55e51482f14c68e77d247261ec496462d14f86",
-  "sha_corto": "5d55e51",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
+  "sha": "8bf239703e90d276386fa1974639566c37c6c68c",
+  "sha_corto": "8bf2397",
   "sucio": true,
   "archivos": [
-    "changes/PT-063-el-usuario-vive-en-la-rama-de-tarea/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-064-de-quien-es-cada-commit/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }

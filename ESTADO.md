@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 7 allocation(es) viva(s).
+Proyectado el 2026-08-18 · 6 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
@@ -13,6 +13,5 @@ Proyectado el 2026-08-18 · 7 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-063 | CHORE | IN_PROGRESS | 9 | chore/PT-063-el-usuario-vive-en-la-rama-de-tarea | 5d55e51 |
-| PT-064 | CHORE | READY | 1 | — | — |
+| PT-064 | CHORE | IN_PROGRESS | 2 | chore/alberto-martinez/PT-064-de-quien-es-cada-commit | 8bf2397 |
 | PT-065 | CHORE | READY | 1 | — | — |
