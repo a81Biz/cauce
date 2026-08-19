@@ -3,20 +3,25 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea",
-  "sha": "6bdfca0344cf25d0a2970dac8d88967518e699e9",
-  "sha_corto": "6bdfca0",
+  "sha": "f6efa4f1ea74112f1cbce5dc27230599cb581410",
+  "sha_corto": "f6efa4f",
   "sucio": true,
   "archivos": [
     "changes/PT-063-el-usuario-vive-en-la-rama-de-tarea/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-18"
 }
