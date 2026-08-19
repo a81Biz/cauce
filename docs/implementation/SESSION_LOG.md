@@ -1860,3 +1860,61 @@ publicaciones (`8.2.0` en npm) y `selftest` **618 → 977**.
 **Dónde queda:** `G4` de `EP-016` con VoBo del firmante. **No se ha publicado la 9.0.0**: la
 autorización de publicar era para «lo necesario» y se usó en la 8.2.0.
 
+
+## 2026-08-18 · sesión cerrada · `EP-017` propuesta, **sin abrir**
+
+**Lo pendiente antes de publicar la `9.0.0`**, acordado con el firmante: una prueba grande de que
+sirve para proyectos **nuevos y legados**, y `MANUAL`, `README` y `CASOS-DE-USO` completos.
+
+**Y ya hay una señal de que no lo están.** `CASOS-DE-USO.md` declara como hueco «varios agentes
+trabajando a la vez — nada coordina el reparto». Eso lo cerró `EP-016` en esta misma sesión. El
+catálogo describe un marco de la `8.0.0`, y `MANUAL.md` no menciona ninguna de las nueve acciones
+nuevas de `tracker`. No están incompletos: **el marco creció tres versiones y su documentación de
+uso no**.
+
+**Dos decisiones del firmante** en esta conversación: el legado se prueba con **los dos** —uno
+sintético y el proyecto real de Mercados Energéticos, de forma no destructiva— y **cortar la sesión
+aquí** para que la siguiente retome en frío.
+
+**Y esa es la parte que importa de cortar.** `AC-06` de `PT-060` —«una tarea puede recorrer dos
+sesiones sin repetir el análisis»— se declaró **verificado con límite**: los cinco pasos ocurrieron
+dentro de la misma sesión, así que lo demostrado fue que **la información basta**, no que un
+contexto vacío la use bien.
+
+La sesión siguiente es la primera oportunidad de comprobarlo de verdad. Si al retomar falta algo,
+**eso es un defecto de `EP-015`** que ninguna prueba de laboratorio iba a encontrar — y encontrarlo
+vale más que el tiempo que cueste.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 258be16 (2026-08-18)
+             7 (MEDIDO) commits · 2151 (MEDIDO) lineas
+tareas       PT-065
+en curso     PT-065 · PHASE 10
+sobre        f5f8e30  trabajo
+sigue        PT-065 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+```
+
+### Y el propio cierre encontró un defecto de `PT-060`
+
+El handoff derivado de esta sesión dice:
+
+```
+en curso     PT-065 · PHASE 10
+sigue        PT-065 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+```
+
+Es **correcto y no sirve**. `handoffDeSesion` deriva el «sigue» del `CHECKPOINT.json`, y cuando la
+última tarea está cerrada no hay nada en curso — así que el handoff que produce **no dice qué
+hacer**. Quien retome tiene que ir al `HANDOFF.md`, que es donde está `EP-017` escrita.
+
+**No lo arreglo aquí**, y a propósito: arreglarlo sería tocar `PT-060`, que está cerrada e
+integrada, fuera de cualquier lote abierto y sin intake. Queda **declarado** para que `EP-017` lo
+recoja — es exactamente el tipo de hueco que la prueba de fuego debe encontrar, y lo ha encontrado
+antes de empezar.
+
+Lo que sí funciona, y es lo que importaba: el handoff dice de qué sesión viene, qué movió, sobre
+qué commit está y que el árbol **corresponde** — si no, `PT-056` habría bloqueado antes.
