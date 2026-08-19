@@ -2316,6 +2316,517 @@ G() { node -e '
   console.log(Number(g.pt_at_generation) > 0 && Number(g.pt_at_generation) <= ultimo ? "ANCLADO" : "SIN_ANCLAR " + g.pt_at_generation);
 ' "$RAIZ/docs/implementation/REGISTRY.json"; }
 
+# ─── PT-058 · cada cifra dice de qué naturaleza es ─────────────────────────
+# Decision 4 del firmante: distinguir MEDIDO, ESTIMADO y SIN EVALUAR, y NUNCA presentar una
+# estimacion como una medicion.
+#
+# PHASE 2 midio que estas palabras YA se usaban: «SIN EVALUAR» 50 veces en trece archivos —seis
+# documentos normativos, incluido RULES.md, y siete herramientas— y CERO en LEXICON, que es lo que
+# LEX-R21 prohibe. Y los 50 usos eran PROSA: sobre prosa no hay forma de que «una cifra sin
+# naturaleza» falle, asi que esto es un TIPO.
+sec "── PT-058 · la naturaleza de una cifra ──"
+
+PL() { # $1 nombre · $2 patron · $3 cuerpo JS que recibe patrones.mjs como `m`
+  salta "$1" && return
+  local out
+  out="$(MTH_PAT="$SUITE/tools/patrones.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else bad "$1  (no apareció: $2 · salió: $out)"; fi
+}
+PLNO() { # el inverso
+  salta "$1" && return
+  local out
+  out="$(MTH_PAT="$SUITE/tools/patrones.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then bad "$1  (apareció: $2 · salió: $out)"; else pass "$1"; fi
+}
+
+# E1-E3 · la naturaleza va CON el valor, y no se le puede quitar despues.
+PL "una cifra lleva su valor"          "\"valor\":1974"          "console.log(JSON.stringify(m.cifra(1974,m.MEDIDO)))"
+PL "…y su naturaleza"                  "\"naturaleza\":\"MEDIDO\""  "console.log(JSON.stringify(m.cifra(1974,m.MEDIDO)))"
+PL "…y ESTIMADO tambien"               "ESTIMADO"                "console.log(JSON.stringify(m.cifra(1974,m.ESTIMADO)))"
+# Congelada: si se pudiera reetiquetar despues, la naturaleza seria una sugerencia.
+PL "la cifra es INMUTABLE"             "^MEDIDO$"                "const c=m.cifra(1,m.MEDIDO);try{c.naturaleza=\"ESTIMADO\";}catch(e){};console.log(c.naturaleza)"
+
+# E4-E6 · AC-04 · una cifra sin naturaleza no entra. Es lo que hace comprobable todo lo demas.
+PL "sin naturaleza LANZA"              "no declarada"            "try{m.cifra(1974);console.log(\"NO_LANZO\")}catch(e){console.log(e.message)}"
+PL "una cuarta naturaleza LANZA"       "no declarada"            "try{m.cifra(1974,\"PROBABLE\");console.log(\"NO_LANZO\")}catch(e){console.log(e.message)}"
+PL "…y el error dice cuales valen"     "MEDIDO, ESTIMADO, SIN EVALUAR"  "try{m.cifra(1974)}catch(e){console.log(e.message)}"
+# No se asume la peor «por prudencia»: eso convertiria un olvido en un dato valido que se propaga.
+PLNO "…y NO asume una por su cuenta"   "\"naturaleza\""          "try{console.log(JSON.stringify(m.cifra(1974)))}catch(e){console.log(\"LANZO\")}"
+
+# E7-E10 · AC-03 · el caso que da nombre a la tarea. SIN EVALUAR no vale cero.
+PL "SIN EVALUAR no tiene valor"        "\"valor\":null"          "console.log(JSON.stringify(m.cifra(0,m.SIN_EVALUAR)))"
+PLNO "…ni siquiera un cero explicito"  "\"valor\":0"             "console.log(JSON.stringify(m.cifra(0,m.SIN_EVALUAR)))"
+PL "restar con SIN EVALUAR contagia"   "SIN EVALUAR"             "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+# Si el 100 sobreviviera, el presupuesto diria que queda TODO justo cuando no sabe nada.
+PLNO "…y el valor NO sobrevive"        "\"valor\":100"           "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+PL "sumar contagia igual"              "SIN EVALUAR"             "console.log(JSON.stringify(m.sumar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+PLNO "…y tampoco suma el valor"        "\"valor\":100"           "console.log(JSON.stringify(m.sumar(m.cifra(100,m.MEDIDO),m.cifra(null,m.SIN_EVALUAR))))"
+
+# E11-E13 · el contagio hacia la PEOR, y sin depender del orden de los operandos.
+PL "medido con medido sigue MEDIDO"    "\"naturaleza\":\"MEDIDO\""   "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(30,m.MEDIDO))))"
+PL "…y el valor se calcula"            "\"valor\":70"            "console.log(JSON.stringify(m.restar(m.cifra(100,m.MEDIDO),m.cifra(30,m.MEDIDO))))"
+PL "medido con estimado da ESTIMADO"   "ESTIMADO"                "console.log(m.restar(m.cifra(100,m.MEDIDO),m.cifra(50,m.ESTIMADO)).naturaleza)"
+# La misma regla al reves: si dependiera del orden, se cumpliria la mitad de las veces.
+PL "…y al reves TAMBIEN"               "ESTIMADO"                "console.log(m.restar(m.cifra(50,m.ESTIMADO),m.cifra(100,m.MEDIDO)).naturaleza)"
+PL "peorNaturaleza es la peor"         "^SIN EVALUAR$"           "console.log(m.peorNaturaleza(m.MEDIDO,m.SIN_EVALUAR,m.ESTIMADO))"
+PL "…y lo desconocido cuenta como lo peor"  "^SIN EVALUAR$"      "console.log(m.peorNaturaleza(m.MEDIDO,\"INVENTADA\"))"
+
+# E14-E15 · AC-02 · vocabulario CERRADO y ORDENADO. El orden ES la regla de contagio.
+PL "NATURALEZAS son TRES"              "^3$"                     "console.log(m.NATURALEZAS.length)"
+PL "…de mejor a peor"                  "MEDIDO,ESTIMADO,SIN EVALUAR"  "console.log(m.NATURALEZAS.join(\",\"))"
+
+# E17-E18 · la naturaleza va PEGADA al numero. Separadas, «1974» se lee como una medida.
+PL "el texto pega la naturaleza"       "1974 (ESTIMADO)"         "console.log(m.textoCifra(m.cifra(1974,m.ESTIMADO)))"
+PLNO "…y SIN EVALUAR no ensena numero" "[0-9]"                   "console.log(m.textoCifra(m.cifra(99,m.SIN_EVALUAR)))"
+
+# E16 · AC-02 · verify-suite comprueba la CONSTANTE, no la prosa.
+chk   "verify-suite exige que sean tres"  "NATURALEZAS"  cat "$SUITE/tools/verify-suite.mjs"
+chk   "…y que esten en LEXICON"           "no esta declarada en LEXICON"  cat "$SUITE/tools/verify-suite.mjs"
+
+# E19-E20 · AC-05 · LEX-R21 · el vocabulario vive en LEXICON, y ANTES que en el codigo.
+chk   "MEDIDO esta en LEXICON"            "MEDIDO"        cat "$SUITE/LEXICON.md"
+chk   "ESTIMADO esta en LEXICON"          "ESTIMADO"      cat "$SUITE/LEXICON.md"
+chk   "SIN EVALUAR esta en LEXICON"       "SIN EVALUAR"   cat "$SUITE/LEXICON.md"
+chk   "…y dice que NO es cero"            "NO es cero"    cat "$SUITE/LEXICON.md"
+chk   "…y que el orden es la regla"        "peor"          cat "$SUITE/LEXICON.md"
+chk   "…y que sin naturaleza no existe"   "no existe"     cat "$SUITE/LEXICON.md"
+
+# ─── PT-057 · lo que cuesta una tarea sale del historial ───────────────────
+# Ninguna cifra sale de la memoria del agente ni de una tabla escrita a mano: el tipo y la
+# complejidad los pone REGISTRY.json, y commits, archivos y lineas los pone git.
+#
+# El hallazgo de PHASE 2 es que la senal OBVIA esta contaminada: 61 de 162 commits nombran mas de
+# un PT y uno nombra DIEZ, porque el cuerpo cita las tareas anteriores y eso es lo CORRECTO en una
+# bitacora append-only. Con `--grep PT-NNN`, BUG/TRIVIAL y BUG/STANDARD salian identicos hasta la
+# linea. La atribucion es el ASUNTO.
+sec "── PT-057 · la referencia de coste ──"
+
+# E2 · mediana, NUNCA media. Es lo que separa esto de una cifra que engana: los grupos son de 6 a
+# 13 tareas con rangos de hasta diez veces, y una media la arrastra un solo caso.
+trlib "la mediana ignora el caso extremo"    "^1$"     "console.log(m.resumen([1,1,1,1,100]).mediana)"
+trlibno "…y no es la media"                  "^2[01]"  "console.log(m.resumen([1,1,1,1,100]).mediana)"
+trlib "con numero par, promedia las dos"     "^3$"     "console.log(m.resumen([2,2,4,4]).mediana)"
+# E3 · el rango viaja SIEMPRE con la mediana: una cifra central sin dispersion se lee como una
+# prediccion, que es lo que el out-of-scope dice que esto no es.
+trlib "el rango va con la mediana"           "\"min\":1"    "console.log(JSON.stringify(m.resumen([1,1,1,1,100])))"
+trlib "…por los dos lados"                   "\"max\":100"  "console.log(JSON.stringify(m.resumen([1,1,1,1,100])))"
+trlib "…y cuantos casos son"                 "\"n\":5"      "console.log(JSON.stringify(m.resumen([1,1,1,1,100])))"
+trlib "sin datos NO devuelve cero"           "^null$"       "console.log(JSON.stringify(m.resumen([])))"
+
+# E12-E14 · la atribucion. El primer PT del ASUNTO, y solo del asunto.
+trlib "el dueno es el PT del asunto"         "^PT-056$"  "console.log(m.duenoDe(\"fix: PT-056 · algo\"))"
+trlib "…el PRIMERO si hay varios"            "^PT-056$"  "console.log(m.duenoDe(\"fix: PT-056 corrige PT-052\"))"
+trlibno "…y no el segundo"                   "PT-052"    "console.log(m.duenoDe(\"fix: PT-056 corrige PT-052\"))"
+trlib "un asunto sin PT no tiene dueno"      "^null$"    "console.log(JSON.stringify(m.duenoDe(\"chore: sin identificador\")))"
+trlib "…y nada no revienta"                  "^null$"    "console.log(JSON.stringify(m.duenoDe(undefined)))"
+
+# E1 · con datos suficientes hay referencia, y son las tres medidas.
+C5='Array.from({length:5},(_,i)=>({id:"PT-"+i,type:"CHORE",complexity:"STANDARD",commits:1,archivos:2,lineas:100}))'
+trlib "con cinco tareas SI hay referencia"   "\"mediana\":100" "console.log(JSON.stringify(m.costeDe($C5,{tipo:\"CHORE\",complejidad:\"STANDARD\"}).referencia.lineas))"
+trlib "…y las tres medidas"                  "commits.*archivos.*lineas" "console.log(Object.keys(m.costeDe($C5,{}).referencia).join(\" archivos lineas\").slice(0,0)+Object.keys(m.costeDe($C5,{}).referencia).join(\" \"))"
+
+# E4-E6 · las dimensiones de comparacion salen del registro (AC-02).
+MIX='[{id:"A",type:"CHORE",complexity:"STANDARD",commits:1,archivos:1,lineas:10},{id:"B",type:"BUG",complexity:"STANDARD",commits:9,archivos:9,lineas:90},{id:"C",type:"CHORE",complexity:"TRIVIAL",commits:5,archivos:5,lineas:50}]'
+trlib "filtra por tipo Y complejidad"        "^1$"  "console.log(m.costeDe($MIX,{tipo:\"CHORE\",complejidad:\"STANDARD\",minimo:1}).casos)"
+trlib "filtra solo por tipo"                 "^2$"  "console.log(m.costeDe($MIX,{tipo:\"CHORE\",minimo:1}).casos)"
+trlib "sin filtro, todas"                    "^3$"  "console.log(m.costeDe($MIX,{minimo:1}).casos)"
+
+# E7-E10 · AC-03. TRES situaciones distintas, tres respuestas distintas.
+C4='Array.from({length:4},(_,i)=>({id:"PT-"+i,type:"BUG",complexity:"SIMPLE",commits:1,archivos:2,lineas:50}))'
+trlib "con cuatro NO extrapola"              "^null$"  "console.log(JSON.stringify(m.costeDe($C4,{tipo:\"BUG\"}).referencia))"
+trlib "…y dice cuantas hay y cuantas faltan" "solo 4, y hacen falta 5"  "console.log(m.costeDe($C4,{tipo:\"BUG\"}).motivo)"
+trlib "…y ensena los casos EN CRUDO"         "^4$"  "console.log(m.costeDe($C4,{tipo:\"BUG\"}).casos_crudos.length)"
+trlib "con NINGUNA, motivo distinto"         "ninguna tarea cerrada"  "console.log(m.costeDe([],{tipo:\"X\"}).motivo)"
+trlibno "…y sin casos crudos que ensenar"    "casos_crudos"  "console.log(JSON.stringify(m.costeDe([],{tipo:\"X\"})))"
+# El cero seria lo peligroso: entraria en PT-058 y PT-059 COMO SI FUERA UNA MEDIDA. Es lo que
+# PT-056 acaba de demostrar que es peor que no tener el dato.
+trlibno "sin referencia NO devuelve cero"    "\"referencia\":0"  "console.log(JSON.stringify(m.costeDe($C4,{tipo:\"BUG\"})))"
+# E11 · el umbral es una OPCION, no un numero enterrado en un if.
+trlib "el umbral se puede mover"             "^50$"  "console.log(m.costeDe($C4,{tipo:\"BUG\",minimo:3}).referencia.lineas.mediana)"
+# E18 · y esta declarado con nombre, para que se pueda discutir.
+trlib "MINIMO_REFERENCIA esta exportado"     "^5$"   "console.log(m.MINIMO_REFERENCIA)"
+chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/tools/tracker.mjs"
+
+# E15-E17 · la accion, sobre el REPOSITORIO REAL. Aqui no vale el fixture: la referencia sale de
+# las tareas cerradas de este repositorio, y son las que hay.
+# El ROOT va EXPLICITO: el arnes corre con el fixture como directorio actual, asi que sin esto
+# `coste` leia el REGISTRY del fixture —cuatro tareas de mentira— y las aserciones sobre las
+# cifras reales no comprobaban nada. Es el mismo defecto que PT-023 persigue: verde por vacio.
+RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
+TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+chk   "coste da una cifra para un grupo grande"  "CHORE/STANDARD · 1[0-9] tareas cerradas"  TRR coste CHORE STANDARD
+chk   "…con su rango"                            "( *[0-9]* – [0-9]*)"   TRR coste CHORE STANDARD
+chk   "…y de cuantas cerradas sale"              "de las .* tareas cerradas"  TRR coste CHORE STANDARD
+chk   "…y avisa de las que no se pueden saber"   "NO SE PUEDE SABER"     TRR coste CHORE STANDARD
+chk   "…y que es referencia, no prediccion"      "no una prediccion"     TRR coste CHORE STANDARD
+chk   "un grupo pequeno se declara SIN REFERENCIA"  "SIN REFERENCIA"     TRR coste CHORE SIMPLE
+# El patron NO puede ser «mediana»: la salida EXPLICA que una mediana de una tarea no es una
+# mediana, asi que casaba con su propia explicacion. Se busca la FORMA de una medida —la linea
+# «lineas <numero>»— que es lo que no debe estar. Sexta vez en tres lotes.
+chkno "…y no da mediana de una sola tarea"       "^ *lineas  *[0-9]"     TRR coste CHORE SIMPLE
+chk   "…pero ensena el caso que hay"             "commits [0-9] · archivos"  TRR coste CHORE SIMPLE
+chk   "sin filtro salen todos los grupos"        "BUG/STANDARD"          TRR coste
+# El posicional en MAYUSCULAS no es una ruta: sin esta guarda, «coste CHORE STANDARD» buscaba el
+# registro dentro de ./CHORE. Cuarta vez en dos lotes que un argumento nuevo se cuela por ROOT.
+chkno "un tipo no se confunde con el ROOT"       "REGISTRY.json legible" TRR coste CHORE STANDARD
+# E17 · lo que CI le enseno a PT-056: una accion que se deriva del registro y de git no puede
+# exigir credencial de plataforma, o queda inservible justo donde se decide un merge.
+SIN_GH2="$WORK/.sin-gh2"; mkdir -p "$SIN_GH2"
+_bin2() { dirname "$(command -v "$1")"; }
+TRRNOGH() { PATH="$(_bin2 node):$(_bin2 git):$SIN_GH2" node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+chk   "coste funciona SIN credencial"            "CHORE/STANDARD"        TRRNOGH coste CHORE STANDARD
+
+# AC-04 · la cifra tiene que salir de git, y esto lo comprueba de la unica forma que no se engaña
+# a si misma: cambiando el filtro y viendo que la cifra CAMBIA.
+chkno "la cifra no es la misma para todo grupo"  "^$"  sh -c '
+  a=$(node "$1" coste CHORE STANDARD "$2" | grep -E "^ +lineas" | tr -s " " | cut -d" " -f3)
+  b=$(node "$1" coste BUG STANDARD   "$2" | grep -E "^ +lineas" | tr -s " " | cut -d" " -f3)
+  [ -n "$a" ] && [ -n "$b" ] && [ "$a" != "$b" ] && echo DISTINTAS || echo IGUALES' _ "$SUITE/tools/tracker.mjs" "$RAIZ_REAL"
+
+# LEX-R21 · el nombre vive en LEXICON, y ANTES que en el codigo.
+chk   "«referencia de coste» esta en LEXICON"    "Referencia de coste"   cat "$SUITE/LEXICON.md"
+chk   "…con de donde sale"                       "señales OBSERVABLES"   cat "$SUITE/LEXICON.md"
+chk   "…y que NO mide"                           "el contexto restante del modelo"  cat "$SUITE/LEXICON.md"
+chk   "…y por que el asunto y no el cuerpo"      "solo del asunto"       cat "$SUITE/LEXICON.md"
+chk   "…y que el umbral es un juicio"            "juicio declarado"      cat "$SUITE/LEXICON.md"
+
+# ─── PT-059 · no empezar lo que no se puede terminar ───────────────────────
+# «Nunca comenzar una unidad de trabajo que probablemente no pueda completarse dentro del
+# presupuesto disponible.» El problema: PHASE 2 midio que ese presupuesto NO EXISTE. «disponible =
+# total - gastado» sale SIN EVALUAR siempre, porque el total es el contexto del modelo.
+#
+# Asi que la compuerta compara contra el PRECEDENTE —lo mayor que esta sesion ya completo—, que si
+# es observable. SAFE no promete que quepa: dice que ya se pudo con algo asi.
+sec "── PT-059 · la compuerta de viabilidad ──"
+
+# E1-E3 · SAFE, y el motivo dice de que sale.
+V1="m.viabilidadDe(m.cifra(689,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "coste bajo el precedente ⇒ SAFE"     "^SAFE$"       "console.log($V1.veredicto)"
+PL "…y el motivo lleva las dos cifras"   "4210"         "console.log($V1.motivo)"
+PL "…y tambien la del coste"             "689"          "console.log($V1.motivo)"
+# La palabra importa: SAFE no promete capacidad, dice que hay precedente.
+PL "…y habla de PRECEDENTE"              "PRECEDENTE"   "console.log($V1.motivo)"
+PLNO "…y NO promete que quepa"           "garantiza\|asegura\|cabe seguro"  "console.log($V1.motivo)"
+
+# E4-E5 · MARGINAL por holgura: pasa de lo hecho pero no mucho.
+V4="m.viabilidadDe(m.cifra(5000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "dentro de la holgura ⇒ MARGINAL"     "^MARGINAL$"   "console.log($V4.veredicto)"
+PL "…y restringe a lo ATOMICO"           "ATOMICO"      "console.log($V4.motivo)"
+
+# E6-E7 · UNSAFE con evidencia EN CONTRA.
+V6="m.viabilidadDe(m.cifra(20000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "muy por encima ⇒ UNSAFE"             "^UNSAFE$"     "console.log($V6.veredicto)"
+PL "…y pide checkpoint, handoff y parada"  "checkpoint, handoff y parada"  "console.log($V6.motivo)"
+PL "…y dice que hay evidencia EN CONTRA"   "EN CONTRA"  "console.log($V6.motivo)"
+
+# E8-E11 · AC-05 · EL CORAZON. El disponible es SIN EVALUAR siempre, asi que esto no es un borde:
+# si cayera en SAFE aprobaria por omision, y si cayera en UNSAFE bloquearia TODO para siempre y la
+# compuerta acabaria apagada — que es no proteger el dia que tiene razon.
+SE="m.cifra(null,m.SIN_EVALUAR)"
+PL "coste SIN EVALUAR ⇒ MARGINAL"        "^MARGINAL$"   "console.log(m.viabilidadDe($SE,m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO)).veredicto)"
+PLNO "…y NUNCA SAFE"                     "SAFE"         "console.log(m.viabilidadDe($SE,m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO)).veredicto)"
+PL "precedente SIN EVALUAR ⇒ MARGINAL"   "^MARGINAL$"   "console.log(m.viabilidadDe(m.cifra(689,m.ESTIMADO),$SE,m.cifra(29286,m.MEDIDO)).veredicto)"
+PL "…y dice CUAL de los dos falta"       "el precedente"  "console.log(m.viabilidadDe(m.cifra(689,m.ESTIMADO),$SE,m.cifra(29286,m.MEDIDO)).motivo)"
+PL "…o el otro, segun cual sea"          "el coste"     "console.log(m.viabilidadDe($SE,m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO)).motivo)"
+PL "…y que no se aprueba por omision"    "NO SE APRUEBA POR OMISION"  "console.log(m.viabilidadDe($SE,$SE,$SE).motivo)"
+
+# E12-E14 · AC-06 · «no cabria NUNCA» es otra cosa que «no cabe ahora», y se decide ANTES.
+NUNCA="m.viabilidadDe(m.cifra(40000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO))"
+PL "por encima del techo historico ⇒ UNSAFE"  "^UNSAFE$"  "console.log($NUNCA.veredicto)"
+PL "…y lo marca como NUNCA"              "^true$"       "console.log($NUNCA.nunca)"
+PL "…y pide PARTIR la tarea"             "PARTIR"       "console.log($NUNCA.motivo)"
+PL "…y dice que no se reintente"         "no reintentarla"  "console.log($NUNCA.motivo)"
+# El ORDEN importa: si el SIN EVALUAR del precedente se comprobara antes, una tarea que NUNCA
+# cabria saldria MARGINAL y el bucle infinito se produciria igual.
+PL "y se decide ANTES que el SIN EVALUAR"  "^true$"     "console.log(m.viabilidadDe(m.cifra(40000,m.ESTIMADO),$SE,m.cifra(29286,m.MEDIDO)).nunca)"
+# Y al reves: lo que cabe en el techo NO se marca nunca.
+PLNO "lo que cabe no se marca NUNCA"     "^true$"       "console.log($V1.nunca)"
+
+# E15-E16 · HOLGURA es un juicio declarado, y movible.
+PL "HOLGURA esta exportada"              "^1.5$"        "console.log(m.HOLGURA)"
+PL "…y se puede cambiar sin tocar la funcion"  "^UNSAFE$"  "console.log(m.viabilidadDe(m.cifra(5000,m.ESTIMADO),m.cifra(4210,m.MEDIDO),m.cifra(29286,m.MEDIDO),1.0).veredicto)"
+chk   "…y se declara como JUICIO"        "Es un JUICIO"  cat "$SUITE/tools/patrones.mjs"
+PL "VEREDICTOS son TRES"                 "^3$"          "console.log(m.VEREDICTOS.length)"
+
+# E17-E20 · AC-04 · BLOCKED_BY_CONTEXT: estado de tarea, vivo, no terminal.
+PL "BLOCKED_BY_CONTEXT existe"           "BLOCKED_BY_CONTEXT"  "console.log(m.BLOCKED_BY_CONTEXT)"
+PLNO "…y NO es terminal"                 "BLOCKED_BY_CONTEXT"  "console.log([...m.ESTADOS_TERMINALES].join(\" \"))"
+trlib "…y SI es vivo"                    "BLOCKED_BY_CONTEXT"  "console.log([...m.VIVOS].join(\" \"))"
+chk   "esta en LEXICON"                  "BLOCKED_BY_CONTEXT"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que NO es un fallo"       "No es un fallo"      cat "$SUITE/LEXICON.md"
+chk   "…y que lo desbloquea otra sesion"  "empezar otra sesión"  cat "$SUITE/LEXICON.md"
+# verify-fdge tambien tiene que verlo vivo, o una tarea esperando desapareceria de su recuento.
+chk   "verify-fdge lo cuenta como vivo"  "BLOCKED_BY_CONTEXT"  cat "$SUITE/tools/verify-fdge.mjs"
+
+# E19-E20 · el vocabulario de veredictos en LEXICON (LEX-R21).
+chk   "SAFE esta en LEXICON"             "SAFE"          cat "$SUITE/LEXICON.md"
+chk   "MARGINAL esta en LEXICON"         "MARGINAL"      cat "$SUITE/LEXICON.md"
+chk   "UNSAFE esta en LEXICON"           "UNSAFE"        cat "$SUITE/LEXICON.md"
+chk   "…y que el disponible no existe"   "no existe"     cat "$SUITE/LEXICON.md"
+chk   "…y que no cabe ahora no es nunca"  "bucle infinito"  cat "$SUITE/LEXICON.md"
+
+# E21-E22 · la accion, sobre el repositorio REAL.
+chk   "viabilidad da un veredicto"       "veredicto"     TRR viabilidad PT-059
+chk   "…con el coste y su naturaleza"    "ESTIMADO\|SIN EVALUAR"  TRR viabilidad PT-059
+chk   "…y el precedente con la suya"     "mayor hecho"   TRR viabilidad PT-059
+chk   "…y el techo historico"            "techo historico"  TRR viabilidad PT-059
+chk   "…y dice que mide PRECEDENTE"      "mide PRECEDENTE"  TRR viabilidad PT-059
+chk   "…y que solo CONSULTA"             "CONSULTA"      TRR viabilidad PT-059
+chk   "funciona sin credencial"          "veredicto"     TRRNOGH viabilidad PT-059
+chkno "un PT que no existe no se inventa"  "veredicto"   TRR viabilidad PT-777
+
+# ─── PT-060 · la sesión es el worker, no el estado ─────────────────────────
+# SESSION != STATE != TASK. La sesion es un recurso TEMPORAL; el estado del trabajo pertenece al
+# marco y es persistente.
+#
+# PHASE 2 midio el hueco que PT-059 dejo apuntado: nada registraba cuando empieza una sesion, y
+# «un dia» coincide con «una sesion» POR CASUALIDAD — 45 commits contra 44 el mismo dia.
+sec "── PT-060 · la sesión como entidad ──"
+
+# E1-E4 · con marca, todo derivado y cada cifra con su naturaleza (PT-058).
+MARCA='{desde:"a".repeat(40),abierta:"2026-08-18"}'
+GIT60='{commits:12,archivos:34,lineas:4821,tareas:["PT-059","PT-060"]}'
+CP60='{pt:"PT-060",phase:5,fase:"Implementacion",sha_corto:"ea4e867",rama:"chore/x",siguiente:"los casos en verde"}'
+PL "con marca, la sesion esta abierta"   "^true$"      "console.log(m.sesionDe($MARCA,$GIT60,$CP60).abierta)"
+PL "…y las cifras van MEDIDAS"           "MEDIDO"      "console.log(m.sesionDe($MARCA,$GIT60,$CP60).commits.naturaleza)"
+PL "…y el «desde» sale de la MARCA"      "^aaaaaaa$"   "console.log(m.sesionDe($MARCA,$GIT60,$CP60).desde_corto)"
+PL "…y las tareas de la sesion"          "PT-059"      "console.log(m.sesionDe($MARCA,$GIT60,$CP60).tareas.join(\" \"))"
+# Si git no responde, SIN EVALUAR — no cero. Tercera vez en el lote que el cero seria la mentira.
+PL "sin datos de git ⇒ SIN EVALUAR"      "SIN EVALUAR"  "console.log(m.sesionDe($MARCA,{}).commits.naturaleza)"
+PLNO "…y NO cero"                        "\"valor\":0"  "console.log(JSON.stringify(m.sesionDe($MARCA,{}).commits))"
+
+# E5-E6 · sin marca NO se cae al dia. Pasar una aproximacion por el dato bueno es lo que PT-058
+# existe para impedir.
+PL "sin marca, no hay sesion"            "^false$"      "console.log(m.sesionDe(null).abierta)"
+PL "…y lo DICE"                          "sesion abierta"  "console.log(m.sesionDe(null).motivo)"
+PL "…y que el dia NO es la sesion"       "el dia NO es la sesion"  "console.log(m.sesionDe(null).motivo)"
+PLNO "…y no inventa cifras"              "commits"      "console.log(JSON.stringify(m.sesionDe(null)))"
+
+# E7-E8 · AC-02 · la correccion a la especificacion: son estados de SESION, no de tarea. Durante
+# un handoff la tarea sigue IN_PROGRESS.
+PLNO "CHECKPOINTING no es estado terminal"    "CHECKPOINTING"       "console.log([...m.ESTADOS_TERMINALES].join(\" \"))"
+trlibno "…ni estado vivo"                     "CHECKPOINTING"       "console.log([...m.VIVOS].join(\" \"))"
+PLNO "HANDOFF_REQUIRED tampoco"               "HANDOFF_REQUIRED"    "console.log([...m.ESTADOS_TERMINALES].join(\" \"))"
+trlibno "…ni vivo"                            "HANDOFF_REQUIRED"    "console.log([...m.VIVOS].join(\" \"))"
+trlibno "WAITING_NEW_SESSION tampoco"         "WAITING_NEW_SESSION" "console.log([...m.VIVOS].join(\" \"))"
+# Y no estan en el registro, que es donde SUITE-R09 los haria permanentes.
+# El patron NO puede ser «CHECKPOINTING» a secas: el «origin» de PT-060 lo NOMBRA para decir que
+# NO entra, asi que la asercion casaba con la prosa que explica lo contrario. Septima vez en tres
+# lotes. Se busca la FORMA de un estado: «"status": "CHECKPOINTING"».
+chkno "ninguno es status en REGISTRY.json"    '"status": "CHECKPOINTING"'  cat "$RAIZ_REAL/docs/implementation/REGISTRY.json"
+chkno "…ni HANDOFF_REQUIRED"                  '"status": "HANDOFF_REQUIRED"'  cat "$RAIZ_REAL/docs/implementation/REGISTRY.json"
+
+# E13-E15 · AC-04 · el handoff se DERIVA del checkpoint. Ni una linea de prosa.
+PL "el handoff dice que tarea"           "PT-060"       "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y en que fase"                      "PHASE 5"      "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y sobre que commit"                 "ea4e867"      "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y QUE SIGUE"                        "los casos en verde"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y de donde sale la sesion"          "desde aaaaaaa"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+# Sin checkpoint no se inventa: se dice.
+PL "sin checkpoint lo DICE"              "SIN EVALUAR"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60),null))"
+PL "…y como conseguirlo"                 "tracker checkpoint"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60),null))"
+# Sin sesion abierta tampoco finge.
+PL "sin sesion, el handoff lo dice"      "no se abrio"  "console.log(m.handoffDeSesion(m.sesionDe(null),$CP60))"
+
+# E9-E12 · AC-03 · las acciones, sobre el repositorio REAL.
+chk   "sesion abrir escribe la marca"    "sesion abierta desde"  TRR sesion abrir
+chk   "…y SESSION.json existe"           '"desde"'      sh -c 'cat "$1/docs/implementation/SESSION.json"' _ "$RAIZ_REAL"
+chk   "…con la fecha de apertura"        '"abierta"'    sh -c 'cat "$1/docs/implementation/SESSION.json"' _ "$RAIZ_REAL"
+chk   "sesion ve lo derivado"            "sesion desde"  TRR sesion
+chk   "…con cada cifra y su naturaleza"  "MEDIDO\|SIN EVALUAR"  TRR sesion
+chk   "sesion cerrar da el handoff"      "en curso"     TRR sesion cerrar
+chk   "…y dice que NO borra la marca"    "NO se borra"  TRR sesion cerrar
+chk   "…y que HANDOFF.md queda INTACTO"  "INTACTO"      TRR sesion cerrar
+# Abrir dos veces SOBRESCRIBE: es UNA sesion a la vez.
+chk   "abrir otra vez sobrescribe"       "sesion abierta desde"  TRR sesion abrir
+chk   "…y sigue habiendo UN solo SESSION.json"  "^1$"  sh -c 'ls "$1/docs/implementation/" | grep -c "^SESSION.json$"' _ "$RAIZ_REAL"
+
+# E18-E19 · T10 · viabilidad usa el «desde» real si lo hay, y lo dice si no.
+chk   "viabilidad nombra la sesion abierta"  "en la sesion abierta en"  TRR viabilidad PT-060
+chk   "…y sigue dando su veredicto"          "veredicto"                TRR viabilidad PT-060
+
+# E16-E17 · AC-05 · la prosa de HANDOFF.md no se toca. Es lo unico del estado que NO se puede
+# derivar: lleva las decisiones del firmante y los «no hacer» que salieron de ejecutar.
+chk   "HANDOFF conserva sus decisiones"   "decisiones:"  sh -c 'cat "$1/docs/implementation/HANDOFF.md"' _ "$RAIZ_REAL"
+chk   "…y sus «no hacer»"                 "no hacer:"    sh -c 'cat "$1/docs/implementation/HANDOFF.md"' _ "$RAIZ_REAL"
+chkno "…y «sesion cerrar» no los borra"   "^0$"          sh -c 'grep -c "no hacer:" "$1/docs/implementation/HANDOFF.md"' _ "$RAIZ_REAL"
+
+# LEX-R21 · el vocabulario vive en LEXICON, y antes que el codigo.
+chk   "SESSION.json esta en LEXICON"      "SESSION.json"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que es una MARCA"          "MARCA, no memoria"  cat "$SUITE/LEXICON.md"
+chk   "…y que el dia no es la sesion"     "NO es la sesi"  cat "$SUITE/LEXICON.md"
+chk   "…y SESSION != STATE != TASK"       "SESSION ≠ STATE ≠ TASK"  cat "$SUITE/LEXICON.md"
+chk   "…y que no sustituye a HANDOFF"     "no sustituye"  cat "$SUITE/LEXICON.md"
+
+# ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
+# PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
+# checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que
+# ya no existe. Ese pasa la comprobacion anterior entera, y sobre el decidirian el presupuesto
+# y la compuerta de EP-015.
+#
+# Los casos de la funcion pura no necesitan git: se le pasa el estado. Los de las dos
+# herramientas SI, y por eso mas abajo el fixture se hace repositorio — la correspondencia no se
+# puede comprobar sin algo con lo que corresponder.
+sec "── PT-056 · el arbol corresponde al checkpoint ──"
+
+# E1..E3 · solo `sha` y `rama` sostienen la correspondencia.
+CPOK='{pt:"PT-1",sha:"a".repeat(40),rama:"chore/x"}'
+trlib "sha y rama iguales ⇒ corresponde"      "^true$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"chore/x\"}).corresponde)"
+trlib "sha distinto ⇒ NO corresponde"         "^false$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\"}).corresponde)"
+trlib "rama distinta ⇒ NO corresponde"        "^false$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+
+# E4/E5 · lo que separa esto de una herramienta que molesta. Medido en PHASE 2: la lista de
+# archivos paso de 3 a 5 con el sha intacto en el tiempo de escribir tres parrafos. Si eso fuera
+# discrepancia el aviso saltaria SIEMPRE — y entonces el dia que sea real tampoco se leeria.
+trlib "un arbol SUCIO no es discrepancia"     "^true$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"chore/x\",sucio:true}).corresponde)"
+trlib "otra lista de archivos tampoco"        "^true$" \
+  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"chore/x\",archivos:[\"p\",\"q\"]}).corresponde)"
+
+# E6/E7 · el mensaje ES el producto. «Hay diferencias» obliga a investigar justo cuando el
+# estado no es de fiar.
+DOS="m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"otra\"})"
+trlib "la discrepancia dice el campo"         "sha"        "console.log(JSON.stringify($DOS.discrepancias))"
+trlib "…lo declarado"                         "aaaaaaaa"   "console.log(JSON.stringify($DOS.discrepancias))"
+trlib "…y lo real"                            "bbbbbbbb"   "console.log(JSON.stringify($DOS.discrepancias))"
+trlib "con dos, enumera LAS DOS"              "^2$"        "console.log($DOS.discrepancias.length)"
+trlib "…y el texto las lleva las dos"         "rama"       "console.log(m.textoDiscrepancia($DOS))"
+
+# Un commit ANTECESOR del actual no es discrepancia: va por detras, no miente. Sin esto el aviso
+# saltaria despues de CADA commit —EP-014 hizo hasta diez por tarea contra nueve transiciones— y un
+# aviso que salta siempre no se lee el dia que es cierto.
+trlib "un sha ANTECESOR no es discrepancia"   "^true$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\",descendiente:true}).corresponde)"
+trlib "…pero uno de OTRA historia si"         "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\",descendiente:false}).corresponde)"
+# RULE-06 · no poder demostrar que desciende no es haberlo demostrado.
+trlib "…y no saberlo cuenta como discrepancia"  "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\",descendiente:null}).corresponde)"
+
+# Detached HEAD · `rev-parse --abbrev-ref HEAD` devuelve la cadena «HEAD», que no es el nombre de
+# ninguna rama: es no poder leerlo. Es lo que deja actions/checkout, y sin esto la comprobacion se
+# disparaba contra si misma en CADA PR — incluido el primero de esta misma tarea.
+trlib "detached HEAD no es otra rama"         "^true$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"HEAD\"}).corresponde)"
+trlibno "…y no aparece como discrepancia"     "HEAD"   "console.log(JSON.stringify(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"HEAD\"}).discrepancias))"
+
+# E8 · tres resultados, no dos. No tener foto y tener una foto equivocada son cosas distintas.
+trlib "sin checkpoint ⇒ null, no false"       "^null$"     "console.log(JSON.stringify(m.estadoDelArbol(null).corresponde))"
+trlib "…y lo dice en vez de callarlo"         "sin checkpoint"  "console.log(m.estadoDelArbol(null).motivo)"
+# E9 · no se contrasta lo que no se declaro: `sha: null` ya lo avisa PT-052, y decirlo dos veces
+# convierte un aviso en ruido.
+trlib "un sha null no es discrepancia"        "^true$" \
+  "console.log(m.estadoDelArbol({pt:\"P\",sha:null,rama:\"chore/x\"},{sha:\"z\",rama:\"chore/x\"}).corresponde)"
+
+# E11/E12 · el texto NO repara: propone. Reescribir el checkpoint al detectar el desfase borraria
+# la unica prueba de que hubo divergencia, y decidir cual manda es de SUITE-R06.
+trlib "el texto lo llama por su nombre"       "STATE_MISMATCH"   "console.log(m.textoDiscrepancia($DOS))"
+trlib "…dice que reanudar es HUMANO"          "SUITE-R06"        "console.log(m.textoDiscrepancia($DOS))"
+trlib "…y PROPONE el comando"                 "tracker checkpoint PT-1"  "console.log(m.textoDiscrepancia($DOS))"
+trlibno "…sin ejecutarlo ni repararlo"        "reparad\|corregido\|arreglad"  "console.log(m.textoDiscrepancia($DOS))"
+
+# E10/E13 · las dos herramientas, sobre un repositorio DE VERDAD. El fixture no era git y por eso
+# PT-052 dejo el caso del sha alcanzable fuera del arnes; aqui no se puede: la correspondencia
+# necesita un HEAD contra el que corresponder.
+build_fixture
+CP6="$WORK/docs/implementation/CHECKPOINT.json"
+TR6() { node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
+V6()  { node "$WORK/docs/methodology/tools/verify-fdge.mjs" "$@" "$WORK"; }
+
+GIT6=""
+if command -v git >/dev/null 2>&1; then
+  ( cd "$WORK" \
+    && git init -q 2>/dev/null \
+    && git config user.email t@t && git config user.name t \
+    && git add -A >/dev/null 2>&1 \
+    && git commit -qm "fixture PT-056" >/dev/null 2>&1 ) && GIT6="si"
+fi
+
+if [ -z "$GIT6" ]; then
+  # RULE-06 · si no se pudo comprobar, se DICE. Un bloque que se salta en silencio es un verde
+  # por vacio, que es justo lo que PT-023 encontro ejecutando.
+  bad "PT-056: sin git no se pudo probar STATE_MISMATCH sobre las herramientas"
+else
+  # `siguiente` se planta si el proyecto no declara plataforma, y el fixture no la declaraba: los
+  # cuatro casos de `siguiente` pasaban por VACIO —la herramienta no llegaba a correr— y el
+  # `chkno` daba verde por silencio. Es el defecto que PT-023 encontro ejecutando, otra vez.
+  node -e 'const fs=require("node:fs"),p=process.argv[1];const r=JSON.parse(fs.readFileSync(p,"utf8"));r.tracker={plataforma:"github"};fs.writeFileSync(p,JSON.stringify(r,null,2));' "$WORK/docs/implementation/REGISTRY.json"
+  # Y esto lo impide en adelante: si `siguiente` no llega a producir su cabecera, el bloque
+  # entero es una asercion sobre nada.
+  chk   "tracker siguiente llega a correr"         "PT-004  IN_PROGRESS"    TR6 siguiente PT-004
+  # …y SIN credencial tambien. Los cuatro casos de abajo pasaban en local y fallaban en CI: la
+  # accion exigia acceso al tablero para responder algo que DERIVA del registro (SUITE-R48), y en
+  # CI no hay «gh auth». Un arnes que solo esta verde donde el agente trabaja no protege el merge,
+  # que es donde se decide. Se simula quitando gh del PATH y dejando git y node.
+  SIN_GH="$WORK/.sin-gh"; mkdir -p "$SIN_GH"
+  _bin() { dirname "$(command -v "$1")"; }
+  TR6NOGH() { PATH="$(_bin node):$(_bin git):$SIN_GH" node "$WORK/docs/methodology/tools/tracker.mjs" "$@" "$WORK"; }
+  chk   "…y sin credencial de tablero, tambien"    "PT-004  IN_PROGRESS"    TR6NOGH siguiente PT-004
+  # RULE-06 · no es «no hay comentarios»: es que nadie pudo mirar. Callarlo apagaria SUITE-R43 en
+  # silencio justo donde no hay quien lo note.
+  chk   "…diciendo que SUITE-R43 no se evaluo"     "SUITE-R43 SIN EVALUAR"  TR6NOGH siguiente PT-004
+
+  TR6 checkpoint PT-004 >/dev/null 2>&1
+  # La foto recien tomada corresponde por construccion: es la comprobacion POSITIVA, y sin ella
+  # la negativa no prueba nada — un fail que siempre falla no distingue.
+  chk   "recien escrito, verify-fdge lo da bueno"  "arbol correspondiente"  V6 PT-004
+  chkno "…y tracker siguiente NO bloquea"          "STATE_MISMATCH"         TR6 siguiente PT-004
+
+  # Y ahora el caso peligroso: un SHA que EXISTE pero no es el del arbol. Pasaba entero la
+  # comprobacion de PT-052.
+  cp6_set() { [ -f "$CP6" ] || return 0; MTH_CP6="$CP6" node -e "$1"; }
+  cp6_set 'const fs=require("node:fs");const p=process.env.MTH_CP6;const c=JSON.parse(fs.readFileSync(p,"utf8"));c.rama="chore/OTRA";fs.writeFileSync(p,JSON.stringify(c,null,2));'
+  chk   "otra rama: verify-fdge FALLA"            "STATE_MISMATCH"         V6 PT-004
+  # El mensaje llevaba la rama truncada a siete caracteres —«chore/O»— porque acortaba TODO como
+  # si fuera un SHA. Un aviso que corta justo el dato por el que se detiene no sirve de nada.
+  chk   "…y dice cual es la discrepancia ENTERA"  "declarado chore/OTRA"   V6 PT-004
+  chk   "…y que decidir es humano"                "SUITE-R06"              V6 PT-004
+  chk   "tracker siguiente BLOQUEA"               "BLOQUEA"                TR6 siguiente PT-004
+  chk   "…y sin credencial BLOQUEA igual"         "STATE_MISMATCH"         TR6NOGH siguiente PT-004
+  chk   "…nombrando la condicion"                 "STATE_MISMATCH"         TR6 siguiente PT-004
+  chk   "…y propone el comando"                   "tracker checkpoint PT-004"  TR6 siguiente PT-004
+  chk   "…y no dice que siga como si nada"        "RESUELVE PRIMERO"       TR6 siguiente PT-004
+
+  # E14 · rehacer la foto la vuelve a hacer corresponder. Es lo que el mensaje propone, y si no
+  # funcionara el mensaje estaria mandando a un sitio que no arregla nada.
+  TR6 checkpoint PT-004 >/dev/null 2>&1
+  chk   "rehacer el checkpoint lo resuelve"       "arbol correspondiente"  V6 PT-004
+  chkno "…y el bloqueo desaparece"                "STATE_MISMATCH"         TR6 siguiente PT-004
+
+  # Al integrar, la rama de tarea se BORRA. El checkpoint la tomaba de alloc.branch y pasaba a
+  # afirmar una referencia muerta — que es exactamente lo que STATE_MISMATCH existe para impedir.
+  # Salio al integrar esta misma tarea: PT-056 se fusiono, su rama desaparecio, y el checkpoint
+  # siguio declarandola.
+  chk   "la rama declarada solo vale si existe"   "\"rama\": \"master\""  sh -c 'cat "$1"' _ "$CP6"
+
+  # El checkpoint de OTRA tarea no dice nada de esta: es UNO (LEX-R26), y contrastar contra el
+  # ajeno bloquearia por un estado que no es el suyo.
+  TR6 checkpoint PT-001 >/dev/null 2>&1
+  chkno "el checkpoint ajeno no bloquea a PT-004" "STATE_MISMATCH"         TR6 siguiente PT-004
+fi
+
+# E15 · LEX-R21 · el nombre vive en LEXICON, y antes que en el codigo.
+chk   "STATE_MISMATCH esta en LEXICON"          "STATE_MISMATCH"     cat "$SUITE/LEXICON.md"
+chk   "…y LEX-R26 exige la correspondencia"     "tiene que corresponder"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que sucio NO es discrepancia"    "NO es una discrepancia"  cat "$SUITE/LEXICON.md"
+chkno "…y no lo convierte en un status"         "status.*STATE_MISMATCH"  cat "$SUITE/LEXICON.md"
+
+# CORRIGE PT-052 · `gitDe` hacia trim() de TODA la salida de `git status --porcelain`, y eso se
+# comia el espacio inicial de la PRIMERA linea cuando el cambio no estaba indexado; el slice(3)
+# posterior cortaba un caracter del path. El CHECKPOINT.json vivo declaraba «hanges/…/intake.md».
+# Lo encontro ejecutar la herramienta, no leerla.
+chk   "gitDe distingue crudo de recortado"      "crudo"   cat "$SUITE/tools/tracker.mjs"
+if [ -n "$GIT6" ]; then
+  ( cd "$WORK" && printf 'x\n' >> docs/implementation/HANDOFF.md 2>/dev/null || true )
+  TR6 checkpoint PT-004 >/dev/null 2>&1
+  # El patron es la ruta SIN su primera letra: «[a-z]*ocs/» casaria tambien con «docs/» y el
+  # caso pasaria sin comprobar nada — la quinta vez en el lote que una asercion casa consigo misma.
+  chkno "ningun path del checkpoint pierde letras"  '"ocs/'  cat "$CP6"
+fi
+
 # ─── PT-054 · ver en que se trabaja sin esperar al merge ───────────────────
 # Medido: 13 ramas de tarea en el remoto. La visibilidad existe y esta repartida en trece sitios,
 # asi que hay que saber DE ANTEMANO que rama mirar. La rama cauce/<usuario> agrega, y es DERIVADA

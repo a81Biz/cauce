@@ -1,0 +1,29 @@
+{
+  "pt": "PT-056",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Al retomar se compara el arbol con lo que el checkpoint declara", "scenarios": ["E1", "E8", "E14", "E15"], "tests": ["selftest.sh:sha y rama iguales ⇒ corresponde", "selftest.sh:sin checkpoint ⇒ null, no false", "selftest.sh:tracker siguiente llega a correr", "selftest.sh:recien escrito, verify-fdge lo da bueno", "selftest.sh:rehacer el checkpoint lo resuelve"], "evidence": ["salidas/selftest-completo.txt", "salidas/caso-peligroso.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Un HEAD distinto del sha declarado detiene: no continua sobre una suposicion", "scenarios": ["E2", "E3", "E10", "E13"], "tests": ["selftest.sh:sha distinto ⇒ NO corresponde", "selftest.sh:rama distinta ⇒ NO corresponde", "selftest.sh:otra rama: verify-fdge FALLA", "selftest.sh:tracker siguiente BLOQUEA", "selftest.sh:…pero uno de OTRA historia si", "selftest.sh:…y no saberlo cuenta como discrepancia"], "evidence": ["salidas/caso-peligroso.txt", "salidas/verify-fdge.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Un arbol sucio no es una discrepancia: es lo normal mientras se trabaja", "scenarios": ["E4", "E5", "E9"], "tests": ["selftest.sh:un arbol SUCIO no es discrepancia", "selftest.sh:otra lista de archivos tampoco", "selftest.sh:un sha null no es discrepancia", "selftest.sh:un sha ANTECESOR no es discrepancia"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "La discrepancia dice cual es, no solo que la hay", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:la discrepancia dice el campo", "selftest.sh:…lo declarado", "selftest.sh:…y lo real", "selftest.sh:con dos, enumera LAS DOS", "selftest.sh:…y dice cual es la discrepancia ENTERA"], "evidence": ["salidas/caso-peligroso.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Reanudar es una decision humana cuando hay discrepancia (SUITE-R06)", "scenarios": ["E11", "E12"], "tests": ["selftest.sh:…dice que reanudar es HUMANO", "selftest.sh:…y PROPONE el comando", "selftest.sh:…sin ejecutarlo ni repararlo", "selftest.sh:…y que decidir es humano"], "evidence": ["salidas/caso-peligroso.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que alguien HAGA CASO al bloqueo.",
+      "por_que": "tracker siguiente lo reporta y verify-fdge falla, pero editar archivos con la discrepancia delante sigue siendo posible. Lo que queda garantizado es lo que PT-059 necesitara: que el estado sobre el que decida se pueda demostrar, o que se sepa que no.",
+      "donde": "changes/PT-056-el-arbol-corresponde-al-checkpoint/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que comprobar sha y rama sea SUFICIENTE.",
+      "por_que": "Un arbol con el mismo sha y contenido manipulado sin commitear pasa. Comparar contenido archivo a archivo costaria leer el arbol entero en cada arranque —el gasto que este lote existe para reducir— y esta declarado fuera de alcance.",
+      "donde": "changes/PT-056-el-arbol-corresponde-al-checkpoint/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que la descendencia sea el criterio correcto en una rama reescrita a proposito.",
+      "por_que": "Un rebase legitimo deja el sha declarado fuera de la historia y la herramienta lo reportara como discrepancia. Es el comportamiento pedido —detenerse y preguntar— pero significa que un rebase obliga a rehacer el checkpoint, y eso no se ha medido en uso real: se ha probado que ocurre, no que sea comodo.",
+      "donde": "docs/methodology/tools/tracker.mjs"
+    }
+  ],
+  "suite": { "passed": 663, "failed": 0, "skipped": 0, "coverage": 663, "baseline": 618 }
+}

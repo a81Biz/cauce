@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **8.1.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **8.2.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -273,6 +273,7 @@ sentido para lo que produce código (`PT`, `EP`); `BLOCKED_DOMAIN`, solo para pr
 | `REOPENED` | Estuvo resuelto y volvió a estar activo. Solo hallazgos y defectos. |
 | `IN_PROGRESS` | Alguien o algo está trabajando en él ahora. |
 | `BLOCKED` | Existe un impedimento externo. No progresa. Requiere razón declarada. |
+| `BLOCKED_BY_CONTEXT` | La tarea **está lista**; el **momento** no. No es un fallo. Lo desbloquea empezar otra sesión. **No terminal**. |
 | `BLOCKED_DOMAIN` | Solo productos PTSA: rechazado por fallo duro de dominio (D1). |
 | `IN_REVIEW` | Trabajo terminado, evidencia producida, esperando revisión. |
 | `VALIDATION_PENDING` | Esperando validación **humana**. Terminal para el agente. |
@@ -296,6 +297,8 @@ stateDiagram-v2
     DEFERRED --> READY
     IN_PROGRESS --> BLOCKED
     BLOCKED --> IN_PROGRESS : impedimento resuelto
+    READY --> BLOCKED_BY_CONTEXT : no cabe en esta sesión
+    BLOCKED_BY_CONTEXT --> READY : otra sesión
     IN_PROGRESS --> IN_REVIEW : evidencia producida
 
     IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre
@@ -437,8 +440,16 @@ HISTORY.log            append-only   · un registro por PT cerrado, más las ent
                        los reconoce por ellos, no por su contenido.
 HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
                        responde por el PROYECTO: qué implementación, qué tarea, qué sigue
+SESSION.json           sobrescribible · el estado de la SESION, no de la tarea (§6.5e)
+                       «desde» es lo unico capturado; el resto se deriva de «desde..HEAD»
+                       sin el, lo que lleva la sesion es SIN EVALUAR — el dia NO es la sesion
+
 CHECKPOINT.json        sobrescribible · el estado de la tarea EN CURSO, legible por máquina
                        responde por la TAREA, y es UNO: escribirlo sobre otra la sustituye
+                       STATE_MISMATCH · la CONDICION que se reporta cuando el arbol no
+                       corresponde a lo que declara. NO es un «status» del registro: durante
+                       una discrepancia la tarea sigue IN_PROGRESS, y lo que esta mal es la
+                       correspondencia entre la foto y el arbol           [LEX-R26]
 SESSION_LOG.md         append-only   · una entrada por sesión (antes SESSION_SUMMARY.md)
 BACKLOG.md             sobrescribible · índice de PTs vivos y su fase actual
 RECONCILIATION.log     append-only   · una entrada por decisión sobre un documento legado
@@ -478,7 +489,34 @@ El `sha` que declara tiene que ser **alcanzable**, no solo tener forma de SHA. U
 apunta a un commit inexistente es la peor de las dos averías posibles — **el que no existe se nota;
 el que miente, no**.
 
-Que el **árbol corresponda** a ese `sha` es otra comprobación y no está aquí.
+Y el **árbol tiene que corresponder**: el `HEAD` actual y la rama actual son los que el checkpoint
+declara. Un `sha` alcanzable que describe un árbol que ya no existe **miente sin que nada lo note**
+— el checkpoint apunta a un commit real y el trabajo continúa sobre otro estado.
+
+La condición se llama **`STATE_MISMATCH`** y la comprobación **detiene**: reanudar con una
+discrepancia es una decisión humana (`SUITE-R06`), y la herramienta **propone** el comando que la
+resolvería sin ejecutarlo — reescribir el checkpoint borraría la única prueba de que hubo
+divergencia.
+
+**Ir por detrás tampoco lo es.** Entre dos transiciones de fase hay varios commits —medido: hasta
+diez por tarea en `EP-014`, contra nueve transiciones—, así que el `sha` declarado deja de ser
+`HEAD` en cuanto se commitea. Lo que distingue no es la igualdad sino la **historia**: un commit
+que es **antecesor** del actual describe un estado del que el de ahora desciende. Uno que no lo es
+está en otra rama o en una historia reescrita, y ahí sí. No poder decidirlo cuenta como
+discrepancia: no haberlo demostrado no es haberlo desmentido (`RULE-06`).
+
+Y **no poder leer la rama tampoco es divergir**: en `detached HEAD` —el estado en que
+`actions/checkout` deja el repositorio— `git rev-parse --abbrev-ref HEAD` devuelve la cadena
+`HEAD`, que no es el nombre de ninguna rama. Tratarla como valor hacía que la comprobación se
+disparara contra sí misma en cada PR.
+
+**Un árbol sucio NO es una discrepancia.** Cambios sin commitear son el estado normal de una tarea
+en curso, y la lista de archivos cambia sin parar mientras se trabaja: medido, pasó de 3 a 5 con el
+`sha` intacto en el tiempo de escribir tres párrafos. Solo `sha` y `rama` sostienen la
+correspondencia; `sucio` y `archivos` describen **progreso**, no divergencia.
+
+Y **no tener checkpoint no es una discrepancia**: no hay nada que contrastar. No saber y no haber
+son cosas distintas.
 
 `LEX-R12` · Estos tres archivos son **append-only e índices**. Contienen una línea por PT
 con su ID, título, tipo, estado canónico y ruta. **Nunca** contienen el cuerpo del análisis
@@ -548,6 +586,143 @@ PTSA/
 `LEX-R14` · Los nombres de directorio de la suite están en inglés. Los archivos con
 contenido de auditoría en español conservan su nombre (`RESUMEN.md`, `PENDIENTES.md`) por
 compatibilidad con la especificación normativa de PTSA.
+
+### 6.5b Referencia de coste   `PT-057`
+
+**Referencia de coste**: lo que **suele** costar un tipo de tarea en este repositorio, derivado de
+las tareas **cerradas** de su mismo `type` y `complexity`. No se guarda en ningún archivo: se
+recalcula al preguntar, porque una copia diverge en cuanto se cierra la tarea siguiente
+(`SUITE-R38`).
+
+```
+tracker coste [tipo] [complejidad]
+
+de dónde sale     REGISTRY.json     el tipo y la complejidad de cada allocation
+                  git               commits, archivos y líneas de cada tarea cerrada
+qué mide          commits · archivos · líneas — señales OBSERVABLES
+qué NO mide       tokens · el contexto restante del modelo · el coste de UNA tarea concreta
+```
+
+**A quién pertenece un commit.** El primer `PT-NNN` del **asunto**, y solo del asunto. El cuerpo
+cita tareas anteriores —«CORRIGE `PT-052`»— y eso es **lo correcto** en una bitácora append-only;
+medido: 61 de 162 commits nombran más de un `PT` y uno nombra diez. Atribuir por el cuerpo hacía
+que `BUG/TRIVIAL` y `BUG/STANDARD` salieran idénticos hasta la línea.
+
+**Mediana con su rango, nunca media.** Los grupos van de 6 a 13 tareas y la dispersión llega a un
+factor de diez —`BUG/TRIVIAL` de 242 a 2591 líneas—: una media la arrastra un solo caso, y una
+cifra central sin dispersión se lee como una predicción.
+
+**`MINIMO_REFERENCIA`** · Por debajo de ese número de tareas cerradas **no hay cifra**: se dice
+cuántas hay y se enseñan los casos en crudo. Una mediana de una tarea no es una mediana, y una
+media de dos presentada como una de treinta engaña por precisión aparente. El valor es un
+**juicio declarado**, no un resultado: vive con nombre en el código para que se pueda discutir.
+
+**Lo que la referencia no dice.** De **cuántas** tareas sale, sí; de **cuándo**, no. Las tareas
+anteriores a `FDGE-R19` llevaban el trabajo entero en un commit, así que la cifra puede describir
+con verdad un pasado que ya no aplica.
+
+### 6.5c Naturaleza de una cifra   `PT-058`
+
+Toda cifra que el marco presente declara **de qué naturaleza es**. El vocabulario es **cerrado** y
+son exactamente tres, ordenadas de mejor a peor:
+
+```
+MEDIDO        se contó de algo que se puede volver a contar — git, el registro, el disco
+ESTIMADO      se derivó de datos medidos, pero describe algo que nadie midió
+SIN EVALUAR   no se sabe, y se dice · NO es cero
+```
+
+**El orden es la regla**, no una convención de escritura: al operar dos cifras, el resultado lleva
+la **peor** de las dos naturalezas. Una resta entre un dato medido y una estimación **es** una
+estimación, y presentarla como medida es exactamente lo que estas tres palabras existen para
+impedir.
+
+**`SIN EVALUAR` no vale cero.** Una cifra `SIN EVALUAR` no tiene valor: vale `null`. Un cero
+sobrevive a cualquier suma y desaparece del resultado, así que un presupuesto sin datos parecería
+**holgado** — el marco arrancaría trabajo justo cuando menos sabe. No saber y no haber son cosas
+distintas, y la diferencia tiene que sobrevivir a las operaciones.
+
+**Una cifra sin naturaleza no existe.** Construirla **falla**. No se asume la más favorable, y
+tampoco la más conservadora: asumir cualquiera convertiría un olvido en un dato válido que se
+propaga en silencio.
+
+**Qué NO es `MEDIDO`.** El contexto restante del modelo no se puede medir desde el marco: es
+`SIN EVALUAR` y se dice. Fabricar ahí un número sería un dato falso con forma de medida.
+
+> Estas tres palabras **ya se usaban**. `SIN EVALUAR` aparecía 50 veces en trece archivos —seis
+> documentos normativos, incluido `RULES.md`, y siete herramientas— y **cero** en este documento,
+> que es justo lo que `LEX-R21` prohíbe. Declararlas no amplía el marco: lo pone al día con su
+> propia regla.
+
+### 6.5d Viabilidad: `SAFE` · `MARGINAL` · `UNSAFE`   `PT-059`
+
+Antes de empezar una tarea, el marco dice si hay **precedente** de que quepa. Tres veredictos, y
+siempre con su motivo:
+
+```
+SAFE       la sesión ya completó algo de este tamaño
+MARGINAL   pasa de lo ya completado pero cabe en la HOLGURA · solo trabajo atómico
+UNSAFE     hay evidencia EN CONTRA · checkpoint, handoff y parada
+```
+
+**No compara contra un presupuesto, porque no existe.** `disponible = total − gastado` es
+inoperable: el `total` es el contexto del modelo y el marco no puede medirlo, así que sale
+`SIN EVALUAR` **siempre**. Lo que compara es el **precedente** — lo mayor que esta sesión ya
+completó—, que sí es observable. `SAFE` no promete que quepa: dice que ya se pudo con algo así.
+
+**Con una cifra `SIN EVALUAR` el veredicto es `MARGINAL`**, nunca `SAFE` ni `UNSAFE`. Aprobar sería
+aprobar por omisión; prohibir bloquearía **todo trabajo para siempre**, porque el disponible es
+`SIN EVALUAR` siempre — y una compuerta que bloquea siempre se apaga, y entonces no protege el día
+que tiene razón. `MARGINAL` es la respuesta honesta: no apruebo, y no invento un motivo para
+prohibir.
+
+**`UNSAFE` exige evidencia en contra**, que no es lo mismo que ausencia de evidencia a favor.
+
+**`HOLGURA`** · Cuánto por encima de lo ya completado sigue siendo `MARGINAL` en vez de `UNSAFE`.
+Es un **juicio declarado**, como `MINIMO_REFERENCIA`: vive con nombre en el código para que se
+pueda discutir.
+
+**No cabe ahora ≠ no cabría nunca.** Si el coste supera **la mayor sesión jamás registrada**, la
+siguiente sesión dará lo mismo y esperar sería un bucle infinito. Ahí la compuerta pide **partir la
+tarea** — y no la parte: partirla cambia su alcance, y el alcance lo firma una persona
+(`INTAKE-R06`).
+
+Esta es una compuerta de **viabilidad**, no de gobernanza: `G1`..`G4` siguen decidiendo lo que
+decidían.
+
+### 6.5e La sesión es el worker, no el estado   `PT-060`
+
+**`SESSION ≠ STATE ≠ TASK`.** La sesión de IA es un **recurso temporal**; el estado del trabajo
+pertenece al marco y es persistente. `SESSION.json` describe la **sesión**, no la tarea.
+
+```
+SESSION.json      sobrescribible · UNA sesión a la vez
+  desde           el commit donde empezó — lo ÚNICO capturado
+  commits · archivos · lineas · tareas    derivados de «desde..HEAD»
+  pt · phase      del CHECKPOINT.json
+```
+
+**`desde` es una MARCA, no memoria.** `LEX-R26` prohíbe un campo que solo pueda rellenar la
+memoria del agente; una marca no lo es: es un dato **verificable en el momento en que se pone**,
+igual que el `sha` del checkpoint. La memoria sería «llevo unas tres horas» — una afirmación sobre
+el pasado sin nada que la respalde.
+
+**Sin sesión abierta, lo que lleva la sesión es `SIN EVALUAR`.** No se cae al día. Medido: un día
+y una sesión coinciden **por casualidad** cuando la sesión empezó ese día, y el día que no
+coincidan —dos sesiones en una jornada, o una que cruza la medianoche— nada lo notaría.
+
+**Las transiciones se apilan en `SESSION_LOG.md`**, que ya es el ledger de sesiones (`SUITE-R09`).
+No hay un segundo ledger: sería el mismo hecho en dos sitios.
+
+**`SESSION.json` no sustituye a `HANDOFF.md`.** El bloque `ESTADO` del handoff lleva decisiones y
+prohibiciones escritas por personas: es lo **único del estado que no se puede derivar**, y por eso
+no se deriva. El cierre de sesión produce un handoff **derivado** —qué tarea, en qué fase, sobre
+qué commit, qué sigue— que se **suma** al handoff escrito, no lo reemplaza.
+
+**Los estados de sesión no son estados de tarea.** Durante un cambio de sesión la tarea sigue
+`IN_PROGRESS`: no cambia nada de la tarea, termina la sesión. Por eso no aparecen en §4 y no entran
+en `REGISTRY.json` — ahí `SUITE-R09` los haría permanentes, y el registro guardaría para siempre
+mecánica transitoria.
 
 ### 6.6 Documentos de metodología — `docs/methodology/`
 

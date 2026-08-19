@@ -2259,3 +2259,274 @@ Una advertencia que EP-015 necesita antes de empezar: la especificación de la q
 LEX-R26 los deja fuera POR CRITERIO, no por olvido.
 
 G4 y la publicación NO se delegan: son del firmante.
+
+## PT-056 — CHORE: el árbol corresponde al checkpoint (STATE_MISMATCH)
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-056-el-arbol-corresponde-al-checkpoint
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · integrada en «trabajo» el 2026-08-18 por PR #109, autorizado por Alberto Martinez: «Autoriza el merge del PR #109 a trabajo. PT-056 queda aceptado» — el PR a «trabajo» es REVISION, no G4 · G4 del lote EP-015 pendiente y sin delegar
+Objetivo: que un checkpoint no pueda afirmar un estado que ya no existe sin que nada lo note.
+Causa raíz: PT-052 dejó el «sha» y verify-fdge exige que sea ALCANZABLE. Eso impide la avería
+obvia —apuntar a nada— y no impide la peligrosa: un SHA REAL que describe un árbol que ya no
+existe pasaba la comprobación entera. Medido: con el checkpoint apuntando a abab74b —el merge de
+EP-014, un commit perfectamente real— daba verde.
+Solución: «estadoDelArbol(cp, git)», pura y exportada, con TRES resultados: corresponde
+true/false/null. «null» es no tener checkpoint, que no es lo mismo que tener uno equivocado. Solo
+«sha» y «rama» sostienen la correspondencia; «sucio» y «archivos» describen progreso. La usan los
+dos consumidores: «tracker siguiente» BLOQUEA antes de decir qué toca, y verify-fdge FALLA. No
+repara: PROPONE «tracker checkpoint PT-NNN», porque reescribir el checkpoint borraría la única
+prueba de que hubo divergencia y decidir cuál manda es de SUITE-R06.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs ·
+tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-056/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): EL DISEÑO DE PHASE 4 HABRÍA BLOQUEADO DESPUÉS DE CADA COMMIT. Exigía
+«sha === HEAD». PHASE 2 ya había medido el dato que lo desmiente —EP-014 hizo hasta DIEZ commits
+por tarea contra NUEVE transiciones de fase— y no sacó la consecuencia: el sha declarado deja de
+ser HEAD en cuanto se commitea. Lo que distingue no es la igualdad sino la HISTORIA: antecesor de
+HEAD va por detrás y no miente; lo que no lo es está en otra rama o en una historia reescrita. No
+poder decidirlo cuenta como discrepancia (RULE-06). Tres escenarios nuevos, E16-E18, que PHASE 4
+no tenía. Es el mismo defecto que test-scenarios.md describe para E4 y E5 —un criterio que salta
+siempre no se lee el día que es cierto— sin verlo en el criterio de al lado.
+CORRIGE PT-052: «gitDe» hacía trim() de TODA la salida de «git status --porcelain», lo que se come
+el espacio inicial de la primera línea cuando el cambio no está indexado; el slice(3) posterior
+cortaba un carácter del path. El CHECKPOINT.json vivo declaraba «hanges/…/intake.md»: un artefacto
+de gobernanza afirmando una ruta que no existe. Lo encontró mirar el archivo que la herramienta
+produce, no leer la herramienta.
+CORRIGE el arnés: los cuatro casos de «tracker siguiente» pasaban por VACÍO. La acción se planta si
+el proyecto no declara plataforma y el fixture no la declaraba, así que el chkno daba verde por
+SILENCIO, no porque la herramienta callara. Es el defecto de PT-023 otra vez, dentro del arnés que
+lo persigue. Ahora un caso —«tracker siguiente llega a correr»— existe solo para impedir que los
+siguientes afirmen sobre nada. Y por quinta vez en dos lotes una aserción casaba consigo misma: el
+patrón «[a-z]*ocs/» casaba también con «docs/».
+CORRIGE su propio arnés, encontrado por CI: los cuatro casos de «tracker siguiente» pasaban en
+local y fallaban en CI porque la acción exigía credencial de tablero para responder algo que se
+DERIVA del registro (SUITE-R48), y en CI no hay «gh auth». «siguiente» pasa a SIN_PLATAFORMA, y lo
+que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar y se REPORTA
+como SIN EVALUAR, porque una garantía que se apaga en silencio es peor que una que no existe
+(RULE-06). Tres casos nuevos corren con «gh» fuera del PATH, que es el entorno donde se decide un
+merge — un arnés verde solo donde trabaja el agente no protege nada.
+CORRIGE otra vez, y el mismo error: la comprobación se disparó contra SÍ MISMA en CI. La acción
+«actions/checkout» deja el repositorio en detached HEAD, donde «git rev-parse --abbrev-ref HEAD»
+devuelve la cadena «HEAD», que no es el nombre de ninguna rama sino NO PODER LEERLO. Sin
+normalizarlo, la comprobación habría bloqueado CADA PR del framework — el primero, el suyo. Las dos
+veces el defecto fue el mismo en distinto sitio: probar donde trabaja el agente y no donde se
+decide un merge.
+CORRIGE una tercera vez, y la encontro INTEGRAR esta misma tarea: al fusionar, la rama de tarea se
+borra, y el checkpoint la tomaba de «alloc.branch» — asi que pasaba a afirmar una referencia
+muerta, que es exactamente lo que STATE_MISMATCH existe para impedir. La rama declarada solo vale
+si existe; si no, se deriva la real.
+Casos: 618 → 663. Inversa en rojo: neutralizado el criterio caen tres casos, y los que siguen
+verdes son exactamente los que afirman que algo NO es discrepancia.
+Sin regla nueva: LEX-R26 se amplía, que es lo que spec-changes.md declaró en PHASE 4.
+No verificado: que alguien HAGA CASO al bloqueo; que «sha» y «rama» basten —un árbol con el mismo
+sha y contenido manipulado sin commitear pasa—; y que la descendencia sea cómoda tras un rebase
+legítimo, que obliga a rehacer el checkpoint.
+
+## PT-057 — CHORE: lo que cuesta una tarea sale del historial
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-057-lo-que-cuesta-una-tarea-sale-del-historial
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · integrada en «trabajo» el 2026-08-18 por PR #110, autorizado por Alberto Martinez con condicion: «que mantenga exactamente el alcance de PT-057 y que despues del merge se verifique el estado de trabajo». El alcance se comprobo sobre el diff ANTES de fusionar —24 archivos, cero lineas eliminadas en tracker.mjs, y las menciones a PT-058/059/060 son declaraciones de out-of-scope, no implementacion— y la verificacion posterior esta abajo · G4 del lote EP-015 pendiente y sin delegar
+Objetivo: que exista una cifra de lo que cuesta una tarea, derivada de las tareas cerradas que este
+repositorio ya tiene, y no de una estimación escrita a mano.
+Causa raíz: no había ninguna. El presupuesto de sesión que EP-015 necesita tenía que apoyarse en
+algo, y la decisión 4 del firmante fijó en qué: señales observables e historial real, nunca una
+cifra de tokens que el marco no puede medir.
+Solución: «tracker coste [tipo] [complejidad]», con tres funciones puras detrás. costeDe() devuelve
+TRES resultados como estadoDelArbol —hay referencia, hay datos pero pocos y se enseñan en crudo, o
+no hay nada—, nunca un cero: un cero entraría en PT-058 y PT-059 como si fuera una medida.
+resumen() da mediana con rango y nunca media. duenoDe() atribuye un commit por el ASUNTO.
+MINIMO_REFERENCIA = 5 se exporta con nombre porque es un JUICIO, no un resultado.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-057/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+Delta (real vs planificado): LA SEÑAL OBVIA ESTABA CONTAMINADA Y CASI LA ACEPTO. Buscar los commits
+de una tarea con «--grep PT-NNN» atribuye a una tarea el trabajo de otras: 61 de 162 commits nombran
+más de un PT y uno nombra DIEZ, porque el cuerpo cita las tareas anteriores —«CORRIGE PT-052»— y eso
+es lo CORRECTO en una bitácora append-only. Con esa medición BUG/TRIVIAL y BUG/STANDARD salían
+idénticos hasta la línea: 5 commits, 65 archivos, 2708 líneas los dos. La herramienta habría dicho
+que un TRIVIAL cuesta lo mismo que un STANDARD, con toda la autoridad de un número derivado del
+historial real.
+Y el resultado que no esperaba: la señal con MEJOR cobertura es la PEOR predictora. changes/PT-NNN/
+existe para 52 de 53 tareas cerradas y mide nueve o diez artefactos SIEMPRE, porque es exactamente
+lo que el marco exige en PHASE 4. Está saturada por construcción: cuenta cumplimiento del
+procedimiento, no esfuerzo. Habría sido la elección natural por parecer la más limpia.
+DOS DEFECTOS QUE ENCONTRARON LAS HERRAMIENTAS DEL PROPIO MARCO. «audit» vio cuatro bytes de control
+0x1F crudos en tracker.mjs: una secuencia de escape que se convirtió en el byte literal al editar,
+que FUNCIONABA —por eso las pruebas pasaban— y era invisible al leer. Es exactamente el hueco que
+esa comprobación existe para detectar. Y el arnés corría «coste» con el fixture como raíz, así que
+leía el registro de mentira con cuatro tareas: los casos sobre las cifras reales no comprobaban
+nada. Verde por vacío, el defecto de PT-023 otra vez.
+CORRIGE la detección de ROOT: «coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
+CUARTA vez en dos lotes que un argumento nuevo se cuela por ahí —-q, --solo, --a y ahora las
+etiquetas— así que se resuelve por FORMA (ES_ETIQUETA) y no con un caso más.
+SEXTA vez del patrón «la aserción casa con el texto de al lado»: el caso que comprueba que NO se da
+mediana con una sola tarea buscaba la palabra «mediana», que aparece en la frase que lo explica.
+LO QUE LA TAREA SE HIZO A SÍ MISMA: dos cifras INVENTADAS en dos fases distintas. En PHASE 3 los
+rangos «73 – 9012»; en PHASE 4, que el CHORE/SIMPLE era PT-035 cuando es PT-027. Las dos se cazaron
+midiendo antes de commitear, pero las dos se escribieron —con los datos delante, en la tarea cuyo
+AC-04 dice que ninguna cifra puede salir de la memoria del agente.
+Casos: 663 → 706. Inversa en rojo: neutralizado el umbral y cambiada la mediana por media caen ocho
+casos, tres de ellos sobre el repositorio real.
+Sin regla nueva: entra vocabulario en LEXICON §6.5b, no obligación.
+No verificado: que la referencia SIRVA para decidir (es PT-059); que CINCO sea el umbral correcto,
+declarado como juicio; que la cifra describa el PRESENTE, porque BUG/TRIVIAL sale más caro por ser
+anterior a FDGE-R19; y que las 8 cerradas sin commit propio no sesguen —son las más antiguas, así
+que excluirlas inclina la referencia hacia lo reciente.
+
+## PT-058 — CHORE: el presupuesto dice de qué tipo es cada cifra
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-058-el-presupuesto-dice-de-que-tipo-es-cada-cifra
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 (verify-fdge --gate G3 sin errores) · G4 del lote EP-015 con VoBo del firmante
+Objetivo: que cada cifra del presupuesto lleve de qué naturaleza es, y que esa naturaleza sea un
+dato comprobable y no una convención de redacción.
+Causa raíz: el vocabulario YA EXISTÍA sin declarar. «SIN EVALUAR» aparecía 50 veces en trece
+archivos —seis documentos normativos, incluido RULES.md, y siete herramientas— y CERO en LEXICON,
+que es exactamente lo que LEX-R21 prohíbe. MEDIDO y ESTIMADO no existían. Y los 50 usos eran PROSA:
+sobre texto no hay forma de que «una cifra sin naturaleza» falle.
+Solución: un TIPO en patrones.mjs. «cifra(valor, naturaleza)» es inmutable y sin naturaleza LANZA;
+SIN EVALUAR vale null y nunca cero; «sumar» y «restar» contagian hacia la PEOR naturaleza, con
+NATURALEZAS como lista cerrada y ORDENADA —el orden ES la regla—; «textoCifra» pega la naturaleza
+al número. verify-suite comprueba la CONSTANTE, no la prosa.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs ·
+tools/verify-suite.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-058/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): LA TAREA RESULTÓ SER OTRA. No introduce vocabulario nuevo: regulariza
+el que el marco llevaba OCHO LOTES usando sin declarar. verify-suite no lo veía porque comprueba
+vocabulario DEROGADO (LEX-R20) —una lista cerrada escrita a mano— y no lo contrario: un término
+usado como si fuera canónico sin estar declarado. Son dos comprobaciones distintas y sólo existía
+una.
+LA INVERSA ES LA MEJOR EVIDENCIA DE ESTA TAREA. Con SIN EVALUAR valiendo 0 y sin contagio,
+«restar(100 MEDIDO, SIN EVALUAR)» devolvía «{valor: 100, naturaleza: MEDIDO}»: el presupuesto de
+PT-059 diría que queda TODO justo cuando no sabe nada, y lo diría con la autoridad de un dato
+medido. Es el «estimated_used: 67» que LEX-R26 dejó fuera de CHECKPOINT.json por criterio, con otra
+cara. Siete casos caen.
+TERCERA VEZ EN EL LOTE que la respuesta correcta es null —«corresponde» en PT-056, «referencia» en
+PT-057, «valor» aquí— y no se planificó: sale de que las tres tareas tocan la misma frontera entre
+no saber y no haber, y de que en las tres el cero era la respuesta cómoda y falsa.
+DEFECTO PROPIO: escribí los ocho artefactos de PHASE 4 en «changes/PT-058-cada-cifra-dice-que-es»,
+inventándome el slug, cuando el registro dice «el-presupuesto-dice-de-que-tipo-es-cada-cifra». Lo
+detectó --gate G2 al no encontrar el intake, que seguía donde debía. El slug lo ASIGNA el registro
+igual que el ID (SUITE-R08): es el mismo error que AC-04 persigue en las cifras, un dato de memoria
+presentado como si fuera derivado.
+Casos: 706 → 738.
+Sin regla nueva: entra vocabulario en LEXICON §6.5c. Esto CUMPLE LEX-R21, no la amplía.
+No verificado: que alguien USE cifra() en vez de un número pelado —nada obliga a envolver, pero lo
+envuelto no puede mentir—; que los 50 usos en prosa digan la verdad, que quedan sin tocar por
+decisión declarada; que la inversa demuestre E13, porque ese caso siguió verde por casualidad del
+par elegido; y que TRES naturalezas basten para PT-059 y PT-060, que está apostado, no demostrado.
+
+## PT-059 — CHORE: no empezar lo que no se puede terminar
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-059-no-empezar-lo-que-no-se-puede-terminar
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-015 con VoBo del firmante
+Objetivo: la compuerta que detiene ANTES de empezar, con sus tres estados, y el estado de tarea que
+dice que la espera no es un fallo.
+Causa raíz: el lote necesitaba decidir con las cifras que PT-057 y PT-058 dejaron, y no había nada
+que lo hiciera.
+Solución: «viabilidadDe(coste, precedente, techoHistorico)» pura, con SAFE, MARGINAL y UNSAFE y el
+motivo SIEMPRE; «tracker viabilidad PT-NNN» que deriva las tres cifras de git y del registro;
+BLOCKED_BY_CONTEXT como estado de tarea VIVO y no terminal en tracker y verify-fdge.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-059/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): EL ENUNCIADO DE LA TAREA ERA IMPOSIBLE Y HUBO QUE CAMBIAR LA PREGUNTA.
+Se pedía «no comenzar lo que no quepa en el presupuesto disponible», y PHASE 2 midió que ese
+presupuesto NO EXISTE: «disponible = total − gastado» sale SIN EVALUAR siempre, porque el total es
+el contexto del modelo. Ejecutado con las funciones de PT-058, no supuesto. Así que la compuerta no
+compara contra un presupuesto: compara contra el PRECEDENTE —lo mayor que la sesión ya completó—,
+que sí es observable. SAFE no promete que quepa: dice que ya se pudo con algo así.
+LA DECISIÓN DIFÍCIL NO ES LA PRUDENTE. Con una cifra SIN EVALUAR, aprobar sería aprobar por
+omisión; pero PROHIBIR —que suena prudente— bloquearía TODO el trabajo PARA SIEMPRE, porque el
+disponible es SIN EVALUAR siempre. Una compuerta que bloquea siempre se apaga, y entonces no
+protege el día que tiene razón: es el mismo argumento que PT-056 midió con las discrepancias,
+encontrado otra vez en otra forma. MARGINAL es la respuesta honesta, y UNSAFE queda para evidencia
+EN CONTRA, que no es lo mismo que ausencia de evidencia a favor.
+AC-06 RESULTÓ DERIVABLE, que no se esperaba: si el coste supera la mayor sesión JAMÁS registrada,
+no es que esta sesión vaya justa — ninguna ha hecho nunca tanto, y BLOCKED_BY_CONTEXT sería un
+bucle infinito garantizado. Se deriva del historial completo y no de un contador de reintentos, que
+diría «van tres veces» sin distinguir mala suerte de imposibilidad.
+EL ORDEN DE LAS COMPROBACIONES ES PARTE DEL DISEÑO. AC-06 va PRIMERO: si se moviera detrás del SIN
+EVALUAR, una tarea que no cabe en ninguna sesión saldría MARGINAL por faltar el precedente y el
+bucle volvería sin que ningún otro caso se enterara. Hay un caso del arnés que vigila eso y sólo
+eso, y es uno de los cuatro que caen en la inversa.
+Casos: 738 → 784.
+Sin regla nueva: entra vocabulario en LEXICON §4 y §6.5d.
+No verificado: que el veredicto ACIERTE —mide precedente, y la sesión mayor hizo cuatro veces más
+que la menor—; que HOLGURA = 1.5 sea el número, declarado como juicio; que AC-06 se dispare alguna
+vez, porque hoy la mayor referencia es el 7% del techo; que alguien OBEDEZCA un UNSAFE; y que «un
+día» sea buena aproximación a «una sesión» — dos sesiones el mismo día cuentan como una, y el
+precedente hereda ese error entero.
+
+## PT-060 — CHORE: la sesión es el worker, no el estado
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-060-la-sesion-es-el-worker-no-el-estado
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-015 con VoBo del firmante
+Objetivo: que la sesión sea una entidad con su propio estado transitorio, y que el handoff de
+cambio de sesión se DERIVE en vez de escribirse.
+Causa raíz: nada registraba cuándo empieza una sesión. PT-059 aproximaba «una sesión = un día»
+porque era lo único observable, y PHASE 2 midió que día y sesión coinciden POR CASUALIDAD —45
+commits contra 44— y que el día que no coincidan nada lo notaría.
+Solución: SESSION.json con «desde» capturado al arrancar y todo lo demás derivado de «desde..HEAD».
+Tres subcomandos: «abrir» marca, «sesion» lee, «cerrar» produce el handoff DERIVADO del checkpoint.
+Las transiciones se apilan en SESSION_LOG.md (SUITE-R09) y HANDOFF.md queda intacto salvo su sello.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · PHASES.md · INSTALL.md ·
+tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-060/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓ (EJECUTADO)
+Delta (real vs planificado): LA DISTINCIÓN QUE HIZO POSIBLE LA TAREA es que una MARCA no es
+memoria. LEX-R26 prohíbe un campo que sólo pueda rellenar la memoria del agente; «desde» no lo es:
+es un dato verificable EN EL MOMENTO EN QUE SE PONE, igual que el sha del checkpoint. La memoria
+sería «llevo unas tres horas». Sin esa distinción la tarea era imposible, porque el inicio de una
+sesión no se puede derivar de nada anterior.
+AC-06 ES EL CRITERIO DEL LOTE Y SE EJECUTÓ, no se describió: cinco pasos capturados con su salida
+real. Y ahí se ve el lote entero funcionando junto — del handoff derivado salen la tarea, la fase,
+el commit y qué sigue, y el árbol CORRESPONDE al checkpoint porque si no «siguiente» habría
+bloqueado con STATE_MISMATCH antes de decir nada. Con su límite dicho: los cinco pasos ocurrieron
+dentro de la MISMA sesión, así que lo demostrado es que la información BASTA, no que un contexto
+vacío la use bien. Eso no se puede demostrar desde dentro de una sesión.
+EL AUDITOR ENCONTRÓ LO QUE SE ME PASÓ, por segunda tarea seguida: SESSION.json estaba declarado en
+LEXICON y ningún instalador lo creaba ni ningún documento operativo lo usaba. INSTALL.md ahora lo
+declara —como CHECKPOINT.json, no se siembra vacío— y PHASES.md lo usa en PHASE 0.
+DOS PATRONES CRÓNICOS. Quinta vez que la detección de ROOT se traga un argumento: «tracker sesion
+abrir» tomaba «abrir» por ROOT, buscaba el registro en ./abrir y no hacía nada EN SILENCIO. Séptima
+vez que una aserción casa con la prosa de al lado: el caso que comprueba que CHECKPOINTING no está
+en el registro casaba con el campo «origin» de esta misma tarea, que lo NOMBRA para decir que no
+entra. Los dos se arreglan por FORMA y los dos reaparecen — el arnés y la herramienta comparten
+espacio de nombres con la prosa que los describe.
+T10 cerró desde el otro lado el hueco que PT-059 declaró no verificado: la viabilidad usa el
+«desde» real si lo hay, y si no DICE que está usando el día.
+Casos: 784 → 829.
+Sin regla nueva: entra vocabulario en LEXICON §6.2 y §6.5e. Los tres estados de sesión de la
+especificación original NO llegan a §4: no son de tarea, y meterlos en REGISTRY.json los haría
+permanentes bajo SUITE-R09.
+No verificado: que alguien ABRA la sesión —sin marca todo sale SIN EVALUAR, correcto y peor que
+tener el dato—; que un agente distinto no vuelva a abrirlo todo igualmente; que la evidencia de
+AC-06 sea una sesión de verdad; y que «desde..HEAD» capture todo el trabajo, porque cuenta commits
+y lo no commiteado no aparece: la cifra es un suelo, no un total.

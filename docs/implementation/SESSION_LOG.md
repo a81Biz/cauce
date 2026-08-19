@@ -694,3 +694,205 @@ Y un descuido propio sin regla que lo cace: se escribió un `intake.md` duplicad
 se usó el original. Nada lo habría detectado: el directorio con otro slug estaba a la vista.
 
 **Dónde queda:** `G4` pendiente. Es del firmante y no se delega (`EXEC-R04`, `SUITE-R06a`).
+
+## 2026-08-18 · sesion abierta en `0919eda`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 0919eda (2026-08-18)
+             1 (MEDIDO) commits · 248 (MEDIDO) lineas
+tareas       PT-060
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `33cf8f2`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 33cf8f2 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 10
+sobre        33cf8f2  trabajo
+sigue        PT-060 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+```
+
+## 2026-08-18 · `EP-015` cerrado · 8.2.0 sellada
+
+**Lo que la sesión entregó:** las cinco tareas de `EP-015` integradas en `trabajo` (PRs #109–#113),
+las cinco filas de cierre resueltas, `CHANGELOG` **8.2.0** con los 21 documentos alineados y
+`CORE.md` regenerado. `selftest` **618 → 829**. Y `EP-013` y `EP-014` integradas en `main` al
+principio de la sesión (PRs #93 y #108).
+
+**Lo que la sesión aprendió, y no estaba en ninguna tarea:**
+
+1. **Un enunciado del lote era imposible.** `PT-059` se pedía como «no comenzar lo que no quepa en
+   el presupuesto disponible», y medirlo en `PHASE 2` mostró que ese presupuesto **no existe**: el
+   total es el contexto del modelo. La tarea cambió de pregunta —mide **precedente**— en vez de
+   fingir que la respondía.
+
+2. **Dos señales obvias estaban mal, y las dos se descubrieron midiendo.** Atribuir commits por
+   `--grep` daba `TRIVIAL` y `STANDARD` idénticos hasta la línea; y la señal con **mejor
+   cobertura** —los artefactos de `changes/`— resultó la **peor predictora**, porque mide
+   cumplimiento del procedimiento y no esfuerzo.
+
+3. **El marco llevaba ocho lotes incumpliendo `LEX-R21`.** `SIN EVALUAR` en 50 sitios y cero en
+   `LEXICON`. `verify-suite` comprueba vocabulario *derogado*, no vocabulario *usado sin declarar*:
+   dos comprobaciones distintas, y sólo existía una.
+
+4. **Las herramientas del marco encontraron cuatro cosas que se me pasaron.** `audit` vio bytes de
+   control invisibles en el código y un artefacto que ningún instalador creaba; CI puso en rojo dos
+   veces comprobaciones verdes en local. El patrón: **probar donde trabaja el agente y no donde se
+   decide un merge**.
+
+5. **Y dos patrones ya crónicos:** la detección de `ROOT` se tragó un argumento por **quinta** vez,
+   y una aserción casó con la prosa de al lado por **séptima**. Los dos se arreglan por *forma* y
+   los dos vuelven: el arnés comparte espacio de nombres con la prosa que lo describe.
+
+**La medida de `EP-014`, cobrada:** `FDGE-R52` cazó tres reanclajes olvidados en `EP-014`. En
+`EP-015`, sobre **40 transiciones**: **cero**. `tracker avanzar` se niega sin `--nota`.
+
+**Dónde queda:** `G4` de `EP-015` con VoBo del firmante. Publicar **no** entra: no se pidió.

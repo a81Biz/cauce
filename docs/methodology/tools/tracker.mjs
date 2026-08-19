@@ -35,7 +35,15 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 // PT-052 · partir lineas se hace con la funcion compartida: RE_LINEA contempla CRLF, y dos
 // formas de partir lineas en el repositorio serian dos fuentes del mismo hecho (SUITE-R38).
-import { lineas, ESTADOS_TERMINALES } from './patrones.mjs';
+import {
+  lineas, ESTADOS_TERMINALES,
+  // PT-058 · cada cifra dice que es · PT-059 · el veredicto de viabilidad
+  cifra, textoCifra, MEDIDO, ESTIMADO, SIN_EVALUAR, viabilidadDe,
+  // PT-060 · la sesion es el worker, no el estado
+  sesionDe, handoffDeSesion,
+} from './patrones.mjs';
+
+const SALTO = String.fromCharCode(10);
 
 // ─── Lógica pura · exportada para poder probarla sin plataforma ──────────────
 // PT-001 · El adaptador habla con `gh`; la comparación no habla con nadie.
@@ -50,7 +58,10 @@ import { lineas, ESTADOS_TERMINALES } from './patrones.mjs';
 // PT-004 pasó a DONE esperando su G4 y su issue quedó denunciado como huérfano. Un PT que
 // espera el merge no es trabajo cerrado — es lo más abierto que hay, porque lo que le queda es
 // una compuerta humana. `SUITE-R36` dice «solo lo vivo» y lo cerrado empieza en INTEGRATED.
-export const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED',
+// PT-059 · BLOCKED_BY_CONTEXT entra aqui. La tarea NO esta fallando: no debe ejecutarse
+// todavia. Si no fuera «vivo» desapareceria del tablero sin estar cerrada, y el marco habria
+// convertido «no es el momento» en «ya esta».
+export const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_BY_CONTEXT',
   'BLOCKED_DOMAIN', 'VALIDATION_PENDING', 'DONE',
   // PT-013 · un aplazado esta VIVO para el espejo: su issue permanece abierto y en el tablero.
   // Para la verificacion esta exento —no tiene intake ni fases— y esos dos signos opuestos son
@@ -96,25 +107,34 @@ export const FASES = {
  * y qué la cierra. Función pura — quien llama le pasa lo que ya leyó.
  */
 export function queSigue(alloc, opciones = {}) {
-  const { comentarioPendiente = false, issueAbierto = null } = opciones;
+  const { comentarioPendiente = false, issueAbierto = null, arbol = null } = opciones;
   if (!alloc) return { error: 'no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay trabajo.' };
   if (!VIVOS.has(alloc.status)) {
     return { id: alloc.id, estado: alloc.status, terminado: true,
       siguiente: `${alloc.id} ya es ${alloc.status}. Lo cerrado es evidencia, no estado (SUITE-R36).` };
   }
   const bloqueos = [];
+  const avisos = [];
   // SUITE-R43 · lo que una persona escribió se lee ANTES de avanzar. Va primero porque puede
   // cambiar todo lo demás: preguntar qué sigue sin haber leído la respuesta anterior es el
   // defecto que esta acción existe para impedir.
-  if (comentarioPendiente) {
+  if (comentarioPendiente === true) {
     bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43).`);
+  } else if (comentarioPendiente === null) {
+    // PT-056 · RULE-06 · no es «no hay»: es que nadie pudo mirar. Callarlo convertiria SUITE-R43
+    // en una garantia que se apaga sola cuando no hay credencial.
+    avisos.push('SUITE-R43 SIN EVALUAR: no se pudo consultar el tablero, asi que no se sabe si hay un comentario sin responder.');
   }
+  // PT-056 · STATE_MISMATCH · el arbol no corresponde al checkpoint. Va aqui porque «que sigue»
+  // se responde SOBRE UN ESTADO: si el estado no es el declarado, la respuesta es sobre otro
+  // trabajo. `corresponde: null` (sin checkpoint) NO bloquea — no tener foto no es tener una mala.
+  if (arbol && arbol.corresponde === false) bloqueos.push(textoDiscrepancia(arbol));
   if (!alloc.issue) bloqueos.push(`no tiene issue. Lo que está abierto se consulta en el tablero (SUITE-R35):  tracker abrir --aplicar`);
   else if (issueAbierto === false) bloqueos.push(`su issue #${alloc.issue} no está abierto y ${alloc.id} sigue vivo (SUITE-R35).`);
 
   const f = alloc.phase;
   if (f === undefined || f === null) {
-    return { id: alloc.id, estado: alloc.status, fase: null, bloqueos,
+    return { id: alloc.id, estado: alloc.status, fase: null, bloqueos, avisos,
       siguiente: 'no declara «phase» en el registro: SIN EVALUAR. Sin fase no se puede derivar qué toca, y adivinarlo es lo que esta acción existe para impedir (RULE-06).' };
   }
   const actual = FASES[Number(f)];
@@ -123,7 +143,7 @@ export function queSigue(alloc, opciones = {}) {
   return {
     id: alloc.id, estado: alloc.status, fase: Number(f), nombre: actual?.nombre ?? '¿?',
     produce: actual?.produce ?? [], cierra: actual?.cierra ?? '¿?', compuerta: compuerta ?? null,
-    bloqueos,
+    bloqueos, avisos,
     siguiente: bloqueos.length
       ? `RESUELVE PRIMERO lo de arriba. Después: ${actual?.cierra ?? '¿?'}`
       : `PHASE ${f} · ${actual?.nombre ?? '¿?'} — cierra con: ${actual?.cierra ?? '¿?'}`
@@ -454,9 +474,20 @@ const APLICAR = ARGS.includes('--aplicar');
 // dijo EJECUTARLO, sabiendo del defecto. Por eso las banderas con valor se declaran en UN sitio:
 // la lista es lo que hace que la cuarta no repita el error.
 const CON_VALOR = new Set(['--a', '--nota']);
+// PT-057 · `coste` recibe TIPO y COMPLEJIDAD como posicionales, y sin esta guarda el primero se
+// tomaba por ROOT: «tracker coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
+// CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
+// ahora estos—, y las cuatro se arreglan con una regla de FORMA, no con un caso mas.
+const ES_ETIQUETA = /^[A-Z][A-Z_]*$/;
+// PT-060 · y los SUBCOMANDOS tampoco son rutas. Quinta vez que un argumento nuevo se cuela por
+// aqui —-q, --solo, --a, las etiquetas y ahora estos—: «tracker sesion abrir» tomaba «abrir» por
+// ROOT, buscaba el registro en ./abrir y no hacia nada, EN SILENCIO.
+const SUBCOMANDOS = new Set(['abrir', 'cerrar', 'ver']);
 const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
   !a.startsWith('--')
   && !/^(?:PT|EP)-\d+$/.test(a)
+  && !ES_ETIQUETA.test(a)
+  && !SUBCOMANDOS.has(a)
   && !CON_VALOR.has(xs[i - 1])) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
 
@@ -625,7 +656,141 @@ export function decidirSalida(reg, sonda, adaptadores = ADAPTADORES) {
 // ─── El programa. Solo corre si me ejecutan directamente ────────────────────
 // Importarme para probar la lógica de arriba no debe leer un registro, abrir un proceso ni
 // exigir credenciales. Sin este guard, importar el módulo ejecutaba la herramienta entera.
+// ── PT-057 · la referencia de coste ─────────────────────────────────────────
+//
+// El umbral de AC-03. Es un JUICIO, no un resultado: nada demuestra que cinco sea el numero.
+// Vive aqui, con nombre, para que se pueda DISCUTIR — no enterrado dentro de un `if`.
+//
+// Lo que si esta medido es que decide. Con cinco: dan referencia BUG/STANDARD (13),
+// CHORE/STANDARD (13), BUG/TRIVIAL (7) y FEATURE/STANDARD (6); se quedan sin ella
+// INVESTIGATION/STANDARD, CHORE/TRIVIAL y CHORE/SIMPLE (1 tarea cada uno) y BUG/SIMPLE (3).
+export const MINIMO_REFERENCIA = 5;
+
+/**
+ * De QUIEN es un commit. El primer PT del ASUNTO, y solo del asunto.
+ *
+ * PHASE 2 lo midio: 61 de 162 commits nombran mas de un PT y uno nombra DIEZ, porque el cuerpo
+ * cita las tareas anteriores —«CORRIGE PT-052», «el mismo defecto que PT-023 encontro»— y eso es
+ * lo CORRECTO en una bitacora append-only (SUITE-R09). Atribuir por `--grep` daba a una tarea el
+ * trabajo de otras, y con esa medicion BUG/TRIVIAL y BUG/STANDARD salian identicos HASTA LA
+ * LINEA: 5 commits, 65 archivos, 2708 lineas los dos. Una cifra falsa con toda la autoridad de
+ * un numero derivado del historial real.
+ */
+export const duenoDe = (asunto) => (String(asunto ?? '').match(/PT-\d{3}/) ?? [null])[0];
+
+/**
+ * Mediana y rango. NUNCA media.
+ *
+ * Los grupos son de 6 a 13 tareas y la dispersion llega a un factor de diez —BUG/TRIVIAL va de
+ * 242 a 2591 lineas—: una media la arrastra un solo caso. Y el rango viaja SIEMPRE con la
+ * mediana, porque una cifra central sin dispersion se lee como una prediccion.
+ */
+export function resumen(xs) {
+  const v = [...(xs ?? [])].map((x) => Number(x) || 0).sort((a, b) => a - b);
+  if (!v.length) return null;
+  const mediana = v.length % 2
+    ? v[(v.length - 1) / 2]
+    : Math.round((v[v.length / 2 - 1] + v[v.length / 2]) / 2);
+  return { mediana, min: v[0], max: v[v.length - 1], n: v.length };
+}
+
+/**
+ * La referencia de coste de un tipo de tarea, DERIVADA de las cerradas.
+ *
+ * `cerradas` son objetos {id, type, complexity, commits, archivos, lineas} que quien llama ya
+ * derivo de git y del registro: esta funcion no toca git ni el disco.
+ *
+ * TRES resultados, como `estadoDelArbol`: hay referencia, hay datos pero POCOS, y no hay nada.
+ * Las tres situaciones son distintas y por eso las tres respuestas lo son. Devolver cero o NaN
+ * en lugar de `null` los meteria en PT-058 y PT-059 COMO SI FUERAN MEDIDAS, que es exactamente
+ * lo que PT-056 acaba de demostrar que es peor que no tener el dato.
+ */
+export function costeDe(cerradas, opciones = {}) {
+  const { tipo = null, complejidad = null, minimo = MINIMO_REFERENCIA } = opciones;
+  const grupo = (cerradas ?? []).filter((c) =>
+    (!tipo || c?.type === tipo) && (!complejidad || c?.complexity === complejidad));
+  const base = { tipo, complejidad, casos: grupo.length, minimo };
+  if (!grupo.length) {
+    return { ...base, referencia: null, motivo: 'ninguna tarea cerrada de este tipo' };
+  }
+  if (grupo.length < minimo) {
+    // Se enseñan los casos EN CRUDO. No es lo mismo no tener dato que tener pocos, y esconder
+    // los pocos que hay obligaria a ir a buscarlos a mano justo cuando menos se sabe.
+    return {
+      ...base,
+      referencia: null,
+      motivo: `solo ${grupo.length}, y hacen falta ${minimo}`,
+      casos_crudos: grupo.map((c) => ({ id: c.id, commits: c.commits, archivos: c.archivos, lineas: c.lineas })),
+    };
+  }
+  const m = (campo) => resumen(grupo.map((c) => c?.[campo]));
+  return { ...base, referencia: { commits: m('commits'), archivos: m('archivos'), lineas: m('lineas') } };
+}
+
 /** Funcion PURA: el checkpoint que corresponde a una allocation, dado lo que git dice. */
+/**
+ * PT-056 · STATE_MISMATCH · ¿el arbol CORRESPONDE a lo que el checkpoint declara?
+ *
+ * PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
+ * checkpoint que apunta a nada— y NO impide la peligrosa: un sha real que describe un arbol que ya
+ * no existe. Ese MIENTE SIN QUE NADA LO NOTE, y el presupuesto, la compuerta y el handoff de
+ * EP-015 decidirian sobre el.
+ *
+ * SOLO `sha` y `rama` sostienen la correspondencia. `sucio` y `archivos` describen PROGRESO:
+ * medido en PHASE 2, la lista paso de 3 a 5 archivos con el sha intacto en el tiempo de escribir
+ * tres parrafos. Si fueran criterio, la discrepancia seria el ESTADO NORMAL y el aviso se
+ * ignoraria desde el primer dia — y entonces el dia que fuera real tampoco se leeria.
+ *
+ * TRES resultados, no dos. `corresponde: null` cuando no hay checkpoint: no tener foto y tener una
+ * foto equivocada son cosas distintas, y es RULE-06 en la forma que este repositorio ya usa.
+ *
+ * NO repara. Reescribir el checkpoint al detectar el desfase borraria la unica prueba de que hubo
+ * divergencia, y decidir si el arbol o la foto es lo bueno es humano (SUITE-R06).
+ */
+export function estadoDelArbol(cp, git = {}) {
+  if (!cp) return { corresponde: null, pt: null, discrepancias: [], motivo: 'sin checkpoint: no hay nada que contrastar' };
+  const d = [];
+  // No se contrasta lo que no se declaro: un checkpoint con `sha: null` ya lo avisa PT-052.
+  //
+  // Y `sha !== HEAD` NO es, por si solo, una discrepancia. PHASE 2 lo midio: las tareas de EP-014
+  // hicieron hasta DIEZ commits contra NUEVE transiciones de fase, asi que la ventana en la que el
+  // sha declarado ya no es HEAD es el ESTADO HABITUAL entre transiciones. Exigir igualdad haria
+  // saltar el aviso despues de cada commit — y un aviso que salta siempre no se lee el dia que es
+  // cierto, que es justo lo que esta comprobacion existe para impedir.
+  //
+  // Lo que distingue es de que HISTORIA es: un checkpoint cuyo commit es ANTECESOR del actual
+  // describe un estado del que el de ahora desciende — va por detras, no miente. Uno que no lo es
+  // esta en otra rama o en una historia reescrita, y ahi si.
+  //
+  // `descendiente` lo deriva quien llama (`git merge-base --is-ancestor`): esta funcion no toca
+  // git. Si nadie lo derivo llega `null`, y entonces un sha distinto SI cuenta: no poder demostrar
+  // que desciende no es haberlo demostrado.
+  if (cp.sha && git.sha && cp.sha !== git.sha && git.descendiente !== true) {
+    d.push({ campo: 'sha', declarado: cp.sha, real: git.sha });
+  }
+  // `git rev-parse --abbrev-ref HEAD` devuelve la cadena «HEAD» cuando el repositorio esta en
+  // detached HEAD, que es EXACTAMENTE lo que deja `actions/checkout` en CI. Eso no es el nombre de
+  // una rama: es no poder leerlo, y tratarlo como valor hacia que la comprobacion se disparara
+  // contra si misma en cada PR. Lo encontro CI en el primer PR de PT-056, no yo.
+  const ramaReal = git.rama === 'HEAD' ? null : git.rama;
+  if (cp.rama && ramaReal && cp.rama !== ramaReal) d.push({ campo: 'rama', declarado: cp.rama, real: ramaReal });
+  return { corresponde: d.length === 0, pt: cp.pt ?? null, discrepancias: d };
+}
+
+/** El texto de una discrepancia. Dice CUAL es y PROPONE el comando — no lo ejecuta (AC-04, AC-05). */
+export function textoDiscrepancia(e) {
+  const filas = e.discrepancias.map((x) => {
+    const corto = (s) => (/^[0-9a-f]{40}$/.test(String(s)) ? String(s).slice(0, 7) : String(s));
+    return `${x.campo.padEnd(6)} declarado ${corto(x.declarado)}   real ${corto(x.real)}`;
+  });
+  return [
+    `STATE_MISMATCH · el arbol no corresponde al checkpoint de ${e.pt ?? '¿?'} (LEX-R26):`,
+    ...filas.map((f) => `  ${f}`),
+    'Reanudar con esta discrepancia es una DECISION HUMANA (SUITE-R06). Si el checkpoint esta',
+    `viejo y el arbol es el bueno:  tracker checkpoint ${e.pt ?? 'PT-NNN'}`,
+  ].join('\n');
+}
+
 export function checkpointDe(alloc, git = {}) {
   if (!alloc) return null;
   const r = queSigue(alloc);
@@ -637,7 +802,10 @@ export function checkpointDe(alloc, git = {}) {
     status: alloc.status ?? null,
     phase: alloc.phase ?? null,
     fase: r.nombre ?? null,
-    rama: alloc.branch ?? git.rama ?? null,
+    // PT-056 · la rama DECLARADA solo vale si existe. Al integrar, la rama de tarea se borra y el
+    // checkpoint pasaba a afirmar una referencia muerta — que es exactamente lo que STATE_MISMATCH
+    // existe para impedir. Quien llama dice si sigue viva; si no lo dice, se cree lo declarado.
+    rama: (git.ramaDeclaradaViva === false ? git.rama : (alloc.branch ?? git.rama)) ?? null,
     sha,
     sha_corto: sha ? sha.slice(0, 7) : null,
     sucio: git.sucio ?? null,
@@ -671,13 +839,28 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 // correr PRIMERO. Salir en la compuerta de acceso hacia que «sin --nota» y «saltar una fase»
 // se contestaran con un mensaje sobre la plataforma: el diagnostico equivocado para el
 // defecto real. La exigencia de plataforma es una validacion mas, y va dentro.
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar']);
+// PT-056 · `siguiente` entra aqui. Responde «que toca» DERIVANDOLO del registro (SUITE-R48); del
+// tablero saca dos datos —si hay un comentario sin responder y si el issue sigue abierto— que ya
+// van envueltos en try/catch porque son opcionales. Exigir credencial para responder algo que se
+// deriva de un archivo del repositorio dejaba la accion inservible justo donde importa: en CI, que
+// es donde se decide un merge, y donde no hay `gh auth`. Lo encontro PT-056 al ver sus cuatro
+// casos rojos en CI y verdes en local.
+//
+// Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
+// garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
   process.exit(D.codigo);
 }
 const adaptador = ADAPTADORES[PLATAFORMA];
+// ¿Se puede mirar el tablero de verdad? `siguiente` ya no lo exige, asi que tiene que poder
+// distinguir «no hay comentarios pendientes» de «nadie pudo mirar».
+const HAY_TABLERO = (() => {
+  if (!adaptador) return false;
+  try { return decidirSalida(reg, null).codigo === 0; } catch { return false; }
+})();
 
 // ── Qué está vivo según el registro ─────────────────────────────────────────
 const all = Array.isArray(reg.allocations) ? reg.allocations : [];
@@ -995,7 +1178,274 @@ function pendienteDe() {
 // PT-030 · La respuesta no sale de la memoria del agente: sale del registro cruzado con el
 // estado real del issue. Consultar el tablero deja de ser una buena costumbre y pasa a ser el
 // único sitio donde está la respuesta.
+// ── coste · lo que suele costar un tipo de tarea, DERIVADO de las cerradas ──
+//
+// Ninguna cifra sale de la memoria del agente ni de una tabla escrita a mano (AC-04): el tipo y
+// la complejidad los pone REGISTRY.json, y commits, archivos y lineas los pone git.
+
+/** Las tareas cerradas con su coste, derivado. Es lo unico que toca git en todo esto. */
+function cerradasConCoste() {
+  const CERRADO = new Set(['INTEGRATED', 'CLOSED']);
+  const cer = all.filter((a) => a?.id?.startsWith('PT-') && CERRADO.has(a.status));
+  // Un solo recorrido de la historia: 162 commits hoy, y `git show` por commit seria lento.
+  // Separador: un espacio. El SHA no lleva ninguno, asi que el primero parte limpio — y un
+  // byte de control aqui sobrevive al editor pero no a la revision (lo marca `audit`).
+  const crudo = gitDe(['log', '--all', '--no-merges', '--format=%H %s']) ?? '';
+  const porPt = new Map();
+  for (const linea of lineas(crudo).filter(Boolean)) {
+    const corte = linea.indexOf(' ');
+    const sha = corte < 0 ? linea : linea.slice(0, corte);
+    const asunto = corte < 0 ? '' : linea.slice(corte + 1);
+    const id = duenoDe(asunto);
+    if (!id) continue;
+    if (!porPt.has(id)) porPt.set(id, []);
+    porPt.get(id).push(String(sha).trim());
+  }
+  return cer.map((a) => {
+    const shas = porPt.get(a.id) ?? [];
+    const archivos = new Set();
+    let lineasTocadas = 0;
+    for (const sha of shas) {
+      for (const l of lineas(gitDe(['show', '--numstat', '--format=', '--no-renames', sha]) ?? '')) {
+        const [mas, menos, f] = l.split('	');
+        if (!f) continue;
+        archivos.add(f);
+        lineasTocadas += (Number(mas) || 0) + (Number(menos) || 0);
+      }
+    }
+    return { id: a.id, type: a.type, complexity: a.complexity ?? null,
+      commits: shas.length, archivos: archivos.size, lineas: lineasTocadas, sinCommit: !shas.length };
+  });
+}
+
+function coste() {
+  const args = ARGS.slice(1).filter((x) => !x.startsWith('-'));
+  // El ROOT tambien llega como posicional. Se distingue por forma: los tipos y complejidades son
+  // MAYUSCULAS sin separadores; una ruta no lo es.
+  const [tipo = null, complejidad = null] = args.filter((x) => /^[A-Z_]+$/.test(x));
+  const todas = cerradasConCoste();
+  const conDato = todas.filter((c) => !c.sinCommit);
+  const sinDato = todas.length - conDato.length;
+
+  const grupos = tipo || complejidad
+    ? [[tipo, complejidad]]
+    : [...new Set(conDato.map((c) => `${c.type}/${c.complexity}`))].map((k) => k.split('/'));
+
+  const filas = grupos
+    .map(([tp, cx]) => costeDe(conDato, { tipo: tp || null, complejidad: cx || null }))
+    .sort((a, b) => b.casos - a.casos);
+
+  for (const r of filas) {
+    const nombre = [r.tipo ?? '*', r.complejidad ?? '*'].join('/');
+    di('');
+    if (r.referencia) {
+      di(`  ${nombre} · ${r.casos} tareas cerradas`);
+      for (const [k, v] of Object.entries(r.referencia)) {
+        di(`    ${k.padEnd(9)} ${String(v.mediana).padStart(5)}     (${v.min} – ${v.max})`);
+      }
+    } else {
+      di(`  ${nombre} · ${r.casos} ${r.casos === 1 ? 'tarea' : 'tareas'} — SIN REFERENCIA (${r.motivo})`);
+      for (const c of r.casos_crudos ?? []) {
+        di(`    ${c.id}    commits ${c.commits} · archivos ${c.archivos} · lineas ${c.lineas}`);
+      }
+      // RULE-06 · no se da una cifra que no se sostiene. Los casos estan ahi; el juicio es humano.
+      di('    Una mediana de una tarea no es una mediana. Ahi esta lo que hay.');
+    }
+  }
+  di('');
+  di(`  Derivado de ${conDato.length} de las ${todas.length} tareas cerradas. ${sinDato} no tienen`);
+  di('  commit propio: no costaron cero, es que NO SE PUEDE SABER — trabajo anterior a la');
+  di('  convencion de mensajes. Es una REFERENCIA de su tipo, no una prediccion de tu tarea:');
+  di('  dice de CUANTAS tareas sale, no de CUANDO, y las anteriores a FDGE-R19 llevaban el');
+  di('  trabajo entero en un commit.');
+}
+
+// ── viabilidad · ¿se puede empezar esto AHORA? ──────────────────────────────
+//
+// Las tres cifras se DERIVAN, y cada una llega con su naturaleza (PT-058):
+//   coste        de las tareas cerradas de su tipo (PT-057) → ESTIMADO, o SIN EVALUAR si <5
+//   precedente   lo mayor completado HOY                    → MEDIDO, o SIN EVALUAR si nada
+//   techo        la mayor sesion registrada jamas            → MEDIDO
+//
+// El «presupuesto disponible» NO aparece porque no existe: PHASE 2 lo midio.
+
+/** Lo que cada dia de trabajo movio. Un dia es la unica aproximacion observable a una sesion. */
+function porSesion() {
+  const crudo = gitDe(['log', '--no-merges', '--format=%H %cs']) ?? '';
+  const dias = new Map();
+  for (const l of lineas(crudo).filter(Boolean)) {
+    const corte = l.indexOf(' ');
+    if (corte < 0) continue;
+    const sha = l.slice(0, corte);
+    const dia = l.slice(corte + 1).trim();
+    if (!dias.has(dia)) dias.set(dia, []);
+    dias.get(dia).push(sha);
+  }
+  const out = [];
+  for (const [dia, shas] of dias) {
+    let n = 0;
+    for (const sha of shas) {
+      for (const x of lineas(gitDe(['show', '--numstat', '--format=', '--no-renames', sha]) ?? '')) {
+        const [mas, menos, f] = x.split('	');
+        if (!f) continue;
+        n += (Number(mas) || 0) + (Number(menos) || 0);
+      }
+    }
+    out.push({ dia, commits: shas.length, lineas: n });
+  }
+  return out;
+}
+
+function viabilidad() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) throw new Error('viabilidad necesita una allocation:  tracker viabilidad PT-059');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
+
+  const conDato = cerradasConCoste().filter((c) => !c.sinCommit);
+  const ref = costeDe(conDato, { tipo: a.type, complejidad: a.complexity ?? null });
+  const coste = ref.referencia
+    ? cifra(ref.referencia.lineas.mediana, ESTIMADO)
+    : cifra(null, SIN_EVALUAR);
+
+  const sesiones = porSesion();
+  const hoy = gitDe(['log', '-1', '--format=%cs']);
+  // PT-060 · si hay sesion abierta, el precedente sale de la SESION REAL. Sin marca sale del dia,
+  // que es una APROXIMACION —PHASE 2 de PT-060 lo midio: coinciden por casualidad— y se DICE.
+  const marcaSesion = leerJSON(join(IMPL, 'SESSION.json'));
+  // El precedente es lo mayor COMPLETADO en esta sesion. Si la sesion acaba de empezar no hay
+  // con que comparar, y eso es SIN EVALUAR — no cero.
+  const deLaSesion = marcaSesion?.desde ? new Set(movidoDesde(marcaSesion.desde).tareas) : null;
+  const mayorHoy = Math.max(0, ...conDato
+    .filter((c) => (deLaSesion ? deLaSesion.has(c.id) : ultimoDiaDe(c.id) === hoy))
+    .map((c) => c.lineas));
+  const precedente = mayorHoy > 0 ? cifra(mayorHoy, MEDIDO) : cifra(null, SIN_EVALUAR);
+  const techo = sesiones.length
+    ? cifra(Math.max(...sesiones.map((s) => s.lineas)), MEDIDO)
+    : cifra(null, SIN_EVALUAR);
+
+  const v = viabilidadDe(coste, precedente, techo);
+  di('');
+  di(`  ${a.id} · ${a.type}/${a.complexity ?? '?'}`);
+  di(`    coste tipico    ${textoCifra(coste)}${ref.casos ? `   de ${ref.casos} cerradas` : ''}`);
+  di(`    mayor hecho     ${textoCifra(precedente)}   ${marcaSesion?.desde
+    ? `en la sesion abierta en ${String(marcaSesion.desde).slice(0, 7)}`
+    : `en el DIA ${hoy} — no hay sesion abierta, y el dia NO es la sesion (PT-060)`}`);
+  di(`    techo historico ${textoCifra(techo)}   la mayor sesion registrada`);
+  di('');
+  di(`    veredicto       ${v.veredicto}${v.nunca ? '  ·  NUNCA CABRIA' : ''}`);
+  di('');
+  for (const linea of envolver(v.motivo, 88)) di(`  ${linea}`);
+  di('');
+  di('  Esto mide PRECEDENTE, no capacidad: el presupuesto disponible es SIN EVALUAR siempre,');
+  di('  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d). Y CONSULTA:');
+  di('  escribir el estado de una tarea es de «tracker avanzar».');
+}
+
+/** Corta un texto en lineas de ancho maximo, sin partir palabras. */
+function envolver(texto, ancho) {
+  const out = [];
+  let fila = '';
+  for (const palabra of String(texto).split(/\s+/)) {
+    if ((fila + ' ' + palabra).trim().length > ancho) { out.push(fila.trim()); fila = palabra; }
+    else fila += ' ' + palabra;
+  }
+  if (fila.trim()) out.push(fila.trim());
+  return out;
+}
+
+/** El dia del ULTIMO commit propio de una tarea. */
+function ultimoDiaDe(id) {
+  const s = gitDe(['log', '--no-merges', '-1', '--format=%cs', '--grep', `^[a-z]*: ${id}`, '-E']);
+  return s || null;
+}
+
+// ── sesion · el worker, no el estado ────────────────────────────────────────
+//
+// SESSION != STATE != TASK. «abrir» es lo UNICO que marca; «sesion» y «cerrar» solo derivan.
+
+const F_SESION = () => join(IMPL, 'SESSION.json');
+
+/** Lo que la sesion lleva movido, derivado de «desde..HEAD». */
+function movidoDesde(desde) {
+  const shas = lineas(gitDe(['log', '--no-merges', '--format=%H %s', `${desde}..HEAD`]) ?? '').filter(Boolean);
+  const archivos = new Set();
+  const tareas = new Set();
+  let lin = 0;
+  for (const l of shas) {
+    const corte = l.indexOf(' ');
+    const sha = corte < 0 ? l : l.slice(0, corte);
+    const id = duenoDe(corte < 0 ? '' : l.slice(corte + 1));
+    if (id) tareas.add(id);
+    for (const x of lineas(gitDe(['show', '--numstat', '--format=', '--no-renames', sha]) ?? '')) {
+      const [mas, menos, f] = x.split('	');
+      if (!f) continue;
+      archivos.add(f);
+      lin += (Number(mas) || 0) + (Number(menos) || 0);
+    }
+  }
+  return { commits: shas.length, archivos: archivos.size, lineas: lin, tareas: [...tareas].sort() };
+}
+
+/** Apila una linea en el ledger de sesiones. SUITE-R09: se anade, nunca se reescribe. */
+function apilarEnLog(texto) {
+  const f = join(IMPL, 'SESSION_LOG.md');
+  if (!existsSync(f)) return false;
+  writeFileSync(f, readFileSync(f, 'utf8').replace(/\s*$/, '') + SALTO + SALTO + texto + SALTO);
+  return true;
+}
+
+function sesion() {
+  const sub = ARGS.slice(1).find((a) => ['abrir', 'cerrar'].includes(a)) ?? 'ver';
+  const marca = leerJSON(F_SESION());
+  const cp = leerJSON(join(IMPL, 'CHECKPOINT.json'));
+
+  if (sub === 'abrir') {
+    // Lo UNICO capturado en todo esto. Es una MARCA —verificable en el momento en que se pone—,
+    // no memoria. LEX-R26 prohibe lo otro.
+    const desde = gitDe(['rev-parse', 'HEAD']);
+    if (!desde) throw new Error('no se pudo leer HEAD: sin git no hay marca, y una marca inventada seria peor que ninguna (RULE-06).');
+    const nueva = { desde, abierta: gitDe(['log', '-1', '--format=%cs']), generado: gitDe(['log', '-1', '--format=%cs']) };
+    writeFileSync(F_SESION(), JSON.stringify(nueva, null, 2) + SALTO);
+    apilarEnLog(`## ${nueva.abierta} · sesion abierta en \`${desde.slice(0, 7)}\`` + SALTO + SALTO
+      + '<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.');
+    notas.push(`SESSION.json escrito: desde ${desde.slice(0, 7)}`);
+    di('');
+    di(`  sesion abierta desde ${desde.slice(0, 7)}`);
+    return;
+  }
+
+  const s = sesionDe(marca, marca?.desde ? movidoDesde(marca.desde) : {}, cp);
+
+  if (sub === 'cerrar') {
+    const h = handoffDeSesion(s, cp);
+    di('');
+    for (const l of lineas(h)) di(`  ${l}`);
+    di('');
+    apilarEnLog(`## ${gitDe(['log', '-1', '--format=%cs'])} · sesion cerrada` + SALTO + SALTO
+      + '<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:' + SALTO + SALTO
+      + '```' + SALTO + h + SALTO + '```');
+    // NO se borra SESSION.json: la sesion siguiente lo sobrescribe al abrir. Borrarlo dejaria un
+    // hueco donde antes habia un dato.
+    di('  Apilado en SESSION_LOG.md. SESSION.json NO se borra: la sesion siguiente lo sobrescribe.');
+    di('  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.');
+    return;
+  }
+
+  di('');
+  if (!s.abierta) { di(`  ${s.motivo}`); return; }
+  di(`  sesion desde ${s.desde_corto}${s.abierta_en ? ` (${s.abierta_en})` : ''}`);
+  di(`    commits    ${textoCifra(s.commits)}`);
+  di(`    archivos   ${textoCifra(s.archivos)}`);
+  di(`    lineas     ${textoCifra(s.lineas)}`);
+  if (s.tareas.length) di(`    tareas     ${s.tareas.join(' · ')}`);
+  if (s.pt) di(`    en curso   ${s.pt} · PHASE ${s.phase}`);
+}
+
 function siguienteDe() {
+  let cp = null;
+  try { cp = JSON.parse(readFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), 'utf8')); }
+  catch { /* sin checkpoint o ilegible: no se afirma nada. verify-fdge es quien juzga el archivo. */ }
   const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
   const objetivo = id
     ? [all.find((x) => x?.id === id)]
@@ -1005,20 +1455,37 @@ function siguienteDe() {
     return;
   }
   for (const a of objetivo) {
-    let pendiente = false;
+    // `null` = no se pudo mirar. `false` = se miro y no hay. La diferencia se REPORTA.
+    let pendiente = HAY_TABLERO ? false : null;
     let abierto = null;
-    if (a.issue && adaptador?.comentarios) {
+    if (HAY_TABLERO && a.issue && adaptador?.comentarios) {
       try { pendiente = comentarioSinResponder(adaptador.comentarios(a.issue)) === true; } catch { /* sin acceso: no se afirma */ }
     }
-    if (a.issue && adaptador?.abiertos) {
+    if (HAY_TABLERO && a.issue && adaptador?.abiertos) {
       try { abierto = adaptador.abiertos().some((i) => i.number === a.issue); } catch { /* idem */ }
     }
-    const r = queSigue(a, { comentarioPendiente: pendiente, issueAbierto: abierto });
+    // Solo se contrasta contra el checkpoint SI ES EL DE ESTA allocation: el checkpoint es UNO
+    // (LEX-R26) y el de otra tarea no dice nada de esta.
+    const arbol = cp?.pt === a.id
+      ? estadoDelArbol(cp, {
+        sha: gitDe(['rev-parse', 'HEAD']),
+        rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+        descendiente: desciendeDe(cp.sha),
+      })
+      : null;
+    const r = queSigue(a, { comentarioPendiente: pendiente, issueAbierto: abierto, arbol });
     di('');
     di(`  ${r.id}  ${r.estado}${r.fase !== null && r.fase !== undefined ? `  ·  PHASE ${r.fase} ${r.nombre}` : ''}${a.issue ? `  ·  #${a.issue}` : ''}`);
     if (r.compuerta) di(`  compuerta:  ${r.compuerta}`);
     if (r.produce?.length) di(`  produce:    ${r.produce.join(' · ')}`);
-    for (const b of r.bloqueos ?? []) di(`  ✗ BLOQUEA:  ${b}`);
+    // Un bloqueo puede ser de varias lineas (STATE_MISMATCH enumera cada discrepancia): se
+    // indentan TODAS, o la continuacion se lee como si fuera otra cosa.
+    for (const v of r.avisos ?? []) di(`  · ${v}`);
+    for (const b of r.bloqueos ?? []) {
+      const [cabeza, ...resto] = String(b).split(SALTO);
+      di(`  ✗ BLOQUEA:  ${cabeza}`);
+      for (const l of resto) di(`              ${l}`);
+    }
     di(`  siguiente:  ${r.siguiente}`);
   }
   di('');
@@ -1037,9 +1504,30 @@ function siguienteDe() {
 // Es UNO y se sobrescribe: el estado en curso es el de la tarea que se esta tocando. N archivos
 // serian N-1 mintiendo desde el momento de escribirse. Por eso declara de que `pt` es — leerlo
 // sin mirar ese campo es el error que lo haria peligroso.
-const gitDe = (args) => {
-  try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
-  catch { return null; }
+/**
+ * ¿El commit declarado es ANTECESOR del actual? `null` si no se puede decidir — y `null` no es
+ * `false`: no poder demostrarlo no es haber demostrado lo contrario (RULE-06).
+ */
+const desciendeDe = (sha) => {
+  if (!sha) return null;
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', sha, 'HEAD'], { cwd: ROOT, stdio: 'pipe' });
+    return true;
+  } catch (e) {
+    // Codigo 1 = respondio que NO. Cualquier otro = no pudo responder, y eso no es un no.
+    return e?.status === 1 ? false : null;
+  }
+};
+
+const gitDe = (args, { crudo = false } = {}) => {
+  try {
+    const s = execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+    // PT-056 · CORRIGE PT-052 · `status --porcelain` empieza cada linea con DOS columnas de estado,
+    // y la primera es un ESPACIO cuando el cambio no esta indexado. `trim()` se lo comia y el
+    // `slice(3)` posterior cortaba un caracter del path: el CHECKPOINT.json vigente declaraba
+    // «hanges/…/intake.md». Un artefacto de gobernanza que afirma una ruta que no existe.
+    return crudo ? (s.endsWith(SALTO) ? s.slice(0, -1) : s) : s.trim();
+  } catch { return null; }
 };
 
 function checkpoint() {
@@ -1049,10 +1537,15 @@ function checkpoint() {
   // RULE-06 · si no esta en el registro no se inventan los campos: se dice.
   if (!a) { throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay checkpoint.`); }
 
-  const sucio = gitDe(['status', '--porcelain']);
+  const sucio = gitDe(['status', '--porcelain'], { crudo: true });
+  const ramaReal = gitDe(['rev-parse', '--abbrev-ref', 'HEAD']);
+  const declaradaViva = a.branch
+    ? (() => { try { execFileSync('git', ['rev-parse', '--verify', `refs/heads/${a.branch}`], { cwd: ROOT, stdio: 'pipe' }); return true; } catch { return false; } })()
+    : null;
   const cp = checkpointDe(a, {
     sha: gitDe(['rev-parse', 'HEAD']),
-    rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+    rama: ramaReal === 'HEAD' ? null : ramaReal,
+    ramaDeclaradaViva: declaradaViva,
     fecha: gitDe(['log', '-1', '--format=%cs']),
     sucio: sucio === null ? null : sucio.length > 0,
     archivos: lineas(sucio ?? '').filter(Boolean).map((l) => l.slice(3)).sort(),
@@ -1222,7 +1715,7 @@ function avanzar() {
     }
 
     // 3 · el checkpoint · PT-052
-    const sucio = gitDe(['status', '--porcelain']);
+    const sucio = gitDe(['status', '--porcelain'], { crudo: true });
     const cp = checkpointDe(a, {
       sha: gitDe(['rev-parse', 'HEAD']),
       rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
@@ -1306,7 +1799,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

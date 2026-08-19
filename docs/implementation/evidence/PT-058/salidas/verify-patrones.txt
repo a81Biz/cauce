@@ -1,0 +1,3 @@
+verify-patrones — 11 patrones · 52 comprobaciones
+
+[32mTodos los patrones cumplen su contrato.[0m

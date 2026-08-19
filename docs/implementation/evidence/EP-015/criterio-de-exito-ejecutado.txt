@@ -1,0 +1,142 @@
+# EP-015 · EL CRITERIO DE EXITO DEL LOTE, EJECUTADO
+
+«Una tarea que no cabe en una sesion se detiene ANTES de empezar la unidad que no
+ cabria, deja checkpoint y handoff, y la sesion siguiente VALIDA EL ARBOL y continua
+ desde el siguiente punto pendiente sin repetir el analisis.»
+
+No se describe: se ejecuta contra el repositorio real y se captura.
+
+====================================================================
+1 · LA SESION ESTA ABIERTA Y SE SABE LO QUE LLEVA   (PT-060)
+
+  sesion desde daa057e (2026-08-18)
+    commits    5 (MEDIDO)
+    archivos   21 (MEDIDO)
+    lineas     1555 (MEDIDO)
+    tareas     PT-060
+    en curso   PT-060 · PHASE 10
+tracker · github · acción sesion
+
+
+====================================================================
+2 · ¿CUANTO CUESTA LO QUE VIENE?   (PT-057)
+
+  CHORE/STANDARD · 17 tareas cerradas
+    commits       2     (1 – 9)
+    archivos     26     (19 – 35)
+    lineas     2002     (398 – 2703)
+
+  Derivado de 49 de las 57 tareas cerradas. 8 no tienen
+
+====================================================================
+3 · ¿SE PUEDE EMPEZAR AHORA?   (PT-059, sobre cifras de PT-058)
+
+  PT-060 · CHORE/STANDARD
+    coste tipico    2002 (ESTIMADO)   de 17 cerradas
+    mayor hecho     2307 (MEDIDO)   en la sesion abierta en daa057e
+    techo historico 29286 (MEDIDO)   la mayor sesion registrada
+
+    veredicto       SAFE
+
+  la sesion ya completo algo de 2307, mayor que 2002. Es PRECEDENTE, no capacidad: no
+  promete que quepa, dice que ya se pudo con algo asi.
+
+  Esto mide PRECEDENTE, no capacidad: el presupuesto disponible es SIN EVALUAR siempre,
+  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d). Y CONSULTA:
+  escribir el estado de una tarea es de «tracker avanzar».
+tracker · github · acción viabilidad
+
+
+Sin divergencias.
+
+====================================================================
+4 · UNA SESION RECIEN ABIERTA: NO HAY PRECEDENTE   (AC-05 de PT-059, real)
+
+Se abre una sesion NUEVA aqui mismo. No ha completado nada todavia, asi que el
+precedente es SIN EVALUAR — y la compuerta NO aprueba por omision.
+
+  sesion abierta desde 33cf8f2
+tracker · github · acción sesion
+
+  PT-060 · CHORE/STANDARD
+    coste tipico    2002 (ESTIMADO)   de 17 cerradas
+    mayor hecho     SIN EVALUAR   en la sesion abierta en 33cf8f2
+    techo historico 29286 (MEDIDO)   la mayor sesion registrada
+
+    veredicto       MARGINAL
+
+  no se puede comparar: el precedente esta SIN EVALUAR. NO SE APRUEBA POR OMISION, y
+  tampoco se prohibe sin evidencia — el presupuesto disponible es SIN EVALUAR siempre, asi
+  que prohibir aqui bloquearia todo.
+
+  Esto mide PRECEDENTE, no capacidad: el presupuesto disponible es SIN EVALUAR siempre,
+  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d). Y CONSULTA:
+  escribir el estado de una tarea es de «tracker avanzar».
+tracker · github · acción viabilidad
+
+====================================================================
+5 · SE DEJA CHECKPOINT Y HANDOFF ANTES DE PARAR   (PT-052 + PT-060)
+
+
+  · CHECKPOINT.json escrito: PT-060 · PHASE 10 null · 33cf8f2 · 3 archivo(s) sin commitear
+
+
+  sesion       desde 33cf8f2 (2026-08-18)
+               0 (MEDIDO) commits · 0 (MEDIDO) lineas
+  en curso     PT-060 · PHASE 10
+  sobre        33cf8f2  trabajo
+  sigue        PT-060 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+
+  Apilado en SESSION_LOG.md. SESSION.json NO se borra: la sesion siguiente lo sobrescribe.
+  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.
+tracker · github · acción sesion
+
+
+
+=======================================================================================================================================
+6 · LA SESION SIGUIENTE VALIDA EL ARBOL   (PT-056)
+
+Primer intento fallido, y se deja dicho: se probo con «tracker siguiente PT-060»
+y no demostraba nada — PT-060 ya es INTEGRATED, asi que la accion sale por la guarda
+de estados vivos ANTES de mirar el arbol. El consumidor que aplica aqui es
+verify-fdge, que comprueba LEX-R26 independientemente del estado de la tarea.
+
+Con el checkpoint como esta:
+
+  ✓ LEX-R26        CHECKPOINT.json: PT-060 en PHASE 10, sobre un commit alcanzable y con el arbol correspondiente.
+
+Segundo intento fallido, y tambien se deja dicho: se altero el sha a abab74b —el merge
+de EP-014, el mismo ejemplo que uso PT-056 en su evidencia— y salio VERDE. Y esta BIEN
+que salga verde: abab74b es ANTECESOR de HEAD, e ir por detras no es mentir. Eso lo
+corrigio el propio PT-056 DESPUES de escribir aquel ejemplo, asi que su evidencia
+original ya no reproduce hoy — el criterio dejo de ser la igualdad y paso a ser la
+historia.
+
+La discrepancia que SI lo es: una rama distinta.
+
+  ✗ LEX-R26        CHECKPOINT.json de PT-060 NO corresponde al arbol (STATE_MISMATCH) — rama: declarado chore/UNA-RAMA-QUE-NO-ES, real trabajo. El commit existe, pero el trabajo va por otro sitio: decidir cual manda es humano (SUITE-R06). Si el arbol es el bueno:  tracker checkpoint PT-060
+
+
+  (checkpoint restaurado)
+
+====================================================================
+LO QUE ESTE ESCENARIO DEMUESTRA, Y LO QUE NO
+
+DEMUESTRA, ejecutado contra el repositorio real:
+
+  · se sabe lo que la sesion lleva, y de que sesion se habla     PT-060
+  · se sabe cuanto cuesta lo que viene, y de cuantas tareas sale PT-057
+  · cada cifra dice de que naturaleza es                         PT-058
+  · la compuerta decide, y con SIN EVALUAR NO aprueba            PT-059
+  · el estado al reanudar es demostrable, o se bloquea           PT-056
+
+NO DEMUESTRA:
+
+  · que una tarea llegue a salir UNSAFE en uso real. Hoy la mayor referencia de
+    coste es 2002 lineas y el techo historico 29286: un 7 %. La salvaguarda esta
+    probada en el arnes, no observada en produccion.
+  · que un contexto VACIO retome bien. Todo esto se ejecuto dentro de una misma
+    sesion: lo demostrado es que la informacion BASTA, no que quien la lea sin
+    saber nada la use bien. Eso no se puede demostrar desde dentro de una sesion.
+  · que alguien HAGA CASO a un MARGINAL o a un UNSAFE. Nada lo impide.
+

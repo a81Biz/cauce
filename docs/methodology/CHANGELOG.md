@@ -8,6 +8,93 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 8.2.0 — 2026-08-18
+
+**La continuidad de sesión.** Cinco tareas, **ninguna regla nueva** y nada que rompa: `MINOR`. Es
+el lote donde el marco aprende a **no confundir «no sé» con «no»** — y donde tres tareas
+independientes llegaron a la misma conclusión sin que estuviera planificado.
+
+### Lo que ahora se puede hacer
+
+```
+tracker coste [tipo] [complejidad]    lo que suele costar un tipo de tarea
+tracker viabilidad PT-NNN             ¿se puede empezar esto AHORA?
+tracker sesion abrir | cerrar         la sesión como entidad, con su handoff derivado
+```
+
+Y tres comprobaciones nuevas que **bloquean**: el árbol tiene que corresponder al checkpoint
+(`STATE_MISMATCH`), una cifra sin naturaleza no se puede construir, y `NATURALEZAS` es cerrado.
+
+### Las cinco tareas
+
+| | | |
+|:---|:---|:---|
+| `PT-056` | `STATE_MISMATCH` | Un `sha` **alcanzable** no basta: el árbol tiene que ser el suyo |
+| `PT-057` | La referencia de coste | Derivada de las tareas cerradas, no de una tabla a mano |
+| `PT-058` | `MEDIDO` · `ESTIMADO` · `SIN EVALUAR` | Cada cifra dice **qué es**, y `SIN EVALUAR` no vale cero |
+| `PT-059` | `SAFE` · `MARGINAL` · `UNSAFE` | La compuerta que detiene **antes** de empezar |
+| `PT-060` | `SESSION ≠ STATE ≠ TASK` | La sesión es un recurso temporal; el estado es del marco |
+
+### Lo que se aprendió, y que ninguna tarea pedía
+
+**Un enunciado del lote era imposible.** `PT-059` se pedía como «no comenzar lo que no quepa en el
+presupuesto disponible», y `PHASE 2` midió que **ese presupuesto no existe**: `total` es el
+contexto del modelo y sale `SIN EVALUAR` siempre. La compuerta mide **precedente** en su lugar —
+si esta sesión ya completó algo de ese tamaño.
+
+**La señal obvia estaba contaminada.** `PT-057` iba a atribuir cada commit por `--grep PT-NNN`, y
+con eso `BUG/TRIVIAL` y `BUG/STANDARD` salían **idénticos hasta la línea**: 61 de 162 commits
+nombran más de un `PT` porque el cuerpo cita las tareas anteriores, que es **lo correcto** en una
+bitácora append-only.
+
+**La señal con mejor cobertura era la peor predictora.** `changes/PT-NNN/` existe para 52 de 53
+tareas cerradas y da **nueve o diez artefactos siempre** — es lo que el marco exige en `PHASE 4`.
+Mide cumplimiento del procedimiento, no esfuerzo.
+
+**El marco llevaba ocho lotes incumpliendo su propia regla.** `SIN EVALUAR` aparecía **50 veces en
+trece archivos** —seis documentos normativos, incluido `RULES.md`— y **cero** en `LEXICON`, que es
+justo lo que `LEX-R21` prohíbe. `verify-suite` no lo veía porque comprueba vocabulario *derogado*,
+no términos usados sin declarar.
+
+**Tres veces la misma respuesta, sin planificarlo:**
+
+```
+PT-056   corresponde: null    no tener checkpoint ≠ tener uno equivocado
+PT-057   referencia: null     no hay datos suficientes ≠ el coste es cero
+PT-058   valor: null          no saber ≠ no haber
+```
+
+### Lo que las herramientas del marco encontraron, y no yo
+
+`audit` vio **cuatro bytes de control crudos** en `tracker.mjs` —una secuencia de escape perdida al
+editar, que funcionaba y era invisible— y reportó que `SESSION.json` no lo creaba ningún instalador
+ni lo usaba ningún documento operativo. CI puso en rojo **dos veces** comprobaciones que en local
+estaban verdes: `tracker siguiente` exigía credencial que en CI no hay, y `actions/checkout` deja
+`detached HEAD`, donde `rev-parse --abbrev-ref` devuelve la cadena `HEAD` — sin normalizarlo, la
+comprobación de `PT-056` habría bloqueado **cada PR del framework**.
+
+El patrón detrás de las cuatro: **probar donde trabaja el agente y no donde se decide un merge.**
+
+### La medida que `EP-014` dejó pendiente, cobrada
+
+`FDGE-R52` cazó **tres veces** un reanclaje olvidado en `EP-014`. En `EP-015`, sobre **40
+transiciones de fase**: **cero**. `tracker avanzar` hace la nota uno de sus siete actos y se niega
+sin `--nota`, así que el olvido dejó de ser posible en vez de dejar de ocurrir.
+
+### Migración
+
+**Ninguna acción requerida.** No hay reglas nuevas ni modificadas, y nada cambia de comportamiento
+para un proyecto que no use las acciones nuevas. Dos matices para quien mire de cerca:
+
+- `tracker siguiente` **ya no exige** plataforma declarada. Si no puede consultar el tablero,
+  reporta `SUITE-R43 SIN EVALUAR` en vez de plantarse.
+- `BLOCKED_BY_CONTEXT` es un estado de tarea nuevo y **vivo**: aparece en el tablero y no cierra
+  nada.
+
+`selftest` **618 → 829** casos. Cobertura mecánica de reglas: 112/181.
+
+---
+
 ## 8.1.0 — 2026-08-18
 
 **La fontanería de la transición.** Seis tareas, una regla nueva y un artefacto nuevo, y nada que

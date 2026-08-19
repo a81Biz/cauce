@@ -100,6 +100,215 @@ export const exigibleEn = (gate, artefacto) => {
   return ORDEN_COMPUERTAS.indexOf(gate) >= ORDEN_COMPUERTAS.indexOf(e.desde);
 };
 
+// ── PT-058 · la naturaleza de una cifra ─────────────────────────────────────
+//
+// Decision 4 del firmante: distinguir MEDIDO, ESTIMADO y SIN EVALUAR, y NUNCA presentar una
+// estimacion como una medicion.
+//
+// PHASE 2 midio que estas palabras YA se usaban: «SIN EVALUAR» aparecia 50 veces en trece
+// archivos —seis documentos normativos, incluido RULES.md, y siete herramientas— y CERO en
+// LEXICON, que es exactamente lo que LEX-R21 prohibe. Esto no amplia el marco: lo pone al dia
+// con su propia regla.
+//
+// Y los 50 usos eran PROSA. Sobre prosa no hay forma de que «una cifra sin naturaleza» falle,
+// asi que esto es un TIPO, no una convencion de redaccion.
+
+export const MEDIDO = 'MEDIDO';
+export const ESTIMADO = 'ESTIMADO';
+export const SIN_EVALUAR = 'SIN EVALUAR';
+
+// Cerrado, y ORDENADO de mejor a peor. El orden ES la regla de contagio, no una convencion de
+// escritura: anadir un cuarto valor aqui pone en rojo la comprobacion de verify-suite, que es
+// lo que lo hace cerrado de verdad y no una lista de buenas intenciones.
+//
+// El valor de SIN_EVALUAR lleva ESPACIO porque es la cadena que ya aparece en los trece
+// archivos. Cambiarla obligaria a tocarlos todos para no ganar nada.
+export const NATURALEZAS = [MEDIDO, ESTIMADO, SIN_EVALUAR];
+
+/**
+ * Una cifra que dice QUE ES.
+ *
+ * Sin naturaleza LANZA. Podria asumirse la peor —SIN EVALUAR— y seria conservador, pero
+ * convertiria un olvido del programador en un dato valido que se propaga en silencio. Lanzar lo
+ * detiene donde se escribio, que es el unico sitio donde alguien puede arreglarlo.
+ *
+ * SIN EVALUAR no tiene valor: vale null. Un cero sobrevive a cualquier suma y desaparece del
+ * resultado, asi que un presupuesto sin datos pareceria HOLGADO — el marco arrancaria trabajo
+ * justo cuando menos sabe. Es la tercera vez en EP-015 que la respuesta correcta es null:
+ * «corresponde» en PT-056 y «referencia» en PT-057.
+ */
+export function cifra(valor, naturaleza) {
+  if (!NATURALEZAS.includes(naturaleza)) {
+    throw new Error('cifra(): naturaleza no declarada. Tiene que ser una de: '
+      + NATURALEZAS.join(', ') + '. Una cifra sin naturaleza no entra (LEX-R21).');
+  }
+  return Object.freeze({ valor: naturaleza === SIN_EVALUAR ? null : valor, naturaleza });
+}
+
+/**
+ * La PEOR de varias naturalezas. Una resta entre un dato medido y una estimacion ES una
+ * estimacion, y el orden de los operandos no puede cambiarlo: seria una regla que se cumple la
+ * mitad de las veces.
+ */
+export const peorNaturaleza = (...ns) => NATURALEZAS[Math.max(...ns.map((n) => {
+  const i = NATURALEZAS.indexOf(n);
+  return i < 0 ? NATURALEZAS.length - 1 : i;   // lo que no se reconoce se trata como lo peor
+}))];
+
+/**
+ * Operar dos cifras. La naturaleza contagia hacia la peor, y con SIN EVALUAR el valor desaparece.
+ *
+ * NO revienta: devuelve SIN EVALUAR con valor null, que es la respuesta correcta —no se sabe—.
+ * Reventar invitaria a un fallback a cero en quien llama, que es el defecto que esto persigue.
+ */
+const operar = (a, b, f) => {
+  const n = peorNaturaleza(a?.naturaleza, b?.naturaleza);
+  return n === SIN_EVALUAR ? cifra(null, SIN_EVALUAR) : cifra(f(a.valor, b.valor), n);
+};
+
+export const sumar = (a, b) => operar(a, b, (x, y) => x + y);
+export const restar = (a, b) => operar(a, b, (x, y) => x - y);
+
+/**
+ * El texto de una cifra. La naturaleza va PEGADA al numero, no en una nota al pie: en el momento
+ * en que se separan, «1974» se lee como una medida.
+ */
+export const textoCifra = (c) => (c?.naturaleza === SIN_EVALUAR
+  ? SIN_EVALUAR
+  : `${c?.valor} (${c?.naturaleza})`);
+
+// ── PT-059 · viabilidad: no empezar lo que no se puede terminar ─────────────
+//
+// «Nunca comenzar una unidad de trabajo que probablemente no pueda completarse dentro del
+// presupuesto disponible.» El problema es que PHASE 2 midio que ese presupuesto NO EXISTE:
+// «disponible = total - gastado» sale SIN EVALUAR siempre, porque el total es el contexto del
+// modelo y el marco no puede medirlo (decision 4 del firmante).
+//
+// Asi que esto NO compara contra un presupuesto. Compara contra el PRECEDENTE: lo mayor que esta
+// sesion ya completo. SAFE no promete que quepa — dice que ya se pudo con algo asi.
+
+export const SAFE = 'SAFE';
+export const MARGINAL = 'MARGINAL';
+export const UNSAFE = 'UNSAFE';
+export const VEREDICTOS = [SAFE, MARGINAL, UNSAFE];
+
+// Cuanto por encima de lo ya completado sigue siendo MARGINAL en vez de UNSAFE. Es un JUICIO,
+// como MINIMO_REFERENCIA en PT-057: nada demuestra que 1.5 sea el numero, y por eso vive aqui
+// con nombre en vez de dentro de un `if`.
+export const HOLGURA = 1.5;
+
+// Estado de TAREA. La tarea NO ESTA FALLANDO: no debe ejecutarse todavia. No es terminal, y
+// tiene que estar en VIVOS — un estado que no sea ni terminal ni vivo desapareceria del tablero
+// sin estar cerrado, que es peor que cualquiera de las dos cosas.
+export const BLOCKED_BY_CONTEXT = 'BLOCKED_BY_CONTEXT';
+
+/**
+ * ¿Se puede empezar esto AHORA? Tres veredictos, y el motivo SIEMPRE.
+ *
+ * `coste` y `precedente` son cifras de PT-058: llevan su naturaleza pegada. `techoHistorico` es
+ * lo mayor que CUALQUIER sesion registrada hizo nunca.
+ *
+ * El ORDEN de las comprobaciones es la parte que importa, y no es de estilo:
+ *   1. AC-06 va PRIMERO — una tarea que nunca cabria no puede salir MARGINAL porque falte el
+ *      precedente, o el bucle infinito que existe para impedir se produce igual.
+ *   2. SIN EVALUAR va ANTES que las comparaciones — comparar null con un numero da false EN
+ *      SILENCIO, y un veredicto correcto por accidente sigue siendo un accidente.
+ */
+export function viabilidadDe(coste, precedente, techoHistorico = null, holgura = HOLGURA) {
+  if (coste?.valor != null && techoHistorico?.valor != null && coste.valor > techoHistorico.valor) {
+    return { veredicto: UNSAFE, nunca: true,
+      motivo: `${coste.valor} supera las ${techoHistorico.valor} de la mayor sesion registrada. `
+        + 'No es que esta sesion vaya justa: ninguna ha hecho nunca tanto. Hay que PARTIR la tarea '
+        + '(el alcance lo firma una persona, INTAKE-R06), no reintentarla.' };
+  }
+  if (coste?.valor == null || precedente?.valor == null) {
+    return { veredicto: MARGINAL, nunca: false,
+      motivo: `no se puede comparar: ${coste?.valor == null ? 'el coste' : 'el precedente'} esta `
+        + 'SIN EVALUAR. NO SE APRUEBA POR OMISION, y tampoco se prohibe sin evidencia — el '
+        + 'presupuesto disponible es SIN EVALUAR siempre, asi que prohibir aqui bloquearia todo.' };
+  }
+  if (coste.valor <= precedente.valor) {
+    return { veredicto: SAFE, nunca: false,
+      motivo: `la sesion ya completo algo de ${precedente.valor}, mayor que ${coste.valor}. `
+        + 'Es PRECEDENTE, no capacidad: no promete que quepa, dice que ya se pudo con algo asi.' };
+  }
+  if (coste.valor <= precedente.valor * holgura) {
+    return { veredicto: MARGINAL, nunca: false,
+      motivo: `${coste.valor} pasa de las ${precedente.valor} ya completadas pero cabe en la `
+        + `holgura (x${holgura}). Solo trabajo ATOMICO: nada que deje algo a medias.` };
+  }
+  return { veredicto: UNSAFE, nunca: false,
+    motivo: `${coste.valor} pasa de la holgura sobre las ${precedente.valor} completadas. Hay `
+      + 'evidencia EN CONTRA, no solo falta de evidencia a favor: checkpoint, handoff y parada.' };
+}
+
+const SALTO_LINEA = String.fromCharCode(10);
+
+// ── PT-060 · la sesion es el worker, no el estado ───────────────────────────
+//
+// SESSION != STATE != TASK. La sesion es un recurso TEMPORAL; el estado del trabajo pertenece al
+// marco y es persistente.
+//
+// PHASE 2 midio el hueco: nada registraba cuando empieza una sesion. PT-059 aproximaba «una
+// sesion = un dia», y hoy eso da 45 commits contra 44 — coinciden, y COINCIDEN POR CASUALIDAD,
+// porque la sesion empezo hoy. El dia que no coincidan, nada lo notaria.
+
+/**
+ * El estado de la SESION, derivado. `marca` es lo que «sesion abrir» capturo.
+ *
+ * `desde` es una MARCA, no memoria: un dato verificable EN EL MOMENTO EN QUE SE PONE, igual que
+ * el sha del checkpoint. LEX-R26 prohibe lo otro —«llevo unas tres horas»—, no esto.
+ *
+ * Sin marca NO se cae al dia: se dice SIN EVALUAR. Pasar una aproximacion por el dato bueno es
+ * exactamente lo que PT-058 existe para impedir.
+ */
+export function sesionDe(marca, git = {}, checkpoint = null) {
+  if (!marca?.desde) {
+    return { abierta: false, desde: null,
+      motivo: 'no hay sesion abierta: «tracker sesion abrir» marca el inicio. Sin marca, lo que '
+        + 'lleva la sesion es SIN EVALUAR — el dia NO es la sesion.' };
+  }
+  const c = (v) => cifra(v ?? null, v == null ? SIN_EVALUAR : MEDIDO);
+  return {
+    abierta: true,
+    desde: marca.desde,
+    desde_corto: String(marca.desde).slice(0, 7),
+    abierta_en: marca.abierta ?? null,
+    commits: c(git.commits),
+    archivos: c(git.archivos),
+    lineas: c(git.lineas),
+    tareas: git.tareas ?? [],
+    pt: checkpoint?.pt ?? null,
+    phase: checkpoint?.phase ?? null,
+  };
+}
+
+/**
+ * El handoff de CAMBIO DE SESION, derivado del checkpoint y de la sesion. Ni una linea de prosa.
+ *
+ * NO sustituye a HANDOFF.md: su bloque ESTADO lleva las decisiones del firmante y los «no hacer»
+ * que salieron de ejecutar — lo unico del estado que NO se puede derivar, y lo mas valioso que
+ * tiene. Derivarlo seria perderlo (AC-05).
+ */
+export function handoffDeSesion(sesion, checkpoint) {
+  const l = [];
+  l.push(sesion?.abierta
+    ? `sesion       desde ${sesion.desde_corto}${sesion.abierta_en ? ` (${sesion.abierta_en})` : ''}`
+    : 'sesion       SIN EVALUAR: no se abrio. El dia NO es la sesion.');
+  if (sesion?.abierta) {
+    l.push(`             ${textoCifra(sesion.commits)} commits · ${textoCifra(sesion.lineas)} lineas`);
+  }
+  if (sesion?.tareas?.length) l.push(`tareas       ${sesion.tareas.join(' · ')}`);
+  if (!checkpoint) {
+    l.push('en curso     SIN EVALUAR: no hay CHECKPOINT.json. «tracker checkpoint PT-NNN» lo escribe.');
+    return l.join(SALTO_LINEA);
+  }
+  l.push(`en curso     ${checkpoint.pt} · PHASE ${checkpoint.phase}${checkpoint.fase ? ' ' + checkpoint.fase : ''}`);
+  l.push(`sobre        ${checkpoint.sha_corto ?? 'SIN EVALUAR'}${checkpoint.rama ? '  ' + checkpoint.rama : ''}`);
+  l.push(`sigue        ${checkpoint.siguiente ?? 'SIN EVALUAR: «tracker siguiente» lo deriva.'}`);
+  return l.join(SALTO_LINEA);
+}
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

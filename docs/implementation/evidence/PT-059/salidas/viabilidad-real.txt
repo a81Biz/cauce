@@ -1,0 +1,35 @@
+# PT-059 · la compuerta sobre el repositorio real
+
+$ tracker viabilidad PT-059
+
+
+  PT-059 · CHORE/STANDARD
+    coste tipico    1982 (ESTIMADO)   de 15 cerradas
+    mayor hecho     2703 (MEDIDO)   en esta sesion (2026-08-18)
+    techo historico 29286 (MEDIDO)   la mayor sesion registrada
+
+    veredicto       SAFE
+
+  la sesion ya completo algo de 2703, mayor que 1982. Es PRECEDENTE, no capacidad: no
+  promete que quepa, dice que ya se pudo con algo asi.
+
+  Esto mide PRECEDENTE, no capacidad: el presupuesto disponible es SIN EVALUAR siempre,
+  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d). Y CONSULTA:
+  escribir el estado de una tarea es de «tracker avanzar».
+tracker · github · acción viabilidad
+
+
+Sin divergencias.
+
+## El presupuesto disponible NO existe, ejecutado
+
+restar(total SIN EVALUAR, gastado 14319 MEDIDO)  →  {"valor":null,"naturaleza":"SIN EVALUAR"}
+
+## Las seis sesiones del historial, medidas
+
+  2026-08-12   21 commits ·  29286 lineas
+  2026-08-13   64 commits ·  25232 lineas
+  2026-08-18   41 commits ·  15189 lineas
+  2026-08-14   23 commits ·   9802 lineas
+  2026-08-17    8 commits ·   7441 lineas
+  2026-08-15   11 commits ·   6812 lineas
