@@ -1,0 +1,31 @@
+{
+  "pt": "PT-055",
+  "generated": "2026-08-19",
+  "criteria": [
+    { "ac": "AC-01", "statement": "--gate G4 EP-A con EP-B abierto y en rojo NO falla por EP-B", "scenarios": ["E1"], "tests": ["selftest.sh:el lote que cierra no mira al que abre"], "evidence": ["salidas/caso-real.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "--gate G4 EP-A SI falla si EP-A tiene filas sin resolver", "scenarios": ["E2"], "tests": ["selftest.sh:…y el que cierra SI bloquea si le toca"], "evidence": ["salidas/caso-real.txt"], "verified": true, "nota": "Demostrado ademas contra el repositorio real: --gate G4 EP-017 bloquea por su propia seccion vacia." },
+    { "ac": "AC-03", "statement": "verify-fdge acepta EP-NNN como argumento posicional", "scenarios": ["E3"], "tests": ["selftest.sh:EP-NNN se acepta como objetivo", "selftest.sh:…y sin objetivo no nombra ninguno"], "evidence": ["salidas/caso-real.txt"], "verified": true, "nota": "El caso original pasaba EN VACIO: asertaba que la salida mencionara EP-050, y checkEpics nombra todos los lotes igual. Endurecido a exigir «lote(s) bajo evaluacion: EP-050», lo que obligo a que el arreglo lo imprima." },
+    { "ac": "AC-04", "statement": "--gate G4 PT-NNN evalua el lote de ese PT, no todos", "scenarios": ["E4"], "tests": ["selftest.sh:el lote sale del epic del PT", "selftest.sh:…y no arrastra al otro lote"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "--gate G4 sin objetivo conserva el alcance de hoy: todos", "scenarios": ["E5"], "tests": ["selftest.sh:sin objetivo se evaluan todos"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "Es la guarda contra convertir el arreglo en un agujero: una orden sin objetivo es la que mas se parece a «compruebalo todo»." },
+    { "ac": "AC-06", "statement": "Un lote DONE exige sus filas resueltas sin --gate", "scenarios": ["E6"], "tests": ["selftest.sh:un lote DONE exige sus filas sin --gate"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "La mitad de la condicion que NO depende de la bandera. No se toco." }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el acotado no deje pasar un G4 que deberia bloquear en una topologia distinta de la de este repositorio.",
+      "por_que": "AC-02, AC-05 y AC-06 cubren los tres caminos por los que se sigue bloqueando, y la inversa confirma que sin el arreglo el defecto vuelve. Pero todos los casos corren sobre un fixture con dos lotes y sobre este repositorio, que tiene diecisiete. Un proyecto ajeno con otra forma de encadenar lotes es la primera prueba de verdad.",
+      "donde": "changes/PT-072-un-proyecto-nuevo-de-verdad/intake.md"
+    },
+    {
+      "afirmacion": "Que --gate G1..G3 acepte tambien EP-NNN.",
+      "por_que": "Fuera de alcance declarado: G1, G2 y G3 son compuertas DE TAREA, no de lote. Un EP-NNN como objetivo de --gate G2 no significa nada hoy, y darle significado seria diseñar, no arreglar.",
+      "donde": "changes/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre/out-of-scope.md"
+    }
+  ],
+  "hallazgos_de_paso": [
+    {
+      "que": "EP-017 no llevaba suite_version y SUITE-R18 lo avisaba en cada ejecucion.",
+      "accion": "Sellado a 9.0.0. No es de esta tarea; corregirlo cuesta un campo y dejarlo habria sido ruido permanente."
+    }
+  ],
+  "suite": { "passed": 996, "failed": 0, "skipped": 0, "coverage": 996, "baseline": 989 }
+}

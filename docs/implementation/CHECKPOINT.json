@@ -1,24 +1,23 @@
 {
-  "pt": "PT-075",
+  "pt": "PT-055",
   "type": "BUG",
   "epic": "EP-017",
-  "status": "READY",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre",
-  "sha": "ab50d99b4fc8d0853fc1d39779106b2637a35927",
-  "sha_corto": "ab50d99",
+  "status": "REOPENED",
+  "phase": 5,
+  "fase": "Implementación",
+  "rama": "fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre",
+  "sha": "76e83e37237fbeffefe5423ef980f358e3818b3d",
+  "sha_corto": "76e83e3",
   "sucio": true,
   "archivos": [
-    "changes/PT-075-una-regla-sin-verificador-no-ocurre/acciones-humanas.md",
-    "changes/PT-075-una-regla-sin-verificador-no-ocurre/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json"
+    "changes/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre/traceability.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-055/",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G4",
+  "compuerta": null,
   "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-19"
 }

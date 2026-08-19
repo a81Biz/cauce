@@ -11,6 +11,7 @@
  *   node verify-fdge.mjs PT-042 PT-043       verifica varios
  *   node verify-fdge.mjs --all               todos los PTs no terminales
  *   node verify-fdge.mjs --all -q            silencia la ENUMERACIÓN del verde, no el recuento
+ *   node verify-fdge.mjs --gate G4 EP-017    las precondiciones de G4 de UN LOTE
  *   node verify-fdge.mjs --gate G1 PT-042    solo las precondiciones de G1
  *   node verify-fdge.mjs --gate G2 PT-042    ídem G2 · --gate G3 · --gate G4
  *
@@ -125,6 +126,8 @@ const LEGACY_STATES = ['PENDING', 'OPEN', 'DISCOVERY_PENDING', 'ENRICHMENT_PENDI
 
 // ─── SUITE-R08 / LEX-R06 — el registro es el único asignador ─────────────────
 let REGISTRO = null;   // lo rellena checkRegistry(); checkPT lo consulta para la fase
+// PT-055 · los lotes que esta ejecucion evalua. Vacio = todos. Ver el calculo en Main.
+let LOTES_EVALUADOS = new Set();
 function checkRegistry() {
   const p = join(IMPL, 'REGISTRY.json');
   if (!existsSync(p)) {
@@ -824,7 +827,17 @@ function checkCierreDeLote(ep, txt, dir) {
   // existia entonces es reescribir historia — y este marco lo prohibe en todas partes menos,
   // hasta aqui, en si mismo. La regla aplica a lo que todavia puede cerrarse.
   if (alloc?.status === 'CLOSED') return;
-  const enG4 = gate === 'G4' || alloc?.status === 'DONE';
+  // PT-055 · «bajo evaluacion», y no «hay una bandera --gate G4 en algun sitio».
+  //
+  // El 2026-08-15, cerrando EP-013 con EP-014 recien abierto, esta condicion bloqueo por las
+  // cuatro filas de EP-014 —trabajo aun no hecho— mientras EP-013 estaba en verde. Un lote
+  // abierto tiene sus filas de cierre sin resolver POR DEFINICION: es lo que significa estar
+  // abierto. Se integro con el rojo declarado como excepcion, no arreglado.
+  //
+  // La otra mitad, «status === DONE», NO se toca: un lote terminado exige sus filas resueltas
+  // aunque nadie pase --gate.
+  const evaluado = !LOTES_EVALUADOS.size || LOTES_EVALUADOS.has(ep);
+  const enG4 = (gate === 'G4' && evaluado) || alloc?.status === 'DONE';
   if (!RE_CIERRE_LOTE.test(txt)) {
     const m = `${ep}: su intake no declara «## Cierre del lote». Lo que se resuelve al cerrar `
       + `—la entrada de CHANGELOG.md, el número de versión, lo que sus tareas le hayan aplazado— `
@@ -1664,12 +1677,34 @@ const all = argv.includes('--all');
 const quiet = argv.includes('-q') || argv.includes('--quiet');
 // Los PT son los argumentos posicionales, excluyendo el valor de --gate.
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
-const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
+// PT-055 · tambien EP-NNN. Antes el filtro casaba solo /^PT-\d+$/, asi que «--gate G4 EP-013»
+// dejaba targets VACIO: el lote nombrado en la orden se descartaba EN SILENCIO y la herramienta
+// nunca supo que lote evaluaba. De ahi que enG4 fuera global y EP-013 bloqueara por EP-014.
+const posicionales = argv.filter((a, i) => /^(?:PT|EP)-\d+$/.test(a)
+  && !(gateIdx >= 0 && i === gateIdx + 1));
+const targets = posicionales.filter((a) => a.startsWith('PT-'));
+const targetsEP = posicionales.filter((a) => a.startsWith('EP-'));
 
 console.log(`verify-fdge — cumplimiento mecánico de la Methodology Suite ${SUITE_VERSION ?? '(versión no determinada)'}\n`);
 
 const reg = checkRegistry();
 REGISTRO = reg;
+
+/**
+ * PT-055 · Que lote esta EVALUANDO esta ejecucion. Vacio = TODOS.
+ *
+ * Sale de los EP-NNN nombrados y del «epic» de los PT-NNN nombrados. Vacio significa TODOS y
+ * no NINGUNO: una orden sin objetivo es la que mas se parece a «compruebalo todo», y acotar
+ * ahi convertiria el arreglo en un agujero en G4.
+ */
+LOTES_EVALUADOS = new Set(targetsEP);
+for (const pt of targets) {
+  const ep = (reg?.allocations ?? []).find((a) => a?.id === pt)?.epic;
+  if (ep) LOTES_EVALUADOS.add(ep);
+}
+if (gate === 'G4' && LOTES_EVALUADOS.size) {
+  console.log(`  lote(s) bajo evaluacion: ${[...LOTES_EVALUADOS].join(' · ')}\n`);
+}
 checkFoundation();
 checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');

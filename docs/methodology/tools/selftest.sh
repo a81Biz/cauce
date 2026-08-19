@@ -2101,6 +2101,69 @@ build_fixture; ep_intake "## Cierre del lote
 oos '`EP-040`'
 chkno "citarlo cuando si lo declara, vale"        "SUITE-R44"  V PT-001
 
+# PT-055 . SUITE-R45 — la compuerta del lote que CIERRA mira al lote que ABRE.
+#
+# El 2026-08-15, cerrando EP-013 con EP-014 recien abierto, «--gate G4 EP-013» bloqueo por las
+# cuatro filas de EP-014, que describian trabajo aun no hecho. EP-013 estaba en verde.
+#
+# Son DOS defectos y hacen falta los dos casos: enG4 era global (gate === 'G4' sin mirar QUE
+# lote se evalua) y —la causa de fondo— verify-fdge NUNCA acepto un EP-NNN como objetivo, asi
+# que «--gate G4 EP-013» dejaba targets vacio y la herramienta jamas supo que lote evaluaba.
+#
+# El riesgo de este arreglo es AFLOJAR G4, y por eso la mitad de los casos comprueban que
+# SIGUE bloqueando: E2 el lote objetivo, E5 sin objetivo, E6 un lote DONE. Un caso que pase
+# con y sin el arreglo no prueba nada (PT-050).
+dos_lotes() {  # EP-050 en verde · EP-051 con una fila sin resolver · $1 = lote de PT-001
+  for L in EP-050 EP-051; do
+    mkdir -p "$WORK/changes/$L-lote"
+    { echo "# $L — lote"; echo; echo "## Objetivo común"; echo "x"; echo;
+      echo "## Criterio de éxito del lote"; echo "x"; echo;
+      echo "## Análisis de solapamiento"; echo "x"; echo;
+      echo "## Qué NO entra"; echo "- OUT: y"; echo;
+      echo '\`\`\`'; echo "Firmado por: Alberto Martínez"; echo "Fecha: 2026-08-13"; echo '\`\`\`'; echo;
+      echo "| PT | Tipo |"; echo "|:---|:---|"; echo "| PT-001 | BUG |"; echo;
+      echo "## Cierre del lote"; echo;
+      echo "| Qué | Estado |"; echo "|:---|:---|";
+      if [ "$L" = EP-050 ]; then echo "| Entrada de CHANGELOG | HECHO |"; else echo "| Entrada de CHANGELOG | pendiente |"; fi
+    } > "$WORK/changes/$L-lote/intake.md"
+  done
+  reg_set "r.allocations.push({id:'EP-050',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'});
+           r.allocations.push({id:'EP-051',type:'EP',slug:'lote',created:'2026-08-13',status:'IN_PROGRESS',suite_version:'6.0.1'});
+           r.allocations.find((a)=>a.id==='PT-001').epic='$1'; r.counters.EP=51"
+}
+
+# E1 · AC-01 — el lote que cierra esta en verde y hay otro abierto en rojo.
+# La asercion es sobre el ERROR, no sobre la MENCION: checkEpics recorre todos los lotes y
+# nombra EP-051 en avisos legitimos —INTAKE-R09, el aviso de filas sin resolver—. Lo que no
+# puede haber es un SUITE-R45 en ROJO cuando el lote evaluado tiene sus filas resueltas.
+build_fixture; dos_lotes EP-050
+chkno "el lote que cierra no mira al que abre"    "✗ SUITE-R45"  V --gate G4 EP-050
+# E2 · AC-02 — y el que cierra SI bloquea cuando le toca. Esta es la mitad que impide aflojar G4.
+build_fixture; dos_lotes EP-051
+chk   "…y el que cierra SI bloquea si le toca"    "✗ SUITE-R45"  V --gate G4 EP-051
+# E3 · AC-03 — un EP-NNN se acepta como objetivo. Antes se descartaba EN SILENCIO.
+#
+# La asercion NO puede ser «que la salida mencione EP-050»: checkEpics() recorre todos los
+# lotes y los nombra igual, asi que el caso pasaba EN VACIO —comprobado antes de implementar,
+# y es la trampa que PT-050 documenta—. Se exige que la herramienta DIGA que lote evalua.
+build_fixture; dos_lotes EP-050
+chk   "EP-NNN se acepta como objetivo"            "bajo evaluacion: EP-050"  V --gate G4 EP-050
+build_fixture; dos_lotes EP-050
+chkno "…y sin objetivo no nombra ninguno"         "bajo evaluacion:"         V --gate G4
+# E4 · AC-04 — el lote sale del «epic» del PT nombrado.
+build_fixture; dos_lotes EP-051
+chk   "el lote sale del epic del PT"              "EP-051"       V --gate G4 PT-001
+build_fixture; dos_lotes EP-051
+chkno "…y no arrastra al otro lote"               "EP-050"       V --gate G4 PT-001
+# E5 · AC-05 — sin objetivo se evaluan TODOS. Acotar aqui seria el agujero.
+build_fixture; dos_lotes EP-050
+chk   "sin objetivo se evaluan todos"             "✗ SUITE-R45"  V --gate G4
+# E6 · AC-06 — un lote DONE exige sus filas resueltas aunque no se pase --gate.
+build_fixture; dos_lotes EP-050
+reg_set "r.allocations.find((a)=>a.id==='EP-051').status='DONE'"
+chk   "un lote DONE exige sus filas sin --gate"   "✗ SUITE-R45"  V PT-001
+
+
 # ─── PT-075 · las dos reglas que nada ejecutaba ──────────────────────────────
 sec "── PT-075 · viabilidad registrada y actos hacia la plataforma ──"
 
