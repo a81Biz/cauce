@@ -3,27 +3,18 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "REOPENED",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "trabajo",
-  "sha": "2c509b8dd9eb65842c3b8764f75a2e7da90eb6f7",
-  "sha_corto": "2c509b8",
+  "sha": "27f5351408020e4f38a55797b2408b911f10fdd8",
+  "sha_corto": "27f5351",
   "sucio": true,
   "archivos": [
-    "changes/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre/",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
+    "changes/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-19"
 }
