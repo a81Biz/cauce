@@ -2245,3 +2245,37 @@ despues: a6913da        <- la marca real, movida
 ya demuestra el patrón seguro pasando `--ver`. Lo que sobra es escribir. Es `PT-076`, quinta del
 lote, por delante de `PT-068`: corrompe la base de cálculo de lo que `PT-068` arregla, y la
 compuerta que `PT-075` acaba de crear decide sobre ese dato.
+
+## 2026-08-19 · El agente fusiona el PR **de tarea** a la rama de integración
+
+<!-- cauce:agente -->
+
+Autorización literal del firmante, 2026-08-19, respondiendo a las tres opciones que se le
+plantearon: **«B»** — «me autorizas a fusionar el PR de cada tarea a `trabajo`, que `FDGE-R19`
+llama revisión, no `G4`».
+
+**Qué cubre exactamente:**
+
+```
+SÍ   abrir y fusionar el pull request de una TAREA hacia «trabajo»
+     — FDGE-R19: «el pull request de una tarea hacia la rama de integración es
+       REVISIÓN, no G4», y EXEC-R03 existe para que G4 no se multiplique por tarea
+
+NO   G4 · el merge del LOTE a la rama por defecto
+     — EXEC-R04 y SUITE-R06a: humano en los tres modos, sin excepción
+NO   publicar la 9.0.0
+     — reservado en el primer mensaje de la sesión y condicionado al cierre del lote
+```
+
+**Se registra como EXCEPCIÓN, no como lectura.** `SUITE-R42` dice «el agente no abre el PR ni lo
+fusiona», y aunque su contexto es el PR de `G4` —«un pull request abierto para la **rama por
+defecto**»—, la frase suelta abarca más. La «Regla de cumplimiento» admite la excepción cuando
+un humano la autoriza **dejando registro**, y esto es ese registro (`SUITE-R27`).
+
+**Por qué hizo falta.** `PT-075` terminó en su rama y `PT-055` había ramificado antes: no
+componen. Con catorce tareas de ejecución secuencial, cada una necesita lo de la anterior, y sin
+esta autorización el lote sólo podía avanzar encadenando ramas o parando cada pocas horas.
+
+**Lo que NO cambia:** el PR sigue existiendo y sigue siendo el sitio donde se revisa. No se
+fusiona nada sin PR, ni se escribe directamente en `trabajo` — que es justo lo que `PT-075`
+acaba de hacer detectable con `FDGE-R19`.

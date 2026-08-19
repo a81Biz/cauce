@@ -3,9 +3,11 @@
 Lo que ningún modo de ejecución automatiza se **describe** con su comando exacto y **no se
 ejecuta**. Este archivo es el rastro de que el agente se detuvo donde debía.
 
-## 1 · Pull request de la tarea a la rama de integración — **NO es `G4`**
+## 1 · Pull request de la tarea a la rama de integración — **NO es `G4`**   ✅ AUTORIZADO AL AGENTE
 
-Es **revisión** (`FDGE-R19`, `SUITE-R42`). El agente no lo abre.
+Es **revisión** (`FDGE-R19`). El firmante autorizó al agente a abrirlo y fusionarlo el
+2026-08-19 —respuesta literal: «B»—, como excepción declarada a `SUITE-R42` y registrada en
+`SESSION_LOG.md`. Queda **ejecutado**, no descrito. El comando, para el registro:
 
 ```bash
 git push -u origin fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre
