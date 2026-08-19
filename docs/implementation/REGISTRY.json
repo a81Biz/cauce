@@ -1880,7 +1880,7 @@
       "severity": "S1",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 1,
+      "phase": 4,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -1943,7 +1943,35 @@
       "id": "PT-078",
       "slug": "ninguna-regla-queda-sin-clasificar",
       "created": "2026-08-19",
-      "status": "DRAFT"
+      "status": "READY",
+      "type": "FEATURE",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "Ninguna regla queda sin clasificar: el universo son 223 y cubierta significa emitida",
+      "origin": "Abierta el 2026-08-19 a peticion del firmante: «asegura que nadie se pierda o pueda no seguir esa regla ni ninguna otra, para eso es todo esta EP». PT-075 arreglo DOS reglas; esto es el mecanismo. Medido: audit publica 60 sin verificador sobre 181, y de verdad son 131 sobre 223 —el denominador omite las 15 EXEC-R* y las 27 LEX-R*, y el numerador cuenta MENCIONES como verificadores: SUITE-R01 figura cubierta por una cadena de ejemplo, SUITE-R09 por comentarios y SUITE-R03 por el mensaje de otra regla. Es TD-09 pero sistemico: 36 HARD.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2715,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      },
+      "issue": 142
     }
   ]
 }
