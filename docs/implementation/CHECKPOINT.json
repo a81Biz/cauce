@@ -3,18 +3,19 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "chore/alberto-martinez/PT-065-la-sesion-es-de-alguien",
-  "sha": "bf576d6bd53c6ddbbda125bd70e9983c7472cefa",
-  "sha_corto": "bf576d6",
+  "sha": "0bb521ec617a7dc56894ab92e83f098ce634d11e",
+  "sha_corto": "0bb521e",
   "sucio": true,
   "archivos": [
     "changes/PT-065-la-sesion-es-de-alguien/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }
