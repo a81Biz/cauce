@@ -13,4 +13,4 @@ Proyectado el 2026-08-18 · 5 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-065 | CHORE | IN_PROGRESS | 3 | chore/alberto-martinez/PT-065-la-sesion-es-de-alguien | 599e1cf |
+| PT-065 | CHORE | IN_PROGRESS | 4 | chore/alberto-martinez/PT-065-la-sesion-es-de-alguien | 205e642 |
