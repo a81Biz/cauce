@@ -50,6 +50,7 @@ implementaron sobre la rama de integración sin que nada lo dijera»*.
 | AC-03 | `MARGINAL` y `UNSAFE` tienen consecuencia observable | `AC-02` y `AC-03` de `PT-059` dejan de ser texto sin punto de aplicación |
 | AC-04 | `viabilidad` lee la marca de sesión **correcta** | deja de leer `SESSION.json`; hoy `tracker sesion` dice `41aeaa8` y `viabilidad` dice `258be16` |
 | AC-05 | Algo falla si la compuerta vuelve a quedarse sin invocación | un caso que caiga si ninguna fase la nombra |
+| AC-06 | El veredicto **se espeja** en la plataforma | `cuerpoDeIssue` lo incluye con su `medido_en`: hoy está en `REGISTRY` y es invisible desde GitHub, y `SUITE-R35` dice que el registro asigna y la plataforma espeja |
 
 **`AC-04` depende de `PT-068`** y podría absorberse allí. Se deja aquí porque es el mismo
 síntoma visto desde la compuerta, y porque separarlo permite cerrar `PT-068` sin esperar a
