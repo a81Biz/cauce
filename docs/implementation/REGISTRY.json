@@ -466,14 +466,14 @@
           "naturaleza": "SIN EVALUAR"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1304,18 +1304,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 1577,
+          "valor": 1596,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1549,18 +1549,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 1577,
+          "valor": 1596,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1583,18 +1583,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 1577,
+          "valor": 1596,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1617,18 +1617,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 665,
+          "valor": 691,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       },
       "branch": "fix/alberto-martinez/PT-068-la-marca-de-sesion-es-de-quien-la-abre"
@@ -1656,14 +1656,14 @@
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1686,18 +1686,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 1577,
+          "valor": 1596,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1720,18 +1720,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 1577,
+          "valor": 1596,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1758,14 +1758,14 @@
           "naturaleza": "SIN EVALUAR"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1792,14 +1792,14 @@
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       }
     },
@@ -1812,7 +1812,7 @@
       "severity": "S2",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 4,
+      "phase": 5,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -1822,20 +1822,21 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 665,
+          "valor": 691,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
-      }
+      },
+      "branch": "fix/alberto-martinez/PT-074-la-compuerta-de-viabilidad-necesita-una-fase"
     },
     {
       "id": "PT-075",
@@ -1856,18 +1857,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 665,
+          "valor": 691,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       },
       "branch": "fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre"
@@ -1890,18 +1891,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 665,
+          "valor": 691,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       },
       "issue": 138,
@@ -1925,18 +1926,18 @@
       "viabilidad": {
         "veredicto": "SAFE",
         "coste": {
-          "valor": 1577,
+          "valor": 1596,
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2408,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       },
       "issue": 139
@@ -1963,14 +1964,14 @@
           "naturaleza": "ESTIMADO"
         },
         "precedente": {
-          "valor": 2715,
+          "valor": 2723,
           "naturaleza": "MEDIDO"
         },
         "techo": {
           "valor": 31025,
           "naturaleza": "MEDIDO"
         },
-        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
       },
       "issue": 142

@@ -2597,6 +2597,25 @@ chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/t
 RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
 TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
 
+# ─── PT-074 · el veredicto de viabilidad se ESPEJA ───────────────────────────
+sec "── PT-074 · el veredicto se ve en el tablero ──"
+#
+# SUITE-R35: el registro asigna y la plataforma ESPEJA. El veredicto de viabilidad es
+# estado —lo escribe «tracker viabilidad --registrar»— y no se espejaba: estaba en el
+# REGISTRY y era invisible desde el tablero. El firmante lo pidio TRES veces.
+#
+# Se espeja el VEREDICTO y su BASE, no el razonamiento: SUITE-R35 prohibe copiar
+# contenido al issue, y un veredicto sin decir contra que se midio es lo que PT-058
+# corrigio.
+trlib "el cuerpo lleva el veredicto"      "SAFE"        "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2',viabilidad:{veredicto:'SAFE',coste:{valor:100,naturaleza:'ESTIMADO'},medido_en:'abc1234def',fecha:'2026-08-19'}}))"
+trlib "…y la naturaleza de la cifra"      "ESTIMADO"    "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2',viabilidad:{veredicto:'SAFE',coste:{valor:100,naturaleza:'ESTIMADO'},medido_en:'abc1234def',fecha:'2026-08-19'}}))"
+trlib "…y contra que se midio"            "abc1234"     "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2',viabilidad:{veredicto:'SAFE',coste:{valor:100,naturaleza:'ESTIMADO'},medido_en:'abc1234def',fecha:'2026-08-19'}}))"
+trlib "MARGINAL dice que obliga"          "atomico\|atómico"  "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2',viabilidad:{veredicto:'MARGINAL',coste:{valor:665,naturaleza:'ESTIMADO'},medido_en:'abc1234def',fecha:'2026-08-19'}}))"
+trlib "UNSAFE dice que detiene"           "DETIENE\|detiene"  "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2',viabilidad:{veredicto:'UNSAFE',coste:{valor:9,naturaleza:'MEDIDO'},medido_en:'abc1234def',fecha:'2026-08-19'}}))"
+# Sin veredicto NO se inventa una linea. Es parte del arreglo: una allocation recien
+# asignada no tiene viabilidad hasta G2, y emitir «SIN EVALUAR» ahi seria un dato falso.
+trlibno "sin viabilidad no inventa la linea"  "Viabilidad"  "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2'}))"
+
 # ─── PT-068 · la marca de sesion es de quien la abre ─────────────────────────
 sec "── PT-068 · la marca es de quien la abre ──"
 

@@ -364,6 +364,35 @@ export function cuerpoDeIssue(a, opciones = {}) {
     for (const t of tareas) l.push(`- \`${t.id}\`${t.issue ? ` · #${t.issue}` : ''} — ${t.title ?? t.slug ?? ''}`);
     l.push('');
   }
+  // PT-074 · SUITE-R35 · el registro asigna y la plataforma ESPEJA. El veredicto de viabilidad
+  // es estado —lo escribe «tracker viabilidad --registrar» (FDGE-R54)— y no se espejaba: vivia
+  // en REGISTRY.allocations[].viabilidad y era invisible desde el tablero. El firmante lo pidio
+  // TRES veces antes de que nadie mirara donde estaba el hueco.
+  //
+  // Se espeja el VEREDICTO y su BASE, no el razonamiento: SUITE-R35 prohibe copiar contenido al
+  // issue —dos copias del mismo texto divergen— y el porque sigue viviendo en changes/.
+  //
+  // La naturaleza de la cifra y el «medido_en» no son adorno: un veredicto sin decir contra que
+  // se midio es lo que PT-058 corrigio. Y la consecuencia de MARGINAL y UNSAFE se dice porque
+  // el issue existe para consultarse SIN abrir el repositorio: un veredicto sin consecuencia es
+  // un dato que no sirve para decidir.
+  //
+  // Sin viabilidad NO se emite nada. Una allocation recien asignada no la tiene hasta G2, y
+  // escribir «SIN EVALUAR» ahi seria inventar un dato donde solo hay un hueco (RULE-06).
+  const v = a?.viabilidad;
+  if (v?.veredicto) {
+    l.push('');
+    l.push(`Viabilidad (\`FDGE-R54\`): **${v.veredicto}** · coste ${v.coste?.valor ?? '—'} `
+      + `(${v.coste?.naturaleza ?? 'SIN EVALUAR'})`
+      + (v.medido_en ? ` · medida contra \`${String(v.medido_en).slice(0, 7)}\`` : ''));
+    if (v.veredicto === 'MARGINAL') {
+      l.push('> `MARGINAL` no prohíbe: obliga a trabajo **atomico** con checkpoint entre pasos.');
+    }
+    if (v.veredicto === 'UNSAFE') {
+      l.push('> `UNSAFE` **DETIENE**: checkpoint, handoff y parada.');
+    }
+  }
+
   l.push(`Intake, criterios de aceptación y evidencia: ${enlace}`);
   if (!url) {
     l.push('');
