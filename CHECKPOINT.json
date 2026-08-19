@@ -3,25 +3,30 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "REOPENED",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre",
   "sha": "697604e8ea96533be34ebef1b332555bbf9e4881",
   "sha_corto": "697604e",
   "sucio": true,
   "archivos": [
+    "changes/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre/acciones-humanas.md",
     "changes/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre/intake.md",
     "changes/PT-078-ninguna-regla-queda-sin-clasificar/",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION-alberto-martinez.json",
     "docs/implementation/SESSION_LOG.md",
     "docs/implementation/evidence/PT-055/salidas/selftest-completo.txt",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-19"
 }
