@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-19 · 15 allocation(es) viva(s).
+Proyectado el 2026-08-19 · 16 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
@@ -22,5 +22,6 @@ Proyectado el 2026-08-19 · 15 allocation(es) viva(s).
 | PT-072 | INVESTIGATION | READY | 1 | — | — |
 | PT-073 | CHORE | READY | 1 | — | — |
 | PT-074 | BUG | READY | 1 | — | — |
-| PT-075 | BUG | READY | 6 | fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre | 8f34b93 |
+| PT-075 | BUG | READY | 7 | fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre | ab50d99 |
 | PT-076 | BUG | READY | 1 | — | — |
+| PT-077 | BUG | READY | 1 | — | — |
