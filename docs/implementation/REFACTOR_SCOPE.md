@@ -47,7 +47,7 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-052 | CHORE | S2 | INTEGRATED | EP-014 | CHECKPOINT.json: el estado de la tarea en curso, estructurado y con el SHA del codigo |
 | PT-053 | CHORE | S1 | INTEGRATED | EP-014 | tracker avanzar PT-NNN --a N --nota: los cinco actos de una transicion, atomicos y con la nota obligatoria |
 | PT-054 | CHORE | S2 | INTEGRATED | EP-014 | cauce/<usuario>: proyeccion DERIVADA del estado de gobernanza, escrita solo por la herramienta |
-| PT-055 | BUG | S2 | REOPENED | EP-017 | --gate G4 exige las filas de cierre de TODOS los lotes abiertos, no del que la compuerta evalua |
+| PT-055 | BUG | S2 | INTEGRATED | EP-017 | --gate G4 exige las filas de cierre de TODOS los lotes abiertos, no del que la compuerta evalua |
 | PT-056 | CHORE | S1 | INTEGRATED | EP-015 | STATE_MISMATCH: al retomar, comprobar que el arbol CORRESPONDA al sha declarado, no solo que exista |
 | PT-057 | CHORE | S2 | INTEGRATED | EP-015 | El coste de una tarea, DERIVADO del historial del repositorio y nunca de una cifra de tokens |
 | PT-058 | CHORE | S1 | INTEGRATED | EP-015 | MEDIDO / ESTIMADO / SIN EVALUAR: el presupuesto declara la naturaleza de cada dato, no solo su valor |
