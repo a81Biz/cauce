@@ -3,20 +3,25 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
-  "sha": "b14b419c8a1d4c733add6ccda42b53fe70ecb890",
-  "sha_corto": "b14b419",
+  "sha": "80157a5c790245cc98539bfe4697c9b8db348f9f",
+  "sha_corto": "80157a5",
   "sucio": true,
   "archivos": [
     "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-18"
 }
