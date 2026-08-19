@@ -3,18 +3,19 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea",
-  "sha": "c30dc8962fe59d54ff7722ccd29d9d771cd196c2",
-  "sha_corto": "c30dc89",
+  "sha": "5d55e51482f14c68e77d247261ec496462d14f86",
+  "sha_corto": "5d55e51",
   "sucio": true,
   "archivos": [
     "changes/PT-063-el-usuario-vive-en-la-rama-de-tarea/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }
