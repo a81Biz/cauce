@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-074-la-compuerta-de-viabilidad-necesita-una-fase",
   "sha": "7b682c8ebb4383eddd83edd2da6d4e0891a2d351",
   "sha_corto": "7b682c8",
@@ -22,11 +22,8 @@
     "docs/implementation/evidence/PT-074/salidas/selftest-completo.txt",
     "docs/implementation/evidence/PT-074/self-review.md"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
