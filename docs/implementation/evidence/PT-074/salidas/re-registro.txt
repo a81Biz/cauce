@@ -1,0 +1,19 @@
+=== medido_en DESPUES del re-registro ===
+   {"7735ff4":15}
+
+  PT       veredicto  coste (naturaleza)
+  PT-019   MARGINAL   null  SIN EVALUAR
+  PT-055   SAFE       1596  ESTIMADO
+  PT-066   SAFE       1596  ESTIMADO
+  PT-067   SAFE       1596  ESTIMADO
+  PT-068   SAFE       691   ESTIMADO
+  PT-069   SAFE       689   ESTIMADO
+  PT-070   SAFE       1596  ESTIMADO
+  PT-071   SAFE       1596  ESTIMADO
+  PT-072   MARGINAL   null  SIN EVALUAR
+  PT-073   SAFE       2048  ESTIMADO
+  PT-074   SAFE       691   ESTIMADO
+  PT-075   SAFE       691   ESTIMADO
+  PT-076   SAFE       691   ESTIMADO
+  PT-077   SAFE       1596  ESTIMADO
+  PT-078   SAFE       689   ESTIMADO

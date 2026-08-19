@@ -1,0 +1,4 @@
+=== INVERSA · quitada la linea de cuerpoDeIssue (verificado que el revert aplica) ===
+  [31m✗[0m el cuerpo lleva el veredicto  (no apareció: SAFE · salió: **BUG** · severidad S2 · sin implementación asignada
+  [31m✗[0m MARGINAL dice que obliga  (no apareció: atomico\|atómico · salió: **BUG** · severidad S2 · sin implementación asignada
+  [32m✓[0m sin viabilidad no inventa la linea

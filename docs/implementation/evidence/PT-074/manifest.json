@@ -1,0 +1,37 @@
+{
+  "pt": "PT-074",
+  "generated": "2026-08-19",
+  "criteria": [
+    { "ac": "AC-01", "statement": "La consulta de viabilidad tiene una fase que la invoca", "scenarios": ["E1"], "tests": ["selftest.sh:PHASE 4 cita la viabilidad", "selftest.sh:…y el prompt de G2 tambien"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "Lo cerro PT-075. Se cita y se comprueba, no se da por hecho." },
+    { "ac": "AC-02", "statement": "El veredicto queda registrado y se puede auditar", "scenarios": ["E2", "E3", "E4"], "tests": ["selftest.sh:el cuerpo lleva el veredicto", "selftest.sh:…y la naturaleza de la cifra", "selftest.sh:…y contra que se midio"], "evidence": ["salidas/issue-espejado.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "MARGINAL y UNSAFE tienen consecuencia observable", "scenarios": ["E5", "E6"], "tests": ["selftest.sh:MARGINAL dice que obliga", "selftest.sh:UNSAFE dice que detiene"], "evidence": ["salidas/issue-espejado.txt", "salidas/inversa.txt"], "verified": true, "nota": "El issue existe para consultarse SIN abrir el repositorio: un veredicto sin consecuencia es un dato que no sirve para decidir." },
+    { "ac": "AC-04", "statement": "viabilidad lee la marca correcta, y los quince se re-registran", "scenarios": ["E9"], "tests": ["re-registro de las quince allocations de EP-017"], "evidence": ["salidas/re-registro.txt"], "verified": true, "nota": "ANTES: los quince con medido_en 258be16, la sesion huerfana. DESPUES: los quince con 7735ff4. La lectura la arreglo PT-068; aqui se rehacen los valores registrados contra la base vieja." },
+    { "ac": "AC-05", "statement": "Algo falla si la compuerta se queda sin invocacion", "scenarios": ["E1", "E7"], "tests": ["selftest.sh:PHASE 4 cita la viabilidad", "selftest.sh:sin viabilidad no inventa la linea"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-06", "statement": "El veredicto SE ESPEJA en la plataforma", "scenarios": ["E2", "E8"], "tests": ["selftest.sh:el cuerpo lleva el veredicto", "selftest.sh:sin viabilidad no inventa la linea"], "evidence": ["salidas/issue-espejado.txt"], "verified": true, "nota": "Se espeja el veredicto y su base, NO el razonamiento: SUITE-R35 prohibe copiar contenido al issue." }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que FDGE-R54 se OBEDEZCA, no solo que conste y se vea.",
+      "por_que": "Declarado no verificable desde PT-075: el verificador comprueba que el veredicto este escrito; que quien lo escribio actuara en consecuencia —trabajo atomico en MARGINAL, parada en UNSAFE— no es observable desde el repositorio. Hacerlo VISIBLE es lo mas cerca que se llega sin inventar una comprobacion que diria «correcto» siempre.",
+      "donde": "changes/PT-074-la-compuerta-de-viabilidad-necesita-una-fase/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que los veredictos MARGINAL de PT-072 y PT-019 dejen de serlo.",
+      "por_que": "Son MAJOR y no hay ninguna MAJOR cerrada con la que comparar: el coste es SIN EVALUAR, que es DESCONOCIDO y no «pequeño». Dejaran de serlo cuando exista precedente, es decir cuando una de las dos se cierre. Es la compuerta funcionando, no un defecto.",
+      "donde": "changes/EP-017-la-prueba-de-fuego/intake.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi primera comprobacion inversa dio VERDE en los tres casos, y la iba a guardar como evidencia.",
+      "regla": "—",
+      "detalle": "El python no encontro el patron —los saltos de linea eran CRLF— y str.replace NO FALLA cuando no casa: hace nada, en silencio. Sin assert, una inversa que no revierte nada certifica lo contrario de lo que pretende. Es la leccion de PT-050 —un caso que pasa en las dos direcciones no prueba nada— aplicada a la herramienta de verificar. Repetida con assert: caen los dos que dependen del arreglo y sigue pasando el que no."
+    },
+    {
+      "que": "Seis intentos de escapado antes de escribir una linea de codigo.",
+      "regla": "—",
+      "detalle": "Los artefactos se generaron con scripts que mezclan plantillas de JavaScript con markdown lleno de backticks. La herramienta correcta era escribir cada archivo directamente; se insistio en el script porque parecia mas rapido y no lo era."
+    }
+  ],
+  "suite": { "passed": 1022, "failed": 0, "skipped": 0, "coverage": 1022, "baseline": 1016 }
+}
