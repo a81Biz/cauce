@@ -1347,16 +1347,18 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "IN_PROGRESS",
+      "status": "INTEGRATED",
       "structural": false,
       "suite_version": "8.1.0",
       "epic": "EP-015",
-      "phase": 9,
+      "phase": 10,
       "title": "SESSION.json y el handoff derivado: la sesion como recurso efimero, con su propia maquina de estados",
       "origin": "Especificacion de la Capa de Continuidad, secciones 6, 7 y 9 · SESSION != TASK. Los estados CHECKPOINTING, HANDOFF_REQUIRED y WAITING_NEW_SESSION son de SESION, no de tarea: meterlos en el registro permanente contaminaria bajo SUITE-R09 lo que es mecanica transitoria",
       "created": "2026-08-18",
       "issue": 107,
-      "branch": "chore/PT-060-la-sesion-es-el-worker-no-el-estado"
+      "branch": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
+      "validated_by": "auto - EXEC-R06",
+      "validated": "2026-08-18"
     }
   ]
 }
