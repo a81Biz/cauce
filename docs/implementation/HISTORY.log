@@ -2530,3 +2530,243 @@ No verificado: que alguien ABRA la sesión —sin marca todo sale SIN EVALUAR, c
 tener el dato—; que un agente distinto no vuelva a abrirlo todo igualmente; que la evidencia de
 AC-06 sea una sesión de verdad; y que «desde..HEAD» capture todo el trabajo, porque cuenta commits
 y lo no commiteado no aparece: la cifra es un suelo, no un total.
+
+## PT-061 — CHORE: quién es quién
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que el marco sepa de quién es un commit, una rama y una sesión, y que lo sepa sin
+adivinarlo.
+Causa raíz: la identidad no estaba en ninguna parte. Medido al abrir el lote, en un repositorio de
+UNA persona: 221 commits como «Alberto Martínez <alberto@a81.biz>», 9 como «a81Biz
+<albe.mtz@gmail.com>» y 1 como «Alberto Martínez <albe.mtz@gmail.com>». Tres identidades, una
+persona — el desorden no viene de trabajar con más gente, viene de cambiar de máquina.
+Solución: REGISTRY.personas con el nombre canónico y las identidades de git. «personaDe(autor,
+personas)» pura, que casa el par ENTERO y devuelve null CON MOTIVO si no está declarado.
+«tracker personas» enseña declarados y no declarados. «ramaDe» pasa por la tabla. verify-suite
+exige que todo firmante exista como persona.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/verify-suite.mjs · tools/selftest.sh · docs/implementation/REGISTRY.json
+Evidencia: docs/implementation/evidence/PT-061/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): LA INVERSA ES LA EVIDENCIA QUE IMPORTA, y son sólo DOS casos a
+propósito. Relajando el criterio a «mismo correo o mismo dominio», «Otro <alberto@a81.biz>» pasa a
+SER Alberto Martínez. Ese es exactamente el riesgo declarado en el intake del lote: PT-062, PT-063,
+PT-064 y PT-065 construirían sobre esa identidad falsa SIN QUE SUS PROPIOS CASOS LO NOTARAN, porque
+cada una comprobaría correctamente sobre un dato equivocado.
+LA ASIMETRÍA DE AC-04 ES DELIBERADA. Poner «personas» en el registro crea a primera vista una
+segunda lista junto a «firmantes:», que es el patrón que este marco existe para eliminar. Por eso
+la comprobación va en UNA SOLA DIRECCIÓN: todo firmante existe como persona, pero tener identidad
+NO es poder firmar. Si fuera simétrica serían copias del mismo hecho y divergirían, que es lo que
+le pasó a las reglas en la v3.
+CORRIGE PT-054: «ramaDe» leía «git config user.name» a pelo. Desde la máquina que produjo los 9
+commits de «a81Biz» habría escrito «cauce/a81biz» — otra rama, para la misma persona, sin que nada
+lo notara. Sin «personas» declaradas se comporta exactamente como antes.
+Y la reconciliación es una TABLA, no una cirugía: unificar tres autores en 231 commits sería
+«git filter-branch», que SUITE-R06f reserva a una decisión humana. La historia sigue teniendo las
+tres identidades y la tabla dice que son la misma persona.
+Casos: 829 → 865.
+Sin regla nueva: entra vocabulario en LEXICON §6.5f y un campo del registro. SUITE-R27 y SUITE-R08
+no cambian.
+No verificado: que la tabla esté al día —una máquina nueva trae una identidad nueva y queda SIN
+DECLARAR hasta que alguien la añada—; que la persona declarada sea quien dice ser, porque es una
+declaración como «firmantes:»; que dos personas de verdad se comporten así, porque todo lo probado
+es con una persona y tres identidades; y que las tres declaradas sean todas las que habrá.
+
+## PT-062 — CHORE: los IDs se reparten por rangos reservados
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/PT-062-los-ids-se-reparten-por-rangos-reservados
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que dos personas puedan pedir un PT a la vez y no reciban el mismo número.
+Causa raíz: el registro tiene UN contador y NADIE lo aplica. SUITE-R08 dice que el registro asigna,
+y ninguna de las quince acciones de tracker lo hacía: la asignación la hacía quien editaba el
+archivo a mano, durante 65 tareas.
+Solución: «rango» dentro de «personas», opcional. «siguienteEnRango» deriva de lo usado DENTRO del
+rango —un contador por persona sería un segundo sitio para el mismo hecho—. «tracker asignar» es lo
+único que escribe un identificador. Y verify-fdge comprueba dos cosas: que no haya rangos solapados
+y que toda allocation caiga en el rango de alguien.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-062/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): LA ACCIÓN NO ESTABA EN EL INTAKE Y TUVO QUE ENTRAR. PHASE 2 midió que
+nadie asignaba, y un rango declarado que nadie aplica es decoración: sin la acción, ninguno de los
+seis AC se cumple sobre nada. Con ella, SUITE-R08 pasa de ser una afirmación a ser un mecanismo.
+LA COLISIÓN SE REPRODUJO, no se supuso, y es PEOR de lo esperado. Ana y Bruno asignan PT-066 a la
+vez: el CONTADOR se fusiona SIN CONFLICTO —los dos escribieron 66, git lo da por acordado— y el
+conflicto queda reducido a UNA LÍNEA de slug. Quien lo resuelva elige un texto y la otra tarea
+DESAPARECE ENTERA, con el contador diciendo 66 como si nada. El daño no es el conflicto: es que el
+conflicto PARECE PEQUEÑO. Y si las dos entradas hubieran quedado separadas por otras líneas, git
+las habría fusionado sin conflicto ninguno: dos PT-066 y LEX-R04 roto en silencio.
+TOCARSE POR UN EXTREMO YA ES SOLAPARSE, y es un «<=» en vez de un «<». La inversa lo demuestra: con
+«<», los rangos [1,100] y [100,200] dejan de solaparse — y el número 100 es exactamente el que las
+dos personas pedirían a la vez. Tres casos caen sólo por ese carácter.
+DOS DEFECTOS PROPIOS DEL MISMO TIPO: un RegExp construido con plantilla necesita DOBLE barra, y sin
+ella busca la letra «d». Lo vi porque «asignar» decía 0 usados mientras «personas» decía 65 —
+ejecutando las dos seguidas, no leyendo—. Pasó en tracker y en verify-fdge.
+Y SEXTA VEZ que un argumento se cuela por la detección de ROOT: «--slug» no estaba en CON_VALOR.
+Hay ya tres guardas —etiquetas, subcomandos, valores— y sigue apareciendo: el problema no es la
+lista, es que un posicional y el valor de una opción son indistinguibles por forma cuando la opción
+no se declara.
+Casos: 865 → 899.
+Sin regla nueva: entra vocabulario en LEXICON §6.5f. SUITE-R08 y LEX-R04 no cambian — y por eso el
+identificador NO se namespacea: sigue siendo PT-NNN.
+No verificado: que dos personas asignen a la vez de verdad, porque los rangos lo evitan por
+construcción y eso es un argumento; que nadie asigne a mano, que verify-fdge detecta después pero
+no puede impedir; que los rangos elegidos sean los correctos, que es decisión de equipo; y que este
+repositorio los use — NO los declara, es de una persona, y todo se probó declarándolos
+temporalmente y restaurando el registro después.
+
+## PT-063 — CHORE: el usuario vive en la rama de tarea
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/PT-063-el-usuario-vive-en-la-rama-de-tarea
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que la rama de tarea diga de quién es, sin añadir un cuarto nivel ni multiplicar G4.
+Causa raíz: decisión 3 del firmante. La topología asumía una sola persona.
+Solución: FDGE-R19 MODIFICADA — la rama efímera pasa a «<type>/<usuario>/PT-NNN-slug» con el
+nombre canónico de PT-061. «normalizaRef» se extrae y lo comparten las dos ramas del marco.
+«tracker rama PT-NNN» propone el nombre y NO la crea. verify-fdge AVISA si una rama viva no lleva
+usuario, y dice desde qué versión aplica.
+Archivos modificados: docs/methodology/RULES.md · LEXICON.md · CORE.md · tools/patrones.mjs ·
+tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-063/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 PARCIAL
+Delta (real vs planificado): EL CAMBIO ES MÁS PEQUEÑO DE LO QUE EL LOTE DECLARÓ, y se dice porque
+escribirlo al revés habría sido más cómodo. PHASE 2 midió que el formato de rama NO SE COMPRUEBA:
+FDGE-R19 lo fija y ninguna herramienta lo parsea — verify-fdge mira que la rama EXISTA. 22 ramas
+declaradas, todas de dos niveles, y CERO comprobaciones que se rompan. Sigue siendo MAJOR porque
+cambia el texto de una regla HARD, pero la migración es LEER.
+LA DECISIÓN DIFÍCIL FUE LA SEVERIDAD. Fallar rompería AC-04 —las 22 existentes fallarían todas—; no
+comprobar nada deja la regla como el texto que nadie aplica, que es EXACTAMENTE el defecto que
+FDGE-R19 documenta en su propio enunciado. Avisa, y el aviso DICE DESDE CUÁNDO aplica. Lo que NO se
+hizo: fallar «a partir de la próxima versión» — una comprobación que cambia de severidad con el
+tiempo es una que nadie puede razonar.
+AC-04 QUEDÓ DEMOSTRADO POR ACCIDENTE, y es la mejor evidencia de la tarea: la rama de ESTA MISMA
+tarea es de dos niveles, porque se creó antes de que el formato existiera. El aviso la señala y no
+bloquea. La tarea que cambia el formato se termina como empezó.
+AC-06 QUEDA PARCIAL Y SE DECLARA. Tiene dos mitades: FDGE-R19 dice el formato nuevo —hecho y
+comprobado— y el CHANGELOG trae guía de migración —que se escribe al cerrar EP-016 y es una de sus
+filas de cierre—. Marcarlo VERIFICADO aquí sería marcar una casilla que no está hecha, que es lo
+que SUITE-R45 existe para impedir.
+Y se comprobó lo que NO cambia: «trabajo» sigue siendo una, G4 sigue siendo una por lote, y
+FDGE-R19 sigue diciendo todo lo demás que decía —commits atómicos, prefijos, tres niveles, que el
+PR de tarea es revisión—. Un caso que sólo mirase el formato nuevo pasaría aunque el resto se
+hubiera perdido.
+Casos: 899 → 930.
+REGLA MODIFICADA: FDGE-R19. Es el MAJOR del lote, y la única tarea de EP-016 que toca RULES.md.
+No verificado: la guía de migración, que es fila de cierre del lote; que dos personas trabajen sin
+pisarse, porque necesita dos personas; que alguien use «tracker rama», que propone y no crea; y que
+el aviso se lea — hay uno vivo ahora mismo, señalando esta tarea.
+
+## PT-064 — CHORE: de quién es cada commit
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/alberto-martinez/PT-064-de-quien-es-cada-commit
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que el coste, el precedente y el techo dejen de mezclar el trabajo de dos personas.
+Causa raíz: EP-015 lo dejó declarado y sin cerrar. Medido en PHASE 2: las tres derivaciones piden
+el SHA, el asunto y la fecha, y NINGUNA pide el autor.
+Solución: «commitsConAutor» resuelve cada commit a persona declarada (PT-061). El precedente y el
+techo se filtran SIEMPRE por la persona local; el coste, a petición —«--mio», «--de»— y dice de
+quién es SIEMPRE. Un commit sin persona no se reparte y se cuenta.
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-064/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): LAS TRES CIFRAS SE ROMPÍAN DISTINTO, y por eso no se arreglan igual.
+El precedente sale FALSO —compara contra trabajo ajeno y decide si empezar ahora—; el techo sale
+INFLADO —el día de dos personas cuenta como una sesión, y la salvaguarda de AC-06 de PT-059 no
+saltaría—; y el coste típico mezclado NO es un defecto obvio: más casos es mejor referencia. La
+asimetría del filtrado responde a eso: las dos primeras contestan «¿puedo YO, ahora?» y la tercera
+«¿cuánto suele costar ESTO?».
+EL RIESGO OBVIO NO NECESITÓ CÓDIGO. Filtrar por persona deja los grupos más pequeños, y con dos
+personas caerían por debajo de MINIMO_REFERENCIA. No hizo falta nada: costeDe ya devuelve SIN
+REFERENCIA con su motivo y viabilidadDe con una cifra SIN EVALUAR devuelve MARGINAL sin aprobar por
+omisión. EP-015 dejó el comportamiento correcto para este caso ANTES de que el caso existiera.
+EL SEPARADOR NO PODÍA SER UN ESPACIO. PT-057 usó uno porque el SHA no lleva ninguno; aquí el campo
+es un NOMBRE, y «Alberto Martínez» se habría partido en dos. Es el tipo de detalle que sólo se ve
+al añadir el campo, no al leer el código anterior.
+SÉPTIMA VEZ de la detección de ROOT —«--de» no estaba en CON_VALOR— y la primera cuyo valor EMPIEZA
+en mayúscula, que ES_ETIQUETA no filtra. El patrón ya no es una lista incompleta: es que declarar
+la opción es el único mecanismo y hay que acordarse.
+Y UN CASO PROPIO QUE ERA UNA BOMBA DE RELOJERÍA: el de PT-057 asertaba «CHORE/STANDARD · 1[0-9]
+tareas cerradas» y falló al llegar a 20 — no porque nada se rompiera, sino porque el número creció.
+Atar una aserción a una cifra que crece con cada tarea cerrada garantiza que fallará algún día sin
+que eso signifique nada.
+Y OCTAVA VEZ DEL PATRÓN, encontrada por CI: dos casos pasaban en local y fallaban en el runner
+porque «--mio» depende de «git config user.name» DE LA MÁQUINA. Es el mismo defecto que EP-015
+encontró cuatro veces —probar donde trabaja el agente y no donde se decide— y aquí reaparece con
+otra cara. Los casos usan ahora un nombre declarado, que no depende de dónde corran.
+Casos: 930 → 955.
+Sin cambios de especificación, y el spec-changes lo dice con la palabra «ninguno»: FDGE-R22 pide
+declarar el cambio antes de hacerlo, y «no hay cambio» es una declaración.
+No verificado: que las cifras por persona sean ÚTILES —con grupos pequeños, SIN REFERENCIA será
+frecuente: es el precio de no mezclar—; que dos personas se comporten así; que nadie use esto para
+comparar personas; y que la persona de una tarea sea la correcta cuando dos la tocan — es la de su
+PRIMER commit propio, quien la empezó, y repartirla entre dos sería inventar una fracción.
+
+## PT-065 — CHORE: la sesión es de alguien
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/alberto-martinez/PT-065-la-sesion-es-de-alguien
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que la marca de sesión de una persona no borre la de otra.
+Causa raíz: EP-015 lo dejó declarado. SESSION.json es UNO, no tiene persona y está VERSIONADO: las
+dos últimas cosas juntas hacen que la marca de una persona no sólo se pierda, se PROPAGUE.
+Solución: SESSION-<usuario>.json, una marca por persona. Dos personas nunca escriben el mismo
+archivo, así que no hay conflicto que resolver. Las ajenas SE VEN. Sin persona resuelta sigue
+siendo SESSION.json.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-065/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): EL CONFLICTO SE REPRODUJO, y es DISTINTO del de PT-062. Allí el daño
+era que el conflicto PARECÍA PEQUEÑO —el contador se fusionaba sin conflicto y una tarea
+desaparecía—; aquí es ruidoso y constante: conflicto en CADA merge, en un archivo que no es trabajo
+sino mecánica transitoria. Y la resolución obvia borra la sesión del otro, con lo que su precedente
+pasa a salir de una marca que no es suya.
+UN ARCHIVO POR PERSONA, NO UN ARCHIVO CON N SESIONES. La segunda forma sigue dando conflicto:
+dos personas escribirían el mismo archivo. Es la misma lógica que PT-062 aplicó a los
+identificadores — evitar la colisión por construcción, no resolverla mejor.
+Y SE DIJO EN TRES SITIOS QUE NO CONTRADICE LEX-R26 —LEXICON, spec-changes y out-of-scope— porque la
+forma se parece y el criterio es distinto: CHECKPOINT.json es UNO porque responde por LA TAREA en
+curso; SESSION.json responde por UNA SESIÓN, y puede haber varias. Es el tipo de parecido que
+produce una regla mal aplicada dos lotes después.
+LO QUE MÁS DICE DE ESTA TAREA ES CUÁNTO NO HUBO QUE TOCAR: «sesionDe» y «handoffDeSesion» son puras
+y reciben la marca, así que no cambian; y el filtrado de lo que la sesión deriva ya lo hizo PT-064.
+Poco código para el problema que resuelve, y eso es señal de que las cuatro tareas anteriores
+dejaron las piezas en su sitio.
+Casos: 955 → 977.
+Sin regla nueva: entra vocabulario en LEXICON §6.2 y §6.5e.
+No verificado: que dos personas trabajen a la vez de verdad —el conflicto está reproducido con dos
+ramas, pero la sesión ajena de la evidencia está SIMULADA escribiendo el archivo a mano—; que las
+sesiones ajenas se MIREN, porque se enseñan pero que alguien las lea no se comprueba; y que no se
+acumulen archivos, que son uno por persona y no uno por día, pero nadie ha vivido con esto el
+tiempo suficiente para saberlo.

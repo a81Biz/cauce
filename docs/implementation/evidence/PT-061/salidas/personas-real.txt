@@ -1,0 +1,22 @@
+# PT-061 · las tres identidades, reconciliadas sobre el repositorio real
+
+$ tracker personas
+
+
+  Alberto Martínez
+    Alberto Martínez <alberto@a81.biz>              221 commits
+    a81Biz <albe.mtz@gmail.com>                     9 commits
+    Alberto Martínez <albe.mtz@gmail.com>           1 commits
+
+  Esto dice a QUIEN ATRIBUIR un commit, no quien puede hacer que: «firmantes:» de
+  CLAUDE.md sigue respondiendo quien puede firmar, y son cosas distintas.
+tracker · github · acción personas
+
+
+Sin divergencias.
+
+## Y sin tocar un solo commit: la historia sigue teniendo las tres
+
+      221 Alberto Martínez|alberto@a81.biz
+        9 a81Biz|albe.mtz@gmail.com
+        1 Alberto Martínez|albe.mtz@gmail.com

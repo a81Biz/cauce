@@ -2458,7 +2458,9 @@ chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/t
 # cifras reales no comprobaban nada. Es el mismo defecto que PT-023 persigue: verde por vacio.
 RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
 TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
-chk   "coste da una cifra para un grupo grande"  "CHORE/STANDARD · 1[0-9] tareas cerradas"  TRR coste CHORE STANDARD
+# El patron NO se ata a un numero concreto: la cifra CRECE con cada tarea cerrada, y atarla
+# convierte un caso en una bomba de relojeria. Paso con «1[0-9]» al llegar a 20.
+chk   "coste da una cifra para un grupo grande"  "CHORE/STANDARD · [0-9][0-9]* tareas cerradas"  TRR coste CHORE STANDARD
 chk   "…con su rango"                            "( *[0-9]* – [0-9]*)"   TRR coste CHORE STANDARD
 chk   "…y de cuantas cerradas sale"              "de las .* tareas cerradas"  TRR coste CHORE STANDARD
 chk   "…y avisa de las que no se pueden saber"   "NO SE PUEDE SABER"     TRR coste CHORE STANDARD
@@ -2661,6 +2663,304 @@ chk   "…y dice que es una MARCA"          "MARCA, no memoria"  cat "$SUITE/LEX
 chk   "…y que el dia no es la sesion"     "NO es la sesi"  cat "$SUITE/LEXICON.md"
 chk   "…y SESSION != STATE != TASK"       "SESSION ≠ STATE ≠ TASK"  cat "$SUITE/LEXICON.md"
 chk   "…y que no sustituye a HANDOFF"     "no sustituye"  cat "$SUITE/LEXICON.md"
+
+# ─── PT-061 · quién es quién ───────────────────────────────────────────────
+# Medido al abrir EP-016, en un repositorio de UNA persona: 221 commits como «Alberto Martinez
+# <alberto@a81.biz>», 9 como «a81Biz <albe.mtz@gmail.com>» y 1 como «Alberto Martinez
+# <albe.mtz@gmail.com>». Tres identidades, una persona.
+#
+# Las otras cuatro tareas de EP-016 dependen de esta. Si se equivoca, las cuatro heredan el error
+# SIN QUE SUS CASOS LO NOTEN: cada una comprobaria correctamente sobre una identidad falsa.
+sec "── PT-061 · quién es quién ──"
+
+P61='[{nombre:"Alberto Martínez",git:[{nombre:"Alberto Martínez",correo:"alberto@a81.biz"},{nombre:"a81Biz",correo:"albe.mtz@gmail.com"}]}]'
+
+# E1-E3 · las identidades distintas resuelven a la MISMA persona.
+PL "un par declarado da su persona"       "Alberto"   "console.log(m.personaDe({nombre:\"Alberto Martínez\",correo:\"alberto@a81.biz\"},$P61).persona)"
+PL "…y la segunda identidad, la MISMA"    "Alberto"   "console.log(m.personaDe({nombre:\"a81Biz\",correo:\"albe.mtz@gmail.com\"},$P61).persona)"
+PL "…y sin motivo, porque no hay duda"    "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"a81Biz\",correo:\"albe.mtz@gmail.com\"},$P61).motivo))"
+
+# E4-E5 · AC-03 · el par casa ENTERO. Es lo que sostiene el lote: solo el correo no basta —dos
+# personas pueden compartir un buzon de equipo— y solo el nombre tampoco.
+PL "mismo correo, OTRO nombre ⇒ null"     "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"Otro\",correo:\"alberto@a81.biz\"},$P61).persona))"
+PL "mismo nombre, OTRO correo ⇒ null"     "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"Alberto Martínez\",correo:\"otro@x.com\"},$P61).persona))"
+# Y no se adivina por dominio: mismo dominio, otra persona.
+PL "mismo dominio NO es la misma persona"  "^null$"   "console.log(JSON.stringify(m.personaDe({nombre:\"Otra\",correo:\"otra@a81.biz\"},$P61).persona))"
+
+# E6-E7 · el motivo dice QUE autor es y que NO se adivina.
+PL "el motivo nombra al autor"            "Fulano"    "console.log(m.personaDe({nombre:\"Fulano\",correo:\"f@x.com\"},$P61).motivo)"
+PL "…y su correo"                         "f@x.com"   "console.log(m.personaDe({nombre:\"Fulano\",correo:\"f@x.com\"},$P61).motivo)"
+PL "…y dice que no se adivina"            "no se adivina por parecido"  "console.log(m.personaDe({nombre:\"F\",correo:\"f@x\"},$P61).motivo)"
+PL "…y que hacer con el"                  "anadelo a su lista"  "console.log(m.personaDe({nombre:\"F\",correo:\"f@x\"},$P61).motivo)"
+
+# E8-E9 · sin autor y sin tabla: distintos, y ninguno revienta.
+PL "un commit sin autor lo dice"          "no declara autor"  "console.log(m.personaDe({}).motivo)"
+PL "sin tabla, null y no revienta"        "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"A\",correo:\"b\"},[]).persona))"
+PLNO "…y no dice que sea culpa del commit"  "no declara autor"  "console.log(m.personaDe({nombre:\"A\",correo:\"b\"},[]).motivo)"
+
+# E10-E11 · personaLocal · el canonico de esta maquina.
+PL "personaLocal da el CANONICO"          "Alberto Martínez"  "console.log(m.personaLocal(\"a81Biz\",\"albe.mtz@gmail.com\",$P61).persona)"
+PLNO "…y no el nombre de git config"      "a81Biz"    "console.log(m.personaLocal(\"a81Biz\",\"albe.mtz@gmail.com\",$P61).persona)"
+PL "…y sin tabla, null para que el llamador use el de hoy"  "^null$"  "console.log(JSON.stringify(m.personaLocal(\"X\",\"y\",[]).persona))"
+
+# E16-E17 · ramaDe y su compatibilidad. La misma persona, la MISMA rama desde cualquier maquina.
+trlib "ramaDe normaliza el canonico"      "cauce/alberto-martinez"  "console.log(m.ramaDe(\"Alberto Martínez\"))"
+trlib "…y desde la otra identidad seria OTRA rama"  "cauce/a81biz"  "console.log(m.ramaDe(\"a81Biz\"))"
+chk   "por eso proyectar pasa por la tabla"  "personaLocal"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y sin personas se comporta como antes"  "Sin «personas» declaradas se comporta"  cat "$SUITE/tools/tracker.mjs"
+
+# E12-E15 · la accion, sobre el repositorio REAL, que es donde estan las tres identidades.
+chk   "personas enseña a los declarados"   "Alberto Martínez"     TRR personas
+chk   "…con cuantos commits lleva cada identidad"  "commits"      TRR personas
+chk   "…y las TRES identidades bajo UNA persona"   "a81Biz"       TRR personas
+chk   "…y distingue de «firmantes:»"       "no quien puede hacer que"  TRR personas
+# Los no declarados salen SIEMPRE, no bajo una bandera: esconderlo garantiza que nadie lo mire.
+chk   "el texto de los no declarados existe"  "SIN DECLARAR"      cat "$SUITE/tools/tracker.mjs"
+chk   "…y dice que no se agrupa por parecido"  "quien es quien lo dice una persona"  cat "$SUITE/tools/tracker.mjs"
+
+# E18-E19 · AC-04 · la comprobacion va en UNA direccion. La asimetria es lo que impide que
+# «firmantes:» y «personas» se conviertan en dos copias del mismo hecho.
+chk   "verify-suite exige firmante ⇒ persona"  "puede firmar y no esta declarado"  cat "$SUITE/tools/verify-suite.mjs"
+chk   "…y dice que la direccion es deliberada"  "NO EN LA CONTRARIA"  cat "$SUITE/tools/verify-suite.mjs"
+chkno "…y NO exige persona ⇒ firmante"     "no puede firmar y esta declarado"  cat "$SUITE/tools/verify-suite.mjs"
+# Sin personas declaradas no se comprueba nada: un proyecto de una persona no declara la tabla.
+chk   "sin personas no se comprueba"       "no se comprueba nada"  cat "$SUITE/tools/verify-suite.mjs"
+
+# E20 · las tres identidades de ESTE repositorio, declaradas de verdad.
+chk   "el registro declara personas"       '"personas"'  sh -c 'cat "$1/docs/implementation/REGISTRY.json"' _ "$RAIZ_REAL"
+chk   "…con las tres identidades"          "albe.mtz@gmail.com"  sh -c 'cat "$1/docs/implementation/REGISTRY.json"' _ "$RAIZ_REAL"
+
+# LEX-R21 · el vocabulario en LEXICON, y antes que el codigo.
+chk   "«personas» esta en LEXICON"         "personas"          cat "$SUITE/LEXICON.md"
+chk   "…y que el par casa ENTERO"          "casa entero"       cat "$SUITE/LEXICON.md"
+chk   "…y que no es «firmantes:»"          "NO es"             cat "$SUITE/LEXICON.md"
+chk   "…y que no dice que puede nadie"     "no dice qué puede" cat "$SUITE/LEXICON.md"
+
+# ─── PT-062 · los IDs se reparten por rangos reservados ────────────────────
+# PHASE 2 lo REPRODUJO en un repositorio de prueba: si Ana y Bruno asignan PT-066 a la vez, el
+# CONTADOR se fusiona SIN CONFLICTO —los dos escribieron 66— y el conflicto queda reducido a una
+# linea de «slug». Quien lo resuelva elige un texto y la otra tarea DESAPARECE ENTERA.
+#
+# El dano no es el conflicto: es que el conflicto PARECE PEQUENO.
+sec "── PT-062 · rangos reservados ──"
+
+# E1-E3 · el siguiente se DERIVA de lo usado DENTRO del rango.
+PL "rango vacio da el primero"            "^100$"  "console.log(m.siguienteEnRango(\"PT\",[100,200],[]).numero)"
+PL "…y con usados, el siguiente"          "^102$"  "console.log(m.siguienteEnRango(\"PT\",[100,200],[100,101]).numero)"
+# Los de FUERA no cuentan: los 65 PT de este repositorio se asignaron sin rango, y si contaran
+# para el de otra persona su primer ID saltaria sin motivo.
+PL "los de FUERA del rango no cuentan"    "^100$"  "console.log(m.siguienteEnRango(\"PT\",[100,200],[1,2,65]).numero)"
+PL "sin rango declarado ⇒ null"           "^null$" "console.log(JSON.stringify(m.siguienteEnRango(\"PT\",null,[]).numero))"
+PL "…y lo dice"                           "no declara rango"  "console.log(m.siguienteEnRango(\"PT\",null,[]).motivo)"
+
+# E5-E6 · AC-05 · agotado se DICE. Invadir el siguiente reproduce la colision, mas tarde.
+PL "un rango agotado NO invade"           "^null$" "console.log(JSON.stringify(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).numero))"
+PL "…y dice que esta AGOTADO"             "AGOTADO"  "console.log(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).motivo)"
+PL "…y cuantos hay"                       "3 usados" "console.log(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).motivo)"
+PL "…y que ampliarlo es humano"           "decision humana"  "console.log(m.siguienteEnRango(\"PT\",[1,3],[1,2,3]).motivo)"
+
+# E7-E10 · seSolapan. Tocarse por un extremo YA es solaparse: ese numero compartido es
+# exactamente el que las dos personas pediran a la vez.
+PL "rangos disjuntos NO se solapan"       "^false$"  "console.log(m.seSolapan([1,10],[11,20]))"
+PL "solape parcial SI"                    "^true$"   "console.log(m.seSolapan([1,10],[5,20]))"
+PL "uno dentro de otro tambien"           "^true$"   "console.log(m.seSolapan([1,100],[10,20]))"
+PL "…y TOCARSE por un extremo tambien"    "^true$"   "console.log(m.seSolapan([1,100],[100,200]))"
+PLNO "…y no revienta con basura"          "true"     "console.log(m.seSolapan(null,[1,2]))"
+# E11-E12 · solapes sobre una tabla.
+TRES='[{nombre:"A",rango:{PT:[1,100]}},{nombre:"B",rango:{PT:[100,200]}},{nombre:"C",rango:{PT:[300,400]}}]'
+PL "solapes encuentra el par"             "^1$"      "console.log(m.solapes($TRES).length)"
+PL "…y nombra a los dos"                  "\"a\":\"A\""  "console.log(JSON.stringify(m.solapes($TRES)))"
+PL "…y al otro"                           "\"b\":\"B\""  "console.log(JSON.stringify(m.solapes($TRES)))"
+PL "sin solapes, lista vacia"             "^0$"      "console.log(m.solapes([{nombre:\"A\",rango:{PT:[1,10]}},{nombre:\"B\",rango:{PT:[11,20]}}]).length)"
+
+# E13-E16 · la accion, sobre el repositorio REAL.
+chk   "asignar da un ID"                  "PT-0"     TRR asignar PT --slug prueba --ver
+# AC-03 · decision 2 del firmante: el identificador NO se namespacea.
+chkno "…y NO lleva el nombre de nadie"    "alberto"  TRR asignar PT --slug prueba --ver
+chk   "…y dice de donde sale"             "contador global\|del rango de"  TRR asignar PT --slug prueba --ver
+chk   "--ver no escribe nada"             "no se ha escrito nada"  TRR asignar PT --slug prueba --ver
+# AC-06 · sin rangos, como hoy. Este repositorio no los declara.
+chk   "sin rangos, del contador global"   "contador global"  TRR asignar PT --slug prueba --ver
+chk   "…y sin slug se niega"              "necesita un slug"  TRR asignar PT
+
+# E17-E19 · las dos comprobaciones de verify-fdge, y que sin rangos no comprueban nada.
+chk   "verify-fdge detecta rangos solapados"  "SOLAPADOS"  cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y una allocation fuera de todo rango"  "fuera de todos los rangos"  cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y solo si hay rangos declarados"      "sin ellos no hay nada"   cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y dice por que se comprueba aqui"     "aunque nadie"  cat "$SUITE/tools/verify-fdge.mjs"
+
+# E20 · personas enseña el rango cuando lo hay.
+chk   "personas puede ensenar el rango"   "siguiente"  cat "$SUITE/tools/tracker.mjs"
+
+# LEX-R21 · el vocabulario en LEXICON.
+chk   "«rango» esta en LEXICON"           "Rango reservado"  cat "$SUITE/LEXICON.md"
+chk   "…y que el registro sigue asignando"  "sigue asignando"  cat "$SUITE/LEXICON.md"
+chk   "…y que NO se namespacea"           "NO se namespacea"   cat "$SUITE/LEXICON.md"
+chk   "…y que tocarse ya es solaparse"    "solo se tocan por un extremo"  cat "$SUITE/LEXICON.md"
+chk   "…y que agotado no se invade"       "no se invade"       cat "$SUITE/LEXICON.md"
+
+# ─── PT-063 · el usuario vive en la rama de tarea ──────────────────────────
+# Decision 3 del firmante: el usuario vive en la RAMA DE TAREA y «trabajo» sigue siendo unica.
+#
+# PHASE 2 midio que el formato NO SE COMPRUEBA: FDGE-R19 lo fija y ninguna herramienta lo parsea.
+# 22 ramas declaradas, todas de dos niveles, y cero comprobaciones que se rompan.
+sec "── PT-063 · el usuario en la rama de tarea ──"
+
+# E1-E4 · el formato nuevo, con el nombre CANONICO.
+PL "la rama lleva al usuario"             "chore/alberto-martinez/PT-063"  "console.log(m.ramaDeTarea(\"chore\",\"PT-063\",\"slug\",\"Alberto Martínez\"))"
+PL "…y el tipo en minusculas"             "^chore/"   "console.log(m.ramaDeTarea(\"CHORE\",\"PT-063\",\"slug\",\"Alberto Martínez\"))"
+PL "…y el usuario normalizado"            "alberto-martinez"  "console.log(m.normalizaRef(\"Alberto Martínez\"))"
+# El mismo normalizador que «cauce/<usuario>»: si divergieran, la misma persona tendria dos
+# nombres segun que rama se mire.
+trlib "…con el MISMO normalizador que cauce/"  "cauce/alberto-martinez"  "console.log(m.ramaDe(\"Alberto Martínez\"))"
+PL "…y el canonico, no el de git config"  "alberto-martinez"  "console.log(m.ramaDeTarea(\"chore\",\"PT-1\",\"s\",\"Alberto Martínez\"))"
+PLNO "…que habria dado otra rama"         "a81biz"    "console.log(m.ramaDeTarea(\"chore\",\"PT-1\",\"s\",\"Alberto Martínez\"))"
+
+# E5-E7 · AC-04 · sin usuario, DOS niveles. Un proyecto de una persona no cambia nada.
+PL "sin usuario, dos niveles"             "^chore/PT-063-slug$"  "console.log(m.ramaDeTarea(\"chore\",\"PT-063\",\"slug\"))"
+PL "una rama de dos niveles no lleva usuario"  "^false$"  "console.log(m.ramaLlevaUsuario(\"chore/PT-063-slug\"))"
+PL "…y una de tres si"                    "^true$"    "console.log(m.ramaLlevaUsuario(\"chore/alberto-martinez/PT-063-slug\"))"
+PLNO "…y «trabajo» no cuenta como rama de tarea"  "^true$"  "console.log(m.ramaLlevaUsuario(\"trabajo\"))"
+
+# E8-E9 · AC-02 · «trabajo» sigue siendo UNA. Es un criterio sobre lo que NO debe pasar, y esos
+# son los que mas facil se dan por buenos sin mirar.
+chkno "no existe «trabajo/<usuario>» en RULES"   "trabajo/<usuario>"  cat "$SUITE/RULES.md"
+chkno "…ni en LEXICON"                           "trabajo/<usuario>"  cat "$SUITE/LEXICON.md"
+chk   "…y LEXICON dice que «trabajo» es UNA"     "sigue siendo una"   cat "$SUITE/LEXICON.md"
+
+# E10-E11 · AC-03 · G4 sigue siendo UNA por lote.
+chk   "FDGE-R19 sigue diciendo que G4 no se multiplica"  "no se multiplica por tarea"  cat "$SUITE/RULES.md"
+chk   "…y que el PR de tarea es revision"        "no es .G4"          cat "$SUITE/RULES.md"
+chk   "EXEC-R03 sigue existiendo"                "EXEC-R03"           cat "$SUITE/RULES.md"
+
+# E12-E13 · la accion PROPONE, no crea.
+chk   "rama propone el nombre"            "PT-063"              TRR rama PT-063
+chk   "…y dice que NO se crea"            "NO se crea"          TRR rama PT-063
+chk   "…y describe el comando"            "git checkout -b"     TRR rama PT-063
+chk   "…y de donde nace"                  "git switch trabajo"  TRR rama PT-063
+
+# E14-E15 · la comprobacion AVISA y dice desde cuando.
+chk   "verify-fdge avisa, no falla"       "warn..FDGE-R19"      cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y dice desde que version"         "Desde 8.3.0"         cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y que las anteriores siguen valiendo"  "se termina como empezo"  cat "$SUITE/tools/verify-fdge.mjs"
+chk   "…y solo con personas declaradas"   "personas ?? \[\]).length"     cat "$SUITE/tools/verify-fdge.mjs"
+# Y NO se falla «a partir de la proxima version»: una comprobacion que cambia de severidad con el
+# tiempo es una que nadie puede razonar.
+chk   "…y se dice por que no se falla con el tiempo"  "cambia de severidad con el tiempo"  cat "$SUITE/tools/verify-fdge.mjs"
+
+# E16-E17 · FDGE-R19 dice el formato nuevo Y SIGUE DICIENDO todo lo demas. Un caso que solo
+# mirase el formato pasaria aunque el resto de la regla se hubiera perdido.
+chk   "FDGE-R19 dice el formato nuevo"    "usuario>/PT-NNN-slug"  cat "$SUITE/RULES.md"
+chk   "…y sigue exigiendo commits atomicos"  "Commits atómicos"   cat "$SUITE/RULES.md"
+chk   "…y sus prefijos"                   "refactor"              cat "$SUITE/RULES.md"
+chk   "…y los TRES niveles"               "tres niveles"          cat "$SUITE/RULES.md"
+chk   "…y que la rama va al registro"     "branch"                cat "$SUITE/RULES.md"
+chk   "…y que sin personas sigue el de antes"  "sin personas declaradas"  cat "$SUITE/RULES.md"
+
+# ─── PT-064 · de quién es cada commit ──────────────────────────────────────
+# EP-015 lo dejo declarado y sin cerrar: «el dia de dos personas son dos sesiones que porSesion()
+# cuenta como UNA, y el techo historico —del que depende AC-06 de PT-059— sale INFLADO».
+#
+# PHASE 2 midio que NINGUNA cifra pedia el autor, y que las tres se rompen DISTINTO.
+sec "── PT-064 · de quién es cada commit ──"
+
+XS='[{id:1,persona:"A"},{id:2,persona:"B"},{id:3,persona:null}]'
+
+# E1-E3 · soloDe. Con null devuelve TODO, que es lo que impide romper EP-015.
+PL "filtra por persona"                   "^\[1\]$"      "console.log(JSON.stringify(m.soloDe($XS,\"A\").map(x=>x.id)))"
+PL "…y con null devuelve TODO"            "^\[1,2,3\]$"  "console.log(JSON.stringify(m.soloDe($XS,null).map(x=>x.id)))"
+PLNO "…y los sin persona no entran en el de nadie"  "3"  "console.log(JSON.stringify(m.soloDe($XS,\"B\").map(x=>x.id)))"
+# E4 · y se CUENTAN: la ausencia se ve en vez de restar en silencio.
+PL "sinPersona los cuenta"                "^1$"          "console.log(m.sinPersona($XS))"
+PL "…y con todos declarados, cero"        "^0$"          "console.log(m.sinPersona([{persona:\"A\"}]))"
+
+# E5-E6 · las tres derivaciones piden el autor, con un separador que no aparece en un nombre.
+chk   "las derivaciones piden el autor"   "%an"          cat "$SUITE/tools/tracker.mjs"
+chk   "…y el correo"                      "%ae"          cat "$SUITE/tools/tracker.mjs"
+# PT-057 uso un espacio porque el SHA no lleva ninguno. Un NOMBRE si: «Alberto Martinez» se
+# partiria en dos campos.
+chk   "…con un separador que no es un espacio"  "SEP_REG"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y se dice por que"                "un NOMBRE si"   cat "$SUITE/tools/tracker.mjs"
+
+# E7-E8 · el precedente y el techo se filtran SIEMPRE.
+chk   "el precedente se filtra por persona"  "soloDe(conDato, yo)"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y el techo tambien"               "soloDe(sesiones, yo)"   cat "$SUITE/tools/tracker.mjs"
+chk   "…y se dice por que siempre"        "comparar contra el"     cat "$SUITE/tools/tracker.mjs"
+# Una sesion es de un DIA y de una PERSONA: contarlas juntas infla el techo.
+chk   "una sesion es de un dia Y de una persona"  "de una PERSONA"  cat "$SUITE/tools/tracker.mjs"
+
+# E9-E11 · el coste, a peticion, y DICE de quien es SIEMPRE.
+chk   "sin filtro dice que es de todas"   "de TODAS las personas"  TRR coste CHORE STANDARD
+# «--mio» depende de «git config user.name» de la MAQUINA: en CI es el del runner y no resuelve
+# a ninguna persona declarada, asi que no hay a quien filtrar. El caso pasaba en local y fallaba
+# en CI — octava vez del mismo patron en dos lotes. Se comprueba con «--de» y un nombre DECLARADO,
+# que no depende de donde corra.
+chk   "--de con persona declarada dice de quien"  "solo de Alberto"  TRR coste CHORE STANDARD --de "Alberto Martínez"
+chk   "…y sigue dando la cifra"           "lineas"                 TRR coste CHORE STANDARD --de "Alberto Martínez"
+# Con un nombre que no existe no queda ninguna tarea, asi que no hay cifra que etiquetar: lo
+# que se comprueba es que el filtro SE APLICO, y eso se ve en que el grupo queda vacio.
+chk   "--de tambien filtra"               "0 tareas"               TRR coste CHORE STANDARD --de Nadie
+# Con un nombre que no existe no hay casos: SIN REFERENCIA, no una cifra inventada.
+chk   "…y con un nombre que no existe, SIN REFERENCIA"  "SIN REFERENCIA"  TRR coste CHORE STANDARD --de Nadie
+
+# E13-E15 · AC-05 · con una sola persona, las cifras son las de hoy.
+chk   "viabilidad sigue dando veredicto"  "veredicto"              TRR viabilidad PT-064
+chk   "…y el techo dice de quien es"      "la mayor sesion registrada"  TRR viabilidad PT-064
+chk   "…y el precedente sigue saliendo"   "mayor hecho"            TRR viabilidad PT-064
+
+# AC-04 · el texto de los no declarados existe y dice que no se adjudican.
+chk   "el texto de los no declarados existe"  "sin declarar no se reparten"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y remite a «tracker personas»"    "los enumera"            cat "$SUITE/tools/tracker.mjs"
+
+# Lo que esta tarea NO hace, comprobado: no toca la logica de PT-057 ni de PT-059.
+chkno "no se toco costeDe"                "export function costeDe.*persona"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y viabilidadDe sigue en patrones" "export function viabilidadDe"      cat "$SUITE/tools/patrones.mjs"
+
+# ─── PT-065 · la sesión es de alguien ──────────────────────────────────────
+# EP-015 lo dejo declarado: «SESSION.json es de UNA sesion: al abrir se sobrescribe. Con dos
+# personas trabajando eso no basta».
+#
+# PHASE 2 reprodujo el conflicto: SESSION.json esta VERSIONADO, asi que la marca de una persona
+# no solo se pierde, SE PROPAGA — conflicto en cada merge, y la resolucion obvia borra la del otro.
+sec "── PT-065 · la sesión es de alguien ──"
+
+# E1-E4 · un archivo por persona. La colision se evita POR CONSTRUCCION.
+PL "el archivo lleva a la persona"        "SESSION-alberto-martinez.json"  "console.log(m.archivoSesion(\"Alberto Martínez\"))"
+PL "…sin persona, el de siempre"          "^SESSION.json$"   "console.log(m.archivoSesion(null))"
+PL "…normalizado igual que las ramas"     "SESSION-alberto-martinez"  "console.log(m.archivoSesion(\"Alberto Martínez\"))"
+PL "dos personas, DOS archivos distintos"  "^true$"  "console.log(m.archivoSesion(\"Bruno\")!==m.archivoSesion(\"Ana\"))"
+
+# E5-E7 · las ajenas se ven. Si cada una solo viera la suya, las dos creerian que trabajan solas.
+MS='[{persona:"A",desde:"x"},{persona:"B",desde:"y"},{desde:"z"}]'
+PL "las ajenas se enumeran"               "\[\"B\"\]"    "console.log(JSON.stringify(m.sesionesAjenas($MS,\"A\").map(x=>x.persona)))"
+PLNO "…y la propia NO"                    "\"A\""        "console.log(JSON.stringify(m.sesionesAjenas($MS,\"A\").map(x=>x.persona)))"
+# Una marca sin persona es la de un proyecto de una sola persona: contarla haria ver una sesion
+# fantasma.
+PL "…y una marca sin persona no es ajena"  "^1$"         "console.log(m.sesionesAjenas($MS,\"A\").length)"
+
+# E9-E12 · la accion, sobre el repositorio real.
+chk   "sesion abrir escribe la marca"     "sesion abierta desde"  TRR sesion abrir
+chk   "…y sesion la lee"                  "sesion desde"          TRR sesion
+chk   "…con las cifras de PT-058"         "MEDIDO"                TRR sesion
+# El texto de las ajenas existe y explica por que se ensenan.
+chk   "el texto de las ajenas existe"     "Otras sesiones abiertas"  cat "$SUITE/tools/tracker.mjs"
+# El texto va partido en dos lineas por el ancho: se busca un fragmento que quepa en UNA.
+chk   "…y dice por que se ensenan"        "trabajan solas"  cat "$SUITE/tools/patrones.mjs"
+# E11 · compatibilidad: si no hay propio, cae a SESSION.json.
+chk   "cae a SESSION.json si no hay propio"  "SESSION.json"       cat "$SUITE/tools/tracker.mjs"
+chk   "…y se dice que es por compatibilidad"  "un proyecto de una persona no cambia nada"  cat "$SUITE/tools/tracker.mjs"
+
+# E13-E14 · AC-04 · el handoff sigue derivado y HANDOFF.md sigue intacto.
+chk   "sesion cerrar sigue dando el handoff"  "en curso"          TRR sesion cerrar
+chk   "…y dice que HANDOFF.md queda intacto"  "INTACTO"           TRR sesion cerrar
+chk   "…y que no borra la marca"          "NO se borra"           TRR sesion cerrar
+
+# LEX-R21 · el vocabulario, y la distincion con LEX-R26 dicha explicitamente.
+chk   "SESSION-<usuario> esta en LEXICON"  "SESSION-<usuario>.json"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que la colision se evita"   "por construcción"        cat "$SUITE/LEXICON.md"
+chk   "…y que las ajenas se ven"           "sesiones ajenas se ven"  cat "$SUITE/LEXICON.md"
+chk   "…y que NO contradice LEX-R26"       "no contradice"           cat "$SUITE/LEXICON.md"
+chk   "…y por que: el checkpoint es de la TAREA"  "la tarea en curso"  cat "$SUITE/LEXICON.md"
 
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un

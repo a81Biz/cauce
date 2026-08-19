@@ -1,0 +1,14 @@
+# PT-064 · comprobación inversa
+
+Se neutralizaron las dos funciones que sostienen la tarea:
+  1. soloDe deja de filtrar: devuelve todo siempre
+  2. sinPersona deja de contar: devuelve 0
+
+Caen CUATRO casos, y el cuarto es el que mas dice: «--de Nadie» deja de dar
+SIN REFERENCIA porque el filtro ya no filtra — o sea que la cifra que sale es la de
+TODAS las personas presentada como si fuera la de una.
+
+  [31m✗[0m filtra por persona  (no apareció: ^\[1\]$ · salió: [1,2,3])
+  [31m✗[0m …y los sin persona no entran en el de nadie  (apareció: 3 · salió: [1,2,3])
+  [31m✗[0m sinPersona los cuenta  (no apareció: ^1$ · salió: 0)
+  [31m✗[0m …y con un nombre que no existe, SIN REFERENCIA  (no apareció: SIN REFERENCIA)

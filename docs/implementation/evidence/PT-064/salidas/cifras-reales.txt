@@ -1,0 +1,46 @@
+# PT-064 · sobre el repositorio real
+
+Este repositorio tiene UNA persona declarada con tres identidades, asi que las
+cifras no cambian — que es AC-05. Lo que cambia es que ahora DICEN de quien son.
+
+$ tracker coste CHORE STANDARD
+
+  CHORE/STANDARD · 20 tareas cerradas · de TODAS las personas
+    commits       4     (1 – 9)
+    archivos     27     (19 – 35)
+    lineas     2028     (398 – 2703)
+
+  Derivado de 52 de las 60 tareas cerradas. 8 no tienen
+  commit propio: no costaron cero, es que NO SE PUEDE SABER — trabajo anterior a la
+
+$ tracker coste CHORE STANDARD --mio
+
+  CHORE/STANDARD · 20 tareas cerradas · solo de Alberto Martínez
+    commits       4     (1 – 9)
+    archivos     27     (19 – 35)
+    lineas     2028     (398 – 2703)
+
+  Derivado de 52 de las 60 tareas cerradas. 8 no tienen
+  commit propio: no costaron cero, es que NO SE PUEDE SABER — trabajo anterior a la
+
+$ tracker coste CHORE STANDARD --de Nadie
+
+  CHORE/STANDARD · 0 tareas — SIN REFERENCIA (ninguna tarea cerrada de este tipo)
+    Una mediana de una tarea no es una mediana. Ahi esta lo que hay.
+
+  Derivado de 0 de las 60 tareas cerradas. 8 no tienen
+
+$ tracker viabilidad PT-064
+
+  PT-064 · CHORE/STANDARD
+    coste tipico    2028 (ESTIMADO)   de 20 cerradas
+    mayor hecho     SIN EVALUAR   en la sesion abierta en 37392ac
+    techo historico 29286 (MEDIDO)   la mayor sesion registrada de Alberto Martínez
+
+    veredicto       MARGINAL
+
+  no se puede comparar: el precedente esta SIN EVALUAR. NO SE APRUEBA POR OMISION, y
+  tampoco se prohibe sin evidencia — el presupuesto disponible es SIN EVALUAR siempre, asi
+
+El techo dice ahora «de Alberto Martinez». Con una persona es el mismo numero;
+con dos, seria el suyo y no la suma de los dos dias.

@@ -1,0 +1,34 @@
+{
+  "pt": "PT-064",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "El precedente de una sesion sale solo del trabajo de esa persona", "scenarios": ["E1", "E5", "E6", "E7", "E15"], "tests": ["selftest.sh:filtra por persona", "selftest.sh:las derivaciones piden el autor", "selftest.sh:el precedente se filtra por persona", "selftest.sh:viabilidad sigue dando veredicto"], "evidence": ["salidas/cifras-reales.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "El techo historico se calcula por persona, no sumando a todas", "scenarios": ["E8"], "tests": ["selftest.sh:…y el techo tambien", "selftest.sh:una sesion es de un dia Y de una persona", "selftest.sh:…y el techo dice de quien es"], "evidence": ["salidas/cifras-reales.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "El coste puede pedirse de todos o de una persona, y dice cual es", "scenarios": ["E9", "E10", "E11"], "tests": ["selftest.sh:sin filtro dice que es de todas", "selftest.sh:--mio dice de quien", "selftest.sh:--de tambien filtra", "selftest.sh:…y con un nombre que no existe, SIN REFERENCIA"], "evidence": ["salidas/cifras-reales.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Un commit sin persona declarada no se reparte: cuenta como SIN EVALUAR", "scenarios": ["E3", "E4", "E12"], "tests": ["selftest.sh:…y los sin persona no entran en el de nadie", "selftest.sh:sinPersona los cuenta", "selftest.sh:el texto de los no declarados existe", "selftest.sh:…y remite a «tracker personas»"], "evidence": ["salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Con una sola persona declarada, las cifras no cambian respecto a hoy", "scenarios": ["E2", "E13", "E14"], "tests": ["selftest.sh:…y con null devuelve TODO", "selftest.sh:coste da una cifra para un grupo grande", "selftest.sh:…y el precedente sigue saliendo"], "evidence": ["salidas/cifras-reales.txt", "salidas/verify-suite.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que las cifras por persona sean UTILES.",
+      "por_que": "Con dos personas y grupos pequenos, costeDe devolvera SIN REFERENCIA a menudo — correcto, y menos util que hoy. Es el precio de no mezclar, y esta declarado. Lo que no hace falta es codigo nuevo: PT-057 y PT-059 ya se comportan bien en ese caso.",
+      "donde": "changes/PT-064-de-quien-es-cada-commit/strategy.md"
+    },
+    {
+      "afirmacion": "Que dos personas se comporten asi.",
+      "por_que": "Todo lo probado es con UNA persona y tres identidades. Que las cifras se separen bien con dos es un argumento por construccion, no una ejecucion.",
+      "donde": "changes/PT-064-de-quien-es-cada-commit/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que nadie use esto para comparar personas.",
+      "por_que": "El marco puede dar la cifra de cada una porque la necesita para decidir si empezar una tarea. Que se haga con ella no lo decide una herramienta — y esta declarado en el out-of-scope porque es donde podria colarse.",
+      "donde": "changes/PT-064-de-quien-es-cada-commit/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que la persona de una tarea sea la correcta cuando dos la tocan.",
+      "por_que": "La persona de una tarea es la de su PRIMER commit propio: quien la empezo. Si dos personas tocan la misma tarea, la referencia sigue siendo de quien la abrio — repartir una tarea entre dos seria inventar una fraccion que nadie ha medido. Es una decision, no una medicion.",
+      "donde": "docs/methodology/tools/tracker.mjs"
+    }
+  ],
+  "suite": { "passed": 955, "failed": 0, "skipped": 0, "coverage": 955, "baseline": 930 }
+}

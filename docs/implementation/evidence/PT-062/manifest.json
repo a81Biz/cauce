@@ -1,0 +1,35 @@
+{
+  "pt": "PT-062",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Cada persona tiene un rango reservado, declarado en el registro", "scenarios": ["E1", "E2", "E4", "E13", "E20"], "tests": ["selftest.sh:rango vacio da el primero", "selftest.sh:…y con usados, el siguiente", "selftest.sh:sin rango declarado ⇒ null", "selftest.sh:asignar da un ID", "selftest.sh:personas puede ensenar el rango"], "evidence": ["salidas/asignar-real.txt", "salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "El registro sigue asignando (SUITE-R08): el rango acota, no sustituye", "scenarios": ["E3", "E16"], "tests": ["selftest.sh:los de FUERA del rango no cuentan", "selftest.sh:--ver no escribe nada", "selftest.sh:…y dice de donde sale"], "evidence": ["salidas/asignar-real.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "El identificador no se namespacea: sigue siendo PT-NNN", "scenarios": ["E14"], "tests": ["selftest.sh:…y NO lleva el nombre de nadie", "selftest.sh:…y que NO se namespacea"], "evidence": ["salidas/asignar-real.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "Dos rangos no se solapan, y solaparlos falla", "scenarios": ["E7", "E8", "E9", "E10", "E11", "E12", "E17", "E18"], "tests": ["selftest.sh:rangos disjuntos NO se solapan", "selftest.sh:…y TOCARSE por un extremo tambien", "selftest.sh:solapes encuentra el par", "selftest.sh:verify-fdge detecta rangos solapados", "selftest.sh:…y una allocation fuera de todo rango"], "evidence": ["salidas/inversa.txt", "salidas/asignar-real.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Agotar un rango se dice; no se invade el siguiente", "scenarios": ["E5", "E6"], "tests": ["selftest.sh:un rango agotado NO invade", "selftest.sh:…y dice que esta AGOTADO", "selftest.sh:…y cuantos hay", "selftest.sh:…y que ampliarlo es humano"], "evidence": ["salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-06", "statement": "Sin rangos declarados, el comportamiento de hoy no cambia", "scenarios": ["E15", "E19"], "tests": ["selftest.sh:sin rangos, del contador global", "selftest.sh:…y solo si hay rangos declarados"], "evidence": ["salidas/asignar-real.txt", "salidas/verify-suite.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que dos personas asignen a la vez de verdad.",
+      "por_que": "La colision esta REPRODUCIDA en PHASE 2 con dos ramas de git —y es peor de lo esperado: el contador se fusiona SIN conflicto y el conflicto queda reducido a una linea de slug—. Que los rangos la eviten es un argumento por construccion, no una ejecucion con dos personas reales.",
+      "donde": "docs/implementation/evidence/PT-062/salidas/colision-reproducida.txt"
+    },
+    {
+      "afirmacion": "Que nadie asigne a mano.",
+      "por_que": "verify-fdge lo detecta despues —toda allocation tiene que caer en el rango de alguien— pero impedirlo no se puede: el registro es un archivo y editarlo es legitimo. Es exactamente lo que se ha hecho durante 65 tareas.",
+      "donde": "docs/methodology/tools/verify-fdge.mjs"
+    },
+    {
+      "afirmacion": "Que los rangos elegidos sean los correctos.",
+      "por_que": "Repartir el espacio de identificadores es una decision de equipo. La herramienta ensena los rangos y sus huecos y no decide: una que repartiera por su cuenta estaria decidiendo algo que no le toca.",
+      "donde": "changes/PT-062-los-ids-se-reparten-por-rangos-reservados/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que este repositorio use rangos.",
+      "por_que": "No los declara: es de una persona, y AC-06 dice que sin rangos todo funciona como hoy. Las comprobaciones y la asignacion por rango se probaron declarandolos TEMPORALMENTE y restaurando el registro despues. Funcionan; no estan en uso.",
+      "donde": "docs/implementation/evidence/PT-062/salidas/asignar-real.txt"
+    }
+  ],
+  "suite": { "passed": 899, "failed": 0, "skipped": 0, "coverage": 899, "baseline": 865 }
+}

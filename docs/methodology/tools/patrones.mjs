@@ -309,6 +309,183 @@ export function handoffDeSesion(sesion, checkpoint) {
   return l.join(SALTO_LINEA);
 }
 
+// ── PT-061 · quien es quien ─────────────────────────────────────────────────
+//
+// Medido al abrir EP-016, en un repositorio de UNA persona: 218 commits como «Alberto Martinez
+// <alberto@a81.biz>», 9 como «a81Biz <albe.mtz@gmail.com>» y 1 como «Alberto Martinez
+// <albe.mtz@gmail.com>». Tres identidades, una persona. El desorden no viene de trabajar con mas
+// gente: viene de cambiar de maquina.
+
+/**
+ * ¿De quien es este autor de git? La PERSONA declarada, o null CON MOTIVO.
+ *
+ * NO adivina por parecido. Mismo apellido o mismo dominio de correo convertiria una duda en un
+ * dato, y las cuatro tareas siguientes de EP-016 construirian sobre el SIN QUE SUS CASOS LO
+ * NOTARAN: cada una comprobaria correctamente sobre una identidad falsa.
+ *
+ * El par casa ENTERO. Solo el correo no basta —dos personas pueden compartir un buzon de equipo—
+ * y solo el nombre tampoco: «a81Biz» no se parece a nada.
+ */
+export function personaDe(autor, personas = []) {
+  if (!autor?.correo && !autor?.nombre) {
+    return { persona: null, motivo: 'el commit no declara autor' };
+  }
+  for (const p of personas ?? []) {
+    for (const id of p?.git ?? []) {
+      if (id?.correo === autor.correo && id?.nombre === autor.nombre) {
+        return { persona: p.nombre, motivo: null };
+      }
+    }
+  }
+  return {
+    persona: null,
+    motivo: `«${autor.nombre} <${autor.correo}>» no esta declarado en «personas». Si es de `
+      + 'alguien ya declarado, anadelo a su lista «git»: no se adivina por parecido.',
+  };
+}
+
+/** El nombre canonico de quien usa esta maquina, si esta declarado. */
+export const personaLocal = (nombre, correo, personas = []) =>
+  personaDe({ nombre, correo }, personas);
+
+// ── PT-062 · los IDs se reparten por rangos reservados ──────────────────────
+//
+// PHASE 2 lo reprodujo: si Ana y Bruno asignan PT-066 a la vez, el CONTADOR se fusiona SIN
+// CONFLICTO —los dos escribieron 66, git lo da por acordado— y el conflicto queda reducido a una
+// linea de «slug». Quien lo resuelva elige un texto y la otra tarea DESAPARECE ENTERA. El dano no
+// es el conflicto: es que el conflicto PARECE PEQUENO.
+
+/**
+ * El siguiente ID del rango de una persona. El numero, o null CON MOTIVO.
+ *
+ * Se DERIVA de lo ya asignado dentro del rango, no de un contador aparte: un contador por persona
+ * seria un segundo sitio donde vive el mismo hecho, y divergiria (SUITE-R38).
+ */
+export function siguienteEnRango(prefijo, rango, usados = []) {
+  if (!Array.isArray(rango) || rango.length !== 2) {
+    return { numero: null, motivo: `esta persona no declara rango para ${prefijo}` };
+  }
+  const [desde, hasta] = rango;
+  // Los que estan FUERA del rango no cuentan: los 65 PT de este repositorio se asignaron sin
+  // rango, y si contaran para el de otra persona su primer ID saltaria a 66 sin motivo.
+  const dentro = (usados ?? []).filter((n) => n >= desde && n <= hasta);
+  const siguiente = dentro.length ? Math.max(...dentro) + 1 : desde;
+  if (siguiente > hasta) {
+    return { numero: null,
+      motivo: `rango ${prefijo} [${desde}-${hasta}] AGOTADO: ${dentro.length} usados y el ultimo `
+        + `es ${Math.max(...dentro)}. Ampliar el rango es una decision humana; invadir el `
+        + 'siguiente reproduce la colision que los rangos evitan.' };
+  }
+  return { numero: siguiente, motivo: null };
+}
+
+/**
+ * ¿Se solapan dos rangos? Tocarse por un extremo YA es solaparse: ese numero compartido es
+ * exactamente el que las dos personas pediran a la vez.
+ */
+export const seSolapan = (a, b) =>
+  Array.isArray(a) && Array.isArray(b) && a.length === 2 && b.length === 2
+  && a[0] <= b[1] && b[0] <= a[1];
+
+/** Todos los solapes de una tabla de personas, para un prefijo. */
+export function solapes(personas = [], prefijo = 'PT') {
+  const out = [];
+  const con = (personas ?? []).filter((p) => Array.isArray(p?.rango?.[prefijo]));
+  for (let i = 0; i < con.length; i += 1) {
+    for (let j = i + 1; j < con.length; j += 1) {
+      if (seSolapan(con[i].rango[prefijo], con[j].rango[prefijo])) {
+        out.push({ a: con[i].nombre, b: con[j].nombre,
+          rangoA: con[i].rango[prefijo], rangoB: con[j].rango[prefijo] });
+      }
+    }
+  }
+  return out;
+}
+
+// ── PT-063 · el usuario vive en la rama de tarea ────────────────────────────
+//
+// Decision 3 del firmante: el usuario vive en la RAMA DE TAREA y «trabajo» sigue siendo unica,
+// para no anadir un cuarto nivel ni multiplicar G4 contra EXEC-R03.
+
+/**
+ * Normaliza un nombre para una referencia de git. LO USAN LAS DOS ramas del marco —«cauce/
+ * <usuario>» (PT-054) y la rama de tarea— y por eso vive aqui: si cada una normalizara por su
+ * cuenta, la misma persona tendria dos nombres segun que rama se mire.
+ */
+export const normalizaRef = (nombre) => String(nombre ?? '')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase().trim()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+/**
+ * Como debe llamarse la rama de una tarea.
+ *
+ * El usuario sale del nombre CANONICO (PT-061), no de «git config» a pelo: desde la maquina que
+ * produjo los 9 commits de «a81Biz», leerlo directo habria dado «chore/a81biz/PT-063-…» — otra
+ * rama para la misma persona.
+ *
+ * Sin usuario resuelto, DOS niveles como siempre: un proyecto de una persona no cambia nada.
+ */
+export function ramaDeTarea(tipo, id, slug, usuario = null) {
+  const t = String(tipo ?? 'chore').toLowerCase();
+  const u = usuario ? normalizaRef(usuario) : null;
+  const cola = `${id}-${slug}`;
+  return u ? `${t}/${u}/${cola}` : `${t}/${cola}`;
+}
+
+/** ¿Lleva usuario esta rama? Tres niveles, con el identificador al final. */
+export const ramaLlevaUsuario = (rama) => {
+  const p = String(rama ?? '').split('/');
+  return p.length >= 3 && /^(PT|EP)-\d+/.test(p[p.length - 1]);
+};
+
+// ── PT-064 · de quien es cada commit ────────────────────────────────────────
+//
+// PHASE 2 midio que NINGUNA cifra pedia el autor: las tres derivaciones piden el SHA, el asunto y
+// la fecha. Con una persona da igual; con dos, cada una mezcla el trabajo de las dos, y sobre
+// ellas decide la compuerta de PT-059.
+
+/**
+ * Filtra por persona, SOLO si hay a quien filtrar.
+ *
+ * Con `persona` null devuelve TODO: es el caso de un proyecto sin «personas» declaradas, y es lo
+ * que hace que esta tarea no rompa EP-015 (AC-05).
+ */
+export const soloDe = (items, persona) =>
+  (persona ? (items ?? []).filter((x) => x?.persona === persona) : (items ?? []));
+
+/**
+ * Cuantos quedaron fuera por no tener persona declarada.
+ *
+ * Se DICE, no se resta en silencio: un commit sin persona no se adjudica por parecido (PT-061), y
+ * si ademas desapareciera sin contarse, las cifras encogerian sin que nada lo explicara.
+ */
+export const sinPersona = (items) => (items ?? []).filter((x) => !x?.persona).length;
+
+// ── PT-065 · la sesion es de alguien ────────────────────────────────────────
+//
+// PHASE 2 lo reprodujo: SESSION.json esta VERSIONADO, asi que con dos personas la marca de una se
+// PROPAGA y da conflicto en CADA merge. Y la resolucion obvia —quedarse con uno— borra la sesion
+// del otro: a partir de ahi su precedente sale de una marca que no es suya.
+//
+// Un archivo por persona lo evita POR CONSTRUCCION: nadie escribe el de nadie. Es la misma logica
+// que PT-062 aplico a los identificadores.
+
+/** El archivo de sesion de una persona. Sin persona, el de siempre (compatibilidad). */
+export const archivoSesion = (persona) =>
+  (persona ? `SESSION-${normalizaRef(persona)}.json` : 'SESSION.json');
+
+/**
+ * Las sesiones AJENAS. No es cosmetico: si cada persona solo viera la suya, las dos creerian que
+ * trabajan solas y ninguna entenderia por que las cifras no cuadran.
+ *
+ * Una marca SIN persona no cuenta como ajena — es la de un proyecto de una sola persona, y
+ * contarla haria ver una sesion fantasma.
+ */
+export const sesionesAjenas = (marcas, yo) =>
+  (marcas ?? []).filter((m) => m?.persona && m.persona !== yo);
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

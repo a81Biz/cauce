@@ -338,6 +338,45 @@ for (const f of files) {
   }
 }
 
+// ── 6c. PT-061 · todo firmante existe como persona (SUITE-R27) ───────────────
+//
+// EN ESA DIRECCION Y NO EN LA CONTRARIA. Tener identidad no es poder firmar: un becario puede
+// estar en «personas» y no en «firmantes:». Si la comprobacion fuera simetrica, las dos listas
+// serian copias del mismo hecho y divergirian — que es lo que le paso a las reglas en la v3 y lo
+// que este marco existe para no repetir.
+{
+  // BASE es docs/methodology; la raiz del proyecto esta dos niveles arriba.
+  const RAIZ = resolve(BASE, '..', '..');
+  const claude = existsSync(join(RAIZ, 'CLAUDE.md')) ? readFileSync(join(RAIZ, 'CLAUDE.md'), 'utf8') : '';
+  const registro = (() => {
+    try { return JSON.parse(readFileSync(join(RAIZ, 'docs', 'implementation', 'REGISTRY.json'), 'utf8')); }
+    catch { return null; }
+  })();
+  const personas = registro?.personas ?? [];
+  // Sin «personas» declaradas no se comprueba nada: un proyecto de una sola persona no tiene que
+  // declarar la tabla, y exigirla seria imponer trabajo sin ganancia.
+  if (personas.length && claude) {
+    const ls = claude.split(String.fromCharCode(10)).map((x) => x.replace(String.fromCharCode(13), ''));
+    const i = ls.findIndex((l) => /^\s*firmantes\s*:/i.test(l));
+    if (i >= 0) {
+      const firmantes = [];
+      for (let j = i + 1; j < ls.length; j += 1) {
+        const m = ls[j].match(/^\s*-\s+(.+?)\s*$/);
+        if (!m) break;
+        firmantes.push(m[1]);
+      }
+      const nombres = new Set(personas.map((x) => x?.nombre));
+      for (const f of firmantes) {
+        if (!nombres.has(f)) {
+          fail('SUITE-R27', 'CLAUDE.md', i + 1,
+            `«${f}» puede firmar y no esta declarado en «personas» del registro: el marco no sabe `
+            + 'quien es. Anadelo, o quitalo de «firmantes:».');
+        }
+      }
+    }
+  }
+}
+
 // ── 7. SUITE-R16 · CORE.md sincronizado con sus fuentes ──────────────────────
 {
   const corePath = join(BASE, 'CORE.md');

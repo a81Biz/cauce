@@ -1,0 +1,18 @@
+# PT-065 · comprobación inversa
+
+Se neutralizaron las dos funciones:
+  1. archivoSesion devuelve SIEMPRE «SESSION.json» — un archivo para todos
+  2. sesionesAjenas devuelve TODAS, incluida la propia y las que no declaran persona
+
+Caen SEIS casos. El tercero es el que importa: «dos personas, DOS archivos distintos»
+sale false — o sea que la colision que PHASE 2 reprodujo volveria entera.
+
+Y el ultimo dice algo distinto: con las ajenas sin filtrar, una marca SIN persona
+aparece como sesion de alguien. Seria una sesion fantasma.
+
+  [31m✗[0m el archivo lleva a la persona  (no apareció: SESSION-alberto-martinez.json · salió: SESSION.json)
+  [31m✗[0m …normalizado igual que las ramas  (no apareció: SESSION-alberto-martinez · salió: SESSION.json)
+  [31m✗[0m dos personas, DOS archivos distintos  (no apareció: ^true$ · salió: false)
+  [31m✗[0m las ajenas se enumeran  (no apareció: \["B"\] · salió: ["A","B",null])
+  [31m✗[0m …y la propia NO  (apareció: "A" · salió: ["A","B",null])
+  [31m✗[0m …y una marca sin persona no es ajena  (no apareció: ^1$ · salió: 3)

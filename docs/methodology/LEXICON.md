@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **8.2.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **9.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -440,6 +440,10 @@ HISTORY.log            append-only   · un registro por PT cerrado, más las ent
                        los reconoce por ellos, no por su contenido.
 HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
                        responde por el PROYECTO: qué implementación, qué tarea, qué sigue
+SESSION-<usuario>.json sobrescribible · la sesion de UNA persona (§6.5e) · UNA por persona,
+                       no una por dia. Dos personas nunca escriben el mismo archivo, asi que no
+                       hay conflicto que resolver — la colision se evita por construccion
+
 SESSION.json           sobrescribible · el estado de la SESION, no de la tarea (§6.5e)
                        «desde» es lo unico capturado; el resto se deriva de «desde..HEAD»
                        sin el, lo que lleva la sesion es SIN EVALUAR — el dia NO es la sesion
@@ -711,6 +715,21 @@ el pasado sin nada que la respalde.
 y una sesión coinciden **por casualidad** cuando la sesión empezó ese día, y el día que no
 coincidan —dos sesiones en una jornada, o una que cruza la medianoche— nada lo notaría.
 
+**La sesión es de alguien** (`PT-065`) · Con `personas` declaradas, la marca vive en
+`SESSION-<usuario>.json`. Y no es un detalle de organización: `SESSION.json` está **versionado**, así
+que con dos personas la marca de una **se propaga** y da conflicto en cada merge — reproducido—, y
+la resolución obvia borra la sesión del otro.
+
+Un archivo por persona lo evita **por construcción**: nadie escribe el de nadie.
+
+**Y las sesiones ajenas se ven.** Si cada persona solo viera la suya, las dos creerían que trabajan
+solas y ninguna entendería por qué las cifras no cuadran.
+
+**Esto no contradice `LEX-R26`**, y conviene decirlo porque la forma se parece: `CHECKPOINT.json`
+**es uno** porque responde por *la tarea en curso*. `SESSION.json` responde por *una sesión*, y
+puede haber varias a la vez. Sin `personas` declaradas sigue siendo `SESSION.json`, que es lo que
+tiene un proyecto de una persona.
+
 **Las transiciones se apilan en `SESSION_LOG.md`**, que ya es el ledger de sesiones (`SUITE-R09`).
 No hay un segundo ledger: sería el mismo hecho en dos sitios.
 
@@ -723,6 +742,81 @@ qué commit, qué sigue— que se **suma** al handoff escrito, no lo reemplaza.
 `IN_PROGRESS`: no cambia nada de la tarea, termina la sesión. Por eso no aparecen en §4 y no entran
 en `REGISTRY.json` — ahí `SUITE-R09` los haría permanentes, y el registro guardaría para siempre
 mecánica transitoria.
+
+### 6.5f Quién es quién   `PT-061`
+
+`REGISTRY.json` declara **`personas`**: quién trabaja en el proyecto y con qué identidades de git
+lo hace.
+
+```
+personas[]
+  nombre        el CANONICO · de el sale su rama (§6.5 · PT-054) y con el se firma
+  git[]         los pares (nombre, correo) que esa persona ha usado
+```
+
+**Por qué hace falta.** Medido en este repositorio, de **una sola persona**: 218 commits como
+`Alberto Martínez <alberto@a81.biz>`, 9 como `a81Biz <albe.mtz@gmail.com>` y 1 como
+`Alberto Martínez <albe.mtz@gmail.com>`. Tres identidades, una persona. El desorden no viene de
+trabajar con más gente: viene de **cambiar de máquina**.
+
+**El par casa entero.** Solo el correo no basta —dos personas pueden compartir un buzón de
+equipo— y solo el nombre tampoco. Un autor que no case **se reporta**: no se adivina por parecido,
+porque atribuir por mismo apellido o mismo dominio convierte **una duda en un dato**, y todo lo
+que se derive después construye sobre él sin notarlo.
+
+**`personas` NO es `firmantes:`**, y la diferencia importa:
+
+| | Responde | Vive en |
+|:---|:---|:---|
+| `firmantes:` | quién **puede firmar** — gobierno, decisión humana | `CLAUDE.md` (`SUITE-R27`) |
+| `personas` | quién **es quién** — identidad, dato que leen las herramientas | `REGISTRY.json` |
+
+Un becario puede tener identidad y no poder firmar. Lo que no puede pasar es que alguien firme sin
+existir: **todo firmante existe como persona**, y se comprueba. **En esa dirección y no en la
+contraria** — si fuera simétrica, las dos listas serían copias del mismo hecho y divergirían.
+
+**Esto no dice qué puede hacer nadie.** `SUITE-R27` ya declara que `firmantes:` no prueba que
+firmara una persona; esta tabla tampoco lo prueba. Dice **a quién atribuir** un commit, no quién lo
+escribió.
+
+**Rango reservado** (`PT-062`) · Una persona puede declarar de qué tramo de identificadores saca
+los suyos:
+
+```
+rango: { "PT": [1, 999] }      los dos extremos INCLUSIVE
+```
+
+**El registro sigue asignando** (`SUITE-R08`): el rango dice **de dónde** sale el número, no quién
+lo da. Y el siguiente ID se **deriva** de lo ya asignado dentro del rango — un contador por persona
+sería un segundo sitio donde vive el mismo hecho.
+
+**El identificador NO se namespacea.** Sigue siendo `PT-NNN`: `LEX-R04` los declara permanentes, y
+`PT-alberto-001` rompería cada referencia escrita en las tareas ya cerradas.
+
+**Dos rangos que se solapan fallan** —incluso si solo se tocan por un extremo, porque ese número
+compartido es exactamente el que las dos personas pedirán a la vez—. Solapados son **peores que
+ninguno**: dan confianza sin darla.
+
+**Un rango agotado se dice**, y no se invade el siguiente: invadirlo reproduce la colisión que los
+rangos evitan, pero más tarde y con trabajo hecho encima.
+
+**La rama de tarea lleva al usuario** (`PT-063`) · `<type>/<usuario>/PT-NNN-slug`. El `<usuario>`
+es el **nombre canónico**, normalizado igual que en `cauce/<usuario>`: minúsculas, sin acentos,
+guiones. Las dos ramas del marco normalizan con el mismo código — si divergieran, la misma persona
+tendría dos nombres según qué rama se mire.
+
+```
+cauce/<usuario>                       la proyección DERIVADA del estado (PT-054)
+<type>/<usuario>/PT-NNN-slug          la rama efímera de una tarea (FDGE-R19)
+trabajo                               UNA · la rama de integración, sin usuario
+```
+
+**`trabajo` sigue siendo una** y **`G4` sigue siendo una por lote** (`EXEC-R03`): el usuario vive
+en la rama de **tarea**, no en la de integración. Un cuarto nivel obligaría a decidir quién integra
+el trabajo de quién antes de `trabajo`.
+
+**Sin `personas` declaradas, el marco funciona como si no existieran.** Un proyecto de una sola
+persona no tiene que declarar nada, y su rama de tarea sigue siendo `<type>/PT-NNN-slug`.
 
 ### 6.6 Documentos de metodología — `docs/methodology/`
 

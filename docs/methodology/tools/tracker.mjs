@@ -29,7 +29,7 @@
  * CRLF: todo parseo por lineas usa split(/\r?\n/).
  */
 
-import { readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -41,9 +41,21 @@ import {
   cifra, textoCifra, MEDIDO, ESTIMADO, SIN_EVALUAR, viabilidadDe,
   // PT-060 · la sesion es el worker, no el estado
   sesionDe, handoffDeSesion,
+  // PT-061 · quien es quien
+  personaDe, personaLocal,
+  // PT-062 · los IDs por rangos reservados
+  siguienteEnRango, solapes,
+  // PT-063 · el usuario en la rama de tarea
+  normalizaRef, ramaDeTarea, ramaLlevaUsuario,
+  // PT-064 · de quien es cada commit
+  soloDe, sinPersona,
+  // PT-065 · la sesion es de alguien
+  archivoSesion, sesionesAjenas,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
+// PT-064 · separador de campos para `git log`: no aparece en un nombre ni en un asunto.
+const SEP_REG = String.fromCharCode(30);
 
 // ─── Lógica pura · exportada para poder probarla sin plataforma ──────────────
 // PT-001 · El adaptador habla con `gh`; la comparación no habla con nadie.
@@ -234,9 +246,10 @@ export const MARCA_AGENTE = '<!-- cauce:agente -->';
 export const MARCA_PROYECCION = 'cauce:proyeccion';
 
 /** El nombre de la rama derivada de una persona. Una referencia de git no admite cualquier cosa. */
+// PT-063 · el normalizador se comparte con la rama de tarea (normalizaRef): si cada una
+// normalizara por su cuenta, la misma persona tendria dos nombres segun que rama se mire.
 export const ramaDe = (usuario) => {
-  const n = String(usuario ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const n = normalizaRef(usuario);
   return n ? `cauce/${n}` : null;
 };
 
@@ -473,7 +486,11 @@ const APLICAR = ARGS.includes('--aplicar');
 // se cuela en el posicional —`-q` en PT-049, `--solo` en PT-050, `--a` aqui— y las tres veces lo
 // dijo EJECUTARLO, sabiendo del defecto. Por eso las banderas con valor se declaran en UN sitio:
 // la lista es lo que hace que la cuarta no repita el error.
-const CON_VALOR = new Set(['--a', '--nota']);
+// PT-064 · «--de» entra aqui. Septima vez que un argumento nuevo se cuela por la deteccion de
+// ROOT, y la primera con un valor que EMPIEZA en mayuscula —un nombre de persona—, que
+// ES_ETIQUETA no filtra. El patron es siempre el mismo: una opcion con valor que no se
+// declara aqui deja su valor suelto entre los posicionales.
+const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de']);
 // PT-057 · `coste` recibe TIPO y COMPLEJIDAD como posicionales, y sin esta guarda el primero se
 // tomaba por ROOT: «tracker coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
 // CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
@@ -848,7 +865,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1190,16 +1207,18 @@ function cerradasConCoste() {
   // Un solo recorrido de la historia: 162 commits hoy, y `git show` por commit seria lento.
   // Separador: un espacio. El SHA no lleva ninguno, asi que el primero parte limpio — y un
   // byte de control aqui sobrevive al editor pero no a la revision (lo marca `audit`).
-  const crudo = gitDe(['log', '--all', '--no-merges', '--format=%H %s']) ?? '';
+  // PT-064 · cada commit trae su AUTOR resuelto, para que la tarea sepa de quien es.
   const porPt = new Map();
-  for (const linea of lineas(crudo).filter(Boolean)) {
-    const corte = linea.indexOf(' ');
-    const sha = corte < 0 ? linea : linea.slice(0, corte);
-    const asunto = corte < 0 ? '' : linea.slice(corte + 1);
-    const id = duenoDe(asunto);
+  const quienPt = new Map();
+  for (const c of commitsConAutor()) {
+    const id = duenoDe(c.asunto);
     if (!id) continue;
     if (!porPt.has(id)) porPt.set(id, []);
-    porPt.get(id).push(String(sha).trim());
+    porPt.get(id).push(c.sha);
+    // La persona de una tarea es la de su PRIMER commit propio: quien la empezo. Si dos personas
+    // tocan la misma tarea, la referencia sigue siendo de quien la abrio — repartir una tarea
+    // entre dos seria inventar una fraccion que nadie ha medido.
+    if (!quienPt.has(id) && c.persona) quienPt.set(id, c.persona);
   }
   return cer.map((a) => {
     const shas = porPt.get(a.id) ?? [];
@@ -1214,18 +1233,28 @@ function cerradasConCoste() {
       }
     }
     return { id: a.id, type: a.type, complexity: a.complexity ?? null,
+      persona: quienPt.get(a.id) ?? null,
       commits: shas.length, archivos: archivos.size, lineas: lineasTocadas, sinCommit: !shas.length };
   });
 }
 
 function coste() {
+  // PT-064 · el coste se filtra A PETICION: mas casos es mejor referencia, y el coste de un
+  // BUG/STANDARD no depende necesariamente de quien lo haga. El precedente y el techo SI se
+  // filtran siempre, porque responden «¿puedo YO, ahora?».
+  const iDe = ARGS.indexOf('--de');
+  const quienPide = ARGS.includes('--mio')
+    ? personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']), reg.personas ?? []).persona
+    : (iDe >= 0 ? ARGS[iDe + 1] : null);
   const args = ARGS.slice(1).filter((x) => !x.startsWith('-'));
   // El ROOT tambien llega como posicional. Se distingue por forma: los tipos y complejidades son
   // MAYUSCULAS sin separadores; una ruta no lo es.
   const [tipo = null, complejidad = null] = args.filter((x) => /^[A-Z_]+$/.test(x));
   const todas = cerradasConCoste();
-  const conDato = todas.filter((c) => !c.sinCommit);
-  const sinDato = todas.length - conDato.length;
+  const conDatoTodas = todas.filter((c) => !c.sinCommit);
+  const conDato = soloDe(conDatoTodas, quienPide);
+  const sinDato = todas.length - conDatoTodas.length;
+  const noDeclarados = sinPersona(conDatoTodas);
 
   const grupos = tipo || complejidad
     ? [[tipo, complejidad]]
@@ -1239,7 +1268,9 @@ function coste() {
     const nombre = [r.tipo ?? '*', r.complejidad ?? '*'].join('/');
     di('');
     if (r.referencia) {
-      di(`  ${nombre} · ${r.casos} tareas cerradas`);
+      // AC-03 · SIEMPRE se dice de quien es la cifra. Lo peligroso no es dar una u otra: es no
+      // saber cual te estan dando.
+      di(`  ${nombre} · ${r.casos} tareas cerradas · ${quienPide ? `solo de ${quienPide}` : 'de TODAS las personas'}`);
       for (const [k, v] of Object.entries(r.referencia)) {
         di(`    ${k.padEnd(9)} ${String(v.mediana).padStart(5)}     (${v.min} – ${v.max})`);
       }
@@ -1253,6 +1284,11 @@ function coste() {
     }
   }
   di('');
+  if (noDeclarados && (reg.personas ?? []).length) {
+    di(`  ${noDeclarados} tarea(s) de autores sin declarar no se reparten (SIN EVALUAR).`);
+    di('  → «tracker personas» los enumera. No se adjudican por parecido (LEXICON 6.5f).');
+    di('');
+  }
   di(`  Derivado de ${conDato.length} de las ${todas.length} tareas cerradas. ${sinDato} no tienen`);
   di('  commit propio: no costaron cero, es que NO SE PUEDE SABER — trabajo anterior a la');
   di('  convencion de mensajes. Es una REFERENCIA de su tipo, no una prediccion de tu tarea:');
@@ -1271,18 +1307,21 @@ function coste() {
 
 /** Lo que cada dia de trabajo movio. Un dia es la unica aproximacion observable a una sesion. */
 function porSesion() {
-  const crudo = gitDe(['log', '--no-merges', '--format=%H %cs']) ?? '';
+  // PT-064 · una sesion es de un DIA y de una PERSONA. El dia de dos personas son dos sesiones,
+  // y contarlas como una infla el techo del que depende AC-06 de PT-059.
+  const fmt = ['%H', '%an', '%ae', '%cs'].join('%x1e');
+  const personas = reg.personas ?? [];
   const dias = new Map();
-  for (const l of lineas(crudo).filter(Boolean)) {
-    const corte = l.indexOf(' ');
-    if (corte < 0) continue;
-    const sha = l.slice(0, corte);
-    const dia = l.slice(corte + 1).trim();
-    if (!dias.has(dia)) dias.set(dia, []);
-    dias.get(dia).push(sha);
+  for (const l of lineas(gitDe(['log', '--no-merges', `--format=${fmt}`]) ?? '').filter(Boolean)) {
+    const [sha, nombre, correo, dia] = l.split(SEP_REG);
+    const quien = personaDe({ nombre, correo }, personas).persona;
+    const clave = `${String(dia).trim()}${SEP_REG}${quien ?? ''}`;
+    if (!dias.has(clave)) dias.set(clave, { dia: String(dia).trim(), persona: quien, shas: [] });
+    dias.get(clave).shas.push(sha);
   }
   const out = [];
-  for (const [dia, shas] of dias) {
+  for (const [, s] of dias) {
+    const { dia, persona, shas } = s;
     let n = 0;
     for (const sha of shas) {
       for (const x of lineas(gitDe(['show', '--numstat', '--format=', '--no-renames', sha]) ?? '')) {
@@ -1291,7 +1330,7 @@ function porSesion() {
         n += (Number(mas) || 0) + (Number(menos) || 0);
       }
     }
-    out.push({ dia, commits: shas.length, lineas: n });
+    out.push({ dia, persona, commits: shas.length, lineas: n });
   }
   return out;
 }
@@ -1303,6 +1342,11 @@ function viabilidad() {
   if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
 
   const conDato = cerradasConCoste().filter((c) => !c.sinCommit);
+  // PT-064 · el precedente y el techo se filtran SIEMPRE por la persona local: comparar contra el
+  // trabajo de otro es comparar contra nada. El coste tipico NO se filtra aqui — es una referencia
+  // del TIPO de tarea, y mas casos es mejor referencia.
+  const yo = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+    reg.personas ?? []).persona;
   const ref = costeDe(conDato, { tipo: a.type, complejidad: a.complexity ?? null });
   const coste = ref.referencia
     ? cifra(ref.referencia.lineas.mediana, ESTIMADO)
@@ -1316,12 +1360,13 @@ function viabilidad() {
   // El precedente es lo mayor COMPLETADO en esta sesion. Si la sesion acaba de empezar no hay
   // con que comparar, y eso es SIN EVALUAR — no cero.
   const deLaSesion = marcaSesion?.desde ? new Set(movidoDesde(marcaSesion.desde).tareas) : null;
-  const mayorHoy = Math.max(0, ...conDato
+  const mayorHoy = Math.max(0, ...soloDe(conDato, yo)
     .filter((c) => (deLaSesion ? deLaSesion.has(c.id) : ultimoDiaDe(c.id) === hoy))
     .map((c) => c.lineas));
   const precedente = mayorHoy > 0 ? cifra(mayorHoy, MEDIDO) : cifra(null, SIN_EVALUAR);
-  const techo = sesiones.length
-    ? cifra(Math.max(...sesiones.map((s) => s.lineas)), MEDIDO)
+  const mias = soloDe(sesiones, yo);
+  const techo = mias.length
+    ? cifra(Math.max(...mias.map((s) => s.lineas)), MEDIDO)
     : cifra(null, SIN_EVALUAR);
 
   const v = viabilidadDe(coste, precedente, techo);
@@ -1331,7 +1376,7 @@ function viabilidad() {
   di(`    mayor hecho     ${textoCifra(precedente)}   ${marcaSesion?.desde
     ? `en la sesion abierta en ${String(marcaSesion.desde).slice(0, 7)}`
     : `en el DIA ${hoy} — no hay sesion abierta, y el dia NO es la sesion (PT-060)`}`);
-  di(`    techo historico ${textoCifra(techo)}   la mayor sesion registrada`);
+  di(`    techo historico ${textoCifra(techo)}   la mayor sesion registrada${yo ? ` de ${yo}` : ''}`);
   di('');
   di(`    veredicto       ${v.veredicto}${v.nunca ? '  ·  NUNCA CABRIA' : ''}`);
   di('');
@@ -1364,7 +1409,23 @@ function ultimoDiaDe(id) {
 //
 // SESSION != STATE != TASK. «abrir» es lo UNICO que marca; «sesion» y «cerrar» solo derivan.
 
-const F_SESION = () => join(IMPL, 'SESSION.json');
+/**
+ * El archivo de sesion de la persona local. PT-065: con «personas» declaradas, cada una escribe
+ * el suyo — dos personas nunca tocan el mismo archivo, asi que no hay conflicto que resolver.
+ */
+const yoSoy = () => personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+  reg.personas ?? []).persona;
+const F_SESION = () => join(IMPL, archivoSesion(yoSoy()));
+
+/** Todas las marcas de sesion que hay en el disco, para ver las ajenas (AC-06). */
+const marcasDeSesion = () => {
+  try {
+    return readdirSync(IMPL)
+      .filter((f) => /^SESSION(-.+)?\.json$/.test(f))
+      .map((f) => leerJSON(join(IMPL, f)))
+      .filter(Boolean);
+  } catch { return []; }
+};
 
 /** Lo que la sesion lleva movido, derivado de «desde..HEAD». */
 function movidoDesde(desde) {
@@ -1397,7 +1458,8 @@ function apilarEnLog(texto) {
 
 function sesion() {
   const sub = ARGS.slice(1).find((a) => ['abrir', 'cerrar'].includes(a)) ?? 'ver';
-  const marca = leerJSON(F_SESION());
+  // La PROPIA primero; si no hay, SESSION.json — un proyecto de una persona no cambia nada.
+  const marca = leerJSON(F_SESION()) ?? leerJSON(join(IMPL, 'SESSION.json'));
   const cp = leerJSON(join(IMPL, 'CHECKPOINT.json'));
 
   if (sub === 'abrir') {
@@ -1405,7 +1467,7 @@ function sesion() {
     // no memoria. LEX-R26 prohibe lo otro.
     const desde = gitDe(['rev-parse', 'HEAD']);
     if (!desde) throw new Error('no se pudo leer HEAD: sin git no hay marca, y una marca inventada seria peor que ninguna (RULE-06).');
-    const nueva = { desde, abierta: gitDe(['log', '-1', '--format=%cs']), generado: gitDe(['log', '-1', '--format=%cs']) };
+    const nueva = { persona: yoSoy(), desde, abierta: gitDe(['log', '-1', '--format=%cs']), generado: gitDe(['log', '-1', '--format=%cs']) };
     writeFileSync(F_SESION(), JSON.stringify(nueva, null, 2) + SALTO);
     apilarEnLog(`## ${nueva.abierta} · sesion abierta en \`${desde.slice(0, 7)}\`` + SALTO + SALTO
       + '<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.');
@@ -1440,6 +1502,184 @@ function sesion() {
   di(`    lineas     ${textoCifra(s.lineas)}`);
   if (s.tareas.length) di(`    tareas     ${s.tareas.join(' · ')}`);
   if (s.pt) di(`    en curso   ${s.pt} · PHASE ${s.phase}`);
+  // AC-06 · las ajenas SE VEN. Si cada persona solo viera la suya, las dos creerian que trabajan
+  // solas y ninguna entenderia por que las cifras no cuadran.
+  const ajenas = sesionesAjenas(marcasDeSesion(), yoSoy());
+  if (ajenas.length) {
+    di('');
+    di('  Otras sesiones abiertas:');
+    for (const a of ajenas) {
+      di(`    ${a.persona} · desde ${String(a.desde ?? '').slice(0, 7)}${a.abierta ? ` (${a.abierta})` : ''}`);
+    }
+  }
+}
+
+// ── personas · quien es quien ───────────────────────────────────────────────
+//
+// Los NO DECLARADOS salen SIEMPRE, no bajo una bandera: el riesgo de esta tabla es que se quede
+// vieja en silencio, y esconderlo detras de una opcion es garantizar que nadie lo mire.
+
+// ── asignar · lo UNICO que escribe un identificador ─────────────────────────
+//
+// PHASE 2 de PT-062 midio que NADIE asignaba: SUITE-R08 decia que el registro asigna y ninguna
+// accion lo hacia — lo hacia quien editaba el archivo a mano. La regla era una afirmacion sin
+// nadie que la ejecutara.
+
+/**
+ * Un commit con su AUTOR resuelto a persona declarada (PT-061), o null.
+ *
+ * El separador es %x1e —un caracter de control que no aparece ni en un nombre ni en un asunto—.
+ * NO se usa un espacio, como en PT-057: alli el SHA no lleva ninguno y bastaba; aqui un NOMBRE si
+ * los lleva, y «Alberto Martinez» se partiria en dos campos.
+ */
+const commitsConAutor = (rango = null) => {
+  const fmt = ['%H', '%an', '%ae', '%s'].join('%x1e');
+  const args = ['log', '--no-merges', `--format=${fmt}`];
+  if (rango) args.push(rango); else args.push('--all');
+  const personas = reg.personas ?? [];
+  return lineas(gitDe(args) ?? '').filter(Boolean).map((l) => {
+    const [sha, nombre, correo, asunto] = l.split(SEP_REG);
+    return {
+      sha, nombre, correo, asunto,
+      persona: personaDe({ nombre, correo }, personas).persona,
+    };
+  });
+};
+
+/** Los numeros ya usados de un prefijo, derivados de las allocations. */
+const usadosDe = (prefijo) => all
+  // El escapado dentro de un RegExp construido con plantilla necesita DOS barras: con una,
+  // el patron busca la letra «d» literal y no casa nada — y «asignar» decia 0 usados
+  // mientras «personas» decia 65. Lo vio ejecutar las dos seguidas.
+  .map((a) => String(a?.id ?? '').match(new RegExp('^' + prefijo + '-(\\d+)$')))
+  .filter(Boolean)
+  .map((m) => Number(m[1]));
+
+function asignar() {
+  const prefijo = ARGS.slice(1).find((a) => /^[A-Z]+$/.test(a)) ?? 'PT';
+  const iSlug = ARGS.indexOf('--slug');
+  const slug = iSlug >= 0 ? ARGS[iSlug + 1] : null;
+  const soloVer = ARGS.includes('--ver');
+  if (!slug && !soloVer) {
+    throw new Error('asignar necesita un slug:  tracker asignar PT --slug lo-que-sea');
+  }
+
+  const yo = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+    reg.personas ?? []).persona;
+  const mia = (reg.personas ?? []).find((p) => p?.nombre === yo);
+  const usados = usadosDe(prefijo);
+
+  let numero;
+  let deDonde;
+  if (mia?.rango?.[prefijo]) {
+    const r = siguienteEnRango(prefijo, mia.rango[prefijo], usados);
+    if (r.numero == null) { throw new Error(r.motivo); }
+    numero = r.numero;
+    const [d, h] = mia.rango[prefijo];
+    deDonde = `del rango de ${yo}: ${prefijo} [${d}-${h}] · ${usados.filter((n) => n >= d && n <= h).length} usados`;
+  } else {
+    // AC-06 · sin rangos, EXACTAMENTE como hoy: el contador global.
+    numero = Number(reg.counters?.[prefijo] ?? Math.max(0, ...usados)) + 1;
+    deDonde = mia
+      ? `${yo} no declara rango para ${prefijo}: del contador global, como siempre`
+      : 'sin rangos declarados: del contador global, como siempre';
+  }
+
+  const id = `${prefijo}-${String(numero).padStart(3, '0')}`;
+  di('');
+  di(`  ${id}${slug ? ` · ${slug}` : ''}`);
+  di(`  ${deDonde}`);
+  if (soloVer) { di(''); di('  --ver: no se ha escrito nada.'); return; }
+
+  reg.counters = reg.counters ?? {};
+  if (!mia?.rango?.[prefijo]) reg.counters[prefijo] = numero;
+  reg.allocations.push({ id, slug, created: gitDe(['log', '-1', '--format=%cs']), status: 'DRAFT' });
+  writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + SALTO);
+  notas.push(`${id} asignado y escrito en REGISTRY.json`);
+}
+
+// ── rama · como debe llamarse la de una tarea ───────────────────────────────
+//
+// PROPONE, no crea: crear una rama toca el arbol de trabajo y si falla a mitad deja a quien la
+// usa en otro sitio (PT-054). Lo que no se automatiza se describe (EXEC-R07).
+function rama() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) throw new Error('rama necesita una allocation:  tracker rama PT-063');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
+
+  const yo = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+    reg.personas ?? []).persona;
+  const propuesta = ramaDeTarea(a.type, a.id, a.slug, yo);
+  const integracion = 'trabajo';
+
+  di('');
+  di(`  ${propuesta}`);
+  di('');
+  if (!yo) {
+    di('  Sin persona resuelta: dos niveles, como siempre. Un proyecto de una sola persona');
+    di('  no tiene que declarar nada (LEXICON 6.5f).');
+    di('');
+  }
+  di('  Asi debe llamarse. NO se crea: crear una rama toca el arbol de trabajo, y si falla');
+  di('  a mitad deja a quien la usa en otro sitio. Lo que no se automatiza se describe:');
+  di('');
+  di(`    git switch ${integracion}`);
+  di(`    git checkout -b ${propuesta}`);
+}
+
+function personas() {
+  const decl = reg.personas ?? [];
+  const crudo = gitDe(['log', '--format=%an%x09%ae']) ?? '';
+  const cuenta = new Map();
+  for (const l of lineas(crudo).filter(Boolean)) {
+    const [nombre, correo] = l.split('	');
+    const k = `${nombre}	${correo}`;
+    cuenta.set(k, (cuenta.get(k) ?? 0) + 1);
+  }
+  const sinDeclarar = [];
+  const porPersona = new Map(decl.map((p) => [p.nombre, []]));
+  for (const [k, n] of cuenta) {
+    const [nombre, correo] = k.split('	');
+    const r = personaDe({ nombre, correo }, decl);
+    if (r.persona) porPersona.get(r.persona).push({ nombre, correo, n });
+    else sinDeclarar.push({ nombre, correo, n });
+  }
+  di('');
+  if (!decl.length) {
+    di('  Ninguna persona declarada. El marco funciona como si no existieran, y con una sola');
+    di('  persona no hace falta declarar nada (LEXICON 6.5f).');
+  }
+  for (const [nombre, ids] of porPersona) {
+    const p = decl.find((x) => x?.nombre === nombre);
+    const r = p?.rango?.PT;
+    if (r) {
+      const usados = all.map((a) => String(a?.id ?? '').match(/^PT-(\d+)$/)).filter(Boolean)
+        .map((m) => Number(m[1])).filter((n) => n >= r[0] && n <= r[1]);
+      const sig = siguienteEnRango('PT', r, usados);
+      di(`  ${nombre}`.padEnd(30) + `PT [${r[0]}-${r[1]}] · ${usados.length} usados · siguiente ${sig.numero ?? 'AGOTADO'}`);
+    } else {
+      di(`  ${nombre}`);
+    }
+    for (const i of ids.sort((a, b) => b.n - a.n)) {
+      di(`    ${i.nombre} <${i.correo}>`.padEnd(52) + `${i.n} commits`);
+    }
+    di('');
+  }
+  if (sinDeclarar.length) {
+    const total = sinDeclarar.reduce((s, i) => s + i.n, 0);
+    di(`  SIN DECLARAR (${sinDeclarar.length} autor(es) · ${total} commit(s))`);
+    for (const i of sinDeclarar.sort((a, b) => b.n - a.n)) {
+      di(`    ${i.nombre} <${i.correo}>`.padEnd(52) + `${i.n} commits`);
+    }
+    di('    → si es de una persona ya declarada, anadelo a su lista «git».');
+    di('      No se agrupa por parecido: quien es quien lo dice una persona (LEXICON 6.5f).');
+    di('');
+  }
+  // Esto dice a quien ATRIBUIR un commit, no quien lo escribio: es una declaracion, como
+  // «firmantes:», y SUITE-R27 ya dice que una firma no prueba que firmara una persona.
+  di('  Esto dice a QUIEN ATRIBUIR un commit, no quien puede hacer que: «firmantes:» de');
+  di('  CLAUDE.md sigue respondiendo quien puede firmar, y son cosas distintas.');
 }
 
 function siguienteDe() {
@@ -1571,7 +1811,14 @@ function checkpoint() {
 // Las alternativas —worktree, checkout— tocan el directorio donde se esta trabajando, y la peor
 // deja al usuario EN OTRA RAMA si falla a mitad.
 function proyectar({ silencioso = false } = {}) {
-  const usuario = gitDe(['config', 'user.name']);
+  // PT-061 · el nombre sale de la TABLA si la hay. Antes se leia «git config user.name» a pelo,
+  // y desde la maquina que produjo los 9 commits de «a81Biz» habria escrito «cauce/a81biz»: OTRA
+  // rama, para la MISMA persona, sin que nada lo notara.
+  //
+  // Sin «personas» declaradas se comporta EXACTAMENTE como antes: un proyecto de una persona no
+  // tiene que declarar nada.
+  const usuario = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+    reg.personas ?? []).persona ?? gitDe(['config', 'user.name']);
   const rama = ramaDe(usuario);
   // RULE-06 · sin usuario no se proyecta. Una rama «cauce/desconocido» seria peor que ninguna:
   // agregaria el trabajo de todos bajo un nombre que no es de nadie.
@@ -1799,7 +2046,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

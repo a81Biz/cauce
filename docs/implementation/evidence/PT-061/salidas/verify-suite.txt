@@ -1,0 +1,14 @@
+verify-suite — coherencia de la metodología (8.2.0)
+Documentos analizados: 36
+
+Sin errores de coherencia.
+
+## AC-04 · la comprobacion, en su direccion
+
+Con un firmante inventado en CLAUDE.md:
+
+  SUITE-R27    CLAUDE.md:210
+      «Fulano Inexistente» puede firmar y no esta declarado en «personas» del registro: el marco no sabe quien es. Anadelo, o quitalo de «firmantes:».
+
+Y al reves —una persona que no firma— NO falla: tener identidad no es poder firmar.
+La asimetria es lo que impide que las dos listas sean copias del mismo hecho.

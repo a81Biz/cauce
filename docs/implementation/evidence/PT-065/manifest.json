@@ -1,0 +1,30 @@
+{
+  "pt": "PT-065",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "La sesion declara de quien es", "scenarios": ["E1", "E3", "E8"], "tests": ["selftest.sh:el archivo lleva a la persona", "selftest.sh:…normalizado igual que las ramas", "selftest.sh:sesion abrir escribe la marca"], "evidence": ["salidas/sesion-real.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Abrir sesion no borra la de otra persona", "scenarios": ["E4", "E9", "E10"], "tests": ["selftest.sh:dos personas, DOS archivos distintos", "selftest.sh:sesion abrir escribe la marca"], "evidence": ["salidas/sesion-real.txt", "salidas/conflicto-evitado.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Todo lo que la sesion deriva sale del trabajo de su persona", "scenarios": ["E9"], "tests": ["selftest.sh:…y sesion la lee", "selftest.sh:…con las cifras de PT-058"], "evidence": ["salidas/sesion-real.txt"], "verified": true, "nota": "El filtrado por persona lo hizo PT-064 y esta integrado; aqui solo se comprueba que la sesion sigue derivando." },
+    { "ac": "AC-04", "statement": "El handoff de cierre sigue derivado y sigue sin tocar HANDOFF.md", "scenarios": ["E13", "E14"], "tests": ["selftest.sh:sesion cerrar sigue dando el handoff", "selftest.sh:…y dice que HANDOFF.md queda intacto", "selftest.sh:…y que no borra la marca"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Con una sola persona, el comportamiento de hoy no cambia", "scenarios": ["E2", "E11", "E15"], "tests": ["selftest.sh:…sin persona, el de siempre", "selftest.sh:cae a SESSION.json si no hay propio", "selftest.sh:…y se dice que es por compatibilidad"], "evidence": ["salidas/sesion-real.txt", "salidas/verify-suite.txt"], "verified": true },
+    { "ac": "AC-06", "statement": "Una sesion de otra persona se ve, y se distingue de la propia", "scenarios": ["E5", "E6", "E7", "E12"], "tests": ["selftest.sh:las ajenas se enumeran", "selftest.sh:…y la propia NO", "selftest.sh:…y una marca sin persona no es ajena", "selftest.sh:el texto de las ajenas existe"], "evidence": ["salidas/sesion-real.txt", "salidas/inversa.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que dos personas trabajen a la vez de verdad.",
+      "por_que": "El conflicto esta REPRODUCIDO en PHASE 2 con dos ramas, y un archivo por persona lo evita por construccion. Pero eso es un argumento sobre como funciona git, no dos personas trabajando. La sesion ajena de la evidencia esta SIMULADA escribiendo el archivo a mano.",
+      "donde": "docs/implementation/evidence/PT-065/salidas/conflicto-evitado.txt"
+    },
+    {
+      "afirmacion": "Que las sesiones ajenas se MIREN.",
+      "por_que": "Se ensenan siempre que existan. Que alguien las lea no se comprueba desde aqui — y si no se leen, dos personas seguiran sin entender por que sus cifras no cuadran, que es justo lo que AC-06 intenta evitar.",
+      "donde": "changes/PT-065-la-sesion-es-de-alguien/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que no se acumulen archivos de sesion.",
+      "por_que": "Son UNO por persona, no uno por dia: se sobrescriben, asi que no crecen. El de alguien que deje el proyecto se queda, y borrarlo seria decidir por el. Es un archivo, no un problema — pero nadie ha vivido con esto el tiempo suficiente para saberlo.",
+      "donde": "changes/PT-065-la-sesion-es-de-alguien/out-of-scope.md"
+    }
+  ],
+  "suite": { "passed": 977, "failed": 0, "skipped": 0, "coverage": 977, "baseline": 955 }
+}

@@ -1,0 +1,35 @@
+# PT-062 · las comprobaciones sobre el repositorio real
+
+$ tracker asignar PT --slug prueba --ver
+
+
+  PT-066 · prueba
+  Alberto Martínez no declara rango para PT: del contador global, como siempre
+
+  --ver: no se ha escrito nada.
+tracker · github · acción asignar
+
+
+Sin divergencias.
+
+## Con rango declarado [1-999]
+
+  PT-066 · prueba
+  del rango de Alberto Martínez: PT [1-999] · 65 usados
+
+## Con el rango agotado [1-65]
+
+  rango PT [1-65] AGOTADO: 65 usados y el ultimo es 65. Ampliar el rango es una
+  decision humana; invadir el siguiente reproduce la colision que los rangos evitan.
+
+## verify-fdge · dos rangos solapados
+
+  ✗ SUITE-R08  rangos PT SOLAPADOS: «Alberto Martínez» [1-100] y «Otra» [100-200]
+               comparten numeros. Tocarse por un extremo ya es solaparse.
+
+## verify-fdge · una allocation fuera de todo rango
+
+  ✗ SUITE-R08  PT-001 esta fuera de todos los rangos PT declarados ([100-200]). O se
+               asigno a mano saltandose un rango, o falta ampliar el de alguien.
+
+Esta ultima es la que cubre lo que la accion NO puede impedir.

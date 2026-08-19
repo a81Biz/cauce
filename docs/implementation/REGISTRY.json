@@ -1,6 +1,25 @@
 {
-  "suite_version": "8.2.0",
+  "suite_version": "9.0.0",
   "execution_mode": "SUPERVISED",
+  "personas": [
+    {
+      "nombre": "Alberto Martínez",
+      "git": [
+        {
+          "nombre": "Alberto Martínez",
+          "correo": "alberto@a81.biz"
+        },
+        {
+          "nombre": "a81Biz",
+          "correo": "albe.mtz@gmail.com"
+        },
+        {
+          "nombre": "Alberto Martínez",
+          "correo": "albe.mtz@gmail.com"
+        }
+      ]
+    }
+  ],
   "foundation": {
     "generated": "2026-08-13",
     "validated_by": "Alberto Martínez",
@@ -15,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 60,
+    "PT": 65,
     "EP": 16,
     "QA": 0,
     "QR": 0,
@@ -1237,13 +1256,14 @@
       "id": "EP-016",
       "slug": "topologia-y-multiusuario",
       "type": "EP",
-      "status": "DEFERRED",
+      "status": "DONE",
       "structural": false,
-      "suite_version": "8.0.0",
+      "suite_version": "8.2.0",
       "created": "2026-08-15",
       "title": "Topologia y multiusuario: rangos de ID reservados, usuario en la rama de tarea, y que rama resuelve G4",
       "origin": "Decision del firmante 2026-08-15, tres lotes en vez de uno · depende de EP-014 y de PT-054: la proyeccion existe antes que la identidad multiusuario. Va ultimo porque es el unico que puede romper compatibilidad (SUITE-R08, FDGE-R19, SUITE-R42, EXEC-R03)",
-      "issue": 91
+      "issue": 91,
+      "phase": 1
     },
     {
       "id": "PT-055",
@@ -1357,6 +1377,106 @@
       "created": "2026-08-18",
       "issue": 107,
       "branch": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
+      "validated_by": "auto - EXEC-R06",
+      "validated": "2026-08-18"
+    },
+    {
+      "id": "PT-061",
+      "slug": "quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
+      "type": "CHORE",
+      "complexity": "STANDARD",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "8.2.0",
+      "epic": "EP-016",
+      "phase": 10,
+      "title": "Quien es quien: la identidad de una persona se DECLARA en el registro y se reconcilia con git",
+      "origin": "EP-015 · nada de lo demas se puede derivar sin esto. Medido al abrir el lote: la MISMA persona aparece con TRES identidades en la historia de este repositorio —Alberto Martinez <alberto@a81.biz> 217 commits, a81Biz <albe.mtz@gmail.com> 9, Alberto Martinez <albe.mtz@gmail.com> 1—. «De quien es un commit» no es trivial ni con UNA persona",
+      "created": "2026-08-18",
+      "issue": 116,
+      "branch": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
+      "validated_by": "auto - EXEC-R06",
+      "validated": "2026-08-18"
+    },
+    {
+      "id": "PT-062",
+      "slug": "los-ids-se-reparten-por-rangos-reservados",
+      "type": "CHORE",
+      "complexity": "STANDARD",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "8.2.0",
+      "epic": "EP-016",
+      "phase": 10,
+      "title": "Rangos de ID reservados por persona: el registro sigue asignando, sin namespacear el identificador",
+      "origin": "Decision 2 del firmante 2026-08-15: los IDs se reparten por RANGOS RESERVADOS, sin tocar SUITE-R08 ni namespacear el identificador. Dos personas asignando del mismo contador colisionan en el primer merge",
+      "created": "2026-08-18",
+      "issue": 117,
+      "branch": "chore/PT-062-los-ids-se-reparten-por-rangos-reservados",
+      "validated_by": "auto - EXEC-R06",
+      "validated": "2026-08-18"
+    },
+    {
+      "id": "PT-063",
+      "slug": "el-usuario-vive-en-la-rama-de-tarea",
+      "type": "CHORE",
+      "complexity": "STANDARD",
+      "severity": "S1",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "8.2.0",
+      "epic": "EP-016",
+      "phase": 10,
+      "title": "El usuario vive en la rama de tarea: <type>/<usuario>/PT-NNN-slug",
+      "origin": "Decision 3 del firmante 2026-08-15: el usuario vive en la RAMA DE TAREA y «trabajo» sigue siendo unica, para no anadir un cuarto nivel ni multiplicar G4 contra EXEC-R03. Toca FDGE-R19, que hoy fija «<type>/PT-NNN-slug»: es el unico cambio del lote que puede romper compatibilidad",
+      "created": "2026-08-18",
+      "issue": 118,
+      "branch": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea",
+      "validated_by": "auto - EXEC-R06",
+      "validated": "2026-08-18"
+    },
+    {
+      "id": "PT-064",
+      "slug": "de-quien-es-cada-commit",
+      "type": "CHORE",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "8.2.0",
+      "epic": "EP-016",
+      "phase": 10,
+      "title": "De quien es cada commit: el coste, el precedente y el techo dejan de mezclar personas",
+      "origin": "EP-015 lo dejo declarado y sin cerrar: «un dia» es la aproximacion a «una sesion», y con varias personas el dia de dos son dos sesiones que porSesion() cuenta como UNA. El techo historico del que depende AC-06 de PT-059 sale inflado, y el precedente mezcla trabajo ajeno",
+      "created": "2026-08-18",
+      "issue": 119,
+      "branch": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
+      "validated_by": "auto - EXEC-R06",
+      "validated": "2026-08-18"
+    },
+    {
+      "id": "PT-065",
+      "slug": "la-sesion-es-de-alguien",
+      "type": "CHORE",
+      "complexity": "STANDARD",
+      "severity": "S2",
+      "track": "STANDARD",
+      "status": "INTEGRATED",
+      "structural": false,
+      "suite_version": "8.2.0",
+      "epic": "EP-016",
+      "phase": 10,
+      "title": "La sesion es de alguien: SESSION.json deja de ser uno para todos",
+      "origin": "EP-015 lo dejo declarado: SESSION.json es de UNA sesion y al abrir se sobrescribe. Con dos personas trabajando, la marca de una borra la de la otra sin que nada lo note",
+      "created": "2026-08-18",
+      "issue": 120,
+      "branch": "chore/alberto-martinez/PT-065-la-sesion-es-de-alguien",
       "validated_by": "auto - EXEC-R06",
       "validated": "2026-08-18"
     }

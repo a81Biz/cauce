@@ -1,0 +1,34 @@
+{
+  "pt": "PT-061",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Las personas se declaran en REGISTRY.json, con sus identidades de git", "scenarios": ["E9", "E12", "E13", "E20"], "tests": ["selftest.sh:sin tabla, null y no revienta", "selftest.sh:personas ensena a los declarados", "selftest.sh:…con cuantos commits lleva cada identidad", "selftest.sh:el registro declara personas", "selftest.sh:…con las tres identidades"], "evidence": ["salidas/personas-real.txt", "salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Un commit se atribuye a una persona declarada, no a un nombre de git", "scenarios": ["E1", "E2", "E3"], "tests": ["selftest.sh:un par declarado da su persona", "selftest.sh:…y la segunda identidad, la MISMA", "selftest.sh:…y sin motivo, porque no hay duda"], "evidence": ["salidas/personas-real.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Un autor de git que no esta declarado se reporta; no se inventa a quien pertenece", "scenarios": ["E4", "E5", "E6", "E7", "E8", "E14", "E15"], "tests": ["selftest.sh:mismo correo, OTRO nombre ⇒ null", "selftest.sh:mismo nombre, OTRO correo ⇒ null", "selftest.sh:mismo dominio NO es la misma persona", "selftest.sh:el motivo nombra al autor", "selftest.sh:…y dice que no se adivina", "selftest.sh:el texto de los no declarados existe"], "evidence": ["salidas/inversa.txt", "salidas/personas-real.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "La lista de firmantes y las personas del registro no divergen en silencio", "scenarios": ["E18", "E19"], "tests": ["selftest.sh:verify-suite exige firmante ⇒ persona", "selftest.sh:…y dice que la direccion es deliberada", "selftest.sh:…y NO exige persona ⇒ firmante", "selftest.sh:sin personas no se comprueba"], "evidence": ["salidas/verify-suite.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "El nombre canonico de una persona es uno, y de el sale su rama", "scenarios": ["E10", "E11", "E16", "E17"], "tests": ["selftest.sh:personaLocal da el CANONICO", "selftest.sh:…y no el nombre de git config", "selftest.sh:ramaDe normaliza el canonico", "selftest.sh:…y desde la otra identidad seria OTRA rama", "selftest.sh:por eso proyectar pasa por la tabla"], "evidence": ["salidas/personas-real.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la tabla este al dia.",
+      "por_que": "Alguien cambia de maquina, aparece una identidad nueva, y las cifras de PT-064 empiezan a dejarse trabajo fuera. Lo garantizado es que «tracker personas» lo ensena SIEMPRE, no bajo una bandera — pero que alguien mire no se puede comprobar desde aqui.",
+      "donde": "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que la persona declarada sea quien dice ser.",
+      "por_que": "Esto es una DECLARACION, como «firmantes:», y SUITE-R27 ya dice que una firma no prueba que firmara una persona. La tabla dice a quien ATRIBUIR un commit, no quien lo escribio de verdad.",
+      "donde": "docs/methodology/LEXICON.md"
+    },
+    {
+      "afirmacion": "Que dos personas de verdad se comporten asi.",
+      "por_que": "Todo lo probado aqui es con UNA persona y tres identidades, porque es lo que este repositorio tiene. Dos personas reales traeran casos que nadie ha visto — y esa es precisamente la razon de que AC-03 reporte en vez de adivinar.",
+      "donde": "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que las tres identidades declaradas sean todas las que hay.",
+      "por_que": "Son las tres que aparecen en la historia HOY. Un commit futuro desde otra maquina anadira una cuarta, y hasta que alguien la declare quedara SIN DECLARAR — visible, pero fuera de las cifras.",
+      "donde": "docs/implementation/evidence/PT-061/salidas/personas-real.txt"
+    }
+  ],
+  "suite": { "passed": 865, "failed": 0, "skipped": 0, "coverage": 865, "baseline": 829 }
+}

@@ -1,0 +1,18 @@
+# PT-062 · comprobación inversa
+
+Se neutralizaron LAS DOS decisiones que sostienen la tarea:
+  1. un rango agotado pasa a INVADIR el siguiente
+  2. tocarse por un extremo deja de contar como solaparse
+
+Caen OCHO casos. El segundo grupo es el que mas dice: con «<» en vez de «<=»,
+los rangos [1,100] y [100,200] dejan de solaparse — y el numero 100 es exactamente
+el que las dos personas pediran a la vez.
+
+  [31m✗[0m un rango agotado NO invade  (no apareció: ^null$ · salió: 4)
+  [31m✗[0m …y dice que esta AGOTADO  (no apareció: AGOTADO · salió: null)
+  [31m✗[0m …y cuantos hay  (no apareció: 3 usados · salió: null)
+  [31m✗[0m …y que ampliarlo es humano  (no apareció: decision humana · salió: null)
+  [31m✗[0m …y TOCARSE por un extremo tambien  (no apareció: ^true$ · salió: false)
+  [31m✗[0m solapes encuentra el par  (no apareció: ^1$ · salió: 0)
+  [31m✗[0m …y nombra a los dos  (no apareció: "a":"A" · salió: [])
+  [31m✗[0m …y al otro  (no apareció: "b":"B" · salió: [])

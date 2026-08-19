@@ -1,0 +1,14 @@
+# PT-061 · comprobación inversa
+
+Se neutralizo la decision central: el par deja de casar ENTERO y pasa a casar por correo
+o por DOMINIO — que es exactamente el «parecido» que AC-03 prohibe.
+
+Caen dos casos, y son los dos que sostienen el lote:
+
+  [31m✗[0m mismo correo, OTRO nombre ⇒ null  (no apareció: ^null$ · salió: "Alberto Martínez")
+  [31m✗[0m mismo dominio NO es la misma persona  (no apareció: ^null$ · salió: "Alberto Martínez")
+
+«Otro <alberto@a81.biz>» pasaria a ser Alberto Martinez. Y con eso PT-062, PT-063,
+PT-064 y PT-065 construirian sobre una identidad falsa sin que sus propios casos
+lo notaran: cada una comprobaria CORRECTAMENTE sobre un dato equivocado.
+
