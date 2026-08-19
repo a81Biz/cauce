@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 75,
+    "PT": 76,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -458,7 +458,24 @@
       "origin": "Aplazado por PT-011 y por EP-001 · es el trabajo con el que se abrió la sesión y el que EP-004 desbloquea · CORRECCION DE ALCANCE 2026-08-13 (humana): no es migrar ESE proyecto, es que cualquier legado se pueda migrar. Lo comprobable esta hecho (17 hallazgos a 0, migrate de 1 accion a 7); queda la migracion EFECTIVA, que depende de otro repositorio",
       "issue": 26,
       "phase": 1,
-      "epic": "EP-017"
+      "epic": "EP-017",
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "type": "CHORE",
@@ -1283,7 +1300,24 @@
       "issue": 94,
       "phase": 5,
       "epic": "EP-017",
-      "branch": "fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre"
+      "branch": "fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1577,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-056",
@@ -1510,7 +1544,24 @@
       "suite_version": "9.0.0",
       "title": "La regla que se consulta es la que se define",
       "origin": "regla.mjs decide por MENCION y no por DEFINICION: 21 reglas existentes las declara inexistentes (las 11 CHECK y las 10 EXEC-*) y 26 devuelven el texto de otra regla. TD-10 / D20. Encontrado ejecutando la herramienta en PHASE 0, y volvio a inducir a error en la misma sesion al consultar FDGE-R19.",
-      "issue": 128
+      "issue": 128,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1577,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-067",
@@ -1527,7 +1578,24 @@
       "suite_version": "9.0.0",
       "title": "El denominador de la cobertura esta incompleto",
       "origin": "audit publica cobertura sobre 181 reglas y el marco define 222: quedan fuera las 15 EXEC-* y las 26 LEX-*. Y SUITE-R22 figura como cubierta porque el caso de selftest que demuestra que NO lo esta la nombra. TD-08 / TD-09 / D17.",
-      "issue": 129
+      "issue": 129,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1577,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-068",
@@ -1544,7 +1612,24 @@
       "suite_version": "9.0.0",
       "title": "La marca de sesion es de quien la abre",
       "origin": "PT-065 movio la escritura a SESSION-<persona>.json y dejo la lectura con ?? SESSION.json, que ya nadie escribe. Un usuario no declarado deriva trabajo ajeno de una sesion cerrada etiquetado MEDIDO. Rompe AC-03 y AC-06 de PT-065. TD-11 / D19. Reproducido.",
-      "issue": 130
+      "issue": 130,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 665,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-069",
@@ -1561,7 +1646,24 @@
       "suite_version": "9.0.0",
       "title": "Los indices derivados necesitan generador",
       "origin": "PHASE 8 ordena regenerar BACKLOG, SUITE-R35 exige que espejen el registro, el HANDOFF prohibe editarlos a mano y ninguna herramienta los genera. Las tres instrucciones no se pueden cumplir a la vez. TD-12 / D18.",
-      "issue": 131
+      "issue": 131,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-070",
@@ -1578,7 +1680,24 @@
       "suite_version": "9.0.0",
       "title": "El alcance del grafo lo calcula la herramienta",
       "origin": "plan-layout sigue devolviendo alcance «bin» mientras el registro dice «bin, docs/methodology/tools» desde PT-020: toda instalacion NUEVA nace con el defecto. Es la mitad abierta de TD-01. D16. Bloquea la validez del greenfield de PT-072.",
-      "issue": 132
+      "issue": 132,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1577,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-071",
@@ -1595,7 +1714,24 @@
       "suite_version": "9.0.0",
       "title": "Publicar comprueba lo mismo que verificar",
       "origin": "publicar.yml corre 5 de las 8 comprobaciones de verificacion.yml: faltan verify:patrones, tracker espejo y verify-fdge --all, la que FDGE-R34 llama precondicion de G4. TD-13 / D15.",
-      "issue": 133
+      "issue": 133,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1577,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-072",
@@ -1612,7 +1748,24 @@
       "suite_version": "9.0.0",
       "title": "Un proyecto nuevo de verdad",
       "origin": "Sitio nuevo real: FIDE -> Foundation -> install -> un PT completo hasta G4, contra la 9.0.0 empaquetada con npm pack. Hoy la confianza en «que el marco sirva a un proyecto ajeno» es SIN EVALUAR y ningun dato de este repositorio la responde.",
-      "issue": 134
+      "issue": 134,
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-073",
@@ -1629,7 +1782,24 @@
       "suite_version": "9.0.0",
       "title": "Los tres documentos que lee quien llega",
       "origin": "MANUAL, CASOS-DE-USO y README al dia, DERIVADOS de lo que las dos pruebas necesitaron. CASOS-DE-USO declara todavia como hueco «varios agentes trabajando a la vez», que cerro EP-016: el catalogo describe un marco de la 8.0.0.",
-      "issue": 135
+      "issue": 135,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2048,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-074",
@@ -1646,7 +1816,24 @@
       "suite_version": "9.0.0",
       "title": "La compuerta de viabilidad necesita una fase que la abra",
       "origin": "Encontrado el 2026-08-19 porque el firmante pregunto donde estaba aplicado el calculo de sesion. No lo estaba: «viabilidad» aparece 0 veces en CORE.md, 0 en PHASES.md y 0 en verify-fdge. EP-015 construyo la compuerta —PT-059 AC-02 «en MARGINAL no se inician operaciones grandes», AC-03 «en UNSAFE no se ejecuta»— y ninguna fase la invoca. Una compuerta sin fase que la abra no se cumple ni se incumple: no ocurre.",
-      "issue": 136
+      "issue": 136,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 665,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     },
     {
       "id": "PT-075",
@@ -1657,7 +1844,7 @@
       "severity": "S1",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 4,
+      "phase": 5,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -1682,6 +1869,40 @@
         "fecha": "2026-08-19"
       },
       "branch": "fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre"
+    },
+    {
+      "id": "PT-076",
+      "slug": "el-arnes-no-escribe-en-el-repositorio-real",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "El arnes no escribe en el repositorio real: selftest pisa la marca de sesion y apila en el ledger",
+      "origin": "Encontrado el 2026-08-19 al ir a cumplir FDGE-R54 tras crearla en PT-075. tracker sesion decia 1 commit y 248 lineas en una sesion de decenas: TRR() invoca tracker contra RAIZ_REAL y tres casos de «sesion abrir» y seis de «sesion cerrar» escriben ahi. 140 entradas acumuladas en SESSION_LOG.md, que es append-only. Corrompe la base de calculo de la compuerta que PT-075 acaba de crear.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 665,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      },
+      "issue": 138
     }
   ]
 }

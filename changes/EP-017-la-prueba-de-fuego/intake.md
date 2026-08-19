@@ -77,7 +77,8 @@ míos. No publiques la 9.0.0», primer mensaje de la sesión, no retirado— (`S
 | 2 | `PT-055` | BUG | S2 | SAFE | `--gate G4` exige las filas de cierre de **todos** los lotes abiertos | `tools/verify-fdge.mjs` · `selftest.sh` | — |
 | 3 | `PT-066` | BUG | S2 | SAFE | La regla que se consulta es la que se define | `tools/regla.mjs` · `selftest.sh` | — |
 | 4 | `PT-067` | BUG | S2 | SAFE | El denominador de la cobertura está incompleto | `tools/audit.mjs` · `selftest.sh` | `PT-066` |
-| 5 | `PT-068` | BUG | S1 | SAFE | La marca de sesión es de quien la abre | `tools/tracker.mjs` · `tools/patrones.mjs` · `selftest.sh` | — |
+| 5 | `PT-076` | BUG | S1 | SAFE | **El arnés no escribe en el repositorio real** | `tools/selftest.sh` | — |
+| 6 | `PT-068` | BUG | S1 | SAFE | La marca de sesión es de quien la abre | `tools/tracker.mjs` · `tools/patrones.mjs` · `selftest.sh` | — |
 | 6 | `PT-074` | BUG | S2 | SAFE | La compuerta de viabilidad necesita una fase que la abra | `tools/tracker.mjs` · `CORE.md` · `PHASES.md` · `selftest.sh` | `PT-068` · `PT-075` |
 | 7 | `PT-069` | FEATURE | S2 | SAFE | Los índices derivados necesitan generador | `tools/tracker.mjs` · `selftest.sh` | `PT-068` |
 | 8 | `PT-070` | BUG | S2 | SAFE | El alcance del grafo lo calcula la herramienta | `tools/plan-layout.mjs` · `selftest.sh` | — |
@@ -137,14 +138,15 @@ Orden de ejecución resultante:
   2. PT-055   la compuerta que va a evaluar el lote entero
   3. PT-066   la consulta de reglas
   4. PT-067   la medida de cobertura
-  5. PT-068   la marca de sesión
-  6. PT-074   la compuerta de viabilidad y su fase
-  7. PT-069   los índices derivados
-  8. PT-070   el alcance del grafo
-  9. PT-071   la tubería que publica
- 10. PT-072   greenfield
- 11. PT-019   legado
- 12. PT-073   los tres documentos
+  5. PT-076   que el arnes deje de pisar el estado real   <- bloquea toda medida de sesion
+  6. PT-068   la marca de sesión
+  7. PT-074   la compuerta de viabilidad y su fase
+  8. PT-069   los índices derivados
+  9. PT-070   el alcance del grafo
+ 10. PT-071   la tubería que publica
+ 11. PT-072   greenfield
+ 12. PT-019   legado
+ 13. PT-073   los tres documentos
 
 Motivo del orden: dependencia técnica y solapamiento, no prioridad declarada.
 ```
@@ -246,6 +248,7 @@ causa en `BACKLOG.md`.
 | `PT-055` | | |
 | `PT-066` | | |
 | `PT-067` | | |
+| `PT-076` | | |
 | `PT-068` | | |
 | `PT-074` | | |
 | `PT-069` | | |
@@ -282,5 +285,34 @@ el PR **exista**, nunca quién lo abrió.
 
 **Las dos son incumplimientos del agente en esta sesión, no hipótesis.** Y las dos pasaron sin
 que ninguna comprobación las viera.
+
+**Firmado por:** Alberto Martínez, por delegación con constancia.
+
+## Revisión 2 — 2026-08-19
+
+**Qué cambia:** entra `PT-076` en quinto lugar. El lote pasa a **trece** tareas. Se registra la
+viabilidad de las trece (`FDGE-R54`) y se declara `EXEC-R14` **de nuevo en vigor**.
+
+**Motivo:** *«se supone que ya debes seguir todas las reglas de cauce, como el cálculo de
+sesión»*. Al ir a cumplirlo —`FDGE-R54` la creó `PT-075` hace una hora— el cálculo daba **1
+commit y 248 líneas** en una sesión de decenas.
+
+No era un error de lectura. `selftest.sh` invoca `tracker` contra el repositorio **real** por
+`TRR()`, y tres casos de `sesion abrir` y seis de `sesion cerrar` **escriben** ahí: pisan la
+marca de sesión y apilan en `SESSION_LOG.md`, que es append-only. **140 entradas acumuladas**,
+nueve más por pasada. Reproducido con un solo caso: la marca pasó de `78fbcd9` a `a6913da`.
+
+Va en quinto lugar y antes que `PT-068` porque **corrompe la base de cálculo de lo que
+`PT-068` arregla**, y porque la compuerta que `PT-075` acaba de crear decide sobre ese dato.
+
+**Y `EXEC-R14` vuelve a restringir.** El propio §7 lo anticipó: «si el lote se alarga más de 10
+PTs, vuelve a restringir y hay que declararlo». Con `PT-076` el contador llega a 76 contra un
+`pt_at_generation` de 65: **antigüedad 11**, por encima del umbral. Se opera como `MANUAL`
+—que con la delegación vigente sólo retira el `G3` automático de `EXEC-R06`— y queda declarado
+aquí y en `SESSION_LOG.md`. No se toca `CLAUDE.md`: es restricción temporal, no cambio de modo.
+
+**Viabilidad de las trece:** once `SAFE`, y `PT-072` y `PT-019` `MARGINAL` — las dos pruebas,
+sin precedente `MAJOR` con el que comparar. Sin cambio respecto a la Revisión 1, salvo que
+ahora **consta en el registro** en vez de sólo en este documento.
 
 **Firmado por:** Alberto Martínez, por delegación con constancia.

@@ -2104,3 +2104,144 @@ en curso     PT-075 · PHASE 4 Propuesta
 sobre        7412eeb  trabajo
 sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
 ```
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · `EXEC-R14` vuelve a restringir, y por qué se ve esta vez
+
+<!-- cauce:agente -->
+
+```
+contador PT              76
+foundation.pt_at_generation  65
+antiguedad               11 PT   ⇒ por encima del umbral de 10
+EXEC-R14                 EN VIGOR — se opera como MANUAL
+```
+
+**Se declara al entrar en la condición**, no al chocar con una compuerta. Efecto práctico con la
+delegación vigente: `G1`, `G2` y `G3` siguen resolviéndose por delegación con constancia, y lo
+que se retira es el **`G3` automático de `EXEC-R06`**. `CLAUDE.md` no se toca: es restricción
+temporal, no cambio de modo (`EXEC-R12`).
+
+La diferencia con la vez anterior —cuando llevaba en vigor desde `PT-043` sin que nadie lo
+viera— es que ahora **estaba escrito de antemano** en el §7 de `EP-017`: «si el lote se alarga
+más de 10 PTs, vuelve a restringir y hay que declararlo». Lo que la hizo visible fue haberlo
+anticipado por escrito, no haberla recordado.
+
+`D17` sigue abierta y va en `PT-067`: **ninguna herramienta emite `EXEC-R14`**. Mientras no la
+emita, esto depende de que alguien haga la resta.
+
+## Y el cálculo de sesión no valía: lo corrompe la propia batería
+
+`tracker sesion` decía **1 commit y 248 líneas** en una sesión de decenas. La causa:
+
+```bash
+TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }   # el repositorio REAL
+```
+
+Tres casos de `sesion abrir` y seis de `sesion cerrar` se invocan así y **escriben** en el
+repositorio real: pisan `SESSION-<persona>.json` y apilan en `SESSION_LOG.md` —este mismo
+archivo—, que es append-only (`SUITE-R09`) y por tanto no se puede limpiar.
+
+**140 entradas** acumuladas, nueve más por pasada. Reproducido con un solo caso:
+
+```
+antes  : 78fbcd9
+  ✓ sesion abrir escribe la marca
+despues: a6913da        <- la marca real, movida
+```
+
+`TRR` **no sobra**: `coste`, `viabilidad` y `personas` necesitan el historial real, y `asignar`
+ya demuestra el patrón seguro pasando `--ver`. Lo que sobra es escribir. Es `PT-076`, quinta del
+lote, por delante de `PT-068`: corrompe la base de cálculo de lo que `PT-068` arregla, y la
+compuerta que `PT-075` acaba de crear decide sobre ese dato.
