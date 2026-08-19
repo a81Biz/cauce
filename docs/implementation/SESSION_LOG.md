@@ -911,3 +911,90 @@ Es el mismo patrón que `EP-015` encontró tres veces —probar donde trabaja el
 decide— y esta es la cuarta, en el sitio más caro: la puerta de publicación. Corregido en PR #115
 antes de republicar.
 
+## 2026-08-18 · sesion abierta en `c5d6bd7`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde c5d6bd7 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-061 · PHASE 5 Implementación
+sobre        c5d6bd7  chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde c5d6bd7 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-061 · PHASE 5 Implementación
+sobre        c5d6bd7  chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde c5d6bd7 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-061 · PHASE 5 Implementación
+sobre        c5d6bd7  chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion abierta en `c5d6bd7`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `c5d6bd7`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde c5d6bd7 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-061 · PHASE 5 Implementación
+sobre        c5d6bd7  chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde c5d6bd7 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-061 · PHASE 5 Implementación
+sobre        c5d6bd7  chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde c5d6bd7 (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-061 · PHASE 5 Implementación
+sobre        c5d6bd7  chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-18 · sesion abierta en `c5d6bd7`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.

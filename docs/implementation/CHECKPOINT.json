@@ -1,21 +1,21 @@
 {
-  "pt": "PT-060",
+  "pt": "PT-061",
   "type": "CHORE",
-  "epic": "EP-015",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "33cf8f2e65936620c4c4acc74fa8985638ad6703",
-  "sha_corto": "33cf8f2",
+  "epic": "EP-016",
+  "status": "IN_PROGRESS",
+  "phase": 9,
+  "fase": "Integración",
+  "rama": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
+  "sha": "2de787c84327080ea1b578fe17a3fd322f2e74ca",
+  "sha_corto": "2de787c",
   "sucio": true,
   "archivos": [
-    "docs/implementation/SESSION.json",
-    "docs/implementation/SESSION_LOG.md",
-    "docs/implementation/evidence/EP-015/"
+    "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PT-060 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }

@@ -724,6 +724,45 @@ qué commit, qué sigue— que se **suma** al handoff escrito, no lo reemplaza.
 en `REGISTRY.json` — ahí `SUITE-R09` los haría permanentes, y el registro guardaría para siempre
 mecánica transitoria.
 
+### 6.5f Quién es quién   `PT-061`
+
+`REGISTRY.json` declara **`personas`**: quién trabaja en el proyecto y con qué identidades de git
+lo hace.
+
+```
+personas[]
+  nombre        el CANONICO · de el sale su rama (§6.5 · PT-054) y con el se firma
+  git[]         los pares (nombre, correo) que esa persona ha usado
+```
+
+**Por qué hace falta.** Medido en este repositorio, de **una sola persona**: 218 commits como
+`Alberto Martínez <alberto@a81.biz>`, 9 como `a81Biz <albe.mtz@gmail.com>` y 1 como
+`Alberto Martínez <albe.mtz@gmail.com>`. Tres identidades, una persona. El desorden no viene de
+trabajar con más gente: viene de **cambiar de máquina**.
+
+**El par casa entero.** Solo el correo no basta —dos personas pueden compartir un buzón de
+equipo— y solo el nombre tampoco. Un autor que no case **se reporta**: no se adivina por parecido,
+porque atribuir por mismo apellido o mismo dominio convierte **una duda en un dato**, y todo lo
+que se derive después construye sobre él sin notarlo.
+
+**`personas` NO es `firmantes:`**, y la diferencia importa:
+
+| | Responde | Vive en |
+|:---|:---|:---|
+| `firmantes:` | quién **puede firmar** — gobierno, decisión humana | `CLAUDE.md` (`SUITE-R27`) |
+| `personas` | quién **es quién** — identidad, dato que leen las herramientas | `REGISTRY.json` |
+
+Un becario puede tener identidad y no poder firmar. Lo que no puede pasar es que alguien firme sin
+existir: **todo firmante existe como persona**, y se comprueba. **En esa dirección y no en la
+contraria** — si fuera simétrica, las dos listas serían copias del mismo hecho y divergirían.
+
+**Esto no dice qué puede hacer nadie.** `SUITE-R27` ya declara que `firmantes:` no prueba que
+firmara una persona; esta tabla tampoco lo prueba. Dice **a quién atribuir** un commit, no quién lo
+escribió.
+
+**Sin `personas` declaradas, el marco funciona como si no existieran.** Un proyecto de una sola
+persona no tiene que declarar nada.
+
 ### 6.6 Documentos de metodología — `docs/methodology/`
 
 ```

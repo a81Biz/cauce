@@ -2530,3 +2530,51 @@ No verificado: que alguien ABRA la sesión —sin marca todo sale SIN EVALUAR, c
 tener el dato—; que un agente distinto no vuelva a abrirlo todo igualmente; que la evidencia de
 AC-06 sea una sesión de verdad; y que «desde..HEAD» capture todo el trabajo, porque cuenta commits
 y lo no commiteado no aparece: la cifra es un suelo, no un total.
+
+## PT-061 — CHORE: quién es quién
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que el marco sepa de quién es un commit, una rama y una sesión, y que lo sepa sin
+adivinarlo.
+Causa raíz: la identidad no estaba en ninguna parte. Medido al abrir el lote, en un repositorio de
+UNA persona: 221 commits como «Alberto Martínez <alberto@a81.biz>», 9 como «a81Biz
+<albe.mtz@gmail.com>» y 1 como «Alberto Martínez <albe.mtz@gmail.com>». Tres identidades, una
+persona — el desorden no viene de trabajar con más gente, viene de cambiar de máquina.
+Solución: REGISTRY.personas con el nombre canónico y las identidades de git. «personaDe(autor,
+personas)» pura, que casa el par ENTERO y devuelve null CON MOTIVO si no está declarado.
+«tracker personas» enseña declarados y no declarados. «ramaDe» pasa por la tabla. verify-suite
+exige que todo firmante exista como persona.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/verify-suite.mjs · tools/selftest.sh · docs/implementation/REGISTRY.json
+Evidencia: docs/implementation/evidence/PT-061/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓
+Delta (real vs planificado): LA INVERSA ES LA EVIDENCIA QUE IMPORTA, y son sólo DOS casos a
+propósito. Relajando el criterio a «mismo correo o mismo dominio», «Otro <alberto@a81.biz>» pasa a
+SER Alberto Martínez. Ese es exactamente el riesgo declarado en el intake del lote: PT-062, PT-063,
+PT-064 y PT-065 construirían sobre esa identidad falsa SIN QUE SUS PROPIOS CASOS LO NOTARAN, porque
+cada una comprobaría correctamente sobre un dato equivocado.
+LA ASIMETRÍA DE AC-04 ES DELIBERADA. Poner «personas» en el registro crea a primera vista una
+segunda lista junto a «firmantes:», que es el patrón que este marco existe para eliminar. Por eso
+la comprobación va en UNA SOLA DIRECCIÓN: todo firmante existe como persona, pero tener identidad
+NO es poder firmar. Si fuera simétrica serían copias del mismo hecho y divergirían, que es lo que
+le pasó a las reglas en la v3.
+CORRIGE PT-054: «ramaDe» leía «git config user.name» a pelo. Desde la máquina que produjo los 9
+commits de «a81Biz» habría escrito «cauce/a81biz» — otra rama, para la misma persona, sin que nada
+lo notara. Sin «personas» declaradas se comporta exactamente como antes.
+Y la reconciliación es una TABLA, no una cirugía: unificar tres autores en 231 commits sería
+«git filter-branch», que SUITE-R06f reserva a una decisión humana. La historia sigue teniendo las
+tres identidades y la tabla dice que son la misma persona.
+Casos: 829 → 865.
+Sin regla nueva: entra vocabulario en LEXICON §6.5f y un campo del registro. SUITE-R27 y SUITE-R08
+no cambian.
+No verificado: que la tabla esté al día —una máquina nueva trae una identidad nueva y queda SIN
+DECLARAR hasta que alguien la añada—; que la persona declarada sea quien dice ser, porque es una
+declaración como «firmantes:»; que dos personas de verdad se comporten así, porque todo lo probado
+es con una persona y tres identidades; y que las tres declaradas sean todas las que habrá.

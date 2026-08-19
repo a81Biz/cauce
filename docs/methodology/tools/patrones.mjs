@@ -309,6 +309,45 @@ export function handoffDeSesion(sesion, checkpoint) {
   return l.join(SALTO_LINEA);
 }
 
+// ── PT-061 · quien es quien ─────────────────────────────────────────────────
+//
+// Medido al abrir EP-016, en un repositorio de UNA persona: 218 commits como «Alberto Martinez
+// <alberto@a81.biz>», 9 como «a81Biz <albe.mtz@gmail.com>» y 1 como «Alberto Martinez
+// <albe.mtz@gmail.com>». Tres identidades, una persona. El desorden no viene de trabajar con mas
+// gente: viene de cambiar de maquina.
+
+/**
+ * ¿De quien es este autor de git? La PERSONA declarada, o null CON MOTIVO.
+ *
+ * NO adivina por parecido. Mismo apellido o mismo dominio de correo convertiria una duda en un
+ * dato, y las cuatro tareas siguientes de EP-016 construirian sobre el SIN QUE SUS CASOS LO
+ * NOTARAN: cada una comprobaria correctamente sobre una identidad falsa.
+ *
+ * El par casa ENTERO. Solo el correo no basta —dos personas pueden compartir un buzon de equipo—
+ * y solo el nombre tampoco: «a81Biz» no se parece a nada.
+ */
+export function personaDe(autor, personas = []) {
+  if (!autor?.correo && !autor?.nombre) {
+    return { persona: null, motivo: 'el commit no declara autor' };
+  }
+  for (const p of personas ?? []) {
+    for (const id of p?.git ?? []) {
+      if (id?.correo === autor.correo && id?.nombre === autor.nombre) {
+        return { persona: p.nombre, motivo: null };
+      }
+    }
+  }
+  return {
+    persona: null,
+    motivo: `«${autor.nombre} <${autor.correo}>» no esta declarado en «personas». Si es de `
+      + 'alguien ya declarado, anadelo a su lista «git»: no se adivina por parecido.',
+  };
+}
+
+/** El nombre canonico de quien usa esta maquina, si esta declarado. */
+export const personaLocal = (nombre, correo, personas = []) =>
+  personaDe({ nombre, correo }, personas);
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
