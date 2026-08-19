@@ -41,6 +41,8 @@ import {
   cifra, textoCifra, MEDIDO, ESTIMADO, SIN_EVALUAR, viabilidadDe,
   // PT-060 · la sesion es el worker, no el estado
   sesionDe, handoffDeSesion,
+  // PT-061 · quien es quien
+  personaDe, personaLocal,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -848,7 +850,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1442,6 +1444,56 @@ function sesion() {
   if (s.pt) di(`    en curso   ${s.pt} · PHASE ${s.phase}`);
 }
 
+// ── personas · quien es quien ───────────────────────────────────────────────
+//
+// Los NO DECLARADOS salen SIEMPRE, no bajo una bandera: el riesgo de esta tabla es que se quede
+// vieja en silencio, y esconderlo detras de una opcion es garantizar que nadie lo mire.
+
+function personas() {
+  const decl = reg.personas ?? [];
+  const crudo = gitDe(['log', '--format=%an%x09%ae']) ?? '';
+  const cuenta = new Map();
+  for (const l of lineas(crudo).filter(Boolean)) {
+    const [nombre, correo] = l.split('	');
+    const k = `${nombre}	${correo}`;
+    cuenta.set(k, (cuenta.get(k) ?? 0) + 1);
+  }
+  const sinDeclarar = [];
+  const porPersona = new Map(decl.map((p) => [p.nombre, []]));
+  for (const [k, n] of cuenta) {
+    const [nombre, correo] = k.split('	');
+    const r = personaDe({ nombre, correo }, decl);
+    if (r.persona) porPersona.get(r.persona).push({ nombre, correo, n });
+    else sinDeclarar.push({ nombre, correo, n });
+  }
+  di('');
+  if (!decl.length) {
+    di('  Ninguna persona declarada. El marco funciona como si no existieran, y con una sola');
+    di('  persona no hace falta declarar nada (LEXICON 6.5f).');
+  }
+  for (const [nombre, ids] of porPersona) {
+    di(`  ${nombre}`);
+    for (const i of ids.sort((a, b) => b.n - a.n)) {
+      di(`    ${i.nombre} <${i.correo}>`.padEnd(52) + `${i.n} commits`);
+    }
+    di('');
+  }
+  if (sinDeclarar.length) {
+    const total = sinDeclarar.reduce((s, i) => s + i.n, 0);
+    di(`  SIN DECLARAR (${sinDeclarar.length} autor(es) · ${total} commit(s))`);
+    for (const i of sinDeclarar.sort((a, b) => b.n - a.n)) {
+      di(`    ${i.nombre} <${i.correo}>`.padEnd(52) + `${i.n} commits`);
+    }
+    di('    → si es de una persona ya declarada, anadelo a su lista «git».');
+    di('      No se agrupa por parecido: quien es quien lo dice una persona (LEXICON 6.5f).');
+    di('');
+  }
+  // Esto dice a quien ATRIBUIR un commit, no quien lo escribio: es una declaracion, como
+  // «firmantes:», y SUITE-R27 ya dice que una firma no prueba que firmara una persona.
+  di('  Esto dice a QUIEN ATRIBUIR un commit, no quien puede hacer que: «firmantes:» de');
+  di('  CLAUDE.md sigue respondiendo quien puede firmar, y son cosas distintas.');
+}
+
 function siguienteDe() {
   let cp = null;
   try { cp = JSON.parse(readFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), 'utf8')); }
@@ -1571,7 +1623,14 @@ function checkpoint() {
 // Las alternativas —worktree, checkout— tocan el directorio donde se esta trabajando, y la peor
 // deja al usuario EN OTRA RAMA si falla a mitad.
 function proyectar({ silencioso = false } = {}) {
-  const usuario = gitDe(['config', 'user.name']);
+  // PT-061 · el nombre sale de la TABLA si la hay. Antes se leia «git config user.name» a pelo,
+  // y desde la maquina que produjo los 9 commits de «a81Biz» habria escrito «cauce/a81biz»: OTRA
+  // rama, para la MISMA persona, sin que nada lo notara.
+  //
+  // Sin «personas» declaradas se comporta EXACTAMENTE como antes: un proyecto de una persona no
+  // tiene que declarar nada.
+  const usuario = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+    reg.personas ?? []).persona ?? gitDe(['config', 'user.name']);
   const rama = ramaDe(usuario);
   // RULE-06 · sin usuario no se proyecta. Una rama «cauce/desconocido» seria peor que ninguna:
   // agregaria el trabajo de todos bajo un nombre que no es de nadie.
@@ -1799,7 +1858,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

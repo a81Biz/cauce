@@ -2662,6 +2662,78 @@ chk   "…y que el dia no es la sesion"     "NO es la sesi"  cat "$SUITE/LEXICON
 chk   "…y SESSION != STATE != TASK"       "SESSION ≠ STATE ≠ TASK"  cat "$SUITE/LEXICON.md"
 chk   "…y que no sustituye a HANDOFF"     "no sustituye"  cat "$SUITE/LEXICON.md"
 
+# ─── PT-061 · quién es quién ───────────────────────────────────────────────
+# Medido al abrir EP-016, en un repositorio de UNA persona: 221 commits como «Alberto Martinez
+# <alberto@a81.biz>», 9 como «a81Biz <albe.mtz@gmail.com>» y 1 como «Alberto Martinez
+# <albe.mtz@gmail.com>». Tres identidades, una persona.
+#
+# Las otras cuatro tareas de EP-016 dependen de esta. Si se equivoca, las cuatro heredan el error
+# SIN QUE SUS CASOS LO NOTEN: cada una comprobaria correctamente sobre una identidad falsa.
+sec "── PT-061 · quién es quién ──"
+
+P61='[{nombre:"Alberto Martínez",git:[{nombre:"Alberto Martínez",correo:"alberto@a81.biz"},{nombre:"a81Biz",correo:"albe.mtz@gmail.com"}]}]'
+
+# E1-E3 · las identidades distintas resuelven a la MISMA persona.
+PL "un par declarado da su persona"       "Alberto"   "console.log(m.personaDe({nombre:\"Alberto Martínez\",correo:\"alberto@a81.biz\"},$P61).persona)"
+PL "…y la segunda identidad, la MISMA"    "Alberto"   "console.log(m.personaDe({nombre:\"a81Biz\",correo:\"albe.mtz@gmail.com\"},$P61).persona)"
+PL "…y sin motivo, porque no hay duda"    "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"a81Biz\",correo:\"albe.mtz@gmail.com\"},$P61).motivo))"
+
+# E4-E5 · AC-03 · el par casa ENTERO. Es lo que sostiene el lote: solo el correo no basta —dos
+# personas pueden compartir un buzon de equipo— y solo el nombre tampoco.
+PL "mismo correo, OTRO nombre ⇒ null"     "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"Otro\",correo:\"alberto@a81.biz\"},$P61).persona))"
+PL "mismo nombre, OTRO correo ⇒ null"     "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"Alberto Martínez\",correo:\"otro@x.com\"},$P61).persona))"
+# Y no se adivina por dominio: mismo dominio, otra persona.
+PL "mismo dominio NO es la misma persona"  "^null$"   "console.log(JSON.stringify(m.personaDe({nombre:\"Otra\",correo:\"otra@a81.biz\"},$P61).persona))"
+
+# E6-E7 · el motivo dice QUE autor es y que NO se adivina.
+PL "el motivo nombra al autor"            "Fulano"    "console.log(m.personaDe({nombre:\"Fulano\",correo:\"f@x.com\"},$P61).motivo)"
+PL "…y su correo"                         "f@x.com"   "console.log(m.personaDe({nombre:\"Fulano\",correo:\"f@x.com\"},$P61).motivo)"
+PL "…y dice que no se adivina"            "no se adivina por parecido"  "console.log(m.personaDe({nombre:\"F\",correo:\"f@x\"},$P61).motivo)"
+PL "…y que hacer con el"                  "anadelo a su lista"  "console.log(m.personaDe({nombre:\"F\",correo:\"f@x\"},$P61).motivo)"
+
+# E8-E9 · sin autor y sin tabla: distintos, y ninguno revienta.
+PL "un commit sin autor lo dice"          "no declara autor"  "console.log(m.personaDe({}).motivo)"
+PL "sin tabla, null y no revienta"        "^null$"    "console.log(JSON.stringify(m.personaDe({nombre:\"A\",correo:\"b\"},[]).persona))"
+PLNO "…y no dice que sea culpa del commit"  "no declara autor"  "console.log(m.personaDe({nombre:\"A\",correo:\"b\"},[]).motivo)"
+
+# E10-E11 · personaLocal · el canonico de esta maquina.
+PL "personaLocal da el CANONICO"          "Alberto Martínez"  "console.log(m.personaLocal(\"a81Biz\",\"albe.mtz@gmail.com\",$P61).persona)"
+PLNO "…y no el nombre de git config"      "a81Biz"    "console.log(m.personaLocal(\"a81Biz\",\"albe.mtz@gmail.com\",$P61).persona)"
+PL "…y sin tabla, null para que el llamador use el de hoy"  "^null$"  "console.log(JSON.stringify(m.personaLocal(\"X\",\"y\",[]).persona))"
+
+# E16-E17 · ramaDe y su compatibilidad. La misma persona, la MISMA rama desde cualquier maquina.
+trlib "ramaDe normaliza el canonico"      "cauce/alberto-martinez"  "console.log(m.ramaDe(\"Alberto Martínez\"))"
+trlib "…y desde la otra identidad seria OTRA rama"  "cauce/a81biz"  "console.log(m.ramaDe(\"a81Biz\"))"
+chk   "por eso proyectar pasa por la tabla"  "personaLocal"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y sin personas se comporta como antes"  "Sin «personas» declaradas se comporta"  cat "$SUITE/tools/tracker.mjs"
+
+# E12-E15 · la accion, sobre el repositorio REAL, que es donde estan las tres identidades.
+chk   "personas enseña a los declarados"   "Alberto Martínez"     TRR personas
+chk   "…con cuantos commits lleva cada identidad"  "commits"      TRR personas
+chk   "…y las TRES identidades bajo UNA persona"   "a81Biz"       TRR personas
+chk   "…y distingue de «firmantes:»"       "no quien puede hacer que"  TRR personas
+# Los no declarados salen SIEMPRE, no bajo una bandera: esconderlo garantiza que nadie lo mire.
+chk   "el texto de los no declarados existe"  "SIN DECLARAR"      cat "$SUITE/tools/tracker.mjs"
+chk   "…y dice que no se agrupa por parecido"  "quien es quien lo dice una persona"  cat "$SUITE/tools/tracker.mjs"
+
+# E18-E19 · AC-04 · la comprobacion va en UNA direccion. La asimetria es lo que impide que
+# «firmantes:» y «personas» se conviertan en dos copias del mismo hecho.
+chk   "verify-suite exige firmante ⇒ persona"  "puede firmar y no esta declarado"  cat "$SUITE/tools/verify-suite.mjs"
+chk   "…y dice que la direccion es deliberada"  "NO EN LA CONTRARIA"  cat "$SUITE/tools/verify-suite.mjs"
+chkno "…y NO exige persona ⇒ firmante"     "no puede firmar y esta declarado"  cat "$SUITE/tools/verify-suite.mjs"
+# Sin personas declaradas no se comprueba nada: un proyecto de una persona no declara la tabla.
+chk   "sin personas no se comprueba"       "no se comprueba nada"  cat "$SUITE/tools/verify-suite.mjs"
+
+# E20 · las tres identidades de ESTE repositorio, declaradas de verdad.
+chk   "el registro declara personas"       '"personas"'  sh -c 'cat "$1/docs/implementation/REGISTRY.json"' _ "$RAIZ_REAL"
+chk   "…con las tres identidades"          "albe.mtz@gmail.com"  sh -c 'cat "$1/docs/implementation/REGISTRY.json"' _ "$RAIZ_REAL"
+
+# LEX-R21 · el vocabulario en LEXICON, y antes que el codigo.
+chk   "«personas» esta en LEXICON"         "personas"          cat "$SUITE/LEXICON.md"
+chk   "…y que el par casa ENTERO"          "casa entero"       cat "$SUITE/LEXICON.md"
+chk   "…y que no es «firmantes:»"          "NO es"             cat "$SUITE/LEXICON.md"
+chk   "…y que no dice que puede nadie"     "no dice qué puede" cat "$SUITE/LEXICON.md"
+
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
 # checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que

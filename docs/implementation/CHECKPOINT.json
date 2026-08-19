@@ -3,25 +3,18 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
-  "sha": "4687495389154fcd715bb91d77082df505c395d8",
-  "sha_corto": "4687495",
+  "sha": "c5d6bd771fa1ff4f3e1459b460e0c6f87a2c4a4b",
+  "sha_corto": "c5d6bd7",
   "sucio": true,
   "archivos": [
     "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-18"
 }
