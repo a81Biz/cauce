@@ -3,18 +3,21 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
-  "sha": "306b95796ddfacedba70687a0a1a4399dd0bd255",
-  "sha_corto": "306b957",
+  "sha": "57abee6ab09b307201427da37260763101774428",
+  "sha_corto": "57abee6",
   "sucio": true,
   "archivos": [
     "changes/PT-064-de-quien-es-cada-commit/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-18"
 }
