@@ -896,3 +896,18 @@ principio de la sesión (PRs #93 y #108).
 `EP-015`, sobre **40 transiciones**: **cero**. `tracker avanzar` se niega sin `--nota`.
 
 **Dónde queda:** `G4` de `EP-015` con VoBo del firmante. Publicar **no** entra: no se pidió.
+
+## 2026-08-18 · `8.2.0` PUBLICADA · `EP-015` cerrado del todo
+
+Autorizado por Alberto Martínez: *«tienes mi VoBo para terminar y publicar correctamente lo
+necesario»*. `G4` en `main` (PR #114, tag `v8.2.0`) y **publicada en npm**.
+
+**El primer intento de publicar FALLÓ, y enseñó algo.** Cuatro casos de `tracker coste` en rojo
+—los mismos que pasaban en `verificacion.yml`—. `publicar.yml` clonaba en **superficial** y esos
+casos **derivan del historial** (`PT-057`): sin historia no encuentran nada. `verificacion.yml` ya
+usaba `fetch-depth: 0` por otra razón, así que **el verde de uno no decía nada del otro**.
+
+Es el mismo patrón que `EP-015` encontró tres veces —probar donde trabaja el agente y no donde se
+decide— y esta es la cuarta, en el sitio más caro: la puerta de publicación. Corregido en PR #115
+antes de republicar.
+
