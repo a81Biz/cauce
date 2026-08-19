@@ -5,13 +5,12 @@
   "status": "READY",
   "phase": 5,
   "fase": "Implementación",
-  "rama": "trabajo",
-  "sha": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
-  "sha_corto": "7735ff4",
+  "rama": "fix/alberto-martinez/PT-076-el-arnes-no-escribe-en-el-repositorio-real",
+  "sha": "45dd14608179c07b47e52d4fabd00794b0c24ee7",
+  "sha_corto": "45dd146",
   "sucio": true,
   "archivos": [
-    "changes/PT-076-el-arnes-no-escribe-en-el-repositorio-real/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/CHECKPOINT.json"
   ],
   "compuerta": null,
   "produce": [],
