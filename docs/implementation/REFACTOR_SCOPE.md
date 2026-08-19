@@ -55,6 +55,6 @@ cada fila **espeja** la del registro (`SUITE-R35`).
 | PT-060 | CHORE | S2 | INTEGRATED | EP-015 | SESSION.json y el handoff derivado: la sesion como recurso efimero, con su propia maquina de estados |
 | PT-061 | CHORE | S1 | INTEGRATED | EP-016 | Quien es quien: la identidad de una persona se DECLARA en el registro y se reconcilia con git |
 | PT-062 | CHORE | S1 | INTEGRATED | EP-016 | Rangos de ID reservados por persona: el registro sigue asignando, sin namespacear el identificador |
-| PT-063 | CHORE | S1 | IN_PROGRESS | EP-016 | El usuario vive en la rama de tarea: <type>/<usuario>/PT-NNN-slug |
+| PT-063 | CHORE | S1 | INTEGRATED | EP-016 | El usuario vive en la rama de tarea: <type>/<usuario>/PT-NNN-slug |
 | PT-064 | CHORE | S2 | READY | EP-016 | De quien es cada commit: el coste, el precedente y el techo dejan de mezclar personas |
 | PT-065 | CHORE | S2 | READY | EP-016 | La sesion es de alguien: SESSION.json deja de ser uno para todos |
