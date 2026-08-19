@@ -6,13 +6,13 @@
   "phase": 10,
   "fase": null,
   "rama": "trabajo",
-  "sha": "d7f231970ce295674222f3fefa5f1367229743e8",
-  "sha_corto": "d7f2319",
+  "sha": "33cf8f2e65936620c4c4acc74fa8985638ad6703",
+  "sha_corto": "33cf8f2",
   "sucio": true,
   "archivos": [
-    "docs/implementation/BACKLOG.md",
-    "docs/implementation/REFACTOR_SCOPE.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/SESSION.json",
+    "docs/implementation/SESSION_LOG.md",
+    "docs/implementation/evidence/EP-015/"
   ],
   "compuerta": null,
   "produce": [],

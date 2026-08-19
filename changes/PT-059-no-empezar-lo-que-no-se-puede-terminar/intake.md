@@ -8,11 +8,11 @@ id: PT-059
 type: CHORE
 epic: EP-015
 track: STANDARD
-status: READY
+status: INTEGRATED
 created: 2026-08-18
 structural: no
 suite_version: 8.1.0
-phase: 9
+phase: 10
 ---
 ```
 

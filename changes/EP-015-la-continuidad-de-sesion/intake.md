@@ -157,10 +157,30 @@ VEREDICTO: PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| Regenerar `CORE.md` si alguna tarea toca `LEXICON`, `RULES` o `PHASES` | pendiente |
-| **El criterio de éxito, ejecutado**: el escenario de trece pasos de la especificación, de verdad y con su evidencia | pendiente |
-| **Cobrar la medida de `EP-014`**: cuántas veces volvió a cazar `FDGE-R52` la misma transición | pendiente |
-| Qué queda para `EP-016`, con lo aprendido | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | **8.2.0** · `MINOR`: ninguna regla nueva ni modificada, y nada que rompa |
+| Regenerar `CORE.md` si alguna tarea toca `LEXICON`, `RULES` o `PHASES` | **hecho** · las cinco tocaron `LEXICON`; `PT-060` además `PHASES` e `INSTALL`. 245 reglas |
+| **El criterio de éxito, ejecutado**: el escenario de la especificación, de verdad y con su evidencia | **hecho** · `evidence/EP-015/criterio-de-exito-ejecutado.txt`, con **dos intentos fallidos declarados** y lo que **no** demuestra |
+| **Cobrar la medida de `EP-014`**: cuántas veces volvió a cazar `FDGE-R52` la misma transición | **cero, sobre 40 transiciones** · en `EP-014` fueron tres. `tracker avanzar` hace la nota uno de sus siete actos y se niega sin `--nota`: el olvido dejó de ser **posible** |
+| Qué queda para `EP-016`, con lo aprendido | **declarado abajo** |
+
+## Qué queda para `EP-016`, con lo aprendido
+
+`EP-016` es la topología multiusuario, y este lote le deja tres cosas dichas:
+
+**Lo que ya no hace falta discutir.** `SESSION.json` es de **una** sesión: al abrir se sobrescribe.
+Con dos personas trabajando eso no basta, y el sitio donde se decide qué hacer con ello es
+`EP-016` — con la decisión 2 del firmante ya tomada (rangos reservados por persona, sin
+namespacear el identificador).
+
+**Un hueco que este lote midió y no cerró.** «Un día» sigue siendo la aproximación a «una sesión»
+cuando nadie abrió una. Con varias personas empeora: el día de dos personas son dos sesiones que
+`porSesion()` cuenta como una, y el techo histórico —del que depende `AC-06` de `PT-059`— sale
+inflado. No se arregla aquí porque arreglarlo bien es saber **de quién** es cada commit, que es
+exactamente lo que `EP-016` va a construir.
+
+**Y una advertencia de método, no de código.** Tres tareas de este lote encontraron que su
+enunciado era imposible o su señal estaba contaminada, y las tres lo descubrieron **midiendo en
+`PHASE 2`**, no leyendo. `EP-016` toca ramas y permisos, donde una suposición equivocada no se
+nota hasta que alguien pierde trabajo.
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.
