@@ -328,6 +328,46 @@ responde de ella.
 la identidad de un agente de la de su persona, esta deuda se cierra sola; forzarlo antes
 produce un verde que no significa nada.
 
+### `TD-15` · Tres de los seis componentes no se han ejecutado nunca
+
+Contado el 2026-08-19, no estimado:
+
+```
+$ node -p "require('./docs/implementation/REGISTRY.json').counters"
+{ PT:76, EP:17, QA:0, QR:0, QD:0, H:0, E:0, P:0, R:0, INC:0 }
+
+QA/    solo README.md          PTSA/  solo README.md          ROADMAP.md  no existe
+```
+
+`Foundation` y `FDGE` llevan 76 tareas y dos ejecuciones completas. **`FQAGE`, `PTSA` y `FPGE`
+no han corrido ni una vez**, y sus verificadores lo dicen con claridad:
+
+```
+verify-ptsa  → PTSA/ existe pero no contiene una auditoria (sin RESUMEN.md ni Products/)
+verify-qa    → No hay QA/ ni ROADMAP.md: nada que verificar
+```
+
+**Por qué importa para aprobar la `9.0.0`, y no es simetría por la simetría.** `PTSA` es
+literalmente el componente que **audita los productos contra la Declaración de Valor**. Esa
+declaración existe y está firmada —`P-001` marco normativo, `P-002` procedimiento ejecutable,
+`P-003` verificación mecánica, `P-004` paquete e instalación—, con su criterio de validez
+escrito para cada uno. Nadie los ha auditado nunca contra ella. «Aprobar la versión» sin eso es
+aprobar que las herramientas corren, no que el producto sirve.
+
+**Los tres no están en el mismo caso:**
+
+| Componente | Situación |
+|:---|:---|
+| `PTSA` | **Aplica y no se ha hecho.** Hay Declaración de Valor firmada y cuatro productos que auditar |
+| `FPGE` | **Aplica y no se ha hecho.** Hay evidencia `FDGE` de sobra —76 tareas, `HISTORY`, `INCIDENTS`, los tres índices— para derivar un `ROADMAP` |
+| `FQAGE` | **Probablemente no aplica**, y ahí está el defecto: `QA-R01` dice que opera «solo desde el navegador, nunca lee código», y cauce no tiene interfaz. Pero eso **no está declarado en ninguna parte**: `verify-qa` responde «nada que verificar», que es silencio, no una declaración. Un componente inaplicable tiene que decirlo, igual que `05-UI-UX-Brief` dice por qué no existe |
+
+**Recomendación:** al cerrar `EP-017`, encadenar el ciclo que `CORE.md` ya prescribe —«`[CIERRA]`
+→ el lote pasa a `DONE` y **ENCADENA** `[START QA]` sobre lo entregado»— y recorrer
+`QA → PTSA → FPGE`. Para `FQAGE`, la salida esperada no es una campaña: es la **declaración de
+inaplicabilidad**, comprobable, con el mismo criterio con que el paquete de Foundation declara
+sus tres documentos omitidos.
+
 ## Hechos no determinados   `FND-R01`
 
 Lo que no pudo verificarse con una fuente citable en este repositorio:

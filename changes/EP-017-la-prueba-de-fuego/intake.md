@@ -236,8 +236,29 @@ tarea escribe su intake y PT-069 entrega el generador. NO cubre G4 ni publicar.
 
 ## Cierre del lote
 
-`EP-017` pasa a `CLOSED` cuando las diez estén `INTEGRATED`/`CLOSED` o retiradas
+`EP-017` pasa a `CLOSED` cuando las trece estén `INTEGRATED`/`CLOSED` o retiradas
 explícitamente, con entrada propia en `HISTORY.log`.
+
+### Y al cerrar se ENCADENA el ciclo, que es lo que falta para usar el marco entero
+
+`CORE.md` lo prescribe: «`[CIERRA]` → el lote pasa a `DONE` y **ENCADENA** `[START QA]` sobre lo
+entregado», y `CLAUDE.md` declara el ciclo `FDGE → QA → PTSA → FPGE → FDGE PHASE 1`.
+
+**Tres de los seis componentes no se han ejecutado nunca** (`TD-15`): los contadores `QA`, `QR`,
+`QD`, `H` y `R` están todos a cero, `QA/` y `PTSA/` sólo tienen su `README`, y no hay
+`ROADMAP.md`. Cerrar el lote sin esto aprobaría que las herramientas corren, no que el producto
+sirve — y **`PTSA` es justo el componente que audita los productos contra la Declaración de
+Valor**, que está firmada y nunca se ha usado.
+
+| Orden | Trigger | Qué se espera |
+|:--|:---|:---|
+| 1 | `[START QA]` | **La declaración de inaplicabilidad**, no una campaña: `QA-R01` dice que opera sólo desde el navegador y cauce no tiene interfaz. Hoy `verify-qa` responde «nada que verificar», que es silencio, no una declaración |
+| 2 | `[START PTSA]` | Auditoría de `P-001`..`P-004` contra la Declaración de Valor, con `CORE-PTSA.md` cargado (`SUITE-R25`) y `COVERAGE.md` sin celdas en blanco (`PTSA-R77`) |
+| 3 | `[START FPGE]` | `ROADMAP.md` derivado de la evidencia de los tres componentes |
+
+Ninguno es un `PT` de este lote: son **componentes**, con sus propios identificadores
+(`QD-NNN`, `H-NNN`, `R-NNN`) y sus propias compuertas. Se ejecutan **después** del cierre, sobre
+lo entregado.
 
 Si una se bloquea, **el lote entero se detiene** (`FDGE-R41`) y `EP-017` pasa a `BLOCKED` con la
 causa en `BACKLOG.md`.
