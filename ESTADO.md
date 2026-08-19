@@ -11,7 +11,7 @@ Proyectado el 2026-08-19 · 16 allocation(es) viva(s).
 |:---|:---|:---|:---|:---|:---|
 | PT-019 | CHORE | REOPENED | 1 | — | — |
 | PT-025 | CHORE | DEFERRED | — | — | — |
-| PT-055 | BUG | REOPENED | 6 | fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre | 697604e |
+| PT-055 | BUG | REOPENED | 7 | fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre | 697604e |
 | EP-017 |  | READY | 1 | — | — |
 | PT-066 | BUG | READY | 1 | — | — |
 | PT-067 | BUG | READY | 1 | — | — |
