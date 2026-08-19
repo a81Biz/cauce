@@ -1680,7 +1680,8 @@
         },
         "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
         "fecha": "2026-08-19"
-      }
+      },
+      "branch": "fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre"
     }
   ]
 }

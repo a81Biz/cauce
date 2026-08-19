@@ -2020,3 +2020,87 @@ ocho lotes sin regenerarse.
 Los tres defectos viven en `docs/methodology/tools/`. `SUITE-R06e` no lo automatiza y
 `PHASE 0` no modifica. Quedan propuestos para `EP-017`, que es donde encajan: es la prueba de
 fuego, y los tres han aparecido **ejecutando el marco sobre sí mismo** antes de empezarla.
+
+## 2026-08-19 · sesion abierta en `78fbcd9`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion abierta en `78fbcd9`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `78fbcd9`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```

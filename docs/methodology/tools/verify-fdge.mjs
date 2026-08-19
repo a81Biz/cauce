@@ -1046,7 +1046,19 @@ function checkPT(pt, { gate } = {}) {
     }
   }
 
-  // SUITE-R42 · la OTRA mitad, la que no tenia verificador.
+  // FDGE-R19 · la rama de integracion RECIBE el pull request de cada tarea; no se escribe en
+  // ella. Esta comprobacion nacio buscando la mitad de SUITE-R42 que no tenia verificador —«el
+  // agente no abre el PR ni lo fusiona»— y se emite bajo FDGE-R19 por dos motivos, y el caso
+  // «sin plataforma ⇒ G4 libre de R42» obligo a los dos:
+  //
+  //   1. SUITE-R42 es CONDICIONAL a que el proyecto declare plataforma —declararla es opcional
+  //      y humano, asi que quien no la declara no gana ninguna exigencia—. La topologia de
+  //      ramas no depende de la plataforma: rige siempre.
+  //   2. Es literalmente lo que FDGE-R19 enuncia. Citar la regla equivocada es el defecto que
+  //      SUITE-R53 prohibe, y el mismo que regla.mjs tiene abierto en PT-066.
+  //
+  // De SUITE-R42 queda comprobado lo comprobable: que el PR exista (checkHistory). QUIEN lo
+  // abrio no es determinable desde el repositorio y se declara en TD-14.
   //
   // La regla dice dos cosas y solo se comprobaba la primera —que el PR EXISTA, en checkHistory—.
   // La segunda, «el agente no abre el PR ni lo fusiona», no la miraba nadie.
@@ -1071,7 +1083,7 @@ function checkPT(pt, { gate } = {}) {
     };
     const integracion = REGISTRO?.tracker?.rama_integracion ?? 'trabajo';
     if (gitPT(['rev-parse', '--verify', '--quiet', integracion]) === null) {
-      warn('SUITE-R42', `${pt}: no existe la rama de integracion «${integracion}», asi que no se puede `
+      warn('FDGE-R19', `${pt}: no existe la rama de integracion «${integracion}», asi que no se puede `
         + `comprobar si el trabajo se escribio en ella. Declarala en REGISTRY.tracker.rama_integracion.`);
     } else {
       // El rango es «desde la rama del PT hasta la de integracion», NO la rama entera. La rama
@@ -1086,11 +1098,11 @@ function checkPT(pt, { gate } = {}) {
         .split(/\r?\n/).filter(Boolean);
       const suyos = asuntos.filter((a) => (a.match(/PT-\d{3}/) ?? [null])[0] === pt);
       if (suyos.length) {
-        fail('SUITE-R42', `${pt}: ${suyos.length} commit(s) suyos estan DIRECTAMENTE en «${integracion}» y `
+        fail('FDGE-R19', `${pt}: ${suyos.length} commit(s) suyos estan DIRECTAMENTE en «${integracion}» y `
           + `declara la rama «${enRegistroPT.branch}». La rama de integracion RECIBE el pull request de `
           + `cada tarea (FDGE-R19); no se escribe en ella. El primero: «${suyos[0].slice(0, 60)}».`);
       } else {
-        ok('SUITE-R42', `${pt}: su trabajo no esta escrito directamente en «${integracion}».`);
+        ok('FDGE-R19', `${pt}: su trabajo no esta escrito directamente en «${integracion}».`);
       }
     }
   }
@@ -1100,11 +1112,11 @@ function checkPT(pt, { gate } = {}) {
   // prueba que firmara una persona—: convierte la afirmacion en contrastable.
   if (fase >= 9 && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
     if (!existsSync(join(ptDir(pt), 'acciones-humanas.md'))) {
-      fail('SUITE-R42', `${pt}: en PHASE 9 y sin «acciones-humanas.md». Lo que ningun modo automatiza `
+      fail('EXEC-R07', `${pt}: en PHASE 9 y sin «acciones-humanas.md». Lo que ningun modo automatiza `
         + `se DESCRIBE con su comando exacto (EXEC-R07), y esa descripcion es el unico rastro de que `
         + `el agente se detuvo donde debia en vez de ejecutar.`);
     } else {
-      ok('SUITE-R42', `${pt}: las acciones reservadas al humano estan descritas.`);
+      ok('EXEC-R07', `${pt}: las acciones reservadas al humano estan descritas.`);
     }
   }
 

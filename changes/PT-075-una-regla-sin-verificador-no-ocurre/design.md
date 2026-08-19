@@ -97,4 +97,25 @@ causas, ninguna afinable).
 
 ## Delta respecto a la estrategia
 
-Ninguna. `B4` estaba en la estrategia como complemento y aquí tiene forma de artefacto.
+**Una, y la impuso un caso que ya existía.** `B3` y `B4` se diseñaron para emitirse bajo
+`SUITE-R42`. Al ejecutar la batería completa cayó el caso «sin plataforma ⇒ G4 libre de R42»,
+cuyo comentario dice: *«Sin plataforma declarada, G4 no gana ninguna exigencia. Es la garantía
+de todo proyecto que no espeja: sin este caso, la regla nueva rompería a todos los destinos ya
+instalados.»*
+
+Tenía razón dos veces:
+
+1. **`SUITE-R42` es condicional** a que el proyecto declare plataforma —declararla es opcional
+   y humano—. La topología de ramas y el comando descrito **no** dependen de la plataforma:
+   rigen siempre. Emitirlos bajo `SUITE-R42` los hacía desaparecer justo en los proyectos que
+   no espejan.
+2. **Estaba citando la regla equivocada.** «La rama de integración recibe el pull request de
+   cada tarea; no se escribe en ella» es literalmente `FDGE-R19`. «Lo que no se automatiza se
+   describe» es `EXEC-R07`. Citar mal es el defecto que `SUITE-R53` prohíbe — y el mismo que
+   `regla.mjs` tiene abierto en `PT-066`.
+
+`B3` pasa a emitirse como **`FDGE-R19`** y `B4` como **`EXEC-R07`**. De `SUITE-R42` queda
+comprobado lo comprobable —que el PR exista— y declarado lo que no —`TD-14`—.
+
+**No debilita lo pedido:** las dos reglas siguen teniendo quien las ejecute, y ahora además con
+el ID correcto y sin depender de que el proyecto declare plataforma.

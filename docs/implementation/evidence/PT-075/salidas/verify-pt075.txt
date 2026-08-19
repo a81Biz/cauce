@@ -1,0 +1,2 @@
+  ✓ FDGE-R54       PT-075: viabilidad SAFE · medida contra 258be16.
+  ✓ SUITE-R42      PT-075: su trabajo no esta escrito directamente en «trabajo».
