@@ -3,18 +3,25 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
-  "sha": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
-  "sha_corto": "7735ff4",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "fix/alberto-martinez/PT-076-el-arnes-no-escribe-en-el-repositorio-real",
+  "sha": "6743f93adbf01d91ae96149b8b9305c0b0f94713",
+  "sha_corto": "6743f93",
   "sucio": true,
   "archivos": [
     "changes/PT-076-el-arnes-no-escribe-en-el-repositorio-real/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-076/manifest.json",
+    "docs/implementation/evidence/PT-076/salidas/huella.txt",
+    "docs/implementation/evidence/PT-076/salidas/selftest-completo.txt"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-19"
 }
