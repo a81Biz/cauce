@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 76,
+    "PT": 77,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1844,7 +1844,7 @@
       "severity": "S1",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 5,
+      "phase": 6,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -1903,6 +1903,40 @@
         "fecha": "2026-08-19"
       },
       "issue": 138
+    },
+    {
+      "id": "PT-077",
+      "slug": "la-transicion-mira-lo-que-la-consulta-bloquea",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S2",
+      "complexity": "TRIVIAL",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "La transicion mira lo que la consulta bloquea: avanzar ignora el STATE_MISMATCH",
+      "origin": "Encontrado el 2026-08-19 ejecutando: tracker siguiente BLOQUEO la transicion de PT-075 por STATE_MISMATCH y tracker avanzar la hizo igual. La guarda de PT-056 vive solo en siguienteDe (tracker.mjs:140-143); avanzar, que es la unica accion que hace los cinco actos de una transicion, no la consulta. Misma familia que PT-075: una comprobacion correcta que no esta donde decide.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1577,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      },
+      "issue": 139
     }
   ]
 }

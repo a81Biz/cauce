@@ -2,12 +2,111 @@
   "pt": "PT-075",
   "generated": "2026-08-19",
   "criteria": [
-    { "ac": "AC-01", "statement": "La consulta de viabilidad tiene una fase que la invoca y algo que falla si no se invoco", "scenarios": ["E1", "E2"], "tests": ["selftest.sh:PHASE 4 cita la viabilidad", "selftest.sh:…y el prompt de G2 tambien", "selftest.sh:…y la regla existe con su severidad"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
-    { "ac": "AC-02", "statement": "El veredicto de viabilidad queda registrado por tarea, no solo impreso", "scenarios": ["E3", "E4", "E5"], "tests": ["selftest.sh:sin viabilidad registrada, G2 falla", "selftest.sh:…pero antes de G2 solo avisa", "selftest.sh:con viabilidad registrada, G2 pasa"], "evidence": ["salidas/verify-pt075.txt", "salidas/inversa.txt"], "verified": true },
-    { "ac": "AC-03", "statement": "Un acto del agente hacia la plataforma que ninguna fase prescribe se detecta", "scenarios": ["E6", "E8", "E9", "E10", "E11"], "tests": ["selftest.sh:UNSAFE en PHASE 5 detiene", "selftest.sh:un PT escrito en la rama de integracion falla", "selftest.sh:…pero lo integrado por su PR no", "selftest.sh:…y sin rama declarada tampoco se acusa", "selftest.sh:en PHASE 9 sin acciones-humanas.md, falla"], "evidence": ["salidas/verify-pt075.txt", "salidas/inversa.txt"], "verified": true },
-    { "ac": "AC-04", "statement": "Las dos reglas dejan de estar en la lista de las que nada ejecuta", "scenarios": ["E12"], "tests": ["audit --sin-verificar"], "evidence": ["salidas/audit-sin-verificar.txt"], "verified": true, "nota": "Cobertura mecanica 112/181 -> 113/182. FDGE-R54 entra al universo y sale cubierta." },
-    { "ac": "AC-05", "statement": "La comprobacion inversa esta hecha", "scenarios": ["inversa"], "tests": ["revertidos los tres bloques de verify-fdge, caen E3, E8 y E11"], "evidence": ["salidas/inversa.txt"], "verified": true },
-    { "ac": "AC-06", "statement": "No se inventa una comprobacion que no puede funcionar", "scenarios": ["E9", "E10"], "tests": ["selftest.sh:…pero lo integrado por su PR no", "selftest.sh:…y sin rama declarada tampoco se acusa"], "evidence": ["salidas/inversa.txt"], "verified": true, "limite": "Los dos casos prueban que no acusa a trabajo correcto EN LA TOPOLOGIA DE ESTE REPOSITORIO. Que no produzca falsos positivos en otra no se puede comprobar desde aqui: PT-072 es la primera ocasion." }
+    {
+      "ac": "AC-01",
+      "statement": "La consulta de viabilidad tiene una fase que la invoca y algo que falla si no se invoco",
+      "scenarios": [
+        "E1",
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:PHASE 4 cita la viabilidad",
+        "selftest.sh:…y el prompt de G2 tambien",
+        "selftest.sh:…y la regla existe con su severidad"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El veredicto de viabilidad queda registrado por tarea, no solo impreso",
+      "scenarios": [
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:sin viabilidad registrada, G2 falla",
+        "selftest.sh:…pero antes de G2 solo avisa",
+        "selftest.sh:con viabilidad registrada, G2 pasa"
+      ],
+      "evidence": [
+        "salidas/verify-pt075.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un acto del agente hacia la plataforma que ninguna fase prescribe se detecta",
+      "scenarios": [
+        "E6",
+        "E8",
+        "E9",
+        "E10",
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:UNSAFE en PHASE 5 detiene",
+        "selftest.sh:un PT escrito en la rama de integracion falla",
+        "selftest.sh:…pero lo integrado por su PR no",
+        "selftest.sh:…y sin rama declarada tampoco se acusa",
+        "selftest.sh:en PHASE 9 sin acciones-humanas.md, falla"
+      ],
+      "evidence": [
+        "salidas/verify-pt075.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Las dos reglas dejan de estar en la lista de las que nada ejecuta",
+      "scenarios": [
+        "E12"
+      ],
+      "tests": [
+        "audit --sin-verificar"
+      ],
+      "evidence": [
+        "salidas/audit-sin-verificar.txt"
+      ],
+      "verified": true,
+      "nota": "Cobertura mecanica 112/181 -> 113/182. FDGE-R54 entra al universo y sale cubierta."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La comprobacion inversa esta hecha",
+      "scenarios": [
+        "inversa"
+      ],
+      "tests": [
+        "revertidos los tres bloques de verify-fdge, caen E3, E8 y E11"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-06",
+      "statement": "No se inventa una comprobacion que no puede funcionar",
+      "scenarios": [
+        "E9",
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:…pero lo integrado por su PR no",
+        "selftest.sh:…y sin rama declarada tampoco se acusa"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "limite": "Los dos casos prueban que no acusa a trabajo correcto EN LA TOPOLOGIA DE ESTE REPOSITORIO. Que no produzca falsos positivos en otra no se puede comprobar desde aqui: PT-072 es la primera ocasion."
+    }
   ],
   "no_verificado": [
     {
@@ -24,6 +123,11 @@
       "afirmacion": "Que el «medido_en» de los veredictos registrados hoy apunte a la sesion correcta.",
       "por_que": "NO apunta, y se sabe: «viabilidad» lee SESSION.json, el huerfano. «tracker sesion» dice 41aeaa8 y «viabilidad» dice 258be16. Esta fuera de alcance a proposito —PT-068 AC-07 y PT-074 AC-04— y por eso el campo medido_en se registra: cuando se corrija, quedara constancia de contra que se midio cada veredicto anterior.",
       "donde": "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/intake.md"
+    },
+    {
+      "afirmacion": "Que avanzar respete el STATE_MISMATCH que siguiente bloquea.",
+      "por_que": "Encontrado ejecutando ESTA tarea: tracker siguiente bloqueo su transicion de PHASE 5 a 6 y tracker avanzar la hizo igual. La guarda de PT-056 vive solo en siguienteDe. Es la misma familia que PT-075 —una comprobacion que no esta donde decide— pero es otra tarea: meterlo aqui seria expandir el alcance a mitad de PHASE 6.",
+      "donde": "changes/PT-077-la-transicion-mira-lo-que-la-consulta-bloquea/intake.md"
     }
   ],
   "desviaciones_de_procedimiento": [
@@ -43,5 +147,11 @@
       "detalle": "Deshacer ese commit con «git reset --hard» borro todas las ediciones sin commitear: RULES.md, PHASES.md, FDGE-Prompts.md, CORE.md, tracker.mjs y verify-fdge.mjs. Se rehizo desde los scripts. Desde entonces se commitea antes de tocar ninguna rama."
     }
   ],
-  "suite": { "passed": null, "failed": null, "skipped": 0, "coverage": null, "baseline": 989 }
+  "suite": {
+    "passed": 989,
+    "failed": 0,
+    "skipped": 0,
+    "coverage": 989,
+    "baseline": 976
+  }
 }

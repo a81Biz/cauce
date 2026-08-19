@@ -6,6 +6,7 @@
 | Corregir el denominador de `audit` | `PT-067` |
 | Que `viabilidad` lea la marca de sesión correcta | `PT-068` `AC-07` · `PT-074` `AC-04` |
 | Determinar quién abrió un pull request | `TD-14` |
+| Que `avanzar` respete el `STATE_MISMATCH` que `siguiente` bloquea | `PT-077` |
 | Cambiar los umbrales de `SAFE`/`MARGINAL`/`UNSAFE` | — |
 | Medir el contexto disponible del modelo | — |
 
