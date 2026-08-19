@@ -1,21 +1,22 @@
 {
-  "pt": "PT-059",
+  "pt": "PT-060",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "871159b34465f8cd800950897c4b86d618c977b4",
-  "sha_corto": "871159b",
+  "status": "IN_PROGRESS",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
+  "sha": "ea4e86717a2edd27b77d06d78864fae1ec4c8769",
+  "sha_corto": "ea4e867",
   "sucio": true,
   "archivos": [
-    "docs/implementation/BACKLOG.md",
-    "docs/implementation/REFACTOR_SCOPE.md",
+    "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PT-059 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }
