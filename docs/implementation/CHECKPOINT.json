@@ -3,18 +3,19 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
-  "sha": "306b95796ddfacedba70687a0a1a4399dd0bd255",
-  "sha_corto": "306b957",
+  "sha": "57abee6ab09b307201427da37260763101774428",
+  "sha_corto": "57abee6",
   "sucio": true,
   "archivos": [
     "changes/PT-064-de-quien-es-cada-commit/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }
