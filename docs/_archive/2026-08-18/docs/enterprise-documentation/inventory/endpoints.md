@@ -1,6 +1,6 @@
 # inventory/endpoints — no aplica
 
-> Foundation `PHASE 5` · 2026-08-19 · suite 9.0.0 · segunda ejecución
+> Foundation `PHASE 5` · 2026-08-13
 
 **Este sistema no expone endpoints.** No hay API HTTP, ni RPC, ni cola de mensajes. Por eso el
 paquete de Foundation omite `08-API-Catalog.md`, que es su documento condicional

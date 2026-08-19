@@ -1,6 +1,6 @@
 # inventory/routes — no aplica
 
-> Foundation `PHASE 5` · 2026-08-19 · suite 9.0.0 · segunda ejecución
+> Foundation `PHASE 5` · 2026-08-13
 
 **Este sistema no tiene rutas.** No hay servidor HTTP, ni router, ni interfaz de usuario: cauce
 es un paquete npm con un binario de línea de comandos y un cuerpo de documentos.

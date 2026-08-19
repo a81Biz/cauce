@@ -1,6 +1,6 @@
 # 11-Conventions — convenciones del codebase
 
-> Foundation `PHASE 4` · 2026-08-19 · suite 9.0.0 · segunda ejecución
+> Foundation `PHASE 4` · 2026-08-13 · suite 5.2.3
 > Convenciones **observadas**, con ejemplo real de este repositorio. Lo que aquí se declara
 > `RULE-nn` es Hard Rule del codebase (`LEX-R05`), no de la suite.
 
@@ -11,7 +11,7 @@ cauce/
 ├── bin/cauce.mjs                    el binario publicado · único entry point
 ├── .github/workflows/               verificacion.yml (bloquea) · publicar.yml (manual)
 ├── docs/
-│   ├── methodology/                 EL PRODUCTO · 36 documentos + tools/ con 16 herramientas
+│   ├── methodology/                 EL PRODUCTO · 34 documentos + tools/ con 15 herramientas
 │   ├── enterprise-documentation/    Foundation · este paquete
 │   └── implementation/              ledgers, terreno firmado, registro de instalación
 ├── changes/                         un directorio por PT
@@ -208,4 +208,3 @@ persona a leer el código — y entonces la compuerta cuesta más que saltársel
 | Fecha | Cambio |
 |:---|:---|
 | 2026-08-13 | Creación. Foundation `PHASE 4` sobre suite 5.2.3, tras la instalación autoalojada (`SUITE-R41`). Siete Hard Rules derivadas de defectos reales documentados en las cabeceras de las herramientas y en el `CHANGELOG` |
-| 2026-08-19 | Segunda ejecución de Foundation, sobre suite 9.0.0. **Ninguna Hard Rule nueva ni modificada**: las siete siguen valiendo y ningún defecto de los diez nuevos las contradice. Lo que cambió son cifras —36 documentos, 16 herramientas, 11 454 líneas— y la sección de `tracker` en `06-Backend-Architecture`, que había quedado descrita como una fila de tabla |

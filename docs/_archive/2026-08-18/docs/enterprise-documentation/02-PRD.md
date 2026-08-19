@@ -1,6 +1,6 @@
 # 02-PRD — requisitos de producto, tal como están implementados
 
-> Foundation `PHASE 2` · 2026-08-19 · suite 9.0.0 · segunda ejecución
+> Foundation `PHASE 2` · 2026-08-13 · suite 5.2.3
 > Foundation **descubre, no diseña** (`FND-R02`): esto no es lo que el producto debería hacer,
 > es lo que hace, con la cita que lo evidencia. Las recomendaciones están en
 > [10-Technical-Debt.md](10-Technical-Debt.md).

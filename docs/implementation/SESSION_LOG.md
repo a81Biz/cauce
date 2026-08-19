@@ -1918,3 +1918,105 @@ antes de empezar.
 
 Lo que sí funciona, y es lo que importaba: el handoff dice de qué sesión viene, qué movió, sobre
 qué commit está y que el árbol **corresponde** — si no, `PT-056` habría bloqueado antes.
+
+## 2026-08-18 · sesion abierta en `41aeaa8`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · PHASE 0 · contexto de la sesión que retoma en frío
+
+<!-- cauce:agente -->
+
+```
+último PT integrado   PT-065 (EP-016, CLOSED) · trabajo 41aeaa8
+modo                  SUPERVISED declarado · CON restricción automática EXEC-R14 en vigor
+suite_version         9.0.0 · REGISTRY, package.json y CHANGELOG alineados
+migración             ninguna pendiente (SUITE-R17)
+PTs vivos             3, todos DEFERRED: PT-019, PT-025, PT-055. Ninguno en curso
+Foundation            presente y validada · pt_at_generation 0, hoy 62 cerrados ⇒ ANTIGUA
+grafo                 FRESH · scope «bin, docs/methodology/tools», generado con 48 y el
+                      único PT estructural es PT-034, anterior. 3 días (FDGE-R43)
+comprobaciones        verify-suite limpio · build-core --check sincronizado
+                      verify-fdge --all sin errores (59 PTs) · tracker espejo cuadra
+confianza             ALTA en el estado mecánico · BAJA en Foundation por antigüedad
+```
+
+### `EXEC-R14` lleva en vigor desde `PT-043` y se declaró ausente
+
+La quinta condición de `EXEC-R14` es «Foundation ausente o **con más de 10 PTs de
+antigüedad**». `REGISTRY.foundation.pt_at_generation` es `0` y hoy hay 62 tareas cerradas.
+
+No es nuevo. El `SESSION_LOG` de la sesión de `PT-043` escribió, en líneas consecutivas:
+
+```
+modo         SUPERVISED · sin restricción automática (EXEC-R14): sin INC abierto,
+             sin hotfix con deuda vencida, sin migración pendiente
+Foundation   presente y validada · pt_at_generation 0, hoy 43 integrados ⇒ ANTIGUA
+```
+
+Enumeró **tres** de las cinco condiciones, concluyó que no aplicaba, y dos líneas más abajo
+registró el hecho que la activa. **Ninguna herramienta emite `EXEC-R14`** —ni `EXEC-R11`—, así
+que nada lo contradijo. Se declara aquí en vigor: se opera como `MANUAL` hasta que Foundation
+se regenere. No es un cambio de modo y `CLAUDE.md` no se toca.
+
+### Tres defectos encontrados ejecutando, ninguno leyendo
+
+**1 · `tools/regla.mjs` reporta mal 47 de las 196 reglas del marco.** Una línea,
+[`regla.mjs:55`](../methodology/tools/regla.mjs#L55): `linea.includes(id) && /HARD|SOFT/`.
+
+- **21 reglas existentes se declaran inexistentes**: las 11 de severidad `CHECK` de
+  `RULES.md` —entre ellas `FDGE-R34`, la que `CLAUDE.md` nombra precondición de `G4`, y
+  `SUITE-R13`— y las 10 `EXEC-*`, que en `EXECUTION-MODES.md` son prosa y no llevan
+  severidad en la línea. El mensaje que imprime es una acusación: «*si un mensaje la cita,
+  ese mensaje apunta a una regla que no existe — y eso es un defecto*».
+- **26 devuelven el texto de OTRA regla**, con la cabecera «definida en RULES.md». Gana la
+  primera línea `HARD|SOFT` que **menciona** el ID, no la que lo **define**. `FDGE-R43`
+  devuelve `SUITE-R29`; `FDGE-R19` devuelve `SUITE-R42`.
+
+Lo segundo es lo grave, y el propio archivo lo tiene escrito en un comentario de `PT-051`
+veinte líneas más abajo: «*una linea equivocada y creible es peor que ninguna*».
+`verify-suite` pasa limpio: nada lo cubre.
+
+**2 · `SESSION.json` quedó huérfano y sigue siendo el respaldo de quien no esté declarado.**
+`PT-065` movió la **escritura** a `SESSION-<persona>.json` y dejó la **lectura** con
+`?? SESSION.json` ([`tracker.mjs:1462`](../methodology/tools/tracker.mjs#L1462)). Nadie
+vuelve a escribir ese archivo, así que se congeló con la marca de una sesión ya cerrada.
+Reproducido con un usuario no declarado:
+
+```
+$ GIT_CONFIG_KEY_0=user.name GIT_CONFIG_VALUE_0="github-actions[bot]" tracker sesion
+  sesion desde 258be16 (2026-08-18)
+    commits    8 (MEDIDO)          ← trabajo de OTRA persona, de una sesión CERRADA
+    lineas     2252 (MEDIDO)
+  Otras sesiones abiertas:
+    Alberto Martínez · desde 41aeaa8      ← la real
+    Alberto Martínez · desde 258be16      ← el huérfano: la MISMA persona, dos veces
+```
+
+Rompe `AC-03` de `PT-065` —«todo lo que la sesión deriva sale del trabajo de **su**
+persona»— y `AC-06` —«una sesión de otra persona se ve, y **se distingue** de la propia»—.
+Pasó los dos porque `AC-05` pide que con una sola persona nada cambie: con una persona
+declarada el respaldo no se ejercita nunca. Los casos de sesión del `selftest` construyen la
+marca a mano y prueban `sesionDe` y `handoffDeSesion`, que son puras; **ninguno prueba de qué
+archivo sale** — y el propio `out-of-scope` de `PT-065` dice que eso es lo único que cambió.
+
+Es la novena vez del patrón «probar donde trabajo, no donde se decide».
+
+**3 · `sesion abrir` dice un nombre de archivo y escribe otro.** Imprime «`SESSION.json`
+escrito» mientras escribe `SESSION-alberto-martinez.json`
+([`tracker.mjs:1474`](../methodology/tools/tracker.mjs#L1474)), y `sesion cerrar` afirma
+«*SESSION.json NO se borra: la sesion siguiente lo sobrescribe*»
+([`tracker.mjs:1490`](../methodology/tools/tracker.mjs#L1490)), que **ya es falso**. Esto es
+lo que mantuvo invisible al defecto 2: el operador lee el nombre que esperaba.
+
+### Y `BACKLOG.md` declara un estado de dos lotes atrás
+
+Dice «Implementación abierta — `EP-015`» y lista `EP-016` como `DEFERRED`. El registro dice
+las dos `CLOSED`. Es derivado y se regenera; se anota porque es el mismo archivo que ya llevó
+ocho lotes sin regenerarse.
+
+### Qué NO se ha tocado
+
+Los tres defectos viven en `docs/methodology/tools/`. `SUITE-R06e` no lo automatiza y
+`PHASE 0` no modifica. Quedan propuestos para `EP-017`, que es donde encajan: es la prueba de
+fuego, y los tres han aparecido **ejecutando el marco sobre sí mismo** antes de empezarla.

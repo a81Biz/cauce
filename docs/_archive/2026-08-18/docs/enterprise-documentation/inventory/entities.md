@@ -1,6 +1,6 @@
 # inventory/entities — los artefactos que el marco gobierna
 
-> Foundation `PHASE 5` · 2026-08-19 · suite 9.0.0 · segunda ejecución. No hay base de datos: las «entidades» son archivos, y su
+> Foundation `PHASE 5` · 2026-08-13. No hay base de datos: las «entidades» son archivos, y su
 > esquema está en `LEXICON.md` §6.
 
 ## Entidad central

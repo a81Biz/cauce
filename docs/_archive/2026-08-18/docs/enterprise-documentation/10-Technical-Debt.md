@@ -1,12 +1,12 @@
 # 10-Technical-Debt
 
-> Foundation `PHASE 4` · 2026-08-19 · suite 9.0.0 · segunda ejecución
+> Foundation `PHASE 4` · 2026-08-13 · suite 5.2.3
 > **El único documento del paquete donde caben recomendaciones** (`FND-R02`). Todo lo demás
 > describe hechos. Aquí van también los hechos **no determinados** (`FND-R01`).
 
 ## Deuda abierta
 
-### `TD-01` · El alcance del grafo — resuelta en este repositorio, ABIERTA en la herramienta
+### `TD-01` · El grafo cubre 1 de 16 archivos de código
 
 `plan-layout` calculó el alcance `bin` y así se aceptó en `G0`
 ([LAYOUT.md](../implementation/LAYOUT.md), propuesta 2). El grafo tiene 18 nodos sobre
@@ -40,11 +40,9 @@ sirve a todos los proyectos; lo primero, solo a este.
 > [`changes/PT-020-ampliar-el-grafo-a-tools/self-review.md`](../../changes/PT-020-ampliar-el-grafo-a-tools/self-review.md),
 > junto con las **dos de tres** expectativas que no se cumplieron como estaban escritas.
 
-### `TD-02` · `verify-fdge.mjs` concentra siete familias de reglas en 1 618 líneas
+### `TD-02` · `verify-fdge.mjs` concentra siete familias de reglas en 1 027 líneas
 
-Junto a `selftest.sh` (3 541) y `tracker.mjs` (2 070) son el **63 %** de las 11 454 líneas de `tools/`.
-**Actualizado en la segunda ejecución:** en 2026-08-13 eran 1 027 y 1 110, el 39 % de 5 441. El código
-se ha duplicado y el reparto se ha concentrado más, no menos. `verify-fdge` verifica `SUITE-*`, `FND-*`,
+Junto a `selftest.sh` (1 110) son el 39 % del código. `verify-fdge` verifica `SUITE-*`, `FND-*`,
 `FDGE-*`, `INTAKE-*`, `LEX-*`, `EXEC-*` y la instalación.
 
 **Consecuencia:** cada regla nueva lo hace más grande, y no hay frontera natural donde partirlo.
@@ -56,8 +54,7 @@ crea cinco archivos que se importan entre sí y un fallo de composición nuevo.
 ### `TD-03` · No hay pruebas unitarias
 
 La verificación es de extremo a extremo: `selftest.sh` construye un proyecto sintético, inyecta
-un defecto y comprueba que el verificador lo caza. **697 casos** contados como `chk`/`chkno`, 959
-contando también las aserciones `PL`/`PLNO`/`trlib`. En la primera ejecución eran 179.
+un defecto y comprueba que el verificador lo caza. 180 casos.
 
 **Consecuencia:** una función interna puede estar mal sin que ningún caso la señale, si su fallo
 no cambia el veredicto. El caso «versión desalineada ⇒ restringido» estuvo así: pasaba sin
@@ -120,60 +117,29 @@ Escribirlo contra ningún caso real es lo que evitó que el de GitHub naciera co
 
 **Recomendación:** implementarlo cuando exista un proyecto que use Azure DevOps, no antes.
 
-### `TD-08` · 60 reglas sin verificador, 51 de ellas `HARD` — y el denominador está incompleto
+### `TD-08` · 62 reglas sin verificador, 52 de ellas `HARD`   — declarada por `EP-013`
 
 `PT-015` escribió verificadores para las reglas `HARD` **que deciden algo**, y el firmante acotó
 ahí el alcance a propósito: *«acotar a las HARD que deciden algo; el resto, deuda medida»*.
-Esto es esa deuda, **recontada** el 2026-08-19 con la herramienta, no estimada:
+Esto es esa deuda, **contada** el 2026-08-15 con la herramienta, no estimada:
 
 ```
 $ node docs/methodology/tools/audit.mjs docs/methodology
-  ejecutadas por una compuerta          112 / 181     · HARD  89 / 148
+  ejecutadas por una compuerta          110 / 181     · HARD  88 / 148
   citadas sin compuerta que las corra     9
-  sin verificador                         60          · HARD  51
+  sin verificador                        62           · HARD  52
 ```
 
-### Y el denominador está incompleto   — hallazgo de la segunda ejecución
-
-`audit` publica la cobertura sobre **181** reglas. Ese número es exactamente el de filas de
-`RULES.md`. Pero el marco define reglas en **tres** documentos:
+Las 62, enumeradas por `audit --sin-verificar`:
 
 ```
-RULES.md            181   contadas
-EXECUTION-MODES.md   15   EXEC-R01..R15   NO contadas
-LEXICON.md           26   LEX-R01..R26    NO contadas
-                    ───
-                    222   universo real
-```
-
-**41 reglas —el 18 %— quedan fuera del denominador**, y entre ellas están las que gobiernan las
-compuertas: `EXEC-R04` (G4 humana sin excepción), `EXEC-R03`, `EXEC-R07` y `EXEC-R14`. Esa
-última llevaba en vigor desde `PT-043` sin que nadie lo viera (`D17`), y no aparecía como
-descubierta porque **no aparecía en absoluto**.
-
-Este documento ya advertía del riesgo, dos párrafos más abajo: *«el día que se redondee a
-"cobertura completa", vuelve a ser un engaño»*. No hizo falta redondear al alza el numerador:
-bastó con que el denominador no incluyera una familia entera.
-
-**Recomendación:** ampliar el universo de `audit` a los tres documentos propietarios —el mismo
-mapa que `regla.mjs` ya tiene escrito en su constante `DUENO`— antes de escribir un solo
-verificador nuevo. Medir sobre una base incompleta ordena mal el trabajo que venga después.
-Va a `EP-017` junto con `D17`.
-
-Las 60 sin verificador, enumeradas por `audit --sin-verificar`:
-
-```
-SUITE-R02 R04 R05 R10 R12 R23 R24 R32 R39
+SUITE-R02 R04 R05 R10 R12 R22 R23 R24 R31 R32 R39
 FND-R01 R02 R06 R07 R09 R12 R16 R17 R18
 FDGE-R02 R05 R06 R09 R11 R12 R13 R14 R16 R20 R21 R28 R30 R32 R35 R37 R38 R40 R41 R46 R47 R50
 INTAKE-R02 R03 R05 R07
 QA-R02 R05 R08 R12 R14 R15 R17 R18
 FPGE-R04 R06 R09 R10 · FIDE-R02 R03 R05 R06
 ```
-
-**Dos menos que en `EP-013`**, y la diferencia es exactamente `SUITE-R22` y `SUITE-R31`: el
-resto de la lista es idéntico. Cuatro lotes de trabajo y la deuda bajó de 62 a 60 — que es lo
-que cabía esperar, porque ninguno de los cuatro se propuso reducirla.
 
 **No todas son deuda del mismo tipo, y mezclarlas sería el error.** Tres grupos:
 
@@ -193,115 +159,6 @@ ejecución. Mientras la cifra esté a la vista, la deuda es una decisión; el d�
 
 **Recomendación:** atacar el primer grupo por orden de daño, no de facilidad, y **no** convertir
 el segundo y el tercero en casillas que comprueban que un archivo existe.
-
-### `TD-09` · `SUITE-R22` se cuenta como cubierta porque el caso que prueba que NO lo está la nombra
-
-Descubierto al recontar `TD-08`. `SUITE-R22` desapareció de la lista de reglas sin verificador
-entre `EP-013` y hoy, y **ninguna herramienta la emite**. La única aparición en `tools/` es esta:
-
-```bash
-# selftest.sh:3314
-chk   "una sin verificador lo DICE"   "ningún verificador"  RG2 SUITE-R22 --donde
-```
-
-Es el caso que comprueba que `regla.mjs --donde` **avisa correctamente cuando una regla no tiene
-verificador**, y usa `SUITE-R22` justamente **porque no lo tiene**. `audit` cuenta esa mención
-como cobertura.
-
-**Consecuencia:** la regla elegida como ejemplo canónico de «sin verificador» figura como
-verificada, y el contador de `TD-08` dice 60 donde debería decir 61. Es la misma familia de
-defecto que `PT-051` ya atajó dentro de `regla.mjs` —una mención literal en un comentario contada
-como emisión— pero en `audit`, y desde `selftest.sh`.
-
-**Recomendación:** `audit` no debe contar `selftest.sh` como fuente de cobertura. El arnés
-**ejercita** verificadores; no es uno. Va a `EP-017` con `TD-08`.
-
-### `TD-10` · `tools/regla.mjs` reporta mal 47 de las 196 reglas que sabe buscar
-
-Una línea, [`regla.mjs:55`](../methodology/tools/regla.mjs#L55):
-
-```js
-if (linea.includes(`\`${id}\``) && /HARD|SOFT/.test(linea)) {
-```
-
-Dos fallos con una causa común —decidir por *mención* y no por *definición*—:
-
-- El filtro de severidad omite **`CHECK`**, que usan 20 reglas de `RULES.md`. Y las 15
-  `EXEC-*` son prosa, sin severidad en la línea. Resultado: **21 reglas existentes se declaran
-  inexistentes**, entre ellas `FDGE-R34`, la que `CLAUDE.md` nombra precondición de `G4`.
-- Gana la primera línea `HARD|SOFT` que **menciona** el ID, no la que lo **define**: **26
-  reglas devuelven el texto de otra** bajo la cabecera «definida en `RULES.md`». `FDGE-R43`
-  devuelve `SUITE-R29`; `FDGE-R19` devuelve `SUITE-R42`.
-
-Lo segundo es lo grave, y el propio archivo lo tiene escrito veinte líneas más abajo, en un
-comentario de `PT-051`: *«una linea equivocada y creible es peor que ninguna»*. El mensaje del
-primer caso es además una acusación: dice que quien cita la regla apunta a una que no existe.
-
-`verify-suite` pasa limpio. Nada lo cubre. Divergencia `D20`. Va a `EP-017`.
-
-### `TD-11` · `SESSION.json` quedó huérfano y sigue siendo el respaldo de quien no esté declarado
-
-`PT-065` movió la **escritura** de la marca de sesión a `SESSION-<persona>.json` y dejó la
-**lectura** con `?? SESSION.json` ([tracker.mjs:1462](../methodology/tools/tracker.mjs#L1462)).
-Nadie vuelve a escribir ese archivo, así que se congeló con la marca de una sesión ya cerrada.
-Reproducido con un usuario no declarado:
-
-```
-$ GIT_CONFIG_KEY_0=user.name GIT_CONFIG_VALUE_0="github-actions[bot]" tracker sesion
-  sesion desde 258be16 (2026-08-18)
-    commits    8 (MEDIDO)        <- trabajo de OTRA persona, de una sesion CERRADA
-    lineas     2252 (MEDIDO)
-  Otras sesiones abiertas:
-    Alberto Martinez · desde 41aeaa8     <- la real
-    Alberto Martinez · desde 258be16     <- el huerfano: la MISMA persona, dos veces
-```
-
-Rompe `AC-03` de `PT-065` —«todo lo que la sesión deriva sale del trabajo de **su** persona»— y
-`AC-06` —«una sesión de otra persona se ve, y **se distingue** de la propia»—. Pasó los dos
-porque `AC-05` pide que con una sola persona nada cambie: con una persona declarada el respaldo
-no se ejercita nunca.
-
-Y hay un agravante de diagnóstico: `sesion abrir` imprime «`SESSION.json` escrito» mientras
-escribe el archivo por persona, y `sesion cerrar` afirma «*SESSION.json NO se borra: la sesion
-siguiente lo sobrescribe*», que **ya es falso**. Eso es lo que mantuvo el defecto invisible.
-
-**Recomendación:** decidir si el respaldo desaparece o si `SESSION.json` se migra y se borra; y
-corregir los dos mensajes, que son los que engañan. Divergencia `D19`. Va a `EP-017`.
-
-### `TD-12` · Los índices derivados no tienen generador, y tres instrucciones se contradicen
-
-`PHASE 8` paso 3 ordena «regenerar `BACKLOG` desde `REGISTRY` y `changes/`». `SUITE-R35` exige
-que los índices espejen el registro, y `verify-fdge` lo comprueba —hoy con 3 divergencias vivas—.
-El `no hacer` del `HANDOFF` prohíbe editarlos a mano, con motivo: `REFACTOR_SCOPE.md` acabó con
-catorce filas pegadas en una línea por hacerlo.
-
-**Ninguna herramienta los genera.** `grep writeFileSync` sobre `tools/` no devuelve una sola
-escritura de `BACKLOG.md`, `DISCOVERY.md`, `ENRICHMENT.md` ni `REFACTOR_SCOPE.md`.
-
-**Consecuencia:** la única acción que cumple las tres instrucciones no existe, así que en la
-práctica se incumple alguna. Hoy `BACKLOG.md` declara `EP-015` abierta y `EP-016` `DEFERRED`
-cuando el registro dice las dos `CLOSED`.
-
-**Recomendación:** `tracker indices` —o el nombre que se decida— que los derive y los escriba,
-como `tracker checkpoint` hace con el checkpoint. Divergencia `D18`. Va a `EP-017`.
-
-### `TD-13` · La tubería que publica corre menos comprobaciones que la que verifica
-
-```
-verificacion.yml   patrones · suite · core:check · audit · selftest · secretos ·
-                   espejo · verify-fdge --all                                     8
-publicar.yml       suite · core:check · audit · selftest · secretos               5
-```
-
-Al publicar **no** corren `verify:patrones`, `tracker espejo` ni **`verify-fdge --all`** — la que
-`FDGE-R34` llama precondición de `G4`.
-
-**Consecuencia:** el verde que autoriza una publicación no es el mismo verde que verifica el
-repositorio. Y ya hay precedente de que la asimetría entre workflows muerde: el `HANDOFF` recoge
-que `publicar.yml` clonaba en superficial y los casos derivados del historial fallaban solo ahí.
-
-**Recomendación:** que `publicar.yml` corra el mismo conjunto, o que declare por escrito cuál
-omite y por qué. Divergencia `D15`. Va a `EP-017`.
 
 ## Hechos no determinados   `FND-R01`
 

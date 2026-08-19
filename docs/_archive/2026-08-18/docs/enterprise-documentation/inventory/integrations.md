@@ -1,6 +1,6 @@
 # inventory/integrations — sistemas externos
 
-> Foundation `PHASE 5` · 2026-08-19 · suite 9.0.0 · segunda ejecución
+> Foundation `PHASE 5` · 2026-08-13
 
 | Integración | Cómo | Dónde | Qué pasa si falta |
 |:---|:---|:---|:---|

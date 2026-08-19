@@ -1,6 +1,6 @@
 # 01-Platform-Overview
 
-> Foundation `PHASE 2` · 2026-08-19 · suite 9.0.0 · segunda ejecución
+> Foundation `PHASE 2` · 2026-08-13 · suite 5.2.3
 > Hechos observados con su fuente (`FND-R01`). Lo no citable está en `10-Technical-Debt.md`.
 
 ## Qué es
@@ -20,7 +20,7 @@ visible.»* Todo lo que sigue es la mecánica de esa frase.
 | | | Fuente |
 |:---|:---|:---|
 | Nombre | `@a81biz/cauce` | [package.json:2](../../package.json#L2) |
-| Versión | 9.0.0 | [package.json:3](../../package.json#L3) · derivada del `CHANGELOG` (`SUITE-R40`) |
+| Versión | 5.2.3 | [package.json:3](../../package.json#L3) · derivada del `CHANGELOG` (`SUITE-R40`) |
 | Binario | `cauce` → `bin/cauce.mjs` | [package.json:19-21](../../package.json#L19-L21) |
 | Contenido publicado | `bin`, `docs/methodology`, `README.md`, `LICENSE`, `NOTICE` · excluye `docs/methodology/.claude` | [package.json:22-29](../../package.json#L22-L29) |
 | Licencia | Apache-2.0 | [LICENSE](../../LICENSE) · [NOTICE](../../NOTICE) |
@@ -50,7 +50,7 @@ por el marco** — él mismo.
 
 | Plano | Qué es | Dónde vive |
 |:---|:---|:---|
-| Producto | Los 36 documentos y las 16 herramientas que se publican | `docs/methodology/` · `bin/` |
+| Producto | Los 34 documentos y las 15 herramientas que se publican | `docs/methodology/` · `bin/` |
 | Proyecto gobernado | El registro, el terreno firmado, la evidencia y este paquete de Foundation | `docs/implementation/` · `docs/enterprise-documentation/` · `changes/` · `evidence/` |
 
 La distinción no es formal: decide a qué documento obedece cada cosa. `RULES.md` y `LEXICON.md`
