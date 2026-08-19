@@ -1,21 +1,22 @@
 {
-  "pt": "PT-060",
+  "pt": "PT-061",
   "type": "CHORE",
-  "epic": "EP-015",
+  "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
-  "sha": "8ab60488a74df9fd12661fdfcf500eb9a988ba17",
-  "sha_corto": "8ab6048",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
+  "sha": "d0cbd9898fe27d741ea67a3d62da96e1e84f35e8",
+  "sha_corto": "d0cbd98",
   "sucio": true,
   "archivos": [
-    "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }

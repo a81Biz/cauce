@@ -5,13 +5,16 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 6 allocation(es) viva(s).
+Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
 | PT-019 | CHORE | DEFERRED | — | — | — |
 | PT-025 | CHORE | DEFERRED | — | — | — |
-| EP-015 | EP | IN_PROGRESS | 1 | — | — |
-| EP-016 | EP | DEFERRED | — | — | — |
+| EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-060 | CHORE | IN_PROGRESS | 9 | chore/PT-060-la-sesion-es-el-worker-no-el-estado | 8ab6048 |
+| PT-061 | CHORE | IN_PROGRESS | 2 | chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia | d0cbd98 |
+| PT-062 | CHORE | READY | 1 | — | — |
+| PT-063 | CHORE | READY | 1 | — | — |
+| PT-064 | CHORE | READY | 1 | — | — |
+| PT-065 | CHORE | READY | 1 | — | — |
