@@ -3,22 +3,18 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
-  "sha": "daa057e8cc034221f8030e526afd7f256a73f05e",
-  "sha_corto": "daa057e",
+  "sha": "96b52695eb6752186d0db383d6054a879af6f17d",
+  "sha_corto": "96b5269",
   "sucio": true,
   "archivos": [
     "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-060/"
+    "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-18"
 }
