@@ -1281,7 +1281,7 @@
       "title": "--gate G4 exige las filas de cierre de TODOS los lotes abiertos, no del que la compuerta evalua",
       "origin": "Encontrado ejecutando la G4 de EP-013 el 2026-08-15, con EP-014 recien abierto. checkEpics() recorre todos los EP-* de changes/ y enG4 = gate === G4 es global, no del lote evaluado (verify-fdge.mjs:640 y :724): asi que --gate G4 EP-013 bloqueo por las cuatro filas de EP-014, que describen trabajo aun no hecho. EP-013 tenia su propia fila en verde. Es el TERCER caso de la familia de PT-029 —una comprobacion que hace imposible el estado que otra obliga a atravesar— y aparecio porque EP-014 se abrio antes del G4, rompiendo la suposicion de que el lote que cierra ES el lote abierto. Se integro con la excepcion DECLARADA y autorizada por Alberto Martinez, no arreglada: arreglarlo habria expandido EP-014, que el firmante prohibio explicitamente. Aplazado por la G4 de EP-013 y por EP-014.",
       "issue": 94,
-      "phase": 1,
+      "phase": 4,
       "epic": "EP-017"
     },
     {
