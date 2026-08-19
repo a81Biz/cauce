@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-068-la-marca-de-sesion-es-de-quien-la-abre",
   "sha": "746c4d74e0f9bdd138434d85c19ecc26a70903a0",
   "sha_corto": "746c4d7",
@@ -21,11 +21,8 @@
     "docs/implementation/evidence/PT-068/salidas/selftest-completo.txt",
     "docs/implementation/evidence/PT-068/self-review.md"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
