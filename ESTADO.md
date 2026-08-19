@@ -22,6 +22,6 @@ Proyectado el 2026-08-19 · 16 allocation(es) viva(s).
 | PT-072 | INVESTIGATION | READY | 1 | — | — |
 | PT-073 | CHORE | READY | 1 | — | — |
 | PT-074 | BUG | READY | 1 | — | — |
-| PT-075 | BUG | READY | 7 | fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre | ab50d99 |
+| PT-075 | BUG | READY | 8 | fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre | ab50d99 |
 | PT-076 | BUG | READY | 1 | — | — |
 | PT-077 | BUG | READY | 1 | — | — |
