@@ -13,7 +13,7 @@ Proyectado el 2026-08-18 · 8 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-062 | CHORE | IN_PROGRESS | 5 | chore/PT-062-los-ids-se-reparten-por-rangos-reservados | d61a241 |
+| PT-062 | CHORE | IN_PROGRESS | 6 | chore/PT-062-los-ids-se-reparten-por-rangos-reservados | 86b8d36 |
 | PT-063 | CHORE | READY | 1 | — | — |
 | PT-064 | CHORE | READY | 1 | — | — |
 | PT-065 | CHORE | READY | 1 | — | — |
