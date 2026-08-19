@@ -1372,7 +1372,7 @@
       "structural": false,
       "suite_version": "8.2.0",
       "epic": "EP-016",
-      "phase": 2,
+      "phase": 3,
       "title": "Quien es quien: la identidad de una persona se DECLARA en el registro y se reconcilia con git",
       "origin": "EP-015 · nada de lo demas se puede derivar sin esto. Medido al abrir el lote: la MISMA persona aparece con TRES identidades en la historia de este repositorio —Alberto Martinez <alberto@a81.biz> 217 commits, a81Biz <albe.mtz@gmail.com> 9, Alberto Martinez <albe.mtz@gmail.com> 1—. «De quien es un commit» no es trivial ni con UNA persona",
       "created": "2026-08-18",

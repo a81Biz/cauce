@@ -3,11 +3,11 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
-  "sha": "d0cbd9898fe27d741ea67a3d62da96e1e84f35e8",
-  "sha_corto": "d0cbd98",
+  "sha": "f4ef6657acc1b5084958787de7ceb63bb72ebd88",
+  "sha_corto": "f4ef665",
   "sucio": true,
   "archivos": [
     "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/intake.md",
@@ -15,8 +15,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-18"
 }
