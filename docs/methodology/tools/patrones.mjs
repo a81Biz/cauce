@@ -177,6 +177,71 @@ export const textoCifra = (c) => (c?.naturaleza === SIN_EVALUAR
   ? SIN_EVALUAR
   : `${c?.valor} (${c?.naturaleza})`);
 
+// ── PT-059 · viabilidad: no empezar lo que no se puede terminar ─────────────
+//
+// «Nunca comenzar una unidad de trabajo que probablemente no pueda completarse dentro del
+// presupuesto disponible.» El problema es que PHASE 2 midio que ese presupuesto NO EXISTE:
+// «disponible = total - gastado» sale SIN EVALUAR siempre, porque el total es el contexto del
+// modelo y el marco no puede medirlo (decision 4 del firmante).
+//
+// Asi que esto NO compara contra un presupuesto. Compara contra el PRECEDENTE: lo mayor que esta
+// sesion ya completo. SAFE no promete que quepa — dice que ya se pudo con algo asi.
+
+export const SAFE = 'SAFE';
+export const MARGINAL = 'MARGINAL';
+export const UNSAFE = 'UNSAFE';
+export const VEREDICTOS = [SAFE, MARGINAL, UNSAFE];
+
+// Cuanto por encima de lo ya completado sigue siendo MARGINAL en vez de UNSAFE. Es un JUICIO,
+// como MINIMO_REFERENCIA en PT-057: nada demuestra que 1.5 sea el numero, y por eso vive aqui
+// con nombre en vez de dentro de un `if`.
+export const HOLGURA = 1.5;
+
+// Estado de TAREA. La tarea NO ESTA FALLANDO: no debe ejecutarse todavia. No es terminal, y
+// tiene que estar en VIVOS — un estado que no sea ni terminal ni vivo desapareceria del tablero
+// sin estar cerrado, que es peor que cualquiera de las dos cosas.
+export const BLOCKED_BY_CONTEXT = 'BLOCKED_BY_CONTEXT';
+
+/**
+ * ¿Se puede empezar esto AHORA? Tres veredictos, y el motivo SIEMPRE.
+ *
+ * `coste` y `precedente` son cifras de PT-058: llevan su naturaleza pegada. `techoHistorico` es
+ * lo mayor que CUALQUIER sesion registrada hizo nunca.
+ *
+ * El ORDEN de las comprobaciones es la parte que importa, y no es de estilo:
+ *   1. AC-06 va PRIMERO — una tarea que nunca cabria no puede salir MARGINAL porque falte el
+ *      precedente, o el bucle infinito que existe para impedir se produce igual.
+ *   2. SIN EVALUAR va ANTES que las comparaciones — comparar null con un numero da false EN
+ *      SILENCIO, y un veredicto correcto por accidente sigue siendo un accidente.
+ */
+export function viabilidadDe(coste, precedente, techoHistorico = null, holgura = HOLGURA) {
+  if (coste?.valor != null && techoHistorico?.valor != null && coste.valor > techoHistorico.valor) {
+    return { veredicto: UNSAFE, nunca: true,
+      motivo: `${coste.valor} supera las ${techoHistorico.valor} de la mayor sesion registrada. `
+        + 'No es que esta sesion vaya justa: ninguna ha hecho nunca tanto. Hay que PARTIR la tarea '
+        + '(el alcance lo firma una persona, INTAKE-R06), no reintentarla.' };
+  }
+  if (coste?.valor == null || precedente?.valor == null) {
+    return { veredicto: MARGINAL, nunca: false,
+      motivo: `no se puede comparar: ${coste?.valor == null ? 'el coste' : 'el precedente'} esta `
+        + 'SIN EVALUAR. NO SE APRUEBA POR OMISION, y tampoco se prohibe sin evidencia — el '
+        + 'presupuesto disponible es SIN EVALUAR siempre, asi que prohibir aqui bloquearia todo.' };
+  }
+  if (coste.valor <= precedente.valor) {
+    return { veredicto: SAFE, nunca: false,
+      motivo: `la sesion ya completo algo de ${precedente.valor}, mayor que ${coste.valor}. `
+        + 'Es PRECEDENTE, no capacidad: no promete que quepa, dice que ya se pudo con algo asi.' };
+  }
+  if (coste.valor <= precedente.valor * holgura) {
+    return { veredicto: MARGINAL, nunca: false,
+      motivo: `${coste.valor} pasa de las ${precedente.valor} ya completadas pero cabe en la `
+        + `holgura (x${holgura}). Solo trabajo ATOMICO: nada que deje algo a medias.` };
+  }
+  return { veredicto: UNSAFE, nunca: false,
+    motivo: `${coste.valor} pasa de la holgura sobre las ${precedente.valor} completadas. Hay `
+      + 'evidencia EN CONTRA, no solo falta de evidencia a favor: checkpoint, handoff y parada.' };
+}
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

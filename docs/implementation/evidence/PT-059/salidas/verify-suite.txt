@@ -1,0 +1,4 @@
+verify-suite — coherencia de la metodología (8.1.0)
+Documentos analizados: 36
+
+Sin errores de coherencia.

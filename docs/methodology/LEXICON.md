@@ -273,6 +273,7 @@ sentido para lo que produce código (`PT`, `EP`); `BLOCKED_DOMAIN`, solo para pr
 | `REOPENED` | Estuvo resuelto y volvió a estar activo. Solo hallazgos y defectos. |
 | `IN_PROGRESS` | Alguien o algo está trabajando en él ahora. |
 | `BLOCKED` | Existe un impedimento externo. No progresa. Requiere razón declarada. |
+| `BLOCKED_BY_CONTEXT` | La tarea **está lista**; el **momento** no. No es un fallo. Lo desbloquea empezar otra sesión. **No terminal**. |
 | `BLOCKED_DOMAIN` | Solo productos PTSA: rechazado por fallo duro de dominio (D1). |
 | `IN_REVIEW` | Trabajo terminado, evidencia producida, esperando revisión. |
 | `VALIDATION_PENDING` | Esperando validación **humana**. Terminal para el agente. |
@@ -296,6 +297,8 @@ stateDiagram-v2
     DEFERRED --> READY
     IN_PROGRESS --> BLOCKED
     BLOCKED --> IN_PROGRESS : impedimento resuelto
+    READY --> BLOCKED_BY_CONTEXT : no cabe en esta sesión
+    BLOCKED_BY_CONTEXT --> READY : otra sesión
     IN_PROGRESS --> IN_REVIEW : evidencia producida
 
     IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre
@@ -646,6 +649,42 @@ propaga en silencio.
 > documentos normativos, incluido `RULES.md`, y siete herramientas— y **cero** en este documento,
 > que es justo lo que `LEX-R21` prohíbe. Declararlas no amplía el marco: lo pone al día con su
 > propia regla.
+
+### 6.5d Viabilidad: `SAFE` · `MARGINAL` · `UNSAFE`   `PT-059`
+
+Antes de empezar una tarea, el marco dice si hay **precedente** de que quepa. Tres veredictos, y
+siempre con su motivo:
+
+```
+SAFE       la sesión ya completó algo de este tamaño
+MARGINAL   pasa de lo ya completado pero cabe en la HOLGURA · solo trabajo atómico
+UNSAFE     hay evidencia EN CONTRA · checkpoint, handoff y parada
+```
+
+**No compara contra un presupuesto, porque no existe.** `disponible = total − gastado` es
+inoperable: el `total` es el contexto del modelo y el marco no puede medirlo, así que sale
+`SIN EVALUAR` **siempre**. Lo que compara es el **precedente** — lo mayor que esta sesión ya
+completó—, que sí es observable. `SAFE` no promete que quepa: dice que ya se pudo con algo así.
+
+**Con una cifra `SIN EVALUAR` el veredicto es `MARGINAL`**, nunca `SAFE` ni `UNSAFE`. Aprobar sería
+aprobar por omisión; prohibir bloquearía **todo trabajo para siempre**, porque el disponible es
+`SIN EVALUAR` siempre — y una compuerta que bloquea siempre se apaga, y entonces no protege el día
+que tiene razón. `MARGINAL` es la respuesta honesta: no apruebo, y no invento un motivo para
+prohibir.
+
+**`UNSAFE` exige evidencia en contra**, que no es lo mismo que ausencia de evidencia a favor.
+
+**`HOLGURA`** · Cuánto por encima de lo ya completado sigue siendo `MARGINAL` en vez de `UNSAFE`.
+Es un **juicio declarado**, como `MINIMO_REFERENCIA`: vive con nombre en el código para que se
+pueda discutir.
+
+**No cabe ahora ≠ no cabría nunca.** Si el coste supera **la mayor sesión jamás registrada**, la
+siguiente sesión dará lo mismo y esperar sería un bucle infinito. Ahí la compuerta pide **partir la
+tarea** — y no la parte: partirla cambia su alcance, y el alcance lo firma una persona
+(`INTAKE-R06`).
+
+Esta es una compuerta de **viabilidad**, no de gobernanza: `G1`..`G4` siguen decidiendo lo que
+decidían.
 
 ### 6.6 Documentos de metodología — `docs/methodology/`
 

@@ -2430,3 +2430,51 @@ No verificado: que alguien USE cifra() en vez de un número pelado —nada oblig
 envuelto no puede mentir—; que los 50 usos en prosa digan la verdad, que quedan sin tocar por
 decisión declarada; que la inversa demuestre E13, porque ese caso siguió verde por casualidad del
 par elegido; y que TRES naturalezas basten para PT-059 y PT-060, que está apostado, no demostrado.
+
+## PT-059 — CHORE: no empezar lo que no se puede terminar
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-059-no-empezar-lo-que-no-se-puede-terminar
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-015 con VoBo del firmante
+Objetivo: la compuerta que detiene ANTES de empezar, con sus tres estados, y el estado de tarea que
+dice que la espera no es un fallo.
+Causa raíz: el lote necesitaba decidir con las cifras que PT-057 y PT-058 dejaron, y no había nada
+que lo hiciera.
+Solución: «viabilidadDe(coste, precedente, techoHistorico)» pura, con SAFE, MARGINAL y UNSAFE y el
+motivo SIEMPRE; «tracker viabilidad PT-NNN» que deriva las tres cifras de git y del registro;
+BLOCKED_BY_CONTEXT como estado de tarea VIVO y no terminal en tracker y verify-fdge.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-059/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): EL ENUNCIADO DE LA TAREA ERA IMPOSIBLE Y HUBO QUE CAMBIAR LA PREGUNTA.
+Se pedía «no comenzar lo que no quepa en el presupuesto disponible», y PHASE 2 midió que ese
+presupuesto NO EXISTE: «disponible = total − gastado» sale SIN EVALUAR siempre, porque el total es
+el contexto del modelo. Ejecutado con las funciones de PT-058, no supuesto. Así que la compuerta no
+compara contra un presupuesto: compara contra el PRECEDENTE —lo mayor que la sesión ya completó—,
+que sí es observable. SAFE no promete que quepa: dice que ya se pudo con algo así.
+LA DECISIÓN DIFÍCIL NO ES LA PRUDENTE. Con una cifra SIN EVALUAR, aprobar sería aprobar por
+omisión; pero PROHIBIR —que suena prudente— bloquearía TODO el trabajo PARA SIEMPRE, porque el
+disponible es SIN EVALUAR siempre. Una compuerta que bloquea siempre se apaga, y entonces no
+protege el día que tiene razón: es el mismo argumento que PT-056 midió con las discrepancias,
+encontrado otra vez en otra forma. MARGINAL es la respuesta honesta, y UNSAFE queda para evidencia
+EN CONTRA, que no es lo mismo que ausencia de evidencia a favor.
+AC-06 RESULTÓ DERIVABLE, que no se esperaba: si el coste supera la mayor sesión JAMÁS registrada,
+no es que esta sesión vaya justa — ninguna ha hecho nunca tanto, y BLOCKED_BY_CONTEXT sería un
+bucle infinito garantizado. Se deriva del historial completo y no de un contador de reintentos, que
+diría «van tres veces» sin distinguir mala suerte de imposibilidad.
+EL ORDEN DE LAS COMPROBACIONES ES PARTE DEL DISEÑO. AC-06 va PRIMERO: si se moviera detrás del SIN
+EVALUAR, una tarea que no cabe en ninguna sesión saldría MARGINAL por faltar el precedente y el
+bucle volvería sin que ningún otro caso se enterara. Hay un caso del arnés que vigila eso y sólo
+eso, y es uno de los cuatro que caen en la inversa.
+Casos: 738 → 784.
+Sin regla nueva: entra vocabulario en LEXICON §4 y §6.5d.
+No verificado: que el veredicto ACIERTE —mide precedente, y la sesión mayor hizo cuatro veces más
+que la menor—; que HOLGURA = 1.5 sea el número, declarado como juicio; que AC-06 se dispare alguna
+vez, porque hoy la mayor referencia es el 7% del techo; que alguien OBEDEZCA un UNSAFE; y que «un
+día» sea buena aproximación a «una sesión» — dos sesiones el mismo día cuentan como una, y el
+precedente hereda ese error entero.

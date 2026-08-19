@@ -431,7 +431,8 @@ function checkValor(foundationLista) {
 // declarar CADA VEZ que algo es nuevo, y eso es justo lo que se olvida a mitad de sesion. Con
 // el default invertido lo raro es abrir y cerrar; y lo que esta abierto lo dice el registro,
 // no la memoria del agente — asi sobrevive a que la sesion termine.
-const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_DOMAIN']);
+// PT-059 · BLOCKED_BY_CONTEXT es VIVO, no terminal: la tarea esta lista y el momento no.
+const VIVOS = new Set(['DRAFT', 'READY', 'REOPENED', 'IN_PROGRESS', 'BLOCKED', 'BLOCKED_BY_CONTEXT', 'BLOCKED_DOMAIN']);
 // LEX-R26 · el checkpoint declara un SHA, y ese SHA tiene que EXISTIR.
 //
 // PT-052 · Un checkpoint que apunta a un commit inexistente miente CON LA AUTORIDAD DE UN DATO
