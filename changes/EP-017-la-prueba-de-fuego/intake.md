@@ -136,17 +136,18 @@ Pares que comparten archivos:
 Orden de ejecución resultante:
   1. PT-075   que las reglas se puedan incumplir en silencio     <- exigido por el firmante
   2. PT-055   la compuerta que va a evaluar el lote entero
-  3. PT-066   la consulta de reglas
-  4. PT-067   la medida de cobertura
-  5. PT-076   que el arnes deje de pisar el estado real   <- bloquea toda medida de sesion
-  6. PT-068   la marca de sesión
-  7. PT-074   la compuerta de viabilidad y su fase
+  3. PT-076   que el arnes deje de pisar el estado real     ┐
+  4. PT-068   la marca la lee quien la abrio                ├ la CADENA de la sesion
+  5. PT-074   el veredicto se espeja y se ve                ┘
+  6. PT-066   la consulta de reglas
+  7. PT-067   la medida de cobertura
   8. PT-069   los índices derivados
   9. PT-070   el alcance del grafo
  10. PT-071   la tubería que publica
  11. PT-072   greenfield
  12. PT-019   legado
  13. PT-073   los tres documentos
+ 14. PT-077   la transicion mira lo que la consulta bloquea
 
 Motivo del orden: dependencia técnica y solapamiento, no prioridad declarada.
 ```
@@ -335,5 +336,33 @@ aquí y en `SESSION_LOG.md`. No se toca `CLAUDE.md`: es restricción temporal, n
 **Viabilidad de las trece:** once `SAFE`, y `PT-072` y `PT-019` `MARGINAL` — las dos pruebas,
 sin precedente `MAJOR` con el que comparar. Sin cambio respecto a la Revisión 1, salvo que
 ahora **consta en el registro** en vez de sólo en este documento.
+
+**Firmado por:** Alberto Martínez, por delegación con constancia.
+
+## Revisión 3 — 2026-08-19
+
+**Qué cambia:** `PT-076`, `PT-068` y `PT-074` suben a los puestos 3, 4 y 5, juntas y en ese
+orden. `PT-066` y `PT-067` bajan. `PT-077` entra en el 14.
+
+**Motivo:** *«sigo sin ver el cálculo de la sesión»*, por tercera vez. Está calculado y
+registrado en las catorce —`FDGE-R54`—, pero **no se ve, y su base está mal**. Tres capas, las
+tres medidas:
+
+1. **No se espeja.** `cuerpoDeIssue` no incluye `viabilidad`, así que desde GitHub el veredicto
+   es invisible. `SUITE-R35` dice que el registro asigna y la plataforma **espeja**: este trozo
+   de estado no lo hace. Es `AC-02` de `PT-074`.
+2. **Se midió contra la sesión huérfana.** Los catorce `medido_en` dicen `258be16`, una sesión
+   cerrada ayer. `SESSION.json` frente a `SESSION-alberto-martinez.json`. Es `AC-07` de `PT-068`.
+3. **Y la marca real la pisa la batería.** `tracker sesion` dice `desde f532dc1 · 0 commits`,
+   que es un commit de hace diez minutos. Es `PT-076`.
+
+**Por qué el orden es este y no otro.** Enseñar el veredicto antes de arreglar la base sería
+mostrar una cifra calculada sobre la sesión equivocada **con formato de dato medido** — que es
+exactamente lo que `PT-058` corrigió y lo que el `no hacer` del `HANDOFF` prohíbe. La cadena va
+de abajo arriba: que la marca no se pise (`PT-076`) → que la lea quien la abrió (`PT-068`) →
+que el veredicto se vea con su `medido_en` (`PT-074`).
+
+`PT-066` y `PT-067` bajan porque no bloquean a nadie: son herramientas de consulta y de medida,
+y ninguna de las tres de la cadena depende de ellas.
 
 **Firmado por:** Alberto Martínez, por delegación con constancia.

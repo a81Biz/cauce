@@ -2830,3 +2830,52 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor, así que
   humana en los tres modos) · G4 pendiente
 Trazabilidad externa: —
+
+## PT-055 — BUG: --gate G4 exige las filas de cierre de TODOS los lotes abiertos
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S2 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que --gate G4 sobre un lote evalúe las filas de cierre DE ESE LOTE. Reabierta dentro
+de EP-017; estaba DEFERRED desde 2026-08-15, integrada entonces con el rojo declarado como
+excepción autorizada, no arreglada.
+
+Causa raíz: DOS defectos con una causa común, y el reporte original solo describía uno.
+  1. verify-fdge NUNCA aceptó un EP-NNN como objetivo: el filtro de posicionales casaba
+     /^PT-\d+$/, así que «--gate G4 EP-013» dejaba targets VACÍO y la herramienta jamás supo
+     qué lote evaluaba.
+  2. Por eso enG4 = gate === 'G4' era global: checkCierreDeLote se llama una vez por cada lote
+     de changes/ y todos veían la misma bandera.
+  La suposición implícita era «el lote que cierra es el único lote abierto». Se sostuvo hasta
+  que EP-014 se abrió antes del G4 de EP-013.
+
+Solución: posicionales acepta PT y EP · LOTES_EVALUADOS sale de los EP nombrados y del «epic»
+  de los PT nombrados · enG4 se acota al lote bajo evaluación · y la herramienta IMPRIME cuál
+  evalúa. Lo último no estaba en el diseño: lo exigió el caso E3 al endurecerlo.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh
+
+Evidencia: evidence/PT-055/ · manifest.json · self-review.md ·
+  salidas/caso-real.txt · salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Demostrado contra el repositorio REAL, no solo el fixture:
+  --gate G4 EP-016  ->  ! SUITE-R45  EP-017 sección vacía   (aviso, no bloquea)
+  --gate G4 EP-017  ->  ✗ SUITE-R45  EP-017 sección vacía   (error, bloquea)
+Inversa: revertido enG4 al alcance global, EP-017 vuelve a bloquear el cierre de EP-016.
+selftest 989 -> 997 casos, cero fallos.
+
+Delta real vs planificado: un cambio más de lo diseñado —imprimir el lote evaluado— y un caso
+  más —E3 partido en dos—. Los dos los pidió el arnés, no el diseño. TRES aserciones estaban
+  mal escritas: miraban si un EP-NNN APARECÍA en la salida en vez del veredicto. Dos pasaban en
+  vacío y una fallaba contra trabajo correcto. Se cazaron porque los casos se ejecutaron en
+  rojo PRIMERO (FDGE-R17), que es lo que en PT-075 no se hizo.
+
+Hallazgo de paso: EP-017 no llevaba suite_version y SUITE-R18 lo avisaba. Sellado a 9.0.0.
+
+Compuertas: G1 2026-08-15 Alberto Martínez (reabierta por lote EP-017) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: —
