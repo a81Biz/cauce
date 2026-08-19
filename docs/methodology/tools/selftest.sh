@@ -2916,6 +2916,52 @@ chk   "…y remite a «tracker personas»"    "los enumera"            cat "$SUI
 chkno "no se toco costeDe"                "export function costeDe.*persona"  cat "$SUITE/tools/tracker.mjs"
 chk   "…y viabilidadDe sigue en patrones" "export function viabilidadDe"      cat "$SUITE/tools/patrones.mjs"
 
+# ─── PT-065 · la sesión es de alguien ──────────────────────────────────────
+# EP-015 lo dejo declarado: «SESSION.json es de UNA sesion: al abrir se sobrescribe. Con dos
+# personas trabajando eso no basta».
+#
+# PHASE 2 reprodujo el conflicto: SESSION.json esta VERSIONADO, asi que la marca de una persona
+# no solo se pierde, SE PROPAGA — conflicto en cada merge, y la resolucion obvia borra la del otro.
+sec "── PT-065 · la sesión es de alguien ──"
+
+# E1-E4 · un archivo por persona. La colision se evita POR CONSTRUCCION.
+PL "el archivo lleva a la persona"        "SESSION-alberto-martinez.json"  "console.log(m.archivoSesion(\"Alberto Martínez\"))"
+PL "…sin persona, el de siempre"          "^SESSION.json$"   "console.log(m.archivoSesion(null))"
+PL "…normalizado igual que las ramas"     "SESSION-alberto-martinez"  "console.log(m.archivoSesion(\"Alberto Martínez\"))"
+PL "dos personas, DOS archivos distintos"  "^true$"  "console.log(m.archivoSesion(\"Bruno\")!==m.archivoSesion(\"Ana\"))"
+
+# E5-E7 · las ajenas se ven. Si cada una solo viera la suya, las dos creerian que trabajan solas.
+MS='[{persona:"A",desde:"x"},{persona:"B",desde:"y"},{desde:"z"}]'
+PL "las ajenas se enumeran"               "\[\"B\"\]"    "console.log(JSON.stringify(m.sesionesAjenas($MS,\"A\").map(x=>x.persona)))"
+PLNO "…y la propia NO"                    "\"A\""        "console.log(JSON.stringify(m.sesionesAjenas($MS,\"A\").map(x=>x.persona)))"
+# Una marca sin persona es la de un proyecto de una sola persona: contarla haria ver una sesion
+# fantasma.
+PL "…y una marca sin persona no es ajena"  "^1$"         "console.log(m.sesionesAjenas($MS,\"A\").length)"
+
+# E9-E12 · la accion, sobre el repositorio real.
+chk   "sesion abrir escribe la marca"     "sesion abierta desde"  TRR sesion abrir
+chk   "…y sesion la lee"                  "sesion desde"          TRR sesion
+chk   "…con las cifras de PT-058"         "MEDIDO"                TRR sesion
+# El texto de las ajenas existe y explica por que se ensenan.
+chk   "el texto de las ajenas existe"     "Otras sesiones abiertas"  cat "$SUITE/tools/tracker.mjs"
+# El texto va partido en dos lineas por el ancho: se busca un fragmento que quepa en UNA.
+chk   "…y dice por que se ensenan"        "trabajan solas"  cat "$SUITE/tools/patrones.mjs"
+# E11 · compatibilidad: si no hay propio, cae a SESSION.json.
+chk   "cae a SESSION.json si no hay propio"  "SESSION.json"       cat "$SUITE/tools/tracker.mjs"
+chk   "…y se dice que es por compatibilidad"  "un proyecto de una persona no cambia nada"  cat "$SUITE/tools/tracker.mjs"
+
+# E13-E14 · AC-04 · el handoff sigue derivado y HANDOFF.md sigue intacto.
+chk   "sesion cerrar sigue dando el handoff"  "en curso"          TRR sesion cerrar
+chk   "…y dice que HANDOFF.md queda intacto"  "INTACTO"           TRR sesion cerrar
+chk   "…y que no borra la marca"          "NO se borra"           TRR sesion cerrar
+
+# LEX-R21 · el vocabulario, y la distincion con LEX-R26 dicha explicitamente.
+chk   "SESSION-<usuario> esta en LEXICON"  "SESSION-<usuario>.json"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que la colision se evita"   "por construcción"        cat "$SUITE/LEXICON.md"
+chk   "…y que las ajenas se ven"           "sesiones ajenas se ven"  cat "$SUITE/LEXICON.md"
+chk   "…y que NO contradice LEX-R26"       "no contradice"           cat "$SUITE/LEXICON.md"
+chk   "…y por que: el checkpoint es de la TAREA"  "la tarea en curso"  cat "$SUITE/LEXICON.md"
+
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
 # checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que

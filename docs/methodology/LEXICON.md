@@ -440,6 +440,10 @@ HISTORY.log            append-only   · un registro por PT cerrado, más las ent
                        los reconoce por ellos, no por su contenido.
 HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
                        responde por el PROYECTO: qué implementación, qué tarea, qué sigue
+SESSION-<usuario>.json sobrescribible · la sesion de UNA persona (§6.5e) · UNA por persona,
+                       no una por dia. Dos personas nunca escriben el mismo archivo, asi que no
+                       hay conflicto que resolver — la colision se evita por construccion
+
 SESSION.json           sobrescribible · el estado de la SESION, no de la tarea (§6.5e)
                        «desde» es lo unico capturado; el resto se deriva de «desde..HEAD»
                        sin el, lo que lleva la sesion es SIN EVALUAR — el dia NO es la sesion
@@ -710,6 +714,21 @@ el pasado sin nada que la respalde.
 **Sin sesión abierta, lo que lleva la sesión es `SIN EVALUAR`.** No se cae al día. Medido: un día
 y una sesión coinciden **por casualidad** cuando la sesión empezó ese día, y el día que no
 coincidan —dos sesiones en una jornada, o una que cruza la medianoche— nada lo notaría.
+
+**La sesión es de alguien** (`PT-065`) · Con `personas` declaradas, la marca vive en
+`SESSION-<usuario>.json`. Y no es un detalle de organización: `SESSION.json` está **versionado**, así
+que con dos personas la marca de una **se propaga** y da conflicto en cada merge — reproducido—, y
+la resolución obvia borra la sesión del otro.
+
+Un archivo por persona lo evita **por construcción**: nadie escribe el de nadie.
+
+**Y las sesiones ajenas se ven.** Si cada persona solo viera la suya, las dos creerían que trabajan
+solas y ninguna entendería por qué las cifras no cuadran.
+
+**Esto no contradice `LEX-R26`**, y conviene decirlo porque la forma se parece: `CHECKPOINT.json`
+**es uno** porque responde por *la tarea en curso*. `SESSION.json` responde por *una sesión*, y
+puede haber varias a la vez. Sin `personas` declaradas sigue siendo `SESSION.json`, que es lo que
+tiene un proyecto de una persona.
 
 **Las transiciones se apilan en `SESSION_LOG.md`**, que ya es el ledger de sesiones (`SUITE-R09`).
 No hay un segundo ledger: sería el mismo hecho en dos sitios.
