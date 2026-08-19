@@ -157,11 +157,11 @@ VEREDICTO: PASS
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | **8.2.0** · `MINOR`: ninguna regla nueva ni modificada, y nada que rompa |
-| Regenerar `CORE.md` si alguna tarea toca `LEXICON`, `RULES` o `PHASES` | **hecho** · las cinco tocaron `LEXICON`; `PT-060` además `PHASES` e `INSTALL`. 245 reglas |
-| **El criterio de éxito, ejecutado**: el escenario de la especificación, de verdad y con su evidencia | **hecho** · `evidence/EP-015/criterio-de-exito-ejecutado.txt`, con **dos intentos fallidos declarados** y lo que **no** demuestra |
+| Entrada de `CHANGELOG.md` y número de versión | **HECHO** · 8.2.0 · `MINOR`: ninguna regla nueva ni modificada, y nada que rompa |
+| Regenerar `CORE.md` si alguna tarea toca `LEXICON`, `RULES` o `PHASES` | **HECHO** · las cinco tocaron `LEXICON`; `PT-060` además `PHASES` e `INSTALL`. 245 reglas |
+| **El criterio de éxito, ejecutado**: el escenario de la especificación, de verdad y con su evidencia | **HECHO** · `evidence/EP-015/criterio-de-exito-ejecutado.txt`, con **dos intentos fallidos declarados** y lo que **no** demuestra |
 | **Cobrar la medida de `EP-014`**: cuántas veces volvió a cazar `FDGE-R52` la misma transición | **cero, sobre 40 transiciones** · en `EP-014` fueron tres. `tracker avanzar` hace la nota uno de sus siete actos y se niega sin `--nota`: el olvido dejó de ser **posible** |
-| Qué queda para `EP-016`, con lo aprendido | **declarado abajo** |
+| Qué queda para `EP-016`, con lo aprendido | **HECHO** · declarado abajo, con destino `EP-016` |
 
 ## Qué queda para `EP-016`, con lo aprendido
 
