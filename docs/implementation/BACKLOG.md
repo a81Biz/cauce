@@ -2,7 +2,7 @@
 
 Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los lee.
 
-> Regenerado el 2026-08-18 al cerrar `PT-059` en `PHASE 8`.
+> Regenerado el 2026-08-18 al cerrar `PT-060` en `PHASE 8`.
 > mano. Este archivo llevó ocho lotes sin regenerarse y llegó a declarar un estado de tres
 > versiones atrás; y `REFACTOR_SCOPE.md`, editado a mano, acabó con catorce filas pegadas en una
 > línea. La conclusión de los dos casos es la misma: **un índice que se escribe a mano diverge, y
@@ -19,7 +19,7 @@ issue [#90](https://github.com/a81Biz/cauce/issues/90).
 | 2 | PT-057 | S2 | INTEGRATED | 10 | [#104](https://github.com/a81Biz/cauce/issues/104) | El coste de una tarea, **derivado** de las 56 cerradas |
 | 3 | PT-058 | S1 | INTEGRATED | 10 | [#105](https://github.com/a81Biz/cauce/issues/105) | `MEDIDO` / `ESTIMADO` / `SIN EVALUAR`: cada cifra declara **qué es** |
 | 4 | PT-059 | S1 | INTEGRATED | 10 | [#106](https://github.com/a81Biz/cauce/issues/106) | La compuerta `SAFE`/`MARGINAL`/`UNSAFE` y `BLOCKED_BY_CONTEXT` |
-| 5 | PT-060 | S2 | READY | 1 | [#107](https://github.com/a81Biz/cauce/issues/107) | `SESSION.json` y el handoff **derivado** |
+| 5 | PT-060 | S2 | IN_PROGRESS | 7 | [#107](https://github.com/a81Biz/cauce/issues/107) | `SESSION.json` y el handoff **derivado** |
 
 **`PT-056` va primera y no es preferencia.** Es el único hueco que `EP-014` dejó **a medias** —el
 `sha` se comprueba alcanzable, no correspondiente— y todo lo que viene detrás confía en que el

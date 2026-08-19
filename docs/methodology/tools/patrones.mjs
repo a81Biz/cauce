@@ -242,6 +242,73 @@ export function viabilidadDe(coste, precedente, techoHistorico = null, holgura =
       + 'evidencia EN CONTRA, no solo falta de evidencia a favor: checkpoint, handoff y parada.' };
 }
 
+const SALTO_LINEA = String.fromCharCode(10);
+
+// ── PT-060 · la sesion es el worker, no el estado ───────────────────────────
+//
+// SESSION != STATE != TASK. La sesion es un recurso TEMPORAL; el estado del trabajo pertenece al
+// marco y es persistente.
+//
+// PHASE 2 midio el hueco: nada registraba cuando empieza una sesion. PT-059 aproximaba «una
+// sesion = un dia», y hoy eso da 45 commits contra 44 — coinciden, y COINCIDEN POR CASUALIDAD,
+// porque la sesion empezo hoy. El dia que no coincidan, nada lo notaria.
+
+/**
+ * El estado de la SESION, derivado. `marca` es lo que «sesion abrir» capturo.
+ *
+ * `desde` es una MARCA, no memoria: un dato verificable EN EL MOMENTO EN QUE SE PONE, igual que
+ * el sha del checkpoint. LEX-R26 prohibe lo otro —«llevo unas tres horas»—, no esto.
+ *
+ * Sin marca NO se cae al dia: se dice SIN EVALUAR. Pasar una aproximacion por el dato bueno es
+ * exactamente lo que PT-058 existe para impedir.
+ */
+export function sesionDe(marca, git = {}, checkpoint = null) {
+  if (!marca?.desde) {
+    return { abierta: false, desde: null,
+      motivo: 'no hay sesion abierta: «tracker sesion abrir» marca el inicio. Sin marca, lo que '
+        + 'lleva la sesion es SIN EVALUAR — el dia NO es la sesion.' };
+  }
+  const c = (v) => cifra(v ?? null, v == null ? SIN_EVALUAR : MEDIDO);
+  return {
+    abierta: true,
+    desde: marca.desde,
+    desde_corto: String(marca.desde).slice(0, 7),
+    abierta_en: marca.abierta ?? null,
+    commits: c(git.commits),
+    archivos: c(git.archivos),
+    lineas: c(git.lineas),
+    tareas: git.tareas ?? [],
+    pt: checkpoint?.pt ?? null,
+    phase: checkpoint?.phase ?? null,
+  };
+}
+
+/**
+ * El handoff de CAMBIO DE SESION, derivado del checkpoint y de la sesion. Ni una linea de prosa.
+ *
+ * NO sustituye a HANDOFF.md: su bloque ESTADO lleva las decisiones del firmante y los «no hacer»
+ * que salieron de ejecutar — lo unico del estado que NO se puede derivar, y lo mas valioso que
+ * tiene. Derivarlo seria perderlo (AC-05).
+ */
+export function handoffDeSesion(sesion, checkpoint) {
+  const l = [];
+  l.push(sesion?.abierta
+    ? `sesion       desde ${sesion.desde_corto}${sesion.abierta_en ? ` (${sesion.abierta_en})` : ''}`
+    : 'sesion       SIN EVALUAR: no se abrio. El dia NO es la sesion.');
+  if (sesion?.abierta) {
+    l.push(`             ${textoCifra(sesion.commits)} commits · ${textoCifra(sesion.lineas)} lineas`);
+  }
+  if (sesion?.tareas?.length) l.push(`tareas       ${sesion.tareas.join(' · ')}`);
+  if (!checkpoint) {
+    l.push('en curso     SIN EVALUAR: no hay CHECKPOINT.json. «tracker checkpoint PT-NNN» lo escribe.');
+    return l.join(SALTO_LINEA);
+  }
+  l.push(`en curso     ${checkpoint.pt} · PHASE ${checkpoint.phase}${checkpoint.fase ? ' ' + checkpoint.fase : ''}`);
+  l.push(`sobre        ${checkpoint.sha_corto ?? 'SIN EVALUAR'}${checkpoint.rama ? '  ' + checkpoint.rama : ''}`);
+  l.push(`sigue        ${checkpoint.siguiente ?? 'SIN EVALUAR: «tracker siguiente» lo deriva.'}`);
+  return l.join(SALTO_LINEA);
+}
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,

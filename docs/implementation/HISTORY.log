@@ -2478,3 +2478,55 @@ que la menor—; que HOLGURA = 1.5 sea el número, declarado como juicio; que AC
 vez, porque hoy la mayor referencia es el 7% del techo; que alguien OBEDEZCA un UNSAFE; y que «un
 día» sea buena aproximación a «una sesión» — dos sesiones el mismo día cuentan como una, y el
 precedente hereda ese error entero.
+
+## PT-060 — CHORE: la sesión es el worker, no el estado
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-015
+Rama: chore/PT-060-la-sesion-es-el-worker-no-el-estado
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-015 con VoBo del firmante
+Objetivo: que la sesión sea una entidad con su propio estado transitorio, y que el handoff de
+cambio de sesión se DERIVE en vez de escribirse.
+Causa raíz: nada registraba cuándo empieza una sesión. PT-059 aproximaba «una sesión = un día»
+porque era lo único observable, y PHASE 2 midió que día y sesión coinciden POR CASUALIDAD —45
+commits contra 44— y que el día que no coincidan nada lo notaría.
+Solución: SESSION.json con «desde» capturado al arrancar y todo lo demás derivado de «desde..HEAD».
+Tres subcomandos: «abrir» marca, «sesion» lee, «cerrar» produce el handoff DERIVADO del checkpoint.
+Las transiciones se apilan en SESSION_LOG.md (SUITE-R09) y HANDOFF.md queda intacto salvo su sello.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · PHASES.md · INSTALL.md ·
+tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-060/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓ (EJECUTADO)
+Delta (real vs planificado): LA DISTINCIÓN QUE HIZO POSIBLE LA TAREA es que una MARCA no es
+memoria. LEX-R26 prohíbe un campo que sólo pueda rellenar la memoria del agente; «desde» no lo es:
+es un dato verificable EN EL MOMENTO EN QUE SE PONE, igual que el sha del checkpoint. La memoria
+sería «llevo unas tres horas». Sin esa distinción la tarea era imposible, porque el inicio de una
+sesión no se puede derivar de nada anterior.
+AC-06 ES EL CRITERIO DEL LOTE Y SE EJECUTÓ, no se describió: cinco pasos capturados con su salida
+real. Y ahí se ve el lote entero funcionando junto — del handoff derivado salen la tarea, la fase,
+el commit y qué sigue, y el árbol CORRESPONDE al checkpoint porque si no «siguiente» habría
+bloqueado con STATE_MISMATCH antes de decir nada. Con su límite dicho: los cinco pasos ocurrieron
+dentro de la MISMA sesión, así que lo demostrado es que la información BASTA, no que un contexto
+vacío la use bien. Eso no se puede demostrar desde dentro de una sesión.
+EL AUDITOR ENCONTRÓ LO QUE SE ME PASÓ, por segunda tarea seguida: SESSION.json estaba declarado en
+LEXICON y ningún instalador lo creaba ni ningún documento operativo lo usaba. INSTALL.md ahora lo
+declara —como CHECKPOINT.json, no se siembra vacío— y PHASES.md lo usa en PHASE 0.
+DOS PATRONES CRÓNICOS. Quinta vez que la detección de ROOT se traga un argumento: «tracker sesion
+abrir» tomaba «abrir» por ROOT, buscaba el registro en ./abrir y no hacía nada EN SILENCIO. Séptima
+vez que una aserción casa con la prosa de al lado: el caso que comprueba que CHECKPOINTING no está
+en el registro casaba con el campo «origin» de esta misma tarea, que lo NOMBRA para decir que no
+entra. Los dos se arreglan por FORMA y los dos reaparecen — el arnés y la herramienta comparten
+espacio de nombres con la prosa que los describe.
+T10 cerró desde el otro lado el hueco que PT-059 declaró no verificado: la viabilidad usa el
+«desde» real si lo hay, y si no DICE que está usando el día.
+Casos: 784 → 829.
+Sin regla nueva: entra vocabulario en LEXICON §6.2 y §6.5e. Los tres estados de sesión de la
+especificación original NO llegan a §4: no son de tarea, y meterlos en REGISTRY.json los haría
+permanentes bajo SUITE-R09.
+No verificado: que alguien ABRA la sesión —sin marca todo sale SIN EVALUAR, correcto y peor que
+tener el dato—; que un agente distinto no vuelva a abrirlo todo igualmente; que la evidencia de
+AC-06 sea una sesión de verdad; y que «desde..HEAD» capture todo el trabajo, porque cuenta commits
+y lo no commiteado no aparece: la cifra es un suelo, no un total.

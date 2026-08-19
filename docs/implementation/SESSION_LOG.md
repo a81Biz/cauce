@@ -694,3 +694,152 @@ Y un descuido propio sin regla que lo cace: se escribió un `intake.md` duplicad
 se usó el original. Nada lo habría detectado: el directorio con otro slug estaba a la vista.
 
 **Dónde queda:** `G4` pendiente. Es del firmante y no se delega (`EXEC-R04`, `SUITE-R06a`).
+
+## 2026-08-18 · sesion abierta en `0919eda`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 0919eda (2026-08-18)
+             1 (MEDIDO) commits · 248 (MEDIDO) lineas
+tareas       PT-060
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde daa057e (2026-08-18)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```
+
+## 2026-08-18 · sesion abierta en `daa057e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.

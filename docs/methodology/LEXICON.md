@@ -440,6 +440,10 @@ HISTORY.log            append-only   · un registro por PT cerrado, más las ent
                        los reconoce por ellos, no por su contenido.
 HANDOFF.md             sobrescribible · abre con el bloque ESTADO [SUITE-R33]
                        responde por el PROYECTO: qué implementación, qué tarea, qué sigue
+SESSION.json           sobrescribible · el estado de la SESION, no de la tarea (§6.5e)
+                       «desde» es lo unico capturado; el resto se deriva de «desde..HEAD»
+                       sin el, lo que lleva la sesion es SIN EVALUAR — el dia NO es la sesion
+
 CHECKPOINT.json        sobrescribible · el estado de la tarea EN CURSO, legible por máquina
                        responde por la TAREA, y es UNO: escribirlo sobre otra la sustituye
                        STATE_MISMATCH · la CONDICION que se reporta cuando el arbol no
@@ -685,6 +689,40 @@ tarea** — y no la parte: partirla cambia su alcance, y el alcance lo firma una
 
 Esta es una compuerta de **viabilidad**, no de gobernanza: `G1`..`G4` siguen decidiendo lo que
 decidían.
+
+### 6.5e La sesión es el worker, no el estado   `PT-060`
+
+**`SESSION ≠ STATE ≠ TASK`.** La sesión de IA es un **recurso temporal**; el estado del trabajo
+pertenece al marco y es persistente. `SESSION.json` describe la **sesión**, no la tarea.
+
+```
+SESSION.json      sobrescribible · UNA sesión a la vez
+  desde           el commit donde empezó — lo ÚNICO capturado
+  commits · archivos · lineas · tareas    derivados de «desde..HEAD»
+  pt · phase      del CHECKPOINT.json
+```
+
+**`desde` es una MARCA, no memoria.** `LEX-R26` prohíbe un campo que solo pueda rellenar la
+memoria del agente; una marca no lo es: es un dato **verificable en el momento en que se pone**,
+igual que el `sha` del checkpoint. La memoria sería «llevo unas tres horas» — una afirmación sobre
+el pasado sin nada que la respalde.
+
+**Sin sesión abierta, lo que lleva la sesión es `SIN EVALUAR`.** No se cae al día. Medido: un día
+y una sesión coinciden **por casualidad** cuando la sesión empezó ese día, y el día que no
+coincidan —dos sesiones en una jornada, o una que cruza la medianoche— nada lo notaría.
+
+**Las transiciones se apilan en `SESSION_LOG.md`**, que ya es el ledger de sesiones (`SUITE-R09`).
+No hay un segundo ledger: sería el mismo hecho en dos sitios.
+
+**`SESSION.json` no sustituye a `HANDOFF.md`.** El bloque `ESTADO` del handoff lleva decisiones y
+prohibiciones escritas por personas: es lo **único del estado que no se puede derivar**, y por eso
+no se deriva. El cierre de sesión produce un handoff **derivado** —qué tarea, en qué fase, sobre
+qué commit, qué sigue— que se **suma** al handoff escrito, no lo reemplaza.
+
+**Los estados de sesión no son estados de tarea.** Durante un cambio de sesión la tarea sigue
+`IN_PROGRESS`: no cambia nada de la tarea, termina la sesión. Por eso no aparecen en §4 y no entran
+en `REGISTRY.json` — ahí `SUITE-R09` los haría permanentes, y el registro guardaría para siempre
+mecánica transitoria.
 
 ### 6.6 Documentos de metodología — `docs/methodology/`
 

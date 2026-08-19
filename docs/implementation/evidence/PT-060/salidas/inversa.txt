@@ -1,0 +1,16 @@
+# PT-060 · comprobación inversa
+
+Se neutralizaron LAS DOS decisiones que sostienen la tarea:
+  1. sin marca deja de decirse: se cae al dia fingiendo que es lo mismo
+  2. las cifras dejan de llevar naturaleza: todo sale MEDIDO, y el vacio sale CERO
+
+Caen SEIS casos. Los dos primeros son el nucleo de PT-058 aplicado aqui: un cero
+etiquetado MEDIDO donde no hay dato. Los cuatro siguientes revientan, que tambien es
+distinguir: sin la guarda la funcion no responde «no se», simplemente falla.
+
+  [31m✗[0m sin datos de git ⇒ SIN EVALUAR  (no apareció: SIN EVALUAR · salió: MEDIDO)
+  [31m✗[0m …y NO cero  (apareció: "valor":0 · salió: {"valor":0,"naturaleza":"MEDIDO"})
+  [31m✗[0m sin marca, no hay sesion  (no apareció: ^false$ · salió: IMPORT_FALLA Cannot read properties of null (reading 'desde'))
+  [31m✗[0m …y lo DICE  (no apareció: sesion abierta · salió: IMPORT_FALLA Cannot read properties of null (reading 'desde'))
+  [31m✗[0m …y que el dia NO es la sesion  (no apareció: el dia NO es la sesion · salió: IMPORT_FALLA Cannot read properties of null (reading 'desde'))
+  [31m✗[0m sin sesion, el handoff lo dice  (no apareció: no se abrio · salió: IMPORT_FALLA Cannot read properties of null (reading 'desde'))

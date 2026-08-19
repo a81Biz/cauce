@@ -2579,6 +2579,89 @@ chk   "…y que solo CONSULTA"             "CONSULTA"      TRR viabilidad PT-059
 chk   "funciona sin credencial"          "veredicto"     TRRNOGH viabilidad PT-059
 chkno "un PT que no existe no se inventa"  "veredicto"   TRR viabilidad PT-777
 
+# ─── PT-060 · la sesión es el worker, no el estado ─────────────────────────
+# SESSION != STATE != TASK. La sesion es un recurso TEMPORAL; el estado del trabajo pertenece al
+# marco y es persistente.
+#
+# PHASE 2 midio el hueco que PT-059 dejo apuntado: nada registraba cuando empieza una sesion, y
+# «un dia» coincide con «una sesion» POR CASUALIDAD — 45 commits contra 44 el mismo dia.
+sec "── PT-060 · la sesión como entidad ──"
+
+# E1-E4 · con marca, todo derivado y cada cifra con su naturaleza (PT-058).
+MARCA='{desde:"a".repeat(40),abierta:"2026-08-18"}'
+GIT60='{commits:12,archivos:34,lineas:4821,tareas:["PT-059","PT-060"]}'
+CP60='{pt:"PT-060",phase:5,fase:"Implementacion",sha_corto:"ea4e867",rama:"chore/x",siguiente:"los casos en verde"}'
+PL "con marca, la sesion esta abierta"   "^true$"      "console.log(m.sesionDe($MARCA,$GIT60,$CP60).abierta)"
+PL "…y las cifras van MEDIDAS"           "MEDIDO"      "console.log(m.sesionDe($MARCA,$GIT60,$CP60).commits.naturaleza)"
+PL "…y el «desde» sale de la MARCA"      "^aaaaaaa$"   "console.log(m.sesionDe($MARCA,$GIT60,$CP60).desde_corto)"
+PL "…y las tareas de la sesion"          "PT-059"      "console.log(m.sesionDe($MARCA,$GIT60,$CP60).tareas.join(\" \"))"
+# Si git no responde, SIN EVALUAR — no cero. Tercera vez en el lote que el cero seria la mentira.
+PL "sin datos de git ⇒ SIN EVALUAR"      "SIN EVALUAR"  "console.log(m.sesionDe($MARCA,{}).commits.naturaleza)"
+PLNO "…y NO cero"                        "\"valor\":0"  "console.log(JSON.stringify(m.sesionDe($MARCA,{}).commits))"
+
+# E5-E6 · sin marca NO se cae al dia. Pasar una aproximacion por el dato bueno es lo que PT-058
+# existe para impedir.
+PL "sin marca, no hay sesion"            "^false$"      "console.log(m.sesionDe(null).abierta)"
+PL "…y lo DICE"                          "sesion abierta"  "console.log(m.sesionDe(null).motivo)"
+PL "…y que el dia NO es la sesion"       "el dia NO es la sesion"  "console.log(m.sesionDe(null).motivo)"
+PLNO "…y no inventa cifras"              "commits"      "console.log(JSON.stringify(m.sesionDe(null)))"
+
+# E7-E8 · AC-02 · la correccion a la especificacion: son estados de SESION, no de tarea. Durante
+# un handoff la tarea sigue IN_PROGRESS.
+PLNO "CHECKPOINTING no es estado terminal"    "CHECKPOINTING"       "console.log([...m.ESTADOS_TERMINALES].join(\" \"))"
+trlibno "…ni estado vivo"                     "CHECKPOINTING"       "console.log([...m.VIVOS].join(\" \"))"
+PLNO "HANDOFF_REQUIRED tampoco"               "HANDOFF_REQUIRED"    "console.log([...m.ESTADOS_TERMINALES].join(\" \"))"
+trlibno "…ni vivo"                            "HANDOFF_REQUIRED"    "console.log([...m.VIVOS].join(\" \"))"
+trlibno "WAITING_NEW_SESSION tampoco"         "WAITING_NEW_SESSION" "console.log([...m.VIVOS].join(\" \"))"
+# Y no estan en el registro, que es donde SUITE-R09 los haria permanentes.
+# El patron NO puede ser «CHECKPOINTING» a secas: el «origin» de PT-060 lo NOMBRA para decir que
+# NO entra, asi que la asercion casaba con la prosa que explica lo contrario. Septima vez en tres
+# lotes. Se busca la FORMA de un estado: «"status": "CHECKPOINTING"».
+chkno "ninguno es status en REGISTRY.json"    '"status": "CHECKPOINTING"'  cat "$RAIZ_REAL/docs/implementation/REGISTRY.json"
+chkno "…ni HANDOFF_REQUIRED"                  '"status": "HANDOFF_REQUIRED"'  cat "$RAIZ_REAL/docs/implementation/REGISTRY.json"
+
+# E13-E15 · AC-04 · el handoff se DERIVA del checkpoint. Ni una linea de prosa.
+PL "el handoff dice que tarea"           "PT-060"       "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y en que fase"                      "PHASE 5"      "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y sobre que commit"                 "ea4e867"      "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y QUE SIGUE"                        "los casos en verde"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+PL "…y de donde sale la sesion"          "desde aaaaaaa"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60,$CP60),$CP60))"
+# Sin checkpoint no se inventa: se dice.
+PL "sin checkpoint lo DICE"              "SIN EVALUAR"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60),null))"
+PL "…y como conseguirlo"                 "tracker checkpoint"  "console.log(m.handoffDeSesion(m.sesionDe($MARCA,$GIT60),null))"
+# Sin sesion abierta tampoco finge.
+PL "sin sesion, el handoff lo dice"      "no se abrio"  "console.log(m.handoffDeSesion(m.sesionDe(null),$CP60))"
+
+# E9-E12 · AC-03 · las acciones, sobre el repositorio REAL.
+chk   "sesion abrir escribe la marca"    "sesion abierta desde"  TRR sesion abrir
+chk   "…y SESSION.json existe"           '"desde"'      sh -c 'cat "$1/docs/implementation/SESSION.json"' _ "$RAIZ_REAL"
+chk   "…con la fecha de apertura"        '"abierta"'    sh -c 'cat "$1/docs/implementation/SESSION.json"' _ "$RAIZ_REAL"
+chk   "sesion ve lo derivado"            "sesion desde"  TRR sesion
+chk   "…con cada cifra y su naturaleza"  "MEDIDO\|SIN EVALUAR"  TRR sesion
+chk   "sesion cerrar da el handoff"      "en curso"     TRR sesion cerrar
+chk   "…y dice que NO borra la marca"    "NO se borra"  TRR sesion cerrar
+chk   "…y que HANDOFF.md queda INTACTO"  "INTACTO"      TRR sesion cerrar
+# Abrir dos veces SOBRESCRIBE: es UNA sesion a la vez.
+chk   "abrir otra vez sobrescribe"       "sesion abierta desde"  TRR sesion abrir
+chk   "…y sigue habiendo UN solo SESSION.json"  "^1$"  sh -c 'ls "$1/docs/implementation/" | grep -c "^SESSION.json$"' _ "$RAIZ_REAL"
+
+# E18-E19 · T10 · viabilidad usa el «desde» real si lo hay, y lo dice si no.
+chk   "viabilidad nombra la sesion abierta"  "en la sesion abierta en"  TRR viabilidad PT-060
+chk   "…y sigue dando su veredicto"          "veredicto"                TRR viabilidad PT-060
+
+# E16-E17 · AC-05 · la prosa de HANDOFF.md no se toca. Es lo unico del estado que NO se puede
+# derivar: lleva las decisiones del firmante y los «no hacer» que salieron de ejecutar.
+chk   "HANDOFF conserva sus decisiones"   "decisiones:"  sh -c 'cat "$1/docs/implementation/HANDOFF.md"' _ "$RAIZ_REAL"
+chk   "…y sus «no hacer»"                 "no hacer:"    sh -c 'cat "$1/docs/implementation/HANDOFF.md"' _ "$RAIZ_REAL"
+chkno "…y «sesion cerrar» no los borra"   "^0$"          sh -c 'grep -c "no hacer:" "$1/docs/implementation/HANDOFF.md"' _ "$RAIZ_REAL"
+
+# LEX-R21 · el vocabulario vive en LEXICON, y antes que el codigo.
+chk   "SESSION.json esta en LEXICON"      "SESSION.json"  cat "$SUITE/LEXICON.md"
+chk   "…y dice que es una MARCA"          "MARCA, no memoria"  cat "$SUITE/LEXICON.md"
+chk   "…y que el dia no es la sesion"     "NO es la sesi"  cat "$SUITE/LEXICON.md"
+chk   "…y SESSION != STATE != TASK"       "SESSION ≠ STATE ≠ TASK"  cat "$SUITE/LEXICON.md"
+chk   "…y que no sustituye a HANDOFF"     "no sustituye"  cat "$SUITE/LEXICON.md"
+
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
 # checkpoint que apunta a nada— y NO impide la peligrosa: un SHA REAL que describe un arbol que

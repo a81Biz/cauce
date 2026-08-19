@@ -1,21 +1,21 @@
 {
-  "pt": "PT-059",
+  "pt": "PT-060",
   "type": "CHORE",
   "epic": "EP-015",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "871159b34465f8cd800950897c4b86d618c977b4",
-  "sha_corto": "871159b",
+  "status": "IN_PROGRESS",
+  "phase": 9,
+  "fase": "Integración",
+  "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
+  "sha": "8ab60488a74df9fd12661fdfcf500eb9a988ba17",
+  "sha_corto": "8ab6048",
   "sucio": true,
   "archivos": [
-    "docs/implementation/BACKLOG.md",
-    "docs/implementation/REFACTOR_SCOPE.md",
+    "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PT-059 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-18"
 }
