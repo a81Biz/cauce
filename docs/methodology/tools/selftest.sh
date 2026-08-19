@@ -3233,8 +3233,12 @@ chk   "el texto de las ajenas existe"     "Otras sesiones abiertas"  cat "$SUITE
 # El texto va partido en dos lineas por el ancho: se busca un fragmento que quepa en UNA.
 chk   "…y dice por que se ensenan"        "trabajan solas"  cat "$SUITE/tools/patrones.mjs"
 # E11 · compatibilidad: si no hay propio, cae a SESSION.json.
-chk   "cae a SESSION.json si no hay propio"  "SESSION.json"       cat "$SUITE/tools/tracker.mjs"
-chk   "…y se dice que es por compatibilidad"  "un proyecto de una persona no cambia nada"  cat "$SUITE/tools/tracker.mjs"
+#
+# PT-068 movio esta decision a marcaDe() en patrones.mjs —dos lecturas del mismo hecho divergen,
+# SUITE-R38— asi que el caso sigue al codigo. Lo que comprueba NO cambia: que el respaldo existe
+# y que su motivo esta escrito. AC-05 de PT-065 sigue vigente y tiene sus propios casos.
+chk   "cae a SESSION.json si no hay propio"  "SESSION.json"       cat "$SUITE/tools/patrones.mjs"
+chk   "…y se dice que es por compatibilidad"  "El respaldo NO se quita"  cat "$SUITE/tools/patrones.mjs"
 
 # E13-E14 · AC-04 · el handoff sigue derivado y HANDOFF.md sigue intacto. Sobre el FIXTURE.
 build_fixture; git_fixture

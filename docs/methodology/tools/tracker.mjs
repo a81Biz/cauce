@@ -1517,8 +1517,13 @@ function sesion() {
     apilarEnLog(`## ${gitDe(['log', '-1', '--format=%cs'])} · sesion cerrada` + SALTO + SALTO
       + '<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:' + SALTO + SALTO
       + '```' + SALTO + h + SALTO + '```');
-    // PT-068 · el mensaje decia «SESSION.json NO se borra: la sesion siguiente lo sobrescribe»,
-    // y era FALSO desde PT-065: nadie vuelve a escribir SESSION.json. Se dice lo que ocurre.
+    // PT-068 · el mensaje afirmaba que la marca vieja se reescribiria al abrir la siguiente, y
+    // era FALSO desde PT-065: nadie vuelve a escribir SESSION.json. Se dice lo que ocurre.
+    //
+    // El texto anterior NO se cita literalmente aqui a proposito: hay un caso que comprueba su
+    // ausencia en el archivo, y una cita en un comentario lo pondria en rojo. Es la familia de
+    // PT-051 —un patron literal en un comentario contado como emision real—, y me paso al
+    // arreglar precisamente esto.
     di(`  Apilado en SESSION_LOG.md. ${archivoSesion(yoSoy())} NO se borra: al abrir la siguiente`);
     di('  se sobrescribe. Un SESSION.json antiguo, si lo hay, ya no se escribe (PT-068).');
     di('  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.');
