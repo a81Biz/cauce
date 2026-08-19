@@ -3,20 +3,25 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
-  "sha": "f4ef6657acc1b5084958787de7ceb63bb72ebd88",
-  "sha_corto": "f4ef665",
+  "sha": "4687495389154fcd715bb91d77082df505c395d8",
+  "sha_corto": "4687495",
   "sucio": true,
   "archivos": [
     "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-18"
 }
