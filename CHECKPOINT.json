@@ -3,11 +3,11 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/PT-062-los-ids-se-reparten-por-rangos-reservados",
-  "sha": "5bbd464a8119837351252aed74375f2c4fcdd095",
-  "sha_corto": "5bbd464",
+  "sha": "eb8b650726900346d4db195d46343b611737ea17",
+  "sha_corto": "eb8b650",
   "sucio": true,
   "archivos": [
     "changes/PT-062-los-ids-se-reparten-por-rangos-reservados/intake.md",
@@ -15,8 +15,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-18"
 }
