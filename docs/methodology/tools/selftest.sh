@@ -2891,8 +2891,12 @@ chk   "una sesion es de un dia Y de una persona"  "de una PERSONA"  cat "$SUITE/
 
 # E9-E11 · el coste, a peticion, y DICE de quien es SIEMPRE.
 chk   "sin filtro dice que es de todas"   "de TODAS las personas"  TRR coste CHORE STANDARD
-chk   "--mio dice de quien"               "solo de"                TRR coste CHORE STANDARD --mio
-chk   "…y sigue dando la cifra"           "lineas"                 TRR coste CHORE STANDARD --mio
+# «--mio» depende de «git config user.name» de la MAQUINA: en CI es el del runner y no resuelve
+# a ninguna persona declarada, asi que no hay a quien filtrar. El caso pasaba en local y fallaba
+# en CI — octava vez del mismo patron en dos lotes. Se comprueba con «--de» y un nombre DECLARADO,
+# que no depende de donde corra.
+chk   "--de con persona declarada dice de quien"  "solo de Alberto"  TRR coste CHORE STANDARD --de "Alberto Martínez"
+chk   "…y sigue dando la cifra"           "lineas"                 TRR coste CHORE STANDARD --de "Alberto Martínez"
 # Con un nombre que no existe no queda ninguna tarea, asi que no hay cifra que etiquetar: lo
 # que se comprueba es que el filtro SE APLICO, y eso se ve en que el grupo queda vacio.
 chk   "--de tambien filtra"               "0 tareas"               TRR coste CHORE STANDARD --de Nadie
@@ -2906,7 +2910,7 @@ chk   "…y el precedente sigue saliendo"   "mayor hecho"            TRR viabili
 
 # AC-04 · el texto de los no declarados existe y dice que no se adjudican.
 chk   "el texto de los no declarados existe"  "sin declarar no se reparten"  cat "$SUITE/tools/tracker.mjs"
-chk   "…y remite a «tracker personas»"    "tracker personas.. los enumera"   cat "$SUITE/tools/tracker.mjs"
+chk   "…y remite a «tracker personas»"    "los enumera"            cat "$SUITE/tools/tracker.mjs"
 
 # Lo que esta tarea NO hace, comprobado: no toca la logica de PT-057 ni de PT-059.
 chkno "no se toco costeDe"                "export function costeDe.*persona"  cat "$SUITE/tools/tracker.mjs"

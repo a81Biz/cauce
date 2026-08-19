@@ -2715,6 +2715,10 @@ Y UN CASO PROPIO QUE ERA UNA BOMBA DE RELOJERÍA: el de PT-057 asertaba «CHORE/
 tareas cerradas» y falló al llegar a 20 — no porque nada se rompiera, sino porque el número creció.
 Atar una aserción a una cifra que crece con cada tarea cerrada garantiza que fallará algún día sin
 que eso signifique nada.
+Y OCTAVA VEZ DEL PATRÓN, encontrada por CI: dos casos pasaban en local y fallaban en el runner
+porque «--mio» depende de «git config user.name» DE LA MÁQUINA. Es el mismo defecto que EP-015
+encontró cuatro veces —probar donde trabaja el agente y no donde se decide— y aquí reaparece con
+otra cara. Los casos usan ahora un nombre declarado, que no depende de dónde corran.
 Casos: 930 → 955.
 Sin cambios de especificación, y el spec-changes lo dice con la palabra «ninguno»: FDGE-R22 pide
 declarar el cambio antes de hacerlo, y «no hay cambio» es una declaración.

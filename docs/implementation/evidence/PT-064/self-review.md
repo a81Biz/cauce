@@ -57,6 +57,15 @@ El caso de `PT-057` asertaba `CHORE/STANDARD · 1[0-9] tareas cerradas`. Al lleg
 no porque nada se rompiera, sino porque el número creció. Atar una aserción a una cifra que crece
 con cada tarea cerrada garantiza que fallará algún día, sin que eso signifique nada.
 
+## Y una octava vez del patrón, encontrada por CI
+
+Dos casos pasaban en local y fallaban en CI: `--mio` depende de `git config user.name` **de la
+máquina**, y en el runner es el del propio runner — que no resuelve a ninguna persona declarada,
+así que no hay a quién filtrar.
+
+Es el mismo patrón que `EP-015` encontró cuatro veces: **probar donde trabajo, no donde se decide.**
+Ahora el caso usa `--de "Alberto Martínez"` —un nombre declarado— y no depende de dónde corra.
+
 ## Lo que no queda comprobado
 
 **Que las cifras por persona sean útiles.** Con grupos pequeños, `SIN REFERENCIA` será frecuente —

@@ -801,7 +801,7 @@
   [32m✓[0m …y se dice por que siempre
   [32m✓[0m una sesion es de un dia Y de una persona
   [32m✓[0m sin filtro dice que es de todas
-  [32m✓[0m --mio dice de quien
+  [32m✓[0m --de con persona declarada dice de quien
   [32m✓[0m …y sigue dando la cifra
   [32m✓[0m --de tambien filtra
   [32m✓[0m …y con un nombre que no existe, SIN REFERENCIA
