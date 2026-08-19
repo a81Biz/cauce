@@ -3,18 +3,21 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/PT-062-los-ids-se-reparten-por-rangos-reservados",
-  "sha": "d61a2411bd0d57224cc7883d1cf0aa56ccb7d374",
-  "sha_corto": "d61a241",
+  "sha": "86b8d362a4bf811e6ea483ae2bd2ba5b968d2fc6",
+  "sha_corto": "86b8d36",
   "sucio": true,
   "archivos": [
     "changes/PT-062-los-ids-se-reparten-por-rangos-reservados/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-18"
 }
