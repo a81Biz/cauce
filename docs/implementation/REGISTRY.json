@@ -1224,7 +1224,7 @@
       "id": "EP-015",
       "slug": "la-continuidad-de-sesion",
       "type": "EP",
-      "status": "DONE",
+      "status": "CLOSED",
       "structural": false,
       "suite_version": "8.0.0",
       "created": "2026-08-15",

@@ -41,7 +41,14 @@ jobs:
             exit 1
           fi
 
+      # `actions/checkout` clona en SUPERFICIAL por defecto: un solo commit. La bateria que
+      # corre aqui incluye casos que DERIVAN del historial —el coste tipico de una tarea sale de
+      # las cerradas (PT-057)— y sin historia no encuentran nada y fallan. Lo descubrio publicar
+      # la 8.2.0: los mismos casos pasaban en `verificacion.yml`, que ya usa fetch-depth 0 por
+      # otra razon. Publicar y verificar tienen que correr sobre el MISMO repositorio.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Solo desde main
         run: |
