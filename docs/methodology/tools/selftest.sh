@@ -2151,10 +2151,13 @@ chk   "EP-NNN se acepta como objetivo"            "bajo evaluacion: EP-050"  V -
 build_fixture; dos_lotes EP-050
 chkno "…y sin objetivo no nombra ninguno"         "bajo evaluacion:"         V --gate G4
 # E4 · AC-04 — el lote sale del «epic» del PT nombrado.
+# La asercion va sobre la linea «bajo evaluacion», que es lo unico que dice QUE lote se
+# evalua. Sobre la mencion no vale: checkEpics nombra los dos lotes en avisos legitimos, y
+# asertar su ausencia hace que el caso falle por trabajo correcto.
 build_fixture; dos_lotes EP-051
-chk   "el lote sale del epic del PT"              "EP-051"       V --gate G4 PT-001
+chk   "el lote sale del epic del PT"              "bajo evaluacion: EP-051"  V --gate G4 PT-001
 build_fixture; dos_lotes EP-051
-chkno "…y no arrastra al otro lote"               "EP-050"       V --gate G4 PT-001
+chkno "…y no arrastra al otro lote"               "bajo evaluacion: EP-050"  V --gate G4 PT-001
 # E5 · AC-05 — sin objetivo se evaluan TODOS. Acotar aqui seria el agujero.
 build_fixture; dos_lotes EP-050
 chk   "sin objetivo se evaluan todos"             "✗ SUITE-R45"  V --gate G4
