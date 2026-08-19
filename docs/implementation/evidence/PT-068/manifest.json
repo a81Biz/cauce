@@ -1,0 +1,43 @@
+{
+  "pt": "PT-068",
+  "generated": "2026-08-19",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Un usuario no declarado NO deriva la sesion de otra persona", "scenarios": ["E1", "E4"], "tests": ["selftest.sh:marca ajena no se hereda", "selftest.sh:…tampoco preguntando por nombre", "selftest.sh:la propia gana al respaldo"], "evidence": ["salidas/caso-real.txt", "salidas/inversa.txt", "salidas/antes-identidad-ajena.txt"], "verified": true, "nota": "ANTES: 32 commits y 13 194 lineas ajenas etiquetadas MEDIDO. DESPUES: «no hay sesion abierta»." },
+    { "ac": "AC-02", "statement": "La misma persona no aparece como dos sesiones abiertas", "scenarios": ["E5"], "tests": ["selftest.sh:una persona, una sola sesion", "selftest.sh:…y gana el archivo propio"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Los mensajes dicen el archivo que de verdad se escribe", "scenarios": ["E7"], "tests": ["selftest.sh:sesion abrir no dice SESSION.json"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "sesion cerrar deja de afirmar algo falso", "scenarios": ["E8"], "tests": ["selftest.sh:…ni cerrar afirma que se sobrescribe"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Con una sola persona declarada nada cambia", "scenarios": ["E2", "E3"], "tests": ["selftest.sh:sin persona, la marca es mia", "selftest.sh:con mi nombre, es mia", "selftest.sh:cae a SESSION.json si no hay propio", "selftest.sh:…y se dice que es por compatibilidad"], "evidence": ["salidas/selftest-completo.txt", "salidas/inversa.txt"], "verified": true, "nota": "Son los casos que protegen el caso mayoritario. En la inversa SIGUEN pasando: el arreglo no los toca." },
+    { "ac": "AC-06", "statement": "El caso cubre la ELECCION DE ARCHIVO, no solo las funciones puras", "scenarios": ["E1", "E2", "E3", "E4", "E5"], "tests": ["las cinco ramas de marcaDe()"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "Es el AC que faltaba en PT-065: sus seis criterios se comprobaban con marcas construidas a mano sobre funciones puras, y ninguno ejercitaba de que archivo sale — que es lo unico que aquella tarea cambio." },
+    { "ac": "AC-07", "statement": "viabilidad lee la MISMA marca que sesion", "scenarios": ["E6"], "tests": ["selftest.sh:viabilidad no lee SESSION.json a pelo", "selftest.sh:las dos lecturas usan marcaDe"], "evidence": ["salidas/caso-real.txt"], "verified": true, "nota": "ANTES: sesion decia 7735ff4 y viabilidad 258be16. DESPUES: las dos 7735ff4." }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que los quince veredictos de viabilidad de EP-017 sean correctos.",
+      "por_que": "Se registraron ANTES de este arreglo, con medido_en 258be16. Ahora la base es correcta, pero rehacerlos es de PT-074, que ademas los espeja. El campo medido_en deja constancia de contra que se midio cada vez.",
+      "donde": "changes/PT-074-la-compuerta-de-viabilidad-necesita-una-fase/intake.md"
+    },
+    {
+      "afirmacion": "Que dos personas trabajando a la vez de verdad no se pisen.",
+      "por_que": "Sigue siendo lo que PT-065 declaro no verificado: el conflicto esta reproducido con dos ramas y las identidades se simulan con GIT_CONFIG. Nadie ha trabajado en paralelo de verdad en este repositorio.",
+      "donde": "docs/implementation/evidence/PT-065/manifest.json"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi primer arreglo NO arreglaba nada, y mi propio caso lo daba por bueno.",
+      "regla": "FDGE-R17",
+      "detalle": "marcaDe() preguntaba por el archivo propio sin comprobar que hubiera persona, y archivoSesion(null) devuelve «SESSION.json»: la identidad no declarada seguia leyendo el huerfano como suyo. El caso E1 pasaba porque le daba la cadena 'ci-runner' en vez de null, que es lo que personaLocal() devuelve de verdad. Lo destapo ejecutarlo contra el repositorio, no leerlo. Es el mismo defecto que esta tarea arregla, cometido dentro de ella."
+    },
+    {
+      "que": "Rompi un caso citando literalmente el mensaje que estaba eliminando.",
+      "regla": "—",
+      "detalle": "El comentario que explicaba el arreglo citaba el texto viejo, y el caso que comprueba su ausencia lo encontro ahi. Es la familia de PT-051 —un patron literal en un comentario contado como emision real— cometida al arreglar precisamente eso."
+    },
+    {
+      "que": "Rompi un caso de PT-065 al mover codigo, y una asercion fallo por mayusculas.",
+      "regla": "—",
+      "detalle": "El caso asertaba que la razon del respaldo estuviera en tracker.mjs y PT-068 la movio a patrones.mjs: el caso sigue al codigo. Y la asercion nueva buscaba «una sola persona» donde el texto dice «UNA». Es la QUINTA asercion del lote que no casa con lo que existe."
+    }
+  ],
+  "suite": { "passed": 1016, "failed": 0, "skipped": 0, "coverage": 1016, "baseline": 1005 }
+}
