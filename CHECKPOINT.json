@@ -3,25 +3,18 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
-  "sha": "205a95e6b730023fd22468949a27f2d1d4c1aa01",
-  "sha_corto": "205a95e",
+  "sha": "37392ac81e29d7eb37a0df8c4e2cf1834784554e",
+  "sha_corto": "37392ac",
   "sucio": true,
   "archivos": [
     "changes/PT-064-de-quien-es-cada-commit/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-18"
 }
