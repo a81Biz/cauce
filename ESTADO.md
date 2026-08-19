@@ -13,6 +13,6 @@ Proyectado el 2026-08-18 · 7 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-063 | CHORE | IN_PROGRESS | 7 | chore/PT-063-el-usuario-vive-en-la-rama-de-tarea | c30dc89 |
+| PT-063 | CHORE | IN_PROGRESS | 8 | chore/PT-063-el-usuario-vive-en-la-rama-de-tarea | 5d55e51 |
 | PT-064 | CHORE | READY | 1 | — | — |
 | PT-065 | CHORE | READY | 1 | — | — |
