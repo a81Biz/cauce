@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 8 allocation(es) viva(s).
+Proyectado el 2026-08-18 · 7 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
@@ -13,7 +13,6 @@ Proyectado el 2026-08-18 · 8 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-062 | CHORE | IN_PROGRESS | 9 | chore/PT-062-los-ids-se-reparten-por-rangos-reservados | a2e14d6 |
-| PT-063 | CHORE | READY | 1 | — | — |
+| PT-063 | CHORE | IN_PROGRESS | 2 | chore/PT-063-el-usuario-vive-en-la-rama-de-tarea | 48a021f |
 | PT-064 | CHORE | READY | 1 | — | — |
 | PT-065 | CHORE | READY | 1 | — | — |
