@@ -1,0 +1,10 @@
+=== AC-01 · el criterio de verdad ===
+ANTES de la pasada completa:
+a4a7817a1277eb0bb6078aff24e6aeea *docs/implementation/SESSION-alberto-martinez.json
+63baf98c2c2df4ae4b27243771f091ff *docs/implementation/SESSION_LOG.md
+
+DESPUES:
+a4a7817a1277eb0bb6078aff24e6aeea *docs/implementation/SESSION-alberto-martinez.json
+63baf98c2c2df4ae4b27243771f091ff *docs/implementation/SESSION_LOG.md
+
+IDENTICAS. El arnes no escribe en el repositorio real.

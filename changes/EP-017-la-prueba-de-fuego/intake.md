@@ -73,19 +73,26 @@ míos. No publiques la 9.0.0», primer mensaje de la sesión, no retirado— (`S
 
 | Orden | PT | Tipo | Sev | Viabilidad | Título | Archivos que toca | Depende de |
 |:--|:--|:--|:--|:--|:--|:--|:--|
-| 1 | `PT-075` | BUG | S1 | SAFE | **Una regla sin verificador no ocurre** | `tools/verify-fdge.mjs` · `CORE.md` · `PHASES.md` · `selftest.sh` | — |
-| 2 | `PT-055` | BUG | S2 | SAFE | `--gate G4` exige las filas de cierre de **todos** los lotes abiertos | `tools/verify-fdge.mjs` · `selftest.sh` | — |
-| 3 | `PT-066` | BUG | S2 | SAFE | La regla que se consulta es la que se define | `tools/regla.mjs` · `selftest.sh` | — |
-| 4 | `PT-067` | BUG | S2 | SAFE | El denominador de la cobertura está incompleto | `tools/audit.mjs` · `selftest.sh` | `PT-066` |
-| 5 | `PT-076` | BUG | S1 | SAFE | **El arnés no escribe en el repositorio real** | `tools/selftest.sh` | — |
-| 6 | `PT-068` | BUG | S1 | SAFE | La marca de sesión es de quien la abre | `tools/tracker.mjs` · `tools/patrones.mjs` · `selftest.sh` | — |
-| 6 | `PT-074` | BUG | S2 | SAFE | La compuerta de viabilidad necesita una fase que la abra | `tools/tracker.mjs` · `CORE.md` · `PHASES.md` · `selftest.sh` | `PT-068` · `PT-075` |
-| 7 | `PT-069` | FEATURE | S2 | SAFE | Los índices derivados necesitan generador | `tools/tracker.mjs` · `selftest.sh` | `PT-068` |
-| 8 | `PT-070` | BUG | S2 | SAFE | El alcance del grafo lo calcula la herramienta | `tools/plan-layout.mjs` · `selftest.sh` | — |
-| 9 | `PT-071` | BUG | S2 | SAFE | Publicar comprueba lo mismo que verificar | `.github/workflows/publicar.yml` | — |
-| 10 | `PT-072` | INVESTIGATION | S1 | **MARGINAL** | Un proyecto nuevo de verdad | ninguno del repo — produce evidencia | `PT-055`..`PT-071` |
-| 11 | `PT-019` | CHORE | S2 | **MARGINAL** | El legado: uno sintético y uno real, no destructivo | ninguno del repo — produce evidencia | `PT-070` · `PT-072` |
-| 12 | `PT-073` | CHORE | S2 | SAFE | Los tres documentos que lee quien llega | `MANUAL.md` · `CASOS-DE-USO.md` · `README.md` | `PT-072` · `PT-019` |
+| 1 | `PT-075` | BUG | S1 | SAFE | **Una regla sin verificador no ocurre** | `verify-fdge` · `CORE` · `PHASES` · `selftest` | — |
+| 2 | `PT-055` | BUG | S2 | SAFE | `--gate G4` evalúa el lote que se le nombra | `verify-fdge` · `selftest` | — |
+| 3 | `PT-076` | BUG | S1 | SAFE | **El arnés no escribe en el repositorio real** | `selftest` | — |
+| 4 | `PT-068` | BUG | S1 | SAFE | La marca de sesión es de quien la abre | `tracker` · `patrones` · `selftest` | `PT-076` |
+| 5 | `PT-074` | BUG | S2 | SAFE | La compuerta de viabilidad necesita una fase que la abra | `tracker` · `CORE` · `PHASES` · `selftest` | `PT-068` · `PT-075` |
+| 6 | `PT-066` | BUG | S2 | SAFE | La regla que se consulta es la que se define | `regla` · `selftest` | — |
+| 7 | `PT-067` | BUG | S2 | SAFE | El denominador de la cobertura está incompleto | `audit` · `selftest` | `PT-066` |
+| 8 | `PT-078` | FEATURE | S1 | SAFE | **Ninguna regla queda sin clasificar** | `audit` · `selftest` | `PT-066` · `PT-067` |
+| 9 | `PT-069` | FEATURE | S2 | SAFE | Los índices derivados necesitan generador | `tracker` · `selftest` | `PT-068` |
+| 10 | `PT-070` | BUG | S2 | SAFE | El alcance del grafo lo calcula la herramienta | `plan-layout` · `selftest` | — |
+| 11 | `PT-071` | BUG | S2 | SAFE | Publicar comprueba lo mismo que verificar | `publicar.yml` | — |
+| 12 | `PT-077` | BUG | S2 | SAFE | La transición mira lo que la consulta bloquea | `tracker` · `selftest` | `PT-076` |
+| 13 | `PT-072` | INVESTIGATION | S1 | **MARGINAL** | Un proyecto nuevo de verdad | ninguno del repo — produce evidencia | `PT-075`..`PT-077` |
+| 14 | `PT-019` | CHORE | S2 | **MARGINAL** | El legado: uno sintético y uno real, no destructivo | ninguno del repo — produce evidencia | `PT-070` · `PT-072` |
+| 15 | `PT-073` | CHORE | S2 | SAFE | Los tres documentos que lee quien llega | `MANUAL` · `CASOS-DE-USO` · `README` | `PT-072` · `PT-019` |
+
+**Quince tareas.** El lote creció de diez a quince porque **cada una destapó la siguiente**, y
+todas por ejecutar, no por leer: `PT-076` salió de intentar cumplir `FDGE-R54`, que creó
+`PT-075`; `PT-077` salió de que `tracker avanzar` ignorara un bloqueo durante `PT-075`; y
+`PT-078` salió de medir si el mecanismo de `PT-075` bastaba — y no bastaba.
 
 ## 5b. Viabilidad por tarea   `[AGENTE]` — `PT-059`
 
@@ -139,15 +146,16 @@ Orden de ejecución resultante:
   3. PT-076   que el arnes deje de pisar el estado real     ┐
   4. PT-068   la marca la lee quien la abrio                ├ la CADENA de la sesion
   5. PT-074   el veredicto se espeja y se ve                ┘
-  6. PT-066   la consulta de reglas
-  7. PT-067   la medida de cobertura
-  8. PT-069   los índices derivados
-  9. PT-070   el alcance del grafo
- 10. PT-071   la tubería que publica
- 11. PT-072   greenfield
- 12. PT-019   legado
- 13. PT-073   los tres documentos
- 14. PT-077   la transicion mira lo que la consulta bloquea
+  6. PT-066   la consulta de reglas                         ┐
+  7. PT-067   el denominador de la cobertura                ├ la CADENA de la medida
+  8. PT-078   ninguna regla queda sin clasificar            ┘
+  9. PT-069   los indices derivados
+ 10. PT-070   el alcance del grafo
+ 11. PT-071   la tuberia que publica
+ 12. PT-077   la transicion mira lo que la consulta bloquea
+ 13. PT-072   greenfield
+ 14. PT-019   legado
+ 15. PT-073   los tres documentos
 
 Motivo del orden: dependencia técnica y solapamiento, no prioridad declarada.
 ```

@@ -2879,3 +2879,55 @@ Compuertas: G1 2026-08-15 Alberto Martínez (reabierta por lote EP-017) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-076 — BUG: el arnés escribe en el repositorio real
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-076-el-arnes-no-escribe-en-el-repositorio-real
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que la batería de pruebas deje de reescribir el estado de sesión del repositorio real.
+
+Causa raíz: `selftest.sh` define TR() —el fixture— y TRR() —el repositorio real—. TRR existe con
+motivo: `coste`, `viabilidad` y `personas` necesitan el historial de verdad. El defecto es que
+tres invocaciones ESCRIBÍAN: tres casos de `sesion abrir` pisaban SESSION-<persona>.json y seis
+de `sesion cerrar` apilaban en SESSION_LOG.md, que es append-only. `asignar` ya llevaba `--ver`:
+el patrón seguro se conocía y nadie lo aplicó a `sesion`.
+
+Daño: 140 entradas acumuladas —14 aperturas sobre el mismo SHA no son 14 sesiones—, nueve más
+por pasada. Y corrompía la base de cálculo de FDGE-R54, la compuerta que PT-075 creó horas antes:
+los quince veredictos de EP-017 se registraron con `medido_en: 258be16`, una sesión cerrada el
+día anterior.
+
+Solución: los nueve casos pasan a TR. Dos guardas, y hacen falta las dos:
+  DE RESULTADO (AC-01) huella md5 de los dos archivos antes y después de la pasada completa.
+  DE FORMA (AC-04) deriva del código qué acciones escriben —las que llaman a writeFileSync— y
+    comprueba que ninguna vaya por TRR con disparador de escritura.
+Las 140 entradas se DECLARAN, no se borran: SUITE-R09 y el criterio de PT-046.
+
+Archivos modificados: tools/selftest.sh · docs/implementation/SESSION_LOG.md
+
+Evidencia: evidence/PT-076/ · manifest.json · self-review.md ·
+  salidas/huella.txt · salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ CON LÍMITE · AC-05 ✓
+selftest 997 -> 1005 casos, cero fallos. Huellas IDÉNTICAS tras la pasada completa.
+Inversa: devuelto UN solo caso a TRR, la guarda de forma cae Y la huella cambia.
+
+Delta real vs planificado: 8 casos nuevos en vez de 2 — al mover los bloques hubo que
+  reconstruir los que leían $RAIZ_REAL directamente.
+
+No verificado, declarado: escritura INDIRECTA —una acción que escriba llamando a otra— no la ve
+  la guarda de forma; la ve AC-01 · que alguien LEA la nota de las 140 · que los quince
+  veredictos de viabilidad sean correctos, que NO lo son y se sabe (PT-068).
+
+Tres desviaciones de procedimiento, declaradas: el bloque de casos corría antes de existir la
+  función que usan · la guarda de forma era demasiado gruesa y habría fallado contra trabajo
+  correcto · y la TERCERA aserción del lote que no casa con lo que existe. Las tres son la
+  misma clase: escribir la comprobación sin ejecutarla contra lo que de verdad hay.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: —

@@ -2596,6 +2596,97 @@ chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/t
 # cifras reales no comprobaban nada. Es el mismo defecto que PT-023 persigue: verde por vacio.
 RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
 TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+
+# ─── PT-076 · el arnes no escribe en el repositorio real ─────────────────────
+sec "── PT-076 · el arnes no escribe donde se decide ──"
+
+# TRR() invoca tracker contra RAIZ_REAL. Existe con motivo —coste, viabilidad y personas
+# necesitan el historial de verdad, y una mediana de cuatro tareas de mentira no es una
+# mediana—. Lo que no puede es ESCRIBIR ahi: tres casos de «sesion abrir» y seis de «sesion
+# cerrar» pisaban la marca de sesion y apilaban en SESSION_LOG.md, que es append-only.
+#
+# 140 entradas acumuladas, nueve mas por pasada. Y corrompe la base de calculo de FDGE-R54,
+# la compuerta que PT-075 acaba de crear.
+#
+# «asignar» ya demostraba el patron seguro: lleva --ver.
+
+# E6/E7 · AC-04 · la FORMA, no la lista. Se DERIVA del codigo que acciones escriben —las que
+# llaman a writeFileSync— y se comprueba que ninguna se invoque por TRR sin --ver. Una lista a
+# mano se queda corta en cuanto alguien añade una accion, que es lo que SUITE-R53 dice de la
+# tabla del manual.
+acciones_que_escriben() {
+  node -e '
+    const fs = require("fs");
+    const s = fs.readFileSync(process.argv[1], "utf8");
+    const m = s.match(/const acciones = \{([^}]*)\}/);
+    if (!m) { console.log(""); process.exit(0); }
+    const out = [];
+    for (const par of m[1].split(",")) {
+      const [alias, fn] = par.split(":").map((x) => (x || "").trim());
+      if (!alias) continue;
+      const nombre = fn || alias;
+      const i = s.indexOf("function " + nombre);
+      if (i < 0) continue;
+      let j = s.indexOf("\nfunction ", i + 1);
+      if (j < 0) j = s.length;
+      if (/writeFileSync/.test(s.slice(i, j))) out.push(alias);
+    }
+    console.log(out.join(" "));
+  ' "$SUITE/tools/tracker.mjs"
+}
+# Una accion que PUEDE escribir no escribe SIEMPRE: «sesion» solo con «abrir» o «cerrar»,
+# «viabilidad» solo con «--registrar», y «asignar» no escribe con «--ver». Esos tres
+# disparadores se nombran AQUI a proposito y con su motivo: derivarlos del codigo exigiria
+# entender en que rama de cada funcion cae el writeFileSync, y una heuristica que se equivoque
+# aqui haria fallar casos correctos —que es peor que no tenerla (PT-023)—.
+#
+# El limite queda declarado: si alguien añade un disparador nuevo a una de esas tres, esta
+# comprobacion no lo vera. Lo que SI lo ve es AC-01, que compara la huella de los dos archivos
+# antes y despues de la pasada completa. Esta es la guarda de forma; aquella es la de resultado.
+SEGURO='--ver'
+DISPARA='abrir|cerrar|--registrar'
+malos=""
+for a in $(acciones_que_escriben); do
+  # invocaciones de esa accion por TRR que NO son seguras y SI llevan disparador de escritura
+  if grep -E "TRR $a( |\$)" "$SUITE/tools/selftest.sh" | grep -vE -- "$SEGURO" | grep -qE -- "$DISPARA"; then
+    malos="$malos $a"
+  fi
+done
+pass_si_vacio() { [ -z "$1" ] && echo "SIN ESCRITURAS POR TRR" || echo "ESCRIBEN POR TRR:$1"; }
+chk   "ninguna accion que escriba va por TRR"   "SIN ESCRITURAS POR TRR"   pass_si_vacio "$malos"
+
+# E3/E4/E5 · AC-03 · sesion se prueba en el FIXTURE, y comprueba lo mismo que antes.
+git_fixture() {  # git inicializado, para que «sesion abrir» tenga un HEAD que marcar
+  ( cd "$WORK"
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm "base del fixture" >/dev/null 2>&1 ) >/dev/null 2>&1
+}
+build_fixture; git_fixture
+chk   "sesion abrir escribe la marca del FIXTURE"  "sesion abierta desde"  TR sesion abrir
+build_fixture; git_fixture
+TR sesion abrir >/dev/null 2>&1
+chk   "…y abrir otra vez la sobrescribe"           "sesion abierta desde"  TR sesion abrir
+build_fixture; git_fixture
+TR sesion abrir >/dev/null 2>&1
+chk   "sesion cerrar da el handoff"                "en curso"    TR sesion cerrar
+build_fixture; git_fixture
+TR sesion abrir >/dev/null 2>&1
+chk   "…y dice que NO borra la marca"              "NO se borra" TR sesion cerrar
+build_fixture; git_fixture
+TR sesion abrir >/dev/null 2>&1
+chk   "…y que HANDOFF.md queda INTACTO"            "INTACTO"     TR sesion cerrar
+
+# E2 · AC-02 · lo que necesita historial real SIGUE leyendolo. Es la razon por la que TRR no
+# se elimina: sobre el fixture, coste mediria cuatro tareas de mentira.
+chk   "coste sigue leyendo el historial real"   "tareas cerradas"   TRR coste CHORE STANDARD
+
+# E8 · AC-05 · las 140 ya escritas se DECLARAN. SUITE-R09 es append-only: no se borran.
+# El patron va SIN ACENTOS y sobre la cabecera, que es lo estable: la redaccion del cuerpo
+# puede cambiar y «escribio el arnes» lleva dos tildes que el grep del arnes no casa.
+chk   "las entradas del arnes estan declaradas" "Aviso sobre este archivo"  cat "$RAIZ_REAL/docs/implementation/SESSION_LOG.md"
+
 # El patron NO se ata a un numero concreto: la cifra CRECE con cada tarea cerrada, y atarla
 # convierte un caso en una bomba de relojeria. Paso con «1[0-9]» al llegar a 20.
 chk   "coste da una cifra para un grupo grande"  "CHORE/STANDARD · [0-9][0-9]* tareas cerradas"  TRR coste CHORE STANDARD
@@ -2772,18 +2863,23 @@ PL "…y como conseguirlo"                 "tracker checkpoint"  "console.log(m.
 # Sin sesion abierta tampoco finge.
 PL "sin sesion, el handoff lo dice"      "no se abrio"  "console.log(m.handoffDeSesion(m.sesionDe(null),$CP60))"
 
-# E9-E12 · AC-03 · las acciones, sobre el repositorio REAL.
-chk   "sesion abrir escribe la marca"    "sesion abierta desde"  TRR sesion abrir
-chk   "…y SESSION.json existe"           '"desde"'      sh -c 'cat "$1/docs/implementation/SESSION.json"' _ "$RAIZ_REAL"
-chk   "…con la fecha de apertura"        '"abierta"'    sh -c 'cat "$1/docs/implementation/SESSION.json"' _ "$RAIZ_REAL"
-chk   "sesion ve lo derivado"            "sesion desde"  TRR sesion
-chk   "…con cada cifra y su naturaleza"  "MEDIDO\|SIN EVALUAR"  TRR sesion
-chk   "sesion cerrar da el handoff"      "en curso"     TRR sesion cerrar
-chk   "…y dice que NO borra la marca"    "NO se borra"  TRR sesion cerrar
-chk   "…y que HANDOFF.md queda INTACTO"  "INTACTO"      TRR sesion cerrar
+# E9-E12 · AC-03 · las acciones de sesion, sobre el FIXTURE.
+#
+# PT-076 · antes iban por TRR, contra el repositorio REAL: «sesion abrir» pisaba la marca de la
+# sesion en curso y «sesion cerrar» apilaba en SESSION_LOG.md, que es append-only. 140 entradas
+# acumuladas. Lo que comprueban no cambia; cambia desde donde se invoca.
+build_fixture; git_fixture
+chk   "sesion abrir escribe la marca"    "sesion abierta desde"  TR sesion abrir
+chk   "…y el archivo de sesion existe"   "desde"   sh -c 'cat "$1/docs/implementation/"SESSION*.json' _ "$WORK"
+chk   "…con la fecha de apertura"        "abierta" sh -c 'cat "$1/docs/implementation/"SESSION*.json' _ "$WORK"
+chk   "sesion ve lo derivado"            "sesion desde"  TR sesion
+chk   "…con cada cifra y su naturaleza"  "MEDIDO\|SIN EVALUAR"  TR sesion
+chk   "sesion cerrar da el handoff"      "en curso"     TR sesion cerrar
+chk   "…y dice que NO borra la marca"    "NO se borra"  TR sesion cerrar
+chk   "…y que HANDOFF.md queda INTACTO"  "INTACTO"      TR sesion cerrar
 # Abrir dos veces SOBRESCRIBE: es UNA sesion a la vez.
-chk   "abrir otra vez sobrescribe"       "sesion abierta desde"  TRR sesion abrir
-chk   "…y sigue habiendo UN solo SESSION.json"  "^1$"  sh -c 'ls "$1/docs/implementation/" | grep -c "^SESSION.json$"' _ "$RAIZ_REAL"
+chk   "abrir otra vez sobrescribe"       "sesion abierta desde"  TR sesion abrir
+chk   "…y sigue habiendo UN solo archivo de sesion"  "^1$"  sh -c 'ls "$1/docs/implementation/" | grep -c "^SESSION"' _ "$WORK"
 
 # E18-E19 · T10 · viabilidad usa el «desde» real si lo hay, y lo dice si no.
 chk   "viabilidad nombra la sesion abierta"  "en la sesion abierta en"  TRR viabilidad PT-060
@@ -3076,10 +3172,11 @@ PLNO "…y la propia NO"                    "\"A\""        "console.log(JSON.str
 # fantasma.
 PL "…y una marca sin persona no es ajena"  "^1$"         "console.log(m.sesionesAjenas($MS,\"A\").length)"
 
-# E9-E12 · la accion, sobre el repositorio real.
-chk   "sesion abrir escribe la marca"     "sesion abierta desde"  TRR sesion abrir
-chk   "…y sesion la lee"                  "sesion desde"          TRR sesion
-chk   "…con las cifras de PT-058"         "MEDIDO"                TRR sesion
+# E9-E12 · la accion, sobre el FIXTURE (PT-076: antes iba contra el repositorio real).
+build_fixture; git_fixture
+chk   "sesion abrir escribe la marca"     "sesion abierta desde"  TR sesion abrir
+chk   "…y sesion la lee"                  "sesion desde"          TR sesion
+chk   "…con las cifras de PT-058"         "MEDIDO"                TR sesion
 # El texto de las ajenas existe y explica por que se ensenan.
 chk   "el texto de las ajenas existe"     "Otras sesiones abiertas"  cat "$SUITE/tools/tracker.mjs"
 # El texto va partido en dos lineas por el ancho: se busca un fragmento que quepa en UNA.
@@ -3088,10 +3185,12 @@ chk   "…y dice por que se ensenan"        "trabajan solas"  cat "$SUITE/tools/
 chk   "cae a SESSION.json si no hay propio"  "SESSION.json"       cat "$SUITE/tools/tracker.mjs"
 chk   "…y se dice que es por compatibilidad"  "un proyecto de una persona no cambia nada"  cat "$SUITE/tools/tracker.mjs"
 
-# E13-E14 · AC-04 · el handoff sigue derivado y HANDOFF.md sigue intacto.
-chk   "sesion cerrar sigue dando el handoff"  "en curso"          TRR sesion cerrar
-chk   "…y dice que HANDOFF.md queda intacto"  "INTACTO"           TRR sesion cerrar
-chk   "…y que no borra la marca"          "NO se borra"           TRR sesion cerrar
+# E13-E14 · AC-04 · el handoff sigue derivado y HANDOFF.md sigue intacto. Sobre el FIXTURE.
+build_fixture; git_fixture
+TR sesion abrir >/dev/null 2>&1
+chk   "sesion cerrar sigue dando el handoff"  "en curso"          TR sesion cerrar
+chk   "…y dice que HANDOFF.md queda intacto"  "INTACTO"           TR sesion cerrar
+chk   "…y que no borra la marca"          "NO se borra"           TR sesion cerrar
 
 # LEX-R21 · el vocabulario, y la distincion con LEX-R26 dicha explicitamente.
 chk   "SESSION-<usuario> esta en LEXICON"  "SESSION-<usuario>.json"  cat "$SUITE/LEXICON.md"
