@@ -3,18 +3,24 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
-  "sha": "c34469d6bcd01caecd34e8ff5a121529b5af957c",
-  "sha_corto": "c34469d",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "fix/alberto-martinez/PT-068-la-marca-de-sesion-es-de-quien-la-abre",
+  "sha": "746c4d74e0f9bdd138434d85c19ecc26a70903a0",
+  "sha_corto": "746c4d7",
   "sucio": true,
   "archivos": [
     "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-068/manifest.json",
+    "docs/implementation/evidence/PT-068/salidas/selftest-completo.txt"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-19"
 }
