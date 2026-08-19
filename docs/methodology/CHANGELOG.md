@@ -8,6 +8,102 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 9.0.0 — 2026-08-18
+
+**Topología y multiusuario.** Cinco tareas y **una regla modificada**: `MAJOR`. Es el lote que
+quita de en medio la suposición que `EP-014` y `EP-015` tenían escrita sin decirlo — que trabaja
+**una sola persona**.
+
+### Guía de migración   `SUITE-R19`
+
+**Ningún proyecto instalado tiene que hacer nada.** Todo lo que entra es **opcional** y todo lo que
+existe sigue funcionando:
+
+| Si tu proyecto… | Qué hacer |
+|:---|:---|
+| Tiene **una persona** | **Nada.** Las cifras, las ramas y las sesiones se comportan igual |
+| Tiene **ramas de tarea abiertas** | **Nada.** Se terminan como empezaron — renombrarlas rompería sus PR |
+| Quiere **empezar a usar multiusuario** | Declarar `personas` en `REGISTRY.json` (`LEXICON` §6.5f) |
+
+**Lo único que cambia sin pedirlo** es un **aviso** de `verify-fdge` cuando hay `personas`
+declaradas y una rama viva no lleva usuario. Avisa; **no falla**. Y dice desde cuándo aplica: una
+rama creada antes de esta versión no es un incumplimiento, es una rama de antes.
+
+**`FDGE-R19` cambió una cosa** y sigue diciendo todo lo demás — commits atómicos, sus prefijos, los
+tres niveles, que el PR de tarea es revisión, que `G4` no se multiplica:
+
+```
+antes    <type>/PT-NNN-slug
+ahora    <type>/<usuario>/PT-NNN-slug        con «personas» declaradas
+         <type>/PT-NNN-slug                  sin ellas · es el caso de una persona
+```
+
+### Lo que ahora se puede hacer
+
+```
+tracker personas                     quién es quién · y quién NO está declarado
+tracker asignar PT --slug ...        lo único que escribe un identificador
+tracker rama PT-NNN                  cómo debe llamarse la rama · la propone, no la crea
+tracker coste ... --mio | --de X     la referencia, de todos o de una persona
+```
+
+Y `SESSION-<usuario>.json`: una marca de sesión por persona.
+
+### Las cinco tareas
+
+| | | |
+|:---|:---|:---|
+| `PT-061` | Quién es quién | La identidad se **declara** y se reconcilia, sin tocar la historia |
+| `PT-062` | Rangos reservados | El registro sigue asignando · el ID **no** se namespacea |
+| `PT-063` | El usuario en la rama | **`MAJOR`** · `FDGE-R19` |
+| `PT-064` | De quién es cada commit | El coste, el precedente y el techo dejan de mezclar personas |
+| `PT-065` | La sesión es de alguien | Una marca por persona · sin conflictos |
+
+### Lo que se aprendió midiendo
+
+**La identidad no es un campo: es un problema de reconciliación.** En un repositorio de **una**
+persona había **tres identidades** en la historia —218, 9 y 1 commits—. El desorden no viene de
+trabajar con más gente: viene de **cambiar de máquina**.
+
+**Nadie asignaba.** `SUITE-R08` decía que el registro asigna y **ninguna** de las quince acciones lo
+hacía: lo hacía quien editaba el archivo a mano, durante 65 tareas.
+
+**Y el conflicto de dos personas asignando a la vez es peor de lo que parece.** Reproducido: el
+contador se fusiona **sin conflicto** —los dos escriben el mismo número— y el conflicto queda
+reducido a una línea de `slug`. Quien lo resuelva **pierde una tarea entera**. El daño no es el
+conflicto: es que **parece pequeño**.
+
+**El formato de rama no se comprobaba.** `FDGE-R19` lo fijaba desde siempre y ninguna herramienta
+lo parseaba — así que este `MAJOR` no rompe ninguna comprobación: la migración es **leer**.
+
+**Y las tres cifras del presupuesto se rompían de forma distinta.** El precedente **falso**, el
+techo **inflado**, y el coste típico mezclado **no es un defecto obvio** — más casos es mejor
+referencia. Por eso las dos primeras se filtran siempre y la tercera a petición.
+
+### Lo que las herramientas del marco encontraron
+
+CI puso en rojo **dos veces** casos verdes en local: uno dependía de `git config user.name` **de la
+máquina**. Es la **octava vez** en tres lotes del mismo patrón — *probar donde trabaja el agente y
+no donde se decide un merge*.
+
+Y la detección de `ROOT` se tragó dos argumentos nuevos más (**sexta** y **séptima** vez), la
+segunda con un valor que **empieza en mayúscula** y que la guarda anterior no filtraba.
+
+`selftest` **865 → 977** casos.
+
+### Lo que NO entra, y es una decisión
+
+**Permisos.** Esto dice **quién es**, no **qué puede**. `SUITE-R27` ya declara que la lista de
+firmantes no prueba que firmara una persona; la tabla de identidades tampoco lo prueba.
+
+**Comparar personas.** El marco da la cifra de cada una porque la necesita para decidir si empezar
+una tarea. Presentarla como comparación es otra herramienta, con otras consecuencias.
+
+**`trabajo/<usuario>` y una `G4` por persona.** `trabajo` sigue siendo **una** y `G4` **una por
+lote** (`EXEC-R03`).
+
+---
+
 ## 8.2.0 — 2026-08-18
 
 **La continuidad de sesión.** Cinco tareas, **ninguna regla nueva** y nada que rompa: `MINOR`. Es

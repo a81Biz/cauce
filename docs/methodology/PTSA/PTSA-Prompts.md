@@ -7,7 +7,7 @@
 > Reglas: los IDs `PTSA-Rnn` son los de la especificación oficial, no una renumeración
 > (`SUITE-R14`). Resumen citable en [RULES.md](../RULES.md) §Parte 6 · Vocabulario: [LEXICON.md](../LEXICON.md)
 >
-> Suite version: **8.2.0**
+> Suite version: **9.0.0**
 
 ---
 

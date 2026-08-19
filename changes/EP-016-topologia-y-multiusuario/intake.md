@@ -137,10 +137,49 @@ cinco tareas y su orden los derivó el agente de lo que EP-015 dejó medido.
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` y número de versión | pendiente |
-| **Guía de migración**, obligatoria por ser `MAJOR` (`SUITE-R19`) | pendiente |
-| Regenerar `CORE.md` | pendiente |
-| **El criterio de éxito, ejecutado**: dos personas el mismo día sin mezclarse | pendiente |
-| Los dos huecos que `EP-015` dejó declarados: ¿cerrados o vueltos a declarar? | pendiente |
+| Entrada de `CHANGELOG.md` y número de versión | **HECHO** · 9.0.0 · `MAJOR`: `FDGE-R19` modificada |
+| **Guía de migración**, obligatoria por ser `MAJOR` (`SUITE-R19`) | **HECHO** · y la respuesta es que **ningún proyecto instalado tiene que hacer nada**: todo lo que entra es opcional |
+| Regenerar `CORE.md` | **HECHO** · las cinco tocaron `LEXICON`; `PT-063` además `RULES` y `PHASES` |
+| **El criterio de éxito, ejecutado**: dos personas el mismo día sin mezclarse | **HECHO con su límite declarado** · ejecutado con una persona y la segunda **simulada**; qué se ejecutó y qué no, abajo |
+| Los dos huecos que `EP-015` dejó declarados: ¿cerrados o vueltos a declarar? | **HECHO** · los dos **cerrados** — `PT-064` y `PT-065` |
+
+## El criterio de éxito: qué se ejecutó y qué no
+
+> «Dos personas abren tarea el mismo día, cada una en su rama, y nada de lo que el marco deriva
+> mezcla su trabajo.»
+
+**Lo ejecutado**, contra este repositorio:
+
+```
+tracker personas         las tres identidades reconciliadas en UNA persona
+tracker asignar          asigna del rango, y con el rango agotado se NIEGA
+tracker rama PT-NNN      chore/alberto-martinez/PT-NNN-slug
+tracker coste --de X     filtra, y DICE de quién es la cifra
+tracker sesion           ve la ajena simulada y NO la toca
+verify-fdge              rangos solapados y allocation fuera de rango: FALLA
+```
+
+**Lo que NO se ejecutó, y es el límite del lote:** *dos personas de verdad*. Este repositorio tiene
+**una**, con tres identidades. Cada mecanismo se probó con la segunda persona **simulada** —un
+rango declarado a mano, una marca de sesión escrita a mano, un `--de` con un nombre inventado— y
+las colisiones que se evitan están **reproducidas** con dos ramas de git.
+
+Eso demuestra que **los mecanismos hacen lo que dicen**. No demuestra que dos personas trabajando
+de verdad no encuentren un caso que nadie ha visto — y por eso `PT-061` reporta en vez de adivinar,
+y `PT-062` comprueba los rangos en `verify-fdge` y no solo al asignar.
+
+**Se declara `PARCIAL` en vez de darlo por bueno.** `SUITE-R45` existe para que un lote no cierre
+marcando casillas que no están hechas.
+
+## Los dos huecos de `EP-015`, cerrados
+
+| Lo que `EP-015` declaró | Dónde se cerró |
+|:---|:---|
+| «`SESSION.json` es de una sesión: con dos personas eso no basta» | `PT-065` · una marca por persona |
+| «El día de dos personas son dos sesiones y el techo sale inflado» | `PT-064` · el techo se calcula por persona |
+
+Los dos estaban escritos en el `manifest.json` de `EP-015` como **no verificado**, y los dos
+tienen ahora una tarea cerrada con su evidencia. Un lote que hereda huecos declarados y los cierra
+es la única forma de que declararlos no sea una excusa.
 
 > El merge, la publicación y lo que se verifique después del cierre no son filas: `SUITE-R45`.

@@ -1826,3 +1826,37 @@ sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la 
 ## 2026-08-18 · sesion abierta en `258be16`
 
 <!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · `EP-016` cerrado · 9.0.0 sellada
+
+Autorizado por Alberto Martínez: *«cerrar completamente la épica y comenzar con la EP-016 sin parar
+hasta terminar»*. Cinco tareas integradas (PRs #121–#125), las cinco filas de cierre resueltas y
+`CHANGELOG` **9.0.0** con **guía de migración** — obligatoria por ser `MAJOR`.
+
+**Lo que la sesión entregó, en total:** tres lotes cerrados —`EP-014`, `EP-015` y `EP-016`—, dos
+publicaciones (`8.2.0` en npm) y `selftest` **618 → 977**.
+
+**Lo que la sesión aprendió, y no estaba en ninguna tarea:**
+
+1. **Dos enunciados de tarea eran imposibles o falsos, y medirlos lo mostró.** `PT-059` pedía
+   comparar contra un presupuesto que **no existe**; `PT-063` se declaró como el cambio que rompe
+   compatibilidad y resultó que **el formato de rama no se comprobaba**. Las dos veces, `PHASE 2`
+   evitó construir sobre una suposición.
+
+2. **La identidad no es un campo.** En un repositorio de **una** persona había **tres**
+   identidades. El desorden no viene de trabajar con más gente: viene de cambiar de máquina.
+
+3. **`SUITE-R08` era una afirmación sin mecanismo.** Decía que el registro asigna y **nadie**
+   asignaba: lo hacía quien editaba el archivo, durante 65 tareas.
+
+4. **El patrón «probar donde trabajo, no donde se decide» apareció OCHO veces** en tres lotes. CI y
+   `audit` encontraron lo que a mí se me pasó: bytes de control invisibles, credenciales que en el
+   runner no existen, `detached HEAD`, y un caso que dependía de `git config` de la máquina.
+
+5. **Y la detección de `ROOT` se tragó siete argumentos distintos.** Ya no es una lista incompleta:
+   es que un posicional y el valor de una opción son indistinguibles por forma si la opción no se
+   declara.
+
+**Dónde queda:** `G4` de `EP-016` con VoBo del firmante. **No se ha publicado la 9.0.0**: la
+autorización de publicar era para «lo necesario» y se usó en la 8.2.0.
+
