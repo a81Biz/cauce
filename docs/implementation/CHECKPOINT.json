@@ -3,18 +3,21 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-065-la-sesion-es-de-alguien",
-  "sha": "258be16ebd45176a39dfccee122a980d44a9e724",
-  "sha_corto": "258be16",
+  "sha": "2c5cc4c3b1af1d4bc97641e2261d02f8504c37d8",
+  "sha_corto": "2c5cc4c",
   "sucio": true,
   "archivos": [
     "changes/PT-065-la-sesion-es-de-alguien/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-18"
 }
