@@ -22,4 +22,4 @@ Proyectado el 2026-08-19 · 14 allocation(es) viva(s).
 | PT-072 | INVESTIGATION | READY | 1 | — | — |
 | PT-073 | CHORE | READY | 1 | — | — |
 | PT-074 | BUG | READY | 1 | — | — |
-| PT-075 | BUG | READY | 4 | — | — |
+| PT-075 | BUG | READY | 5 | — | — |
