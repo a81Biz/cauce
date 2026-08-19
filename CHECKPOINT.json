@@ -3,18 +3,27 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
-  "sha": "21d7032e759ce154848721bb0d1d1b7bbffcfeae",
-  "sha_corto": "21d7032",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "fix/alberto-martinez/PT-074-la-compuerta-de-viabilidad-necesita-una-fase",
+  "sha": "7b682c8ebb4383eddd83edd2da6d4e0891a2d351",
+  "sha_corto": "7b682c8",
   "sucio": true,
   "archivos": [
     "changes/PT-074-la-compuerta-de-viabilidad-necesita-una-fase/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "changes/PT-074-la-compuerta-de-viabilidad-necesita-una-fase/traceability.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-074/manifest.json",
+    "docs/implementation/evidence/PT-074/salidas/issue-espejado.txt",
+    "docs/implementation/evidence/PT-074/salidas/selftest-completo.txt",
+    "docs/implementation/evidence/PT-074/self-review.md"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-19"
 }
