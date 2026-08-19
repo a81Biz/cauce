@@ -1256,7 +1256,7 @@
       "id": "EP-016",
       "slug": "topologia-y-multiusuario",
       "type": "EP",
-      "status": "DONE",
+      "status": "CLOSED",
       "structural": false,
       "suite_version": "8.2.0",
       "created": "2026-08-15",
