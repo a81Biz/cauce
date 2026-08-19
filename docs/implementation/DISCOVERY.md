@@ -28,7 +28,7 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-070 | BUG | S2 | READY | EP-017 | El alcance del grafo lo calcula la herramienta |
 | PT-071 | BUG | S2 | READY | EP-017 | Publicar comprueba lo mismo que verificar |
 | PT-072 | INVESTIGATION | S1 | READY | EP-017 | Un proyecto nuevo de verdad |
-| PT-074 | BUG | S2 | READY | EP-017 | La compuerta de viabilidad necesita una fase que la abra |
+| PT-074 | BUG | S2 | INTEGRATED | EP-017 | La compuerta de viabilidad necesita una fase que la abra |
 | PT-075 | BUG | S1 | INTEGRATED | EP-017 | Una regla sin verificador no ocurre: subir la exigencia donde el agente puede saltarsela en silencio |
 | PT-076 | BUG | S1 | INTEGRATED | EP-017 | El arnes no escribe en el repositorio real: selftest pisa la marca de sesion y apila en el ledger |
 | PT-077 | BUG | S2 | READY | EP-017 | La transicion mira lo que la consulta bloquea: avanzar ignora el STATE_MISMATCH |
