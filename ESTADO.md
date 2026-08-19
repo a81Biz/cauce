@@ -5,12 +5,19 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 5 allocation(es) viva(s).
+Proyectado el 2026-08-19 · 12 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
-| PT-019 | CHORE | DEFERRED | — | — | — |
+| PT-019 | CHORE | REOPENED | 1 | — | — |
 | PT-025 | CHORE | DEFERRED | — | — | — |
-| EP-016 | EP | IN_PROGRESS | 1 | — | — |
-| PT-055 | BUG | DEFERRED | — | — | — |
-| PT-065 | CHORE | IN_PROGRESS | 9 | chore/alberto-martinez/PT-065-la-sesion-es-de-alguien | 0bb521e |
+| PT-055 | BUG | REOPENED | 2 | — | — |
+| EP-017 |  | READY | 1 | — | — |
+| PT-066 | BUG | READY | 1 | — | — |
+| PT-067 | BUG | READY | 1 | — | — |
+| PT-068 | BUG | READY | 1 | — | — |
+| PT-069 | FEATURE | READY | 1 | — | — |
+| PT-070 | BUG | READY | 1 | — | — |
+| PT-071 | BUG | READY | 1 | — | — |
+| PT-072 | INVESTIGATION | READY | 1 | — | — |
+| PT-073 | CHORE | READY | 1 | — | — |
