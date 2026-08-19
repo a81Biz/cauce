@@ -2,11 +2,88 @@
   "pt": "PT-076",
   "generated": "2026-08-19",
   "criteria": [
-    { "ac": "AC-01", "statement": "Ningun caso escribe en el repositorio real", "scenarios": ["E1"], "tests": ["md5sum de SESSION-<persona>.json y SESSION_LOG.md antes y despues de la pasada completa"], "evidence": ["salidas/huella.txt", "salidas/selftest-completo.txt"], "verified": true, "nota": "Es el criterio de verdad: una huella no se satisface por accidente. Los demas AC explican por que." },
-    { "ac": "AC-02", "statement": "Los casos que necesitan historial real siguen leyendolo", "scenarios": ["E2"], "tests": ["selftest.sh:coste sigue leyendo el historial real"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "Es la razon por la que TRR no se elimina: sobre el fixture, coste mediria cuatro tareas de mentira." },
-    { "ac": "AC-03", "statement": "sesion abrir y cerrar se prueban en el fixture y comprueban lo mismo", "scenarios": ["E3", "E4", "E5"], "tests": ["selftest.sh:sesion abrir escribe la marca del FIXTURE", "selftest.sh:…y abrir otra vez la sobrescribe", "selftest.sh:sesion cerrar da el handoff", "selftest.sh:…y dice que NO borra la marca", "selftest.sh:…y que HANDOFF.md queda INTACTO"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
-    { "ac": "AC-04", "statement": "Algo falla si vuelve a colarse una accion que escribe por TRR", "scenarios": ["E6", "E7"], "tests": ["selftest.sh:ninguna accion que escriba va por TRR"], "evidence": ["salidas/inversa.txt"], "verified": true, "limite": "La guarda DERIVA del codigo que acciones escriben, pero TRES disparadores se nombran a mano —abrir, cerrar, --registrar— porque derivarlos exigiria saber en que rama de cada funcion cae el writeFileSync. Una heuristica equivocada ahi haria fallar casos correctos, que es peor que no tenerla (PT-023). Un disparador nuevo en sesion, viabilidad o asignar NO lo veria esta guarda; lo ve AC-01." },
-    { "ac": "AC-05", "statement": "Las 140 entradas ya escritas se declaran", "scenarios": ["E8"], "tests": ["selftest.sh:las entradas del arnes estan declaradas"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "SUITE-R09 hace el ledger append-only: limpiarlo destruiria la prueba de que ocurrio. Mismo criterio que PT-046 con una entrada mal formada de HISTORY.log." }
+    {
+      "ac": "AC-01",
+      "statement": "Ningun caso escribe en el repositorio real",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "md5sum de SESSION-<persona>.json y SESSION_LOG.md antes y despues de la pasada completa"
+      ],
+      "evidence": [
+        "salidas/huella.txt",
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Es el criterio de verdad: una huella no se satisface por accidente. Los demas AC explican por que."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Los casos que necesitan historial real siguen leyendolo",
+      "scenarios": [
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:coste sigue leyendo el historial real"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Es la razon por la que TRR no se elimina: sobre el fixture, coste mediria cuatro tareas de mentira."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "sesion abrir y cerrar se prueban en el fixture y comprueban lo mismo",
+      "scenarios": [
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:sesion abrir escribe la marca del FIXTURE",
+        "selftest.sh:…y abrir otra vez la sobrescribe",
+        "selftest.sh:sesion cerrar da el handoff",
+        "selftest.sh:…y dice que NO borra la marca",
+        "selftest.sh:…y que HANDOFF.md queda INTACTO"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Algo falla si vuelve a colarse una accion que escribe por TRR",
+      "scenarios": [
+        "E6",
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:ninguna accion que escriba va por TRR"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "limite": "La guarda DERIVA del codigo que acciones escriben, pero TRES disparadores se nombran a mano —abrir, cerrar, --registrar— porque derivarlos exigiria saber en que rama de cada funcion cae el writeFileSync. Una heuristica equivocada ahi haria fallar casos correctos, que es peor que no tenerla (PT-023). Un disparador nuevo en sesion, viabilidad o asignar NO lo veria esta guarda; lo ve AC-01."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Las 140 entradas ya escritas se declaran",
+      "scenarios": [
+        "E8"
+      ],
+      "tests": [
+        "selftest.sh:las entradas del arnes estan declaradas"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R09 hace el ledger append-only: limpiarlo destruiria la prueba de que ocurrio. Mismo criterio que PT-046 con una entrada mal formada de HISTORY.log."
+    }
   ],
   "no_verificado": [
     {
@@ -35,7 +112,18 @@
       "que": "La guarda de forma era demasiado gruesa.",
       "regla": "AC-06 de PT-075",
       "detalle": "Marcaba viabilidad y sesion como inseguras por PODER escribir, sin mirar si la invocacion llevaba el disparador. Habria fallado contra trabajo correcto, que es el fallo que PT-075 prohibe y que ya cometi alli una vez."
+    },
+    {
+      "que": "Tercera asercion del lote que no casa con lo que existe.",
+      "regla": "—",
+      "detalle": "El caso buscaba «escritas por el arnes» y la nota dice «escribio el arnes», con dos tildes. Anclada a la cabecera, que es estable y sin acentos. Las otras dos fueron en PT-055, y las tres son la misma clase: escribir la asercion sin ejecutarla contra lo que de verdad hay."
     }
   ],
-  "suite": { "passed": null, "failed": null, "skipped": 0, "coverage": null, "baseline": 997 }
+  "suite": {
+    "passed": 1005,
+    "failed": 0,
+    "skipped": 0,
+    "coverage": 1005,
+    "baseline": 997
+  }
 }

@@ -3,17 +3,25 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-076-el-arnes-no-escribe-en-el-repositorio-real",
-  "sha": "45dd14608179c07b47e52d4fabd00794b0c24ee7",
-  "sha_corto": "45dd146",
+  "sha": "6743f93adbf01d91ae96149b8b9305c0b0f94713",
+  "sha_corto": "6743f93",
   "sucio": true,
   "archivos": [
-    "docs/implementation/CHECKPOINT.json"
+    "changes/PT-076-el-arnes-no-escribe-en-el-repositorio-real/acciones-humanas.md",
+    "changes/PT-076-el-arnes-no-escribe-en-el-repositorio-real/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-076/manifest.json",
+    "docs/implementation/evidence/PT-076/salidas/huella.txt",
+    "docs/implementation/evidence/PT-076/salidas/selftest-completo.txt"
   ],
-  "compuerta": null,
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
