@@ -1467,15 +1467,16 @@
       "complexity": "STANDARD",
       "severity": "S2",
       "track": "STANDARD",
-      "status": "READY",
+      "status": "IN_PROGRESS",
       "structural": false,
       "suite_version": "8.2.0",
       "epic": "EP-016",
-      "phase": 1,
+      "phase": 2,
       "title": "La sesion es de alguien: SESSION.json deja de ser uno para todos",
       "origin": "EP-015 lo dejo declarado: SESSION.json es de UNA sesion y al abrir se sobrescribe. Con dos personas trabajando, la marca de una borra la de la otra sin que nada lo note",
       "created": "2026-08-18",
-      "issue": 120
+      "issue": 120,
+      "branch": "chore/alberto-martinez/PT-065-la-sesion-es-de-alguien"
     }
   ]
 }
