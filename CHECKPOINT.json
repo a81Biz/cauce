@@ -3,21 +3,18 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
-  "sha": "10a5a1a8d4b2d2dfc826467d91f03f766b5c5c88",
-  "sha_corto": "10a5a1a",
+  "sha": "306b95796ddfacedba70687a0a1a4399dd0bd255",
+  "sha_corto": "306b957",
   "sucio": true,
   "archivos": [
     "changes/PT-064-de-quien-es-cada-commit/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-18"
 }
