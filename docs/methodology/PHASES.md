@@ -204,6 +204,10 @@ HAZ  design.md          decisiones y por qué esta y no otra
 NO   crear rama · tocar código. Antes de G2: 0 líneas, 0 ramas [FDGE-R13]
 PARA G2. MANUAL,SUPERVISED→ACK. AUTONOMOUS→auto solo si las CINCO condiciones [EXEC §5.1]
      MAJOR con grafo ausente o STALE ⇒ bloqueado [FDGE-R43]
+     viabilidad CONSULTADA y REGISTRADA — no basta consultarla       [FDGE-R54]
+       node tools/tracker.mjs viabilidad PT-XXX --registrar
+       MARGINAL no prohibe: obliga a trabajo ATOMICO con checkpoint entre pasos
+       UNSAFE detiene: checkpoint, handoff y parada
 ```
 
 ### PHASE 5 · Implementation

@@ -1021,6 +1021,105 @@ function checkPT(pt, { gate } = {}) {
     }
   }
 
+  // ── PT-075 · las dos reglas que nada ejecutaba ────────────────────────────
+  //
+  // FDGE-R54 · no se empieza lo que no se puede terminar, Y CONSTA.
+  //
+  // PT-059 diseño la compuerta, LEXICON 6.5d le dio vocabulario y «tracker viabilidad» la
+  // calcula. Durante cuatro lotes no la exigio ninguna regla, no la abrio ninguna fase y no la
+  // echo en falta ningun verificador: no se cumplio ni se incumplio, no ocurrio.
+  //
+  // Se exige en G2 —o desde PHASE 5, que es donde empieza el trabajo— y no en G1: antes de
+  // PHASE 2 la tarea no tiene complejidad propuesta, y sin complejidad no hay coste tipico con
+  // el que comparar. Antes de eso AVISA. Lo ya terminado no se retrofecha (FDGE-R19, FDGE-R52).
+  if (rigeAqui && enRegistroPT?.type !== 'EP' && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+    const viab = enRegistroPT?.viabilidad;
+    if (!viab) {
+      const m = `${pt}: no consta el veredicto de viabilidad. Consultarla no basta: una compuerta `
+        + `cuyo resultado no se escribe no se puede auditar.  node tools/tracker.mjs viabilidad ${pt} --registrar`;
+      if (gate === 'G2' || fase >= 5) fail('FDGE-R54', m); else warn('FDGE-R54', m);
+    } else if (viab.veredicto === 'UNSAFE' && fase >= 5) {
+      fail('FDGE-R54', `${pt}: viabilidad UNSAFE y la tarea esta en PHASE ${fase}. PT-059 es explicita: `
+        + `checkpoint, handoff y parada. UNSAFE exige evidencia EN CONTRA, asi que no es una duda.`);
+    } else {
+      ok('FDGE-R54', `${pt}: viabilidad ${viab.veredicto}${viab.medido_en ? ` · medida contra ${String(viab.medido_en).slice(0, 7)}` : ''}.`);
+    }
+  }
+
+  // FDGE-R19 · la rama de integracion RECIBE el pull request de cada tarea; no se escribe en
+  // ella. Esta comprobacion nacio buscando la mitad de SUITE-R42 que no tenia verificador —«el
+  // agente no abre el PR ni lo fusiona»— y se emite bajo FDGE-R19 por dos motivos, y el caso
+  // «sin plataforma ⇒ G4 libre de R42» obligo a los dos:
+  //
+  //   1. SUITE-R42 es CONDICIONAL a que el proyecto declare plataforma —declararla es opcional
+  //      y humano, asi que quien no la declara no gana ninguna exigencia—. La topologia de
+  //      ramas no depende de la plataforma: rige siempre.
+  //   2. Es literalmente lo que FDGE-R19 enuncia. Citar la regla equivocada es el defecto que
+  //      SUITE-R53 prohibe, y el mismo que regla.mjs tiene abierto en PT-066.
+  //
+  // De SUITE-R42 queda comprobado lo comprobable: que el PR exista (checkHistory). QUIEN lo
+  // abrio no es determinable desde el repositorio y se declara en TD-14.
+  //
+  // La regla dice dos cosas y solo se comprobaba la primera —que el PR EXISTA, en checkHistory—.
+  // La segunda, «el agente no abre el PR ni lo fusiona», no la miraba nadie.
+  //
+  // QUIEN abrio un PR no es determinable desde el repositorio: el agente actua con la identidad
+  // git de la persona, asi que «gh pr view --json author» devuelve el mismo login en los dos
+  // casos. Comprobarlo daria «correcto» siempre, que es peor que no tenerlo (PT-023: 75 % de
+  // falsos positivos). Queda declarado como TD-14, no fingido.
+  //
+  // Lo que SI es comprobable es la CONSECUENCIA: trabajo de un PT escrito directamente sobre la
+  // rama de integracion en vez de llegar por su pull request.
+  //   --first-parent  un PR fusionado es UN commit de merge: lo integrado bien no cuenta
+  //   --no-merges     deja solo las escrituras DIRECTAS
+  //
+  // Solo mira PTs que DECLARAN rama. Las anteriores a 8.3.0 no la declaran y quedan fuera, con
+  // el criterio de FDGE-R19: pedir rama a lo ya integrado es pedir que se invente. Sin esa
+  // guarda el verificador acusaria a trabajo correcto, que es el fallo que no puede cometer.
+  if (enRegistroPT?.branch && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+    const gitPT = (args) => {
+      try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
+      catch { return null; }
+    };
+    const integracion = REGISTRO?.tracker?.rama_integracion ?? 'trabajo';
+    if (gitPT(['rev-parse', '--verify', '--quiet', integracion]) === null) {
+      warn('FDGE-R19', `${pt}: no existe la rama de integracion «${integracion}», asi que no se puede `
+        + `comprobar si el trabajo se escribio en ella. Declarala en REGISTRY.tracker.rama_integracion.`);
+    } else {
+      // El rango es «desde la rama del PT hasta la de integracion», NO la rama entera. La rama
+      // efimera nace en PHASE 5 (FDGE-R19), asi que todo lo anterior —intake, estrategia,
+      // diseño de PHASE 1 a 4— esta legitimamente en la rama de integracion y es ANTECESOR de
+      // la rama del PT. Mirar la rama entera acusaba a ese trabajo correcto: lo dijo la PRIMERA
+      // ejecucion de esta comprobacion, que señalo los dos commits de PHASE 2-4 de la propia
+      // PT-075. Lo que queda en el rango es lo escrito DESPUES de ramificar, que es el acto
+      // que la regla prohibe.
+      const rango = `${enRegistroPT.branch}..${integracion}`;
+      const asuntos = (gitPT(['log', rango, '--first-parent', '--no-merges', '--format=%s']) ?? '')
+        .split(/\r?\n/).filter(Boolean);
+      const suyos = asuntos.filter((a) => (a.match(/PT-\d{3}/) ?? [null])[0] === pt);
+      if (suyos.length) {
+        fail('FDGE-R19', `${pt}: ${suyos.length} commit(s) suyos estan DIRECTAMENTE en «${integracion}» y `
+          + `declara la rama «${enRegistroPT.branch}». La rama de integracion RECIBE el pull request de `
+          + `cada tarea (FDGE-R19); no se escribe en ella. El primero: «${suyos[0].slice(0, 60)}».`);
+      } else {
+        ok('FDGE-R19', `${pt}: su trabajo no esta escrito directamente en «${integracion}».`);
+      }
+    }
+  }
+
+  // EXEC-R07 · lo que no se automatiza se DESCRIBE. Si el agente ejecuto en vez de describir, la
+  // descripcion falta y la omision se ve. No prueba que no lo ejecutara —igual que SUITE-R27 no
+  // prueba que firmara una persona—: convierte la afirmacion en contrastable.
+  if (fase >= 9 && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+    if (!existsSync(join(ptDir(pt), 'acciones-humanas.md'))) {
+      fail('EXEC-R07', `${pt}: en PHASE 9 y sin «acciones-humanas.md». Lo que ningun modo automatiza `
+        + `se DESCRIBE con su comando exacto (EXEC-R07), y esa descripcion es el unico rastro de que `
+        + `el agente se detuvo donde debia en vez de ejecutar.`);
+    } else {
+      ok('EXEC-R07', `${pt}: las acciones reservadas al humano estan descritas.`);
+    }
+  }
+
   // PT-044 · SUITE-R35 hacia DENTRO. La regla dice que el registro asigna y todo lo demas
   // ESPEJA, y su comprobacion solo miraba hacia la plataforma. El YAML del intake y la linea de
   // indice son las otras dos copias del mismo hecho, y nada las comparaba: cuatro tareas de
