@@ -3,21 +3,18 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
-  "sha": "4555e7bd62a74af446c7ced6025c3d8e9aca3e3e",
-  "sha_corto": "4555e7b",
+  "sha": "b9e69aa7074ae32d754f05fb151c9c0324b59f43",
+  "sha_corto": "b9e69aa",
   "sucio": true,
   "archivos": [
     "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-18"
 }
