@@ -2458,7 +2458,9 @@ chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/t
 # cifras reales no comprobaban nada. Es el mismo defecto que PT-023 persigue: verde por vacio.
 RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
 TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
-chk   "coste da una cifra para un grupo grande"  "CHORE/STANDARD · 1[0-9] tareas cerradas"  TRR coste CHORE STANDARD
+# El patron NO se ata a un numero concreto: la cifra CRECE con cada tarea cerrada, y atarla
+# convierte un caso en una bomba de relojeria. Paso con «1[0-9]» al llegar a 20.
+chk   "coste da una cifra para un grupo grande"  "CHORE/STANDARD · [0-9][0-9]* tareas cerradas"  TRR coste CHORE STANDARD
 chk   "…con su rango"                            "( *[0-9]* – [0-9]*)"   TRR coste CHORE STANDARD
 chk   "…y de cuantas cerradas sale"              "de las .* tareas cerradas"  TRR coste CHORE STANDARD
 chk   "…y avisa de las que no se pueden saber"   "NO SE PUEDE SABER"     TRR coste CHORE STANDARD
@@ -2854,6 +2856,61 @@ chk   "…y sus prefijos"                   "refactor"              cat "$SUITE/
 chk   "…y los TRES niveles"               "tres niveles"          cat "$SUITE/RULES.md"
 chk   "…y que la rama va al registro"     "branch"                cat "$SUITE/RULES.md"
 chk   "…y que sin personas sigue el de antes"  "sin personas declaradas"  cat "$SUITE/RULES.md"
+
+# ─── PT-064 · de quién es cada commit ──────────────────────────────────────
+# EP-015 lo dejo declarado y sin cerrar: «el dia de dos personas son dos sesiones que porSesion()
+# cuenta como UNA, y el techo historico —del que depende AC-06 de PT-059— sale INFLADO».
+#
+# PHASE 2 midio que NINGUNA cifra pedia el autor, y que las tres se rompen DISTINTO.
+sec "── PT-064 · de quién es cada commit ──"
+
+XS='[{id:1,persona:"A"},{id:2,persona:"B"},{id:3,persona:null}]'
+
+# E1-E3 · soloDe. Con null devuelve TODO, que es lo que impide romper EP-015.
+PL "filtra por persona"                   "^\[1\]$"      "console.log(JSON.stringify(m.soloDe($XS,\"A\").map(x=>x.id)))"
+PL "…y con null devuelve TODO"            "^\[1,2,3\]$"  "console.log(JSON.stringify(m.soloDe($XS,null).map(x=>x.id)))"
+PLNO "…y los sin persona no entran en el de nadie"  "3"  "console.log(JSON.stringify(m.soloDe($XS,\"B\").map(x=>x.id)))"
+# E4 · y se CUENTAN: la ausencia se ve en vez de restar en silencio.
+PL "sinPersona los cuenta"                "^1$"          "console.log(m.sinPersona($XS))"
+PL "…y con todos declarados, cero"        "^0$"          "console.log(m.sinPersona([{persona:\"A\"}]))"
+
+# E5-E6 · las tres derivaciones piden el autor, con un separador que no aparece en un nombre.
+chk   "las derivaciones piden el autor"   "%an"          cat "$SUITE/tools/tracker.mjs"
+chk   "…y el correo"                      "%ae"          cat "$SUITE/tools/tracker.mjs"
+# PT-057 uso un espacio porque el SHA no lleva ninguno. Un NOMBRE si: «Alberto Martinez» se
+# partiria en dos campos.
+chk   "…con un separador que no es un espacio"  "SEP_REG"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y se dice por que"                "un NOMBRE si"   cat "$SUITE/tools/tracker.mjs"
+
+# E7-E8 · el precedente y el techo se filtran SIEMPRE.
+chk   "el precedente se filtra por persona"  "soloDe(conDato, yo)"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y el techo tambien"               "soloDe(sesiones, yo)"   cat "$SUITE/tools/tracker.mjs"
+chk   "…y se dice por que siempre"        "comparar contra el"     cat "$SUITE/tools/tracker.mjs"
+# Una sesion es de un DIA y de una PERSONA: contarlas juntas infla el techo.
+chk   "una sesion es de un dia Y de una persona"  "de una PERSONA"  cat "$SUITE/tools/tracker.mjs"
+
+# E9-E11 · el coste, a peticion, y DICE de quien es SIEMPRE.
+chk   "sin filtro dice que es de todas"   "de TODAS las personas"  TRR coste CHORE STANDARD
+chk   "--mio dice de quien"               "solo de"                TRR coste CHORE STANDARD --mio
+chk   "…y sigue dando la cifra"           "lineas"                 TRR coste CHORE STANDARD --mio
+# Con un nombre que no existe no queda ninguna tarea, asi que no hay cifra que etiquetar: lo
+# que se comprueba es que el filtro SE APLICO, y eso se ve en que el grupo queda vacio.
+chk   "--de tambien filtra"               "0 tareas"               TRR coste CHORE STANDARD --de Nadie
+# Con un nombre que no existe no hay casos: SIN REFERENCIA, no una cifra inventada.
+chk   "…y con un nombre que no existe, SIN REFERENCIA"  "SIN REFERENCIA"  TRR coste CHORE STANDARD --de Nadie
+
+# E13-E15 · AC-05 · con una sola persona, las cifras son las de hoy.
+chk   "viabilidad sigue dando veredicto"  "veredicto"              TRR viabilidad PT-064
+chk   "…y el techo dice de quien es"      "la mayor sesion registrada"  TRR viabilidad PT-064
+chk   "…y el precedente sigue saliendo"   "mayor hecho"            TRR viabilidad PT-064
+
+# AC-04 · el texto de los no declarados existe y dice que no se adjudican.
+chk   "el texto de los no declarados existe"  "sin declarar no se reparten"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y remite a «tracker personas»"    "tracker personas.. los enumera"   cat "$SUITE/tools/tracker.mjs"
+
+# Lo que esta tarea NO hace, comprobado: no toca la logica de PT-057 ni de PT-059.
+chkno "no se toco costeDe"                "export function costeDe.*persona"  cat "$SUITE/tools/tracker.mjs"
+chk   "…y viabilidadDe sigue en patrones" "export function viabilidadDe"      cat "$SUITE/tools/patrones.mjs"
 
 # ─── PT-056 · el arbol corresponde al checkpoint (STATE_MISMATCH) ──────────
 # PT-052 dejo el `sha` y verify-fdge exige que sea ALCANZABLE. Eso impide la averia obvia —un
