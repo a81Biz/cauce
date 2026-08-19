@@ -1,21 +1,22 @@
 {
-  "pt": "PT-064",
+  "pt": "PT-065",
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/alberto-martinez/PT-064-de-quien-es-cada-commit",
-  "sha": "57abee6ab09b307201427da37260763101774428",
-  "sha_corto": "57abee6",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/alberto-martinez/PT-065-la-sesion-es-de-alguien",
+  "sha": "55508852d1e3c55a719eed1201b5fcdc81e3f570",
+  "sha_corto": "5550885",
   "sucio": true,
   "archivos": [
-    "changes/PT-064-de-quien-es-cada-commit/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-065-la-sesion-es-de-alguien/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }
