@@ -1880,7 +1880,7 @@
       "severity": "S1",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 4,
+      "phase": 5,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -1903,7 +1903,8 @@
         "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
         "fecha": "2026-08-19"
       },
-      "issue": 138
+      "issue": 138,
+      "branch": "fix/alberto-martinez/PT-076-el-arnes-no-escribe-en-el-repositorio-real"
     },
     {
       "id": "PT-077",

@@ -2531,3 +2531,34 @@ en curso     PT-055 · PHASE 5 Implementación
 sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
 sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
 ```
+
+## Aviso sobre este archivo — 140 de sus entradas las **escribió el arnés**   `PT-076`
+
+<!-- cauce:agente -->
+
+Hasta el 2026-08-19, `selftest.sh` invocaba `tracker sesion abrir` y `tracker sesion cerrar`
+**contra el repositorio real** a través de `TRR()`. Cada pasada completa de la batería apilaba
+**nueve entradas** aquí y pisaba la marca de `SESSION-<persona>.json`.
+
+Contadas el 2026-08-19, antes de corregirlo:
+
+```
+140  entradas «sesion abierta» / «sesion cerrada»
+ 14  aperturas sobre 258be16      <- una sesion, catorce pasadas de la bateria
+  8  sobre 37392ac
+  6  sobre e4c8cb1 · daa057e · d61a241
+```
+
+**Quien lea este historial no debe contar una sesión por entrada.** Las repeticiones sobre el
+mismo SHA son pasadas del arnés, no sesiones de trabajo.
+
+**No se borran.** `SUITE-R09` hace este ledger append-only y es lo que se audita: limpiarlo
+destruiría la prueba de que ocurrió. Se declara, que es lo que `PT-046` hizo con una entrada mal
+formada de `HISTORY.log`.
+
+Desde `PT-076` los nueve casos corren sobre el fixture, y un caso deriva del código qué acciones
+escriben para que ninguna vuelva a invocarse por `TRR`.
+
+## 2026-08-19 · sesion abierta en `7735ff4`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
