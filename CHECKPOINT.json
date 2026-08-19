@@ -1,21 +1,22 @@
 {
-  "pt": "PT-061",
+  "pt": "PT-062",
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia",
-  "sha": "2de787c84327080ea1b578fe17a3fd322f2e74ca",
-  "sha_corto": "2de787c",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-062-los-ids-se-reparten-por-rangos-reservados",
+  "sha": "5bbd464a8119837351252aed74375f2c4fcdd095",
+  "sha_corto": "5bbd464",
   "sucio": true,
   "archivos": [
-    "changes/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-062-los-ids-se-reparten-por-rangos-reservados/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }

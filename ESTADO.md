@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
+Proyectado el 2026-08-18 · 8 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
@@ -13,8 +13,7 @@ Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-061 | CHORE | IN_PROGRESS | 9 | chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia | 2de787c |
-| PT-062 | CHORE | READY | 1 | — | — |
+| PT-062 | CHORE | IN_PROGRESS | 2 | chore/PT-062-los-ids-se-reparten-por-rangos-reservados | 5bbd464 |
 | PT-063 | CHORE | READY | 1 | — | — |
 | PT-064 | CHORE | READY | 1 | — | — |
 | PT-065 | CHORE | READY | 1 | — | — |
