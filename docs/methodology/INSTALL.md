@@ -140,6 +140,11 @@ una tarea (`LEX-R26`), así que sin tarea no hay nada que derivar y un archivo c
 blanco sería una afirmación falsa con forma de dato. Aparece con la primera —
 `tracker checkpoint PT-NNN`— y desde ahí se sobrescribe.
 
+`SESSION.json` **tampoco**, y por la misma razón con un matiz: su único campo capturado es
+`desde`, el commit donde empezó la sesión, y una sesión que no ha empezado no tiene inicio que
+marcar. Aparece con `tracker sesion abrir` y desde ahí se sobrescribe — una sesión a la vez.
+Sin él, lo que lleva la sesión es `SIN EVALUAR`, y eso es correcto: **el día no es la sesión**.
+
 **Qué se versiona** (`SUITE-R37`), decidido de una vez para no volver sobre ello:
 
 | | |

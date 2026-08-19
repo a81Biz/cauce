@@ -1,0 +1,110 @@
+# PT-060 · AC-06 EJECUTADO
+
+«Una tarea puede recorrer dos sesiones sin repetir el analisis.»
+
+No es una asercion: se ejecuta y se captura. Cinco pasos, sobre esta misma tarea.
+
+==================================================================
+PASO 1 · la sesion ya esta abierta (marca puesta arriba)
+
+  sesion desde 0919eda (2026-08-18)
+    commits    1 (MEDIDO)
+    archivos   10 (MEDIDO)
+    lineas     248 (MEDIDO)
+    tareas     PT-060
+    en curso   PT-060 · PHASE 5
+tracker · github · acción sesion
+
+
+==================================================================
+PASO 2 · se trabaja: PT-060 avanza de fase
+
+  · registro, intake, CHECKPOINT y el sello del HANDOFF escritos; espejo, nota y proyeccion
+
+Sin divergencias.
+
+==================================================================
+PASO 3 · «tracker sesion cerrar» produce el handoff DERIVADO
+
+  sesion       desde 0919eda (2026-08-18)
+               1 (MEDIDO) commits · 248 (MEDIDO) lineas
+  tareas       PT-060
+  en curso     PT-060 · PHASE 6 Evidencia
+  sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+  sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+
+  Apilado en SESSION_LOG.md. SESSION.json NO se borra: la sesion siguiente lo sobrescribe.
+  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.
+tracker · github · acción sesion
+
+
+Sin divergencias.
+
+==================================================================
+PASO 4 · la sesion SIGUIENTE. Se lee SOLO el handoff derivado y «tracker siguiente».
+
+Nada mas: ni los nueve artefactos de changes/, ni HISTORY, ni el discovery.
+
+  PT-060  IN_PROGRESS  ·  PHASE 6 Evidencia  ·  #107
+  produce:    manifest.json · self-review.md
+  siguiente:  PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+
+  Esto se DERIVA del registro y del tablero (SUITE-R48). No es una opinión: si algo aquí
+  no cuadra con lo que crees que toca, el que se equivoca no es el tablero.
+tracker · github · acción siguiente
+
+==================================================================
+PASO 5 · ¿basta para continuar?
+
+De los dos bloques de arriba, sin abrir nada mas, se sabe:
+
+  QUE tarea      PT-060
+  EN QUE fase    PHASE 6 · Evidencia
+  SOBRE QUE      daa057e · chore/PT-060-la-sesion-es-el-worker-no-el-estado
+  QUE TOCA       cada AC con su evidencia, o declarado no verificado
+  QUE SIGUE      PHASE 7 · Validacion
+
+Y ademas el arbol CORRESPONDE al checkpoint (PT-056): si no, «siguiente» habria
+bloqueado con STATE_MISMATCH antes de decir nada de esto.
+
+==================================================================
+AC-05 · HANDOFF.md NO se toco
+
+  bloques «no hacer» antes del cierre de sesion: 1 · despues: 1
+ docs/implementation/HANDOFF.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+  El diff NO esta vacio, y hay que decirlo con precision: la unica linea que cambio es
+  «actualizado:», y la puso «tracker avanzar» en el PASO 2 —no «sesion cerrar»—. Es
+  exactamente lo que AC-05 permite: «no reescribe su prosa: solo su sello».
+
+  Lo que NO cambio: «decisiones», «no hacer», «tarea», «siguiente», «compuerta». Es decir,
+  las cinco decisiones del firmante, las autorizaciones de G4 con su cita literal y los mas
+  de treinta «no hacer» que salieron de ejecutar. Eso es lo unico del estado que no se puede
+  derivar, y por eso no se deriva.
+
+==================================================================
+Lo que SESSION_LOG.md recibio (SUITE-R09: se apila, no se reescribe)
+
+Y un descuido propio sin regla que lo cace: se escribió un `intake.md` duplicado para `PT-023`
+**sin comprobar antes si ya existía** —existía, firmado por el lote el día anterior—. Se retiró y
+se usó el original. Nada lo habría detectado: el directorio con otro slug estaba a la vista.
+
+**Dónde queda:** `G4` pendiente. Es del firmante y no se delega (`EXEC-R04`, `SUITE-R06a`).
+
+## 2026-08-18 · sesion abierta en `0919eda`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 0919eda (2026-08-18)
+             1 (MEDIDO) commits · 248 (MEDIDO) lineas
+tareas       PT-060
+en curso     PT-060 · PHASE 6 Evidencia
+sobre        daa057e  chore/PT-060-la-sesion-es-el-worker-no-el-estado
+sigue        PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.
+```

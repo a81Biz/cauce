@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 205a6a5d3423 -->
-<!-- fuentes: RULES.md:a019b19102da LEXICON.md:4907887ec405 EXECUTION-MODES.md:1006dad6b6ce PHASES.md:e175f1ebdb2e -->
+<!-- cuerpo: 983943e631ce -->
+<!-- fuentes: RULES.md:a019b19102da LEXICON.md:4907887ec405 EXECUTION-MODES.md:1006dad6b6ce PHASES.md:4065bb209d81 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -517,6 +517,12 @@ LEE  enterprise-documentation/README · REGISTRY.json · BACKLOG · HANDOFF
      —un campo que solo pueda rellenar la memoria miente con la autoridad de un
      dato estructurado— y el «sha» que declara tiene que existir     [LEX-R26]
        node tools/tracker.mjs checkpoint PT-NNN     lo escribe
+     SESSION.json si existe: el estado de la SESIÓN, que NO es el de la tarea ni el
+     del proyecto. «desde» es lo único capturado —una MARCA, no memoria— y el resto
+     se deriva de «desde..HEAD». Sin él, lo que lleva la sesión es SIN EVALUAR: el
+     día NO es la sesión                                          [LEXICON §6.5e]
+       node tools/tracker.mjs sesion abrir          marca el inicio
+       node tools/tracker.mjs sesion               lo derivado
      HISTORY(3 últimos) · INCIDENTS · changes/ · graphify-out/
 HAZ  comprobar: CORE.md presente y sincronizado [SUITE-R15, LEX-R25] · modo declarado; sin
      él se asume SUPERVISED [EXEC-R02] · solo un humano lo cambia [EXEC-R12]
@@ -525,6 +531,9 @@ HAZ  comprobar: CORE.md presente y sincronizado [SUITE-R15, LEX-R25] · modo dec
      restricción automática de compuertas [EXEC-R14] · hotfix vencido [EXEC-R11]
      grafo: FRESH|STALE|MISSING [FDGE-R43]
 SALE SESSION_LOG (append): PT último · modo · suite · PTs vivos · comprobaciones · confianza
+       node tools/tracker.mjs sesion cerrar        el handoff DERIVADO, al terminar
+     No sustituye a HANDOFF.md: su prosa —decisiones, «no hacer»— es lo único del
+     estado que NO se puede derivar, y solo se le pone el sello
 NO   diseñar · planificar · modificar · ejecutar comandos · avanzar solo
 PARA siempre. Resumen ejecutivo y espera.
 ```
