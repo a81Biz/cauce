@@ -303,6 +303,31 @@ que `publicar.yml` clonaba en superficial y los casos derivados del historial fa
 **Recomendación:** que `publicar.yml` corra el mismo conjunto, o que declare por escrito cuál
 omite y por qué. Divergencia `D15`. Va a `EP-017`.
 
+### `TD-14` · Quién abrió un pull request no es determinable desde el repositorio
+
+Declarado por `PT-075`, y se declara **en vez de** escribir el verificador.
+
+`SUITE-R42` dice que **el agente no abre el PR ni lo fusiona**. La mitad comprobable de esa
+frase ya lo es: `verify-fdge` detecta que el trabajo de un PT esté escrito directamente en la
+rama de integración en vez de llegar por su pull request. La otra mitad —**quién** pulsó el
+botón— no lo es.
+
+**Por qué no.** El agente actúa con la identidad git de la persona. `gh pr view --json author`
+devuelve el mismo login lo abra quien lo abra, así que un verificador sobre ese campo diría
+«correcto» siempre. `PT-023` midió exactamente ese fallo desde otro ángulo: un verificador
+equivocado tres de cada cuatro veces **se silencia y ocupa el sitio del que haría falta**.
+
+**Lo que sí hay, y su alcance.** `EXEC-R07` obliga a **describir** el comando reservado al
+humano, y desde `PT-075` ese artefacto —`changes/PT-NNN-slug/acciones-humanas.md`— se exige en
+`PHASE 9`. Si el agente ejecutó en vez de describir, la descripción falta y **la omisión se
+ve**. No prueba que no lo ejecutara: es el mismo estatuto que `SUITE-R27` da a una firma —no
+prueba que firmara una persona, pero convierte la afirmación en contrastable, y quien aparece
+responde de ella.
+
+**Recomendación:** no escribir el verificador de autoría. Si algún día la plataforma distingue
+la identidad de un agente de la de su persona, esta deuda se cierra sola; forzarlo antes
+produce un verde que no significa nada.
+
 ## Hechos no determinados   `FND-R01`
 
 Lo que no pudo verificarse con una fuente citable en este repositorio:

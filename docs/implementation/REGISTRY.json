@@ -1663,7 +1663,24 @@
       "suite_version": "9.0.0",
       "title": "Una regla sin verificador no ocurre: subir la exigencia donde el agente puede saltarsela en silencio",
       "origin": "Abierta el 2026-08-19 a peticion del firmante: «llevas dos reglas que no quieres seguir y no hay nada que te lo exija, debemos entonces empezar por ahi, por aumentar la exigencia para que lo sigas igual que el resto». Las dos, medidas en esta misma sesion: la compuerta de viabilidad (0 invocaciones en CORE.md, PHASES.md y verify-fdge) y la mitad de SUITE-R42 que dice que el agente no empuja ni abre el PR (verify-fdge solo comprueba que el PR EXISTA). Va la primera del lote por decision del firmante.",
-      "issue": 137
+      "issue": 137,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 665,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2408,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "258be16ebd45176a39dfccee122a980d44a9e724",
+        "fecha": "2026-08-19"
+      }
     }
   ]
 }
