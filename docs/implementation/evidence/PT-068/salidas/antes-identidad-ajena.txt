@@ -1,0 +1,12 @@
+
+  sesion desde 258be16 (2026-08-18)
+    commits    32 (MEDIDO)
+    archivos   144 (MEDIDO)
+    lineas     13194 (MEDIDO)
+    tareas     PT-055 · PT-060 · PT-065 · PT-075 · PT-076
+    en curso   PT-076 · PHASE 9
+
+  Otras sesiones abiertas:
+    Alberto Martínez · desde 7735ff4 (2026-08-19)
+    Alberto Martínez · desde 258be16 (2026-08-18)
+tracker · github · acción sesion
