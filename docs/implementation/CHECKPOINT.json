@@ -1,20 +1,22 @@
 {
-  "pt": "PT-062",
+  "pt": "PT-063",
   "type": "CHORE",
   "epic": "EP-016",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "13867037589c66adade87dbb1368b1e24f5a8f82",
-  "sha_corto": "1386703",
+  "status": "IN_PROGRESS",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea",
+  "sha": "48a021f7a45f838fa955db43ab4aaa479b8b61de",
+  "sha_corto": "48a021f",
   "sucio": true,
   "archivos": [
-    "docs/implementation/REFACTOR_SCOPE.md",
+    "changes/PT-063-el-usuario-vive-en-la-rama-de-tarea/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PT-062 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }
