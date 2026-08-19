@@ -14,7 +14,7 @@ Proyectado el 2026-08-19 · 14 allocation(es) viva(s).
 | EP-017 |  | READY | 1 | — | — |
 | PT-066 | BUG | READY | 1 | — | — |
 | PT-067 | BUG | READY | 1 | — | — |
-| PT-068 | BUG | READY | 2 | — | — |
+| PT-068 | BUG | READY | 3 | — | — |
 | PT-069 | FEATURE | READY | 1 | — | — |
 | PT-070 | BUG | READY | 1 | — | — |
 | PT-071 | BUG | READY | 1 | — | — |

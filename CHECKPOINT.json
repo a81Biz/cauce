@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "trabajo",
   "sha": "b1f4e888fa16ef7cae8b5d5b0b1de4facb56dbc3",
   "sha_corto": "b1f4e88",
@@ -19,13 +19,15 @@
     "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/tasks.md",
     "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/test-scenarios.md",
     "changes/PT-068-la-marca-de-sesion-es-de-quien-la-abre/traceability.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-068/"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-19"
 }
