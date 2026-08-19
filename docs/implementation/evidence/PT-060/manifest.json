@@ -1,0 +1,35 @@
+{
+  "pt": "PT-060",
+  "generated": "2026-08-18",
+  "criteria": [
+    { "ac": "AC-01", "statement": "SESSION.json declara el estado de la SESION y todos sus campos se derivan (LEX-R26)", "scenarios": ["E1", "E2", "E3", "E4", "E5", "E6", "E18", "E19"], "tests": ["selftest.sh:con marca, la sesion esta abierta", "selftest.sh:…y las cifras van MEDIDAS", "selftest.sh:…y el «desde» sale de la MARCA", "selftest.sh:sin datos de git ⇒ SIN EVALUAR", "selftest.sh:sin marca, no hay sesion", "selftest.sh:…y que el dia NO es la sesion", "selftest.sh:viabilidad nombra la sesion abierta"], "evidence": ["salidas/ac06-dos-sesiones.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Los estados de sesion no entran en REGISTRY.json", "scenarios": ["E7", "E8"], "tests": ["selftest.sh:CHECKPOINTING no es estado terminal", "selftest.sh:…ni estado vivo", "selftest.sh:HANDOFF_REQUIRED tampoco", "selftest.sh:WAITING_NEW_SESSION tampoco", "selftest.sh:ninguno es status en REGISTRY.json"], "evidence": ["salidas/selftest-completo.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Se sobrescribe; las transiciones se apilan en SESSION_LOG.md", "scenarios": ["E9", "E10", "E11", "E12"], "tests": ["selftest.sh:sesion abrir escribe la marca", "selftest.sh:…y SESSION.json existe", "selftest.sh:abrir otra vez sobrescribe", "selftest.sh:…y sigue habiendo UN solo SESSION.json", "selftest.sh:…y dice que NO borra la marca"], "evidence": ["salidas/ac06-dos-sesiones.txt"], "verified": true },
+    { "ac": "AC-04", "statement": "El handoff de cambio de sesion se deriva del checkpoint", "scenarios": ["E13", "E14", "E15"], "tests": ["selftest.sh:el handoff dice que tarea", "selftest.sh:…y en que fase", "selftest.sh:…y sobre que commit", "selftest.sh:…y QUE SIGUE", "selftest.sh:sin checkpoint lo DICE"], "evidence": ["salidas/ac06-dos-sesiones.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "No sustituye HANDOFF.md ni reescribe su prosa: solo su sello", "scenarios": ["E16", "E17"], "tests": ["selftest.sh:HANDOFF conserva sus decisiones", "selftest.sh:…y sus «no hacer»", "selftest.sh:…y «sesion cerrar» no los borra"], "evidence": ["salidas/ac06-dos-sesiones.txt"], "verified": true },
+    { "ac": "AC-06", "statement": "Una tarea puede recorrer dos sesiones sin repetir el analisis", "scenarios": ["E20", "ejecutado"], "tests": ["ejecucion capturada · cinco pasos"], "evidence": ["salidas/ac06-dos-sesiones.txt"], "verified": true }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que un agente distinto no vuelva a abrirlo todo igualmente.",
+      "por_que": "AC-06 se ejecuto y esta capturado: del handoff derivado y «tracker siguiente» salen la tarea, la fase, el commit, que toca y que sigue. Lo que eso demuestra es que NO HACE FALTA abrir nada mas, no que nadie lo abra. Es un juicio sobre el comportamiento de quien lee, y no se puede comprobar desde aqui.",
+      "donde": "docs/implementation/evidence/PT-060/salidas/ac06-dos-sesiones.txt"
+    },
+    {
+      "afirmacion": "Que alguien ABRA la sesion.",
+      "por_que": "Si nadie ejecuta «sesion abrir» no hay marca, y entonces todo sale SIN EVALUAR — correcto, y peor que tener el dato. La herramienta no puede obligarse a si misma a ser usada. Lo que si queda es que la ausencia se DIGA en vez de sustituirse por el dia.",
+      "donde": "changes/PT-060-la-sesion-es-el-worker-no-el-estado/test-scenarios.md"
+    },
+    {
+      "afirmacion": "Que la evidencia de AC-06 sea una sesion de verdad.",
+      "por_que": "Los cinco pasos se ejecutaron dentro de la MISMA sesion de trabajo: el «paso 4» simula la sesion siguiente leyendo solo el handoff, pero quien lo lee es el mismo agente que acaba de escribirlo y no puede olvidar lo que sabe. Lo demostrado es que la INFORMACION basta, no que un contexto vacio la use bien.",
+      "donde": "docs/implementation/evidence/PT-060/salidas/ac06-dos-sesiones.txt"
+    },
+    {
+      "afirmacion": "Que «desde..HEAD» capture todo el trabajo de la sesion.",
+      "por_que": "Cuenta commits. El trabajo sin commitear —analisis, lectura, artefactos a medias— no aparece, asi que la cifra de la sesion es un suelo, no un total. Es el mismo limite que PT-057 tiene con el coste, heredado.",
+      "donde": "docs/methodology/tools/tracker.mjs"
+    }
+  ],
+  "suite": { "passed": 829, "failed": 0, "skipped": 0, "coverage": 829, "baseline": 784 }
+}
