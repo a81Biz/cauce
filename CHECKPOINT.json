@@ -1,21 +1,22 @@
 {
-  "pt": "PT-059",
+  "pt": "PT-060",
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "chore/PT-059-no-empezar-lo-que-no-se-puede-terminar",
-  "sha": "0140533b46040d74f7a895dd72bf19a7b279803a",
-  "sha_corto": "0140533",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
+  "sha": "ea4e86717a2edd27b77d06d78864fae1ec4c8769",
+  "sha_corto": "ea4e867",
   "sucio": true,
   "archivos": [
-    "changes/PT-059-no-empezar-lo-que-no-se-puede-terminar/intake.md",
-    "docs/implementation/CHECKPOINT.json",
+    "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-18"
 }

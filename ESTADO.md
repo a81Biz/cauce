@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-18 · 7 allocation(es) viva(s).
+Proyectado el 2026-08-18 · 6 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
@@ -14,5 +14,4 @@ Proyectado el 2026-08-18 · 7 allocation(es) viva(s).
 | EP-015 | EP | IN_PROGRESS | 1 | — | — |
 | EP-016 | EP | DEFERRED | — | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-059 | CHORE | IN_PROGRESS | 9 | chore/PT-059-no-empezar-lo-que-no-se-puede-terminar | 0140533 |
-| PT-060 | CHORE | READY | 1 | — | — |
+| PT-060 | CHORE | IN_PROGRESS | 2 | chore/PT-060-la-sesion-es-el-worker-no-el-estado | ea4e867 |
