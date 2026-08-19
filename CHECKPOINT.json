@@ -3,23 +3,28 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "fix/alberto-martinez/PT-076-el-arnes-no-escribe-en-el-repositorio-real",
   "sha": "6743f93adbf01d91ae96149b8b9305c0b0f94713",
   "sha_corto": "6743f93",
   "sucio": true,
   "archivos": [
+    "changes/PT-076-el-arnes-no-escribe-en-el-repositorio-real/acciones-humanas.md",
     "changes/PT-076-el-arnes-no-escribe-en-el-repositorio-real/intake.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-076/manifest.json",
     "docs/implementation/evidence/PT-076/salidas/huella.txt",
     "docs/implementation/evidence/PT-076/salidas/selftest-completo.txt"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-19"
 }
