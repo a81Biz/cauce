@@ -1,20 +1,22 @@
 {
-  "pt": "PT-055",
+  "pt": "PT-075",
   "type": "BUG",
   "epic": "EP-017",
-  "status": "REOPENED",
-  "phase": 5,
-  "fase": "Implementación",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "trabajo",
-  "sha": "27f5351408020e4f38a55797b2408b911f10fdd8",
-  "sha_corto": "27f5351",
+  "sha": "7412eeb67c6c35e55eb8c7ef8642a1e58b4d1ba5",
+  "sha_corto": "7412eeb",
   "sucio": true,
   "archivos": [
-    "changes/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre/intake.md",
+    "changes/PT-075-una-regla-sin-verificador-no-ocurre/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-19"
 }
