@@ -694,3 +694,7 @@ Y un descuido propio sin regla que lo cace: se escribió un `intake.md` duplicad
 se usó el original. Nada lo habría detectado: el directorio con otro slug estaba a la vista.
 
 **Dónde queda:** `G4` pendiente. Es del firmante y no se delega (`EXEC-R04`, `SUITE-R06a`).
+
+## 2026-08-18 · sesion abierta en `0919eda`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.

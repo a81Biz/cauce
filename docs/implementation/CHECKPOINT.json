@@ -3,25 +3,18 @@
   "type": "CHORE",
   "epic": "EP-015",
   "status": "IN_PROGRESS",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/PT-060-la-sesion-es-el-worker-no-el-estado",
-  "sha": "80157a5c790245cc98539bfe4697c9b8db348f9f",
-  "sha_corto": "80157a5",
+  "sha": "0919edaacb30f5e6a65d6acef08bef3cc331921c",
+  "sha_corto": "0919eda",
   "sucio": true,
   "archivos": [
     "changes/PT-060-la-sesion-es-el-worker-no-el-estado/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-18"
 }

@@ -39,6 +39,8 @@ import {
   lineas, ESTADOS_TERMINALES,
   // PT-058 · cada cifra dice que es · PT-059 · el veredicto de viabilidad
   cifra, textoCifra, MEDIDO, ESTIMADO, SIN_EVALUAR, viabilidadDe,
+  // PT-060 · la sesion es el worker, no el estado
+  sesionDe, handoffDeSesion,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -477,10 +479,15 @@ const CON_VALOR = new Set(['--a', '--nota']);
 // CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
 // ahora estos—, y las cuatro se arreglan con una regla de FORMA, no con un caso mas.
 const ES_ETIQUETA = /^[A-Z][A-Z_]*$/;
+// PT-060 · y los SUBCOMANDOS tampoco son rutas. Quinta vez que un argumento nuevo se cuela por
+// aqui —-q, --solo, --a, las etiquetas y ahora estos—: «tracker sesion abrir» tomaba «abrir» por
+// ROOT, buscaba el registro en ./abrir y no hacia nada, EN SILENCIO.
+const SUBCOMANDOS = new Set(['abrir', 'cerrar', 'ver']);
 const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
   !a.startsWith('--')
   && !/^(?:PT|EP)-\d+$/.test(a)
   && !ES_ETIQUETA.test(a)
+  && !SUBCOMANDOS.has(a)
   && !CON_VALOR.has(xs[i - 1])) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
 
@@ -841,7 +848,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1303,10 +1310,14 @@ function viabilidad() {
 
   const sesiones = porSesion();
   const hoy = gitDe(['log', '-1', '--format=%cs']);
+  // PT-060 · si hay sesion abierta, el precedente sale de la SESION REAL. Sin marca sale del dia,
+  // que es una APROXIMACION —PHASE 2 de PT-060 lo midio: coinciden por casualidad— y se DICE.
+  const marcaSesion = leerJSON(join(IMPL, 'SESSION.json'));
   // El precedente es lo mayor COMPLETADO en esta sesion. Si la sesion acaba de empezar no hay
   // con que comparar, y eso es SIN EVALUAR — no cero.
+  const deLaSesion = marcaSesion?.desde ? new Set(movidoDesde(marcaSesion.desde).tareas) : null;
   const mayorHoy = Math.max(0, ...conDato
-    .filter((c) => ultimoDiaDe(c.id) === hoy)
+    .filter((c) => (deLaSesion ? deLaSesion.has(c.id) : ultimoDiaDe(c.id) === hoy))
     .map((c) => c.lineas));
   const precedente = mayorHoy > 0 ? cifra(mayorHoy, MEDIDO) : cifra(null, SIN_EVALUAR);
   const techo = sesiones.length
@@ -1317,7 +1328,9 @@ function viabilidad() {
   di('');
   di(`  ${a.id} · ${a.type}/${a.complexity ?? '?'}`);
   di(`    coste tipico    ${textoCifra(coste)}${ref.casos ? `   de ${ref.casos} cerradas` : ''}`);
-  di(`    mayor hecho     ${textoCifra(precedente)}   en esta sesion (${hoy})`);
+  di(`    mayor hecho     ${textoCifra(precedente)}   ${marcaSesion?.desde
+    ? `en la sesion abierta en ${String(marcaSesion.desde).slice(0, 7)}`
+    : `en el DIA ${hoy} — no hay sesion abierta, y el dia NO es la sesion (PT-060)`}`);
   di(`    techo historico ${textoCifra(techo)}   la mayor sesion registrada`);
   di('');
   di(`    veredicto       ${v.veredicto}${v.nunca ? '  ·  NUNCA CABRIA' : ''}`);
@@ -1345,6 +1358,88 @@ function envolver(texto, ancho) {
 function ultimoDiaDe(id) {
   const s = gitDe(['log', '--no-merges', '-1', '--format=%cs', '--grep', `^[a-z]*: ${id}`, '-E']);
   return s || null;
+}
+
+// ── sesion · el worker, no el estado ────────────────────────────────────────
+//
+// SESSION != STATE != TASK. «abrir» es lo UNICO que marca; «sesion» y «cerrar» solo derivan.
+
+const F_SESION = () => join(IMPL, 'SESSION.json');
+
+/** Lo que la sesion lleva movido, derivado de «desde..HEAD». */
+function movidoDesde(desde) {
+  const shas = lineas(gitDe(['log', '--no-merges', '--format=%H %s', `${desde}..HEAD`]) ?? '').filter(Boolean);
+  const archivos = new Set();
+  const tareas = new Set();
+  let lin = 0;
+  for (const l of shas) {
+    const corte = l.indexOf(' ');
+    const sha = corte < 0 ? l : l.slice(0, corte);
+    const id = duenoDe(corte < 0 ? '' : l.slice(corte + 1));
+    if (id) tareas.add(id);
+    for (const x of lineas(gitDe(['show', '--numstat', '--format=', '--no-renames', sha]) ?? '')) {
+      const [mas, menos, f] = x.split('	');
+      if (!f) continue;
+      archivos.add(f);
+      lin += (Number(mas) || 0) + (Number(menos) || 0);
+    }
+  }
+  return { commits: shas.length, archivos: archivos.size, lineas: lin, tareas: [...tareas].sort() };
+}
+
+/** Apila una linea en el ledger de sesiones. SUITE-R09: se anade, nunca se reescribe. */
+function apilarEnLog(texto) {
+  const f = join(IMPL, 'SESSION_LOG.md');
+  if (!existsSync(f)) return false;
+  writeFileSync(f, readFileSync(f, 'utf8').replace(/\s*$/, '') + SALTO + SALTO + texto + SALTO);
+  return true;
+}
+
+function sesion() {
+  const sub = ARGS.slice(1).find((a) => ['abrir', 'cerrar'].includes(a)) ?? 'ver';
+  const marca = leerJSON(F_SESION());
+  const cp = leerJSON(join(IMPL, 'CHECKPOINT.json'));
+
+  if (sub === 'abrir') {
+    // Lo UNICO capturado en todo esto. Es una MARCA —verificable en el momento en que se pone—,
+    // no memoria. LEX-R26 prohibe lo otro.
+    const desde = gitDe(['rev-parse', 'HEAD']);
+    if (!desde) throw new Error('no se pudo leer HEAD: sin git no hay marca, y una marca inventada seria peor que ninguna (RULE-06).');
+    const nueva = { desde, abierta: gitDe(['log', '-1', '--format=%cs']), generado: gitDe(['log', '-1', '--format=%cs']) };
+    writeFileSync(F_SESION(), JSON.stringify(nueva, null, 2) + SALTO);
+    apilarEnLog(`## ${nueva.abierta} · sesion abierta en \`${desde.slice(0, 7)}\`` + SALTO + SALTO
+      + '<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.');
+    notas.push(`SESSION.json escrito: desde ${desde.slice(0, 7)}`);
+    di('');
+    di(`  sesion abierta desde ${desde.slice(0, 7)}`);
+    return;
+  }
+
+  const s = sesionDe(marca, marca?.desde ? movidoDesde(marca.desde) : {}, cp);
+
+  if (sub === 'cerrar') {
+    const h = handoffDeSesion(s, cp);
+    di('');
+    for (const l of lineas(h)) di(`  ${l}`);
+    di('');
+    apilarEnLog(`## ${gitDe(['log', '-1', '--format=%cs'])} · sesion cerrada` + SALTO + SALTO
+      + '<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:' + SALTO + SALTO
+      + '```' + SALTO + h + SALTO + '```');
+    // NO se borra SESSION.json: la sesion siguiente lo sobrescribe al abrir. Borrarlo dejaria un
+    // hueco donde antes habia un dato.
+    di('  Apilado en SESSION_LOG.md. SESSION.json NO se borra: la sesion siguiente lo sobrescribe.');
+    di('  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.');
+    return;
+  }
+
+  di('');
+  if (!s.abierta) { di(`  ${s.motivo}`); return; }
+  di(`  sesion desde ${s.desde_corto}${s.abierta_en ? ` (${s.abierta_en})` : ''}`);
+  di(`    commits    ${textoCifra(s.commits)}`);
+  di(`    archivos   ${textoCifra(s.archivos)}`);
+  di(`    lineas     ${textoCifra(s.lineas)}`);
+  if (s.tareas.length) di(`    tareas     ${s.tareas.join(' · ')}`);
+  if (s.pt) di(`    en curso   ${s.pt} · PHASE ${s.phase}`);
 }
 
 function siguienteDe() {
@@ -1704,7 +1799,7 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad };
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);
