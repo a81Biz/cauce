@@ -1,0 +1,19 @@
+# PT-065 · el conflicto que se evita, REPRODUCIDO en PHASE 2
+
+Ana y Bruno abren sesion cada uno en su rama:
+
+  $ git merge ana
+  CONFLICT (content): Merge conflict in SESSION.json
+
+  <<<<<<< HEAD
+  {"desde":"bru222", …}
+  =======
+  {"desde":"ana111", …}
+  >>>>>>> ana
+
+Conflicto en CADA merge, en un archivo que no es trabajo sino mecanica transitoria.
+Y la resolucion obvia —quedarse con uno— borra la sesion del otro: a partir de ahi su
+precedente sale de una marca que no es suya.
+
+Con un archivo por persona no hay nada que fusionar.
+

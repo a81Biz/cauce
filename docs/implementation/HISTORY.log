@@ -2726,3 +2726,47 @@ No verificado: que las cifras por persona sean ÚTILES —con grupos pequeños, 
 frecuente: es el precio de no mezclar—; que dos personas se comporten así; que nadie use esto para
 comparar personas; y que la persona de una tarea sea la correcta cuando dos la tocan — es la de su
 PRIMER commit propio, quien la empezó, y repartirla entre dos sería inventar una fracción.
+
+## PT-065 — CHORE: la sesión es de alguien
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/alberto-martinez/PT-065-la-sesion-es-de-alguien
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que la marca de sesión de una persona no borre la de otra.
+Causa raíz: EP-015 lo dejó declarado. SESSION.json es UNO, no tiene persona y está VERSIONADO: las
+dos últimas cosas juntas hacen que la marca de una persona no sólo se pierda, se PROPAGUE.
+Solución: SESSION-<usuario>.json, una marca por persona. Dos personas nunca escriben el mismo
+archivo, así que no hay conflicto que resolver. Las ajenas SE VEN. Sin persona resuelta sigue
+siendo SESSION.json.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-065/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): EL CONFLICTO SE REPRODUJO, y es DISTINTO del de PT-062. Allí el daño
+era que el conflicto PARECÍA PEQUEÑO —el contador se fusionaba sin conflicto y una tarea
+desaparecía—; aquí es ruidoso y constante: conflicto en CADA merge, en un archivo que no es trabajo
+sino mecánica transitoria. Y la resolución obvia borra la sesión del otro, con lo que su precedente
+pasa a salir de una marca que no es suya.
+UN ARCHIVO POR PERSONA, NO UN ARCHIVO CON N SESIONES. La segunda forma sigue dando conflicto:
+dos personas escribirían el mismo archivo. Es la misma lógica que PT-062 aplicó a los
+identificadores — evitar la colisión por construcción, no resolverla mejor.
+Y SE DIJO EN TRES SITIOS QUE NO CONTRADICE LEX-R26 —LEXICON, spec-changes y out-of-scope— porque la
+forma se parece y el criterio es distinto: CHECKPOINT.json es UNO porque responde por LA TAREA en
+curso; SESSION.json responde por UNA SESIÓN, y puede haber varias. Es el tipo de parecido que
+produce una regla mal aplicada dos lotes después.
+LO QUE MÁS DICE DE ESTA TAREA ES CUÁNTO NO HUBO QUE TOCAR: «sesionDe» y «handoffDeSesion» son puras
+y reciben la marca, así que no cambian; y el filtrado de lo que la sesión deriva ya lo hizo PT-064.
+Poco código para el problema que resuelve, y eso es señal de que las cuatro tareas anteriores
+dejaron las piezas en su sitio.
+Casos: 955 → 977.
+Sin regla nueva: entra vocabulario en LEXICON §6.2 y §6.5e.
+No verificado: que dos personas trabajen a la vez de verdad —el conflicto está reproducido con dos
+ramas, pero la sesión ajena de la evidencia está SIMULADA escribiendo el archivo a mano—; que las
+sesiones ajenas se MIREN, porque se enseñan pero que alguien las lea no se comprueba; y que no se
+acumulen archivos, que son uno por persona y no uno por día, pero nadie ha vivido con esto el
+tiempo suficiente para saberlo.

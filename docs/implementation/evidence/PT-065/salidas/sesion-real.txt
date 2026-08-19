@@ -1,0 +1,29 @@
+# PT-065 · sobre el repositorio real
+
+## Con persona declarada, escribe el SUYO
+
+  sesion abierta desde 258be16
+tracker · github · acción sesion
+
+  docs/implementation/SESSION-alberto-martinez.json
+  docs/implementation/SESSION.json
+
+## Y con una sesion ajena simulada, LA VE y NO LA TOCA
+
+  sesion desde 258be16 (2026-08-18)
+    commits    0 (MEDIDO)
+    archivos   0 (MEDIDO)
+    lineas     0 (MEDIDO)
+    en curso   PT-065 · PHASE 5
+
+  Otras sesiones abiertas:
+    Bruno · desde e4c8cb1 (2026-08-18)
+tracker · github · acción sesion
+
+
+
+El archivo de Bruno, despues:
+
+  {"persona":"Bruno","desde":"e4c8cb1abc","abierta":"2026-08-18"}
+
+Intacto. Nadie escribe el archivo de nadie.

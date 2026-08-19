@@ -29,7 +29,7 @@
  * CRLF: todo parseo por lineas usa split(/\r?\n/).
  */
 
-import { readFileSync, existsSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -49,6 +49,8 @@ import {
   normalizaRef, ramaDeTarea, ramaLlevaUsuario,
   // PT-064 · de quien es cada commit
   soloDe, sinPersona,
+  // PT-065 · la sesion es de alguien
+  archivoSesion, sesionesAjenas,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -1407,7 +1409,23 @@ function ultimoDiaDe(id) {
 //
 // SESSION != STATE != TASK. «abrir» es lo UNICO que marca; «sesion» y «cerrar» solo derivan.
 
-const F_SESION = () => join(IMPL, 'SESSION.json');
+/**
+ * El archivo de sesion de la persona local. PT-065: con «personas» declaradas, cada una escribe
+ * el suyo — dos personas nunca tocan el mismo archivo, asi que no hay conflicto que resolver.
+ */
+const yoSoy = () => personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
+  reg.personas ?? []).persona;
+const F_SESION = () => join(IMPL, archivoSesion(yoSoy()));
+
+/** Todas las marcas de sesion que hay en el disco, para ver las ajenas (AC-06). */
+const marcasDeSesion = () => {
+  try {
+    return readdirSync(IMPL)
+      .filter((f) => /^SESSION(-.+)?\.json$/.test(f))
+      .map((f) => leerJSON(join(IMPL, f)))
+      .filter(Boolean);
+  } catch { return []; }
+};
 
 /** Lo que la sesion lleva movido, derivado de «desde..HEAD». */
 function movidoDesde(desde) {
@@ -1440,7 +1458,8 @@ function apilarEnLog(texto) {
 
 function sesion() {
   const sub = ARGS.slice(1).find((a) => ['abrir', 'cerrar'].includes(a)) ?? 'ver';
-  const marca = leerJSON(F_SESION());
+  // La PROPIA primero; si no hay, SESSION.json — un proyecto de una persona no cambia nada.
+  const marca = leerJSON(F_SESION()) ?? leerJSON(join(IMPL, 'SESSION.json'));
   const cp = leerJSON(join(IMPL, 'CHECKPOINT.json'));
 
   if (sub === 'abrir') {
@@ -1448,7 +1467,7 @@ function sesion() {
     // no memoria. LEX-R26 prohibe lo otro.
     const desde = gitDe(['rev-parse', 'HEAD']);
     if (!desde) throw new Error('no se pudo leer HEAD: sin git no hay marca, y una marca inventada seria peor que ninguna (RULE-06).');
-    const nueva = { desde, abierta: gitDe(['log', '-1', '--format=%cs']), generado: gitDe(['log', '-1', '--format=%cs']) };
+    const nueva = { persona: yoSoy(), desde, abierta: gitDe(['log', '-1', '--format=%cs']), generado: gitDe(['log', '-1', '--format=%cs']) };
     writeFileSync(F_SESION(), JSON.stringify(nueva, null, 2) + SALTO);
     apilarEnLog(`## ${nueva.abierta} · sesion abierta en \`${desde.slice(0, 7)}\`` + SALTO + SALTO
       + '<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.');
@@ -1483,6 +1502,16 @@ function sesion() {
   di(`    lineas     ${textoCifra(s.lineas)}`);
   if (s.tareas.length) di(`    tareas     ${s.tareas.join(' · ')}`);
   if (s.pt) di(`    en curso   ${s.pt} · PHASE ${s.phase}`);
+  // AC-06 · las ajenas SE VEN. Si cada persona solo viera la suya, las dos creerian que trabajan
+  // solas y ninguna entenderia por que las cifras no cuadran.
+  const ajenas = sesionesAjenas(marcasDeSesion(), yoSoy());
+  if (ajenas.length) {
+    di('');
+    di('  Otras sesiones abiertas:');
+    for (const a of ajenas) {
+      di(`    ${a.persona} · desde ${String(a.desde ?? '').slice(0, 7)}${a.abierta ? ` (${a.abierta})` : ''}`);
+    }
+  }
 }
 
 // ── personas · quien es quien ───────────────────────────────────────────────

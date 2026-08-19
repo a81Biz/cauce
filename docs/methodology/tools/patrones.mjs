@@ -463,6 +463,29 @@ export const soloDe = (items, persona) =>
  */
 export const sinPersona = (items) => (items ?? []).filter((x) => !x?.persona).length;
 
+// ── PT-065 · la sesion es de alguien ────────────────────────────────────────
+//
+// PHASE 2 lo reprodujo: SESSION.json esta VERSIONADO, asi que con dos personas la marca de una se
+// PROPAGA y da conflicto en CADA merge. Y la resolucion obvia —quedarse con uno— borra la sesion
+// del otro: a partir de ahi su precedente sale de una marca que no es suya.
+//
+// Un archivo por persona lo evita POR CONSTRUCCION: nadie escribe el de nadie. Es la misma logica
+// que PT-062 aplico a los identificadores.
+
+/** El archivo de sesion de una persona. Sin persona, el de siempre (compatibilidad). */
+export const archivoSesion = (persona) =>
+  (persona ? `SESSION-${normalizaRef(persona)}.json` : 'SESSION.json');
+
+/**
+ * Las sesiones AJENAS. No es cosmetico: si cada persona solo viera la suya, las dos creerian que
+ * trabajan solas y ninguna entenderia por que las cifras no cuadran.
+ *
+ * Una marca SIN persona no cuenta como ajena — es la de un proyecto de una sola persona, y
+ * contarla haria ver una sesion fantasma.
+ */
+export const sesionesAjenas = (marcas, yo) =>
+  (marcas ?? []).filter((m) => m?.persona && m.persona !== yo);
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
