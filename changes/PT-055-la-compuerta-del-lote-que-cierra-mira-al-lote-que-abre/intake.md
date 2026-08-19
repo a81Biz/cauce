@@ -8,7 +8,7 @@ severity: S2
 complexity: TRIVIAL
 track: STANDARD
 status: REOPENED
-phase: 4
+phase: 5
 created: 2026-08-15
 origin: DIRECT
 ---

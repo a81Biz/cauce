@@ -71,18 +71,52 @@ míos. No publiques la 9.0.0», primer mensaje de la sesión, no retirado— (`S
 
 ## 5. PTs que componen el lote `[AGENTE]`
 
-| Orden | PT | Tipo | Sev | Título | Archivos que toca | Depende de |
-|:--|:--|:--|:--|:--|:--|:--|
-| 1 | `PT-055` | BUG | S2 | `--gate G4` exige las filas de cierre de **todos** los lotes abiertos | `tools/verify-fdge.mjs` · `selftest.sh` | — |
-| 2 | `PT-066` | BUG | S2 | La regla que se consulta es la que se define | `tools/regla.mjs` · `selftest.sh` | — |
-| 3 | `PT-067` | BUG | S2 | El denominador de la cobertura está incompleto | `tools/audit.mjs` · `selftest.sh` | — |
-| 4 | `PT-068` | BUG | S1 | La marca de sesión es de quien la abre | `tools/tracker.mjs` · `tools/patrones.mjs` · `selftest.sh` | — |
-| 5 | `PT-069` | FEATURE | S2 | Los índices derivados necesitan generador | `tools/tracker.mjs` · `selftest.sh` | `PT-068` |
-| 6 | `PT-070` | BUG | S2 | El alcance del grafo lo calcula la herramienta | `tools/plan-layout.mjs` · `selftest.sh` | — |
-| 7 | `PT-071` | BUG | S2 | Publicar comprueba lo mismo que verificar | `.github/workflows/publicar.yml` | — |
-| 8 | `PT-072` | INVESTIGATION | S1 | Un proyecto nuevo de verdad | ninguno del repo — produce evidencia | `PT-055`..`PT-071` |
-| 9 | `PT-019` | CHORE | S2 | El legado: uno sintético y uno real, no destructivo | ninguno del repo — produce evidencia | `PT-070` · `PT-072` |
-| 10 | `PT-073` | CHORE | S2 | Los tres documentos que lee quien llega | `MANUAL.md` · `CASOS-DE-USO.md` · `README.md` | `PT-072` · `PT-019` |
+| Orden | PT | Tipo | Sev | Viabilidad | Título | Archivos que toca | Depende de |
+|:--|:--|:--|:--|:--|:--|:--|:--|
+| 1 | `PT-075` | BUG | S1 | SAFE | **Una regla sin verificador no ocurre** | `tools/verify-fdge.mjs` · `CORE.md` · `PHASES.md` · `selftest.sh` | — |
+| 2 | `PT-055` | BUG | S2 | SAFE | `--gate G4` exige las filas de cierre de **todos** los lotes abiertos | `tools/verify-fdge.mjs` · `selftest.sh` | — |
+| 3 | `PT-066` | BUG | S2 | SAFE | La regla que se consulta es la que se define | `tools/regla.mjs` · `selftest.sh` | — |
+| 4 | `PT-067` | BUG | S2 | SAFE | El denominador de la cobertura está incompleto | `tools/audit.mjs` · `selftest.sh` | `PT-066` |
+| 5 | `PT-068` | BUG | S1 | SAFE | La marca de sesión es de quien la abre | `tools/tracker.mjs` · `tools/patrones.mjs` · `selftest.sh` | — |
+| 6 | `PT-074` | BUG | S2 | SAFE | La compuerta de viabilidad necesita una fase que la abra | `tools/tracker.mjs` · `CORE.md` · `PHASES.md` · `selftest.sh` | `PT-068` · `PT-075` |
+| 7 | `PT-069` | FEATURE | S2 | SAFE | Los índices derivados necesitan generador | `tools/tracker.mjs` · `selftest.sh` | `PT-068` |
+| 8 | `PT-070` | BUG | S2 | SAFE | El alcance del grafo lo calcula la herramienta | `tools/plan-layout.mjs` · `selftest.sh` | — |
+| 9 | `PT-071` | BUG | S2 | SAFE | Publicar comprueba lo mismo que verificar | `.github/workflows/publicar.yml` | — |
+| 10 | `PT-072` | INVESTIGATION | S1 | **MARGINAL** | Un proyecto nuevo de verdad | ninguno del repo — produce evidencia | `PT-055`..`PT-071` |
+| 11 | `PT-019` | CHORE | S2 | **MARGINAL** | El legado: uno sintético y uno real, no destructivo | ninguno del repo — produce evidencia | `PT-070` · `PT-072` |
+| 12 | `PT-073` | CHORE | S2 | SAFE | Los tres documentos que lee quien llega | `MANUAL.md` · `CASOS-DE-USO.md` · `README.md` | `PT-072` · `PT-019` |
+
+## 5b. Viabilidad por tarea   `[AGENTE]` — `PT-059`
+
+**Faltaba, y su ausencia es `PT-075`.** El lote se abrió sin consultar la compuerta de
+viabilidad en ninguna de sus tareas. No lo detectó nada: `viabilidad` aparece **0 veces** en
+`CORE.md`, `PHASES.md` y `verify-fdge.mjs`. Lo detectó el firmante preguntando.
+
+Ejecutada el 2026-08-19 sobre las doce:
+
+```
+SAFE      diez tareas · coste tipico entre 665 y 2048 lineas (ESTIMADO),
+          contra un precedente MEDIDO de 2408 en la sesion en curso
+
+MARGINAL  PT-072 y PT-019 · coste SIN EVALUAR
+          «no se puede comparar: el coste esta SIN EVALUAR. NO SE APRUEBA POR OMISION,
+           y tampoco se prohibe sin evidencia»
+```
+
+**Las dos `MARGINAL` son las dos pruebas**, que es lo que este lote existe para hacer. Son
+`MAJOR` y no hay ninguna `MAJOR` cerrada con la que comparar, así que el coste típico es
+`SIN EVALUAR` — no «pequeño», **desconocido**. `PT-059` es explícita en que eso es
+`MARGINAL` y no `UNSAFE`: prohibir sin evidencia bloquearía todo para siempre.
+
+Consecuencia declarada, por `AC-02` de `PT-059` —«en `MARGINAL` no se inician operaciones
+grandes: solo lo atómico»—: **`PT-072` y `PT-019` se ejecutan en pasos atómicos con
+checkpoint entre ellos**, no de una vez. Si alguno no cabe, se corta con handoff y se declara,
+que es justo lo que la compuerta existe para provocar.
+
+**Aviso sobre esta medida:** el «mayor hecho» de `2408` está calculado leyendo `SESSION.json`,
+el huérfano — `tracker sesion` dice `41aeaa8` y `tracker viabilidad` dice `258be16`. Es
+`AC-07` de `PT-068` y `AC-04` de `PT-074`. La cifra se usa **sabiendo que su base está
+mal**, y por eso el veredicto se revisará cuando `PT-068` cierre.
 
 `PT-055` y `PT-019` están `DEFERRED` con issue abierto (#94, #26): entran **reabiertos**, no
 duplicados. `SUITE-R08` — el ID no se reutiliza ni se inventa uno nuevo para lo mismo.
@@ -91,24 +125,26 @@ duplicados. `SUITE-R08` — el ID no se reutiliza ni se inventa uno nuevo para l
 
 ```
 Pares que comparten archivos:
-  PT-055 ↔ PT-066 ↔ PT-067 ↔ PT-068 ↔ PT-069 ↔ PT-070   (tools/selftest.sh)   → SERIALIZADOS
-  PT-068 ↔ PT-069                                        (tools/tracker.mjs)   → SERIALIZADOS
+  PT-075 ↔ PT-055 ↔ PT-066 ↔ PT-067 ↔ PT-068 ↔ PT-074 ↔ PT-069 ↔ PT-070  (selftest.sh)  → SERIALIZADOS
+  PT-068 ↔ PT-074 ↔ PT-069                               (tools/tracker.mjs)   → SERIALIZADOS
   PT-068 ↔ PT-069                                        (tools/patrones.mjs)  → SERIALIZADOS
 
-  selftest.sh lo tocan SEIS de las diez. Es el mismo patrón que EP-015 declaró con
+  selftest.sh lo tocan OCHO de las doce. Es el mismo patrón que EP-015 declaró con
   tracker.mjs, y la conclusión es la misma: ejecución secuencial, ningún par en paralelo.
 
 Orden de ejecución resultante:
-  1. PT-055   la compuerta que va a evaluar el lote entero
-  2. PT-066   la consulta de reglas
-  3. PT-067   la medida de cobertura
-  4. PT-068   la marca de sesión
-  5. PT-069   los índices derivados
-  6. PT-070   el alcance del grafo
-  7. PT-071   la tubería que publica
-  8. PT-072   greenfield
-  9. PT-019   legado
- 10. PT-073   los tres documentos
+  1. PT-075   que las reglas se puedan incumplir en silencio     <- exigido por el firmante
+  2. PT-055   la compuerta que va a evaluar el lote entero
+  3. PT-066   la consulta de reglas
+  4. PT-067   la medida de cobertura
+  5. PT-068   la marca de sesión
+  6. PT-074   la compuerta de viabilidad y su fase
+  7. PT-069   los índices derivados
+  8. PT-070   el alcance del grafo
+  9. PT-071   la tubería que publica
+ 10. PT-072   greenfield
+ 11. PT-019   legado
+ 12. PT-073   los tres documentos
 
 Motivo del orden: dependencia técnica y solapamiento, no prioridad declarada.
 ```
@@ -206,10 +242,12 @@ causa en `BACKLOG.md`.
 
 | PT | Estado | Resuelta por |
 |:---|:---|:---|
+| `PT-075` | | |
 | `PT-055` | | |
 | `PT-066` | | |
 | `PT-067` | | |
 | `PT-068` | | |
+| `PT-074` | | |
 | `PT-069` | | |
 | `PT-070` | | |
 | `PT-071` | | |
@@ -222,3 +260,27 @@ causa en `BACKLOG.md`.
 ## Revisiones
 
 > Append-only una vez firmado (`SUITE-R09`).
+
+## Revisión 1 — 2026-08-19
+
+**Qué cambia:** el lote pasa de diez tareas a doce. Entra `PT-075` **la primera** y `PT-074` en
+sexto lugar. Se añade §5b con la viabilidad de cada tarea.
+
+**Motivo:** dos peticiones del firmante en la misma sesión, las dos sobre lo mismo.
+
+La primera: *«me hace falta la parte del cálculo de la sesión, no lo veo aplicado a ningún pt o
+ep»*. No estaba aplicado. Al buscar por qué: `viabilidad` aparece 0 veces en `CORE.md`,
+`PHASES.md` y `verify-fdge.mjs` — la compuerta que `PT-059` escribió no la abre ninguna fase.
+Eso es `PT-074`, y la medida que faltaba es §5b.
+
+La segunda: *«llevas dos reglas que no quieres seguir y no hay nada que te lo exija, debemos
+entonces empezar por ahí, por aumentar la exigencia para que lo sigas igual que el resto, mete
+ésto como un PT y que se resuelva antes que todo»*. Eso es `PT-075`, en primer lugar por
+instrucción explícita. Las dos reglas, medidas: la compuerta de viabilidad, y la mitad de
+`SUITE-R42` que dice que el agente no abre el PR ni empuja — `verify-fdge` sólo comprueba que
+el PR **exista**, nunca quién lo abrió.
+
+**Las dos son incumplimientos del agente en esta sesión, no hipótesis.** Y las dos pasaron sin
+que ninguna comprobación las viera.
+
+**Firmado por:** Alberto Martínez, por delegación con constancia.

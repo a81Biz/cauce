@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 73,
+    "PT": 75,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1281,8 +1281,9 @@
       "title": "--gate G4 exige las filas de cierre de TODOS los lotes abiertos, no del que la compuerta evalua",
       "origin": "Encontrado ejecutando la G4 de EP-013 el 2026-08-15, con EP-014 recien abierto. checkEpics() recorre todos los EP-* de changes/ y enG4 = gate === G4 es global, no del lote evaluado (verify-fdge.mjs:640 y :724): asi que --gate G4 EP-013 bloqueo por las cuatro filas de EP-014, que describen trabajo aun no hecho. EP-013 tenia su propia fila en verde. Es el TERCER caso de la familia de PT-029 —una comprobacion que hace imposible el estado que otra obliga a atravesar— y aparecio porque EP-014 se abrio antes del G4, rompiendo la suposicion de que el lote que cierra ES el lote abierto. Se integro con la excepcion DECLARADA y autorizada por Alberto Martinez, no arreglada: arreglarlo habria expandido EP-014, que el firmante prohibio explicitamente. Aplazado por la G4 de EP-013 y por EP-014.",
       "issue": 94,
-      "phase": 4,
-      "epic": "EP-017"
+      "phase": 5,
+      "epic": "EP-017",
+      "branch": "fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre"
     },
     {
       "id": "PT-056",
@@ -1629,6 +1630,40 @@
       "title": "Los tres documentos que lee quien llega",
       "origin": "MANUAL, CASOS-DE-USO y README al dia, DERIVADOS de lo que las dos pruebas necesitaron. CASOS-DE-USO declara todavia como hueco «varios agentes trabajando a la vez», que cerro EP-016: el catalogo describe un marco de la 8.0.0.",
       "issue": 135
+    },
+    {
+      "id": "PT-074",
+      "slug": "la-compuerta-de-viabilidad-necesita-una-fase",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S2",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "La compuerta de viabilidad necesita una fase que la abra",
+      "origin": "Encontrado el 2026-08-19 porque el firmante pregunto donde estaba aplicado el calculo de sesion. No lo estaba: «viabilidad» aparece 0 veces en CORE.md, 0 en PHASES.md y 0 en verify-fdge. EP-015 construyo la compuerta —PT-059 AC-02 «en MARGINAL no se inician operaciones grandes», AC-03 «en UNSAFE no se ejecuta»— y ninguna fase la invoca. Una compuerta sin fase que la abra no se cumple ni se incumple: no ocurre.",
+      "issue": 136
+    },
+    {
+      "id": "PT-075",
+      "slug": "una-regla-sin-verificador-no-ocurre",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "Una regla sin verificador no ocurre: subir la exigencia donde el agente puede saltarsela en silencio",
+      "origin": "Abierta el 2026-08-19 a peticion del firmante: «llevas dos reglas que no quieres seguir y no hay nada que te lo exija, debemos entonces empezar por ahi, por aumentar la exigencia para que lo sigas igual que el resto». Las dos, medidas en esta misma sesion: la compuerta de viabilidad (0 invocaciones en CORE.md, PHASES.md y verify-fdge) y la mitad de SUITE-R42 que dice que el agente no empuja ni abre el PR (verify-fdge solo comprueba que el PR EXISTA). Va la primera del lote por decision del firmante.",
+      "issue": 137
     }
   ]
 }

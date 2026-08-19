@@ -31,6 +31,7 @@ suite_version: 9.0.0
 | AC-04 | El mensaje de `sesion cerrar` deja de afirmar algo falso | no dice «la sesion siguiente lo sobrescribe» de un archivo que nadie sobrescribe |
 | AC-05 | Con una sola persona declarada nada cambia | `AC-05` de `PT-065` sigue verde |
 | AC-06 | El caso cubre la **elección de archivo**, no sólo las funciones puras | el arnés ejercita `sesion` con identidades distintas; hoy todos los casos construyen la marca a mano |
+| AC-07 | `viabilidad` lee la MISMA marca que `sesion` | hoy no: `tracker sesion` dice `41aeaa8` y `tracker viabilidad` dice `258be16`, el huérfano. El «mayor hecho» del presupuesto está calculado sobre la sesión equivocada **para todos**, no sólo para un usuario no declarado |
 
 ## 3. Cómo termina   `FDGE-R53`
 
