@@ -2770,3 +2770,63 @@ ramas, pero la sesión ajena de la evidencia está SIMULADA escribiendo el archi
 sesiones ajenas se MIREN, porque se enseñan pero que alguien las lea no se comprueba; y que no se
 acumulen archivos, que son uno por persona y no uno por día, pero nadie ha vivido con esto el
 tiempo suficiente para saberlo.
+
+## PT-075 — BUG: una regla sin verificador no ocurre
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-075-una-regla-sin-verificador-no-ocurre
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: subir la exigencia sobre las dos reglas que el agente incumplió en esta sesión sin
+que nada lo señalara. Petición literal del firmante: «llevas dos reglas que no quieres seguir y
+no hay nada que te lo exija, debemos entonces empezar por ahí».
+
+Causa raíz: las dos pertenecen al conjunto de TD-08 —60 reglas sin verificador, 51 HARD—. La
+compuerta de viabilidad tenía vocabulario (LEXICON 6.5d), estado (BLOCKED_BY_CONTEXT) y
+herramienta (tracker viabilidad), y NINGUNA regla que la exigiera, fase que la abriera ni
+verificador que la echara en falta: grep -c viabilidad daba 0 en RULES, PHASES, CORE y
+verify-fdge. De SUITE-R42 se comprobaba solo la primera de sus dos afirmaciones.
+
+Solución:
+  FDGE-R54, regla nueva HARD. La viabilidad se consulta y CONSTA antes de G2, registrada en
+  REGISTRY.allocations[].viabilidad con la cifra y su naturaleza. Citada en PHASE 4 y en el
+  prompt de G2 — este último lo exigió verify-suite con SUITE-R20, no la lectura.
+  tracker viabilidad --registrar escribe solo lo derivado (LEX-R26), con medido_en declarando
+  contra qué sesión se comparó.
+  La escritura directa en la rama de integración se detecta, y se emite como FDGE-R19 —no como
+  SUITE-R42— porque SUITE-R42 es condicional a que haya plataforma declarada y la topología de
+  ramas no lo es. Lo dijo el caso «sin plataforma ⇒ G4 libre de R42», que cayó.
+  El comando reservado al humano se exige descrito en PHASE 9 (acciones-humanas.md), como
+  EXEC-R07.
+  TD-14: quién abrió un pull request NO es determinable desde el repositorio. Se declara en vez
+  de escribir un verificador que diría «correcto» siempre.
+
+Archivos modificados: RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md (regenerado) ·
+  tools/verify-fdge.mjs · tools/tracker.mjs · tools/selftest.sh · 10-Technical-Debt.md
+
+Evidencia: evidence/PT-075/ · manifest.json · self-review.md ·
+  salidas/selftest-completo.txt · salidas/inversa.txt · salidas/verify-pt075.txt ·
+  salidas/audit-sin-verificar.txt
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓ CON LÍMITE declarado
+Cobertura mecánica: 112/181 → 113/182. selftest 976 → 989 casos, cero fallos.
+
+Delta real vs planificado: dos adiciones, las dos pedidas por el propio marco al ejecutarlo.
+  FDGE-Prompts.md no estaba en tasks.md y lo exigió SUITE-R20. Los cuatro PT del fixture
+  llevan ahora viabilidad: una regla HARD nueva obliga también al proyecto sintético, y sin eso
+  cuatro casos verdes se volvieron rojos.
+  Y una re-atribución: FDGE-R19 y EXEC-R07 en vez de SUITE-R42.
+
+No verificado, declarado en el manifiesto: quién abrió un PR (TD-14) · que FDGE-R54 se OBEDEZCA
+  y no solo conste · que medido_en apunte a la sesión correcta, que hoy NO lo hace (PT-068
+  AC-07) · que avanzar respete el STATE_MISMATCH que siguiente bloquea (PT-077).
+
+Tres desviaciones de procedimiento, declaradas: código antes que casos (FDGE-R17) · prueba
+  sobre el repositorio real en vez del fixture · y ese commit de prueba, al deshacerse con
+  git reset --hard, destruyó todas las ediciones sin commitear, que hubo que rehacer.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor, así que
+  humana en los tres modos) · G4 pendiente
+Trazabilidad externa: —
