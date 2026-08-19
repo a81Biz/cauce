@@ -13,7 +13,7 @@ Proyectado el 2026-08-18 · 9 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-016 | EP | IN_PROGRESS | 1 | — | — |
 | PT-055 | BUG | DEFERRED | — | — | — |
-| PT-061 | CHORE | IN_PROGRESS | 2 | chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia | d0cbd98 |
+| PT-061 | CHORE | IN_PROGRESS | 3 | chore/PT-061-quien-es-quien-la-identidad-se-declara-y-se-reconcilia | f4ef665 |
 | PT-062 | CHORE | READY | 1 | — | — |
 | PT-063 | CHORE | READY | 1 | — | — |
 | PT-064 | CHORE | READY | 1 | — | — |
