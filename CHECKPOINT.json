@@ -3,11 +3,11 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/PT-063-el-usuario-vive-en-la-rama-de-tarea",
-  "sha": "48a021f7a45f838fa955db43ab4aaa479b8b61de",
-  "sha_corto": "48a021f",
+  "sha": "6bdfca0344cf25d0a2970dac8d88967518e699e9",
+  "sha_corto": "6bdfca0",
   "sucio": true,
   "archivos": [
     "changes/PT-063-el-usuario-vive-en-la-rama-de-tarea/intake.md",
@@ -15,8 +15,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-18"
 }
