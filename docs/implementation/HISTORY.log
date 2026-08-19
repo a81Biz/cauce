@@ -2578,3 +2578,53 @@ No verificado: que la tabla esté al día —una máquina nueva trae una identid
 DECLARAR hasta que alguien la añada—; que la persona declarada sea quien dice ser, porque es una
 declaración como «firmantes:»; que dos personas de verdad se comporten así, porque todo lo probado
 es con una persona y tres identidades; y que las tres declaradas sean todas las que habrá.
+
+## PT-062 — CHORE: los IDs se reparten por rangos reservados
+Fecha: 2026-08-18
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-016
+Rama: chore/PT-062-los-ids-se-reparten-por-rangos-reservados
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 firmada por lote (FDGE-R51) · G2 · G3 2026-08-18 auto EXEC-R06 · G4 del lote EP-016
+con VoBo del firmante
+Objetivo: que dos personas puedan pedir un PT a la vez y no reciban el mismo número.
+Causa raíz: el registro tiene UN contador y NADIE lo aplica. SUITE-R08 dice que el registro asigna,
+y ninguna de las quince acciones de tracker lo hacía: la asignación la hacía quien editaba el
+archivo a mano, durante 65 tareas.
+Solución: «rango» dentro de «personas», opcional. «siguienteEnRango» deriva de lo usado DENTRO del
+rango —un contador por persona sería un segundo sitio para el mismo hecho—. «tracker asignar» es lo
+único que escribe un identificador. Y verify-fdge comprueba dos cosas: que no haya rangos solapados
+y que toda allocation caiga en el rango de alguien.
+Archivos modificados: docs/methodology/LEXICON.md · CORE.md · tools/patrones.mjs · tools/tracker.mjs
+· tools/verify-fdge.mjs · tools/selftest.sh
+Evidencia: docs/implementation/evidence/PT-062/
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓ · AC-05 ✓ · AC-06 ✓
+Delta (real vs planificado): LA ACCIÓN NO ESTABA EN EL INTAKE Y TUVO QUE ENTRAR. PHASE 2 midió que
+nadie asignaba, y un rango declarado que nadie aplica es decoración: sin la acción, ninguno de los
+seis AC se cumple sobre nada. Con ella, SUITE-R08 pasa de ser una afirmación a ser un mecanismo.
+LA COLISIÓN SE REPRODUJO, no se supuso, y es PEOR de lo esperado. Ana y Bruno asignan PT-066 a la
+vez: el CONTADOR se fusiona SIN CONFLICTO —los dos escribieron 66, git lo da por acordado— y el
+conflicto queda reducido a UNA LÍNEA de slug. Quien lo resuelva elige un texto y la otra tarea
+DESAPARECE ENTERA, con el contador diciendo 66 como si nada. El daño no es el conflicto: es que el
+conflicto PARECE PEQUEÑO. Y si las dos entradas hubieran quedado separadas por otras líneas, git
+las habría fusionado sin conflicto ninguno: dos PT-066 y LEX-R04 roto en silencio.
+TOCARSE POR UN EXTREMO YA ES SOLAPARSE, y es un «<=» en vez de un «<». La inversa lo demuestra: con
+«<», los rangos [1,100] y [100,200] dejan de solaparse — y el número 100 es exactamente el que las
+dos personas pedirían a la vez. Tres casos caen sólo por ese carácter.
+DOS DEFECTOS PROPIOS DEL MISMO TIPO: un RegExp construido con plantilla necesita DOBLE barra, y sin
+ella busca la letra «d». Lo vi porque «asignar» decía 0 usados mientras «personas» decía 65 —
+ejecutando las dos seguidas, no leyendo—. Pasó en tracker y en verify-fdge.
+Y SEXTA VEZ que un argumento se cuela por la detección de ROOT: «--slug» no estaba en CON_VALOR.
+Hay ya tres guardas —etiquetas, subcomandos, valores— y sigue apareciendo: el problema no es la
+lista, es que un posicional y el valor de una opción son indistinguibles por forma cuando la opción
+no se declara.
+Casos: 865 → 899.
+Sin regla nueva: entra vocabulario en LEXICON §6.5f. SUITE-R08 y LEX-R04 no cambian — y por eso el
+identificador NO se namespacea: sigue siendo PT-NNN.
+No verificado: que dos personas asignen a la vez de verdad, porque los rangos lo evitan por
+construcción y eso es un argumento; que nadie asigne a mano, que verify-fdge detecta después pero
+no puede impedir; que los rangos elegidos sean los correctos, que es decisión de equipo; y que este
+repositorio los use — NO los declara, es de una persona, y todo se probó declarándolos
+temporalmente y restaurando el registro después.
