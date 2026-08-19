@@ -1383,8 +1383,31 @@ function viabilidad() {
   for (const linea of envolver(v.motivo, 88)) di(`  ${linea}`);
   di('');
   di('  Esto mide PRECEDENTE, no capacidad: el presupuesto disponible es SIN EVALUAR siempre,');
-  di('  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d). Y CONSULTA:');
-  di('  escribir el estado de una tarea es de «tracker avanzar».');
+  di('  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d).');
+
+  // PT-075 · FDGE-R54 · consultar no basta si no consta. Una compuerta cuyo resultado no se
+  // escribe no se puede auditar, y esta llevaba cuatro lotes sin que nadie supiera si se habia
+  // abierto: no habia regla que la exigiera, fase que la abriera ni verificador que la echara
+  // en falta.
+  //
+  // Se escribe SOLO lo derivado (LEX-R26). «medido_en» declara CONTRA QUE sesion se comparo, y
+  // no es un adorno: mientras PT-068 no cierre, la marca sale de SESSION.json —el huerfano— y
+  // el campo deja constancia de cual era la base de cada registro.
+  if (!ARGS.includes('--registrar')) {
+    di('  Y es CONSULTA: para que CONSTE hace falta --registrar (FDGE-R54).');
+    return;
+  }
+  a.viabilidad = {
+    veredicto: v.veredicto,
+    coste: { valor: coste.valor, naturaleza: coste.naturaleza },
+    precedente: { valor: precedente.valor, naturaleza: precedente.naturaleza },
+    techo: { valor: techo.valor, naturaleza: techo.naturaleza },
+    medido_en: marcaSesion?.desde ?? null,
+    fecha: hoy,
+  };
+  writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + SALTO);
+  notas.push(`${id}: viabilidad ${v.veredicto} registrada en REGISTRY.allocations[].viabilidad`);
+  di(`  REGISTRADO: ${id}.viabilidad = ${v.veredicto} (FDGE-R54).`);
 }
 
 /** Corta un texto en lineas de ancho maximo, sin partir palabras. */

@@ -2101,6 +2101,77 @@ build_fixture; ep_intake "## Cierre del lote
 oos '`EP-040`'
 chkno "citarlo cuando si lo declara, vale"        "SUITE-R44"  V PT-001
 
+# ─── PT-075 · las dos reglas que nada ejecutaba ──────────────────────────────
+sec "── PT-075 · viabilidad registrada y actos hacia la plataforma ──"
+
+# A · FDGE-R54. PT-059 diseño la compuerta, LEXICON 6.5d le dio vocabulario y tracker la
+# calcula — y durante cuatro lotes NINGUNA regla la exigio, NINGUNA fase la abrio y NINGUN
+# verificador la echo en falta. E1 y E2 existen para que eso no pueda repetirse en silencio.
+chk   "PHASE 4 cita la viabilidad"           "FDGE-R54"     cat "$SUITE/PHASES.md"
+chk   "…y el prompt de G2 tambien"           "FDGE-R54"     cat "$SUITE/FDGE-Prompts.md"
+chk   "…y la regla existe con su severidad"  "FDGE-R54"     cat "$SUITE/RULES.md"
+
+# E3 · sin veredicto registrado, G2 no se resuelve.
+build_fixture
+chk   "sin viabilidad registrada, G2 falla"  "✗ FDGE-R54"   V --gate G2 PT-001
+# E4 · antes de G2 AVISA y no bloquea: en PHASE 1 la tarea no tiene complejidad con la que estimar.
+build_fixture
+reg_set "r.allocations.find((a)=>a.id==='PT-001').phase=2"
+chkno "…pero antes de G2 solo avisa"         "✗ FDGE-R54"   V PT-001
+# E5 · con veredicto registrado, pasa.
+build_fixture
+reg_set "r.allocations.find((a)=>a.id==='PT-001').viabilidad={veredicto:'SAFE',coste:{valor:100,naturaleza:'ESTIMADO'},medido_en:'abc1234',fecha:'2026-08-19'}"
+chkno "con viabilidad registrada, G2 pasa"   "✗ FDGE-R54"   V --gate G2 PT-001
+# E6 · UNSAFE detiene. PT-059: exige evidencia EN CONTRA, asi que no es una duda.
+build_fixture
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.phase=5; a.viabilidad={veredicto:'UNSAFE',coste:{valor:9,naturaleza:'MEDIDO'},medido_en:'abc1234',fecha:'2026-08-19'}"
+chk   "UNSAFE en PHASE 5 detiene"            "✗ FDGE-R54"   V PT-001
+
+# B · SUITE-R42. La regla dice DOS cosas y solo se comprobaba que el PR EXISTA. Esta es la otra
+# mitad: el trabajo de un PT escrito directamente en la rama de integracion en vez de llegar por
+# su pull request.
+#
+# E9 y E10 son las que impiden el falso positivo, y no son decorado: la PRIMERA ejecucion de
+# esta comprobacion acuso a los commits de PHASE 2-4 de la propia PT-075, que estan
+# legitimamente en la rama de integracion porque la rama efimera nace en PHASE 5 (FDGE-R19).
+git_lote() {  # $1 = rama declarada del PT-001 · $2 = «directo» para escribir en integracion
+  ( cd "$WORK"
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm "base del fixture" >/dev/null 2>&1
+    git branch -M trabajo >/dev/null 2>&1
+    git checkout -q -b "$1" >/dev/null 2>&1
+    git commit -q --allow-empty -m "fix: PT-001 el trabajo en su rama" >/dev/null 2>&1
+    git checkout -q trabajo >/dev/null 2>&1
+    [ "$2" = directo ] && git commit -q --allow-empty -m "fix: PT-001 escrito en la rama de integracion" >/dev/null 2>&1
+    [ "$2" = merge ] && git merge -q --no-ff "$1" -m "Merge pull request de PT-001" >/dev/null 2>&1
+    true ) >/dev/null 2>&1
+}
+
+# E8 · escrito en integracion DESPUES de ramificar: es el acto que la regla prohibe.
+build_fixture; git_lote fix/PT-001-login directo
+chk   "un PT escrito en la rama de integracion falla"  "✗ SUITE-R42"  V PT-001
+# E9 · lo que llego por MERGE no cuenta: --first-parent lo ve como un commit de merge.
+build_fixture; git_lote fix/PT-001-login merge
+chkno "…pero lo integrado por su PR no"                "✗ SUITE-R42"  V PT-001
+# E10 · sin rama declarada no se retrofecha (FDGE-R19: pedirsela a lo ya hecho es pedir que se invente).
+build_fixture
+reg_set "delete r.allocations.find((a)=>a.id==='PT-001').branch"
+git_lote fix/PT-001-login directo
+chkno "…y sin rama declarada tampoco se acusa"         "✗ SUITE-R42"  V PT-001
+
+# E11 · EXEC-R07 · lo que no se automatiza se DESCRIBE. Si el agente ejecuto en vez de describir,
+# la descripcion falta. No prueba que no lo ejecutara —SUITE-R27 tampoco prueba quien firmo—:
+# convierte la afirmacion en contrastable.
+build_fixture
+reg_set "r.allocations.find((a)=>a.id==='PT-001').phase=9"
+chk   "en PHASE 9 sin acciones-humanas.md, falla"      "acciones-humanas"  V PT-001
+build_fixture
+reg_set "r.allocations.find((a)=>a.id==='PT-001').phase=9"
+printf 'G4 · merge del lote\n' > "$WORK/changes/PT-001-login/acciones-humanas.md"
+chkno "…y con el comando descrito, pasa"               "acciones-humanas"  V PT-001
+
 # ─── R · el reanclaje escrito y la condición de cierre ───────────────────────
 sec "── R · bitácora y cierre ──"
 

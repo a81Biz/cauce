@@ -855,6 +855,14 @@ traceability.md                                                              [FD
 NO se crea ninguna rama. NO se modifica ningún archivo de código fuente.
 Antes de resolver G2: 0 líneas modificadas, 0 ramas abiertas.
 
+Viabilidad CONSULTADA y REGISTRADA — no basta consultarla.                   [FDGE-R54]
+  node docs/methodology/tools/tracker.mjs viabilidad PT-XXX --registrar
+  SAFE      la sesión ya completó algo de este tamaño.
+  MARGINAL  NO prohíbe: obliga a trabajo ATÓMICO con checkpoint entre pasos.
+  UNSAFE    detiene: checkpoint, handoff y parada.
+  Sin veredicto registrado, G2 no se resuelve: una compuerta cuyo resultado no
+  se escribe no se puede auditar.
+
 Resolución según el modo — ver EXECUTION-MODES.md §5:
   MANUAL, SUPERVISED  → ACK humano.
   AUTONOMOUS          → auto solo si se cumplen LAS CINCO condiciones de §5.1:
