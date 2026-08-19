@@ -1411,7 +1411,7 @@
       "structural": false,
       "suite_version": "8.2.0",
       "epic": "EP-016",
-      "phase": 3,
+      "phase": 4,
       "title": "Rangos de ID reservados por persona: el registro sigue asignando, sin namespacear el identificador",
       "origin": "Decision 2 del firmante 2026-08-15: los IDs se reparten por RANGOS RESERVADOS, sin tocar SUITE-R08 ni namespacear el identificador. Dos personas asignando del mismo contador colisionan en el primer merge",
       "created": "2026-08-18",

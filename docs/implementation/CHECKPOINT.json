@@ -3,20 +3,25 @@
   "type": "CHORE",
   "epic": "EP-016",
   "status": "IN_PROGRESS",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/PT-062-los-ids-se-reparten-por-rangos-reservados",
-  "sha": "eb8b650726900346d4db195d46343b611737ea17",
-  "sha_corto": "eb8b650",
+  "sha": "2161b999542b5f914b629e22bb47a7fe47e2bc0d",
+  "sha_corto": "2161b99",
   "sucio": true,
   "archivos": [
     "changes/PT-062-los-ids-se-reparten-por-rangos-reservados/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-18"
 }
