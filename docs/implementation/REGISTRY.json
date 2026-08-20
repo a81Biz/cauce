@@ -1981,7 +1981,35 @@
       "id": "PT-079",
       "slug": "lo-que-se-aprende-se-hace-mecanico",
       "created": "2026-08-19",
-      "status": "DRAFT"
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 4,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "Lo que se aprende se hace mecanico: la trazabilidad sobrevive a la rama y las guardas dejan de depender de la memoria",
+      "origin": "Abierta el 2026-08-19 a peticion del firmante tras pedir un balance de lo aprendido. Tres familias: A la trazabilidad se rompe al borrar la rama —14 de 16 enlaces del tablero apuntan a ramas inexistentes, y la rama cauce/<usuario> que se acordo para no perder esto existe, tiene --publicar y nunca se publico—; B diez fallos mios de la misma raiz, escribir la comprobacion sin ejecutarla contra el caso real; C que nada de esto se pase por alto: regla, fase, caso de uso, manual y verificador, comprobado que hoy no esta en ninguno de los cinco.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 693,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2723,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
+        "fecha": "2026-08-19"
+      },
+      "issue": 147
     }
   ]
 }
