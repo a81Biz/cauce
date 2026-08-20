@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "trabajo",
   "sha": "84b37ad8ea9527f254857261fa1f03c60bf9fbb1",
   "sha_corto": "84b37ad",
@@ -13,13 +13,15 @@
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/discovery.md",
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/intake.md",
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/strategy.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-19"
 }
