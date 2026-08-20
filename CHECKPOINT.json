@@ -3,23 +3,25 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras",
   "sha": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
   "sha_corto": "982bcd3",
   "sucio": true,
   "archivos": [
     "changes/PT-085-el-sello-de-version/",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION-alberto-martinez.json",
     "docs/implementation/SESSION_LOG.md"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-20"
 }
