@@ -4,7 +4,7 @@
 ---
 id: EP-018
 created: 2026-08-20
-status: DRAFT
+status: IN_PROGRESS
 mode: SUPERVISED
 origin: DIRECT
 suite_version: 10.0.0
@@ -222,7 +222,20 @@ DoR-E7 supuestos compartidos declarados            [x]  §7, cuatro
 DoR-E8 observaciones del agente                    [x]  §8, cinco y ninguna es «ninguna»
 ```
 
-**`G1` propuesta.** La resuelve el firmante.
+**`G1` RESUELTA — APROBADA.**
+
+```
+Resuelto por: Alberto Martínez
+Fecha: 2026-08-20
+Veredicto: APROBADO
+```
+
+> Base: *«adelante, tienes mi VoBo para hacer todo lo necesario y terminar con los pendientes,
+> comenzar la épica y no parar hasta terminar»*. Constancia en
+> [`SESSION_LOG.md`](../../docs/implementation/SESSION_LOG.md), con su límite declarado.
+>
+> El firmante delega además `G2` y `G3` **por lote** (`EXEC-R03`): se resuelven por tarea sin
+> volver a preguntar. `G4` no se delega — es del lote y es suya.
 
 ---
 

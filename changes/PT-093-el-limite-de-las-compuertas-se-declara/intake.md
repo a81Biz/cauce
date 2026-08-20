@@ -9,7 +9,7 @@ id: PT-093
 type: CHORE
 epic: EP-018
 track: STANDARD
-status: DRAFT
+status: READY
 phase: 1
 created: 2026-08-20
 structural: no
