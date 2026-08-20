@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "trabajo",
   "sha": "f8fcc4c34424738d4ed6e1fa8268321d5add1a9c",
   "sha_corto": "f8fcc4c",
@@ -18,6 +18,7 @@
     "changes/PT-077-la-transicion-mira-lo-que-la-consulta-bloquea/intake.md",
     "changes/PT-078-ninguna-regla-queda-sin-clasificar/intake.md",
     "changes/PT-080-una-regla-no-se-define-dos-veces/intake.md",
+    "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/acciones-humanas.md",
     "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/design.md",
     "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/intake.md",
     "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/traceability.md",
@@ -25,6 +26,7 @@
     "changes/PT-084-la-plataforma-es-opcional-o-no-lo-es/intake.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-081/",
     "docs/methodology/CHANGELOG.md",
@@ -55,8 +57,11 @@
     "docs/methodology/tools/verify-suite.mjs",
     "package.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-20"
 }
