@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "trabajo",
   "sha": "25694370557dbd967c29342b7b85aea98775f4db",
   "sha_corto": "2569437",
@@ -25,11 +25,8 @@
     "docs/implementation/evidence/PT-082/",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
