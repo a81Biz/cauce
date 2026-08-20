@@ -9,16 +9,16 @@ Proyectado el 2026-08-20 · 13 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
-| PT-019 | CHORE | REOPENED | 9 | — | — | 27f5351 |
+| PT-019 | CHORE | REOPENED | 9 | — | — | b39dfd1 |
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-017 |  | READY | 1 | — | — | 5ab0bda |
-| PT-069 | FEATURE | READY | 1 | — | — | 27f5351 |
-| PT-070 | BUG | READY | 1 | — | — | 27f5351 |
-| PT-071 | BUG | READY | 1 | — | — | 27f5351 |
-| PT-073 | CHORE | READY | 1 | — | — | 27f5351 |
-| PT-077 | BUG | READY | 1 | — | — | ab50d99 |
-| PT-078 | FEATURE | READY | 1 | — | — | 80c9b3d |
-| PT-080 | BUG | READY | 1 | — | — | 074c58b |
-| PT-081 | BUG | READY | 9 | — | — | accd630 |
-| PT-083 | BUG | READY | 1 | — | — | 074c58b |
-| PT-084 | BUG | READY | 1 | — | — | 074c58b |
+| PT-069 | FEATURE | READY | 1 | — | — | b39dfd1 |
+| PT-070 | BUG | READY | 1 | — | — | b39dfd1 |
+| PT-071 | BUG | READY | 1 | — | — | b39dfd1 |
+| PT-073 | CHORE | READY | 1 | — | — | b39dfd1 |
+| PT-077 | BUG | READY | 1 | — | — | b39dfd1 |
+| PT-078 | FEATURE | READY | 1 | — | — | b39dfd1 |
+| PT-080 | BUG | READY | 1 | — | — | b39dfd1 |
+| PT-081 | BUG | READY | 9 | — | — | b39dfd1 |
+| PT-083 | BUG | READY | 1 | — | — | b39dfd1 |
+| PT-084 | BUG | READY | 1 | — | — | b39dfd1 |
