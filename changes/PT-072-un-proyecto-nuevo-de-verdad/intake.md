@@ -9,7 +9,7 @@ id: PT-072
 type: INVESTIGATION
 epic: EP-017
 track: STANDARD
-status: READY
+status: INTEGRATED
 phase: 9
 created: 2026-08-19
 structural: no
