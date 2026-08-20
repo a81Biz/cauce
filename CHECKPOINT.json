@@ -3,9 +3,9 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "fix/alberto-martinez/PT-067-el-denominador-de-la-cobertura-esta-incompleto",
   "sha": "c7ef2b2419637b6d5d1da52e1ab9abdd16aa2f02",
   "sha_corto": "c7ef2b2",
   "sucio": true,
@@ -16,13 +16,21 @@
     "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/strategy.md",
     "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/traceability.md",
     "changes/PT-080-una-regla-no-se-define-dos-veces/",
+    "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-067/",
+    "docs/methodology/tools/audit.mjs",
+    "docs/methodology/tools/patrones.mjs",
+    "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-19"
 }
