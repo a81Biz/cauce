@@ -5,14 +5,14 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-19 · 12 allocation(es) viva(s).
+Proyectado el 2026-08-19 · 13 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA |
 |:---|:---|:---|:---|:---|:---|
 | PT-019 | CHORE | REOPENED | 1 | — | — |
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-017 |  | READY | 1 | — | — |
-| PT-066 | BUG | READY | 5 | — | — |
+| PT-066 | BUG | READY | 6 | fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define | 30b68c5 |
 | PT-067 | BUG | READY | 1 | — | — |
 | PT-069 | FEATURE | READY | 1 | — | — |
 | PT-070 | BUG | READY | 1 | — | — |
@@ -21,3 +21,4 @@ Proyectado el 2026-08-19 · 12 allocation(es) viva(s).
 | PT-073 | CHORE | READY | 1 | — | — |
 | PT-077 | BUG | READY | 1 | — | — |
 | PT-078 | FEATURE | READY | 1 | — | — |
+| PT-079 |  | DRAFT | — | — | — |
