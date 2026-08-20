@@ -12,6 +12,20 @@
 **Marco de gobernanza para desarrollo asistido por IA.** Trazabilidad, evidencia y control
 humano sobre toda decisión irreversible.
 
+### Qué está demostrado, y qué no
+
+No es una promesa: `EP-017` lo ejecutó y anotó lo que salió mal.
+
+| | Se hizo | Resultado |
+|:---|:---|:---|
+| **Proyecto nuevo** | instalado desde el paquete, Foundation, un `PT` completo con tests en rojo primero | `cauce verify` en **cero errores**, y **siete huecos** encontrados, dos de ellos `S1` |
+| **Legado real** | cauce `4.12.0`, 127 tareas, cinco *majors* atrás | `migrate` separa **1 acción automática de 6 decisiones humanas** y dice por qué cada una lo es |
+
+**Lo que no está demostrado**: ejecutar la migración de extremo a extremo. Se validó que el
+informe es correcto y accionable, no que aplicarlo funcione — y entre las dos cosas hay un paso.
+Los huecos abiertos están en [`CASOS-DE-USO.md`](docs/methodology/CASOS-DE-USO.md), dichos en vez
+de callados.
+
 ```bash
 npm i -D @a81biz/cauce
 npx cauce install

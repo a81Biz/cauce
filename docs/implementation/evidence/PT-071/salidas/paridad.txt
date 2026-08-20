@@ -1,0 +1,10 @@
+=== PT-071 · paridad entre los dos workflows ===
+fecha: 2026-08-20
+
+  comprobaciones en verificacion.yml: 8
+  faltantes en publicar.yml        : (NINGUNA)
+
+  ANTES faltaban tres:
+    npm run verify:patrones
+    node docs/methodology/tools/tracker.mjs espejo
+    node docs/methodology/tools/verify-fdge.mjs --all   <- FDGE-R34, precondicion de G4

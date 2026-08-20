@@ -1,0 +1,30 @@
+=== AC-04 · AC-05 · el ledger se commitea ===
+fecha: 2026-08-20
+
+-- ANTES de PT-085 --
+   «tracker sesion cerrar» apilaba en SESSION_LOG.md y terminaba.
+   La entrada del cierre del 2026-08-19 seguia SIN COMMITEAR el 20.
+   La encontro una revision, no una comprobacion.
+
+-- DESPUES · el codigo --
+       const LEDGER = 'docs/implementation/SESSION_LOG.md';
+       const anadido = gitDe(['add', '--', LEDGER]);
+       if (anadido === null) {
+         throw new Error('la sesion NO se cierra: la entrada se escribio en SESSION_LOG.md y git no pudo indexarla. '
+           + 'Un ledger append-only sin commit no es un rastro (SUITE-R09).');
+       }
+       const pendiente = gitDe(['diff', '--cached', '--name-only', '--', LEDGER]);
+       if (pendiente) {
+         const hecho = gitDe(['commit', '-m', 'chore: sesion cerrada · entrada del ledger (SUITE-R09)',
+           '--only', '--', LEDGER]);
+         if (hecho === null) {
+           throw new Error('la sesion NO se cierra: la entrada esta en SESSION_LOG.md y el commit fallo. '
+             + 'Un cierre que dice haber ocurrido sin dejar rastro es peor que no cerrar, porque la sesion '
+             + 'siguiente confia en el. Commitea a mano y vuelve a ejecutar.');
+         }
+         di('  Entrada COMMITEADA: un ledger append-only sin commitear no es un rastro.');
+
+-- AC-05 · gitDe devuelve NULL en vez de lanzar --
+   Lo escribi con try/catch: el catch nunca se habria ejecutado y el caso
+   habria pasado EN VERDE con el commit fallando en silencio.
+   Se comprueba el VALOR DEVUELTO.

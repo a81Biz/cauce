@@ -1,0 +1,106 @@
+{
+  "pt": "PT-070",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "plan-layout reconoce el codigo bajo docs/",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/alcance.txt"
+      ],
+      "verified": true,
+      "nota": "cauce da «bin docs/methodology/tools»; antes daba «bin», 1 archivo"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Coincide con lo que el registro declara",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/alcance.txt"
+      ],
+      "verified": true,
+      "nota": "IDENTICO a lo que PT-020 escribio a mano. Que la derivacion reproduzca el juicio humano que la precedio es la validacion."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Las pruebas y la evidencia quedan fuera",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/alcance.txt"
+      ],
+      "verified": true,
+      "nota": "evidence/ y _archive/ excluidos (FND-R28)"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La suite instalada no entra en un proyecto ajeno",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/alcance.txt"
+      ],
+      "verified": true,
+      "nota": "el proyecto nuevo da «src», no «docs/methodology/tools src»"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El alcance baja hasta donde vive el codigo",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/alcance.txt"
+      ],
+      "verified": true,
+      "nota": "no «docs», que arrastra toda la documentacion"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el alcance derivado sea el mas UTIL para graphify.",
+      "por_que": "Se comprueba que cubre el codigo propio y excluye lo ajeno. Que el grafo resultante sirva mejor o peor es una afirmacion sobre utilidad, y la utilidad no se mide desde el repositorio.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Tres exclusiones aparecieron solo EJECUTANDO.",
+      "regla": "—",
+      "detalle": "El primer segmento daba «docs»; entraron docs/implementation/evidence/PT-023 y PT-029; y en el legado real, docs/_archive/2026-08-06. Ninguna se veia leyendo el regex."
+    },
+    {
+      "que": "Casi meto la suite instalada en el grafo de un proyecto ajeno.",
+      "regla": "FND-R28",
+      "detalle": "En el proyecto de PT-072 el alcance salio «docs/methodology/tools src»: las 16 herramientas DEL MARCO en el grafo de otro. Solo aparecio ejecutandolo FUERA de cauce, que es para lo que PT-072 existe."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

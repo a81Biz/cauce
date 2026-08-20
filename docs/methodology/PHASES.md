@@ -297,6 +297,20 @@ ESPEJA    TODO lo que copie el estado, no solo la plataforma.              [SUIT
           declara cual se uso. Falta un lado ⇒ no se compara: un campo ausente
           no es una divergencia. Sin esto, un «phase: 1» olvidado APAGA
           FDGE-R52 —que solo corre desde phase >= 2— sin avisar.
+SELLAR    cerrar una VERSION es un acto, y tiene ocho pasos.             [SUITE-R57]
+          node tools/tracker.mjs sellar   los enumera y dice cuales faltan.
+          1 CHANGELOG con su guia de migracion                       [SUITE-R19]
+          2 version.mjs --aplicar   3 build-core   4 BATERIA COMPLETA
+          5 /graphify y REGISTRY.graph al dia                        [FDGE-R32]
+          6 SELLO.md: cada documento de entrada ACTUALIZADO o NO PROCEDE
+            con motivo — MANUAL, CASOS-DE-USO, README, Suite-CLAUDE-Template
+            y el grafo. Celda vacia NO pasa, igual que en LAYOUT.   [FND-R22]
+          7 PR a la rama por defecto · HUMANO                        [EXEC-R04]
+          8 git tag · HUMANO, y DESPUES del merge: un tag antes apunta a un
+            arbol sin lo que la version trae, y la linea base miente.
+          Mas de N integradas de lotes CERRADOS sin sellar ⇒ G2 BLOQUEADA.
+          Las de un lote ABIERTO no cuentan: el lote es la unidad. [EXEC-R03]
+
 ASIGNA    el REGISTRO, siempre. La plataforma espeja y guarda su número de issue.
           node tools/tracker.mjs espejo        comprueba las dos direcciones
           node tools/tracker.mjs abrir --aplicar   crea los issues que faltan

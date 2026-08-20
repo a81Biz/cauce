@@ -1,0 +1,37 @@
+=== AC-06..AC-13 · AC-17 · el acto de sellar ===
+fecha: 2026-08-20
+
+
+  sellar · version vigente 10.0.0 · tag anterior v9.0.0
+
+  deuda de sellado   0 de lotes CERRADOS · umbral 3
+                     Las tareas de un lote ABIERTO no cuentan: EXEC-R03 hace del lote
+                     la unidad de sellado, y contarlas lo bloquearia consigo mismo.
+
+  grafo              SUSPECT · 12 de 16 archivos cambiaron
+                     Regeneralo antes de sellar: /graphify (FDGE-R32, lo dispara el humano)
+
+  documentos de entrada  (cada uno ACTUALIZADO o NO PROCEDE con motivo — FND-R22)
+    ✗  MANUAL.md
+    ✗  CASOS-DE-USO.md
+    ✗  README.md
+    ✗  Suite-CLAUDE-Template.md
+    ✗  graphify-out/
+
+  5 sin resolver en docs/implementation/SELLO.md. Una celda vacia es
+  indistinguible de una que nadie miro, y por eso no pasa.
+
+  ── lo que falta para sellar ──────────────────────────────────────────
+  1 · entrada en CHANGELOG.md con su guia de migracion        [SUITE-R19]
+  2 · node tools/version.mjs --aplicar   (los 21 documentos)
+  3 · node tools/build-core.mjs          (CORE regenerado)
+  4 · bash tools/selftest.sh             BATERIA COMPLETA, no parcial
+  5 · /graphify   y REGISTRY.graph al dia                     [FDGE-R32]
+  6 · docs/implementation/SELLO.md con los cinco resueltos
+  7 · PR a la rama por defecto  ·  HUMANO                     [EXEC-R04]
+  8 · git tag -a v<version>     ·  HUMANO, y DESPUES del merge
+
+  Los pasos 7 y 8 NO los ejecuta el agente (SUITE-R06a). El 8 va despues del 7:
+  un tag antes del merge apunta a un arbol sin lo que la version trae, y la linea
+  base de FDGE-R43 y de AC-08 quedaria mintiendo (PT-081).
+tracker · github · acción sellar

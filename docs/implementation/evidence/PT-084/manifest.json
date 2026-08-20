@@ -1,0 +1,116 @@
+{
+  "pt": "PT-084",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Sin plataforma, avanzar FUNCIONA",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/sin-tablero.txt"
+      ],
+      "verified": true,
+      "nota": "PHASE 1 -> 2 en el proyecto de PT-072, que no declara plataforma a proposito"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La nota no se pierde",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/sin-tablero.txt"
+      ],
+      "verified": true,
+      "nota": "TRANSICIONES.log, append-only (SUITE-R09), con el MISMO cuerpo que iria al issue"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Con plataforma, nada cambia",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/sin-tablero.txt"
+      ],
+      "verified": true,
+      "nota": "los casos existentes de avanzar siguen verdes. Es la mitad del trabajo."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "avanzar sigue exigiendo --nota",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/sin-tablero.txt"
+      ],
+      "verified": true,
+      "nota": "FDGE-R52 intacta: solo cambia donde vive la nota"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "migrate deja de prometer lo que no cumple",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/sin-tablero.txt"
+      ],
+      "verified": true,
+      "nota": "y es cierto AHORA porque esta tarea lo hace cierto"
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Un proyecto sin tablero recorre un PT entero",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/sin-tablero.txt"
+      ],
+      "verified": true,
+      "nota": "reejecutado donde el defecto aparecio, no en un fixture"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que un proyecto sin tablero sea igual de auditable.",
+      "por_que": "No lo es, y se dice: lo que se pierde es consultar el estado sin abrir el repositorio. No es un defecto, es el precio de no declarar plataforma.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Eran DOS puntos y no uno.",
+      "regla": "—",
+      "detalle": "El espejo de etiquetas —acto 5 de los cinco— tambien asumia adaptador presente y reventaba con «Cannot read properties of undefined». No se veia leyendo la cadena de guardas: se vio ejecutandolo en el proyecto sin plataforma."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

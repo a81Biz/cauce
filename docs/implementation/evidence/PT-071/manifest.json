@@ -1,0 +1,86 @@
+{
+  "pt": "PT-071",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "publicar corre las mismas comprobaciones que verificar",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/paridad.txt"
+      ],
+      "verified": true,
+      "nota": "8 de 8; antes 5 de 8"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La invocacion es IDENTICA, no equivalente",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/paridad.txt"
+      ],
+      "verified": true,
+      "nota": "el comparador deriva la cadena completa de cada archivo"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "verify-fdge --all esta, por FDGE-R34",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/paridad.txt"
+      ],
+      "verified": true,
+      "nota": "es precondicion de G4, y publicar ocurre DESPUES de G4"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La paridad se comprueba sola",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/paridad.txt"
+      ],
+      "verified": true,
+      "nota": "un caso deriva los comandos de los dos archivos"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que las dos sigan iguales manana sin el caso.",
+      "por_que": "El caso es justo lo que lo impide. Sin el, esta tarea arregla el desfase de hoy y deja el mecanismo intacto — que es lo que ya paso con FND-R29 y lo encontro Foundation como divergencia D9.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Escribi «npm run verify:espejo» donde el otro pone «node tools/tracker.mjs espejo».",
+      "regla": "SUITE-R38",
+      "detalle": "Hacen lo mismo HOY y el comparador las conto como distintas. Tenia razon: dos formas de invocar lo mismo divergen el dia que una cambie de definicion en package.json."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

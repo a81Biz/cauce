@@ -1,0 +1,24 @@
+=== PT-080 · una regla no se define dos veces ===
+fecha: 2026-08-20
+
+-- las tres, y lo que cada copia habia PERDIDO --
+   FDGE-R22  RULES exige «solo severity: S1» y cinco fases retroactivas · la copia, NINGUNA
+             Dejaba el carril HOTFIX abierto a un S3, y ese carril difiere G2 y G3.
+   FDGE-R40  RULES exige que los solapados SE SERIALICEN · la copia lo omitia
+   FDGE-R41  RULES exige que el EP-NNN pase a BLOCKED · la copia lo omitia
+
+-- definiciones en EXECUTION-MODES --
+   antes 17  ·  ahora 14   (derivado con reglasDelMarco, que es lo que la herramienta usa;
+                            un grep sobre el patron da 15 porque cuenta una linea que la
+                            derivacion no toma como definicion — se usa la cifra buena)
+
+-- la inversa: se inyecta una duplicada --
+     SUITE-R38    EXECUTION-MODES.md
+         SUITE-R57 está DEFINIDA en EXECUTION-MODES.md y en RULES.md. Una regla tiene un solo documento propietario (LEX-R22): los demás la CITAN por ID. Dos textos divergen — es lo que le pasó a la v3, y en la v9 las tres copias que había ya habían perdido una obligación cada una.
+
+-- restaurada --
+   Sin errores de coherencia.
+
+-- y la obligacion que cada copia perdio, sigue en RULES --
+   «se serializan»  1
+   «BLOCKED»        1

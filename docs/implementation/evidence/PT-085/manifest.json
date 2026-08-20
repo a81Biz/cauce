@@ -1,0 +1,291 @@
+{
+  "pt": "PT-085",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La parte derivable del bloque ESTADO se contrasta con el registro",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh:un handoff que miente sobre una tarea CAE",
+        "selftest.sh:un lote declarado ABIERTA y cerrado, CAE"
+      ],
+      "evidence": [
+        "salidas/estado-contrastado.txt"
+      ],
+      "verified": true,
+      "nota": "Cazo una mentira EN SU PRIMERA EJECUCION: el HANDOFF afirmaba que PT-081 y PT-019 seguian en PHASE 9 con las dos ya INTEGRATED. No fue un caso preparado."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "…y un handoff correcto pasa",
+      "scenarios": [
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:…y uno correcto PASA",
+        "selftest.sh:…y enumerar las cerradas NO cuenta"
+      ],
+      "evidence": [
+        "salidas/estado-contrastado.txt"
+      ],
+      "verified": true,
+      "nota": "Sin este, un verificador que fallara SIEMPRE cumpliria AC-01. Y el segundo caso importa: la linea real enumera las INTEGRADAS despues de las vivas, asi que contarlas seria acusar al texto correcto — el falso positivo que apaga la comprobacion."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Lo no derivable se declara, no se finge verificado",
+      "scenarios": [
+        "E3"
+      ],
+      "tests": [
+        "SUITE-R33 avisa si faltan «decisiones» o «no hacer»"
+      ],
+      "evidence": [
+        "salidas/estado-contrastado.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "sesion cerrar deja su entrada commiteada",
+      "scenarios": [
+        "E4"
+      ],
+      "tests": [
+        "tracker sesion cerrar sobre el repositorio"
+      ],
+      "evidence": [
+        "salidas/sesion-cerrar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "…o no dice que cerro",
+      "scenarios": [
+        "E5"
+      ],
+      "tests": [
+        "lanza si el add o el commit devuelven null"
+      ],
+      "evidence": [
+        "salidas/sesion-cerrar.txt"
+      ],
+      "verified": true,
+      "nota": "Lo escribi con try/catch y gitDe devuelve NULL en vez de lanzar: el catch nunca se habria ejecutado y el caso habria pasado en verde con el commit fallando en silencio. Se comprueba el valor devuelto."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "SUITE-R57: pasado el umbral, G2 se bloquea",
+      "scenarios": [
+        "E6"
+      ],
+      "tests": [
+        "selftest.sh:las tareas de un lote ABIERTO no cuentan"
+      ],
+      "evidence": [
+        "salidas/suite-r57.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-07",
+      "statement": "…y por debajo del umbral no molesta",
+      "scenarios": [
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:…y lo ya sellado tampoco"
+      ],
+      "evidence": [
+        "salidas/suite-r57.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-08",
+      "statement": "El umbral es declarable",
+      "scenarios": [
+        "E8"
+      ],
+      "tests": [
+        "REGISTRY.tracker.umbral_sellado, N=3 por defecto"
+      ],
+      "evidence": [
+        "salidas/suite-r57.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-09",
+      "statement": "El acto de sellar esta definido y es ejecutable",
+      "scenarios": [
+        "E9"
+      ],
+      "tests": [
+        "tracker sellar enumera los ocho pasos"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-10",
+      "statement": "Sellar exige bateria COMPLETA",
+      "scenarios": [
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:sellar exige la bateria COMPLETA"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true,
+      "nota": "Escrito ANTES que PT-086 a proposito: asi no existe ninguna ventana con corridas parciales y sin un sello que reclame la completa."
+    },
+    {
+      "ac": "AC-11",
+      "statement": "Sellar exige RESOLVER cada documento de entrada",
+      "scenarios": [
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:un acta vacia deja los cinco sin resolver",
+        "selftest.sh:…ACTUALIZADO resuelve"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-12",
+      "statement": "Una celda vacia no pasa",
+      "scenarios": [
+        "E12"
+      ],
+      "tests": [
+        "selftest.sh:…y NO PROCEDE sin motivo NO resuelve",
+        "selftest.sh:…y con motivo si"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true,
+      "nota": "La forma es la de FND-R22 con el LAYOUT. Exigir que el documento CAMBIE produciria retoques cosmeticos para acallar la comprobacion — fabricar un verde, en documentacion."
+    },
+    {
+      "ac": "AC-13",
+      "statement": "El sello avisa de lo que probablemente cambio",
+      "scenarios": [
+        "E13"
+      ],
+      "tests": [
+        "tracker sellar sobre el repositorio real"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-14",
+      "statement": "Esta dicho desde las instrucciones",
+      "scenarios": [
+        "E14"
+      ],
+      "tests": [
+        "selftest.sh:los cinco sitios de SUITE-R57"
+      ],
+      "evidence": [
+        "salidas/cinco-sitios.txt"
+      ],
+      "verified": true,
+      "nota": "RULES, PHASES, el prompt de G4, CORE y MANUAL. Y verify-suite obligo a citar ademas SUITE-R19 en el prompt, para que quien trabaja en modo MANUAL no se pierda la guia de migracion."
+    },
+    {
+      "ac": "AC-15",
+      "statement": "FDGE-R43 detecta deriva de contenido",
+      "scenarios": [
+        "E15"
+      ],
+      "tests": [
+        "selftest.sh:un archivo movido de mtime se detecta",
+        "selftest.sh:…y uno intacto no"
+      ],
+      "evidence": [
+        "salidas/grafo-suspect.txt"
+      ],
+      "verified": true,
+      "nota": "Dio SUSPECT 12 de 16 sobre el grafo real, que llevaba cinco dias diciendo FRESH y contestaba 2 importadores de patrones.mjs cuando son 8."
+    },
+    {
+      "ac": "AC-16",
+      "statement": "…y la deriva avisa, no bloquea",
+      "scenarios": [
+        "E16"
+      ],
+      "tests": [
+        "MAJOR con SUSPECT no falla"
+      ],
+      "evidence": [
+        "salidas/grafo-suspect.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-17",
+      "statement": "Sellar exige el grafo al dia",
+      "scenarios": [
+        "E17"
+      ],
+      "tests": [
+        "tracker sellar lo enumera y lo marca SUSPECT"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que «decisiones» y «no hacer» digan la verdad.",
+      "por_que": "Son lo unico del estado que no se deriva de nada, y por eso son lo mas valioso que tiene el HANDOFF. Verificar que una prosa es cierta no se hacerlo; SUITE-R33 ahora al menos avisa si faltan.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    },
+    {
+      "afirmacion": "Que resolver un documento de entrada signifique que se REVISO de verdad.",
+      "por_que": "Una fila que dice NO PROCEDE con motivo es una afirmacion contrastable, no una prueba. Es el mismo limite que SUITE-R27 declara sobre las firmas: hay un nombre asociado a la decision, no una garantia de voluntad.",
+      "donde": "changes/PT-085-el-sello-de-version/strategy.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "EP-017 no tiene campo «type», y filtrar los lotes por type==='EP' no caso ninguno.",
+      "regla": "SUITE-R38",
+      "detalle": "El resultado seguia dando 13 y parecia que mi razonamiento era erroneo. Los lotes se reconocen por su IDENTIFICADOR, que es lo que SUITE-R08 garantiza; fiarse de un campo opcional era depender de dos fuentes del mismo hecho y quedarse con la peor."
+    },
+    {
+      "que": "Escribi el commit del ledger envuelto en try/catch.",
+      "regla": "—",
+      "detalle": "gitDe devuelve null en vez de lanzar, asi que el catch nunca se habria ejecutado: el caso habria pasado EN VERDE con el commit fallando en silencio. Se comprueba el valor devuelto. Lo vi leyendo el contrato de la funcion, no ejecutandolo."
+    },
+    {
+      "que": "Un mensaje de FDGE-R43 seguia diciendo «Bloquea G2 en PTs MAJOR» con SUSPECT.",
+      "regla": "RULE-06",
+      "detalle": "SUSPECT no bloquea. Un mensaje que describe mal lo que hace la herramienta es una afirmacion falsa con formato de ayuda."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 1073,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

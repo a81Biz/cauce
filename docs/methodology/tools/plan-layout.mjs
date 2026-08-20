@@ -56,9 +56,37 @@ const CONTENEDOR_CODIGO = ['src', 'apps', 'packages', 'lib', 'services', 'intern
 const DOC_RAIZ_OK = ['README.md', 'CLAUDE.md', 'AGENTS.md', 'CHANGELOG.md', 'CONTRIBUTING.md',
   'LICENSE.md', 'SECURITY.md', 'CODE_OF_CONDUCT.md'];
 // Fuera del grafo: no es codigo propio, o no describe el sistema sino como se comprueba.
-const FUERA_DEL_GRAFO = /(^|\/)(node_modules|\.git|\.next|dist|build|coverage|vendor|__pycache__|\.venv|target|out|docs)(\/|$)/;
+// PT-070 · «docs» sale de la exclusion GENERAL y pasa a excluirse solo cuando NO contiene
+// codigo propio. Excluir docs/ entero es correcto para documentacion y falso para codigo: en
+// cauce las 16 herramientas viven en docs/methodology/tools/ —viajan dentro del paquete y ahi
+// esta su sitio— y quedaban fuera del grafo. plan-layout devolvia «alcance: bin», 1 archivo,
+// mientras el registro decia «bin, docs/methodology/tools» desde PT-020 porque alli se escribio
+// A MANO. Cualquier instalacion nueva nacia con el defecto.
+//
+// La condicion es el CONTENIDO, no el nombre: un directorio de docs sin codigo sigue fuera, y
+// uno con codigo entra. Es la misma leccion que FDGE-R43 —mirar el hecho, no un proxy—.
+// «_archive» entra aqui: es historia guardada, no el sistema. Aparecio al dejar de excluir
+// docs/ por su nombre — en el legado real, docs/_archive/2026-08-06 se colaba en el alcance.
+const FUERA_DEL_GRAFO = /(^|\/)(node_modules|\.git|\.next|dist|build|coverage|vendor|__pycache__|\.venv|target|out|_archive)(\/|$)/;
+// PERO docs/methodology/ es LA SUITE INSTALADA, y en cualquier proyecto que no sea cauce es
+// marco de terceros: FND-R28 lo deja fuera igual que node_modules. En cauce es codigo propio
+// —SUITE-R41, se aloja a si mismo— y ahi si entra.
+//
+// La identidad se comprueba como la comprueba el instalador: por el «name» del package.json.
+// Lo detecto ejecutandolo en el proyecto de PT-072, donde el alcance salio «docs/methodology/
+// tools src» — habria metido las 16 herramientas del marco en el grafo de un proyecto ajeno.
+const ES_CAUCE = (() => {
+  try { return JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).name === '@a81biz/cauce'; }
+  catch { return false; }
+})();
+const SUITE_AJENA = (r) => !ES_CAUCE && /(^|\/)docs\/methodology(\/|$)/.test(r);
 const ES_CONFIG = /\.(config|conf)\.[a-z]+$|^(eslint|vite|vitest|next|tailwind|postcss|rollup|webpack|babel|jest)\./i;
-const ES_PRUEBA = /(^|\/)(tests?|__tests__|e2e|spec|fixtures|mocks|stories)(\/|$)|\.(test|spec|stories)\.[a-z]+$/i;
+// PT-070 · «evidence» entra en la exclusion de pruebas. Al dejar de excluir docs/ por su
+// nombre aparecieron docs/implementation/evidence/PT-023 y PT-029 en el alcance: son salidas
+// GUARDADAS de una tarea —fixtures de su evidencia—, no el sistema. FND-R28 ya las excluye por
+// concepto; lo que faltaba era nombrarlas, porque hasta ahora vivian bajo el docs/ que se
+// excluia entero y nadie las habia visto.
+const ES_PRUEBA = /(^|\/)(tests?|__tests__|e2e|spec|fixtures|mocks|stories|evidence)(\/|$)|\.(test|spec|stories)\.[a-z]+$/i;
 
 const hallazgos = [];
 const propuestas = [];
@@ -182,13 +210,29 @@ const codigoPropio = [];
     if (FUERA_DEL_GRAFO.test(r)) continue;
     if (e.isDirectory()) { recorrer(p); continue; }
     if (!CODIGO.test(e.name) || ES_PRUEBA.test(r)) continue;
+    // PT-070 · un archivo de codigo dentro de docs/ SI cuenta; la documentacion no llega aqui
+    // porque CODIGO ya la filtro. El nombre del directorio no decide: decide lo que contiene.
+    // Salvo la suite instalada en un proyecto ajeno, que es marco de terceros.
+    if (SUITE_AJENA(r)) continue;
     // Configuracion suelta de la raiz —eslint.config.mjs, vite.config.ts, next-env.d.ts— es
     // andamiaje, no sistema. Incluirla metia «.» en el alcance, y «.» arrastra todo lo demas.
     if (!r.includes('/') && (ES_CONFIG.test(e.name) || e.name.endsWith('.d.ts'))) continue;
     codigoPropio.push(r);
   }
 })(ROOT);
-const alcanceGrafo = [...new Set(codigoPropio.map((f) => (f.includes('/') ? f.split('/')[0] : '.')))].sort();
+// PT-070 · el alcance es el directorio COMUN de cada familia, no su primer segmento.
+//
+// Tomar el primer segmento daba «docs» —que arrastra toda la documentacion— cuando el codigo
+// vive en docs/methodology/tools/. Se sube desde cada archivo hasta el directorio que los
+// contiene a todos, y ahi se corta: bin/cauce.mjs da «bin»; los 16 de tools dan
+// «docs/methodology/tools». El resultado coincide con lo que PT-020 escribio A MANO en el
+// registro, que es la prueba de que la derivacion acerto.
+const alcanceGrafo = (() => {
+  const dirs = [...new Set(codigoPropio.map((f) => (f.includes('/') ? f.slice(0, f.lastIndexOf('/')) : '.')))];
+  // Se queda con los ANCESTROS: si «a/b» y «a/b/c» estan, sobra «a/b/c».
+  const raices = dirs.filter((d) => !dirs.some((o) => o !== d && d.startsWith(`${o}/`)));
+  return [...new Set(raices)].sort();
+})();
 if (codigoPropio.length) {
   nota('grafo', `alcance: ${alcanceGrafo.join(' ')}`,
     `${codigoPropio.length} archivo(s) de código propio. Fuera: dependencias de terceros, salida de `

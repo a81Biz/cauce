@@ -321,8 +321,28 @@ Lo que este catálogo **no** cubre hoy, dicho en vez de callado (`RULE-06`):
 | Hueco | Por qué |
 |:---|:---|
 | Azure ejercitado de punta a punta | No hay proyecto que lo use (`F3`, `PT-025`) |
-| Monorepo con varios `REGISTRY.json` | No se ha probado; el marco asume uno por repositorio |
-| Varios agentes trabajando a la vez | El espejo detecta divergencia pero nada coordina el reparto |
+| Monorepo con varios `REGISTRY.json` | No probado. El marco asume uno por repositorio — aunque `PT-070` derivó bien el alcance de un monorepo real de cuatro aplicaciones |
+| Varios agentes trabajando a la vez | El espejo detecta divergencia; nada **reparte** el trabajo. `EP-016` resolvió la identidad, los rangos de ID y la marca de sesión por persona — la coordinación sigue abierta |
 | Migración desde una suite que no sea cauce | Fuera de alcance del marco |
+| **Migrar de verdad un legado** | `PT-019` validó que el **informe** de `migrate` es correcto y accionable sobre un legado real de `4.12.0` con 127 tareas. **No se ejecutó `--apply`**: entre «dice bien qué hacer» y «lo hace bien» queda un paso |
+| **Un legado sintético** | `PT-019` lo declaró reducido: el real provoca los casos mejor, y un sintético habría medido mi capacidad de inventar defectos |
+| **`comparar-marco` ejecutada desde el marco** | Llama «canónica» al argumento, así que ejecutada desde cauce contra un destino **invierte las etiquetas**. El contenido es correcto; el rótulo miente. Está pensada para correr **desde el proyecto**, y eso no estaba escrito (`HL-1` de `PT-019`) |
 
 Un caso que aparezca y no esté aquí **entra como `PT`**, no como párrafo.
+
+## Lo que `EP-017` cerró, y ya no es hueco
+
+`CASOS-DE-USO` declaraba «varios agentes a la vez» como si nada de eso estuviera resuelto. `EP-016`
+cerró la identidad, los rangos y la sesión por persona; el hueco real y más estrecho es **la
+coordinación del reparto**, y así queda escrito arriba.
+
+Y estos dos casos **dejaron de ser una promesa** porque se ejecutaron:
+
+| Caso | Qué se hizo, y qué salió |
+|:---|:---|
+| **Un proyecto nuevo, de cero a un `PT` cerrado** (`PT-072`) | Instalado desde `npm pack`, Foundation, un `PT` completo con tests en rojo primero, `cauce verify` en **cero errores**. Y **siete huecos**, dos de ellos `S1` |
+| **Un legado de cinco majors atrás** (`PT-019`) | `4.12.0`, 127 tareas. `migrate` separa **1 acción automática de 6 decisiones humanas** y dice por qué cada una lo es. **36 de sus 39 archivos difieren.** El original, con `0` cambios |
+
+Los dos `S1` que salieron del proyecto nuevo se arreglaron en el mismo lote: `PT-084` —la
+plataforma era obligatoria de hecho— y `PT-083` —la plantilla que el paquete distribuye fallaba
+su propio verificador—. **Ejecutar el marco encontró lo que leerlo no encontraba.**

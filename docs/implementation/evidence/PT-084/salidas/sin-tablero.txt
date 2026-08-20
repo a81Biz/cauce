@@ -1,0 +1,25 @@
+=== PT-084 · un proyecto SIN tablero avanza de fase ===
+fecha: 2026-08-20 · probado en C:/tmp/pt072/nuevo, donde PT-072 encontro el defecto
+
+-- ANTES --
+   avanzar exige --nota  ->  la nota exige issue  ->  el issue exige plataforma
+   «sin plataforma con la que comentar, la nota no tiene donde ir. avanzar la EXIGE»
+   Y FDGE-R52 hace de avanzar la UNICA forma sancionada de cambiar de fase.
+
+-- DESPUES --
+   · PT-001: nota en docs/implementation/TRANSICIONES.log — no hay plataforma declarada
+   · PT-001: PHASE 1 -> 2 Descubrimiento
+
+-- el ledger, append-only (SUITE-R09) --
+   
+   ## 2026-08-19 · PT-001 · PHASE 1 -> 2
+   
+   <!-- cauce:agente -->
+   **PHASE 1 → 2** · `PT-001`
+   
+   prueba de PT-084: sin tablero, la nota va al ledger
+   
+   **Dónde:** `PHASE 2` · Descubrimiento. **Sigue:** RESUELVE PRIMERO lo de arriba. Después: dónde está el defecto, con archivo y línea
+
+-- y migrate deja de prometer lo que no cumplia --
+   Sin ella el trabajo SIGUE FUNCIONANDO: desde PT-084 las notas de transición van a docs/implementation/TRANSICIONES.

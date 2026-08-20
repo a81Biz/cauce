@@ -56,6 +56,8 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde } from './patrones.mjs';
+// PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
+import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -115,7 +117,19 @@ const RE_STATUS_YAML = /^\s*status\s*:\s*([A-Z_]+)/im;
 const RE_SIGN_BATCH = /Firmado\s+por\s+lote:\s*(EP-\d+)/i;
 const RE_DOR = /(?:^|\n)\s*(?:VEREDICTO|DoR)\s*:\s*(PASS|FAIL|CHALLENGE)\b/i;
 const RE_DOR_OVERRIDE = /CHALLENGE\s+aceptado\s+por:\s*(?!\[)(\S.*)$/im;
-const RE_SEVERITY = /^\s*severity:\s*(S[1-4])\s*$/im;
+// PT-083 · el `$` exigia fin de linea inmediatamente despues de S2, y las plantillas que EL
+// PAQUETE DISTRIBUYE traen «severity: S2               # [HUMANO] S1 | S2 | S3 | S4». Quien
+// instala el paquete, copia su plantilla y la rellena, fallaba FDGE-R04 — y es el camino que el
+// MANUAL describe, no un caso raro.
+//
+// Los otros cinco campos del YAML ya toleraban el comentario: type y track cierran con ,
+// phase y status con nada. Severity era el UNICO incoherente con sus vecinos, asi que no habia
+// forma de que quien rellena lo adivinara. Se arregla quien lee, no las plantillas: los
+// comentarios en linea son utiles —dicen quien rellena que— y quitarlos empeoraria la plantilla
+// para acallar al verificador.
+//
+// Sigue rechazando lo invalido: `severity: S9` y `severity:` vacio no casan.
+const RE_SEVERITY = /^\s*severity:\s*(S[1-4])\s*(?:#.*)?$/im;
 const RE_TYPE = /^\s*type:\s*(BUG|FEATURE|REFACTOR|INVESTIGATION|CHORE)\b/im;
 const RE_TRACK = /^\s*track:\s*(STANDARD|EXPRESS|HOTFIX)\b/im;
 const RE_COMPLEXITY = /^\s*complexity:\s*(TRIVIAL|STANDARD|MAJOR)/im;
@@ -264,6 +278,32 @@ function graphState(reg) {
     return { state: 'STALE', reason: `PT estructural(es) integrados desde su generación: ${after.map((a) => a.id).join(', ')}` };
   }
   if (!g.generated) return { state: 'UNKNOWN', reason: 'REGISTRY.graph sin fecha de generación (FND-R14)' };
+
+  // PT-085 · E · lo estructural ya se miró arriba; ahora la DERIVA DE CONTENIDO.
+  //
+  // «structural: true» sólo marca crear, mover, renombrar o eliminar. En todo el registro UNA
+  // allocation lo tenía, así que ocho funciones nuevas y tres herramientas cambiadas dejaban el
+  // grafo FRESH — con 12 de sus 16 archivos ya distintos, y respondiendo que patrones.mjs tiene
+  // 2 importadores cuando tiene 8. Un proxy en vez del hecho, igual que SUITE-R34.
+  //
+  // El dato ya estaba en graphify-out/manifest.json. Nadie lo consultaba.
+  //
+  // SUSPECT AVISA Y NO BLOQUEA, y es deliberado: como casi toda tarea toca un archivo, bloquear
+  // aquí dejaría G2 cerrada en todos los MAJOR de forma permanente — y una comprobación que
+  // siempre bloquea se desactiva. STALE bloqueante sigue reservado a lo estructural.
+  const man = (() => { try { return JSON.parse(readFileSync(join(ROOT, 'graphify-out', 'manifest.json'), 'utf8')); } catch { return null; } })();
+  const deriva = derivaDelGrafo(man, (ruta) => {
+    const ruta2 = ruta.split(String.fromCharCode(92)).join('/');
+    try { return statSync(ruta2).mtimeMs / 1000; } catch { return null; }
+  });
+  if (deriva && deriva.length) {
+    const muestra = deriva.slice(0, 6).map((r) => r.split('/').pop()).join(', ');
+    return {
+      state: 'SUSPECT',
+      reason: `${deriva.length} de ${Object.keys(man).length} archivos que describe han cambiado desde ${g.generated}`
+        + ` — ${muestra}${deriva.length > 6 ? ' …' : ''}`,
+    };
+  }
   return { state: 'FRESH', reason: `generado ${g.generated} sobre ${g.scope ?? 'src/'}` };
 }
 
@@ -579,6 +619,27 @@ function checkEstado() {
     const dias = Math.round((tTrabajo - tEstado) / 86400);
     fail('SUITE-R34', `Hubo trabajo en changes/ después del último estado${dias ? ` (${dias} día(s) de diferencia)` : ''}. La sesión terminó sin dejar el estado retomable: mañana hay que reconstruirlo leyendo el repositorio, que es justo lo que SUITE-R03 dice que no debe hacer falta.`);
   } else if (tEstado) ok('SUITE-R34', 'El estado es más reciente que el último trabajo.');
+
+  // PT-085 · A · y ahora lo que la fecha no puede decir: que el bloque sea VERDAD.
+  //
+  // Comparar marcas de commit verifica la frescura del ARCHIVO, no la de su contenido: un
+  // handoff obsoleto pero recién tocado pasaba. Durante EP-017 el bloque declaró «EP-016
+  // CERRADA · lo siguiente es EP-017, PROPUESTA y no abierta» con nueve tareas ya integradas.
+  //
+  // El criterio es la CONTRADICCIÓN, no la omisión: se falla cuando el texto afirma algo que el
+  // registro desmiente. Exigir exhaustividad convertiría el bloque en un volcado del registro
+  // —dos fuentes del mismo hecho— y el handoff existe para lo que el registro NO puede decir.
+  const contra = contradiceElRegistro(cuerpo, REGISTRO?.allocations ?? []);
+  for (const c of contra) {
+    fail('SUITE-R34', `El bloque ESTADO contradice al registro: ${c}. El estado retomable que miente es peor que el que falta — se actúa sobre él.`);
+  }
+  if (!contra.length && tEstado) {
+    ok('SUITE-R34', 'El bloque ESTADO no contradice al registro.');
+  }
+  // Lo NO derivable se declara, no se finge verificado (AC-03).
+  if (!/^\s*decisiones:/im.test(cuerpo) || !/^\s*no hacer:/im.test(cuerpo)) {
+    warn('SUITE-R33', 'El bloque ESTADO no trae «decisiones» o «no hacer». Son lo ÚNICO del estado que no se deriva de nada, y por eso nadie las verifica: lo que digan es responsabilidad de quien las escribe.');
+  }
 }
 
 function checkImplementacion(reg) {
@@ -1277,11 +1338,51 @@ function checkPT(pt, { gate } = {}) {
   }
 
   // FDGE-R43 · un PT MAJOR no resuelve G2 con el grafo ausente o STALE
+  //
+  // PT-085 · SUSPECT —deriva de contenido— NO bloquea, y es deliberado: como casi toda tarea
+  // toca un archivo del grafo, bloquear ahí dejaría G2 cerrada en todos los MAJOR de forma
+  // permanente, y una comprobación que siempre bloquea se termina desactivando. Avisa, enumera,
+  // y sellar sí la exige resuelta (SUITE-R57).
   const complexity = intake.match(RE_COMPLEXITY)?.[1];
-  if (complexity === 'MAJOR' && GRAPH.state !== 'FRESH') {
+  const bloquea = GRAPH.state !== 'FRESH' && GRAPH.state !== 'SUSPECT';
+  if (complexity === 'MAJOR' && bloquea) {
     fail('FDGE-R43', `${pt}: es MAJOR y el grafo está ${GRAPH.state} (${GRAPH.reason}). Regenera el grafo sobre src/ antes de resolver G2.`);
+  } else if (GRAPH.state === 'SUSPECT') {
+    warn('FDGE-R43', `${pt}: grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);
   } else if (complexity === 'STANDARD' && GRAPH.state !== 'FRESH') {
     warn('FDGE-R43', `${pt}: STANDARD con grafo ${GRAPH.state}. Declara la limitación en context.md (FDGE-R08).`);
+  }
+
+  // PT-085 · C · SUITE-R57 · lo integrado no se acumula sin sellar.
+  //
+  // Se cuenta contra un TAG, no contra una rama: PT-081 aprendió que una rama se mueve con cada
+  // integración y deja de detectar justo lo que acabas de integrar. Y las tareas de un lote
+  // ABIERTO no cuentan (EXEC-R03: el lote es la unidad de sellado) — con la definición ingenua
+  // salían 13 contra un umbral de 3, y el sello de la versión ES el lote abierto: un candado con
+  // la llave dentro.
+  if (gate === 'G2') {
+    // verify-fdge no tiene un `gitDe`: llama a execFileSync directo, como el resto del archivo.
+    const git = (args) => {
+      try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }); }
+      catch { return null; }
+    };
+    const tag = (git(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
+      .trim().split(/\s+/).filter(Boolean).find((t) => t !== `v${REGISTRO?.suite_version ?? ''}`);
+    const idsTag = (() => {
+      if (!tag) return null;
+      const j = git(['show', `${tag}:docs/implementation/REGISTRY.json`]);
+      try { return JSON.parse(j).allocations.filter((a) => ESTADOS_TERMINALES.has(a?.status)).map((a) => a.id); } catch { return null; }
+    })();
+    const debe = sinSellar(REGISTRO?.allocations ?? [], idsTag);
+    const umbral = Number(REGISTRO?.tracker?.umbral_sellado ?? 3);
+    if (debe === null) {
+      warn('SUITE-R57', `${pt}: deuda de sellado SIN EVALUAR — no se pudo leer el registro del tag anterior. No se aprueba por omisión ni se bloquea sin evidencia (RULE-06).`);
+    } else if (debe.length > umbral) {
+      fail('SUITE-R57', `${pt}: hay ${debe.length} tarea(s) integradas de lotes CERRADOS sin sellar y el umbral es ${umbral} — ${debe.join(', ')}. `
+        + 'G2 se bloquea hasta que una versión cierre:  node tools/tracker.mjs sellar');
+    } else {
+      ok('SUITE-R57', `${pt}: ${debe.length} integrada(s) sin sellar de lotes cerrados, umbral ${umbral}.`);
+    }
   }
 
   // ── INVESTIGATION: exenta de trazabilidad y manifiesto (FDGE-R10) ──────────
@@ -1726,6 +1827,7 @@ checkAislamiento();
 checkEpics();
 GRAPH = graphState(reg);
 if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);
+else if (GRAPH.state === 'SUSPECT') warn('FDGE-R43', `Grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);
 else warn('FDGE-R43', `Grafo ${GRAPH.state} — ${GRAPH.reason}. Bloquea G2 en PTs MAJOR.`);
 
 const pts = all ? allOpenPTs(reg) : [...new Set(targets)];

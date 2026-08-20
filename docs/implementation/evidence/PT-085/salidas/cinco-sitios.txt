@@ -1,0 +1,12 @@
+=== AC-14 · los cinco sitios ===
+fecha: 2026-08-20
+
+  RULES.md             1
+  PHASES.md            2
+  FDGE-Prompts.md      1
+  CORE.md              3
+  MANUAL.md            2
+
+  Y verify-suite obligo a citar ademas SUITE-R19 en el prompt de G4:
+  «FDGE: PHASES.md cita 1 regla(s) que FDGE-Prompts.md no menciona: SUITE-R19.
+   El humano en modo MANUAL no las veria.»

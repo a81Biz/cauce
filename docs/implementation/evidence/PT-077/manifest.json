@@ -1,0 +1,101 @@
+{
+  "pt": "PT-077",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "avanzar se detiene ante un STATE_MISMATCH",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/mismatch.txt"
+      ],
+      "verified": true,
+      "nota": "checkpoint alterado a proposito: no avanza"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "y dice la RAMA REAL",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/mismatch.txt"
+      ],
+      "verified": true,
+      "nota": "el mensaje nombra la rama, no el codigo de una funcion"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Sin checkpoint NO bloquea",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/mismatch.txt"
+      ],
+      "verified": true,
+      "nota": "no tener foto no es tener una mala; bloquear ahi impediria la primera transicion de toda tarea nueva"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "No repara el checkpoint: propone el comando",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/mismatch.txt"
+      ],
+      "verified": true,
+      "nota": "reescribirlo borra la unica prueba de que hubo divergencia (SUITE-R06)"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Usa la MISMA funcion que siguiente",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/mismatch.txt"
+      ],
+      "verified": true,
+      "nota": "estadoDelArbol, no un criterio nuevo que divergiria (SUITE-R38)"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que quien reciba el bloqueo decida bien.",
+      "por_que": "SUITE-R06 lo deja en manos humanas a proposito: el marco garantiza que la discrepancia se VE, no que se resuelva bien.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Pase las dependencias como FUNCIONES cuando el contrato quiere VALORES.",
+      "regla": "—",
+      "detalle": "El mensaje imprimia «real () => gitDe([...])» en lugar de la rama. Bloqueaba bien y explicaba mal: media compuerta, porque quien la recibe no puede decidir sin la verdad."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}
