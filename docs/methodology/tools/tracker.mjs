@@ -319,8 +319,17 @@ ${MARCA_AGENTE}`;
  *
  * Sin `url` no se inventa ninguna: se escribe la ruta sin enlace y se dice por que (RULE-06).
  */
+/**
+ * PT-079 · SUITE-R56 · El ref al que apunta un cuerpo ya publicado. `null` si no enlaza.
+ *
+ * Es lo que verify-fdge necesita para comprobar que ese ref sigue existiendo: 14 de los 16
+ * enlaces del tablero apuntaban a ramas borradas y nada lo decia.
+ */
+export const refDeEnlace = (cuerpo) =>
+  (String(cuerpo ?? '').match(/\/tree\/([^/)\s]+(?:\/[^/)\s]+)*?)\/changes\//) ?? [null, null])[1];
+
 export function cuerpoDeIssue(a, opciones = {}) {
-  const { url, rama, tareas, ramaTrabajo, hayDirectorio } = opciones;
+  const { url, rama, tareas, ramaTrabajo, hayDirectorio, refDurable } = opciones;
   const esLote = a?.type === 'EP';
   const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
   // PT-036 · el enlace apunta a donde el contenido ESTA, no a donde estara.
@@ -334,7 +343,24 @@ export function cuerpoDeIssue(a, opciones = {}) {
   // cuando llega a INTEGRATED se reenlaza a la rama por defecto, que es donde se queda. El
   // cuerpo se resincroniza en cada `abrir --aplicar`, asi que la transicion es automatica.
   const viva = VIVOS.has(a?.status);
-  const ramaDelEnlace = (viva && ramaTrabajo) ? ramaTrabajo : (rama ?? 'main');
+  // PT-079 · SUITE-R56 · el rastro sobrevive a la rama.
+  //
+  // Antes: «ramaTrabajo», que es la rama en la que corre EL ESPEJO, no la de la tarea
+  // enlazada. Dos consecuencias medidas el 2026-08-19 sobre el tablero real: el issue de
+  // PT-072 apuntaba a la rama de PT-074 —otra tarea— y 14 de los 16 enlaces vivos daban 404,
+  // porque FDGE-R19 borra la rama efimera al fusionar.
+  //
+  // No se perdia la documentacion —changes/PT-075 tiene sus 10 archivos en «trabajo»— sino el
+  // ENLACE. Por eso el arreglo apunta a un ref DURABLE, que el contexto calcula: la rama de
+  // integracion si el contenido ya esta ahi, y si no el COMMIT que lo contiene. Ninguno de los
+  // dos desaparece.
+  //
+  // Sin ref durable NO se inventa una URL (RULE-06). PT-036 ya lo dejo escrito para el caso
+  // vecino: «inventar una seria peor que no ponerla».
+  // El ref durable es la UNICA fuente. El respaldo anterior —«ramaTrabajo, o main»— es
+  // literalmente lo que producia los 14 enlaces muertos: apuntaba a algo que podia no contener
+  // el directorio, o directamente no existir. Si no hay ref durable, no hay enlace.
+  const ramaDelEnlace = refDurable ?? null;
   // PT-048 · un enlace a un directorio que NO EXISTE es un 404 en el unico artefacto que una
   // allocation aplazada tiene. `SUITE-R44` la exime de tener artefactos y `PT-036` dice donde
   // apunta el enlace: las dos correctas por separado, y juntas producian el 404.
@@ -349,9 +375,11 @@ export function cuerpoDeIssue(a, opciones = {}) {
   const enlace = hayDirectorio === false
     ? 'Sin artefactos todavía: es una allocation **aplazada** (`SUITE-R44`). Cuando se retome, '
       + 'su `PHASE 1` crea el directorio y este cuerpo se resincroniza solo.'
-    : (url
+    : (url && ramaDelEnlace
       ? `[\`${dir}/\`](${url}/tree/${ramaDelEnlace}/${dir})`
-      : `\`${dir}/\` — en el repositorio`);
+      // PT-079 · sin ref durable, la ruta va SIN ENLACE y se dice. Una URL a una rama que el
+      // marco borra a proposito es peor que ninguna (RULE-06, SUITE-R56).
+      : `\`${dir}/\` — en el repositorio, sin enlace: no hay ref durable que lo contenga`);
 
   const l = [];
   l.push(esLote
@@ -1011,7 +1039,34 @@ const contextoCuerpo = (a) => ({
   // pura y exportada a proposito —para que un caso pueda comprobarla sin hablar con la
   // plataforma ni con el disco—, y meterle un `existsSync` la habria devuelto a ser inprobable.
   hayDirectorio: existsSync(join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`)),
+  // PT-079 · el ref DURABLE se calcula aqui, no en cuerpoDeIssue: esa funcion es pura a
+  // proposito (PT-048) y meterle git la devolveria a ser improbable.
+  refDurable: refDurableDe(a),
 });
+
+/**
+ * PT-079 · SUITE-R56 · Un ref que no desaparece cuando la rama de la tarea se borra.
+ *
+ *   1. la rama de INTEGRACION, si el contenido ya esta ahi   -> legible y permanente
+ *   2. si no, el COMMIT que lo contiene                      -> permanente
+ *   3. si no hay ninguno                                     -> null, y el cuerpo lo DICE
+ *
+ * El orden importa: quien abre el issue prefiere ver «trabajo» a un hexadecimal, y el commit
+ * es la red para el trabajo que aun vive solo en su rama efimera.
+ */
+function refDurableDe(a) {
+  const dir = `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`;
+  const integracion = reg?.tracker?.rama_integracion ?? 'trabajo';
+  const hay = (ref) => {
+    try {
+      execFileSync('git', ['cat-file', '-e', `${ref}:${dir}`], { cwd: ROOT, stdio: 'pipe' });
+      return true;
+    } catch { return false; }
+  };
+  if (hay(integracion)) return integracion;
+  const sha = gitDe(['log', '-1', '--format=%H', '--', dir]);
+  return sha || null;
+}
 
 // PT-010 · sincronizar el CUERPO de los issues abiertos, no solo sus etiquetas. Sin esto el
 // arreglo no alcanzaria a los que ya existen — incluidos los de este mismo lote, que nacieron
