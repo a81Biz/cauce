@@ -42,16 +42,49 @@ const DUENO = {
   LEX: 'LEXICON.md', EXEC: 'EXECUTION-MODES.md',
 };
 
+/**
+ * PT-066 · Que una linea DEFINE una regla, y no que la MENCIONA.
+ *
+ * Hasta aqui el criterio era «la linea contiene el ID y casa HARD|SOFT», y fallaba dos veces:
+ *
+ *   1. La severidad como filtro dejaba fuera las 20 reglas CHECK de RULES.md —entre ellas
+ *      FDGE-R34, que CLAUDE.md nombra precondicion de G4— y las 15 EXEC-* de
+ *      EXECUTION-MODES.md, que son prosa y no llevan severidad en la linea. 21 reglas
+ *      EXISTENTES se declaraban inexistentes, y el mensaje que lo dice ACUSA a quien las cita:
+ *      «ese mensaje apunta a una regla que no existe — y eso es un defecto, no una laguna
+ *      tuya». Le paso a este agente en PHASE 0, con tres reglas correctas.
+ *
+ *   2. Ganaba la PRIMERA linea que mencionaba el ID, y una regla se menciona en el cuerpo de
+ *      otras: 26 devolvian el texto ajeno bajo la cabecera «definida en RULES.md». Esas son
+ *      peores, porque no fallan — mienten con formato de respuesta correcta. Es lo que este
+ *      mismo archivo tiene escrito veinte lineas mas abajo, en un comentario de PT-051:
+ *      «una linea equivocada y creible es peor que ninguna».
+ *
+ * Lo que distingue definir de mencionar es UNA cosa: la definicion EMPIEZA por su ID. El ancla
+ * «^» es todo el arreglo, y la severidad deja de ser criterio.
+ *
+ * El formato de los documentos NO se toca: EXECUTION-MODES.md escribe sus reglas en prosa a
+ * proposito —son compuertas y modos, no filas de una tabla de componente—. Se arregla quien
+ * lee, no lo que esta bien escrito.
+ */
+// Dos formas de definir, no tres. RULES.md usa filas de tabla —un componente por fila, con su
+// severidad—; LEXICON.md y EXECUTION-MODES.md usan prosa, porque lo que definen son nombres y
+// compuertas, no filas de un catalogo. Lo dijo comprobarlo: la primera version trataba LEXICON
+// como tabla y dejaba fuera LEX-R26 entera.
+const RE_DEFINE = (doc, id) => (doc === 'RULES.md'
+  ? new RegExp('^\\|\\s*`' + id + '`\\s*\\|')
+  : new RegExp('^`' + id + '`\\s*·'));
+
 /** Dónde está definida una regla y con qué texto. `null` si no aparece en ningún documento. */
 export function definicionDe(id, leer = lee) {
   const pref = id.split('-')[0];
   for (const f of [DUENO[pref], 'RULES.md', 'LEXICON.md', 'EXECUTION-MODES.md'].filter(Boolean)) {
     const txt = leer(join(BASE, f));
     if (!txt) continue;
+    // PT-066 · DEFINE, no MENCIONA. Ver RE_DEFINE arriba: el ancla «^» es todo el arreglo.
+    const re = RE_DEFINE(f, id);
     for (const linea of txt.split(/\r?\n/)) {
-      if (linea.includes(`\`${id}\``) && /HARD|SOFT/.test(linea)) {
-        return { documento: f, texto: linea };
-      }
+      if (re.test(linea)) return { documento: f, texto: linea };
     }
   }
   return null;

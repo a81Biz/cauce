@@ -1,0 +1,7 @@
+=== INVERSA · devuelto el criterio de MENCION + severidad ===
+FDGE-R34      No está definida en ningún documento del marco.
+EXEC-R14      No está definida en ningún documento del marco.
+LEX-R26       No está definida en ningún documento del marco.
+--- y el caso sobre el universo ---
+  [31m✗[0m cada regla devuelve SU definicion  (no apareció: DEVUELVEN SU PROPIA DEFINICION)
+  [31m✗[0m una regla inexistente lo sigue siendo  (no apareció: no est)

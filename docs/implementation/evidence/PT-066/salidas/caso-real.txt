@@ -1,0 +1,11 @@
+=== los seis casos que me enganaron en PHASE 0, ahora ===
+FDGE-R34      definida en  RULES.md
+SUITE-R13     definida en  RULES.md
+EXEC-R14      definida en  EXECUTION-MODES.md
+EXEC-R11      definida en  EXECUTION-MODES.md
+LEX-R26       definida en  LEXICON.md
+SUITE-R99     No está definida en ningún documento del marco.
+
+=== y los dos que devolvian TEXTO AJENO ===
+FDGE-R43      Frescura del grafo. El grafo es `STALE` si desde su generació
+FDGE-R19      Commits atómicos, y una rama por tarea. Un commit = un cambio
