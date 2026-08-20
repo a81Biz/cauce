@@ -19,6 +19,6 @@ Proyectado el 2026-08-20 · 13 allocation(es) viva(s).
 | PT-077 | BUG | READY | 1 | — | — | ab50d99 |
 | PT-078 | FEATURE | READY | 1 | — | — | 80c9b3d |
 | PT-080 | BUG | READY | 1 | — | — | 074c58b |
-| PT-081 | BUG | READY | 5 | — | — | accd630 |
+| PT-081 | BUG | READY | 6 | — | — | accd630 |
 | PT-083 | BUG | READY | 1 | — | — | 074c58b |
 | PT-084 | BUG | READY | 1 | — | — | 074c58b |
