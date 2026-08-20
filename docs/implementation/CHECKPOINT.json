@@ -2,23 +2,18 @@
   "pt": "PT-072",
   "type": "INVESTIGATION",
   "epic": "EP-017",
-  "status": "READY",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "fix/alberto-martinez/PT-082-un-caso-no-depende-de-quien-lo-ejecuta",
-  "sha": "b80086446df287f41a335dd7d184f2e788b48b97",
-  "sha_corto": "b800864",
+  "status": "INTEGRATED",
+  "phase": 10,
+  "fase": null,
+  "rama": "chore/alberto-martinez/EP-017-integradas",
+  "sha": "24563f0651cc2c68d918934e4f1e66e7be1b71e1",
+  "sha_corto": "24563f0",
   "sucio": true,
   "archivos": [
-    "changes/PT-072-un-proyecto-nuevo-de-verdad/acciones-humanas.md",
-    "changes/PT-072-un-proyecto-nuevo-de-verdad/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/CHECKPOINT.json"
   ],
-  "compuerta": "G4",
+  "compuerta": null,
   "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "siguiente": "PT-072 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-19"
 }
