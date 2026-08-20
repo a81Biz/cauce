@@ -12,12 +12,12 @@ Proyectado el 2026-08-19 · 12 allocation(es) viva(s).
 | PT-019 | CHORE | REOPENED | 1 | — | — | 27f5351 |
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-017 |  | READY | 1 | — | — | 5ab0bda |
-| PT-067 | BUG | READY | 9 | — | — | 27f5351 |
 | PT-069 | FEATURE | READY | 1 | — | — | 27f5351 |
 | PT-070 | BUG | READY | 1 | — | — | 27f5351 |
 | PT-071 | BUG | READY | 1 | — | — | 27f5351 |
-| PT-072 | INVESTIGATION | READY | 1 | — | — | 27f5351 |
+| PT-072 | INVESTIGATION | READY | 2 | — | — | 27f5351 |
 | PT-073 | CHORE | READY | 1 | — | — | 27f5351 |
 | PT-077 | BUG | READY | 1 | — | — | ab50d99 |
 | PT-078 | FEATURE | READY | 1 | — | — | 80c9b3d |
-| PT-080 | BUG | READY | 1 | — | — | — |
+| PT-080 | BUG | READY | 1 | — | — | 33a0958 |
+| PT-081 | BUG | READY | 1 | — | — | 33a0958 |
