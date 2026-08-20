@@ -1,0 +1,59 @@
+local:    docs/methodology (52 archivos)
+canónica: C:/DevOps/Desarrollos/Inteligencia de Mercados Energéticos Mexicanos/docs/methodology (39 archivos)
+
+SOLO en la copia local (13) — añadidos aquí:
+  CASOS-DE-USO.md
+  FIDE/FIDE-CLAUDE-Launcher.md
+  FIDE/FIDE-Implementation.md
+  FIDE/Framework-FIDE.md
+  INTAKE/templates/TAREA.md
+  MANUAL.md
+  tools/comparar-marco.mjs
+  tools/patrones.mjs
+  tools/regla.mjs
+  tools/revisar-secretos.mjs
+  tools/tracker.mjs
+  tools/verify-patrones.mjs
+  tools/version.mjs
+
+DIFIEREN en contenido (36):
+  CHANGELOG.md
+  CORE-PTSA.md
+  CORE.md
+  EXECUTION-MODES.md
+  FDGE-Implementation.md
+  FDGE-Prompts.md
+  FPGE-Implementation.md
+  FPGE-Prompts.md
+  Foundation-Implementation.md
+  Foundation-Prompts.md
+  Foundation-Protocol.md
+  Framework-FDGE.md
+  Framework-FPGE.md
+  INSTALL.md
+  INTAKE/Intake-Protocol.md
+  INTAKE/templates/BUG-REPORT.md
+  INTAKE/templates/CHANGE-REQUEST.md
+  INTAKE/templates/FEATURE-REQUEST.md
+  LEXICON.md
+  PHASES.md
+  PTSA/PTSA-Prompts.md
+  PTSA/PTSA-V3-Especificacion-Oficial.md
+  QA/Framework-QA.md
+  QA/QA-Prompts.md
+  README.md
+  RULES.md
+  Suite-CLAUDE-Template.md
+  tools/audit.mjs
+  tools/build-core.mjs
+  tools/migrate.mjs
+  tools/plan-layout.mjs
+  tools/selftest.sh
+  tools/verify-fdge.mjs
+  tools/verify-ptsa.mjs
+  tools/verify-qa.mjs
+  tools/verify-suite.mjs
+
+Un archivo que difiere no dice por sí solo quién tiene razón. Si la corrección se hizo
+aquí bajo un PT, lo que falta es propagarla; si vino de una versión más nueva de la suite,
+lo que falta es migrar. Decidirlo es humano.

@@ -11,7 +11,7 @@ se mantiene **bajo el marco** — desde `SUITE-R41` cauce se instala sobre sí m
 `REGISTRY.json`, su terreno firmado y sus compuertas. Un marco que se mantuviera al margen de
 sus propias reglas sería el primer argumento en su contra.
 
-**Versión vigente: 9.0.0** — ver [docs/methodology/CHANGELOG.md](docs/methodology/CHANGELOG.md).
+**Versión vigente: 10.0.0** — ver [docs/methodology/CHANGELOG.md](docs/methodology/CHANGELOG.md).
 
 > **Este archivo parametriza y orienta; no es la autoridad sobre el repositorio** (`FND-R12`).
 > Lo que diga sobre su arquitectura se subordina a
@@ -205,7 +205,7 @@ Orden de autoridad ante conflicto (`LEX-R21`):
 **Única sección que se personaliza.** Todo lo demás son punteros.
 
 ```yaml
-suite_version: 9.0.0
+suite_version: 10.0.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:                        # quién puede firmar un Intake y resolver una compuerta
   - Alberto Martínez

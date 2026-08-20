@@ -53,6 +53,9 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mj
 import { estadoDelArbol } from './tracker.mjs';
 // PT-062 · los rangos reservados
 import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
+// PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
+// nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
+import { rigeDesde } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -988,15 +991,16 @@ function checkPT(pt, { gate } = {}) {
   // existe justo para esto: cada allocation lleva su suite_version y la conserva hasta cerrar.
   // Sin esta puerta, adoptar la regla exigiria una bitacora retroactiva a cada PT ya integrado
   // — obligar a rehacer trabajo valido es la forma mas rapida de que se abandone el marco.
-  const DESDE = [5, 1, 0];
-  const suiteDelPT = (intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? '0.0.0')
-    .split('.').map((n) => Number(n) || 0);
-  const rigeAqui = suiteDelPT[0] > DESDE[0]
-    || (suiteDelPT[0] === DESDE[0] && (suiteDelPT[1] > DESDE[1]
-      || (suiteDelPT[1] === DESDE[1] && suiteDelPT[2] >= DESDE[2])));
+  // PT-081 · la version de entrada la declara CADA REGLA en patrones.mjs (RIGE_DESDE). Aqui
+  // habia una sola constante `DESDE = [5,1,0]` gobernando tres comprobaciones: FDGE-R52 nace en
+  // 5.0.0, FDGE-R53 en 5.1.0 y FDGE-R54 nace AHORA — la ultima heredaba una fecha del 12 de
+  // agosto y regia sobre tareas escritas meses antes de existir. Un proyecto instalado en 8.2.0
+  // que actualizara veia fallar --gate G2 en toda tarea en vuelo sin viabilidad.
+  const suiteDelPT = intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? '0.0.0';
+  const rige = (id) => rigeDesde(id, suiteDelPT);
 
   // FDGE-R53 · la deriva ocurre en tareas SIN FORMA. Una que declara como termina lo tiene.
-  if (rigeAqui && !RE_CIERRE.test(intake)) {
+  if (rige('FDGE-R53') && !RE_CIERRE.test(intake)) {
     fail('FDGE-R53', `${pt}: el intake no declara cómo termina. Una tarea sin condición de cierre observable no tiene final: se estira hasta que nadie recuerda dónde empezó. Una línea basta — «Termina cuando: …».`);
   }
 
@@ -1045,7 +1049,7 @@ function checkPT(pt, { gate } = {}) {
   // Se exige en G2 —o desde PHASE 5, que es donde empieza el trabajo— y no en G1: antes de
   // PHASE 2 la tarea no tiene complejidad propuesta, y sin complejidad no hay coste tipico con
   // el que comparar. Antes de eso AVISA. Lo ya terminado no se retrofecha (FDGE-R19, FDGE-R52).
-  if (rigeAqui && enRegistroPT?.type !== 'EP' && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+  if (rige('FDGE-R54') && enRegistroPT?.type !== 'EP' && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
     const viab = enRegistroPT?.viabilidad;
     if (!viab) {
       const m = `${pt}: no consta el veredicto de viabilidad. Consultarla no basta: una compuerta `
@@ -1219,9 +1223,9 @@ function checkPT(pt, { gate } = {}) {
   //
   // Sin este limite, sincronizar el YAML de 32 PT cerrados —que es lo que esta tarea hace—
   // ponia la CI en rojo, y la unica salida practicable era dejar el YAML mintiendo: la regla
-  // empujaba exactamente al defecto que PT-044 persigue. Es el mismo criterio que `rigeAqui`,
+  // empujaba exactamente al defecto que PT-044 persigue. Desde PT-081 cada regla declara su version en RIGE_DESDE,
   // que ya existia para no exigir bitacora retroactiva a lo abierto antes de la 5.1.0.
-  if (rigeAqui && fase >= 2 && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+  if (rige('FDGE-R52') && fase >= 2 && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
     const plataforma = REGISTRO?.tracker?.plataforma ?? null;
     const notasPlataforma = plataforma && enRegistroPT?.issue ? notasDelIssue(pt) : null;
     if (notasPlataforma === 'SIN_ACCESO') {

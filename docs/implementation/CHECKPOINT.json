@@ -1,19 +1,19 @@
 {
-  "pt": "PT-072",
-  "type": "INVESTIGATION",
+  "pt": "PT-081",
+  "type": "BUG",
   "epic": "EP-017",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "chore/alberto-martinez/EP-017-integradas",
-  "sha": "24563f0651cc2c68d918934e4f1e66e7be1b71e1",
-  "sha_corto": "24563f0",
+  "status": "READY",
+  "phase": 9,
+  "fase": "Integración",
+  "rama": "fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras",
+  "sha": "b39dfd1c22bd760e830c66f8b30821ee9874e22e",
+  "sha_corto": "b39dfd1",
   "sucio": true,
   "archivos": [
     "docs/implementation/CHECKPOINT.json"
   ],
-  "compuerta": null,
+  "compuerta": "G4",
   "produce": [],
-  "siguiente": "PT-072 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
-  "generado": "2026-08-19"
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "generado": "2026-08-20"
 }

@@ -3380,3 +3380,143 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: issue #134
+
+## PT-081 — BUG: una regla nueva no rige hacia atrás, y la versión lo dice
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que cada regla sepa desde qué versión rige, y que EP-017 salga con el número que le
+corresponde.
+
+Origen: el firmante dudó de que esto fuera la 9.0.0. Tenía razón, y la causa es mecánica.
+
+Causa raíz, tres defectos encadenados y sólo el primero de código:
+  1. verify-fdge tenía UNA constante —DESDE = [5,1,0]— gobernando TRES comprobaciones de reglas
+     nacidas en versiones distintas. Medido tomando la ULTIMA aparición de cada ID en el
+     CHANGELOG, porque el archivo va de más nuevo a más viejo:
+       FDGE-R52  nace en 5.0.0   se trataba como 5.1.0   menor, y por defecto
+       FDGE-R53  nace en 5.1.0   se trataba como 5.1.0   correcto
+       FDGE-R54  nace AHORA      se trataba como 5.1.0   regía sobre el 12 de agosto
+     Consecuencia: un proyecto instalado en 8.2.0 que actualizara veía fallar --gate G2 en toda
+     tarea en vuelo sin «viabilidad», por una regla que no existía cuando se escribieron.
+  2. La entrada 9.0.0 no mencionaba FDGE-R54 ni SUITE-R56: CERO veces. Dos reglas HARD nuevas,
+     con verificadores que fallan, ausentes del registro de versiones.
+  3. Y su guía de migración dice «ningún proyecto instalado tiene que hacer nada». Era cierto
+     para EP-016 y dejó de serlo. Nada comprueba que una guía siga siendo verdad.
+
+Solución: RIGE_DESDE en patrones.mjs, junto a EXIGIBLE_DESDE —aquella decide qué compuerta exige
+un artefacto; ésta, desde qué versión rige una regla—. Sin fila rige siempre: eximir de más es
+peor, y el caso contrario lo caza AC-08.
+Y la 10.0.0, con la entrada 9.0.0 INTACTA: cero líneas eliminadas desde v9.0.0. Reescribirla para
+que significara dos lotes habría borrado qué lote trajo qué — la enfermedad que EP-017 combate,
+cometida al documentarla.
+
+EL HALLAZGO MÁS ÚTIL fue un error mío que desmontó la propia inversa. Elegí «origin/main» como
+línea base del detector de reglas nuevas. Comparar contra una RAMA significa «nuevo desde la
+última integración»: en cuanto se ejecutó la G4, FDGE-R54 pasó a estar en main y el detector
+CALLÓ — justo cuando la regla acababa de entrar. Un detector cuya línea base se mueve con cada
+merge deja de detectar precisamente lo que integras. No se veía leyendo el código: lo vio
+ejecutar la inversa DESPUÉS de la G4. La línea base es ahora el TAG de la versión anterior.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · tools/verify-suite.mjs ·
+  tools/selftest.sh · CHANGELOG.md · los 21 documentos por version.mjs · package.json · CLAUDE.md
+
+Evidencia: evidence/PT-081/ · manifest.json · self-review.md ·
+  salidas/rige-desde.txt · salidas/par-de-versiones.txt · salidas/version.txt ·
+  salidas/changelog.txt · salidas/ac08-inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-08, los ocho.
+  ANCLA         ANTES una constante para tres reglas   DESPUES una fila por regla
+  VERSION       ANTES EP-017 dentro de la 9.0.0        DESPUES 10.0.0, con su guía
+  ENTRADA 9.0.0 cero líneas eliminadas desde v9.0.0
+selftest 1060 -> 1073, cero fallos.
+
+Delta real vs planificado: «nueva» tuvo dos definiciones malas antes de la buena. «No aparece en
+  el CHANGELOG» devolvía 69 —casi todas fundacionales—; «RULES.md de antes contra los tres de
+  ahora» devolvía 42, porque comparaba mitades distintas del mismo universo. El criterio bueno da
+  2: SUITE-R56 y FDGE-R54. El valor del detector estaba entero en acertar el criterio.
+
+Cuatro desviaciones declaradas: la línea base equivocada, que desmontó la inversa · las dos
+  definiciones malas de «nueva» · medir el CHANGELOG al revés la primera vez, tomando la primera
+  aparición cuando el archivo va de más nuevo a más viejo · y la SÉPTIMA vez con el escapado en
+  scripts: un literal con salto de línea dentro dejó verify-suite sin cargar. Esta vez la salida
+  no fue insistir sino QUITAR el problema — split por espacio en blanco no necesita escape.
+
+No verificado, declarado: que una guía de migración siga siendo VERDAD —comprobar que una prosa
+  describe bien un conjunto de cambios no sé hacerlo; AC-08 consigue que redactarla sea ENUMERAR
+  en vez de recordar, y no es lo mismo— y que el ancla 5.0.0 de FDGE-R52 sea exacta: se derivó de
+  una heurística sobre prosa, no de un dato estructurado.
+
+Compuertas: G1 2026-08-20 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-20 Alberto
+  Martínez (delegada) · G3 2026-08-20 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #151
+
+## PT-019 — CHORE: migrar el proyecto legado
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: la medición corrió sobre un repositorio EXTERNO, en lectura
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: comprobar que un legado real se puede migrar. Llevaba DEFERRED desde el 2026-08-13 por
+depender de otro repositorio.
+
+Qué se midió: «Inteligencia de Mercados Energéticos Mexicanos» — cauce 4.12.0, 127 directorios en
+changes/, seis lotes cerrados, monorepo con cuatro aplicaciones y pruebas end-to-end. Cinco
+MAJOR por detrás de la 10.0.0. No es un juguete.
+
+Resultado: SE PUEDE, y la herramienta lo dice bien. «migrate» detecta la versión instalada y
+separa 1 acción automática de 6 decisiones humanas, explicando UNA POR UNA por qué cada decisión
+es humana — «rellenarlo con plantilla produce un estado que miente». Esa es la diferencia entre
+una herramienta que migra y una que te deja migrar sin mentir.
+
+Cuánto se separan dos copias del mismo marco:
+  cauce               52 archivos
+  el legado (4.12.0)  39 archivos
+  DIFIEREN 36 de 39 · IDÉNTICOS 3 · AUSENTES 13, entre ellos 7 de las 16 herramientas
+Tres archivos de treinta y nueve son iguales: un proyecto en 4.12.0 no es cauce con menos
+funciones, es otro marco. Es el mejor argumento a favor de SUITE-R21 y del paquete.
+
+Dos huecos, los dos de TEXTO Y CONTRATO — la mecánica de migrar funciona:
+  HL-1 · comparar-marco llama «canónica» al ARGUMENTO, así que ejecutada desde cauce contra un
+         destino invierte las etiquetas. El contenido es correcto; el rótulo miente. Que esté
+         pensada para correr DESDE el proyecto no está escrito. -> PT-073
+  HL-2 · migrate dice de la plataforma «OPCIONAL … Sin ella no cambia nada», y sin ella
+         tracker avanzar es imposible. Un legado que migre siguiendo el informe y no la declare
+         se queda sin poder mover una tarea. -> PT-084
+HL-2 confirma por un segundo camino lo que PT-072 midió sin declarar plataforma a propósito. Dos
+pruebas independientes llegando al mismo defecto es la señal más fuerte de este lote.
+
+Archivos modificados: NINGUNO del legado. git status del original: 0 archivos, antes y después.
+
+Evidencia: evidence/PT-019/ · manifest.json · self-review.md ·
+  salidas/migrate-informe.txt · salidas/comparar-marco.txt · salidas/no-destructivo.txt
+
+Criterios: AC-02, AC-03 y AC-04 verificados · AC-05 NO APLICA —el proyecto estaba accesible, que
+era justo lo que el criterio contemplaba que pudiera fallar— · AC-01 REDUCIDO Y DECLARADO.
+
+AC-01 pedía además un legado SINTÉTICO. No se construyó: el real provoca los casos mejor porque
+sus divergencias son auténticas —36 de 39 archivos distintos, 7 herramientas ausentes, dos
+allocations vivas sin phase— y un sintético habría medido mi capacidad de inventar defectos, no
+la de Foundation de encontrarlos. Es defendible y SIGUE SIENDO una reducción de alcance.
+
+Delta real vs planificado: la tarea llevaba DEFERRED por si el repositorio no estaba accesible.
+  Lo estaba, así que AC-05 —«si no está, se dice»— no llegó a aplicar.
+
+Dos desviaciones declaradas: AC-01 reducido, con motivo · ejecuté comparar-marco desde cauce
+  contra el proyecto, que es al revés de como está pensada, y de ahí salió HL-1.
+
+No verificado, declarado: que la migración funcione DE EXTREMO A EXTREMO. No se ejecutó
+  «migrate --apply» —el intake lo pone OUT y el proyecto es un caso de prueba, no un destino—,
+  así que lo validado es que el INFORME es correcto y accionable. Entre las dos cosas hay un
+  paso, y los huecos de aplicar sólo salen aplicando. El camino no destructivo para darlo
+  —clonar y aplicar sobre el clon— está en acciones-humanas.md.
+
+Compuertas: G1 2026-08-20 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-20 Alberto
+  Martínez (delegada) · G3 2026-08-20 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #26
