@@ -22,7 +22,7 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-015 | CHORE | S4 | DONE | EP-013 | Escribir verificador para las reglas HARD que hoy no tienen ninguno |
 | PT-016 | CHORE | S4 | DONE | EP-013 | Decidir si phase pasa a ser obligatoria, y añadirla a TAREA.md |
 | PT-017 | CHORE | S4 | DONE | EP-013 | migrate: derivar la lista de «qué llega nuevo» |
-| PT-066 | BUG | S2 | READY | EP-017 | La regla que se consulta es la que se define |
+| PT-066 | BUG | S2 | INTEGRATED | EP-017 | La regla que se consulta es la que se define |
 | PT-067 | BUG | S2 | READY | EP-017 | El denominador de la cobertura esta incompleto |
 | PT-068 | BUG | S1 | INTEGRATED | EP-017 | La marca de sesion es de quien la abre |
 | PT-070 | BUG | S2 | READY | EP-017 | El alcance del grafo lo calcula la herramienta |
