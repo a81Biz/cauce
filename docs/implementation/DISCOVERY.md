@@ -32,4 +32,6 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-075 | BUG | S1 | INTEGRATED | EP-017 | Una regla sin verificador no ocurre: subir la exigencia donde el agente puede saltarsela en silencio |
 | PT-076 | BUG | S1 | INTEGRATED | EP-017 | El arnes no escribe en el repositorio real: selftest pisa la marca de sesion y apila en el ledger |
 | PT-077 | BUG | S2 | READY | EP-017 | La transicion mira lo que la consulta bloquea: avanzar ignora el STATE_MISMATCH |
+| PT-078 | BUG | S2 | READY | EP-017 | Ninguna regla queda sin clasificar: VERIFICADA, NO_VERIFICABLE o PENDIENTE |
 | PT-079 | BUG | S1 | INTEGRATED | EP-017 | Lo que se aprende se hace mecanico: la trazabilidad sobrevive a la rama |
+| PT-080 | BUG | S2 | READY | EP-017 | Una regla no se define dos veces: FDGE-R22, R40 y R41 tienen dos textos y los tres divergen |

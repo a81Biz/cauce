@@ -1,0 +1,9 @@
+=== PT-067 · los casos DESPUES de implementar ===
+
+  ✓ el universo sale de los tres documentos
+  ✓ un ID definido dos veces cuenta UNA
+  ✓ una fila sin severidad no entra
+  ✓ firmantes con comentario ⇒ se lee
+  ✓ un comentario sin responder bloquea
+  ✓ sin comentarios no revienta
+  ✗ una mencion en comentario NO verifica  (no apareció: ^$ · salió: )

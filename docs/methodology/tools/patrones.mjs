@@ -637,3 +637,70 @@ export const PATRONES = {
     noCasa: ['<!-- ESTADO -->\nsiguiente: cerrar G3'],   // sin cerrar: no es un bloque
   },
 };
+
+/**
+ * PT-067 · SUITE-R38 · El universo de reglas del marco, derivado UNA vez.
+ *
+ * `audit` lo derivaba con un regex propio que solo leia filas de `RULES.md`: 183 de las 223 que
+ * el marco define, fuera las 26 `LEX-*` y las 14 `EXEC-*` —entre ellas `EXEC-R04`, merge humano
+ * en los tres modos, y `EXEC-R07`, describir el comando en vez de ejecutarlo—. `LEX-R21` dice
+ * que los documentos propietarios son TRES.
+ *
+ * Es el gemelo de `PT-066`: aquel arreglo a quien CONSULTA una regla, este a quien las CUENTA.
+ * Por eso vive aqui y no en `audit`: una tercera derivacion del mismo hecho es como se llego a
+ * que `PT-066` arreglara `regla.mjs` y esta se quedara como estaba.
+ *
+ * Las DOS formas son las de `PT-066`, no unas nuevas: `RULES.md` usa filas de tabla; `LEXICON`
+ * y `EXECUTION-MODES` usan prosa, porque lo que definen son nombres y compuertas.
+ *
+ * `leer(nombre)` devuelve el texto del documento, o algo vacio si no se puede. Sin `fs`: el
+ * arnes la prueba sin tocar el disco.
+ */
+export function reglasDelMarco(leer) {
+  const reglas = new Map();
+  // El primero gana, y el primero es RULES.md: es el documento propietario (LEX-R22). Hoy hay
+  // tres IDs definidos dos veces —FDGE-R22, R40 y R41, ver PT-080— y esto NO lo arregla: lo
+  // hace determinista. Contar 226 por una duplicidad seria medir mal el arreglo.
+  const meter = (id, sev, doc) => { if (!reglas.has(id)) reglas.set(id, { id, sev, doc }); };
+  for (const l of String(leer('RULES.md') ?? '').split(/\r?\n/)) {
+    const m = /^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(HARD|SOFT|CHECK)\s*\|/.exec(l);
+    if (m) meter(m[1], m[2], 'RULES.md');
+  }
+  // El prefijo NO filtra. Aceptar solo `LEX-` y `EXEC-` habria ocultado las tres duplicadas, y
+  // esconder un defecto para que salga un numero redondo es lo contrario de esta tarea.
+  for (const doc of ['LEXICON.md', 'EXECUTION-MODES.md']) {
+    for (const l of String(leer(doc) ?? '').split(/\r?\n/)) {
+      const m = /^`([A-Z]+-R\d+[a-z]?)`\s*·/.exec(l);
+      if (m) meter(m[1], 'HARD', doc);
+    }
+  }
+  return [...reglas.values()];
+}
+
+/**
+ * PT-067 · Qué herramientas verifican de verdad una regla.
+ *
+ * `t.includes(id)` daba por verificada cualquier regla cuyo ID apareciera en un COMENTARIO: 20
+ * asi, incluida `FDGE-R17`, que `PT-079` acababa de declarar NO comprobable en `TD-16`.
+ * Publicar como verificada una regla que sabemos que no lo esta es la peor forma del error: no
+ * falla, miente con formato de respuesta correcta.
+ *
+ * Dos exclusiones, cada una con su motivo:
+ *   · `selftest.sh` — el arnes prueba las herramientas; no lo ejecuta ninguna compuerta. Son 5,
+ *     y `SUITE-R41` —cauce se instala sobre si mismo— es una de ellas.
+ *   · las lineas de comentario — el ID explicando por que se hizo algo no comprueba nada.
+ *
+ * Lo que NO distingue: una cita dentro de una condicion que puede fallar de una que no. Eso es
+ * analisis estatico de verdad, y `SUITE-R26` dice que esta metrica aspira, no exige: una medida
+ * honesta y simple vale mas que una sofisticada que nadie audita. Queda declarado en TD.
+ *
+ * `herramientas` es una lista de pares `[nombre, texto]`.
+ */
+export function verificadoresDe(id, herramientas) {
+  const esComentario = (l) => /^\s*(\/\/|\*|\/\*|#|<!--)/.test(l);
+  return (herramientas ?? [])
+    .filter(([nombre]) => nombre !== 'selftest.sh')
+    .filter(([, txt]) => String(txt ?? '').split(/\r?\n/)
+      .some((l) => l.includes(id) && !esComentario(l)))
+    .map(([nombre]) => nombre);
+}

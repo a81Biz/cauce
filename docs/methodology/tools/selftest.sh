@@ -1497,6 +1497,18 @@ import(pathToFileURL(process.env.MTH_TRACKER).href).then((m)=>{ $3 }).catch((e)=
   if printf '%s' "$out" | grep -q -- "$2"; then bad "$1  (apareció: $2)"; else pass "$1"; fi
 }
 
+# PT-067 · lo mismo, pero contra patrones.mjs. Vive AQUI y no junto a sus casos porque un
+# helper definido despues de su primer uso falla por «no encontrado» y no por el hecho — me
+# paso dos veces en este lote (TRR en PT-076, RG2 en PT-066) y `lint_helpers` existe por eso.
+patlib() { # $1 nombre · $2 patron esperado · $3 cuerpo JS que recibe el modulo como `m`
+  salta "$1" && return
+  local out
+  out="$(MTH_PAT="$SUITE/tools/patrones.mjs" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{ $3 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else bad "$1  (no apareció: $2 · salió: $out)"; fi
+}
+
 V1='{id:"PT-100",status:"IN_PROGRESS"}'
 V2='{id:"PT-101",status:"DRAFT",issue:7}'
 I7='{number:7,title:"PT-101 x"}'
@@ -2504,6 +2516,91 @@ chk   "las ejecutadas ni 0 ni el total"   "DERIVADA" \
 rm -rf "$WORK/solo-suite"; mkdir -p "$WORK/solo-suite/docs"
 cp -r "$SUITE" "$WORK/solo-suite/docs/methodology"
 chk   "sin saber quién ejecuta ⇒ SIN EVALUAR" "SIN EVALUAR"  A "$WORK/solo-suite/docs/methodology"
+
+# ─── PT-067 · el denominador es el universo, y una mencion no es un verificador ──
+#
+# audit derivaba las reglas de un regex PROPIO que solo leia filas de RULES.md: 183 de las 223
+# que el marco define, fuera las 26 LEX-* y las 14 EXEC-* —entre ellas EXEC-R04, merge humano,
+# y EXEC-R07, describir el comando—. Y `t.includes(id)` daba por verificada cualquier regla
+# cuyo ID apareciera en un comentario: 20 asi, incluida FDGE-R17, que PT-079 acababa de
+# declarar NO comprobable en TD-16. Publicar como verificada una regla que sabemos que no lo
+# esta es la peor forma del error.
+#
+# Es el gemelo de PT-066: aquel arreglo a quien CONSULTA una regla, este a quien las CUENTA.
+# Los dos leian RULES.md como si fuera el unico documento propietario, y LEX-R21 dice tres.
+
+# E1 · el universo sale de los TRES documentos.
+LEER3='const d={"RULES.md":"| `AAA-R01` | HARD | x |","LEXICON.md":"`LEX-R01` · x","EXECUTION-MODES.md":"`EXEC-R01` · x"};'
+patlib "el universo sale de los tres documentos" "AAA-R01 LEX-R01 EXEC-R01" \
+  "$LEER3 console.log(m.reglasDelMarco((f)=>d[f]).map(r=>r.id).join(' '))"
+patlib "…y cada una dice de que documento"  "RULES.md LEXICON.md EXECUTION-MODES.md" \
+  "$LEER3 console.log(m.reglasDelMarco((f)=>d[f]).map(r=>r.doc).join(' '))"
+
+# E2 · un ID definido DOS veces cuenta UNA, y gana el propietario. Hoy pasa de verdad con
+# FDGE-R22, R40 y R41 (-> PT-080): contar 226 por una duplicidad seria medir mal el arreglo.
+DUP='const d={"RULES.md":"| `FDGE-R22` | HARD | fuerte |","EXECUTION-MODES.md":"`FDGE-R22` · debil"};'
+patlib "un ID definido dos veces cuenta UNA"  "^1$" \
+  "$DUP console.log(m.reglasDelMarco((f)=>d[f]).length)"
+patlib "…y gana el documento propietario"     "^RULES.md$" \
+  "$DUP console.log(m.reglasDelMarco((f)=>d[f])[0].doc)"
+
+# E3 · las filas PTSA-R* de RULES.md usan otra forma y ya se auditan en su bloque. Excluirlas
+# esta bien; lo que faltaba era DECIRLO — un OUT sin caso es una intencion, no un limite.
+patlib "una fila sin severidad no entra"      "^0$" \
+  "const d={'RULES.md':'| \`PTSA-R14\` | A1 | Evidencia sobre opinion |'}; console.log(m.reglasDelMarco((f)=>d[f]).length)"
+
+# E4 · una mencion en COMENTARIO no es un verificador. Son 20, con FDGE-R17 dentro.
+#
+# El resultado esperado es la lista VACIA, y aserirla con "^$" NO funciona: una salida vacia no
+# tiene lineas, asi que grep no casa nada y el caso falla diciendo que el codigo esta mal cuando
+# lo que esta mal es la asercion. Se serializa con JSON.stringify y se exige "[]" — un valor
+# observable en vez de una ausencia. Me costo una corrida entera de la bateria averiguarlo.
+patlib "una mencion en comentario NO verifica" '^\[\]$' \
+  "console.log(JSON.stringify(m.verificadoresDe('FDGE-R17',[['x.mjs','// FDGE-R17 · por eso se hizo asi']])))"
+# E5 · el arnes prueba las herramientas; no lo ejecuta ninguna compuerta. Son 5, y SUITE-R41
+# —cauce se instala sobre si mismo— es la premisa de toda esta sesion.
+patlib "citada solo por selftest NO verifica"  '^\[\]$' \
+  "console.log(JSON.stringify(m.verificadoresDe('SUITE-R41',[['selftest.sh','chk SUITE-R41']])))"
+# E6 · el complemento. Sin el, un criterio que no contara NADA pasaria E4 y E5 igual.
+patlib "citada en codigo real SI verifica"     "^v.mjs$" \
+  "console.log(m.verificadoresDe('SUITE-R41',[['v.mjs','fail(\"SUITE-R41\", msg)']]).join(' '))"
+
+# E7 · sobre el repositorio de verdad. Por FORMA y por CONSISTENCIA, nunca por valor exacto:
+# fijar «223» seria un hecho copiado (RULE-01) dentro de la bateria que existe para cazarlos.
+cat > "$WORK/universo.mjs" <<'MJS'
+import { execFileSync } from 'node:child_process';
+const o = execFileSync(process.execPath, [process.env.MTH_AUDIT, process.env.MTH_SUITE], { encoding: 'utf8' });
+const u = o.match(/universo\s+(\d+)/);
+const e = o.match(/ejecutadas por una compuerta\s+(\d+)\s*\/\s*(\d+)/);
+// El numero va EN MEDIO de la linea, no al final: «citadas sin compuerta que las corra   12
+// → --sin-compuerta las enumera». Anclar en $ no casaba y el caso decia SIN_CIFRAS, que parece
+// un fallo del codigo y era un fallo de la asercion.
+const s = o.match(/citadas sin compuerta que las corra\s+(\d+)/);
+const v = o.match(/sin verificador\s+(\d+)/);
+if (!u || !e || !s || !v) { console.log('SIN_CIFRAS'); process.exit(0); }
+const total = +u[1], suma = +e[1] + +s[1] + +v[1];
+console.log(total === +e[2] && total === suma ? 'CUADRA ' + total : `NO_CUADRA universo=${total} den=${e[2]} suma=${suma}`);
+MJS
+chk   "la suma de las clases ES el universo"  "CUADRA" \
+  env MTH_AUDIT="$SUITE/tools/audit.mjs" MTH_SUITE="$SUITE" node "$WORK/universo.mjs"
+chk   "el universo declara sus tres origenes" "LEXICON.md"  A "$SUITE"
+chk   "…y el mayor de los tres"               "RULES.md"    A "$SUITE"
+
+# E8 · el desglose DERIVA sus dos numeros. Sin el, quien vea caer 114 -> 96 pensara que se
+# rompio algo; con un texto a mano, envejece en el primer cambio de RULES.md.
+chk   "el desglose dice cuantas se anadieron"  "reglas que el denominador no miraba"  A "$SUITE"
+chk   "…y cuantas dejaron de contar"           "dejaron de contar por una MENCIÓN"    A "$SUITE"
+chk   "…y cuantas eran solo del arnes"         "sólo en selftest.sh"                  A "$SUITE"
+# El desglose DERIVA sus dos numeros. Se comprueba sobre la FUENTE y no sobre la salida: en la
+# salida el «+40» aparece igual venga de una plantilla o de una constante, asi que un caso
+# contra la salida daria verde con la cifra escrita a mano. Es RULE-01 aplicada al caso mismo,
+# y lo dijo escribirlo mal primero: mi version anterior era «chkno "+40  reglas"» CONTRA LA
+# SALIDA — habria fallado siempre, porque la salida dice «+40» cuando la medida da 40.
+chkno "el desglose no lleva cifras a mano"     "+40  reglas"   cat "$SUITE/tools/audit.mjs"
+
+# audit ya no puede tener su propia derivacion: seria la tercera copia del mismo hecho, y
+# PT-066 arreglo la de regla.mjs mientras esta se quedaba como estaba (SUITE-R38).
+chk   "audit no deriva las reglas por su cuenta" "reglasDelMarco" cat "$SUITE/tools/audit.mjs"
 
 # ─── PT-020 · el alcance del grafo cubre el codigo propio ───────────────────
 # El grafo se genero un dia sobre `bin` y ahi se quedo: 18 nodos, todos de cauce.mjs, mientras
