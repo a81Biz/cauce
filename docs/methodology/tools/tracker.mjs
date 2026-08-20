@@ -2230,13 +2230,29 @@ function avanzar() {
   try {
     // 1 · el registro ASIGNA
     a.phase = destino;
+    // PT-089 · H-004. «avanzar» sincronizaba «phase» en las dos fuentes y NO «status», asi que
+    // al llegar a la ultima fase alguien tenia que marcar el estado terminal A MANO — y lo hacia
+    // en el registro, dejando el YAML atras. De ahi salian las SEIS divergencias medidas, y las
+    // seis eran de la clase que apaga comprobaciones.
+    //
+    // Marcar terminal es parte del MISMO acto atomico: los cinco actos o ninguno (FDGE-R52).
+    // NO se toca un estado que ya sea terminal: una tarea puede acabar REJECTED o DEFERRED, y
+    // FDGE-R53 dice que la tarea declara como termina — esto no lo decide por ella.
+    const esFinal = Number(destino) === Math.max(...Object.keys(FASES).map(Number));
+    const terminal = esFinal && !ESTADOS_TERMINALES.has(String(a.status));
+    if (terminal) a.status = 'INTEGRATED';
     writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
 
     // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo
     if (existsSync(fIntake)) {
       const txt = readFileSync(fIntake, 'utf8');
-      const nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
+      let nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
       if (nuevo === txt) throw new Error(`el intake de ${id} no declara «phase»: no se puede sincronizar (SUITE-R08).`);
+      if (terminal) {
+        const conEstado = nuevo.replace(/^status:[ 	]*\S+[ 	]*$/m, `status: ${a.status}`);
+        if (conEstado === nuevo) throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
+        nuevo = conEstado;
+      }
       writeFileSync(fIntake, nuevo);
     }
 

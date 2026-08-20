@@ -1,0 +1,12 @@
+# PT-089 · la comprobacion, en rojo y en verde
+
+--- terminal en el registro y vivo en el YAML ---
+✗ SUITE-R35  PT-066: el registro dice «INTEGRATED» —terminal— y su intake dice «READY», que
+             no lo es. No es una diferencia de opinion: es un archivo que se quedo atras, y
+             con el las comprobaciones de las fases posteriores no llegan a ejecutarse.
+             Se arregla SINCRONIZANDO, no eligiendo: la precedencia de PT-004 no cambia.
+             NO establece cual de las dos fuentes tiene razon.
+
+--- tras sincronizar ---
+0
+0 errores de esa clase

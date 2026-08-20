@@ -1,0 +1,157 @@
+{
+  "pt": "PT-089",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Divergencia con estado terminal en el registro: ERROR",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh:terminal en el registro y vivo en el YAML CAE"
+      ],
+      "evidence": [
+        "salidas/comprobacion.txt"
+      ],
+      "verified": true,
+      "nota": "Medido antes de escribirlo: de las 6 divergencias de «status» del repositorio, las 6 son de esta clase. CERO benignas. El aviso estaba calibrado para una mezcla que no existe."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Entre estados no terminales sigue siendo aviso",
+      "scenarios": [
+        "E3",
+        "E4"
+      ],
+      "tests": [
+        "selftest.sh:dos estados VIVOS distintos no son error",
+        "selftest.sh:…ni dos terminales distintos"
+      ],
+      "evidence": [
+        "salidas/comprobacion.txt"
+      ],
+      "verified": true,
+      "nota": "Son los casos que fijan la FRONTERA. Sin ellos el criterio podria ser «cualquier divergencia» y los positivos pasarian igual."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "avanzar escribe las dos fuentes en el mismo acto",
+      "scenarios": [
+        "E7",
+        "E8",
+        "E9"
+      ],
+      "tests": [
+        "selftest.sh:avanzar a la ultima fase marca terminal",
+        "selftest.sh:…y lo escribe TAMBIEN en el YAML",
+        "selftest.sh:…y no pisa un estado terminal ya declarado"
+      ],
+      "evidence": [
+        "salidas/divergencias.txt"
+      ],
+      "verified": true,
+      "nota": "YA lo hacia para «phase»; lo que faltaba era «status». Ahi nacian las seis, y quien las marcaba a mano era YO, en este mismo lote, cerrando PT-087 y PT-088."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Las divergencias vivas quedan resueltas",
+      "scenarios": [
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:el arbol real no tiene ninguna sin sincronizar"
+      ],
+      "evidence": [
+        "salidas/divergencias.txt"
+      ],
+      "verified": true,
+      "nota": "El caso mira el arbol REAL, no el fixture. Sin el, nada impediria que la septima apareciera manana sin que nadie mirase."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "SUITE-R35 declara su fila en RIGE_DESDE",
+      "scenarios": [],
+      "tests": [
+        "no procede: la comprobacion nace verde"
+      ],
+      "evidence": [
+        "salidas/comprobacion.txt"
+      ],
+      "verified": true,
+      "nota": "NO PROCEDE, y decirlo es el trabajo. Las seis se resolvieron en esta tarea, asi que la comprobacion nace verde sobre el arbol existente. PT-088 si lo necesitaba —17 fallos sobre agosto— y copiar el criterio habria anadido una fila que mantener y que no protege de nada."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Bajan los avisos y ninguno es de esta clase",
+      "scenarios": [
+        "E5",
+        "E6"
+      ],
+      "tests": [
+        "selftest.sh:una «phase» divergente NO es error",
+        "selftest.sh:…pero si avisa"
+      ],
+      "evidence": [
+        "salidas/divergencias.txt"
+      ],
+      "verified": true,
+      "nota": "El intake decia «bajar de 65». Al abrir el lote eran 24 y quedan 18. La cifra del intake describia otro momento del arbol, y se dice en vez de reescribirla como si hubiera acertado."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "El mensaje declara QUE NO establece",
+      "scenarios": [
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:…y el mensaje dice que NO elige fuente"
+      ],
+      "evidence": [
+        "salidas/comprobacion.txt"
+      ],
+      "verified": true,
+      "nota": "NO estaba en el intake: lo trajo PT-087, terminado el dia antes. Sin esa frase el rojo se leeria como «manda el registro», que es lo contrario de lo que PT-004 decidio."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Cual de las dos fuentes tiene razon cuando divergen.",
+      "por_que": "La comprobacion acusa de estar DESINCRONIZADO, no de estar equivocado. Elegir sigue siendo de PT-004: manda el YAML, y por eso el arreglo es sincronizar.",
+      "donde": "changes/PT-089-la-divergencia-no-apaga-comprobaciones/strategy.md"
+    },
+    {
+      "afirmacion": "Que las 22 divergencias de «phase» sean inofensivas en todos los casos.",
+      "por_que": "Se comprobo que en tareas TERMINALES no apagan nada, porque las comprobaciones de fase ya no aplican. En una tarea viva si importarian, y ahi el aviso sigue.",
+      "donde": "changes/PT-089-la-divergencia-no-apaga-comprobaciones/out-of-scope.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "El intake del fixture no declara «phase», y mis tres casos comparaban un campo inexistente.",
+      "regla": "SUITE-R38",
+      "detalle": "La comprobacion no tenia nada que hacer y los casos PASABAN POR VACIO. Lo vi leyendo el generador del fixture DESPUES de que fallaran. Es el falso verde que PT-023 midio."
+    },
+    {
+      "que": "Pedi «avanzar --a 10» desde la fase 8, y avanzar solo va a la SIGUIENTE (FDGE-R52).",
+      "regla": "—",
+      "detalle": "Lo rechazaba, y yo habia redirigido su salida a /dev/null: tuve que volver a ejecutarlo A LA VISTA para verlo. Mismo «filtrar antes de mirar» que en PT-088, dos tareas antes."
+    },
+    {
+      "que": "Un salto de linea dentro de «sed s///» no es portable.",
+      "regla": "—",
+      "detalle": "Fallo en la corrida, no al escribirlo. Resuelto con el comando «i», que inserta una linea y no necesita escapar nada: quitando la necesidad, como las otras diez veces."
+    },
+    {
+      "que": "Marque INTEGRATED a mano en el registro al cerrar PT-087 y PT-088.",
+      "regla": "SUITE-R35",
+      "detalle": "Es EXACTAMENTE el defecto que esta tarea arregla, cometido por mi mientras la escribia. El YAML de esas dos se quedo atras hasta que «avanzar» aprendio a cerrarlo."
+    }
+  ],
+  "suite": {
+    "passed": 1155,
+    "failed": 0,
+    "baseline": 1145,
+    "nota": "1145 mas 10 nuevos. Corrida COMPLETA, cero fallos. Hicieron falta cuatro corridas."
+  }
+}

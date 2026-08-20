@@ -4259,3 +4259,49 @@ lo que paso ocho veces: que nadie se hiciera la pregunta.
 bateria: 1131 -> 1145 casos, cero fallos.
 Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
 Trazabilidad externa: issue #163
+
+## PT-089 — la divergencia no apaga comprobaciones
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-004. verify-fdge avisaba de la divergencia entre el registro y el YAML del intake y usaba el
+del intake (PT-004: es lo que el PT dice de si mismo). Esa precedencia NO cambia. Lo que cambia
+es la consecuencia: un estado TERMINAL en el registro con uno VIVO en el YAML hace que
+«fase >= N» no se cumpla y las comprobaciones posteriores NO SE EJECUTEN.
+
+LA MEDICION CAMBIO EL DISENO ANTES DE ESCRIBIR NADA:
+  status divergente con estado TERMINAL en el registro:  6
+  status divergente entre estados NO terminales       :  0
+  phase divergente en tareas ya terminales            : 22
+
+Las SEIS son de la clase peligrosa. CERO benignas: el aviso estaba calibrado para una mezcla que
+no existe. Y eso estrecho el alcance a «status»: convertir las 22 de «phase» en error habria
+puesto el arbol en rojo por trabajo ya cerrado — el error que PT-088 evito con RIGE_DESDE.
+
+DONDE NACIAN, Y QUIEN LAS CAUSO. «avanzar» sincronizaba «phase» en las dos fuentes y NO «status»,
+asi que al llegar a la ultima fase alguien marcaba INTEGRATED a mano en el registro y el YAML se
+quedaba atras. ESE ALGUIEN HE SIDO YO, en este mismo lote, cerrando PT-087 y PT-088 con un script
+sobre REGISTRY.json. La tarea que arregla el defecto lo estaba cometiendo mientras se escribia.
+Marcar terminal entra ahora en el acto atomico, y NO pisa un estado ya declarado: FDGE-R53 dice
+que eso lo decide la tarea, asi que una DEFERRED sigue DEFERRED.
+
+DOS CRITERIOS DEL INTAKE RESULTARON SER OTRA COSA:
+  AC-03  «avanzar escribe las dos fuentes»  ->  YA lo hacia para «phase»; faltaba «status»
+  AC-05  «fila en RIGE_DESDE»               ->  NO PROCEDE: nace verde porque las seis se
+                                                resolvieron aqui. PT-088 si lo necesitaba —17
+                                                fallos sobre agosto— y copiar el criterio habria
+                                                anadido una fila que mantener y que no protege.
+
+AC-07 no estaba en el intake: lo trajo PT-087, terminado el dia antes. El limite de una
+comprobacion tiene que LLEGAR AL MENSAJE. Aqui el limite es que NO dice cual de las dos fuentes
+tiene razon — sin esa frase, el rojo se leeria como «manda el registro».
+
+TRES DEFECTOS MIOS EN LOS CASOS, los tres del linaje del lote: el intake del fixture NO declara
+«phase» y mis tres casos comparaban un campo inexistente, asi que PASABAN POR VACIO; pedi
+«avanzar --a 10» desde la 8 —solo se va a la SIGUIENTE— y habia redirigido la salida a /dev/null,
+asi que tuve que ejecutarlo A LA VISTA, el mismo error que dos tareas antes; y un salto de linea
+dentro de «sed s///» no es portable, resuelto con el comando «i», que no necesita escapar nada.
+
+bateria: 1145 -> 1155 casos, cero fallos, cuatro corridas completas.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #165

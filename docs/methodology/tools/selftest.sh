@@ -4704,6 +4704,97 @@ chk   "…y NO acusa a quien solo nombra el error" "NO" \
 chk   "…y revento() ya no busca la palabra"      "NO" \
   sh -c 'if grep -q "revento() { printf .%s. \"\$1\" | grep -qE .SyntaxError" "$1/docs/methodology/tools/selftest.sh"; then echo SI; else echo NO; fi' _ "$RAIZ"
 
+sec "── PT-089 · la divergencia no apaga comprobaciones ──"
+#
+# H-004. verify-fdge avisaba de la divergencia entre el registro y el YAML del intake, y usaba
+# el del intake (PT-004: es lo que el PT dice de si mismo). Esa precedencia NO cambia. Lo que
+# cambia es la consecuencia: un «status» terminal en el registro con uno vivo en el YAML hace
+# que «fase >= N» no se cumpla y las comprobaciones posteriores NO SE EJECUTEN.
+#
+# Medido antes de escribir nada: de las 6 divergencias de «status» del repositorio, las 6 son
+# de esa clase. CERO benignas — el aviso estaba calibrado para una mezcla que no existe.
+
+# ── terminal en el registro y vivo en el YAML: ERROR ────────────────────────
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='INTEGRATED'"
+perl -0pi -e 's/^status:.*$/status: READY/m' "$WORK/changes/PT-001-login/intake.md"
+chk   "terminal en el registro y vivo en el YAML CAE"  "es un archivo que se quedó atrás" V PT-001 "$WORK"
+
+# El mensaje declara lo que NO establece: cual de las dos fuentes tiene razon. Sin esa linea,
+# el rojo se leeria como «el registro manda», y PT-004 decidio lo contrario.
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='INTEGRATED'"
+perl -0pi -e 's/^status:.*$/status: READY/m' "$WORK/changes/PT-001-login/intake.md"
+chk   "…y el mensaje dice que NO elige fuente"        "NO establece cuál de las dos" V PT-001 "$WORK"
+
+# ── y las divergencias que NO apagan nada siguen siendo AVISO ───────────────
+#
+# Dos estados VIVOS distintos son una diferencia real entre dos fuentes, no un archivo atrasado.
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='IN_PROGRESS'"
+perl -0pi -e 's/^status:.*$/status: READY/m' "$WORK/changes/PT-001-login/intake.md"
+chkno "dos estados VIVOS distintos no son error"      "es un archivo que se quedó atrás" V PT-001 "$WORK"
+
+# Las DOS terminales tampoco: una tarea cerrada declarada cerrada de otra forma no apaga nada.
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='INTEGRATED'"
+perl -0pi -e 's/^status:.*$/status: CLOSED/m' "$WORK/changes/PT-001-login/intake.md"
+chkno "…ni dos terminales distintos"                  "es un archivo que se quedó atrás" V PT-001 "$WORK"
+
+# «phase» sigue siendo AVISO: hay 22 divergencias en tareas ya terminales y una terminal con
+# «phase» viejo no apaga nada. Convertirlas en error nace con 22 fallos sobre trabajo cerrado,
+# que es el error que PT-088 evito con RIGE_DESDE.
+# El intake del fixture NO declara «phase» —lo comprobe leyendo el generador, DESPUES de
+# que el caso fallara— asi que hay que anadirsela: sin ella no hay nada que comparar.
+# «sed s///» con un salto real no es portable: se usa el comando «i», que INSERTA una linea
+# antes de la que casa y no necesita escapar nada.
+con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.md"; }
+
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"
+con_phase 1
+chkno "una «phase» divergente NO es error"            "es un archivo que se quedó atrás" V PT-001 "$WORK"
+chk   "…pero si avisa"                                "«phase» divergente" V PT-001 "$WORK"
+
+# ── avanzar cierra el acto: el estado terminal va en las DOS fuentes ────────
+#
+# Aqui nacian las seis: «avanzar» sincronizaba «phase» y NO «status», asi que al llegar a la
+# ultima fase alguien marcaba INTEGRATED A MANO en el registro y el YAML se quedaba atras.
+build_fixture; git_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"
+con_phase 9
+AV PT-001 --a 10 --nota "cierre" >/dev/null 2>&1
+chk   "avanzar a la ultima fase marca terminal"       "INTEGRATED" \
+  sh -c 'node -e "console.log(JSON.parse(require(String.fromCharCode(102,115)).readFileSync(process.argv[1],\"utf8\")).allocations.find(a=>a.id===\"PT-001\").status)" "$1/docs/implementation/REGISTRY.json"' _ "$WORK"
+chk   "…y lo escribe TAMBIEN en el YAML"              "status: INTEGRATED" \
+  grep "^status:" "$WORK/changes/PT-001-login/intake.md"
+
+# Y NO decide por una tarea que ya declaro como termina: FDGE-R53 es de la tarea, no de la
+# herramienta. Una DEFERRED que llegue a la ultima fase sigue DEFERRED.
+build_fixture; git_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='DEFERRED'"
+reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"
+con_phase 9
+AV PT-001 --a 10 --nota "cierre" >/dev/null 2>&1
+chk   "…y no pisa un estado terminal ya declarado"    "DEFERRED" \
+  sh -c 'node -e "console.log(JSON.parse(require(String.fromCharCode(102,115)).readFileSync(process.argv[1],\"utf8\")).allocations.find(a=>a.id===\"PT-001\").status)" "$1/docs/implementation/REGISTRY.json"' _ "$WORK"
+
+# ── sobre el arbol real: las seis quedaron sincronizadas ────────────────────
+chk   "el arbol real no tiene ninguna sin sincronizar" "VACIO" \
+  sh -c 'cd "$1" && node -e "
+const fs = require(String.fromCharCode(102,115));
+const r = JSON.parse(fs.readFileSync(\"docs/implementation/REGISTRY.json\", \"utf8\"));
+const T = new Set([\"INTEGRATED\",\"CLOSED\",\"REVERTED\",\"REJECTED\",\"DEFERRED\"]);
+const mal = [];
+for (const a of r.allocations.filter(x => /^PT-/.test(x.id))) {
+  const d = \"changes/\" + (a.slug ? a.id + \"-\" + a.slug : a.id) + \"/intake.md\";
+  if (!fs.existsSync(d)) continue;
+  const m = /^status:[ \t]*(\S+)/m.exec(fs.readFileSync(d, \"utf8\"));
+  if (m && T.has(String(a.status)) && !T.has(m[1])) mal.push(a.id);
+}
+console.log(mal.length ? mal.join(\" \") : \"VACIO\");
+"' _ "$RAIZ"
+
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que

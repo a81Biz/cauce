@@ -1346,8 +1346,35 @@ function checkPT(pt, { gate } = {}) {
       + 'YAML que se queda atrás apaga comprobaciones sin que nada avise.';
     if (gate === 'G4') fail('SUITE-R35', m); else warn('SUITE-R35', m);
   };
+  // PT-089 · H-004. Una divergencia con estado TERMINAL en el registro y NO terminal en el
+  // YAML no es una diferencia de opinion entre dos fuentes: es un archivo que se quedo atras,
+  // y su consecuencia es que «fase >= N» no se cumple y las comprobaciones de las fases
+  // posteriores NO SE EJECUTAN. Es el defecto que PT-044 documento y al que se le puso un
+  // aviso — y un aviso no impide que una comprobacion se apague.
+  //
+  // Medido antes de escribir esto: de las 6 divergencias de «status» del repositorio, las 6
+  // son de esta clase. CERO benignas. El aviso estaba calibrado para una mezcla que no existe.
+  //
+  // QUE ESTABLECE: que ninguna tarea terminal en el registro se presenta como viva en su YAML.
+  // QUE NO ESTABLECE: cual de las dos fuentes tiene razon. La precedencia de PT-004 no cambia
+  //   —manda el YAML— y por eso el arreglo es SINCRONIZAR, no elegir.
+  //
+  // «phase» sigue siendo aviso: 22 divergencias en tareas ya terminales, y una terminal con
+  // «phase» viejo no apaga nada. Convertirlas en error nace con 22 fallos sobre trabajo
+  // cerrado, que es el error que PT-088 evito con RIGE_DESDE.
+  const divergenciaTerminal = (enYaml, enRegistro) => {
+    if (!enYaml || !enRegistro) return;
+    if (!ESTADOS_TERMINALES.has(String(enRegistro))) return;
+    if (ESTADOS_TERMINALES.has(String(enYaml))) return;
+    fail('SUITE-R35', `${pt}: el registro dice «${enRegistro}» —terminal— y su intake dice `
+      + `«${enYaml}», que no lo es. No es una diferencia de opinión: es un archivo que se quedó `
+      + 'atrás, y con él las comprobaciones de las fases posteriores no llegan a ejecutarse. '
+      + 'Se arregla SINCRONIZANDO, no eligiendo: la precedencia de PT-004 no cambia. '
+      + 'NO establece cuál de las dos fuentes tiene razón.');
+  };
   divergencia('phase', intake.match(RE_PHASE_YAML)?.[1], enRegistroPT?.phase, 'su intake dice');
   divergencia('status', intake.match(RE_STATUS_YAML)?.[1], enRegistroPT?.status, 'su intake dice');
+  divergenciaTerminal(intake.match(RE_STATUS_YAML)?.[1], enRegistroPT?.status);
 
   // Un artefacto se exige DESDE la fase que lo produce (CORE.md §Procedimiento por fase).
   // Exigirlo antes ponia en rojo a todo PT recien abierto, y CI corre `verify-fdge --all`:
