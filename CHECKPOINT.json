@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "trabajo",
   "sha": "f8fcc4c34424738d4ed6e1fa8268321d5add1a9c",
   "sha_corto": "f8fcc4c",
@@ -24,6 +24,7 @@
     "changes/PT-083-la-plantilla-pasa-su-propio-verificador/intake.md",
     "changes/PT-084-la-plataforma-es-opcional-o-no-lo-es/intake.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-081/",
     "docs/methodology/CHANGELOG.md",
@@ -56,8 +57,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-20"
 }
