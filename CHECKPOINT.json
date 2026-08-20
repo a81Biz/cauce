@@ -1,19 +1,25 @@
 {
-  "pt": "PT-081",
+  "pt": "PT-085",
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 9,
-  "fase": "Integración",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras",
-  "sha": "b39dfd1c22bd760e830c66f8b30821ee9874e22e",
-  "sha_corto": "b39dfd1",
+  "sha": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+  "sha_corto": "982bcd3",
   "sucio": true,
   "archivos": [
-    "docs/implementation/CHECKPOINT.json"
+    "changes/PT-085-el-sello-de-version/",
+    "docs/implementation/DISCOVERY.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SESSION-alberto-martinez.json",
+    "docs/implementation/SESSION_LOG.md"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-20"
 }
