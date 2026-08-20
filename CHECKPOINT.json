@@ -3,8 +3,8 @@
   "type": "INVESTIGATION",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "fix/alberto-martinez/PT-082-un-caso-no-depende-de-quien-lo-ejecuta",
   "sha": "b80086446df287f41a335dd7d184f2e788b48b97",
   "sha_corto": "b800864",
@@ -17,8 +17,11 @@
     "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-19"
 }
