@@ -68,7 +68,7 @@ sí debe aportar—.
 
 ## 6. Cómo termina   `FDGE-R53`
 
-> Termina cuando ningún ID se define en dos documentos propietarios, `verify-suite` lo comprueba,
+> Termina cuando: ningún ID se define en dos documentos propietarios, `verify-suite` lo comprueba,
 > y las tres obligaciones que hoy sólo están en `RULES.md` siguen estando.
 
 ## 7. Qué NO entra   `[AGENTE]`
