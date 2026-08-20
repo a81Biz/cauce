@@ -1,0 +1,3 @@
+  [31m✗[0m sin viabilidad registrada, G2 falla  (no apareció: ✗ FDGE-R54)
+  [31m✗[0m un PT escrito en la rama de integracion falla  (no apareció: ✗ SUITE-R42)
+  [31m✗[0m en PHASE 9 sin acciones-humanas.md, falla  (no apareció: acciones-humanas)

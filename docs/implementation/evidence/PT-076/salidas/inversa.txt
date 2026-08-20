@@ -1,0 +1,6 @@
+=== INVERSA · devuelto «sesion abrir» a TRR ===
+antes  a5518790f539880a370540b8e23e01f7 *docs/implementation/SESSION-alberto-martinez.json
+  [31m✗[0m ninguna accion que escriba va por TRR  (no apareció: SIN ESCRITURAS POR TRR)
+  [32m✓[0m sesion abrir escribe la marca del FIXTURE
+  [32m✓[0m sesion abrir escribe la marca
+despues a4a7817a1277eb0bb6078aff24e6aeea *docs/implementation/SESSION-alberto-martinez.json

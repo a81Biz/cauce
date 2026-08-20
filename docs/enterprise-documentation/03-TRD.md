@@ -1,6 +1,6 @@
 # 03-TRD — requisitos técnicos
 
-> Foundation `PHASE 3` · 2026-08-13 · suite 5.2.3
+> Foundation `PHASE 3` · 2026-08-19 · suite 9.0.0 · segunda ejecución
 > Todo hecho cita archivo y línea, o el comando que lo evidencia (`FND-R01`).
 
 ## Stack
@@ -9,7 +9,7 @@
 |:---|:---|:---|
 | Lenguaje | JavaScript ESM (`"type": "module"`) | [package.json:5](../../package.json#L5) |
 | Runtime | Node ≥ 18 · desarrollado y verificado en 22 | [package.json:30-32](../../package.json#L30-L32) · [verificacion.yml](../../.github/workflows/verificacion.yml) fija `node-version: '22'` |
-| Shell | Bash para la batería de casos | `tools/selftest.sh`, 1 110 líneas |
+| Shell | Bash para la batería de casos | `tools/selftest.sh`, 3 541 líneas |
 | Dependencias | **Ninguna**, ni de producción ni de desarrollo | [package.json](../../package.json) |
 | Módulos usados | Solo estándar: `node:fs` · `node:path` · `node:url` · `node:crypto` · `node:child_process` | Cabecera de importaciones de cada herramienta |
 | Distribución | npm público con procedencia firmada (`--provenance`) | [publicar.yml:99](../../.github/workflows/publicar.yml#L99) |
@@ -98,7 +98,7 @@ Siete comprobaciones, todas bloqueantes, sin ninguna «informativa»:
 | `verify:suite` | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones en documentos que solo explican, enlaces rotos, versiones desalineadas |
 | `core:check` | Núcleo sincronizado con sus fuentes |
 | `audit` | Cobertura por enumeración: 572 elementos, 0 huecos |
-| `selftest` | 180 casos: límites bien formados, defectos inyectados, migración, seguridad, coherencia |
+| `selftest` | 697 casos: límites bien formados, defectos inyectados, migración, seguridad, coherencia |
 | `verify:secretos` | Árbol e historia, con las excepciones firmadas visibles |
 | `verify-fdge --all` | Cumplimiento de los artefactos **de este repositorio** |
 

@@ -1,0 +1,11 @@
+=== AC-03 · el rojo de CI, reproducido en local ANTES de tocar el arnes ===
+fecha: 2026-08-19
+
+-- identidad AJENA (lo que ejecuta CI) --
+    mayor hecho     2815 (MEDIDO)   en el DIA 2026-08-19 — no hay sesion abierta, y el dia NO es la sesion (PT-060)
+
+-- identidad DECLARADA (lo que ejecuta mi maquina) --
+    mayor hecho     2815 (MEDIDO)   en la sesion abierta en 7735ff4
+
+El codigo NO esta mal: PT-068 se niega a atribuir la sesion de otro, que es su cometido.
+El caso afirmaba un resultado que depende de quien ejecuta.

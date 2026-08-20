@@ -50,7 +50,7 @@ import {
   // PT-064 · de quien es cada commit
   soloDe, sinPersona,
   // PT-065 · la sesion es de alguien
-  archivoSesion, sesionesAjenas,
+  archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -177,7 +177,7 @@ export function etiquetasDe(alloc) {
 const RE_DERIVADA = /^(fase: \d+|G[1-4])$/;
 
 /** Compara registro y plataforma EN LAS DOS DIRECCIONES. Sin efectos y sin red. */
-export function compararEspejo(vivas, issues, todas) {
+export function compararEspejo(vivas, issues, todas, refExiste) {
   const div = [];
   const porNumero = new Map((issues ?? []).map((i) => [i.number, i]));
   for (const a of vivas ?? []) {
@@ -189,6 +189,18 @@ export function compararEspejo(vivas, issues, todas) {
       // El estado publicado tiene que ser el que el registro deriva. Publicarlo sin comprobarlo
       // es escribir en dos sitios y esperar que no se separen — la avería que SUITE-R35 impide.
       const i = porNumero.get(a.issue);
+      // PT-079 · SUITE-R56 · el rastro sobrevive a la rama.
+      //
+      // El enlace apuntaba a «la rama en la que corrio el espejo», y FDGE-R19 borra la rama
+      // efimera al fusionar. El dia que se midio, 14 de los 16 enlaces daban 404 y uno
+      // apuntaba a la rama de OTRA tarea. Nada lo decia, y por eso va aqui: un enlace que ya
+      // no abre es exactamente una divergencia entre el registro y la plataforma.
+      //
+      // «refExiste» se inyecta para que esta funcion siga siendo comprobable sin git ni red.
+      const ref = refDeEnlace(i.body);
+      if (ref && refExiste && refExiste(ref) === false) {
+        div.push({ regla: 'SUITE-R56', mensaje: `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe. La rama efimera se borra al fusionar (FDGE-R19); el enlace tiene que apuntar a un ref DURABLE — la rama de integracion, o el commit. Se corrige republicando:  tracker abrir --aplicar` });
+      }
       if (Array.isArray(i.labels)) {
         const tiene = i.labels.map((l) => l.name ?? l).filter((n) => RE_DERIVADA.test(n)).sort();
         const debe = etiquetasDe(a).filter((n) => RE_DERIVADA.test(n)).sort();
@@ -253,13 +265,28 @@ export const ramaDe = (usuario) => {
   return n ? `cauce/${n}` : null;
 };
 
-/** El cuerpo de ESTADO.md: una fila por allocation VIVA, con el SHA de SU rama. Funcion pura. */
-export function estadoProyectado(vivas, shaDe, fecha) {
+/**
+ * El cuerpo de ESTADO.md: una fila por allocation VIVA. Funcion pura.
+ *
+ * PT-079 · SUITE-R56 · Dos SHA, y no es redundancia:
+ *
+ *   SHA rama       la punta de SU rama. Dice donde esta el trabajo AHORA, y MUERE con la rama
+ *                  —FDGE-R19 la borra al fusionar—.
+ *   SHA contenido  el ultimo commit que toco changes/PT-NNN-slug/. NO muere: es lo que permite
+ *                  reconstruir donde estaba cada cosa cuando las ramas ya no existen.
+ *
+ * Hasta aqui solo estaba el primero, y estaba VACIO justo para las tareas sin rama declarada
+ * —las de PHASE 1 a 4—, que son las que mas lo necesitaran cuando la tengan y la pierdan. El
+ * registro pensado para ser durable no estaba registrando lo durable.
+ */
+export function estadoProyectado(vivas, shaDe, fecha, shaContenidoDe) {
+  const corto = (x) => (x ? String(x).slice(0, 7) : '—');
   const filas = vivas.map((a) => {
     // El SHA sale de la punta de SU rama, no de la actual: una tarea sin rama creada lo declara
     // VACIO en vez de heredar el de otra. Un SHA prestado seria una afirmacion falsa (RULE-06).
     const sha = a.branch ? (shaDe(a.branch) ?? '') : '';
-    return `| ${a.id} | ${a.type ?? ''} | ${a.status ?? ''} | ${a.phase ?? '—'} | ${a.branch ?? '—'} | ${sha ? sha.slice(0, 7) : '—'} |`;
+    const cont = shaContenidoDe ? (shaContenidoDe(a) ?? '') : '';
+    return `| ${a.id} | ${a.type ?? ''} | ${a.status ?? ''} | ${a.phase ?? '—'} | ${a.branch ?? '—'} | ${corto(sha)} | ${corto(cont)} |`;
   });
   return [
     '# ESTADO — proyección derivada de cauce',
@@ -271,8 +298,8 @@ export function estadoProyectado(vivas, shaDe, fecha) {
     '',
     `Proyectado el ${fecha ?? 'sin fecha'} · ${vivas.length} allocation(es) viva(s).`,
     '',
-    '| Id | Tipo | Estado | Fase | Rama | SHA |',
-    '|:---|:---|:---|:---|:---|:---|',
+    '| Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |',
+    '|:---|:---|:---|:---|:---|:---|:---|',
     ...filas,
     '',
   ].join('\n');
@@ -319,8 +346,17 @@ ${MARCA_AGENTE}`;
  *
  * Sin `url` no se inventa ninguna: se escribe la ruta sin enlace y se dice por que (RULE-06).
  */
+/**
+ * PT-079 · SUITE-R56 · El ref al que apunta un cuerpo ya publicado. `null` si no enlaza.
+ *
+ * Es lo que verify-fdge necesita para comprobar que ese ref sigue existiendo: 14 de los 16
+ * enlaces del tablero apuntaban a ramas borradas y nada lo decia.
+ */
+export const refDeEnlace = (cuerpo) =>
+  (String(cuerpo ?? '').match(/\/tree\/([^/)\s]+(?:\/[^/)\s]+)*?)\/changes\//) ?? [null, null])[1];
+
 export function cuerpoDeIssue(a, opciones = {}) {
-  const { url, rama, tareas, ramaTrabajo, hayDirectorio } = opciones;
+  const { url, rama, tareas, ramaTrabajo, hayDirectorio, refDurable } = opciones;
   const esLote = a?.type === 'EP';
   const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
   // PT-036 · el enlace apunta a donde el contenido ESTA, no a donde estara.
@@ -334,7 +370,24 @@ export function cuerpoDeIssue(a, opciones = {}) {
   // cuando llega a INTEGRATED se reenlaza a la rama por defecto, que es donde se queda. El
   // cuerpo se resincroniza en cada `abrir --aplicar`, asi que la transicion es automatica.
   const viva = VIVOS.has(a?.status);
-  const ramaDelEnlace = (viva && ramaTrabajo) ? ramaTrabajo : (rama ?? 'main');
+  // PT-079 · SUITE-R56 · el rastro sobrevive a la rama.
+  //
+  // Antes: «ramaTrabajo», que es la rama en la que corre EL ESPEJO, no la de la tarea
+  // enlazada. Dos consecuencias medidas el 2026-08-19 sobre el tablero real: el issue de
+  // PT-072 apuntaba a la rama de PT-074 —otra tarea— y 14 de los 16 enlaces vivos daban 404,
+  // porque FDGE-R19 borra la rama efimera al fusionar.
+  //
+  // No se perdia la documentacion —changes/PT-075 tiene sus 10 archivos en «trabajo»— sino el
+  // ENLACE. Por eso el arreglo apunta a un ref DURABLE, que el contexto calcula: la rama de
+  // integracion si el contenido ya esta ahi, y si no el COMMIT que lo contiene. Ninguno de los
+  // dos desaparece.
+  //
+  // Sin ref durable NO se inventa una URL (RULE-06). PT-036 ya lo dejo escrito para el caso
+  // vecino: «inventar una seria peor que no ponerla».
+  // El ref durable es la UNICA fuente. El respaldo anterior —«ramaTrabajo, o main»— es
+  // literalmente lo que producia los 14 enlaces muertos: apuntaba a algo que podia no contener
+  // el directorio, o directamente no existir. Si no hay ref durable, no hay enlace.
+  const ramaDelEnlace = refDurable ?? null;
   // PT-048 · un enlace a un directorio que NO EXISTE es un 404 en el unico artefacto que una
   // allocation aplazada tiene. `SUITE-R44` la exime de tener artefactos y `PT-036` dice donde
   // apunta el enlace: las dos correctas por separado, y juntas producian el 404.
@@ -349,9 +402,11 @@ export function cuerpoDeIssue(a, opciones = {}) {
   const enlace = hayDirectorio === false
     ? 'Sin artefactos todavía: es una allocation **aplazada** (`SUITE-R44`). Cuando se retome, '
       + 'su `PHASE 1` crea el directorio y este cuerpo se resincroniza solo.'
-    : (url
+    : (url && ramaDelEnlace
       ? `[\`${dir}/\`](${url}/tree/${ramaDelEnlace}/${dir})`
-      : `\`${dir}/\` — en el repositorio`);
+      // PT-079 · sin ref durable, la ruta va SIN ENLACE y se dice. Una URL a una rama que el
+      // marco borra a proposito es peor que ninguna (RULE-06, SUITE-R56).
+      : `\`${dir}/\` — en el repositorio, sin enlace: no hay ref durable que lo contenga`);
 
   const l = [];
   l.push(esLote
@@ -364,6 +419,35 @@ export function cuerpoDeIssue(a, opciones = {}) {
     for (const t of tareas) l.push(`- \`${t.id}\`${t.issue ? ` · #${t.issue}` : ''} — ${t.title ?? t.slug ?? ''}`);
     l.push('');
   }
+  // PT-074 · SUITE-R35 · el registro asigna y la plataforma ESPEJA. El veredicto de viabilidad
+  // es estado —lo escribe «tracker viabilidad --registrar» (FDGE-R54)— y no se espejaba: vivia
+  // en REGISTRY.allocations[].viabilidad y era invisible desde el tablero. El firmante lo pidio
+  // TRES veces antes de que nadie mirara donde estaba el hueco.
+  //
+  // Se espeja el VEREDICTO y su BASE, no el razonamiento: SUITE-R35 prohibe copiar contenido al
+  // issue —dos copias del mismo texto divergen— y el porque sigue viviendo en changes/.
+  //
+  // La naturaleza de la cifra y el «medido_en» no son adorno: un veredicto sin decir contra que
+  // se midio es lo que PT-058 corrigio. Y la consecuencia de MARGINAL y UNSAFE se dice porque
+  // el issue existe para consultarse SIN abrir el repositorio: un veredicto sin consecuencia es
+  // un dato que no sirve para decidir.
+  //
+  // Sin viabilidad NO se emite nada. Una allocation recien asignada no la tiene hasta G2, y
+  // escribir «SIN EVALUAR» ahi seria inventar un dato donde solo hay un hueco (RULE-06).
+  const v = a?.viabilidad;
+  if (v?.veredicto) {
+    l.push('');
+    l.push(`Viabilidad (\`FDGE-R54\`): **${v.veredicto}** · coste ${v.coste?.valor ?? '—'} `
+      + `(${v.coste?.naturaleza ?? 'SIN EVALUAR'})`
+      + (v.medido_en ? ` · medida contra \`${String(v.medido_en).slice(0, 7)}\`` : ''));
+    if (v.veredicto === 'MARGINAL') {
+      l.push('> `MARGINAL` no prohíbe: obliga a trabajo **atomico** con checkpoint entre pasos.');
+    }
+    if (v.veredicto === 'UNSAFE') {
+      l.push('> `UNSAFE` **DETIENE**: checkpoint, handoff y parada.');
+    }
+  }
+
   l.push(`Intake, criterios de aceptación y evidencia: ${enlace}`);
   if (!url) {
     l.push('');
@@ -524,7 +608,9 @@ const ADAPTADORES = {
     comoAutenticarse: 'gh auth login',
     abiertos() {
       const out = execFileSync('gh', ['issue', 'list', '--state', 'open', '--limit', '500',
-        '--json', 'number,title,state,labels'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+        // PT-079 · «body» tambien: sin el, el espejo no puede ver a donde apunta el enlace
+        // publicado, y 14 de 16 apuntaban a ramas borradas sin que nada lo dijera (SUITE-R56).
+        '--json', 'number,title,state,labels,body'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return JSON.parse(out);
     },
     crear(titulo, cuerpo, etiquetas) {
@@ -607,6 +693,13 @@ const ADAPTADORES = {
       const out = execFileSync('gh', ['issue', 'view', String(numero), '--json', 'labels'],
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return (JSON.parse(out).labels ?? []).map((l) => l.name);
+    },
+    // PT-079 · el cuerpo de UN issue, abierto o cerrado. `abiertos()` no sirve para reparar el
+    // enlace de una tarea terminada: su issue esta cerrado, y es justo el que se rompe.
+    cuerpoRemoto(numero) {
+      const out = execFileSync('gh', ['issue', 'view', String(numero), '--json', 'body'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+      return JSON.parse(out).body ?? '';
     },
     etiquetar(numero, poner, quitar) {
       const args = ['issue', 'edit', String(numero)];
@@ -888,7 +981,7 @@ const vivas = vivasDe(all);
 // el arnés puede probar sin credenciales.
 function espejo() {
   const issues = adaptador.abiertos();
-  const div = compararEspejo(vivas, issues, all);
+  const div = compararEspejo(vivas, issues, all, refExiste);
   // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
   //
   // El registro que asigna vive en la rama de trabajo. El de la rama por defecto es el del
@@ -982,7 +1075,40 @@ const contextoCuerpo = (a) => ({
   // pura y exportada a proposito —para que un caso pueda comprobarla sin hablar con la
   // plataforma ni con el disco—, y meterle un `existsSync` la habria devuelto a ser inprobable.
   hayDirectorio: existsSync(join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`)),
+  // PT-079 · el ref DURABLE se calcula aqui, no en cuerpoDeIssue: esa funcion es pura a
+  // proposito (PT-048) y meterle git la devolveria a ser improbable.
+  refDurable: refDurableDe(a),
 });
+
+/**
+ * PT-079 · SUITE-R56 · Un ref que no desaparece cuando la rama de la tarea se borra.
+ *
+ *   1. la rama de INTEGRACION, si el contenido ya esta ahi   -> legible y permanente
+ *   2. si no, el COMMIT que lo contiene                      -> permanente
+ *   3. si no hay ninguno                                     -> null, y el cuerpo lo DICE
+ *
+ * El orden importa: quien abre el issue prefiere ver «trabajo» a un hexadecimal, y el commit
+ * es la red para el trabajo que aun vive solo en su rama efimera.
+ */
+// PT-079 · el resolvedor va INYECTADO en compararEspejo: esa funcion sigue siendo comprobable
+// sin git ni credenciales. Aqui vive porque lo usan dos sitios —el espejo y la reparacion de
+// enlaces muertos—, y tenerlo dos veces seria dos fuentes del mismo hecho (SUITE-R38).
+const refExiste = (r) => gitDe(['rev-parse', '--verify', '--quiet', r]) !== null
+  || gitDe(['rev-parse', '--verify', '--quiet', `origin/${r}`]) !== null;
+
+function refDurableDe(a) {
+  const dir = `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`;
+  const integracion = reg?.tracker?.rama_integracion ?? 'trabajo';
+  const hay = (ref) => {
+    try {
+      execFileSync('git', ['cat-file', '-e', `${ref}:${dir}`], { cwd: ROOT, stdio: 'pipe' });
+      return true;
+    } catch { return false; }
+  };
+  if (hay(integracion)) return integracion;
+  const sha = gitDe(['log', '-1', '--format=%H', '--', dir]);
+  return sha || null;
+}
 
 // PT-010 · sincronizar el CUERPO de los issues abiertos, no solo sus etiquetas. Sin esto el
 // arreglo no alcanzaria a los que ya existen — incluidos los de este mismo lote, que nacieron
@@ -993,6 +1119,40 @@ function sincronizarCuerpos() {
     if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se regeneraria el cuerpo`); continue; }
     try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: cuerpo sincronizado`); }
     catch { fail('SUITE-R35', `${a.id}: no se pudo sincronizar el cuerpo de #${a.issue}.`); }
+  }
+  repararEnlacesMuertos();
+}
+
+/**
+ * PT-079 · SUITE-R56 · reparar el enlace de las tareas YA TERMINADAS.
+ *
+ * `sincronizarCuerpos` recorria solo las vivas, y una tarea viva tiene su rama: su enlace
+ * funciona. El enlace que se rompe es el de la tarea CERRADA — la rama efimera se borro al
+ * fusionar (FDGE-R19) y el cuerpo publicado quedo apuntando a un ref que ya no existe. Es
+ * exactamente el caso para el que existe SUITE-R56, y era el que no se alcanzaba: medido sobre
+ * el tablero completo, 20 de 40 enlaces seguian muertos con el arreglo ya puesto.
+ *
+ * Solo toca lo que esta ROTO y solo si hay a donde apuntar: si el ref publicado sigue vivo no
+ * se reescribe nada, y si no se puede derivar un ref durable se DICE en vez de inventar uno
+ * (RULE-06). Reescribir el cuerpo de un issue cerrado no cambia su estado — arregla un enlace,
+ * que es dato derivado del registro (SUITE-R35).
+ */
+function repararEnlacesMuertos() {
+  if (!adaptador.editarCuerpo || !adaptador.cuerpoRemoto) return;
+  const terminadas = all.filter((a) => a.issue && !vivas.some((v) => v.id === a.id));
+  for (const a of terminadas) {
+    let publicado;
+    try { publicado = adaptador.cuerpoRemoto(a.issue); } catch { continue; }
+    const ref = refDeEnlace(publicado);
+    if (!ref || refExiste(ref)) continue;
+    const durable = refDurableDe(a);
+    if (!durable) {
+      notas.push(`${a.id} #${a.issue}: enlaza a «${ref}», que ya no existe, y no hay ref durable del que derivar uno. Queda roto y consta.`);
+      continue;
+    }
+    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se repararia el enlace «${ref}» -> «${durable}»`); continue; }
+    try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: enlace reparado «${ref}» -> «${durable}»`); }
+    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe, y no se pudo reescribir.`); }
   }
 }
 
@@ -1356,7 +1516,10 @@ function viabilidad() {
   const hoy = gitDe(['log', '-1', '--format=%cs']);
   // PT-060 · si hay sesion abierta, el precedente sale de la SESION REAL. Sin marca sale del dia,
   // que es una APROXIMACION —PHASE 2 de PT-060 lo midio: coinciden por casualidad— y se DICE.
-  const marcaSesion = leerJSON(join(IMPL, 'SESSION.json'));
+  // PT-068 · la MISMA marca que lee «sesion». Antes leia SESSION.json siempre, asi que el
+  // mismo tracker daba dos respuestas sobre que sesion esta abierta: sesion decia 7735ff4 y
+  // viabilidad 258be16. Los quince veredictos de EP-017 se registraron con esa base.
+  const marcaSesion = marcaDe(yo, (f) => leerJSON(join(IMPL, f)));
   // El precedente es lo mayor COMPLETADO en esta sesion. Si la sesion acaba de empezar no hay
   // con que comparar, y eso es SIN EVALUAR — no cero.
   const deLaSesion = marcaSesion?.desde ? new Set(movidoDesde(marcaSesion.desde).tareas) : null;
@@ -1383,8 +1546,31 @@ function viabilidad() {
   for (const linea of envolver(v.motivo, 88)) di(`  ${linea}`);
   di('');
   di('  Esto mide PRECEDENTE, no capacidad: el presupuesto disponible es SIN EVALUAR siempre,');
-  di('  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d). Y CONSULTA:');
-  di('  escribir el estado de una tarea es de «tracker avanzar».');
+  di('  porque el contexto del modelo no se puede medir desde aqui (LEXICON 6.5d).');
+
+  // PT-075 · FDGE-R54 · consultar no basta si no consta. Una compuerta cuyo resultado no se
+  // escribe no se puede auditar, y esta llevaba cuatro lotes sin que nadie supiera si se habia
+  // abierto: no habia regla que la exigiera, fase que la abriera ni verificador que la echara
+  // en falta.
+  //
+  // Se escribe SOLO lo derivado (LEX-R26). «medido_en» declara CONTRA QUE sesion se comparo, y
+  // no es un adorno: mientras PT-068 no cierre, la marca sale de SESSION.json —el huerfano— y
+  // el campo deja constancia de cual era la base de cada registro.
+  if (!ARGS.includes('--registrar')) {
+    di('  Y es CONSULTA: para que CONSTE hace falta --registrar (FDGE-R54).');
+    return;
+  }
+  a.viabilidad = {
+    veredicto: v.veredicto,
+    coste: { valor: coste.valor, naturaleza: coste.naturaleza },
+    precedente: { valor: precedente.valor, naturaleza: precedente.naturaleza },
+    techo: { valor: techo.valor, naturaleza: techo.naturaleza },
+    medido_en: marcaSesion?.desde ?? null,
+    fecha: hoy,
+  };
+  writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + SALTO);
+  notas.push(`${id}: viabilidad ${v.veredicto} registrada en REGISTRY.allocations[].viabilidad`);
+  di(`  REGISTRADO: ${id}.viabilidad = ${v.veredicto} (FDGE-R54).`);
 }
 
 /** Corta un texto en lineas de ancho maximo, sin partir palabras. */
@@ -1418,11 +1604,13 @@ const yoSoy = () => personaLocal(gitDe(['config', 'user.name']), gitDe(['config'
 const F_SESION = () => join(IMPL, archivoSesion(yoSoy()));
 
 /** Todas las marcas de sesion que hay en el disco, para ver las ajenas (AC-06). */
-const marcasDeSesion = () => {
+const marcasDeSesion = () => sesionesUnicas(todasLasMarcas());
+const todasLasMarcas = () => {
   try {
     return readdirSync(IMPL)
       .filter((f) => /^SESSION(-.+)?\.json$/.test(f))
-      .map((f) => leerJSON(join(IMPL, f)))
+      // PT-068 · se marca cual viene del archivo PROPIO para que gane al deduplicar.
+      .map((f) => { const m = leerJSON(join(IMPL, f)); return m && f !== 'SESSION.json' ? { ...m, __propia: true } : m; })
       .filter(Boolean);
   } catch { return []; }
 };
@@ -1458,8 +1646,10 @@ function apilarEnLog(texto) {
 
 function sesion() {
   const sub = ARGS.slice(1).find((a) => ['abrir', 'cerrar'].includes(a)) ?? 'ver';
-  // La PROPIA primero; si no hay, SESSION.json — un proyecto de una persona no cambia nada.
-  const marca = leerJSON(F_SESION()) ?? leerJSON(join(IMPL, 'SESSION.json'));
+  // PT-068 · la propia; y el respaldo SOLO si no declara otra persona. Un proyecto de una sola
+  // persona no cambia (AC-05 de PT-065); una identidad ajena deja de heredar trabajo que no es
+  // suyo.
+  const marca = marcaDe(yoSoy(), (f) => leerJSON(join(IMPL, f)));
   const cp = leerJSON(join(IMPL, 'CHECKPOINT.json'));
 
   if (sub === 'abrir') {
@@ -1471,7 +1661,7 @@ function sesion() {
     writeFileSync(F_SESION(), JSON.stringify(nueva, null, 2) + SALTO);
     apilarEnLog(`## ${nueva.abierta} · sesion abierta en \`${desde.slice(0, 7)}\`` + SALTO + SALTO
       + '<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.');
-    notas.push(`SESSION.json escrito: desde ${desde.slice(0, 7)}`);
+    notas.push(`${archivoSesion(nueva.persona)} escrito: desde ${desde.slice(0, 7)}`);
     di('');
     di(`  sesion abierta desde ${desde.slice(0, 7)}`);
     return;
@@ -1487,9 +1677,15 @@ function sesion() {
     apilarEnLog(`## ${gitDe(['log', '-1', '--format=%cs'])} · sesion cerrada` + SALTO + SALTO
       + '<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:' + SALTO + SALTO
       + '```' + SALTO + h + SALTO + '```');
-    // NO se borra SESSION.json: la sesion siguiente lo sobrescribe al abrir. Borrarlo dejaria un
-    // hueco donde antes habia un dato.
-    di('  Apilado en SESSION_LOG.md. SESSION.json NO se borra: la sesion siguiente lo sobrescribe.');
+    // PT-068 · el mensaje afirmaba que la marca vieja se reescribiria al abrir la siguiente, y
+    // era FALSO desde PT-065: nadie vuelve a escribir SESSION.json. Se dice lo que ocurre.
+    //
+    // El texto anterior NO se cita literalmente aqui a proposito: hay un caso que comprueba su
+    // ausencia en el archivo, y una cita en un comentario lo pondria en rojo. Es la familia de
+    // PT-051 —un patron literal en un comentario contado como emision real—, y me paso al
+    // arreglar precisamente esto.
+    di(`  Apilado en SESSION_LOG.md. ${archivoSesion(yoSoy())} NO se borra: al abrir la siguiente`);
+    di('  se sobrescribe. Un SESSION.json antiguo, si lo hay, ya no se escribe (PT-068).');
     di('  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.');
     return;
   }
@@ -1846,7 +2042,12 @@ function proyectar({ silencioso = false } = {}) {
 
   const fecha = gitDe(['log', '-1', '--format=%cs']);
   const contenido = {
-    'ESTADO.md': estadoProyectado(vivas, (r) => gitDe(['rev-parse', '--verify', r]), fecha),
+    // PT-079 · el cuarto resolvedor es el SHA del CONTENIDO: el ultimo commit que toco el
+    // directorio de la tarea. Existe desde PHASE 1 y NO muere con la rama, que es lo que hace
+    // reconstruible el rastro cuando FDGE-R19 la borra al fusionar (SUITE-R56).
+    'ESTADO.md': estadoProyectado(vivas, (r) => gitDe(['rev-parse', '--verify', r]), fecha,
+      (a) => gitDe(['log', '-1', '--format=%H', '--',
+        `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`])),
   };
   const cp = join(IMPL, 'CHECKPOINT.json');
   if (existsSync(cp)) contenido['CHECKPOINT.json'] = readFileSync(cp, 'utf8');

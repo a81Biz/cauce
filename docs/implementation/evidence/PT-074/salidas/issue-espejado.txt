@@ -1,0 +1,6 @@
+**INVESTIGATION** · severidad S1 · de la implementación `EP-017`
+
+
+Viabilidad (`FDGE-R54`): **MARGINAL** · coste — (SIN EVALUAR) · medida contra `7735ff4`
+> `MARGINAL` no prohíbe: obliga a trabajo **atomico** con checkpoint entre pasos.
+Intake, criterios de aceptación y evidencia: [`changes/PT-072-un-proyecto-nuevo-de-verdad/`](https://github.com/a81Biz/cauce/tree/fix/alberto-martinez/PT-074-la-compuerta-de-viabilidad-necesita-una-fase/changes/PT-072-un-proyecto-nuevo-de-verdad)

@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 4d432356a636 -->
-<!-- fuentes: RULES.md:bf8433bba50d LEXICON.md:9ed32ef85f5b EXECUTION-MODES.md:032b890f2c0b PHASES.md:02a57933a05f -->
+<!-- cuerpo: 27f216f5c76a -->
+<!-- fuentes: RULES.md:2b8a0a23065a LEXICON.md:9ed32ef85f5b EXECUTION-MODES.md:032b890f2c0b PHASES.md:1c574b02a9bb -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -197,6 +197,7 @@ verifica un script y bloquea la integración.
 `SUITE-R53` **H** La regla se alcanza desde el fallo, y lo que puede fallar se deriva.
 `SUITE-R54` **H** El agente lee su manual, y puede consultarlo.
 `SUITE-R55` **H** Las decisiones humanas de una migración se conducen, no se enumeran.
+`SUITE-R56` **H** El rastro de una tarea sobrevive a la rama que lo produjo.
 
 ### LEX — Nombres
 
@@ -333,6 +334,7 @@ verifica un script y bloquea la integración.
 `FDGE-R51` **H** El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.
 `FDGE-R52` **H** El reanclaje se escribe, no se relee. Cada transición de fase deja tres líneas en la tarea —comentario del issue si hay plataforma, bitacora.md del PT si no—: qué se cierra · dónde se está · qué sigue.…
 `FDGE-R53` **H** Toda tarea declara cómo termina. Una línea, observable, en el intake: la condición que hace que la tarea esté hecha. La deriva ocurre en tareas sin forma: una tarea que declara su final lo tiene; una que…
+`FDGE-R54` **H** No se empieza lo que no se puede terminar, y consta.
 
 ### INTAKE — Admisión
 
@@ -608,6 +610,10 @@ HAZ  design.md          decisiones y por qué esta y no otra
 NO   crear rama · tocar código. Antes de G2: 0 líneas, 0 ramas [FDGE-R13]
 PARA G2. MANUAL,SUPERVISED→ACK. AUTONOMOUS→auto solo si las CINCO condiciones [EXEC §5.1]
      MAJOR con grafo ausente o STALE ⇒ bloqueado [FDGE-R43]
+     viabilidad CONSULTADA y REGISTRADA — no basta consultarla       [FDGE-R54]
+       node tools/tracker.mjs viabilidad PT-XXX --registrar
+       MARGINAL no prohibe: obliga a trabajo ATOMICO con checkpoint entre pasos
+       UNSAFE detiene: checkpoint, handoff y parada
 ```
 
 ### PHASE 5 · Implementation
@@ -821,6 +827,10 @@ HAZ  precondiciones, todas verificables [FDGE-R34]:
      PR «PT-XXX tipo: título» con enlaces a Proposal, evidencia y manifest · CI verde
      tras el merge: tag si aplica · borrar rama · PT→INTEGRATED · intake.md CLOSED
        CONSERVAR changes/PT-XXX-slug/ [FDGE-R35] · actualizar HANDOFF, BACKLOG, REGISTRY
+     tras el merge: PUBLICAR LA PROYECCION — el rastro sobrevive a la rama  [SUITE-R56]
+       node tools/tracker.mjs proyectar --publicar
+       la rama efimera se borra (FDGE-R19); el enlace del issue apunta a un ref
+       DURABLE y la proyeccion guarda el SHA de cada tarea
 PARA G4 HUMANA EN LOS TRES MODOS, sin excepción [FDGE-R33, EXEC-R04]. Prepara el comando y
      descríbelo. Registra quién resolvió cada compuerta [SUITE-R22].
 ```

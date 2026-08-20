@@ -1,0 +1,8 @@
+=== INVERSA · devuelto el criterio por MENCION + severidad ===
+FDGE-R34      No está definida en ningún documento del marco.
+EXEC-R14      No está definida en ningún documento del marco.
+LEX-R26       No está definida en ningún documento del marco.
+FDGE-R43      definida en  RULES.md
+SUITE-R99     No está definida en ningún documento del marco.
+(vuelven las inexistentes falsas; FDGE-R43 vuelve a devolver texto ajeno)
+  [31m✗[0m cada regla devuelve SU definicion  (no apareció: DEVUELVEN SU PROPIA DEFINICION)

@@ -1,0 +1,21 @@
+{
+  "pt": "PT-067",
+  "generated": "2026-08-19",
+  "criteria": [
+    { "ac": "AC-01", "statement": "El denominador incluye los tres documentos propietarios", "scenarios": ["E1","E7"], "tests": ["selftest.sh:el universo sale de los tres documentos","selftest.sh:el universo declara sus tres origenes"], "evidence": ["salidas/universo.txt"], "verified": true, "nota": "183 -> 223. Faltaban 26 LEX-* y 14 EXEC-*, entre ellas EXEC-R04 (merge humano) y EXEC-R07 (describir el comando)." },
+    { "ac": "AC-02", "statement": "El mapa de propietarios no se escribe dos veces", "scenarios": ["E1","E2"], "tests": ["selftest.sh:audit no deriva las reglas por su cuenta"], "evidence": ["salidas/universo.txt"], "verified": true, "nota": "Vive en patrones.mjs. Tener aqui una tercera derivacion es como PT-066 arreglo regla.mjs y audit se quedo igual (SUITE-R38)." },
+    { "ac": "AC-03", "statement": "selftest.sh no cuenta como verificador", "scenarios": ["E5"], "tests": ["selftest.sh:citada solo por selftest NO verifica"], "evidence": ["salidas/verificadores.txt"], "verified": true, "nota": "Son 5: SUITE-R22, R37, R41, R50, R54. SUITE-R41 es la premisa de que cauce se aloje a si mismo." },
+    { "ac": "AC-04", "statement": "La cifra publicada cambia y se dice por que", "scenarios": ["E8"], "tests": ["selftest.sh:el desglose dice cuantas se anadieron","…y cuantas dejaron de contar","el desglose no lleva cifras a mano"], "evidence": ["salidas/audit-antes-despues.txt"], "verified": true, "nota": "+40 por ampliar el universo, -24 por dejar de contar menciones. Los dos numeros se DERIVAN." },
+    { "ac": "AC-05", "statement": "Ninguna regla se pierde por el camino", "scenarios": ["E7"], "tests": ["selftest.sh:la suma de las clases ES el universo"], "evidence": ["salidas/universo.txt"], "verified": true, "nota": "108 + 12 + 103 = 223." }
+  ],
+  "no_verificado": [
+    { "afirmacion": "Que una cita dentro de una condicion que PUEDE FALLAR se distinga de una que no.", "por_que": "Es analisis estatico de verdad. SUITE-R26 dice que esta metrica aspira, no exige: una medida honesta y simple vale mas que una sofisticada que nadie audita.", "donde": "docs/enterprise-documentation/10-Technical-Debt.md" },
+    { "afirmacion": "Que regla.mjs, build-core y verify-suite deriven del mismo sitio.", "por_que": "Siguen con su propia lectura de RULES.md. Migrar cuatro herramientas a la vez es como se pierde cual rompio que. Declarado en la propuesta como riesgo, no descubierto despues.", "donde": "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/design.md" }
+  ],
+  "desviaciones_de_procedimiento": [
+    { "que": "Escribi tres aserciones que no casaban con la salida real.", "regla": "FDGE-R17", "detalle": "Dos usaban «^$» para exigir una lista VACIA — una salida vacia no tiene lineas, asi que grep no casa y el caso falla acusando al codigo. La tercera anclaba en $ un numero que va en medio de la linea. Costo una corrida entera de la bateria, y es el sexto caso de esta familia en el lote." },
+    { "que": "Escribi un chkno contra la SALIDA cuando debia ir contra la FUENTE.", "regla": "RULE-01", "detalle": "«el desglose no lleva cifras a mano» comprobado sobre la salida habria fallado siempre: la salida dice «+40» cuando la medida da 40. Se comprueba sobre audit.mjs." },
+    { "que": "Quinta vez en el lote peleandome con el escapado en scripts.", "regla": "—", "detalle": "Un patron con «\n» literal no casaba desde un heredoc de Python. Se resolvio con Edit, como las cuatro anteriores." }
+  ],
+  "suite": { "passed": 1058, "failed": 0, "baseline": 1042 }
+}

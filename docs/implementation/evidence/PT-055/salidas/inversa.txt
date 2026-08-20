@@ -1,0 +1,4 @@
+=== INVERSA · revertido enG4 al alcance global ===
+  lote(s) bajo evaluacion: EP-016
+  ✗ SUITE-R45      EP-017: «## Cierre del lote» está vacía. Una sección sin filas dice que no queda nada por hacer al cerrar, y eso es una afirmación, no un hueco que se rellena luego.
+(EP-017 vuelve a BLOQUEAR el cierre de EP-016: es el defecto original)

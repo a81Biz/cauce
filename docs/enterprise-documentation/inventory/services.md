@@ -1,29 +1,34 @@
-# inventory/services — las 15 herramientas
+# inventory/services — las 16 herramientas
 
-> Foundation `PHASE 5` · 2026-08-13. Enumeración completa: `ls docs/methodology/tools/`.
+> Foundation `PHASE 5` · 2026-08-19 · suite 9.0.0 · segunda ejecución.
+> Enumeración completa: `ls docs/methodology/tools/`. Líneas **contadas**, no transcritas.
 > Códigos de salida: `0` sin errores · `1` con errores · `2` nada que verificar aquí.
 
 | Herramienta | Líneas | Qué hace | Escribe | Ejercitada por |
 |:---|---:|:---|:---|:---|
-| `verify-fdge.mjs` | 1027 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
-| `selftest.sh` | 1110 | 180 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
-| `build-core.mjs` | 491 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
-| `verify-suite.mjs` | 488 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
-| `audit.mjs` | 403 | Cobertura por enumeración: 572 elementos y lo que cada clase debe tener | no | `npm run audit` · CI |
-| `plan-layout.mjs` | 327 | Enumera el terreno y **propone**; `--write` produce `LAYOUT.md` sin firmar | con `--write` | `selftest` · `INSTALL.md` `I0` |
-| `migrate.mjs` | 289 | Migra un proyecto a la versión vigente; `--dry-run` por defecto | con `--apply` | `selftest` bloque D |
-| `verify-qa.mjs` | 268 | Un ciclo QA y un roadmap FPGE: capturas, veredictos cerrados, QD, freshness | no | `selftest` · `cauce verify` |
-| `verify-ptsa.mjs` | 224 | Matriz de cobertura de una auditoría y coherencia del score | no | `selftest` · `cauce verify` |
-| `tracker.mjs` | 205 | Espejo entre `REGISTRY.json` y los issues de la plataforma | `REGISTRY` con `abrir --aplicar` | `selftest` bloque P |
-| `revisar-secretos.mjs` | 191 | Secretos en el árbol y, con `--historial`, en los commits | no | `npm run verify:secretos` · CI · `cauce verify` |
-| `patrones.mjs` | 147 | Los patrones críticos y el sello, con su contrato. **Biblioteca importada**, no ejecutable | no | Importada por 5 herramientas |
-| `version.mjs` | 106 | Alinea los 21 documentos y `package.json` con el `CHANGELOG` | con `--aplicar` | `selftest` bloque S |
-| `comparar-marco.mjs` | 102 | Qué difiere entre la copia del proyecto y la de referencia, **y en qué dirección** | no | `selftest` · `cauce compare` |
-| `verify-patrones.mjs` | 79 | Ejecuta el contrato `casa`/`noCasa` de cada patrón | no | `npm run verify:patrones` · CI |
+| `selftest.sh` | 3541 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
+| `tracker.mjs` | 2070 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
+| `verify-fdge.mjs` | 1618 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
+| `verify-suite.mjs` | 596 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
+| `patrones.mjs` | 588 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
+| `build-core.mjs` | 528 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
+| `audit.mjs` | 502 | Cobertura por enumeración: 597 elementos y lo que cada clase debe tener | no | `npm run audit` · CI |
+| `migrate.mjs` | 438 | Migración guiada entre versiones de la suite | **sí** con `--apply` | `selftest` · manual |
+| `plan-layout.mjs` | 327 | Plan de terreno: repos anidados, dónde vive el código, dependencias, alcance del grafo. **Propone, no mueve** | **sí** `LAYOUT.md` con `--write`, y se niega si ya está firmado | Foundation `PHASE 0` · `selftest` |
+| `verify-qa.mjs` | 268 | Cumplimiento de una campaña QA | no | `selftest` |
+| `revisar-secretos.mjs` | 229 | Escaneo de secretos en árbol e historia git | no | `npm run verify:secretos` · `verificacion.yml` · `publicar.yml` |
+| `regla.mjs` | 228 | Un ID de regla → qué exige y qué verificador puede fallar, derivado. **Defecto vivo `D20`: reporta mal 47 de 196** | no | manual |
+| `verify-ptsa.mjs` | 224 | Cumplimiento de una auditoría PTSA | no | `selftest` |
+| `version.mjs` | 106 | Alinea la versión en los 21 documentos y `package.json` desde el `CHANGELOG` | **sí** con `--aplicar` | manual · release |
+| `comparar-marco.mjs` | 102 | Compara el marco instalado con el del paquete | no | `cauce compare` · `selftest` |
+| `verify-patrones.mjs` | 89 | Contrato de `patrones.mjs`: cada patrón con lo que debe casar y lo que no | no | `npm run verify:patrones` · CI |
 
-**Ningún módulo huérfano:** las 15 se invocan desde `package.json`, `bin/cauce.mjs`,
-`verificacion.yml` o `selftest.sh`. Comprobado herramienta a herramienta.
+**Total: 11454 líneas** en 16 archivos (15 `.mjs` + `selftest.sh`).
+En la primera ejecución de Foundation eran **5 441**: el código se ha **duplicado**.
 
-**Composición por proceso, no por importación.** `bin/cauce.mjs` las ejecuta con `execFileSync`
-sobre la copia **del destino**, no la del paquete: verifica lo que el proyecto tiene instalado.
-La única excepción es `patrones.mjs`, que se importa.
+Los tres mayores —`selftest.sh`, `tracker.mjs` y `verify-fdge.mjs`— son el **63 %**
+del total. Es `TD-02`, y la recomendación no cambia: **no partirlos por tamaño**. Si se parten,
+que sea por artefacto verificado, y solo cuando un cambio lo pida.
+
+**Ninguna huérfana.** Las dieciséis están referenciadas desde `package.json`, `bin/cauce.mjs`,
+los workflows o `selftest.sh`; la menos citada, `version.mjs`, aparece en 4 sitios.

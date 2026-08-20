@@ -1,0 +1,20 @@
+=== el ciclo completo, cerrado fuera de cauce (AC-02) ===
+
+-- git log --
+bdd1a77 fix: PT-001 el servidor responde a lo que le piden
+0032238 chore: gitignore · la instalacion no lo deja y node_modules acaba versionado
+c271566 feat: tareitas, el servicio minimo que Foundation documentara
+
+-- verify-fdge PT-001 --
+  ! SUITE-R35      PT-001: «status» divergente — el registro dice «INTEGRATED» y su intake dice «READY». Se usa el del intake (PT-004: es lo que el PT dice de sí mismo), y por eso se dice: un YAML que se queda atrás apaga comprobaciones sin que nada avise.
+
+Sin errores. PTs verificados: 1.
+
+-- tests --
+# tests 3
+# pass 3
+# fail 0
+
+-- cauce verify --
+Sin errores de coherencia.
+Sin errores. PTs verificados: 1.

@@ -1,0 +1,10 @@
+=== INVERSA · con el helper «inversa» que esta misma tarea creo ===
+--- 1 · un patron que NO existe: debe ABORTAR ---
+  ABORTO (bien): no revirtio nada y lo dijo
+
+--- 2 · revertir el ref durable de verdad ---
+  revertido
+
+--- 3 · con el arreglo REVERTIDO, los casos caen ---
+  [31m✗[0m sin ref durable NO cae en la principal  (apareció: tree/main/)
+  [31m✗[0m el enlace usa el ref durable  (no apareció: /tree/trabajo/ · salió: **BUG** · severidad S2 · sin implementación asignada

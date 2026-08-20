@@ -1,6 +1,6 @@
 # 09-Security-Architecture
 
-> Foundation `PHASE 3` · 2026-08-13 · suite 5.2.3
+> Foundation `PHASE 3` · 2026-08-19 · suite 9.0.0 · segunda ejecución
 
 Cauce no autentica usuarios ni guarda datos: no hay superficie de ataque en ejecución. Su
 seguridad es la de **una cadena de suministro** —un paquete npm que se instala dentro de

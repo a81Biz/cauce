@@ -1,6 +1,6 @@
 # 04-App-Flow — los flujos reales
 
-> Foundation `PHASE 3` · 2026-08-13 · suite 5.2.3
+> Foundation `PHASE 3` · 2026-08-19 · suite 9.0.0 · segunda ejecución
 
 Cauce no tiene interfaz ni servidor: sus «flujos» son secuencias de comandos y de decisiones
 humanas. Hay cuatro, y ninguno se puede completar sin una firma.

@@ -1,7 +1,7 @@
 # inventory/components — los documentos del marco
 
-> Foundation `PHASE 5` · 2026-08-13. No hay componentes de interfaz: los «componentes» de este
-> sistema son los 34 documentos que se publican. Su papel lo fija `LEX-R21`.
+> Foundation `PHASE 5` · 2026-08-19 · suite 9.0.0 · segunda ejecución. No hay componentes de interfaz: los «componentes» de este
+> sistema son los 36 documentos que se publican. Su papel lo fija `LEX-R21`.
 
 ## Por papel
 
@@ -15,7 +15,13 @@
 | **Plantillas** | `INTAKE/templates/` (5) · `PTSA/templates/COVERAGE.md` | No |
 | **Integración** | `Suite-CLAUDE-Template.md` | Parametriza; no legisla (`SUITE-R00`) |
 | **Historia** | `CHANGELOG.md` | Es la fuente de la versión vigente (`SUITE-R40`) |
-| **Manual** | `README.md` de la suite | No |
+| **Manual** | `README.md` de la suite · `MANUAL.md` · `CASOS-DE-USO.md` | No |
+
+**`MANUAL.md` y `CASOS-DE-USO.md` faltaban en la primera ejecución** de Foundation y son los dos
+documentos que un usuario nuevo lee antes que ninguno: el primero lleva de cero al primer trabajo
+cerrado; el segundo es el catálogo de casos con sus **huecos declarados**. Los dos están
+pendientes de revisión contra la `9.0.0` — `CASOS-DE-USO.md` todavía declara como hueco «varios
+agentes trabajando a la vez», que cerró `EP-016`. Va en `EP-017`.
 
 ## Por componente de la suite
 

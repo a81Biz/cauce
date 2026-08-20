@@ -1,0 +1,258 @@
+{
+  "pt": "PT-079",
+  "generated": "2026-08-19",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El enlace apunta a un ref durable",
+      "scenarios": [
+        "E1",
+        "E3"
+      ],
+      "tests": [
+        "selftest.sh:el enlace usa el ref durable",
+        "selftest.sh:sin ref durable no inventa enlace",
+        "selftest.sh:…y lo DICE"
+      ],
+      "evidence": [
+        "salidas/enlaces.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El ref es el del CONTENIDO, derivado",
+      "scenarios": [
+        "E2",
+        "E4"
+      ],
+      "tests": [
+        "selftest.sh:…y un SHA tambien vale",
+        "selftest.sh:la rama del espejo NO decide"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Era el defecto que hacia que el issue de PT-072 apuntara a la rama de PT-074: el ref salia de donde corria el espejo."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Los 14 enlaces rotos quedan arreglados",
+      "scenarios": [
+        "E5"
+      ],
+      "tests": [
+        "medicion sobre el tablero real, igual que al abrir la tarea"
+      ],
+      "evidence": [
+        "salidas/enlaces.txt",
+        "salidas/reparacion.txt"
+      ],
+      "verified": true,
+      "nota": "ANTES 14 de 16 rotos entre los issues VIVOS. Medido despues sobre el tablero COMPLETO seguian 20+ rotos: sincronizarCuerpos() solo recorria las vivas, y una tarea viva tiene su rama —su enlace funciona—. El que se rompe es el de la tarea CERRADA, que es justo para el que existe SUITE-R56. Anadido repararEnlacesMuertos(): 26 issues reparados."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Falla si un issue vivo enlaza a una rama inexistente",
+      "scenarios": [
+        "E5",
+        "E6"
+      ],
+      "tests": [
+        "compararEspejo con refExiste inyectado"
+      ],
+      "evidence": [
+        "salidas/enlaces.txt",
+        "salidas/reparacion.txt"
+      ],
+      "verified": true,
+      "nota": "Va en el ESPEJO y no en verify-fdge —donde lo puse primero, con funciones que no existian—: un enlace que ya no abre ES una divergencia entre registro y plataforma (SUITE-R35)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "proyectar registra el SHA del contenido",
+      "scenarios": [
+        "E7"
+      ],
+      "tests": [
+        "estadoProyectado con el cuarto resolvedor"
+      ],
+      "evidence": [
+        "salidas/proyeccion.txt"
+      ],
+      "verified": true,
+      "nota": "La columna estaba vacia justo para las tareas de PHASE 1 a 4, que son las que mas lo necesitaran cuando tengan rama y la pierdan."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La proyeccion se publica y no depende de acordarse",
+      "scenarios": [
+        "E14"
+      ],
+      "tests": [
+        "selftest.sh:…y PHASE 9 la cita",
+        "selftest.sh:…y el prompt de G4 tambien"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Una inversa que no revierte ABORTA",
+      "scenarios": [
+        "E8",
+        "E9"
+      ],
+      "tests": [
+        "selftest.sh:una inversa que no casa ABORTA",
+        "selftest.sh:…y una que casa, aplica"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "El caso distingue SIN_HELPER: sin esa guarda pasaba EN VERDE con el helper aun sin escribir, que es el falso verde que esta tarea persigue."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "Una asercion anclada solo en un ID se señala",
+      "scenarios": [
+        "E10",
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:las aserciones sospechosas se enumeran"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Encuentra 7. AVISA y no falla: hay casos legitimos y un arnes que nace rojo se apaga."
+    },
+    {
+      "ac": "AC-09",
+      "statement": "Un caso que usa un helper posterior se señala",
+      "scenarios": [
+        "E12"
+      ],
+      "tests": [
+        "selftest.sh:los helpers usados antes se enumeran"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-10",
+      "statement": "La regla esta en los CINCO sitios",
+      "scenarios": [
+        "E13",
+        "E14",
+        "E15",
+        "E16"
+      ],
+      "tests": [
+        "selftest.sh:SUITE-R56 existe en RULES",
+        "…y PHASE 9 la cita",
+        "…y el prompt de G4 tambien",
+        "…y CASOS-DE-USO tiene el caso",
+        "…y el MANUAL nombra proyectar"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Los cinco son UN criterio, no cinco: una regla sin fase no se abre, una fase sin verificador no se cumple, y un manual que no la menciona hace que quien llega nunca la ejecute."
+    },
+    {
+      "ac": "AC-11",
+      "statement": "Lo no comprobable queda declarado",
+      "scenarios": [
+        "TD-16"
+      ],
+      "tests": [
+        "10-Technical-Debt.md"
+      ],
+      "evidence": [
+        "salidas/td-16.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-12",
+      "statement": "La inversa esta hecha y CAE de verdad",
+      "scenarios": [
+        "inversa"
+      ],
+      "tests": [
+        "ejecutada con el helper de AC-07"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Primera inversa del lote que no depende de que yo recuerde un assert: el helper ABORTO ante un patron inexistente y luego revirtio de verdad."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que un caso se viera EN ROJO antes de existir su arreglo.",
+      "por_que": "No deja rastro en el repositorio: no hay forma de saber cuando se escribio cada asercion respecto a su codigo. Es la disciplina de FDGE-R17 y seguira dependiendo de que se cumpla.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md (TD-16)"
+    },
+    {
+      "afirmacion": "Que una asercion CASE con la salida real.",
+      "por_que": "Solo se sabe ejecutandola. Tres de los diez fallos del lote fueron caja o acentos —«no est» contra «No esta»— y ninguna herramienta estatica los ve.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md (TD-16)"
+    },
+    {
+      "afirmacion": "Que las 7 aserciones sospechosas sean de verdad malas.",
+      "por_que": "Se ENUMERAN, no se revisan. Revisarlas una a una es trabajo, no una comprobacion. La cifra queda a la vista, como TD-08 hace con las reglas sin verificador.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md (TD-16)"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "El caso de «inversa» pasaba EN VERDE con el helper sin escribir.",
+      "regla": "FDGE-R17",
+      "detalle": "El if fallaba porque la orden no existia, y devolvia ABORTA. Es exactamente el falso verde que esta tarea persigue, cometido al escribirla. Lo dijo ejecutarlo antes de implementar."
+    },
+    {
+      "que": "lint_helpers se acuso A SI MISMO dos veces.",
+      "regla": "—",
+      "detalle": "Primero por sus propios COMENTARIOS —familia PT-051— y despues por la linea que declara su lista de helpers. Se resolvio anclando el «uso» en la invocacion de caso, en vez de ir tapando cada autorreferencia por separado."
+    },
+    {
+      "que": "Puse la comprobacion del enlace en verify-fdge, con funciones que no existen ahi.",
+      "regla": "—",
+      "detalle": "Su sitio es el ESPEJO: un enlace que ya no abre es una divergencia entre el registro y la plataforma (SUITE-R35). Revertido y reubicado."
+    },
+    {
+      "que": "Cuarta vez en el lote insistiendo en generar archivos con scripts.",
+      "regla": "—",
+      "detalle": "Heredocs rotos, backticks anidados, CRLF y saltos literales. Cada vez la solucion fue escribir el archivo directamente. Lo que me lleva al script es que PARECE mas rapido."
+    },
+    {
+      "que": "Di AC-03 por cumplido con una medicion parcial.",
+      "regla": "RULE-06",
+      "detalle": "Medi «0 de 17» sobre los issues vivos de EP-017 y lo escribi como si fuera el tablero. Al medirlo completo en PHASE 9 salieron 20 de 40 rotos: el arreglo impedia la podredumbre futura pero no alcanzaba a los cuerpos ya publicados de las tareas cerradas. Lo encontro rehacer la medicion, no una comprobacion."
+    },
+    {
+      "que": "Mi script de medicion cortaba el ref en la primera barra.",
+      "regla": "—",
+      "detalle": "El ref tiene tres segmentos (FDGE-R19). El regex devolvia «fix» o «chore» y aun asi el veredicto salia bien POR CASUALIDAD. Un extractor que corta de menos no falla: acierta por accidente. Cubierto ahora con un caso de ref de tres segmentos."
+    }
+  ],
+  "suite": {
+    "passed": 1042,
+    "failed": 0,
+    "skipped": 0,
+    "coverage": 1042,
+    "baseline": 1024
+  }
+}

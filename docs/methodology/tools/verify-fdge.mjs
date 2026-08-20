@@ -11,6 +11,7 @@
  *   node verify-fdge.mjs PT-042 PT-043       verifica varios
  *   node verify-fdge.mjs --all               todos los PTs no terminales
  *   node verify-fdge.mjs --all -q            silencia la ENUMERACIÓN del verde, no el recuento
+ *   node verify-fdge.mjs --gate G4 EP-017    las precondiciones de G4 de UN LOTE
  *   node verify-fdge.mjs --gate G1 PT-042    solo las precondiciones de G1
  *   node verify-fdge.mjs --gate G2 PT-042    ídem G2 · --gate G3 · --gate G4
  *
@@ -125,6 +126,8 @@ const LEGACY_STATES = ['PENDING', 'OPEN', 'DISCOVERY_PENDING', 'ENRICHMENT_PENDI
 
 // ─── SUITE-R08 / LEX-R06 — el registro es el único asignador ─────────────────
 let REGISTRO = null;   // lo rellena checkRegistry(); checkPT lo consulta para la fase
+// PT-055 · los lotes que esta ejecucion evalua. Vacio = todos. Ver el calculo en Main.
+let LOTES_EVALUADOS = new Set();
 function checkRegistry() {
   const p = join(IMPL, 'REGISTRY.json');
   if (!existsSync(p)) {
@@ -824,7 +827,17 @@ function checkCierreDeLote(ep, txt, dir) {
   // existia entonces es reescribir historia — y este marco lo prohibe en todas partes menos,
   // hasta aqui, en si mismo. La regla aplica a lo que todavia puede cerrarse.
   if (alloc?.status === 'CLOSED') return;
-  const enG4 = gate === 'G4' || alloc?.status === 'DONE';
+  // PT-055 · «bajo evaluacion», y no «hay una bandera --gate G4 en algun sitio».
+  //
+  // El 2026-08-15, cerrando EP-013 con EP-014 recien abierto, esta condicion bloqueo por las
+  // cuatro filas de EP-014 —trabajo aun no hecho— mientras EP-013 estaba en verde. Un lote
+  // abierto tiene sus filas de cierre sin resolver POR DEFINICION: es lo que significa estar
+  // abierto. Se integro con el rojo declarado como excepcion, no arreglado.
+  //
+  // La otra mitad, «status === DONE», NO se toca: un lote terminado exige sus filas resueltas
+  // aunque nadie pase --gate.
+  const evaluado = !LOTES_EVALUADOS.size || LOTES_EVALUADOS.has(ep);
+  const enG4 = (gate === 'G4' && evaluado) || alloc?.status === 'DONE';
   if (!RE_CIERRE_LOTE.test(txt)) {
     const m = `${ep}: su intake no declara «## Cierre del lote». Lo que se resuelve al cerrar `
       + `—la entrada de CHANGELOG.md, el número de versión, lo que sus tareas le hayan aplazado— `
@@ -1018,6 +1031,105 @@ function checkPT(pt, { gate } = {}) {
       fail('SUITE-R08', `${pt}: no declara «phase», y desde 8.0.0 eso ya no es SIN EVALUAR. `
         + 'Declárala en el YAML de su intake.md o en su allocation de REGISTRY.json. Sin fase '
         + 'ninguna exigencia por fase se evalúa, y no evaluarlas salía gratis.');
+    }
+  }
+
+  // ── PT-075 · las dos reglas que nada ejecutaba ────────────────────────────
+  //
+  // FDGE-R54 · no se empieza lo que no se puede terminar, Y CONSTA.
+  //
+  // PT-059 diseño la compuerta, LEXICON 6.5d le dio vocabulario y «tracker viabilidad» la
+  // calcula. Durante cuatro lotes no la exigio ninguna regla, no la abrio ninguna fase y no la
+  // echo en falta ningun verificador: no se cumplio ni se incumplio, no ocurrio.
+  //
+  // Se exige en G2 —o desde PHASE 5, que es donde empieza el trabajo— y no en G1: antes de
+  // PHASE 2 la tarea no tiene complejidad propuesta, y sin complejidad no hay coste tipico con
+  // el que comparar. Antes de eso AVISA. Lo ya terminado no se retrofecha (FDGE-R19, FDGE-R52).
+  if (rigeAqui && enRegistroPT?.type !== 'EP' && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+    const viab = enRegistroPT?.viabilidad;
+    if (!viab) {
+      const m = `${pt}: no consta el veredicto de viabilidad. Consultarla no basta: una compuerta `
+        + `cuyo resultado no se escribe no se puede auditar.  node tools/tracker.mjs viabilidad ${pt} --registrar`;
+      if (gate === 'G2' || fase >= 5) fail('FDGE-R54', m); else warn('FDGE-R54', m);
+    } else if (viab.veredicto === 'UNSAFE' && fase >= 5) {
+      fail('FDGE-R54', `${pt}: viabilidad UNSAFE y la tarea esta en PHASE ${fase}. PT-059 es explicita: `
+        + `checkpoint, handoff y parada. UNSAFE exige evidencia EN CONTRA, asi que no es una duda.`);
+    } else {
+      ok('FDGE-R54', `${pt}: viabilidad ${viab.veredicto}${viab.medido_en ? ` · medida contra ${String(viab.medido_en).slice(0, 7)}` : ''}.`);
+    }
+  }
+
+  // FDGE-R19 · la rama de integracion RECIBE el pull request de cada tarea; no se escribe en
+  // ella. Esta comprobacion nacio buscando la mitad de SUITE-R42 que no tenia verificador —«el
+  // agente no abre el PR ni lo fusiona»— y se emite bajo FDGE-R19 por dos motivos, y el caso
+  // «sin plataforma ⇒ G4 libre de R42» obligo a los dos:
+  //
+  //   1. SUITE-R42 es CONDICIONAL a que el proyecto declare plataforma —declararla es opcional
+  //      y humano, asi que quien no la declara no gana ninguna exigencia—. La topologia de
+  //      ramas no depende de la plataforma: rige siempre.
+  //   2. Es literalmente lo que FDGE-R19 enuncia. Citar la regla equivocada es el defecto que
+  //      SUITE-R53 prohibe, y el mismo que regla.mjs tiene abierto en PT-066.
+  //
+  // De SUITE-R42 queda comprobado lo comprobable: que el PR exista (checkHistory). QUIEN lo
+  // abrio no es determinable desde el repositorio y se declara en TD-14.
+  //
+  // La regla dice dos cosas y solo se comprobaba la primera —que el PR EXISTA, en checkHistory—.
+  // La segunda, «el agente no abre el PR ni lo fusiona», no la miraba nadie.
+  //
+  // QUIEN abrio un PR no es determinable desde el repositorio: el agente actua con la identidad
+  // git de la persona, asi que «gh pr view --json author» devuelve el mismo login en los dos
+  // casos. Comprobarlo daria «correcto» siempre, que es peor que no tenerlo (PT-023: 75 % de
+  // falsos positivos). Queda declarado como TD-14, no fingido.
+  //
+  // Lo que SI es comprobable es la CONSECUENCIA: trabajo de un PT escrito directamente sobre la
+  // rama de integracion en vez de llegar por su pull request.
+  //   --first-parent  un PR fusionado es UN commit de merge: lo integrado bien no cuenta
+  //   --no-merges     deja solo las escrituras DIRECTAS
+  //
+  // Solo mira PTs que DECLARAN rama. Las anteriores a 8.3.0 no la declaran y quedan fuera, con
+  // el criterio de FDGE-R19: pedir rama a lo ya integrado es pedir que se invente. Sin esa
+  // guarda el verificador acusaria a trabajo correcto, que es el fallo que no puede cometer.
+  if (enRegistroPT?.branch && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+    const gitPT = (args) => {
+      try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
+      catch { return null; }
+    };
+    const integracion = REGISTRO?.tracker?.rama_integracion ?? 'trabajo';
+    if (gitPT(['rev-parse', '--verify', '--quiet', integracion]) === null) {
+      warn('FDGE-R19', `${pt}: no existe la rama de integracion «${integracion}», asi que no se puede `
+        + `comprobar si el trabajo se escribio en ella. Declarala en REGISTRY.tracker.rama_integracion.`);
+    } else {
+      // El rango es «desde la rama del PT hasta la de integracion», NO la rama entera. La rama
+      // efimera nace en PHASE 5 (FDGE-R19), asi que todo lo anterior —intake, estrategia,
+      // diseño de PHASE 1 a 4— esta legitimamente en la rama de integracion y es ANTECESOR de
+      // la rama del PT. Mirar la rama entera acusaba a ese trabajo correcto: lo dijo la PRIMERA
+      // ejecucion de esta comprobacion, que señalo los dos commits de PHASE 2-4 de la propia
+      // PT-075. Lo que queda en el rango es lo escrito DESPUES de ramificar, que es el acto
+      // que la regla prohibe.
+      const rango = `${enRegistroPT.branch}..${integracion}`;
+      const asuntos = (gitPT(['log', rango, '--first-parent', '--no-merges', '--format=%s']) ?? '')
+        .split(/\r?\n/).filter(Boolean);
+      const suyos = asuntos.filter((a) => (a.match(/PT-\d{3}/) ?? [null])[0] === pt);
+      if (suyos.length) {
+        fail('FDGE-R19', `${pt}: ${suyos.length} commit(s) suyos estan DIRECTAMENTE en «${integracion}» y `
+          + `declara la rama «${enRegistroPT.branch}». La rama de integracion RECIBE el pull request de `
+          + `cada tarea (FDGE-R19); no se escribe en ella. El primero: «${suyos[0].slice(0, 60)}».`);
+      } else {
+        ok('FDGE-R19', `${pt}: su trabajo no esta escrito directamente en «${integracion}».`);
+      }
+    }
+  }
+
+  // EXEC-R07 · lo que no se automatiza se DESCRIBE. Si el agente ejecuto en vez de describir, la
+  // descripcion falta y la omision se ve. No prueba que no lo ejecutara —igual que SUITE-R27 no
+  // prueba que firmara una persona—: convierte la afirmacion en contrastable.
+  if (fase >= 9 && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+    if (!existsSync(join(ptDir(pt), 'acciones-humanas.md'))) {
+      fail('EXEC-R07', `${pt}: en PHASE 9 y sin «acciones-humanas.md». Lo que ningun modo automatiza `
+        + `se DESCRIBE con su comando exacto (EXEC-R07), y esa descripcion es el unico rastro de que `
+        + `el agente se detuvo donde debia en vez de ejecutar.`);
+    } else {
+      ok('EXEC-R07', `${pt}: las acciones reservadas al humano estan descritas.`);
     }
   }
 
@@ -1352,6 +1464,7 @@ function checkHistory(pt, rel, type, { gate }) {
     } else if (p.codigo === 0) {
       ok('SUITE-R42', `${pt}: el merge se propone sobre un pull request abierto.`);
     }
+
   }
 
   // ── FDGE-R34 · precondiciones de la compuerta G4 ──────────────────────────
@@ -1565,12 +1678,34 @@ const all = argv.includes('--all');
 const quiet = argv.includes('-q') || argv.includes('--quiet');
 // Los PT son los argumentos posicionales, excluyendo el valor de --gate.
 // Sin --gate, gateIdx es -1 y gateIdx+1 es 0: hay que excluir la comparación, no el índice 0.
-const targets = argv.filter((a, i) => /^PT-\d+$/.test(a) && !(gateIdx >= 0 && i === gateIdx + 1));
+// PT-055 · tambien EP-NNN. Antes el filtro casaba solo /^PT-\d+$/, asi que «--gate G4 EP-013»
+// dejaba targets VACIO: el lote nombrado en la orden se descartaba EN SILENCIO y la herramienta
+// nunca supo que lote evaluaba. De ahi que enG4 fuera global y EP-013 bloqueara por EP-014.
+const posicionales = argv.filter((a, i) => /^(?:PT|EP)-\d+$/.test(a)
+  && !(gateIdx >= 0 && i === gateIdx + 1));
+const targets = posicionales.filter((a) => a.startsWith('PT-'));
+const targetsEP = posicionales.filter((a) => a.startsWith('EP-'));
 
 console.log(`verify-fdge — cumplimiento mecánico de la Methodology Suite ${SUITE_VERSION ?? '(versión no determinada)'}\n`);
 
 const reg = checkRegistry();
 REGISTRO = reg;
+
+/**
+ * PT-055 · Que lote esta EVALUANDO esta ejecucion. Vacio = TODOS.
+ *
+ * Sale de los EP-NNN nombrados y del «epic» de los PT-NNN nombrados. Vacio significa TODOS y
+ * no NINGUNO: una orden sin objetivo es la que mas se parece a «compruebalo todo», y acotar
+ * ahi convertiria el arreglo en un agujero en G4.
+ */
+LOTES_EVALUADOS = new Set(targetsEP);
+for (const pt of targets) {
+  const ep = (reg?.allocations ?? []).find((a) => a?.id === pt)?.epic;
+  if (ep) LOTES_EVALUADOS.add(ep);
+}
+if (gate === 'G4' && LOTES_EVALUADOS.size) {
+  console.log(`  lote(s) bajo evaluacion: ${[...LOTES_EVALUADOS].join(' · ')}\n`);
+}
 checkFoundation();
 checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');

@@ -1,0 +1,8 @@
+=== EL CASO REAL de 2026-08-15, reproducido contra el repositorio de hoy ===
+--- evaluando EP-016 (cerrado) con EP-017 abierto: el abierto NO bloquea ---
+  lote(s) bajo evaluacion: EP-016
+  ! SUITE-R45      EP-017: «## Cierre del lote» está vacía. Una sección sin filas dice que no queda nada por hacer al cerrar, y eso es una afirmación, no un hueco que se rellena luego.
+
+--- evaluando EP-017 (su seccion esta vacia): SI bloquea ---
+  lote(s) bajo evaluacion: EP-017
+  ✗ SUITE-R45      EP-017: «## Cierre del lote» está vacía. Una sección sin filas dice que no queda nada por hacer al cerrar, y eso es una afirmación, no un hueco que se rellena luego.

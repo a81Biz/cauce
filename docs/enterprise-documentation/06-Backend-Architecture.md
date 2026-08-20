@@ -1,6 +1,6 @@
 # 06-Backend-Architecture — arquitectura del sistema
 
-> Foundation `PHASE 3` · 2026-08-13 · suite 5.2.3
+> Foundation `PHASE 3` · 2026-08-19 · suite 9.0.0 · segunda ejecución
 > No hay backend en el sentido habitual: no hay servidor, ni proceso residente, ni estado
 > compartido. Lo que hay son **dos artefactos ejecutables y un cuerpo normativo**, y su
 > arquitectura es la de un compilador con verificadores.
@@ -49,7 +49,7 @@ Piezas internas:
 | `copiarCarga()` | Copia recursiva de `docs/methodology/` creando directorios |
 | `corre()` | Ejecuta una herramienta del **destino**, no del paquete: verifica lo que el proyecto tiene instalado, no lo que el paquete trae |
 
-### `docs/methodology/tools/` — las quince herramientas
+### `docs/methodology/tools/` — las dieciséis herramientas
 
 Sin framework y sin clases: cada una es un script que lee archivos, acumula en tres listas
 (`errors`, `warnings`, `passed`) e imprime. La composición es por proceso, no por importación —
@@ -63,9 +63,44 @@ que **sí** se importa: es la biblioteca compartida.
 | Verificación del proyecto | `verify-fdge` · `verify-qa` · `verify-ptsa` | Artefactos del proyecto → cumplimiento por regla |
 | Instalación y terreno | `plan-layout` · `migrate` · `comparar-marco` | Árbol del proyecto → propuestas que **no** ejecuta |
 | Seguridad | `revisar-secretos` | Árbol + historia git → hallazgos, firmados o no |
-| Estado | `tracker` | `REGISTRY.json` ↔ issues de GitHub |
+| Estado | `tracker` | El estado operativo del proyecto. **Ver abajo: ya no cabe en una fila** |
+| Consulta | `regla` | Un ID de regla → qué exige y qué verificador puede fallar, derivado |
 | Compartido | `patrones` | Los patrones críticos con su contrato |
-| Medición | `selftest.sh` | Proyecto sintético + defectos inyectados → 180 casos |
+| Medición | `selftest.sh` | Proyecto sintético + defectos inyectados → 697 casos |
+
+### `tracker.mjs` — el estado operativo, y por qué merece sección propia
+
+Hasta la `7.x` esta herramienta era una fila de la tabla de arriba: «`REGISTRY.json` ↔ issues de
+GitHub». Cuatro lotes después son **2 070 líneas y 17 acciones**, y `CORE.md` la sitúa **antes
+que las reglas** —«LO PRIMERO — el estado sale del tablero, no de tu memoria», `SUITE-R49`—. Es
+la pieza sobre la que corre el marco, no un accesorio del registro.
+
+| Grupo | Acciones | Qué resuelve |
+|:---|:---|:---|
+| **Espejo** | `espejo` `abrir` `cerrar` `notas` `pr` | El registro **asigna**, la plataforma **espeja** (`SUITE-R35`). Ninguna lectura de GitHub alimenta el estado |
+| **Consulta de estado** | `estado` `pendiente` `siguiente` | `siguiente` **deriva** qué toca del registro y del tablero (`SUITE-R48`). Su salida *es* la respuesta, y vale para un turno |
+| **Continuidad de tarea** | `checkpoint` `avanzar` | `CHECKPOINT.json` es uno y todos sus campos se derivan (`LEX-R26`). `avanzar` hace los cinco actos de una transición —registro, YAML, checkpoint, espejo y nota— o no hace ninguno |
+| **Continuidad de sesión** | `sesion` (`abrir` \| `cerrar` \| ver) | La sesión **no** es el día ni la tarea. `desde` es lo único capturado —una marca verificable—; el resto se deriva de `desde..HEAD` |
+| **Presupuesto** | `coste` `viabilidad` | Cada cifra declara su naturaleza: `MEDIDO` \| `ESTIMADO` \| `SIN EVALUAR`. `viabilidad` responde `SAFE` \| `MARGINAL` \| `UNSAFE`, y `MARGINAL` es la respuesta honesta cuando falta un dato |
+| **Multiusuario** | `personas` `asignar` `rama` | Las personas se **declaran** y se reconcilian; los IDs se reparten por **rangos reservados**; el usuario vive en la **rama de tarea** y `trabajo` sigue siendo única |
+| **Proyección** | `proyectar` | Escribe la rama derivada `cauce/<usuario>`, marcada `cauce:proyeccion`. Es derivada: escribir a mano en ella la convierte en una segunda fuente |
+
+**Tres invariantes que la gobiernan**, y las tres nacieron de un defecto medido:
+
+- **Ninguna cifra sin naturaleza.** `cifra()` **lanza** si no se le declara si es `MEDIDO`,
+  `ESTIMADO` o `SIN EVALUAR`. Tratar `SIN EVALUAR` como cero hacía que `restar(100, ⊥)`
+  devolviera `100` con autoridad de dato medido.
+- **El checkpoint no se repara solo.** Ante un `STATE_MISMATCH` la herramienta **propone**
+  `tracker checkpoint PT-NNN`; reescribirlo borraría la única prueba de que hubo divergencia, y
+  decidir si manda el árbol o la foto es `SUITE-R06`.
+- **La identidad no se adivina.** `personas` **encuentra** autores no declarados y **propone**
+  dónde mirar; quién es quién lo dice una persona. Agrupar por parecido —mismo apellido, mismo
+  dominio— convertiría una duda en un dato.
+
+**Defecto vivo** (`D19` del baseline): la escritura de la marca de sesión es por persona
+—`SESSION-<persona>.json`— y la lectura conserva un respaldo a `SESSION.json`
+([tracker.mjs:1462](../methodology/tools/tracker.mjs#L1462)) que ya nadie escribe. Un usuario no
+declarado deriva trabajo ajeno etiquetado `MEDIDO`. Va a `EP-017`.
 
 ## Decisiones de arquitectura, y qué las obliga
 

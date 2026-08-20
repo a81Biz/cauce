@@ -1860,3 +1860,729 @@ publicaciones (`8.2.0` en npm) y `selftest` **618 → 977**.
 **Dónde queda:** `G4` de `EP-016` con VoBo del firmante. **No se ha publicado la 9.0.0**: la
 autorización de publicar era para «lo necesario» y se usó en la 8.2.0.
 
+
+## 2026-08-18 · sesión cerrada · `EP-017` propuesta, **sin abrir**
+
+**Lo pendiente antes de publicar la `9.0.0`**, acordado con el firmante: una prueba grande de que
+sirve para proyectos **nuevos y legados**, y `MANUAL`, `README` y `CASOS-DE-USO` completos.
+
+**Y ya hay una señal de que no lo están.** `CASOS-DE-USO.md` declara como hueco «varios agentes
+trabajando a la vez — nada coordina el reparto». Eso lo cerró `EP-016` en esta misma sesión. El
+catálogo describe un marco de la `8.0.0`, y `MANUAL.md` no menciona ninguna de las nueve acciones
+nuevas de `tracker`. No están incompletos: **el marco creció tres versiones y su documentación de
+uso no**.
+
+**Dos decisiones del firmante** en esta conversación: el legado se prueba con **los dos** —uno
+sintético y el proyecto real de Mercados Energéticos, de forma no destructiva— y **cortar la sesión
+aquí** para que la siguiente retome en frío.
+
+**Y esa es la parte que importa de cortar.** `AC-06` de `PT-060` —«una tarea puede recorrer dos
+sesiones sin repetir el análisis»— se declaró **verificado con límite**: los cinco pasos ocurrieron
+dentro de la misma sesión, así que lo demostrado fue que **la información basta**, no que un
+contexto vacío la use bien.
+
+La sesión siguiente es la primera oportunidad de comprobarlo de verdad. Si al retomar falta algo,
+**eso es un defecto de `EP-015`** que ninguna prueba de laboratorio iba a encontrar — y encontrarlo
+vale más que el tiempo que cueste.
+
+## 2026-08-18 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 258be16 (2026-08-18)
+             7 (MEDIDO) commits · 2151 (MEDIDO) lineas
+tareas       PT-065
+en curso     PT-065 · PHASE 10
+sobre        f5f8e30  trabajo
+sigue        PT-065 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+```
+
+### Y el propio cierre encontró un defecto de `PT-060`
+
+El handoff derivado de esta sesión dice:
+
+```
+en curso     PT-065 · PHASE 10
+sigue        PT-065 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+```
+
+Es **correcto y no sirve**. `handoffDeSesion` deriva el «sigue» del `CHECKPOINT.json`, y cuando la
+última tarea está cerrada no hay nada en curso — así que el handoff que produce **no dice qué
+hacer**. Quien retome tiene que ir al `HANDOFF.md`, que es donde está `EP-017` escrita.
+
+**No lo arreglo aquí**, y a propósito: arreglarlo sería tocar `PT-060`, que está cerrada e
+integrada, fuera de cualquier lote abierto y sin intake. Queda **declarado** para que `EP-017` lo
+recoja — es exactamente el tipo de hueco que la prueba de fuego debe encontrar, y lo ha encontrado
+antes de empezar.
+
+Lo que sí funciona, y es lo que importaba: el handoff dice de qué sesión viene, qué movió, sobre
+qué commit está y que el árbol **corresponde** — si no, `PT-056` habría bloqueado antes.
+
+## 2026-08-18 · sesion abierta en `41aeaa8`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-18 · PHASE 0 · contexto de la sesión que retoma en frío
+
+<!-- cauce:agente -->
+
+```
+último PT integrado   PT-065 (EP-016, CLOSED) · trabajo 41aeaa8
+modo                  SUPERVISED declarado · CON restricción automática EXEC-R14 en vigor
+suite_version         9.0.0 · REGISTRY, package.json y CHANGELOG alineados
+migración             ninguna pendiente (SUITE-R17)
+PTs vivos             3, todos DEFERRED: PT-019, PT-025, PT-055. Ninguno en curso
+Foundation            presente y validada · pt_at_generation 0, hoy 62 cerrados ⇒ ANTIGUA
+grafo                 FRESH · scope «bin, docs/methodology/tools», generado con 48 y el
+                      único PT estructural es PT-034, anterior. 3 días (FDGE-R43)
+comprobaciones        verify-suite limpio · build-core --check sincronizado
+                      verify-fdge --all sin errores (59 PTs) · tracker espejo cuadra
+confianza             ALTA en el estado mecánico · BAJA en Foundation por antigüedad
+```
+
+### `EXEC-R14` lleva en vigor desde `PT-043` y se declaró ausente
+
+La quinta condición de `EXEC-R14` es «Foundation ausente o **con más de 10 PTs de
+antigüedad**». `REGISTRY.foundation.pt_at_generation` es `0` y hoy hay 62 tareas cerradas.
+
+No es nuevo. El `SESSION_LOG` de la sesión de `PT-043` escribió, en líneas consecutivas:
+
+```
+modo         SUPERVISED · sin restricción automática (EXEC-R14): sin INC abierto,
+             sin hotfix con deuda vencida, sin migración pendiente
+Foundation   presente y validada · pt_at_generation 0, hoy 43 integrados ⇒ ANTIGUA
+```
+
+Enumeró **tres** de las cinco condiciones, concluyó que no aplicaba, y dos líneas más abajo
+registró el hecho que la activa. **Ninguna herramienta emite `EXEC-R14`** —ni `EXEC-R11`—, así
+que nada lo contradijo. Se declara aquí en vigor: se opera como `MANUAL` hasta que Foundation
+se regenere. No es un cambio de modo y `CLAUDE.md` no se toca.
+
+### Tres defectos encontrados ejecutando, ninguno leyendo
+
+**1 · `tools/regla.mjs` reporta mal 47 de las 196 reglas del marco.** Una línea,
+[`regla.mjs:55`](../methodology/tools/regla.mjs#L55): `linea.includes(id) && /HARD|SOFT/`.
+
+- **21 reglas existentes se declaran inexistentes**: las 11 de severidad `CHECK` de
+  `RULES.md` —entre ellas `FDGE-R34`, la que `CLAUDE.md` nombra precondición de `G4`, y
+  `SUITE-R13`— y las 10 `EXEC-*`, que en `EXECUTION-MODES.md` son prosa y no llevan
+  severidad en la línea. El mensaje que imprime es una acusación: «*si un mensaje la cita,
+  ese mensaje apunta a una regla que no existe — y eso es un defecto*».
+- **26 devuelven el texto de OTRA regla**, con la cabecera «definida en RULES.md». Gana la
+  primera línea `HARD|SOFT` que **menciona** el ID, no la que lo **define**. `FDGE-R43`
+  devuelve `SUITE-R29`; `FDGE-R19` devuelve `SUITE-R42`.
+
+Lo segundo es lo grave, y el propio archivo lo tiene escrito en un comentario de `PT-051`
+veinte líneas más abajo: «*una linea equivocada y creible es peor que ninguna*».
+`verify-suite` pasa limpio: nada lo cubre.
+
+**2 · `SESSION.json` quedó huérfano y sigue siendo el respaldo de quien no esté declarado.**
+`PT-065` movió la **escritura** a `SESSION-<persona>.json` y dejó la **lectura** con
+`?? SESSION.json` ([`tracker.mjs:1462`](../methodology/tools/tracker.mjs#L1462)). Nadie
+vuelve a escribir ese archivo, así que se congeló con la marca de una sesión ya cerrada.
+Reproducido con un usuario no declarado:
+
+```
+$ GIT_CONFIG_KEY_0=user.name GIT_CONFIG_VALUE_0="github-actions[bot]" tracker sesion
+  sesion desde 258be16 (2026-08-18)
+    commits    8 (MEDIDO)          ← trabajo de OTRA persona, de una sesión CERRADA
+    lineas     2252 (MEDIDO)
+  Otras sesiones abiertas:
+    Alberto Martínez · desde 41aeaa8      ← la real
+    Alberto Martínez · desde 258be16      ← el huérfano: la MISMA persona, dos veces
+```
+
+Rompe `AC-03` de `PT-065` —«todo lo que la sesión deriva sale del trabajo de **su**
+persona»— y `AC-06` —«una sesión de otra persona se ve, y **se distingue** de la propia»—.
+Pasó los dos porque `AC-05` pide que con una sola persona nada cambie: con una persona
+declarada el respaldo no se ejercita nunca. Los casos de sesión del `selftest` construyen la
+marca a mano y prueban `sesionDe` y `handoffDeSesion`, que son puras; **ninguno prueba de qué
+archivo sale** — y el propio `out-of-scope` de `PT-065` dice que eso es lo único que cambió.
+
+Es la novena vez del patrón «probar donde trabajo, no donde se decide».
+
+**3 · `sesion abrir` dice un nombre de archivo y escribe otro.** Imprime «`SESSION.json`
+escrito» mientras escribe `SESSION-alberto-martinez.json`
+([`tracker.mjs:1474`](../methodology/tools/tracker.mjs#L1474)), y `sesion cerrar` afirma
+«*SESSION.json NO se borra: la sesion siguiente lo sobrescribe*»
+([`tracker.mjs:1490`](../methodology/tools/tracker.mjs#L1490)), que **ya es falso**. Esto es
+lo que mantuvo invisible al defecto 2: el operador lee el nombre que esperaba.
+
+### Y `BACKLOG.md` declara un estado de dos lotes atrás
+
+Dice «Implementación abierta — `EP-015`» y lista `EP-016` como `DEFERRED`. El registro dice
+las dos `CLOSED`. Es derivado y se regenera; se anota porque es el mismo archivo que ya llevó
+ocho lotes sin regenerarse.
+
+### Qué NO se ha tocado
+
+Los tres defectos viven en `docs/methodology/tools/`. `SUITE-R06e` no lo automatiza y
+`PHASE 0` no modifica. Quedan propuestos para `EP-017`, que es donde encajan: es la prueba de
+fuego, y los tres han aparecido **ejecutando el marco sobre sí mismo** antes de empezarla.
+
+## 2026-08-19 · sesion abierta en `78fbcd9`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion abierta en `78fbcd9`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `78fbcd9`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 78fbcd9 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `a6913da`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde a6913da (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-075 · PHASE 4 Propuesta
+sobre        7412eeb  trabajo
+sigue        PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.
+```
+
+## 2026-08-19 · `EXEC-R14` vuelve a restringir, y por qué se ve esta vez
+
+<!-- cauce:agente -->
+
+```
+contador PT              76
+foundation.pt_at_generation  65
+antiguedad               11 PT   ⇒ por encima del umbral de 10
+EXEC-R14                 EN VIGOR — se opera como MANUAL
+```
+
+**Se declara al entrar en la condición**, no al chocar con una compuerta. Efecto práctico con la
+delegación vigente: `G1`, `G2` y `G3` siguen resolviéndose por delegación con constancia, y lo
+que se retira es el **`G3` automático de `EXEC-R06`**. `CLAUDE.md` no se toca: es restricción
+temporal, no cambio de modo (`EXEC-R12`).
+
+La diferencia con la vez anterior —cuando llevaba en vigor desde `PT-043` sin que nadie lo
+viera— es que ahora **estaba escrito de antemano** en el §7 de `EP-017`: «si el lote se alarga
+más de 10 PTs, vuelve a restringir y hay que declararlo». Lo que la hizo visible fue haberlo
+anticipado por escrito, no haberla recordado.
+
+`D17` sigue abierta y va en `PT-067`: **ninguna herramienta emite `EXEC-R14`**. Mientras no la
+emita, esto depende de que alguien haga la resta.
+
+## Y el cálculo de sesión no valía: lo corrompe la propia batería
+
+`tracker sesion` decía **1 commit y 248 líneas** en una sesión de decenas. La causa:
+
+```bash
+TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }   # el repositorio REAL
+```
+
+Tres casos de `sesion abrir` y seis de `sesion cerrar` se invocan así y **escriben** en el
+repositorio real: pisan `SESSION-<persona>.json` y apilan en `SESSION_LOG.md` —este mismo
+archivo—, que es append-only (`SUITE-R09`) y por tanto no se puede limpiar.
+
+**140 entradas** acumuladas, nueve más por pasada. Reproducido con un solo caso:
+
+```
+antes  : 78fbcd9
+  ✓ sesion abrir escribe la marca
+despues: a6913da        <- la marca real, movida
+```
+
+`TRR` **no sobra**: `coste`, `viabilidad` y `personas` necesitan el historial real, y `asignar`
+ya demuestra el patrón seguro pasando `--ver`. Lo que sobra es escribir. Es `PT-076`, quinta del
+lote, por delante de `PT-068`: corrompe la base de cálculo de lo que `PT-068` arregla, y la
+compuerta que `PT-075` acaba de crear decide sobre ese dato.
+
+## 2026-08-19 · El agente fusiona el PR **de tarea** a la rama de integración
+
+<!-- cauce:agente -->
+
+Autorización literal del firmante, 2026-08-19, respondiendo a las tres opciones que se le
+plantearon: **«B»** — «me autorizas a fusionar el PR de cada tarea a `trabajo`, que `FDGE-R19`
+llama revisión, no `G4`».
+
+**Qué cubre exactamente:**
+
+```
+SÍ   abrir y fusionar el pull request de una TAREA hacia «trabajo»
+     — FDGE-R19: «el pull request de una tarea hacia la rama de integración es
+       REVISIÓN, no G4», y EXEC-R03 existe para que G4 no se multiplique por tarea
+
+NO   G4 · el merge del LOTE a la rama por defecto
+     — EXEC-R04 y SUITE-R06a: humano en los tres modos, sin excepción
+NO   publicar la 9.0.0
+     — reservado en el primer mensaje de la sesión y condicionado al cierre del lote
+```
+
+**Se registra como EXCEPCIÓN, no como lectura.** `SUITE-R42` dice «el agente no abre el PR ni lo
+fusiona», y aunque su contexto es el PR de `G4` —«un pull request abierto para la **rama por
+defecto**»—, la frase suelta abarca más. La «Regla de cumplimiento» admite la excepción cuando
+un humano la autoriza **dejando registro**, y esto es ese registro (`SUITE-R27`).
+
+**Por qué hizo falta.** `PT-075` terminó en su rama y `PT-055` había ramificado antes: no
+componen. Con catorce tareas de ejecución secuencial, cada una necesita lo de la anterior, y sin
+esta autorización el lote sólo podía avanzar encadenando ramas o parando cada pocas horas.
+
+**Lo que NO cambia:** el PR sigue existiendo y sigue siendo el sitio donde se revisa. No se
+fusiona nada sin PR, ni se escribe directamente en `trabajo` — que es justo lo que `PT-075`
+acaba de hacer detectable con `FDGE-R19`.
+
+## 2026-08-19 · sesion abierta en `f532dc1`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde f532dc1 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde f532dc1 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde f532dc1 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion abierta en `f532dc1`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `f532dc1`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde f532dc1 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde f532dc1 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde f532dc1 (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion abierta en `697604e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion abierta en `697604e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `697604e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion abierta en `697604e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion abierta en `697604e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion abierta en `697604e`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## 2026-08-19 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 697604e (2026-08-19)
+             0 (MEDIDO) commits · 0 (MEDIDO) lineas
+en curso     PT-055 · PHASE 5 Implementación
+sobre        76e83e3  fix/alberto-martinez/PT-055-la-compuerta-del-lote-que-cierra-mira-al-lote-que-abre
+sigue        PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.
+```
+
+## Aviso sobre este archivo — 140 de sus entradas las **escribió el arnés**   `PT-076`
+
+<!-- cauce:agente -->
+
+Hasta el 2026-08-19, `selftest.sh` invocaba `tracker sesion abrir` y `tracker sesion cerrar`
+**contra el repositorio real** a través de `TRR()`. Cada pasada completa de la batería apilaba
+**nueve entradas** aquí y pisaba la marca de `SESSION-<persona>.json`.
+
+Contadas el 2026-08-19, antes de corregirlo:
+
+```
+140  entradas «sesion abierta» / «sesion cerrada»
+ 14  aperturas sobre 258be16      <- una sesion, catorce pasadas de la bateria
+  8  sobre 37392ac
+  6  sobre e4c8cb1 · daa057e · d61a241
+```
+
+**Quien lea este historial no debe contar una sesión por entrada.** Las repeticiones sobre el
+mismo SHA son pasadas del arnés, no sesiones de trabajo.
+
+**No se borran.** `SUITE-R09` hace este ledger append-only y es lo que se audita: limpiarlo
+destruiría la prueba de que ocurrió. Se declara, que es lo que `PT-046` hizo con una entrada mal
+formada de `HISTORY.log`.
+
+Desde `PT-076` los nueve casos corren sobre el fixture, y un caso deriva del código qué acciones
+escriben para que ninguna vuelva a invocarse por `TRR`.
+
+## 2026-08-19 · sesion abierta en `7735ff4`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · `G4` autorizado al agente — **excepción declarada** a `EXEC-R04` y `SUITE-R06a`
+
+`EXEC-R04` dice que el merge a la rama por defecto es **humano en los tres modos, sin
+excepción**, y `SUITE-R06a` lo pone el primero de lo que nunca se automatiza. La vía que el
+marco deja abierta no es ignorarlas: es la última línea de `CLAUDE.md` — *«hasta que un humano
+autorice la excepción **dejando registro de esa autorización**»*. Este es ese registro.
+
+**Autoriza:** Alberto Martínez, firmante declarado en `CLAUDE.md`.
+**Instrucción literal:** «realiza el g4 necesario y realiza los merge y pull».
+**Alcance:** merge de `trabajo` a `main`. **No** cubre publicar — sigue vigente «No publiques la
+9.0.0», y `PT-081` sostiene que la versión correcta de `EP-017` es la `10.0.0`.
+
+**Por qué era necesario y no cosmético.** `main` no recibía un merge desde el 2026-08-18 y
+acumulaba **53 commits** de retraso: los lotes `EP-016` y `EP-017` completos. `SUITE-R46` cierra
+un issue sólo cuando su estado terminal está en la rama por defecto, así que **siete** issues de
+tareas ya `INTEGRATED` —`PT-055`, `PT-066`, `PT-067`, `PT-068`, `PT-074`, `PT-075`, `PT-076`,
+`PT-079`— no podían cerrarse. El tablero no estaba atrasado: decía la verdad sobre una compuerta
+que no había ocurrido.
+
+**Precondición comprobada antes** (`FDGE-R34`): `verify-fdge --gate G4` sin errores.
+
+Esta entrada existe para que la excepción sea **contrastable**, no para normalizarla. La
+siguiente `G4` vuelve a necesitar autorización: una excepción que se hereda deja de serlo.

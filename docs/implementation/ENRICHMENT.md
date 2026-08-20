@@ -9,3 +9,5 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 |:---|:---|:---|:---|:---|
 | PT-007 | S3 | INTEGRATED | INTEGRATED | EP-002 |
 | PT-008 | S2 | INTEGRATED | INTEGRATED | EP-002 |
+| PT-069 | S2 | READY | READY | EP-017 |
+| PT-078 | S1 | READY | READY | EP-017 |

@@ -1,0 +1,8 @@
+=== INVERSA · devuelto el respaldo incondicional ===
+
+  sesion desde 258be16 (2026-08-18)
+    commits    34 (MEDIDO)
+    archivos   153 (MEDIDO)
+    lineas     13719 (MEDIDO)
+    tareas     PT-055 · PT-060 · PT-065 · PT-068 · PT-075 · PT-076
+(vuelve a heredar trabajo ajeno: es el defecto original)

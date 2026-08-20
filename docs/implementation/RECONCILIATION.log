@@ -63,3 +63,47 @@ N7  CI         verificacion.yml ejecuta verify-fdge --all sobre los artefactos p
 Ningún archivo de código se movió: `FND-R17` reserva eso a un PT `REFACTOR` con
 `Estructural: sí`, y `FND-R18` exige que la estructura objetivo esté declarada en
 `11-Conventions.md` antes de proponer nada.
+
+---
+
+## 2026-08-19 · Foundation PHASE 1 · G0 · segunda ejecución
+ACK de: Alberto Martínez · respuesta literal: «adelante, tienes mi VoBo para firmar todo lo
+necesario para que comiences ahora y no pares hasta terminar todas las tareas y el EP»
+Línea base: docs/enterprise-documentation/00-Baseline.md (firmada 2026-08-19)
+
+Motivo de la segunda ejecución: EXEC-R14 declara restricción automática de compuertas con
+Foundation de más de 10 PTs de antigüedad. pt_at_generation era 0 y había 62 tareas cerradas.
+La condición llevaba activa desde PT-043 y se había declarado ausente; ninguna herramienta
+emite EXEC-R14, así que nada lo contradijo.
+
+### Decisiones del inventario
+
+```
+KEEP        docs/methodology/ · 36 documentos      es el producto, no documentación sobre él
+KEEP        docs/implementation/                   ledgers, índices y 71 self-review
+KEEP+SUB    README.md · CLAUDE.md                  subordinados · FND-R12
+KEEP        QA/README.md · PTSA/README.md · evidence/README.md
+SUPERSEDE   docs/enterprise-documentation/         los 9 documentos, README e inventory/
+ARCHIVE     ninguno adicional
+DELETE      ninguno
+```
+
+No había documentación heredada: este repositorio nació con el marco. Lo reconciliado vuelve a
+ser afirmaciones falsas en documentos vivos, y esta vez la causa es de tamaño: el código pasó
+de 5 441 a 11 454 líneas sin que la documentación se moviera.
+
+### Movimiento ejecutado tras el ACK
+
+```
+SUPERSEDE   docs/enterprise-documentation/*.md e inventory/
+            → docs/_archive/2026-08-18/docs/enterprise-documentation/   (ruta original
+              preservada, FND-R11). El 00-Baseline archivado es el de 2026-08-13, extraído
+              de git HEAD: el del árbol ya era el nuevo cuando se archivó el paquete.
+```
+
+Ningún archivo de código se movió. FND-R17 lo reserva a un PT REFACTOR con «Estructural: sí».
+
+### Lo que este ACK NO cubre
+
+G4 (merge de trabajo a main) y publicar la 9.0.0 siguen siendo del firmante: los reservó en el
+primer mensaje de la sesión —«G4 y publicar son míos. No publiques la 9.0.0»— y no lo retiró.

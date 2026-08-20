@@ -1,178 +1,141 @@
-# 00-Baseline — línea base de reconciliación
+# 00-Baseline
 
-> Foundation `PHASE 1` · 2026-08-13 · suite 5.2.3
-> Fotografía del desorden de partida y referencia contra la que se mide si el proyecto mejora
-> (`FND-R13`). **Nada se ha movido, archivado ni borrado**: eso espera al ACK humano de `G0`
-> (`FND-R10`).
+> Foundation `PHASE 1` · **2026-08-19** · suite `9.0.0` · segunda ejecución
+> Sustituye al baseline del **2026-08-13** (suite `5.2.3`), preservado en
+> [`docs/_archive/2026-08-18/`](../_archive/2026-08-18/docs/enterprise-documentation/00-Baseline.md).
+> Copiado, no movido: hasta el ACK de `G0` no se pierde nada (`FND-R10`).
 
-Alcance: la raíz `C:\DevOps\Desarrollos\cauce`. Repositorio git en la raíz, rama `trabajo`,
-60 archivos versionados en el momento de la instalación.
+## Por qué hay una segunda ejecución
 
----
+No por calendario. `EXEC-R14` declara restricción automática de compuertas cuando Foundation
+tiene **más de 10 PTs de antigüedad**; `REGISTRY.foundation.pt_at_generation` es `0` y hoy hay
+**62 tareas cerradas**. La condición lleva activa desde `PT-043` y se declaró ausente —el
+`SESSION_LOG` de aquella sesión enumeró tres de las cinco condiciones—, y **ninguna herramienta
+emite `EXEC-R14`**, así que nada lo contradijo.
 
-## Una distinción que decide todo lo demás
-
-En un proyecto normal, `docs/` **describe** el sistema. Aquí `docs/methodology/` **es** el
-sistema: 34 documentos y 15 herramientas que se publican como `@a81biz/cauce`
-([package.json:22-29](../../package.json#L22-L29) los declara como el contenido del paquete).
-
-La consecuencia para `FND-R12` —«al cerrar Foundation, `docs/enterprise-documentation/` es la
-única documentación de arquitectura, dominio y convenciones vigente»— es que **no compite** con
-`RULES.md` ni con `LEXICON.md`. Aquellos gobiernan el producto; este paquete describe el
-repositorio que lo construye. Aplicar `FND-R12` literalmente subordinaría `LEXICON.md` a
-`11-Conventions.md` y contradiría el orden de autoridad de `LEX-R21`.
-
-Solo dos documentos preexistentes describen **este repositorio** y por tanto entran de verdad
-en la reconciliación: `README.md` y `CLAUDE.md`.
-
----
+Lo que sigue no es una revisión de estilo: **el código se ha duplicado** desde que se escribió
+la documentación que lo describe.
 
 ## Inventario documental   `FND-R09`
 
-**Totales:** 37 documentos versionados · 9 creados por la instalación de hoy · 2 archivos de
-licencia. Decisión por archivo, sin excepciones; lo que no se decide queda `KEEP` y se declara
-como riesgo.
-
-### Producto — el marco que se publica
-
-| Documentos | Decisión | Motivo |
+| Espacio | Qué hay | Decisión |
 |:---|:---|:---|
-| `docs/methodology/` · 34 `.md` (`LEXICON` `RULES` `EXECUTION-MODES` `PHASES` `CORE` `CORE-PTSA` `CHANGELOG` `INSTALL` `README` `Suite-CLAUDE-Template`, los `Framework-*` · `*-Implementation` · `*-Prompts`, y `INTAKE/` `QA/` `PTSA/` `FIDE/` con sus plantillas) | **KEEP** | Es el producto. No documentan este codebase: lo constituyen. `verify-suite` comprueba su coherencia y `audit` su cobertura — 572 elementos, sin huecos. |
-| `docs/implementation/SECRETOS-EXCEPCIONES.md` | **KEEP** | Registro vivo de `FND-R29`: 7 huellas firmadas. Borrarlo devolvería la compuerta de secretos al rojo permanente que la regla existe para evitar. |
+| `docs/methodology/` | **36** `.md` — el producto que se publica | `KEEP` |
+| `docs/enterprise-documentation/` | 9 documentos + `README` + `inventory/` | `SUPERSEDE` — los reescribe esta ejecución |
+| `docs/implementation/` | ledgers, índices, `LAYOUT`, **71** `self-review.md` | `KEEP` |
+| Raíz | `CLAUDE.md` · `README.md` · `QA/README.md` · `PTSA/README.md` · `evidence/README.md` | `KEEP` |
+| `docs/_archive/` | **no existía** — la instalación de 2026-08-13 no archivó nada | creado hoy |
 
-### Documentación sobre este repositorio
-
-| Archivo | Decisión | Motivo |
-|:---|:---|:---|
-| [README.md](../../README.md) | **KEEP con subordinación** (`FND-R12`) | Es la portada pública en npm y GitHub: archivarla rompería el paquete. Pero seis de sus secciones describen instalación y estructura, materia de `01-Platform-Overview` y `11-Conventions`. Declara en cabecera a qué documento se subordina, y el procedimiento manual duplicado se recorta — ver Divergencias D1–D5. |
-| [CLAUDE.md](../../CLAUDE.md) | **KEEP con subordinación** (`FND-R12`) | Lo carga el agente en cada sesión. Su §«Reglas para evolucionar este framework» es literalmente `11-Conventions`, y su §Estructura es un árbol de directorios desactualizado. Se subordina y se recorta — D6–D8. |
-| `LICENSE` · `NOTICE` | **KEEP** | Apache-2.0. No tratan arquitectura ni dominio: `FND-R12` no les aplica. |
-
-### Creado por la instalación de hoy
-
-| Archivo | Decisión | Motivo |
-|:---|:---|:---|
-| `docs/implementation/` · `LAYOUT.md` `INSTALL.log` `REGISTRY.json` `HANDOFF.md` `SESSION_LOG.md` `BACKLOG.md` y los tres ledgers | **KEEP** | Registro de la instalación. `LAYOUT.md` está firmado; `INSTALL.log` es append-only. |
-| `changes/README.md` · `evidence/README.md` · `QA/README.md` · `PTSA/README.md` · `docs/enterprise-documentation/README.md` | **KEEP** | Sostienen espacios que git no versionaría vacíos (`SUITE-R32`). El de `enterprise-documentation` lo sustituye el paquete al cerrar Foundation. |
-
-**`ARCHIVE`: ninguno. `SUPERSEDE`: ninguno. `DELETE`: ninguno.** No hay documentación heredada
-ni notas sueltas: el repositorio nunca acumuló el desorden que `FND-R09` suele encontrar. Lo
-que hay que reconciliar no es basura acumulada — son **afirmaciones falsas en documentos
-vivos**, que es peor, porque se leen.
-
----
+**No hay documentación legada.** Este repositorio nació con el marco, así que no existe el caso
+—wikis viejas, ADRs sueltos, notas— que `FND-R09` está pensado para resolver. Ningún archivo se
+propone para `ARCHIVE` ni `DELETE`.
 
 ## Divergencias   `FND-R13`
 
-Lo que la documentación **afirma** frente a lo que el código **hace**. Ocho, todas citables.
+### Las diez de 2026-08-13: las diez resueltas
 
-| # | Dónde | Afirma | Hace |
-|:--|:---|:---|:---|
-| **D1** | [README.md:130](../../README.md#L130) y [:165](../../README.md#L165) | «La fuente del framework está en `C:/DevOps/claude/docs/methodology/`» | Esa ruta no existe. El repositorio está en `C:\DevOps\Desarrollos\cauce` y se distribuye como `@a81biz/cauce`. Una instrucción para copiar y pegar que apunta a una carpeta inexistente falla en la primera línea. |
-| **D2** | [README.md:151-157](../../README.md#L151-L157) | Instruye **ELIMINAR** «documentación antigua… wikis locales obsoletas, notas sueltas» | `FND-R11` es HARD: **nada se borra, se archiva** en `docs/_archive/<fecha>/`, y `DELETE` solo aplica a regenerables. El README de cauce ordena violar una regla HARD de cauce. |
-| **D3** | [README.md:176-203](../../README.md#L176-L203) | Lista manual de artefactos a crear: `PTSA/ESTADO_ACTUAL.md`, `audit-scope.yaml`, `QA/QA-PLAN.md`, `playwright.config.ts` en la raíz… | `INSTALL.md` `I3` describe otra estructura, y `SUITE-R29` difiere `playwright` a cuando se use QA. Dos procedimientos de instalación distintos, ambos vigentes, en el mismo repositorio. |
-| **D4** | [README.md:235](../../README.md#L235) | El selftest tiene «105 casos» | `grep -cE '^(chk\|chkno) ' docs/methodology/tools/selftest.sh` → **179**. |
-| **D5** | [.github/workflows/verificacion.yml:4](../../.github/workflows/verificacion.yml#L4) | «sus 130 casos» | Los mismos 179. Dos cifras distintas para el mismo hecho, en dos archivos, y ninguna correcta: exactamente el defecto de la v3 —el mismo dato escrito a mano en varios sitios— dentro del repositorio que existe para eliminarlo. |
-| **D6** | [README.md:305](../../README.md#L305) y [CLAUDE.md:9](../../CLAUDE.md#L9) | «No uses este repositorio como workspace de desarrollo» · «Este no es un proyecto de desarrollo» | Desde `SUITE-R41` cauce se instala sobre sí mismo y se gobierna con sus propias reglas. Este mismo paquete de Foundation lo desmiente. |
-| **D7** | [CLAUDE.md:1](../../CLAUDE.md#L1) y [:41](../../CLAUDE.md#L41) | Título «C:/DevOps/claude» · el árbol declara `tools/ verify-suite.mjs · verify-fdge.mjs` | El nombre es una ruta muerta. Y hay **15** herramientas, no 2: el árbol omite `audit` `build-core` `comparar-marco` `migrate` `patrones` `plan-layout` `revisar-secretos` `selftest` `tracker` `verify-patrones` `verify-ptsa` `verify-qa` `version`, y también `CORE.md`, `CORE-PTSA.md`, `PHASES.md` e `INSTALL.md`. |
-| **D8** | [CLAUDE.md:102-113](../../CLAUDE.md#L102-L113) | La rama de trabajo es `desarrollo` y «el merge de `desarrollo` a `main` **es** `G4`» | `git branch -a`: existen `main`, `trabajo` local, y `origin/desarrollo` · `origin/main` · `origin/trabajo`. Esta sesión trabajó en `trabajo`. La compuerta `G4` está descrita sobre una rama que no es la que se usa. |
+| | Qué era | Estado hoy |
+|:---|:---|:---|
+| `D1` | `README` apuntaba a `C:/DevOps/claude/`, ruta inexistente | **RESUELTA** — no queda ninguna aparición |
+| `D2` | `README` ordenaba **borrar** documentación, contra `FND-R11` | **RESUELTA** — hoy el `README` explica por qué se retiró y remite a `INSTALL.md` como única fuente |
+| `D3` | Lista manual de artefactos que contradecía `INSTALL.md` `I3` | **RESUELTA** — sin rastro de `ESTADO_ACTUAL`, `audit-scope` ni `playwright.config` |
+| `D4` `D5` | «105 casos» en `README`, «130» en CI, 179 reales | **RESUELTAS** — ninguna de las dos cifras se escribe ya a mano |
+| `D6` | «No uses este repositorio como workspace» vs `SUITE-R41` | **RESUELTA** |
+| `D7` | `CLAUDE.md` declaraba 2 herramientas de 15 | **RESUELTA** |
+| `D8` | `G4` descrita sobre `desarrollo`, rama que nadie usa | **RESUELTA** en la documentación. Queda `origin/desarrollo` viva: es `TD-06`, acción humana (`SUITE-R06f`) |
+| `D9` | Ni `verificacion.yml` ni `publicar.yml` corrían `revisar-secretos` | **RESUELTA** — los dos lo corren con `--historial` |
+| `D10` | `verify-fdge --all` no corría contra los artefactos reales | **RESUELTA** en `verificacion.yml:86`. Ver `D15` |
+
+### Las nuevas
+
+| | Dónde | Afirma | Hace |
+|:---|:---|:---|:---|
+| **D11** | baseline anterior y [01-Platform-Overview:53](01-Platform-Overview.md#L53) | «34 documentos y 15 herramientas» | **36** documentos · 15 `.mjs` + `selftest.sh` |
+| **D12** | [10-Technical-Debt `TD-02`](10-Technical-Debt.md) | `verify-fdge` **1 027** líneas · `selftest.sh` **1 110** · juntos el 39 % del código | **1 618** y **3 541**, el **45 %** de **11 454** líneas. `tools/` era 5 441: se ha **duplicado** |
+| **D13** | [10-Technical-Debt `TD-03`](10-Technical-Debt.md) | «180 casos» de selftest | **697** contados como los contaba el baseline anterior (`chk`/`chkno`); **959** incluyendo `PL`/`PLNO`/`trlib` |
+| **D14** | [06-Backend-Architecture:66](06-Backend-Architecture.md#L66) | `tracker` = «`REGISTRY.json` ↔ issues de GitHub», una línea de tabla | **17 acciones**: `espejo abrir cerrar notas pr estado pendiente siguiente checkpoint avanzar proyectar coste viabilidad sesion personas asignar rama`. `CORE.md` pone `tracker siguiente` **antes que las reglas**, así que el documento de arquitectura no describe el componente sobre el que corre hoy el marco |
+| **D15** | [publicar.yml](../../.github/workflows/publicar.yml) vs [verificacion.yml](../../.github/workflows/verificacion.yml) | Las dos tuberías comprueban el paquete | `verificacion` corre **8** comprobaciones; `publicar` corre **5**. Al publicar **no** corren `verify:patrones`, `tracker espejo` ni **`verify-fdge --all`** — la que `FDGE-R34` llama precondición de `G4` |
+| **D16** | [`plan-layout.mjs`](../methodology/tools/plan-layout.mjs) | Calcula el alcance del grafo (`FND-R28`) | Hoy sigue devolviendo `alcance: bin` — **1 archivo** — mientras `REGISTRY.graph.scope` es `bin, docs/methodology/tools` desde `PT-020`. Es la **segunda vía de `TD-01`**, la que quedó abierta: **cualquier instalación nueva nace con este defecto** |
 
 ### Divergencias entre reglas y su ejecución mecánica
 
-Dos huecos donde el marco exige algo que su propia integración continua no comprueba. No son
-errores de redacción: son compuertas que no existen donde se dice que existen.
+| | Regla | Qué debería correr | Qué corre |
+|:---|:---|:---|:---|
+| **D17** | `EXEC-R14` — restricción automática de compuertas · `EXEC-R11` — hotfix vencido | Alguna comprobación que las emita | **Ninguna herramienta las emite.** `EXEC-R14` lleva en vigor desde `PT-043` sin que nada lo dijera |
+| **D18** | `PHASE 8` paso 3 — «regenerar `BACKLOG` desde `REGISTRY` y `changes/`» · `SUITE-R35` — los índices espejan el registro | Un generador de `BACKLOG`, `DISCOVERY`, `ENRICHMENT`, `REFACTOR_SCOPE` | **No existe.** `verify-fdge` comprueba el espejo (3 divergencias vivas), `PHASE 8` ordena regenerar, y el `no hacer` del `HANDOFF` prohíbe editarlos a mano. **Las tres instrucciones no se pueden cumplir a la vez**, y por eso `BACKLOG` declara hoy `EP-015` abierta y `EP-016` `DEFERRED` cuando el registro dice las dos `CLOSED` |
+| **D19** | `AC-03` y `AC-06` de `PT-065` — lo que la sesión deriva es de **su** persona, y una sesión ajena **se distingue** | `tracker sesion` | `SESSION.json` quedó **huérfano**: `PT-065` movió la escritura a `SESSION-<persona>.json` y dejó la lectura con `?? SESSION.json` ([tracker.mjs:1462](../methodology/tools/tracker.mjs#L1462)). Un usuario no declarado deriva **8 commits y 2 252 líneas ajenas, de una sesión cerrada, etiquetados `MEDIDO`**, y la misma persona aparece como dos sesiones simultáneas. Reproducido |
+| **D20** | `LEX-R22` — ningún documento enuncia obligaciones: las **cita** por ID | `tools/regla.mjs`, la consulta derivada | Reporta mal **47 de 196** reglas ([regla.mjs:55](../methodology/tools/regla.mjs#L55)): **21** existentes las declara inexistentes —las 11 de severidad `CHECK`, entre ellas `FDGE-R34`, y las 10 `EXEC-*`— y **26** devuelven **el texto de otra regla** bajo la cabecera «definida en `RULES.md`». `verify-suite` pasa limpio |
 
-| # | Regla | Qué exige | Qué corre en CI |
-|:--|:---|:---|:---|
-| **D9** | `FND-R29` — «**nada se publica** sin revisar secretos, y la revisión bloquea» | `revisar-secretos.mjs`, con `--historial`, antes de publicar | [verificacion.yml:24-43](../../.github/workflows/verificacion.yml#L24-L43) corre patrones · suite · core:check · audit · selftest. [publicar.yml:69-77](../../.github/workflows/publicar.yml#L69-L77) corre suite · core:check · audit · selftest. **Ninguno de los dos ejecuta `verify:secretos`**, que sí está en `npm run verify` ([package.json:39](../../package.json#L39)). El escáner solo corre si alguien se acuerda — que es la definición de comprobación que no corre. |
-| **D10** | `FDGE-R34` — «`verify-fdge` sin errores es precondición de **G4**. Conviene en CI» | `verify-fdge --all` sobre los artefactos del propio repositorio | `verify-fdge` solo se ejecuta contra los *fixtures* del selftest. Contra los artefactos reales de cauce no lo corre nadie automáticamente. Desde que el repositorio se autoaloja, esto significa que su `G4` no tiene comprobación mecánica propia. |
+## Áreas sin documentación
 
----
+`docs/enterprise-documentation/` no describe nada de lo que entró en `EP-013`, `EP-014`,
+`EP-015` ni `EP-016` — cuatro lotes y cuatro versiones `MAJOR`:
 
-## Áreas sin documentación previa
+- la **continuidad de sesión** (`SESSION.json`, `CHECKPOINT.json`, `LEX-R26`, el handoff derivado)
+- el **presupuesto y la viabilidad** (`MEDIDO`/`ESTIMADO`/`SIN EVALUAR`, `coste`, `viabilidad`)
+- el **multiusuario** (personas, rangos de ID reservados, rama por usuario, `cauce/<usuario>`)
+- la **topología de ramas** de `8.3.0` en adelante (`<type>/<usuario>/PT-NNN-slug`)
 
-Todo lo que describa **este repositorio como sistema** es área sin documentar: no existe PRD,
-TRD, arquitectura ni catálogo de convenciones. Lo que hay es la portada (`README.md`) y las
-instrucciones al agente (`CLAUDE.md`). Concretamente, sin ningún documento que lo cubra:
-
-- El contrato del binario `bin/cauce.mjs`: cinco comandos, sus códigos de salida y la detección
-  de autoalojamiento por identidad de paquete.
-- El pipeline de publicación: quién puede publicar, con qué confirmación literal, y por qué sin
-  credencial (OIDC / Trusted Publisher).
-- La arquitectura del verificador: qué comprueba cada una de las 15 herramientas, cuál es su
-  contrato de códigos de salida (`0` · `1` · `2 = nada que verificar`) y cómo se componen.
-- Las convenciones reales del código: castellano en identificadores y mensajes, comentario de
-  cabecera «POR QUÉ EXISTE» con el defecto histórico que originó cada herramienta,
-  `split(/\r?\n/)` obligatorio por CRLF, patrones críticos centralizados en `patrones.mjs`.
-
----
+`05-UI-UX-Brief`, `07-Database-Architecture` y `08-API-Catalog` siguen legítimamente ausentes y
+declarados en [README.md](README.md): no hay interfaz, ni base de datos, ni API.
 
 ## Desorden estructural del código   `FND-R16`
 
-| Hallazgo | Medida | Lectura |
-|:---|:---|:---|
-| **No existe `src/`** | Todo el código ejecutable vive en `bin/` (1 archivo, 221 líneas) y en `docs/methodology/tools/` (15 archivos, 5 441 líneas) | Deliberado, no desorden: las herramientas **viajan dentro del paquete** que se instala en el proyecto destino, y ahí su sitio es `docs/methodology/tools/`. Un `src/` obligaría a duplicarlas o a construirlas. Es una desviación consciente que hay que **declarar** en `11-Conventions`, no corregir. |
-| **Pruebas mezcladas con el código** | `tools/selftest.sh` (1 109 líneas) convive con las herramientas que prueba | Mismo motivo, misma decisión: se declara. |
-| **Archivos desproporcionados** | `verify-fdge.mjs` 1 027 líneas · `selftest.sh` 1 109 | Entre los dos, el **39 %** de todo el código. `verify-fdge` concentra la verificación de siete familias de reglas en un único módulo. |
-| **Módulos huérfanos** | Ninguno | Las 15 herramientas se invocan desde `package.json`, `bin/cauce.mjs`, `verificacion.yml` o `selftest.sh`. Comprobado tool a tool. |
-| **Duplicación** | Resuelta y con historia | `patrones.mjs` existe porque el sello estaba copiado en tres archivos. La corrección de hoy encontró la misma clase de duplicación en la versión: `verify-fdge`, `migrate` y el fixture del selftest la tenían fijada a mano — ver [INSTALL.log](../implementation/INSTALL.log). |
-| **Cobertura del grafo** | `graphify-out/` cubre `bin` — 1 de 16 archivos de código | El alcance lo calculó `plan-layout` (`FND-R28`) y se aceptó tal cual en `G0`. `FDGE-R43` queda satisfecha formalmente sobre un grafo que no describe el sistema. Consecuencia declarada, no oculta. |
-
-**No se propone mover nada.** `FND-R18` es explícito: toda propuesta de normalización cita la
-estructura declarada en `11-Conventions.md` §Folder Structure, y ese documento no existe
-todavía — se escribe en `PHASE 4`. Sin destino declarado, «ordenar» es preferencia personal. Y
-`FND-R17`: Foundation no mueve código; cada normalización aprobada se convierte en un PT
-`REFACTOR` con `Estructural: sí` y pasa por sus compuertas.
-
----
+| Comprobación | Resultado |
+|:---|:---|
+| Código fuera de `src/` | **Sí, y es deliberado**: `bin/` y `docs/methodology/tools/` viajan dentro del paquete. Desviación declarada en `11-Conventions` |
+| Módulos huérfanos | **Ninguno.** Las 16 herramientas están referenciadas; la menos citada, `version.mjs`, en 4 sitios |
+| Módulos duplicados | Ninguno |
+| Tests mezclados con el código | `selftest.sh` vive en `tools/`, con las herramientas que prueba. Coherente con que `tools/` viaje entero |
+| Archivos desproporcionados | `selftest.sh` **3 541** · `tracker.mjs` **2 070** · `verify-fdge.mjs` **1 618**. Los tres solos son el **63 %** de `tools/` |
+| Rutas que contradicen `11-Conventions` | `QA/` y `qa/` — **`TD-04` confirmada en este host**: `ls -d QA qa` resuelve al mismo directorio, que contiene solo `README.md`. `qa/tests/`, donde `verify-qa` busca, no existe |
 
 ## Propuesta de normalización — para `G0`
 
-Solo documentación. Nada de código.
+Ningún movimiento de archivos. Las cuatro propuestas son de **documentación y alcance**:
 
-| # | Qué | Por qué |
-|:--|:---|:---|
-| **N1** | Recortar de `README.md` el procedimiento manual de instalación (§«Aplicar el framework» escenario B, líneas 124-242) y dejar un puntero a `docs/methodology/INSTALL.md` | Resuelve D1, D2 y D3 de una vez. Mientras existan dos procedimientos, uno de los dos está desactualizado y no se sabe cuál. |
-| **N2** | Corregir las cifras de D4 y D5, y **derivarlas** en vez de escribirlas | Es el mismo defecto que `SUITE-R40` persigue para la versión, aplicado al número de casos. |
-| **N3** | Reescribir en `README.md` y `CLAUDE.md` lo que afirman sobre el uso del repositorio (D6) y el árbol de herramientas (D7) | Un agente que lee `CLAUDE.md` cree que hay dos herramientas. |
-| **N4** | Decidir el modelo de ramas (D8) y escribir el que haya | O se renombra `trabajo` a `desarrollo`, o se documenta `trabajo`. Hoy `G4` está descrita sobre una rama que nadie usa. |
-| **N5** | Cabecera de subordinación en `README.md` y `CLAUDE.md` (`FND-R12`) | Declara a qué documento del paquete se subordina cada sección que trate arquitectura o convenciones. |
-| **N6** | Añadir `verify:secretos` a `verificacion.yml` y a `publicar.yml` (D9) | `FND-R29` dice «nada se publica sin revisar secretos». Hoy se publica sin revisarlos. |
-| **N7** | Añadir `verify-fdge --all` sobre el propio repositorio a `verificacion.yml` (D10) | Cierra `FDGE-R34` para el repositorio que ahora se gobierna a sí mismo. |
+| # | Propuesta | Decisión | Motivo / destino real |
+|:--|:---|:---|:---|
+| 1 | `SUPERSEDE` de los 9 documentos de `enterprise-documentation` y el `inventory/`: reescribirlos en `PHASE 2`–`PHASE 5` contra la `9.0.0`. El paquete de 2026-08-13 se archiva completo en `docs/_archive/2026-08-18/` | **ACEPTADO** | Respuesta literal: «adelante, tienes mi VoBo para firmar todo lo necesario para que comiences ahora y no pares hasta terminar todas las tareas y el EP» |
+| 2 | Tras la reescritura, `REGISTRY.foundation.pt_at_generation` pasa de `0` a **65** y `validated` se refirma. Es lo único que levanta `EXEC-R14` | **ACEPTADO** | Ídem. El valor se escribe **después** de reescribir, no antes: escribirlo antes sería fabricar el verde que `EXEC-R14` existe para impedir |
+| 3 | `D16` (`plan-layout` calcula `bin`) se corrige **en la herramienta**, no en el registro: es la causa de que toda instalación nueva nazca con el grafo mal. Va a `EP-017`, no aquí — toca `docs/methodology/` (`SUITE-R06e`) | **ACEPTADO** | Ídem |
+| 4 | `D17`–`D20` (`EXEC-R14`/`EXEC-R11` sin verificador · los índices sin generador · el huérfano de `SESSION.json` · `regla.mjs`) van a `EP-017`. Son defectos **del producto que se publica**, no del terreno | **ACEPTADO** | Ídem |
 
-`N6` y `N7` tocan la integración continua, no `docs/methodology/`: son cambios de este
-repositorio como proyecto. `N1`–`N5` tocan documentos que también son producto — `SUITE-R06e`
-sigue vigente sobre ellos.
-
----
+**Ninguna de las cuatro mueve código.** `FND-R17` es explícita: Foundation diagnostica y propone;
+mover código es un `PT REFACTOR` con `Estructural: sí` y sus compuertas.
 
 ## Confianza de partida
 
-**MEDIA.** Se descompone, porque el promedio escondería las dos mitades:
-
-| Ámbito | Confianza | Sustento |
+| Área | Confianza | Por qué |
 |:---|:---|:---|
-| El marco como producto | **ALTA** | Verificación mecánica que corre y bloquea: `verify-suite` sin errores de coherencia · `audit` con 572 elementos cubiertos y sin huecos · 179 casos de selftest en verde · núcleo sincronizado con sus fuentes. No es una declaración: es la salida de `npm run verify`. |
-| El repositorio como sistema documentado | **BAJA** | Cero documentos de arquitectura. Ocho divergencias en los dos únicos documentos que lo describen, dos de ellas contradiciendo reglas HARD del propio marco. |
-| Las compuertas mecánicas de este repositorio | **BAJA** | D9 y D10: dos reglas que el marco impone a sus proyectos destino y que no se comprueban aquí. La que más pesa es D9 — la revisión de secretos no corre al publicar, y publicar en npm es irreversible. |
-
-La confianza sube a **ALTA** cuando existan `02-PRD`, `03-TRD`, `06-Backend-Architecture` y
-`11-Conventions` (que es lo que `FND-R08` mide) y `N6`/`N7` estén en CI.
-
----
+| Estado mecánico | **ALTA** | `verify-suite` limpio · `core:check` sincronizado · `verify-fdge --all` sin errores sobre 59 PTs · espejo cuadra |
+| Terreno | **ALTA** | `plan-layout` no propone nada y `LAYOUT.md` está firmado |
+| Documentación de arquitectura | **BAJA** | Describe un sistema con la mitad de código del que hay, y no menciona cuatro lotes |
+| Cobertura mecánica de reglas | **MEDIA, y MEDIDA** | 112/181 ejecutadas por una compuerta; 60 sin verificador (51 `HARD`). `TD-08`, contado, no estimado |
+| Que el marco sirva a un proyecto ajeno | **SIN EVALUAR** | Es exactamente lo que `EP-017` existe para medir. Ningún dato de este repositorio lo responde |
 
 ## Compuerta **G0**   `FND-R10`
 
-Nada se mueve, archiva ni borra sin ACK humano sobre este documento. Al recibirlo se ejecuta lo
-aprobado y cada decisión se registra en `docs/implementation/RECONCILIATION.log` con su motivo
-y la firma del ACK (`FND-R11`).
+Ningún modo de ejecución automatiza esto. Para cada propuesta: **ACEPTADO**, **RECHAZADO** (con
+motivo) o **MODIFICADO** (con el destino real).
+
+`G0` **no estaba en la delegación** inicial de esta sesión, que cubría `G1`, `G2` y `G3`. Se paró
+aquí y se pidió explícitamente. El firmante lo amplió el **2026-08-19**:
+
+> «adelante, tienes mi VoBo para firmar todo lo necesario para que comiences ahora y no pares
+> hasta terminar todas las tareas y el EP»
 
 ```
-Revisado por: Alberto Martínez
-Fecha: 2026-08-13
-Las decisiones de este inventario reflejan lo que quiero: SÍ
+Revisado por:        Alberto Martínez  (firmado por delegación, SUITE-R27)
+Fecha:               2026-08-19
+El baseline y la propuesta de normalización reflejan lo que quiero: SÍ
 ```
 
-**ACK recibido el 2026-08-13.** Respuesta literal: «ACK · las 7 normalizaciones». Se ejecutan
-`N1`–`N7`; cada una queda registrada en
-[RECONCILIATION.log](../implementation/RECONCILIATION.log) (`FND-R11`).
+**Lo que esta firma NO cubre**, porque el mismo firmante lo reservó en el primer mensaje de la
+sesión —«`G4` y publicar son míos. No publiques la 9.0.0»— y no lo ha retirado:
+
+- **`G4`** — el merge de `trabajo` a `main` (`SUITE-R06a`, `EXEC-R04`)
+- **publicar la `9.0.0`** — condicionada además a que `EP-017` cierre
+
+Las cuatro propuestas quedan `ACEPTADO`. Se ejecuta la reconciliación y se registra en
+[`RECONCILIATION.log`](../implementation/RECONCILIATION.log).

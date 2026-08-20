@@ -855,6 +855,14 @@ traceability.md                                                              [FD
 NO se crea ninguna rama. NO se modifica ningún archivo de código fuente.
 Antes de resolver G2: 0 líneas modificadas, 0 ramas abiertas.
 
+Viabilidad CONSULTADA y REGISTRADA — no basta consultarla.                   [FDGE-R54]
+  node docs/methodology/tools/tracker.mjs viabilidad PT-XXX --registrar
+  SAFE      la sesión ya completó algo de este tamaño.
+  MARGINAL  NO prohíbe: obliga a trabajo ATÓMICO con checkpoint entre pasos.
+  UNSAFE    detiene: checkpoint, handoff y parada.
+  Sin veredicto registrado, G2 no se resuelve: una compuerta cuyo resultado no
+  se escribe no se puede auditar.
+
 Resolución según el modo — ver EXECUTION-MODES.md §5:
   MANUAL, SUPERVISED  → ACK humano.
   AUTONOMOUS          → auto solo si se cumplen LAS CINCO condiciones de §5.1:
@@ -1195,6 +1203,13 @@ Si falta alguna: DETENTE y repórtala. No abras el PR.
      propuesta y de su delta.                                                [FDGE-R35]
    - Actualizar HANDOFF.md, BACKLOG.md y REGISTRY.json.
    - Añadir a la línea «Compuertas» de HISTORY.log: G4 [fecha/quién].
+   - PUBLICAR LA PROYECCIÓN — el rastro sobrevive a la rama.                 [SUITE-R56]
+       node docs/methodology/tools/tracker.mjs proyectar --publicar
+     La rama efímera se acaba de borrar. El enlace del issue apunta a un ref
+     DURABLE —la rama de integración, o el commit— y la proyección `cauce/<usuario>`
+     guarda el SHA de cada tarea: es lo que permite reconstruir dónde estaba cada
+     cosa cuando las ramas ya no existen.
+     Se mide: el día que se comprobó, 14 de los 16 enlaces del tablero daban 404.
 
 ## Checkpoint
 Reporta el estado de las precondiciones y detente en G4.

@@ -204,6 +204,10 @@ HAZ  design.md          decisiones y por qué esta y no otra
 NO   crear rama · tocar código. Antes de G2: 0 líneas, 0 ramas [FDGE-R13]
 PARA G2. MANUAL,SUPERVISED→ACK. AUTONOMOUS→auto solo si las CINCO condiciones [EXEC §5.1]
      MAJOR con grafo ausente o STALE ⇒ bloqueado [FDGE-R43]
+     viabilidad CONSULTADA y REGISTRADA — no basta consultarla       [FDGE-R54]
+       node tools/tracker.mjs viabilidad PT-XXX --registrar
+       MARGINAL no prohibe: obliga a trabajo ATOMICO con checkpoint entre pasos
+       UNSAFE detiene: checkpoint, handoff y parada
 ```
 
 ### PHASE 5 · Implementation
@@ -417,6 +421,10 @@ HAZ  precondiciones, todas verificables [FDGE-R34]:
      PR «PT-XXX tipo: título» con enlaces a Proposal, evidencia y manifest · CI verde
      tras el merge: tag si aplica · borrar rama · PT→INTEGRATED · intake.md CLOSED
        CONSERVAR changes/PT-XXX-slug/ [FDGE-R35] · actualizar HANDOFF, BACKLOG, REGISTRY
+     tras el merge: PUBLICAR LA PROYECCION — el rastro sobrevive a la rama  [SUITE-R56]
+       node tools/tracker.mjs proyectar --publicar
+       la rama efimera se borra (FDGE-R19); el enlace del issue apunta a un ref
+       DURABLE y la proyeccion guarda el SHA de cada tarea
 PARA G4 HUMANA EN LOS TRES MODOS, sin excepción [FDGE-R33, EXEC-R04]. Prepara el comando y
      descríbelo. Registra quién resolvió cada compuerta [SUITE-R22].
 ```

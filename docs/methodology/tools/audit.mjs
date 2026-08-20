@@ -33,6 +33,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, relative, resolve, sep } from 'node:path';
+import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
 if (!existsSync(BASE)) { console.error(`No existe: ${BASE}`); process.exit(2); }
@@ -432,11 +433,16 @@ const herramientasConCompuerta = (() => {
   return invocadas;
 })();
 
-const REGLAS_TODAS = [...RULES.matchAll(/^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(HARD|SOFT|CHECK)\s*\|/gm)]
-  .map((m) => ({ id: m[1], sev: m[2] }));
+// PT-067 · el universo sale de patrones.mjs, no de un regex propio. Leia SOLO filas de
+// RULES.md: 183 de las 223 que el marco define, fuera las 26 LEX-* y las 14 EXEC-*. Tener aqui
+// una tercera derivacion del mismo hecho es como PT-066 arreglo regla.mjs y esta se quedo igual.
+const REGLAS_TODAS = reglasDelMarco(rd);
+const POR_DOCUMENTO = REGLAS_TODAS.reduce((a, r) => ({ ...a, [r.doc]: (a[r.doc] ?? 0) + 1 }), {});
 
+// PT-067 · `t.includes(id)` daba por verificada una regla cuyo ID aparecia en un COMENTARIO.
+// 20 asi, incluida FDGE-R17 — que PT-079 acababa de declarar NO comprobable en TD-16.
 const clasificar = (id) => {
-  const citadaPor = tools.filter(([, t]) => t.includes(id)).map(([r]) => r.split('/').pop());
+  const citadaPor = verificadoresDe(id, tools.map(([r, t]) => [r.split('/').pop(), t]));
   if (!citadaPor.length) return 'sin-verificador';
   if (herramientasConCompuerta === null) return 'sin-evaluar';
   return citadaPor.some((n) => herramientasConCompuerta.has(n)) ? 'ejecutada' : 'sin-compuerta';
@@ -468,6 +474,9 @@ console.log(`Cubiertos: ${okCount.total}  (${resumen})`);
 // que una regla HARD «aspira» a comprobacion mecanica, y hay reglas que ninguna maquina puede
 // comprobar —INTAKE-R01, FDGE-R17, QA-R01—. Publicar si; bloquear no.
 console.log('\nCobertura mecánica de las reglas   (SUITE-R26 · aspira, no exige)');
+// PT-067 · el universo, con sus tres orígenes. Sin esta línea el denominador es un número sin
+// procedencia — y era justo eso lo que permitía que le faltaran 40 reglas sin que nadie lo viera.
+console.log(`  universo                       ${TOTAL_REGLAS}     (${Object.entries(POR_DOCUMENTO).map(([d, n]) => `${d} ${n}`).join(' · ')})`);
 if (herramientasConCompuerta === null) {
   console.log('  ejecutadas por una compuerta   SIN EVALUAR — no se pudo leer quién invoca las');
   console.log('                                 herramientas (package.json · workflows · bin/).');
@@ -479,6 +488,23 @@ if (herramientasConCompuerta === null) {
   console.log(`  ejecutadas por una compuerta   ${e.length} / ${TOTAL_REGLAS}     · HARD ${soloHard(e)} / ${TOTAL_HARD}`);
   console.log(`  citadas sin compuerta que las corra   ${sc.length}${sc.length ? '        → --sin-compuerta las enumera' : ''}`);
   console.log(`  sin verificador                ${sv.length}${sv.length ? `        → --sin-verificar las enumera  (HARD ${soloHard(sv)})` : ''}`);
+
+  // PT-067 · el desglose. La cifra BAJA —114/183 a 108/223— y sin decir por qué parece una
+  // regresión: no se escribió menos verificador, se dejó de contar lo que no lo era. Los dos
+  // números se DERIVAN; un texto a mano envejece en el primer cambio de RULES.md.
+  const conNombre = tools.map(([f, t]) => [f.split('/').pop(), t]);
+  const ampliado = REGLAS_TODAS.filter((r) => r.doc !== 'RULES.md').length;
+  const soloMencion = REGLAS_TODAS.filter((r) => !verificadoresDe(r.id, conNombre).length
+    && tools.some(([, t]) => t.includes(r.id))).length;
+  const soloArnes = REGLAS_TODAS.filter((r) => {
+    const cit = tools.filter(([, t]) => t.includes(r.id)).map(([f]) => f.split('/').pop());
+    return cit.length === 1 && cit[0] === 'selftest.sh';
+  }).length;
+  console.log('');
+  console.log('  Qué cambió respecto de la medida anterior:');
+  console.log(`    +${ampliado}  reglas que el denominador no miraba: LEXICON.md y EXECUTION-MODES.md`);
+  console.log(`    -${soloMencion}  dejaron de contar por una MENCIÓN: su ID sólo aparecía en comentarios`);
+  console.log(`         de ellas ${soloArnes} sólo en selftest.sh — el arnés no lo ejecuta ninguna compuerta`);
 }
 if (process.argv.includes('--sin-verificar')) {
   console.log(`\nReglas sin ningún verificador (${COBERTURA['sin-verificador'].length}):`);
