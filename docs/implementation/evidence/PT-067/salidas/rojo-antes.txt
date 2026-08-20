@@ -1,0 +1,13 @@
+=== FDGE-R17 · los casos ANTES de implementar (deben caer) ===
+fecha: 2026-08-19
+
+  patrones.reglasDelMarco -> NO EXISTE  <- rojo
+  patrones.verificadoresDe -> NO EXISTE  <- rojo
+
+  audit deriva las reglas por su cuenta:
+    reglasDelMarco en audit.mjs: 0
+    (0 = audit tiene su propia derivacion -> rojo)
+
+  el desglose todavia no existe:
+    lineas de desglose: 0
+    (0 -> rojo)

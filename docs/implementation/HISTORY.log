@@ -3177,3 +3177,68 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-067 — BUG: el denominador de la cobertura está incompleto
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S2 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-067-el-denominador-de-la-cobertura-esta-incompleto
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que audit mida sobre todas las reglas del marco, y que una mencion deje de contar
+como verificador.
+
+Causa raiz, dos defectos en la misma funcion:
+  1. REGLAS_TODAS salia de un regex PROPIO que solo leia filas de RULES.md: 183 de las 223 que
+     el marco define. Fuera las 26 LEX-* y las 14 EXEC-*, entre ellas EXEC-R04 —merge humano en
+     los tres modos— y EXEC-R07 —describir el comando en vez de ejecutarlo—. LEX-R21 dice que
+     los documentos propietarios son TRES.
+  2. `t.includes(id)` daba por verificada cualquier regla cuyo ID apareciera en un COMENTARIO:
+     24 asi, y 5 de ellas citadas SOLO por selftest.sh, que no lo ejecuta ninguna compuerta.
+     Entre las 24 esta FDGE-R17, que PT-079 acababa de declarar NO comprobable en TD-16.
+     Publicar como verificada una regla que sabemos que no lo esta no falla: MIENTE con formato
+     de respuesta correcta. Es lo mismo que PT-066 encontro en regla.mjs, la herramienta de al
+     lado, el mismo dia.
+
+Solucion: reglasDelMarco() y verificadoresDe() en patrones.mjs, y audit las consume. Vive ahi
+porque ya habia DOS derivaciones del mismo hecho —PT-066 arreglo la de regla.mjs y esta se quedo
+igual—: una tercera garantizaba la proxima divergencia (SUITE-R38). Las dos formas son las que
+PT-066 establecio, no unas nuevas.
+El prefijo NO filtra: por eso aparecen FDGE-R22, R40 y R41, definidas dos veces (-> PT-080).
+Filtrarlas habria ocultado un defecto para que saliera un numero redondo.
+Y el desglose: sin el, ver caer la cifra parece una regresion.
+
+Archivos modificados: tools/patrones.mjs · tools/audit.mjs · tools/selftest.sh
+
+Evidencia: evidence/PT-067/ · manifest.json · self-review.md ·
+  salidas/rojo-antes.txt · salidas/universo.txt · salidas/verificadores.txt ·
+  salidas/audit-antes-despues.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-05 ✓, los cinco.
+  ANTES   114 / 183  (62 %)   denominador incompleto y menciones contadas
+  DESPUES 108 / 223  (48 %)   +40 por ampliar el universo · -24 por dejar de contar menciones
+  AC-05: 108 + 12 + 103 = 223. Cuadra.
+selftest 1042 -> 1058, cero fallos.
+
+La cobertura NO bajo: bajo la mentira sobre la cobertura. Nadie escribio menos verificadores.
+
+Delta real vs planificado: el intake decia 222 y la medicion dio 223. Manda la medida, y queda
+  dicho en traceability en vez de corregido en silencio — el intake es lo que el PT dijo de si
+  mismo al empezar.
+
+Tres desviaciones declaradas: escribi tres aserciones que no casaban con la salida real —dos
+  usaban «^$» para exigir una lista VACIA, y una salida vacia no tiene lineas, asi que grep no
+  casa y el caso acusa al codigo; la tercera anclaba en $ un numero que va en medio de la
+  linea—. Y un chkno contra la SALIDA cuando debia ir contra la FUENTE: habria pasado siempre.
+  Sexto caso de esta familia en el lote, el que lint_aserciones de PT-079 existe para enumerar.
+  Quinta vez peleandome con el escapado en scripts; resuelto con Edit, como las cuatro anteriores.
+
+No verificado, declarado: que una cita dentro de una condicion QUE PUEDE FALLAR se distinga de
+  una que no —es analisis estatico de verdad, y SUITE-R26 dice que esta metrica aspira— y que
+  regla.mjs, build-core y verify-suite deriven del mismo sitio: siguen con su propia lectura, y
+  migrar cuatro herramientas a la vez es como se pierde cual rompio que.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: —

@@ -1,0 +1,13 @@
+universo derivado UNA vez en patrones.mjs: 223
+{
+  "RULES.md": 183,
+  "LEXICON.md": 26,
+  "EXECUTION-MODES.md": 14
+}
+
+E4 mencion en comentario  -> []
+E5 solo selftest.sh       -> []
+E6 codigo real            -> ["v.mjs"]
+AC-05 · ninguna regla se pierde:
+  universo 223 = ejecutadas 108 + sin compuerta 12 + sin verificador 103 = 223
+  CUADRA

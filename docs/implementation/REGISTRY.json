@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 79,
+    "PT": 80,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1574,7 +1574,7 @@
       "severity": "S2",
       "complexity": "TRIVIAL",
       "track": "STANDARD",
-      "phase": 1,
+      "phase": 9,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -2011,6 +2011,39 @@
       },
       "issue": 147,
       "branch": "fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico"
+    },
+    {
+      "id": "PT-080",
+      "slug": "una-regla-no-se-define-dos-veces",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S2",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "Una regla no se define dos veces",
+      "origin": "Encontrado el 2026-08-19 en PT-067 al derivar el universo de reglas de sus tres documentos propietarios: FDGE-R22, FDGE-R40 y FDGE-R41 estan definidas en RULES.md Y en EXECUTION-MODES.md, y las tres copias YA divergen — la de EXECUTION-MODES suelta una obligacion en cada caso. Es la enfermedad de la v3 que motivo la v4, viva en la v9. verify-suite no lo comprueba.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 723,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2815,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
+        "fecha": "2026-08-19"
+      }
     }
   ]
 }
