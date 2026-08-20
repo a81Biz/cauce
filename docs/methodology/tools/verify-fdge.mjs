@@ -1464,6 +1464,7 @@ function checkHistory(pt, rel, type, { gate }) {
     } else if (p.codigo === 0) {
       ok('SUITE-R42', `${pt}: el merge se propone sobre un pull request abierto.`);
     }
+
   }
 
   // ── FDGE-R34 · precondiciones de la compuerta G4 ──────────────────────────

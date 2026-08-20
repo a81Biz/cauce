@@ -368,6 +368,38 @@ aprobar que las herramientas corren, no que el producto sirve.
 inaplicabilidad**, comprobable, con el mismo criterio con que el paquete de Foundation declara
 sus tres documentos omitidos.
 
+### `TD-16` · Tres síntomas de `FDGE-R17` son detectables; la disciplina no
+
+`PT-079` convirtió en guarda tres de los diez fallos que `EP-017` cometió escribiendo
+comprobaciones. Los otros siete **no son observables desde el repositorio**, y decirlo es el
+trabajo.
+
+**Lo que sí se detecta ahora:**
+
+```
+inversa()          ABORTA si el patron no casa       <- una inversa que no revierte
+lint_aserciones    AVISA: 7 ancladas solo en un ID   <- pasan en vacio o acusan a trabajo bueno
+lint_helpers       AVISA: helper usado antes de definirse
+```
+
+**Lo que no, y por qué:**
+
+| Síntoma | Por qué no es observable |
+|:---|:---|
+| Que un caso se viera **en rojo antes** del arreglo | No hay rastro de cuándo se escribió cada aserción respecto a su código. Es la disciplina de `FDGE-R17` y seguirá dependiendo de que se cumpla |
+| Que una aserción **case con la salida real** | Sólo se sabe ejecutándola. Tres de los diez fallos fueron caja o acentos —«no est» contra «No está»— y ninguna herramienta estática los ve |
+| Que un arreglo **arregle de verdad** | En `PT-068` la primera versión no arreglaba nada y su propio caso la daba por buena. Eso es el trabajo, no su forma |
+
+**Las 7 aserciones sospechosas están enumeradas y no revisadas.** Revisarlas una a una es trabajo,
+no una comprobación, y se declara la cifra como `TD-08` hace con las reglas sin verificador:
+mientras esté a la vista es una decisión; el día que se redondee a cero sin haberlas mirado,
+vuelve a ser un engaño.
+
+**Recomendación:** no convertir `lint_aserciones` ni `lint_helpers` en error. Hay aserciones
+legítimas sobre identificadores, y un arnés que nace rojo se apaga — y entonces no protege el día
+que tiene razón. `PT-023` midió esa frontera: un verificador equivocado tres de cada cuatro veces
+se silencia y ocupa el sitio del que haría falta.
+
 ## Hechos no determinados   `FND-R01`
 
 Lo que no pudo verificarse con una fuente citable en este repositorio:

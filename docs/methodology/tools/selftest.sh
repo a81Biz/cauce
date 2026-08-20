@@ -103,6 +103,65 @@ chk() {
   if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
   if printf '%s' "$out" | grep -q -- "$pat"; then pass "$name"; else bad "$name  (no apareció: $pat)"; fi
 }
+# ─── PT-079 · las guardas del arnes ─────────────────────────────────────────
+#
+# B-1 · ABORTA. Una comprobacion inversa que no revierte certifica lo CONTRARIO de lo que
+# pretende. En PT-074 se me olvido el assert y la inversa dio VERDE EN LOS TRES CASOS sin
+# haber cambiado nada: str.replace no falla cuando no casa, hace nada en silencio.
+#
+# Con este helper eso no puede ocurrir: si el patron no esta en el archivo, aborta.
+inversa() {  # $1 archivo · $2 patron literal · $3 reemplazo
+  if [ ! -f "$1" ]; then echo "INVERSA: no existe $1" >&2; return 1; fi
+  if ! grep -qF -- "$2" "$1"; then
+    echo "INVERSA NO APLICA: el patron no casa en $1 — revertir nada certifica lo contrario" >&2
+    return 1
+  fi
+  perl -0pi -e "BEGIN{\$p=shift;\$r=shift} s/\\Q\$p\\E/\$r/" "$2" "$3" "$1"
+}
+
+# B-2 · AVISA. Una asercion anclada SOLO en un identificador casi nunca prueba lo que
+# pretende: las herramientas nombran cosas por muchos motivos —avisos, referencias
+# cruzadas, el cuerpo de otra regla—. Cinco veces en EP-017: dos pasaban EN VACIO y una
+# fallaba contra trabajo correcto.
+#
+# AVISA y no falla: hay casos legitimos, y un arnes que nace rojo se apaga. Se enumeran
+# con su linea y la cifra queda medida, como TD-08 hizo con las reglas sin verificador.
+lint_aserciones() {
+  local n=0 out=""
+  while IFS=: read -r ln txt; do
+    n=$((n+1)); out="$out linea $ln"
+  done < <(grep -nE '^(chk|chkno)[[:space:]]+"[^"]*"[[:space:]]+"(PT|EP)-[0-9]+"' "$SUITE/tools/selftest.sh")
+  [ "$n" -eq 0 ] && echo "ninguna asercion sospechosa" || echo "$n sospechosa(s):$out"
+}
+
+# B-3 · AVISA. Un caso que invoca un helper definido MAS ABAJO no se ejecuta, y el sintoma
+# —«la herramienta revento» o «no aparecio»— apunta al arreglo y no a la colocacion. Me
+# paso DOS veces en este lote: TRR en PT-076 y RG2 en PT-066.
+lint_helpers() {
+  local f="$SUITE/tools/selftest.sh" malos=0 out=""
+  # La lista va por variable para que la linea NO contenga los nombres: con ellos escritos
+  # aqui, el lint se señalaba a si mismo —su propio bucle era «el primer uso»—. Segunda
+  # autorreferencia al escribir esta guarda, tras la de los comentarios.
+  local HELPERS="TR TRR RG2 V PL PLNO trlib trlibno inversa"
+  for h in $HELPERS; do
+    local def uso
+    def=$(grep -nE "^$h\\(\\) \\{" "$f" | head -1 | cut -d: -f1)
+    [ -z "$def" ] && continue
+    # Una mencion en un COMENTARIO no es un uso. Sin esta guarda el lint se acusaba A SI MISMO:
+    # sus propios comentarios nombran TR, TRR y RG2 para explicar el defecto. Es la familia de
+    # PT-051 —un patron literal en un comentario contado como emision real— cometida al
+    # escribir la guarda que la detecta.
+    # Un USO es una INVOCACION DE CASO, no cualquier linea que nombre el helper. Buscar la
+    # mencion suelta hizo que el lint se acusara A SI MISMO dos veces: primero por sus propios
+    # comentarios, y luego por la linea que declara la lista. Anclar en «chk|chkno» resuelve
+    # las dos por construccion, en vez de ir tapando cada autorreferencia una a una.
+    uso=$(grep -nE "^(chk|chkno)[[:space:]].*[[:space:]]$h([[:space:]]|\$)" "$f" | head -1 | cut -d: -f1)
+    [ -z "$uso" ] && continue
+    if [ "$uso" -lt "$def" ]; then malos=$((malos+1)); out="$out $h(linea $uso antes de $def)"; fi
+  done
+  [ "$malos" -eq 0 ] && echo "ningun helper usado antes de definirse" || echo "helper mal colocado:$out"
+}
+
 chkno() {
   local name="$1" pat="$2"; shift 2
   salta "$name" && return
@@ -1597,9 +1656,22 @@ chk   "y llega al núcleo"                     "SUITE-R51"   cat "$SUITE/CORE.md
 # PT-036 . el enlace apunta a donde el contenido ESTA. Un issue se abre al EMPEZAR el trabajo, y
 # entonces su contenido solo existe en la rama de trabajo: apuntar a la principal daba 404 en el
 # momento en que mas se lee. Lo dijo quien lo intento abrir, no un caso.
-trlib "lo vivo enlaza la rama de trabajo"     "tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
-trlib "lo integrado enlaza la principal"      "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-95',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
-trlib "sin saber la rama, cae en la principal" "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+#
+# PT-079 . y arregla el 404 SIMETRICO: la rama efimera se borra al fusionar (FDGE-R19), asi
+# que el enlace que PT-036 hizo apuntar ahi moria con ella. 14 de 16 daban 404 al medirlo.
+#
+# Los dos tienen razon, y «refDurable» es la sintesis: el ref lo calcula el CONTEXTO mirando
+# donde esta el contenido de verdad —la rama de integracion, o el commit—, en vez de
+# deducirlo de en que rama corre el espejo. La intencion de estos casos NO cambia; cambia de
+# donde sale el ref que comprueban.
+trlib "lo vivo enlaza la rama de trabajo"     "tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}))"
+trlib "lo integrado enlaza la principal"      "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-95',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',refDurable:'main'}))"
+# PT-079 · este caso CAMBIA de sentido, y es el nucleo del arreglo. Caer en la principal
+# cuando no se sabia la rama es LITERALMENTE lo que producia los enlaces muertos: apuntaba a
+# un sitio que podia no contener el directorio. Ahora, sin ref durable, NO se enlaza — y se
+# DICE (RULE-06). Un 404 silencioso es peor que una ruta sin enlace.
+trlibno "sin ref durable NO cae en la principal" "tree/main/"  "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+trlib   "…y lo dice en vez de callarlo"          "sin enlace"  "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
 # PT-048 · el cuerpo NO enlaza a un directorio que no existe. SUITE-R44 exime a un DEFERRED de
 # tener artefactos y PT-036 dice donde apunta el enlace: las dos correctas, y juntas producian un
 # 404 en el UNICO artefacto que un aplazado tiene. Se mira el directorio, no el estado: un PT
@@ -1611,10 +1683,10 @@ trlib "y cita la regla que lo exime"       "SUITE-R44" "console.log(m.cuerpoDeIs
 # «sin artefactos todavia» con «el enlace apunta a…» justo debajo. Lo vio mirar el issue
 # publicado, no leer el diff.
 trlibno "sin enlace, no explica el enlace"  "El enlace apunta"  "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
-trlib "con directorio, el enlace sigue"    "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-98',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo',hayDirectorio:true}))"
+trlib "con directorio, el enlace sigue"    "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-98',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo',hayDirectorio:true}))"
 # El que protege a los demas: sin el dato, el comportamiento es el de HOY. Un undefined no es un
 # «no existe», y tratarlo como tal apagaria el enlace en TODOS los cuerpos.
-trlib "sin el dato, se comporta como hoy"  "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
+trlib "sin el dato, se comporta como hoy"  "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}))"
 trlib "y el cuerpo dice donde esta"           "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
 
@@ -1939,7 +2011,7 @@ chk   "SUITE-R43 sigue exigiendo respuesta"  "no avanza"   cat "$SUITE/RULES.md"
 # un issue es un 404. Lo vio una persona mirando el tablero: ninguna comprobacion detecta que un
 # enlace resuelve ni que un texto se contradice.
 EP1='{id:"EP-9",type:"EP",slug:"x",status:"IN_PROGRESS"}'
-OPC='{url:"https://github.com/o/r",rama:"main",tareas:[{id:"PT-1",issue:5,title:"uno"},{id:"PT-2",issue:6,title:"dos"}]}'
+OPC='{url:"https://github.com/o/r",rama:"main",refDurable:"main",tareas:[{id:"PT-1",issue:5,title:"uno"},{id:"PT-2",issue:6,title:"dos"}]}'
 trlib "el EP no se niega a si mismo"      "^LIMPIO$"   "console.log(/sin implementación/.test(m.cuerpoDeIssue($EP1,$OPC))?\"HAY\":\"LIMPIO\")"
 trlib "y dice que ES una implementacion"  "Implementación abierta"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
 trlib "el enlace es absoluto"             "https://github.com/o/r"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
@@ -2596,6 +2668,69 @@ chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/t
 # cifras reales no comprobaban nada. Es el mismo defecto que PT-023 persigue: verde por vacio.
 RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
 TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+
+# ─── PT-079 · el rastro sobrevive a la rama ──────────────────────────────────
+sec "── PT-079 · lo que se aprende se hace mecanico ──"
+#
+# FAMILIA A · el enlace del issue apuntaba a «la rama en la que corre el espejo», no a la
+# de la tarea enlazada. Y esa rama se borra al fusionar (FDGE-R19). Medido el 2026-08-19
+# sobre el tablero real: 14 de 16 enlaces daban 404, y el de PT-072 apuntaba a la rama de
+# PT-074 —otra tarea—.
+#
+# NO se perdia la documentacion: changes/PT-075 tiene sus 10 archivos en «trabajo». Se
+# perdia el ENLACE. Por eso el arreglo no es salvar los .md, es apuntar a un ref durable.
+#
+# cuerpoDeIssue sigue siendo PURA (PT-048): el ref lo calcula el contexto, que si tiene
+# disco y git. Aqui se le inyecta.
+trlib "el enlace usa el ref durable"        "/tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2'},{url:'u',refDurable:'trabajo',hayDirectorio:true}))"
+trlib "…y un SHA tambien vale"              "/tree/abc1234/"   "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2'},{url:'u',refDurable:'abc1234',hayDirectorio:true}))"
+# E3 · RULE-06 · sin ref durable NO se inventa una URL. PT-036 ya lo dejo escrito.
+trlibno "sin ref durable no inventa enlace"  "/tree/"          "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2'},{url:'u',refDurable:null,hayDirectorio:true}))"
+trlib  "…y lo DICE"                          "sin enlace"      "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2'},{url:'u',refDurable:null,hayDirectorio:true}))"
+# E4 · el ref sale del CONTENIDO, no de donde se ejecuta el espejo: «ramaTrabajo» ya no
+# decide el enlace. Es el defecto que hacia que el issue de PT-072 apuntara a PT-074.
+trlibno "la rama del espejo NO decide"       "otra-rama"       "console.log(m.cuerpoDeIssue({id:'PT-9',type:'BUG',slug:'x',severity:'S2'},{url:'u',refDurable:'trabajo',ramaTrabajo:'otra-rama',hayDirectorio:true}))"
+
+# E5 · la rama del enlace se puede EXTRAER de un cuerpo publicado: es lo que verify-fdge
+# necesita para comprobar que sigue existiendo.
+trlib "se extrae la rama de un enlace"      "^trabajo$"        "console.log(m.refDeEnlace('ver [x](https://h/o/r/tree/trabajo/changes/PT-9-x)'))"
+trlib "…y null si no hay enlace"            "^null$"           "console.log(JSON.stringify(m.refDeEnlace('sin enlace ninguno')))"
+# El ref tiene TRES segmentos —FDGE-R19: <type>/<usuario>/PT-NNN-slug—, asi que extraerlo
+# cortando en la primera barra devuelve «fix» y da por bueno cualquier enlace muerto. Me paso
+# midiendo el tablero para esta misma tarea: la medicion decia 20 rotos con los refs mal leidos,
+# y era casualidad que el numero saliera igual. Un extractor que corta de menos NO falla: acierta
+# el veredicto por accidente, que es la forma de error que este lote persigue.
+trlib "…y el ref de tres segmentos entero"  "^fix/ana/PT-9-x$" "console.log(m.refDeEnlace('ver [x](https://h/o/r/tree/fix/ana/PT-9-x/changes/PT-9-x)'))"
+
+# FAMILIA B · las guardas del arnes.
+#
+# B-1 ABORTA. En PT-074 se me olvido el assert y la inversa dio VERDE EN LOS TRES CASOS
+# sin revertir nada: str.replace no falla cuando no casa, hace nada en silencio. Una
+# inversa que no revierte certifica lo contrario de lo que pretende (PT-050).
+probar_inversa() {  # $1 patron · imprime ABORTA, APLICA o SIN_HELPER
+  # Distinguir «aborto porque el patron no casa» de «aborto porque el helper NO EXISTE»: sin
+  # esta guarda el caso pasaba EN VERDE con «inversa» sin escribir todavia —el if fallaba y
+  # devolvia ABORTA—. Es exactamente el falso verde que esta tarea persigue, cometido mientras
+  # se escribia. Lo dijo ejecutarlo antes de implementar, que es para lo que sirve FDGE-R17.
+  type inversa >/dev/null 2>&1 || { echo SIN_HELPER; return; }
+  printf 'linea uno\nlinea dos\n' > "$WORK/inv.txt"
+  if inversa "$WORK/inv.txt" "$1" "cambiado" >/dev/null 2>&1; then echo APLICA; else echo ABORTA; fi
+}
+chk   "una inversa que no casa ABORTA"      "ABORTA"   probar_inversa "patron-que-no-existe"
+chk   "…y una que casa, aplica"             "APLICA"   probar_inversa "linea dos"
+
+# B-2 y B-3 AVISAN, no bloquean: hay aserciones legitimas sobre identificadores, y un
+# arnes que nace rojo se apaga. Se enumeran con su linea y la cifra queda medida.
+chk   "las aserciones sospechosas se enumeran"  "sospechosa\|ninguna"  lint_aserciones
+chk   "los helpers usados antes se enumeran"    "helper\|ninguno"      lint_helpers
+
+# FAMILIA C · los cinco sitios. Sin esto, A y B son dos mecanismos correctos que nadie
+# invoca — el septimo caso del lote con esa forma.
+chk   "SUITE-R56 existe en RULES"           "SUITE-R56"   cat "$SUITE/RULES.md"
+chk   "…y PHASE 9 la cita"                  "SUITE-R56"   cat "$SUITE/PHASES.md"
+chk   "…y el prompt de G4 tambien"          "SUITE-R56"   cat "$SUITE/FDGE-Prompts.md"
+chk   "…y CASOS-DE-USO tiene el caso"       "rastrear una tarea"  cat "$SUITE/CASOS-DE-USO.md"
+chk   "…y el MANUAL nombra proyectar"       "proyectar"   cat "$SUITE/MANUAL.md"
 
 # ─── PT-066 · la regla que se consulta es la que se define ───────────────────
 sec "── PT-066 · definir no es mencionar ──"

@@ -421,6 +421,10 @@ HAZ  precondiciones, todas verificables [FDGE-R34]:
      PR «PT-XXX tipo: título» con enlaces a Proposal, evidencia y manifest · CI verde
      tras el merge: tag si aplica · borrar rama · PT→INTEGRATED · intake.md CLOSED
        CONSERVAR changes/PT-XXX-slug/ [FDGE-R35] · actualizar HANDOFF, BACKLOG, REGISTRY
+     tras el merge: PUBLICAR LA PROYECCION — el rastro sobrevive a la rama  [SUITE-R56]
+       node tools/tracker.mjs proyectar --publicar
+       la rama efimera se borra (FDGE-R19); el enlace del issue apunta a un ref
+       DURABLE y la proyeccion guarda el SHA de cada tarea
 PARA G4 HUMANA EN LOS TRES MODOS, sin excepción [FDGE-R33, EXEC-R04]. Prepara el comando y
      descríbelo. Registra quién resolvió cada compuerta [SUITE-R22].
 ```

@@ -1,0 +1,5 @@
+
+| Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
+|:---|:---|:---|:---|:---|:---|:---|
+| PT-019 | CHORE | REOPENED | 1 | — | — | 27f5351 |
+| PT-025 | CHORE | DEFERRED | — | — | — | — |
