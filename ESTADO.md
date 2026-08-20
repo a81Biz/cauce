@@ -11,7 +11,7 @@ Proyectado el 2026-08-20 · 13 allocation(es) viva(s).
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-017 |  | READY | 1 | — | — | 5ab0bda |
-| PT-069 | FEATURE | READY | 1 | — | — | b39dfd1 |
+| PT-069 | FEATURE | READY | 2 | — | — | b39dfd1 |
 | PT-070 | BUG | READY | 1 | — | — | b39dfd1 |
 | PT-071 | BUG | READY | 1 | — | — | b39dfd1 |
 | PT-073 | CHORE | READY | 1 | — | — | b39dfd1 |
