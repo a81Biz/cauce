@@ -1,0 +1,14 @@
+=== PT-069 · los indices se derivan del registro ===
+fecha: 2026-08-20
+
+-- ANTES: 89 filas para 86 tareas --
+   DISCOVERY 33 · ENRICHMENT 4 · REFACTOR_SCOPE 52
+   27 mal archivadas: 16 bugs y 11 features en el indice de refactors
+
+-- DESPUES, derivado --
+    · DISCOVERY.md: 43 fila(s) · ya al dia
+    · ENRICHMENT.md: 15 fila(s) · ya al dia
+    · REFACTOR_SCOPE.md: 28 fila(s) · ya al dia
+
+-- ninguna tarea queda fuera --
+  PT en el registro: 86 · FUERA de todo indice: 0

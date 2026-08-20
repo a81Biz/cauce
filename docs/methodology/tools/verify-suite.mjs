@@ -33,6 +33,8 @@ import { createHash } from 'node:crypto';
 import { selloDe, PATRONES, NATURALEZAS, MEDIDO, ESTIMADO, SIN_EVALUAR } from './patrones.mjs';
 // PT-081 · AC-08 · lo que impide la CUARTA regla nueva sin version de entrada declarada.
 import { reglasDelMarco, reglasNuevasSinVersion } from './patrones.mjs';
+// PT-080 · una regla no se define dos veces. Es la enfermedad que motivo la v4.
+import { definidasDosVeces } from './patrones.mjs';
 import { execFileSync } from 'node:child_process';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
@@ -592,6 +594,26 @@ const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''
 //
 // AVISA, no falla. Sin poder leer la version anterior devuelve null y NO se inventa nada
 // (RULE-06): sin saber que habia antes no se sabe que es nuevo.
+// PT-080 · SUITE-R38 · LEX-R22 · un ID definido en DOS documentos propietarios.
+//
+// Tres lo estaban en la v9 —FDGE-R22, R40 y R41— y las tres copias YA divergian, siempre en la
+// misma direccion: la de EXECUTION-MODES soltaba una obligacion. La de FDGE-R22 dejaba el carril
+// HOTFIX abierto a un S3, y ese carril difiere G2 y G3.
+//
+// FALLA, no avisa: LEX-R22 dice que ningun documento salvo RULES.md enuncia obligaciones, y
+// SUITE-R38 prohibe dos fuentes del mismo hecho. Las dos son HARD.
+(() => {
+  const leerDoc = (f) => { try { return readFileSync(join(BASE, f), 'utf8'); } catch { return ''; } };
+  const propietarios = {};
+  for (const f of ['RULES.md', 'LEXICON.md', 'EXECUTION-MODES.md']) propietarios[f] = leerDoc(f);
+  for (const d of definidasDosVeces(propietarios)) {
+    fail('SUITE-R38', d.docs[0], 0, `${d.id} está DEFINIDA en ${d.docs.join(' y en ')}. `
+      + 'Una regla tiene un solo documento propietario (LEX-R22): los demás la CITAN por ID. '
+      + 'Dos textos divergen — es lo que le pasó a la v3, y en la v9 las tres copias que había '
+      + 'ya habían perdido una obligación cada una.');
+  }
+})();
+
 (() => {
   const leerAhora = (f) => { try { return readFileSync(join(BASE, f), 'utf8'); } catch { return ''; } };
   // La linea base es el TAG de la version anterior, no «origin/main». Elegi main primero y la

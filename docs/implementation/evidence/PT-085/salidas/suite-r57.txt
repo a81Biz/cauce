@@ -1,0 +1,21 @@
+=== A · contradiceElRegistro ===
+  el handoff REAL de hoy : []
+  uno que MIENTE         : 2 contradiccion(es)
+     «tarea:» afirma que PT-081 sigue en curso y el registro dice INTEGRATED
+     «tarea:» afirma que PT-019 sigue en curso y el registro dice INTEGRATED
+  lote mal declarado     : ["«implementación:» declara EP-017 CERRADA y el registro dice READY"]
+
+=== C · sinSellar ===
+  ids sellados en v9.0.0 : 77
+  INTEGRADAS sin sellar  : 1 · PT-025
+  sin poder leer el tag  : null
+
+=== D · selloSinResolver ===
+  acta vacia             : ["MANUAL.md","CASOS-DE-USO.md","README.md","Suite-CLAUDE-Template.md","graphify-out/"]
+  acta a medias          : ["README.md","Suite-CLAUDE-Template.md","graphify-out/"]
+     (README figura porque NO PROCEDE sin motivo no resuelve)
+
+=== E · derivaDelGrafo ===
+  archivos descritos     : 16
+  DERIVADOS              : 12
+  sin manifiesto         : null

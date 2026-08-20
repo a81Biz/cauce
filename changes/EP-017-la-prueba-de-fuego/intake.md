@@ -245,6 +245,53 @@ tarea escribe su intake y PT-069 entrega el generador. NO cubre G4 ni publicar.
 
 ## Cierre del lote
 
+| PT | Estado | Resuelta por |
+|:---|:---|:---|
+| `PT-055` | INTEGRATED | HECHO · la compuerta del lote mira al lote que evalúa |
+| `PT-066` | INTEGRATED | HECHO · la definición es la que EMPIEZA por el ID, no la que lo menciona |
+| `PT-067` | INTEGRATED | HECHO · el universo son 223 reglas, no 181, y una mención no es un verificador |
+| `PT-068` | INTEGRATED | HECHO · la marca de sesión es de quien la abre |
+| `PT-069` | INTEGRATED | HECHO · `tracker indices` · 86 PT indexados, cero fuera |
+| `PT-070` | INTEGRATED | HECHO · el alcance del grafo se deriva, y coincide con lo que `PT-020` escribió a mano |
+| `PT-071` | INTEGRATED | HECHO · `publicar` corre las 8 comprobaciones, no 5 |
+| `PT-072` | INTEGRATED | HECHO · **un proyecto nuevo de verdad** · siete huecos, dos `S1` |
+| `PT-073` | INTEGRATED | HECHO · los tres documentos, escritos con lo que las pruebas enseñaron |
+| `PT-074` | INTEGRATED | HECHO · la viabilidad se ve en el tablero |
+| `PT-075` | INTEGRATED | HECHO · una regla sin verificador no ocurre |
+| `PT-076` | INTEGRATED | HECHO · el arnés no escribe en el repositorio real |
+| `PT-077` | INTEGRATED | HECHO · `avanzar` respeta el `STATE_MISMATCH` que `siguiente` bloquea |
+| `PT-078` | INTEGRATED | HECHO · ninguna regla sin clasificar · 94 + 5 + 125 = 224 |
+| `PT-079` | INTEGRATED | HECHO · el rastro sobrevive a la rama · 0 de 85 enlaces rotos |
+| `PT-080` | INTEGRATED | HECHO · ninguna regla con dos textos · `EXECUTION-MODES` de 17 a 14 |
+| `PT-081` | INTEGRATED | HECHO · una regla nueva no rige hacia atrás · `EP-017` es la `10.0.0` |
+| `PT-082` | INTEGRATED | HECHO · un caso no depende de quién lo ejecuta · `trabajo` protegida |
+| `PT-083` | INTEGRATED | HECHO · la plantilla del paquete pasa su propio verificador |
+| `PT-084` | INTEGRATED | HECHO · la plataforma es opcional de verdad · nota en `TRANSICIONES.log` |
+| `PT-085` | INTEGRATED | HECHO · el sello de versión · el estado retomable dice la verdad |
+| `PT-086` | INTEGRATED | HECHO · la batería corre lo afectado · 134 de 1118 casos, 106 s |
+| `PT-019` | INTEGRATED | HECHO · **el legado real se puede migrar** · `4.12.0`, 127 tareas, `0` cambios |
+| `PT-025` | DEFERRED | DIFERIDA a `PT-025` · Azure sigue sin proyecto que lo use (`F3`). Deuda declarada, no resuelta |
+
+## Lo que el lote entrega, en tres cifras
+
+```
+tareas                21 integradas + 1 diferida, declarada
+reglas nuevas         SUITE-R56 · FDGE-R54 · SUITE-R57
+selftest              976 → 1118 casos
+```
+
+## Y lo que NO se hizo, dicho aquí y no en una nota al pie
+
+**El ciclo `QA → PTSA → FPGE` sigue sin ejecutarse** (`TD-15`). El intake lo pedía al cerrar, y no
+se hizo: son **componentes**, con sus propios identificadores y compuertas, y meterlos en el
+cierre de este lote habría convertido una prueba de fuego en tres.
+
+Queda como lo que es —deuda declarada, no un olvido— y `SUITE-R57` garantiza que se vea: son tres
+componentes sin ejecutar sobre una versión que ya se sella.
+
+**`migrate --apply` tampoco se ejecutó** (`PT-019`): se validó que el informe es correcto y
+accionable, no que aplicarlo funcione.
+
 `EP-017` pasa a `CLOSED` cuando las trece estén `INTEGRATED`/`CLOSED` o retiradas
 explícitamente, con entrada propia en `HISTORY.log`.
 
@@ -272,21 +319,6 @@ lo entregado.
 Si una se bloquea, **el lote entero se detiene** (`FDGE-R41`) y `EP-017` pasa a `BLOCKED` con la
 causa en `BACKLOG.md`.
 
-| PT | Estado | Resuelta por |
-|:---|:---|:---|
-| `PT-075` | | |
-| `PT-055` | | |
-| `PT-066` | | |
-| `PT-067` | | |
-| `PT-076` | | |
-| `PT-068` | | |
-| `PT-074` | | |
-| `PT-069` | | |
-| `PT-070` | | |
-| `PT-071` | | |
-| `PT-072` | | |
-| `PT-019` | | |
-| `PT-073` | | |
 
 ---
 

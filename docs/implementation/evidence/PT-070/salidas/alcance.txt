@@ -1,0 +1,12 @@
+=== PT-070 · el alcance del grafo, derivado ===
+fecha: 2026-08-20
+
+  cauce            alcance: bin docs/methodology/tools
+  registro (PT-020 lo escribio A MANO)  bin, docs/methodology/tools
+  ^ coinciden: la derivacion reproduce el juicio humano que la precedio
+
+  proyecto nuevo   alcance: src
+  ^ NO mete las 16 herramientas del marco instalado: es de terceros (FND-R28)
+
+  legado real      alcance: apps/admin apps/api/src apps/base apps/rb packages/core/src/ai packages/core/src/cms packages/core/sr
+  cambios en el legado: 0

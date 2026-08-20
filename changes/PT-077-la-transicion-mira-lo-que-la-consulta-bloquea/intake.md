@@ -9,9 +9,8 @@ id: PT-077
 type: BUG
 epic: EP-017
 track: STANDARD
-status: READY
-phase: 1
-created: 2026-08-19
+status: INTEGRATED
+phase: 10created: 2026-08-19
 structural: no
 suite_version: 10.0.0
 ---

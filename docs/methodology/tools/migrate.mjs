@@ -236,7 +236,7 @@ if (lt('5.0.0')) {
     need('OPCIONAL — declarar plataforma de trabajo: "tracker": { "plataforma": "github" }. '
       + 'Con ella, el estado deja de vivir en la memoria del agente: cada tarea tiene su issue '
       + 'con su fase y su compuerta, y el espejo se comprueba en las compuertas (SUITE-R35). '
-      + 'Sin ella no cambia nada. Declararla es una decisión humana, y activa además SUITE-R42 '
+      + 'Sin ella el trabajo SIGUE FUNCIONANDO: desde PT-084 las notas de transición van a docs/implementation/TRANSICIONES.log en vez de a un issue. Lo que pierdes es consultar el estado sin abrir el repositorio. Declararla es una decisión humana, y activa además SUITE-R42 '
       + '—G4 sobre un pull request— y SUITE-R43 —los comentarios se leen—.');
   } else {
     need(`plataforma «${reg.tracker.plataforma}» declarada: sincroniza el espejo antes de operar. `

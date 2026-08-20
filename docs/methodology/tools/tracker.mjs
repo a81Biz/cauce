@@ -29,7 +29,7 @@
  * CRLF: todo parseo por lineas usa split(/\r?\n/).
  */
 
-import { readFileSync, existsSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, rmSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -51,6 +51,8 @@ import {
   soloDe, sinPersona,
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
+  // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
+  sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
 } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
@@ -958,7 +960,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'indices']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1687,6 +1689,37 @@ function sesion() {
     di(`  Apilado en SESSION_LOG.md. ${archivoSesion(yoSoy())} NO se borra: al abrir la siguiente`);
     di('  se sobrescribe. Un SESSION.json antiguo, si lo hay, ya no se escribe (PT-068).');
     di('  Y HANDOFF.md queda INTACTO: su prosa es lo unico del estado que no se puede derivar.');
+    // PT-085 · B · y se COMMITEA, o no se dice que cerro.
+    //
+    // SUITE-R09 hace este ledger append-only para que sea la prueba de que algo ocurrio. Una
+    // prueba que vive solo en el arbol de trabajo no es una prueba: la entrada del cierre del
+    // 2026-08-19 seguia sin commitear a la mañana siguiente, y la encontro una revision, no una
+    // comprobacion.
+    //
+    // Se commitea SOLO SESSION_LOG.md. Arrastrar el resto del arbol mezclaria trabajo ajeno en
+    // un commit de cierre — y `tracker avanzar` ya establecio la forma: los actos de un comando
+    // son suyos o no son.
+    // `gitDe` devuelve null en vez de lanzar, asi que el fallo se comprueba mirando el valor.
+    // Envolverlo en try/catch no habria cazado nada — y el caso habria pasado en verde.
+    const LEDGER = 'docs/implementation/SESSION_LOG.md';
+    const anadido = gitDe(['add', '--', LEDGER]);
+    if (anadido === null) {
+      throw new Error('la sesion NO se cierra: la entrada se escribio en SESSION_LOG.md y git no pudo indexarla. '
+        + 'Un ledger append-only sin commit no es un rastro (SUITE-R09).');
+    }
+    const pendiente = gitDe(['diff', '--cached', '--name-only', '--', LEDGER]);
+    if (pendiente) {
+      const hecho = gitDe(['commit', '-m', 'chore: sesion cerrada · entrada del ledger (SUITE-R09)',
+        '--only', '--', LEDGER]);
+      if (hecho === null) {
+        throw new Error('la sesion NO se cierra: la entrada esta en SESSION_LOG.md y el commit fallo. '
+          + 'Un cierre que dice haber ocurrido sin dejar rastro es peor que no cerrar, porque la sesion '
+          + 'siguiente confia en el. Commitea a mano y vuelve a ejecutar.');
+      }
+      di('  Entrada COMMITEADA: un ledger append-only sin commitear no es un rastro.');
+    } else {
+      di('  (la entrada ya estaba commiteada)');
+    }
     return;
   }
 
@@ -2123,11 +2156,54 @@ function avanzar() {
       + 'saltar apaga las comprobaciones que la fase saltada habilita, y retroceder no es una transicion.');
   }
   if (!FASES[destino]) throw new Error(`PHASE ${destino} no existe en el procedimiento.`);
-  if (!a.issue) throw new Error(`${id} no tiene issue: la nota no tendria donde ir (SUITE-R35).  tracker abrir --aplicar`);
-  if (!adaptador?.comentar) throw new Error('sin plataforma con la que comentar, la nota no tiene donde ir. avanzar la EXIGE (FDGE-R52).');
-  // El acceso tambien es una validacion: mejor no escribir nada que escribir y revertir.
-  if (adaptador.disponible && !adaptador.disponible()) {
-    throw new Error('hay plataforma declarada y no hay acceso: la nota no podria publicarse (FND-R30).  gh auth login');
+
+  // PT-077 · el mismo STATE_MISMATCH que `siguiente` BLOQUEA, `avanzar` lo ignoraba.
+  //
+  // La guarda existia UNA sola vez, en la consulta. Encontrado ejecutandolo: «tracker siguiente»
+  // bloqueo la transicion de PT-075 y «tracker avanzar» la hizo igual, en la misma orden y con
+  // el mismo bloqueo delante. Una compuerta que solo vigila el camino que nadie usa no vigila.
+  //
+  // No se repara el checkpoint: reescribirlo borra la unica prueba de que hubo divergencia, y
+  // decidir si manda el arbol o la foto es de SUITE-R06. Se detiene y se propone el comando.
+  const arbolAqui = (() => {
+    const cp = leerJSON(join(IMPL, 'CHECKPOINT.json'));
+    if (!cp || cp.pt !== id) return null;   // sin foto de ESTE PT no hay nada que contrastar
+    try {
+      // El contrato es {sha, rama, descendiente} con VALORES, no funciones. Lo escribi con
+      // funciones y el mensaje imprimio el CODIGO de la funcion como si fuera la rama real:
+      // «real () => gitDe([...])». Bloqueaba bien y explicaba mal — y un mensaje que no dice la
+      // verdad sobre el estado es media compuerta. Se copia la llamada que ya funciona.
+      return estadoDelArbol(cp, {
+        sha: gitDe(['rev-parse', 'HEAD']),
+        rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+        descendiente: desciendeDe(cp.sha),
+      });
+    } catch { return null; }
+  })();
+  if (arbolAqui && arbolAqui.corresponde === false) {
+    throw new Error(`${textoDiscrepancia(arbolAqui)}${SALTO}${SALTO}`
+      + 'avanzar NO continua: cambiar de fase sobre un arbol que no es el declarado registra una '
+      + 'transicion que no ocurrio donde dice. Es el mismo bloqueo que «tracker siguiente» ya '
+      + 'aplicaba, y que aqui faltaba (PT-077).');
+  }
+  // PT-084 · la nota necesita DONDE IR, y el tablero no es el unico sitio.
+  //
+  // Hasta aqui: avanzar exigia --nota, la nota exigia issue y el issue exigia plataforma. Y
+  // FDGE-R52 hace de avanzar la UNICA forma sancionada de cambiar de fase, asi que un proyecto
+  // sin tablero no podia avanzar NI UNA FASE. Mientras tanto SUITE-R22 declara soportado el
+  // equipo de una sola persona y migrate escribe «OPCIONAL — declarar plataforma de trabajo.
+  // Sin ella no cambia nada». Era falso, y lo midio PT-072 no declarandola a proposito.
+  //
+  // La salida facil era hacerla obligatoria. Rompe SUITE-R22, que es una promesa del marco.
+  // La nota vive ahora en TRANSICIONES.log —append-only, SUITE-R09— cuando no hay tablero, que
+  // es donde ya viven los hechos que no tienen plataforma.
+  const HAY_TABLERO_PARA_LA_NOTA = Boolean(adaptador?.comentar);
+  if (HAY_TABLERO_PARA_LA_NOTA) {
+    if (!a.issue) throw new Error(`${id} no tiene issue: hay plataforma declarada y la nota debe espejarse (SUITE-R35).  tracker abrir --aplicar`);
+    // El acceso tambien es una validacion: mejor no escribir nada que escribir y revertir.
+    if (adaptador.disponible && !adaptador.disponible()) {
+      throw new Error('hay plataforma declarada y no hay acceso: la nota no podria publicarse (FND-R30).  gh auth login');
+    }
   }
 
   if (ARGS.includes('--ver')) {
@@ -2200,7 +2276,9 @@ function avanzar() {
     // no es indiferente: una etiqueta desincronizada es DERIVADA y se rehace sola con
     // `abrir --aplicar`; una nota que falta no se rehace, y es justo lo que este comando existe
     // para impedir. Lo que se puede recuperar va primero.
-    if (adaptador.etiquetasDeIssue && adaptador.etiquetar) {
+    // PT-084 · `adaptador?.` — sin plataforma declarada no hay adaptador, y el espejo de este
+    // paso simplemente no aplica. Antes reventaba con «Cannot read properties of undefined».
+    if (adaptador?.etiquetasDeIssue && adaptador?.etiquetar) {
       const debe = etiquetasDe(a);
       const tiene = adaptador.etiquetasDeIssue(a.issue);
       const quitar = tiene.filter((n) => RE_DERIVADA.test(n) && !debe.includes(n));
@@ -2222,7 +2300,18 @@ function avanzar() {
     const r = queSigue(a);
     const cuerpo = `${MARCA_AGENTE}\n**PHASE ${actual} → ${destino}** · \`${id}\`\n\n${nota.trim()}\n\n`
       + `**Dónde:** \`PHASE ${destino}\` · ${FASES[destino].nombre}. **Sigue:** ${r.siguiente}`;
-    adaptador.comentar(a.issue, cuerpo);
+    if (HAY_TABLERO_PARA_LA_NOTA) {
+      adaptador.comentar(a.issue, cuerpo);
+    } else {
+      // PT-084 · sin tablero, la nota va al ledger de transiciones. Append-only (SUITE-R09):
+      // es la prueba de que la fase cambio, y una prueba que se reescribe no lo es.
+      const ruta = join(IMPL, 'TRANSICIONES.log');
+      const previo = (() => { try { return readFileSync(ruta, 'utf8'); } catch { return ''; } })();
+      const cuando = gitDe(['log', '-1', '--format=%cs']) ?? 'sin-fecha';
+      const entrada = `${SALTO}## ${cuando} · ${id} · PHASE ${actual} -> ${destino}${SALTO}${SALTO}${cuerpo}${SALTO}`;
+      writeFileSync(ruta, previo + entrada, 'utf8');
+      notas.push(`${id}: nota en docs/implementation/TRANSICIONES.log — no hay plataforma declarada`);
+    }
 
     // 7 · LA PROYECCION · PT-054 · va DESPUES de la nota, y esto CORRIGE lo que la estrategia
     // de PT-054 escribio.
@@ -2247,7 +2336,162 @@ function avanzar() {
   }
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama };
+// ── PT-085 · C · D · E · sellar ─────────────────────────────────────────────
+//
+// SUITE-R57 · La deuda de sellado no se prohibe: se hace imposible de ignorar. Esta accion
+// enumera lo que falta para cerrar una version y SE DETIENE en lo humano (EXEC-R07).
+//
+// No publica ni etiqueta: los dos son SUITE-R06a. Lo que hace es que nadie pueda decir que no
+// sabia que faltaba.
+const VERSION_DEL_PROYECTO = reg?.suite_version ?? '0.0.0';
+
+function sellar() {
+  const idsDelTag = (() => {
+    const tag = (gitDe(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
+      .trim().split(/\s+/).filter(Boolean).find((t) => t !== `v${VERSION_DEL_PROYECTO}`);
+    if (!tag) return { tag: null, ids: null };
+    const j = gitDe(['show', `${tag}:docs/implementation/REGISTRY.json`], { crudo: true });
+    if (!j) return { tag, ids: null };
+    try {
+      return { tag, ids: JSON.parse(j).allocations.filter((a) => ESTADOS_TERMINALES.has(a?.status)).map((a) => a.id) };
+    } catch { return { tag, ids: null }; }
+  })();
+
+  const falta = sinSellar(reg.allocations ?? [], idsDelTag.ids);
+  const umbral = Number(reg?.tracker?.umbral_sellado ?? 3);
+
+  di('');
+  di(`  sellar · version vigente ${VERSION_DEL_PROYECTO} · tag anterior ${idsDelTag.tag ?? 'NINGUNO'}`);
+  di('');
+  if (falta === null) {
+    di('  deuda de sellado   SIN EVALUAR — no se pudo leer el registro del tag anterior.');
+    di('                     Sin saber que hay sellado no se sabe que falta, y suponerlo');
+    di('                     bloquearia el proyecto entero (RULE-06).');
+  } else {
+    di(`  deuda de sellado   ${falta.length} de lotes CERRADOS · umbral ${umbral}`);
+    if (falta.length) di(`                     ${falta.join(' · ')}`);
+    di('                     Las tareas de un lote ABIERTO no cuentan: EXEC-R03 hace del lote');
+    di('                     la unidad de sellado, y contarlas lo bloquearia consigo mismo.');
+  }
+
+  // E · el grafo al dia
+  const man = leerJSON(join(ROOT, 'graphify-out', 'manifest.json'));
+  const deriva = derivaDelGrafo(man, (ruta) => {
+    const p = ruta.split(String.fromCharCode(92)).join('/');
+    try { return statSync(p).mtimeMs / 1000; } catch { return null; }
+  });
+  di('');
+  if (deriva === null) di('  grafo              SIN MANIFIESTO — no hay con que comparar (FDGE-R43).');
+  else if (deriva.length) {
+    di(`  grafo              SUSPECT · ${deriva.length} de ${Object.keys(man).length} archivos cambiaron`);
+    di('                     Regeneralo antes de sellar: /graphify (FDGE-R32, lo dispara el humano)');
+  } else di('  grafo              al dia.');
+
+  // D · los documentos que lee quien llega
+  const acta = (() => { try { return readFileSync(join(IMPL, 'SELLO.md'), 'utf8'); } catch { return ''; } })();
+  const sinResolver = selloSinResolver(acta);
+  di('');
+  di('  documentos de entrada  (cada uno ACTUALIZADO o NO PROCEDE con motivo — FND-R22)');
+  for (const d of DOCUMENTOS_DE_ENTRADA) {
+    di(`    ${sinResolver.includes(d) ? '✗' : '✓'}  ${d}`);
+  }
+  if (sinResolver.length) {
+    di('');
+    di(`  ${sinResolver.length} sin resolver en docs/implementation/SELLO.md. Una celda vacia es`);
+    di('  indistinguible de una que nadie miro, y por eso no pasa.');
+  }
+
+  di('');
+  di('  ── lo que falta para sellar ──────────────────────────────────────────');
+  di('  1 · entrada en CHANGELOG.md con su guia de migracion        [SUITE-R19]');
+  di('  2 · node tools/version.mjs --aplicar   (los 21 documentos)');
+  di('  3 · node tools/build-core.mjs          (CORE regenerado)');
+  di('  4 · bash tools/selftest.sh             BATERIA COMPLETA, no parcial');
+  di('  5 · /graphify   y REGISTRY.graph al dia                     [FDGE-R32]');
+  di('  6 · docs/implementation/SELLO.md con los cinco resueltos');
+  di('  7 · PR a la rama por defecto  ·  HUMANO                     [EXEC-R04]');
+  di('  8 · git tag -a v<version>     ·  HUMANO, y DESPUES del merge');
+  di('');
+  di('  Los pasos 7 y 8 NO los ejecuta el agente (SUITE-R06a). El 8 va despues del 7:');
+  di('  un tag antes del merge apunta a un arbol sin lo que la version trae, y la linea');
+  di('  base de FDGE-R43 y de AC-08 quedaria mintiendo (PT-081).');
+  cerrarPasada();
+}
+
+// ── PT-069 · los indices se DERIVAN del registro ────────────────────────────
+//
+// PHASE 8 ordena regenerarlos, SUITE-R35 exige que espejen el registro, verify-fdge lo comprueba
+// y el «no hacer» del HANDOFF prohibe editarlos a mano. Y NINGUNA herramienta los generaba: las
+// cuatro instrucciones no se podian cumplir a la vez.
+//
+// El resultado de editarlos a mano esta medido: REFACTOR_SCOPE acabo con catorce filas pegadas
+// en una linea, y BACKLOG llevo ocho lotes declarando un estado de tres versiones atras.
+//
+// Cada indice tiene su TIPO, y el reparto sale de LEX-R12: los bugs y las investigaciones a
+// DISCOVERY, las features a ENRICHMENT, los refactors y chores a REFACTOR_SCOPE.
+const INDICES = {
+  'DISCOVERY.md': {
+    tipos: new Set(['BUG', 'INVESTIGATION']),
+    titulo: 'DISCOVERY — índice de bugs e investigaciones',
+    que: 'el análisis',
+  },
+  'ENRICHMENT.md': {
+    tipos: new Set(['FEATURE']),
+    titulo: 'ENRICHMENT — índice de features',
+    que: 'el enriquecimiento',
+  },
+  'REFACTOR_SCOPE.md': {
+    tipos: new Set(['REFACTOR', 'CHORE']),
+    titulo: 'REFACTOR_SCOPE — índice de refactors y chores',
+    que: 'el alcance',
+  },
+};
+
+const filaDeIndice = (a) => `| ${a.id} | ${a.type ?? '?'} | ${a.severity ?? '—'} | ${a.status ?? '?'} `
+  + `| ${a.epic ?? '—'} | ${(a.title ?? a.slug ?? '').replace(/\|/g, '/')} |`;
+
+function indices() {
+  const escribir = ARGS.includes('--aplicar');
+  for (const [archivo, def] of Object.entries(INDICES)) {
+    const filas = (reg.allocations ?? [])
+      .filter((a) => !/^EP-/.test(String(a?.id ?? '')))
+      .filter((a) => def.tipos.has(a?.type))
+      .sort((x, y) => String(x.id).localeCompare(String(y.id)))
+      .map(filaDeIndice);
+    const cuerpo = [
+      `# ${def.titulo}`,
+      '',
+      'Índice, no contenido (`LEX-R12`). Una línea por PT; ' + def.que + ' vive en',
+      '`changes/PT-XXX-slug/`.',
+      '',
+      // La cabecera NO cita ningun identificador de tarea: verify-fdge busca la PRIMERA linea
+      // que contenga el ID para leer su estado, y una cita aqui la secuestraba — LEX-R07 acusaba
+      // a la cabecera de no usar un estado canonico. Es la familia de PT-067: contar una mencion
+      // como si fuera un dato.
+      '> **DERIVADO del registro.** No se edita a mano: `tracker indices --aplicar`',
+      '> lo regenera. Editarlo aquí se pierde en la siguiente regeneración, y editarlo a mano es',
+      '> lo que dejó catorce filas pegadas en una línea en el índice de refactors.',
+      '',
+      '| Id | Tipo | Sev | Estado | Lote | Título |',
+      '|:---|:---|:---|:---|:---|:---|',
+      ...filas,
+      '',
+    ].join(SALTO);
+    const ruta = join(IMPL, archivo);
+    const antes = (() => { try { return readFileSync(ruta, 'utf8'); } catch { return null; } })();
+    if (!escribir) {
+      notas.push(`${archivo}: ${filas.length} fila(s)${antes === cuerpo ? ' · ya al dia' : ' · se regeneraria'}`);
+      continue;
+    }
+    if (antes === cuerpo) { notas.push(`${archivo}: ya al dia`); continue; }
+    writeFileSync(ruta, cuerpo, 'utf8');
+    notas.push(`${archivo}: ${filas.length} fila(s) escritas`);
+  }
+  if (!escribir) notas.push('--aplicar los escribe. Sin la marca, esto solo enumera.');
+  cerrarPasada();
+}
+
+const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, sellar, indices };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

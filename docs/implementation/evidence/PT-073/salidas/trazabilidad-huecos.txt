@@ -1,0 +1,36 @@
+=== PT-073 · los tres documentos que lee quien llega ===
+fecha: 2026-08-20
+
+-- AC-01 · hueco -> linea. Los siete de PT-072 y los dos de PT-019 --
+   H1 sin .gitignore                    MANUAL §7, fila 1
+   H2 la frase literal del LAYOUT       MANUAL §7, fila 2
+   H3 el formato de INSTALL.log         MANUAL §7, fila 3
+   H4 allocation sin «phase»            MANUAL §7, fila 4
+   H5 «Reportado por:»                  MANUAL §7, fila 5
+   H6 la plantilla fallaba              MANUAL §7, «las dos que ya no veras» · PT-083
+   H7 la plataforma obligatoria         idem · PT-084
+   HL-1 comparar-marco invierte etiquetas   CASOS-DE-USO, huecos declarados
+   HL-2 migrate prometia de mas         resuelto en PT-084; el README recoge la limitacion
+
+-- comprobado en el texto --
+   MANUAL cita las fricciones reales   1
+   CASOS-DE-USO cita las dos pruebas   5
+   CASOS-DE-USO declara HL-1           1
+   README dice que esta demostrado     1
+   README dice lo que NO lo esta       1
+
+-- AC-02 · el hueco de multiagente, estrechado --
+   ANTES:  «Varios agentes trabajando a la vez | El espejo detecta divergencia pero
+            nada coordina el reparto»  — como si NADA estuviera resuelto
+   AHORA:  nombra que EP-016 cerro la identidad, los rangos y la sesion por persona,
+           y deja abierto lo que sigue abierto: la coordinacion del reparto.
+
+-- AC-04 · lo que envejecio no era una CIFRA --
+   El riesgo D4/D5 del primer Foundation era copiar numeros. Aqui lo que habia
+   envejecido era una AFIRMACION, y se estrecha en vez de borrarse: el catalogo
+   dice de si mismo que es un CONTRATO DE COBERTURA, y borrar un hueco cerrado a
+   medias lo convertiria en un silencio.
+
+-- AC-05 · los pasos que la prueba USO, no los que creiamos --
+   Ninguna de las cinco fricciones del MANUAL se me habria ocurrido escribir en
+   agosto. Salieron de instalar el marco de verdad, y TRES las cometi yo.

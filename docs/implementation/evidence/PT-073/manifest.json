@@ -1,0 +1,101 @@
+{
+  "pt": "PT-073",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Cada hueco de PT-072 y PT-019 tiene su linea",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/trazabilidad-huecos.txt"
+      ],
+      "verified": true,
+      "nota": "hueco -> linea concreta, no «se reviso»"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Los huecos de CASOS-DE-USO corresponden a la version que hay",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/trazabilidad-huecos.txt"
+      ],
+      "verified": true,
+      "nota": "multiagente estrechado a lo que sigue abierto: la coordinacion del reparto"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El README describe lo que un instalador se encuentra hoy",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/trazabilidad-huecos.txt"
+      ],
+      "verified": true,
+      "nota": "y dice explicitamente que migrate --apply NO esta demostrado"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Ninguna cifra escrita a mano que ya se derive",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/trazabilidad-huecos.txt"
+      ],
+      "verified": true,
+      "nota": "lo que habia envejecido no era una cifra sino una AFIRMACION, y se dice"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El MANUAL usa los pasos que la prueba uso",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/trazabilidad-huecos.txt"
+      ],
+      "verified": true,
+      "nota": "cinco fricciones reales, ninguna de las cuales se me habria ocurrido en agosto"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que los tres sigan al dia manana.",
+      "por_que": "Lo cubre PT-085: sellar exige RESOLVER cada uno con ACTUALIZADO o NO PROCEDE con motivo. Sin ese mecanismo, esta tarea es una foto que envejece igual que la anterior.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "HL-1 va como HUECO al catalogo y no como instruccion al manual.",
+      "regla": "—",
+      "detalle": "comparar-marco invierte las etiquetas segun desde donde se ejecute. Documentarlo en el manual seria documentar un defecto en lugar de arreglarlo."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

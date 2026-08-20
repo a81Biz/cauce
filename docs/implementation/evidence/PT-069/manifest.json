@@ -1,0 +1,121 @@
+{
+  "pt": "PT-069",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Existe un generador de los tres indices",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "tracker indices [--aplicar]"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Sin --aplicar solo enumera",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "el mismo contrato que abrir, cerrar y proyectar"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El reparto sigue LEX-R12",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "bugs e investigaciones · features · refactors y chores"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Ninguna tarea del registro queda fuera",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "86 PT indexados, CERO fuera. Antes habia 89 filas para 86 tareas y 27 estaban MAL ARCHIVADAS: 16 bugs y 11 features en el indice de refactors."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Los lotes no entran",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "un EP no es una tarea; su sitio es BACKLOG"
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Cada indice declara que es derivado",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "la cabecera avisa de que editarlo a mano se pierde"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que nadie los edite a mano de todas formas.",
+      "por_que": "La cabecera avisa y la regeneracion los pisa. Que alguien no lo lea no se puede comprobar.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi cabecera citaba el identificador PT-069.",
+      "regla": "LEX-R07",
+      "detalle": "verify-fdge busca la PRIMERA linea que contenga el ID para leer su estado, y la cabecera se la secuestraba: acuso a la cabecera de no usar un estado canonico. Es la familia de PT-067 — contar una mencion como dato. La cabecera dejo de citar identificadores."
+    },
+    {
+      "que": "BACKLOG.md queda fuera del generador.",
+      "regla": "FDGE-R40",
+      "detalle": "Le exige el plan de solapamiento, que sale del tasks.md de cada tarea y no del registro. Generarlo con las columnas de los otros tres produciria un BACKLOG que parece al dia y ha perdido lo unico que lo hacia util."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

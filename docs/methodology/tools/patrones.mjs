@@ -776,3 +776,306 @@ export function verificadoresDe(id, herramientas) {
       .some((l) => l.includes(id) && !esComentario(l)))
     .map(([nombre]) => nombre);
 }
+
+// ── PT-085 · el sello de version ────────────────────────────────────────────
+//
+// Cinco defectos con una raiz comun: el marco REGISTRA lo que pasa y no comprueba que lo
+// registrado siga siendo cierto. Dos de ellos —SUITE-R34 y FDGE-R43— son literalmente el mismo
+// error: verificar un PROXY barato en lugar del hecho, y los dos gobiernan compuertas.
+
+/**
+ * PT-085 · `A` · Lo que el bloque ESTADO afirma y el registro DESMIENTE.
+ *
+ * SUITE-R34 comparaba las marcas de COMMIT de HANDOFF.md y de changes/: un handoff obsoleto pero
+ * recien tocado pasaba. Y no es teorico — durante EP-017 el bloque decia «EP-016 CERRADA · lo
+ * siguiente es EP-017, PROPUESTA y no abierta» con EP-017 llevando nueve tareas integradas.
+ *
+ * EL CRITERIO ES LA CONTRADICCION, NO LA OMISION. Se falla cuando el texto AFIRMA algo que el
+ * registro desmiente, no cuando calla. Exigir exhaustividad convertiria el bloque en un volcado
+ * del registro —dos fuentes del mismo hecho, SUITE-R38— y el handoff existe justo para lo que el
+ * registro NO puede decir: «decisiones» y «no hacer».
+ *
+ * Y tiene que poder pasar: una comprobacion que siempre bloquea se termina desactivando.
+ */
+export function contradiceElRegistro(bloque, allocations) {
+  const texto = String(bloque ?? '');
+  const estado = new Map((allocations ?? []).map((a) => [a?.id, a?.status]));
+  const linea = (pref) => (texto.split(/\r?\n/).find((l) => l.trim().startsWith(pref)) ?? '');
+  const fallos = [];
+
+  // «tarea:» — un identificador nombrado ahi se afirma EN CURSO, salvo que la propia linea lo
+  // liste como ya cerrado. Por eso se corta en la primera mencion a estados terminales: el
+  // bloque real enumera las INTEGRADAS despues, y contarlas seria acusar al texto correcto.
+  const lt = linea('tarea:');
+  const vivasAfirmadas = lt.split(/INTEGRAD|CERRAD|CLOSED|DEFERRED|READY:/i)[0];
+  for (const id of vivasAfirmadas.match(/\b(?:PT|EP)-\d{3}\b/g) ?? []) {
+    const st = estado.get(id);
+    if (ESTADOS_TERMINALES.has(st)) {
+      fallos.push(`«tarea:» afirma que ${id} sigue en curso y el registro dice ${st}`);
+    }
+  }
+
+  // «implementación:» — el lote que declare ABIERTA tiene que estarlo.
+  const li = linea('implementación:') || linea('implementacion:');
+  for (const m of li.matchAll(/\b(EP-\d{3})\b[^·]*?\b(ABIERTA|CERRADA)\b/gi)) {
+    const st = estado.get(m[1]);
+    const cerrado = ESTADOS_TERMINALES.has(st);
+    if (/ABIERTA/i.test(m[2]) && cerrado) fallos.push(`«implementación:» declara ${m[1]} ABIERTA y el registro dice ${st}`);
+    if (/CERRADA/i.test(m[2]) && st && !cerrado) fallos.push(`«implementación:» declara ${m[1]} CERRADA y el registro dice ${st}`);
+  }
+  return fallos;
+}
+
+/**
+ * PT-085 · `C` · SUITE-R57 · Lo integrado que todavia no esta sellado.
+ *
+ * `idsEnTag` son los identificadores presentes en el ultimo tag de version. Se compara contra un
+ * TAG y no contra una rama: PT-081 aprendio a golpes que una rama se mueve con cada integracion,
+ * asi que un detector anclado en ella deja de detectar justo lo que acabas de integrar.
+ *
+ * `null` si no se pudo leer el tag: sin saber que hay sellado no se puede saber que falta, y
+ * suponer que no hay nada sellado bloquearia el proyecto entero (RULE-06).
+ *
+ * NO CUENTA LAS TAREAS DE UN LOTE ABIERTO, y esto no es una concesion: EXEC-R03 dice que G4 es
+ * la compuerta DEL LOTE y que no se multiplica por tarea, asi que la unidad de sellado es el
+ * lote. Contar las tareas de un lote en curso bloquearia el lote consigo mismo — medido al
+ * escribir esta funcion: 13 integradas contra un umbral de 3, y el sello de la version ES el
+ * lote abierto. Un candado con la llave dentro, que es el error que esta misma tarea evita en
+ * FDGE-R43 y en SUITE-R34.
+ *
+ * Lo que cuenta es lo que YA cerro y no se sello: ahi la deuda es real y tiene salida.
+ */
+export function sinSellar(allocations, idsEnTag) {
+  if (idsEnTag == null) return null;
+  const sellados = new Set(idsEnTag);
+  // Un lote se reconoce por su IDENTIFICADOR, no por el campo «type». Lo escribi primero con
+  // `type === 'EP'` y no caso NINGUNO: EP-017 no tiene ese campo. El ID lo asigna el registro
+  // (SUITE-R08) y siempre esta; el campo es opcional, asi que fiarse de el es depender de dos
+  // fuentes del mismo hecho y quedarse con la peor (SUITE-R38).
+  const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
+  const abiertos = new Set((allocations ?? [])
+    .filter((a) => esLote(a) && !ESTADOS_TERMINALES.has(a?.status))
+    .map((a) => a.id));
+  return (allocations ?? [])
+    .filter((a) => !esLote(a) && ESTADOS_TERMINALES.has(a?.status))
+    .filter((a) => !abiertos.has(a?.epic))
+    .filter((a) => !sellados.has(a?.id))
+    .map((a) => a.id);
+}
+
+/**
+ * PT-085 · `D` · Los documentos que lee quien llega, y su decision al sellar.
+ *
+ * NO se comprueba que hayan cambiado. Exigirlo produciria cambios cosmeticos para acallar la
+ * comprobacion —el equivalente documental de fabricar un verde— y ademas un manual que cambia no
+ * prueba que se revisara lo que hacia falta.
+ *
+ * La forma es la de FND-R22 con el LAYOUT: cada fila lleva su decision, y una celda vacia no
+ * pasa, porque es indistinguible de una que nadie miro.
+ */
+export const DOCUMENTOS_DE_ENTRADA = [
+  'MANUAL.md',
+  'CASOS-DE-USO.md',
+  'README.md',
+  'Suite-CLAUDE-Template.md',
+  'graphify-out/',
+];
+
+const RE_FILA_SELLO = /^\|\s*`?([\w.\-/]+)`?\s*\|\s*(ACTUALIZADO|NO PROCEDE)\s*\|\s*(.*?)\s*\|/gim;
+
+export function selloSinResolver(actaDelSello) {
+  const texto = String(actaDelSello ?? '');
+  const resueltos = new Map();
+  for (const m of texto.matchAll(RE_FILA_SELLO)) {
+    // NO PROCEDE exige motivo: sin el, la fila dice «no hace falta» sin decir por que.
+    const ok = m[2].toUpperCase() === 'ACTUALIZADO' || m[3].replace(/[—-]/g, '').trim().length > 0;
+    resueltos.set(m[1], ok);
+  }
+  return DOCUMENTOS_DE_ENTRADA.filter((d) => resueltos.get(d) !== true);
+}
+
+/**
+ * PT-085 · `E` · Deriva de CONTENIDO del grafo.
+ *
+ * FDGE-R43 declaraba STALE solo si un PT integrado creo, movio, renombro o elimino archivos
+ * (`structural: true`). En todo el registro UNA sola allocation lo tiene. Modificar no contaba —
+ * asi que ocho funciones nuevas y tres herramientas cambiadas dejaban el grafo «FRESH» con 12 de
+ * sus 16 archivos ya distintos, y respondiendo que patrones.mjs tiene 2 importadores cuando
+ * tiene 8.
+ *
+ * El dato ya estaba: `graphify-out/manifest.json` guarda `mtime` y `ast_hash` por archivo.
+ *
+ * AVISA, NO BLOQUEA. Si cualquier edicion pusiera el grafo en STALE, G2 quedaria bloqueada en
+ * todos los MAJOR de forma permanente y la comprobacion se desactivaria. STALE bloqueante sigue
+ * reservado a lo estructural; esto produce SUSPECT con la lista.
+ */
+export function derivaDelGrafo(manifest, mtimeDe) {
+  if (!manifest || typeof manifest !== 'object') return null;
+  const cambiados = [];
+  for (const [ruta, d] of Object.entries(manifest)) {
+    const actual = mtimeDe(ruta);
+    if (actual == null) { cambiados.push(`${ruta} (no existe)`); continue; }
+    if (Math.abs(actual - Number(d?.mtime ?? 0)) > 1) cambiados.push(ruta);
+  }
+  return cambiados;
+}
+
+/**
+ * PT-080 · SUITE-R38 · LEX-R22 · Un identificador definido en DOS documentos propietarios.
+ *
+ * La v3 tenia la misma regla escrita a mano en cuatro documentos y las cuatro copias
+ * divergieron: ocho defectos criticos, incluido un ruleset que ordenaba destruir datos. La v4
+ * corrige la causa — y en la v9 seguian TRES asi, con las tres copias YA divergidas y siempre en
+ * la misma direccion: la de EXECUTION-MODES soltaba una obligacion.
+ *
+ *   FDGE-R22  RULES exige «solo severity: S1» y cinco fases retroactivas · la copia, ninguna
+ *             de las dos. Dejaba el carril HOTFIX abierto a un S3, y ese carril difiere G2 y G3.
+ *   FDGE-R40  RULES exige que los PTs solapados SE SERIALICEN · la copia lo omitia.
+ *   FDGE-R41  RULES exige que el EP-NNN pase a BLOCKED · la copia lo omitia.
+ *
+ * verify-suite comprobaba vocabulario derogado, reglas citadas inexistentes, obligaciones en
+ * documentos que solo explican, enlaces rotos y versiones desalineadas. NO comprobaba esto — la
+ * unica de las cinco por la que se escribio la v4.
+ *
+ * `docs` es un mapa {nombre: texto}. Devuelve una fila por ID duplicado con DONDE esta cada
+ * copia: decir «hay conflicto» sin nombrar los dos sitios obliga a buscarlos a mano.
+ */
+export function definidasDosVeces(docs) {
+  const donde = new Map();
+  const anota = (id, doc) => {
+    if (!donde.has(id)) donde.set(id, new Set());
+    donde.get(id).add(doc);
+  };
+  for (const [doc, txt] of Object.entries(docs ?? {})) {
+    for (const l of String(txt ?? '').split(/\r?\n/)) {
+      // Las dos formas de PT-066: RULES.md usa filas de tabla, los otros usan prosa.
+      const t = /^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(?:HARD|SOFT|CHECK)\s*\|/.exec(l);
+      const q = /^`([A-Z]+-R\d+[a-z]?)`\s*·/.exec(l);
+      if (t) anota(t[1], doc);
+      else if (q) anota(q[1], doc);
+    }
+  }
+  return [...donde.entries()]
+    .filter(([, ds]) => ds.size > 1)
+    .map(([id, ds]) => ({ id, docs: [...ds].sort() }));
+}
+
+/**
+ * PT-078 · SUITE-R26 · Ninguna regla queda sin clasificar.
+ *
+ * PT-075 arreglo DOS reglas concretas. Esto es el mecanismo: que NINGUNA pueda quedarse fuera en
+ * silencio. Tres estados exhaustivos y excluyentes — y lo que cambia no es cuantas hay en cada
+ * casilla, sino que NO EXISTA UNA CUARTA CASILLA SILENCIOSA.
+ *
+ *   VERIFICADA      alguna herramienta la EMITE — fail|warn|ok('ID'). Mencionarla en un
+ *                   comentario o dentro del mensaje de otra regla NO cuenta: eso es lo que
+ *                   PT-067 midio como 24 falsos positivos, incluida FDGE-R17.
+ *   NO_VERIFICABLE  con MOTIVO escrito y firmado, como TD-14 hizo con «quien abrio el PR».
+ *                   Es una decision, no una constatacion, y por eso lleva firma.
+ *   PENDIENTE       verificable y sin escribir. Deuda DECLARADA, con su cifra publicada.
+ *
+ * `emisiones` es el texto de las herramientas; `declaradas` el mapa {id: motivo} del documento
+ * firmado. Una regla que este en las dos —emitida Y declarada no verificable— se cuenta como
+ * VERIFICADA y se señala: la declaracion sobra y probablemente esta vieja.
+ */
+// Concatenacion simple y comillas simples a proposito. Escrito con plantilla y pasado por un
+// script, los `\b` y `\s` se convirtieron en byte de control y en «s» literal: el regex
+// compilaba mal y reventaba. Novena vez del mismo escalon en este lote, y la salida vuelve a
+// ser quitar el problema en vez de pelearse con el escapado.
+const COMILLA = '[\'"`]';
+const RE_EMISION = (id) => new RegExp('\\b(?:fail|warn|ok)\\s*\\(\\s*' + COMILLA + id + COMILLA);
+
+export function clasificarReglas(reglas, textoHerramientas, declaradas) {
+  const txt = String(textoHerramientas ?? '');
+  const dec = declaradas ?? {};
+  const salida = { VERIFICADA: [], NO_VERIFICABLE: [], PENDIENTE: [], sobran: [] };
+  for (const r of reglas ?? []) {
+    const emitida = RE_EMISION(r.id).test(txt);
+    if (emitida) {
+      salida.VERIFICADA.push(r.id);
+      if (dec[r.id]) salida.sobran.push(r.id);
+    } else if (dec[r.id]) {
+      salida.NO_VERIFICABLE.push(r.id);
+    } else {
+      salida.PENDIENTE.push(r.id);
+    }
+  }
+  return salida;
+}
+
+/**
+ * PT-078 · El documento firmado que declara qué reglas NO son verificables, y por qué.
+ *
+ * Formato: una fila por regla, con motivo. Sin motivo no cuenta — igual que en el sello y en el
+ * LAYOUT: una celda vacia es indistinguible de una que nadie miro (FND-R22).
+ */
+const RE_NO_VERIFICABLE = /^\|\s*`?([A-Z]+-R\d+[a-z]?)`?\s*\|\s*(.+?)\s*\|/gim;
+
+export function noVerificablesDeclaradas(texto) {
+  const m = {};
+  for (const f of String(texto ?? '').matchAll(RE_NO_VERIFICABLE)) {
+    const motivo = f[2].replace(/[—-]/g, '').trim();
+    if (motivo) m[f[1]] = f[2].trim();
+  }
+  return m;
+}
+
+/**
+ * PT-086 · Qué secciones del arnés ejercitan una herramienta.
+ *
+ * `--solo` filtra ASERCIONES, no ANDAMIAJE: hay 211 llamadas a `build_fixture` a nivel superior,
+ * fuera de los casos, asi que una corrida filtrada reconstruye el fixture las 211 veces igual.
+ * Medido: corrida completa ~600 s, corrida con `--solo` de UN caso 171 s. El suelo es el
+ * andamiaje, y por eso hay que saltarse la SECCION entera y no solo sus aserciones.
+ *
+ * El mapa NO se escribe a mano: se DERIVA del propio arnes. Una tabla de 35 entradas seria un
+ * hecho copiado mas —RULE-01— y envejeceria en cuanto alguien añadiera una seccion. Se lee el
+ * cuerpo de cada seccion y se mira que herramientas nombra, directamente o por sus helpers.
+ *
+ * Los helpers SI se declaran, porque su nombre no dice a que herramienta llaman. Son pocos y
+ * cambian poco; si aparece uno nuevo sin declarar, su seccion no se asociara a nada y correra
+ * SIEMPRE — que es el lado seguro del error.
+ */
+export const HELPERS_A_HERRAMIENTA = {
+  TR: 'tracker.mjs', TRR: 'tracker.mjs', trlib: 'tracker.mjs', trlibno: 'tracker.mjs',
+  YO: 'tracker.mjs', OTRO: 'tracker.mjs',
+  V: 'verify-fdge.mjs', A: 'audit.mjs', patlib: 'patrones.mjs',
+};
+
+export function seccionesDelArnes(texto) {
+  const lineas = String(texto ?? '').split(/\r?\n/);
+  const secciones = [];
+  let actual = null;
+  for (const l of lineas) {
+    const m = /^sec\s+"(.+)"\s*$/.exec(l);
+    if (m) {
+      actual = { titulo: m[1], cuerpo: [] };
+      secciones.push(actual);
+      continue;
+    }
+    if (actual) actual.cuerpo.push(l);
+  }
+  return secciones.map((s) => {
+    const cuerpo = s.cuerpo.join('\n');
+    const tools = new Set();
+    for (const m of cuerpo.matchAll(/tools\/([a-z-]+\.(?:mjs|sh))/g)) tools.add(m[1]);
+    for (const [h, t] of Object.entries(HELPERS_A_HERRAMIENTA)) {
+      if (new RegExp(`(^|\s)${h}\s`, 'm').test(cuerpo)) tools.add(t);
+    }
+    return { titulo: s.titulo, herramientas: [...tools].sort() };
+  });
+}
+
+/**
+ * PT-086 · Qué secciones hay que correr cuando cambian `cambiadas`.
+ *
+ * Una seccion que no nombra NINGUNA herramienta corre siempre: no se sabe qué ejercita, y
+ * saltarla seria decidir sin dato (RULE-06). El lado seguro del desconocimiento es correr de
+ * mas, no de menos — lo contrario convertiria esto en una fabrica de falsos verdes.
+ */
+export function seccionesAfectadas(texto, cambiadas) {
+  const quiere = new Set((cambiadas ?? []).map((f) => f.split('/').pop()));
+  return seccionesDelArnes(texto)
+    .filter((s) => !s.herramientas.length || s.herramientas.some((t) => quiere.has(t)))
+    .map((s) => s.titulo);
+}

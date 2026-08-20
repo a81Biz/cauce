@@ -1,0 +1,23 @@
+=== PT-083 · la plantilla del paquete pasa su propio verificador ===
+fecha: 2026-08-20
+
+-- el defecto --
+   RE_SEVERITY exigia fin de linea tras S2, y las TRES plantillas que el paquete
+   distribuye traen un comentario ahi:
+     BUG-REPORT.md:15:severity: S2               # [HUMANO] S1 | S2 | S3 | S4
+     CHANGE-REQUEST.md:13:severity: S4               # [HUMANO] S1 | S2 | S3 | S4
+     FEATURE-REQUEST.md:15:severity: S3               # [HUMANO] S1 | S2 | S3 | S4
+
+-- y severity era el UNICO de seis campos que anclaba en $ --
+   114:const RE_PHASE_YAML = /^\s*phase\s*:\s*(\d+)/im;
+   116:const RE_STATUS_YAML = /^\s*status\s*:\s*([A-Z_]+)/im;
+   132:const RE_SEVERITY = /^\s*severity:\s*(S[1-4])\s*(?:#.*)?$/im;
+   133:const RE_TYPE = /^\s*type:\s*(BUG|FEATURE|REFACTOR|INVESTIGATION|CHORE)\b/im;
+   134:const RE_TRACK = /^\s*track:\s*(STANDARD|EXPRESS|HOTFIX)\b/im;
+   135:const RE_COMPLEXITY = /^\s*complexity:\s*(TRIVIAL|STANDARD|MAJOR)/im;
+
+-- sigue rechazando lo invalido --
+   OK    "severity: S2               # [HUMANO] S1 | S2 | S3 | S4" -> true
+   OK    "severity: S2" -> true
+   OK    "severity: S9" -> false
+   OK    "severity:" -> false

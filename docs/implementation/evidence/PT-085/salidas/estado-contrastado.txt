@@ -1,0 +1,13 @@
+=== AC-01..AC-03 · el bloque ESTADO contrastado con el registro ===
+fecha: 2026-08-20
+
+-- LO QUE CAZO EN SU PRIMERA EJECUCION, sobre el HANDOFF real --
+   (antes de que yo lo actualizara; no fue un caso preparado)
+
+   ✗ SUITE-R34  «tarea:» afirma que PT-081 sigue en curso y el registro dice INTEGRATED
+   ✗ SUITE-R34  «tarea:» afirma que PT-019 sigue en curso y el registro dice INTEGRATED
+
+-- tras actualizar el estado --
+     ✓ SUITE-R33      Bloque ESTADO completo.
+     ✓ SUITE-R34      El estado es más reciente que el último trabajo.
+     ✓ SUITE-R34      El bloque ESTADO no contradice al registro.

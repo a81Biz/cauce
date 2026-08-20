@@ -1,0 +1,101 @@
+{
+  "pt": "PT-083",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La plantilla rellenada tal cual pasa FDGE-R04",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/plantillas.txt"
+      ],
+      "verified": true,
+      "nota": "las tres que el paquete distribuye"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El criterio es el mismo para los seis campos",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/plantillas.txt"
+      ],
+      "verified": true,
+      "nota": "severity era el UNICO que anclaba en fin de linea; los otros cinco ya toleraban el comentario"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una severidad invalida sigue fallando",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/plantillas.txt"
+      ],
+      "verified": true,
+      "nota": "S9 y el vacio no pasan: relajar un ancla no puede abrir la puerta"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Las cuatro plantillas se comprueban",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/plantillas.txt"
+      ],
+      "verified": true,
+      "nota": "PARCIAL: tres de cinco, con motivo"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La comprobacion es mecanica",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/plantillas.txt"
+      ],
+      "verified": true,
+      "nota": "un caso rellena cada plantilla dejando los comentarios COMO VIENEN"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que EPIC-INTAKE y TAREA no tengan el defecto.",
+      "por_que": "No se comprueban: EPIC-INTAKE describe un LOTE y verify-fdge PT-NNN valida una TAREA; TAREA.md no declara severity porque la hereda del lote (FDGE-R51). Ninguna tiene el defecto, y ninguna se comprueba.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "AC-04 quedo PARCIAL: tres plantillas de cinco.",
+      "regla": "—",
+      "detalle": "Con motivo escrito, no por olvido. Se declara como reduccion de alcance en vez de presentarse como cumplido."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

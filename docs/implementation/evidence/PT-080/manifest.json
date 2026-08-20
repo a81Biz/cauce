@@ -1,0 +1,116 @@
+{
+  "pt": "PT-080",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "verify-suite FALLA si un ID se define dos veces",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/duplicadas.txt"
+      ],
+      "verified": true,
+      "nota": "inversa: con una duplicada inyectada da ERRORES (2)"
+    },
+    {
+      "ac": "AC-02",
+      "statement": "y no falla con una sola",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/duplicadas.txt"
+      ],
+      "verified": true,
+      "nota": "el repositorio vuelve a «Sin errores de coherencia»"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El mensaje dice LOS DOS SITIOS",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/duplicadas.txt"
+      ],
+      "verified": true,
+      "nota": "decir «hay conflicto» sin nombrarlos obliga a buscarlos a mano"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Los tres casos reales quedan resueltos",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/duplicadas.txt"
+      ],
+      "verified": true,
+      "nota": "EXECUTION-MODES pasa de 17 a 14 definiciones"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La resolucion conserva la obligacion fuerte",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/duplicadas.txt"
+      ],
+      "verified": true,
+      "nota": "en los tres casos la copia era la DEBIL: no habia nada que rescatar"
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La comprobacion entra en la bateria",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/duplicadas.txt"
+      ],
+      "verified": true,
+      "nota": "los casos de definidasDosVeces"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que dos textos que NO se definen dos veces no se contradigan.",
+      "por_que": "Detectar contradiccion semantica entre dos prosas no se hacerlo. Lo que se detecta es la DUPLICACION, que es su causa mas frecuente y la que motivo la v4.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "La cifra de definiciones por grep (15) no coincide con la derivada (14).",
+      "regla": "RULE-06",
+      "detalle": "Se usa la derivada, que es la que la herramienta usa. Un grep sobre el patron cuenta una linea que reglasDelMarco no toma como definicion."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

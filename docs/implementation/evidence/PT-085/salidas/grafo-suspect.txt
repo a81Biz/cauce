@@ -1,0 +1,11 @@
+=== AC-15 · AC-16 · la deriva del grafo ===
+fecha: 2026-08-20
+
+-- ANTES de PT-085: FDGE-R43 decia --
+   ✓ FDGE-R43  Grafo FRESH — generado 2026-08-15 sobre bin, docs/methodology/tools.
+
+-- DESPUES --
+     ! FDGE-R43       Grafo SUSPECT — 12 de 16 archivos que describe han cambiado desde 2026-08-15 — C:\DevOps\Desarrollos\cauce\bin\cauce.mjs, C:\DevOps\Desarrollos\cauce\docs\methodology\tools\audi
+
+-- y NO bloquea: PT-085 es STANDARD, pero un MAJOR tampoco caeria --
+   SUSPECT avisa. STALE bloqueante sigue reservado a lo estructural.

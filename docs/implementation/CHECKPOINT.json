@@ -1,19 +1,20 @@
 {
-  "pt": "PT-081",
+  "pt": "PT-085",
   "type": "BUG",
   "epic": "EP-017",
-  "status": "READY",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras",
-  "sha": "b39dfd1c22bd760e830c66f8b30821ee9874e22e",
-  "sha_corto": "b39dfd1",
+  "status": "INTEGRATED",
+  "phase": 10,
+  "fase": null,
+  "rama": "fix/alberto-martinez/PT-085-el-sello-de-version",
+  "sha": "1c2db648e0a6c40ddc49c85e12f86c3bd849db01",
+  "sha_corto": "1c2db64",
   "sucio": true,
   "archivos": [
-    "docs/implementation/CHECKPOINT.json"
+    "changes/PT-073-los-tres-documentos-que-lee-quien-llega/traceability.md",
+    "docs/implementation/HANDOFF.md"
   ],
-  "compuerta": "G4",
+  "compuerta": null,
   "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "siguiente": "PT-085 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-20"
 }
