@@ -1,12 +1,12 @@
 # PT-073 — Trazabilidad   `FDGE-R15`
 
-| AC | Criterio | TS | Evidencia | Estado |
-|:---|:---|:---|:---|:---|
-| AC-01 | Cada hueco de `PT-072` y `PT-019` tiene su línea | E1 | `salidas/trazabilidad-huecos.txt` | PENDIENTE |
-| AC-02 | Los huecos de `CASOS-DE-USO` corresponden a la versión que hay | E2 | `salidas/trazabilidad-huecos.txt` | PENDIENTE |
-| AC-03 | El `README` describe lo que un instalador se encuentra hoy | E3 | `salidas/trazabilidad-huecos.txt` | PENDIENTE |
-| AC-04 | Ninguna cifra escrita a mano que ya se derive | E4 | `salidas/trazabilidad-huecos.txt` | PENDIENTE |
-| AC-05 | El `MANUAL` usa los pasos que la prueba usó | E1 | `salidas/trazabilidad-huecos.txt` | PENDIENTE |
+| AC | Criterio | TS | Test | Evidencia | Estado |
+|:---|:---|:---|:---|:---|:---|
+| AC-01 | Cada hueco de `PT-072` y `PT-019` tiene su línea | E1 | comprobado en el texto de los tres documentos | `salidas/trazabilidad-huecos.txt` | VERIFICADO |
+| AC-02 | Los huecos de `CASOS-DE-USO` corresponden a la versión que hay | E2 | comprobado en el texto de los tres documentos | `salidas/trazabilidad-huecos.txt` | VERIFICADO |
+| AC-03 | El `README` describe lo que un instalador se encuentra hoy | E3 | comprobado en el texto de los tres documentos | `salidas/trazabilidad-huecos.txt` | VERIFICADO |
+| AC-04 | Ninguna cifra escrita a mano que ya se derive | E4 | comprobado en el texto de los tres documentos | `salidas/trazabilidad-huecos.txt` | VERIFICADO |
+| AC-05 | El `MANUAL` usa los pasos que la prueba usó | E1 | comprobado en el texto de los tres documentos | `salidas/trazabilidad-huecos.txt` | VERIFICADO |
 
 ## `AC-01` · hueco → línea
 
