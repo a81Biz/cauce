@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "fix/alberto-martinez/PT-085-el-sello-de-version",
   "sha": "272c39bb8d7f78501dc8046a513ba4a60ef4686d",
   "sha_corto": "272c39b",
@@ -69,6 +69,7 @@
     "docs/implementation/NO-VERIFICABLES.md",
     "docs/implementation/REFACTOR_SCOPE.md",
     "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLO.md",
     "docs/implementation/evidence/PT-069/",
     "docs/implementation/evidence/PT-070/",
     "docs/implementation/evidence/PT-071/",
@@ -96,15 +97,11 @@
     "docs/methodology/tools/verify-fdge.mjs",
     "docs/methodology/tools/verify-suite.mjs"
   ],
-  "compuerta": "G2",
+  "compuerta": null,
   "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
+    "manifest.json",
+    "self-review.md"
   ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-20"
 }
