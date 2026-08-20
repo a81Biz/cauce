@@ -20,4 +20,4 @@ Proyectado el 2026-08-19 · 12 allocation(es) viva(s).
 | PT-073 | CHORE | READY | 1 | — | — | 27f5351 |
 | PT-077 | BUG | READY | 1 | — | — | ab50d99 |
 | PT-078 | FEATURE | READY | 1 | — | — | 80c9b3d |
-| PT-079 | BUG | READY | 8 | fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico | f997b52 | 6ab5e56 |
+| PT-079 | BUG | READY | 9 | fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico | f997b52 | 6ab5e56 |

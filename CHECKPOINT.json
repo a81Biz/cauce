@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico",
   "sha": "f997b5298d96bff79c058a79470b06cde665ca19",
   "sha_corto": "f997b52",
@@ -15,6 +15,7 @@
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-079/manifest.json",
     "docs/implementation/evidence/PT-079/salidas/inversa.txt",
@@ -23,11 +24,8 @@
     "docs/implementation/evidence/PT-079/salidas/td-16.txt",
     "docs/implementation/evidence/PT-079/self-review.md"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
