@@ -2586,3 +2586,20 @@ que no había ocurrido.
 
 Esta entrada existe para que la excepción sea **contrastable**, no para normalizarla. La
 siguiente `G4` vuelve a necesitar autorización: una excepción que se hereda deja de serlo.
+
+## 2026-08-20 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 7735ff4 (2026-08-19)
+             40 (MEDIDO) commits · 18511 (MEDIDO) lineas
+tareas       PT-066 · PT-067 · PT-068 · PT-072 · PT-074 · PT-076 · PT-079 · PT-081 · PT-082 · PT-083
+en curso     PT-081 · PHASE 9 Integración
+sobre        b39dfd1  fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras
+sigue        PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.
+```
+
+## 2026-08-20 · sesion abierta en `982bcd3`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
