@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 78,
+    "PT": 79,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1976,6 +1976,12 @@
         "fecha": "2026-08-19"
       },
       "issue": 142
+    },
+    {
+      "id": "PT-079",
+      "slug": "lo-que-se-aprende-se-hace-mecanico",
+      "created": "2026-08-19",
+      "status": "DRAFT"
     }
   ]
 }

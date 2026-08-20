@@ -2650,7 +2650,10 @@ chk   "cada regla devuelve SU definicion"   "DEVUELVEN SU PROPIA DEFINICION"  re
 
 # E5 · la guarda contra el arreglo facil: hacer que devuelva algo SIEMPRE arreglaria los
 # 47 y romperia la unica respuesta honesta que la funcion ya daba bien.
-chk   "una regla inexistente lo sigue siendo"  "no est"  RG2 SUITE-R99
+# El patron va sin acentos Y respetando la caja: la salida dice «No está definida», y buscar
+# «no est» falla por la mayuscula. Es la SEXTA asercion de este lote que no casa con lo que
+# existe, y la escribi mientras redactaba PT-079, que trata justamente de eso.
+chk   "una regla inexistente lo sigue siendo"  "definida en ning"  node "$SUITE/tools/regla.mjs" SUITE-R99
 
 # ─── PT-074 · el veredicto de viabilidad se ESPEJA ───────────────────────────
 sec "── PT-074 · el veredicto se ve en el tablero ──"
