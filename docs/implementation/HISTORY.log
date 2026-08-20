@@ -3312,3 +3312,71 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: issue #153
+
+## PT-072 — CHORE: un proyecto nuevo de verdad
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: la prueba corrió FUERA de este repositorio, en C:/tmp/pt072/nuevo
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: demostrar —no argumentar— que la 9.0.0 sirve para un proyecto nuevo, contra el paquete
+empaquetado con «npm pack» y nunca contra el publicado, que es la 8.2.0.
+
+Qué se hizo: un proyecto real, «tareitas», creado para esto. npm pack (58 archivos, 615 KB),
+instalado en directorio limpio, «npx cauce install» (52 archivos, CORE.md con 247 reglas, -70% de
+tokens), Foundation con sus cinco documentos, y un PT completo —PT-001, la divergencia D2 que
+Foundation encontró leyendo el código— con tests en rojo primero y su evidencia.
+
+Resultado: SIRVE. «cauce verify» termina en CERO errores, PT-001 pasa verify-fdge sin errores, y
+los tres tests en verde tras el arreglo.
+
+Lo que más convenció y no es una cifra: «cauce verify» sobre la instalación virgen falló con TRES
+errores accionables y dijo qué ejecutar en cada uno. Al completarlos bajó a cero GUIANDO uno a
+uno, cada arreglo destapando el siguiente hueco real. Eso es un verificador que funciona.
+
+Siete huecos, con su fase y su síntoma (AC-03):
+  H1 instalación · cauce install no deja .gitignore; el primer «git add -A» versionó 118
+     archivos, casi todos node_modules. Media.
+  H2 Foundation · LAYOUT.md exige la frase LITERAL «refleja la estructura que quiero: SÍ», y
+     FND-R23 dice «no está firmado» sin nombrarla. Media.
+  H3 instalación · INSTALL.log exige «I<n> ACCIÓN … OK» con I de UN dígito —tope de nueve
+     entradas— y DOS espacios antes de OK. Nada lo dice antes de fallar. Media.
+  H4 Intake · tracker asignar no escribe «phase», y avanzar responde «está en PHASE NaN». La
+     primera tarea de un proyecto nuevo no puede avanzar sin editar el registro a mano. Alta.
+  H5 Intake · un intake suelto exige «Reportado por:», no «Firmado por:». Baja.
+  H6 Intake · LA PLANTILLA QUE DISTRIBUYE EL PAQUETE FALLA SU PROPIO VERIFICADOR. Alta. -> PT-083
+  H7 todas  · TRACKER AVANZAR ES IMPOSIBLE SIN TABLERO. Crítica. -> PT-084
+
+H7 sólo apareció porque NO declaré plataforma, y no fue casualidad: declararla habría hecho que
+todo fluyera y habría ocultado el único hueco crítico. Un proyecto de prueba configurado para que
+salga bien no prueba nada.
+
+Evidencia: evidence/PT-072/ · manifest.json · self-review.md ·
+  salidas/instalacion.txt · salidas/ciclo-completo.txt · salidas/huecos.md
+
+Criterios AC-01..AC-05, los cinco. AC-04 con SALVEDAD declarada: plan-layout calculó «alcance:
+src», correcto aquí, así que la prueba NO midió el defecto de PT-070 —que aparece con código
+fuera de src/, como bin/ en cauce—. Midió el caso bueno, y consta.
+
+Delta real vs planificado: salieron DOS tareas nuevas en vez de una lista de anotaciones. H6 y H7
+no son fricción de manual: son defectos del marco, y SUITE-R44 exige que el diferimiento cite su
+destino. Los otros cinco van a PT-073.
+
+Tres desviaciones declaradas, y las tres son el comportamiento de quien llega nuevo: escribí el
+  intake A MANO en vez de copiar la plantilla y fallé cuatro comprobaciones seguidas · regeneré
+  LAYOUT.md con --write DESPUÉS de firmarlo y luego apendicé dos firmas más, sin leer que el
+  archivo generado ya traía la línea para editar en su sitio —FND-R22 lo cazó con «tres
+  veredictos»— · versioné node_modules en el primer commit. Por eso H1, H2 y H5 están en la lista
+  en vez de descartados como torpeza mía: la fricción que produce un error natural ES un hueco,
+  aunque el marco tenga técnicamente razón.
+
+No verificado, declarado: que estos siete sean TODOS los huecos —se recorrió un camino con un
+  proyecto de 25 líneas; otro con dependencias, contenedores o monorepo encontraría otros— y que
+  el proyecto siga verde mañana: vive en C:/tmp, es un fixture y no se versiona dentro de cauce
+  porque sería un repositorio dentro de otro.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #134

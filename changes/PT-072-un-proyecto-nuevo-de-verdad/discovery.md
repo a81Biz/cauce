@@ -70,3 +70,30 @@ espera.
 `plan-layout` calculó `alcance: src` — **correcto**: todo el código propio está en `src/`. No
 midió el defecto de `PT-070`, que aparece cuando hay código fuera de `src/`, como en cauce con
 `bin/`. Se declara: este proyecto no podía provocarlo.
+
+## Conclusión
+
+**La 9.0.0 sirve para un proyecto nuevo.** No es una impresión: un proyecto real, instalado desde
+el paquete y no desde el repositorio, recorrió las nueve fases de una tarea y terminó con
+`cauce verify` en **cero errores** y tres tests en verde.
+
+Lo que mejor funcionó fue lo que menos se ve: `cauce verify` sobre la instalación virgen falló con
+**tres errores accionables**, y al completarlos bajó a cero **guiando uno a uno**, cada arreglo
+destapando el siguiente hueco real y ninguno inventado.
+
+**Y hay siete huecos, dos de ellos serios.** No invalidan el resultado —el ciclo se cerró— pero
+uno de ellos, `H7`, sí impide cerrarlo *como el marco manda* a quien no quiera tablero, y el marco
+promete tres veces que puede.
+
+| | Destino |
+|:---|:---|
+| `H7` la plataforma es obligatoria de hecho | **`PT-084`** · `S1` |
+| `H6` la plantilla falla su propio verificador | **`PT-083`** · `S1` |
+| `H1`..`H5` fricción de arranque | **`PT-073`**, los tres documentos |
+
+Ninguno se arregla aquí: `AC-03` pide anotarlos, y arreglarlos dentro de la prueba convertiría la
+prueba en su propio arreglo.
+
+**Lo que esta tarea no puede afirmar** es que estos siete sean todos. Se recorrió un camino con un
+proyecto de 25 líneas; otro con dependencias, contenedores o monorepo encontraría otros. Lo que se
+afirma es que estos siete existen y están medidos.

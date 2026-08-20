@@ -1745,7 +1745,7 @@
       "severity": "S1",
       "complexity": "MAJOR",
       "track": "STANDARD",
-      "phase": 4,
+      "phase": 9,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",

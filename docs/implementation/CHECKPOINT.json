@@ -1,16 +1,21 @@
 {
-  "pt": "PT-082",
-  "type": "BUG",
+  "pt": "PT-072",
+  "type": "INVESTIGATION",
   "epic": "EP-017",
   "status": "READY",
   "phase": 9,
   "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-082-un-caso-no-depende-de-quien-lo-ejecuta",
-  "sha": "95c9bee079251040dd0e73ea4736bf6b94529b90",
-  "sha_corto": "95c9bee",
+  "sha": "b80086446df287f41a335dd7d184f2e788b48b97",
+  "sha_corto": "b800864",
   "sucio": true,
   "archivos": [
-    "docs/implementation/evidence/PT-082/manifest.json"
+    "changes/PT-072-un-proyecto-nuevo-de-verdad/acciones-humanas.md",
+    "changes/PT-072-un-proyecto-nuevo-de-verdad/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": "G4",
   "produce": [],
