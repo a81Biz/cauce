@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "trabajo",
   "sha": "25694370557dbd967c29342b7b85aea98775f4db",
   "sha_corto": "2569437",
@@ -25,7 +25,10 @@
     "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-19"
 }
