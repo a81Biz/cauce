@@ -124,6 +124,8 @@ export const RIGE_DESDE = {
   'FDGE-R54': [10, 0, 0],   // la viabilidad consta antes de G2 · nace con EP-017
   'SUITE-R56': [10, 0, 0],  // el rastro sobrevive a la rama · nace con EP-017
   'SUITE-R57': [10, 0, 0],  // lo integrado no se acumula sin sellar · nace con EP-017
+  'SUITE-R09': [11, 0, 0],  // el ledger no pierde lineas · el verificador nace con EP-018
+  'EXEC-R04':  [11, 0, 0],  // la G4 deja constancia · 18 merges historicos sin ella
 };
 
 /**
@@ -1079,4 +1081,65 @@ export function seccionesAfectadas(texto, cambiadas) {
   return seccionesDelArnes(texto)
     .filter((s) => !s.herramientas.length || s.herramientas.some((t) => quiere.has(t)))
     .map((s) => s.titulo);
+}
+
+
+/**
+ * PT-088 · `SUITE-R09` · Un ledger append-only no pierde lineas.
+ *
+ * QUE ESTABLECE: que, entre `base` y ahora, ninguna linea del archivo DESAPARECIO.
+ * QUE NO ESTABLECE: que el contenido no se haya alterado. Una reescritura que conserve el
+ *   RECUENTO pasa. Es mas fuerte que nada y mas debil que un hash encadenado, y la diferencia
+ *   se dice aqui en vez de disimularse — es exactamente el defecto que PT-087 cierra.
+ *
+ * Por que la ventana es el TAG anterior y no `HEAD~1` ni `origin/main`:
+ *   - `HEAD~1` deja pasar para siempre una reescritura de hace tres commits.
+ *   - `origin/main` fue el error de PT-081: la comprobacion se apaga el dia que lo que busca
+ *     aterriza en main. Un tag es una marca inmutable y deliberada, y SUITE-R57 garantiza que
+ *     el anterior nunca queda muy atras.
+ *
+ * `diffDe(archivo)` devuelve el texto de `git diff <base> HEAD -- archivo`, o `null` si no se
+ * pudo obtener. NULL NO ES CERO: sin repositorio o sin tag no hay reloj, y se devuelve `null`
+ * para que quien llame lo distinga de «ninguna linea borrada». Es la leccion de PT-058.
+ */
+export function lineasPerdidas(archivos, diffDe) {
+  const fuera = [];
+  for (const f of archivos ?? []) {
+    const d = diffDe(f);
+    if (d == null) { fuera.push({ archivo: f, borradas: null }); continue; }
+    let borradas = 0;
+    for (const l of String(d).split(/\r?\n/)) {
+      if (l.startsWith('---') || l.startsWith('+++')) continue;
+      if (l.startsWith('-')) borradas++;
+    }
+    if (borradas > 0) fuera.push({ archivo: f, borradas });
+  }
+  return fuera;
+}
+
+/**
+ * PT-088 · `EXEC-R04` · Todo avance de la rama por defecto deja constancia con nombre.
+ *
+ * QUE ESTABLECE: que existe una entrada de autorizacion, con un nombre que figura en
+ *   `firmantes`, para cada merge a la rama por defecto POSTERIOR a la version de entrada.
+ * QUE NO ESTABLECE: que la autorizacion fuera real. El agente escribe la constancia. Es el
+ *   limite que SUITE-R27 declara para las firmas, y H-009 pide declararlo tambien aqui: lo
+ *   decide PT-093.
+ *
+ * La ventana importa tanto como la comprobacion: medido en el repositorio real hay 18 merges
+ * a main y UNO desde el ultimo tag. Sin ventana, la regla nace con 17 fallos sobre trabajo de
+ * agosto — y una comprobacion que nace roja se apaga, que es lo que PT-023 midio.
+ *
+ * `merges` es [{sha, fecha}] ya acotado a la ventana; `constancias` es [{nombre, fecha}]
+ * extraidas del ledger de sesion. Se empareja por FECHA, no por sha: la constancia se escribe
+ * ANTES del merge y no puede citar un sha que todavia no existe.
+ */
+export function mergesSinConstancia(merges, constancias, firmantes) {
+  const validos = new Set((firmantes ?? []).map((s) => String(s).trim()).filter(Boolean));
+  const dias = new Set((constancias ?? [])
+    .filter((c) => validos.has(String(c?.nombre ?? '').trim()))
+    .map((c) => String(c?.fecha ?? '').slice(0, 10)));
+  return (merges ?? [])
+    .filter((m) => !dias.has(String(m?.fecha ?? '').slice(0, 10)))
+    .map((m) => ({ sha: m.sha, fecha: m.fecha }));
 }

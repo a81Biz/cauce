@@ -1523,7 +1523,7 @@
       "id": "EP-017",
       "slug": "la-prueba-de-fuego",
       "created": "2026-08-19",
-      "status": "DONE",
+      "status": "CLOSED",
       "phase": 1,
       "title": "La prueba de fuego: aprobar la 9.0.0 antes de publicarla",
       "origin": "Acordada con el firmante el 2026-08-18 y abierta el 2026-08-19. Ampliada con los defectos que encontro la segunda ejecucion de Foundation (D15..D20, TD-09..TD-13), todos ellos del paquete que se publica.",

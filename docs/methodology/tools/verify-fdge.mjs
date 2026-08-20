@@ -47,7 +47,8 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mjs';
+import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
+         lineasPerdidas, mergesSinConstancia } from './patrones.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -771,6 +772,109 @@ function checkIrreversibles(modo) {
     } else ok('SUITE-R06', `AUTONOMOUS con ${eps.length} lote(s) de alcance declarado.`);
   }
 }
+// PT-088 · `rige` GLOBAL. El de checkPT usa la version DEL PT —es lo correcto para una
+// comprobacion por tarea—, pero SUITE-R09 y EXEC-R04 son del REPOSITORIO: no hay tarea de la
+// que sacar la version. Se toma del registro, que es quien la declara (SUITE-R13).
+//
+// Escribir estas dos usando el `rige` de checkPT reventaba con ReferenceError, y mi propio
+// grep sobre la salida lo escondio: filtrar antes de mirar es la version de consola del
+// patron que PT-087 cierra.
+const rigeGlobal = (id) => rigeDesde(id, reg?.suite_version ?? '0.0.0');
+
+// ─── SUITE-R09 · el ledger append-only no pierde lineas ─────────────────────
+//
+// PT-088 · H-002 de PTSA-2026-08-20. SUITE-R09 declara que los ledgers son append-only y
+// NINGUN verificador la emitia: la base de evidencia del marco entero no tenia guarda.
+//
+// QUE ESTABLECE: que ninguna linea desaparecio desde el tag anterior.
+// QUE NO ESTABLECE: que el contenido no se haya alterado conservando el RECUENTO. Se dice
+//   porque no decirlo seria la septima instancia del patron que PT-087 cierra.
+//
+// La ventana es el TAG, no origin/main: PT-081 eligio origin/main y la comprobacion se apago
+// justo el dia que lo que buscaba aterrizo alli.
+const LEDGERS = ['HISTORY.log', 'SESSION_LOG.md', 'INCIDENTS.log',
+                 'RECONCILIATION.log', 'MIGRATION.log', 'INSTALL.log'];
+function checkLedgers() {
+  if (!rigeGlobal('SUITE-R09')) return;
+  const git = (args) => {
+    try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }); }
+    catch { return null; }
+  };
+  const tag = (git(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
+    .trim().split(/\s+/).filter(Boolean)[0];
+  if (!tag) {
+    // Sin tag no hay reloj y NO SE INVENTA UNO: se omite la comprobacion y se dice, que es
+    // lo que integrations.md declara para git en todo el marco.
+    warn('SUITE-R09', 'sin ningún tag v*: no hay línea base contra la que medir el ledger. No se comprueba, y se dice.');
+    return;
+  }
+  const presentes = LEDGERS
+    .map((f) => join('docs', 'implementation', f).split(sep).join('/'))
+    .filter((f) => existsSync(join(ROOT, f)));
+  const fuera = lineasPerdidas(presentes, (f) => git(['diff', tag, 'HEAD', '--', f]));
+  const sinBase = fuera.filter((x) => x.borradas === null);
+  const perdidas = fuera.filter((x) => x.borradas !== null);
+  for (const x of sinBase) {
+    warn('SUITE-R09', `${x.archivo}: no se pudo obtener el diff contra ${tag}. SIN EVALUAR — que no es lo mismo que «ninguna línea borrada».`);
+  }
+  for (const x of perdidas) {
+    fail('SUITE-R09', `${x.archivo}: ${x.borradas} línea(s) desaparecida(s) desde ${tag}. Un ledger append-only no pierde líneas: lo que ya está escrito no se reescribe, se corrige añadiendo. Comprueba el recuento, no el contenido: una alteración que conserve el número de líneas NO la detecta.`);
+  }
+  if (!perdidas.length && !sinBase.length) {
+    ok('SUITE-R09', `${presentes.length} ledger(s) sin líneas perdidas desde ${tag}.`);
+  }
+}
+
+// ─── EXEC-R04 · la G4 deja constancia con nombre ────────────────────────────
+//
+// PT-088 · H-002. EXEC-R04 dice que G4 es humana en los tres modos y ningun verificador la
+// emitia. Lo que existia era SUITE-R06 por TAREA; esto es por MERGE.
+//
+// QUE ESTABLECE: que hay una entrada de autorizacion, con nombre en «firmantes», el mismo dia
+//   de cada merge a la rama por defecto posterior a la version de entrada.
+// QUE NO ESTABLECE: que la autorizacion fuera real — el agente escribe la constancia. Es el
+//   limite que SUITE-R27 declara para las firmas, y H-009 pide declararlo tambien aqui.
+//
+// La ventana no es cosmetica: medido, hay 18 merges a main y UNO desde el ultimo tag. Sin
+// ventana la regla nace con 17 fallos sobre trabajo de agosto y se apaga (PT-023).
+const RE_CONSTANCIA = /^##\s+(\d{4}-\d{2}-\d{2})\s+·\s+.*(?:G4|VoBo|autorizad)/gim;
+function checkG4ConConstancia() {
+  if (!rigeGlobal('EXEC-R04')) return;
+  const git = (args) => {
+    try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }); }
+    catch { return null; }
+  };
+  const tag = (git(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
+    .trim().split(/\s+/).filter(Boolean)[0];
+  const principal = (git(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']) ?? '')
+    .trim().split('/').pop() || 'main';
+  const ref = `origin/${principal}`;
+  if (git(['rev-parse', '--verify', '--quiet', ref]) === null) {
+    warn('EXEC-R04', `no existe ${ref}: sin rama por defecto publicada no hay merges que contrastar. SIN EVALUAR.`);
+    return;
+  }
+  const rango = tag ? `${tag}..${ref}` : ref;
+  const crudo = git(['log', '--merges', '--first-parent', rango, '--format=%h|%cs']) ?? '';
+  const merges = crudo.trim().split(/\r?\n/).filter(Boolean)
+    .map((l) => { const [sha, fecha] = l.split('|'); return { sha, fecha }; });
+  if (!merges.length) {
+    ok('EXEC-R04', `sin merges a ${principal}${tag ? ` desde ${tag}` : ''}: nada que autorizar.`);
+    return;
+  }
+  const sesion = read(join(IMPL, 'SESSION_LOG.md')) ?? '';
+  const lista = firmantesDeclarados();
+  const constancias = [...sesion.matchAll(RE_CONSTANCIA)]
+    .flatMap((m) => lista.map((n) => ({ nombre: n, fecha: m[1] })));
+  const huerfanos = mergesSinConstancia(merges, constancias, lista);
+  if (huerfanos.length) {
+    for (const h of huerfanos) {
+      fail('EXEC-R04', `${h.sha} (${h.fecha}): merge a «${principal}» sin constancia de autorización en SESSION_LOG.md. G4 es humana en los tres modos; sin registro con un nombre de «firmantes» no hay decisión humana que contrastar. NO prueba que la autorización fuera real (SUITE-R27, H-009).`);
+    }
+  } else {
+    ok('EXEC-R04', `${merges.length} merge(s) a «${principal}»${tag ? ` desde ${tag}` : ''}, todos con constancia.`);
+  }
+}
+
 // ─── SUITE-R15 · el proyecto debe tener el núcleo que el agente carga ────────
 // Un proyecto sin CORE.md no puede cumplir SUITE-R15: no tiene qué cargar. Hasta la 4.3.1,
 // los instaladores de FIDE enumeraban archivos uno a uno y omitían CORE.md — el proyecto
@@ -1814,6 +1918,8 @@ if (gate === 'G4' && LOTES_EVALUADOS.size) {
 checkFoundation();
 checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
+checkLedgers();
+checkG4ConConstancia();
 checkImplementacion(reg);
 checkEstado();
 checkCheckpoint();
