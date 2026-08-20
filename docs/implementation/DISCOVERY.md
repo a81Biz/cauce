@@ -23,7 +23,7 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-016 | CHORE | S4 | DONE | EP-013 | Decidir si phase pasa a ser obligatoria, y añadirla a TAREA.md |
 | PT-017 | CHORE | S4 | DONE | EP-013 | migrate: derivar la lista de «qué llega nuevo» |
 | PT-066 | BUG | S2 | INTEGRATED | EP-017 | La regla que se consulta es la que se define |
-| PT-067 | BUG | S2 | READY | EP-017 | El denominador de la cobertura esta incompleto |
+| PT-067 | BUG | S2 | INTEGRATED | EP-017 | El denominador de la cobertura esta incompleto |
 | PT-068 | BUG | S1 | INTEGRATED | EP-017 | La marca de sesion es de quien la abre |
 | PT-070 | BUG | S2 | READY | EP-017 | El alcance del grafo lo calcula la herramienta |
 | PT-071 | BUG | S2 | READY | EP-017 | Publicar comprueba lo mismo que verificar |
@@ -35,3 +35,4 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-078 | BUG | S2 | READY | EP-017 | Ninguna regla queda sin clasificar: VERIFICADA, NO_VERIFICABLE o PENDIENTE |
 | PT-079 | BUG | S1 | INTEGRATED | EP-017 | Lo que se aprende se hace mecanico: la trazabilidad sobrevive a la rama |
 | PT-080 | BUG | S2 | READY | EP-017 | Una regla no se define dos veces: FDGE-R22, R40 y R41 tienen dos textos y los tres divergen |
+| PT-081 | BUG | S1 | READY | EP-017 | Una regla nueva no rige hacia atras, y la version lo dice: EP-017 es la 10.0.0 |

@@ -2562,3 +2562,27 @@ escriben para que ninguna vuelva a invocarse por `TRR`.
 ## 2026-08-19 · sesion abierta en `7735ff4`
 
 <!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-19 · `G4` autorizado al agente — **excepción declarada** a `EXEC-R04` y `SUITE-R06a`
+
+`EXEC-R04` dice que el merge a la rama por defecto es **humano en los tres modos, sin
+excepción**, y `SUITE-R06a` lo pone el primero de lo que nunca se automatiza. La vía que el
+marco deja abierta no es ignorarlas: es la última línea de `CLAUDE.md` — *«hasta que un humano
+autorice la excepción **dejando registro de esa autorización**»*. Este es ese registro.
+
+**Autoriza:** Alberto Martínez, firmante declarado en `CLAUDE.md`.
+**Instrucción literal:** «realiza el g4 necesario y realiza los merge y pull».
+**Alcance:** merge de `trabajo` a `main`. **No** cubre publicar — sigue vigente «No publiques la
+9.0.0», y `PT-081` sostiene que la versión correcta de `EP-017` es la `10.0.0`.
+
+**Por qué era necesario y no cosmético.** `main` no recibía un merge desde el 2026-08-18 y
+acumulaba **53 commits** de retraso: los lotes `EP-016` y `EP-017` completos. `SUITE-R46` cierra
+un issue sólo cuando su estado terminal está en la rama por defecto, así que **siete** issues de
+tareas ya `INTEGRATED` —`PT-055`, `PT-066`, `PT-067`, `PT-068`, `PT-074`, `PT-075`, `PT-076`,
+`PT-079`— no podían cerrarse. El tablero no estaba atrasado: decía la verdad sobre una compuerta
+que no había ocurrido.
+
+**Precondición comprobada antes** (`FDGE-R34`): `verify-fdge --gate G4` sin errores.
+
+Esta entrada existe para que la excepción sea **contrastable**, no para normalizarla. La
+siguiente `G4` vuelve a necesitar autorización: una excepción que se hereda deja de serlo.

@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 80,
+    "PT": 81,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1569,12 +1569,12 @@
       "id": "PT-067",
       "slug": "el-denominador-de-la-cobertura-esta-incompleto",
       "created": "2026-08-19",
-      "status": "READY",
+      "status": "INTEGRATED",
       "type": "BUG",
       "severity": "S2",
       "complexity": "TRIVIAL",
       "track": "STANDARD",
-      "phase": 9,
+      "phase": 10,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -2043,7 +2043,42 @@
         },
         "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
-      }
+      },
+      "issue": 150
+    },
+    {
+      "id": "PT-081",
+      "slug": "una-regla-nueva-no-rige-hacia-atras",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "Una regla nueva no rige hacia atras, y la version lo dice",
+      "origin": "Abierta el 2026-08-19 porque el firmante dudo de que esto sea la 9.0.0, y tiene razon con causa mecanica: verify-fdge usa UNA sola ancla DESDE=[5,1,0] para cinco comprobaciones de reglas nacidas en versiones distintas. FDGE-R53 nacio en 5.1.0 y le corresponde; FDGE-R54 nacio en esta sesion y hereda la misma ancla, asi que rige sobre tareas escritas anos antes. Y la guia de migracion de 9.0.0 dice «ningun proyecto instalado tiene que hacer nada», que era cierto para EP-016 y dejo de serlo cuando EP-017 metio dos reglas HARD con verificadores que fallan.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 723,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2815,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
+        "fecha": "2026-08-19"
+      },
+      "issue": 151
     }
   ]
 }
