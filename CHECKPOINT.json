@@ -3,8 +3,8 @@
   "type": "CHORE",
   "epic": "EP-017",
   "status": "REOPENED",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "trabajo",
   "sha": "f8fcc4c34424738d4ed6e1fa8268321d5add1a9c",
   "sha_corto": "f8fcc4c",
@@ -63,8 +63,11 @@
     "docs/methodology/tools/verify-suite.mjs",
     "package.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-20"
 }
