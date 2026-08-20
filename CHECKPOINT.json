@@ -3,8 +3,8 @@
   "type": "CHORE",
   "epic": "EP-017",
   "status": "REOPENED",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "trabajo",
   "sha": "f8fcc4c34424738d4ed6e1fa8268321d5add1a9c",
   "sha_corto": "f8fcc4c",
@@ -63,15 +63,8 @@
     "docs/methodology/tools/verify-suite.mjs",
     "package.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-20"
 }
