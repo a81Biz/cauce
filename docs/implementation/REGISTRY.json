@@ -1,5 +1,5 @@
 {
-  "suite_version": "9.0.0",
+  "suite_version": "10.0.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -457,7 +457,7 @@
       "title": "Comprobar que CUALQUIER proyecto legado se puede migrar, y ejecutar la migracion de referencia",
       "origin": "Aplazado por PT-011 y por EP-001 · es el trabajo con el que se abrió la sesión y el que EP-004 desbloquea · CORRECCION DE ALCANCE 2026-08-13 (humana): no es migrar ESE proyecto, es que cualquier legado se pueda migrar. Lo comprobable esta hecho (17 hallazgos a 0, migrate de 1 accion a 7); queda la migracion EFECTIVA, que depende de otro repositorio",
       "issue": 26,
-      "phase": 1,
+      "phase": 9,
       "epic": "EP-017",
       "viabilidad": {
         "veredicto": "MARGINAL",
@@ -1528,7 +1528,7 @@
       "title": "La prueba de fuego: aprobar la 9.0.0 antes de publicarla",
       "origin": "Acordada con el firmante el 2026-08-18 y abierta el 2026-08-19. Ampliada con los defectos que encontro la segunda ejecucion de Foundation (D15..D20, TD-09..TD-13), todos ellos del paquete que se publica.",
       "issue": 127,
-      "suite_version": "9.0.0"
+      "suite_version": "10.0.0"
     },
     {
       "id": "PT-066",
@@ -1646,7 +1646,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "Los indices derivados necesitan generador",
       "origin": "PHASE 8 ordena regenerar BACKLOG, SUITE-R35 exige que espejen el registro, el HANDOFF prohibe editarlos a mano y ninguna herramienta los genera. Las tres instrucciones no se pueden cumplir a la vez. TD-12 / D18.",
       "issue": 131,
@@ -1680,7 +1680,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "El alcance del grafo lo calcula la herramienta",
       "origin": "plan-layout sigue devolviendo alcance «bin» mientras el registro dice «bin, docs/methodology/tools» desde PT-020: toda instalacion NUEVA nace con el defecto. Es la mitad abierta de TD-01. D16. Bloquea la validez del greenfield de PT-072.",
       "issue": 132,
@@ -1714,7 +1714,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "Publicar comprueba lo mismo que verificar",
       "origin": "publicar.yml corre 5 de las 8 comprobaciones de verificacion.yml: faltan verify:patrones, tracker espejo y verify-fdge --all, la que FDGE-R34 llama precondicion de G4. TD-13 / D15.",
       "issue": 133,
@@ -1782,7 +1782,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "Los tres documentos que lee quien llega",
       "origin": "MANUAL, CASOS-DE-USO y README al dia, DERIVADOS de lo que las dos pruebas necesitaron. CASOS-DE-USO declara todavia como hueco «varios agentes trabajando a la vez», que cerro EP-016: el catalogo describe un marco de la 8.0.0.",
       "issue": 135,
@@ -1921,7 +1921,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "La transicion mira lo que la consulta bloquea: avanzar ignora el STATE_MISMATCH",
       "origin": "Encontrado el 2026-08-19 ejecutando: tracker siguiente BLOQUEO la transicion de PT-075 por STATE_MISMATCH y tracker avanzar la hizo igual. La guarda de PT-056 vive solo en siguienteDe (tracker.mjs:140-143); avanzar, que es la unica accion que hace los cinco actos de una transicion, no la consulta. Misma familia que PT-075: una comprobacion correcta que no esta donde decide.",
       "viabilidad": {
@@ -1955,7 +1955,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "Ninguna regla queda sin clasificar: el universo son 223 y cubierta significa emitida",
       "origin": "Abierta el 2026-08-19 a peticion del firmante: «asegura que nadie se pierda o pueda no seguir esa regla ni ninguna otra, para eso es todo esta EP». PT-075 arreglo DOS reglas; esto es el mecanismo. Medido: audit publica 60 sin verificador sobre 181, y de verdad son 131 sobre 223 —el denominador omite las 15 EXEC-R* y las 27 LEX-R*, y el numerador cuenta MENCIONES como verificadores: SUITE-R01 figura cubierta por una cadena de ejemplo, SUITE-R09 por comentarios y SUITE-R03 por el mensaje de otra regla. Es TD-09 pero sistemico: 36 HARD.",
       "viabilidad": {
@@ -2024,7 +2024,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "Una regla no se define dos veces",
       "origin": "Encontrado el 2026-08-19 en PT-067 al derivar el universo de reglas de sus tres documentos propietarios: FDGE-R22, FDGE-R40 y FDGE-R41 estan definidas en RULES.md Y en EXECUTION-MODES.md, y las tres copias YA divergen — la de EXECUTION-MODES suelta una obligacion en cada caso. Es la enfermedad de la v3 que motivo la v4, viva en la v9. verify-suite no lo comprueba.",
       "viabilidad": {
@@ -2055,10 +2055,10 @@
       "severity": "S1",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 1,
+      "phase": 9,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "Una regla nueva no rige hacia atras, y la version lo dice",
       "origin": "Abierta el 2026-08-19 porque el firmante dudo de que esto sea la 9.0.0, y tiene razon con causa mecanica: verify-fdge usa UNA sola ancla DESDE=[5,1,0] para cinco comprobaciones de reglas nacidas en versiones distintas. FDGE-R53 nacio en 5.1.0 y le corresponde; FDGE-R54 nacio en esta sesion y hereda la misma ancla, asi que rige sobre tareas escritas anos antes. Y la guia de migracion de 9.0.0 dice «ningun proyecto instalado tiene que hacer nada», que era cierto para EP-016 y dejo de serlo cuando EP-017 metio dos reglas HARD con verificadores que fallan.",
       "viabilidad": {
@@ -2126,7 +2126,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "La plantilla que distribuye el paquete pasa su propio verificador",
       "origin": "Encontrado el 2026-08-19 ejecutando PT-072 sobre un proyecto nuevo real. RE_SEVERITY es /^s*severity:s*(S[1-4])s*$/im y exige fin de linea, pero BUG-REPORT.md —la plantilla que el paquete distribuye— trae «severity: S2               # [HUMANO] S1 | S2 | S3 | S4». Quien instala el paquete, copia su plantilla y la rellena, falla FDGE-R04. Los demas campos SI toleran el comentario, asi que es un campo incoherente con los otros. Hueco H6 de PT-072.",
       "viabilidad": {
@@ -2160,7 +2160,7 @@
       "phase": 1,
       "structural": false,
       "epic": "EP-017",
-      "suite_version": "9.0.0",
+      "suite_version": "10.0.0",
       "title": "La plataforma es opcional o no lo es",
       "origin": "Encontrado el 2026-08-19 ejecutando PT-072 sin declarar plataforma a proposito. tracker avanzar exige --nota; la nota exige issue; el issue exige plataforma. Y FDGE-R52 hace de avanzar la UNICA forma sancionada de cambiar de fase, asi que un proyecto sin tablero no puede avanzar ni una fase. Mientras tanto SUITE-R22 declara soportado el equipo de una sola persona y migrate escribe «OPCIONAL — declarar plataforma de trabajo. Sin ella no cambia nada». Es falso. Hueco H7 de PT-072, el unico critico.",
       "viabilidad": {

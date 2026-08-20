@@ -10,7 +10,7 @@ type: CHORE
 epic: EP-017
 track: STANDARD
 status: READY
-phase: 1
+phase: 9
 created: 2026-08-19
 structural: no
 suite_version: 9.0.0

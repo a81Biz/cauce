@@ -2262,12 +2262,17 @@ chk   "…y el prompt de G2 tambien"           "FDGE-R54"     cat "$SUITE/FDGE-P
 chk   "…y la regla existe con su severidad"  "FDGE-R54"     cat "$SUITE/RULES.md"
 
 # E3 · sin veredicto registrado, G2 no se resuelve.
+#
+# PT-081 · el fixture nace en 5.2.0 y FDGE-R54 rige DESDE LA 10.0.0: cada regla declara ahora su
+# version de entrada en vez de compartir una constante. El caso cambia de FORMA y no de
+# intencion — sigue midiendo que sin veredicto registrado G2 no se resuelve—, y de paso deja
+# escrito que la regla no alcanza a lo escrito antes de existir.
 build_fixture
-reg_set "delete r.allocations.find((a)=>a.id==='PT-001').viabilidad"
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; delete a.viabilidad"
 chk   "sin viabilidad registrada, G2 falla"  "✗ FDGE-R54"   V --gate G2 PT-001
 # E4 · antes de G2 AVISA y no bloquea: en PHASE 1 la tarea no tiene complejidad con la que estimar.
 build_fixture
-reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.phase=2; delete a.viabilidad"
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; a.phase=2; delete a.viabilidad"
 chkno "…pero antes de G2 solo avisa"         "✗ FDGE-R54"   V PT-001
 # E5 · con veredicto registrado, pasa.
 build_fixture
@@ -2275,7 +2280,7 @@ reg_set "r.allocations.find((a)=>a.id==='PT-001').viabilidad={veredicto:'SAFE',c
 chkno "con viabilidad registrada, G2 pasa"   "✗ FDGE-R54"   V --gate G2 PT-001
 # E6 · UNSAFE detiene. PT-059: exige evidencia EN CONTRA, asi que no es una duda.
 build_fixture
-reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.phase=5; a.viabilidad={veredicto:'UNSAFE',coste:{valor:9,naturaleza:'MEDIDO'},medido_en:'abc1234',fecha:'2026-08-19'}"
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; a.phase=5; a.viabilidad={veredicto:'UNSAFE',coste:{valor:9,naturaleza:'MEDIDO'},medido_en:'abc1234',fecha:'2026-08-19'}"
 chk   "UNSAFE en PHASE 5 detiene"            "✗ FDGE-R54"   V PT-001
 
 # B · SUITE-R42. La regla dice DOS cosas y solo se comprobaba que el PR EXISTA. Esta es la otra
@@ -2335,6 +2340,59 @@ build_fixture
 printf 'Termina cuando: el login acepta la contraseña correcta
 ' >> "$WORK/changes/PT-001-login/intake.md"
 chkno "con condición de cierre ⇒ pasa"       "✗ FDGE-R53"  V PT-001
+
+# ─── PT-081 · una regla nueva no rige hacia atras ────────────────────────────
+#
+# verify-fdge tenia UNA constante —DESDE = [5,1,0]— gobernando TRES comprobaciones de reglas
+# nacidas en versiones distintas. Medido en el CHANGELOG tomando la ULTIMA aparicion de cada ID,
+# porque el archivo va de mas nuevo a mas viejo y la primera es la mencion mas reciente:
+#
+#   FDGE-R52  nace en 5.0.0    y se trataba como 5.1.0
+#   FDGE-R53  nace en 5.1.0    y se trataba como 5.1.0   correcto
+#   FDGE-R54  nace con EP-017  y se trataba como 5.1.0   regia sobre el 12 de agosto
+#
+# Consecuencia real: un proyecto instalado en 8.2.0 que actualizara veia fallar --gate G2 en
+# toda tarea en vuelo sin «viabilidad» — por una regla que no existia cuando se escribieron. Y
+# la guia de migracion de la 9.0.0 dice que ningun proyecto instalado tiene que hacer nada.
+patlib "una regla nueva NO rige sobre una tarea vieja" "^false$" \
+  "console.log(m.rigeDesde('FDGE-R54','8.2.0'))"
+patlib "…y SI sobre una posterior"                     "^true$"  \
+  "console.log(m.rigeDesde('FDGE-R54','10.0.0'))"
+patlib "…y la version exacta cuenta"                   "^true$"  \
+  "console.log(m.rigeDesde('FDGE-R53','5.1.0'))"
+patlib "…y una anterior por un parche NO"              "^false$" \
+  "console.log(m.rigeDesde('FDGE-R53','5.0.9'))"
+# Sin fila rige SIEMPRE: eximir de mas es peor que exigir de mas — una regla que no se aplica a
+# nadie no protege. El caso contrario lo caza reglasNuevasSinVersion.
+patlib "una regla sin fila rige siempre"               "^true$"  \
+  "console.log(m.rigeDesde('QA-R01','1.0.0'))"
+
+# Y la comprobacion completa: la MISMA tarea, la MISMA falta, dos versiones. Por separado cada
+# caso pasaria con un rigeDesde que devolviera siempre lo mismo; el PAR es lo que mide.
+#
+# Con reg_set, que ya existe. Mi primera version usaba perl sobre el JSON y no casaba: el
+# fixture es 5.2.0 y yo buscaba una forma que no tenia. Sexta vez que un patron mio no casa
+# con lo real, y la que lo dijo fue la bateria, no leerlo.
+build_fixture
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='8.2.0'; a.status='IN_PROGRESS'; a.phase=5; delete a.viabilidad"
+chkno "8.2.0 sin viabilidad ⇒ FDGE-R54 NO alcanza" "✗ FDGE-R54"  V --gate G2 PT-001
+build_fixture
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; a.status='IN_PROGRESS'; a.phase=5; delete a.viabilidad"
+chk   "10.0.0 sin viabilidad ⇒ FDGE-R54 SI alcanza" "✗ FDGE-R54"  V --gate G2 PT-001
+
+# AC-08 · lo que impide la CUARTA. «Nueva» es NO EXISTIA ANTES, no «no aparece en el CHANGELOG»:
+# probe el segundo criterio y devolvio 69 —casi todas fundacionales, anteriores al propio
+# CHANGELOG— y una lista con 69 falsos positivos es una lista que nadie mira.
+patlib "una regla nueva sin version se señala"  "FDGE-R99" \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'FDGE-R99',sev:'HARD'}],['FDGE-R01'])))"
+patlib "…y una que ya existia, no"              "^\[\]$"   \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'FDGE-R01',sev:'HARD'}],['FDGE-R01'])))"
+patlib "…y una nueva CON su fila, tampoco"      "^\[\]$"   \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'FDGE-R54',sev:'HARD'}],['FDGE-R01'])))"
+# RULE-06 · sin saber que habia antes no se sabe que es nuevo, y suponer que todo lo es da la
+# misma lista inutil. Se devuelve null, que es distinguible de la lista vacia.
+patlib "sin la version anterior ⇒ null"         "^null$"   \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'X-R1',sev:'HARD'}],null)))"
 
 # FDGE-R52 · el reanclaje se ESCRIBE. Una nota por transición alcanzada.
 build_fixture
@@ -2469,6 +2527,26 @@ chk   "una sola fórmula del sello"           "patrones.mjs"  bash -c 'grep -l "
 # ─── C · coherencia de la metodología ───────────────────────────────────────
 sec "── C · metodología ──"
 chk   "verify-suite en verde"    "Sin errores" node "$SUITE/tools/verify-suite.mjs" "$SUITE"
+
+# PT-081 · AC-08 · el detector de reglas nuevas sin version de entrada.
+#
+# La inversa de verdad —quitar la fila de FDGE-R54 y ver saltar el aviso— NO cabe aqui, y el
+# motivo es el propio diseño: el detector compara contra «origin/main», asi que fuera de un
+# repositorio con ese remoto devuelve null y no inventa nada (RULE-06). Sobre una copia del
+# fixture, que no es un repositorio, callaria SIEMPRE — y un caso que pasa por vacio es
+# exactamente lo que lint_aserciones existe para enumerar.
+#
+# Lo intente sobre $SUITE restaurando con «git checkout». Es lo que PT-076 prohibe —el arnes no
+# escribe en el repositorio real— y habria dejado patrones.mjs roto si la bateria se interrumpia
+# en medio. La inversa se ejecuto A MANO sobre el repositorio, y consta en la evidencia.
+#
+# Lo que SI se fija aqui son las dos mitades: que el detector funciona —arriba, con patlib— y
+# que verify-suite lo INVOCA. Sin esto, desconectarlo no costaria ningun rojo.
+chk   "verify-suite invoca el detector"  "reglasNuevasSinVersion"  cat "$SUITE/tools/verify-suite.mjs"
+# Y que sin poder leer la version anterior CALLA, en vez de acusar al universo entero.
+rm -rf "$WORK/suite81"; mkdir -p "$WORK/suite81"; cp -r "$SUITE"/. "$WORK/suite81/"
+chkno "sin version anterior legible, no acusa" "es una regla HARD nueva" \
+  node "$WORK/suite81/tools/verify-suite.mjs" "$WORK/suite81"
 chk   "CORE.md sincronizado"     "sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
 chk   "CORE-PTSA.md sincronizado" "CORE-PTSA.md sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
 chk   "cobertura sin huecos"     "sin huecos"   node "$SUITE/tools/audit.mjs" "$SUITE"

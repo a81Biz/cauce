@@ -1,0 +1,20 @@
+{
+  "pt": "PT-019",
+  "generated": "2026-08-20",
+  "criteria": [
+    { "ac": "AC-01", "statement": "El sintetico provoca los casos que Foundation debe detectar", "scenarios": ["E2"], "tests": ["—"], "evidence": ["salidas/comparar-marco.txt"], "verified": false, "nota": "REDUCIDO Y DECLARADO. No se construyo el sintetico: el legado REAL provoca los casos mejor —36 de 39 archivos distintos, 7 herramientas ausentes, 3 artefactos que no existen, 2 allocations vivas sin phase— y sus divergencias son autenticas. Un sintetico habria medido mi capacidad de inventar defectos, no la de Foundation de encontrarlos. Sigue siendo una reduccion de alcance." },
+    { "ac": "AC-02", "statement": "Foundation los detecta y los declara", "scenarios": ["E2"], "tests": ["comparar-marco sobre el legado real"], "evidence": ["salidas/comparar-marco.txt"], "verified": true, "nota": "52 archivos aqui contra 39 alli. 36 de los 39 DIFIEREN y solo 3 son identicos: un proyecto en 4.12.0 no es cauce con menos funciones, es otro marco." },
+    { "ac": "AC-03", "statement": "El proyecto real se usa sin tocarlo", "scenarios": ["E5"], "tests": ["git status del original antes y despues"], "evidence": ["salidas/no-destructivo.txt"], "verified": true, "nota": "0 archivos modificados. Todo en lectura: migrate en modo informe y comparar-marco." },
+    { "ac": "AC-04", "statement": "Cada hueco queda anotado con su fase y su sintoma", "scenarios": ["E6"], "tests": ["HL-1 y HL-2 con su destino"], "evidence": ["salidas/migrate-informe.txt"], "verified": true, "nota": "HL-1 comparar-marco invierte las etiquetas segun desde donde se ejecute -> PT-073. HL-2 migrate promete que la plataforma no cambia nada, y PT-072 midio que sin ella no se avanza ni una fase -> PT-084." },
+    { "ac": "AC-05", "statement": "Si el proyecto real no esta accesible, se hace solo con el sintetico y se DICE", "scenarios": ["E1"], "tests": ["—"], "evidence": ["salidas/no-destructivo.txt"], "verified": true, "nota": "NO APLICA, y esa es la buena noticia: el criterio existia porque PT-019 llevaba DEFERRED desde el 13 de agosto por depender de otro repositorio. Estaba accesible." }
+  ],
+  "no_verificado": [
+    { "afirmacion": "Que la migracion funcione de extremo a extremo.", "por_que": "No se ejecuto «migrate --apply». El intake lo pone OUT: el proyecto es un CASO DE PRUEBA, no un destino, y hacerlo habria sido intervenir un sistema con 127 tareas de historia que alguien usa. Lo validado es que el INFORME es correcto y accionable, que no es lo mismo.", "donde": "changes/PT-019-migrar-el-proyecto-legado/acciones-humanas.md" },
+    { "afirmacion": "Que estos dos huecos sean todos los que aparecerian al migrar de verdad.", "por_que": "Se midio el informe, no la ejecucion. Los huecos de aplicar solo salen aplicando.", "donde": "changes/PT-019-migrar-el-proyecto-legado/discovery.md" }
+  ],
+  "desviaciones_de_procedimiento": [
+    { "que": "AC-01 quedo reducido: no se construyo el legado sintetico.", "regla": "—", "detalle": "Con motivo escrito, y no se presenta como equivalente. El real provoca los casos mejor porque sus divergencias son autenticas." },
+    { "que": "Ejecute comparar-marco desde cauce contra el proyecto, que es al reves de como esta pensada.", "regla": "—", "detalle": "Por eso salio HL-1: la herramienta llama «canonica» al argumento e invierte las etiquetas. El contenido es correcto; el rotulo miente. Que este pensada para correr DESDE el proyecto no esta escrito en ningun sitio." }
+  ],
+  "suite": { "passed": 0, "failed": 0, "nota": "tarea de MEDICION sobre un repositorio externo: no anade casos a la bateria de cauce" }
+}

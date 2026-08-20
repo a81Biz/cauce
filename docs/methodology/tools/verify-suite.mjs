@@ -31,6 +31,9 @@ import { createHash } from 'node:crypto';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe, PATRONES, NATURALEZAS, MEDIDO, ESTIMADO, SIN_EVALUAR } from './patrones.mjs';
+// PT-081 · AC-08 · lo que impide la CUARTA regla nueva sin version de entrada declarada.
+import { reglasDelMarco, reglasNuevasSinVersion } from './patrones.mjs';
+import { execFileSync } from 'node:child_process';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
 if (!existsSync(BASE)) {
@@ -578,6 +581,50 @@ const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''
     }
   }
 }
+
+// PT-081 · AC-08 · una regla HARD NUEVA sin fila en RIGE_DESDE heredaria el criterio de otra.
+// Paso con FDGE-R54: nacio en esta version y una constante compartida la hacia regir sobre
+// trabajo de dos meses antes. Arreglar los tres casos y dejar el mecanismo intacto para el
+// cuarto es lo que PT-075 documento.
+//
+// «Nueva» es NO EXISTIA EN LA VERSION ANTERIOR. Probe «no aparece en el CHANGELOG» y devolvio
+// 69 —casi todas fundacionales—: una lista con 69 falsos positivos es una lista que nadie mira.
+//
+// AVISA, no falla. Sin poder leer la version anterior devuelve null y NO se inventa nada
+// (RULE-06): sin saber que habia antes no se sabe que es nuevo.
+(() => {
+  const leerAhora = (f) => { try { return readFileSync(join(BASE, f), 'utf8'); } catch { return ''; } };
+  // La linea base es el TAG de la version anterior, no «origin/main». Elegi main primero y la
+  // inversa lo desmonto: en cuanto se ejecuta una G4, lo integrado deja de ser «nuevo» y el
+  // detector calla justo cuando la regla acaba de entrar. Un tag no se mueve.
+  const tagPrevio = () => {
+    try {
+      const salida = execFileSync('git', ['tag', '--list', 'v*', '--sort=-v:refname'],
+        { cwd: dirname(dirname(BASE)), encoding: 'utf8', stdio: 'pipe' });
+      // Se parte por espacio en blanco a proposito: un literal con salto de linea dentro se
+      // rompe al pasar por un script, y van siete veces en este lote. Los tags no llevan espacios.
+      const tags = salida.trim().split(/\s+/).filter(Boolean);
+      const vigente = `v${SUITE_VERSION}`;
+      return tags.find((t) => t !== vigente) ?? null;   // el mas reciente que NO sea el actual
+    } catch { return null; }
+  };
+  const REF = tagPrevio();
+  const leerAntes = (f) => {
+    if (!REF) return '';
+    try {
+      return execFileSync('git', ['show', `${REF}:docs/methodology/${f}`],
+        { cwd: dirname(dirname(BASE)), encoding: 'utf8', stdio: 'pipe' });
+    } catch { return ''; }
+  };
+  const antes = reglasDelMarco(leerAntes).map((r) => r.id);
+  const nuevas = reglasNuevasSinVersion(reglasDelMarco(leerAhora), antes.length ? antes : null);
+  if (nuevas === null) return;                       // no se pudo leer la version anterior
+  for (const id of nuevas) {
+    warn('SUITE-R19', 'RULES.md', 0, `${id} es una regla HARD nueva y no declara desde qué versión rige. `
+      + 'Sin fila en RIGE_DESDE (tools/patrones.mjs) regirá sobre tareas escritas antes de existir, '
+      + 'y la guía de migración no podrá enumerarla.');
+  }
+})();
 
 if (warnings.length) {
   console.log(`AVISOS (${warnings.length})`);

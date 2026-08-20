@@ -1,0 +1,12 @@
+=== AC-05 · los 21 documentos alineados en 10.0.0 ===
+
+version — vigente según el CHANGELOG: [1m10.0.0[0m
+
+[32mTodo declara 10.0.0.[0m
+
+package.json:
+  10.0.0
+CLAUDE.md:
+  suite_version: 10.0.0
+REGISTRY.json:
+  10.0.0

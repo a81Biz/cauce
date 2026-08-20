@@ -1,0 +1,2 @@
+  ✓ 8.2.0 sin viabilidad ⇒ FDGE-R54 NO alcanza
+  ✓ 10.0.0 sin viabilidad ⇒ FDGE-R54 SI alcanza

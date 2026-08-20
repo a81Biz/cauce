@@ -100,6 +100,78 @@ export const exigibleEn = (gate, artefacto) => {
   return ORDEN_COMPUERTAS.indexOf(gate) >= ORDEN_COMPUERTAS.indexOf(e.desde);
 };
 
+/**
+ * PT-081 · Desde qué VERSIÓN rige cada regla. La hermana de `EXIGIBLE_DESDE` en el eje del
+ * tiempo: aquella decide qué compuerta exige un artefacto; ésta, desde cuándo existe la regla.
+ *
+ * `verify-fdge` tenía UNA constante —`DESDE = [5, 1, 0]`— gobernando tres comprobaciones de
+ * reglas nacidas en versiones distintas. Medido en el CHANGELOG:
+ *
+ *   FDGE-R52  nace en 5.0.0   y se trataba como 5.1.0   → no regía sobre tareas de 5.0.0
+ *   FDGE-R53  nace en 5.1.0   y se trataba como 5.1.0   → correcto
+ *   FDGE-R54  nace AHORA      y se trataba como 5.1.0   → regía sobre todo desde el 12 de agosto
+ *
+ * El tercero es el que importa: un proyecto instalado en 8.2.0 que actualizara veria fallar
+ * `--gate G2` en toda tarea en vuelo sin `viabilidad`, por una regla que no existia cuando esas
+ * tareas se escribieron. Y la guia de migracion de la 9.0.0 dice que no hay que hacer nada.
+ *
+ * Sólo entran las reglas cuya comprobación DEPENDE de la versión. Una regla que siempre rigió no
+ * necesita fila, y ponerla seria inventar una fecha.
+ */
+export const RIGE_DESDE = {
+  'FDGE-R52': [5, 0, 0],    // reanclaje por fase · CHANGELOG 5.0.0
+  'FDGE-R53': [5, 1, 0],    // la tarea declara cómo termina · CHANGELOG 5.1.0
+  'FDGE-R54': [10, 0, 0],   // la viabilidad consta antes de G2 · nace con EP-017
+  'SUITE-R56': [10, 0, 0],  // el rastro sobrevive a la rama · nace con EP-017
+};
+
+/**
+ * ¿Rige `id` sobre una tarea escrita bajo `suiteDelPT`?
+ *
+ * Sin fila en la tabla, rige SIEMPRE: el defecto de partida era eximir de más —una regla que no
+ * se aplica a nadie no protege— y una regla sin versión declarada es casi siempre una que existió
+ * desde el principio. El caso contrario lo caza `reglasSinVersion`.
+ */
+export const rigeDesde = (id, suiteDelPT) => {
+  const d = RIGE_DESDE[id];
+  if (!d) return true;
+  const v = String(suiteDelPT ?? '0.0.0').split('.').map((n) => Number(n) || 0);
+  if (v[0] !== d[0]) return v[0] > d[0];
+  if (v[1] !== d[1]) return v[1] > d[1];
+  return v[2] >= d[2];
+};
+
+/**
+ * PT-081 · `AC-08` · Las reglas HARD **nuevas** que no declaran desde cuándo rigen.
+ *
+ * Sin esto, esta tarea arregla tres casos y deja el mecanismo intacto para el cuarto — que es
+ * literalmente lo que PT-075 documentó.
+ *
+ * «Nueva» es **no existía en la versión anterior**, no «no aparece en el CHANGELOG». Probé el
+ * segundo criterio y devolvió 69: casi todas son reglas fundacionales anteriores al propio
+ * CHANGELOG, y una lista con 69 falsos positivos es una lista que nadie mira. La comparación
+ * contra el texto anterior de `RULES.md` da exactamente las que entran en esta versión.
+ *
+ * `idsAntes` son los identificadores de la versión previa, derivados con `reglasDelMarco` sobre
+ * un lector de esa versión —`git show <ref>:docs/methodology/<doc>`—. **Los TRES documentos**: mi
+ * primera versión sólo leía `RULES.md` de antes contra los tres de ahora, y las 26 `LEX-*` y las
+ * 14 `EXEC-*` salían como nuevas todas. Comparar mitades distintas del mismo universo produce
+ * exactamente el ruido que este detector existe para evitar.
+ *
+ * Si no se puede leer la versión previa se devuelve `null`: sin saber qué había antes no se sabe
+ * qué es nuevo, y suponer que todo lo es da la misma lista inútil (`RULE-06`).
+ */
+export function reglasNuevasSinVersion(reglas, idsAntes) {
+  if (idsAntes == null) return null;
+  const previas = new Set(idsAntes);
+  if (!previas.size) return null;
+  return (reglas ?? [])
+    .filter((r) => r.sev === 'HARD')
+    .filter((r) => !previas.has(r.id))
+    .filter((r) => !RIGE_DESDE[r.id])
+    .map((r) => r.id);
+}
+
 // ── PT-058 · la naturaleza de una cifra ─────────────────────────────────────
 //
 // Decision 4 del firmante: distinguir MEDIDO, ESTIMADO y SIN EVALUAR, y NUNCA presentar una

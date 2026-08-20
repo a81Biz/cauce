@@ -1,0 +1,18 @@
+=== AC-08 · la inversa, ejecutada A MANO sobre el repositorio ===
+fecha: 2026-08-20
+
+No cabe en la bateria: el detector compara contra el TAG de la version anterior, y una
+copia del fixture no es un repositorio con tags. Alli devuelve null y no inventa nada.
+
+La primera version comparaba contra origin/main y ESTA MISMA INVERSA lo desmonto: en
+cuanto se ejecuto la G4, FDGE-R54 paso a estar en main y el detector callo — justo
+cuando la regla acababa de entrar. Un tag no se mueve; una rama si.
+
+  tag de la version anterior: v9.0.0
+
+-- 1 · con la fila de FDGE-R54 puesta --
+     avisos: 0
+-- 2 · QUITANDO la fila --
+     FDGE-R54 es una regla HARD nueva y no declara desde qué versión rige. Sin fila en RIGE_DESDE (tools/patrones.mjs) regirá sobre tareas escritas antes de existir, y la guía de migración no podrá enumerarla.
+-- 3 · restaurada --
+     avisos: 0
