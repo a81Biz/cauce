@@ -15,7 +15,7 @@ Proyectado el 2026-08-19 · 15 allocation(es) viva(s).
 | PT-069 | FEATURE | READY | 1 | — | — | 27f5351 |
 | PT-070 | BUG | READY | 1 | — | — | 27f5351 |
 | PT-071 | BUG | READY | 1 | — | — | 27f5351 |
-| PT-072 | INVESTIGATION | READY | 6 | — | — | 074c58b |
+| PT-072 | INVESTIGATION | READY | 7 | — | — | 074c58b |
 | PT-073 | CHORE | READY | 1 | — | — | 27f5351 |
 | PT-077 | BUG | READY | 1 | — | — | ab50d99 |
 | PT-078 | FEATURE | READY | 1 | — | — | 80c9b3d |
