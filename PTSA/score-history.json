@@ -1,0 +1,25 @@
+[
+  {
+    "auditoria": "PTSA-2026-08-20",
+    "fecha": "2026-08-20",
+    "sesion": "EP-017 / sello 10.0.0",
+    "version_auditada": "10.0.0",
+    "commit": "b67dc92",
+    "D1": 60,
+    "D2": 80,
+    "D3": 95,
+    "D4": 94,
+    "health": 79.9,
+    "multiplicador_global": false,
+    "risk": 73,
+    "confidence": 0.94,
+    "certificacion": "B",
+    "coverage": 0.89,
+    "universo": 196,
+    "evaluadas": 175,
+    "hallazgos_abiertos": 8,
+    "hallazgos_en_revision": 1,
+    "freshness": "2026-08-20",
+    "audit_due": "2026-09-20"
+  }
+]

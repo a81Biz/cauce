@@ -8,6 +8,116 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 10.0.0 — 2026-08-20
+
+**La prueba de fuego.** `EP-017`: ejecutar el marco contra un proyecto nuevo real y contra un
+legado real, y arreglar lo que apareciera. **`MAJOR` porque rompe**: entran dos reglas `HARD`
+nuevas con verificadores que fallan — y una tercera, `SUITE-R57`, que puede **bloquear `G2`**
+en un proyecto que arrastre trabajo integrado sin sellar.
+
+> Esta versión **no está en la `9.0.0`**. La entrada de abajo es el registro fechado de `EP-016`
+> —topología y multiusuario— y su guía de migración dice, con razón para aquel lote, que ningún
+> proyecto instalado tiene que hacer nada. Doblar `EP-017` ahí habría borrado qué lote trajo qué,
+> que es la enfermedad que este lote combate. Lo detectó el firmante dudando del número.
+
+### Guía de migración   `SUITE-R19`
+
+**Esto sí pide trabajo.** Tres reglas nuevas, y las tres pueden poner en rojo una tarea en vuelo:
+
+| Regla | Qué exige | Qué hacer en tu proyecto |
+|:---|:---|:---|
+| `FDGE-R54` | El veredicto de viabilidad **consta** antes de `G2` | En cada tarea viva: `node docs/methodology/tools/tracker.mjs viabilidad PT-NNN --registrar` |
+| `SUITE-R56` | El rastro de una tarea **sobrevive** a la rama que lo produjo | Nada obligatorio. Para reparar los enlaces ya publicados: `tracker abrir --aplicar` |
+| `SUITE-R57` | Lo integrado **no se acumula sin sellar**: pasado el umbral, `G2` se bloquea | `node docs/methodology/tools/tracker.mjs sellar` dice qué falta. El umbral se declara en `REGISTRY.tracker.umbral_sellado` (`N = 3` por defecto) |
+
+**Lo ya terminado no se toca.** Las tres reglas declaran su versión de entrada, así que **no rigen
+sobre tareas escritas antes de la `10.0.0`**. Una tarea con `suite_version: 8.2.0` no falla por
+`FDGE-R54`: no existía cuando se escribió.
+
+Eso no era así hasta esta versión y es el defecto que `PT-081` corrige: `verify-fdge` tenía **una
+sola constante** —`DESDE = [5,1,0]`— gobernando tres comprobaciones de reglas nacidas en versiones
+distintas, así que una regla creada hoy regía sobre trabajo de agosto.
+
+```
+FDGE-R52   nace en 5.0.0     se trataba como 5.1.0
+FDGE-R53   nace en 5.1.0     se trataba como 5.1.0     correcto
+FDGE-R54   nace en 10.0.0    se trataba como 5.1.0     regía dos meses hacia atrás
+```
+
+### Las tres reglas nuevas
+
+`FDGE-R54` · **No se empieza lo que no se puede terminar, y consta.** La viabilidad se consulta
+antes de `G2` y su veredicto se escribe en `REGISTRY.allocations[].viabilidad`. Existía la
+compuerta desde `EP-015` y no la invocaba **ninguna fase**: no se cumplía ni se incumplía.
+
+`SUITE-R56` · **El rastro de una tarea sobrevive a la rama que lo produjo.** El enlace del issue
+apunta a un ref durable —la rama de integración, o el commit—, no a la rama efímera que se borra
+al fusionar. Medido antes del arreglo: **20 de 40 enlaces del tablero daban 404**. Después: **0 de 85**.
+
+### Lo que la prueba encontró
+
+**Proyecto nuevo** (`PT-072`) — instalado desde `npm pack`, no desde el repositorio: Foundation,
+un `PT` completo con tests en rojo primero y `cauce verify` en cero errores. **Sirve.** Y siete
+huecos, dos serios:
+
+| | |
+|:---|:---|
+| `PT-084` `S1` | `tracker avanzar` **es imposible sin tablero**, y `SUITE-R22` y `migrate` dicen que la plataforma es opcional |
+| `PT-083` `S1` | La plantilla `BUG-REPORT.md` que **el paquete distribuye** falla su propio verificador |
+
+**Legado real** (`PT-019`) — Mercados Energéticos, cauce `4.12.0` con 114 tareas cerradas:
+`migrate` lo detecta y separa **1 acción automática de 6 decisiones humanas**; `comparar-marco`
+muestra **36 de 39 archivos distintos** y 13 que no existen allí. No se tocó: `0` cambios.
+
+`SUITE-R57` · **Lo integrado no se acumula sin sellar.** Pasado el umbral de tareas de lotes
+**cerrados** que no están en ningún tag, `G2` se bloquea hasta que se sella la versión. Sellar son
+ocho pasos —`tracker sellar` los enumera— y los dos últimos son de una persona: el PR a la rama
+por defecto y el tag, en ese orden.
+
+> Se cuenta por **lote cerrado**, no por tarea. La definición ingenua —«toda `INTEGRATED` que no
+> esté en el último tag»— daba **13 contra un umbral de 3** y el sello **es** el lote abierto: la
+> regla se habría bloqueado a sí misma sin salida. `EXEC-R03` ya decía que `G4` es la compuerta
+> del lote; la unidad de sellado estaba escrita en el marco y se había ignorado.
+
+### La medida de la cobertura era falsa
+
+`audit` publicaba `114 / 183`. El denominador ignoraba **dos de los tres documentos propietarios**
+—26 `LEX-*` y 14 `EXEC-*`, entre ellas `EXEC-R04` y `EXEC-R07`— y cualquier mención en un
+**comentario** contaba como verificador: 24 así, incluida `FDGE-R17`, declarada *no comprobable*
+en `TD-16`.
+
+```
+antes           114 / 183   ( 62 % )     denominador incompleto, menciones contadas
+al arreglarlo   108 / 223   ( 48 % )     PT-067
+al sellar       112 / 224   ( 50 % )     medida sobre el arbol que se publica
+```
+
+La cifra **baja** porque la medida se arregló, no porque se perdiera cobertura — y sube cuatro
+puntos después porque el resto del lote escribió verificadores. Se dan las tres para que se vea
+cuál es cuál: una sola cifra habría escondido que el salto de 62 % a 48 % es una corrección.
+
+**La cobertura no bajó: bajó la mentira sobre la cobertura.** Y `audit` publica ahora el desglose
+que lo explica, derivado y no escrito a mano.
+
+### Herramientas
+
+```
+tracker abrir --aplicar        repara los enlaces muertos de los issues ya cerrados
+tracker viabilidad --registrar el veredicto se ESCRIBE, no solo se consulta
+tracker proyectar --publicar   la rama cauce/<usuario>, que existía desde PT-054 y nunca corrió
+audit                          universo de 223 reglas, con sus tres orígenes y su desglose
+regla                          la definición es la que EMPIEZA por el ID, no la que lo menciona
+```
+
+`selftest.sh` pasa de 976 a **1074** casos.
+
+### La rama de integración ya no acepta rojo
+
+`trabajo` está protegida con el mismo contrato que `main`: `required_status_checks: ["marco"]`,
+`strict`, `enforce_admins`. No es cosmético — dos PR se fusionaron con CI en rojo antes de ponerla.
+
+---
+
 ## 9.0.0 — 2026-08-18
 
 **Topología y multiusuario.** Cinco tareas y **una regla modificada**: `MAJOR`. Es el lote que

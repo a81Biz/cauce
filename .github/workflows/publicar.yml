@@ -73,6 +73,13 @@ jobs:
         run: npm install -g npm@latest
 
       # El marco no se publica si no puede certificarse a sí mismo. Las cuatro bloquean.
+      # PT-071 · el verde que AUTORIZA una publicacion tiene que ser el mismo que verifica el
+      # repositorio. Faltaban tres de las ocho: verify:patrones, el espejo y verify-fdge —esta
+      # ultima es la que FDGE-R34 llama precondicion de G4—. Publicar con cinco de ocho es
+      # publicar sobre una comprobacion parcial, que es la familia de defectos de EP-017.
+      - name: Los patrones cumplen su contrato
+        run: npm run verify:patrones
+
       - name: Coherencia interna
         run: npm run verify:suite
       - name: Núcleo sincronizado con sus fuentes
@@ -81,6 +88,19 @@ jobs:
         run: npm run audit
       - name: Batería de casos
         run: npm run selftest
+
+      # FDGE-R34 · verify-fdge sin errores es PRECONDICION DE G4, y publicar ocurre despues de
+      # G4: llegar aqui sin haberlo corrido es publicar sin la comprobacion que autoriza el
+      # merge que trajo el codigo.
+      - name: Cumplimiento FDGE de todos los PT
+        run: node docs/methodology/tools/verify-fdge.mjs --all
+
+      # SUITE-R35 · el registro asigna y la plataforma espeja. Una divergencia aqui significa
+      # que lo publicado no coincide con lo que el tablero dice que existe.
+      - name: El espejo con la plataforma cuadra
+        run: node docs/methodology/tools/tracker.mjs espejo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # `FND-R29` · «Instalar la suite implica que el repositorio va a publicarse, y publicar es
       # irreversible donde importa». Esto es el publicar: npm no permite despublicar salvo en una

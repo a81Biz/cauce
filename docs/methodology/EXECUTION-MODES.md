@@ -3,7 +3,7 @@
 > **Estatus:** normativo. Define cuánta autonomía tiene el agente y dónde el humano decide.
 > **Autoridad:** ver `LEX-R21`. Reglas: [RULES.md](RULES.md). Vocabulario: [LEXICON.md](LEXICON.md).
 >
-> Suite version: **9.0.0**
+> Suite version: **10.0.0**
 
 ---
 
@@ -228,8 +228,9 @@ que quedan son ledgers append-only (`HISTORY.log`, `SESSION_LOG.md`, `INCIDENTS.
 
 ### 7.4 Análisis de solapamiento
 
-`FDGE-R40` · Antes de ejecutar un lote, el agente calcula qué PTs comparten archivos, a
-partir del `tasks.md` de cada uno, y declara el plan resultante en `BACKLOG.md`:
+El cálculo de solapamiento lo exige **`FDGE-R40`** en `RULES.md` — y con él la consecuencia que
+esta sección no puede enunciar: los PTs que comparten archivos **se serializan**. Aquí va la
+forma del plan que se declara en `BACKLOG.md`:
 
 ```markdown
 ## EP-003 — Deuda de validación de formularios
@@ -251,8 +252,9 @@ de resolución de conflictos; no forma parte del comportamiento base.
 
 ### 7.5 Regla de parada
 
-`FDGE-R41` · Un lote se detiene **completo** ante el primer `BLOCKED` o el primer fallo de
-compuerta no resuelto. No continúa «con los que sí pudieron».
+**`FDGE-R41`** en `RULES.md` manda detener el lote **completo** ante el primer `BLOCKED` o el
+primer fallo de compuerta no resuelto — y que el **`EP-NNN` pase a `BLOCKED`**, con el PT causante
+y el motivo en `BACKLOG.md`. No continúa «con los que sí pudieron».
 
 El motivo: los PTs de un lote suelen compartir supuestos. Si uno falla porque el supuesto
 era falso, seguir con el resto multiplica el rework en vez de contenerlo. El humano puede
@@ -316,9 +318,12 @@ PHASE 9  Integration                                            ──── G4 
    ⏱ 48 h para completar retroactivamente PHASE 2, 3, 4, 7 y 8
 ```
 
-`FDGE-R22` · Un `HOTFIX` **difiere** el análisis, la propuesta y la validación formal; no
-los elimina. Obliga a: rama `hotfix/PT-XXX-slug`, un `INC-NNN` abierto en `INCIDENTS.log`, y
-completar la documentación diferida dentro de 48 h.
+El carril `HOTFIX` lo define **`FDGE-R22`** en `RULES.md`, y ahí está su enunciado completo:
+sólo para `severity: S1`, rama `hotfix/PT-XXX-slug`, un `INC-NNN` abierto, y `PHASE 2, 3, 4, 7 y
+8` completadas retroactivamente en 48 h.
+
+Aquí sólo se explica **cómo se ejecuta**: difiere el análisis, la propuesta y la validación
+formal; no los elimina.
 
 `EXEC-R11` · **Un hotfix con documentación retroactiva vencida bloquea la apertura de todo
 PT nuevo.** El bloqueo se levanta completando la documentación, nunca ignorándolo.

@@ -1,0 +1,15 @@
+=== PT-078 · ninguna regla queda sin clasificar ===
+fecha: 2026-08-20
+
+  VERIFICADA       94   una herramienta la EMITE: fail|warn|ok(ID)
+  NO_VERIFICABLE   5   declarada con motivo y firma
+  PENDIENTE        125   deuda, no limite
+  ------------------------
+  suma             224 de 224
+
+  declaraciones que SOBRAN: 0
+
+  En su PRIMERA ejecucion senalo 4 de mis 9 declaraciones —SUITE-R27, SUITE-R43,
+  LEX-R21 y EXEC-R07— porque esas reglas SI se emiten. Tenia razon contra mi
+  propio texto: yo habia escrito que la parte comprobable de SUITE-R27 «ya se
+  comprueba» y aun asi la declare no verificable.

@@ -1,0 +1,15 @@
+=== PT-077 · avanzar respeta el STATE_MISMATCH ===
+fecha: 2026-08-20
+
+-- ANTES --
+   $ tracker siguiente   ->  BLOQUEA: STATE_MISMATCH (LEX-R26)
+   $ tracker avanzar     ->  PHASE 5 -> 6 Evidencia     avanzo igual
+   La guarda existia UNA sola vez: en la consulta, no en el acto.
+
+-- DESPUES, con el checkpoint alterado a proposito --
+   STATE_MISMATCH · el arbol no corresponde al checkpoint de PT-085 (LEX-R26):
+     rama   declarado rama-que-no-existe   real fix/alberto-martinez/PT-085-el-sello-de-version
+   Reanudar con esta discrepancia es una DECISION HUMANA (SUITE-R06). Si el checkpoint esta
+
+   (restaurado. Y dice la RAMA REAL: mi primera version imprimia el codigo
+    de la funcion, «real () => gitDe([...])» — bloqueaba bien y explicaba mal)

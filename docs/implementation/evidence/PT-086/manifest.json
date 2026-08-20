@@ -1,0 +1,126 @@
+{
+  "pt": "PT-086",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una seccion inactiva se salta ENTERA",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/parcial.txt"
+      ],
+      "verified": true,
+      "nota": "sus casos y su andamiaje. --solo filtraba solo aserciones."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El mapa seccion->herramienta se DERIVA",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/parcial.txt"
+      ],
+      "verified": true,
+      "nota": "del propio arnes. Una tabla de 37 entradas seria un hecho copiado (RULE-01) que envejece con la primera seccion nueva."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una seccion sin herramienta corre SIEMPRE",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/parcial.txt"
+      ],
+      "verified": true,
+      "nota": "10 de 37. El lado seguro del desconocimiento es correr de mas (RULE-06)."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La salida dice PARCIAL y enumera lo que salto",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/parcial.txt"
+      ],
+      "verified": true,
+      "nota": "un OK identico al de la corrida entera seria el falso verde mas caro de este arnes"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Sellar exige la completa",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/parcial.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R57, escrita en PT-085 ANTES que esto a proposito"
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Acota de verdad",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/parcial.txt"
+      ],
+      "verified": true,
+      "nota": "plan-layout: 134 de 1118 casos y 106 s frente a ~600"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la seleccion no deje fuera una seccion que SI habria fallado.",
+      "por_que": "Se afirma que una seccion sin herramienta asociada corre siempre y que el mapa se deriva del texto. Que el texto nombre todas las herramientas que una seccion ejercita de verdad no se puede comprobar sin ejecutarla.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Escribi la guarda con la forma que sustituye tambien el valor VACIO.",
+      "regla": "—",
+      "detalle": "La guarda NO DISPARABA NUNCA: 822 casos corrian igual con una sola herramienta cambiada. Sintacticamente correcta, semanticamente inerte — el mismo patron que PT-067 encontro en audit y PT-066 en regla."
+    },
+    {
+      "que": "Cuatro casos previos extraen texto del arnes POR POSICION.",
+      "regla": "—",
+      "detalle": "tail -14 y un sed de una sola linea. Mis cambios movieron el objetivo. Revisados uno a uno y conservada su intencion, no hechos pasar."
+    },
+    {
+      "que": "Edite el arnes mientras corria. CUARTA vez en el lote.",
+      "regla": "—",
+      "detalle": "Rompio la corrida con un error de sintaxis a medio archivo. Es un error de metodo mio, no del codigo."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}

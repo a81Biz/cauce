@@ -196,11 +196,34 @@ falta el acceso, la plataforma o un dato. Es deliberado: un verificador que conv
 El orden importa y no es una convención:
 
 ```
+0 · tracker sellar                 ← si toca cerrar version
 1 · el estado terminal se apunta en la rama de trabajo
 2 · el merge  ← G4, tuyo
 3 · tracker cerrar --aplicar
 4 · tracker proyectar --publicar   ← el rastro sobrevive a la rama
 ```
+
+### El paso 0 · sellar una versión
+
+Cerrar una versión **es un acto**, no una consecuencia. `tracker sellar` enumera sus ocho pasos y
+te dice cuáles faltan. Dos merecen que los leas antes de necesitarlos:
+
+**La batería va completa.** Ni filtrada ni por secciones. Sellar es el único momento en que se
+exige entera, y por eso vale.
+
+**Y los documentos que lee quien llega se resuelven, uno a uno.** `MANUAL`, `CASOS-DE-USO`, los
+dos `README`, `Suite-CLAUDE-Template` y el grafo: cada uno queda `ACTUALIZADO` o `NO PROCEDE`
+**con motivo**, en `docs/implementation/SELLO.md`. Una celda vacía no pasa — es indistinguible de
+una que nadie miró, exactamente como en `LAYOUT.md`.
+
+No se te pide que los cambies: se te pide que **decidas**. Exigir que cambien produciría retoques
+cosméticos para acallar la comprobación, y un manual que cambia tampoco prueba que se revisara lo
+que hacía falta.
+
+**Por qué existe esto.** Sin nada que lo obligara, una versión se declaró y no se publicó, la rama
+principal acumuló **53 commits** de retraso y ocho issues no pudieron cerrarse. Y en una versión
+`MAJOR` con dos reglas nuevas, **ninguno de los dos `README` se tocó**. `SUITE-R57` no prohíbe la
+deuda: la hace imposible de ignorar bloqueando `G2` cuando pasa de `N`.
 
 Al revés, la rama principal queda declarando trabajo vivo con el issue ya cerrado y su compuerta
 falla **después de cada merge** (`SUITE-R46`). La herramienta se niega si te adelantas.
@@ -229,6 +252,25 @@ Publicar el paquete es aparte, es manual y es tuyo.
 | El espejo dice «cierre pendiente» | Normal entre el merge y el cierre. No bloquea |
 | `SIN EVALUAR` en el tablero | Sin plataforma o sin credencial. No es «no hay nada» |
 | Una compuerta bloquea y crees que no debería | Léelo entero antes de forzar: cuatro veces en la historia de este marco la compuerta tenía razón y quien la leyó, no |
+
+### Lo que tropieza a quien llega, medido instalando de verdad
+
+`PT-072` instaló el marco en un proyecto nuevo y anotó cada fricción. **Éstas son las que costaron
+tiempo**, y todas siguen ahí salvo las dos que se arreglaron:
+
+| Te vas a encontrar | Qué hacer |
+|:---|:---|
+| `git add -A` se lleva `node_modules` | La instalación **no deja `.gitignore`**. Escríbelo antes del primer commit |
+| `FND-R23` dice que `LAYOUT.md` «no está firmado» | Busca la línea **«refleja la estructura que quiero: SÍ»** y edítala **en su sitio**. Añadir una firma al final deja dos veredictos y falla por otro motivo |
+| `SUITE-R30` rechaza tu `INSTALL.log` | El formato es `I<n> ACCIÓN … OK`, con **dos espacios** antes de `OK` y `I` de un solo dígito |
+| `tracker asignar` y luego `avanzar` dice «PHASE NaN» | La allocation nace sin `phase`. Decláralo en el registro |
+| `INTAKE-R06` dice que la firma está «sin rellenar» | Un intake suelto espera **`Reportado por:`**, no «Firmado por:». Y **copia la plantilla**: escribirlo a mano cuesta cuatro comprobaciones |
+
+**Y dos que ya no verás**, porque las encontró esa misma prueba y se arreglaron en el lote:
+
+- La plantilla del paquete fallaba `FDGE-R04` por su propio comentario en línea (`PT-083`).
+- Sin declarar plataforma no se podía avanzar **ni una fase** (`PT-084`). Ahora la nota va a
+  `TRANSICIONES.log` y el trabajo sigue.
 
 ### Y no tienes que deducir nada
 

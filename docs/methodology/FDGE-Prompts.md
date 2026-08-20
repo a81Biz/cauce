@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **9.0.0**
+> Suite version: **10.0.0**
 
 ---
 
@@ -45,6 +45,16 @@ líneas a una consulta**.
 |:---|:---|:---|:---|
 | tarea e implementación | issue | work item | `SUITE-R35` |
 | compuerta `G4` | pull request | pull request | `SUITE-R42` |
+
+> **Antes de proponer `G4`, sella si toca** (`SUITE-R57`). `node tools/tracker.mjs sellar` dice
+> qué falta: entrada en el `CHANGELOG` con su **guía de migración** (`SUITE-R19`), versión
+> alineada, `CORE` regenerado, batería completa y grafo al día.
+>
+> Sellar incluye además **resolver** los documentos que lee quien llega —`MANUAL`,
+> `CASOS-DE-USO`, los `README`, `Suite-CLAUDE-Template`— y el **grafo al día**: cada uno
+> `ACTUALIZADO` o `NO PROCEDE` con motivo, en `docs/implementation/SELLO.md`. Una celda vacía no
+> pasa, por lo mismo que no pasa en `LAYOUT.md` (`FND-R22`): es indistinguible de una que nadie
+> miró. Y la batería va **completa**, no parcial.
 
 ```bash
 node docs/methodology/tools/tracker.mjs espejo            # comprueba las dos direcciones

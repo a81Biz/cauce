@@ -28,6 +28,11 @@ POS=""
 # con `-q`, en su forma simple. Y `--solo` sin valor es un ERROR: un patron vacio casaria con
 # todo, y la bandera diria que filtro cuando no filtro nada.
 SOLO=""
+AFECTADOS=""
+# Antes de la primera «sec» todo esta activo: lo que hay ahi es preambulo, no una seccion.
+SEC_ACTIVA=1
+SECCIONES_ACTIVAS=""
+SECCIONES_SALTADAS=""
 _espera_solo=""
 for _a in "$@"; do
   # El VALOR de --solo se consume ANTES de mirar si parece una bandera. Sin esto,
@@ -37,6 +42,9 @@ for _a in "$@"; do
   case "$_a" in
     -q|--quiet) QUIET=1 ;;
     --solo)     _espera_solo=1 ;;
+    # PT-086 · corre SOLO las secciones que ejercitan lo que ha cambiado. Deriva las secciones
+    # del propio arnes —nada de una tabla a mano, que envejeceria— y los cambios de git.
+    --afectados) AFECTADOS=1 ;;
     *) [ -n "$POS" ] || POS="$_a" ;;
   esac
 done
@@ -66,7 +74,22 @@ pass() { TOTAL=$((TOTAL + 1)); [ -n "$QUIET" ] || printf "  \033[32m✓\033[0m %
 # 19 eran cabeceras sin nada debajo — lo dijo EJECUTARLO, no el diseño. Y borrarlas del todo
 # habria dejado el rojo sin saber a que bloque pertenece.
 SEC=""; SEC_VISTA=""
-sec() { SEC="$1"; SEC_VISTA=""; [ -n "$QUIET" ] || echo "$1"; }
+# PT-086 · una seccion inactiva se salta ENTERA: sus casos y su andamiaje. `--solo` filtraba
+# solo aserciones, y por eso una corrida filtrada seguia costando 171 s de los 600 — hay 211
+# `build_fixture` a nivel superior, fuera de los casos.
+sec() {
+  SEC="$1"; SEC_VISTA=""
+  if [ -n "$AFECTADOS" ]; then
+    case "$SECCIONES_ACTIVAS" in
+      *"|$1|"*) SEC_ACTIVA=1 ;;
+      *) SEC_ACTIVA=""; SECCIONES_SALTADAS="$SECCIONES_SALTADAS  $1
+" ;;
+    esac
+  else
+    SEC_ACTIVA=1
+  fi
+  [ -n "$QUIET" ] || [ -z "$SEC_ACTIVA" ] || echo "$1"
+}
 bad()  {
   TOTAL=$((TOTAL + 1))
   if [ -n "$QUIET" ] && [ -z "$SEC_VISTA" ] && [ -n "$SEC" ]; then echo "$SEC"; SEC_VISTA=1; fi
@@ -92,6 +115,9 @@ UNIVERSO=0
 # `case ... in *"$SOLO"*` casa LITERAL igual que grep -F y no lanza nada.
 salta() {
   UNIVERSO=$((UNIVERSO + 1))
+  # PT-086 · seccion inactiva ⇒ el caso no corre. Se cuenta en UNIVERSO igual: la cifra de
+  # cobertura no puede depender de lo que se filtro, o una corrida parcial pareceria completa.
+  [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ] && return 0
   [ -z "$SOLO" ] && return 1
   case "$1" in *"$SOLO"*) return 1 ;; esac
   return 0
@@ -101,7 +127,12 @@ chk() {
   salta "$name" && return
   local out; out="$("$@" 2>&1)"
   if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
-  if printf '%s' "$out" | grep -q -- "$pat"; then pass "$name"; else bad "$name  (no apareció: $pat)"; fi
+  # PT-085 · al fallar se ENSEÑA la salida, como trlib hace desde PT-058. Sin ella, diagnosticar
+  # un caso obliga a reproducir el fixture a mano — me costo tres intentos con PT-084, y es la
+  # misma familia que PT-079: un fallo que no dice por que es medio fallo.
+  if printf '%s' "$out" | grep -q -- "$pat"; then pass "$name"; else
+    bad "$name  (no apareció: $pat · salió: $(printf '%s' "$out" | head -c 400))"
+  fi
 }
 # ─── PT-079 · las guardas del arnes ─────────────────────────────────────────
 #
@@ -174,6 +205,17 @@ V() { node "$WORK/docs/methodology/tools/verify-fdge.mjs" "$@"; }
 
 # ─── Fixture ────────────────────────────────────────────────────────────────
 build_fixture() {
+  # PT-086 · con la seccion inactiva se monta un esqueleto VACIO y barato en vez del fixture.
+  # No se devuelve sin mas: el andamiaje que viene detras —perl, cp, printf— opera sobre rutas
+  # de $WORK, y sin ellas llenaria la salida de errores sobre archivos que no existen. Con el
+  # esqueleto, esas ordenes hacen su trabajo sobre archivos inertes y no dicen nada.
+  if [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ]; then
+    rm -rf "$WORK"; mkdir -p "$WORK/docs/implementation" "$WORK/docs/methodology/tools" "$WORK/changes/PT-001-login"
+    cd "$WORK"
+    : > changes/PT-001-login/intake.md
+    echo '{"allocations":[]}' > docs/implementation/REGISTRY.json
+    return 0
+  fi
   [ -n "${MTH_KEEP:-}" ] || rm -rf "$WORK"; mkdir -p "$WORK"; cd "$WORK"
   mkdir -p docs/enterprise-documentation docs/implementation/evidence docs/methodology/tools changes graphify-out
   for f in 02-PRD 03-TRD 06-Backend-Architecture; do echo "# $f" > "docs/enterprise-documentation/$f.md"; done
@@ -313,7 +355,10 @@ M
 }
 
 # node en vez de python: en MSYS/Git-Bash, python no resuelve rutas /tmp/...
-reg_set() { node -e "
+reg_set() {
+  # PT-086 · es una llamada a node, y por tanto cara. Con la seccion inactiva no se hace.
+  [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ] && return 0
+  node -e "
 const fs=require('fs'); const p=process.argv[1];
 const r=JSON.parse(fs.readFileSync(p,'utf8'));
 (new Function('r', process.argv[2]))(r);
@@ -321,6 +366,35 @@ fs.writeFileSync(p, JSON.stringify(r,null,2));
 " "$WORK/docs/implementation/REGISTRY.json" "$1"; }
 
 # ─── A · casos límite bien formados ─────────────────────────────────────────
+# PT-086 · qué secciones ejercitan lo que ha cambiado. Se deriva del PROPIO arnes —leyendo qué
+# herramientas nombra cada seccion— y de `git diff`. Nada de una tabla a mano: 37 entradas serian
+# un hecho copiado mas (RULE-01) y envejecerian con la primera seccion nueva.
+if [ -n "$AFECTADOS" ]; then
+  # MTH_CAMBIADAS permite probar LA PROPIA SELECCION sin depender del estado de git. Sin ella
+  # no se puede comprobar que --afectados acota de verdad: el dia que se escribio, cinco
+  # herramientas estaban tocadas —patrones entre ellas, que importan ocho— y la seleccion daba
+  # casi todo. Correcto, y por eso mismo inutil como medicion.
+  _cambiadas="${MTH_CAMBIADAS:-$(git -C "$RAIZ_REAL" diff --name-only HEAD -- docs/methodology/tools bin 2>/dev/null;
+               git -C "$RAIZ_REAL" diff --name-only --cached -- docs/methodology/tools bin 2>/dev/null)}"
+  SECCIONES_ACTIVAS=$(MTH_PAT="$SUITE/tools/patrones.mjs" MTH_ST="$SUITE/tools/selftest.sh"     MTH_CAMB="$_cambiadas" node -e "
+      const {pathToFileURL}=require('url'); const fs=require('fs');
+      import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+        const t=fs.readFileSync(process.env.MTH_ST,'utf8');
+        const c=(process.env.MTH_CAMB||'').split(/\s+/).filter(Boolean);
+        process.stdout.write('|'+m.seccionesAfectadas(t,c).join('|')+'|');
+      });")
+  if [ -z "$_cambiadas" ]; then
+    echo "--afectados: git no reporta cambios en tools/ ni bin/. Corren TODAS las secciones:"
+    echo "  sin saber qué cambió no se puede saber qué sobra, y saltar sin dato es lo que"
+    echo "  RULE-06 prohíbe. Para acotar, commitea o indexa lo que estés tocando."
+    AFECTADOS=""
+  else
+    echo "--afectados · cambiaron: $(echo "$_cambiadas" | tr '
+' ' ')"
+    echo ""
+  fi
+fi
+
 sec "── A · casos límite (deben pasar en verde) ──"
 build_fixture
 chk  "BUG validado, listo para G4"   "Sin errores" V --gate G4 PT-001
@@ -2262,12 +2336,17 @@ chk   "…y el prompt de G2 tambien"           "FDGE-R54"     cat "$SUITE/FDGE-P
 chk   "…y la regla existe con su severidad"  "FDGE-R54"     cat "$SUITE/RULES.md"
 
 # E3 · sin veredicto registrado, G2 no se resuelve.
+#
+# PT-081 · el fixture nace en 5.2.0 y FDGE-R54 rige DESDE LA 10.0.0: cada regla declara ahora su
+# version de entrada en vez de compartir una constante. El caso cambia de FORMA y no de
+# intencion — sigue midiendo que sin veredicto registrado G2 no se resuelve—, y de paso deja
+# escrito que la regla no alcanza a lo escrito antes de existir.
 build_fixture
-reg_set "delete r.allocations.find((a)=>a.id==='PT-001').viabilidad"
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; delete a.viabilidad"
 chk   "sin viabilidad registrada, G2 falla"  "✗ FDGE-R54"   V --gate G2 PT-001
 # E4 · antes de G2 AVISA y no bloquea: en PHASE 1 la tarea no tiene complejidad con la que estimar.
 build_fixture
-reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.phase=2; delete a.viabilidad"
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; a.phase=2; delete a.viabilidad"
 chkno "…pero antes de G2 solo avisa"         "✗ FDGE-R54"   V PT-001
 # E5 · con veredicto registrado, pasa.
 build_fixture
@@ -2275,7 +2354,7 @@ reg_set "r.allocations.find((a)=>a.id==='PT-001').viabilidad={veredicto:'SAFE',c
 chkno "con viabilidad registrada, G2 pasa"   "✗ FDGE-R54"   V --gate G2 PT-001
 # E6 · UNSAFE detiene. PT-059: exige evidencia EN CONTRA, asi que no es una duda.
 build_fixture
-reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.phase=5; a.viabilidad={veredicto:'UNSAFE',coste:{valor:9,naturaleza:'MEDIDO'},medido_en:'abc1234',fecha:'2026-08-19'}"
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; a.phase=5; a.viabilidad={veredicto:'UNSAFE',coste:{valor:9,naturaleza:'MEDIDO'},medido_en:'abc1234',fecha:'2026-08-19'}"
 chk   "UNSAFE en PHASE 5 detiene"            "✗ FDGE-R54"   V PT-001
 
 # B · SUITE-R42. La regla dice DOS cosas y solo se comprobaba que el PR EXISTA. Esta es la otra
@@ -2335,6 +2414,59 @@ build_fixture
 printf 'Termina cuando: el login acepta la contraseña correcta
 ' >> "$WORK/changes/PT-001-login/intake.md"
 chkno "con condición de cierre ⇒ pasa"       "✗ FDGE-R53"  V PT-001
+
+# ─── PT-081 · una regla nueva no rige hacia atras ────────────────────────────
+#
+# verify-fdge tenia UNA constante —DESDE = [5,1,0]— gobernando TRES comprobaciones de reglas
+# nacidas en versiones distintas. Medido en el CHANGELOG tomando la ULTIMA aparicion de cada ID,
+# porque el archivo va de mas nuevo a mas viejo y la primera es la mencion mas reciente:
+#
+#   FDGE-R52  nace en 5.0.0    y se trataba como 5.1.0
+#   FDGE-R53  nace en 5.1.0    y se trataba como 5.1.0   correcto
+#   FDGE-R54  nace con EP-017  y se trataba como 5.1.0   regia sobre el 12 de agosto
+#
+# Consecuencia real: un proyecto instalado en 8.2.0 que actualizara veia fallar --gate G2 en
+# toda tarea en vuelo sin «viabilidad» — por una regla que no existia cuando se escribieron. Y
+# la guia de migracion de la 9.0.0 dice que ningun proyecto instalado tiene que hacer nada.
+patlib "una regla nueva NO rige sobre una tarea vieja" "^false$" \
+  "console.log(m.rigeDesde('FDGE-R54','8.2.0'))"
+patlib "…y SI sobre una posterior"                     "^true$"  \
+  "console.log(m.rigeDesde('FDGE-R54','10.0.0'))"
+patlib "…y la version exacta cuenta"                   "^true$"  \
+  "console.log(m.rigeDesde('FDGE-R53','5.1.0'))"
+patlib "…y una anterior por un parche NO"              "^false$" \
+  "console.log(m.rigeDesde('FDGE-R53','5.0.9'))"
+# Sin fila rige SIEMPRE: eximir de mas es peor que exigir de mas — una regla que no se aplica a
+# nadie no protege. El caso contrario lo caza reglasNuevasSinVersion.
+patlib "una regla sin fila rige siempre"               "^true$"  \
+  "console.log(m.rigeDesde('QA-R01','1.0.0'))"
+
+# Y la comprobacion completa: la MISMA tarea, la MISMA falta, dos versiones. Por separado cada
+# caso pasaria con un rigeDesde que devolviera siempre lo mismo; el PAR es lo que mide.
+#
+# Con reg_set, que ya existe. Mi primera version usaba perl sobre el JSON y no casaba: el
+# fixture es 5.2.0 y yo buscaba una forma que no tenia. Sexta vez que un patron mio no casa
+# con lo real, y la que lo dijo fue la bateria, no leerlo.
+build_fixture
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='8.2.0'; a.status='IN_PROGRESS'; a.phase=5; delete a.viabilidad"
+chkno "8.2.0 sin viabilidad ⇒ FDGE-R54 NO alcanza" "✗ FDGE-R54"  V --gate G2 PT-001
+build_fixture
+reg_set "const a=r.allocations.find((x)=>x.id==='PT-001'); a.suite_version='10.0.0'; a.status='IN_PROGRESS'; a.phase=5; delete a.viabilidad"
+chk   "10.0.0 sin viabilidad ⇒ FDGE-R54 SI alcanza" "✗ FDGE-R54"  V --gate G2 PT-001
+
+# AC-08 · lo que impide la CUARTA. «Nueva» es NO EXISTIA ANTES, no «no aparece en el CHANGELOG»:
+# probe el segundo criterio y devolvio 69 —casi todas fundacionales, anteriores al propio
+# CHANGELOG— y una lista con 69 falsos positivos es una lista que nadie mira.
+patlib "una regla nueva sin version se señala"  "FDGE-R99" \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'FDGE-R99',sev:'HARD'}],['FDGE-R01'])))"
+patlib "…y una que ya existia, no"              "^\[\]$"   \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'FDGE-R01',sev:'HARD'}],['FDGE-R01'])))"
+patlib "…y una nueva CON su fila, tampoco"      "^\[\]$"   \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'FDGE-R54',sev:'HARD'}],['FDGE-R01'])))"
+# RULE-06 · sin saber que habia antes no se sabe que es nuevo, y suponer que todo lo es da la
+# misma lista inutil. Se devuelve null, que es distinguible de la lista vacia.
+patlib "sin la version anterior ⇒ null"         "^null$"   \
+  "console.log(JSON.stringify(m.reglasNuevasSinVersion([{id:'X-R1',sev:'HARD'}],null)))"
 
 # FDGE-R52 · el reanclaje se ESCRIBE. Una nota por transición alcanzada.
 build_fixture
@@ -2469,6 +2601,208 @@ chk   "una sola fórmula del sello"           "patrones.mjs"  bash -c 'grep -l "
 # ─── C · coherencia de la metodología ───────────────────────────────────────
 sec "── C · metodología ──"
 chk   "verify-suite en verde"    "Sin errores" node "$SUITE/tools/verify-suite.mjs" "$SUITE"
+
+
+
+# ─── PT-080 · una regla no se define dos veces ──────────────────────────────
+#
+# La v3 tenia la misma regla escrita a mano en cuatro documentos y las cuatro divergieron: ocho
+# defectos criticos, incluido un ruleset que ordenaba destruir datos. La v4 corrige la causa —
+# y en la v9 seguian TRES asi, con las tres copias YA divergidas y siempre en la misma
+# direccion: la de EXECUTION-MODES soltaba una obligacion.
+#
+#   FDGE-R22  RULES exige «solo severity: S1» y cinco fases retroactivas. La copia, ninguna:
+#             dejaba el carril HOTFIX abierto a un S3, y ese carril difiere G2 y G3.
+#   FDGE-R40  RULES exige que los solapados SE SERIALICEN. La copia lo omitia.
+#   FDGE-R41  RULES exige que el EP-NNN pase a BLOCKED. La copia lo omitia.
+#
+# verify-suite comprobaba cinco cosas y NO esta — la unica por la que se escribio la v4.
+DOSDOC="{'A.md':'| \`X-R1\` | HARD | a |','B.md':'\`X-R1\` · b'}"
+patlib "un ID en dos documentos se detecta"     "X-R1" \
+  "console.log(JSON.stringify(m.definidasDosVeces($DOSDOC)))"
+patlib "…y dice DONDE estan las dos copias"     "A.md" \
+  "console.log(JSON.stringify(m.definidasDosVeces($DOSDOC)))"
+patlib "…y el otro sitio tambien"               "B.md" \
+  "console.log(JSON.stringify(m.definidasDosVeces($DOSDOC)))"
+# Decir «hay conflicto» sin nombrar los dos sitios obliga a buscarlos a mano — y el mensaje de
+# PT-066 acusaba a quien citaba una regla en vez de senalar donde estaba el problema.
+patlib "un ID en un solo documento NO se detecta" '^\[\]$' \
+  "console.log(JSON.stringify(m.definidasDosVeces({'A.md':'| \`X-R1\` | HARD | a |'})))"
+# Las DOS formas de PT-066: tabla en RULES.md, prosa en LEXICON y EXECUTION-MODES.
+patlib "…y reconoce las dos formas de definicion" "Y-R2" \
+  "console.log(JSON.stringify(m.definidasDosVeces({'A.md':'\`Y-R2\` · prosa','B.md':'| \`Y-R2\` | SOFT | tabla |'})))"
+
+# El repositorio REAL, que es donde importa. Y verify-suite FALLA, no avisa: LEX-R22 dice que
+# ningun documento salvo RULES.md enuncia obligaciones, y SUITE-R38 prohibe dos fuentes del
+# mismo hecho. Las dos son HARD.
+chk   "verify-suite invoca el detector"  "definidasDosVeces"  cat "$SUITE/tools/verify-suite.mjs"
+chk   "…y ninguna regla esta duplicada"  "Sin errores"  node "$SUITE/tools/verify-suite.mjs" "$SUITE"
+chkno "EXECUTION-MODES ya no DEFINE FDGE-R22"  "^\`FDGE-R22\` ·"  cat "$SUITE/EXECUTION-MODES.md"
+chkno "…ni FDGE-R40"                           "^\`FDGE-R40\` ·"  cat "$SUITE/EXECUTION-MODES.md"
+chkno "…ni FDGE-R41"                           "^\`FDGE-R41\` ·"  cat "$SUITE/EXECUTION-MODES.md"
+# Pero las SIGUE citando: el documento explica como se ejecuta un lote y necesita nombrarlas.
+# Lo que no puede es ENUNCIARLAS (LEX-R22).
+chk   "…pero las sigue citando"                "FDGE-R22"  cat "$SUITE/EXECUTION-MODES.md"
+# Y la obligacion que cada copia habia perdido esta EN RULES, que es donde vive.
+chk   "la serializacion de FDGE-R40 consta"    "se serializan"  cat "$SUITE/RULES.md"
+chk   "…y el EP a BLOCKED de FDGE-R41"         "BLOCKED"        cat "$SUITE/RULES.md"
+
+# ─── PT-083 · la plantilla del paquete pasa su propio verificador ────────────
+sec "── PT-083 · PT-084 · lo que la prueba de fuego encontro ──"
+#
+# RE_SEVERITY exigia fin de linea tras S2, y las plantillas que EL PAQUETE DISTRIBUYE traen un
+# comentario ahi. Quien instala el paquete, copia su plantilla y la rellena, fallaba FDGE-R04 —
+# el camino que el MANUAL describe. Los otros CINCO campos del YAML ya toleraban el comentario:
+# severity era el unico incoherente con sus vecinos.
+#
+# AC-05 · lo que impide la PROXIMA no es el arreglo: es este caso. Rellena cada plantilla del
+# paquete tal como se distribuye y la pasa por verify-fdge. Sin el, una plantilla puede volver a
+# divergir de su verificador sin que nada lo diga — PT-075 aplicado a los artefactos que viajan.
+for _plt in BUG-REPORT FEATURE-REQUEST CHANGE-REQUEST; do
+  build_fixture
+  cp "$SUITE/INTAKE/templates/$_plt.md" "$WORK/changes/PT-001-login/intake.md"
+  # Se rellena SOLO lo que el humano rellena; los comentarios en linea se dejan COMO VIENEN,
+  # que es precisamente lo que rompia.
+  perl -0pi -e 's/^id: PT-XXX.*$/id: PT-001/m; s/^created: YYYY-MM-DD.*$/created: 2026-08-05/m;
+                s/^status: DRAFT.*$/status: DONE/m; s/^phase: 1\s*#/phase: 8   #/m;
+                s/^Reportado por:\s*$/Reportado por: Alberto Martinez/m;
+                s/^Solicitado por:\s*$/Solicitado por: Alberto Martinez/m;
+                s/^Validado por:\s*$/Validado por: Alberto Martinez/m;
+                s/^Fecha:\s*$/Fecha: 2026-08-05/m;' "$WORK/changes/PT-001-login/intake.md"
+  printf '\nTermina cuando: el login acepta la contrasena correcta\n' >> "$WORK/changes/PT-001-login/intake.md"
+  chkno "la plantilla $_plt no falla FDGE-R04" "✗ FDGE-R04"  V PT-001
+done
+# Y sigue rechazando lo invalido: el arreglo no puede haber abierto la puerta.
+build_fixture
+perl -0pi -e 's/^severity: S\d.*$/severity: S9/m' "$WORK/changes/PT-001-login/intake.md"
+chk   "una severidad invalida SIGUE fallando"  "✗ FDGE-R04"  V PT-001
+build_fixture
+perl -0pi -e 's/^severity: S\d.*$/severity:/m' "$WORK/changes/PT-001-login/intake.md"
+chk   "…y una vacia tambien"                   "✗ FDGE-R04"  V PT-001
+
+# ─── PT-084 · la plataforma es opcional o no lo es ──────────────────────────
+#
+# avanzar exigia --nota, la nota exigia issue y el issue exigia plataforma. Y FDGE-R52 hace de
+# avanzar la UNICA forma sancionada de cambiar de fase: un proyecto sin tablero no avanzaba NI
+# UNA FASE. Mientras tanto SUITE-R22 declara soportado el equipo de una persona y migrate
+# escribia «OPCIONAL — sin ella no cambia nada». Lo midio PT-072 no declarandola a proposito.
+#
+# La salida facil era hacerla obligatoria: rompe SUITE-R22, que es una promesa del marco.
+build_fixture
+reg_set "delete r.tracker"
+# El intake del fixture no declara «phase», y avanzar lo exige para sincronizar (SUITE-R08).
+# No es cosa de PT-084: lo dijo el propio arnes en cuanto `chk` empezo a enseñar la salida.
+printf 'phase: 8
+' >> "$WORK/changes/PT-001-login/intake.md"
+chk   "sin plataforma, avanzar FUNCIONA"       "PHASE 8 -> 9"  TR avanzar PT-001 --a 9 --nota "sin tablero"
+chk   "…y la nota va al ledger"                "TRANSICIONES.log"  sh -c 'cat "$1/docs/implementation/TRANSICIONES.log" >/dev/null 2>&1 && echo TRANSICIONES.log' _ "$WORK"
+chk   "…con el cuerpo de la transicion"        "PHASE 8"  sh -c 'cat "$1/docs/implementation/TRANSICIONES.log"' _ "$WORK"
+# FDGE-R52 NO se relaja: la nota sigue siendo obligatoria, solo cambia donde vive.
+build_fixture
+reg_set "delete r.tracker"
+chk   "…y --nota SIGUE siendo obligatoria"     "exige --nota"  TR avanzar PT-001 --a 9
+# Con plataforma, nada cambia: la nota va al issue como siempre.
+chk   "migrate ya no promete lo que no cumple" "SIGUE FUNCIONANDO"  cat "$SUITE/tools/migrate.mjs"
+
+# ─── PT-085 · el sello de version ───────────────────────────────────────────
+sec "── PT-085 · el sello ──"
+#
+# Cinco defectos con una raiz comun: el marco REGISTRA lo que pasa y no comprueba que lo
+# registrado siga siendo cierto. DOS de ellos —SUITE-R34 y FDGE-R43— son literalmente el mismo
+# error, verificar un proxy barato en vez del hecho, y los dos gobiernan compuertas.
+
+# A · el bloque ESTADO se contrasta con el registro. El criterio es la CONTRADICCION y no la
+# omision: exigir exhaustividad convertiria el bloque en un volcado del registro —dos fuentes
+# del mismo hecho— y el handoff existe justo para lo que el registro NO puede decir.
+ALLOC="[{id:'PT-001',status:'INTEGRATED'},{id:'PT-002',status:'IN_PROGRESS'},{id:'EP-001',status:'CLOSED'}]"
+patlib "un handoff que miente sobre una tarea CAE" "PT-001" \
+  "console.log(JSON.stringify(m.contradiceElRegistro('tarea:  PT-001 sigue en curso',$ALLOC)))"
+patlib "…y uno correcto PASA"                      '^\[\]$' \
+  "console.log(JSON.stringify(m.contradiceElRegistro('tarea:  PT-002 en PHASE 5',$ALLOC)))"
+# Sin este segundo, un verificador que fallara SIEMPRE cumpliria el primero. Es la leccion de
+# PT-067: el complemento no es adorno, es lo que distingue verificar de acusar.
+patlib "un lote declarado ABIERTA y cerrado, CAE"  "EP-001" \
+  "console.log(JSON.stringify(m.contradiceElRegistro('implementación: EP-001 ABIERTA · x',$ALLOC)))"
+# La linea real enumera las INTEGRADAS despues de las vivas. Contarlas seria acusar al texto
+# CORRECTO — el falso positivo que apaga la comprobacion.
+patlib "…y enumerar las cerradas NO cuenta"        '^\[\]$' \
+  "console.log(JSON.stringify(m.contradiceElRegistro('tarea:  PT-002 en curso. INTEGRADAS: PT-001.',$ALLOC)))"
+
+# C · SUITE-R57 · la deuda se cuenta por LOTE CERRADO.
+#
+# La definicion ingenua —toda INTEGRATED que no este en el tag— daba 13 contra un umbral de 3,
+# y el sello de la version ES el lote abierto: G2 bloqueada sin salida. Un candado con la llave
+# dentro, el mismo error que esta tarea corrige en FDGE-R43.
+DEUDA="[{id:'EP-009',status:'IN_PROGRESS'},{id:'PT-010',status:'INTEGRATED',epic:'EP-009'},{id:'PT-011',status:'INTEGRATED',epic:'EP-008'}]"
+patlib "las tareas de un lote ABIERTO no cuentan"  '^\["PT-011"\]$' \
+  "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
+patlib "…y lo ya sellado tampoco"                  '^\[\]$' \
+  "console.log(JSON.stringify(m.sinSellar($DEUDA,['PT-011'])))"
+# RULE-06 · sin saber que hay sellado no se sabe que falta, y suponerlo bloquearia todo.
+patlib "sin poder leer el tag ⇒ null"              '^null$' \
+  "console.log(JSON.stringify(m.sinSellar($DEUDA,null)))"
+# Un lote se reconoce por su ID y no por «type»: lo escribi con type==='EP' y no caso NINGUNO,
+# porque EP-017 no tiene ese campo. El ID lo asigna el registro y siempre esta (SUITE-R08).
+patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
+  "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
+
+# D · los documentos de entrada se RESUELVEN, no se actualizan. Exigir que cambien produciria
+# retoques cosmeticos para acallar la comprobacion — fabricar un verde, en documentacion.
+patlib "un acta vacia deja los cinco sin resolver" "MANUAL.md" \
+  "console.log(JSON.stringify(m.selloSinResolver('')))"
+patlib "…ACTUALIZADO resuelve"                     "^false$" \
+  "console.log(m.selloSinResolver('| \`MANUAL.md\` | ACTUALIZADO | x |').includes('MANUAL.md'))"
+# NO PROCEDE sin motivo NO resuelve: la celda vacia es indistinguible de la que nadie miro,
+# igual que en LAYOUT.md (FND-R22).
+patlib "…y NO PROCEDE sin motivo NO resuelve"      "^true$" \
+  "console.log(m.selloSinResolver('| \`MANUAL.md\` | NO PROCEDE |  |').includes('MANUAL.md'))"
+patlib "…y con motivo si"                          "^false$" \
+  "console.log(m.selloSinResolver('| \`MANUAL.md\` | NO PROCEDE | ningun caso cambia |').includes('MANUAL.md'))"
+
+# E · la deriva de CONTENIDO del grafo. FDGE-R43 miraba «structural: true» —crear, mover,
+# renombrar o eliminar— y en todo el registro UNA allocation lo tenia: 12 de 16 archivos
+# cambiados y el veredicto era FRESH.
+patlib "un archivo movido de mtime se detecta"     "x.mjs" \
+  "console.log(JSON.stringify(m.derivaDelGrafo({'x.mjs':{mtime:100}},()=>200)))"
+patlib "…y uno intacto no"                         '^\[\]$' \
+  "console.log(JSON.stringify(m.derivaDelGrafo({'x.mjs':{mtime:100}},()=>100)))"
+patlib "…y uno que ya no existe, si"               "no existe" \
+  "console.log(JSON.stringify(m.derivaDelGrafo({'x.mjs':{mtime:100}},()=>null)))"
+patlib "sin manifiesto ⇒ null"                     '^null$' \
+  "console.log(JSON.stringify(m.derivaDelGrafo(null,()=>100)))"
+
+# AC-14 · que lo digan las INSTRUCCIONES, no solo la regla. PT-079 lo demostro: una regla sin
+# fase que la abra no se cumple. Los cinco sitios, otra vez.
+chk   "SUITE-R57 existe con su severidad"   "SUITE-R57"  cat "$SUITE/RULES.md"
+chk   "…y PHASES la cita"                   "SUITE-R57"  cat "$SUITE/PHASES.md"
+# La asercion casa con lo que el prompt DICE —«tracker.mjs sellar»—, no con lo que yo creia que
+# decia. Septima vez en el lote que una asercion no coincide con la salida real, y la unica
+# forma de saberlo sigue siendo ejecutarla.
+chk   "…y el prompt de G4 tambien"          "tracker.mjs sellar"  cat "$SUITE/FDGE-Prompts.md"
+chk   "…y llega a CORE"                     "SUITE-R57"  cat "$SUITE/CORE.md"
+chk   "…y el MANUAL lo cuenta"              "sellar una versión"  cat "$SUITE/MANUAL.md"
+chk   "sellar exige la bateria COMPLETA"    "COMPLETA"   cat "$SUITE/PHASES.md"
+
+
+# PT-081 · AC-08 · el detector de reglas nuevas sin version de entrada.
+#
+# La inversa de verdad —quitar la fila de FDGE-R54 y ver saltar el aviso— NO cabe aqui, y el
+# motivo es el propio diseño: el detector compara contra «origin/main», asi que fuera de un
+# repositorio con ese remoto devuelve null y no inventa nada (RULE-06). Sobre una copia del
+# fixture, que no es un repositorio, callaria SIEMPRE — y un caso que pasa por vacio es
+# exactamente lo que lint_aserciones existe para enumerar.
+#
+# Lo intente sobre $SUITE restaurando con «git checkout». Es lo que PT-076 prohibe —el arnes no
+# escribe en el repositorio real— y habria dejado patrones.mjs roto si la bateria se interrumpia
+# en medio. La inversa se ejecuto A MANO sobre el repositorio, y consta en la evidencia.
+#
+# Lo que SI se fija aqui son las dos mitades: que el detector funciona —arriba, con patlib— y
+# que verify-suite lo INVOCA. Sin esto, desconectarlo no costaria ningun rojo.
+chk   "verify-suite invoca el detector"  "reglasNuevasSinVersion"  cat "$SUITE/tools/verify-suite.mjs"
+# Y que sin poder leer la version anterior CALLA, en vez de acusar al universo entero.
+rm -rf "$WORK/suite81"; mkdir -p "$WORK/suite81"; cp -r "$SUITE"/. "$WORK/suite81/"
+chkno "sin version anterior legible, no acusa" "es una regla HARD nueva" \
+  node "$WORK/suite81/tools/verify-suite.mjs" "$WORK/suite81"
 chk   "CORE.md sincronizado"     "sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
 chk   "CORE-PTSA.md sincronizado" "CORE-PTSA.md sincronizado" node "$SUITE/tools/build-core.mjs" --check "$SUITE"
 chk   "cobertura sin huecos"     "sin huecos"   node "$SUITE/tools/audit.mjs" "$SUITE"
@@ -3828,12 +4162,24 @@ chk   "un PT que no existe NO avanza"          "no existe en el registro" AV PT-
 chk   "un PT terminal NO avanza"               "no avanza"                AV PT-002 --a 9 --nota "x"
 chk   "…citando que lo cerrado es evidencia"   "SUITE-R36"                AV PT-002 --a 9 --nota "x"
 # El fixture no le da issue a PT-004, asi que la validacion que salta es esa — y es la correcta:
-# sin issue la nota no tendria donde ir. Asertar el mensaje de la plataforma aqui habria sido
-# asertar sobre un mundo que no es el del fixture, que ya paso dos veces en PT-052.
-chk   "sin issue NO avanza"                    "no tendria donde ir"      AV PT-004 --a 5 --nota "x"
+# sin issue la nota no tendria donde ir.
+#
+# PT-084 CAMBIO LA PREMISA de este caso, y por eso se reescribe en vez de hacerlo pasar: sin
+# plataforma declarada, NO TENER ISSUE YA NO BLOQUEA — la nota va al ledger. La exigencia del
+# issue es del ESPEJO (SUITE-R35), y el espejo solo existe si hay tablero.
+#
+# Asi que el caso declara plataforma, que es el mundo en el que su afirmacion es cierta. Sin
+# eso estaria asertando sobre un mundo que ya no existe — lo que paso dos veces en PT-052.
+build_fixture
+reg_set "r.tracker = { plataforma: 'github' }"
+chk   "con tablero y sin issue, NO avanza"     "no tiene issue"           AV PT-004 --a 5 --nota "x"
 chk   "…citando el espejo"                     "SUITE-R35"                AV PT-004 --a 5 --nota "x"
 # Y ninguna de las anteriores toco el registro: las validaciones corren ANTES de escribir.
-chk   "ninguna validacion toco el registro"    '"phase":4'   cat "$WORK/docs/implementation/REGISTRY.json"
+# El patron tolera el espacio: reg_set reescribe el JSON con JSON.stringify y produce
+# «"phase": 4», mientras el fixture lo escribe compacto. Lo que el caso afirma es que LA FASE
+# SIGUE SIENDO 4, no como esta formateado el archivo — asertar el formato era asertar sobre un
+# detalle que ninguna regla exige.
+chk   "ninguna validacion toco el registro"    '"phase": *4'   cat "$WORK/docs/implementation/REGISTRY.json"
 
 # La forma del codigo: el orden lo decide la REVERSIBILIDAD y lo irreversible va el ultimo.
 _tr="$SUITE/tools/tracker.mjs"
@@ -3985,8 +4331,10 @@ chkno "…sin lanzar un proceso por caso"       'grep -qF'                 sh -c
 # —que contiene ese texto al definirse— y se tragaba medio archivo hasta el siguiente «fi»,
 # incluida una palabra que dispara revento(). Es la MISMA familia que PT-049 documento, y van
 # dos veces en esta tarea: la lectura no la ve nunca.
-chk   "sin coincidencias, es rojo"            'exit 1'                   sh -c 'tail -14 "$1"' _ "$_st2"
-chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c 'tail -12 "$1"' _ "$_st2"
+# PT-086 · la ventana pasa de 14 a 40 lineas: el bloque que avisa de PARCIAL empujo el objetivo
+# fuera. Extraer por POSICION es fragil en las dos direcciones, y aqui toco esta.
+chk   "sin coincidencias, es rojo"            'exit 1'                   sh -c 'tail -40 "$1"' _ "$_st2"
+chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c 'tail -40 "$1"' _ "$_st2"
 # --solo sin valor: un patron vacio casaria con todo y la bandera mentiria.
 # Se extrae por «>&2» y no por el texto del mensaje: buscar «necesita un patron» habria casado
 # TAMBIEN esta misma linea, y el caso habria pasado aunque el mensaje real desapareciera. Es la
@@ -3994,7 +4342,7 @@ chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c
 chk   "--solo sin valor es un error"          'necesita un patron'       sh -c 'sed -n "/>&2/p" "$1"' _ "$_st2"
 chk   "…y el valor se consume ANTES del case" '_espera_solo" \]; then SOLO' sh -c 'sed -n "/^for _a in/,/^done/p" "$1"' _ "$_st2"
 # Las dos cifras solo aparecen cuando hay algo que distinguir.
-chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       sh -c 'tail -12 "$1"' _ "$_st2"
+chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       sh -c 'tail -40 "$1"' _ "$_st2"
 chkno "…y sin --solo, una sola"               'de $UNIVERSO casos'       sh -c 'tail -3 "$1"' _ "$_st2"
 
 # ─── PT-049 · el verde se CUENTA, no se enumera ────────────────────────────
@@ -4039,7 +4387,16 @@ chk   "…y WORK sale del posicional filtrado"  'POS:-'               sh -c 'sed
 chkno "…no del primer argumento crudo"        '{1:-'                sh -c 'sed -n "/^WORK=/p" "$1"' _ "$_st"
 # La cabecera de seccion en -q no se pierde: se recuerda y sale delante del primer fallo.
 chk   "la cabecera se recuerda para el fallo" 'SEC_VISTA=1'         sh -c 'sed -n "/^bad()/,/^}/p" "$1"' _ "$_st"
-chk   "…y sin -q se imprime al llegar"        'QUIET" ] || echo "$1"'  sh -c 'sed -n "/^sec()/p" "$1"' _ "$_st"
+# PT-086 · sec() paso de UNA linea a una funcion de varias, asi que se extrae entera por sus
+# delimitadores. «sed -n /^sec()/p» devolvia solo la primera linea y la asercion vive en la
+# ultima — la misma fragilidad que las tres de arriba, en su otra forma.
+# La ventana se toma con grep -A y no con un rango de sed: el rango no encontraba su cierre
+# —CRLF— y devolvia una sola linea. Es la misma fragilidad de extraer por posicion, en su
+# tercera forma dentro de esta tarea.
+# Y la asercion casa con lo que la linea DICE hoy: PT-086 le anadio la guarda de seccion, asi
+# que ya no es «|| echo» sino «|| [ -z "$SEC_ACTIVA" ] || echo». La intencion no cambia —sin -q
+# el titulo se imprime al llegar— y el texto si.
+chk   "…y sin -q se imprime al llegar"        'QUIET" \] ||'  sh -c 'grep -A16 "^sec() {" "$1"' _ "$_st"
 
 # ─── PT-029 · las compuertas anteriores a G4 se pueden evaluar ─────────────
 # Tres comprobaciones decian `if (gate)` sin decir de QUE compuerta hablaban, y con eso G1, G2 y
@@ -4156,6 +4513,20 @@ if [ -n "$SOLO" ] && [ "$TOTAL" -eq 0 ]; then
 fi
 _cuantos="$TOTAL"
 [ -n "$SOLO" ] && _cuantos="$TOTAL de $UNIVERSO"
+# PT-086 · una corrida PARCIAL tiene que ser distinguible de una completa a simple vista, y
+# tiene que DECIR lo que salto. Un «OK» identico al de la corrida entera seria el falso verde
+# mas caro que este arnes podria producir — y sellar exige la completa (SUITE-R57).
+if [ -n "$AFECTADOS" ]; then
+  _cuantos="$TOTAL de $UNIVERSO · PARCIAL"
+  echo ""
+  echo "PARCIAL · corrieron las secciones que ejercitan lo que ha cambiado."
+  if [ -n "$SECCIONES_SALTADAS" ]; then
+    echo "NO se ejecutaron:"
+    printf '%s' "$SECCIONES_SALTADAS"
+  fi
+  echo "Para sellar una version hace falta la corrida COMPLETA: bash selftest.sh sin --afectados."
+  echo ""
+fi
 [ "$FAILED" -eq 0 ] && echo "selftest: OK · $_cuantos casos" || echo "selftest: HAY FALLOS · $_cuantos casos"
 rm -rf "$WORK"
 exit "$FAILED"

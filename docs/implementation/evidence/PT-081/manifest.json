@@ -1,0 +1,180 @@
+{
+  "pt": "PT-081",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Cada regla lleva su propia version de entrada",
+      "scenarios": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:una regla nueva NO rige sobre una tarea vieja",
+        "selftest.sh:…y SI sobre una posterior",
+        "selftest.sh:…y la version exacta cuenta",
+        "selftest.sh:…y una anterior por un parche NO",
+        "selftest.sh:una regla sin fila rige siempre"
+      ],
+      "evidence": [
+        "salidas/rige-desde.txt"
+      ],
+      "verified": true,
+      "nota": "RIGE_DESDE vive junto a EXIGIBLE_DESDE en patrones.mjs: aquella decide QUE COMPUERTA exige un artefacto, esta DESDE QUE VERSION rige una regla. Sin fila rige siempre — eximir de mas es peor, y el caso contrario lo caza AC-08."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "FDGE-R54 no rige sobre una tarea anterior a su version",
+      "scenarios": [
+        "E6"
+      ],
+      "tests": [
+        "selftest.sh:8.2.0 sin viabilidad ⇒ FDGE-R54 NO alcanza"
+      ],
+      "evidence": [
+        "salidas/par-de-versiones.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "…y si sobre una posterior",
+      "scenarios": [
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:10.0.0 sin viabilidad ⇒ FDGE-R54 SI alcanza"
+      ],
+      "evidence": [
+        "salidas/par-de-versiones.txt"
+      ],
+      "verified": true,
+      "nota": "E6 y E7 son UN par: la misma tarea, la misma falta, dos versiones. Por separado cada uno pasaria con un rigeDesde que devolviera siempre lo mismo."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "FDGE-R53 conserva su comportamiento",
+      "scenarios": [
+        "E3",
+        "E4"
+      ],
+      "tests": [
+        "selftest.sh:los casos de 5.1.0 y 5.0.9"
+      ],
+      "evidence": [
+        "salidas/rige-desde.txt"
+      ],
+      "verified": true,
+      "nota": "Dos casos previos cambiaron de FORMA —el fixture nace en 5.2.0 y FDGE-R54 rige desde la 10.0.0— y no de intencion. Se leyeron uno a uno, que es la leccion de PT-079."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "EP-017 sale como 10.0.0",
+      "scenarios": [
+        "E11"
+      ],
+      "tests": [
+        "version.mjs sobre los 21 documentos"
+      ],
+      "evidence": [
+        "salidas/version.txt"
+      ],
+      "verified": true,
+      "nota": "Las tareas VIVAS pasan a 10.0.0; las cerradas conservan la suya. El campo dice bajo que version se ESCRIBIO una tarea (SUITE-R18), no bajo cual se publico: cambiarlo seria retrofechar."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La guia 9.0.0 -> 10.0.0 existe y enumera lo que rompe",
+      "scenarios": [
+        "E12"
+      ],
+      "tests": [
+        "la entrada nombra FDGE-R54 y SUITE-R56 con que hacer en cada una"
+      ],
+      "evidence": [
+        "salidas/changelog.txt"
+      ],
+      "verified": true,
+      "nota": "6 menciones de las dos reglas, con la orden concreta para cada una."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "La entrada 9.0.0 no se reescribe",
+      "scenarios": [
+        "E13"
+      ],
+      "tests": [
+        "git diff v9.0.0 -- CHANGELOG.md"
+      ],
+      "evidence": [
+        "salidas/changelog.txt"
+      ],
+      "verified": true,
+      "nota": "CERO lineas eliminadas: la 10.0.0 se anadio encima. Reescribir la 9.0.0 para que significara dos lotes habria borrado que lote trajo que — la enfermedad que EP-017 combate, cometida al documentarla."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "Una regla HARD nueva sin version de entrada se detecta",
+      "scenarios": [
+        "E8",
+        "E9",
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:una regla nueva sin version se señala",
+        "selftest.sh:…y una que ya existia, no",
+        "selftest.sh:…y una nueva CON su fila, tampoco",
+        "selftest.sh:sin la version anterior ⇒ null",
+        "selftest.sh:verify-suite invoca el detector",
+        "selftest.sh:sin version anterior legible, no acusa"
+      ],
+      "evidence": [
+        "salidas/ac08-inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La inversa completa se ejecuto A MANO: el detector compara contra el TAG de la version anterior, y una copia del fixture no es un repositorio con tags. En la bateria se fijan las dos mitades —que el detector funciona y que verify-suite lo INVOCA— porque sin la segunda, desconectarlo no costaria ningun rojo."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que una guia de migracion siga siendo VERDAD.",
+      "por_que": "Comprobar mecanicamente que una prosa describe correctamente un conjunto de cambios no se hacerlo. Lo que AC-08 consigue es que redactarla sea ENUMERAR en vez de recordar, y eso no es lo mismo.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    },
+    {
+      "afirmacion": "Que FDGE-R52 con ancla 5.0.0 sea exacto.",
+      "por_que": "Se derivo de la ULTIMA aparicion de su ID en el CHANGELOG, que es la introduccion porque el archivo va de mas nuevo a mas viejo. Es una heuristica sobre prosa, no un dato estructurado: la primera medicion la hice al reves y dio 7.6.0 para FDGE-R53.",
+      "donde": "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/discovery.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Elegi origin/main como linea base del detector, y era la equivocada.",
+      "regla": "—",
+      "detalle": "Comparar contra una rama significa «nuevo desde la ultima integracion». En cuanto se ejecuto la G4, FDGE-R54 paso a estar en main y el detector CALLO — justo cuando la regla acababa de entrar. Lo desmonto ejecutar la inversa DESPUES de la G4; leyendo el codigo no se veia. La linea base es ahora el tag de la version anterior: un tag no se mueve."
+    },
+    {
+      "que": "Defini «nueva» mal dos veces antes de acertar.",
+      "regla": "—",
+      "detalle": "«No aparece en el CHANGELOG» devolvia 69 —casi todas fundacionales—. «RULES.md de antes contra los tres de ahora» devolvia 42, porque comparaba mitades distintas del mismo universo. El criterio bueno da 2. El valor del detector estaba entero en acertar el criterio."
+    },
+    {
+      "que": "Medi el CHANGELOG al reves la primera vez.",
+      "regla": "RULE-06",
+      "detalle": "Tome la PRIMERA aparicion de cada ID y el archivo va de mas nuevo a mas viejo, asi que devolvi FDGE-R53 -> 7.6.0, que es una mencion posterior y no su introduccion. La introduccion es la ULTIMA aparicion."
+    },
+    {
+      "que": "Septima vez con el escapado en scripts.",
+      "regla": "—",
+      "detalle": "Un literal /\\r?\\n/ escrito a traves de un heredoc se convirtio en un salto de linea real y dejo verify-suite sin cargar. Esta vez la salida no fue insistir: se quito el problema con split(/\\s+/), que no necesita escape y hace lo mismo porque un tag no lleva espacios."
+    }
+  ],
+  "suite": {
+    "passed": 1073,
+    "failed": 0,
+    "baseline": 1060
+  }
+}

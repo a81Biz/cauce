@@ -1,0 +1,17 @@
+=== AC-03 · el proyecto real NO se toco ===
+fecha: 2026-08-20
+
+-- git status del original --
+  archivos modificados: 0
+  (0 = intacto)
+
+-- rama y ultimo commit --
+  master · cf3b20e fix: PT-114 el multiple que no cabia · G3 y G4 Alberto Martinez
+
+-- version de cauce instalada alli --
+  ## 4.12.0 — 2026-08-06
+
+-- tareas cerradas bajo el marco --
+  directorios en changes/: 127
+
+Todo se ejecuto en LECTURA y sin --apply: migrate en modo informe y comparar-marco.

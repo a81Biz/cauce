@@ -1,0 +1,21 @@
+=== AC-06 · AC-07 · el CHANGELOG ===
+fecha: 2026-08-20
+
+-- entradas, de mas nueva a mas vieja --
+  11:## 10.0.0 — 2026-08-20
+  104:## 9.0.0 — 2026-08-18
+  200:## 8.2.0 — 2026-08-18
+  287:## 8.1.0 — 2026-08-18
+
+-- AC-06 · la guia 9.0.0 -> 10.0.0 nombra lo que rompe --
+  menciones de las dos reglas nuevas: 6
+  ### Guía de migración   `SUITE-R19`
+  
+  **Esto sí pide trabajo.** Dos reglas nuevas, y las dos pueden poner en rojo una tarea en vuelo:
+  
+  | Regla | Qué exige | Qué hacer en tu proyecto |
+
+-- AC-07 · la entrada 9.0.0 NO se reescribio --
+warning: in the working copy of 'docs/methodology/CHANGELOG.md', CRLF will be replaced by LF the next time Git touches it
+  lineas ELIMINADAS del CHANGELOG desde v9.0.0: 0
+  (0 = no se borro ni una linea: la 10.0.0 se ANADIO encima)

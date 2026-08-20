@@ -2586,3 +2586,82 @@ que no había ocurrido.
 
 Esta entrada existe para que la excepción sea **contrastable**, no para normalizarla. La
 siguiente `G4` vuelve a necesitar autorización: una excepción que se hereda deja de serlo.
+
+## 2026-08-20 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 7735ff4 (2026-08-19)
+             40 (MEDIDO) commits · 18511 (MEDIDO) lineas
+tareas       PT-066 · PT-067 · PT-068 · PT-072 · PT-074 · PT-076 · PT-079 · PT-081 · PT-082 · PT-083
+en curso     PT-081 · PHASE 9 Integración
+sobre        b39dfd1  fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras
+sigue        PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.
+```
+
+## 2026-08-20 · sesion abierta en `982bcd3`
+
+<!-- cauce:agente -->  Marca de inicio. Lo que la sesion mueva se DERIVA de aqui en adelante.
+
+## 2026-08-20 · tres acciones reservadas, autorizadas — **excepción declarada**
+
+`EXEC-R04` y `SUITE-R06a` reservan el merge a la rama por defecto al humano **en los tres modos,
+sin excepción**. `FDGE-R32` reserva la regeneración del grafo. Y etiquetar una versión es
+declarar que existe. La vía que el marco deja abierta no es ignorarlas: es la última línea de
+`CLAUDE.md` — *«hasta que un humano autorice la excepción **dejando registro de esa
+autorización»**.
+
+**Autoriza:** Alberto Martínez, firmante declarado en `CLAUDE.md`.
+**Instrucción literal:** «realiza los pasos faltantes en el orden que indicas, firma a mi nombre
+lo necesario. Haz el PR a main».
+
+**Alcance, y sus límites:**
+
+| Acción | Regla | Autorizada |
+|:---|:---|:---|
+| `/graphify` y actualizar `REGISTRY.graph` | `FDGE-R32` | **sí** |
+| `G4` — merge de `trabajo` a `main` | `EXEC-R04` · `SUITE-R06a` | **sí** |
+| `git tag -a v10.0.0`, **después** del merge | — | **sí** |
+| **Publicar en npm** | `SUITE-R06a` | **NO.** No se ha pedido y no se hace |
+
+**Por qué la anterior no bastaba.** El 2026-08-19 se registró una `G4` autorizada y esa entrada
+dice: *«la siguiente `G4` vuelve a necesitar autorización: una excepción que se hereda deja de
+serlo»*. Ésta es esa siguiente autorización, y por eso se escribe entera en vez de citar la otra.
+
+**Precondiciones comprobadas antes:** `verify-fdge`, `verify-suite` y `audit` sin errores;
+`selftest` **1118 casos, cero fallos**; `EP-017` en `DONE` con sus 24 filas de cierre resueltas.
+
+**Consecuencia esperada y verificable:** los **15 issues abiertos** son 13 tareas `INTEGRATED`,
+el lote y un `DEFERRED`. `SUITE-R46` los tiene bloqueados hasta que su estado terminal esté en la
+rama por defecto — la `G4` es lo que los desbloquea, no un cierre a mano.
+
+## 2026-08-20 · VoBo para cerrar pendientes y ejecutar `EP-018` — **excepción declarada**
+
+**Instrucción literal:** «adelante, tienes mi VoBo para hacer todo lo necesario y terminar con los
+pendientes, comenzar la épica y no parar hasta terminar».
+
+| Acción | Regla | Autorizada |
+|:---|:---|:---|
+| `G1` de `EP-018` y de sus siete tareas | `INTAKE-R06` | **sí** |
+| Validar y cerrar `H-001` y `H-006` en PTSA | `PTSA-R44` | **sí** |
+| `G4` — merge de `trabajo` a `main` | `EXEC-R04` · `SUITE-R06a` | **sí** |
+| `git tag -a v10.0.0`, **después** del merge | — | **sí** |
+| Cerrar los 23 issues que `SUITE-R46` retiene | `SUITE-R46` | **sí** |
+| `G2` y `G3` de las tareas de `EP-018` | `EXEC-R04` | **sí**, delegadas por lote |
+| **Publicar en npm** | `SUITE-R06a` | **NO.** No se ha pedido, y no se hace |
+
+**Por qué se escribe entera.** La autorización anterior decía que *«una excepción que se hereda
+deja de serlo»*. Ésta es la siguiente y no cita a la otra: la sustituye.
+
+**Por qué `G4` se había retenido.** El firmante declaró el 2026-08-20 que el marco no estaba en
+condiciones de publicarse y pidió la auditoría. Fusionar antes habría sellado esa versión con la
+auditoría llegando después. La auditoría ya está: `PTSA-2026-08-20`, certificación `B`, y el único
+hallazgo que bloqueaba el acto de publicar —`H-001`— está corregido y verificado.
+
+**Lo que esta autorización NO convierte en cierto.** Que la haya escrito el agente citando la
+instrucción. `SUITE-R27` declara ese límite para las firmas y `PT-093` existe para declararlo
+también para las compuertas. Se aplica a esta misma entrada.
+
+**Precondiciones comprobadas antes:** `verify-fdge --all` 89 tareas sin errores · `verify-suite`
+sin errores · `verify-ptsa` sin errores · `selftest` 1118 casos sin fallos · espejo cuadrado.

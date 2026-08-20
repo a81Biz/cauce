@@ -3380,3 +3380,770 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: issue #134
+
+## PT-081 — BUG: una regla nueva no rige hacia atrás, y la versión lo dice
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que cada regla sepa desde qué versión rige, y que EP-017 salga con el número que le
+corresponde.
+
+Origen: el firmante dudó de que esto fuera la 9.0.0. Tenía razón, y la causa es mecánica.
+
+Causa raíz, tres defectos encadenados y sólo el primero de código:
+  1. verify-fdge tenía UNA constante —DESDE = [5,1,0]— gobernando TRES comprobaciones de reglas
+     nacidas en versiones distintas. Medido tomando la ULTIMA aparición de cada ID en el
+     CHANGELOG, porque el archivo va de más nuevo a más viejo:
+       FDGE-R52  nace en 5.0.0   se trataba como 5.1.0   menor, y por defecto
+       FDGE-R53  nace en 5.1.0   se trataba como 5.1.0   correcto
+       FDGE-R54  nace AHORA      se trataba como 5.1.0   regía sobre el 12 de agosto
+     Consecuencia: un proyecto instalado en 8.2.0 que actualizara veía fallar --gate G2 en toda
+     tarea en vuelo sin «viabilidad», por una regla que no existía cuando se escribieron.
+  2. La entrada 9.0.0 no mencionaba FDGE-R54 ni SUITE-R56: CERO veces. Dos reglas HARD nuevas,
+     con verificadores que fallan, ausentes del registro de versiones.
+  3. Y su guía de migración dice «ningún proyecto instalado tiene que hacer nada». Era cierto
+     para EP-016 y dejó de serlo. Nada comprueba que una guía siga siendo verdad.
+
+Solución: RIGE_DESDE en patrones.mjs, junto a EXIGIBLE_DESDE —aquella decide qué compuerta exige
+un artefacto; ésta, desde qué versión rige una regla—. Sin fila rige siempre: eximir de más es
+peor, y el caso contrario lo caza AC-08.
+Y la 10.0.0, con la entrada 9.0.0 INTACTA: cero líneas eliminadas desde v9.0.0. Reescribirla para
+que significara dos lotes habría borrado qué lote trajo qué — la enfermedad que EP-017 combate,
+cometida al documentarla.
+
+EL HALLAZGO MÁS ÚTIL fue un error mío que desmontó la propia inversa. Elegí «origin/main» como
+línea base del detector de reglas nuevas. Comparar contra una RAMA significa «nuevo desde la
+última integración»: en cuanto se ejecutó la G4, FDGE-R54 pasó a estar en main y el detector
+CALLÓ — justo cuando la regla acababa de entrar. Un detector cuya línea base se mueve con cada
+merge deja de detectar precisamente lo que integras. No se veía leyendo el código: lo vio
+ejecutar la inversa DESPUÉS de la G4. La línea base es ahora el TAG de la versión anterior.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · tools/verify-suite.mjs ·
+  tools/selftest.sh · CHANGELOG.md · los 21 documentos por version.mjs · package.json · CLAUDE.md
+
+Evidencia: evidence/PT-081/ · manifest.json · self-review.md ·
+  salidas/rige-desde.txt · salidas/par-de-versiones.txt · salidas/version.txt ·
+  salidas/changelog.txt · salidas/ac08-inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-08, los ocho.
+  ANCLA         ANTES una constante para tres reglas   DESPUES una fila por regla
+  VERSION       ANTES EP-017 dentro de la 9.0.0        DESPUES 10.0.0, con su guía
+  ENTRADA 9.0.0 cero líneas eliminadas desde v9.0.0
+selftest 1060 -> 1073, cero fallos.
+
+Delta real vs planificado: «nueva» tuvo dos definiciones malas antes de la buena. «No aparece en
+  el CHANGELOG» devolvía 69 —casi todas fundacionales—; «RULES.md de antes contra los tres de
+  ahora» devolvía 42, porque comparaba mitades distintas del mismo universo. El criterio bueno da
+  2: SUITE-R56 y FDGE-R54. El valor del detector estaba entero en acertar el criterio.
+
+Cuatro desviaciones declaradas: la línea base equivocada, que desmontó la inversa · las dos
+  definiciones malas de «nueva» · medir el CHANGELOG al revés la primera vez, tomando la primera
+  aparición cuando el archivo va de más nuevo a más viejo · y la SÉPTIMA vez con el escapado en
+  scripts: un literal con salto de línea dentro dejó verify-suite sin cargar. Esta vez la salida
+  no fue insistir sino QUITAR el problema — split por espacio en blanco no necesita escape.
+
+No verificado, declarado: que una guía de migración siga siendo VERDAD —comprobar que una prosa
+  describe bien un conjunto de cambios no sé hacerlo; AC-08 consigue que redactarla sea ENUMERAR
+  en vez de recordar, y no es lo mismo— y que el ancla 5.0.0 de FDGE-R52 sea exacta: se derivó de
+  una heurística sobre prosa, no de un dato estructurado.
+
+Compuertas: G1 2026-08-20 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-20 Alberto
+  Martínez (delegada) · G3 2026-08-20 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #151
+
+## PT-019 — CHORE: migrar el proyecto legado
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: la medición corrió sobre un repositorio EXTERNO, en lectura
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: comprobar que un legado real se puede migrar. Llevaba DEFERRED desde el 2026-08-13 por
+depender de otro repositorio.
+
+Qué se midió: «Inteligencia de Mercados Energéticos Mexicanos» — cauce 4.12.0, 127 directorios en
+changes/, seis lotes cerrados, monorepo con cuatro aplicaciones y pruebas end-to-end. Cinco
+MAJOR por detrás de la 10.0.0. No es un juguete.
+
+Resultado: SE PUEDE, y la herramienta lo dice bien. «migrate» detecta la versión instalada y
+separa 1 acción automática de 6 decisiones humanas, explicando UNA POR UNA por qué cada decisión
+es humana — «rellenarlo con plantilla produce un estado que miente». Esa es la diferencia entre
+una herramienta que migra y una que te deja migrar sin mentir.
+
+Cuánto se separan dos copias del mismo marco:
+  cauce               52 archivos
+  el legado (4.12.0)  39 archivos
+  DIFIEREN 36 de 39 · IDÉNTICOS 3 · AUSENTES 13, entre ellos 7 de las 16 herramientas
+Tres archivos de treinta y nueve son iguales: un proyecto en 4.12.0 no es cauce con menos
+funciones, es otro marco. Es el mejor argumento a favor de SUITE-R21 y del paquete.
+
+Dos huecos, los dos de TEXTO Y CONTRATO — la mecánica de migrar funciona:
+  HL-1 · comparar-marco llama «canónica» al ARGUMENTO, así que ejecutada desde cauce contra un
+         destino invierte las etiquetas. El contenido es correcto; el rótulo miente. Que esté
+         pensada para correr DESDE el proyecto no está escrito. -> PT-073
+  HL-2 · migrate dice de la plataforma «OPCIONAL … Sin ella no cambia nada», y sin ella
+         tracker avanzar es imposible. Un legado que migre siguiendo el informe y no la declare
+         se queda sin poder mover una tarea. -> PT-084
+HL-2 confirma por un segundo camino lo que PT-072 midió sin declarar plataforma a propósito. Dos
+pruebas independientes llegando al mismo defecto es la señal más fuerte de este lote.
+
+Archivos modificados: NINGUNO del legado. git status del original: 0 archivos, antes y después.
+
+Evidencia: evidence/PT-019/ · manifest.json · self-review.md ·
+  salidas/migrate-informe.txt · salidas/comparar-marco.txt · salidas/no-destructivo.txt
+
+Criterios: AC-02, AC-03 y AC-04 verificados · AC-05 NO APLICA —el proyecto estaba accesible, que
+era justo lo que el criterio contemplaba que pudiera fallar— · AC-01 REDUCIDO Y DECLARADO.
+
+AC-01 pedía además un legado SINTÉTICO. No se construyó: el real provoca los casos mejor porque
+sus divergencias son auténticas —36 de 39 archivos distintos, 7 herramientas ausentes, dos
+allocations vivas sin phase— y un sintético habría medido mi capacidad de inventar defectos, no
+la de Foundation de encontrarlos. Es defendible y SIGUE SIENDO una reducción de alcance.
+
+Delta real vs planificado: la tarea llevaba DEFERRED por si el repositorio no estaba accesible.
+  Lo estaba, así que AC-05 —«si no está, se dice»— no llegó a aplicar.
+
+Dos desviaciones declaradas: AC-01 reducido, con motivo · ejecuté comparar-marco desde cauce
+  contra el proyecto, que es al revés de como está pensada, y de ahí salió HL-1.
+
+No verificado, declarado: que la migración funcione DE EXTREMO A EXTREMO. No se ejecutó
+  «migrate --apply» —el intake lo pone OUT y el proyecto es un caso de prueba, no un destino—,
+  así que lo validado es que el INFORME es correcto y accionable. Entre las dos cosas hay un
+  paso, y los huecos de aplicar sólo salen aplicando. El camino no destructivo para darlo
+  —clonar y aplicar sobre el clon— está en acciones-humanas.md.
+
+Compuertas: G1 2026-08-20 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-20 Alberto
+  Martínez (delegada) · G3 2026-08-20 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #26
+
+## PT-085 — BUG: el sello de versión, y el estado retomable que dice la verdad
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-085-el-sello-de-version
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que lo registrado se compruebe, y que cerrar versión sea un acto obligatorio en vez de
+una consecuencia que nadie dispara.
+
+Causa raíz — CINCO defectos con una raíz común: el marco REGISTRA lo que pasa y no comprueba que
+lo registrado siga siendo cierto. Es PT-075 un escalón más arriba —«una regla sin verificador no
+ocurre»— aplicado al registro: un registro sin verificador deja de ser cierto.
+
+  A · SUITE-R34 comparaba marcas de COMMIT de HANDOFF.md y changes/. Un handoff obsoleto pero
+      recién tocado pasaba. Durante EP-017 el bloque declaró «EP-016 CERRADA · lo siguiente es
+      EP-017, PROPUESTA y no abierta» con nueve tareas ya integradas.
+  B · tracker sesion cerrar apilaba en SESSION_LOG.md y NO commiteaba. La entrada del cierre del
+      19 seguía sin commitear el 20. SUITE-R09 hace el ledger append-only para que sea la prueba
+      de que algo ocurrió; una prueba que vive sólo en el árbol de trabajo no es una prueba.
+  C · Nada obligaba a sellar: 53 commits de retraso en main, 8 issues bloqueados por SUITE-R46 y
+      la 9.0.0 declarada y nunca publicada.
+  D · Nada miraba si lo que lee quien llega sigue describiendo el marco que hay. Medido con
+      git diff v9.0.0..HEAD: RULES +3/-1 con DOS reglas HARD nuevas, y los DOS README sin
+      cambios. MANUAL y CASOS-DE-USO sí cambiaron, pero sólo porque PT-079 los puso en su lista.
+  E · FDGE-R43 declaraba STALE sólo con «structural: true» —crear, mover, renombrar, eliminar—
+      y en TODO el registro una sola allocation lo tiene. 12 de los 16 archivos que el grafo
+      describe habían cambiado, el veredicto era FRESH, y a «¿quién importa patrones.mjs?»
+      contestaba 2 cuando la respuesta es 8.
+
+DOS DE LOS CINCO SON EL MISMO ERROR: A y E verifican un proxy barato en vez del hecho, y los dos
+gobiernan compuertas.
+
+Solución: cinco funciones puras en patrones.mjs —contradiceElRegistro, sinSellar,
+selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA—, la regla SUITE-R57, la acción
+«tracker sellar» con sus ocho pasos, y FDGE-R43 ampliada con la deriva de contenido.
+
+DOS DECISIONES PARA QUE LA COMPROBACIÓN NO SE APAGUE SOLA:
+  · A falla por CONTRADICCIÓN y no por omisión. Exigir exhaustividad convertiría el bloque en un
+    volcado del registro —dos fuentes del mismo hecho— y el HANDOFF existe justo para lo que el
+    registro NO puede decir. Por eso AC-02 existe: sin él, un verificador que fallara siempre
+    cumpliría AC-01.
+  · SUSPECT AVISA Y NO BLOQUEA. Como casi toda tarea toca un archivo del grafo, bloquear ahí
+    cerraría G2 en todos los MAJOR de forma permanente — y una comprobación que siempre bloquea
+    se desactiva, y entonces no protege el día que tiene razón.
+
+EL CANDADO CON LA LLAVE DENTRO, EVITADO POR MEDIR ANTES DE ESCRIBIR: SUITE-R57 iba a contar «toda
+INTEGRATED que no esté en el tag». Medido antes de escribir la regla: 13 contra un umbral de 3. Y
+el sello de la versión ES el lote abierto, así que habría bloqueado G2 sin salida y no se habría
+podido terminar la épica que la introduce. Contar por LOTE CERRADO da 1. No es una concesión:
+EXEC-R03 ya dice que G4 es la compuerta DEL LOTE y que no se multiplica por tarea.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · tools/tracker.mjs ·
+  tools/selftest.sh · RULES.md · PHASES.md · FDGE-Prompts.md · MANUAL.md · CORE.md (regenerado)
+
+Evidencia: evidence/PT-085/ · manifest.json · self-review.md · salidas/
+
+Criterios AC-01..AC-17, los diecisiete.
+  ESTADO RETOMABLE   ANTES la fecha del archivo    DESPUÉS la verdad de su contenido
+  LEDGER             ANTES escrito sin commitear   DESPUÉS commiteado o no dice que cerró
+  DEUDA DE SELLADO   ANTES sin techo               DESPUÉS bloquea G2 pasadas N
+  DOCUMENTOS         ANTES nadie los miraba        DESPUÉS resueltos uno a uno, celda vacía no pasa
+  GRAFO              ANTES FRESH con 12 de 16 ya distintos   DESPUÉS SUSPECT y enumerados
+
+DOS CRITERIOS SE VALIDARON SOLOS: AC-01 cazó una mentira EN SU PRIMERA EJECUCIÓN —el HANDOFF
+afirmaba que PT-081 y PT-019 seguían en PHASE 9 con las dos ya INTEGRATED— y AC-15 dio SUSPECT
+12 de 16 sobre el grafo real. Ninguno fue un caso preparado.
+
+Delta real vs planificado: la tarea nació con cuatro partes y el firmante añadió la D —los
+  documentos de entrada— y la E —el grafo— sobre la marcha. Las cinco son atómicas, que es lo que
+  MARGINAL admite, y por eso cupieron.
+
+Tres desviaciones declaradas: EP-017 NO TIENE CAMPO «type», así que filtrar los lotes por
+  type==='EP' no casó ninguno y el resultado seguía dando 13 — se reconocen por su ID, que es lo
+  que SUITE-R08 garantiza, y fiarse del campo opcional era depender de dos fuentes del mismo
+  hecho · escribí el commit del ledger envuelto en try/catch cuando gitDe devuelve null en vez de
+  lanzar: el catch nunca se habría ejecutado y el caso habría pasado en verde con el commit
+  fallando en silencio · un mensaje de FDGE-R43 seguía diciendo «Bloquea G2 en PTs MAJOR» cuando
+  SUSPECT ya no bloquea.
+
+No verificado, declarado: que «decisiones» y «no hacer» digan la verdad. Son lo único del estado
+  que no se deriva de nada, y por eso son lo más valioso que tiene el HANDOFF. Nadie los verifica;
+  SUITE-R33 ahora al menos avisa si faltan.
+
+Compuertas: G1 2026-08-20 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-20 Alberto
+  Martínez (delegada) · G3 2026-08-20 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #159
+
+## PT-069 — BUG: los índices derivados necesitan generador
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+Rama: fix/alberto-martinez/PT-085-el-sello-de-version
+
+Causa raíz: cuatro instrucciones que no se podían cumplir a la vez. PHASE 8 ordena regenerar los
+índices, SUITE-R35 exige que espejen el registro, verify-fdge lo comprueba y el «no hacer» del
+HANDOFF prohíbe editarlos a mano — y NINGUNA herramienta los generaba. Regenerar sin generador
+sólo se puede a mano, que es lo que la cuarta prohíbe.
+
+Solución: `tracker indices [--aplicar]`. El reparto sale de LEX-R12, no de mi criterio.
+
+Medido: 89 filas para 86 tareas, y no eran duplicados: 27 estaban MAL ARCHIVADAS —16 bugs y 11
+features viviendo en el índice de refactors—. Tras derivar: 43 + 15 + 28 = 86, y CERO PT del
+registro fuera de todo índice. Ninguna se perdió: los 28 IDs que salieron de REFACTOR_SCOPE están
+todos en el registro y aparecen donde les toca.
+
+BACKLOG.md queda FUERA y consta: FDGE-R40 le exige el plan de solapamiento, que sale del tasks.md
+de cada tarea y no del registro. Generarlo con las columnas de los otros tres produciría un
+BACKLOG que parece al día y ha perdido lo único que lo hacía útil.
+
+Una desviación: mi cabecera «DERIVADO del registro (PT-069)» citaba un identificador, y
+verify-fdge busca la PRIMERA línea que contenga el ID para leer su estado — LEX-R07 acusó a la
+cabecera de no usar un estado canónico. Es la familia de PT-067: contar una mención como dato.
+La cabecera dejó de citar identificadores.
+
+Compuertas: G1 · G2 · G3 delegadas por lote EP-017 (2026-08-20, Alberto Martínez) · G4 pendiente
+Trazabilidad externa: issue #131
+
+## PT-070 — BUG: el alcance del grafo lo calcula la herramienta
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+Causa raíz: `docs` estaba en la exclusión general de plan-layout. Correcto para documentación y
+falso para código: en cauce las 16 herramientas viven en docs/methodology/tools/. plan-layout
+devolvía «alcance: bin» —1 archivo— mientras el registro decía «bin, docs/methodology/tools»
+porque PT-020 lo escribió A MANO. Cualquier instalación nueva nacía con el defecto, y FDGE-R43
+evaluaba la frescura de un grafo cuyo alcance ya era falso.
+
+Solución: el criterio es el CONTENIDO, no el nombre. Y el alcance baja hasta el directorio que
+contiene el código, no se queda en el primer segmento.
+
+TRES cosas sólo aparecieron ejecutando:
+  1. Con «docs» dentro, el alcance salía «bin docs» — y docs arrastra toda la documentación.
+  2. Entraron docs/implementation/evidence/PT-023 y PT-029: salidas guardadas de una tarea.
+     FND-R28 ya las excluye por concepto; faltaba nombrarlas, porque vivían bajo el docs/ que se
+     excluía entero y nadie las había visto.
+  3. En el legado real, docs/_archive/2026-08-06.
+
+Y el que casi se escapa: probado en el proyecto de PT-072 el alcance salió «docs/methodology/
+tools src» — habría metido las 16 herramientas DEL MARCO INSTALADO en el grafo de un proyecto
+ajeno. docs/methodology/ es la suite instalada y en cualquier proyecto que no sea cauce es marco
+de terceros (FND-R28). La identidad se comprueba como la comprueba el instalador: por el «name»
+del package.json.
+
+Resultado, medido en los tres:
+  cauce            bin docs/methodology/tools     <- IDÉNTICO a lo que PT-020 escribió a mano
+  proyecto nuevo   src
+  legado real      apps/… packages/core/src/… tools   · y el original con 0 cambios
+
+Que la derivación reproduzca el juicio humano que la precedió es la validación, no una
+coincidencia afortunada.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #132
+
+## PT-071 — BUG: publicar comprueba lo mismo que verificar
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+Causa raíz: verificacion.yml corría 8 comprobaciones y publicar.yml 5. Faltaban verify:patrones,
+el espejo y verify-fdge --all — esta última es la que FDGE-R34 llama PRECONDICIÓN DE G4, y
+publicar ocurre DESPUÉS de G4: llegar ahí sin haberla corrido es publicar sin la comprobación que
+autorizó el merge que trajo el código.
+
+Solución: las tres, con la invocación IDÉNTICA. Escribí «npm run verify:espejo» donde el otro
+pone «node tools/tracker.mjs espejo» y el comparador las contó como distintas — con razón: dos
+formas de invocar lo mismo divergen el día que una cambie.
+
+Resultado: 8 de 8, faltantes NINGUNA.
+
+El precedente estaba escrito en el propio publicar.yml: FND-R29 —el escáner de secretos— también
+había faltado, y lo encontró Foundation como divergencia D9. La misma forma, otra comprobación.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #133
+
+## PT-073 — CHORE: los tres documentos que lee quien llega
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+Va AL FINAL del lote a propósito, y se nota en lo que hubo que corregir: ninguna de las cinco
+fricciones que ahora lleva el MANUAL se me habría ocurrido escribir en agosto. Salieron de
+instalar el marco de verdad.
+
+Qué estaba desactualizado: CASOS-DE-USO declaraba «varios agentes trabajando a la vez» como hueco
+ENTERO cuando EP-016 cerró la identidad, los rangos de ID y la sesión por persona; no mencionaba
+las dos pruebas; y el README de la raíz llevaba SIN CAMBIOS desde v9.0.0, medido en PT-085.
+
+Qué se corrige: el hueco de multiagente se estrecha a lo que sigue abierto —la coordinación del
+reparto—; entran los dos que PT-019 declaró —migrar de verdad un legado y el sintético que no se
+construyó— y HL-1, que va como HUECO y no como instrucción: documentar en el manual que
+comparar-marco invierte las etiquetas sería documentar un defecto en lugar de arreglarlo.
+
+El README dice ahora QUÉ ESTÁ DEMOSTRADO Y QUÉ NO, incluida la limitación real: migrate --apply
+no se ejecutó.
+
+AC-04 pedía que ninguna cifra escrita a mano sobreviva si ya se deriva. Lo que había envejecido
+no era una cifra sino una AFIRMACIÓN, y se dice.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #135
+
+## PT-077 — BUG: la transición mira lo que la consulta bloquea
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+Causa raíz: STATE_MISMATCH vivía en `queSigue` —la consulta— y no en `avanzar` —el acto—. Una
+compuerta que sólo vigila el camino que nadie usa no vigila. Medido en su día: «tracker siguiente»
+bloqueó la transición de PT-075 y «tracker avanzar» la hizo igual.
+
+Es la familia de PT-075 con una vuelta más: aquí el verificador EXISTÍA y estaba en el sitio
+equivocado.
+
+Solución: la MISMA función —estadoDelArbol—, no una parecida. Y no repara el checkpoint:
+reescribirlo borra la única prueba de que hubo divergencia, y decidir cuál manda es de SUITE-R06.
+
+Una desviación: pasé las dependencias como FUNCIONES cuando el contrato quiere VALORES. El
+mensaje imprimía «real () => gitDe([...])» en lugar de la rama. Bloqueaba bien y explicaba mal —
+media compuerta: quien la recibe no puede decidir sin la verdad.
+
+Sin checkpoint NO bloquea: no tener foto no es tener una mala, y bloquear ahí impediría la
+primera transición de toda tarea nueva.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #139
+
+## PT-078 — CHORE: ninguna regla queda sin clasificar
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+PT-075 arregló DOS reglas concretas. Esto es el mecanismo: que NINGUNA pueda quedarse fuera en
+silencio. Tres casillas exhaustivas y excluyentes — VERIFICADA, NO_VERIFICABLE, PENDIENTE — y lo
+que cambia no es cuántas hay en cada una, sino que NO EXISTA UNA CUARTA SILENCIOSA.
+
+Medido: 94 + 5 + 125 = 224 de 224.
+
+«Verificada» es que una herramienta la EMITA: fail|warn|ok(ID). No que la mencione — PT-067 midió
+que contar menciones daba 24 falsos positivos, incluida FDGE-R17, declarada no comprobable en
+TD-16 y publicada como cubierta. Y selftest.sh no cuenta: el arnés prueba las herramientas.
+
+NO_VERIFICABLE es una DECISIÓN y por eso lleva firma, en NO-VERIFICABLES.md, con motivo por fila
+— una celda vacía no cuenta, igual que en el LAYOUT (FND-R22).
+
+EL MECANISMO CAZÓ CUATRO ERRORES MÍOS EN SU PRIMERA EJECUCIÓN: escribí nueve declaraciones y
+señaló que cuatro SOBRABAN —SUITE-R27, SUITE-R43, LEX-R21, EXEC-R07— porque esas reglas sí se
+emiten. Tenía razón contra mi propio texto: yo había escrito que la parte comprobable de
+SUITE-R27 «ya se comprueba» y aun así la declaré no verificable. Sin ese aviso,
+NO-VERIFICABLES.md sería el sitio donde la deuda se aparca detrás de una firma.
+
+Las 125 PENDIENTE son deuda, no límite, y su cifra se publica para que no se confundan.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #142
+
+## PT-080 — BUG: una regla no se define dos veces
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+Causa raíz: FDGE-R22, FDGE-R40 y FDGE-R41 estaban definidas en RULES.md Y en EXECUTION-MODES.md,
+y LAS TRES COPIAS YA DIVERGÍAN — siempre en la misma dirección: la de EXECUTION-MODES soltaba una
+obligación.
+
+  FDGE-R22  RULES exige «solo severity: S1» y las cinco fases retroactivas · la copia, NINGUNA de
+            las dos. Dejaba el carril HOTFIX abierto a un S3, y ese carril difiere G2 y G3.
+  FDGE-R40  RULES exige que los PTs solapados SE SERIALICEN · la copia lo omitía.
+  FDGE-R41  RULES exige que el EP-NNN pase a BLOCKED · la copia lo omitía.
+
+Es la enfermedad que motivó la v4 —«la misma regla escrita a mano en cuatro documentos, y las
+cuatro copias divergieron: ocho defectos críticos, incluido un ruleset que ordenaba destruir
+datos»— viva en la v9. verify-suite comprobaba cinco cosas y ninguna era ésta: la única de las
+cinco por la que se escribió la v4.
+
+Solución: las tres pasan a CITAR por ID. No se borra el texto: EXECUTION-MODES explica cómo se
+ejecuta un lote y necesita nombrarlas; lo que no puede es ENUNCIARLAS (LEX-R22). Definiciones en
+ese documento: 17 -> 14.
+
+Y `definidasDosVeces` en verify-suite, que FALLA y no avisa —LEX-R22 y SUITE-R38 son HARD— y dice
+DÓNDE están las dos copias: decir «hay conflicto» sin nombrar los sitios obliga a buscarlos a
+mano, que es lo que el mensaje de PT-066 hacía mal.
+
+Inversa ejecutada: con una duplicada inyectada, ERRORES (2); al retirarla, «Sin errores».
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #150
+
+## PT-083 — BUG: la plantilla que distribuye el paquete pasa su propio verificador
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S1 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+Causa raíz: RE_SEVERITY exigía fin de línea tras S2, y las TRES plantillas que el paquete
+distribuye traen «severity: S2               # [HUMANO] S1 | S2 | S3 | S4». Quien instala el
+paquete, copia su plantilla y la rellena, fallaba FDGE-R04 — y es el camino que el MANUAL
+describe, no un caso raro. El mensaje además acusaba de no declarar la severidad a quien SÍ la
+declaró.
+
+Lo que lo hace defecto y no convención: severity era el ÚNICO de los seis campos del YAML que
+anclaba en $. phase, status, type, track y complexity ya toleraban el comentario. No había forma
+de que quien rellena lo adivinara.
+
+Solución: se arregla QUIEN LEE, no las plantillas. Los comentarios en línea son útiles —dicen
+quién rellena qué— y quitarlos empeoraría la plantilla para acallar al verificador. Comprobado
+que sigue rechazando S9 y el vacío.
+
+Y AC-05, que es lo que impide la próxima: un caso rellena CADA plantilla del paquete tal como se
+distribuye y la pasa por verify-fdge, dejando los comentarios COMO VIENEN. Rellenarlos «limpios»
+habría hecho pasar el caso sin probar nada.
+
+AC-04 quedó PARCIAL y consta: EPIC-INTAKE describe un lote —verify-fdge PT-NNN valida una tarea—
+y TAREA.md no declara severity porque la hereda del lote (FDGE-R51). Ninguna tiene el defecto, y
+ninguna se comprueba.
+
+Cómo apareció: ejecutando PT-072, y sólo DESPUÉS de cometer el error de al lado — escribí el
+intake a mano, fallé cuatro comprobaciones, y entonces copié la plantilla y falló ésta. Leyendo
+el regex no se ve.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #155
+
+## PT-084 — BUG: la plataforma es opcional o no lo es
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+Causa raíz: avanzar exigía --nota, la nota exigía issue y el issue exigía plataforma. Y FDGE-R52
+hace de avanzar la ÚNICA forma sancionada de cambiar de fase: un proyecto sin tablero NO AVANZABA
+NI UNA FASE. Mientras tanto SUITE-R22 declara soportado el equipo de una sola persona y migrate
+escribía «OPCIONAL — declarar plataforma de trabajo. Sin ella no cambia nada».
+
+Dos pruebas independientes llegaron al mismo defecto: PT-072 no declarándola a propósito, y
+PT-019 al leer el informe de migrate sobre el legado real.
+
+Solución: la salida fácil era hacerla obligatoria — rompe SUITE-R22, que es una promesa del marco
+y no un detalle. La nota vive ahora en TRANSICIONES.log, append-only (SUITE-R09), con el MISMO
+cuerpo que iría al issue: si un día el proyecto declara plataforma, lo ya escrito sigue siendo
+legible y comparable.
+
+FDGE-R52 NO se relaja: --nota sigue siendo obligatoria. Sólo cambia dónde vive.
+
+Eran DOS puntos y no uno: el espejo de etiquetas —acto 5 de los cinco— también asumía adaptador
+presente y reventaba con «Cannot read properties of undefined». No se veía leyendo la cadena de
+guardas: se vio ejecutándolo en el proyecto sin plataforma.
+
+Y el texto de migrate deja de prometer lo que no cumplía — pero es cierto AHORA porque esta tarea
+lo hace cierto. Corregir sólo el texto habría sido documentar la limitación en vez de quitarla.
+
+Verificado donde el defecto apareció, no en un fixture: C:/tmp/pt072/nuevo.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #156
+
+## PT-086 — CHORE: la batería corre lo afectado por tarea y completa sólo al sellar
+Fecha: 2026-08-20 · Estado: DONE · Severidad: S2 · Complejidad: MAJOR · Track: STANDARD
+Implementación: EP-017
+Estructural: no
+
+El hallazgo que reordenó la tarea: `--solo` NO servía para lo que se le iba a pedir. Filtra
+ASERCIONES, no ANDAMIAJE — hay 211 llamadas a build_fixture a nivel superior, fuera de los casos,
+así que una corrida filtrada reconstruye el fixture las 211 veces igual. Medido: completa ~600 s,
+`--solo` de UN caso 171 s. El coste no está en los casos, está en el andamiaje.
+
+Solución: `--afectados` salta la SECCIÓN entera —sus casos y su andamiaje—. build_fixture monta un
+esqueleto vacío y barato; reg_set, que es una llamada a node, no se hace.
+
+El mapa sección -> herramienta se DERIVA del propio arnés leyendo qué herramientas nombra cada
+sección. Una tabla de 37 entradas sería un hecho copiado (RULE-01) que envejece con la primera
+sección nueva. Los HELPERS sí se declaran, porque su nombre no dice a qué herramienta llaman.
+
+Una sección que no nombra ninguna herramienta CORRE SIEMPRE —10 de 37—: no se sabe qué ejercita,
+y saltarla sería decidir sin dato. El lado seguro del desconocimiento es correr de más.
+
+Medido en los dos extremos:
+  plan-layout.mjs cambiado   134 de 1118 casos ·  106 s
+  patrones.mjs cambiado      669 de 1118 casos ·  405 s
+Que patrones acote poco es la respuesta CORRECTA: lo importan ocho herramientas.
+
+La salida dice PARCIAL, enumera lo que saltó y recuerda que sellar exige la completa (SUITE-R57,
+escrita en PT-085 ANTES que esto, para que no existiera ninguna ventana con corridas parciales y
+sin un sello que reclamara la completa).
+
+Dos desviaciones declaradas: escribí la guarda como ${SEC_ACTIVA:-1} y «:-» sustituye también
+cuando la variable está VACÍA — la guarda NO DISPARABA NUNCA y 822 casos corrían igual con una
+sola herramienta cambiada. Sintácticamente correcta, semánticamente inerte: el mismo patrón que
+PT-067 encontró en audit. Y cuatro casos previos se rompieron porque extraen texto del propio
+arnés POR POSICIÓN —tail -14, sed de una línea—: revisados uno a uno y conservada su intención.
+
+Compuertas: G1 · G2 · G3 delegadas por lote · G4 pendiente
+Trazabilidad externa: issue #160
+
+## EP-017 — LOTE: la prueba de fuego
+Fecha: 2026-08-20 · Estado: DONE · Versión: 10.0.0
+Estructural: no
+
+Qué se pidió: antes de publicar, demostrar que el marco sirve para un proyecto NUEVO y para un
+LEGADO, y arreglar lo que apareciera. No leerlo: ejecutarlo.
+
+Resultado: 21 tareas integradas y 1 diferida declarada. selftest 976 -> 1118 casos.
+Tres reglas nuevas: SUITE-R56, FDGE-R54 y SUITE-R57.
+
+LAS DOS PRUEBAS, que son el motivo del lote:
+
+  PROYECTO NUEVO (PT-072) · «tareitas», creado para esto, contra el paquete de npm pack y nunca
+  contra el publicado. Instalado en directorio limpio, Foundation con sus cinco documentos, y un
+  PT completo con tests en rojo primero. «cauce verify» termino en CERO errores.
+  SIRVE. Y siete huecos, dos de ellos S1 — los dos arreglados en el mismo lote:
+    H7 (PT-084) tracker avanzar era IMPOSIBLE sin tablero, mientras SUITE-R22 y migrate decian
+       tres veces que la plataforma es opcional. Solo aparecio porque NO se declaro a proposito.
+    H6 (PT-083) la plantilla BUG-REPORT que el paquete distribuye fallaba su propio verificador:
+       severity era el unico de seis campos que anclaba en fin de linea.
+
+  LEGADO REAL (PT-019) · «Inteligencia de Mercados Energeticos Mexicanos»: cauce 4.12.0, 127
+  tareas en changes/, seis lotes cerrados, monorepo de cuatro aplicaciones. Cinco MAJOR atras.
+  migrate detecta la version y separa 1 ACCION AUTOMATICA de 6 DECISIONES HUMANAS, explicando
+  por que cada una es humana. comparar-marco: 36 de sus 39 archivos DIFIEREN y le faltan 13,
+  siete de ellas herramientas. Tres archivos de treinta y nueve son iguales.
+  SE PUEDE MIGRAR. Y el original con CERO cambios: todo en lectura y sin --apply.
+
+LO QUE LA EJECUCION ENCONTRO Y LA LECTURA NO:
+  · audit media 114/183 contando MENCIONES como verificadores — 24 asi, incluida FDGE-R17, que
+    PT-079 acababa de declarar NO comprobable. El universo real son 224 reglas (PT-067).
+  · 20 de 40 enlaces del tablero daban 404 al medirlos; ahora 0 de 85 (PT-079).
+  · Tres reglas tenian DOS textos y los tres divergian: la copia de EXECUTION-MODES soltaba una
+    obligacion cada vez. La de FDGE-R22 dejaba el carril HOTFIX abierto a un S3 (PT-080).
+  · Una sola constante DESDE=[5,1,0] gobernaba tres comprobaciones de reglas nacidas en
+    versiones distintas: FDGE-R54, creada en este lote, regia sobre trabajo de agosto (PT-081).
+  · main llevaba 53 commits de retraso y ocho issues no podian cerrarse: G4 nunca se habia
+    ejecutado para EP-016. Y dos PR se fusionaron con CI EN ROJO porque «trabajo» no tenia
+    proteccion de rama (PT-082).
+  · El grafo decia FRESH con 12 de sus 16 archivos ya distintos, y contestaba que patrones.mjs
+    tiene 2 importadores cuando tiene 8 (PT-085).
+
+EL PATRON QUE SE REPITE, y es el hallazgo del lote: casi todos los defectos son la misma forma
+—VERIFICAR UN PROXY BARATO EN LUGAR DEL HECHO—. SUITE-R34 miraba la fecha del archivo y no su
+contenido; FDGE-R43 miraba si se movieron archivos y no si el grafo describe el codigo; audit
+contaba menciones y no emisiones; regla devolvia la primera linea que citara un ID. Los cuatro
+gobernaban compuertas.
+
+LO QUE NO SE HIZO, declarado y no escondido:
+  · El ciclo QA -> PTSA -> FPGE sigue sin ejecutarse (TD-15). Son COMPONENTES con sus propios
+    identificadores y compuertas; meterlos aqui habria convertido una prueba de fuego en tres.
+  · migrate --apply no se ejecuto: se valido el INFORME, no la ejecucion.
+  · PT-025 (Azure) sigue DEFERRED: no hay proyecto que lo use.
+  · El grafo sigue SUSPECT: regenerarlo es accion humana (FDGE-R32).
+
+Compuertas: G1 · G2 · G3 delegadas al agente por el firmante con constancia · G4 de EP-016
+  ejecutada el 2026-08-19 como EXCEPCION DECLARADA registrada en SESSION_LOG.md · G4 de EP-017
+  y PUBLICAR: del firmante, sin delegar.
+Trazabilidad externa: issue #127
+
+## SELLO 10.0.0 — el grafo, regenerado
+Fecha: 2026-08-20 · Estado: HECHO · Versión: 10.0.0
+Estructural: no
+
+Paso 5 de los ocho de «tracker sellar». Lo dispara una persona (FDGE-R32) y el firmante lo
+autorizó como EXCEPCIÓN DECLARADA, registrada en SESSION_LOG.md junto con G4 y el tag.
+
+/graphify sobre el alcance que declara REGISTRY.graph.scope — bin, docs/methodology/tools —
+sin ampliarlo ni recortarlo: 17 archivos de código, 692 nodos, 1041 aristas, 27 comunidades.
+Extracción AST solamente: el corpus es código y no hay documento que extraer semánticamente.
+
+REGISTRY.graph: generated 2026-08-15 -> 2026-08-20 · pt_at_generation 48 -> 86.
+
+QUÉ CAMBIA DE VERDAD, que es el punto de PT-085: el grafo obsoleto contestaba que patrones.mjs
+tiene 2 importadores. Son 8 —audit, build-core, migrate, tracker, verify-fdge, verify-patrones,
+verify-suite y version— y el grafo regenerado contesta 8. FDGE-R43 pasa de SUSPECT · 12 de 16 a
+al día, y con eso «tracker sellar» deja de tener filas pendientes del agente.
+
+SELLO.md queda con los cinco documentos de entrada resueltos: cuatro ACTUALIZADO y uno
+NO PROCEDE con motivo (Suite-CLAUDE-Template.md, porque EP-017 no cambió qué parametriza un
+proyecto destino).
+
+Compuertas: G4 y el tag siguen siendo del firmante. Publicar NO está autorizado.
+Trazabilidad externa: issue #127
+
+## SELLO 10.0.0 — dos defectos encontrados sellando
+Fecha: 2026-08-20 · Estado: HECHO · Versión: 10.0.0
+Estructural: no
+
+Con el grafo ya al día, «verify-suite» avisó de algo que llevaba abierto desde PT-085:
+
+  SUITE-R19  SUITE-R57 es una regla HARD nueva y no declara desde qué versión rige.
+
+DEFECTO 1 · SUITE-R57 no tenía fila en RIGE_DESDE (tools/patrones.mjs). Sin fila, «rige SIEMPRE»
+—es el comportamiento por defecto, y es el correcto para reglas antiguas— así que la 10.0.0 iba a
+publicarse con una regla HARD gobernando tareas escritas en agosto. Es EXACTAMENTE el defecto que
+PT-081 existe para eliminar, en la cuarta regla. El mecanismo que PT-081 dejó puesto
+—reglasNuevasSinVersion— fue lo que lo cazó: la comprobación funcionando, no yo leyendo.
+Arreglo: 'SUITE-R57': [10, 0, 0].
+
+DEFECTO 2 · La guía de migración de la 10.0.0 decía «Dos reglas nuevas» y enumeraba FDGE-R54 y
+SUITE-R56. SUITE-R57 nació después, en PT-085, y nadie volvió al CHANGELOG. Un proyecto destino
+que actualizara se habría encontrado G2 bloqueada sin una línea que se lo explicara.
+Arreglo: tercera fila en la tabla de migración, con el comando y el umbral declarable, y la
+sección «Las tres reglas nuevas» con por qué se cuenta por LOTE CERRADO y no por tarea.
+
+LA LECCIÓN, y es la del lote otra vez: el paso 1 de «tracker sellar» comprueba que EXISTA entrada
+en el CHANGELOG con guía de migración. No comprueba que la guía ENUMERE las reglas nuevas. Un
+proxy barato en lugar del hecho — la misma forma que SUITE-R34, FDGE-R43, audit y regla. Se deja
+DECLARADO y no se arregla aquí: convertirlo en comprobación es trabajo de otra tarea, y hacerlo
+de paso mientras se sella es justo la prisa que este lote documentó.
+
+Se detuvo la batería en curso al descubrirlo: correrla sobre un árbol que iba a cambiar no habría
+medido nada. Se relanzó COMPLETA sobre el árbol final.
+
+Compuertas: G4 y el tag siguen siendo del firmante. Publicar NO está autorizado.
+Trazabilidad externa: issue #127
+
+## PTSA-2026-08-20 — auditoria completa del marco, antes de publicar
+Fecha: 2026-08-20 · Estado: COMPLETE · Version auditada: 10.0.0
+Estructural: no
+
+Que se pidio: «auditar el sistema completamente para buscar, encontrar y eliminar cualquier riesgo
+que pudiera tener, usemos el mismo PTSA que tiene el propio marco». Y antes: que el hallazgo del
+proxy no permite publicar todavia.
+
+PRIMERA EJECUCION DE PTSA sobre este repositorio. TD-15 declaraba TRES componentes nunca
+ejecutados; quedan DOS: QA y FPGE. Cargado CORE.md + CORE-PTSA.md (SUITE-R25): sin el overlay se
+habria auditado con 23 de las 80 reglas.
+
+  universo      51 elementos desde 6 fuentes mecanicas de inventory/ + PHASE 0 + bin/cauce.mjs
+  matriz        204 celdas · 8 NO_APLICA justificadas · 196 de universo · 175 evaluadas
+  coverage      0.89 — las 21 NO_EVALUADA llevan motivo Y coste
+  evidencia     11 capturas por shell, ninguna pedida al usuario (PTSA-R61)
+  verify-ptsa   sin errores
+
+  D1 dominio 60 · D2 tecnica 80 · D3 observabilidad 95 · D4 documental 94
+  Health 79.9 · Risk 73 · Confidence 0.94 · certificacion B
+  D1 quedo EXACTAMENTE en 60: una penalizacion MEDIA mas y el Multiplicador Global habria
+  bajado Health a 55. Se declara que se evaluo y no aplico (PTSA-R27).
+
+NUEVE HALLAZGOS. Los tres que ponen el techo son D1:
+  H-002  SUITE-R01, SUITE-R09 y EXEC-R04 no las emite NINGUN verificador. 101 de 224 reglas sin
+         verificador, 90 de ellas HARD. Y el matiz que evita el alarmismo: las 20 reglas marcadas
+         CHECK — las que DECLARAN comprobacion — lo tienen todas. El Acid Test de P-003 PASA.
+         El hallazgo es que la rubrica esta por debajo de la promesa del dominio (PTSA-R17).
+         El caso concreto: nada detecta que HISTORY.log se reescriba, y git podria detectarlo.
+  H-003  el patron del proxy, quinta instancia, encontrada SELLANDO. Va a la epica siguiente.
+  H-008  QA y FPGE no se han ejecutado nunca.
+
+DOS CORREGIDOS DENTRO DE LA AUDITORIA, a VALIDATION_PENDING y no a CLOSED (PTSA-R44):
+  H-001  el tarball publicaba bin/graphify-out/cache/ast/*.json — un artefacto local NO
+         VERSIONADO con rutas absolutas del disco del mantenedor. 58 archivos desde esta maquina,
+         57 desde CI: la MISMA VERSION con dos contenidos segun quien publicara. PT-072 midio
+         «58 archivos» probando el proyecto nuevo, y ese 58 ya lo incluia.
+         Arreglado con "!bin/graphify-out" en package.json Y borrando el directorio. La prueba
+         que importa: se RECREO el artefacto a proposito y el tarball siguio siendo de 57.
+  H-006  CLAUDE.md decia 15 herramientas y 4 comandos; son 16 y 7.
+
+LO QUE LA AUDITORIA MIDIO A FAVOR, porque enumerar solo defectos describe al auditor:
+  cero dependencias · cero execSync · ningun shell:true · un solo git push, tras --publicar y sin
+  --force · main y trabajo con enforce_admins y sin force push ni borrado · arbol e historia sin
+  secretos sin firmar · rollback transaccional en tracker avanzar · guarda de sobrescritura en
+  cauce install · 1118 casos en cero fallos · 224 reglas con 0 duplicadas y 0 sin severidad.
+
+EL LIMITE SERIO, declarado: el auditor es el mismo agente que escribio buena parte del codigo
+auditado. Toda AFIRMACION tiene evidencia; que hallazgos NO se buscaron no es contrastable desde
+dentro. Es el mismo limite que SUITE-R27 declara sobre las firmas.
+
+G4 SE RETUVO A PROPOSITO. Fusionar y etiquetar habria sellado una version que el firmante acababa
+de decir que no estaba en condiciones: la auditoria informa la decision, no llega despues.
+
+Compuertas: G4, el tag y PUBLICAR siguen siendo del firmante. Publicar NO esta autorizado.
+Trazabilidad externa: PTSA/RESUMEN.md
+
+## EP-018 — LOTE ABIERTO: lo que la auditoria encontro
+Fecha: 2026-08-20 · Estado: DRAFT · Version: 10.0.0
+Estructural: no
+
+Que se pidio: «atendemos todo, abre una epica con estos hallazgos, el que descubriste al cierre
+anterior mas esta auditoria».
+
+DOS FUENTES, y por eso es un lote y no siete tareas sueltas:
+  (a) el defecto que aparecio SELLANDO la 10.0.0 — el paso 1 de «tracker sellar» comprueba que
+      EXISTA entrada en el CHANGELOG con guia de migracion, no que la guia ENUMERE las reglas
+      nuevas, y por eso SUITE-R57 quedo fuera de ella.
+  (b) la auditoria PTSA-2026-08-20: nueve hallazgos, certificacion B, Health 79.9, coverage 0.89.
+
+SIETE TAREAS, en orden de dependencia tecnica y no de prioridad:
+  1  PT-088  S1  las reglas del dominio se verifican o se declaran     H-002
+  2  PT-087  S1  la comprobacion declara que hecho establece           H-003
+  3  PT-089  S2  la divergencia no apaga comprobaciones                H-004
+  4  PT-090  S2  la frescura del grafo viaja con el repositorio        H-005 · TD-17
+  5  PT-091  S3  las cifras se derivan, no se transcriben              H-007 · H-006
+  6  PT-093  S2  el limite de las compuertas se declara                H-009
+  7  PT-092  S2  ejecutar QA y FPGE                                    H-008 · TD-15
+
+PT-088 VA ANTES QUE PT-087 A PROPOSITO. PT-087 construye el mecanismo que obliga a declarar que
+hecho establece una comprobacion; PT-088 escribe TRES comprobaciones nuevas. Si PT-087 fuera
+primero, las tres naceran bajo un mecanismo sin un solo caso real que lo hubiera ejercitado. Al
+reves, las tres son el BANCO DE PRUEBAS del mecanismo: si no sabe expresar que mide SUITE-R09,
+esta mal, y se sabe antes de imponerlo a 224 reglas. Es la leccion de PT-085, que midio SUITE-R57
+antes de escribirla y encontro un candado con la llave dentro.
+
+LA SEXTA INSTANCIA DEL PATRON APARECIO ESCRIBIENDO ESTE INTAKE. verify-fdge rechazo el de PT-093
+por SUITE-R27 —«firma que no figura en firmantes»— cuando lo que habia era una CITA EN PROSA
+explicando que exige SUITE-R06. RE_QUIEN busca el verbo de integracion seguido de dos puntos en
+TODO el archivo, y RE_SIGN_BLOCK —que localiza el bloque de firma— ya existe tres lineas mas
+arriba: el hecho es identificable y la comprobacion no lo usa.
+
+Y VOLVIO A OCURRIR DOS VECES MAS, en la misma hora: al describir el defecto en el intake de
+PT-093 y al describirlo AQUI, en esta entrada. Tres falsos positivos seguidos, todos por hablar
+del defecto. Una comprobacion cuyo alcance es «todo el archivo» acusa a quien la documenta, y eso
+no es una anecdota: es la medida de cuanto se paga por mirar un proxy. Queda en el intake de
+PT-087, que es la tarea que lo cierra.
+
+LO QUE EL LOTE NO ARREGLA, dicho al firmar: el techo de la certificacion. Con H-002 y H-003
+cerrados, D1 sube a 90 y Health a ~93. Pero H-008 solo se cierra ejecutando QA y FPGE de verdad, y
+si esas dos encuentran lo que encontro PTSA, el score BAJA antes de subir. No es un riesgo del
+lote: es el lote funcionando.
+
+DOS TAREAS DEVUELVEN LA PELOTA AL FIRMANTE A MITAD, y se declara ahora en vez de descubrirse en
+PHASE 5: PT-093 pide una DECISION sobre como se declara el limite de las compuertas, y PT-092
+tiene que decidir que es «usar el sistema» para un paquete de linea de comandos sin navegador.
+
+LA FIRMA DEL INTAKE la escribio el agente citando la instruccion literal del firmante, con su
+limite declarado en el propio bloque. Es, literalmente, el limite que PT-093 existe para declarar.
+
+Compuertas: G1 propuesta, la resuelve el firmante. G4, el tag y PUBLICAR siguen siendo suyos.
+Trazabilidad externa: issue #162 · sub-issues #163..#169

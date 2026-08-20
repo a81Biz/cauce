@@ -1,0 +1,25 @@
+=== PT-086 · la bateria corre lo afectado ===
+fecha: 2026-08-20
+
+-- el hallazgo que reordeno la tarea --
+   --solo filtra ASERCIONES, no ANDAMIAJE: 211 llamadas a build_fixture a nivel
+   superior, fuera de los casos. Medido: completa ~600 s · --solo de UN caso 171 s.
+
+-- medido, en los dos extremos --
+   plan-layout.mjs cambiado   134 de 1118 casos ·  106 s
+   patrones.mjs cambiado      669 de 1118 casos ·  405 s
+
+   Que patrones acote poco es la respuesta CORRECTA: lo importan ocho herramientas.
+   Una seleccion que dijera «pocas secciones» ahi seria el falso verde mas caro que
+   este arnes podria producir.
+
+-- el mapa se DERIVA, no se escribe --
+   secciones: 37 · sin herramienta asociada: 10
+   Las que no nombran herramienta CORREN SIEMPRE: no se sabe que ejercitan, y
+   saltarlas seria decidir sin dato (RULE-06).
+
+-- y la salida DICE que es parcial --
+   PARCIAL · corrieron las secciones que ejercitan lo que ha cambiado.
+   NO se ejecutaron:
+     ── B · defectos inyectados (deben detectarse) ──
+     ── D · migración ──

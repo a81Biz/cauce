@@ -34,6 +34,8 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, relative, resolve, sep } from 'node:path';
 import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
+// PT-078 · ninguna regla queda sin clasificar, y estar sin clasificar es un FALLO.
+import { clasificarReglas, noVerificablesDeclaradas } from './patrones.mjs';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
 if (!existsSync(BASE)) { console.error(`No existe: ${BASE}`); process.exit(2); }
@@ -44,6 +46,7 @@ const okCount = { total: 0 };
 const gap = (clase, elem, falta) => gaps.push({ clase, elem, falta });
 const tick = (clase) => { okCount[clase] = (okCount[clase] ?? 0) + 1; okCount.total++; };
 
+const SALTO = String.fromCharCode(10);
 const rd = (f) => (existsSync(join(BASE, f)) ? readFileSync(join(BASE, f), 'utf8') : null);
 const walk = (dir, out = []) => {
   for (const n of readdirSync(dir)) {
@@ -493,6 +496,8 @@ if (herramientasConCompuerta === null) {
   // regresión: no se escribió menos verificador, se dejó de contar lo que no lo era. Los dos
   // números se DERIVAN; un texto a mano envejece en el primer cambio de RULES.md.
   const conNombre = tools.map(([f, t]) => [f.split('/').pop(), t]);
+  // El arnes prueba las herramientas; no lo ejecuta ninguna compuerta (PT-067).
+  const toolsSinArnes = tools.filter(([f]) => !f.endsWith('selftest.sh')).map(([, t]) => t).join(SALTO);
   const ampliado = REGLAS_TODAS.filter((r) => r.doc !== 'RULES.md').length;
   const soloMencion = REGLAS_TODAS.filter((r) => !verificadoresDe(r.id, conNombre).length
     && tools.some(([, t]) => t.includes(r.id))).length;
@@ -500,6 +505,27 @@ if (herramientasConCompuerta === null) {
     const cit = tools.filter(([, t]) => t.includes(r.id)).map(([f]) => f.split('/').pop());
     return cit.length === 1 && cit[0] === 'selftest.sh';
   }).length;
+  // PT-078 · las TRES casillas, exhaustivas y excluyentes. PT-075 arreglo dos reglas
+  // concretas; esto es el mecanismo: que NINGUNA pueda quedarse fuera en silencio.
+  const decl = (() => {
+    try { return noVerificablesDeclaradas(readFileSync(join(BASE, '..', 'implementation', 'NO-VERIFICABLES.md'), 'utf8')); }
+    catch { return null; }
+  })();
+  const clas = clasificarReglas(REGLAS_TODAS, toolsSinArnes, decl ?? {});
+  const suma = clas.VERIFICADA.length + clas.NO_VERIFICABLE.length + clas.PENDIENTE.length;
+  console.log('');
+  console.log('  Clasificación exhaustiva (PT-078) — ninguna queda fuera:');
+  console.log(`    VERIFICADA       ${clas.VERIFICADA.length}   una herramienta la EMITE`);
+  console.log(`    NO_VERIFICABLE   ${clas.NO_VERIFICABLE.length}   declarada con motivo y firma`);
+  console.log(`    PENDIENTE        ${clas.PENDIENTE.length}   deuda, no límite`);
+  console.log(`    suma             ${suma} de ${TOTAL_REGLAS}${suma === TOTAL_REGLAS ? '' : '   ✗ NO CUADRA'}`);
+  if (decl === null) {
+    console.log('    (sin NO-VERIFICABLES.md: todo lo no emitido cuenta como PENDIENTE)');
+  }
+  if (clas.sobran.length) {
+    console.log(`    ✗ ${clas.sobran.length} declaración(es) SOBRAN — esas reglas sí se emiten: ${clas.sobran.join(' ')}`);
+    console.log('      Declarar no verificable algo que ya se verifica esconde una verdad tras una firma.');
+  }
   console.log('');
   console.log('  Qué cambió respecto de la medida anterior:');
   console.log(`    +${ampliado}  reglas que el denominador no miraba: LEXICON.md y EXECUTION-MODES.md`);

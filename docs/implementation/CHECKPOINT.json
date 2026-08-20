@@ -1,19 +1,19 @@
 {
-  "pt": "PT-072",
-  "type": "INVESTIGATION",
+  "pt": "PT-085",
+  "type": "BUG",
   "epic": "EP-017",
   "status": "INTEGRATED",
   "phase": 10,
   "fase": null,
-  "rama": "chore/alberto-martinez/EP-017-integradas",
-  "sha": "24563f0651cc2c68d918934e4f1e66e7be1b71e1",
-  "sha_corto": "24563f0",
+  "rama": "trabajo",
+  "sha": "555ac3180cea706d7c6744f0d87aa674822337e4",
+  "sha_corto": "555ac31",
   "sucio": true,
   "archivos": [
-    "docs/implementation/CHECKPOINT.json"
+    "docs/implementation/SESSION_LOG.md"
   ],
   "compuerta": null,
   "produce": [],
-  "siguiente": "PT-072 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
-  "generado": "2026-08-19"
+  "siguiente": "PT-085 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "generado": "2026-08-20"
 }

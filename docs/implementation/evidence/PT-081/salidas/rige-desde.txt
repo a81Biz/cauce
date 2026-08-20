@@ -1,0 +1,11 @@
+=== AC-01 · AC-04 · cada regla con SU version de entrada ===
+fecha: 2026-08-20
+
+  RIGE_DESDE:
+    {"FDGE-R52":[5,0,0],"FDGE-R53":[5,1,0],"FDGE-R54":[10,0,0],"SUITE-R56":[10,0,0]}
+
+  rigeDesde(FDGE-R54, 8.2.0) = false   esperado false   OK
+  rigeDesde(FDGE-R54, 10.0.0) = true   esperado true   OK
+  rigeDesde(FDGE-R53, 5.1.0) = true   esperado true   OK
+  rigeDesde(FDGE-R53, 5.0.9) = false   esperado false   OK
+  rigeDesde(QA-R01, 1.0.0) = true   esperado true   OK

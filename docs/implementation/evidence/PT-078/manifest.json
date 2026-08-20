@@ -1,0 +1,121 @@
+{
+  "pt": "PT-078",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Las tres casillas son exhaustivas",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/clasificacion.txt"
+      ],
+      "verified": true,
+      "nota": "94 + 5 + 125 = 224 de 224. Lo que cambia no es el reparto: es que no exista una cuarta casilla silenciosa."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Verificada es EMITIR, no mencionar",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/clasificacion.txt"
+      ],
+      "verified": true,
+      "nota": "PT-067 midio que contar menciones daba 24 falsos positivos, incluida FDGE-R17"
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El arnes no cuenta como verificador",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/clasificacion.txt"
+      ],
+      "verified": true,
+      "nota": "selftest.sh excluido: prueba las herramientas, no lo ejecuta ninguna compuerta"
+    },
+    {
+      "ac": "AC-04",
+      "statement": "NO_VERIFICABLE exige motivo",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/clasificacion.txt"
+      ],
+      "verified": true,
+      "nota": "una fila sin motivo no resuelve, igual que en el LAYOUT (FND-R22)"
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Las declaraciones que sobran se senalan",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/clasificacion.txt"
+      ],
+      "verified": true,
+      "nota": "en su PRIMERA ejecucion senalo 4 de mis 9"
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La cifra se publica en audit",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/clasificacion.txt"
+      ],
+      "verified": true,
+      "nota": "las tres casillas y su suma"
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que las 125 PENDIENTE sean verificables de verdad.",
+      "por_que": "Se afirma que no estan declaradas como imposibles, no que escribir su verificador sea barato. La cifra se publica para que la deuda se vea, no para prometer su coste.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Declare cuatro reglas como NO VERIFICABLES y si se emiten.",
+      "regla": "—",
+      "detalle": "SUITE-R27, SUITE-R43, LEX-R21 y EXEC-R07. El propio mecanismo lo senalo, y tenia razon CONTRA MI PROPIO TEXTO: yo habia escrito que la parte comprobable de SUITE-R27 «ya se comprueba» y aun asi la declare no verificable. Sin ese aviso, NO-VERIFICABLES.md seria el sitio donde la deuda se aparca detras de una firma."
+    },
+    {
+      "que": "Novena vez con el escapado en scripts.",
+      "regla": "—",
+      "detalle": "El regex de emision escrito con plantilla a traves de un heredoc convirtio la barra-b en byte de control y la barra-s en «s» literal. Se reescribio con concatenacion y comillas simples: quitar el problema en vez de pelearse con el."
+    }
+  ],
+  "suite": {
+    "passed": 1118,
+    "failed": 0,
+    "baseline": 976,
+    "nota": "corrida COMPLETA del cierre de EP-017"
+  }
+}
