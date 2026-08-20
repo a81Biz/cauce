@@ -3242,8 +3242,28 @@ chk   "abrir otra vez sobrescribe"       "sesion abierta desde"  TR sesion abrir
 chk   "…y sigue habiendo UN solo archivo de sesion"  "^1$"  sh -c 'ls "$1/docs/implementation/" | grep -c "^SESSION"' _ "$WORK"
 
 # E18-E19 · T10 · viabilidad usa el «desde» real si lo hay, y lo dice si no.
-chk   "viabilidad nombra la sesion abierta"  "en la sesion abierta en"  TRR viabilidad PT-060
-chk   "…y sigue dando su veredicto"          "veredicto"                TRR viabilidad PT-060
+#
+# PT-067 · la identidad va INYECTADA por entorno. Este caso corria contra el repositorio real
+# con la identidad de la maquina, asi que en CI —donde «git config user.name» es la del
+# runner y no casa con «personas»— marcaDe devolvia null y el caso caia. NO era un fallo del
+# codigo: era PT-068 negandose a atribuir la sesion de otro, que es lo que debe hacer.
+#
+# Es la NOVENA vez del patron «probar donde trabajo, no donde se decide», y esta se colo hasta
+# main: fusione los PR #148 y #149 sin mirar «gh pr checks», y los dos ya estaban en rojo por
+# este caso. El verde local no dice nada del verde en CI.
+#
+# GIT_CONFIG_COUNT es el mecanismo de git para esto y no toca ninguna configuracion.
+IDENT='GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=user.name GIT_CONFIG_KEY_1=user.email'
+YO() { env $IDENT GIT_CONFIG_VALUE_0="Alberto Martínez" GIT_CONFIG_VALUE_1="albe.mtz@gmail.com" \
+       node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+OTRO() { env $IDENT GIT_CONFIG_VALUE_0="runner-de-ci" GIT_CONFIG_VALUE_1="r@ci" \
+       node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
+chk   "viabilidad nombra la sesion abierta"  "en la sesion abierta en"  YO viabilidad PT-060
+chk   "…y sigue dando su veredicto"          "veredicto"                YO viabilidad PT-060
+# La OTRA rama no se probaba nunca, y es la que CI ejecutaba. Sin este caso, el arreglo de
+# arriba solo tapa el sintoma: quedaria una rama del if sin ningun caso que la mire.
+chk   "otra identidad NO hereda la sesion"   "no hay sesion abierta"    OTRO viabilidad PT-060
+chk   "…y lo dice, no lo calla"              "el dia NO es la sesion"   OTRO viabilidad PT-060
 
 # E16-E17 · AC-05 · la prosa de HANDOFF.md no se toca. Es lo unico del estado que NO se puede
 # derivar: lleva las decisiones del firmante y los «no hacer» que salieron de ejecutar.

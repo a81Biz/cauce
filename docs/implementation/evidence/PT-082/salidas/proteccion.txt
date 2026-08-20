@@ -1,0 +1,9 @@
+=== AC-04 · proteccion de rama, medida con gh api ===
+fecha: 2026-08-19
+
+-- main --
+checks: ["marco"] · strict: true · enforce_admins: true · force_push: false · deletions: false
+-- trabajo --
+checks: ["marco"] · strict: true · enforce_admins: true · force_push: false · deletions: false
+
+ANTES de PT-082, «trabajo» devolvia: 404 Branch not protected

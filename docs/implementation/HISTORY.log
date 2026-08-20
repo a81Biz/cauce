@@ -3242,3 +3242,141 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-082 — BUG: un caso no depende de quien lo ejecuta, y la rama de integración no acepta rojo
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S1 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-082-un-caso-no-depende-de-quien-lo-ejecuta
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que un caso del arnés no afirme un resultado que depende de quién lo ejecuta, y que la
+rama de integración rechace un merge en rojo sin depender de que nadie mire.
+
+Causa raíz, DOS defectos independientes que se tapaban el uno al otro:
+  A. El caso «viabilidad nombra la sesion abierta» corría con TRR —contra el repositorio real— y
+     viabilidad resuelve la identidad con «git config user.name» contrastada contra «personas».
+     En CI esa identidad es la del runner, no casa, y marcaDe devuelve null. El CÓDIGO NO ESTÁ
+     MAL: es PT-068 negándose a atribuir la sesión de otra persona, que es su cometido. Lo que
+     estaba mal era el caso. Novena vez del patrón «probar donde trabajo, no donde se decide»,
+     que el HANDOFF ya lista — la primera que llega a main.
+  B. «trabajo» no tenía protección de rama, así que el check «marco» era CONSULTIVO. Los PR #148
+     y #149 se fusionaron con ese rojo porque «gh pr merge» no lo mira y yo tampoco.
+
+Y un tercer hallazgo dentro del if: tenía DOS salidas y UNA SOLA tenía caso. La otra —«no hay
+sesión abierta»— era justo la que CI ejecutaba.
+
+Mi primer diagnóstico fue FALSO y consta: dije que CI llevaba en rojo por falta de PR a main.
+verificacion.yml corre en TODOS los pull_request y el rojo estaba a la vista. Lo corrigió el
+firmante preguntando qué evitaríamos forzando PRs a main. La respuesta era: nada.
+
+Solución: la identidad va INYECTADA por GIT_CONFIG_COUNT —mecanismo de git, sin tocar ninguna
+configuración— con dos helpers, YO y OTRO, y CUATRO casos: dos por cada rama del if. Sin los de
+OTRO, alguien podría hacer que marcaDe devuelva la marca huérfana —deshaciendo PT-068— y los dos
+primeros seguirían verdes.
+Y «trabajo» protegida con el mismo contrato que main: required_status_checks ["marco"], strict,
+enforce_admins. Descartada la alternativa de consultar «gh pr checks» desde verify-fdge: sería
+evitable no ejecutándolo —el defecto que PT-075 documentó— y depende de tener gh autenticado.
+enforce_admins a propósito: una protección que se salta con un clic convierte la excepción
+declarada en un gesto sin rastro.
+
+Archivos modificados: tools/selftest.sh · configuración de rama en GitHub (documentada en
+  changes/PT-082/acciones-humanas.md con su comando, su comprobación y cómo se revierte)
+
+Evidencia: evidence/PT-082/ · manifest.json · self-review.md ·
+  salidas/reproduccion.txt · salidas/dos-identidades.txt · salidas/proteccion.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+  CASO          ANTES depende de la máquina    DESPUES identidad inyectada, 4 casos
+  RAMA DEL IF   ANTES 1 de 2 con caso          DESPUES 2 de 2
+  «trabajo»     ANTES 404 Branch not protected DESPUES ["marco"] · strict · enforce_admins
+selftest 1058 -> 1060, cero fallos.
+
+Delta real vs planificado: el orden importa y no era obvio. Primero el CASO y después la
+  protección: con la protección puesta y CI en rojo, ni el PR que arregla la protección se puede
+  fusionar. El candado con la llave dentro.
+
+Tres desviaciones declaradas: fusioné los PR #148 y #149 con CI en ROJO sin ejecutar
+  «gh pr checks» —FDGE-R34 hace de la verificación precondición de G4 justo para esto, y me la
+  salté dos veces seguidas; es la causa de que esta tarea exista— · diagnostiqué mal la causa la
+  primera vez y lo corrigió una pregunta del firmante · estuve haciendo commits directos a
+  «trabajo» contra FDGE-R19, que es lo que esta protección impide desde ahora.
+
+No verificado, declarado: que no exista una DÉCIMA aparición del patrón —detectarlo exige
+  ejecutar con dos entornos y comparar, no una expresión regular— y que la protección siga puesta
+  mañana: es configuración de GitHub, ninguna herramienta del marco la lee, y la evidencia es una
+  foto con fecha.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #153
+
+## PT-072 — CHORE: un proyecto nuevo de verdad
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: la prueba corrió FUERA de este repositorio, en C:/tmp/pt072/nuevo
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: demostrar —no argumentar— que la 9.0.0 sirve para un proyecto nuevo, contra el paquete
+empaquetado con «npm pack» y nunca contra el publicado, que es la 8.2.0.
+
+Qué se hizo: un proyecto real, «tareitas», creado para esto. npm pack (58 archivos, 615 KB),
+instalado en directorio limpio, «npx cauce install» (52 archivos, CORE.md con 247 reglas, -70% de
+tokens), Foundation con sus cinco documentos, y un PT completo —PT-001, la divergencia D2 que
+Foundation encontró leyendo el código— con tests en rojo primero y su evidencia.
+
+Resultado: SIRVE. «cauce verify» termina en CERO errores, PT-001 pasa verify-fdge sin errores, y
+los tres tests en verde tras el arreglo.
+
+Lo que más convenció y no es una cifra: «cauce verify» sobre la instalación virgen falló con TRES
+errores accionables y dijo qué ejecutar en cada uno. Al completarlos bajó a cero GUIANDO uno a
+uno, cada arreglo destapando el siguiente hueco real. Eso es un verificador que funciona.
+
+Siete huecos, con su fase y su síntoma (AC-03):
+  H1 instalación · cauce install no deja .gitignore; el primer «git add -A» versionó 118
+     archivos, casi todos node_modules. Media.
+  H2 Foundation · LAYOUT.md exige la frase LITERAL «refleja la estructura que quiero: SÍ», y
+     FND-R23 dice «no está firmado» sin nombrarla. Media.
+  H3 instalación · INSTALL.log exige «I<n> ACCIÓN … OK» con I de UN dígito —tope de nueve
+     entradas— y DOS espacios antes de OK. Nada lo dice antes de fallar. Media.
+  H4 Intake · tracker asignar no escribe «phase», y avanzar responde «está en PHASE NaN». La
+     primera tarea de un proyecto nuevo no puede avanzar sin editar el registro a mano. Alta.
+  H5 Intake · un intake suelto exige «Reportado por:», no «Firmado por:». Baja.
+  H6 Intake · LA PLANTILLA QUE DISTRIBUYE EL PAQUETE FALLA SU PROPIO VERIFICADOR. Alta. -> PT-083
+  H7 todas  · TRACKER AVANZAR ES IMPOSIBLE SIN TABLERO. Crítica. -> PT-084
+
+H7 sólo apareció porque NO declaré plataforma, y no fue casualidad: declararla habría hecho que
+todo fluyera y habría ocultado el único hueco crítico. Un proyecto de prueba configurado para que
+salga bien no prueba nada.
+
+Evidencia: evidence/PT-072/ · manifest.json · self-review.md ·
+  salidas/instalacion.txt · salidas/ciclo-completo.txt · salidas/huecos.md
+
+Criterios AC-01..AC-05, los cinco. AC-04 con SALVEDAD declarada: plan-layout calculó «alcance:
+src», correcto aquí, así que la prueba NO midió el defecto de PT-070 —que aparece con código
+fuera de src/, como bin/ en cauce—. Midió el caso bueno, y consta.
+
+Delta real vs planificado: salieron DOS tareas nuevas en vez de una lista de anotaciones. H6 y H7
+no son fricción de manual: son defectos del marco, y SUITE-R44 exige que el diferimiento cite su
+destino. Los otros cinco van a PT-073.
+
+Tres desviaciones declaradas, y las tres son el comportamiento de quien llega nuevo: escribí el
+  intake A MANO en vez de copiar la plantilla y fallé cuatro comprobaciones seguidas · regeneré
+  LAYOUT.md con --write DESPUÉS de firmarlo y luego apendicé dos firmas más, sin leer que el
+  archivo generado ya traía la línea para editar en su sitio —FND-R22 lo cazó con «tres
+  veredictos»— · versioné node_modules en el primer commit. Por eso H1, H2 y H5 están en la lista
+  en vez de descartados como torpeza mía: la fricción que produce un error natural ES un hueco,
+  aunque el marco tenga técnicamente razón.
+
+No verificado, declarado: que estos siete sean TODOS los huecos —se recorrió un camino con un
+  proyecto de 25 líneas; otro con dependencias, contenedores o monorepo encontraría otros— y que
+  el proyecto siga verde mañana: vive en C:/tmp, es un fixture y no se versiona dentro de cauce
+  porque sería un repositorio dentro de otro.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #134

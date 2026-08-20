@@ -1,0 +1,145 @@
+{
+  "pt": "PT-082",
+  "generated": "2026-08-19",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El caso no depende de la identidad de la maquina",
+      "scenarios": [
+        "E1",
+        "E4"
+      ],
+      "tests": [
+        "selftest.sh:viabilidad nombra la sesion abierta",
+        "selftest.sh:y sigue dando su veredicto"
+      ],
+      "evidence": [
+        "salidas/dos-identidades.txt"
+      ],
+      "verified": true,
+      "nota": "GIT_CONFIG_COUNT es el mecanismo de git y no toca ninguna configuracion. Descartados --mio (resuelve la identidad de la maquina: mismo problema con otro nombre) y git config (efecto lateral fuera del fixture)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La OTRA rama del if tambien tiene caso",
+      "scenarios": [
+        "E2",
+        "E3"
+      ],
+      "tests": [
+        "selftest.sh:otra identidad NO hereda la sesion",
+        "selftest.sh:y lo dice, no lo calla"
+      ],
+      "evidence": [
+        "salidas/dos-identidades.txt"
+      ],
+      "verified": true,
+      "nota": "Es la rama que CI ejecutaba y la unica sin ningun caso. Sin estos dos, alguien podria hacer que marcaDe devuelva la marca huerfana —deshaciendo PT-068— y los otros dos seguirian verdes."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El arreglo se comprueba en las dos direcciones",
+      "scenarios": [
+        "E1",
+        "E2"
+      ],
+      "tests": [
+        "reproduccion local del rojo antes de tocar el arnes"
+      ],
+      "evidence": [
+        "salidas/reproduccion.txt"
+      ],
+      "verified": true,
+      "nota": "No hubo que revertir nada: CI ya lo tenia caido. Se reprodujo en local con identidad ajena. Es la forma mas barata de la inversa, y solo esta disponible cuando el fallo llega de fuera."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "trabajo rechaza un merge en rojo",
+      "scenarios": [
+        "E5"
+      ],
+      "tests": [
+        "gh api repos/a81Biz/cauce/branches/trabajo/protection"
+      ],
+      "evidence": [
+        "salidas/proteccion.txt"
+      ],
+      "verified": true,
+      "nota": "ANTES: 404 Branch not protected. DESPUES: mismo contrato que main."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El cambio de configuracion queda documentado, no volando",
+      "scenarios": [
+        "E5"
+      ],
+      "tests": [
+        "acciones-humanas.md con el comando exacto y su verificacion"
+      ],
+      "evidence": [
+        "salidas/proteccion.txt"
+      ],
+      "verified": true,
+      "nota": "Peticion literal del firmante. Una configuracion de GitHub aplicada y no escrita es indistinguible de una que estuvo ahi desde siempre: manana nadie sabe quien la cambio ni con que contrato."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria sigue verde",
+      "scenarios": [
+        "E6"
+      ],
+      "tests": [
+        "selftest.sh"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "1058 -> 1060, cero fallos."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que no exista una DECIMA aparicion del patron «probar donde trabajo, no donde se decide».",
+      "por_que": "Detectar que un caso depende del entorno exige ejecutarlo con dos entornos y comparar, no una expresion regular. Se declara en vez de fingir que las guardas de PT-079 lo cubren.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    },
+    {
+      "afirmacion": "Que la proteccion de rama siga puesta manana.",
+      "por_que": "Es configuracion de GitHub y ninguna herramienta del marco la lee. Un administrador puede quitarla y nada del repositorio lo notaria. La evidencia es una foto con fecha, no una comprobacion continua.",
+      "donde": "docs/enterprise-documentation/10-Technical-Debt.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Fusione los PR #148 y #149 con CI en ROJO.",
+      "regla": "FDGE-R34",
+      "detalle": "No ejecute gh pr checks antes de fusionar; confie en mi bateria local. Los dos fallaban por este mismo caso. FDGE-R34 hace de la verificacion precondicion de G4 justo para esto, y me la salte dos veces seguidas. Es la causa de que esta tarea exista."
+    },
+    {
+      "que": "Diagnostique mal la causa la primera vez.",
+      "regla": "RULE-06",
+      "detalle": "Dije que CI llevaba en rojo sin que nadie lo supiera por falta de PR a main. Falso: verificacion.yml corre en TODOS los pull_request y el rojo estaba a la vista en #148 y #149. Lo corrigio el firmante preguntando que evitariamos forzando PRs a main."
+    },
+    {
+      "que": "Estuve haciendo commits directos a trabajo.",
+      "regla": "FDGE-R19",
+      "detalle": "trabajo recibe PRs, no trabajo. La proteccion que esta tarea aplica lo impide a partir de ahora, y es un efecto buscado, no un daño colateral."
+    },
+    {
+      "que": "La rama de PT-082 arrastra los artefactos en vuelo de PT-072.",
+      "regla": "FDGE-R40",
+      "detalle": "Al commitear con «git add -A» entraron changes/PT-072/ —discovery, strategy, design, traceability— que son de otra tarea. Las dos son de EP-017 y comparten REGISTRY, CHECKPOINT y DISCOVERY, asi que separar del todo era imposible; lo que si podia hacer era no meter sus .md, y no lo hice. Se declara en vez de rehacer la historia de la rama."
+    },
+    {
+      "que": "Empuje tres veces sin correr la verificacion completa en local.",
+      "regla": "FDGE-R34",
+      "detalle": "Tres rojos de CI seguidos, y los tres los habria visto con «node verify-fdge.mjs» sin argumentos y «npm run verify:espejo» —que verifican TODOS los PT, no solo el de la rama—. Yo verificaba solo la tarea en curso. Es la misma raiz que fusionar sin mirar gh pr checks: confiar en una comprobacion parcial."
+    }
+  ],
+  "suite": {
+    "passed": 1060,
+    "failed": 0,
+    "baseline": 1058
+  }
+}

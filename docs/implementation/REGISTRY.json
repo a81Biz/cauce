@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 81,
+    "PT": 84,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1745,7 +1745,7 @@
       "severity": "S1",
       "complexity": "MAJOR",
       "track": "STANDARD",
-      "phase": 1,
+      "phase": 9,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -2079,6 +2079,108 @@
         "fecha": "2026-08-19"
       },
       "issue": 151
+    },
+    {
+      "id": "PT-082",
+      "slug": "un-caso-no-depende-de-quien-lo-ejecuta",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "TRIVIAL",
+      "track": "STANDARD",
+      "phase": 9,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "Un caso no depende de quien lo ejecuta, y la rama de integracion no acepta rojo",
+      "origin": "Encontrado el 2026-08-19 al ejecutar la G4: CI en rojo en el PR #152 por el caso «viabilidad nombra la sesion abierta», que corre contra el repositorio real usando la identidad de la maquina. En CI git config user.name es la del runner, no casa con «personas», y marcaDe devuelve null — que es PT-068 haciendo lo correcto. Novena vez del patron «probar donde trabajo, no donde se decide». Y el agravante: los PR #148 y #149 se fusionaron CON ESE ROJO porque «trabajo» no tenia proteccion de rama, asi que el check era consultivo.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1902,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2815,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
+        "fecha": "2026-08-19"
+      },
+      "issue": 153
+    },
+    {
+      "id": "PT-083",
+      "slug": "la-plantilla-pasa-su-propio-verificador",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "TRIVIAL",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "La plantilla que distribuye el paquete pasa su propio verificador",
+      "origin": "Encontrado el 2026-08-19 ejecutando PT-072 sobre un proyecto nuevo real. RE_SEVERITY es /^s*severity:s*(S[1-4])s*$/im y exige fin de linea, pero BUG-REPORT.md —la plantilla que el paquete distribuye— trae «severity: S2               # [HUMANO] S1 | S2 | S3 | S4». Quien instala el paquete, copia su plantilla y la rellena, falla FDGE-R04. Los demas campos SI toleran el comentario, asi que es un campo incoherente con los otros. Hueco H6 de PT-072.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1902,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2815,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
+        "fecha": "2026-08-19"
+      },
+      "issue": 155
+    },
+    {
+      "id": "PT-084",
+      "slug": "la-plataforma-es-opcional-o-no-lo-es",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "La plataforma es opcional o no lo es",
+      "origin": "Encontrado el 2026-08-19 ejecutando PT-072 sin declarar plataforma a proposito. tracker avanzar exige --nota; la nota exige issue; el issue exige plataforma. Y FDGE-R52 hace de avanzar la UNICA forma sancionada de cambiar de fase, asi que un proyecto sin tablero no puede avanzar ni una fase. Mientras tanto SUITE-R22 declara soportado el equipo de una sola persona y migrate escribe «OPCIONAL — declarar plataforma de trabajo. Sin ella no cambia nada». Es falso. Hueco H7 de PT-072, el unico critico.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 723,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2815,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
+        "fecha": "2026-08-19"
+      },
+      "issue": 156
     }
   ]
 }

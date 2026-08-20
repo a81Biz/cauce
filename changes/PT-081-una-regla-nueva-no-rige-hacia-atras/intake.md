@@ -86,7 +86,7 @@ sería legítimo — pero aquí no lo es, por dos motivos:
 
 ## 6. Cómo termina   `FDGE-R53`
 
-> Termina cuando cada comprobación de `verify-fdge` conoce la versión en que nació su regla, la
+> Termina cuando: cada comprobación de `verify-fdge` conoce la versión en que nació su regla, la
 > `9.0.0` conserva intacto el registro de `EP-016`, y `EP-017` sale como `10.0.0` con una guía de
 > migración que enumera lo que rompe.
 

@@ -1,0 +1,54 @@
+=== PT-072 · instalacion desde el paquete, no desde el repositorio (AC-01) ===
+fecha: 2026-08-19
+
+-- npm pack --
+  a81biz-cauce-9.0.0.tgz · 58 archivos · 615 KB
+-- destino limpio --
+  C:/tmp/pt072/nuevo · git init + npm init -y
+
+-- npx cauce install --
+  52 archivos en docs/methodology/
+  CORE.md · 247 reglas · 88431 chars ~24564 tok · reduccion 70%
+
+-- npx cauce verify sobre la instalacion recien hecha --
+[2m── verify-suite.mjs[0m
+verify-suite — coherencia de la metodología (9.0.0)
+Documentos analizados: 36
+
+Sin errores de coherencia.
+[2m── build-core.mjs[0m
+CORE.md sincronizado.
+CORE-PTSA.md sincronizado.
+[2m── verify-fdge.mjs[0m
+verify-fdge — cumplimiento mecánico de la Methodology Suite 9.0.0
+
+PASA
+  ✓ SUITE-R15      CORE.md presente y sincronizado.
+  ✓ FDGE-R48       Sin implementación abierta.
+  ✓ FDGE-R39       ningún artefacto de PT vive en una ruta global.
+
+AVISOS
+  ! SUITE-R33      Sin docs/implementation/HANDOFF.md: no hay estado que retomar.
+  ! SUITE-R27      CLAUDE.md no declara «firmantes:». Sin esa lista, cualquier nombre en una firma es válido y la firma no aporta trazabilidad — solo apariencia de ella.
+  ! FND-R20        Sin docs/implementation/LAYOUT.md: el terreno nunca se enumeró. → node docs/methodology/tools/plan-layout.mjs --write
+  ! FND-R15        Sin 00-Baseline.md ni RECONCILIATION.log: la reconciliación nunca se ejecutó. → [START RECONCILE]
+  ! FDGE-R43       Grafo MISSING — no existe graphify-out/. Bloquea G2 en PTs MAJOR.
+
+ERRORES
+  ✗ SUITE-R08      Falta docs/implementation/REGISTRY.json — no hay asignador de IDs.
+  ✗ SUITE-R07      No existe docs/enterprise-documentation/. Ejecuta [START FOUNDATION].
+  ✗ FND-R19        El repositorio de la raíz no versiona ningún archivo. Un repositorio vacío no sostiene G4 (no hay qué fusionar), ni PHASE 10 (no hay a qué volver), ni la evidencia anclada a commits. Decide qué se versiona antes de abrir trabajo.
+
+3 error(es).
+[2m── verify-qa.mjs[0m
+No hay QA/ ni docs/implementation/ROADMAP.md: nada que verificar.
+[2m── verify-ptsa.mjs[0m
+No existe PTSA/ en este proyecto: no hay auditoría que verificar.
+[2m── revisar-secretos.mjs[0m
+revisar-secretos · C:\tmp\pt072\nuevo
+[2márbol de trabajo · la historia NO se revisó: añade --historial[0m
+
+[32mSin hallazgos sin firmar.[0m
+[2mAntes de publicar, revisa también la historia: un secreto borrado del archivo sigue ahí.[0m
+[2m── tracker.mjs[0m
+No hay docs/implementation/REGISTRY.json legible.

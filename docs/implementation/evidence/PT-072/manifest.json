@@ -1,0 +1,21 @@
+{
+  "pt": "PT-072",
+  "generated": "2026-08-19",
+  "criteria": [
+    { "ac": "AC-01", "statement": "La instalacion se hace desde el paquete, no desde el repositorio", "scenarios": ["E1","E2"], "tests": ["npm pack + npm install del .tgz en directorio limpio"], "evidence": ["salidas/instalacion.txt"], "verified": true, "nota": "58 archivos, 615 KB. cauce install desplego 52 y genero CORE.md con 247 reglas, -70% de tokens." },
+    { "ac": "AC-02", "statement": "El proyecto nuevo recorre las nueve fases de una tarea", "scenarios": ["E3","E4","E5","E6"], "tests": ["verify-fdge PT-001 en el proyecto nuevo","node --test"], "evidence": ["salidas/ciclo-completo.txt"], "verified": true, "nota": "PT-001 cerrado con intake, traceability, manifest, self-review, HISTORY y 3 tests. FDGE-R17: dos en rojo antes del arreglo; AC-01 ya pasaba porque el defecto era responder de MAS." },
+    { "ac": "AC-03", "statement": "Cada hueco encontrado queda anotado con su fase y su sintoma", "scenarios": ["E7","E8"], "tests": ["lista de siete huecos con fase, sintoma y gravedad"], "evidence": ["salidas/huecos.md"], "verified": true, "nota": "H7 critico —tracker avanzar imposible sin tablero— y H6 alto —la plantilla del paquete falla su propio verificador—. Van a PT-082... no: a PT-083 y a una tarea nueva." },
+    { "ac": "AC-04", "statement": "El grafo del proyecto nuevo nace con el alcance correcto", "scenarios": [], "tests": ["plan-layout en el proyecto nuevo"], "evidence": ["salidas/instalacion.txt"], "verified": true, "nota": "SALVEDAD: calculo «alcance: src», que es correcto aqui porque todo el codigo propio esta en src/. La prueba NO midio el defecto de PT-070, que aparece con codigo fuera de src/ como bin/ en cauce. El intake lo preveia." },
+    { "ac": "AC-05", "statement": "Lo que no se pueda completar se declara, no se rellena", "scenarios": [], "tests": ["discovery.md y traceability.md"], "evidence": ["salidas/huecos.md"], "verified": true, "nota": "Las nueve fases de PT-001 se movieron EDITANDO EL REGISTRO, no con tracker avanzar, porque H7 lo impide sin plataforma. Esta declarado en su autorrevision. No se simulo: se hizo de otra forma y se dijo cual." }
+  ],
+  "no_verificado": [
+    { "afirmacion": "Que los siete huecos sean TODOS los que hay.", "por_que": "Es una prueba, no una demostracion: se recorrio un camino con un proyecto de 25 lineas. Otro proyecto con dependencias, contenedores o monorepo encontraria otros. Lo que se afirma es que estos SIETE existen, no que no haya un octavo.", "donde": "changes/PT-072-un-proyecto-nuevo-de-verdad/discovery.md" },
+    { "afirmacion": "Que el proyecto nuevo siga verde manana.", "por_que": "Vive en C:/tmp y es un fixture, no un producto. Su evidencia es lo que queda; el directorio no se versiona dentro de cauce porque seria un repositorio dentro de otro.", "donde": "changes/PT-072-un-proyecto-nuevo-de-verdad/design.md" }
+  ],
+  "desviaciones_de_procedimiento": [
+    { "que": "Escribi el intake del PT-001 A MANO en vez de copiar la plantilla.", "regla": "INTAKE-R06", "detalle": "Falle cuatro comprobaciones seguidas. Es el error natural de quien llega, y por eso H5 esta en la lista en vez de descartarlo como torpeza: el mensaje dice «sin rellenar» sin decir que palabra espera —Reportado por, no Firmado por—." },
+    { "que": "Regenere LAYOUT.md con --write DESPUES de firmarlo.", "regla": "FND-R23", "detalle": "Y luego apendice dos secciones de firma mas, cuando el archivo generado YA traia la linea para editar en su sitio. Tres veredictos, y FND-R22 lo caza. Error de usuario nuevo que no lee el archivo entero — exactamente lo que esta prueba busca." },
+    { "que": "Versione node_modules en el primer commit.", "regla": "—", "detalle": "118 archivos. La instalacion no deja .gitignore. Es H1." }
+  ],
+  "suite": { "passed": 3, "failed": 0, "nota": "los 3 tests del proyecto nuevo; la bateria de cauce no aplica a esta tarea" }
+}
