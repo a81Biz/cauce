@@ -3,25 +3,36 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "trabajo",
   "sha": "84b37ad8ea9527f254857261fa1f03c60bf9fbb1",
   "sha_corto": "84b37ad",
   "sucio": true,
   "archivos": [
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/design.md",
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/discovery.md",
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/intake.md",
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/out-of-scope.md",
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/spec-changes.md",
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/strategy.md",
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/tasks.md",
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/test-scenarios.md",
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-19"
 }
