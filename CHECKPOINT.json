@@ -1,27 +1,25 @@
 {
-  "pt": "PT-066",
+  "pt": "PT-079",
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 9,
-  "fase": "Integración",
-  "rama": "fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define",
-  "sha": "30b68c533d84b922a0a799d26bd954c1729961f7",
-  "sha_corto": "30b68c5",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "trabajo",
+  "sha": "84b37ad8ea9527f254857261fa1f03c60bf9fbb1",
+  "sha_corto": "84b37ad",
   "sucio": true,
   "archivos": [
-    "changes/PT-066-la-regla-que-se-consulta-es-la-que-se-define/acciones-humanas.md",
-    "changes/PT-066-la-regla-que-se-consulta-es-la-que-se-define/intake.md",
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/discovery.md",
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-066/manifest.json",
-    "docs/implementation/evidence/PT-066/salidas/selftest-completo.txt"
+    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/strategy.md",
+    "docs/implementation/DISCOVERY.md",
+    "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-19"
 }
