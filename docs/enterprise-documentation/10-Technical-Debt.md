@@ -400,6 +400,11 @@ legítimas sobre identificadores, y un arnés que nace rojo se apaga — y enton
 que tiene razón. `PT-023` midió esa frontera: un verificador equivocado tres de cada cuatro veces
 se silencia y ocupa el sitio del que haría falta.
 
+> **Revision 2026-08-20 sobre `TD-15`.** La auditoria `PTSA-2026-08-20` es la primera ejecucion
+> de PTSA sobre este repositorio: de los **tres** componentes nunca ejecutados quedan **dos**,
+> `QA` y `FPGE`. La deuda no se reescribe —esta seccion es acumulativa— se anota aqui y el
+> hallazgo vivo es `PTSA/Findings/H-008.md`.
+
 ### `TD-17` · El grafo está en `.gitignore`, así que `FDGE-R43` sólo puede dar `FRESH` en la máquina que lo generó
 
 Apareció **sellando la `10.0.0`**, no leyendo el código: al regenerar el grafo, `git status` no

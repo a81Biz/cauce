@@ -4034,3 +4034,60 @@ medido nada. Se relanzó COMPLETA sobre el árbol final.
 
 Compuertas: G4 y el tag siguen siendo del firmante. Publicar NO está autorizado.
 Trazabilidad externa: issue #127
+
+## PTSA-2026-08-20 — auditoria completa del marco, antes de publicar
+Fecha: 2026-08-20 · Estado: COMPLETE · Version auditada: 10.0.0
+Estructural: no
+
+Que se pidio: «auditar el sistema completamente para buscar, encontrar y eliminar cualquier riesgo
+que pudiera tener, usemos el mismo PTSA que tiene el propio marco». Y antes: que el hallazgo del
+proxy no permite publicar todavia.
+
+PRIMERA EJECUCION DE PTSA sobre este repositorio. TD-15 declaraba TRES componentes nunca
+ejecutados; quedan DOS: QA y FPGE. Cargado CORE.md + CORE-PTSA.md (SUITE-R25): sin el overlay se
+habria auditado con 23 de las 80 reglas.
+
+  universo      51 elementos desde 6 fuentes mecanicas de inventory/ + PHASE 0 + bin/cauce.mjs
+  matriz        204 celdas · 8 NO_APLICA justificadas · 196 de universo · 175 evaluadas
+  coverage      0.89 — las 21 NO_EVALUADA llevan motivo Y coste
+  evidencia     11 capturas por shell, ninguna pedida al usuario (PTSA-R61)
+  verify-ptsa   sin errores
+
+  D1 dominio 60 · D2 tecnica 80 · D3 observabilidad 95 · D4 documental 94
+  Health 79.9 · Risk 73 · Confidence 0.94 · certificacion B
+  D1 quedo EXACTAMENTE en 60: una penalizacion MEDIA mas y el Multiplicador Global habria
+  bajado Health a 55. Se declara que se evaluo y no aplico (PTSA-R27).
+
+NUEVE HALLAZGOS. Los tres que ponen el techo son D1:
+  H-002  SUITE-R01, SUITE-R09 y EXEC-R04 no las emite NINGUN verificador. 101 de 224 reglas sin
+         verificador, 90 de ellas HARD. Y el matiz que evita el alarmismo: las 20 reglas marcadas
+         CHECK — las que DECLARAN comprobacion — lo tienen todas. El Acid Test de P-003 PASA.
+         El hallazgo es que la rubrica esta por debajo de la promesa del dominio (PTSA-R17).
+         El caso concreto: nada detecta que HISTORY.log se reescriba, y git podria detectarlo.
+  H-003  el patron del proxy, quinta instancia, encontrada SELLANDO. Va a la epica siguiente.
+  H-008  QA y FPGE no se han ejecutado nunca.
+
+DOS CORREGIDOS DENTRO DE LA AUDITORIA, a VALIDATION_PENDING y no a CLOSED (PTSA-R44):
+  H-001  el tarball publicaba bin/graphify-out/cache/ast/*.json — un artefacto local NO
+         VERSIONADO con rutas absolutas del disco del mantenedor. 58 archivos desde esta maquina,
+         57 desde CI: la MISMA VERSION con dos contenidos segun quien publicara. PT-072 midio
+         «58 archivos» probando el proyecto nuevo, y ese 58 ya lo incluia.
+         Arreglado con "!bin/graphify-out" en package.json Y borrando el directorio. La prueba
+         que importa: se RECREO el artefacto a proposito y el tarball siguio siendo de 57.
+  H-006  CLAUDE.md decia 15 herramientas y 4 comandos; son 16 y 7.
+
+LO QUE LA AUDITORIA MIDIO A FAVOR, porque enumerar solo defectos describe al auditor:
+  cero dependencias · cero execSync · ningun shell:true · un solo git push, tras --publicar y sin
+  --force · main y trabajo con enforce_admins y sin force push ni borrado · arbol e historia sin
+  secretos sin firmar · rollback transaccional en tracker avanzar · guarda de sobrescritura en
+  cauce install · 1118 casos en cero fallos · 224 reglas con 0 duplicadas y 0 sin severidad.
+
+EL LIMITE SERIO, declarado: el auditor es el mismo agente que escribio buena parte del codigo
+auditado. Toda AFIRMACION tiene evidencia; que hallazgos NO se buscaron no es contrastable desde
+dentro. Es el mismo limite que SUITE-R27 declara sobre las firmas.
+
+G4 SE RETUVO A PROPOSITO. Fusionar y etiquetar habria sellado una version que el firmante acababa
+de decir que no estaba en condiciones: la auditoria informa la decision, no llega despues.
+
+Compuertas: G4, el tag y PUBLICAR siguen siendo del firmante. Publicar NO esta autorizado.
+Trazabilidad externa: PTSA/RESUMEN.md
