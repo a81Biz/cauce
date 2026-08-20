@@ -1,17 +1,22 @@
 {
-  "pt": "PT-089",
+  "pt": "PT-090",
   "type": "BUG",
   "epic": "EP-018",
   "status": "READY",
   "phase": 2,
   "fase": "Descubrimiento",
   "rama": "trabajo",
-  "sha": "11bc72fbca8785299533cab0d455d1dd7a78da8d",
-  "sha_corto": "11bc72f",
+  "sha": "d5c192cac26e6e40c25289072bde7d703297e457",
+  "sha_corto": "d5c192c",
   "sucio": true,
   "archivos": [
-    "changes/PT-089-la-divergencia-no-apaga-comprobaciones/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "changes/PT-089-la-divergencia-no-apaga-comprobaciones/test-scenarios.md",
+    "changes/PT-089-la-divergencia-no-apaga-comprobaciones/traceability.md",
+    "changes/PT-090-la-frescura-del-grafo-viaja-con-el-repositorio/intake.md",
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-089/manifest.json",
+    "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
   "produce": [
