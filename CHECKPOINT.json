@@ -1,23 +1,22 @@
 {
-  "pt": "PT-079",
+  "pt": "PT-067",
   "type": "BUG",
   "epic": "EP-017",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "trabajo",
-  "sha": "3d78a4d03af5ee40f0dbea3b1ce9d29aa86d95f3",
-  "sha_corto": "3d78a4d",
+  "sha": "c7ef2b2419637b6d5d1da52e1ab9abdd16aa2f02",
+  "sha_corto": "c7ef2b2",
   "sucio": true,
   "archivos": [
-    "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/DISCOVERY.md",
-    "docs/implementation/HANDOFF.md",
+    "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PT-079 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-19"
 }
