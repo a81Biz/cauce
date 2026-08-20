@@ -1498,7 +1498,15 @@ function checkPT(pt, { gate } = {}) {
       catch { return null; }
     };
     const tag = (git(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
-      .trim().split(/\s+/).filter(Boolean).find((t) => t !== `v${REGISTRO?.suite_version ?? ''}`);
+      // PT-087 · «el tag anterior» era un PROXY de «lo ya sellado». Se escribio cuando la
+      // version en curso todavia NO estaba etiquetada, asi que saltarse su propio tag era
+      // inofensivo. En cuanto se sella de verdad deja de serlo: recien creado v10.0.0, las 21
+      // tareas de EP-017 —que ESTAN dentro de el— aparecian como deuda sin sellar, y con
+      // umbral 3 eso bloquea G2 justo despues de haber sellado.
+      //
+      // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
+      // exista, sea o no el de la version en curso.
+      .trim().split(/\s+/).filter(Boolean)[0];
     const idsTag = (() => {
       if (!tag) return null;
       const j = git(['show', `${tag}:docs/implementation/REGISTRY.json`]);

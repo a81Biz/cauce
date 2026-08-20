@@ -4201,3 +4201,61 @@ lo que la regla protege. Rehecha con el borrado commiteado: roja, con las cuatro
 bateria: 1118 -> 1131 casos, cero fallos. Hicieron falta CINCO corridas completas.
 Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
 Trazabilidad externa: issue #164
+
+## PT-087 — la comprobacion declara que hecho establece
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-003 documentaba CINCO instancias del patron del proxy. Al terminar hay OCHO, y las tres
+ultimas no salieron de leer el codigo: salieron de EJECUTAR el marco.
+
+  6  SUITE-R27   «la firma es de la lista»       leia una FRASE en todo el archivo
+  7  revento()   «la herramienta revento»        leia una PALABRA en toda la salida
+  8  sellar      «lo ya sellado»                 leia el TAG ANTERIOR
+
+LA OCTAVA ES LA MAS INSTRUCTIVA. «El tag anterior» funcionaba mientras la version en curso no
+estuviera etiquetada — y NUNCA lo habia estado, porque hasta hoy nadie habia llegado a sellar de
+verdad. En cuanto se creo v10.0.0, las 21 tareas de EP-017 —que estan DENTRO de el— aparecieron
+como deuda: 21 contra un umbral de 3, bloqueando G2 justo despues de sellar. Ninguna lectura del
+codigo lo habria dado.
+
+QUE SE ENTREGA:
+  SUJETOS          registro con «establece» y «noEstablece» por comprobacion. «null» es una
+                   DECLARACION, no una celda vacia — la distincion de PT-058 aplicada a una
+                   declaracion en vez de a una cifra.
+  verify-suite     falla si el sujeto esta incompleto, y falla si el limite NO LLEGA AL MENSAJE.
+                   Y PUBLICA la cobertura: 3 de 107 reglas que emiten.
+  sellar paso 1    la guia de migracion ENUMERA las reglas nuevas. Antes no comprobaba NADA:
+                   era una linea de una lista, y por eso SUITE-R57 quedo fuera de la 10.0.0.
+  revento()        mira la TRAZA DE PILA, no nombres de clases de error.
+
+LA MITAD QUE HACE TRABAJO es que el limite llegue al MENSAJE. En las ocho instancias, cuando el
+limite estaba escrito vivia en un COMENTARIO del codigo fuente — donde solo lo ve quien ya esta
+leyendo el codigo, o sea quien no lo necesita.
+
+AC-03 SE ESTRECHO EN PHASE 3, y se dice. El intake prometia contrastar el sujeto con lo que la
+funcion LEE, y eso exige entender el codigo: no es mecanizable. Entregar una comprobacion de
+PRESENCIA llamandola contraste habria sido la NOVENA instancia, escrita por la tarea que cierra
+el patron.
+
+revento(): MAS COBERTURA Y MENOS FALSOS POSITIVOS A LA VEZ. Seis de sus siete patrones eran
+nombres de clases de error —cualquier texto que hable de errores los tiene— y el septimo,
+«at file:///», tampoco servia: un reviente en contexto eval imprime «at [eval]:1:1» y habria
+FALLADO. Suele ser la senal de que el cambio era pasar del proxy al hecho, y no un umbral.
+
+LA COBERTURA SE PUBLICA Y ES DEL 3 %. Sin esa linea, «sin errores de coherencia» diria que el
+marco esta cubierto cuando cubre el 3 %. Adopcion declarada como RIGE_DESDE: hay 313 emisiones y
+105 reglas que emiten, y exigirlo a todas de golpe nace con cientos de fallos.
+
+TRES DEFECTOS MIOS, los tres del mismo linaje: «file://» con ruta RELATIVA reviento diez casos y
+el arnes solo dice «la herramienta revento»; aserte contra «[]», que para grep es una CLASE DE
+CARACTERES, y cuatro casos no casaban su propia salida; y escapes de un RegExp en un heredoc por
+DECIMA vez, resuelto como siempre QUITANDO la necesidad en vez de escapando mejor.
+
+LO QUE NO SE VERIFICA, declarado: que el sujeto declarado sea CIERTO. Un autor puede escribir
+«establece que el grafo describe el codigo» sobre una funcion que mira mtime. Lo que si impide es
+lo que paso ocho veces: que nadie se hiciera la pregunta.
+
+bateria: 1131 -> 1145 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #163

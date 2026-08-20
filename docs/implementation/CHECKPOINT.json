@@ -1,19 +1,22 @@
 {
-  "pt": "PT-085",
+  "pt": "PT-087",
   "type": "BUG",
-  "epic": "EP-017",
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
+  "epic": "EP-018",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "trabajo",
-  "sha": "555ac3180cea706d7c6744f0d87aa674822337e4",
-  "sha_corto": "555ac31",
+  "sha": "a39df10288475173fdb4164f132784c3cae57efb",
+  "sha_corto": "a39df10",
   "sucio": true,
   "archivos": [
-    "docs/implementation/SESSION_LOG.md"
+    "changes/PT-087-la-comprobacion-declara-que-hecho-establece/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PT-085 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-20"
 }

@@ -1,0 +1,9 @@
+# PT-087 · OCTAVA instancia · «tag anterior» era un proxy de «lo ya sellado»
+
+Con «el tag ANTERIOR», recien creado v10.0.0:
+  deuda de sellado   21 de lotes CERRADOS · umbral 3
+  PT-066 .. PT-086   — las 21 tareas de EP-017, que ESTAN dentro de v10.0.0
+
+Con «el tag MAS ALTO»:
+  deuda de sellado   0 de lotes CERRADOS · umbral 3
+                     Las tareas de un lote ABIERTO no cuentan: EXEC-R03 hace del lote

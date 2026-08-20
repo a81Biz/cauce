@@ -54,6 +54,8 @@ import {
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
   sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
 } from './patrones.mjs';
+// PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
+import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
 // PT-064 · separador de campos para `git log`: no aparece en un nombre ni en un asunto.
@@ -2348,7 +2350,15 @@ const VERSION_DEL_PROYECTO = reg?.suite_version ?? '0.0.0';
 function sellar() {
   const idsDelTag = (() => {
     const tag = (gitDe(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
-      .trim().split(/\s+/).filter(Boolean).find((t) => t !== `v${VERSION_DEL_PROYECTO}`);
+      // PT-087 · «el tag anterior» era un PROXY de «lo ya sellado». Se escribio cuando la
+      // version en curso todavia NO estaba etiquetada, asi que saltarse su propio tag era
+      // inofensivo. En cuanto se sella de verdad deja de serlo: recien creado v10.0.0, las 21
+      // tareas de EP-017 —que ESTAN dentro de el— aparecian como deuda sin sellar, y con
+      // umbral 3 eso bloquea G2 justo despues de haber sellado.
+      //
+      // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
+      // exista, sea o no el de la version en curso.
+      .trim().split(/\s+/).filter(Boolean)[0];
     if (!tag) return { tag: null, ids: null };
     const j = gitDe(['show', `${tag}:docs/implementation/REGISTRY.json`], { crudo: true });
     if (!j) return { tag, ids: null };
@@ -2401,9 +2411,44 @@ function sellar() {
     di('  indistinguible de una que nadie miro, y por eso no pasa.');
   }
 
+  const RE_LINEA_CH = new RegExp('\r?\n');
+  const RE_ENTRADA_CH = new RegExp('^## [0-9]+[.][0-9]+[.][0-9]+ ');
+  const SALTO_CH = String.fromCharCode(10);
+  // ── PT-087 · el paso 1 comprueba el HECHO, no que la entrada exista ───────
+  //
+  // QUINTA instancia del patron. Este paso era una linea de una lista: no comprobaba nada.
+  // Yo mire a mano que la entrada del CHANGELOG existiera y DI POR HECHO que enumeraba lo
+  // nuevo. No lo hacia — SUITE-R57 quedo fuera de la guia de la 10.0.0.
+  //
+  // QUE ESTABLECE: que toda regla cuya version de entrada es la vigente esta NOMBRADA en la
+  //   entrada del CHANGELOG de esa version.
+  // QUE NO ESTABLECE: que lo que la guia diga de ella sea correcto ni suficiente.
+  const entradaDeLaVersion = (() => {
+    const fCh = join(ROOT, 'docs', 'methodology', 'CHANGELOG.md');
+    const ch = existsSync(fCh) ? readFileSync(fCh, 'utf8') : null;
+    if (!ch) return null;
+    const lineas = ch.split(RE_LINEA_CH);
+    const i = lineas.findIndex((l) => l.startsWith(`## ${VERSION_DEL_PROYECTO} `));
+    if (i < 0) return null;
+    const j = lineas.findIndex((x, k) => k > i && RE_ENTRADA_CH.test(x));
+    return lineas.slice(i, j < 0 ? lineas.length : j).join(SALTO_CH);
+  })();
+  const fueraDeLaGuia = reglasNuevasFueraDeLaGuia(RIGE_DESDE, VERSION_DEL_PROYECTO, entradaDeLaVersion);
+  di('');
+  if (entradaDeLaVersion === null) {
+    di(`  guia de migracion  SIN ENTRADA para ${VERSION_DEL_PROYECTO} en CHANGELOG.md. SUITE-R19 la exige.`);
+  } else if (fueraDeLaGuia && fueraDeLaGuia.length) {
+    di(`  guia de migracion  ${fueraDeLaGuia.length} regla(s) nueva(s) NO nombradas: ${fueraDeLaGuia.join(', ')}.`);
+    di('                     Un proyecto destino se encontraria la regla sin una linea que se la');
+    di('                     explique. Nombrarlas es el minimo; que la instruccion sirva no se');
+    di('                     comprueba aqui.');
+  } else {
+    di('  guia de migracion  enumera las reglas que entran con esta version.');
+  }
+
   di('');
   di('  ── lo que falta para sellar ──────────────────────────────────────────');
-  di('  1 · entrada en CHANGELOG.md con su guia de migracion        [SUITE-R19]');
+  di('  1 · entrada en CHANGELOG.md que ENUMERE las reglas nuevas   [SUITE-R19]');
   di('  2 · node tools/version.mjs --aplicar   (los 21 documentos)');
   di('  3 · node tools/build-core.mjs          (CORE regenerado)');
   di('  4 · bash tools/selftest.sh             BATERIA COMPLETA, no parcial');

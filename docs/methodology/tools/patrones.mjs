@@ -1143,3 +1143,106 @@ export function mergesSinConstancia(merges, constancias, firmantes) {
     .filter((m) => !dias.has(String(m?.fecha ?? '').slice(0, 10)))
     .map((m) => ({ sha: m.sha, fecha: m.fecha }));
 }
+
+
+/**
+ * PT-087 · El SUJETO de una comprobacion: que hecho pretende establecer, y cual NO.
+ *
+ * Siete veces seguidas el marco comprobo un proxy barato en lugar del hecho, y las siete
+ * tienen la misma forma: el observable es mas barato que el sujeto, y EL HUECO ENTRE LOS DOS
+ * NO ESTABA ESCRITO EN NINGUN SITIO.
+ *
+ *   SUITE-R34   «el estado dice la verdad»          leia la FECHA del archivo
+ *   FDGE-R43    «el grafo describe el codigo»       leia si se MOVIERON archivos
+ *   audit       «la regla tiene verificador»        leia si su ID APARECE
+ *   regla       «que dice una regla»                leia la PRIMERA LINEA que la cita
+ *   sellar 1    «la guia enumera las nuevas»        leia que la entrada EXISTA
+ *   SUITE-R27   «la firma es de la lista»           leia una FRASE en todo el archivo
+ *   revento()   «la herramienta revento»            leia una PALABRA en toda la salida
+ *
+ * QUE ESTABLECE este mecanismo: que la comprobacion DECLARA su sujeto y su limite, y que el
+ *   limite LLEGA AL MENSAJE que el usuario lee.
+ * QUE NO ESTABLECE: que el sujeto declarado sea cierto. Un autor puede escribir «establece que
+ *   el grafo describe el codigo» sobre una funcion que mira mtime, y esto lo aceptara.
+ *   Comprobarlo exigiria entender el codigo, y prometerlo seria la OCTAVA instancia.
+ *
+ * Lo que si impide es lo que paso siete veces: que nadie se hiciera la pregunta, y que el
+ * hueco no existiera por escrito donde el usuario lo ve.
+ *
+ * ADOPCION DECLARADA, no cobertura total. Hay 313 emisiones y 105 reglas que emiten; exigirlo
+ * a todas de golpe nace con cientos de fallos, y una comprobacion que nace roja se apaga
+ * (PT-023). La tabla crece; lo que la hace util es que NADIE PUEDA QUEDARSE FUERA EN SILENCIO.
+ */
+export const SUJETOS = {
+  'SUITE-R09': {
+    establece: 'ninguna linea anterior del ledger desaparecio ni cambio desde el tag',
+    noEstablece: 'correccion legitima de una falsificacion',
+  },
+  'EXEC-R04': {
+    establece: 'existe constancia con un nombre de firmantes para cada merge a la principal',
+    noEstablece: 'NO prueba que la autorización',
+  },
+  'SUITE-R01': {
+    establece: 'nada: es una regla sombrilla y se instancia en FDGE-R23, FDGE-R24, PTSA-R14 y SUITE-R11',
+    noEstablece: null,   // declarada NO_VERIFICABLE: no hay mensaje donde poner un limite
+  },
+};
+
+/** El sujeto declarado de `id`, o `null` si la regla todavia no lo declara. */
+export const sujetoDe = (id) => SUJETOS[id] ?? null;
+
+/**
+ * PT-087 · Las reglas del registro cuyo sujeto esta INCOMPLETO.
+ *
+ * Una celda vacia no pasa, por lo mismo que no pasa en LAYOUT ni en SELLO (FND-R22): es
+ * indistinguible de una que nadie miro. `noEstablece: null` SI vale, y es distinto de vacio:
+ * es una declaracion explicita de que no hay limite que expresar — el caso de una regla que
+ * no se verifica en absoluto.
+ */
+export function sujetosIncompletos(sujetos = SUJETOS) {
+  return Object.entries(sujetos ?? {})
+    .filter(([, s]) => !String(s?.establece ?? '').trim() || s?.noEstablece === undefined)
+    .map(([id]) => id);
+}
+
+/**
+ * PT-087 · El limite declarado tiene que LLEGAR AL MENSAJE.
+ *
+ * Es la mitad que hace trabajo. En las siete instancias, cuando el limite estaba escrito vivia
+ * en un COMENTARIO del codigo fuente — donde solo lo ve quien ya esta leyendo el codigo, o sea
+ * quien no lo necesita. Un limite que no llega al mensaje no protege a nadie.
+ *
+ * `emisiones` es {herramienta: texto}. Se busca la frase de `noEstablece` en el texto de la
+ * herramienta; basta con que aparezca en una. Las reglas con `noEstablece: null` se saltan.
+ */
+export function limitesQueNoLleganAlMensaje(sujetos, emisiones) {
+  const cuerpos = Object.values(emisiones ?? {}).join('\n');
+  return Object.entries(sujetos ?? {})
+    .filter(([, s]) => s?.noEstablece != null && String(s.noEstablece).trim())
+    .filter(([, s]) => !cuerpos.includes(String(s.noEstablece).trim()))
+    .map(([id]) => id);
+}
+
+/**
+ * PT-087 · QUINTA instancia del patron: la guia de migracion ENUMERA las reglas nuevas.
+ *
+ * El paso 1 de «tracker sellar» no comprobaba nada: era una linea de una lista. Yo verifique a
+ * mano que la entrada del CHANGELOG existiera y DI POR HECHO que enumeraba lo nuevo. No lo
+ * hacia: SUITE-R57 —regla HARD que bloquea G2— quedo fuera de la guia de la 10.0.0, y un
+ * proyecto destino se habria encontrado G2 bloqueada sin una linea que se lo explicara.
+ *
+ * QUE ESTABLECE: que toda regla cuya version de entrada es la vigente aparece NOMBRADA en la
+ *   entrada del CHANGELOG de esa version.
+ * QUE NO ESTABLECE: que lo que la guia diga de ella sea correcto ni suficiente. Nombrarla es
+ *   el minimo comprobable; que la instruccion sirva lo sabe quien la sigue.
+ *
+ * `entrada` es el texto de la entrada del CHANGELOG de `version`, ya recortado.
+ */
+export function reglasNuevasFueraDeLaGuia(rigeDesde, version, entrada) {
+  if (!entrada) return null;                 // sin entrada no hay guia que contrastar
+  const v = String(version ?? '').split('.').map((n) => Number(n) || 0);
+  return Object.entries(rigeDesde ?? {})
+    .filter(([, d]) => d[0] === v[0] && d[1] === v[1] && d[2] === v[2])
+    .filter(([id]) => !String(entrada).includes(id))
+    .map(([id]) => id);
+}

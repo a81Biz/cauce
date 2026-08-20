@@ -98,7 +98,20 @@ bad()  {
 # Una herramienta que REVIENTA no imprime el patron que se le busca, asi que chkno la daba
 # por buena: el arnes certificaba un verificador roto. Se rompio verify-qa a proposito y dos
 # casos siguieron en verde. Ahora un rastro de excepcion invalida el caso, pase lo que pase.
-revento() { printf '%s' "$1" | grep -qE 'SyntaxError|ReferenceError|TypeError|RangeError|node:internal|at file:///'; }
+# PT-087 · SEPTIMA instancia del patron del proxy, y la cazo la bateria contra PT-088.
+#
+# Esta funcion buscaba nombres de CLASES DE ERROR en la salida. Un comentario de
+# verify-fdge.mjs que mencionaba una de ellas puso TRECE casos en rojo: los que hacen
+# «cat» de ese archivo. Ninguna herramienta habia reventado — el archivo CONTENIA la
+# palabra.
+#
+# El sujeto es «el proceso termino de forma anomala». Su observable no es una palabra:
+# es la TRAZA DE PILA, y su forma es inconfundible — «at» indentado seguido de
+# «:linea:columna». Medido: un reviente real imprime siempre marcos de esa forma, y un
+# archivo que menciona una clase de error no imprime ninguno.
+#
+# No se pierde cobertura: hay un caso que revienta node de verdad y lo demuestra.
+revento() { printf '%s' "$1" | grep -qE '^[[:space:]]+at .*:[0-9]+:[0-9]+'; }
 # PT-050 · `chk` y `chkno` son las DOS UNICAS puertas por las que pasa cualquier caso: filtrar
 # aqui cubre los 453 sin tocar ninguno, y sin que añadir uno mañana obligue a acordarse de nada.
 #
@@ -4621,6 +4634,75 @@ chk   "…y audit la clasifica, no la deja PENDIENTE" "NO_VERIFICABLE   6" \
 
 chk   "…y las tres salen de PENDIENTE"             "PENDIENTE        122" \
   sh -c 'node "$1/docs/methodology/tools/audit.mjs" "$1/docs/methodology" 2>&1 | grep PENDIENTE' _ "$RAIZ"
+
+sec "── PT-087 · la comprobacion declara que hecho establece ──"
+#
+# H-003 de PTSA-2026-08-20. SIETE instancias del mismo patron: el observable es mas barato que
+# el sujeto y el hueco entre los dos no estaba escrito en ningun sitio. Las dos ultimas se
+# encontraron DENTRO de este lote — la sexta escribiendo un intake y la septima cazada por
+# esta misma bateria contra el trabajo de PT-088.
+
+# ── el registro de sujetos ──────────────────────────────────────────────────
+# El modulo se pasa por ENTORNO y como ruta RELATIVA: «file://» exige ruta absoluta y en
+# Windows la del arnes no lo es, asi que import() reventaba en los diez casos. Lo escondia
+# que el arnes solo dice «la herramienta revento» — y esa es, otra vez, la diferencia entre
+# el sujeto y el observable.
+PAT() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_ARGS="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](...a);
+  // «[]» es una clase de caracteres para grep y ninguna asercion podia casarlo.
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+
+chk   "una celda vacia del sujeto no pasa"       '["X"]' \
+  PAT sujetosIncompletos '[{"X":{"establece":"","noEstablece":"a"}}]'
+chk   "…y falta noEstablece tampoco"             '["X"]' \
+  PAT sujetosIncompletos '[{"X":{"establece":"a"}}]'
+# «null» NO es vacio: declara explicitamente que no hay limite que expresar. Es la distincion
+# de PT-058 —null no es cero— aplicada a una declaracion en vez de a una cifra.
+chk   "…y «null» SI vale: es una declaracion"    "VACIO" \
+  PAT sujetosIncompletos '[{"X":{"establece":"a","noEstablece":null}}]'
+
+# La mitad que hace trabajo: un limite que vive solo en un comentario protege a quien ya esta
+# leyendo el codigo, o sea a quien no lo necesita.
+chk   "un limite que no llega al mensaje CAE"    '["X"]' \
+  PAT limitesQueNoLleganAlMensaje '[{"X":{"establece":"a","noEstablece":"zzz"}},{"t":"hola"}]'
+chk   "…y uno que si llega, pasa"                "VACIO" \
+  PAT limitesQueNoLleganAlMensaje '[{"X":{"establece":"a","noEstablece":"zzz"}},{"t":"dice zzz"}]'
+
+# Sobre el arbol REAL: las tres de PT-088 declaran sujeto y su limite llega al mensaje.
+chk   "las tres del arbol real estan completas"  "VACIO" \
+  sh -c 'MTH_MOD="$1/docs/methodology/tools/patrones.mjs" node -e "import(require(String.fromCharCode(117,114,108)).pathToFileURL(process.env.MTH_MOD).href).then(m=>console.log((m.sujetosIncompletos().length ? m.sujetosIncompletos().join(' ') : 'VACIO')))"' _ "$RAIZ"
+
+chk   "verify-suite publica cuantas lo declaran" "declaran su sujeto" \
+  sh -c 'node "$1/docs/methodology/tools/verify-suite.mjs" "$1/docs/methodology" 2>&1' _ "$RAIZ"
+
+# ── la QUINTA instancia: la guia de migracion ENUMERA lo nuevo ───────────────
+chk   "una guia que olvida una regla nueva CAE"  '["B-R2"]' \
+  PAT reglasNuevasFueraDeLaGuia '[{"A-R1":[10,0,0],"B-R2":[10,0,0]},"10.0.0","trae A-R1"]'
+chk   "…y una que las nombra todas, pasa"        "VACIO" \
+  PAT reglasNuevasFueraDeLaGuia '[{"A-R1":[10,0,0],"B-R2":[10,0,0]},"10.0.0","trae A-R1 y B-R2"]'
+# Sin entrada devuelve null y NO lista vacia: «no hay guia que contrastar» no es «la guia esta
+# bien». Es la misma distincion que PT-058 fijo para las cifras.
+chk   "…y sin entrada dice null, no «vacio»"     "null" \
+  PAT reglasNuevasFueraDeLaGuia '[{"A-R1":[10,0,0]},"10.0.0",null]'
+chk   "sellar comprueba la guia, no que exista"  "guia de migracion" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar 2>&1' _ "$RAIZ"
+
+# ── la SEPTIMA instancia: revento() mira la traza, no la palabra ─────────────
+#
+# Un comentario de PT-088 que nombraba una clase de error puso TRECE casos en rojo: los que
+# hacen «cat» de ese archivo. El sujeto es «el proceso termino de forma anomala», y su
+# observable es la TRAZA DE PILA — «at» indentado seguido de «:linea:columna».
+chk   "revento() caza un reviente de verdad"     "SI" \
+  sh -c 'if node -e "undefinedFn()" 2>&1 | grep -qE "^[[:space:]]+at .*:[0-9]+:[0-9]+"; then echo SI; else echo NO; fi'
+chk   "…y NO acusa a quien solo nombra el error" "NO" \
+  sh -c 'if printf "%s" "esto habla de un TypeError y de un ReferenceError" | grep -qE "^[[:space:]]+at .*:[0-9]+:[0-9]+"; then echo SI; else echo NO; fi'
+chk   "…y revento() ya no busca la palabra"      "NO" \
+  sh -c 'if grep -q "revento() { printf .%s. \"\$1\" | grep -qE .SyntaxError" "$1/docs/methodology/tools/selftest.sh"; then echo SI; else echo NO; fi' _ "$RAIZ"
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
