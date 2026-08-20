@@ -36,3 +36,4 @@ Los identificadores los asigna `REGISTRY.json` (`SUITE-R08`). Este archivo no as
 | PT-079 | BUG | S1 | INTEGRATED | EP-017 | Lo que se aprende se hace mecanico: la trazabilidad sobrevive a la rama |
 | PT-080 | BUG | S2 | READY | EP-017 | Una regla no se define dos veces: FDGE-R22, R40 y R41 tienen dos textos y los tres divergen |
 | PT-081 | BUG | S1 | READY | EP-017 | Una regla nueva no rige hacia atras, y la version lo dice: EP-017 es la 10.0.0 |
+| PT-082 | BUG | S1 | READY | EP-017 | Un caso no depende de quien lo ejecuta, y la rama de integracion no acepta rojo |

@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 81,
+    "PT": 82,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1745,7 +1745,7 @@
       "severity": "S1",
       "complexity": "MAJOR",
       "track": "STANDARD",
-      "phase": 1,
+      "phase": 4,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -2079,6 +2079,40 @@
         "fecha": "2026-08-19"
       },
       "issue": 151
+    },
+    {
+      "id": "PT-082",
+      "slug": "un-caso-no-depende-de-quien-lo-ejecuta",
+      "created": "2026-08-19",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "TRIVIAL",
+      "track": "STANDARD",
+      "phase": 9,
+      "structural": false,
+      "epic": "EP-017",
+      "suite_version": "9.0.0",
+      "title": "Un caso no depende de quien lo ejecuta, y la rama de integracion no acepta rojo",
+      "origin": "Encontrado el 2026-08-19 al ejecutar la G4: CI en rojo en el PR #152 por el caso «viabilidad nombra la sesion abierta», que corre contra el repositorio real usando la identidad de la maquina. En CI git config user.name es la del runner, no casa con «personas», y marcaDe devuelve null — que es PT-068 haciendo lo correcto. Novena vez del patron «probar donde trabajo, no donde se decide». Y el agravante: los PR #148 y #149 se fusionaron CON ESE ROJO porque «trabajo» no tenia proteccion de rama, asi que el check era consultivo.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1902,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 2815,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 31025,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
+        "fecha": "2026-08-19"
+      },
+      "issue": 153
     }
   ]
 }

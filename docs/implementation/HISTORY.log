@@ -3242,3 +3242,73 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-082 — BUG: un caso no depende de quien lo ejecuta, y la rama de integración no acepta rojo
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S1 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-082-un-caso-no-depende-de-quien-lo-ejecuta
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que un caso del arnés no afirme un resultado que depende de quién lo ejecuta, y que la
+rama de integración rechace un merge en rojo sin depender de que nadie mire.
+
+Causa raíz, DOS defectos independientes que se tapaban el uno al otro:
+  A. El caso «viabilidad nombra la sesion abierta» corría con TRR —contra el repositorio real— y
+     viabilidad resuelve la identidad con «git config user.name» contrastada contra «personas».
+     En CI esa identidad es la del runner, no casa, y marcaDe devuelve null. El CÓDIGO NO ESTÁ
+     MAL: es PT-068 negándose a atribuir la sesión de otra persona, que es su cometido. Lo que
+     estaba mal era el caso. Novena vez del patrón «probar donde trabajo, no donde se decide»,
+     que el HANDOFF ya lista — la primera que llega a main.
+  B. «trabajo» no tenía protección de rama, así que el check «marco» era CONSULTIVO. Los PR #148
+     y #149 se fusionaron con ese rojo porque «gh pr merge» no lo mira y yo tampoco.
+
+Y un tercer hallazgo dentro del if: tenía DOS salidas y UNA SOLA tenía caso. La otra —«no hay
+sesión abierta»— era justo la que CI ejecutaba.
+
+Mi primer diagnóstico fue FALSO y consta: dije que CI llevaba en rojo por falta de PR a main.
+verificacion.yml corre en TODOS los pull_request y el rojo estaba a la vista. Lo corrigió el
+firmante preguntando qué evitaríamos forzando PRs a main. La respuesta era: nada.
+
+Solución: la identidad va INYECTADA por GIT_CONFIG_COUNT —mecanismo de git, sin tocar ninguna
+configuración— con dos helpers, YO y OTRO, y CUATRO casos: dos por cada rama del if. Sin los de
+OTRO, alguien podría hacer que marcaDe devuelva la marca huérfana —deshaciendo PT-068— y los dos
+primeros seguirían verdes.
+Y «trabajo» protegida con el mismo contrato que main: required_status_checks ["marco"], strict,
+enforce_admins. Descartada la alternativa de consultar «gh pr checks» desde verify-fdge: sería
+evitable no ejecutándolo —el defecto que PT-075 documentó— y depende de tener gh autenticado.
+enforce_admins a propósito: una protección que se salta con un clic convierte la excepción
+declarada en un gesto sin rastro.
+
+Archivos modificados: tools/selftest.sh · configuración de rama en GitHub (documentada en
+  changes/PT-082/acciones-humanas.md con su comando, su comprobación y cómo se revierte)
+
+Evidencia: evidence/PT-082/ · manifest.json · self-review.md ·
+  salidas/reproduccion.txt · salidas/dos-identidades.txt · salidas/proteccion.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+  CASO          ANTES depende de la máquina    DESPUES identidad inyectada, 4 casos
+  RAMA DEL IF   ANTES 1 de 2 con caso          DESPUES 2 de 2
+  «trabajo»     ANTES 404 Branch not protected DESPUES ["marco"] · strict · enforce_admins
+selftest 1058 -> 1060, cero fallos.
+
+Delta real vs planificado: el orden importa y no era obvio. Primero el CASO y después la
+  protección: con la protección puesta y CI en rojo, ni el PR que arregla la protección se puede
+  fusionar. El candado con la llave dentro.
+
+Tres desviaciones declaradas: fusioné los PR #148 y #149 con CI en ROJO sin ejecutar
+  «gh pr checks» —FDGE-R34 hace de la verificación precondición de G4 justo para esto, y me la
+  salté dos veces seguidas; es la causa de que esta tarea exista— · diagnostiqué mal la causa la
+  primera vez y lo corrigió una pregunta del firmante · estuve haciendo commits directos a
+  «trabajo» contra FDGE-R19, que es lo que esta protección impide desde ahora.
+
+No verificado, declarado: que no exista una DÉCIMA aparición del patrón —detectarlo exige
+  ejecutar con dos entornos y comparar, no una expresión regular— y que la protección siga puesta
+  mañana: es configuración de GitHub, ninguna herramienta del marco la lee, y la evidencia es una
+  foto con fecha.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: issue #153

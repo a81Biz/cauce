@@ -1,0 +1,12 @@
+=== AC-01 · AC-02 · los cuatro casos, con las dos identidades ===
+fecha: 2026-08-19 · extraidos de la bateria completa
+
+  ✓ viabilidad nombra la sesion abierta
+  ✓ …y sigue dando su veredicto
+  ✓ otra identidad NO hereda la sesion
+  ✓ …y lo dice, no lo calla
+
+Los dos ultimos son la rama del if que NUNCA tuvo caso — y es la que CI ejecutaba.
+
+-- total --
+selftest: OK · 1060 casos
