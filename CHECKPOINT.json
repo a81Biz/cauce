@@ -3,8 +3,8 @@
   "type": "FEATURE",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "fix/alberto-martinez/PT-085-el-sello-de-version",
   "sha": "272c39bb8d7f78501dc8046a513ba4a60ef4686d",
   "sha_corto": "272c39b",
@@ -90,8 +90,8 @@
     "docs/methodology/tools/verify-fdge.mjs",
     "docs/methodology/tools/verify-suite.mjs"
   ],
-  "compuerta": null,
+  "compuerta": "G3",
   "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-20"
 }
