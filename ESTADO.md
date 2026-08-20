@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-19 · 12 allocation(es) viva(s).
+Proyectado el 2026-08-19 · 11 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -20,4 +20,3 @@ Proyectado el 2026-08-19 · 12 allocation(es) viva(s).
 | PT-073 | CHORE | READY | 1 | — | — | 27f5351 |
 | PT-077 | BUG | READY | 1 | — | — | ab50d99 |
 | PT-078 | FEATURE | READY | 1 | — | — | 80c9b3d |
-| PT-079 | BUG | READY | 10 | fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico | — | 62ac858 |

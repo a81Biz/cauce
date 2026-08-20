@@ -2,19 +2,22 @@
   "pt": "PT-079",
   "type": "BUG",
   "epic": "EP-017",
-  "status": "READY",
+  "status": "INTEGRATED",
   "phase": 10,
-  "fase": "Cierre",
-  "rama": "fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico",
+  "fase": null,
+  "rama": "trabajo",
   "sha": "3d78a4d03af5ee40f0dbea3b1ce9d29aa86d95f3",
   "sha_corto": "3d78a4d",
   "sucio": true,
   "archivos": [
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [],
-  "siguiente": "PHASE 10 · Cierre — cierra con: estado terminal en la rama por defecto, y ENTONCES cerrar (SUITE-R46). Es la última fase.",
+  "siguiente": "PT-079 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-19"
 }
