@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-067-el-denominador-de-la-cobertura-esta-incompleto",
   "sha": "c7ef2b2419637b6d5d1da52e1ab9abdd16aa2f02",
   "sha_corto": "c7ef2b2",
@@ -28,11 +28,8 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }
