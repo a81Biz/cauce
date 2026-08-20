@@ -5,20 +5,15 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-20 · 13 allocation(es) viva(s).
+Proyectado el 2026-08-20 · 8 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
-| EP-017 |  | READY | 1 | — | — | 5ab0bda |
-| PT-069 | FEATURE | READY | 9 | — | — | b39dfd1 |
-| PT-070 | BUG | READY | 9 | — | — | b39dfd1 |
-| PT-071 | BUG | READY | 9 | — | — | b39dfd1 |
-| PT-073 | CHORE | READY | 9 | — | — | b39dfd1 |
-| PT-077 | BUG | READY | 9 | — | — | b39dfd1 |
-| PT-078 | FEATURE | READY | 9 | — | — | b39dfd1 |
-| PT-080 | BUG | READY | 9 | — | — | b39dfd1 |
-| PT-083 | BUG | READY | 9 | — | — | b39dfd1 |
-| PT-084 | BUG | READY | 9 | — | — | b39dfd1 |
-| PT-085 | BUG | READY | 9 | — | — | 272c39b |
-| PT-086 | CHORE | READY | 9 | — | — | — |
+| EP-018 |  | IN_PROGRESS | 1 | — | — | fe6ad94 |
+| PT-087 | BUG | READY | 2 | — | — | a39df10 |
+| PT-089 | BUG | READY | 1 | — | — | fe6ad94 |
+| PT-090 | BUG | READY | 1 | — | — | fe6ad94 |
+| PT-091 | BUG | READY | 1 | — | — | fe6ad94 |
+| PT-092 | CHORE | READY | 1 | — | — | fe6ad94 |
+| PT-093 | CHORE | READY | 1 | — | — | fe6ad94 |
