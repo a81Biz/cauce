@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "fix/alberto-martinez/PT-067-el-denominador-de-la-cobertura-esta-incompleto",
   "sha": "c7ef2b2419637b6d5d1da52e1ab9abdd16aa2f02",
   "sha_corto": "c7ef2b2",
@@ -26,11 +26,8 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-19"
 }
