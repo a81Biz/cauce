@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "trabajo",
   "sha": "25694370557dbd967c29342b7b85aea98775f4db",
   "sha_corto": "2569437",
@@ -21,17 +21,11 @@
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-072/",
+    "docs/implementation/evidence/PT-082/",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-19"
 }
