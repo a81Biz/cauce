@@ -52,3 +52,8 @@
 | PT-083 | BUG | S1 | INTEGRATED | EP-017 | La plantilla que distribuye el paquete pasa su propio verificador |
 | PT-084 | BUG | S1 | INTEGRATED | EP-017 | La plataforma es opcional o no lo es |
 | PT-085 | BUG | S1 | INTEGRATED | EP-017 | El sello de version: el estado retomable dice la verdad y lo integrado no se acumula |
+| PT-087 | BUG | S1 | DRAFT | EP-018 | La comprobacion declara que hecho establece |
+| PT-088 | BUG | S1 | DRAFT | EP-018 | Las reglas que sostienen el dominio se verifican o se declaran |
+| PT-089 | BUG | S2 | DRAFT | EP-018 | La divergencia entre el registro y el YAML deja de apagar comprobaciones |
+| PT-090 | BUG | S2 | DRAFT | EP-018 | La frescura del grafo es comprobable en cualquier clon |
+| PT-091 | BUG | S3 | DRAFT | EP-018 | Las cifras del inventario se derivan, no se transcriben |

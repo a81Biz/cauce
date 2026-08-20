@@ -4091,3 +4091,59 @@ de decir que no estaba en condiciones: la auditoria informa la decision, no lleg
 
 Compuertas: G4, el tag y PUBLICAR siguen siendo del firmante. Publicar NO esta autorizado.
 Trazabilidad externa: PTSA/RESUMEN.md
+
+## EP-018 — LOTE ABIERTO: lo que la auditoria encontro
+Fecha: 2026-08-20 · Estado: DRAFT · Version: 10.0.0
+Estructural: no
+
+Que se pidio: «atendemos todo, abre una epica con estos hallazgos, el que descubriste al cierre
+anterior mas esta auditoria».
+
+DOS FUENTES, y por eso es un lote y no siete tareas sueltas:
+  (a) el defecto que aparecio SELLANDO la 10.0.0 — el paso 1 de «tracker sellar» comprueba que
+      EXISTA entrada en el CHANGELOG con guia de migracion, no que la guia ENUMERE las reglas
+      nuevas, y por eso SUITE-R57 quedo fuera de ella.
+  (b) la auditoria PTSA-2026-08-20: nueve hallazgos, certificacion B, Health 79.9, coverage 0.89.
+
+SIETE TAREAS, en orden de dependencia tecnica y no de prioridad:
+  1  PT-088  S1  las reglas del dominio se verifican o se declaran     H-002
+  2  PT-087  S1  la comprobacion declara que hecho establece           H-003
+  3  PT-089  S2  la divergencia no apaga comprobaciones                H-004
+  4  PT-090  S2  la frescura del grafo viaja con el repositorio        H-005 · TD-17
+  5  PT-091  S3  las cifras se derivan, no se transcriben              H-007 · H-006
+  6  PT-093  S2  el limite de las compuertas se declara                H-009
+  7  PT-092  S2  ejecutar QA y FPGE                                    H-008 · TD-15
+
+PT-088 VA ANTES QUE PT-087 A PROPOSITO. PT-087 construye el mecanismo que obliga a declarar que
+hecho establece una comprobacion; PT-088 escribe TRES comprobaciones nuevas. Si PT-087 fuera
+primero, las tres naceran bajo un mecanismo sin un solo caso real que lo hubiera ejercitado. Al
+reves, las tres son el BANCO DE PRUEBAS del mecanismo: si no sabe expresar que mide SUITE-R09,
+esta mal, y se sabe antes de imponerlo a 224 reglas. Es la leccion de PT-085, que midio SUITE-R57
+antes de escribirla y encontro un candado con la llave dentro.
+
+LA SEXTA INSTANCIA DEL PATRON APARECIO ESCRIBIENDO ESTE INTAKE. verify-fdge rechazo el de PT-093
+por SUITE-R27 —«firma que no figura en firmantes»— cuando lo que habia era una CITA EN PROSA
+explicando que exige SUITE-R06. RE_QUIEN busca el verbo de integracion seguido de dos puntos en
+TODO el archivo, y RE_SIGN_BLOCK —que localiza el bloque de firma— ya existe tres lineas mas
+arriba: el hecho es identificable y la comprobacion no lo usa.
+
+Y VOLVIO A OCURRIR DOS VECES MAS, en la misma hora: al describir el defecto en el intake de
+PT-093 y al describirlo AQUI, en esta entrada. Tres falsos positivos seguidos, todos por hablar
+del defecto. Una comprobacion cuyo alcance es «todo el archivo» acusa a quien la documenta, y eso
+no es una anecdota: es la medida de cuanto se paga por mirar un proxy. Queda en el intake de
+PT-087, que es la tarea que lo cierra.
+
+LO QUE EL LOTE NO ARREGLA, dicho al firmar: el techo de la certificacion. Con H-002 y H-003
+cerrados, D1 sube a 90 y Health a ~93. Pero H-008 solo se cierra ejecutando QA y FPGE de verdad, y
+si esas dos encuentran lo que encontro PTSA, el score BAJA antes de subir. No es un riesgo del
+lote: es el lote funcionando.
+
+DOS TAREAS DEVUELVEN LA PELOTA AL FIRMANTE A MITAD, y se declara ahora en vez de descubrirse en
+PHASE 5: PT-093 pide una DECISION sobre como se declara el limite de las compuertas, y PT-092
+tiene que decidir que es «usar el sistema» para un paquete de linea de comandos sin navegador.
+
+LA FIRMA DEL INTAKE la escribio el agente citando la instruccion literal del firmante, con su
+limite declarado en el propio bloque. Es, literalmente, el limite que PT-093 existe para declarar.
+
+Compuertas: G1 propuesta, la resuelve el firmante. G4, el tag y PUBLICAR siguen siendo suyos.
+Trazabilidad externa: issue #162 · sub-issues #163..#169
