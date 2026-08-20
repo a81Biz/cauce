@@ -3,31 +3,26 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "trabajo",
   "sha": "c7ef2b2419637b6d5d1da52e1ab9abdd16aa2f02",
   "sha_corto": "c7ef2b2",
   "sucio": true,
   "archivos": [
+    "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/design.md",
     "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/discovery.md",
     "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/intake.md",
     "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/strategy.md",
+    "changes/PT-067-el-denominador-de-la-cobertura-esta-incompleto/traceability.md",
     "changes/PT-080-una-regla-no-se-define-dos-veces/",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-19"
 }
