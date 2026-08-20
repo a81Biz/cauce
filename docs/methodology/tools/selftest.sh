@@ -1656,9 +1656,22 @@ chk   "y llega al núcleo"                     "SUITE-R51"   cat "$SUITE/CORE.md
 # PT-036 . el enlace apunta a donde el contenido ESTA. Un issue se abre al EMPEZAR el trabajo, y
 # entonces su contenido solo existe en la rama de trabajo: apuntar a la principal daba 404 en el
 # momento en que mas se lee. Lo dijo quien lo intento abrir, no un caso.
-trlib "lo vivo enlaza la rama de trabajo"     "tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
-trlib "lo integrado enlaza la principal"      "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-95',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
-trlib "sin saber la rama, cae en la principal" "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+#
+# PT-079 . y arregla el 404 SIMETRICO: la rama efimera se borra al fusionar (FDGE-R19), asi
+# que el enlace que PT-036 hizo apuntar ahi moria con ella. 14 de 16 daban 404 al medirlo.
+#
+# Los dos tienen razon, y «refDurable» es la sintesis: el ref lo calcula el CONTEXTO mirando
+# donde esta el contenido de verdad —la rama de integracion, o el commit—, en vez de
+# deducirlo de en que rama corre el espejo. La intencion de estos casos NO cambia; cambia de
+# donde sale el ref que comprueban.
+trlib "lo vivo enlaza la rama de trabajo"     "tree/trabajo/"   "console.log(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}))"
+trlib "lo integrado enlaza la principal"      "tree/main/"   "console.log(m.cuerpoDeIssue({id:'PT-95',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',refDurable:'main'}))"
+# PT-079 · este caso CAMBIA de sentido, y es el nucleo del arreglo. Caer en la principal
+# cuando no se sabia la rama es LITERALMENTE lo que producia los enlaces muertos: apuntaba a
+# un sitio que podia no contener el directorio. Ahora, sin ref durable, NO se enlaza — y se
+# DICE (RULE-06). Un 404 silencioso es peor que una ruta sin enlace.
+trlibno "sin ref durable NO cae en la principal" "tree/main/"  "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+trlib   "…y lo dice en vez de callarlo"          "sin enlace"  "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
 # PT-048 · el cuerpo NO enlaza a un directorio que no existe. SUITE-R44 exime a un DEFERRED de
 # tener artefactos y PT-036 dice donde apunta el enlace: las dos correctas, y juntas producian un
 # 404 en el UNICO artefacto que un aplazado tiene. Se mira el directorio, no el estado: un PT
@@ -1670,10 +1683,10 @@ trlib "y cita la regla que lo exime"       "SUITE-R44" "console.log(m.cuerpoDeIs
 # «sin artefactos todavia» con «el enlace apunta a…» justo debajo. Lo vio mirar el issue
 # publicado, no leer el diff.
 trlibno "sin enlace, no explica el enlace"  "El enlace apunta"  "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'DEFERRED'},{url:'https://h/r',rama:'main',hayDirectorio:false}))"
-trlib "con directorio, el enlace sigue"    "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-98',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo',hayDirectorio:true}))"
+trlib "con directorio, el enlace sigue"    "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-98',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo',hayDirectorio:true}))"
 # El que protege a los demas: sin el dato, el comportamiento es el de HOY. Un undefined no es un
 # «no existe», y tratarlo como tal apagaria el enlace en TODOS los cuerpos.
-trlib "sin el dato, se comporta como hoy"  "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
+trlib "sin el dato, se comporta como hoy"  "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}))"
 trlib "y el cuerpo dice donde esta"           "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
 chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
 
@@ -1998,7 +2011,7 @@ chk   "SUITE-R43 sigue exigiendo respuesta"  "no avanza"   cat "$SUITE/RULES.md"
 # un issue es un 404. Lo vio una persona mirando el tablero: ninguna comprobacion detecta que un
 # enlace resuelve ni que un texto se contradice.
 EP1='{id:"EP-9",type:"EP",slug:"x",status:"IN_PROGRESS"}'
-OPC='{url:"https://github.com/o/r",rama:"main",tareas:[{id:"PT-1",issue:5,title:"uno"},{id:"PT-2",issue:6,title:"dos"}]}'
+OPC='{url:"https://github.com/o/r",rama:"main",refDurable:"main",tareas:[{id:"PT-1",issue:5,title:"uno"},{id:"PT-2",issue:6,title:"dos"}]}'
 trlib "el EP no se niega a si mismo"      "^LIMPIO$"   "console.log(/sin implementación/.test(m.cuerpoDeIssue($EP1,$OPC))?\"HAY\":\"LIMPIO\")"
 trlib "y dice que ES una implementacion"  "Implementación abierta"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
 trlib "el enlace es absoluto"             "https://github.com/o/r"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
