@@ -3976,3 +3976,174 @@ Compuertas: G1 · G2 · G3 delegadas al agente por el firmante con constancia ·
   ejecutada el 2026-08-19 como EXCEPCION DECLARADA registrada en SESSION_LOG.md · G4 de EP-017
   y PUBLICAR: del firmante, sin delegar.
 Trazabilidad externa: issue #127
+
+## SELLO 10.0.0 — el grafo, regenerado
+Fecha: 2026-08-20 · Estado: HECHO · Versión: 10.0.0
+Estructural: no
+
+Paso 5 de los ocho de «tracker sellar». Lo dispara una persona (FDGE-R32) y el firmante lo
+autorizó como EXCEPCIÓN DECLARADA, registrada en SESSION_LOG.md junto con G4 y el tag.
+
+/graphify sobre el alcance que declara REGISTRY.graph.scope — bin, docs/methodology/tools —
+sin ampliarlo ni recortarlo: 17 archivos de código, 692 nodos, 1041 aristas, 27 comunidades.
+Extracción AST solamente: el corpus es código y no hay documento que extraer semánticamente.
+
+REGISTRY.graph: generated 2026-08-15 -> 2026-08-20 · pt_at_generation 48 -> 86.
+
+QUÉ CAMBIA DE VERDAD, que es el punto de PT-085: el grafo obsoleto contestaba que patrones.mjs
+tiene 2 importadores. Son 8 —audit, build-core, migrate, tracker, verify-fdge, verify-patrones,
+verify-suite y version— y el grafo regenerado contesta 8. FDGE-R43 pasa de SUSPECT · 12 de 16 a
+al día, y con eso «tracker sellar» deja de tener filas pendientes del agente.
+
+SELLO.md queda con los cinco documentos de entrada resueltos: cuatro ACTUALIZADO y uno
+NO PROCEDE con motivo (Suite-CLAUDE-Template.md, porque EP-017 no cambió qué parametriza un
+proyecto destino).
+
+Compuertas: G4 y el tag siguen siendo del firmante. Publicar NO está autorizado.
+Trazabilidad externa: issue #127
+
+## SELLO 10.0.0 — dos defectos encontrados sellando
+Fecha: 2026-08-20 · Estado: HECHO · Versión: 10.0.0
+Estructural: no
+
+Con el grafo ya al día, «verify-suite» avisó de algo que llevaba abierto desde PT-085:
+
+  SUITE-R19  SUITE-R57 es una regla HARD nueva y no declara desde qué versión rige.
+
+DEFECTO 1 · SUITE-R57 no tenía fila en RIGE_DESDE (tools/patrones.mjs). Sin fila, «rige SIEMPRE»
+—es el comportamiento por defecto, y es el correcto para reglas antiguas— así que la 10.0.0 iba a
+publicarse con una regla HARD gobernando tareas escritas en agosto. Es EXACTAMENTE el defecto que
+PT-081 existe para eliminar, en la cuarta regla. El mecanismo que PT-081 dejó puesto
+—reglasNuevasSinVersion— fue lo que lo cazó: la comprobación funcionando, no yo leyendo.
+Arreglo: 'SUITE-R57': [10, 0, 0].
+
+DEFECTO 2 · La guía de migración de la 10.0.0 decía «Dos reglas nuevas» y enumeraba FDGE-R54 y
+SUITE-R56. SUITE-R57 nació después, en PT-085, y nadie volvió al CHANGELOG. Un proyecto destino
+que actualizara se habría encontrado G2 bloqueada sin una línea que se lo explicara.
+Arreglo: tercera fila en la tabla de migración, con el comando y el umbral declarable, y la
+sección «Las tres reglas nuevas» con por qué se cuenta por LOTE CERRADO y no por tarea.
+
+LA LECCIÓN, y es la del lote otra vez: el paso 1 de «tracker sellar» comprueba que EXISTA entrada
+en el CHANGELOG con guía de migración. No comprueba que la guía ENUMERE las reglas nuevas. Un
+proxy barato en lugar del hecho — la misma forma que SUITE-R34, FDGE-R43, audit y regla. Se deja
+DECLARADO y no se arregla aquí: convertirlo en comprobación es trabajo de otra tarea, y hacerlo
+de paso mientras se sella es justo la prisa que este lote documentó.
+
+Se detuvo la batería en curso al descubrirlo: correrla sobre un árbol que iba a cambiar no habría
+medido nada. Se relanzó COMPLETA sobre el árbol final.
+
+Compuertas: G4 y el tag siguen siendo del firmante. Publicar NO está autorizado.
+Trazabilidad externa: issue #127
+
+## PTSA-2026-08-20 — auditoria completa del marco, antes de publicar
+Fecha: 2026-08-20 · Estado: COMPLETE · Version auditada: 10.0.0
+Estructural: no
+
+Que se pidio: «auditar el sistema completamente para buscar, encontrar y eliminar cualquier riesgo
+que pudiera tener, usemos el mismo PTSA que tiene el propio marco». Y antes: que el hallazgo del
+proxy no permite publicar todavia.
+
+PRIMERA EJECUCION DE PTSA sobre este repositorio. TD-15 declaraba TRES componentes nunca
+ejecutados; quedan DOS: QA y FPGE. Cargado CORE.md + CORE-PTSA.md (SUITE-R25): sin el overlay se
+habria auditado con 23 de las 80 reglas.
+
+  universo      51 elementos desde 6 fuentes mecanicas de inventory/ + PHASE 0 + bin/cauce.mjs
+  matriz        204 celdas · 8 NO_APLICA justificadas · 196 de universo · 175 evaluadas
+  coverage      0.89 — las 21 NO_EVALUADA llevan motivo Y coste
+  evidencia     11 capturas por shell, ninguna pedida al usuario (PTSA-R61)
+  verify-ptsa   sin errores
+
+  D1 dominio 60 · D2 tecnica 80 · D3 observabilidad 95 · D4 documental 94
+  Health 79.9 · Risk 73 · Confidence 0.94 · certificacion B
+  D1 quedo EXACTAMENTE en 60: una penalizacion MEDIA mas y el Multiplicador Global habria
+  bajado Health a 55. Se declara que se evaluo y no aplico (PTSA-R27).
+
+NUEVE HALLAZGOS. Los tres que ponen el techo son D1:
+  H-002  SUITE-R01, SUITE-R09 y EXEC-R04 no las emite NINGUN verificador. 101 de 224 reglas sin
+         verificador, 90 de ellas HARD. Y el matiz que evita el alarmismo: las 20 reglas marcadas
+         CHECK — las que DECLARAN comprobacion — lo tienen todas. El Acid Test de P-003 PASA.
+         El hallazgo es que la rubrica esta por debajo de la promesa del dominio (PTSA-R17).
+         El caso concreto: nada detecta que HISTORY.log se reescriba, y git podria detectarlo.
+  H-003  el patron del proxy, quinta instancia, encontrada SELLANDO. Va a la epica siguiente.
+  H-008  QA y FPGE no se han ejecutado nunca.
+
+DOS CORREGIDOS DENTRO DE LA AUDITORIA, a VALIDATION_PENDING y no a CLOSED (PTSA-R44):
+  H-001  el tarball publicaba bin/graphify-out/cache/ast/*.json — un artefacto local NO
+         VERSIONADO con rutas absolutas del disco del mantenedor. 58 archivos desde esta maquina,
+         57 desde CI: la MISMA VERSION con dos contenidos segun quien publicara. PT-072 midio
+         «58 archivos» probando el proyecto nuevo, y ese 58 ya lo incluia.
+         Arreglado con "!bin/graphify-out" en package.json Y borrando el directorio. La prueba
+         que importa: se RECREO el artefacto a proposito y el tarball siguio siendo de 57.
+  H-006  CLAUDE.md decia 15 herramientas y 4 comandos; son 16 y 7.
+
+LO QUE LA AUDITORIA MIDIO A FAVOR, porque enumerar solo defectos describe al auditor:
+  cero dependencias · cero execSync · ningun shell:true · un solo git push, tras --publicar y sin
+  --force · main y trabajo con enforce_admins y sin force push ni borrado · arbol e historia sin
+  secretos sin firmar · rollback transaccional en tracker avanzar · guarda de sobrescritura en
+  cauce install · 1118 casos en cero fallos · 224 reglas con 0 duplicadas y 0 sin severidad.
+
+EL LIMITE SERIO, declarado: el auditor es el mismo agente que escribio buena parte del codigo
+auditado. Toda AFIRMACION tiene evidencia; que hallazgos NO se buscaron no es contrastable desde
+dentro. Es el mismo limite que SUITE-R27 declara sobre las firmas.
+
+G4 SE RETUVO A PROPOSITO. Fusionar y etiquetar habria sellado una version que el firmante acababa
+de decir que no estaba en condiciones: la auditoria informa la decision, no llega despues.
+
+Compuertas: G4, el tag y PUBLICAR siguen siendo del firmante. Publicar NO esta autorizado.
+Trazabilidad externa: PTSA/RESUMEN.md
+
+## EP-018 — LOTE ABIERTO: lo que la auditoria encontro
+Fecha: 2026-08-20 · Estado: DRAFT · Version: 10.0.0
+Estructural: no
+
+Que se pidio: «atendemos todo, abre una epica con estos hallazgos, el que descubriste al cierre
+anterior mas esta auditoria».
+
+DOS FUENTES, y por eso es un lote y no siete tareas sueltas:
+  (a) el defecto que aparecio SELLANDO la 10.0.0 — el paso 1 de «tracker sellar» comprueba que
+      EXISTA entrada en el CHANGELOG con guia de migracion, no que la guia ENUMERE las reglas
+      nuevas, y por eso SUITE-R57 quedo fuera de ella.
+  (b) la auditoria PTSA-2026-08-20: nueve hallazgos, certificacion B, Health 79.9, coverage 0.89.
+
+SIETE TAREAS, en orden de dependencia tecnica y no de prioridad:
+  1  PT-088  S1  las reglas del dominio se verifican o se declaran     H-002
+  2  PT-087  S1  la comprobacion declara que hecho establece           H-003
+  3  PT-089  S2  la divergencia no apaga comprobaciones                H-004
+  4  PT-090  S2  la frescura del grafo viaja con el repositorio        H-005 · TD-17
+  5  PT-091  S3  las cifras se derivan, no se transcriben              H-007 · H-006
+  6  PT-093  S2  el limite de las compuertas se declara                H-009
+  7  PT-092  S2  ejecutar QA y FPGE                                    H-008 · TD-15
+
+PT-088 VA ANTES QUE PT-087 A PROPOSITO. PT-087 construye el mecanismo que obliga a declarar que
+hecho establece una comprobacion; PT-088 escribe TRES comprobaciones nuevas. Si PT-087 fuera
+primero, las tres naceran bajo un mecanismo sin un solo caso real que lo hubiera ejercitado. Al
+reves, las tres son el BANCO DE PRUEBAS del mecanismo: si no sabe expresar que mide SUITE-R09,
+esta mal, y se sabe antes de imponerlo a 224 reglas. Es la leccion de PT-085, que midio SUITE-R57
+antes de escribirla y encontro un candado con la llave dentro.
+
+LA SEXTA INSTANCIA DEL PATRON APARECIO ESCRIBIENDO ESTE INTAKE. verify-fdge rechazo el de PT-093
+por SUITE-R27 —«firma que no figura en firmantes»— cuando lo que habia era una CITA EN PROSA
+explicando que exige SUITE-R06. RE_QUIEN busca el verbo de integracion seguido de dos puntos en
+TODO el archivo, y RE_SIGN_BLOCK —que localiza el bloque de firma— ya existe tres lineas mas
+arriba: el hecho es identificable y la comprobacion no lo usa.
+
+Y VOLVIO A OCURRIR DOS VECES MAS, en la misma hora: al describir el defecto en el intake de
+PT-093 y al describirlo AQUI, en esta entrada. Tres falsos positivos seguidos, todos por hablar
+del defecto. Una comprobacion cuyo alcance es «todo el archivo» acusa a quien la documenta, y eso
+no es una anecdota: es la medida de cuanto se paga por mirar un proxy. Queda en el intake de
+PT-087, que es la tarea que lo cierra.
+
+LO QUE EL LOTE NO ARREGLA, dicho al firmar: el techo de la certificacion. Con H-002 y H-003
+cerrados, D1 sube a 90 y Health a ~93. Pero H-008 solo se cierra ejecutando QA y FPGE de verdad, y
+si esas dos encuentran lo que encontro PTSA, el score BAJA antes de subir. No es un riesgo del
+lote: es el lote funcionando.
+
+DOS TAREAS DEVUELVEN LA PELOTA AL FIRMANTE A MITAD, y se declara ahora en vez de descubrirse en
+PHASE 5: PT-093 pide una DECISION sobre como se declara el limite de las compuertas, y PT-092
+tiene que decidir que es «usar el sistema» para un paquete de linea de comandos sin navegador.
+
+LA FIRMA DEL INTAKE la escribio el agente citando la instruccion literal del firmante, con su
+limite declarado en el propio bloque. Es, literalmente, el limite que PT-093 existe para declarar.
+
+Compuertas: G1 propuesta, la resuelve el firmante. G4, el tag y PUBLICAR siguen siendo suyos.
+Trazabilidad externa: issue #162 · sub-issues #163..#169

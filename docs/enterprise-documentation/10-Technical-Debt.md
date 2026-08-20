@@ -400,6 +400,43 @@ legítimas sobre identificadores, y un arnés que nace rojo se apaga — y enton
 que tiene razón. `PT-023` midió esa frontera: un verificador equivocado tres de cada cuatro veces
 se silencia y ocupa el sitio del que haría falta.
 
+> **Revision 2026-08-20 sobre `TD-15`.** La auditoria `PTSA-2026-08-20` es la primera ejecucion
+> de PTSA sobre este repositorio: de los **tres** componentes nunca ejecutados quedan **dos**,
+> `QA` y `FPGE`. La deuda no se reescribe —esta seccion es acumulativa— se anota aqui y el
+> hallazgo vivo es `PTSA/Findings/H-008.md`.
+
+### `TD-17` · El grafo está en `.gitignore`, así que `FDGE-R43` sólo puede dar `FRESH` en la máquina que lo generó
+
+Apareció **sellando la `10.0.0`**, no leyendo el código: al regenerar el grafo, `git status` no
+mostró un solo archivo. `graphify-out/` está ignorado desde `.gitignore:13`.
+
+```
+git check-ignore -v graphify-out/graph.json
+.gitignore:13:graphify-out/     graphify-out/graph.json
+```
+
+**La consecuencia, con línea:** `graphState()` en `verify-fdge.mjs:267` devuelve `MISSING` si el
+directorio no existe, y `verify-fdge.mjs:1347` hace que todo lo que no sea `FRESH` ni `SUSPECT`
+**bloquee `G2` en un PT `MAJOR`**. En un clon limpio —CI incluida— el directorio nunca existe.
+
+| Dónde corre | Qué ve `FDGE-R43` |
+|:---|:---|
+| La máquina que ejecutó `/graphify` | `FRESH` · el manifiesto y los `mtime` están ahí |
+| Cualquier otro clon, y `verificacion.yml` | `MISSING` · el directorio no viaja en el repositorio |
+
+Y la deriva de contenido se calcula contra **`mtime` locales**, que un `git clone` reescribe con la
+fecha del clon: aunque el grafo viajara, el cálculo daría otra cosa en cada máquina.
+
+**Por qué se declara y no se arregla aquí.** Las tres salidas —versionar `graphify-out/`, sustituir
+`mtime` por hash de contenido, o convertir `MISSING` en un aviso explícito de «no evaluable en este
+clon»— son decisiones de diseño sobre `docs/methodology/`, que es `SUITE-R06(e)`: no es trabajo de
+paso. La primera además mete un artefacto generado de ~1 MB en la historia.
+
+**Lo que sí se afirma, y es lo único medido:** el sello de la `10.0.0` se resolvió con un grafo
+verificado `FRESH` **en la máquina del firmante**, y esa comprobación no la repite nadie más. Es
+exactamente la forma que `EP-017` encontró una y otra vez —comprobar un proxy barato en lugar del
+hecho— aplicada esta vez al alcance de la comprobación, no a su contenido.
+
 ## Hechos no determinados   `FND-R01`
 
 Lo que no pudo verificarse con una fuente citable en este repositorio:

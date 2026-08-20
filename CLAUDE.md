@@ -26,7 +26,7 @@ sus propias reglas sería el primer argumento en su contra.
 ## Estructura
 
 ```
-bin/cauce.mjs                     El binario publicado: install · verify · compare · core
+bin/cauce.mjs                     El binario: install · verify · compare · core · start · regla · version
 .github/workflows/                verificacion.yml (bloquea) · publicar.yml (manual, desde main)
 
 docs/methodology/
@@ -56,7 +56,7 @@ docs/methodology/
 ├── PTSA/  PTSA-V3-Especificacion-Oficial.md · PTSA-Prompts.md · templates/COVERAGE.md
 ├── FIDE/  Framework-FIDE.md · FIDE-Implementation.md · FIDE-CLAUDE-Launcher.md
 │
-│   ── HERRAMIENTAS ─── 15, y ninguna es opcional ───────────────
+│   ── HERRAMIENTAS ─── 16, y ninguna es opcional ───────────────
 └── tools/
     │   verificadores      verify-suite · verify-fdge · verify-qa · verify-ptsa · verify-patrones
     │   generadores        build-core (CORE y overlay) · version (alinea los 21 documentos)
