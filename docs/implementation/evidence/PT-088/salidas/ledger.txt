@@ -1,0 +1,4 @@
+# PT-088 · SUITE-R09 y EXEC-R04 sobre el repositorio real, con suite_version simulada en 11.0.0
+
+  ✓ SUITE-R09      6 ledger(s) sin líneas perdidas desde v10.0.0.
+  ✓ EXEC-R04       sin merges a main desde v10.0.0: nada que autorizar.

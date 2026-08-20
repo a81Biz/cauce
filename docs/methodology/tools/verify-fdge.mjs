@@ -776,9 +776,9 @@ function checkIrreversibles(modo) {
 // comprobacion por tarea—, pero SUITE-R09 y EXEC-R04 son del REPOSITORIO: no hay tarea de la
 // que sacar la version. Se toma del registro, que es quien la declara (SUITE-R13).
 //
-// Escribir estas dos usando el `rige` de checkPT reventaba con ReferenceError, y mi propio
-// grep sobre la salida lo escondio: filtrar antes de mirar es la version de consola del
-// patron que PT-087 cierra.
+// Escribir estas dos con el `rige` de checkPT reventaba —ese identificador no existe a nivel
+// de modulo— y mi propio grep sobre la salida lo escondio: filtrar antes de mirar es la
+// version de consola del patron que PT-087 cierra.
 const rigeGlobal = (id) => rigeDesde(id, reg?.suite_version ?? '0.0.0');
 
 // ─── SUITE-R09 · el ledger append-only no pierde lineas ─────────────────────
@@ -786,9 +786,14 @@ const rigeGlobal = (id) => rigeDesde(id, reg?.suite_version ?? '0.0.0');
 // PT-088 · H-002 de PTSA-2026-08-20. SUITE-R09 declara que los ledgers son append-only y
 // NINGUN verificador la emitia: la base de evidencia del marco entero no tenia guarda.
 //
-// QUE ESTABLECE: que ninguna linea desaparecio desde el tag anterior.
-// QUE NO ESTABLECE: que el contenido no se haya alterado conservando el RECUENTO. Se dice
-//   porque no decirlo seria la septima instancia del patron que PT-087 cierra.
+// QUE ESTABLECE: que ninguna linea anterior desaparecio NI CAMBIO desde el tag. Cuenta las
+//   lineas «-» del diff, y git representa una modificacion como borrado mas alta.
+// QUE NO ESTABLECE: cual de los dos fue. No distingue una correccion legitima de una
+//   falsificacion — en un append-only las dos estan prohibidas, y lo que se corrige se
+//   corrige ANADIENDO.
+//
+// Declare al escribirla que una alteracion de igual recuento pasaba, y era FALSO: lo midio
+// el arnes, no yo. Declarar un limite sin medirlo es la misma forma que PT-087 cierra.
 //
 // La ventana es el TAG, no origin/main: PT-081 eligio origin/main y la comprobacion se apago
 // justo el dia que lo que buscaba aterrizo alli.
@@ -818,7 +823,7 @@ function checkLedgers() {
     warn('SUITE-R09', `${x.archivo}: no se pudo obtener el diff contra ${tag}. SIN EVALUAR — que no es lo mismo que «ninguna línea borrada».`);
   }
   for (const x of perdidas) {
-    fail('SUITE-R09', `${x.archivo}: ${x.borradas} línea(s) desaparecida(s) desde ${tag}. Un ledger append-only no pierde líneas: lo que ya está escrito no se reescribe, se corrige añadiendo. Comprueba el recuento, no el contenido: una alteración que conserve el número de líneas NO la detecta.`);
+    fail('SUITE-R09', `${x.archivo}: ${x.borradas} línea(s) desaparecida(s) o alterada(s) desde ${tag}. Un ledger append-only no reescribe lo ya escrito: se corrige añadiendo. Cuenta las líneas «-» del diff, así que una modificación cuenta —git la representa como borrado más alta—. Lo que NO distingue es una corrección legítima de una falsificación: en un append-only las dos están prohibidas.`);
   }
   if (!perdidas.length && !sinBase.length) {
     ok('SUITE-R09', `${presentes.length} ledger(s) sin líneas perdidas desde ${tag}.`);
@@ -862,9 +867,31 @@ function checkG4ConConstancia() {
     return;
   }
   const sesion = read(join(IMPL, 'SESSION_LOG.md')) ?? '';
+  // firmantesDeclarados() devuelve NULL —no lista vacia— si no hay CLAUDE.md o no declara
+  // «firmantes:». Sin lista no hay contra que contrastar un nombre, asi que la comprobacion
+  // NO SE HACE y se dice, en vez de reventar o de dar por buena cualquier constancia.
+  // Reventaba en 13 casos del arnes, y SUITE-R27 ya avisa de la lista ausente.
+  // NOTA: no se nombra aqui la clase de error de node. «revento()» del arnes la busca EN TODA
+  // LA SALIDA, y trece casos hacen «cat» de este archivo: escribirla convierte el comentario
+  // en un falso positivo. Es el mismo aviso que el HANDOFF ya da sobre escribir el patron de
+  // una emision dentro de un comentario.
   const lista = firmantesDeclarados();
-  const constancias = [...sesion.matchAll(RE_CONSTANCIA)]
-    .flatMap((m) => lista.map((n) => ({ nombre: n, fecha: m[1] })));
+  if (!lista) {
+    warn('EXEC-R04', 'CLAUDE.md no declara «firmantes:»: sin esa lista, una constancia con cualquier nombre valdría. SIN EVALUAR, y SUITE-R27 ya lo señala.');
+    return;
+  }
+  // El nombre se EXTRAE del cuerpo de la entrada, no se sintetiza desde «firmantes». Lo
+  // escribi al reves —generaba una constancia por cada firmante declarado— y entonces el
+  // filtro por nombre no podia fallar NUNCA: AC-05 quedaba vacuo. Es un verificador que
+  // comprueba su propia entrada, la forma mas silenciosa del patron que PT-087 cierra.
+  const bloques = sesion.split(/^##\s+/m);
+  const constancias = [];
+  for (const b of bloques) {
+    const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
+    if (!m || !/G4|VoBo|autorizad/i.test(m[2])) continue;
+    const quien = lista.find((n) => b.includes(n));
+    if (quien) constancias.push({ nombre: quien, fecha: m[1] });
+  }
   const huerfanos = mergesSinConstancia(merges, constancias, lista);
   if (huerfanos.length) {
     for (const h of huerfanos) {

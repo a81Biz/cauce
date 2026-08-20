@@ -1,0 +1,206 @@
+{
+  "pt": "PT-088",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "SUITE-R09: falla si un append-only pierde lineas",
+      "scenarios": [
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:…y uno al que le faltan lineas CAE"
+      ],
+      "evidence": [
+        "salidas/ledger.txt"
+      ],
+      "verified": true,
+      "nota": "La primera prueba inversa NO disparo y el impulso fue culpar al verificador. No lo estaba: «git diff tag HEAD» compara COMMITS y el borrado estaba sin commitear. Una reescritura solo cuenta cuando entra en la historia, que es lo que la regla protege. Rehecha en rama temporal con el borrado commiteado: roja, con las cuatro lineas."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "…y NO falla cuando solo se anaden lineas",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh:un ledger que solo CRECE pasa"
+      ],
+      "evidence": [
+        "salidas/ledger.txt"
+      ],
+      "verified": true,
+      "nota": "Este caso me cazo a mi. Lo escribi asertando que no apareciera «SUITE-R09», y en verde la comprobacion emite ✓ SUITE-R09: estaba comprobando el IDENTIFICADOR en vez del HECHO. Es la forma que PT-087 cierra, escrita dentro del lote que existe para cerrarla. Corregido a «desaparecida»."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "…y NO falla sin repositorio ni version anterior",
+      "scenarios": [
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:sin ningun tag no se comprueba, y se dice"
+      ],
+      "evidence": [
+        "salidas/ledger.txt"
+      ],
+      "verified": true,
+      "nota": "Sin tag no hay reloj y NO SE INVENTA UNO. «null» no es cero: diffDe devuelve null y el archivo sale SIN EVALUAR, no como «ninguna linea borrada». Es la leccion de PT-058, y sin ella un fallo de git se leeria como un ledger integro."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "EXEC-R04: falla si la principal avanzo sin constancia",
+      "scenarios": [
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:un merge a la principal SIN constancia CAE"
+      ],
+      "evidence": [
+        "salidas/g4-constancia.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "…y el nombre esta en firmantes, no es cualquiera",
+      "scenarios": [
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:…y un nombre fuera de firmantes NO cuenta"
+      ],
+      "evidence": [
+        "salidas/g4-constancia.txt"
+      ],
+      "verified": true,
+      "nota": "Sin este caso bastaria escribir cualquier nombre y la comprobacion seria decorativa. SUITE-R27 existe para que la firma sea contrastable, no para que exista."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "SUITE-R01: verificada O declarada con motivo y firma",
+      "scenarios": [
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:SUITE-R01 esta declarada NO_VERIFICABLE"
+      ],
+      "evidence": [
+        "salidas/suite-r01.txt"
+      ],
+      "verified": true,
+      "nota": "Excepcion FDGE-R18 declarada en strategy.md: no hay comportamiento que probar, y ESE es el hallazgo. Su sujeto es una negacion sobre el ORIGEN de una creencia, y dos origenes distintos producen artefactos identicos. Declarada la ULTIMA de las tres a proposito: antes habria sido declarar sin haber medido."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Las tres declaran su fila en RIGE_DESDE",
+      "scenarios": [
+        "E6"
+      ],
+      "tests": [
+        "selftest.sh:una suite anterior a 11.0.0 no la sufre"
+      ],
+      "evidence": [
+        "salidas/rige-desde.txt"
+      ],
+      "verified": true,
+      "nota": "No es una formalidad: medido, hay 18 merges a main y UNO desde el ultimo tag. Sin ventana EXEC-R04 nace con 17 fallos sobre trabajo de agosto — inaplicable, no «menos elegante». Una comprobacion que nace roja se apaga (PT-023)."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "audit las clasifica; ninguna queda PENDIENTE",
+      "scenarios": [
+        "E12",
+        "E13"
+      ],
+      "tests": [
+        "selftest.sh:…y audit la clasifica, no la deja PENDIENTE",
+        "selftest.sh:…y las tres salen de PENDIENTE"
+      ],
+      "evidence": [
+        "salidas/suite-r01.txt"
+      ],
+      "verified": true,
+      "nota": "VERIFICADA 94 -> 96 · NO_VERIFICABLE 5 -> 6 · PENDIENTE 125 -> 122. Se comprueban los DOS lados: la regla entro en una casilla Y salio de la otra. Mirar solo la entrada dejaria pasar la cuarta casilla silenciosa que clasificarReglas existe para impedir."
+    },
+    {
+      "ac": "AC-09",
+      "statement": "Cada comprobacion declara QUE NO establece",
+      "scenarios": [
+        "E3",
+        "E8",
+        "E4"
+      ],
+      "tests": [
+        "selftest.sh:…y el mensaje declara que NO distingue",
+        "selftest.sh:…y el mensaje dice que NO prueba nada mas",
+        "selftest.sh:…y una alteracion de igual recuento TAMBIEN"
+      ],
+      "evidence": [
+        "salidas/sujeto.txt"
+      ],
+      "verified": true,
+      "nota": "NO estaba en el intake: lo trajo PHASE 2. Y su tercer caso me corrigio a MI: escribi en cinco documentos que una alteracion de igual recuento PASABA, monte el caso esperando verde, y salio ROJO — git representa una modificacion como borrado mas alta. La comprobacion era MAS FUERTE de lo que su autor creia. Declarar un limite sin medirlo es la misma forma que este lote cierra, cometida al describir la comprobacion que la combate."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la autorizacion de G4 registrada en SESSION_LOG.md fuera real.",
+      "por_que": "El agente escribe la constancia y el agente podria ejecutar el merge. Aqui se construye el rastro; lo que vale se declara en PT-093. Es el mismo limite que SUITE-R27 declara sobre las firmas.",
+      "donde": "changes/PT-093-el-limite-de-las-compuertas-se-declara/intake.md"
+    },
+    {
+      "afirmacion": "Que un fail de SUITE-R09 signifique mala fe.",
+      "por_que": "No lo significa: acusa de haber reescrito, no de por que. Una correccion legitima y una falsificacion aparecen las dos como lineas «-», y en un append-only las dos estan prohibidas. La distincion no es mecanizable y no se finge que lo sea.",
+      "donde": "changes/PT-088-las-reglas-del-dominio-se-verifican-o-se-declaran/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que SUITE-R01 sea de verdad inverificable.",
+      "por_que": "Es una decision con firma, no una constatacion. Si el firmante ve un observable que se me escapo, la fila sale y la deuda vuelve.",
+      "donde": "docs/implementation/NO-VERIFICABLES.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Escribi las dos comprobaciones globales usando el «rige» de checkPT, que no esta en alcance a nivel de modulo.",
+      "regla": "SUITE-R38",
+      "detalle": "Reventaba con ReferenceError y mi propio grep sobre la salida lo escondio: el patron casaba la LINEA DE CODIGO FUENTE y yo lei «no emite nada todavia». Y exit=0, porque la tuberia devuelve el codigo del grep. Filtrar antes de mirar es la version de consola del patron que PT-087 cierra."
+    },
+    {
+      "que": "Aserte el caso positivo de SUITE-R09 contra el identificador de la regla en vez de contra el fallo.",
+      "regla": "—",
+      "detalle": "En verde la comprobacion emite ✓ SUITE-R09, asi que el ID aparece igual y el caso fallaba. Lo cazo la bateria. Es la misma forma que este lote existe para cerrar, cometida a las horas de documentar seis instancias."
+    },
+    {
+      "que": "Borre con «git branch -D» la rama temporal de la prueba inversa, y se llevo el commit con todo el trabajo de la tarea.",
+      "regla": "SUITE-R06f",
+      "detalle": "Recuperado del reflog, y a proposito SOLO los tres artefactos: no HISTORY.log, que en ese commit estaba mutilado para la prueba. Restaurar el ledger desde ahi habria metido la mutilacion en el arbol real."
+    },
+    {
+      "que": "Use «perl -0pi» para parchear el CLAUDE.md del fixture, que build_fixture no crea.",
+      "regla": "—",
+      "detalle": "El fixture no tiene ese archivo hasta que un caso lo escribe. Sustituido por un printf directo, que es lo que hacen los casos de SUITE-R27 desde PT-042."
+    },
+    {
+      "que": "Declare en cinco documentos y en el mensaje de la comprobacion un limite que NO habia medido.",
+      "regla": "SUITE-R01",
+      "detalle": "«Una alteracion de igual recuento pasa» era FALSO: git la representa como borrado mas alta. Monte el caso esperando verde y salio rojo. Corregido en discovery, strategy, design, test-scenarios, out-of-scope, el mensaje y este manifiesto. Es exactamente el patron de PT-087, cometido describiendo el limite de la comprobacion que lo combate."
+    },
+    {
+      "que": "Escribi el nombre de una clase de error de node en un comentario de verify-fdge.mjs.",
+      "regla": "SUITE-R38",
+      "detalle": "«revento()» del arnes lo busca EN TODA LA SALIDA, y trece casos hacen «cat» de ese archivo: los trece reportaron «la herramienta revento» sin que nada hubiera reventado. Persegui el fantasma en tres repositorios sinteticos antes de mirar el texto que yo mismo habia escrito. El HANDOFF ya avisaba de la forma exacta para las EMISIONES; el mismo defecto estaba en el detector de crashes. Registrado como septima instancia del patron en PT-087 y como revision de H-003."
+    },
+    {
+      "que": "Sintetice el nombre del firmante desde la lista en vez de extraerlo del cuerpo de la constancia.",
+      "regla": "—",
+      "detalle": "Generaba una constancia por cada firmante declarado, asi que el filtro por nombre NO PODIA FALLAR NUNCA y AC-05 quedaba vacuo: un verificador comprobando su propia entrada. Corregido a extraer el nombre del bloque de la entrada. Es la forma mas silenciosa del patron, porque el caso positivo pasa y el negativo tambien."
+    }
+  ],
+  "suite": {
+    "passed": 1131,
+    "failed": 0,
+    "baseline": 1118,
+    "nota": "1118 de linea base mas 13 nuevos. Corrida COMPLETA, cero fallos. Hicieron falta CINCO corridas: la bateria encontro cuatro defectos mios y el quinto lo encontre releyendo mi propio codigo."
+  }
+}

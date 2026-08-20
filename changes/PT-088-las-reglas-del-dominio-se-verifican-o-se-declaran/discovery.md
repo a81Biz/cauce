@@ -46,8 +46,19 @@ restaurado · git status: (vacio = intacto)
 
 ### Lo que esta comprobación NO establece — y va en su sujeto
 
-Mira **líneas borradas**, no contenido. Un ledger cuyo texto se altere **conservando el número de
-líneas** pasaría. Es más fuerte que nada y más débil que un hash encadenado.
+Cuenta las líneas `-` del diff, así que caza **borrados y modificaciones**. Lo que no distingue es
+**cuál de los dos fue**: una corrección legítima y una falsificación se ven igual.
+> **Corrección del 2026-08-20, y la trajo el arnés.** Aquí se declaró que una alteración de
+> **igual recuento** pasaba. **Es falso.** `git` representa una modificación como `-vieja` más
+> `+nueva`, así que la línea `-` está en el diff y la comprobación **sí la caza**.
+>
+> El límite real es otro: **no distingue una corrección legítima de una falsificación**. En un
+> append-only las dos están prohibidas —lo que se corrige se corrige añadiendo—, así que la
+> comprobación es correcta; lo que estaba mal era mi descripción de ella.
+>
+> **Declaré un límite sin medirlo**, que es la misma forma que `PT-087` cierra. Lo midió el
+> caso, no yo.
+
 
 Se dice aquí y se dirá en el sujeto de la regla, porque no declararlo sería la séptima instancia
 del patrón que `PT-087` cierra: una comprobación que mira un proxy —el recuento— y se presenta

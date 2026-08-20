@@ -30,7 +30,20 @@ El tag es una marca **inmutable y deliberada**. Y la regla que lo garantiza ya e
 
 ### Lo que se acepta a cambio, y se declara
 
-Una alteración que **conserve el recuento de líneas** pasa. Se dice en el sujeto de la regla.
+La comprobación **no distingue** una corrección legítima de una falsificación: las dos aparecen
+como líneas `-`. En un append-only las dos están prohibidas, así que es el comportamiento correcto
+— pero significa que un `fail` de `SUITE-R09` **no acusa de mala fe**, sólo de haber reescrito.
+> **Corrección del 2026-08-20, y la trajo el arnés.** Aquí se declaró que una alteración de
+> **igual recuento** pasaba. **Es falso.** `git` representa una modificación como `-vieja` más
+> `+nueva`, así que la línea `-` está en el diff y la comprobación **sí la caza**.
+>
+> El límite real es otro: **no distingue una corrección legítima de una falsificación**. En un
+> append-only las dos están prohibidas —lo que se corrige se corrige añadiendo—, así que la
+> comprobación es correcta; lo que estaba mal era mi descripción de ella.
+>
+> **Declaré un límite sin medirlo**, que es la misma forma que `PT-087` cierra. Lo midió el
+> caso, no yo.
+
 
 ---
 

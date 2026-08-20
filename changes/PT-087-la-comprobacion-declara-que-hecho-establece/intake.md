@@ -34,9 +34,11 @@ Origen: [`H-003`](../../PTSA/Findings/H-003.md) · `D1` · **ALTA**.
 | `regla` | la primera linea que cita un ID | la definicion | consulta que bloquea | corregida `PT-078` |
 | `sellar` paso 1 | que **exista** entrada en `CHANGELOG` | que **enumere** las reglas nuevas | `G2` | **abierta** |
 | `SUITE-R27` | una **frase** en cualquier parte del archivo | la firma **dentro de su bloque** | `G1` | **abierta** |
+| `revento()` del arnés | el **nombre de una clase de error** en cualquier parte de la salida | que la herramienta **haya reventado** | los 1131 casos | **abierta** |
 
-**Cuatro corregidas una a una; la quinta apareció sellando la versión que las corregía, y la
-sexta escribiendo este mismo intake.** Ese es el dato: la causa no está en las instancias.
+**Cuatro corregidas una a una; la quinta apareció sellando la versión que las corregía, la sexta
+escribiendo este intake, y la séptima la encontró la batería contra el trabajo de `PT-088`.** Ese
+es el dato, y ya no admite otra lectura: la causa no está en las instancias.
 
 Consecuencia concreta de la quinta: `SUITE-R57` —regla `HARD` nueva que bloquea `G2`— **no estaba
 en la guia de migracion de la `10.0.0`**. El paso comprobaba que la guia existiera. Existia.
@@ -69,6 +71,30 @@ por hablar del defecto.
 Eso da la medida del coste, y es un dato para `AC-03`: una comprobación cuyo alcance es «todo el
 archivo» **acusa a quien la documenta**. No es una anécdota — es la razón de que el sujeto tenga
 que incluir *dónde* se establece el hecho, no solo cuál es.
+
+### La séptima la encontró la batería, y contra el trabajo de `PT-088`
+
+`revento()` decide si una herramienta ha fallado buscando un token en su salida:
+
+```sh
+revento() { printf '%s' "$1" | grep -qE 'SyntaxError|ReferenceError|TypeError|RangeError|node:internal|at file:///'; }
+```
+
+`PT-088` escribió en un comentario de `verify-fdge.mjs` la frase *«reventaba con TypeError»*, y
+**trece casos que hacen `cat` de ese archivo pasaron a reportar «la herramienta reventó»**. Ninguno
+había reventado: el archivo *contenía la palabra*.
+
+El `no hacer` del `HANDOFF` ya avisa de la forma exacta para las emisiones —*«escribir en un
+comentario el patrón literal de una emisión: `fallosPosibles` lo cuenta como emisión real»*— y el
+mismo defecto estaba en el detector de crashes, sin que nadie lo relacionara.
+
+**Es el caso más limpio de todos** porque el proxy es evidente en cuanto se nombra: «hay una
+palabra de error en la salida» no es «la herramienta reventó», y la diferencia son trece falsos
+positivos en la batería que gobierna todas las compuertas.
+
+Se resolvió reescribiendo el comentario, que es un parche. **Lo que lo cierra es esta tarea**: el
+sujeto de `revento()` es *«el proceso terminó de forma anómala»*, y eso tiene un observable —el
+código de salida— que la función no mira.
 
 ## 3. La causa
 

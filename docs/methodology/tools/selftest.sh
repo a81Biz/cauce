@@ -4501,6 +4501,127 @@ chk   "y su ancla se declara sin poner"        "SIN_ANCLAR" \
   console.log(Number(r.graph.pt_at_generation) > 0 ? \"ANCLADO\" : \"SIN_ANCLAR\");
 " "$1"' _ "$WORK/graph-viejo.json"
 
+sec "── PT-088 · las reglas del dominio se verifican o se declaran ──"
+#
+# H-002 de PTSA-2026-08-20. SUITE-R09 (el ledger es append-only), EXEC-R04 (G4 es humana) y
+# SUITE-R01 (Evidence Before Action) no las emitia NINGUN verificador. Dos se escriben; la
+# tercera se DECLARA, y el orden es la mitad del argumento.
+#
+# Las dos escritas RIGEN DESDE 11.0.0: medido en el repositorio real hay 18 merges a main y
+# UNO desde el ultimo tag. Sin ventana, EXEC-R04 nace con 17 fallos sobre trabajo de agosto,
+# y una comprobacion que nace roja se apaga (PT-023).
+
+# ── el ledger no pierde lineas ──────────────────────────────────────────────
+ledger_fixture() {   # git con un tag, un ledger de varias lineas y la suite en 11.0.0
+  build_fixture
+  reg_set "r.suite_version='11.0.0'"
+  ( cd "$WORK"
+    printf 'uno\ndos\ntres\ncuatro\ncinco\nseis\n' > docs/implementation/HISTORY.log
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm "base" >/dev/null 2>&1
+    git tag -a v1.0.0 -m base >/dev/null 2>&1 ) >/dev/null 2>&1
+}
+
+ledger_commit() {    # commitea lo que haya, para que «git diff tag HEAD» lo vea
+  ( cd "$WORK"; git add -A >/dev/null 2>&1; git commit -qm "cambio" >/dev/null 2>&1 ) >/dev/null 2>&1
+}
+
+ledger_fixture
+printf 'uno\ndos\ntres\ncuatro\ncinco\nseis\nsiete\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chkno "un ledger que solo CRECE pasa"            "desaparecida" V PT-004 "$WORK"
+
+ledger_fixture
+printf 'uno\ndos\nseis\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chk   "…y uno al que le faltan lineas CAE"       "línea(s) desaparecida(s)" V PT-004 "$WORK"
+
+# El mensaje tiene que DECIR lo que la comprobacion no establece. Sin esto, un verde de
+# SUITE-R09 se leeria como «el ledger es integro», que es mas de lo que mide.
+ledger_fixture
+printf 'uno\ndos\nseis\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chk   "…y el mensaje declara que NO distingue"   "corrección legítima de una falsificación" V PT-004 "$WORK"
+
+# Una alteracion de IGUAL recuento TAMBIEN cae, y lo descubrio el arnes: yo habia
+# declarado que pasaba. git representa una modificacion como borrado mas alta, asi que
+# la linea «-» esta ahi. La comprobacion es MAS FUERTE de lo que su autor creia — y
+# declarar un limite SIN MEDIRLO es la misma forma que PT-087 cierra.
+ledger_fixture
+printf 'uno\nDOS-ALTERADO\ntres\ncuatro\ncinco\nseis\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chk   "…y una alteracion de igual recuento TAMBIEN" "desaparecida" V PT-004 "$WORK"
+
+# Sin tag no hay reloj y NO SE INVENTA UNO: se dice SIN EVALUAR en vez de dar por bueno.
+build_fixture
+reg_set "r.suite_version='11.0.0'"
+( cd "$WORK"; git init -q . 2>/dev/null; git config user.email t@t; git config user.name T
+  git add -A >/dev/null 2>&1; git commit -qm base >/dev/null 2>&1 ) >/dev/null 2>&1
+chk   "sin ningun tag no se comprueba, y se dice" "no hay línea base" V PT-004 "$WORK"
+
+# RIGE_DESDE: una version anterior no la sufre. Es lo que PT-081 dejo puesto y lo que hace
+# aplicable a EXEC-R04; sin ello estas dos reglas gobernarian trabajo de agosto.
+ledger_fixture
+reg_set "r.suite_version='10.0.0'"
+printf 'uno\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chkno "una suite anterior a 11.0.0 no la sufre"  "SUITE-R09" V PT-004 "$WORK"
+
+# ── la G4 deja constancia con nombre ────────────────────────────────────────
+merge_fixture() {    # una rama por defecto con UN merge, y el ledger de sesion vacio
+  build_fixture
+  reg_set "r.suite_version='11.0.0'"
+  # build_fixture NO crea CLAUDE.md, y sin «firmantes:» la comprobacion no se hace: se dice
+  # SIN EVALUAR. Sin esta linea los tres casos de EXEC-R04 pasarian POR VACIO — que es el
+  # falso verde que PT-023 midio y el que este arnes existe para impedir.
+  printf 'firmantes:
+  - Ada Lovelace
+' > "$WORK/CLAUDE.md"
+  ( cd "$WORK"
+    git init -q -b main . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1; git commit -qm base >/dev/null 2>&1
+    git tag -a v1.0.0 -m base >/dev/null 2>&1
+    git checkout -q -b rama 2>/dev/null
+    printf 'x\n' > otro.txt; git add -A >/dev/null 2>&1; git commit -qm trabajo >/dev/null 2>&1
+    git checkout -q main 2>/dev/null
+    git merge -q --no-ff rama -m "Merge pull request #1 from t/rama" >/dev/null 2>&1
+    git update-ref refs/remotes/origin/main HEAD
+    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main ) >/dev/null 2>&1
+}
+
+merge_fixture
+chk   "un merge a la principal SIN constancia CAE" "sin constancia de autorización" V PT-004 "$WORK"
+
+# El mensaje declara lo que NO prueba: que la autorizacion fuera real. Es H-009, y PT-093
+# existe para declararlo. Sin esta linea, el verde diria mas de lo que mide.
+merge_fixture
+chk   "…y el mensaje dice que NO prueba nada mas"  "NO prueba que la autorización" V PT-004 "$WORK"
+
+merge_fixture
+_HOY="$(cd "$WORK" && git log -1 --format=%cs)"
+printf '## %s · G4 autorizado\n\nautorizado por Ada Lovelace\n' "$_HOY" >> "$WORK/docs/implementation/SESSION_LOG.md"
+chkno "…y CON constancia del mismo dia, pasa"      "sin constancia de autorización" V PT-004 "$WORK"
+
+# Una constancia con un nombre que NO esta en firmantes no cuenta. Sin esto, escribir
+# cualquier nombre bastaria y la comprobacion seria decorativa (SUITE-R27).
+merge_fixture
+_HOY="$(cd "$WORK" && git log -1 --format=%cs)"
+printf '## %s · G4 autorizado\n\nautorizado por Impostor Anonimo\n' "$_HOY" >> "$WORK/docs/implementation/SESSION_LOG.md"
+chk   "…y un nombre fuera de firmantes NO cuenta"  "sin constancia de autorización" V PT-004 "$WORK"
+
+# ── SUITE-R01 se DECLARA, y la declaracion se comprueba ─────────────────────
+chk   "SUITE-R01 esta declarada NO_VERIFICABLE"    "SUITE-R01" \
+  grep "SUITE-R01" "$RAIZ/docs/implementation/NO-VERIFICABLES.md"
+
+chk   "…y audit la clasifica, no la deja PENDIENTE" "NO_VERIFICABLE   6" \
+  sh -c 'node "$1/docs/methodology/tools/audit.mjs" "$1/docs/methodology" 2>&1 | grep NO_VERIFICABLE' _ "$RAIZ"
+
+chk   "…y las tres salen de PENDIENTE"             "PENDIENTE        122" \
+  sh -c 'node "$1/docs/methodology/tools/audit.mjs" "$1/docs/methodology" 2>&1 | grep PENDIENTE' _ "$RAIZ"
+
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que

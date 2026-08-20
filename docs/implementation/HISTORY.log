@@ -4147,3 +4147,57 @@ limite declarado en el propio bloque. Es, literalmente, el limite que PT-093 exi
 
 Compuertas: G1 propuesta, la resuelve el firmante. G4, el tag y PUBLICAR siguen siendo suyos.
 Trazabilidad externa: issue #162 · sub-issues #163..#169
+
+## PT-088 — las reglas del dominio se verifican o se declaran
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-002 de PTSA-2026-08-20 nombraba TRES reglas que sostienen el dominio declarado y que ningun
+verificador emitia. Medidas una a una: DOS salieron y UNA no.
+
+  SUITE-R09  cuenta las lineas «-» del diff de los seis ledgers contra el tag anterior
+  EXEC-R04   exige constancia con NOMBRE por cada merge a la principal, desde su version
+  SUITE-R01  declarada NO_VERIFICABLE, con motivo y firma, y la ULTIMA de las tres
+
+  VERIFICADA 94 -> 96 · NO_VERIFICABLE 5 -> 6 · PENDIENTE 125 -> 122
+  Las dos rigen desde 11.0.0: medido, hay 18 merges a main y UNO desde el ultimo tag. Sin
+  ventana, EXEC-R04 nace con 17 fallos sobre trabajo de agosto — inaplicable, no «menos
+  elegante»: una comprobacion que nace roja se apaga (PT-023).
+
+SUITE-R01 ES UNA REGLA SOMBRILLA. Su sujeto es una negacion sobre el ORIGEN de una creencia, y
+«se apoyo en evidencia» y «se apoyo en intuicion y luego busco evidencia» producen artefactos
+IDENTICOS. No se verifica: se INSTANCIA, y sus cuatro instancias —FDGE-R23, FDGE-R24, PTSA-R14,
+SUITE-R11— si se comprueban. Va la ultima a proposito: declararla antes de intentar las otras dos
+habria sido declarar sin haber medido.
+
+CINCO DEFECTOS MIOS, Y CUATRO LOS CAZO LA BATERIA. Los cinco son el patron de este lote:
+
+  1  Aserte contra el IDENTIFICADOR de la regla en vez de contra el fallo. En verde la
+     comprobacion emite «✓ SUITE-R09», asi que el ID aparece igual.
+  2  Mi propio grep escondio un reviente: el patron casaba la linea del CODIGO FUENTE y yo lei
+     «no emite nada todavia». Y exit=0, porque la tuberia devuelve el codigo del grep.
+  3  Declare en CINCO documentos y en el mensaje que una alteracion de igual recuento pasaba.
+     FALSO: git la representa como borrado mas alta. Monte el caso esperando verde y salio
+     ROJO. La comprobacion era MAS FUERTE de lo que su autor creia, y lo corregido fue mi
+     descripcion, no el codigo.
+  4  Escribi el nombre de una clase de error de node en un COMENTARIO de verify-fdge.mjs, y
+     trece casos que hacen «cat» de ese archivo reportaron un reviente inexistente: «revento()»
+     busca la palabra EN TODA LA SALIDA. Persegui el fantasma en tres repositorios sinteticos
+     antes de mirar el texto que yo mismo habia escrito. SEPTIMA INSTANCIA del patron, y la
+     mas limpia: el observable correcto —el codigo de salida— existe y la funcion no lo mira.
+  5  SINTETIZABA el nombre del firmante desde la lista en vez de extraerlo de la constancia,
+     asi que el filtro NO PODIA FALLAR NUNCA y AC-05 quedaba vacuo. Este no lo cazo la
+     bateria: lo cace releyendo mi propio codigo, y es la forma mas silenciosa de todas
+     porque el caso positivo pasa y el negativo tambien.
+
+Y UN SUSTO: borre con «git branch -D» la rama temporal de la prueba inversa y se llevo el commit
+con todo el trabajo de la tarea. Recuperado del reflog, y A PROPOSITO solo los tres artefactos —
+no HISTORY.log, que en ese commit estaba mutilado para la prueba.
+
+LA PRUEBA INVERSA QUE NO DISPARO, y por que estaba bien: «git diff tag HEAD» compara COMMITS, y
+mi borrado estaba sin commitear. Una reescritura solo CUENTA cuando entra en la historia, que es
+lo que la regla protege. Rehecha con el borrado commiteado: roja, con las cuatro lineas.
+
+bateria: 1118 -> 1131 casos, cero fallos. Hicieron falta CINCO corridas completas.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #164
