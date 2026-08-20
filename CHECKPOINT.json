@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define",
   "sha": "30b68c533d84b922a0a799d26bd954c1729961f7",
   "sha_corto": "30b68c5",
@@ -20,11 +20,8 @@
     "docs/implementation/evidence/PT-066/manifest.json",
     "docs/implementation/evidence/PT-066/salidas/selftest-completo.txt"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-19"
 }

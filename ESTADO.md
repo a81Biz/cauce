@@ -12,7 +12,7 @@ Proyectado el 2026-08-19 · 13 allocation(es) viva(s).
 | PT-019 | CHORE | REOPENED | 1 | — | — |
 | PT-025 | CHORE | DEFERRED | — | — | — |
 | EP-017 |  | READY | 1 | — | — |
-| PT-066 | BUG | READY | 8 | fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define | 30b68c5 |
+| PT-066 | BUG | READY | 9 | fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define | 30b68c5 |
 | PT-067 | BUG | READY | 1 | — | — |
 | PT-069 | FEATURE | READY | 1 | — | — |
 | PT-070 | BUG | READY | 1 | — | — |
