@@ -1,16 +1,16 @@
 {
-  "pt": "PT-087",
+  "pt": "PT-089",
   "type": "BUG",
   "epic": "EP-018",
   "status": "READY",
   "phase": 2,
   "fase": "Descubrimiento",
   "rama": "trabajo",
-  "sha": "a39df10288475173fdb4164f132784c3cae57efb",
-  "sha_corto": "a39df10",
+  "sha": "11bc72fbca8785299533cab0d455d1dd7a78da8d",
+  "sha_corto": "11bc72f",
   "sucio": true,
   "archivos": [
-    "changes/PT-087-la-comprobacion-declara-que-hecho-establece/intake.md",
+    "changes/PT-089-la-divergencia-no-apaga-comprobaciones/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
