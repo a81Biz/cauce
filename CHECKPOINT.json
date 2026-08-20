@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define",
   "sha": "30b68c533d84b922a0a799d26bd954c1729961f7",
   "sha_corto": "30b68c5",
@@ -13,15 +13,13 @@
     "changes/PT-066-la-regla-que-se-consulta-es-la-que-se-define/intake.md",
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/intake.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-066/manifest.json",
     "docs/implementation/evidence/PT-066/salidas/selftest-completo.txt"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-19"
 }
