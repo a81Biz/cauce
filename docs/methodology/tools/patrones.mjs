@@ -123,6 +123,7 @@ export const RIGE_DESDE = {
   'FDGE-R53': [5, 1, 0],    // la tarea declara cómo termina · CHANGELOG 5.1.0
   'FDGE-R54': [10, 0, 0],   // la viabilidad consta antes de G2 · nace con EP-017
   'SUITE-R56': [10, 0, 0],  // el rastro sobrevive a la rama · nace con EP-017
+  'SUITE-R57': [10, 0, 0],  // lo integrado no se acumula sin sellar · nace con EP-017
 };
 
 /**

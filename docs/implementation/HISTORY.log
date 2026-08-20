@@ -3976,3 +3976,61 @@ Compuertas: G1 · G2 · G3 delegadas al agente por el firmante con constancia ·
   ejecutada el 2026-08-19 como EXCEPCION DECLARADA registrada en SESSION_LOG.md · G4 de EP-017
   y PUBLICAR: del firmante, sin delegar.
 Trazabilidad externa: issue #127
+
+## SELLO 10.0.0 — el grafo, regenerado
+Fecha: 2026-08-20 · Estado: HECHO · Versión: 10.0.0
+Estructural: no
+
+Paso 5 de los ocho de «tracker sellar». Lo dispara una persona (FDGE-R32) y el firmante lo
+autorizó como EXCEPCIÓN DECLARADA, registrada en SESSION_LOG.md junto con G4 y el tag.
+
+/graphify sobre el alcance que declara REGISTRY.graph.scope — bin, docs/methodology/tools —
+sin ampliarlo ni recortarlo: 17 archivos de código, 692 nodos, 1041 aristas, 27 comunidades.
+Extracción AST solamente: el corpus es código y no hay documento que extraer semánticamente.
+
+REGISTRY.graph: generated 2026-08-15 -> 2026-08-20 · pt_at_generation 48 -> 86.
+
+QUÉ CAMBIA DE VERDAD, que es el punto de PT-085: el grafo obsoleto contestaba que patrones.mjs
+tiene 2 importadores. Son 8 —audit, build-core, migrate, tracker, verify-fdge, verify-patrones,
+verify-suite y version— y el grafo regenerado contesta 8. FDGE-R43 pasa de SUSPECT · 12 de 16 a
+al día, y con eso «tracker sellar» deja de tener filas pendientes del agente.
+
+SELLO.md queda con los cinco documentos de entrada resueltos: cuatro ACTUALIZADO y uno
+NO PROCEDE con motivo (Suite-CLAUDE-Template.md, porque EP-017 no cambió qué parametriza un
+proyecto destino).
+
+Compuertas: G4 y el tag siguen siendo del firmante. Publicar NO está autorizado.
+Trazabilidad externa: issue #127
+
+## SELLO 10.0.0 — dos defectos encontrados sellando
+Fecha: 2026-08-20 · Estado: HECHO · Versión: 10.0.0
+Estructural: no
+
+Con el grafo ya al día, «verify-suite» avisó de algo que llevaba abierto desde PT-085:
+
+  SUITE-R19  SUITE-R57 es una regla HARD nueva y no declara desde qué versión rige.
+
+DEFECTO 1 · SUITE-R57 no tenía fila en RIGE_DESDE (tools/patrones.mjs). Sin fila, «rige SIEMPRE»
+—es el comportamiento por defecto, y es el correcto para reglas antiguas— así que la 10.0.0 iba a
+publicarse con una regla HARD gobernando tareas escritas en agosto. Es EXACTAMENTE el defecto que
+PT-081 existe para eliminar, en la cuarta regla. El mecanismo que PT-081 dejó puesto
+—reglasNuevasSinVersion— fue lo que lo cazó: la comprobación funcionando, no yo leyendo.
+Arreglo: 'SUITE-R57': [10, 0, 0].
+
+DEFECTO 2 · La guía de migración de la 10.0.0 decía «Dos reglas nuevas» y enumeraba FDGE-R54 y
+SUITE-R56. SUITE-R57 nació después, en PT-085, y nadie volvió al CHANGELOG. Un proyecto destino
+que actualizara se habría encontrado G2 bloqueada sin una línea que se lo explicara.
+Arreglo: tercera fila en la tabla de migración, con el comando y el umbral declarable, y la
+sección «Las tres reglas nuevas» con por qué se cuenta por LOTE CERRADO y no por tarea.
+
+LA LECCIÓN, y es la del lote otra vez: el paso 1 de «tracker sellar» comprueba que EXISTA entrada
+en el CHANGELOG con guía de migración. No comprueba que la guía ENUMERE las reglas nuevas. Un
+proxy barato en lugar del hecho — la misma forma que SUITE-R34, FDGE-R43, audit y regla. Se deja
+DECLARADO y no se arregla aquí: convertirlo en comprobación es trabajo de otra tarea, y hacerlo
+de paso mientras se sella es justo la prisa que este lote documentó.
+
+Se detuvo la batería en curso al descubrirlo: correrla sobre un árbol que iba a cambiar no habría
+medido nada. Se relanzó COMPLETA sobre el árbol final.
+
+Compuertas: G4 y el tag siguen siendo del firmante. Publicar NO está autorizado.
+Trazabilidad externa: issue #127

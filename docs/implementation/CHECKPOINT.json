@@ -5,13 +5,12 @@
   "status": "INTEGRATED",
   "phase": 10,
   "fase": null,
-  "rama": "fix/alberto-martinez/PT-085-el-sello-de-version",
-  "sha": "1c2db648e0a6c40ddc49c85e12f86c3bd849db01",
-  "sha_corto": "1c2db64",
+  "rama": "trabajo",
+  "sha": "555ac3180cea706d7c6744f0d87aa674822337e4",
+  "sha_corto": "555ac31",
   "sucio": true,
   "archivos": [
-    "changes/PT-073-los-tres-documentos-que-lee-quien-llega/traceability.md",
-    "docs/implementation/HANDOFF.md"
+    "docs/implementation/SESSION_LOG.md"
   ],
   "compuerta": null,
   "produce": [],
