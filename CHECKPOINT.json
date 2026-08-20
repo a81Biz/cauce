@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico",
   "sha": "f997b5298d96bff79c058a79470b06cde665ca19",
   "sha_corto": "f997b52",
@@ -12,17 +12,15 @@
   "archivos": [
     "changes/PT-079-lo-que-se-aprende-se-hace-mecanico/intake.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-079/manifest.json",
     "docs/implementation/evidence/PT-079/salidas/inversa.txt",
     "docs/implementation/evidence/PT-079/salidas/proyeccion.txt",
     "docs/implementation/evidence/PT-079/salidas/selftest-completo.txt"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-19"
 }
