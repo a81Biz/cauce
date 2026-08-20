@@ -1,16 +1,21 @@
 {
-  "pt": "PT-081",
-  "type": "BUG",
+  "pt": "PT-019",
+  "type": "CHORE",
   "epic": "EP-017",
-  "status": "READY",
-  "phase": 9,
-  "fase": "Integración",
+  "status": "REOPENED",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "trabajo",
   "sha": "f8fcc4c34424738d4ed6e1fa8268321d5add1a9c",
   "sha_corto": "f8fcc4c",
   "sucio": true,
   "archivos": [
     "CLAUDE.md",
+    "changes/PT-019-migrar-el-proyecto-legado/acciones-humanas.md",
+    "changes/PT-019-migrar-el-proyecto-legado/design.md",
+    "changes/PT-019-migrar-el-proyecto-legado/discovery.md",
+    "changes/PT-019-migrar-el-proyecto-legado/intake.md",
+    "changes/PT-019-migrar-el-proyecto-legado/traceability.md",
     "changes/PT-069-los-indices-derivados-necesitan-generador/intake.md",
     "changes/PT-070-el-alcance-del-grafo-lo-calcula-la-herramienta/intake.md",
     "changes/PT-071-publicar-comprueba-lo-mismo-que-verificar/intake.md",
@@ -28,6 +33,7 @@
     "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-019/",
     "docs/implementation/evidence/PT-081/",
     "docs/methodology/CHANGELOG.md",
     "docs/methodology/CORE.md",
@@ -57,8 +63,10 @@
     "docs/methodology/tools/verify-suite.mjs",
     "package.json"
   ],
-  "compuerta": "G4",
-  "produce": [],
-  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
+  "compuerta": null,
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-20"
 }
