@@ -3033,3 +3033,55 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-066 — BUG: la regla que se consulta es la que se define
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S2 · Complejidad: TRIVIAL · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que `regla.mjs` devuelva la definición de la regla que se le pide.
+
+Causa raíz: definicionDe() decidía por MENCIÓN — devolvía la primera línea que contenía el ID y
+casaba HARD|SOFT. 47 de 197 mal:
+  21 se declaraban INEXISTENTES: las 20 CHECK de RULES.md y las 15 EXEC-* en prosa, que no
+     llevan severidad en la línea. Entre ellas FDGE-R34, que CLAUDE.md nombra precondición de
+     G4. Y el mensaje que lo dice ACUSA a quien las cita — le pasó a este agente en PHASE 0 con
+     tres reglas correctas, y fue el primer hallazgo del lote.
+  26 devolvían el texto de OTRA regla bajo la cabecera «definida en RULES.md». Ésas son peores:
+     no fallan, MIENTEN con formato de respuesta correcta. Es lo que este mismo archivo tiene
+     escrito veinte líneas más abajo, en un comentario de PT-051: «una linea equivocada y
+     creible es peor que ninguna». PT-051 arregló ese patrón en fallosPosibles; definicionDe,
+     en el mismo archivo, lo conservó.
+
+Solución: la definición EMPIEZA por su ID. El ancla ^ es todo el arreglo, y la severidad deja de
+ser criterio. Son DOS formas, no tres: RULES.md usa filas de tabla; LEXICON.md y
+EXECUTION-MODES.md usan prosa, porque lo que definen son nombres y compuertas.
+El formato de los documentos NO se toca: se arregla quien lee.
+
+Archivos modificados: tools/regla.mjs · tools/selftest.sh
+
+Evidencia: evidence/PT-066/ · manifest.json · self-review.md ·
+  salidas/caso-real.txt · salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis. El caso NO es una muestra: deriva el universo de los tres
+documentos propietarios y exige por cada ID DOS condiciones —que no sea null y que el texto
+EMPIECE por ese ID—. La segunda es la que faltaba.
+selftest 1022 -> 1024, cero fallos. PT-076 sin regresión: huellas idénticas.
+
+Delta real vs planificado: 2 formas de definición en vez de 3, y 2 casos en vez de 6 —el que
+  recorre el universo cubre AC-01..AC-04 y AC-06—.
+
+No verificado, declarado: que la salida sea ÚTIL y no sólo correcta · que RULE-nn de
+  11-Conventions se encuentre, que no estaba roto ni lo está, pero tampoco está cubierto.
+
+Tres desviaciones declaradas: mi primera versión dejaba fuera las LEX-R enteras · tres intentos
+  de andamiaje porque no miré que trlib() ya lo resolvía treinta líneas más arriba desde
+  PT-058 · y dos fallos encadenados en E5, uno de caja y otro de colocación —RG2() se define en
+  la 3677 y el caso estaba en la 2656, mismo error que ya cometí con TRR—.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: —
