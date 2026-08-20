@@ -6,13 +6,15 @@
 | AC-02 | Entre estados **no terminales**: sigue siendo aviso | E3 · E4 | `selftest.sh`: «dos estados VIVOS distintos no son error» · «…ni dos terminales distintos» | `salidas/comprobacion.txt` | VERIFICADO |
 | AC-03 | `avanzar` escribe **las dos** fuentes en el mismo acto | E7 · E8 · E9 | `selftest.sh`: «avanzar a la ultima fase marca terminal» · «…y lo escribe TAMBIEN en el YAML» · «…y no pisa un estado terminal ya declarado» | `salidas/divergencias.txt` | VERIFICADO |
 | AC-04 | Las divergencias vivas quedan resueltas | E10 | `selftest.sh`: «el arbol real no tiene ninguna sin sincronizar» | `salidas/divergencias.txt` | VERIFICADO |
-| AC-05 | `SUITE-R35` declara su fila en `RIGE_DESDE` | — | **no procede**, y se justifica abajo | `salidas/comprobacion.txt` | VERIFICADO |
+| AC-05 | `SUITE-R35` **no necesita** fila en `RIGE_DESDE` | E11 | `selftest.sh`: «SUITE-R35 no necesita fila en RIGE_DESDE» | `salidas/comprobacion.txt` | VERIFICADO |
 | AC-06 | Tras el arreglo bajan los avisos y ninguno es de esta clase | E5 · E6 | `selftest.sh`: «una «phase» divergente NO es error» · «…pero si avisa» | `salidas/divergencias.txt` | VERIFICADO |
 | AC-07 | El mensaje declara **qué no establece** | E2 | `selftest.sh`: «…y el mensaje dice que NO elige fuente» | `salidas/comprobacion.txt` | VERIFICADO |
 
-## `AC-05` no procede, y decirlo es el trabajo
+## `AC-05` se invirtió, y **se comprueba**
 
-El intake pedía una fila en `RIGE_DESDE`. **No hace falta**: las seis divergencias se resolvieron
+El intake pedía una fila en `RIGE_DESDE`. **No hace falta, y eso tiene su caso** — un `AC` sin
+escenario es huérfano (`FDGE-R15`), y declarar «no procede» sin poder enseñarlo sería justo lo que
+este lote persigue: las seis divergencias se resolvieron
 en esta misma tarea, así que la comprobación nace **verde** sobre el árbol existente.
 
 `PT-088` sí la necesitaba —`EXEC-R04` nacía con 17 fallos sobre trabajo de agosto— y de ahí venía

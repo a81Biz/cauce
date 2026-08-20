@@ -4647,6 +4647,15 @@ sec "── PT-087 · la comprobacion declara que hecho establece ──"
 # Windows la del arnes no lo es, asi que import() reventaba en los diez casos. Lo escondia
 # que el arnes solo dice «la herramienta revento» — y esa es, otra vez, la diferencia entre
 # el sujeto y el observable.
+# Dice si una regla tiene fila en RIGE_DESDE. Se escribe aparte porque PAT() serializa el
+# RESULTADO de una funcion, y aqui lo que se mira es una TABLA.
+PAT_KEY() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_ID="$1" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  console.log(m.RIGE_DESDE[process.env.MTH_ID] ? 'TIENE_FILA' : 'SIN_FILA');
+});"
+}
+
 PAT() {
   MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_ARGS="$2" node -e "
 import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
@@ -4780,6 +4789,12 @@ chk   "…y no pisa un estado terminal ya declarado"    "DEFERRED" \
   sh -c 'node -e "console.log(JSON.parse(require(String.fromCharCode(102,115)).readFileSync(process.argv[1],\"utf8\")).allocations.find(a=>a.id===\"PT-001\").status)" "$1/docs/implementation/REGISTRY.json"' _ "$WORK"
 
 # ── sobre el arbol real: las seis quedaron sincronizadas ────────────────────
+# AC-05 · «no procede» SI es comprobable: que SUITE-R35 no tenga fila en RIGE_DESDE y que aun
+# asi el arbol este verde. Un AC sin escenario es huerfano (FDGE-R15), y declarar «no procede»
+# sin poder ensenarlo seria exactamente lo que este lote persigue.
+chk   "SUITE-R35 no necesita fila en RIGE_DESDE"      "SIN_FILA" \
+  PAT_KEY SUITE-R35
+
 chk   "el arbol real no tiene ninguna sin sincronizar" "VACIO" \
   sh -c 'cd "$1" && node -e "
 const fs = require(String.fromCharCode(102,115));

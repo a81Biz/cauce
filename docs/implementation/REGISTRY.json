@@ -2321,7 +2321,7 @@
       "severity": "S2",
       "complexity": "STANDARD",
       "track": "STANDARD",
-      "phase": 1,
+      "phase": 2,
       "structural": false,
       "epic": "EP-018",
       "suite_version": "10.0.0",

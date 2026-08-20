@@ -4302,6 +4302,10 @@ TRES DEFECTOS MIOS EN LOS CASOS, los tres del linaje del lote: el intake del fix
 asi que tuve que ejecutarlo A LA VISTA, el mismo error que dos tareas antes; y un salto de linea
 dentro de «sed s///» no es portable, resuelto con el comando «i», que no necesita escapar nada.
 
-bateria: 1145 -> 1155 casos, cero fallos, cuatro corridas completas.
+FDGE-R15 me cazo un AC HUERFANO: deje AC-05 sin escenario al declararlo «no procede». Y «no
+procede» SI es comprobable — que SUITE-R35 no tenga fila en RIGE_DESDE y que el arbol este verde
+igual. Declarar que algo no aplica sin poder ensenarlo es lo que este lote persigue.
+
+bateria: 1145 -> 1156 casos, cero fallos, cinco corridas completas.
 Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
 Trazabilidad externa: issue #165

@@ -70,16 +70,18 @@
     },
     {
       "ac": "AC-05",
-      "statement": "SUITE-R35 declara su fila en RIGE_DESDE",
-      "scenarios": [],
+      "statement": "SUITE-R35 NO necesita fila en RIGE_DESDE, y se comprueba",
+      "scenarios": [
+        "E11"
+      ],
       "tests": [
-        "no procede: la comprobacion nace verde"
+        "selftest.sh:SUITE-R35 no necesita fila en RIGE_DESDE"
       ],
       "evidence": [
         "salidas/comprobacion.txt"
       ],
       "verified": true,
-      "nota": "NO PROCEDE, y decirlo es el trabajo. Las seis se resolvieron en esta tarea, asi que la comprobacion nace verde sobre el arbol existente. PT-088 si lo necesitaba —17 fallos sobre agosto— y copiar el criterio habria anadido una fila que mantener y que no protege de nada."
+      "nota": "El intake pedia la fila. NO hace falta —la comprobacion nace verde porque las seis se resolvieron aqui— y eso SE COMPRUEBA: un AC sin escenario es huerfano (FDGE-R15), y declarar «no procede» sin poder ensenarlo seria justo lo que este lote persigue. PT-088 si la necesitaba: EXEC-R04 nacia con 17 fallos sobre agosto."
     },
     {
       "ac": "AC-06",
@@ -149,9 +151,9 @@
     }
   ],
   "suite": {
-    "passed": 1155,
+    "passed": 1156,
     "failed": 0,
     "baseline": 1145,
-    "nota": "1145 mas 10 nuevos. Corrida COMPLETA, cero fallos. Hicieron falta cuatro corridas."
+    "nota": "1145 mas 11 nuevos. Corrida COMPLETA, cero fallos. El caso 11 lo obligo FDGE-R15: AC-05 se quedo huerfano al declararlo «no procede», y «no procede» SI es comprobable."
   }
 }

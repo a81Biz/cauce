@@ -15,6 +15,7 @@ escenario positivo.
 | `E8` | …y el YAML también | `status: INTEGRATED` en el intake |
 | `E9` | `avanzar` a la última fase con la tarea ya `DEFERRED` | sigue `DEFERRED` |
 | `E10` | el árbol real | ninguna terminal sin sincronizar |
+| `E11` | `SUITE-R35` en `RIGE_DESDE` | **no está**, y el árbol está verde igual |
 
 ## `E3` y `E4` son los que impiden que nazca roja
 
