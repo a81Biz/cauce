@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: a646985a2c76 -->
-<!-- fuentes: RULES.md:3deb3c56ebc5 LEXICON.md:9ed32ef85f5b EXECUTION-MODES.md:032b890f2c0b PHASES.md:db90ed1a940a -->
+<!-- cuerpo: 27f216f5c76a -->
+<!-- fuentes: RULES.md:2b8a0a23065a LEXICON.md:9ed32ef85f5b EXECUTION-MODES.md:032b890f2c0b PHASES.md:1c574b02a9bb -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -197,6 +197,7 @@ verifica un script y bloquea la integración.
 `SUITE-R53` **H** La regla se alcanza desde el fallo, y lo que puede fallar se deriva.
 `SUITE-R54` **H** El agente lee su manual, y puede consultarlo.
 `SUITE-R55` **H** Las decisiones humanas de una migración se conducen, no se enumeran.
+`SUITE-R56` **H** El rastro de una tarea sobrevive a la rama que lo produjo.
 
 ### LEX — Nombres
 
@@ -826,6 +827,10 @@ HAZ  precondiciones, todas verificables [FDGE-R34]:
      PR «PT-XXX tipo: título» con enlaces a Proposal, evidencia y manifest · CI verde
      tras el merge: tag si aplica · borrar rama · PT→INTEGRATED · intake.md CLOSED
        CONSERVAR changes/PT-XXX-slug/ [FDGE-R35] · actualizar HANDOFF, BACKLOG, REGISTRY
+     tras el merge: PUBLICAR LA PROYECCION — el rastro sobrevive a la rama  [SUITE-R56]
+       node tools/tracker.mjs proyectar --publicar
+       la rama efimera se borra (FDGE-R19); el enlace del issue apunta a un ref
+       DURABLE y la proyeccion guarda el SHA de cada tarea
 PARA G4 HUMANA EN LOS TRES MODOS, sin excepción [FDGE-R33, EXEC-R04]. Prepara el comando y
      descríbelo. Registra quién resolvió cada compuerta [SUITE-R22].
 ```

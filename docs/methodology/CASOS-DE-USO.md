@@ -70,6 +70,7 @@ HUMANO       lo que no se automatiza nunca en ese caso
 | **Fin** | Sabes qué está abierto y en qué fase, sin haberlo recordado |
 | **Humano** | Nada. Es solo lectura |
 | **Ojo** | Si un subcomando dice que **no existe**, tu copia es anterior a la que lo trae. El mensaje da la salida: `npx @a81biz/cauce@latest …` |
+| **Y además** | Si quedó proyección sin publicar de la sesión anterior, se ve aquí y se publica: `tracker proyectar --publicar` (`SUITE-R56`). El rastro de una tarea tiene que sobrevivir a su rama, y la rama se borra al fusionar |
 
 ### A6 · Estoy dentro del repositorio de cauce
 
@@ -171,7 +172,17 @@ Bloquea en la rama de trabajo; **informa** en la rama por defecto (`SUITE-R47`).
 npm run verify
 ```
 
-### C5 · ¿El sistema hace lo que el negocio necesita?
+### C5 · ¿Sigo pudiendo rastrear una tarea cerrada?
+
+| | |
+|:---|:---|
+| **Entrada** | `node docs/methodology/tools/verify-fdge.mjs --all` |
+| **Recorrido** | Comprueba que ningún issue vivo enlace a un ref que ya no existe (`SUITE-R56`) |
+| **Fin** | Los enlaces del tablero siguen abriendo el intake, la evidencia y la trazabilidad **aunque la rama de la tarea se haya borrado** |
+| **Humano** | Nada. Es solo lectura |
+| **Ojo** | La rama efímera **se borra al fusionar** y eso es correcto (`FDGE-R19`). Lo que no puede morir con ella es el enlace: apunta a la rama de integración o al commit, nunca a la efímera. El día que se midió, **14 de 16 enlaces daban 404** y nada lo decía |
+
+### C6 · ¿El sistema hace lo que el negocio necesita?
 
 | | |
 |:---|:---|
@@ -179,7 +190,7 @@ npm run verify
 | **Recorrido** | Audita los productos reales contra la Declaración de Valor firmada |
 | **Fin** | Matriz de auditoría **sin celdas en blanco** (`PTSA-R77`) |
 
-### C6 · ¿Puede el usuario usarlo de verdad?
+### C7 · ¿Puede el usuario usarlo de verdad?
 
 | | |
 |:---|:---|
@@ -187,7 +198,7 @@ npm run verify
 | **Recorrido** | Navegador real, recorridos reales |
 | **Fin** | Cada caso con su evidencia; un happy path fallido no es `QA-A` |
 
-### C7 · ¿Hay secretos en el árbol o en la historia?
+### C8 · ¿Hay secretos en el árbol o en la historia?
 
 ```bash
 node docs/methodology/tools/revisar-secretos.mjs

@@ -177,7 +177,7 @@ export function etiquetasDe(alloc) {
 const RE_DERIVADA = /^(fase: \d+|G[1-4])$/;
 
 /** Compara registro y plataforma EN LAS DOS DIRECCIONES. Sin efectos y sin red. */
-export function compararEspejo(vivas, issues, todas) {
+export function compararEspejo(vivas, issues, todas, refExiste) {
   const div = [];
   const porNumero = new Map((issues ?? []).map((i) => [i.number, i]));
   for (const a of vivas ?? []) {
@@ -189,6 +189,18 @@ export function compararEspejo(vivas, issues, todas) {
       // El estado publicado tiene que ser el que el registro deriva. Publicarlo sin comprobarlo
       // es escribir en dos sitios y esperar que no se separen — la avería que SUITE-R35 impide.
       const i = porNumero.get(a.issue);
+      // PT-079 · SUITE-R56 · el rastro sobrevive a la rama.
+      //
+      // El enlace apuntaba a «la rama en la que corrio el espejo», y FDGE-R19 borra la rama
+      // efimera al fusionar. El dia que se midio, 14 de los 16 enlaces daban 404 y uno
+      // apuntaba a la rama de OTRA tarea. Nada lo decia, y por eso va aqui: un enlace que ya
+      // no abre es exactamente una divergencia entre el registro y la plataforma.
+      //
+      // «refExiste» se inyecta para que esta funcion siga siendo comprobable sin git ni red.
+      const ref = refDeEnlace(i.body);
+      if (ref && refExiste && refExiste(ref) === false) {
+        div.push({ regla: 'SUITE-R56', mensaje: `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe. La rama efimera se borra al fusionar (FDGE-R19); el enlace tiene que apuntar a un ref DURABLE — la rama de integracion, o el commit. Se corrige republicando:  tracker abrir --aplicar` });
+      }
       if (Array.isArray(i.labels)) {
         const tiene = i.labels.map((l) => l.name ?? l).filter((n) => RE_DERIVADA.test(n)).sort();
         const debe = etiquetasDe(a).filter((n) => RE_DERIVADA.test(n)).sort();
@@ -253,13 +265,28 @@ export const ramaDe = (usuario) => {
   return n ? `cauce/${n}` : null;
 };
 
-/** El cuerpo de ESTADO.md: una fila por allocation VIVA, con el SHA de SU rama. Funcion pura. */
-export function estadoProyectado(vivas, shaDe, fecha) {
+/**
+ * El cuerpo de ESTADO.md: una fila por allocation VIVA. Funcion pura.
+ *
+ * PT-079 · SUITE-R56 · Dos SHA, y no es redundancia:
+ *
+ *   SHA rama       la punta de SU rama. Dice donde esta el trabajo AHORA, y MUERE con la rama
+ *                  —FDGE-R19 la borra al fusionar—.
+ *   SHA contenido  el ultimo commit que toco changes/PT-NNN-slug/. NO muere: es lo que permite
+ *                  reconstruir donde estaba cada cosa cuando las ramas ya no existen.
+ *
+ * Hasta aqui solo estaba el primero, y estaba VACIO justo para las tareas sin rama declarada
+ * —las de PHASE 1 a 4—, que son las que mas lo necesitaran cuando la tengan y la pierdan. El
+ * registro pensado para ser durable no estaba registrando lo durable.
+ */
+export function estadoProyectado(vivas, shaDe, fecha, shaContenidoDe) {
+  const corto = (x) => (x ? String(x).slice(0, 7) : '—');
   const filas = vivas.map((a) => {
     // El SHA sale de la punta de SU rama, no de la actual: una tarea sin rama creada lo declara
     // VACIO en vez de heredar el de otra. Un SHA prestado seria una afirmacion falsa (RULE-06).
     const sha = a.branch ? (shaDe(a.branch) ?? '') : '';
-    return `| ${a.id} | ${a.type ?? ''} | ${a.status ?? ''} | ${a.phase ?? '—'} | ${a.branch ?? '—'} | ${sha ? sha.slice(0, 7) : '—'} |`;
+    const cont = shaContenidoDe ? (shaContenidoDe(a) ?? '') : '';
+    return `| ${a.id} | ${a.type ?? ''} | ${a.status ?? ''} | ${a.phase ?? '—'} | ${a.branch ?? '—'} | ${corto(sha)} | ${corto(cont)} |`;
   });
   return [
     '# ESTADO — proyección derivada de cauce',
@@ -271,8 +298,8 @@ export function estadoProyectado(vivas, shaDe, fecha) {
     '',
     `Proyectado el ${fecha ?? 'sin fecha'} · ${vivas.length} allocation(es) viva(s).`,
     '',
-    '| Id | Tipo | Estado | Fase | Rama | SHA |',
-    '|:---|:---|:---|:---|:---|:---|',
+    '| Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |',
+    '|:---|:---|:---|:---|:---|:---|:---|',
     ...filas,
     '',
   ].join('\n');
@@ -581,7 +608,9 @@ const ADAPTADORES = {
     comoAutenticarse: 'gh auth login',
     abiertos() {
       const out = execFileSync('gh', ['issue', 'list', '--state', 'open', '--limit', '500',
-        '--json', 'number,title,state,labels'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+        // PT-079 · «body» tambien: sin el, el espejo no puede ver a donde apunta el enlace
+        // publicado, y 14 de 16 apuntaban a ramas borradas sin que nada lo dijera (SUITE-R56).
+        '--json', 'number,title,state,labels,body'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return JSON.parse(out);
     },
     crear(titulo, cuerpo, etiquetas) {
@@ -945,7 +974,10 @@ const vivas = vivasDe(all);
 // el arnés puede probar sin credenciales.
 function espejo() {
   const issues = adaptador.abiertos();
-  const div = compararEspejo(vivas, issues, all);
+  // PT-079 · el resolvedor va inyectado: compararEspejo sigue siendo comprobable sin git.
+  const refExiste = (r) => gitDe(['rev-parse', '--verify', '--quiet', r]) !== null
+    || gitDe(['rev-parse', '--verify', '--quiet', `origin/${r}`]) !== null;
+  const div = compararEspejo(vivas, issues, all, refExiste);
   // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
   //
   // El registro que asigna vive en la rama de trabajo. El de la rama por defecto es el del
@@ -1966,7 +1998,12 @@ function proyectar({ silencioso = false } = {}) {
 
   const fecha = gitDe(['log', '-1', '--format=%cs']);
   const contenido = {
-    'ESTADO.md': estadoProyectado(vivas, (r) => gitDe(['rev-parse', '--verify', r]), fecha),
+    // PT-079 · el cuarto resolvedor es el SHA del CONTENIDO: el ultimo commit que toco el
+    // directorio de la tarea. Existe desde PHASE 1 y NO muere con la rama, que es lo que hace
+    // reconstruible el rastro cuando FDGE-R19 la borra al fusionar (SUITE-R56).
+    'ESTADO.md': estadoProyectado(vivas, (r) => gitDe(['rev-parse', '--verify', r]), fecha,
+      (a) => gitDe(['log', '-1', '--format=%H', '--',
+        `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`])),
   };
   const cp = join(IMPL, 'CHECKPOINT.json');
   if (existsSync(cp)) contenido['CHECKPOINT.json'] = readFileSync(cp, 'utf8');

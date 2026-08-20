@@ -199,12 +199,23 @@ El orden importa y no es una convención:
 1 · el estado terminal se apunta en la rama de trabajo
 2 · el merge  ← G4, tuyo
 3 · tracker cerrar --aplicar
+4 · tracker proyectar --publicar   ← el rastro sobrevive a la rama
 ```
 
 Al revés, la rama principal queda declarando trabajo vivo con el issue ya cerrado y su compuerta
 falla **después de cada merge** (`SUITE-R46`). La herramienta se niega si te adelantas.
 
-Publicar es aparte, es manual y es tuyo.
+**El paso 4 no es opcional** (`SUITE-R56`). Al fusionar se borra la rama de la tarea —así debe
+ser (`FDGE-R19`)—, y con ella moriría cualquier enlace que apuntase ahí. Dos cosas lo impiden: el
+enlace del issue apunta a un **ref durable** —la rama de integración, o el commit—, y la
+proyección `cauce/<usuario>` guarda **el SHA de cada tarea**, que es lo que permite reconstruir
+dónde estaba cada cosa cuando las ramas ya no existen.
+
+No es una precaución teórica: el día que se midió, **14 de los 16 enlaces del tablero daban
+404**, y uno apuntaba a la rama de otra tarea. La proyección estaba diseñada desde `PT-054` y
+tenía `--publicar` — nunca se había ejecutado, porque nada la exigía.
+
+Publicar el paquete es aparte, es manual y es tuyo.
 
 ---
 

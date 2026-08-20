@@ -1,0 +1,3 @@
+=== AC-03 · los enlaces del tablero, medidos igual que al abrir la tarea ===
+  ANTES:   14 de 16 rotos
+  DESPUES: 0 de 17 rotos
