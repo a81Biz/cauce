@@ -1,3 +1,11 @@
-=== AC-03 · los enlaces del tablero, medidos igual que al abrir la tarea ===
-  ANTES:   14 de 16 rotos
-  DESPUES: 0 de 17 rotos
+=== AC-03 · AC-04 · SUITE-R56 · los enlaces del tablero, medidos ===
+fecha: 2026-08-19 · fuente: gh issue list --state all --limit 200
+el ref se extrae ENTERO (tres segmentos: <type>/<usuario>/PT-NNN-slug) y se
+resuelve con git rev-parse. ROTO = el ref no resuelve a ningun commit.
+
+  ANTES   (medicion parcial, solo issues vivos de EP-017)   14 de 16 rotos
+  ANTES   (tablero COMPLETO, con el arreglo ya puesto)      20 de 40 rotos
+          -> sincronizarCuerpos() solo recorria las vivas, y la tarea viva TIENE
+             su rama. El enlace que se rompe es el de la CERRADA.
+
+  DESPUES (tablero COMPLETO, con repararEnlacesMuertos)     0 de 85 rotos

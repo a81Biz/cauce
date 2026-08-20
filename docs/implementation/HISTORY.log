@@ -3085,3 +3085,95 @@ Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 20
   Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
   G4 pendiente
 Trazabilidad externa: —
+
+## PT-079 — BUG: lo que se aprende se hace mecánico
+Fecha: 2026-08-19 · Estado: DONE · Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Implementación: EP-017
+Rama: fix/alberto-martinez/PT-079-lo-que-se-aprende-se-hace-mecanico
+Modo: SUPERVISED con restricción automática EXEC-R14 en vigor (se opera como MANUAL)
+Estructural: no
+
+Objetivo: que el rastro de una tarea sobreviva a la rama que lo produjo, y que los diez fallos
+que este lote cometió al escribirse dejen de depender de que yo me acuerde.
+
+Causa raíz — FAMILIA A · la trazabilidad. Mi primer diagnóstico era falso y lo corregí antes de
+escribir código: la documentación NO se pierde —changes/PT-075/ tiene sus diez archivos en
+trabajo—. Lo que muere es el ENLACE, y por dos defectos distintos:
+  A-1 el ref salía de la rama DONDE CORRÍA EL ESPEJO, no de donde está el contenido. Por eso el
+      issue de PT-072 apuntaba a la rama de PT-074.
+  A-2 y esa rama se borra al fusionar (FDGE-R19), así que el enlace moría con ella.
+  Y la rama que el firmante recordaba haber acordado EXISTE: LEXICON §6.5 la describe desde
+  PT-054, tracker proyectar --publicar funciona, y nunca se ejecutó. Su columna SHA estaba
+  además vacía justo para las tareas de PHASE 1 a 4 — el registro pensado para ser durable no
+  registraba lo durable.
+
+Causa raíz — FAMILIA B · los diez fallos del lote no son descuidos sueltos: tres tienen forma
+mecánica. Una aserción anclada sólo en un ID pasa en vacío; un helper usado antes de definirse
+falla por «no encontrado» y no por el hecho; y una inversa que no casa no revierte NADA y
+certifica lo contrario de lo que pretende (PT-074, sexto de su familia).
+
+Causa raíz — FAMILIA C · PT-075 demostró que una regla sin verificador no ocurre. La proyección
+lo demuestra mejor todavía: estaba diseñada, escrita, implementada y documentada, y aun así no
+ocurría — porque ninguna regla la exigía, ninguna fase la abría, ningún verificador la echaba
+en falta, ningún caso de uso la describía y el manual no la nombraba.
+
+Solución: SUITE-R56 —el rastro de una tarea sobrevive a la rama que lo produjo— y refDurable,
+que calcula el ref desde el CONTEXTO mirando dónde está el contenido: la rama de integración
+si está ahí, si no el SHA del commit, y si no hay ninguno NO se enlaza y se DICE (RULE-06); un
+404 silencioso es peor que una ruta sin enlace. El espejo además FALLA si un issue vivo enlaza
+a un ref que ya no existe — es una divergencia entre registro y plataforma (SUITE-R35).
+Tres guardas en la batería: inversa() ABORTA si su patrón no casa, y dos lints enumeran las
+aserciones sospechosas (7) y los helpers usados antes de definirse.
+Y la regla en los CINCO sitios —RULES, PHASES/CORE, verify-fdge, CASOS-DE-USO, MANUAL—, que son
+UN criterio y no cinco: si faltara uno, el arreglo caducaría igual que caducó el de PT-054.
+
+Archivos modificados: RULES.md · PHASES.md · FDGE-Prompts.md · CASOS-DE-USO.md · MANUAL.md ·
+  CORE.md (regenerado) · tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh ·
+  10-Technical-Debt.md (TD-16)
+
+Evidencia: evidence/PT-079/ · manifest.json · self-review.md ·
+  salidas/enlaces.txt · salidas/proyeccion.txt · salidas/td-16.txt ·
+  salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-12 ✓, los doce.
+  ENLACES DEL TABLERO   ANTES 20 de 40 rotos   DESPUÉS 0 de 85
+  PROYECCIÓN · SHA      ANTES columna vacía    DESPUÉS el SHA del contenido
+  LOS CINCO SITIOS      ANTES 0 de 5           DESPUÉS 5 de 5
+selftest 1024 -> 1042, cero fallos. PT-076 sin regresión: huellas idénticas.
+
+AC-03 estuvo mal dado por cumplido, y es el hallazgo mas serio de la tarea. Medi «0 de 17»
+sobre los issues VIVOS de EP-017 y lo escribi como si fuera el tablero; medido completo en
+PHASE 9 seguian 20 de 40 rotos CON EL ARREGLO YA PUESTO. El motivo es la regla del reves:
+sincronizarCuerpos() recorria solo las vivas, y una tarea viva TIENE su rama —su enlace
+funciona—. El que se rompe es el de la tarea CERRADA, que es justo aquella para la que existe
+SUITE-R56. Anadido repararEnlacesMuertos(), que reescribe solo lo roto y solo si hay ref
+durable: 26 issues reparados, idempotente, 0 de 85 al medir de nuevo.
+Y dentro del mismo error otro: mi script de medicion cortaba el ref en la primera barra cuando
+FDGE-R19 le da tres segmentos —devolvia «fix» o «chore»— y ACERTABA EL VEREDICTO POR CASUALIDAD.
+Un extractor que corta de menos no falla. Cubierto con un caso de ref de tres segmentos.
+
+Delta real vs planificado: puse la comprobación del enlace en verify-fdge, con funciones que no
+  existen ahí; su sitio es el ESPEJO y lo dijo intentarlo. Seis casos previos de PT-036 y PT-048
+  cayeron y NO los hice pasar: cinco sólo cambian de dónde sale el ref, pero el sexto CAMBIA DE
+  SENTIDO y es el núcleo del arreglo —«sin saber la rama, cae en la principal» era literalmente
+  lo que producía los enlaces muertos—. PT-036 arregló el 404 al EMPEZAR; PT-079 arregla el 404
+  al TERMINAR; los dos tenían razón y refDurable es la síntesis. Y dos columnas de SHA en vez de
+  una: rama y contenido tienen semánticas distintas.
+
+Tres desviaciones declaradas, y las tres son el defecto que la tarea persigue, cometido al
+  escribirla: el caso de «inversa» pasaba EN VERDE con el helper aún sin escribir —el if fallaba
+  porque la orden no existía y devolvía ABORTA—, y lint_helpers se acusó a sí mismo dos veces,
+  primero por sus propios comentarios y después por la línea que declara su lista. Las tres se
+  cerraron anclando el «uso» en la invocación de caso, en vez de tapar cada autorreferencia.
+  Cuarta vez en el lote insistiendo en generar archivos con scripts; cuarta vez que la solución
+  fue escribirlos directamente.
+
+No verificado, declarado en TD-16: que un caso se viera EN ROJO antes de existir su arreglo —no
+  deja rastro en el repositorio— · que una aserción CASE con la salida real —tres de los diez
+  fallos fueron caja o acentos y ninguna herramienta estática los ve— · y que las 7 aserciones
+  sospechosas sean de verdad malas: se ENUMERAN, no se revisan.
+
+Compuertas: G1 2026-08-19 Alberto Martínez (por lote EP-017, delegada) · G2 2026-08-19 Alberto
+  Martínez (delegada) · G3 2026-08-19 Alberto Martínez (delegada; EXEC-R14 en vigor) ·
+  G4 pendiente
+Trazabilidad externa: —

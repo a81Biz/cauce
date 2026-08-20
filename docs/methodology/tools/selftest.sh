@@ -2695,6 +2695,12 @@ trlibno "la rama del espejo NO decide"       "otra-rama"       "console.log(m.cu
 # necesita para comprobar que sigue existiendo.
 trlib "se extrae la rama de un enlace"      "^trabajo$"        "console.log(m.refDeEnlace('ver [x](https://h/o/r/tree/trabajo/changes/PT-9-x)'))"
 trlib "…y null si no hay enlace"            "^null$"           "console.log(JSON.stringify(m.refDeEnlace('sin enlace ninguno')))"
+# El ref tiene TRES segmentos —FDGE-R19: <type>/<usuario>/PT-NNN-slug—, asi que extraerlo
+# cortando en la primera barra devuelve «fix» y da por bueno cualquier enlace muerto. Me paso
+# midiendo el tablero para esta misma tarea: la medicion decia 20 rotos con los refs mal leidos,
+# y era casualidad que el numero saliera igual. Un extractor que corta de menos NO falla: acierta
+# el veredicto por accidente, que es la forma de error que este lote persigue.
+trlib "…y el ref de tres segmentos entero"  "^fix/ana/PT-9-x$" "console.log(m.refDeEnlace('ver [x](https://h/o/r/tree/fix/ana/PT-9-x/changes/PT-9-x)'))"
 
 # FAMILIA B · las guardas del arnes.
 #

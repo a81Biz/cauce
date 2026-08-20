@@ -694,6 +694,13 @@ const ADAPTADORES = {
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
       return (JSON.parse(out).labels ?? []).map((l) => l.name);
     },
+    // PT-079 · el cuerpo de UN issue, abierto o cerrado. `abiertos()` no sirve para reparar el
+    // enlace de una tarea terminada: su issue esta cerrado, y es justo el que se rompe.
+    cuerpoRemoto(numero) {
+      const out = execFileSync('gh', ['issue', 'view', String(numero), '--json', 'body'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+      return JSON.parse(out).body ?? '';
+    },
     etiquetar(numero, poner, quitar) {
       const args = ['issue', 'edit', String(numero)];
       for (const e of poner ?? []) args.push('--add-label', e);
@@ -974,9 +981,6 @@ const vivas = vivasDe(all);
 // el arnés puede probar sin credenciales.
 function espejo() {
   const issues = adaptador.abiertos();
-  // PT-079 · el resolvedor va inyectado: compararEspejo sigue siendo comprobable sin git.
-  const refExiste = (r) => gitDe(['rev-parse', '--verify', '--quiet', r]) !== null
-    || gitDe(['rev-parse', '--verify', '--quiet', `origin/${r}`]) !== null;
   const div = compararEspejo(vivas, issues, all, refExiste);
   // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
   //
@@ -1086,6 +1090,12 @@ const contextoCuerpo = (a) => ({
  * El orden importa: quien abre el issue prefiere ver «trabajo» a un hexadecimal, y el commit
  * es la red para el trabajo que aun vive solo en su rama efimera.
  */
+// PT-079 · el resolvedor va INYECTADO en compararEspejo: esa funcion sigue siendo comprobable
+// sin git ni credenciales. Aqui vive porque lo usan dos sitios —el espejo y la reparacion de
+// enlaces muertos—, y tenerlo dos veces seria dos fuentes del mismo hecho (SUITE-R38).
+const refExiste = (r) => gitDe(['rev-parse', '--verify', '--quiet', r]) !== null
+  || gitDe(['rev-parse', '--verify', '--quiet', `origin/${r}`]) !== null;
+
 function refDurableDe(a) {
   const dir = `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`;
   const integracion = reg?.tracker?.rama_integracion ?? 'trabajo';
@@ -1109,6 +1119,40 @@ function sincronizarCuerpos() {
     if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se regeneraria el cuerpo`); continue; }
     try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: cuerpo sincronizado`); }
     catch { fail('SUITE-R35', `${a.id}: no se pudo sincronizar el cuerpo de #${a.issue}.`); }
+  }
+  repararEnlacesMuertos();
+}
+
+/**
+ * PT-079 · SUITE-R56 · reparar el enlace de las tareas YA TERMINADAS.
+ *
+ * `sincronizarCuerpos` recorria solo las vivas, y una tarea viva tiene su rama: su enlace
+ * funciona. El enlace que se rompe es el de la tarea CERRADA — la rama efimera se borro al
+ * fusionar (FDGE-R19) y el cuerpo publicado quedo apuntando a un ref que ya no existe. Es
+ * exactamente el caso para el que existe SUITE-R56, y era el que no se alcanzaba: medido sobre
+ * el tablero completo, 20 de 40 enlaces seguian muertos con el arreglo ya puesto.
+ *
+ * Solo toca lo que esta ROTO y solo si hay a donde apuntar: si el ref publicado sigue vivo no
+ * se reescribe nada, y si no se puede derivar un ref durable se DICE en vez de inventar uno
+ * (RULE-06). Reescribir el cuerpo de un issue cerrado no cambia su estado — arregla un enlace,
+ * que es dato derivado del registro (SUITE-R35).
+ */
+function repararEnlacesMuertos() {
+  if (!adaptador.editarCuerpo || !adaptador.cuerpoRemoto) return;
+  const terminadas = all.filter((a) => a.issue && !vivas.some((v) => v.id === a.id));
+  for (const a of terminadas) {
+    let publicado;
+    try { publicado = adaptador.cuerpoRemoto(a.issue); } catch { continue; }
+    const ref = refDeEnlace(publicado);
+    if (!ref || refExiste(ref)) continue;
+    const durable = refDurableDe(a);
+    if (!durable) {
+      notas.push(`${a.id} #${a.issue}: enlaza a «${ref}», que ya no existe, y no hay ref durable del que derivar uno. Queda roto y consta.`);
+      continue;
+    }
+    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se repararia el enlace «${ref}» -> «${durable}»`); continue; }
+    try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: enlace reparado «${ref}» -> «${durable}»`); }
+    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe, y no se pudo reescribir.`); }
   }
 }
 

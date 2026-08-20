@@ -1,0 +1,7 @@
+=== tracker abrir --aplicar · reparacion de enlaces muertos (SUITE-R56) ===
+fecha: 2026-08-19
+
+26 issues reparados en la primera pasada. La SEGUNDA pasada no repara ninguno:
+la reparacion solo toca lo que esta ROTO, asi que es idempotente.
+
+  (vacio = no queda ninguno por reparar)
