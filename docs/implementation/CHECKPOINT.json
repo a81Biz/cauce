@@ -6,11 +6,11 @@
   "phase": 9,
   "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-082-un-caso-no-depende-de-quien-lo-ejecuta",
-  "sha": "074c58bdb47fb423a7fe042b0e5b65f3cbc060e5",
-  "sha_corto": "074c58b",
+  "sha": "95c9bee079251040dd0e73ea4736bf6b94529b90",
+  "sha_corto": "95c9bee",
   "sucio": true,
   "archivos": [
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/evidence/PT-082/manifest.json"
   ],
   "compuerta": "G4",
   "produce": [],
