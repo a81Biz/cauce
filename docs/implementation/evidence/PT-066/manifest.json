@@ -1,0 +1,42 @@
+{
+  "pt": "PT-066",
+  "generated": "2026-08-19",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Las 20 reglas CHECK de RULES.md se encuentran", "scenarios": ["E1", "E6"], "tests": ["selftest.sh:cada regla devuelve SU definicion"], "evidence": ["salidas/caso-real.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Las 15 EXEC-R* se encuentran", "scenarios": ["E2", "E6"], "tests": ["selftest.sh:cada regla devuelve SU definicion"], "evidence": ["salidas/caso-real.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-03", "statement": "Las LEX-R* se encuentran", "scenarios": ["E3", "E6"], "tests": ["selftest.sh:cada regla devuelve SU definicion"], "evidence": ["salidas/caso-real.txt", "salidas/inversa.txt"], "verified": true, "nota": "Mi primera version trataba LEXICON como tabla y dejaba fuera las LEX-R ENTERAS. Lo dijo comprobarlo contra LEX-R26, no leerlo: LEXICON y EXECUTION-MODES definen en prosa." },
+    { "ac": "AC-04", "statement": "Nunca se devuelve el texto de otra regla", "scenarios": ["E4", "E6"], "tests": ["selftest.sh:cada regla devuelve SU definicion"], "evidence": ["salidas/caso-real.txt", "salidas/inversa.txt"], "verified": true },
+    { "ac": "AC-05", "statement": "Una regla que de verdad no existe se sigue declarando inexistente", "scenarios": ["E5"], "tests": ["selftest.sh:una regla inexistente lo sigue siendo"], "evidence": ["salidas/caso-real.txt"], "verified": true, "nota": "Es la guarda contra el arreglo facil: hacer que devuelva algo SIEMPRE arreglaria las 47 y romperia la unica respuesta honesta que la funcion ya daba bien." },
+    { "ac": "AC-06", "statement": "Un caso por cada ID definido, DERIVADO y no escrito a mano", "scenarios": ["E6"], "tests": ["selftest.sh:cada regla devuelve SU definicion"], "evidence": ["salidas/selftest-completo.txt"], "verified": true, "nota": "Exige DOS condiciones por ID: que no sea null y que el texto EMPIECE por ese ID. La segunda es la que faltaba: sin ella «devuelve algo» pasa por «devuelve lo correcto»." }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la salida de regla.mjs sea UTIL, no solo correcta.",
+      "por_que": "Se comprueba que devuelve la definicion de la regla pedida. Que el texto devuelto ayude a quien lo lee no es observable desde el repositorio.",
+      "donde": "changes/PT-066-la-regla-que-se-consulta-es-la-que-se-define/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que RULE-nn de 11-Conventions se encuentre.",
+      "por_que": "DUENO las mapea a ../enterprise-documentation/11-Conventions.md, que tiene su propio formato y NO se incluyo en el universo del caso. No estaba roto antes ni ahora, pero tampoco esta cubierto: se dice.",
+      "donde": "docs/methodology/tools/regla.mjs"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi primera version dejaba fuera las LEX-R enteras.",
+      "regla": "—",
+      "detalle": "Trate LEXICON.md como tabla igual que RULES.md. Son DOS formas, no tres: LEXICON y EXECUTION-MODES definen en prosa. Lo dijo comprobarlo contra LEX-R26, no leerlo."
+    },
+    {
+      "que": "Tres intentos para que el comprobador arrancara.",
+      "regla": "—",
+      "detalle": "import estatico desde process.env (no valido), file:// construido en el shell (ruta MSYS), y finalmente el patron que trlib() YA usaba desde PT-058 treinta lineas mas arriba: ruta por entorno y pathToFileURL dentro de node. Mirarlo primero habria costado un minuto."
+    },
+    {
+      "que": "Dos fallos encadenados en el caso E5.",
+      "regla": "—",
+      "detalle": "La asercion decia «no est» y la salida dice «No esta» —SEXTA del lote que no casa por caja o acentos—. Y el fallo real era otro: RG2() se define en la linea 3677 y el caso estaba en la 2656. Mismo error de colocacion que ya cometi con TRR en PT-076."
+    }
+  ],
+  "suite": { "passed": 1024, "failed": 0, "skipped": 0, "coverage": 1024, "baseline": 1022 }
+}

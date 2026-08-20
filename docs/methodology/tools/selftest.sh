@@ -2597,6 +2597,64 @@ chk   "…y se declara como JUICIO, no resultado"  "Es un JUICIO"  cat "$SUITE/t
 RAIZ_REAL="$(cd "$SUITE/../.." && pwd)"
 TRR() { node "$SUITE/tools/tracker.mjs" "$@" "$RAIZ_REAL"; }
 
+# ─── PT-066 · la regla que se consulta es la que se define ───────────────────
+sec "── PT-066 · definir no es mencionar ──"
+#
+# definicionDe() decidia por MENCION: devolvia la primera linea que contenia el ID y
+# casaba HARD|SOFT. Dos consecuencias, 47 de 197 mal:
+#   21 se declaraban INEXISTENTES —las CHECK de RULES.md y las EXEC-* en prosa, que no
+#      llevan severidad en la linea—, entre ellas FDGE-R34, que CLAUDE.md nombra
+#      precondicion de G4
+#   26 devolvian el texto de OTRA regla bajo la cabecera «definida en RULES.md»
+#
+# Las segundas son peores: no fallan, MIENTEN con formato de respuesta correcta. Es lo
+# que el propio archivo tiene escrito veinte lineas mas abajo, en un comentario de
+# PT-051: «una linea equivocada y creible es peor que ninguna».
+#
+# El caso NO es una muestra: recorre el universo DERIVADO de los tres documentos y exige
+# por cada ID que la definicion devuelta EMPIECE por ese mismo ID.
+cat > "$WORK/chk-reglas.mjs" <<'JSEOF'
+// La ruta va por ENTORNO y se convierte con pathToFileURL DENTRO de node: construir el file://
+// en el shell da una ruta MSYS que node no reconoce como absoluta. Es el mismo patron que
+// trlib() ya usaba desde PT-058, y no mirarlo antes de escribirlo costo tres intentos.
+const { pathToFileURL } = await import('node:url');
+const { definicionDe } = await import(pathToFileURL(process.env.MTH_REGLA).href);
+const { readFileSync } = await import('node:fs');
+
+// El universo se DERIVA de los tres documentos propietarios, no se escribe a mano: una lista
+// escrita se queda corta en cuanto alguien añade una regla (SUITE-R53).
+const M = process.env.MTH_SUITE + '/';
+const ids = [];
+for (const m of readFileSync(M + 'RULES.md', 'utf8').matchAll(/^\|\s*`([A-Z]+-R\d+)`\s*\|/gm)) ids.push(m[1]);
+for (const m of readFileSync(M + 'LEXICON.md', 'utf8').matchAll(/^\|\s*`(LEX-R\d+)`\s*\|/gm)) ids.push(m[1]);
+for (const m of readFileSync(M + 'EXECUTION-MODES.md', 'utf8').matchAll(/^`(EXEC-R\d+)`\s*·/gm)) ids.push(m[1]);
+
+const universo = [...new Set(ids)];
+const mal = [];
+for (const id of universo) {
+  const d = definicionDe(id);
+  if (!d) { mal.push('INEXISTENTE:' + id); continue; }
+  const t = d.texto.trimStart();
+  // DOS condiciones. La segunda es la que faltaba: sin ella «devuelve algo» pasa por «devuelve
+  // lo correcto», y asi 26 reglas devolvian el texto de otra sin que nadie lo viera.
+  if (!(t.startsWith('| `' + id + '`') || t.startsWith('`' + id + '`'))) mal.push('AJENA:' + id);
+}
+console.log(mal.length
+  ? 'MAL ' + mal.length + ' de ' + universo.length + ' · ' + mal.slice(0, 6).join(' ')
+  : 'LAS ' + universo.length + ' DEVUELVEN SU PROPIA DEFINICION');
+JSEOF
+reglas_propias() {
+  MTH_REGLA="$SUITE/tools/regla.mjs" MTH_SUITE="$SUITE" node "$WORK/chk-reglas.mjs" 2>&1
+}
+chk   "cada regla devuelve SU definicion"   "DEVUELVEN SU PROPIA DEFINICION"  reglas_propias
+
+# E5 · la guarda contra el arreglo facil: hacer que devuelva algo SIEMPRE arreglaria los
+# 47 y romperia la unica respuesta honesta que la funcion ya daba bien.
+# El patron va sin acentos Y respetando la caja: la salida dice «No está definida», y buscar
+# «no est» falla por la mayuscula. Es la SEXTA asercion de este lote que no casa con lo que
+# existe, y la escribi mientras redactaba PT-079, que trata justamente de eso.
+chk   "una regla inexistente lo sigue siendo"  "definida en ning"  node "$SUITE/tools/regla.mjs" SUITE-R99
+
 # ─── PT-074 · el veredicto de viabilidad se ESPEJA ───────────────────────────
 sec "── PT-074 · el veredicto se ve en el tablero ──"
 #

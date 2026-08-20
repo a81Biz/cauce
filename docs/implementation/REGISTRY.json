@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 78,
+    "PT": 79,
     "EP": 17,
     "QA": 0,
     "QR": 0,
@@ -1539,7 +1539,7 @@
       "severity": "S2",
       "complexity": "TRIVIAL",
       "track": "STANDARD",
-      "phase": 1,
+      "phase": 9,
       "structural": false,
       "epic": "EP-017",
       "suite_version": "9.0.0",
@@ -1562,7 +1562,8 @@
         },
         "medido_en": "7735ff419a0297b344a99e16b0a83403e9b86b4d",
         "fecha": "2026-08-19"
-      }
+      },
+      "branch": "fix/alberto-martinez/PT-066-la-regla-que-se-consulta-es-la-que-se-define"
     },
     {
       "id": "PT-067",
@@ -1975,6 +1976,12 @@
         "fecha": "2026-08-19"
       },
       "issue": 142
+    },
+    {
+      "id": "PT-079",
+      "slug": "lo-que-se-aprende-se-hace-mecanico",
+      "created": "2026-08-19",
+      "status": "DRAFT"
     }
   ]
 }
