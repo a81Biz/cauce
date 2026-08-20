@@ -1,25 +1,19 @@
 {
-  "pt": "PT-082",
-  "type": "BUG",
+  "pt": "PT-072",
+  "type": "INVESTIGATION",
   "epic": "EP-017",
   "status": "INTEGRATED",
   "phase": 10,
   "fase": null,
-  "rama": "trabajo",
-  "sha": "c6188947bfeddb58a1752fd3912b7f48f9bfb92a",
-  "sha_corto": "c618894",
+  "rama": "chore/alberto-martinez/EP-017-integradas",
+  "sha": "24563f0651cc2c68d918934e4f1e66e7be1b71e1",
+  "sha_corto": "24563f0",
   "sucio": true,
   "archivos": [
-    "changes/PT-072-un-proyecto-nuevo-de-verdad/intake.md",
-    "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/discovery.md",
-    "changes/PT-081-una-regla-nueva-no-rige-hacia-atras/strategy.md",
-    "changes/PT-082-un-caso-no-depende-de-quien-lo-ejecuta/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/DISCOVERY.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/CHECKPOINT.json"
   ],
   "compuerta": null,
   "produce": [],
-  "siguiente": "PT-082 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "siguiente": "PT-072 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-19"
 }
