@@ -9,7 +9,7 @@ Proyectado el 2026-08-20 · 13 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
-| PT-019 | CHORE | REOPENED | 5 | — | — | 27f5351 |
+| PT-019 | CHORE | REOPENED | 6 | — | — | 27f5351 |
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-017 |  | READY | 1 | — | — | 5ab0bda |
 | PT-069 | FEATURE | READY | 1 | — | — | 27f5351 |
