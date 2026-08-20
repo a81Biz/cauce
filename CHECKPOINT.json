@@ -1,10 +1,10 @@
 {
-  "pt": "PT-072",
-  "type": "INVESTIGATION",
+  "pt": "PT-082",
+  "type": "BUG",
   "epic": "EP-017",
   "status": "READY",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "trabajo",
   "sha": "25694370557dbd967c29342b7b85aea98775f4db",
   "sha_corto": "2569437",
@@ -15,20 +15,18 @@
     "changes/PT-072-un-proyecto-nuevo-de-verdad/intake.md",
     "changes/PT-072-un-proyecto-nuevo-de-verdad/strategy.md",
     "changes/PT-072-un-proyecto-nuevo-de-verdad/traceability.md",
+    "changes/PT-082-un-caso-no-depende-de-quien-lo-ejecuta/",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-072/"
+    "docs/implementation/evidence/PT-072/",
+    "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G2",
+  "compuerta": null,
   "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-19"
 }
