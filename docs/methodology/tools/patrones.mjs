@@ -1219,6 +1219,15 @@ export const SUJETOS = {
     establece: 'nada: es una regla sombrilla y se instancia en FDGE-R23, FDGE-R24, PTSA-R14 y SUITE-R11',
     noEstablece: null,   // declarada NO_VERIFICABLE: no hay mensaje donde poner un limite
   },
+  // PT-094 · el limite estaba escrito en un comentario de PT-056 y no llegaba a ningun mensaje:
+  // `actions/checkout` deja detached HEAD en cada `pull_request`, y ahi la rama no se puede leer.
+  // La comprobacion es CIEGA justo donde todos los PR la ejecutan, y solo abre los ojos en el
+  // push a la principal — donde ya no hay PR que bloquear. Eso dejo `main` en rojo una hora sin
+  // que ningun PR pudiera avisarlo.
+  'LEX-R26': {
+    establece: 'el commit declarado es alcanzable, y en una tarea VIVA el arbol corresponde a lo declarado',
+    noEstablece: 'NO establece que la rama corresponda',
+  },
 };
 
 /** El sujeto declarado de `id`, o `null` si la regla todavia no lo declara. */
