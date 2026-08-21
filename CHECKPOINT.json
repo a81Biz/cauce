@@ -1,20 +1,23 @@
 {
-  "pt": "PT-095",
+  "pt": "PT-096",
   "type": "BUG",
-  "epic": null,
-  "status": "INTEGRATED",
-  "phase": 10,
-  "fase": null,
-  "rama": "trabajo",
-  "sha": "48816c05565eb2e1875d4d6cb1103035ecf5a76e",
-  "sha_corto": "48816c0",
+  "epic": "EP-019",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/alberto-martinez/PT-096-apertura",
+  "sha": "3454b2e8e862691ddf046de417821770f3d393cd",
+  "sha_corto": "3454b2e",
   "sucio": true,
   "archivos": [
-    "changes/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/intake.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SESSION_LOG.md"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PT-095 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-21"
 }

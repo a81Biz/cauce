@@ -5,9 +5,10 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-21 · 2 allocation(es) viva(s).
+Proyectado el 2026-08-21 · 3 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
-| PT-095 | BUG | INTEGRATED | 10 | fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes | — | ac4dc65 |
+| EP-019 | EPIC | DRAFT | 1 | — | — | ee3159d |
+| PT-096 | BUG | DRAFT | 2 | — | — | 3454b2e |
