@@ -2705,3 +2705,43 @@ en curso     PT-092 · PHASE 10
 sobre        a7277f2  chore/alberto-martinez/EP-018-cierre
 sigue        PT-092 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
 ```
+
+## 2026-08-21 · G4 de PT-094 y cierre del BUG, autorizados al agente
+
+**Instruccion literal:** «haz el G4, cierra el bug y yo hago la publicacion. Realiza a mi nombre
+tienes mi VoBo».
+
+Son **dos** excepciones declaradas, y conviene nombrarlas por separado porque no son la misma
+clausula:
+
+```
+SUITE-R06a · merge a la rama principal   ->  G4 de PT-094
+SUITE-R06b · cerrar un item de tipo BUG  ->  PT-094 pasa de VALIDATION_PENDING a INTEGRATED
+```
+
+`EXEC-R04` dice que `G4` es humana en los tres modos, y la ultima linea de `CLAUDE.md` deja la
+via: una persona autoriza la excepcion **dejando registro de esa autorizacion**. Este es el
+registro.
+
+Constancia con nombre y forma fija (`EXEC-R04a`): autorizado por Alberto Martinez.
+
+**Lo que la autorizacion NO cubre, dicho porque el limite importa mas que el permiso:**
+
+```
+PUBLICAR   -> sigue siendo del firmante, y lo dice el mismo mensaje: «yo hago la publicacion»
+```
+
+La eleccion anterior —«La dejo lista y la disparas tu»— no queda derogada por este VoBo: queda
+CONFIRMADA por el.
+
+**Lo que esta autorizacion no prueba.** `SUITE-R27` lo declara para las firmas y `PT-093` lo
+extendio a las compuertas: el agente escribe este archivo, asi que esto no demuestra que una
+persona autorizara. Convierte la autorizacion en una afirmacion **contrastable** —el nombre esta
+en `firmantes`, la instruccion es citable— y nada mas. Es lo unico que un marco puede ofrecer
+aqui, y decirlo es la diferencia entre un control y la apariencia de uno.
+
+**Orden de los actos, y por que ese.** El `BUG` se cierra ANTES del `G4`. `SUITE-R46` solo deja
+cerrar un issue cuando su estado terminal esta en la rama por defecto; marcarlo despues del merge
+obligaria a un merge extra, que es la friccion que `EP-017` declaro inevitable y `EP-018` resolvio
+haciendolo al reves. Lo que convierte una tarea en terminal es que su TRABAJO este completo, no el
+merge.

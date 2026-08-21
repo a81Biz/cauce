@@ -4575,7 +4575,7 @@ Compuertas: G1 resuelta el 2026-08-20 · G2 y G3 delegadas POR LOTE con constanc
 Trazabilidad externa: issue #162 · sub-issues #163..#169
 
 ## PT-094 — El checkpoint de una tarea cerrada bloquea main
-Fecha: 2026-08-21 · Estado: VALIDATION_PENDING · Version de la suite: 11.0.0
+Fecha: 2026-08-21 · Estado: INTEGRATED · Version de la suite: 11.0.0
 Estructural: no
 
 publicar.yml fallo dos veces contra main, y la verificacion de main ya estaba roja desde el push
@@ -4615,5 +4615,15 @@ el mensaje, con LEX-R26 declarando su sujeto en SUJETOS.
 Bateria 1199 -> 1207. Prueba inversa: deshecha la guarda caen TRES casos y solo esos, y
 verify-fdge --all vuelve al rojo exacto que bloqueo la publicacion.
 
-Compuertas: G1 PASS en el intake · G2 PASS sobre la estrategia · G3 PASS con la inversa · G4
-PENDIENTE, humana. Es un BUG: cerrarlo no se automatiza (SUITE-R06b).
+Y al cerrarlo, la guarda que esta misma tarea conecto se disparo contra ella: la rama de PT-094
+se borro al fusionarse el PR de revision, asi que «avanzar» se planto con STATE_MISMATCH y no
+dejo registrar una transicion sobre un arbol que no era el declarado. Se resolvio como manda —
+«tracker checkpoint PT-094», que es la decision humana que la herramienta PROPONE y no ejecuta—
+y esta vez «rama» salio correcta porque ramaDeclaradaViva ya llega al camino que la escribe. La
+guarda funcionando sobre su propio autor es la mejor evidencia que podia dejar.
+
+Compuertas: G1 PASS en el intake · G2 PASS sobre la estrategia · G3 PASS con la inversa ·
+G4 RESUELTA el 2026-08-21 por Alberto Martinez, y el cierre del BUG con ella: «haz el G4, cierra
+el bug y yo hago la publicacion. Realiza a mi nombre tienes mi VoBo». DOS excepciones declaradas
+—SUITE-R06a y SUITE-R06b— con su constancia en SESSION_LOG.md. Integrado por: Alberto Martinez.
+PUBLICAR no entra: lo dice el mismo mensaje.
