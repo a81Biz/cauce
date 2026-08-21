@@ -10,5 +10,5 @@ Proyectado el 2026-08-21 · 3 allocation(es) viva(s).
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
-| PT-094 | BUG | IN_PROGRESS | 9 | fix/alberto-martinez/PT-094-la-rama-corrobora | — | 4754c1d |
-| PT-095 | BUG | READY | 9 | fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes | 3da3d2e | — |
+| PT-094 | BUG | INTEGRATED | 10 | fix/alberto-martinez/PT-094-la-rama-corrobora | — | 4754c1d |
+| PT-095 | BUG | VALIDATION_PENDING | 9 | fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes | — | a622630 |
