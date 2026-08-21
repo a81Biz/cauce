@@ -3,21 +3,20 @@
   "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-096-apertura",
-  "sha": "3454b2e8e862691ddf046de417821770f3d393cd",
-  "sha_corto": "3454b2e",
+  "sha": "a6cf9e15b02f5383a32ba2a835f3705fd789acf9",
+  "sha_corto": "a6cf9e1",
   "sucio": true,
   "archivos": [
     "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/intake.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SESSION_LOG.md"
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-21"
 }
