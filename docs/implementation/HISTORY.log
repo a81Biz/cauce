@@ -4804,3 +4804,22 @@ archivos. `SUITE-R27` convierte la firma en una afirmacion contrastable —el no
 compuertas, que es donde la consecuencia es irreversible.
 
 **PUBLICAR no entra**, y lo dice el mismo mensaje que autoriza lo demas.
+
+## PT-095 — CORRIGE: G3 firmada, y el estado que le corresponde
+Corrige: las entradas de 2026-08-21
+Motivo: la entrada anterior dejo `G3` PENDIENTE porque nadie la habia firmado. Ya esta.
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez · G4 2026-08-21 Alberto Martínez
+
+`G3` —la validacion de un `BUG`, que `FDGE-R26` reserva a una persona— y `G4` van por autorizacion
+expresa del firmante: «realiza ya lo necesario a mi nombre, ya debe estar todo listo para publicar.
+Tienes mi Vo Bo». Constancia en `SESSION_LOG.md`.
+
+**PUBLICAR no entra**: la instruccion dice «listo PARA publicar», y la eleccion registrada del
+firmante sigue siendo suya.

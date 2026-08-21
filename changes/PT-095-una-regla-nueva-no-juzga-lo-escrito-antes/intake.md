@@ -7,7 +7,7 @@ type: BUG
 severity: S1
 track: STANDARD
 complexity: STANDARD
-status: VALIDATION_PENDING
+status: DONE
 phase: 9
 created: 2026-08-21
 structural: no
