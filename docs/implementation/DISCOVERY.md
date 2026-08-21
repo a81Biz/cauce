@@ -59,3 +59,4 @@
 | PT-091 | BUG | S3 | DRAFT | EP-018 | Las cifras del inventario se derivan, no se transcriben |
 | PT-094 | BUG | S1 | INTEGRATED | — | El checkpoint de una tarea cerrada bloquea main |
 | PT-095 | BUG | S1 | INTEGRATED | — | Una regla nueva no juzga lo escrito antes de que existiera |
+| EP-019 | EPIC | S1 | DRAFT | — | Lo que tres proyectos encontraron |
