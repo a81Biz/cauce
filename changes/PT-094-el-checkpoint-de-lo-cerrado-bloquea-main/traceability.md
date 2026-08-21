@@ -8,6 +8,17 @@
 | AC-04 | `avanzar` deja de escribir una rama que no existe | `avanzar pasa ramaDeclaradaViva` | `salidas/verde.txt` | VERIFICADO |
 | AC-05 | Un caso reproduce el fallo y **falla sin el arreglo** | los tres del PT terminal, en inversa | `salidas/inversa.txt` | VERIFICADO |
 | AC-06 | El límite de `detached HEAD` llega al mensaje | `SUJETOS['LEX-R26']` + `limitesQueNoLleganAlMensaje` en `verify-suite` | `salidas/verde.txt` | VERIFICADO |
+| AC-09 | Otra rama, **misma historia**, no es discrepancia | `otra rama, misma historia: corresponde` · `la rama sola ya no dispara` · `…ni con un sha ANTECESOR` · `solo la rama: verify-fdge NO falla` | `salidas/verde.txt` | VERIFICADO |
+| AC-10 | Otra **historia** sí lo es, y la rama corrobora | `…pero con OTRA historia si` · `…y entonces enumera LAS DOS` · `no saberlo arrastra la rama tambien` · `otra historia + otra rama: FALLA` | `salidas/verde.txt` | VERIFICADO |
+
+## `AC-09` y `AC-10` van en pareja, y por eso son dos criterios y no uno
+
+Uno solo se cumpliría **apagando** la comprobación de rama. `AC-10` es el que lo impide: lo que
+sigue cazando —otra historia— tiene tantos casos como lo que deja de cazar.
+
+Y cuatro casos que ya existían cambiaron de escenario: usaban «mismo sha, otra rama», que ahora
+**es** correspondencia. Pasan a usar «otra historia», que es el caso peligroso que siempre
+tuvieron que ejercitar. La comprobación es más estrecha y los casos, más exigentes.
 
 ## `AC-01` se comprobó en **dos** ramas sobre el mismo árbol, y ése es el punto
 
@@ -20,6 +31,20 @@ Devolver `null` para **todo** checkpoint deja el repositorio verde y quita la gu
 construyó: un `sha` real describiendo un árbol que ya no existe **mientras la tarea sigue
 abierta**. Tres casos lo sostienen, y el de `DONE` es el que decide si está bien trazado: un `PT`
 en `DONE` espera `G4` con su rama viva.
+
+## La derogación de `PT-056`, escrita donde se lee
+
+Su caso `E3` decía `rama distinta ⇒ NO corresponde`. **Se conserva con el veredicto invertido** en
+vez de borrarse:
+
+```
+otra rama, misma historia: corresponde     ^true$
+…y la rama no figura como discrepancia     (inverso: «rama» NO aparece)
+```
+
+Borrarlo habría hecho desaparecer que alguien decidió lo contrario y por qué. `PT-056` no eligió
+mal: quería cazar «estás en otra rama», y midiendo salió que lo que cazaba de verdad era el caso
+legítimo — **cambiar de rama dentro de la misma historia pasa en cada merge**.
 
 ## La prueba inversa
 

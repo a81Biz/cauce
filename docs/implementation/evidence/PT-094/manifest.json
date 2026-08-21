@@ -80,6 +80,37 @@
       ],
       "verified": true,
       "nota": "actions/checkout deja detached HEAD en cada pull_request y ahi la rama no se puede leer: la comprobacion es CIEGA justo donde todos los PR la ejecutan, y solo ve en el push a main — donde ya no hay PR que bloquear. El limite vivia en un comentario de PT-056 desde entonces."
+    },
+    {
+      "ac": "AC-09",
+      "statement": "Cambiar de rama DENTRO DE LA MISMA HISTORIA deja de ser discrepancia",
+      "tests": [
+        "selftest.sh:otra rama, misma historia: corresponde",
+        "selftest.sh:…y la rama no figura como discrepancia",
+        "selftest.sh:la rama sola ya no dispara",
+        "selftest.sh:…ni con un sha ANTECESOR",
+        "selftest.sh:solo la rama: verify-fdge NO falla"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Anadido EJECUTANDO G4: el arreglo de AC-02 cubria el caso terminal y dejaba el normal. Al fusionarse el PR de revision la rama se borro y PT-094 —en DONE, luego vivo— quedo declarando una rama muerta con su trabajo YA CONTENIDO en el arbol. Toda fusion invalidaba el checkpoint. Deroga la decision de PT-056 de que «rama» disparara sola; su caso E3 se conserva con el veredicto invertido para que la derogacion se lea."
+    },
+    {
+      "ac": "AC-10",
+      "statement": "…y una historia DISTINTA sigue siendolo, con la rama corroborando",
+      "tests": [
+        "selftest.sh:…pero con OTRA historia si",
+        "selftest.sh:…y entonces enumera LAS DOS",
+        "selftest.sh:no saberlo arrastra la rama tambien",
+        "selftest.sh:otra historia + otra rama: FALLA"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Es el que impide que AC-09 sea apagar la comprobacion: tiene tantos casos como el otro. Y «no saberlo arrastra la rama tambien» sostiene RULE-06 — no poder demostrar que desciende no es haberlo demostrado."
     }
   ],
   "no_verificado": [
@@ -119,12 +150,17 @@
       "que": "El PT llego a PHASE 9 con status READY y verify-fdge verifico limpio.",
       "regla": "LEXICON §Ciclo de vida",
       "detalle": "LEXICON dice «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre» y «avanzar» no lo aplica: solo toca el status en la ultima fase, para poner INTEGRATED. Misma familia que el defecto que este PT corrige. Declarado en out-of-scope; entra en su propio intake, porque cambiar que estado asigna una transicion toca el ciclo de vida entero."
+    },
+    {
+      "que": "Di PT-094 por cerrado y el arreglo no bastaba.",
+      "regla": "—",
+      "detalle": "Lo descubri intentando ejecutar G4, no verificando: LEX-R26 volvio a fallar con la rama de la propia tarea, borrada al fusionarse su PR de revision. Cubri el caso terminal y deje sin cubrir el normal, que ocurre en CADA merge. El PT volvio a IN_PROGRESS en vez de abrirse un PT-095: no estaba integrado, asi que no estaba terminado. La decision de ampliar en vez de marcar terminal antes del merge o retirar el checkpoint la tomo el firmante."
     }
   ],
   "suite": {
-    "passed": 1207,
+    "passed": 1215,
     "failed": 0,
     "baseline": 1199,
-    "nota": "8 casos nuevos. Vistos en rojo por inversa: deshecha la guarda de estado terminal caen TRES y solo esos, y verify-fdge --all vuelve al rojo que bloqueo main."
+    "nota": "16 casos netos. Cinco existentes reescritos: el E3 de PT-056 con el veredicto INVERTIDO —derogado y conservado para que se lea— y cuatro mios que pasan de «mismo sha, otra rama» a «otra historia», que es el caso peligroso que siempre tuvieron que ejercitar."
   }
 }

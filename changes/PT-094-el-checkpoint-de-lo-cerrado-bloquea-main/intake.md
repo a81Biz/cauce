@@ -7,7 +7,7 @@ type: BUG
 severity: S1
 track: STANDARD
 complexity: STANDARD
-status: DONE
+status: IN_PROGRESS
 phase: 9
 created: 2026-08-21
 structural: no
@@ -93,6 +93,8 @@ antes de necesitarla, es un caso más de la misma familia.
 | `AC-04` | `avanzar` deja de escribir una rama que no existe |
 | `AC-05` | Un caso reproduce el fallo: rama declarada muerta + PT terminal, y **falla sin el arreglo** |
 | `AC-06` | El límite de `detached HEAD` queda **declarado** donde se emite, no sólo en un comentario |
+| `AC-09` | Cambiar de rama **dentro de la misma historia** deja de ser una discrepancia… |
+| `AC-10` | …y una historia **distinta** sigue siéndolo, con la rama corroborando |
 
 **`AC-03` es el que impide el arreglo fácil.** Silenciar `LEX-R26` para todo checkpoint dejaría
 verde el repositorio y quitaría la comprobación que `PT-056` construyó para el caso peligroso: un
@@ -100,6 +102,20 @@ verde el repositorio y quitaría la comprobación que `PT-056` construyó para e
 
 **`AC-05` es el que hace que lo demás signifique algo.** Sin él, «arreglado» sería «ya no sale el
 mensaje», que es lo que se puede conseguir borrando un archivo.
+
+### `AC-09` y `AC-10` se añadieron ejecutando `G4`, y el alcance creció
+
+**El arreglo de `AC-02` no bastaba.** Al fusionarse el PR de revisión, la rama de esta tarea se
+borró: `PT-094` quedó en `DONE` —vivo, luego contrastado— con un checkpoint declarando una rama
+muerta y el trabajo **ya contenido** en el árbol. Rojo en `trabajo`, y rojo otra vez en `main` tras
+el merge, con otro nombre de rama cada vez.
+
+**Toda fusión invalidaba el checkpoint.** El caso terminal estaba cubierto y el caso normal no.
+
+`AC-10` es el que impide que esto sea apagar la comprobación: una historia **distinta** sigue
+bloqueando, y ahí la rama corrobora. La decisión de `PT-056` de que `rama` disparara por sí sola
+queda **derogada**, y su caso `E3` se conserva en la batería con el veredicto nuevo para que la
+derogación se lea.
 
 ## 7. Qué NO entra
 
@@ -116,6 +132,9 @@ OUT: publicar                                                    ->  lo dispara 
 Termina cuando: `verify-fdge --all` pasa en `main` y en `trabajo` **sobre el mismo árbol**, la
 batería incluye un caso que falla sin el arreglo, y `publicar.yml` llega más allá del paso de
 verificación.
+
+**Y `main` sigue verde después del merge**, que es lo que el primer intento no consiguió: `G4`
+habría dejado exactamente el mismo `LEX-R26` con otro nombre de rama.
 
 ## Firma   `INTAKE-R06`
 

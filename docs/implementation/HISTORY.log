@@ -4665,3 +4665,49 @@ la plantilla de HISTORY que se copia al escribir usa la forma condensada, y las 
 No se arregla en esta entrada. Un encabezado que hace tropezar a cinco tareas en la misma
 comprobación no es descuido de quien escribe: es que la forma que se copia y la que se lee no son
 la misma, y eso entra por un intake propio, no por una corrección de bitácora.
+
+## PT-094 — CORRIGE: la rama corrobora, no dispara sola
+Corrige: la entrada de 2026-08-21
+Motivo: aquella entrada daba el arreglo por completo y NO lo estaba. Cubria el caso TERMINAL y
+dejaba sin cubrir el normal — toda fusion invalidaba el checkpoint. Se descubrio intentando
+ejecutar G4, no verificando.
+
+El encabezado dice CORRIGE y no AMPLIA aunque el trabajo sea una ampliacion: `FDGE-R29` lee
+vocabulario cerrado y `AMPLIA` no esta en el. Inventar un nombre fuera de `LEXICON` es un defecto
+(`LEX-R21`), y ademas «corrige» es exacto: lo que se corrige es la entrada que afirmaba estar
+terminada.
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-094-la-rama-corrobora
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez · G4 pendiente
+
+Al fusionarse el PR de revision de esta misma tarea su rama se borro, y PT-094 —en DONE, o sea
+vivo, o sea contrastado— quedo declarando una rama muerta con su trabajo YA CONTENIDO en el
+arbol. Rojo en «trabajo». Y G4 lo habria dejado rojo en «main» otra vez, con otro nombre de rama:
+TODA fusion invalidaba el checkpoint, que es el caso normal y no una divergencia.
+
+El criterio bueno ya estaba EN LA MISMA FUNCION, aplicado a «sha» desde PT-056: lo que distingue
+no es la igualdad, es DE QUE HISTORIA es. Un commit contenido en esta historia describe un estado
+pasado DE ESTA historia, y entonces el nombre de rama es una etiqueta vieja. Faltaba extenderlo.
+
+Eso DEROGA la decision de PT-056 de que «rama» disparara por si sola. No era gratuita —queria
+cazar «estas en otra rama»— pero midiendo salio que lo que cazaba de verdad era el caso legitimo.
+Su caso E3 se conserva en la bateria CON EL VEREDICTO INVERTIDO en vez de borrarse: borrarlo haria
+desaparecer que alguien decidio lo contrario, y eso es la mitad de lo que un caso cuenta.
+
+Cuatro casos mios tambien cambiaron de escenario: usaban «mismo sha, otra rama», que ahora ES
+correspondencia, y pasan a «otra historia», que es el caso peligroso que siempre tuvieron que
+ejercitar. Que un arreglo obligue a reescribir sus propios casos es senal de que el criterio
+cambio de verdad.
+
+AC-10 existe para que esto no sea apagar la comprobacion, y tiene tantos casos como AC-09.
+
+Bateria 1199 → 1215. Segunda inversa: devuelto el disparo a la rama, caen los cuatro casos de
+AC-09 y ninguno de AC-10.
+
+La decision de ampliar —en vez de marcar terminal antes del merge o retirar el checkpoint— la
+tomo el firmante, con las tres opciones y sus consecuencias delante.
