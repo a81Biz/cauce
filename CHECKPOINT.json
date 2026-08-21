@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "06e367a573de94f7069de3a53de786bb8fe123a7",
   "sha_corto": "06e367a",
@@ -12,6 +12,12 @@
   "archivos": [
     "PTSA/RESUMEN.md",
     "changes/PT-097-los-umbrales-de-la-certificacion/intake.md",
+    "changes/PT-097-los-umbrales-de-la-certificacion/traceability.md",
+    "changes/PT-098-el-estado-terminal-se-deriva-del-arbol/",
+    "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-097/",
     "docs/methodology/CORE-PTSA.md",
@@ -20,7 +26,10 @@
     "docs/methodology/tools/verify-ptsa.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-21"
 }
