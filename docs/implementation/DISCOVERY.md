@@ -60,3 +60,4 @@
 | PT-094 | BUG | S1 | INTEGRATED | — | El checkpoint de una tarea cerrada bloquea main |
 | PT-095 | BUG | S1 | INTEGRATED | — | Una regla nueva no juzga lo escrito antes de que existiera |
 | PT-096 | BUG | S1 | DONE | EP-019 | Un enlace que falta no es un enlace roto |
+| PT-097 | BUG | S1 | DRAFT | EP-019 | Los umbrales de la certificacion: la letra se deriva o no se emite |

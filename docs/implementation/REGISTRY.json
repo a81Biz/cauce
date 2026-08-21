@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 96,
+    "PT": 97,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2512,8 +2512,40 @@
         "fecha": "2026-08-21"
       },
       "issue": 191,
-      "phase": 7,
+      "phase": 8,
       "branch": "bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto"
+    },
+    {
+      "id": "PT-097",
+      "slug": "los-umbrales-de-la-certificacion",
+      "created": "2026-08-21",
+      "status": "DRAFT",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 1,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "Los umbrales de la certificacion: la letra se deriva o no se emite",
+      "origin": "PTSA-R08 exige emitir una clasificacion A/B/C/F «auditable y defendible», y los umbrales se citan en §24.2 y §24.4, que NO EXISTEN: §24 es «Reglas de transicion» de estado de PRODUCTO y no tiene subsecciones. Comprobado en las DOS versiones, 4.12.0 del proyecto legado y 11.0.0 de aqui (INC-007 del legado). La especificacion define solo CUATRO TOPES dispersos —PTSA-R30 freshness UNKNOWN no por encima de C, §13.4 health_unstable no por encima de B, §15.6 Confidence<90 no A, §26 un CRITICO bloquea >=B— y ningun suelo: cuatro rebajas de una letra que nunca dice como se obtiene. Consecuencia en este repositorio: PTSA/RESUMEN.md publica «certificacion: B» con la banda «(75-89)», que no aparece en ninguna especificacion, y score-history.json ya la propaga a la siguiente auditoria; esa auditoria fue el argumento con el que se publico la 11.0.0. Nuestro PHASE 0 tampoco declara umbrales, asi que ni la via de PTSA-R24 la respalda. Y verify-ptsa.mjs no contiene la cadena «certificac»: PTSA-R08 es la unica regla HARD de PTSA que exige un entregable y no tiene comprobacion mecanica, por eso una letra inventada paso en verde. El proyecto legado, ante el mismo hueco, publico los tres scores y NO emitio letra.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      }
     }
   ]
 }
