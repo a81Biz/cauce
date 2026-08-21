@@ -5,10 +5,9 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-21 · 3 allocation(es) viva(s).
+Proyectado el 2026-08-21 · 2 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
-| PT-094 | BUG | INTEGRATED | 10 | fix/alberto-martinez/PT-094-la-rama-corrobora | — | 4754c1d |
-| PT-095 | BUG | VALIDATION_PENDING | 9 | fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes | — | a622630 |
+| PT-095 | BUG | INTEGRATED | 10 | fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes | — | ac4dc65 |
