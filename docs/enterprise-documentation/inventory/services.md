@@ -6,12 +6,12 @@
 
 | Herramienta | Líneas | Qué hace | Escribe | Ejercitada por |
 |:---|---:|:---|:---|:---|
-| `selftest.sh` | 4992 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
+| `selftest.sh` | 5037 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
 | `tracker.mjs` | 2645 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
-| `verify-fdge.mjs` | 2106 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
+| `verify-fdge.mjs` | 2122 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
 | `verify-suite.mjs` | 720 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
-| `patrones.mjs` | 1344 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
-| `build-core.mjs` | 528 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
+| `patrones.mjs` | 1345 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
+| `build-core.mjs` | 541 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
 | `audit.mjs` | 554 | Cobertura por enumeración: 597 elementos y lo que cada clase debe tener | no | `npm run audit` · CI |
 | `migrate.mjs` | 438 | Migración guiada entre versiones de la suite | **sí** con `--apply` | `selftest` · manual |
 | `plan-layout.mjs` | 371 | Plan de terreno: repos anidados, dónde vive el código, dependencias, alcance del grafo. **Propone, no mueve** | **sí** `LAYOUT.md` con `--write`, y se niega si ya está firmado | Foundation `PHASE 0` · `selftest` |

@@ -1,16 +1,16 @@
 {
-  "pt": "PT-091",
-  "type": "BUG",
+  "pt": "PT-093",
+  "type": "CHORE",
   "epic": "EP-018",
   "status": "READY",
   "phase": 2,
   "fase": "Descubrimiento",
   "rama": "trabajo",
-  "sha": "8b1f84703c680d232030081cf7b1a4a193a1126f",
-  "sha_corto": "8b1f847",
+  "sha": "0e3dd838125e3ed7014be23eb74b3acb9af916f6",
+  "sha_corto": "0e3dd83",
   "sucio": true,
   "archivos": [
-    "changes/PT-091-las-cifras-se-derivan-no-se-transcriben/intake.md",
+    "changes/PT-093-el-limite-de-las-compuertas-se-declara/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,

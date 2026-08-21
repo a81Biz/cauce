@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 1d32cc9535ab -->
-<!-- fuentes: RULES.md:eec8bfef01cd LEXICON.md:9fe72af9487d EXECUTION-MODES.md:cd1d28f8993e PHASES.md:2d9e7be951c1 -->
+<!-- cuerpo: 7f9e0a0e03be -->
+<!-- fuentes: RULES.md:eec8bfef01cd LEXICON.md:9fe72af9487d EXECUTION-MODES.md:7d1e9912e82a PHASES.md:2d9e7be951c1 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -236,6 +236,7 @@ verifica un script y bloquea la integración.
 `EXEC-R02` **H** SUPERVISED es el modo por defecto. Un proyecto que no declara modo opera en SUPERVISED.
 `EXEC-R03` **H** AUTONOMOUS no significa «sin humano». Significa que el humano decide dos veces por lote (al admitirlo y al integrarlo) en lugar de cuatro veces por PT.
 `EXEC-R04` **H** G4 es humana en los tres modos, sin excepción (FDGE-R33, SUITE-R06a).
+`EXEC-R04a` **H** La constancia de una G4 tiene forma fija. Una entrada en docs/implementation/SESSION_LOG.md cuyo encabezado sea ## <YYYY-MM-DD> · … y mencione G4, VoBo o autorizad…, con un nombre de firmantes en su cuerpo.…
 `EXEC-R05` **H** G3 es humana para todo BUG en los tres modos (FDGE-R26, LEX-R08).
 `EXEC-R06` **H** Estas condiciones son verificables mecánicamente, no declarativas.
 `EXEC-R07` **H** Si un PT requiere una de estas acciones para completarse, el agente prepara todo lo demás, se detiene en el punto exacto y describe el comando a ejecutar.

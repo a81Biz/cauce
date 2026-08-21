@@ -4632,8 +4632,11 @@ chk   "SUITE-R01 esta declarada NO_VERIFICABLE"    "SUITE-R01" \
 chk   "…y audit la clasifica, no la deja PENDIENTE" "NO_VERIFICABLE   6" \
   sh -c 'node "$1/docs/methodology/tools/audit.mjs" "$1/docs/methodology" 2>&1 | grep NO_VERIFICABLE' _ "$RAIZ"
 
-chk   "…y las tres salen de PENDIENTE"             "PENDIENTE        122" \
-  sh -c 'node "$1/docs/methodology/tools/audit.mjs" "$1/docs/methodology" 2>&1 | grep PENDIENTE' _ "$RAIZ"
+# La primera version aserto «PENDIENTE 122», una cifra que CRECE con cada regla nueva: fallo
+# dos tareas despues, al entrar EXEC-R04a. El «no hacer» del HANDOFF ya lo advertia y lo hice
+# igual. Se aserta el HECHO —que las tres NO siguen en PENDIENTE— y no el total.
+chk   "…y las tres salen de PENDIENTE"             "NINGUNA_PENDIENTE" \
+  sh -c 'cd "$1" && node docs/methodology/tools/audit.mjs docs/methodology --sin-verificar 2>&1 | tail -3 | grep -qE "SUITE-R09|EXEC-R04 |SUITE-R01" && echo SIGUEN_PENDIENTES || echo NINGUNA_PENDIENTE' _ "$RAIZ"
 
 sec "── PT-087 · la comprobacion declara que hecho establece ──"
 #
@@ -4959,6 +4962,48 @@ chkno "…y con la marca la reescribe"                  "| 1 |" \
 # ── y sobre el arbol real, la comprobacion en verde ─────────────────────────
 chk   "el arbol real tiene sus cifras al dia"         "coinciden con el árbol" \
   sh -c 'cd "$1" && node docs/methodology/tools/verify-fdge.mjs PT-091 2>&1 | grep FND-R14' _ "$RAIZ"
+
+sec "── PT-093 · el limite de las compuertas se declara ──"
+#
+# H-009. main exige PR y CI en verde INCLUSO PARA ADMINISTRADORES, sin force push ni borrado,
+# pero con CERO revisores aprobadores — la unica configuracion viable para el equipo de una
+# persona que SUITE-R22 declara soportado. El control de EXEC-R04 es por tanto un REGISTRO
+# POSTERIOR CONTRASTABLE, no una prevencion, y eso no estaba escrito en ningun sitio.
+#
+# SUITE-R27 ya lo declara con esa franqueza para las FIRMAS. EXEC-R04 no lo decia, y es donde
+# la consecuencia es irreversible.
+
+chk   "EXEC-R04 declara que garantiza"          "Qué garantiza esta compuerta" \
+  cat "$SUITE/EXECUTION-MODES.md"
+chk   "…y que NO puede garantizar"              "ejecutara el merge" \
+  cat "$SUITE/EXECUTION-MODES.md"
+# Sin esta linea, «0 revisores» se leeria como un descuido de configuracion en vez de como la
+# unica opcion viable para el caso que SUITE-R22 declara soportado.
+chk   "…y que 0 revisores no es un descuido"    "no es un descuido de configuración" \
+  cat "$SUITE/EXECUTION-MODES.md"
+
+chk   "EXEC-R04a fija la forma de la constancia" "forma fija" \
+  cat "$SUITE/EXECUTION-MODES.md"
+chk   "…y dice DONDE mirar"                      "SESSION_LOG.md" \
+  grep -A4 "EXEC-R04a" "$SUITE/EXECUTION-MODES.md"
+
+# ── PT-093 · dos lectores del mismo hecho, divergentes ──────────────────────
+#
+# LEX-R24 admite sub-IDs con letra minuscula pegada. «reglasDelMarco» de patrones.mjs los
+# aceptaba y los DOS extractores de build-core los rechazaban: una sub-regla en prosa quedaba
+# fuera de CORE.md EN SILENCIO, y CORE.md es lo unico que el agente carga.
+chk   "una sub-regla llega a CORE.md"            "EXEC-R04a" \
+  grep "EXEC-R04a" "$SUITE/CORE.md"
+chk   "…y los dos extractores aceptan el sufijo" "2" \
+  sh -c 'grep -c "A-Z]+-\[RP\].d+\[a-z\]?" "$1/tools/build-core.mjs"' _ "$SUITE"
+chk   "…y la regla nueva declara desde cuando"   "TIENE_FILA" \
+  PAT_KEY EXEC-R04a
+# AC-03 · «ya lo entrego PT-088» tambien es comprobable, y FDGE-R15 tiene razon en pedirlo:
+# un AC sin escenario es huerfano. Es la SEGUNDA vez en el lote — PT-089 AC-05 fue la primera —
+# y las dos veces la leccion es la misma: declarar que algo esta hecho sin poder ensenarlo es
+# exactamente lo que este lote persigue.
+chk   "AC-03 ya lo entrego PT-088, y se ve"      "sin constancia de autorización" \
+  sh -c 'grep -o "sin constancia de autorización" "$1/tools/verify-fdge.mjs" | head -1' _ "$SUITE"
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL

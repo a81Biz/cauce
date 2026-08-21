@@ -126,6 +126,7 @@ export const RIGE_DESDE = {
   'SUITE-R57': [10, 0, 0],  // lo integrado no se acumula sin sellar · nace con EP-017
   'SUITE-R09': [11, 0, 0],  // el ledger no pierde lineas · el verificador nace con EP-018
   'EXEC-R04':  [11, 0, 0],  // la G4 deja constancia · 18 merges historicos sin ella
+  'EXEC-R04a': [11, 0, 0],  // la constancia tiene forma fija · nace con EP-018
 };
 
 /**

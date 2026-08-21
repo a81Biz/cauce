@@ -4398,3 +4398,56 @@ veces pasaria.
 bateria: 1167 -> 1179 casos, cero fallos.
 Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
 Trazabilidad externa: issue #167
+
+## PT-093 — el limite de las compuertas se declara
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-009, tipo INVESTIGATION porque no estaba claro que tuviera arreglo dentro del repositorio.
+MEDIDO EN PHASE 2: no lo tiene. Los cuatro caminos que lo parecen mueven el problema —un revisor
+aprobador es imposible para el equipo de una persona (SUITE-R22); retirar credenciales de gh rompe
+el espejo (SUITE-R35); una firma criptografica vive en la maquina donde ejecuta el agente; y dos
+agentes con las mismas credenciales no son dos personas.
+
+LA DECISION: DECLARAR el limite, como SUITE-R27 ya hace con las firmas, y no prometer una
+prevencion. Prometerla seria peor que declarar: daria por resuelto lo que sigue abierto, que es el
+patron que este lote combate.
+
+  EXEC-R04   gana una tabla de DOS COLUMNAS —lo que garantiza y lo que no— porque lo que hace
+             util la declaracion es que las dos listas se lean A LA VEZ. Y una frase: «0
+             revisores aprobadores NO es un descuido de configuracion», que impide que alguien
+             lo «arregle» rompiendo el flujo del equipo de una persona.
+  EXEC-R04a  fija la FORMA de la constancia. PT-088 la fijo de hecho al escribir RE_CONSTANCIA;
+             solo la conocia quien leyera el codigo.
+
+LO QUE APARECIO Y NO BUSCABA NADIE. Escribi EXEC-R04a, el marco la conto como regla —225— y NO
+LLEGO A CORE.md, que es lo unico que el agente carga.
+
+  patrones.mjs  reglasDelMarco  [A-Z]+-R\d+[a-z]?   la aceptaba
+  build-core    RE_PROSE_HEAD   [A-Z]+-[RP]\d+      la rechazaba
+  build-core    rulesFrom       [A-Z]+-[RP]\d+      la rechazaba
+
+LEX-R24 ADMITE EXPLICITAMENTE los sub-identificadores, y los dos extractores del compilador los
+descartaban EN SILENCIO. Dos lectores del mismo hecho, divergentes: la enfermedad que la v4 existe
+para eliminar, dentro de la herramienta que compila el nucleo. Arreglados los DOS aunque hoy solo
+el de prosa tuviera una sub-regla — dejar el defecto en la mitad que no se estreno es esperar a
+que lo encuentre otro, y este lote lleva ocho instancias de exactamente eso.
+
+EL MARCO SE CAZO SOLO, DOS VECES: en cuanto la regla llego a CORE, el detector de PT-081 la marco
+por no declarar desde cuando rige; y «audit» la conto como PENDIENTE hasta que le escribi su
+emision — que es como descubri que una constancia MALFORMADA y una AUSENTE son hechos distintos
+con arreglos distintos, y no debian compartir mensaje.
+
+UN CASO MIO ATADO A UNA CIFRA QUE CRECE: PT-088 aserto «PENDIENTE 122» y fallo DOS TAREAS DESPUES,
+al entrar EXEC-R04a. El «no hacer» del HANDOFF ya lo advertia y lo hice igual. Corregido a asertar
+el HECHO: que las tres reglas no sigan en PENDIENTE.
+
+AC-03 NO REQUERIA TRABAJO: PT-088 lo entrego. Segunda vez en el lote que un AC resulta estar
+hecho, y las dos veces se dice en vez de disimularlo.
+
+AC-04 es la decision, y se declara cual se tomo. Escrita bajo el VoBo vigente con su base en
+SESSION_LOG.md. ES LA UNICA DECISION DEL LOTE QUE EL FIRMANTE QUIZA QUIERA REVISAR, y se dice.
+
+bateria: 1179 -> 1187 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #169

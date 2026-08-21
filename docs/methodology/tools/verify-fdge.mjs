@@ -970,6 +970,22 @@ function checkG4ConConstancia() {
     const quien = lista.find((n) => b.includes(n));
     if (quien) constancias.push({ nombre: quien, fecha: m[1] });
   }
+  // PT-093 · EXEC-R04a · una constancia MALFORMADA es un hecho distinto de una AUSENTE, y el
+  // arreglo tambien: la primera se corrige anadiendo el nombre, la segunda escribiendo la
+  // entrada. Fundirlas en un solo mensaje mandaba a quien lo lee a buscar cual de las dos era.
+  //
+  // QUE ESTABLECE: que un encabezado que anuncia una autorizacion lleve un nombre de firmantes.
+  // QUE NO ESTABLECE: que ese encabezado sea el de la autorizacion que cubre este merge — eso
+  //   lo empareja la fecha, y el limite ya esta declarado en EXEC-R04.
+  if (rigeGlobal('EXEC-R04a')) {
+    for (const b of bloques) {
+      const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
+      if (!m || !/G4|VoBo|autorizad/i.test(m[2])) continue;
+      if (lista.some((n) => b.includes(n))) continue;
+      fail('EXEC-R04a', `SESSION_LOG.md, entrada del ${m[1]}: anuncia una autorización y no lleva ningún nombre de «firmantes» en su cuerpo. La forma es fija —encabezado con fecha y un nombre de la lista— porque lo que hace contrastable a una autorización es saber dónde mirar y qué tiene que decir. NO establece que sea la autorización de un merge concreto: eso lo empareja la fecha.`);
+    }
+  }
+
   const huerfanos = mergesSinConstancia(merges, constancias, lista);
   if (huerfanos.length) {
     for (const h of huerfanos) {

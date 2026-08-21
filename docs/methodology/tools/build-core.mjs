@@ -52,8 +52,11 @@ const read = (f) => {
 // ejecuta. Vive en los Framework-*.md, que nunca se cargan en runtime.
 function rulesFrom(txt) {
   const out = [];
+    // PT-093 · el mismo hueco que RE_PROSE_HEAD: LEX-R24 admite sub-IDs con letra minuscula
+    // pegada y este patron los rechazaba. Se alinea aunque hoy no haya ninguno en tabla —
+    // dejar el defecto en la mitad que no se estreno es esperar a que lo encuentre otro.
   for (const line of txt.split(/\r?\n/)) {
-    const m = line.match(/^\|\s*`([A-Z]+-[RP]\d+)`\s*\|\s*(HARD|SOFT|CHECK)\s*\|\s*(.+?)\s*\|\s*$/);
+    const m = line.match(/^\|\s*`([A-Z]+-[RP]\d+[a-z]?)`\s*\|\s*(HARD|SOFT|CHECK)\s*\|\s*(.+?)\s*\|\s*$/);
     if (!m) continue;
     let [, id, sev, body] = m;
     body = body
@@ -120,7 +123,17 @@ function ptsaCited(txt) {
 // Regex LITERAL, nunca construido con new RegExp: montar patrones desde strings ha fallado
 // cinco veces en este proyecto (\d y \s se pierden según la capa de escapado). El filtrado
 // por prefijo se hace en código, que no tiene ese modo de fallo.
-const RE_PROSE_HEAD = /^`([A-Z]+-[RP]\d+)`\s*·\s*(.*)$/;
+// PT-093 · este patron no aceptaba SUFIJO DE LETRA, y «reglasDelMarco» de patrones.mjs si:
+// dos lectores del mismo hecho, divergentes. Una sub-regla en un documento de PROSA —como
+// EXEC-R04a— quedaba fuera de CORE.md EN SILENCIO, y CORE.md es lo unico que el agente carga.
+//
+// Las de RULES.md no lo sufrian porque van en TABLA y su patron si acepta el sufijo, asi que el
+// defecto solo aparecia al escribir la primera sub-regla en prosa. SUITE-R06a lleva tres
+// menciones en CORE y viene de la tabla.
+//
+// Es la enfermedad que la v4 existe para eliminar —el mismo hecho leido por dos sitios— en la
+// herramienta que compila el nucleo.
+const RE_PROSE_HEAD = /^`([A-Z]+-[RP]\d+[a-z]?)`\s*·\s*(.*)$/;
 function proseRules(txt, prefijos) {
   const ok = new Set(prefijos);
   const out = [];
