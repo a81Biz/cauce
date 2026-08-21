@@ -3947,7 +3947,12 @@ trlib "sha y rama iguales ⇒ corresponde"      "^true$" \
   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"chore/x\"}).corresponde)"
 trlib "sha distinto ⇒ NO corresponde"         "^false$" \
   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"chore/x\"}).corresponde)"
-trlib "rama distinta ⇒ NO corresponde"        "^false$" \
+# PT-094 DEROGA este caso: cambiar de rama DENTRO DE LA MISMA HISTORIA no es divergencia.
+# Lo midio el G4 de PT-094: al fusionarse su PR de revision la rama se borro, el trabajo
+# quedo CONTENIDO en el arbol, y el checkpoint daba rojo en `trabajo` y otra vez en `main`
+# — con otro nombre de rama cada vez. TODA fusion lo invalidaba, que es el caso normal.
+trlib "otra rama, misma historia: corresponde" "^true$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+trlibno "…y la rama no figura como discrepancia" "rama"   "console.log(JSON.stringify(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).discrepancias))"
   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
 
 # E4/E5 · lo que separa esto de una herramienta que molesta. Medido en PHASE 2: la lista de
@@ -4014,15 +4019,29 @@ trlibno "…sin inventar discrepancias"         "chore/borrada"   "console.log(J
 # PT-056 construyo para el caso peligroso — un sha real describiendo un arbol que ya no existe
 # MIENTRAS la tarea sigue abierta.
 CPVIVO='{pt:"PT-93",status:"IN_PROGRESS",sha:"a".repeat(40),rama:"chore/x"}'
-trlib "un PT IN_PROGRESS SI se contrasta"     "^false$"   "console.log(m.estadoDelArbol($CPVIVO,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
-trlib "…y un DRAFT tambien"                   "^false$"   "console.log(m.estadoDelArbol({pt:\"P\",status:\"DRAFT\",sha:\"a\".repeat(40),rama:\"chore/x\"},{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+trlib "un PT IN_PROGRESS SI se contrasta"     "^false$"   "console.log(m.estadoDelArbol($CPVIVO,{sha:\"b\".repeat(40),rama:\"otra\",descendiente:false}).corresponde)"
+trlib "…y un DRAFT tambien"                   "^false$"   "console.log(m.estadoDelArbol({pt:\"P\",status:\"DRAFT\",sha:\"a\".repeat(40),rama:\"chore/x\"},{sha:\"b\".repeat(40),rama:\"otra\",descendiente:false}).corresponde)"
 
 # DONE es el caso que decide si el arreglo esta bien trazado. Un PT en DONE espera G4 con su rama
 # VIVA: ahi un sha que describe otro arbol si miente. ESTADOS_TERMINALES ya lo excluye por esta
 # misma razon (PT-085), y este caso existe para que anadirlo cueste un rojo — en las dos reglas.
-trlib "DONE espera G4: sigue vivo"            "^false$"   "console.log(m.estadoDelArbol({pt:\"P\",status:\"DONE\",sha:\"a\".repeat(40),rama:\"chore/x\"},{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+trlib "DONE espera G4: sigue vivo"            "^false$"   "console.log(m.estadoDelArbol({pt:\"P\",status:\"DONE\",sha:\"a\".repeat(40),rama:\"chore/x\"},{sha:\"b\".repeat(40),rama:\"otra\",descendiente:false}).corresponde)"
 # Un checkpoint SIN estado se contrasta: no declararlo no es declararse cerrado (RULE-06).
-trlib "sin «status» se contrasta igual"       "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+trlib "sin «status» se contrasta igual"       "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"b\".repeat(40),rama:\"otra\",descendiente:false}).corresponde)"
+
+
+# AC-09 · la rama CORROBORA, no dispara sola.
+#
+# Los dos lados hacen falta: lo que SIGUE cazando —otra historia— y lo que deja de cazar —el
+# merge, que es lo que pasa siempre—. Sin el segundo par, la ampliacion seria indistinguible
+# de apagar la comprobacion de rama.
+CPD='{pt:"PT-94",status:"DONE",sha:"a".repeat(40),rama:"chore/borrada"}'
+trlib "la rama sola ya no dispara"            "^true$"   "console.log(m.estadoDelArbol($CPD,{sha:\"a\".repeat(40),rama:\"main\"}).corresponde)"
+trlib "…ni con un sha ANTECESOR"              "^true$"   "console.log(m.estadoDelArbol($CPD,{sha:\"c\".repeat(40),rama:\"main\",descendiente:true}).corresponde)"
+trlib "…pero con OTRA historia si"            "^false$"   "console.log(m.estadoDelArbol($CPD,{sha:\"b\".repeat(40),rama:\"main\",descendiente:false}).corresponde)"
+trlib "…y entonces enumera LAS DOS"           "^2$"   "console.log(m.estadoDelArbol($CPD,{sha:\"b\".repeat(40),rama:\"main\",descendiente:false}).discrepancias.length)"
+# No poder demostrar que desciende sigue contando (RULE-06), y ahi la rama SI corrobora.
+trlib "no saberlo arrastra la rama tambien"   "rama"   "console.log(JSON.stringify(m.estadoDelArbol($CPD,{sha:\"b\".repeat(40),rama:\"main\",descendiente:null}).discrepancias))"
 
 # AC-04 · la guarda de PT-056 tiene que estar en el camino que DE VERDAD escribe el checkpoint.
 # `checkpoint()` la pasaba y `avanzar` no, asi que en cada transicion de fase se volvia a escribir
@@ -4080,10 +4099,22 @@ else
   # comprobacion de PT-052.
   cp6_set() { [ -f "$CP6" ] || return 0; MTH_CP6="$CP6" node -e "$1"; }
   cp6_set 'const fs=require("node:fs");const p=process.env.MTH_CP6;const c=JSON.parse(fs.readFileSync(p,"utf8"));c.rama="chore/OTRA";fs.writeFileSync(p,JSON.stringify(c,null,2));'
-  chk   "otra rama: verify-fdge FALLA"            "STATE_MISMATCH"         V6 PT-004
+  # PT-094 · tocar SOLO la rama ya no basta, y ese es el arreglo: sobre el arbol real este
+  # checkpoint describe el commit de HEAD, asi que es un estado de ESTA historia con una
+  # etiqueta vieja. Es lo que pasaba en cada merge.
+  chkno "solo la rama: verify-fdge NO falla"      "STATE_MISMATCH"         V6 PT-004
+  # Con un sha de OTRA historia vuelve a fallar, y la rama corrobora. Es el caso peligroso.
+  cp6_set 'const fs=require("node:fs");const p=process.env.MTH_CP6;const c=JSON.parse(fs.readFileSync(p,"utf8"));c.sha="0".repeat(40);fs.writeFileSync(p,JSON.stringify(c,null,2));'
+  chk   "otra historia + otra rama: FALLA"        "LEX-R26"                V6 PT-004
   # El mensaje llevaba la rama truncada a siete caracteres —«chore/O»— porque acortaba TODO como
   # si fuera un SHA. Un aviso que corta justo el dato por el que se detiene no sirve de nada.
-  chk   "…y dice cual es la discrepancia ENTERA"  "declarado chore/OTRA"   V6 PT-004
+  # Con cuarenta ceros el commit NO ES ALCANZABLE, asi que salta la comprobacion ANTERIOR
+  # (PT-052) y ni siquiera se llega a mirar la rama. Que el mensaje diga CUAL es el commit
+  # importa: un checkpoint que apunta a nada miente con la autoridad de un dato estructurado.
+  chk   "…y nombra el commit inalcanzable"        "00000000"               V6 PT-004
+  # Que la rama salga ENTERA —sin truncar a siete caracteres como si fuera un SHA— lo
+  # sostienen los casos de la funcion pura: aqui no se llega a mirarla. Escribir aqui otra
+  # asercion seria un caso que no puede fallar, que es justo lo que este PT persigue.
   chk   "…y que decidir es humano"                "SUITE-R06"              V6 PT-004
   chk   "tracker siguiente BLOQUEA"               "BLOQUEA"                TR6 siguiente PT-004
   chk   "…y sin credencial BLOQUEA igual"         "STATE_MISMATCH"         TR6NOGH siguiente PT-004

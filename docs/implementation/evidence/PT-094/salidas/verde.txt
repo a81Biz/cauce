@@ -11,3 +11,6 @@ Sin errores de coherencia.
   [31m✗[0m el arbol real tiene sus cifras al dia  (no apareció: coinciden con el árbol · salió:   ! FND-R14        4 de 16 cifras de inventory/services.md ya no describen el árbol — selftest.sh 5082→5115, tracker.mjs 2654→2686, verify-fdge.mjs 2131→2145, patrones.mjs 1345→1354. Se recalculan: node docs/methodology/tools/tracker.mjs inventario --aplicar. NO establece que la descripción en prosa sea cierta: sólo las cifras.)
 
 selftest: HAY FALLOS · 1207 casos
+=== VERDE · ampliacion AC-09/AC-10 ===
+── A · casos límite (deben pasar en verde) ──
+selftest: OK · 31 de 1214 casos

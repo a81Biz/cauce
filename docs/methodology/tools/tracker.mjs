@@ -908,7 +908,25 @@ export function estadoDelArbol(cp, git = {}) {
   // una rama: es no poder leerlo, y tratarlo como valor hacia que la comprobacion se disparara
   // contra si misma en cada PR. Lo encontro CI en el primer PR de PT-056, no yo.
   const ramaReal = git.rama === 'HEAD' ? null : git.rama;
-  if (cp.rama && ramaReal && cp.rama !== ramaReal) d.push({ campo: 'rama', declarado: cp.rama, real: ramaReal });
+  // PT-094 · AC-09 · la rama CORROBORA, no dispara sola.
+  //
+  // Encontrado ejecutando el propio G4 de esta tarea: al fusionarse el PR de revision su rama se
+  // borro, y el checkpoint quedo declarando una rama muerta con el trabajo YA CONTENIDO en el
+  // arbol. Rojo en `trabajo`, y rojo otra vez en `main` tras el merge — con otro nombre de rama
+  // cada vez. Toda fusion invalidaba el checkpoint, que es el caso NORMAL y no una divergencia.
+  //
+  // El criterio que ya usa `sha` es el bueno y no estaba aplicado aqui: lo que distingue no es la
+  // igualdad, es DE QUE HISTORIA es. Si el commit declarado esta contenido en esta historia, el
+  // checkpoint describe un estado pasado DE ESTA historia y el nombre de rama es una etiqueta
+  // vieja, no una divergencia. Si NO lo esta, entonces si: otra rama corrobora otra historia.
+  //
+  // Deroga la decision de PT-056 de que `rama` disparara por si sola. No era gratuita —queria
+  // cazar «estas en otra rama»— pero midiendo salio que el caso que cazaba de verdad era el
+  // legitimo: cambiar de rama dentro de la misma historia pasa en CADA merge.
+  const otraHistoria = d.some((x) => x.campo === 'sha');
+  if (otraHistoria && cp.rama && ramaReal && cp.rama !== ramaReal) {
+    d.push({ campo: 'rama', declarado: cp.rama, real: ramaReal });
+  }
   return { corresponde: d.length === 0, pt: cp.pt ?? null, discrepancias: d };
 }
 

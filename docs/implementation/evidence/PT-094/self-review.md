@@ -95,6 +95,47 @@ Misma familia que el defecto que este `PT` corrige: una regla escrita cuyo camin
 aplica. Está en el `out-of-scope` con su motivo — cambiar qué estado asigna una transición toca el
 ciclo de vida entero, y eso merece su propio intake.
 
+## El arreglo no bastaba, y lo descubrí ejecutando `G4`
+
+Cerré `PT-094` convencido de que estaba. Al ir a fusionar:
+
+```
+✗ LEX-R26  ... rama: declarado chore/alberto-martinez/g4-pt-094, real trabajo
+```
+
+**El mismo defecto, en su forma no terminal.** Al fusionarse el PR de revisión la rama se borró, y
+`PT-094` —en `DONE`, luego vivo, luego contrastado— quedó declarando una rama muerta con su trabajo
+ya contenido en el árbol. Rojo en `trabajo`; y `G4` lo habría dejado rojo en `main` otra vez, con
+otro nombre de rama.
+
+**Toda fusión invalidaba el checkpoint.** Yo había cubierto el caso terminal y dejado sin cubrir el
+normal, que ocurre en cada merge.
+
+No lo vio ninguna comprobación mía: lo vio **intentar usar el resultado**. Es la misma lección que
+`PT-092` dejó al ejecutar `PTSA` —ejecutar revela fricciones que ningún documento anticipa— y la
+razón de que este `PT` volviera a `IN_PROGRESS` en vez de abrir un `PT-095`: no estaba integrado,
+así que no estaba terminado.
+
+## Derogar una decisión ajena, y hacerlo visible
+
+`PT-056` decidió que `rama` disparara por sí sola. Midiendo, lo que cazaba era el caso legítimo.
+
+El criterio bueno ya estaba **en la misma función**, aplicado a `sha`: lo que distingue no es la
+igualdad sino **de qué historia** es. Si el commit declarado está contenido en esta historia, el
+checkpoint describe un estado pasado **de esta** historia y el nombre de rama es una etiqueta
+vieja. Faltaba extenderlo a `rama`.
+
+Su caso `E3` se conserva en la batería **con el veredicto invertido** en vez de borrarse. Borrarlo
+haría desaparecer que alguien decidió lo contrario, y eso es la mitad de lo que un caso cuenta.
+
+## Y cuatro casos míos cambiaron de escenario
+
+Los de `AC-03` usaban «mismo sha, otra rama», que ahora **es** correspondencia. Pasan a «otra
+historia», que es el caso peligroso que siempre tuvieron que ejercitar.
+
+Que un arreglo obligue a reescribir sus propios casos es señal de que el criterio cambió de
+verdad. Si hubieran seguido pasando sin tocarlos, no estarían midiendo lo que dicen medir.
+
 ## Lo que NO se verifica, y está declarado
 
 **Que `publicar.yml` publique.** Lo verificado es que la comprobación que lo detenía deja de
