@@ -3006,3 +3006,51 @@ verify-fdge        PT-096 sin errores
 verify-suite       sin errores de coherencia
 AC-01..AC-08       ocho de ocho · AC-09 trasladado a L-3, y consta como traslado
 ```
+
+---
+
+## 2026-08-21 · el firmante ACOTA la autorización de `G4`: todo se queda en `trabajo`
+
+**Instrucción literal:** «bien, continúa entonces que se queden en trabajo y al final pasamos a
+main. Ya no pares hasta terminar la épica».
+
+Constancia con nombre y forma fija (`EXEC-R04a`): decidido por Alberto Martínez.
+
+**Qué cambia respecto de la autorización anterior.** La entrada previa de esta misma fecha
+registró «haz el merge, deja todo en main» como excepción declarada a `SUITE-R06a` y `EXEC-R04`.
+El firmante la **acota** tras leer el resultado de la compuerta:
+
+```
+ANTES   trabajo -> main ahora, con --gate G4 en rojo DECLARADO
+AHORA   todo se queda en «trabajo». main al FINAL, cuando EP-019 cierre
+```
+
+**Por qué se le planteó, y qué vio.** Con `## Cierre del lote` escrito (`SUITE-R45`),
+`--gate G4 PT-096` sigue en rojo y **dice la verdad**: `EP-019` no puede cerrar porque trece filas
+están `PENDIENTES` y le faltan ocho tareas. No es el defecto de `PT-055` —ése se arregló y la
+compuerta ya evalúa **su** lote— sino la compuerta funcionando.
+
+**Esto devuelve `G4` a su sitio, y conviene decirlo.** `CLAUDE.md` declara que el merge de
+`trabajo` a `main` **es** `G4`, la compuerta del lote. Integrar mid-lote habría repetido el
+precedente de `EP-013`: `main` recibiendo trabajo de un lote abierto con un rojo declarado
+arrastrándose. La decisión del firmante elimina la excepción en vez de administrarla.
+
+**Lo que sigue vigente de la autorización anterior:**
+
+```
+SUITE-R06b · G3 de un BUG           ->  sigue delegada
+SUITE-R06b · cerrar un BUG          ->  sigue delegada
+SUITE-R06e · modificar docs/methodology/  ->  sigue delegada: es el producto de este repo
+EXEC-R04   · G1, G2, G3             ->  siguen delegadas
+merge de una tarea a «trabajo»      ->  es REVISION, no G4 (FDGE-R19, EXEC-R03)
+```
+
+**Lo que queda pendiente y es del firmante:**
+
+```
+trabajo -> main   G4 de EP-019, cuando el lote cierre y sus trece filas esten resueltas
+PUBLICAR          nunca entro, y sigue sin entrar
+```
+
+**Y el mandato:** «no pares hasta terminar la épica» — nueve tareas, de las cuales `L-0` queda
+`DONE` y pendiente de su merge a `trabajo`.
