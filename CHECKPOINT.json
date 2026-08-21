@@ -3,25 +3,36 @@
   "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "d682338f1d3bebb7fab36b49afaab87ec2c59ab7",
   "sha_corto": "d682338",
   "sucio": true,
   "archivos": [
     "changes/PT-097-los-umbrales-de-la-certificacion/context.md",
+    "changes/PT-097-los-umbrales-de-la-certificacion/design.md",
     "changes/PT-097-los-umbrales-de-la-certificacion/discovery.md",
     "changes/PT-097-los-umbrales-de-la-certificacion/intake.md",
+    "changes/PT-097-los-umbrales-de-la-certificacion/out-of-scope.md",
+    "changes/PT-097-los-umbrales-de-la-certificacion/spec-changes.md",
     "changes/PT-097-los-umbrales-de-la-certificacion/strategy.md",
+    "changes/PT-097-los-umbrales-de-la-certificacion/tasks.md",
+    "changes/PT-097-los-umbrales-de-la-certificacion/test-scenarios.md",
+    "changes/PT-097-los-umbrales-de-la-certificacion/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-21"
 }
