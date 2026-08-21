@@ -3,20 +3,31 @@
   "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-096-apertura",
-  "sha": "a6cf9e15b02f5383a32ba2a835f3705fd789acf9",
-  "sha_corto": "a6cf9e1",
+  "sha": "fc2a47ed794f256983a01c997deff4cc9f826f8d",
+  "sha_corto": "fc2a47e",
   "sucio": true,
   "archivos": [
+    "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/design.md",
     "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/intake.md",
+    "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/out-of-scope.md",
+    "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/spec-changes.md",
+    "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/tasks.md",
+    "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/test-scenarios.md",
+    "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/traceability.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-21"
 }

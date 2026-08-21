@@ -11,4 +11,4 @@ Proyectado el 2026-08-21 · 3 allocation(es) viva(s).
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-019 | EPIC | DRAFT | 1 | — | — | ee3159d |
-| PT-096 | BUG | DRAFT | 3 | — | — | a6cf9e1 |
+| PT-096 | BUG | DRAFT | 4 | — | — | fc2a47e |
