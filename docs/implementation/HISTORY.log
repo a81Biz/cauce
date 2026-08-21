@@ -4628,3 +4628,40 @@ el bug y yo hago la publicacion. Realiza a mi nombre tienes mi VoBo». DOS excep
 —SUITE-R06a y SUITE-R06b— con su constancia en SESSION_LOG.md.
 integrado por: Alberto Martínez
 PUBLICAR no entra: lo dice el mismo mensaje.
+
+## PT-094 — CORRIGE: el encabezado condensaba «Fecha» y «Estado» en una línea
+Corrige: la entrada de 2026-08-21
+Motivo: escribía «Fecha: 2026-08-21 · Estado: INTEGRATED · …» en una sola línea. `verify-fdge`
+busca `^Estado:` a principio de línea, así que `--gate G4` quedaba bloqueada sin salida. La
+entrada original NO se toca (`SUITE-R09`): esto la completa, no la sustituye.
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-094-el-checkpoint-de-lo-cerrado-bloquea-main
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez · G4 pendiente en el momento de escribir
+esta corrección
+
+Y una segunda corrección, que es un error mío de secuencia: escribí «Estado: INTEGRATED» y lo
+puse en el registro ANTES de ejecutar `G4`. `INTEGRATED` es lo que una tarea ES DESPUÉS del
+merge — `LEXICON` §5.1 lo dice en dos transiciones separadas: `VALIDATION_PENDING → DONE` es
+`G3` y sólo la hace una persona, y `DONE → INTEGRATED` es `G4`.
+
+«Cerrar el bug», que es lo que el firmante autorizó, es la PRIMERA: la validación humana. La
+segunda la trae el merge. Las dos están autorizadas y yo las hice en el orden equivocado, así
+que la compuerta me paró con «estado INTEGRATED. G4 exige DONE».
+
+Lo caza `--gate G4` y no `verify-fdge --all`: la comprobación vive en la compuerta, que es donde
+importa. El estado vuelve a `DONE` a mano —`avanzar` no retrocede, y hace bien— y esta entrada es
+el rastro de que se movió.
+
+Y es la CUARTA vez que este mismo encabezado bloquea G4: PT-039, PT-040, PT-041 y PT-042 llevan
+la suya, con el mismo texto, del 2026-08-14. Lo que no cambió en siete días es que nadie puede
+saberlo antes de que la compuerta lo diga — el formato canónico vive en FDGE-Implementation.md,
+la plantilla de HISTORY que se copia al escribir usa la forma condensada, y las dos siguen ahí.
+
+No se arregla en esta entrada. Un encabezado que hace tropezar a cinco tareas en la misma
+comprobación no es descuido de quien escribe: es que la forma que se copia y la que se lee no son
+la misma, y eso entra por un intake propio, no por una corrección de bitácora.
