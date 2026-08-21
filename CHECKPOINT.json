@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "06e367a573de94f7069de3a53de786bb8fe123a7",
   "sha_corto": "06e367a",
@@ -25,11 +25,8 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/verify-ptsa.mjs"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-21"
 }
