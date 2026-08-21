@@ -7,8 +7,8 @@ type: BUG
 severity: S1
 track: STANDARD
 complexity: STANDARD
-status: INTEGRATED
-phase: 10
+status: DONE
+phase: 9
 created: 2026-08-21
 structural: no
 suite_version: 11.0.0
