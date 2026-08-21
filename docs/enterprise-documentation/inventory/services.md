@@ -6,7 +6,7 @@
 
 | Herramienta | Líneas | Qué hace | Escribe | Ejercitada por |
 |:---|---:|:---|:---|:---|
-| `selftest.sh` | 5328 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
+| `selftest.sh` | 5409 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
 | `tracker.mjs` | 2850 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
 | `verify-fdge.mjs` | 2172 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
 | `verify-suite.mjs` | 720 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
@@ -18,7 +18,7 @@
 | `verify-qa.mjs` | 268 | Cumplimiento de una campaña QA | no | `selftest` |
 | `revisar-secretos.mjs` | 229 | Escaneo de secretos en árbol e historia git | no | `npm run verify:secretos` · `verificacion.yml` · `publicar.yml` |
 | `regla.mjs` | 261 | Un ID de regla → qué exige y qué verificador puede fallar, derivado. **Defecto vivo `D20`: reporta mal 47 de 196** | no | manual |
-| `verify-ptsa.mjs` | 224 | Cumplimiento de una auditoría PTSA | no | `selftest` |
+| `verify-ptsa.mjs` | 351 | Cumplimiento de una auditoría PTSA | no | `selftest` |
 | `version.mjs` | 106 | Alinea la versión en los 21 documentos y `package.json` desde el `CHANGELOG` | **sí** con `--aplicar` | manual · release |
 | `comparar-marco.mjs` | 102 | Compara el marco instalado con el del paquete | no | `cauce compare` · `selftest` |
 | `verify-patrones.mjs` | 89 | Contrato de `patrones.mjs`: cada patrón con lo que debe casar y lo que no | no | `npm run verify:patrones` · CI |

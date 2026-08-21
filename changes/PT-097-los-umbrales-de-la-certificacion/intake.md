@@ -7,8 +7,8 @@ type: BUG
 severity: S1
 complexity:
 track: STANDARD
-status: DRAFT
-phase: 4
+status: DONE
+phase: 8
 created: 2026-08-21
 origin: DIRECT
 epic: EP-019

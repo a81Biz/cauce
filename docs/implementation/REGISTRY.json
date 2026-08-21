@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 97,
+    "PT": 98,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2519,12 +2519,12 @@
       "id": "PT-097",
       "slug": "los-umbrales-de-la-certificacion",
       "created": "2026-08-21",
-      "status": "DRAFT",
+      "status": "DONE",
       "type": "BUG",
       "severity": "S1",
       "track": "STANDARD",
       "epic": "EP-019",
-      "phase": 4,
+      "phase": 8,
       "structural": false,
       "suite_version": "11.0.0",
       "title": "Los umbrales de la certificacion: la letra se deriva o no se emite",
@@ -2547,6 +2547,38 @@
         "fecha": "2026-08-21"
       },
       "issue": 194
+    },
+    {
+      "id": "PT-098",
+      "slug": "el-estado-terminal-se-deriva-del-arbol",
+      "created": "2026-08-21",
+      "status": "DRAFT",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 1,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "El estado terminal se deriva del arbol, no se escribe al avanzar",
+      "origin": "C-1 del lote, y el hallazgo que INC-011 de la calculadora llama «el mas peligroso de los once». «avanzar --a <ultima>» escribe INTEGRATED sin mirar nada, y ese estado APAGA cinco comprobaciones de verify-fdge que se eximen de lo terminal. Medido en la calculadora: PT-001 y PT-002 en INTEGRATED con «git rev-list --count main» devolviendo 2; al corregirlo a DONE se encendieron las cinco y CUATRO salieron en rojo sobre trabajo del dia anterior, mientras «verify-fdge --all» daba verde todos los dias. LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal»: es un hecho del arbol, no una opinion del registro. Es un falso VERDE, y un falso verde se archiva mientras un falso rojo se investiga. El mecanismo de contraste YA EXISTE —PT-096 construyo refDurableDe, que pregunta a git si changes/<ID>-<slug>/ esta en una rama— y medido sobre este registro: 91 de 91 INTEGRATED tienen su directorio en main y 0 estan solo en trabajo, asi que la comprobacion es posible HOY para todas y no necesita que la allocation declare rama, que es lo que la hacia parecer inviable: 58 de las 91 no la declaran.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      }
     }
   ]
 }

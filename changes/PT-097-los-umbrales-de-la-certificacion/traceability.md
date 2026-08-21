@@ -2,14 +2,14 @@
 
 | AC | Criterio | Caso | Evidencia | Estado |
 |:---|:---|:---|:---|:---|
-| AC-01 | `§24.2` define la base con cifras ya declaradas | `la especificacion define la clasificacion base` · `Health 95 da A` · `Health 79.9 da B` · `Health 55 da F` | — | PENDIENTE |
-| AC-02 | `§24.4` consolida los cuatro topes, cada uno citando su origen | `…y los topes que la rebajan` · los cuatro casos de tope | — | PENDIENTE |
-| AC-03 | La función es determinista: misma entrada, misma letra | los siete casos de banda y tope, todos partiendo de `health: 95` | — | PENDIENTE |
-| AC-04 | Falta un dato ⇒ no hay letra, y se dice cuál falta | `sin Confidence no hay letra` | — | PENDIENTE |
-| AC-05 | `verify-ptsa` contrasta la letra publicada y falla si difiere | `verify-ptsa contrasta la certificacion` · `verify-ptsa lee el frontmatter que el RESUMEN escribe` | — | PENDIENTE |
-| AC-06 | La batería falla **sin** el arreglo | la prueba inversa, cambio a cambio | — | PENDIENTE |
-| AC-07 | La `B` recalculada y su banda inventada retirada | `el RESUMEN no publica una banda inventada` | — | PENDIENTE |
-| AC-08 | `CORE-PTSA.md` regenerado por `build-core` | `npm run core:check` | — | PENDIENTE |
+| AC-01 | `§24.2` define la base con cifras ya declaradas | `la especificacion define la clasificacion base` · `Health 95 da A` · `Health 79.9 da B` · `Health 55 da F` | `salidas/selftest-completo.txt` · `salidas/inversa.txt` | VERIFICADO |
+| AC-02 | `§24.4` consolida los cuatro topes, cada uno citando su origen | `…y los topes que la rebajan` · los cuatro casos de tope | `salidas/selftest-completo.txt` · `salidas/inversa.txt` | VERIFICADO |
+| AC-03 | La función es determinista: misma entrada, misma letra | los siete casos de banda y tope, todos partiendo de `health: 95` | `salidas/inversa.txt` | VERIFICADO |
+| AC-04 | Falta un dato ⇒ no hay letra, y se dice cuál falta | `sin Confidence no hay letra` | `salidas/inversa.txt` | VERIFICADO |
+| AC-05 | `verify-ptsa` contrasta la letra publicada y falla si difiere | `verify-ptsa contrasta la certificacion` · `verify-ptsa lee el frontmatter que el RESUMEN escribe` | `salidas/verify-ptsa.txt` | VERIFICADO |
+| AC-06 | La batería falla **sin** el arreglo | la prueba inversa, cambio a cambio | `salidas/inversa.txt` | VERIFICADO |
+| AC-07 | La `B` recalculada y su banda inventada retirada | `el RESUMEN no publica una banda inventada` | `salidas/verify-ptsa.txt` | VERIFICADO |
+| AC-08 | `CORE-PTSA.md` regenerado por `build-core` | `npm run core:check` | `salidas/core-check.txt` | VERIFICADO |
 
 ## Los cuatro casos de tope parten todos de `health: 95`
 

@@ -955,7 +955,9 @@ stateDiagram-v2
 
 ---
 
-## 24. Reglas de transición
+## 24. Reglas de transición y clasificación
+
+### 24.1 Transiciones de estado de producto
 
 `PTSA-R38` Las transiciones de estado de producto DEBEN respetar la tabla siguiente. Toda transición se registra con la sesión y el hallazgo/evidencia que la motiva.
 
@@ -971,6 +973,104 @@ stateDiagram-v2
 | cualquiera | REJECTED | Producto descontinuado por el dominio. | Decisión documentada |
 
 `PTSA-R39` La transición a CLOSED desde un estado de fallo NUNCA se hace por inferencia: requiere evidencia post-corrección **observada en la fuente real** (p. ej. `validacion_estado = 'aprobado'` verificado en BD), no por el hecho de haber editado el código.
+
+### 24.2 Clasificación base de certificación
+
+`PTSA-R08` obliga a emitir una clasificación `A/B/C/F` **auditable y defendible**. Defendible
+significa que otra persona, con los mismos números, llega a la misma letra: la clasificación se
+**deriva**, no se juzga.
+
+La clasificación base sale del **Health Score** (§13):
+
+| Letra | Condición | De dónde sale el umbral |
+|:---:|:---|:---|
+| **A** | `Health ≥ 90` | §15.6 ya usa `90` como la línea de excelencia: *«Un Health A con Confidence < 90 NO obtiene clasificación A»* |
+| **B** | `60 ≤ Health < 90` | el tramo entre las dos líneas declaradas |
+| **F** | `Health < 60` | §13.3 · la línea de fallo de dominio de la **Regla del Agua Potable**, donde el cap hace `Health = min(Health, D1)` |
+
+`PTSA-R24` se aplica también aquí: **estos son los valores por defecto**, y `PHASE 0` puede
+declarar otros para el dominio auditado. La diferencia con no tener ninguno es que un auditor que
+encuentre `PHASE 0` en silencio **ya no tiene que inventárselos**.
+
+#### Por qué `C` no aparece en esta tabla
+
+`C` **no es una banda de Health: es un techo**. Las dos únicas reglas de esta especificación que la
+nombran la usan como **límite superior**, nunca como rango:
+
+```
+PTSA-R30   «Una certificación con freshness = UNKNOWN NO PUEDE clasificarse por encima de C.»
+§28.2        un hallazgo CRÍTICO (12–16) «bloquea certificación ≥ B»   →  es decir, techo C
+```
+
+Un sistema llega a `C` porque **algo lo baja**, no porque su `Health` caiga en un intervalo. Los
+umbrales de esta tabla son dos —`60` y `90`— porque son los dos que la especificación declara;
+inventar un tercero para abrir una banda `C` sería añadir una cifra sin respaldo, que es
+exactamente lo que `PTSA-R08` existe para impedir.
+
+---
+
+### 24.3 Emisión y ausencia de letra
+
+`PTSA-R08` exige una clasificación **auditable**. Una letra calculada sobre un dato que no se tiene
+no lo es.
+
+> **Si falta cualquiera de `Health`, `Confidence`, `freshness` o el inventario de hallazgos
+> activos, NO se emite letra.** Se publican los scores disponibles y se declara cuál falta.
+
+**No es una excepción a `PTSA-R08`: es su alcance.** Emitir una letra sobre un hueco no cumple la
+regla, la aparenta.
+
+El motivo es el mismo que gobierna el resto del marco: **no saber no es permiso**. Tratar un dato
+ausente como su peor valor produce una letra que parece medida y no lo está — y una letra es lo
+único que un stakeholder lee.
+
+**Precedente real, y por eso esta sección existe.** Ante este mismo hueco, una auditoría publicó
+sus tres scores y **no emitió letra**, sin que ninguna regla se lo permitiera; otra **inventó una
+banda** para poder emitirla. La primera hizo lo correcto sin autorización. Aquí queda autorizado.
+
+---
+
+### 24.4 Topes que rebajan la clasificación
+
+Los topes **sólo bajan**. Ninguno puede subir una letra.
+
+| Condición | Techo | Dónde está establecido |
+|:---|:---:|:---|
+| `freshness = UNKNOWN` | **C** | `PTSA-R30` |
+| Algún hallazgo activo con riesgo `CRÍTICO` (12–16) | **C** | §28.2 · *«bloquea certificación ≥ B»* |
+| `health_unstable = true` | **B** | §13.4 · una métrica crítica de D5 en Rojo |
+| `Confidence < 90` | **B** | §15.6 · *«NO obtiene clasificación A»* |
+
+La letra final es el **mínimo** sobre el orden `A > B > C > F`:
+
+```
+letra = min( base(Health), techo₁, techo₂, … )
+```
+
+`PTSA-R81` La clasificación se calcula como el **mínimo** entre la base de §24.2 y todos los topes
+aplicables de §24.4. El resultado NO DEBE depender del orden en que se apliquen: dos auditorías con
+los mismos valores DEBEN emitir la misma letra.
+
+Que sea un mínimo no es una elección de estilo: es lo que hace la función **determinista**. Con una
+secuencia de ajustes —«primero éste, luego aquél»— dos auditores podrían llegar a letras distintas
+aplicándolos en otro orden, y `PTSA-R08` dejaría de poder cumplirse.
+
+`F` no tiene tope propio: un `Health < 60` ya es lo más bajo, y los topes sólo bajan.
+
+#### Lo que hay que publicar para que los topes se puedan comprobar
+
+Un tope que no se puede leer no se puede contrastar. `PTSA-R82` cierra ese hueco:
+
+`PTSA-R82` El frontmatter de `RESUMEN.md` DEBE publicar `health_unstable` (`true`/`false`) junto a
+los tres scores. Sin él, la bandera de §13.4 vive sólo en la prosa y ningún verificador puede
+aplicar su tope: la letra parecería contrastada cuando en realidad se comprobó **sin** una de sus
+cuatro condiciones.
+
+Se encontró aplicando esto por primera vez: la auditoría `PTSA-2026-08-20` declara *«con una
+métrica D5 en Rojo el techo es B»* en su texto y **no** publica la bandera. Su letra coincidía —`B`
+por la base de §24.2— así que la comprobación pasaba **por el camino equivocado**, que es
+indistinguible del correcto mirando sólo el resultado.
+
 
 ---
 

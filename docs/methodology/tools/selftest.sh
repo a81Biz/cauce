@@ -135,6 +135,28 @@ salta() {
   case "$1" in *"$SOLO"*) return 1 ;; esac
   return 0
 }
+# PT-097 · va AQUI, junto a chk(), y no junto a trlib() 500 lineas mas abajo. Lo escribi alli
+# primero y los once casos que lo usan —que estan en la linea 1085— no se registraron: «mlib:
+# command not found» no revienta el arnes, simplemente el caso no existe. «selftest --solo» dijo
+# «NINGUN CASO CASA» y el total subio 5 en vez de 16.
+#
+# El bloque «no hacer» del HANDOFF lo lleva escrito: «escribir un bloque de casos ANTES de donde
+# se define el ayudante que usan: PAT: command not found sale como salida inesperada, no como
+# ese ayudante no existe todavia». Segunda vez, y la primera fue en PT-095.
+# PT-097 · el mismo mecanismo que trlib, pero para CUALQUIER modulo. trlib esta atado a
+# tracker.mjs por el entorno MTH_TRACKER, y verify-ptsa tambien exporta logica pura desde que
+# PT-097 le puso el guard EJECUTADO_DIRECTO —sin el, importarlo lo EJECUTA y termina en
+# process.exit(), asi que su logica no se podia comprobar—.
+mlib() { # $1 nombre · $2 patron · $3 ruta del modulo · $4 cuerpo JS que recibe el modulo como `m`
+  salta "$1" && return
+  local out
+  out="$(MTH_MOD="$3" node -e "const {pathToFileURL}=require(\"url\");
+import(pathToFileURL(process.env.MTH_MOD).href).then((m)=>{ $4 }).catch((e)=>console.log(\"IMPORT_FALLA \"+e.message));" 2>&1)"
+  if revento "$out"; then bad "$1  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -q -- "$2"; then pass "$1"; else
+    bad "$1  (no apareció: $2 · salió: $(printf '%s' "$out" | head -3))"; fi
+}
+
 chk() {
   local name="$1" pat="$2"; shift 2
   salta "$name" && return
@@ -1044,6 +1066,65 @@ chk  "score sin cobertura ⇒ falla"         "✗ PTSA-R21" VP
 build_fixture; mk_ptsa
 cp "$SUITE/PTSA/templates/COVERAGE.md" "$WORK/PTSA/COVERAGE.md"
 chk  "plantilla sin completar ⇒ falla"     "✗ PTSA-R77" VP
+
+# ── PT-097 · PTSA-R08 · PTSA-R81 · PTSA-R82 · la letra se deriva o no se emite ────────────────
+#
+# PTSA-R08 exigia emitir A/B/C/F «auditable y defendible» y los umbrales se citaban en §24.2 y
+# §24.4, que NO EXISTIAN — en las dos versiones, y lo midio tambien el proyecto legado (INC-007).
+# Una auditoria inventó la banda «(75-89)» para poder cumplir; otra publico los tres scores y NO
+# emitio letra. La segunda hizo lo correcto sin que ninguna regla se lo permitiera.
+#
+# PARECIA QUE HABIA QUE INVENTAR UNA CIFRA: cuatro letras y solo DOS anclas declaradas, 60 (§13.3,
+# el cap de dominio) y 90 (§15.6). El error era de lectura — C NO ES UNA BANDA, ES UN TECHO, y lo
+# dicen las dos unicas reglas que la nombran: PTSA-R30 «no puede clasificarse POR ENCIMA DE C» y
+# §28.2 «bloquea certificacion >= B». Con eso la funcion sale entera de lo escrito.
+
+# Las secciones existen. Son ROJOS VALIDOS: hoy §24 no tiene subsecciones.
+chk "la especificacion define la clasificacion base"  "### 24.2" cat "$SUITE/PTSA/PTSA-V3-Especificacion-Oficial.md"
+chk "…y los topes que la rebajan"                     "### 24.4" cat "$SUITE/PTSA/PTSA-V3-Especificacion-Oficial.md"
+# Y lo que YA regia sigue donde estaba: §24 se renombra y gana 24.1 por encima, sin mover R38/R39.
+chk "las transiciones de producto siguen en §24"      "PTSA-R38" cat "$SUITE/PTSA/PTSA-V3-Especificacion-Oficial.md"
+
+# LO QUE ESTOS CASOS NO ESTABLECEN, y va aqui porque callarlo seria fabricar un verde: los que
+# llaman a letraDeCertificacion NO estuvieron en rojo valido. La funcion no existia, asi que su
+# fallo era «la herramienta revento», que este arnes trata —con razon— como «no verifica nada».
+# FDGE-R17 pide un rojo que falle POR SU ASERCION. Son ESPECIFICACION, no reproduccion.
+# Los rojos validos son los tres de arriba y el de la banda inventada, mas abajo.
+VPLIB() { # $1 nombre · $2 patron · $3 entrada JSON
+  mlib "$1" "$2" "$SUITE/tools/verify-ptsa.mjs" "const r=m.letraDeCertificacion($3); console.log(r.letra ?? ('SIN LETRA falta '+r.falta.join(',')));"
+}
+BASE="{health:95,confidence:95,freshness:'2026-08-20',healthUnstable:false,riesgoMaximo:5}"
+VPLIB "Health 95 da A"                  "^A$"  "$BASE"
+VPLIB "Health 79.9 da B"                "^B$"  "{...$BASE,health:79.9}"
+VPLIB "Health 55 da F"                  "^F$"  "{...$BASE,health:55}"
+# Los CUATRO topes parten de health 95, que sin tope da A. Si un tope no se aplicara, el caso
+# devolveria A y fallaria — un caso que partiera de un Health ya bajo pasaria igual con el tope
+# roto, y esa es la trampa que PT-096 documento.
+VPLIB "freshness UNKNOWN topa en C"     "^C$"  "{...$BASE,freshness:null}"
+VPLIB "un hallazgo CRITICO topa en C"   "^C$"  "{...$BASE,riesgoMaximo:12}"
+VPLIB "health_unstable topa en B"       "^B$"  "{...$BASE,healthUnstable:true}"
+VPLIB "Confidence < 90 impide la A"     "^B$"  "{...$BASE,confidence:89}"
+# El freno de §24.3. Sin el, «no se emite letra» seria una frase en un documento; con el, la
+# funcion no puede inventarse una letra aunque alguien quiera. Es RULE-06 y el precedente de
+# PT-058, donde «restar(100 MEDIDO, SIN EVALUAR)» devolvia 100 ETIQUETADO COMO MEDIDO.
+VPLIB "sin Confidence no hay letra"     "SIN LETRA falta Confidence"  "{...$BASE,confidence:null}"
+VPLIB "…ni sin Health"                  "SIN LETRA falta Health"      "{...$BASE,health:null}"
+# Y el que impide que el arreglo se pase de frenada en la otra direccion: con todo presente SI hay
+# letra. Sin este, devolver siempre null pasaria los dos de arriba.
+VPLIB "…y con todo presente SI la hay"  "^A$"  "$BASE"
+
+# El orden NO importa: PTSA-R81 lo exige y es lo que hace la funcion determinista. Se comprueba
+# que dos topes juntos den el PEOR, no el ultimo aplicado.
+VPLIB "dos topes dan el peor, no el ultimo"  "^C$"  "{...$BASE,healthUnstable:true,riesgoMaximo:12}"
+
+# verify-ptsa CONTRASTA la letra publicada. ROJO VALIDO hoy: el archivo no contiene «certificac».
+chk "verify-ptsa contrasta la certificacion"  "letraDeCertificacion" cat "$SUITE/tools/verify-ptsa.mjs"
+# PTSA-R82 · un tope que no se puede leer no se puede contrastar. Encontrado aplicando esto por
+# primera vez: PTSA-2026-08-20 declaraba «con una metrica D5 en Rojo el techo es B» EN PROSA y no
+# publicaba la bandera, asi que la comprobacion pasaba POR EL CAMINO EQUIVOCADO —por la base— y
+# eso es indistinguible del correcto mirando solo el resultado.
+chk "la especificacion exige publicar health_unstable"  "PTSA-R82" cat "$SUITE/PTSA/PTSA-V3-Especificacion-Oficial.md"
+
 build_fixture
 chkno "proyecto sin PTSA/ ⇒ no rompe"      "✗"          VP
 build_fixture; mkdir -p "$WORK/PTSA"

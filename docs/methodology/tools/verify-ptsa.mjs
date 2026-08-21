@@ -18,6 +18,67 @@
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// ── PT-097 · PTSA-R08 · PTSA-R81 · la letra de certificación ────────────────
+//
+// PTSA-R08 exige emitir A/B/C/F «auditable y defendible», y los umbrales se citaban en §24.2 y
+// §24.4, que NO EXISTIAN. La consecuencia medida: una auditoria publico «certificacion B (75-89)»
+// con una banda que no aparece en ninguna especificacion, y otra —ante el mismo hueco— publico
+// los tres scores y NO emitio letra. La segunda hizo lo correcto sin que ninguna regla se lo
+// permitiera.
+//
+// PARECIA QUE HABIA QUE INVENTAR UNA CIFRA. Hacen falta cuatro letras y el documento declara DOS
+// anclas: 60 (§13.3, el cap de dominio) y 90 (§15.6). El movimiento evidente —inventar la tercera
+// frontera— es exactamente el defecto que esto corrige.
+//
+// C NO ES UNA BANDA, ES UN TECHO. Las dos unicas reglas que la nombran la usan como limite
+// superior: PTSA-R30 dice «no puede clasificarse POR ENCIMA DE C» y §28.2 dice que un CRITICO
+// «bloquea certificacion >= B». Con eso la funcion sale entera de lo escrito, sin una cifra nueva.
+//
+// El MIN de PTSA-R81 es lo que la hace determinista: con una secuencia de ajustes, dos auditores
+// podrian llegar a letras distintas aplicandolos en otro orden, y PTSA-R08 dejaria de poder
+// cumplirse.
+const ORDEN = ['A', 'B', 'C', 'F'];
+const peor = (a, b) => (ORDEN.indexOf(a) >= ORDEN.indexOf(b) ? a : b);
+
+export function letraDeCertificacion(e) {
+  const { health, confidence, freshness, healthUnstable, riesgoMaximo } = e ?? {};
+  // §24.3 · un dato ausente NO produce letra. No es prudencia: es RULE-06 —no saber no es
+  // permiso— y el precedente medido de PT-058, donde «restar(100 MEDIDO, SIN EVALUAR)» devolvia
+  // 100 ETIQUETADO COMO MEDIDO. Una letra es lo unico que un stakeholder lee.
+  const falta = [];
+  if (typeof health !== 'number' || Number.isNaN(health)) falta.push('Health');
+  if (typeof confidence !== 'number' || Number.isNaN(confidence)) falta.push('Confidence');
+  if (freshness === undefined) falta.push('freshness');
+  if (riesgoMaximo === undefined || riesgoMaximo === null) falta.push('hallazgos');
+  if (falta.length) return { letra: null, falta };
+
+  // §24.2 · la base, con las dos anclas que la especificacion declara.
+  let letra = health >= 90 ? 'A' : (health >= 60 ? 'B' : 'F');
+
+  // §24.4 · los topes SOLO bajan.
+  const topes = [];
+  // freshness UNKNOWN se representa como null: «no se sabe». Un valor cualquiera es una fecha.
+  if (freshness === null) topes.push(['C', 'PTSA-R30 · freshness UNKNOWN']);
+  if (Number(riesgoMaximo) >= 12) topes.push(['C', '§28.2 · hallazgo CRITICO (12-16)']);
+  if (healthUnstable === true) topes.push(['B', '§13.4 · health_unstable']);
+  if (Number(confidence) < 90) topes.push(['B', '§15.6 · Confidence < 90']);
+
+  for (const [t] of topes) letra = peor(letra, t);
+  return { letra, topes: topes.map(([t, por]) => `${t} · ${por}`), falta: [] };
+}
+
+// PT-097 · el mismo guard que PT-084 puso en tracker.mjs, y por el mismo motivo: sin el, este
+// archivo se EJECUTA al importarlo y termina en process.exit(), asi que su logica no se puede
+// comprobar desde el arnes. Lo descubri intentando probar letraDeCertificacion: el proceso moria
+// antes de que el «then» corriera.
+//
+// La funcion pura queda ARRIBA, fuera del guard: es lo unico que un caso necesita.
+const EJECUTADO_DIRECTO = !!process.argv[1]
+  && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
+
+if (!EJECUTADO_DIRECTO) { /* importado para probar: no se ejecuta nada */ } else {
 
 const ROOT = resolve(process.argv[2] ?? process.cwd());
 const P = join(ROOT, 'PTSA');
@@ -211,6 +272,69 @@ if (resumen) {
   if (!errors.some((e) => e.r === 'PTSA-R21')) ok('PTSA-R21', 'Score publicado con cobertura y frescura.');
 }
 
+// ── PT-097 · PTSA-R08 · la letra publicada se contrasta con la que sale de los numeros ──
+//
+// PTSA-R08 era la UNICA regla HARD de PTSA que exige un entregable y no tenia comprobacion:
+// «grep -c certificac verify-ptsa.mjs» daba CERO. Por eso una letra inventada paso en verde y no
+// lo noto nadie hasta que otro proyecto tropezo con el mismo hueco.
+if (resumen) {
+  const num = (re) => { const m = resumen.match(re); return m ? Number(m[1]) : undefined; };
+  const publicada = (resumen.match(/^certificacion:\s*([ABCF])\s*$/im) ?? [])[1] ?? null;
+  const health = num(/^health:\s*([0-9.]+)\s*$/im);
+  const confRaw = num(/^confidence:\s*([0-9.]+)\s*$/im);
+  // «confidence: 0.94» y «confidence: 94» son la misma cosa escrita de dos formas, y las dos
+  // aparecen en la suite. Se normaliza a 0-100 en vez de exigir una: exigirla romperia
+  // auditorias ya publicadas por una convencion, no por un defecto.
+  const confidence = confRaw === undefined ? undefined : (confRaw <= 1 ? confRaw * 100 : confRaw);
+  const tieneFreshness = /^freshness:\s*\S/im.test(resumen);
+  const freshness = tieneFreshness ? (/^freshness:\s*(UNKNOWN|desconocid)/im.test(resumen) ? null : 'declarada') : undefined;
+
+  // El riesgo maximo sale de los Findings ACTIVOS, no del Risk publicado: §24.4 topa por un
+  // hallazgo CRITICO concreto, no por el score agregado — que ademas satura (INC-008 del legado).
+  let riesgoMaximo;
+  if (existsSync(findDirPre)) {
+    const IMP = { bajo: 1, medio: 2, alto: 3, critico: 4, crítico: 4 };
+    const PROB = { improbable: 1, posible: 2, probable: 3, frecuente: 4 };
+    riesgoMaximo = 0;
+    for (const f of readdirSync(findDirPre).filter((x) => /^H-\d+\.md$/.test(x))) {
+      const t = rd(join(findDirPre, f)) ?? '';
+      if (/^estado:\s*(CLOSED|REJECTED)/im.test(t)) continue;
+      const i = IMP[String((t.match(/^impacto:\s*(\S+)/im) ?? [])[1] ?? '').toLowerCase()];
+      const pr = PROB[String((t.match(/^probabilidad:\s*(\S+)/im) ?? [])[1] ?? '').toLowerCase()];
+      if (i && pr) riesgoMaximo = Math.max(riesgoMaximo, i * pr);
+    }
+  }
+
+  // PTSA-R82 · la bandera se PUBLICA o el tope de §13.4 no se puede aplicar. Encontrado
+  // aplicando esto por primera vez: PTSA-2026-08-20 declara «con una metrica D5 en Rojo el techo
+  // es B» EN PROSA y no publica la bandera. Su letra coincidia por la BASE, asi que la
+  // comprobacion pasaba por el camino equivocado — indistinguible del correcto mirando el
+  // resultado.
+  const declaraUnstable = /^health_unstable:\s*(true|false)\s*$/im.test(resumen);
+  if (!declaraUnstable) {
+    fail('PTSA-R82', 'RESUMEN.md no publica «health_unstable» en su frontmatter. El tope de §13.4 vive solo en la prosa y no se puede aplicar: la letra parece contrastada y le falta una de sus cuatro condiciones.');
+  }
+
+  const calc = letraDeCertificacion({
+    health, confidence, freshness, riesgoMaximo,
+    healthUnstable: /^health_unstable:\s*true\s*$/im.test(resumen),
+  });
+
+  if (!publicada && calc.letra === null) {
+    ok('PTSA-R08', `Sin letra, y con motivo: falta ${calc.falta.join(', ')} (§24.3).`);
+  } else if (!publicada) {
+    warn('PTSA-R08', `RESUMEN.md no publica «certificacion» y los datos dan «${calc.letra}» (§24.2). No emitirla es valido; hacerlo sin decir por que, no.`);
+  } else if (calc.letra === null) {
+    // RULE-06 · que no se puedan leer los numeros NO es que la letra este mal. Se avisa y se
+    // dice QUE falta, en vez de acusar al documento de algo que no se ha comprobado.
+    warn('PTSA-R08', `RESUMEN.md publica «${publicada}» y no se pudo contrastar: falta ${calc.falta.join(', ')}. SIN EVALUAR.`);
+  } else if (publicada !== calc.letra) {
+    fail('PTSA-R08', `RESUMEN.md publica «${publicada}» y los numeros dan «${calc.letra}» por §24.2/§24.4${calc.topes.length ? ` (topes: ${calc.topes.join(' · ')})` : ''}. La clasificacion se DERIVA (PTSA-R81): si no coincide, o el numero esta mal o la letra se escribio a mano.`);
+  } else {
+    ok('PTSA-R08', `Certificacion «${publicada}» contrastada contra §24.2/§24.4${calc.topes.length ? ` · topes: ${calc.topes.join(' · ')}` : ''}.`);
+  }
+}
+
 // ── Informe ────────────────────────────────────────────────────────────────
 const pad = (s, n) => String(s).padEnd(n);
 console.log('verify-ptsa — auditoría por enumeración (PTSA-R76..R80)\n');
@@ -222,3 +346,6 @@ for (const [t, arr, mark] of [['PASA', passed, '✓'], ['AVISOS', warnings, '!']
 }
 console.log(errors.length ? `${errors.length} error(es). La auditoría no se certifica.` : 'Auditoría verificable: sin errores.');
 process.exit(errors.length ? 1 : 0);
+
+} // fin de EJECUTADO_DIRECTO
+

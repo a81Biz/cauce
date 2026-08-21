@@ -4984,3 +4984,130 @@ Leerlo no basta — es el argumento entero de INC-017 y de L-7.
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 se resolvio por delegacion con constancia,
 y G4 la autorizo el firmante el 2026-08-21 —«haz el merge, deja todo en main»— con su registro.
 Ese merge NO cierra EP-019: el lote sigue DRAFT con ocho tareas por hacer.
+
+## PT-097 — Los umbrales de la certificación: la letra se deriva o no se emite
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-6, y el firmante la puso PRIMERA por el hueco, no por solapamiento
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+PTSA-R08 exigia emitir una letra A/B/C/F «auditable y defendible ante stakeholders», y los
+umbrales se citaban en §24.2 y §24.4 — que NO EXISTEN. §24 era «Reglas de transicion»: la tabla de
+estados de un PRODUCTO, sin subsecciones. Comprobado en las DOS versiones, 4.12.0 y 11.0.0, y
+medido tambien por el proyecto legado de forma independiente (INC-007).
+
+Lo que la especificacion definia eran CUATRO TOPES dispersos y NINGUN SUELO: PTSA-R30 (freshness
+UNKNOWN, no por encima de C), §13.4 (health_unstable, no por encima de B), §15.6 (Confidence < 90,
+no A) y §28.2 (un hallazgo CRITICO bloquea >= B). Cuatro formas de bajar una letra que nunca dice
+como se obtiene.
+
+CONSECUENCIA MEDIDA. Ante ese hueco, dos auditorias hicieron cosas distintas. La del legado
+publico los tres scores y NO emitio letra. La de este repositorio —PTSA-2026-08-20, la que fue el
+argumento con el que se publico la 11.0.0— INVENTO la banda «(75-89)» para poder cumplir, y
+escribio «A requiere Health >= 90» como si constara. Ninguna de las dos cifras aparece en ninguna
+especificacion, y nuestro PHASE 0 tampoco declaraba umbrales, asi que ni la via de PTSA-R24 —«los
+de esta tabla son los valores por defecto»— las respaldaba.
+
+POR QUE NO LO CAZO NADA. «grep -c certificac verify-ptsa.mjs» daba CERO. PTSA-R08 era la unica
+regla HARD de PTSA que exige un entregable y no tenia comprobacion mecanica. Es la familia de
+PT-075 —«una regla sin verificador no ocurre»— pero peor: aqui ocurria MAL, y el propio
+cumplimiento aparente tapaba el hueco.
+
+Y ESTUVE A PUNTO DE COMETER EL DEFECTO AL CORREGIRLO. Hacen falta cuatro letras y la especificacion
+declara DOS anclas: 60 (§13.3, el cap de dominio de la «Regla del Agua Potable») y 90 (§15.6). Dos
+anclas dan tres tramos. Ya tenia escrito «B: 75 <= Health < 90» cuando me detuve a preguntarme de
+donde salia el 75 — de ningun sitio, exactamente igual que el (75-89) que venia a retirar.
+
+La salida estaba en releer las dos unicas reglas que nombran la C: PTSA-R30 dice «no puede
+clasificarse POR ENCIMA DE C» y §28.2 dice que un CRITICO «bloquea certificacion >= B». NINGUNA la
+define como rango; las dos la usan como limite superior. C NO ES UNA BANDA, ES UN TECHO — un
+estado al que se BAJA. Con eso el sistema cierra con las dos anclas que hay, y CERO cifras nuevas.
+
+La leccion no es «leer mejor»: es que cuando un diseño exige una cifra que no esta, la respuesta
+casi nunca es inventarla — es que el diseño es otro.
+
+Solucion: §24 pasa a «Reglas de transicion y clasificacion»; lo que ya habia queda como §24.1 con
+PTSA-R38 y PTSA-R39 INTACTOS, solo ganan un encabezado por encima. §24.2 la base (A >= 90, B
+60-90, F < 60), §24.3 la emision y su ausencia, §24.4 los cuatro topes con su origen citado. Se
+eligio meterlos DENTRO de §24 y no en una seccion nueva porque las dos citas dicen «§24.2» y
+«§24.4» LITERALMENTE y son parte de reglas vigentes: otro numero dejaria dos citas rotas para
+siempre, o exigiria editar reglas que hoy son correctas.
+
+PTSA-R81: la letra es el MINIMO entre la base y todos los topes, y NO DEBE depender del orden. No
+es estilo — con una secuencia de ajustes, dos auditores llegarian a letras distintas aplicandolos
+en otro orden, y PTSA-R08 dejaria de poder cumplirse. Hay un caso que lo prueba: health_unstable
+(techo B) y un CRITICO (techo C) juntos deben dar C.
+
+§24.3 · un dato ausente NO produce letra, y es la unica decision que no se deriva. Se resuelve con
+RULE-06 —no saber no es permiso— y el precedente MEDIDO de PT-058, donde «restar(100 MEDIDO, SIN
+EVALUAR)» devolvia 100 ETIQUETADO COMO MEDIDO. Una letra es lo unico que un stakeholder lee. Y no
+es una invencion: es lo que el proyecto legado hizo POR SU CUENTA. La salida correcta ya se habia
+tomado sin permiso; faltaba autorizarla.
+
+TRES ERRORES MAS, y los tres los cazo comprobar en vez de recordar:
+
+  · Numere la regla nueva PTSA-R55, que YA EXISTE (el Acid Test, :1613). Habria creado dos reglas
+    con el mismo ID en el mismo documento —la averia que LEX-R04 existe para impedir— dentro de la
+    tarea que arregla una regla mal definida. El maximo real era PTSA-R80.
+  · Cite §27 donde era §28.2, en el documento que existe porque dos citas apuntan a secciones
+    inexistentes.
+  · Puse el ayudante «mlib» 500 lineas DESPUES de los once casos que lo usan. No revienta el
+    arnes: el caso simplemente no existe. «--solo» dijo «NINGUN CASO CASA» y el total subio 5 en
+    vez de 16. El bloque «no hacer» del HANDOFF lo advierte desde PT-095. Segunda vez.
+
+Y EL VERDE SALIO POR EL CAMINO EQUIVOCADO. El primero decia «Certificacion B contrastada» SIN
+topes: este RESUMEN declara la metrica D5 en Rojo EN SU PROSA y no publicaba «health_unstable»,
+asi que la funcion lo leia como false y la letra salia de la BASE, no del tope. Mismo resultado,
+camino distinto, e indistinguible mirando solo el verde — la forma exacta del defecto que este
+lote persigue. De ahi sale PTSA-R82: un tope que no se puede leer no se puede contrastar.
+
+Hallazgo estructural que no buscaba: verify-ptsa SE EJECUTA al importarlo y termina en
+process.exit(), asi que NINGUNA parte de su logica ha sido nunca comprobable desde el arnes.
+tracker.mjs lo resolvio en PT-084 con EJECUTADO_DIRECTO; verify-ptsa nunca lo tuvo. No es alcance
+que crece: AC-05 no se puede cumplir sin eso — una funcion que no se puede probar no es una
+comprobacion, es una afirmacion. Obligo tambien a un ayudante generico, «mlib», porque «trlib»
+esta atado a tracker.mjs por su variable de entorno.
+
+Archivos modificados: PTSA/PTSA-V3-Especificacion-Oficial.md · tools/verify-ptsa.mjs ·
+  tools/selftest.sh · CORE-PTSA.md (regenerado) · PTSA/RESUMEN.md (revision añadida)
+
+Evidencia: docs/implementation/evidence/PT-097/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/verify-ptsa.txt · salidas/core-check.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-08 ✓, los ocho.
+
+  §24.2 y §24.4       ANTES citadas y ausentes    DESPUES escritas, con cero cifras nuevas
+  PTSA-R08            ANTES sin verificador       DESPUES contrastada contra los numeros
+  banda «(75-89)»     ANTES publicada             DESPUES retirada
+  health_unstable     ANTES solo en prosa         DESPUES en el frontmatter (PTSA-R82)
+  verify-ptsa         ANTES no importable         DESPUES con EJECUTADO_DIRECTO
+
+Prueba inversa: OCHO retiradas, ninguna en cero. Cada tope hace caer SU caso y ninguno mas, salvo
+el del CRITICO que arrastra tambien el del min — correcto, porque ese caso usa los dos.
+
+LA CERTIFICACION RECALCULADA DA B. LA MISMA LETRA. Y es justo por eso que la revision del RESUMEN
+declara que la anterior NO ERA CONTRASTABLE: si se callara, quedaria escrito que la banda inventada
+acerto, y la leccion seria que inventar sale bien. COINCIDIO, NO SE DEDUJO. El CHANGELOG de la
+11.0.0 sigue diciendo la verdad.
+
+LO QUE NO ESTABLECE:
+
+· Los once casos de letraDeCertificacion no estuvieron en ROJO VALIDO: la funcion no existia y su
+  fallo era «la herramienta revento». Son ESPECIFICACION. Los CUATRO validos son los que
+  comprueban que las secciones faltaban, que verify-ptsa no miraba, y que la banda estaba publicada.
+· El Risk 73 publicado se calculo con H-001 y H-006 activos; hoy quedan siete activos. NO se
+  recalcula: la letra no depende de Risk, asi que no cambiaria ninguna, y arrastra INC-008 del
+  legado —el multiplicador x4 satura y el score deja de discriminar al cuarto hallazgo—.
+· Que no exista un quinto tope escrito con otras palabras. Se busco de tres formas y aparecieron
+  cuatro; uno redactado distinto no se puede descartar leyendo, y por eso la comprobacion vive en
+  el verificador.
+· Que verify-suite cace SECCIONES citadas que no existen. Hoy caza REGLAS. Si lo hiciera, este
+  defecto habria saltado el dia que se escribio §15.6. Va al «Cierre del lote» de EP-019.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
+lote y llega al cerrar EP-019 — el firmante acoto el 2026-08-21 que todo se queda en «trabajo».

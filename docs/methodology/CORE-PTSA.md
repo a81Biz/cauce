@@ -1,8 +1,8 @@
 # CORE-PTSA — overlay de auditoría
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: c7b9e4d31bcd -->
-<!-- fuentes: PTSA/PTSA-V3-Especificacion-Oficial.md:54006d91de1f -->
+<!-- cuerpo: 83f21032e968 -->
+<!-- fuentes: PTSA/PTSA-V3-Especificacion-Oficial.md:2c1fcbc691f1 -->
 
 Se carga **solo** en sesiones de PTSA, junto a `CORE.md` (`SUITE-R25`). `CORE.md` lleva las
 reglas de PTSA que el resto de la suite necesita; aquí están **todas** las de la
@@ -10,7 +10,7 @@ especificación, recortadas a su frase imperativa. El porqué y los ejemplos sig
 [PTSA/PTSA-V3-Especificacion-Oficial.md](PTSA/PTSA-V3-Especificacion-Oficial.md), que solo se
 abre si una línea de aquí lo remite.
 
-## Reglas (80)
+## Reglas (82)
 
 `PTSA-R01` PTSA DEBE demostrar, con evidencia, que los productos generados por un sistema son legal, operativa y semánticamente válidos para el dominio de negocio declarado en la Fase PHASE 0.
 `PTSA-R02` Producir un Health Score reproducible que cuantifique la salud del sistema sobre 5 dimensiones.
@@ -92,6 +92,8 @@ abre si una línea de aquí lo remite.
 `PTSA-R78` Una celda NO_EVALUADA no es un aprobado. No penaliza el Health —no hay
 `PTSA-R79` Condición de parada por enumeración. La auditoría cierra cuando la matriz está
 `PTSA-R80` Verificación mecánica de la matriz. tools/verify-ptsa.mjs comprueba que: todo producto identificado tiene su Products/P-NNN.md · toda celda de COVERAGE.md tiene
+`PTSA-R81` La clasificación se calcula como el mínimo entre la base de §24.2 y todos los topes
+`PTSA-R82` El frontmatter de RESUMEN.md DEBE publicar health_unstable (true/false) junto a
 
 ## Verificación
 
