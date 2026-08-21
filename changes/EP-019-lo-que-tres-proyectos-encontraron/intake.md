@@ -335,6 +335,47 @@ proyectos que no se tocan · `DoR-5` firma con su base y su límite.
 
 ---
 
+## Cierre del lote   `SUITE-R45`
+
+Lo que se resuelve **al cerrar** y en ningún otro sitio: escrito como fila en cada tarea sería la
+misma regla copiada nueve veces, y las copias divergen (`SUITE-R38`).
+
+> **El lote está abierto.** Casi todo está `PENDIENTE` a propósito: rellenar estas filas para que
+> la compuerta pase sería fabricar un verde, que es lo que `PT-055` señaló y lo que el bloque
+> `no hacer` del `HANDOFF` prohíbe por escrito. Se declara la forma; el estado se escribe cuando
+> ocurra.
+
+| Qué | Cómo se resuelve | Estado |
+|:---|:---|:---|
+| Entrada en `CHANGELOG.md` con guía de migración | `SUITE-R19`, enumerando las reglas nuevas si las hay | **PENDIENTE** |
+| Número de versión | `MAJOR` si alguna tarea introduce una regla `HARD` nueva; `MINOR` si sólo añade verificadores a reglas existentes. `L-5` es la candidata a `MAJOR`: `RIGE_DESDE` para las 151 `HARD` cambia a qué alcanza cada regla | **PENDIENTE** |
+| `RIGE_DESDE` de toda regla nueva | `PT-081` · sin fila, rige hacia atrás | **PENDIENTE** |
+| Sello de la versión | los ocho pasos de `tracker sellar`, con la batería **completa** (`SUITE-R57`) | **PENDIENTE** · los pasos 7 y 8 son del firmante |
+| Los quince `INC` de los tres proyectos | cerrados, o declarados con motivo y su destino | **PENDIENTE** · `INC-016` y `INC-017` ya están declarados en §7 |
+| `INC-003` de la calculadora | lleva desde el 2026-08-20 declarado y sin `PT` — es la fila `5` del criterio de éxito | **PENDIENTE** |
+| El `type` canónico de un lote en `LEXICON` | `AC-09` de `L-0`, **retirado** allí y trasladado aquí: `EP` ×16, ausente ×2, `EPIC` ×1 | **PENDIENTE** · es de `L-3` |
+| Que `tracker asignar` escriba `phase` | encontrado ejecutando `L-0`: sin él, ninguna tarea creada por `asignar` puede avanzar | **PENDIENTE** · es de `L-1` |
+| Que `avanzar` aplique la escalera de `status` | `LEXICON:304` la declara obligatoria para un `BUG` y nadie la aplica | **PENDIENTE** · es de `L-2`, y es `INC-006` |
+| Los seis `type === 'EP'` de `verify-fdge.mjs` | medidos y hoy latentes; el próximo lote sin viabilidad fallará `FDGE-R54` como si fuera una tarea | **PENDIENTE** · es de `L-3` |
+| Que el espejo **reporte** una divergencia de texto | `L-0` hizo que `abrir --aplicar` la corrija; el espejo compara estado, no cuerpo | **PENDIENTE** · es de `L-7` |
+| Lo que las tareas aplacen | cada `out-of-scope.md` cita un identificador que lo sostiene (`SUITE-R44`) | **PENDIENTE** |
+| Un cuarto proyecto instalado desde npm | §6 lo exige: los tres que encontraron esto **no** son el banco de pruebas de la solución | **PENDIENTE** |
+
+**El merge y la publicación no son filas de esta tabla** (`SUITE-R45`): no son trabajo que el lote
+absorba al cerrar, son el cierre mismo — listarlos convertiría la compuerta en su propio bloqueo.
+
+### Una fila que ya se puede escribir, y su límite
+
+`L-0` cerró con el tablero medido: **20 cuerpos de issue inutilizables → 0**, `10` con el literal
+`null` → `0`, `14` listas en prosa → `0`. Eso **no** es una fila de cierre —es trabajo de una
+tarea, y ahí está su evidencia— pero sí adelanta parte de la fila del criterio de éxito §4·1: un
+proyecto destino ya no puede estar en verde mientras su tablero no lleva a ninguna parte.
+
+Lo que **no** adelanta, y conviene no confundirlo: `§4` habla del **estado terminal falso**, que
+es `C-1` y sigue entero.
+
+---
+
 ## Revisión 1 — 2026-08-21 · entra `L-0`, y el reparto pasa a nueve
 
 > `SUITE-R09` · append-only. Nada de lo anterior se modifica.
