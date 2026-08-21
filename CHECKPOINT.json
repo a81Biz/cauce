@@ -3,15 +3,17 @@
   "type": "BUG",
   "epic": null,
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes",
   "sha": "3da3d2e064b727ece9a514017b01e62e2ff2f3b2",
   "sha_corto": "3da3d2e",
   "sucio": true,
   "archivos": [
     "changes/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes/",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md",
     "docs/implementation/evidence/PT-095/",
@@ -21,8 +23,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-21"
 }
