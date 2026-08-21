@@ -2665,3 +2665,43 @@ también para las compuertas. Se aplica a esta misma entrada.
 
 **Precondiciones comprobadas antes:** `verify-fdge --all` 89 tareas sin errores · `verify-suite`
 sin errores · `verify-ptsa` sin errores · `selftest` 1118 casos sin fallos · espejo cuadrado.
+
+## 2026-08-20 · `G4` de `EP-018` y tag `v11.0.0` — **excepción declarada**
+
+**Instrucción literal:** «realiza el cierre de todo, el merge y pr comleto para publicar. Asegúrate
+que no quede nada pendiente salvo la parte de azure y lo que se debe ejecutar en el otro proyecto».
+
+| Acción | Regla | Autorizada |
+|:---|:---|:---|
+| `G4` — merge de `trabajo` a `main` | `EXEC-R04` · `SUITE-R06a` | **sí** · PR #173, CI en verde antes de fusionar |
+| `git tag -a v11.0.0`, **después** del merge | — | **sí** · apunta a `0382e43` |
+| Cerrar los issues que `SUITE-R46` retenía | `SUITE-R46` | **sí** · nueve cerrados |
+| **Publicar en npm** | `SUITE-R06a` | **NO.** El firmante lo dispara él, preguntado y respondido en esta sesión |
+
+**Por qué se escribe entera.** La autorización anterior cubría `EP-018` hasta su cierre; ésta cubre
+la integración y el tag. Una excepción que se hereda deja de serlo.
+
+**Sobre publicar.** Se preguntó explícitamente y la respuesta fue *«la dejo lista y la disparas
+tú»*. `publicar.yml` es un `workflow_dispatch` que exige teclear `PUBLICAR` **precisamente** para
+que lo haga una persona, y el marco no lo automatiza (`SUITE-R06a`).
+
+**Estado al cerrar:** una sola allocation viva —`PT-025`, Azure, `DEFERRED`— y un solo issue
+abierto, el suyo. `PT-013` declaró que un aplazado está **vivo** para el espejo, porque aplazar
+algo debe ponerlo a la vista y no sacarlo de ella.
+
+**Precondiciones comprobadas antes:** `selftest` 1199 casos sin fallos · `verify-fdge --all` 89
+tareas sin errores · `--gate G4` en cero · `verify-suite`, `verify-ptsa`, `verify-qa`,
+`verify-patrones` y el espejo en verde · sello completo.
+
+## 2026-08-20 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 982bcd3 (2026-08-20)
+             19 (MEDIDO) commits · 35693 (MEDIDO) lineas
+tareas       PT-073 · PT-081 · PT-087 · PT-088 · PT-089 · PT-090 · PT-091 · PT-093
+en curso     PT-092 · PHASE 10
+sobre        a7277f2  chore/alberto-martinez/EP-018-cierre
+sigue        PT-092 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+```
