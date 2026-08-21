@@ -8,7 +8,7 @@
 | AC-01 | El cuerpo enlaza donde está el contenido, y el enlace **se puede volver a leer** | `lo que el cuerpo escribe, refDeEnlace lo lee` · `lo vivo enlaza la rama de trabajo` | — | PENDIENTE |
 | AC-02 | Ningún cuerpo publica `null`; la nota no se emite sin enlace | `sin ref durable, no explica el enlace` · `el cuerpo nunca publica «null»` | — | PENDIENTE |
 | AC-03 | El espejo reporta el cuerpo mudo teniendo ref durable | `el espejo ve el cuerpo mudo` · `sin el resolvedor, se comporta como hoy` | — | PENDIENTE |
-| AC-04 | La reparación alcanza al cuerpo sin enlace, y a las terminales | `un cuerpo mudo con ref durable se repara` · `un issue ajeno no se toca` | — | PENDIENTE |
+| AC-04 | La reparación alcanza al cuerpo sin enlace, y a las terminales | `un cuerpo mudo con ref durable se repara` · `…y sin ref durable NO se toca` · `un issue ajeno no es asunto del tracker` · `un enlace muerto sigue reparandose` · `y uno sano se deja en paz` · `un enlace roto sin salida CONSTA` | — | PENDIENTE |
 | AC-05 | 0 mudos y 0 `null` sobre el tablero completo, con denominador | `node tools/tracker.mjs espejo` sobre el tablero real | — | PENDIENTE |
 | AC-06 | La batería falla **sin** el arreglo, un caso por punto | la prueba inversa, cambio a cambio | — | PENDIENTE |
 | AC-07 | Escrito en `CASOS-DE-USO` y `MANUAL`; `README`/`CLAUDE.md` declarados | `node tools/verify-suite.mjs docs/methodology` | — | PENDIENTE |
@@ -71,3 +71,32 @@ selftest.sh:1614   afirmaba que la lista en prosa se emite         -> pasa a trl
 `FQAGE` verifica en un navegador real que una persona puede usar el sistema. Aquí no hay interfaz:
 el producto es una herramienta de línea de comandos y el cuerpo de un issue. Se dice en vez de
 dejar una columna vacía que parecería un olvido (`SUITE-R11`).
+
+## `AC-04` tiene seis casos, y cuatro son frenos
+
+`decisionDeEnlace` devuelve cinco resultados y **cada uno tiene el suyo**. No es cobertura por
+cobertura: dos de los cinco existen para que el arreglo **no se pase de frenada**, y sin ellos
+«repara lo mudo» sería una llave maestra.
+
+```
+REPARAR_MUDO           lo que faltaba
+REPARAR_MUERTO         lo que ya hacia — que siga haciendolo
+OK                     un cuerpo sano no se toca
+MUDO_SIN_REF_DURABLE   freno · al abrir el issue no hay nada que enlazar
+AJENO                  freno · un issue que el tracker no escribio NO se reescribe
+ROTO_SIN_SALIDA        consta, y no se confunde con OK
+```
+
+`AJENO` es el que más importa: `refDeEnlace` devuelve `null` tanto para un cuerpo del tracker sin
+enlace como para **cualquier issue escrito a mano**. Sin distinguirlos, el arreglo reescribiría
+issues ajenos — peor que el defecto que corrige.
+
+## `AC-05` gana una condición que no estaba escrita
+
+Medir «0 cuerpos mudos» exige **haber podido mirarlos todos**. Al correr la herramienta anunció
+seis reparaciones donde la medición decía diez: cuatro lecturas de plataforma fallaron y un
+`catch { continue; }` las convirtió en «nada que hacer» (`design.md` `D-12`).
+
+Con eso, `AC-05` se habría cumplido con «0 de los que pude leer» publicado como si fuera del
+tablero entero — el error de muestreo que `PT-079` documenta sobre sí mismo. Ahora una lectura
+fallida se declara `SIN EVALUAR` y **entra en el denominador**.

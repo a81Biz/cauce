@@ -167,3 +167,37 @@ en ellos, se dirá.
 
 > `sinSellar` define hoy el helper **dentro** de la función. Al exportarlo se usa el mismo, o
 > quedarían dos definiciones idénticas en el mismo archivo — que es el defecto en miniatura.
+
+---
+
+## Estado real al cerrar `PHASE 5`
+
+| Tarea | Estado | Qué salió distinto de lo planeado |
+|:---|:---|:---|
+| `PT-096.1` | **DONE** | 10 rojos válidos de 10. Los seis de `decisionDeEnlace` **no** pudieron estar en rojo válido: la función no existía y el fallo era «la herramienta reventó», que `FDGE-R17` no cuenta. Declarado en el propio `selftest.sh` |
+| `PT-096.9` | **DONE** | `esLote` exportado de `patrones.mjs`; `sinSellar` usa el exportado. Cero copias |
+| `PT-096.3` | **DONE** | Los ocho sitios. `contextoCuerpo.tareas` desapareció entero, y el comentario de `ordenDeApertura` se reescribió: el orden sigue valiendo, pero **por el anidamiento**, no por la lista |
+| `PT-096.2` | **DONE** | — |
+| `PT-096.4` | **DONE** | La nota de reparación imprimía `«null»` para el cuerpo mudo: el defecto reapareciendo dentro de su propio arreglo. Se distingue el origen |
+| `PT-096.5` | **DONE** | — |
+| `PT-096.6` | **DONE** | `salidas/inversa.txt`. Cinco retiradas, ninguna en cero |
+| `PT-096.7` | **DONE** | `C5` y `MANUAL`. `README` y `CLAUDE.md` declarados sin tocar, con motivo |
+| `PT-096.8` | pendiente | `PHASE 6` |
+
+### Delta · lo que el plan no vio
+
+**Un fallo que introduje y cazaron los propios casos.** Al borrar `const esLote = a?.type === 'EP'`
+de `cuerpoDeIssue`, la expresión `esLote ? …` pasó a referirse a la **función importada** — siempre
+truthy. `PT-96` se publicó como `**Implementación abierta**`. Lo vio ejecutar la aserción del
+encabezado, no leer el diff: sustituir una variable booleana por una función del mismo nombre es
+un cambio que **compila, corre y miente**.
+
+**La nota de reparación llevaba el mismo defecto que la tarea arregla.** `se repararía el enlace
+«${ref}» -> «${durable}»` con `ref === null` habría escrito `«null»` — dentro del mensaje del
+arreglo del `null`. Es la tercera vez en este repositorio que un arreglo reproduce su propio
+defecto en el texto que lo anuncia (`PT-095` lo hizo con el byte `0x08`, dentro del comentario que
+advertía del byte `0x08`).
+
+**`D-11` arrastra a `S-3` en la inversa, y eso es la prueba de que hay una sola fuente.** Si
+retirar `decisionDeEnlace` sólo hubiera hecho caer sus tres casos propios, significaría que el
+espejo conservaba su copia de la guarda — que es exactamente lo que se venía a quitar.

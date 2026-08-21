@@ -266,3 +266,45 @@ trlib "y uno sano se deja en paz"                     "OK"
 Los cinco resultados con caso propio. **`MUDO_SIN_REF_DURABLE` y `AJENO` son los que impiden que
 el arreglo se pase de frenada** — sin ellos, «repara lo mudo» acabaría reescribiendo issues que
 nadie del tracker escribió, que es peor que el defecto (`strategy.md` `RIE`).
+
+## D-12 · Una lectura fallida no es un cuerpo sano — encontrado midiendo `AC-05`
+
+Al correr `tracker abrir` con el arreglo puesto, la herramienta anunció **seis** reparaciones. La
+medición decía **diez**. Comprobado uno a uno con `decisionDeEnlace` sobre los diez cuerpos
+publicados: los diez dan `REPARAR_MUDO`.
+
+Los cuatro que faltaban se perdieron aquí:
+
+```js
+try { publicado = adaptador.cuerpoRemoto(a.issue); } catch { continue; }
+```
+
+**Un `catch` que hace `continue` convierte «no pude mirar» en «no hay nada que hacer».** En una
+pasada sobre 99 issues, cuatro lecturas de plataforma fallaron y la herramienta no lo dijo.
+
+**Por qué entra aquí y no en otra tarea.** Porque rompe `AC-05`. El criterio dice *«0 cuerpos
+mudos sobre el tablero completo, con denominador»*, y con este `catch` el número real habría sido
+«0 de los que pude leer» publicado como si fuera del tablero entero — **exactamente el error de
+muestreo que `PT-079` documenta sobre sí mismo**: *«medí 0 de 17 sobre los issues vivos y lo
+escribí como si fuera el tablero»*.
+
+No es una ampliación de alcance: es la condición para que la medición de esta tarea signifique
+algo. Un `AC` que se puede cumplir sin mirar la mitad del universo no es un `AC`.
+
+```js
+catch (e) {
+  notas.push(`${a.id} #${a.issue}: no se pudo leer el cuerpo (…). SIN EVALUAR: no se afirma que este bien.`);
+  continue;
+}
+```
+
+`SIN EVALUAR` y no un fallo: **no saber no es permiso, pero tampoco es una acusación** (`RULE-06`).
+Un fallo de red no dice nada del cuerpo, y bloquear por él dejaría la herramienta a merced de la
+plataforma.
+
+### Y de paso, el mensaje se leía mal
+
+`se repararia el enlace sin enlace -> «trabajo»`. El `origen` de `D-4` ya evitaba el `«null»`, pero
+encajado en la frase antigua producía «el enlace sin enlace». Queda `se repararia: sin enlace ->
+«trabajo»`. Es cosmético y se anota porque **lo vio leer la salida real**, no el diff — que es la
+misma forma en que apareció todo lo demás de esta tarea.

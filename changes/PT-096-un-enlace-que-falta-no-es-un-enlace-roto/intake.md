@@ -8,7 +8,7 @@ severity: S1
 complexity:
 track: STANDARD
 status: DRAFT
-phase: 4
+phase: 5
 created: 2026-08-21
 origin: DIRECT
 epic: EP-019
@@ -602,6 +602,56 @@ NO ENTRA  los 6 de verify-fdge.mjs  ->  L-3
 **Lo que esta revisión NO establece:** que las seis de `verify-fdge` estén bien. Están **mal y sin
 consecuencia hoy**, que es distinto, y por eso van declaradas con su medición en vez de
 arregladas de paso.
+
+```
+Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
+Fecha: 2026-08-21
+```
+
+---
+
+### Revisión 5 — 2026-08-21 · la cifra de §7 estaba corta: son **20**, no 10
+
+**Qué cambia:** el alcance medido. `AC-05` se mide sobre **20** cuerpos inutilizables, no 10.
+Ningún `AC` se añade ni se retira.
+
+**Motivo:** lo encontró **ejecutar la reparación**, no volver a leer.
+
+Con el arreglo puesto, `tracker abrir` anunció veinte reparaciones donde yo esperaba diez. Las
+diez que no esperaba son `#2 #3 #4 #5 #6 #8 #9 #10 #11 #12` —`EP-001`, `EP-002` y sus tareas— y
+su cuerpo dice:
+
+```
+Intake, criterios de aceptación y evidencia: [`changes/PT-001-el-espejo-en-las-compuertas/`](changes/PT-001-el-espejo-en-las-compuertas/)
+```
+
+**El enlace existe y es relativo**, así que en el cuerpo de un issue resuelve contra la URL del
+issue y da 404. Es exactamente el defecto que `PT-010` arregló —*«el enlace al intake era
+relativo, que en el cuerpo de un issue resuelve contra…»*— **en el código**. Los diez cuerpos ya
+publicados nunca se republicaron, y llevan rotos desde `EP-001`.
+
+```
+cuerpos del tracker        115
+  enlace absoluto OK        94
+  SIN enlace (mudo)         10   <- lo que §7 midio
+  enlace RELATIVO (404)     10   <- lo que §7 no vio
+  aplazado, exento R44       1   <- #35, correcto
+  INUTILIZABLES             20
+```
+
+**Por qué mi medición se quedó corta, que es lo que hay que llevarse.** El filtro buscaba la
+cadena `sin enlace` — **el síntoma que ya conocía**. Un cuerpo con enlace relativo no la contiene:
+tiene un enlace, sólo que no funciona. Medí la forma del defecto que había diagnosticado en vez
+de la propiedad que me importaba —*«desde el issue se llega al intake»*—, y por eso encontré
+justo lo que buscaba.
+
+Lo cazó la herramienta al ejecutarla, y sólo porque `decisionDeEnlace` pregunta por la **propiedad**
+(`refDeEnlace` no devuelve ref) y no por el síntoma.
+
+**Lo que esto NO cambia:** el diagnóstico. La causa de los diez mudos sigue siendo la de `§16`, y
+la de los diez relativos es distinta —un cuerpo viejo que nadie republicó—. Coinciden en la
+consecuencia y en el arreglo, no en el origen. `PT-010` tenía razón y su arreglo caducó por la
+misma razón que el de `PT-054`: **nada obligaba a republicar**.
 
 ```
 Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)

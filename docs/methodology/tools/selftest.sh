@@ -2223,7 +2223,17 @@ OPC='{url:"https://github.com/o/r",rama:"main",refDurable:"main",tareas:[{id:"PT
 trlib "el EP no se niega a si mismo"      "^LIMPIO$"   "console.log(/sin implementación/.test(m.cuerpoDeIssue($EP1,$OPC))?\"HAY\":\"LIMPIO\")"
 trlib "y dice que ES una implementacion"  "Implementación abierta"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
 trlib "el enlace es absoluto"             "https://github.com/o/r"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
-trlib "enumera sus tareas con su issue"   "#5"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
+# PT-096 · TERCERA instancia de lo mismo, y no la vi al planificar: encontre las de :1614 y :1787
+# leyendo, y esta la encontro la BATERIA COMPLETA en rojo. Buscar por lectura da dos de tres.
+#
+# Afirmaba que el cuerpo del lote enumera sus tareas con su numero de issue: la copia narrada que
+# PT-035 declaro defecto y SUITE-R51 prohibe. Se invierte por el mismo motivo que las otras dos.
+#
+# Lo que este bloque prueba de PT-010 sigue intacto y son las TRES lineas de arriba: que el lote
+# no se niegue a si mismo, que diga lo que es, y que el enlace sea ABSOLUTO. Eso ultimo importa
+# mas de lo que parecia: diez issues de EP-001 y EP-002 siguen publicando hoy un enlace RELATIVO
+# —el defecto que PT-010 arreglo en el codigo y que nadie republico—, y son 404 desde entonces.
+trlibno "el cuerpo del lote NO enumera con su issue"   "#5"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
 trlib "sin URL no se inventa"             "^SIN_ENLACE$"   "console.log(/https:/.test(m.cuerpoDeIssue($EP1,{}))?\"INVENTA\":\"SIN_ENLACE\")"
 trlib "sigue sin copiar el intake"        "No se copia aquí"   "console.log(m.cuerpoDeIssue($EP1,$OPC))"
 trlib "una tarea sí dice a qué lote va"   "EP-9"   "console.log(m.cuerpoDeIssue({id:\"PT-3\",type:\"BUG\",epic:\"EP-9\",slug:\"y\",severity:\"S2\"},$OPC))"

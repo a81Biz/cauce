@@ -57,6 +57,8 @@ import {
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
+// PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
+import { esLote } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 
@@ -172,7 +174,7 @@ export function queSigue(alloc, opciones = {}) {
 
 /** Las etiquetas que el registro DERIVA para el issue de una allocation. Función pura. */
 export function etiquetasDe(alloc) {
-  const et = [alloc?.type === 'EP' ? 'implementación' : 'tarea'];
+  const et = [esLote(alloc) ? 'implementación' : 'tarea'];
   const f = alloc?.phase;
   if (f !== undefined && f !== null) {
     et.push(`fase: ${f}`);
@@ -184,7 +186,7 @@ export function etiquetasDe(alloc) {
 const RE_DERIVADA = /^(fase: \d+|G[1-4])$/;
 
 /** Compara registro y plataforma EN LAS DOS DIRECCIONES. Sin efectos y sin red. */
-export function compararEspejo(vivas, issues, todas, refExiste) {
+export function compararEspejo(vivas, issues, todas, refExiste, refDurable) {
   const div = [];
   const porNumero = new Map((issues ?? []).map((i) => [i.number, i]));
   for (const a of vivas ?? []) {
@@ -207,6 +209,23 @@ export function compararEspejo(vivas, issues, todas, refExiste) {
       const ref = refDeEnlace(i.body);
       if (ref && refExiste && refExiste(ref) === false) {
         div.push({ regla: 'SUITE-R56', mensaje: `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe. La rama efimera se borra al fusionar (FDGE-R19); el enlace tiene que apuntar a un ref DURABLE — la rama de integracion, o el commit. Se corrige republicando:  tracker abrir --aplicar` });
+      }
+      // PT-096 · SUITE-R51 · y el caso SIMETRICO, que faltaba: el cuerpo que no enlaza en absoluto.
+      //
+      // La guarda de arriba es «ref && …», asi que un cuerpo SIN enlace no era divergencia — y sin
+      // enlace es como nace HOY todo cuerpo: en PHASE 1 el intake no esta commiteado, refDurableDe
+      // responde null con razon, y nadie vuelve a preguntar. Por eso «tracker espejo» decia «el
+      // espejo cuadra» con diez de 115 cuerpos publicados sin enlace.
+      //
+      // «refDurable» se INYECTA por el mismo motivo que «refExiste» desde PT-079: que esta funcion
+      // siga siendo comprobable sin git ni red. Y es OPCIONAL: sin el dato la comprobacion no se
+      // hace y el comportamiento es el de antes — un undefined no es un «no hay» (RULE-06).
+      //
+      // Solo acusa si HOY existe ref durable. Al abrir el issue no hay nada que enlazar, y exigirlo
+      // entonces seria pedir un enlace a un commit que no existe; en cuanto el intake entra en un
+      // commit, acusa — que es el primer instante en que se puede arreglar.
+      if (refDurable && decisionDeEnlace(i.body, refExiste, refDurable(a)) === 'REPARAR_MUDO') {
+        div.push({ regla: 'SUITE-R51', mensaje: `${a.id}: su issue #${a.issue} publica la ruta SIN enlace y el contenido ya esta en un ref durable. El cuerpo del issue enlaza donde el contenido esta (SUITE-R51); cuando se abrio todavia no habia ref durable y nadie volvio a preguntar. Se corrige republicando:  tracker abrir --aplicar` });
       }
       if (Array.isArray(i.labels)) {
         const tiene = i.labels.map((l) => l.name ?? l).filter((n) => RE_DERIVADA.test(n)).sort();
@@ -362,9 +381,48 @@ ${MARCA_AGENTE}`;
 export const refDeEnlace = (cuerpo) =>
   (String(cuerpo ?? '').match(/\/tree\/([^/)\s]+(?:\/[^/)\s]+)*?)\/changes\//) ?? [null, null])[1];
 
+/**
+ * PT-096 · El MARCADOR por el que un cuerpo se reconoce como escrito por esta herramienta.
+ *
+ * `refDeEnlace` devuelve `null` para DOS cosas distintas: un cuerpo del tracker que no enlaza, y
+ * cualquier issue que el tracker no escribio. Sin distinguirlas, «reparar lo mudo» reescribiria
+ * issues ajenos — peor que el defecto que arregla.
+ *
+ * Lo escribe `cuerpoDeIssue` y lo lee la reparacion, asi que hay un caso del arnes que ATA las
+ * dos cosas: cambiar el texto rompe ese caso en vez de apagar la reparacion en silencio.
+ */
+export const MARCADOR_CUERPO = 'Intake, criterios de aceptación y evidencia:';
+export const esCuerpoDelTracker = (cuerpo) => String(cuerpo ?? '').includes(MARCADOR_CUERPO);
+
+/**
+ * PT-096 · SUITE-R51 · SUITE-R56 · ¿Que le pasa al enlace de este cuerpo?
+ *
+ * La DECISION, separada del EFECTO. `repararEnlacesMuertos` habla con la plataforma y escribe, y
+ * `compararEspejo` reporta: los dos hacen la MISMA pregunta y hasta aqui la respondian por
+ * separado, con la misma guarda copiada —«if (ref && …)» alli, «if (!ref || …) continue» aca—.
+ * Una pregunta, una fuente (SUITE-R38).
+ *
+ * Cinco resultados, y cada uno con nombre a proposito. `REPARAR_MUDO` no faltaba porque estuviera
+ * mal decidido: faltaba porque no habia DONDE decidirlo. Y `ROTO_SIN_SALIDA` y `AJENO` existen
+ * para que no se confundan con `OK`, que es justo lo que pasaba — los tres caian por el mismo
+ * `continue` que un cuerpo sano.
+ *
+ * `MUDO_SIN_REF_DURABLE` es el freno: al abrir el issue el intake todavia no esta commiteado, asi
+ * que `refDurableDe` responde `null` CON RAZON y no hay nada que enlazar. Exigirlo ahi seria
+ * pedir un enlace a un commit que no existe.
+ */
+export function decisionDeEnlace(cuerpo, refExiste, durable) {
+  if (!esCuerpoDelTracker(cuerpo)) return 'AJENO';
+  const ref = refDeEnlace(cuerpo);
+  if (ref) {
+    if (refExiste && refExiste(ref) === false) return durable ? 'REPARAR_MUERTO' : 'ROTO_SIN_SALIDA';
+    return 'OK';
+  }
+  return durable ? 'REPARAR_MUDO' : 'MUDO_SIN_REF_DURABLE';
+}
+
 export function cuerpoDeIssue(a, opciones = {}) {
-  const { url, rama, tareas, ramaTrabajo, hayDirectorio, refDurable } = opciones;
-  const esLote = a?.type === 'EP';
+  const { url, rama, ramaTrabajo, hayDirectorio, refDurable } = opciones;
   const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
   // PT-036 · el enlace apunta a donde el contenido ESTA, no a donde estara.
   //
@@ -416,16 +474,23 @@ export function cuerpoDeIssue(a, opciones = {}) {
       : `\`${dir}/\` — en el repositorio, sin enlace: no hay ref durable que lo contenga`);
 
   const l = [];
-  l.push(esLote
+  l.push(esLote(a)
     ? `**Implementación abierta** · ${a.title ?? a.slug ?? ''}`
     : `**${a?.type ?? 'PT'}** · severidad ${a?.severity ?? '—'} · ${a?.epic ? `de la implementación \`${a.epic}\`` : 'sin implementación asignada'}`);
   l.push('');
-  if (esLote && (tareas ?? []).length) {
-    l.push('Tareas de este lote:');
-    l.push('');
-    for (const t of tareas) l.push(`- \`${t.id}\`${t.issue ? ` · #${t.issue}` : ''} — ${t.title ?? t.slug ?? ''}`);
-    l.push('');
-  }
+  // PT-096 · SUITE-R51 · la jerarquia es ESTRUCTURA, no prosa.
+  //
+  // Aqui se enumeraban las tareas del lote. PT-035 lo declaro defecto —«una tarea es SUB-ISSUE de
+  // su lote, NO un enlace en su cuerpo: un enlace no da progreso, no cierra en cascada y no sale
+  // en el arbol»—, añadio el anidamiento real… y no retiro la copia narrada. Convivieron: 14
+  // issues de lote la llevaban al medirlo.
+  //
+  // Que `esLote` fuera falso para los tres ultimos lotes estaba TAPANDO esa violacion, no
+  // causandola. Por eso el arreglo del predicado NO es hacer que la lista salga en tres sitios
+  // mas: es retirarla, que es lo que SUITE-R51 pide desde que existe.
+  //
+  // La cabecera de lote se queda: eso es informacion DEL lote, no una segunda representacion de
+  // su jerarquia.
   // PT-074 · SUITE-R35 · el registro asigna y la plataforma ESPEJA. El veredicto de viabilidad
   // es estado —lo escribe «tracker viabilidad --registrar» (FDGE-R54)— y no se espejaba: vivia
   // en REGISTRY.allocations[].viabilidad y era invisible desde el tablero. El firmante lo pidio
@@ -467,6 +532,20 @@ export function cuerpoDeIssue(a, opciones = {}) {
     l.push('');
     l.push('> Un aplazado no tiene intake ni ha recorrido fases: eso es lo que `SUITE-R44` quiere.');
     l.push('> Aplazarlo lo **pone** en el tablero, no lo saca.');
+  } else if (!ramaDelEnlace) {
+    // PT-096 · SEGUNDA instancia de lo que PT-048 arreglo tres lineas mas arriba: la nota que
+    // EXPLICA el enlace se emitia tambien cuando no hay enlace, y ahi `ramaDelEnlace` es null.
+    // El cuerpo publicado decia, en dos frases seguidas:
+    //     «…sin enlace: no hay ref durable que lo contenga»
+    //     «> El enlace apunta a `null`, que es donde el contenido existe ahora.»
+    // Diez de los 115 cuerpos del tablero lo publicaban. PT-048 corrigio la rama hermana
+    // (hayDirectorio === false) y no esta: arreglar la instancia y no el patron.
+    //
+    // Y dice QUE HACER, no solo que pasa: quien lee un issue quiere llegar al intake. RULE-06
+    // obliga a no inventar el dato; no obliga a ser oscuro.
+    l.push('');
+    l.push('> Todavía no hay ref durable que lo contenga: el intake aún no está en ningún commit.');
+    l.push('> Aparecerá en cuanto se integre — y si ya lo está, `tracker abrir --aplicar` lo republica.');
   } else {
     l.push('');
     l.push(viva
@@ -549,19 +628,25 @@ export function cerrablesSinAdelantarse(muertas, enPrincipal) {
 /**
  * PT-014 · En qué orden se crean los issues de una tanda.
  *
- * La dependencia entre cuerpos va en UN SOLO sentido: el de un lote enumera sus tareas **con su
- * número**, y el de una tarea cita a su lote **por identificador**. Creando en el orden del
- * registro —donde el lote va primero— su cuerpo se compone cuando sus tareas aún no tienen
- * número, y salía sin ellos: hacía falta repetir el comando.
+ * La dependencia va en UN SOLO sentido: el lote necesita que sus tareas tengan numero, y ellas no
+ * necesitan nada de el. Creando en el orden del registro —donde el lote va primero— la relacion
+ * se establecia cuando sus tareas aun no tenian numero: hacia falta repetir el comando.
  *
  * No se pide dos veces ni se pospone nada: se crea antes lo que no depende de nadie. Con la
  * dependencia en un sentido, un orden basta y no hay ciclo posible.
+ *
+ * PT-096 · el MOTIVO cambio y el orden NO. Este texto decia «el cuerpo del lote enumera sus
+ * tareas con su numero», y esa enumeracion se ha retirado: era la copia narrada que SUITE-R51
+ * prohibe. Lo que sigue necesitando el numero es el ANIDAMIENTO —`anidarSubIssues` pide el issue
+ * hijo—, asi que el orden vale igual por una razon distinta. Se reescribe el porque en vez de
+ * borrar la regla: un orden correcto con un motivo caduco es el que alguien quita el dia que lee
+ * el motivo y no lo encuentra.
  *
  * Estable dentro de cada grupo (`Array.prototype.sort` lo es desde ES2019): dos tareas
  * conservan el orden del registro, que es el que el humano ve.
  */
 export const ordenDeApertura = (pendientes) =>
-  [...(pendientes ?? [])].sort((x, y) => (x?.type === 'EP' ? 1 : 0) - (y?.type === 'EP' ? 1 : 0));
+  [...(pendientes ?? [])].sort((x, y) => (esLote(x) ? 1 : 0) - (esLote(y) ? 1 : 0));
 
 const ARGS = process.argv.slice(2);
 const ACCION = ARGS[0] ?? 'espejo';
@@ -1028,7 +1113,8 @@ const vivas = vivasDe(all);
 // el arnés puede probar sin credenciales.
 function espejo() {
   const issues = adaptador.abiertos();
-  const div = compararEspejo(vivas, issues, all, refExiste);
+  // PT-096 · «refDurableDe» se inyecta para que el espejo vea tambien el cuerpo que NO enlaza.
+  const div = compararEspejo(vivas, issues, all, refExiste, refDurableDe);
   // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
   //
   // El registro que asigna vive en la rama de trabajo. El de la rama por defecto es el del
@@ -1117,7 +1203,6 @@ const RAMA_TRABAJO = (() => {
 const contextoCuerpo = (a) => ({
   ...REPO,
   ramaTrabajo: RAMA_TRABAJO,
-  tareas: a?.type === 'EP' ? all.filter((t) => t.epic === a.id) : undefined,
   // PT-048 · el dato viaja en el contexto y NO se lee dentro de `cuerpoDeIssue`: esa funcion es
   // pura y exportada a proposito —para que un caso pueda comprobarla sin hablar con la
   // plataforma ni con el disco—, y meterle un `existsSync` la habria devuelto a ser inprobable.
@@ -1189,17 +1274,42 @@ function repararEnlacesMuertos() {
   const terminadas = all.filter((a) => a.issue && !vivas.some((v) => v.id === a.id));
   for (const a of terminadas) {
     let publicado;
-    try { publicado = adaptador.cuerpoRemoto(a.issue); } catch { continue; }
+    // PT-096 · un cuerpo que NO SE PUDO LEER no es un cuerpo sano. El «catch { continue; }» que
+    // habia aqui hacia indistinguible «no pude mirar» de «no hay nada que hacer», y eso es
+    // exactamente lo que RULE-06 prohibe: no saber no es permiso.
+    //
+    // Medido: en una pasada sobre 99 issues, CUATRO lecturas fallaron y la herramienta declaro
+    // seis reparaciones sin decir que faltaban cuatro por mirar. Con eso, «0 cuerpos mudos» al
+    // terminar habria sido «0 de los que pude leer», publicado como si fuera del tablero entero —
+    // el error de muestreo que PT-079 documenta sobre si mismo.
+    try { publicado = adaptador.cuerpoRemoto(a.issue); }
+    catch (e) {
+      notas.push(`${a.id} #${a.issue}: no se pudo leer el cuerpo (${String(e?.message ?? e).split(String.fromCharCode(10))[0].slice(0, 80)}). SIN EVALUAR: no se afirma que este bien.`);
+      continue;
+    }
     const ref = refDeEnlace(publicado);
-    if (!ref || refExiste(ref)) continue;
     const durable = refDurableDe(a);
-    if (!durable) {
+    // PT-096 · la decision es UNA y vive en decisionDeEnlace. Aqui estaba «if (!ref || …) continue»,
+    // que salta el cuerpo SIN enlace — que son justo los que nunca lo tuvieron, ocho de los diez, y
+    // ademas terminales, o sea los unicos a los que esta pasada llega. SUITE-R56 reparaba el enlace
+    // MUERTO y pasaba de largo por el AUSENTE.
+    const decision = decisionDeEnlace(publicado, refExiste, durable);
+    if (decision === 'OK' || decision === 'AJENO') continue;
+    if (decision === 'ROTO_SIN_SALIDA') {
       notas.push(`${a.id} #${a.issue}: enlaza a «${ref}», que ya no existe, y no hay ref durable del que derivar uno. Queda roto y consta.`);
       continue;
     }
-    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se repararia el enlace «${ref}» -> «${durable}»`); continue; }
-    try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: enlace reparado «${ref}» -> «${durable}»`); }
-    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe, y no se pudo reescribir.`); }
+    if (decision === 'MUDO_SIN_REF_DURABLE') {
+      notas.push(`${a.id} #${a.issue}: publica la ruta sin enlace y no hay ref durable todavia. No se inventa uno (RULE-06): consta.`);
+      continue;
+    }
+    // PT-096 · el ORIGEN se nombra segun el caso. Con «${ref}» a secas, el cuerpo mudo —donde ref
+    // es null— habria escrito «se repararia el enlace «null» -> «trabajo»»: exactamente el defecto
+    // que esta tarea arregla, reapareciendo en la nota que lo arregla.
+    const origen = decision === 'REPARAR_MUDO' ? 'sin enlace' : `«${ref}»`;
+    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se repararia: ${origen} -> «${durable}»`); continue; }
+    try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: enlace reparado: ${origen} -> «${durable}»`); }
+    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace ${origen} y no se pudo reescribir.`); }
   }
 }
 
@@ -1369,8 +1479,8 @@ function prAbierto() {
 // No toca la plataforma: por eso responde «qué va cuándo» sin credencial y sin plataforma
 // declarada. Las etiquetas responden lo mismo en GitHub; esto lo responde aquí.
 function estado() {
-  const eps = all.filter((a) => a?.type === 'EP');
-  const pts = all.filter((a) => a?.type !== 'EP');
+  const eps = all.filter((a) => esLote(a));
+  const pts = all.filter((a) => !esLote(a));
   const linea = (a) => {
     const g = COMPUERTA_DE_FASE[Number(a.phase)];
     return `  ${String(a.id).padEnd(8)}${String(a.type ?? '').padEnd(15)}${String(a.severity ?? '—').padEnd(4)}`
@@ -1963,7 +2073,7 @@ function siguienteDe() {
   const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
   const objetivo = id
     ? [all.find((x) => x?.id === id)]
-    : vivas.filter((a) => a?.type !== 'EP').sort((x, y) => (y.phase ?? -1) - (x.phase ?? -1));
+    : vivas.filter((a) => !esLote(a)).sort((x, y) => (y.phase ?? -1) - (x.phase ?? -1));
   if (!objetivo.length || !objetivo[0]) {
     di(id ? `${id} no existe en el registro.` : 'Nada vivo en el registro: no hay trabajo abierto.');
     return;
@@ -2580,7 +2690,7 @@ function indices() {
   const escribir = ARGS.includes('--aplicar');
   for (const [archivo, def] of Object.entries(INDICES)) {
     const filas = (reg.allocations ?? [])
-      .filter((a) => !/^EP-/.test(String(a?.id ?? '')))
+      .filter((a) => !esLote(a))
       .filter((a) => def.tipos.has(a?.type))
       .sort((x, y) => String(x.id).localeCompare(String(y.id)))
       .map(filaDeIndice);

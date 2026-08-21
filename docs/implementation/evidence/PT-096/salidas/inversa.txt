@@ -1,0 +1,43 @@
+PRUEBA INVERSA — PT-096
+
+Cada cambio se retira POR SEPARADO. Si alguno sale en CERO, ese cambio no esta
+probado, y eso se dice. Una inversa que sale en cero no es un verde: es un aviso.
+
+S-1 · la nota condicionada a que haya enlace    caen  3
+                                                  · sin ref durable, no explica el enlace
+                                                  · el cuerpo nunca publica «null»
+                                                  · sin ref durable, tampoco dice donde esta
+S-4a · esLote derivado del ID                   caen  4
+                                                  · el lote se reconoce por su ID
+                                                  · …y tambien sin «type» ninguno
+                                                  · un lote se etiqueta como implementacion
+                                                  · el lote va al final aunque su type sea EPIC
+S-4b · la lista en prosa retirada               caen  2
+                                                  · el cuerpo del lote NO lista sus tareas
+                                                  · el cuerpo del lote NO enumera en prosa
+S-3 · el espejo ve el cuerpo mudo               caen  1
+                                                  · el espejo ve el cuerpo mudo
+D-11 · decisionDeEnlace distingue mudo de sano  caen  3
+                                                  · el espejo ve el cuerpo mudo
+                                                  · un cuerpo mudo con ref durable se repara
+                                                  · …y sin ref durable NO se toca
+
+Los cinco cambios hacen caer casos. Ninguno esta sin probar.
+
+---
+
+LO QUE ESTA INVERSA NO ESTABLECE
+
+· No cubre los ocho sitios de tracker.mjs uno a uno. «S-4a» retira TRES de los ocho —los que
+  tienen caso propio— y los otros cinco (estado, pendiente, indices, contextoCuerpo) no tienen
+  asercion aqui porque no son funciones puras exportadas. El de «estado» se comprueba
+  EJECUTANDO el comando, y esta en salidas/estado.txt.
+
+· «D-11» hace caer tambien «el espejo ve el cuerpo mudo», y no es ruido: es la propiedad que se
+  buscaba. compararEspejo y repararEnlacesMuertos preguntan a UNA fuente (SUITE-R38), asi que
+  romper la fuente rompe a los dos. Si D-11 hubiera hecho caer solo sus tres casos propios,
+  significaria que el espejo seguia con su copia de la guarda.
+
+· La retirada de «S-1» se hace con «else if (false)», no restaurando el texto original. Prueba
+  que la RAMA es necesaria; no prueba que el texto de la nota sea el correcto. Eso lo prueba
+  el caso «el cuerpo nunca publica null», que si mira el contenido.
