@@ -1610,8 +1610,18 @@ trlib "y no se pierde ni se duplica"        "^3$"   "console.log(m.ordenDeApertu
 trlib "entre tareas, el orden del registro" "PT-90,PT-91"   "console.log(m.ordenDeApertura($TANDA).filter((a)=>a.type!==\"EP\").map((a)=>a.id).join(\",\"))"
 trlib "no muta la lista que recibe"         "EP-9,PT-90,PT-91"   "const t=$TANDA; m.ordenDeApertura(t); console.log(t.map((a)=>a.id).join(\",\"))"
 trlib "sin nada que abrir, no revienta"     "^0$"   "console.log(m.ordenDeApertura(undefined).length)"
-# Y la razon de todo: con ese orden el cuerpo del lote SI enumera numeros.
-trlib "el cuerpo del lote ya trae numero"   "#77"   "console.log(m.cuerpoDeIssue({id:\"EP-9\",type:\"EP\",slug:\"x\"},{tareas:[{id:\"PT-90\",issue:77,title:\"t\"}]}))"
+# PT-096 · este caso CAMBIA DE SENTIDO, y no se hace pasar.
+#
+# Afirmaba que el cuerpo del lote enumera sus tareas en PROSA. Eso es exactamente lo que PT-035
+# declaro defecto —«una tarea es SUB-ISSUE de su lote, NO un enlace en su cuerpo: un enlace no da
+# progreso, no cierra en cascada y no sale en el arbol»— y lo que SUITE-R51 convirtio en regla
+# HARD. PT-035 añadio el anidamiento y NO retiro la copia narrada, asi que las dos convivian: 14
+# issues de lote la llevaban al medirlo.
+#
+# El orden de apertura que este bloque prueba SIGUE importando —el lote se crea despues que sus
+# tareas para que el ANIDAMIENTO las encuentre—, y eso lo cubren los casos de arriba. Lo que ya
+# no vale es la razon que este caso daba.
+trlibno "el cuerpo del lote NO enumera en prosa"   "#77"   "console.log(m.cuerpoDeIssue({id:\"EP-9\",type:\"EP\",slug:\"x\"},{tareas:[{id:\"PT-90\",issue:77,title:\"t\"}]}))"
 
 
 # PT-024 . SUITE-R46 — el tablero no se adelanta a la rama por defecto.
@@ -1786,7 +1796,106 @@ trlib "con directorio, el enlace sigue"    "tree/"     "console.log(m.cuerpoDeIs
 # El que protege a los demas: sin el dato, el comportamiento es el de HOY. Un undefined no es un
 # «no existe», y tratarlo como tal apagaria el enlace en TODOS los cuerpos.
 trlib "sin el dato, se comporta como hoy"  "tree/"     "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}))"
-trlib "y el cuerpo dice donde esta"           "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
+# PT-096 · este caso CAMBIA DE SENTIDO, y no se hace pasar. Afirmaba que el cuerpo dice «donde el
+# contenido existe ahora» cuando NO hay refDurable — es decir, codificaba el defecto como caso
+# verde: la nota se emitia con «null» dentro, justo debajo de la linea que acababa de decir «sin
+# enlace». Un caso que protege el defecto no es una red de seguridad.
+# La otra mitad de su intencion —que CON ref durable el cuerpo diga donde esta— la cubre
+# «lo vivo enlaza la rama de trabajo», ocho lineas mas arriba, que sigue verde.
+trlibno "sin ref durable, tampoco dice donde esta"  "donde el contenido existe ahora"   "console.log(m.cuerpoDeIssue({id:'PT-97',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',ramaTrabajo:'trabajo'}))"
+# ── PT-096 · SUITE-R51 · un enlace que FALTA no es un enlace roto ────────────
+#
+# PT-079 sustituyo «siempre un ref, a veces el equivocado» por «un ref durable, o ninguno», que
+# es lo correcto, y no escribio la continuacion del «o ninguno». En PHASE 1 el intake acaba de
+# escribirse y no esta commiteado: refDurableDe responde null CON RAZON, y nadie vuelve a
+# preguntar. Medido sobre el tablero: 10 de 115 cuerpos publicados, que son los 11 issues
+# abiertos desde el cierre de PT-079 menos el que se curo por casualidad al medirlo.
+#
+# Tres sitios con el MISMO supuesto —que el fallo de un enlace es que apunte MAL— y el de estos
+# diez es que NO apunta: cuerpoDeIssue imprimia «apunta a null», repararEnlacesMuertos hacia
+# «if (!ref) continue» y compararEspejo llevaba la misma guarda, asi que el espejo decia «cuadra».
+
+# La nota que EXPLICA el enlace no sobrevive cuando no hay enlace. PT-048 arreglo esta MISMA
+# contradiccion en la rama hermana (hayDirectorio === false) y no en esta: es su segunda instancia.
+trlibno "sin ref durable, no explica el enlace"  "El enlace apunta"  "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+# Separado del anterior a proposito: el de arriba ata la CONTRADICCION, este ata el SINTOMA que
+# vio el firmante. Si alguien reescribe la nota y vuelve a colar un valor interno con otras
+# palabras, este sigue cazandolo.
+trlibno "el cuerpo nunca publica «null»"         "null"              "console.log(m.cuerpoDeIssue({id:'PT-96',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main'}))"
+
+# Un lote se reconoce por su IDENTIFICADOR. El registro guarda TRES valores para el mismo hecho
+# —EP (16), ausente (2), EPIC (1)— porque LEXICON §8.1 enumera el «type» de una TAREA y no
+# declara ninguno para un lote. El helper vive en patrones.mjs desde que sinSellar tropezo con
+# lo mismo, y se IMPORTA: una tercera copia seria el defecto en miniatura (SUITE-R38).
+trlib "el lote se reconoce por su ID"            "Implementación abierta"  "console.log(m.cuerpoDeIssue({id:'EP-19',type:'EPIC',slug:'x',title:'t'},{url:'https://h/r',rama:'main'}))"
+trlib "…y tambien sin «type» ninguno"            "Implementación abierta"  "console.log(m.cuerpoDeIssue({id:'EP-17',slug:'x',title:'t'},{url:'https://h/r',rama:'main'}))"
+trlib "un lote se etiqueta como implementacion"  "implementación"          "console.log(JSON.stringify(m.etiquetasDe({id:'EP-19',type:'EPIC',phase:1})))"
+trlib "el lote va al final aunque su type sea EPIC"  "EP-19"               "console.log(m.ordenDeApertura([{id:'EP-19',type:'EPIC'},{id:'PT-1',type:'BUG'}]).at(-1).id)"
+
+# PT-035 · «una tarea es SUB-ISSUE de su lote, NO un enlace en su cuerpo», y SUITE-R51 lo hizo
+# regla HARD. PT-035 añadio el anidamiento —que funciona— y NO retiro la copia narrada: 14 issues
+# de lote la llevaban al medirlo. Que esLote fuera falso para los tres ultimos lotes estaba
+# TAPANDO la violacion, no causandola, asi que el arreglo es RETIRAR la lista y no hacerla salir.
+#
+# «type:'EP'» en el fixture NO es un descuido: es lo que hace VALIDO el rojo. Sin el, esLote es
+# falso, la lista no se emite y este caso pasaria HOY — verde por el motivo contrario al que lo
+# justifica. Se vio ejecutandolo, no leyendolo. Con EP casa los dos predicados, el viejo y el nuevo.
+trlibno "el cuerpo del lote NO lista sus tareas"  "Tareas de este lote"  "console.log(m.cuerpoDeIssue({id:'EP-9',type:'EP',slug:'x',title:'t'},{url:'https://h/r',rama:'main',tareas:[{id:'PT-90',issue:77,title:'t'}]}))"
+
+# La DECISION separada del EFECTO. repararEnlacesMuertos habla con la plataforma y escribe, asi
+# que no se puede probar; la pregunta que hace —«¿este cuerpo esta bien?»— si. Cinco resultados
+# con nombre, y REPARAR_MUDO no existia no porque estuviera mal decidido, sino porque no habia
+# donde decidirlo: hoy se responde con dos «continue» repartidos en dos funciones.
+#
+# LO QUE ESTOS SEIS CASOS NO ESTABLECEN, y va escrito aqui porque callarlo seria fabricar un
+# verde: NO estuvieron en rojo VALIDO. «decisionDeEnlace» no existia, asi que su fallo previo era
+# «la herramienta revento», y este arnes trata eso como «no verifica nada» —con razon—. FDGE-R17
+# pide un rojo que falle POR SU ASERCION, y el de una funcion inexistente no lo es.
+# Son ESPECIFICACION de comportamiento nuevo, no reproduccion del defecto.
+# La reproduccion de AC-04 esta medida donde si se puede: sobre el tablero real, en
+# evidence/PT-096/salidas/ — diez cuerpos mudos que «abrir --aplicar» no repara.
+# Los DIEZ casos que si estuvieron en rojo valido son los demas de este bloque.
+trlib "un cuerpo mudo con ref durable se repara"  "REPARAR_MUDO"          "console.log(m.decisionDeEnlace(m.cuerpoDeIssue({id:'PT-96',slug:'x'},{url:'https://h/r',rama:'main'}),()=>true,'trabajo'))"
+# El freno: sin ref durable NO se toca. Al abrir el issue no hay nada que enlazar todavia, y
+# exigirlo entonces seria pedir un enlace a un commit que no existe.
+trlib "…y sin ref durable NO se toca"             "MUDO_SIN_REF_DURABLE"  "console.log(m.decisionDeEnlace(m.cuerpoDeIssue({id:'PT-96',slug:'x'},{url:'https://h/r',rama:'main'}),()=>true,null))"
+# El otro freno, y el que impide pasarse de frenada: refDeEnlace devuelve null para DOS cosas
+# distintas —un cuerpo del tracker sin enlace, y un issue que el tracker no escribio—. Sin
+# distinguirlas, «repara lo mudo» reescribiria issues ajenos, que es peor que el defecto.
+trlib "un issue ajeno no es asunto del tracker"   "AJENO"                 "console.log(m.decisionDeEnlace('un issue escrito a mano por una persona',()=>true,'trabajo'))"
+trlib "un enlace muerto sigue reparandose"        "REPARAR_MUERTO"        "console.log(m.decisionDeEnlace(m.cuerpoDeIssue({id:'PT-94',slug:'x'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}),()=>false,'trabajo'))"
+trlib "y uno sano se deja en paz"                 "OK"                    "console.log(m.decisionDeEnlace(m.cuerpoDeIssue({id:'PT-94',slug:'x'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}),()=>true,'trabajo'))"
+# PT-079 ya declaraba este caso —«queda roto y consta»— y era una rama de if sin nombre. Tenerlo
+# nombrado es lo que impide que se confunda con OK, que es lo que pasa hoy: los tres caen por el
+# mismo «continue» que el cuerpo sano.
+trlib "un enlace roto sin salida CONSTA"          "ROTO_SIN_SALIDA"       "console.log(m.decisionDeEnlace(m.cuerpoDeIssue({id:'PT-94',slug:'x'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}),()=>false,null))"
+# RIE-4 · esCuerpoDelTracker reconoce por el MARCADOR que cuerpoDeIssue escribe. Si alguien cambia
+# ese texto, la reparacion dejaria de reconocer sus propios cuerpos EN SILENCIO. Este caso ata las
+# dos cosas: cambiar el texto rompe un caso en vez de apagar la reparacion.
+trlib "cuerpoDeIssue escribe el marcador que la reparacion busca"  "Intake, criterios de aceptación y evidencia:"  "console.log(m.cuerpoDeIssue({id:'PT-99',slug:'x'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}))"
+# Y el otro extremo del mismo hilo: lo que el cuerpo ESCRIBE, refDeEnlace lo LEE. Sin este, un
+# cambio en la forma de la URL apagaria la reparacion por el otro lado.
+trlib "lo que el cuerpo escribe, refDeEnlace lo lee"  "trabajo"  "console.log(m.refDeEnlace(m.cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},{url:'https://h/r',rama:'main',refDurable:'trabajo'})))"
+
+# El espejo REPORTA el cuerpo mudo. Hoy no: «if (ref && …)» — sin ref no hay divergencia, que es
+# como nace todo cuerpo. Por eso «tracker espejo» decia «el espejo cuadra» con diez rotos.
+#
+# El fixture lleva sus ETIQUETAS correctas, y no es cosmetico: sin ellas compararEspejo devuelve
+# un SUITE-R35 por las etiquetas y el caso pasaria a verde el dia que el cuerpo mudo dejara de
+# detectarse — verde por la divergencia equivocada. Comprobado ejecutandolo.
+V96="{id:'PT-96',slug:'x',status:'IN_PROGRESS',issue:191,phase:5}"
+CUERPO_MUDO="m.cuerpoDeIssue($V96,{url:'https://h/r',rama:'main'})"
+I96="{number:191,body:$CUERPO_MUDO,labels:m.etiquetasDe($V96).map((n)=>({name:n}))}"
+trlib "el espejo ve el cuerpo mudo"          "SUITE-R51"  "console.log(JSON.stringify(m.compararEspejo([$V96],[$I96],[$V96],()=>true,()=>'trabajo')))"
+trlib "y dice como se corrige"               "abrir --aplicar"  "console.log(JSON.stringify(m.compararEspejo([$V96],[$I96],[$V96],()=>true,()=>'trabajo')))"
+# No dispara si TODAVIA no hay ref durable: al abrir el issue no hay nada que enlazar. Dispara en
+# cuanto el intake entra en un commit, que es el primer momento en que se puede arreglar.
+trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true,()=>null); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
+# El que protege a los doce casos que llaman con CUATRO argumentos: un undefined no es un «no hay»
+# (RULE-06). Se serializa a VACIO en vez de asertar contra «[]», que para grep es una CLASE DE
+# CARACTERES (PT-085, PT-090) — y ademas, al fallar, dice QUE regla aparecio en vez de «no caso».
+trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
+
 chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
 
 

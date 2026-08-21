@@ -2512,7 +2512,8 @@
         "fecha": "2026-08-21"
       },
       "issue": 191,
-      "phase": 4
+      "phase": 4,
+      "branch": "bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto"
     }
   ]
 }
