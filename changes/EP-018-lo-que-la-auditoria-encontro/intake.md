@@ -293,3 +293,25 @@ El lote los deja en `VALIDATION_PENDING` con su evidencia; el cierre es un acto 
 
 Auditoría de origen: [`PTSA/RESUMEN.md`](../../PTSA/RESUMEN.md) · `PTSA-2026-08-20` ·
 Health 79.9 · Risk 73 · Confidence 0.94 · coverage 0.89 · certificación **B**.
+
+---
+
+## El lote se marca `CLOSED` **antes** de `G4`, y eso resuelve una fricción
+
+`EP-017` se marcó `CLOSED` **después** de su `G4`, y `tracker cerrar` lo rechazó:
+
+```
+✗ SUITE-R46  EP-017 (aqui CLOSED, en main DONE). El orden es: apuntar el estado terminal
+   AQUI, mergear, y cerrar DESPUES.
+```
+
+Aquello se declaró como un huevo y gallina inevitable —*«`G4` **es** lo que convierte el lote en
+terminal»*— y **no lo era**. Lo que convierte un lote en terminal es que **su trabajo esté
+completo**: siete tareas integradas, la tabla de cierre resuelta y la versión sellada. `G4` integra
+ese trabajo terminado; no lo termina.
+
+Marcándolo aquí, el estado terminal viaja **con** el merge y su issue cierra en el mismo acto — sin
+el merge extra que `EXEC-R03` prohíbe multiplicar.
+
+**`SUITE-R46` tenía razón las dos veces.** Lo que estaba mal era el momento de marcarlo, no la
+regla.

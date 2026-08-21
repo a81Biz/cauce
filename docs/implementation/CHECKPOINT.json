@@ -2,21 +2,19 @@
   "pt": "PT-092",
   "type": "CHORE",
   "epic": "EP-018",
-  "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
-  "rama": "trabajo",
-  "sha": "299bc84209ef73afa4bc6692fb61cb4bd547d099",
-  "sha_corto": "299bc84",
+  "status": "INTEGRATED",
+  "phase": 10,
+  "fase": null,
+  "rama": "chore/alberto-martinez/EP-018-cierre",
+  "sha": "a7277f2337f9e17987e14c23573af93ed8c323b4",
+  "sha_corto": "a7277f2",
   "sucio": true,
   "archivos": [
-    "changes/PT-092-ejecutar-qa-y-fpge/intake.md",
+    "changes/EP-018-lo-que-la-auditoria-encontro/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
-  "produce": [
-    "discovery.md"
-  ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "produce": [],
+  "siguiente": "PT-092 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-20"
 }

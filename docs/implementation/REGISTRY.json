@@ -2254,7 +2254,7 @@
       "id": "EP-018",
       "slug": "lo-que-la-auditoria-encontro",
       "created": "2026-08-20",
-      "status": "DONE",
+      "status": "CLOSED",
       "phase": 1,
       "title": "Lo que la auditoria encontro: cerrar el patron del proxy y las reglas que nadie comprueba",
       "origin": "Abierta por el firmante el 2026-08-20 con dos fuentes: (a) el defecto que aparecio SELLANDO la 10.0.0 — el paso 1 de «tracker sellar» comprueba que EXISTA entrada en el CHANGELOG con guia de migracion, no que la guia ENUMERE las reglas nuevas, y por eso SUITE-R57 quedo fuera de ella; (b) la auditoria PTSA-2026-08-20, primera ejecucion de PTSA sobre este repositorio, con nueve hallazgos, certificacion B, Health 79.9 y coverage 0.89. De los nueve, dos se corrigieron dentro de la propia auditoria y quedaron en VALIDATION_PENDING; los siete restantes son este lote.",
