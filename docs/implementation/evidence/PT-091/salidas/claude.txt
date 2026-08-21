@@ -1,0 +1,11 @@
+# PT-091 · H-006 · los recuentos de CLAUDE.md
+
+Decia 15 herramientas y 4 comandos; son 16 y 7. Se corrigio A MANO en la auditoria, y
+ese es exactamente el arreglo que vuelve a caducar.
+
+CLAUDE.md declara : {"herramientas":16,"comandos":7}
+herramientas reales: 16
+cuadra            : SI
+
+Lo que NO establece: que la LISTA de comandos sea la util ni este en orden. Solo la
+cantidad. Un CLAUDE.md que dijera «install» siete veces pasaria.

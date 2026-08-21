@@ -6,3 +6,33 @@ Append-only (`SUITE-R09`). Un incidente se abre cuando un PT integrado se revier
 Vacío: ningún incidente abierto ni cerrado.
 
 ---
+
+## INC-001 — el cierre de dos hallazgos se perdio sin que nada avisara
+Fecha: 2026-08-20 · Detectado: 2026-08-20, ejecutando FPGE en PT-092
+Severidad: S2 · Datos perdidos: no · Reconstruido: si
+
+QUE PASO. El 2026-08-20 se validaron y cerraron H-001 y H-006 de PTSA-2026-08-20: se escribieron
+los dos bloques de cierre con su firma y su evidencia, se anadio la entrada al AUDIT_LOG, y se
+ejecuto «git add -A && git commit -q». La salida solo mostro avisos de CRLF.
+
+DIECISIETE COMMITS DESPUES, ejecutando FPGE PHASE 2 —que lee los hallazgos vivos— aparecieron los
+dos en VALIDATION_PENDING. Ni el cierre ni la entrada del AUDIT_LOG estaban en el arbol, y
+«git log --all --grep» no encuentra ningun commit con ese mensaje.
+
+QUE NO FUE. Se reviso el commit de la rama temporal que se borro ese mismo dia (4465e26, la prueba
+inversa de SUITE-R09): NO contiene los archivos de PTSA. La hipotesis inicial era esa y era falsa.
+
+QUE SI SE SABE. El «git commit -q» no dejo rastro y nadie lo comprobo: «-q» calla en exito Y la
+salida se filtro con «grep -v ^warning | tail -2», que se comio cualquier mensaje corto de error.
+Es la TERCERA vez en esta sesion que filtrar la salida antes de mirarla esconde un fallo — las
+otras dos estan en PT-088 y PT-089.
+
+POR QUE NO LO CAZO NADA. Ningun verificador comprueba que un hallazgo CERRADO siga cerrado: PTSA
+tiene verify-ptsa para la matriz y los productos, no para la persistencia de un cierre. Y el
+ledger de PTSA es AUDIT_LOG.md, que tampoco se contrasta con los Findings.
+
+RECONSTRUIDO. Los dos cierres se reescribieron con su firma, su evidencia post-correccion (E-011)
+y su limite declarado. No se perdio informacion: existia en la sesion y se volvio a escribir.
+
+LO QUE QUEDA ABIERTO, y no se arregla aqui: que un cierre de PTSA pueda desaparecer sin que
+ninguna comprobacion lo note. Va como candidato de FPGE en el ROADMAP de PT-092.

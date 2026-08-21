@@ -1,0 +1,7 @@
+# PT-090 · la deriva con hash nombra lo que de verdad cambio
+
+--- ANTES (mtime) ---
+SUSPECT · 6 de 17 archivos — incluyendo archivos NO tocados, por normalizacion CRLF
+
+--- AHORA (hash de contenido normalizado) ---
+  ! FDGE-R43       Grafo SUSPECT — 5 de 17 archivos que describe han cambiado desde 2026-08-20 — docs/methodology/tools/patrones.mjs, docs/methodology/tools/selftest.sh, docs/methodology/tools/tracker.mjs, docs/methodology/tools/verify-fdge.mjs, docs/metho

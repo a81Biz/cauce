@@ -8,6 +8,85 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 11.0.0 — 2026-08-20
+
+**Lo que la auditoría encontró.** `EP-018`: cerrar los nueve hallazgos de `PTSA-2026-08-20` —la
+primera auditoría del marco sobre sí mismo— y la causa que los produce. **`MAJOR` porque rompe**:
+entran tres reglas con verificadores que pueden fallar en proyectos que hoy pasan.
+
+### Guía de migración   `SUITE-R19`
+
+**Esto sí pide trabajo.** Tres reglas nuevas rigen desde esta versión, y dos pueden poner en rojo
+un proyecto instalado:
+
+| Regla | Qué exige | Qué hacer en tu proyecto |
+|:---|:---|:---|
+| `SUITE-R09` | Un ledger append-only **no pierde líneas** desde el tag anterior | `git diff <tu-tag> HEAD -- docs/implementation/HISTORY.log` y comprobar que no hay líneas `-`. Si las hay, **no se reescribe para arreglarlo**: se corrige **añadiendo** una entrada |
+| `EXEC-R04` | Todo avance de la rama por defecto deja **constancia con nombre** | Nada retroactivo: rige desde esta versión. Para los merges nuevos, una entrada `## <fecha> · …G4…` en `SESSION_LOG.md` con un nombre de `firmantes:` |
+| `EXEC-R04a` | Esa constancia tiene **forma fija** | La de arriba **es** la forma. `verify-fdge` la busca así |
+
+**El primero es el que puede doler**, y por eso su instrucción dice qué **no** hacer: arreglar una
+violación de append-only reescribiendo el archivo es cometerla otra vez.
+
+**Lo ya terminado no se toca.** Las tres declaran su versión de entrada (`RIGE_DESDE`), así que no
+rigen sobre trabajo anterior. Medido antes de escribirlas: hay **18 merges** a `main` en toda la
+historia y **uno** desde el último tag. Sin esa ventana, `EXEC-R04` nacía con 17 fallos sobre
+trabajo de agosto — inaplicable, no «menos elegante».
+
+### Lo que además cambia, y no rompe nada
+
+| | |
+|:---|:---|
+| `FDGE-R43` | La deriva del grafo se calcula con **hash de contenido**, no con `mtime`. Desaparecen los `SUSPECT` espurios que producía un `git clone` o dos commits seguidos |
+| `FDGE-R43` | `MISSING` deja de prometer que bloquea: dice **«no evaluable en este clon»**, que es lo que ocurre cuando `graphify-out/` está en `.gitignore` |
+| `SUITE-R35` | Una divergencia registro/YAML con estado **terminal** pasa de aviso a **error**: es la que apaga las comprobaciones de las fases posteriores |
+| `FND-R14` | Las cifras de `inventory/services.md` se **recalculan**: `tracker inventario --aplicar`. Ocho de dieciséis eran falsas un día después de generarlas |
+| `SUITE-R38` | Una comprobación puede declarar **qué establece y qué no**, y `verify-suite` exige que ese límite **llegue al mensaje** |
+| `build-core` | Los sub-identificadores que `LEX-R24` admite —`EXEC-R04a`— ya **llegan a `CORE.md`**. Los dos extractores los descartaban en silencio |
+
+### El hallazgo, que ya va por ocho
+
+`EP-017` documentó cuatro comprobaciones que **verificaban un proxy barato en lugar del hecho**.
+`EP-018` cerró ese patrón con un mecanismo — y encontró **cuatro más** haciéndolo:
+
+```
+5  sellar paso 1   comprobaba que EXISTIERA entrada en el CHANGELOG, no que ENUMERARA
+6  SUITE-R27       buscaba una frase en todo el archivo, no la firma en su bloque
+7  revento()       buscaba una palabra en la salida, no una traza de pila
+8  sellar deuda    miraba «el tag anterior», no «lo ya sellado»
+```
+
+**Las cuatro aparecieron ejecutando**, no leyendo. La octava sólo podía aparecer hoy: «el tag
+anterior» funcionaba mientras la versión en curso no estuviera etiquetada, y **hasta la `10.0.0`
+nadie había llegado a sellar de verdad**.
+
+### La auditoría, y lo que sigue abierto
+
+`PTSA-2026-08-20` · certificación **B** · `Health` 79.9 · `coverage` 0.89 · nueve hallazgos.
+
+**Dos cerrados, siete en `VALIDATION_PENDING`**: `PTSA-R44` reserva el cierre de un `BUG` o un
+`DOMAIN` a una persona.
+
+Y `FPGE` se ejecutó por primera vez —`ROADMAP.md`, ocho candidatos con evidencia—, mientras `QA`
+queda **declarado no aplicable**: `QA-R01` opera sólo desde navegador y este sistema no tiene
+interfaz. Es distinto de «sin ejecutar», y `TD-15` ya no los cuenta juntos.
+
+```
+bateria    1118 -> 1200 casos
+reglas     224 -> 225 · VERIFICADA 94 -> 97 · PENDIENTE 125 -> 122
+```
+
+### Lo que esta versión **no** trae
+
+- **`FIDE` sigue sin ejecutarse.** Es el único componente pendiente y el primer candidato del
+  roadmap: necesita un proyecto que incubar, e inventarlo para cerrar un número sería justo lo que
+  este lote combate.
+- **`migrate --apply` sigue sin ejecutarse** contra un legado real.
+- **`INC-001`**: el cierre de dos hallazgos desapareció sin que nada avisara, y **nada comprueba
+  que un cierre siga cerrado**. Registrado, reconstruido y con candidato propio.
+
+---
+
 ## 10.0.0 — 2026-08-20
 
 **La prueba de fuego.** `EP-017`: ejecutar el marco contra un proyecto nuevo real y contra un

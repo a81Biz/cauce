@@ -1,0 +1,12 @@
+# PT-088 · RIGE_DESDE: una regla nueva no rige hacia atras
+
+suite 9.0.0    SUITE-R09:false  EXEC-R04:false
+suite 10.0.0   SUITE-R09:false  EXEC-R04:false
+suite 11.0.0   SUITE-R09:true   EXEC-R04:true
+suite 11.1.0   SUITE-R09:true   EXEC-R04:true
+
+--- la ventana, medida ---
+merges a main: $(git log --merges --first-parent origin/main --format=%h | wc -l)
+19
+merges desde v9.0.0:
+2

@@ -1,0 +1,17 @@
+# PT-087 · SEPTIMA instancia · revento() mira la traza, no la palabra
+
+--- antes ---
+grep -qE 'SyntaxError|ReferenceError|TypeError|RangeError|node:internal|at file:///'
+--- ahora ---
+grep -qE '^[[:space:]]+at .*:[0-9]+:[0-9]+'
+
+--- un reviente real ---
+ReferenceError: undefinedFn is not defined
+    at [eval]:1:1
+    at runScriptInThisContext (node:internal/vm:209:10)
+
+«at file:///» habria FALLADO con este: el marco dice «at [eval]:1:1».
+
+--- y un texto que solo NOMBRA el error ---
+0
+0 coincidencias = no acusa

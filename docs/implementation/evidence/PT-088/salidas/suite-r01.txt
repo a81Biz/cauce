@@ -1,0 +1,11 @@
+# PT-088 · SUITE-R01 declarada y clasificada
+
+  Clasificación exhaustiva (PT-078) — ninguna queda fuera:
+    VERIFICADA       96   una herramienta la EMITE
+    NO_VERIFICABLE   6   declarada con motivo y firma
+    PENDIENTE        122   deuda, no límite
+    suma             224 de 224
+
+
+--- la fila en NO-VERIFICABLES.md ---
+| `SUITE-R01` | **Evidence Before Action.** El sujeto de la regla es una negación sobre el **origen de una creencia**: «se apoyó en evidencia» y «se apoyó en in

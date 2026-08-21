@@ -1,0 +1,14 @@
+# PT-092 · QA declarado NO APLICA
+
+QA-R01: «opera SOLO desde el navegador, nunca lee codigo»
+inventory/routes.md: «Este sistema no tiene rutas»
+inventory/endpoints.md: «Este sistema no expone endpoints»
+
+| **`FQAGE` sobre un paquete sin interfaz** | **No aplica, y no es lo mismo que «no probado».** `QA-R01` dice que el componente *opera SOLO desde el navegador, nunca lee código*, y `inventory/route
+
+
+--- TD-15 ---
+> **Segunda revisión, 2026-08-20 · `PT-092`.** `FPGE` se ejecutó: `ROADMAP.md` con ocho candidato
+> cada uno con su evidencia, y `verify-qa` en verde sobre él. **`QA` no se ejecutó porque no
+> aplica**: `QA-R01` dice que el componente opera *sólo desde el navegador* y este sistema no
+> tiene rutas ni API — está declarado como hueco en `CASOS-DE-USO.md`, que es distinto de dejarlo

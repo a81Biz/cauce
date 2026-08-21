@@ -9,8 +9,8 @@ id: PT-089
 type: BUG
 epic: EP-018
 track: STANDARD
-status: READY
-phase: 1
+status: INTEGRATED
+phase: 10
 created: 2026-08-20
 structural: no
 suite_version: 10.0.0

@@ -124,6 +124,9 @@ export const RIGE_DESDE = {
   'FDGE-R54': [10, 0, 0],   // la viabilidad consta antes de G2 · nace con EP-017
   'SUITE-R56': [10, 0, 0],  // el rastro sobrevive a la rama · nace con EP-017
   'SUITE-R57': [10, 0, 0],  // lo integrado no se acumula sin sellar · nace con EP-017
+  'SUITE-R09': [11, 0, 0],  // el ledger no pierde lineas · el verificador nace con EP-018
+  'EXEC-R04':  [11, 0, 0],  // la G4 deja constancia · 18 merges historicos sin ella
+  'EXEC-R04a': [11, 0, 0],  // la constancia tiene forma fija · nace con EP-018
 };
 
 /**
@@ -910,15 +913,47 @@ export function selloSinResolver(actaDelSello) {
  * todos los MAJOR de forma permanente y la comprobacion se desactivaria. STALE bloqueante sigue
  * reservado a lo estructural; esto produce SUSPECT con la lista.
  */
-export function derivaDelGrafo(manifest, mtimeDe) {
+export function derivaDelGrafo(manifest, huellaDe) {
   if (!manifest || typeof manifest !== 'object') return null;
   const cambiados = [];
   for (const [ruta, d] of Object.entries(manifest)) {
-    const actual = mtimeDe(ruta);
+    const esperado = d?.ast_hash ?? d?.semantic_hash ?? null;
+    const actual = huellaDe(ruta, esperado == null);
     if (actual == null) { cambiados.push(`${ruta} (no existe)`); continue; }
-    if (Math.abs(actual - Number(d?.mtime ?? 0)) > 1) cambiados.push(ruta);
+    // PT-090 · el manifiesto guarda «ast_hash» EN LA MISMA LINEA que «mtime», y esta funcion
+    // usaba el mtime: el dato bueno estaba al lado y se eligio el barato. «git clone» reescribe
+    // los mtime con la fecha del clon, asi que los 17 archivos salian cambiados aunque el
+    // contenido fuera identico — y dos commit seguidos tambien los mueven. Paso DOS VECES en
+    // este mismo lote, la ultima con 6 de 17 por una normalizacion de CRLF.
+    //
+    // Solo se cae al mtime si el manifiesto NO trae hash: un manifiesto viejo sigue midiendose
+    // como antes en vez de dar todo por cambiado, que seria nacer rojo.
+    if (esperado == null) {
+      if (Math.abs(Number(actual) - Number(d?.mtime ?? 0)) > 1) cambiados.push(ruta);
+    } else if (String(actual) !== String(esperado)) {
+      cambiados.push(ruta);
+    }
   }
   return cambiados;
+}
+
+/**
+ * PT-090 · La ruta de un archivo del manifiesto, relativa a la raiz del proyecto.
+ *
+ * El manifiesto guarda rutas ABSOLUTAS —«C:\\DevOps\\…\\bin\\cauce.mjs»— asi que solo sirve en un
+ * disco donde el proyecto este exactamente ahi. Versionar el grafo NO bastaria, que es lo que
+ * H-005 daba por hecho.
+ *
+ * QUE ESTABLECE: la ruta relativa dentro del proyecto, con separadores «/».
+ * QUE NO ESTABLECE: que el archivo exista. Solo normaliza la forma.
+ */
+export function rutaRelativaDelManifiesto(ruta, raiz) {
+  const norm = (s) => String(s ?? '').split(String.fromCharCode(92)).join('/');
+  const r = norm(ruta);
+  const base = norm(raiz).replace(/\/+$/, '');
+  if (!base) return r;
+  const i = r.toLowerCase().indexOf(base.toLowerCase() + '/');
+  return i >= 0 ? r.slice(i + base.length + 1) : r;
 }
 
 /**
@@ -1079,4 +1114,232 @@ export function seccionesAfectadas(texto, cambiadas) {
   return seccionesDelArnes(texto)
     .filter((s) => !s.herramientas.length || s.herramientas.some((t) => quiere.has(t)))
     .map((s) => s.titulo);
+}
+
+
+/**
+ * PT-088 · `SUITE-R09` · Un ledger append-only no pierde lineas.
+ *
+ * QUE ESTABLECE: que, entre `base` y ahora, ninguna linea del archivo DESAPARECIO.
+ * QUE NO ESTABLECE: que el contenido no se haya alterado. Una reescritura que conserve el
+ *   RECUENTO pasa. Es mas fuerte que nada y mas debil que un hash encadenado, y la diferencia
+ *   se dice aqui en vez de disimularse — es exactamente el defecto que PT-087 cierra.
+ *
+ * Por que la ventana es el TAG anterior y no `HEAD~1` ni `origin/main`:
+ *   - `HEAD~1` deja pasar para siempre una reescritura de hace tres commits.
+ *   - `origin/main` fue el error de PT-081: la comprobacion se apaga el dia que lo que busca
+ *     aterriza en main. Un tag es una marca inmutable y deliberada, y SUITE-R57 garantiza que
+ *     el anterior nunca queda muy atras.
+ *
+ * `diffDe(archivo)` devuelve el texto de `git diff <base> HEAD -- archivo`, o `null` si no se
+ * pudo obtener. NULL NO ES CERO: sin repositorio o sin tag no hay reloj, y se devuelve `null`
+ * para que quien llame lo distinga de «ninguna linea borrada». Es la leccion de PT-058.
+ */
+export function lineasPerdidas(archivos, diffDe) {
+  const fuera = [];
+  for (const f of archivos ?? []) {
+    const d = diffDe(f);
+    if (d == null) { fuera.push({ archivo: f, borradas: null }); continue; }
+    let borradas = 0;
+    for (const l of String(d).split(/\r?\n/)) {
+      if (l.startsWith('---') || l.startsWith('+++')) continue;
+      if (l.startsWith('-')) borradas++;
+    }
+    if (borradas > 0) fuera.push({ archivo: f, borradas });
+  }
+  return fuera;
+}
+
+/**
+ * PT-088 · `EXEC-R04` · Todo avance de la rama por defecto deja constancia con nombre.
+ *
+ * QUE ESTABLECE: que existe una entrada de autorizacion, con un nombre que figura en
+ *   `firmantes`, para cada merge a la rama por defecto POSTERIOR a la version de entrada.
+ * QUE NO ESTABLECE: que la autorizacion fuera real. El agente escribe la constancia. Es el
+ *   limite que SUITE-R27 declara para las firmas, y H-009 pide declararlo tambien aqui: lo
+ *   decide PT-093.
+ *
+ * La ventana importa tanto como la comprobacion: medido en el repositorio real hay 18 merges
+ * a main y UNO desde el ultimo tag. Sin ventana, la regla nace con 17 fallos sobre trabajo de
+ * agosto — y una comprobacion que nace roja se apaga, que es lo que PT-023 midio.
+ *
+ * `merges` es [{sha, fecha}] ya acotado a la ventana; `constancias` es [{nombre, fecha}]
+ * extraidas del ledger de sesion. Se empareja por FECHA, no por sha: la constancia se escribe
+ * ANTES del merge y no puede citar un sha que todavia no existe.
+ */
+export function mergesSinConstancia(merges, constancias, firmantes) {
+  const validos = new Set((firmantes ?? []).map((s) => String(s).trim()).filter(Boolean));
+  const dias = new Set((constancias ?? [])
+    .filter((c) => validos.has(String(c?.nombre ?? '').trim()))
+    .map((c) => String(c?.fecha ?? '').slice(0, 10)));
+  return (merges ?? [])
+    .filter((m) => !dias.has(String(m?.fecha ?? '').slice(0, 10)))
+    .map((m) => ({ sha: m.sha, fecha: m.fecha }));
+}
+
+
+/**
+ * PT-087 · El SUJETO de una comprobacion: que hecho pretende establecer, y cual NO.
+ *
+ * Siete veces seguidas el marco comprobo un proxy barato en lugar del hecho, y las siete
+ * tienen la misma forma: el observable es mas barato que el sujeto, y EL HUECO ENTRE LOS DOS
+ * NO ESTABA ESCRITO EN NINGUN SITIO.
+ *
+ *   SUITE-R34   «el estado dice la verdad»          leia la FECHA del archivo
+ *   FDGE-R43    «el grafo describe el codigo»       leia si se MOVIERON archivos
+ *   audit       «la regla tiene verificador»        leia si su ID APARECE
+ *   regla       «que dice una regla»                leia la PRIMERA LINEA que la cita
+ *   sellar 1    «la guia enumera las nuevas»        leia que la entrada EXISTA
+ *   SUITE-R27   «la firma es de la lista»           leia una FRASE en todo el archivo
+ *   revento()   «la herramienta revento»            leia una PALABRA en toda la salida
+ *
+ * QUE ESTABLECE este mecanismo: que la comprobacion DECLARA su sujeto y su limite, y que el
+ *   limite LLEGA AL MENSAJE que el usuario lee.
+ * QUE NO ESTABLECE: que el sujeto declarado sea cierto. Un autor puede escribir «establece que
+ *   el grafo describe el codigo» sobre una funcion que mira mtime, y esto lo aceptara.
+ *   Comprobarlo exigiria entender el codigo, y prometerlo seria la OCTAVA instancia.
+ *
+ * Lo que si impide es lo que paso siete veces: que nadie se hiciera la pregunta, y que el
+ * hueco no existiera por escrito donde el usuario lo ve.
+ *
+ * ADOPCION DECLARADA, no cobertura total. Hay 313 emisiones y 105 reglas que emiten; exigirlo
+ * a todas de golpe nace con cientos de fallos, y una comprobacion que nace roja se apaga
+ * (PT-023). La tabla crece; lo que la hace util es que NADIE PUEDA QUEDARSE FUERA EN SILENCIO.
+ */
+export const SUJETOS = {
+  'SUITE-R09': {
+    establece: 'ninguna linea anterior del ledger desaparecio ni cambio desde el tag',
+    noEstablece: 'correccion legitima de una falsificacion',
+  },
+  'EXEC-R04': {
+    establece: 'existe constancia con un nombre de firmantes para cada merge a la principal',
+    noEstablece: 'NO prueba que la autorización',
+  },
+  'SUITE-R01': {
+    establece: 'nada: es una regla sombrilla y se instancia en FDGE-R23, FDGE-R24, PTSA-R14 y SUITE-R11',
+    noEstablece: null,   // declarada NO_VERIFICABLE: no hay mensaje donde poner un limite
+  },
+};
+
+/** El sujeto declarado de `id`, o `null` si la regla todavia no lo declara. */
+export const sujetoDe = (id) => SUJETOS[id] ?? null;
+
+/**
+ * PT-087 · Las reglas del registro cuyo sujeto esta INCOMPLETO.
+ *
+ * Una celda vacia no pasa, por lo mismo que no pasa en LAYOUT ni en SELLO (FND-R22): es
+ * indistinguible de una que nadie miro. `noEstablece: null` SI vale, y es distinto de vacio:
+ * es una declaracion explicita de que no hay limite que expresar — el caso de una regla que
+ * no se verifica en absoluto.
+ */
+export function sujetosIncompletos(sujetos = SUJETOS) {
+  return Object.entries(sujetos ?? {})
+    .filter(([, s]) => !String(s?.establece ?? '').trim() || s?.noEstablece === undefined)
+    .map(([id]) => id);
+}
+
+/**
+ * PT-087 · El limite declarado tiene que LLEGAR AL MENSAJE.
+ *
+ * Es la mitad que hace trabajo. En las siete instancias, cuando el limite estaba escrito vivia
+ * en un COMENTARIO del codigo fuente — donde solo lo ve quien ya esta leyendo el codigo, o sea
+ * quien no lo necesita. Un limite que no llega al mensaje no protege a nadie.
+ *
+ * `emisiones` es {herramienta: texto}. Se busca la frase de `noEstablece` en el texto de la
+ * herramienta; basta con que aparezca en una. Las reglas con `noEstablece: null` se saltan.
+ */
+export function limitesQueNoLleganAlMensaje(sujetos, emisiones) {
+  const cuerpos = Object.values(emisiones ?? {}).join('\n');
+  return Object.entries(sujetos ?? {})
+    .filter(([, s]) => s?.noEstablece != null && String(s.noEstablece).trim())
+    .filter(([, s]) => !cuerpos.includes(String(s.noEstablece).trim()))
+    .map(([id]) => id);
+}
+
+/**
+ * PT-087 · QUINTA instancia del patron: la guia de migracion ENUMERA las reglas nuevas.
+ *
+ * El paso 1 de «tracker sellar» no comprobaba nada: era una linea de una lista. Yo verifique a
+ * mano que la entrada del CHANGELOG existiera y DI POR HECHO que enumeraba lo nuevo. No lo
+ * hacia: SUITE-R57 —regla HARD que bloquea G2— quedo fuera de la guia de la 10.0.0, y un
+ * proyecto destino se habria encontrado G2 bloqueada sin una linea que se lo explicara.
+ *
+ * QUE ESTABLECE: que toda regla cuya version de entrada es la vigente aparece NOMBRADA en la
+ *   entrada del CHANGELOG de esa version.
+ * QUE NO ESTABLECE: que lo que la guia diga de ella sea correcto ni suficiente. Nombrarla es
+ *   el minimo comprobable; que la instruccion sirva lo sabe quien la sigue.
+ *
+ * `entrada` es el texto de la entrada del CHANGELOG de `version`, ya recortado.
+ */
+export function reglasNuevasFueraDeLaGuia(rigeDesde, version, entrada) {
+  if (!entrada) return null;                 // sin entrada no hay guia que contrastar
+  const v = String(version ?? '').split('.').map((n) => Number(n) || 0);
+  return Object.entries(rigeDesde ?? {})
+    .filter(([, d]) => d[0] === v[0] && d[1] === v[1] && d[2] === v[2])
+    .filter(([id]) => !String(entrada).includes(id))
+    .map(([id]) => id);
+}
+
+/**
+ * PT-091 · H-007 · Las cifras del inventario se DERIVAN, no se transcriben.
+ *
+ * `inventory/services.md` se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no
+ * describian el arbol un dia despues. Todas hacia arriba, porque EP-017 aterrizo detras. Al
+ * medirlo de nuevo durante EP-018 las distancias habian CRECIDO: selftest.sh documentado 3541
+ * contra 4919 reales.
+ *
+ * PTSA-R76 obliga a construir el universo auditable DESDE el inventario. Un inventario que
+ * envejece en un dia convierte la fuente mecanica de la auditoria en una fuente de memoria — y
+ * en PTSA-2026-08-20 no llego a estropear nada solo porque el auditor enumero contra `ls`, que
+ * fue una decision suya y no una propiedad del marco.
+ *
+ * QUE ESTABLECE: que cada cifra transcrita coincide con la que se deriva del arbol.
+ * QUE NO ESTABLECE: que la DESCRIPCION en prosa sea cierta. Que services.md diga bien cuantas
+ *   lineas tiene tracker.mjs no dice nada sobre si describe bien lo que hace.
+ *
+ * `texto` es el de services.md. Devuelve [{herramienta, lineas}] tal como estan ESCRITAS.
+ */
+export function cifrasTranscritas(texto) {
+  const filas = [];
+  for (const l of String(texto ?? '').split(/\r?\n/)) {
+    const m = /^\|\s*`([a-z0-9-]+\.(?:mjs|sh))`\s*\|\s*(\d+)\s*\|/.exec(l);
+    if (m) filas.push({ herramienta: m[1], lineas: Number(m[2]) });
+  }
+  return filas;
+}
+
+/**
+ * PT-091 · Las cifras transcritas que ya no describen el arbol.
+ *
+ * `realDe(herramienta)` devuelve el recuento real, o `null` si el archivo no existe. NULL NO
+ * ES CERO: una herramienta retirada es un hecho distinto de una con cero lineas, y se nombra
+ * aparte para que no se confunda con una cifra desviada (PT-058).
+ */
+export function cifrasQueMienten(transcritas, realDe) {
+  const fuera = [];
+  for (const f of transcritas ?? []) {
+    const real = realDe(f.herramienta);
+    if (real == null) { fuera.push({ ...f, real: null, motivo: 'no existe' }); continue; }
+    if (Number(real) !== Number(f.lineas)) fuera.push({ ...f, real: Number(real), motivo: 'desviada' });
+  }
+  return fuera;
+}
+
+/**
+ * PT-091 · H-006 · Los recuentos de CLAUDE.md.
+ *
+ * Decia 15 herramientas y 4 comandos cuando eran 16 y 7. Se corrigio A MANO en la auditoria, y
+ * ese arreglo es exactamente el que vuelve a caducar: la proxima herramienta lo falsea otra vez.
+ *
+ * QUE ESTABLECE: que el numero escrito coincide con el derivado.
+ * QUE NO ESTABLECE: que la lista de comandos este completa ni en el orden util — solo que su
+ *   CANTIDAD cuadre. Enumerarlos bien es prosa, y la prosa no se deriva.
+ */
+export function recuentosDeClaude(texto) {
+  const out = {};
+  const h = /HERRAMIENTAS\s*[-─—]+\s*(\d+)/.exec(String(texto ?? ''));
+  if (h) out.herramientas = Number(h[1]);
+  const c = /El binario[^:\n]*:\s*([^\n]+)/.exec(String(texto ?? ''));
+  if (c) out.comandos = c[1].split('·').map((s) => s.trim()).filter(Boolean).length;
+  return out;
 }

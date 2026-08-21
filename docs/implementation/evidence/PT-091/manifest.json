@@ -1,0 +1,136 @@
+{
+  "pt": "PT-091",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Las cifras del inventario se GENERAN: un comando las recalcula",
+      "scenarios": [
+        "E8",
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:inventario enumera la cifra desviada",
+        "selftest.sh:…y con la marca la reescribe"
+      ],
+      "evidence": [
+        "salidas/inventario.txt"
+      ],
+      "verified": true,
+      "nota": "«inventario» entro en SIN_PLATAFORMA, y eso lo trajo la BATERIA: recalcula cifras del arbol y no espeja nada, pero la guarda se dispara antes del despacho. Exigirle credencial para leer «wc -l» dejaria sin arreglo a un proyecto sin tablero — el caso que SUITE-R22 declara soportado."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Una cifra transcrita que no coincide se reporta",
+      "scenarios": [
+        "E1",
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:una cifra que coincide no se reporta",
+        "selftest.sh:…y una desviada si, con las dos cifras"
+      ],
+      "evidence": [
+        "salidas/inventario.txt"
+      ],
+      "verified": true,
+      "nota": "AVISA y no bloquea, al reves que PT-089. La consecuencia decide la severidad: una cifra desviada no apaga ninguna comprobacion, y bloquear ahi pondria el arbol en rojo cada vez que alguien anade diez lineas."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El recuento de CLAUDE.md entra en la misma comprobacion",
+      "scenarios": [
+        "E6",
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:el recuento de herramientas se lee",
+        "selftest.sh:…y el de comandos tambien"
+      ],
+      "evidence": [
+        "salidas/claude.txt"
+      ],
+      "verified": true,
+      "nota": "H-006 se corrigio A MANO en la auditoria, y ese es el arreglo que vuelve a caducar. Se cierra por su CAUSA, no por su sintoma."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El inventario declara su ANCLA: de que commit sale",
+      "scenarios": [
+        "E12"
+      ],
+      "tests": [
+        "selftest.sh:el arbol real tiene sus cifras al dia"
+      ],
+      "evidence": [
+        "salidas/inventario.txt"
+      ],
+      "verified": true,
+      "nota": "FND-R14 ancla el grafo con pt_at_generation y el inventario no tenia equivalente: «al dia» y «nadie lo ha vuelto a mirar» eran indistinguibles. Un inventario correcto por casualidad y uno verificado se leian igual."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Las 8 cifras falsas quedan corregidas POR EL GENERADOR",
+      "scenarios": [
+        "E10",
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:…y sin la marca NO ha escrito nada",
+        "selftest.sh:…y con la marca la reescribe"
+      ],
+      "evidence": [
+        "salidas/inventario.txt"
+      ],
+      "verified": true,
+      "nota": "No a mano: corregirlas a mano seria repetir el arreglo que H-006 ya vio caducar. Y E10 es el que hace que «--aplicar» signifique algo — sin el, la accion podria escribir siempre y E11 seguiria verde."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "El generador declara su SUJETO: recuenta, no valida la prosa",
+      "scenarios": [
+        "E3",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:…y una herramienta retirada se nombra aparte",
+        "selftest.sh:…y una linea que no es fila no cuenta"
+      ],
+      "evidence": [
+        "salidas/inventario.txt"
+      ],
+      "verified": true,
+      "nota": "Es el limite honesto de la tarea. Que services.md diga bien cuantas lineas tiene tracker.mjs no dice NADA sobre si describe bien lo que hace. Y una herramienta RETIRADA es un hecho distinto de una cifra desviada: null no es cero (PT-058)."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la prosa del inventario describa bien lo que hace cada herramienta.",
+      "por_que": "Solo se comprueban las CIFRAS. La descripcion es prosa y la prosa no se deriva.",
+      "donde": "changes/PT-091-las-cifras-se-derivan-no-se-transcriben/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que la lista de comandos de CLAUDE.md sea la util o este en orden.",
+      "por_que": "Se cuenta su CANTIDAD. Un CLAUDE.md que dijera «install» siete veces pasaria.",
+      "donde": "changes/PT-091-las-cifras-se-derivan-no-se-transcriben/out-of-scope.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "La comprobacion se cazo a si misma en su primera ejecucion.",
+      "regla": "—",
+      "detalle": "Al escribir checkInventario dentro de verify-fdge.mjs el archivo crecio, y la comprobacion reporto su propia cifra como desviada: 2057 -> 2106. NO es un defecto: es la demostracion mas directa de por que una cifra a mano no se sostiene, y ocurrio sola sin construir el caso."
+    },
+    {
+      "que": "«inventario» reventaba en el fixture por la guarda de plataforma.",
+      "regla": "SUITE-R22",
+      "detalle": "Lo trajo la BATERIA, no el plan. Recalcula cifras del arbol y no espeja nada, pero la guarda se dispara antes del despacho. Entra en SIN_PLATAFORMA con «indices» y «sellar»."
+    }
+  ],
+  "suite": {
+    "passed": 1179,
+    "failed": 0,
+    "baseline": 1167,
+    "nota": "1167 mas 12 nuevos. Corrida COMPLETA, cero fallos. Dos corridas: la primera la fallo la guarda de plataforma."
+  }
+}

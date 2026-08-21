@@ -98,7 +98,20 @@ bad()  {
 # Una herramienta que REVIENTA no imprime el patron que se le busca, asi que chkno la daba
 # por buena: el arnes certificaba un verificador roto. Se rompio verify-qa a proposito y dos
 # casos siguieron en verde. Ahora un rastro de excepcion invalida el caso, pase lo que pase.
-revento() { printf '%s' "$1" | grep -qE 'SyntaxError|ReferenceError|TypeError|RangeError|node:internal|at file:///'; }
+# PT-087 · SEPTIMA instancia del patron del proxy, y la cazo la bateria contra PT-088.
+#
+# Esta funcion buscaba nombres de CLASES DE ERROR en la salida. Un comentario de
+# verify-fdge.mjs que mencionaba una de ellas puso TRECE casos en rojo: los que hacen
+# «cat» de ese archivo. Ninguna herramienta habia reventado — el archivo CONTENIA la
+# palabra.
+#
+# El sujeto es «el proceso termino de forma anomala». Su observable no es una palabra:
+# es la TRAZA DE PILA, y su forma es inconfundible — «at» indentado seguido de
+# «:linea:columna». Medido: un reviente real imprime siempre marcos de esa forma, y un
+# archivo que menciona una clase de error no imprime ninguno.
+#
+# No se pierde cobertura: hay un caso que revienta node de verdad y lo demuestra.
+revento() { printf '%s' "$1" | grep -qE '^[[:space:]]+at .*:[0-9]+:[0-9]+'; }
 # PT-050 · `chk` y `chkno` son las DOS UNICAS puertas por las que pasa cualquier caso: filtrar
 # aqui cubre los 453 sin tocar ninguno, y sin que añadir uno mañana obligue a acordarse de nada.
 #
@@ -4500,6 +4513,542 @@ chk   "y su ancla se declara sin poner"        "SIN_ANCLAR" \
   const r = JSON.parse(require(\"node:fs\").readFileSync(process.argv[1], \"utf8\"));
   console.log(Number(r.graph.pt_at_generation) > 0 ? \"ANCLADO\" : \"SIN_ANCLAR\");
 " "$1"' _ "$WORK/graph-viejo.json"
+
+sec "── PT-088 · las reglas del dominio se verifican o se declaran ──"
+#
+# H-002 de PTSA-2026-08-20. SUITE-R09 (el ledger es append-only), EXEC-R04 (G4 es humana) y
+# SUITE-R01 (Evidence Before Action) no las emitia NINGUN verificador. Dos se escriben; la
+# tercera se DECLARA, y el orden es la mitad del argumento.
+#
+# Las dos escritas RIGEN DESDE 11.0.0: medido en el repositorio real hay 18 merges a main y
+# UNO desde el ultimo tag. Sin ventana, EXEC-R04 nace con 17 fallos sobre trabajo de agosto,
+# y una comprobacion que nace roja se apaga (PT-023).
+
+# ── el ledger no pierde lineas ──────────────────────────────────────────────
+ledger_fixture() {   # git con un tag, un ledger de varias lineas y la suite en 11.0.0
+  build_fixture
+  reg_set "r.suite_version='11.0.0'"
+  ( cd "$WORK"
+    printf 'uno\ndos\ntres\ncuatro\ncinco\nseis\n' > docs/implementation/HISTORY.log
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm "base" >/dev/null 2>&1
+    git tag -a v1.0.0 -m base >/dev/null 2>&1 ) >/dev/null 2>&1
+}
+
+ledger_commit() {    # commitea lo que haya, para que «git diff tag HEAD» lo vea
+  ( cd "$WORK"; git add -A >/dev/null 2>&1; git commit -qm "cambio" >/dev/null 2>&1 ) >/dev/null 2>&1
+}
+
+ledger_fixture
+printf 'uno\ndos\ntres\ncuatro\ncinco\nseis\nsiete\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chkno "un ledger que solo CRECE pasa"            "desaparecida" V PT-004 "$WORK"
+
+ledger_fixture
+printf 'uno\ndos\nseis\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chk   "…y uno al que le faltan lineas CAE"       "línea(s) desaparecida(s)" V PT-004 "$WORK"
+
+# El mensaje tiene que DECIR lo que la comprobacion no establece. Sin esto, un verde de
+# SUITE-R09 se leeria como «el ledger es integro», que es mas de lo que mide.
+ledger_fixture
+printf 'uno\ndos\nseis\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chk   "…y el mensaje declara que NO distingue"   "corrección legítima de una falsificación" V PT-004 "$WORK"
+
+# Una alteracion de IGUAL recuento TAMBIEN cae, y lo descubrio el arnes: yo habia
+# declarado que pasaba. git representa una modificacion como borrado mas alta, asi que
+# la linea «-» esta ahi. La comprobacion es MAS FUERTE de lo que su autor creia — y
+# declarar un limite SIN MEDIRLO es la misma forma que PT-087 cierra.
+ledger_fixture
+printf 'uno\nDOS-ALTERADO\ntres\ncuatro\ncinco\nseis\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chk   "…y una alteracion de igual recuento TAMBIEN" "desaparecida" V PT-004 "$WORK"
+
+# Sin tag no hay reloj y NO SE INVENTA UNO: se dice SIN EVALUAR en vez de dar por bueno.
+build_fixture
+reg_set "r.suite_version='11.0.0'"
+( cd "$WORK"; git init -q . 2>/dev/null; git config user.email t@t; git config user.name T
+  git add -A >/dev/null 2>&1; git commit -qm base >/dev/null 2>&1 ) >/dev/null 2>&1
+chk   "sin ningun tag no se comprueba, y se dice" "no hay línea base" V PT-004 "$WORK"
+
+# RIGE_DESDE: una version anterior no la sufre. Es lo que PT-081 dejo puesto y lo que hace
+# aplicable a EXEC-R04; sin ello estas dos reglas gobernarian trabajo de agosto.
+ledger_fixture
+reg_set "r.suite_version='10.0.0'"
+printf 'uno\n' > "$WORK/docs/implementation/HISTORY.log"
+ledger_commit
+chkno "una suite anterior a 11.0.0 no la sufre"  "SUITE-R09" V PT-004 "$WORK"
+
+# ── la G4 deja constancia con nombre ────────────────────────────────────────
+merge_fixture() {    # una rama por defecto con UN merge, y el ledger de sesion vacio
+  build_fixture
+  reg_set "r.suite_version='11.0.0'"
+  # build_fixture NO crea CLAUDE.md, y sin «firmantes:» la comprobacion no se hace: se dice
+  # SIN EVALUAR. Sin esta linea los tres casos de EXEC-R04 pasarian POR VACIO — que es el
+  # falso verde que PT-023 midio y el que este arnes existe para impedir.
+  printf 'firmantes:
+  - Ada Lovelace
+' > "$WORK/CLAUDE.md"
+  ( cd "$WORK"
+    git init -q -b main . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1; git commit -qm base >/dev/null 2>&1
+    git tag -a v1.0.0 -m base >/dev/null 2>&1
+    git checkout -q -b rama 2>/dev/null
+    printf 'x\n' > otro.txt; git add -A >/dev/null 2>&1; git commit -qm trabajo >/dev/null 2>&1
+    git checkout -q main 2>/dev/null
+    git merge -q --no-ff rama -m "Merge pull request #1 from t/rama" >/dev/null 2>&1
+    git update-ref refs/remotes/origin/main HEAD
+    git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main ) >/dev/null 2>&1
+}
+
+merge_fixture
+chk   "un merge a la principal SIN constancia CAE" "sin constancia de autorización" V PT-004 "$WORK"
+
+# El mensaje declara lo que NO prueba: que la autorizacion fuera real. Es H-009, y PT-093
+# existe para declararlo. Sin esta linea, el verde diria mas de lo que mide.
+merge_fixture
+chk   "…y el mensaje dice que NO prueba nada mas"  "NO prueba que la autorización" V PT-004 "$WORK"
+
+merge_fixture
+_HOY="$(cd "$WORK" && git log -1 --format=%cs)"
+printf '## %s · G4 autorizado\n\nautorizado por Ada Lovelace\n' "$_HOY" >> "$WORK/docs/implementation/SESSION_LOG.md"
+chkno "…y CON constancia del mismo dia, pasa"      "sin constancia de autorización" V PT-004 "$WORK"
+
+# Una constancia con un nombre que NO esta en firmantes no cuenta. Sin esto, escribir
+# cualquier nombre bastaria y la comprobacion seria decorativa (SUITE-R27).
+merge_fixture
+_HOY="$(cd "$WORK" && git log -1 --format=%cs)"
+printf '## %s · G4 autorizado\n\nautorizado por Impostor Anonimo\n' "$_HOY" >> "$WORK/docs/implementation/SESSION_LOG.md"
+chk   "…y un nombre fuera de firmantes NO cuenta"  "sin constancia de autorización" V PT-004 "$WORK"
+
+# ── SUITE-R01 se DECLARA, y la declaracion se comprueba ─────────────────────
+chk   "SUITE-R01 esta declarada NO_VERIFICABLE"    "SUITE-R01" \
+  grep "SUITE-R01" "$RAIZ/docs/implementation/NO-VERIFICABLES.md"
+
+chk   "…y audit la clasifica, no la deja PENDIENTE" "NO_VERIFICABLE   6" \
+  sh -c 'node "$1/docs/methodology/tools/audit.mjs" "$1/docs/methodology" 2>&1 | grep NO_VERIFICABLE' _ "$RAIZ"
+
+# La primera version aserto «PENDIENTE 122», una cifra que CRECE con cada regla nueva: fallo
+# dos tareas despues, al entrar EXEC-R04a. El «no hacer» del HANDOFF ya lo advertia y lo hice
+# igual. Se aserta el HECHO —que las tres NO siguen en PENDIENTE— y no el total.
+chk   "…y las tres salen de PENDIENTE"             "NINGUNA_PENDIENTE" \
+  sh -c 'cd "$1" && node docs/methodology/tools/audit.mjs docs/methodology --sin-verificar 2>&1 | tail -3 | grep -qE "SUITE-R09|EXEC-R04 |SUITE-R01" && echo SIGUEN_PENDIENTES || echo NINGUNA_PENDIENTE' _ "$RAIZ"
+
+sec "── PT-087 · la comprobacion declara que hecho establece ──"
+#
+# H-003 de PTSA-2026-08-20. SIETE instancias del mismo patron: el observable es mas barato que
+# el sujeto y el hueco entre los dos no estaba escrito en ningun sitio. Las dos ultimas se
+# encontraron DENTRO de este lote — la sexta escribiendo un intake y la septima cazada por
+# esta misma bateria contra el trabajo de PT-088.
+
+# ── el registro de sujetos ──────────────────────────────────────────────────
+# El modulo se pasa por ENTORNO y como ruta RELATIVA: «file://» exige ruta absoluta y en
+# Windows la del arnes no lo es, asi que import() reventaba en los diez casos. Lo escondia
+# que el arnes solo dice «la herramienta revento» — y esa es, otra vez, la diferencia entre
+# el sujeto y el observable.
+# Dice si una regla tiene fila en RIGE_DESDE. Se escribe aparte porque PAT() serializa el
+# RESULTADO de una funcion, y aqui lo que se mira es una TABLA.
+# PT-090 · cuatro variantes de PAT para derivaDelGrafo, que recibe una FUNCION de huella:
+# PAT_H fija el hash devuelto · PAT_M fija el mtime · PAT_N devuelve null · PAT_R normaliza ruta.
+PAT_H() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_H="$2" MTH_ARGS="$3" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](a[0], () => process.env.MTH_H);
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+PAT_M() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_H="$2" MTH_ARGS="$3" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](a[0], (_, usaMtime) => (usaMtime ? Number(process.env.MTH_H) : 'X'));
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+PAT_N() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_ARGS="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  console.log(JSON.stringify(m[process.env.MTH_FN](a[0], () => null)));
+});"
+}
+PAT_R() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_P="$1" MTH_B="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  console.log(m.rutaRelativaDelManifiesto(process.env.MTH_P, process.env.MTH_B));
+});"
+}
+
+# PT-091 · tres variantes mas: PAT_C fija el recuento real, PAT_N2 lo hace null, PAT_T pasa
+# un TEXTO en vez de JSON —las filas de una tabla llevan comillas invertidas y pipes—.
+PAT_C() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_R="$2" MTH_ARGS="$3" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](a[0], () => Number(process.env.MTH_R));
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+PAT_N2() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_ARGS="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  console.log(JSON.stringify(m[process.env.MTH_FN](a[0], () => null)));
+});"
+}
+PAT_T() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_TXT="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const r = m[process.env.MTH_FN](process.env.MTH_TXT);
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+
+PAT_KEY() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_ID="$1" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  console.log(m.RIGE_DESDE[process.env.MTH_ID] ? 'TIENE_FILA' : 'SIN_FILA');
+});"
+}
+
+PAT() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_ARGS="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](...a);
+  // «[]» es una clase de caracteres para grep y ninguna asercion podia casarlo.
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+
+chk   "una celda vacia del sujeto no pasa"       '["X"]' \
+  PAT sujetosIncompletos '[{"X":{"establece":"","noEstablece":"a"}}]'
+chk   "…y falta noEstablece tampoco"             '["X"]' \
+  PAT sujetosIncompletos '[{"X":{"establece":"a"}}]'
+# «null» NO es vacio: declara explicitamente que no hay limite que expresar. Es la distincion
+# de PT-058 —null no es cero— aplicada a una declaracion en vez de a una cifra.
+chk   "…y «null» SI vale: es una declaracion"    "VACIO" \
+  PAT sujetosIncompletos '[{"X":{"establece":"a","noEstablece":null}}]'
+
+# La mitad que hace trabajo: un limite que vive solo en un comentario protege a quien ya esta
+# leyendo el codigo, o sea a quien no lo necesita.
+chk   "un limite que no llega al mensaje CAE"    '["X"]' \
+  PAT limitesQueNoLleganAlMensaje '[{"X":{"establece":"a","noEstablece":"zzz"}},{"t":"hola"}]'
+chk   "…y uno que si llega, pasa"                "VACIO" \
+  PAT limitesQueNoLleganAlMensaje '[{"X":{"establece":"a","noEstablece":"zzz"}},{"t":"dice zzz"}]'
+
+# Sobre el arbol REAL: las tres de PT-088 declaran sujeto y su limite llega al mensaje.
+chk   "las tres del arbol real estan completas"  "VACIO" \
+  sh -c 'MTH_MOD="$1/docs/methodology/tools/patrones.mjs" node -e "import(require(String.fromCharCode(117,114,108)).pathToFileURL(process.env.MTH_MOD).href).then(m=>console.log((m.sujetosIncompletos().length ? m.sujetosIncompletos().join(' ') : 'VACIO')))"' _ "$RAIZ"
+
+chk   "verify-suite publica cuantas lo declaran" "declaran su sujeto" \
+  sh -c 'node "$1/docs/methodology/tools/verify-suite.mjs" "$1/docs/methodology" 2>&1' _ "$RAIZ"
+
+# ── la QUINTA instancia: la guia de migracion ENUMERA lo nuevo ───────────────
+chk   "una guia que olvida una regla nueva CAE"  '["B-R2"]' \
+  PAT reglasNuevasFueraDeLaGuia '[{"A-R1":[10,0,0],"B-R2":[10,0,0]},"10.0.0","trae A-R1"]'
+chk   "…y una que las nombra todas, pasa"        "VACIO" \
+  PAT reglasNuevasFueraDeLaGuia '[{"A-R1":[10,0,0],"B-R2":[10,0,0]},"10.0.0","trae A-R1 y B-R2"]'
+# Sin entrada devuelve null y NO lista vacia: «no hay guia que contrastar» no es «la guia esta
+# bien». Es la misma distincion que PT-058 fijo para las cifras.
+chk   "…y sin entrada dice null, no «vacio»"     "null" \
+  PAT reglasNuevasFueraDeLaGuia '[{"A-R1":[10,0,0]},"10.0.0",null]'
+chk   "sellar comprueba la guia, no que exista"  "guia de migracion" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar 2>&1' _ "$RAIZ"
+
+# ── la SEPTIMA instancia: revento() mira la traza, no la palabra ─────────────
+#
+# Un comentario de PT-088 que nombraba una clase de error puso TRECE casos en rojo: los que
+# hacen «cat» de ese archivo. El sujeto es «el proceso termino de forma anomala», y su
+# observable es la TRAZA DE PILA — «at» indentado seguido de «:linea:columna».
+chk   "revento() caza un reviente de verdad"     "SI" \
+  sh -c 'if node -e "undefinedFn()" 2>&1 | grep -qE "^[[:space:]]+at .*:[0-9]+:[0-9]+"; then echo SI; else echo NO; fi'
+chk   "…y NO acusa a quien solo nombra el error" "NO" \
+  sh -c 'if printf "%s" "esto habla de un TypeError y de un ReferenceError" | grep -qE "^[[:space:]]+at .*:[0-9]+:[0-9]+"; then echo SI; else echo NO; fi'
+chk   "…y revento() ya no busca la palabra"      "NO" \
+  sh -c 'if grep -q "revento() { printf .%s. \"\$1\" | grep -qE .SyntaxError" "$1/docs/methodology/tools/selftest.sh"; then echo SI; else echo NO; fi' _ "$RAIZ"
+
+sec "── PT-089 · la divergencia no apaga comprobaciones ──"
+#
+# H-004. verify-fdge avisaba de la divergencia entre el registro y el YAML del intake, y usaba
+# el del intake (PT-004: es lo que el PT dice de si mismo). Esa precedencia NO cambia. Lo que
+# cambia es la consecuencia: un «status» terminal en el registro con uno vivo en el YAML hace
+# que «fase >= N» no se cumpla y las comprobaciones posteriores NO SE EJECUTEN.
+#
+# Medido antes de escribir nada: de las 6 divergencias de «status» del repositorio, las 6 son
+# de esa clase. CERO benignas — el aviso estaba calibrado para una mezcla que no existe.
+
+# ── terminal en el registro y vivo en el YAML: ERROR ────────────────────────
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='INTEGRATED'"
+perl -0pi -e 's/^status:.*$/status: READY/m' "$WORK/changes/PT-001-login/intake.md"
+chk   "terminal en el registro y vivo en el YAML CAE"  "es un archivo que se quedó atrás" V PT-001 "$WORK"
+
+# El mensaje declara lo que NO establece: cual de las dos fuentes tiene razon. Sin esa linea,
+# el rojo se leeria como «el registro manda», y PT-004 decidio lo contrario.
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='INTEGRATED'"
+perl -0pi -e 's/^status:.*$/status: READY/m' "$WORK/changes/PT-001-login/intake.md"
+chk   "…y el mensaje dice que NO elige fuente"        "NO establece cuál de las dos" V PT-001 "$WORK"
+
+# ── y las divergencias que NO apagan nada siguen siendo AVISO ───────────────
+#
+# Dos estados VIVOS distintos son una diferencia real entre dos fuentes, no un archivo atrasado.
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='IN_PROGRESS'"
+perl -0pi -e 's/^status:.*$/status: READY/m' "$WORK/changes/PT-001-login/intake.md"
+chkno "dos estados VIVOS distintos no son error"      "es un archivo que se quedó atrás" V PT-001 "$WORK"
+
+# Las DOS terminales tampoco: una tarea cerrada declarada cerrada de otra forma no apaga nada.
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='INTEGRATED'"
+perl -0pi -e 's/^status:.*$/status: CLOSED/m' "$WORK/changes/PT-001-login/intake.md"
+chkno "…ni dos terminales distintos"                  "es un archivo que se quedó atrás" V PT-001 "$WORK"
+
+# «phase» sigue siendo AVISO: hay 22 divergencias en tareas ya terminales y una terminal con
+# «phase» viejo no apaga nada. Convertirlas en error nace con 22 fallos sobre trabajo cerrado,
+# que es el error que PT-088 evito con RIGE_DESDE.
+# El intake del fixture NO declara «phase» —lo comprobe leyendo el generador, DESPUES de
+# que el caso fallara— asi que hay que anadirsela: sin ella no hay nada que comparar.
+# «sed s///» con un salto real no es portable: se usa el comando «i», que INSERTA una linea
+# antes de la que casa y no necesita escapar nada.
+con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.md"; }
+
+build_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"
+con_phase 1
+chkno "una «phase» divergente NO es error"            "es un archivo que se quedó atrás" V PT-001 "$WORK"
+chk   "…pero si avisa"                                "«phase» divergente" V PT-001 "$WORK"
+
+# ── avanzar cierra el acto: el estado terminal va en las DOS fuentes ────────
+#
+# Aqui nacian las seis: «avanzar» sincronizaba «phase» y NO «status», asi que al llegar a la
+# ultima fase alguien marcaba INTEGRATED A MANO en el registro y el YAML se quedaba atras.
+build_fixture; git_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"
+con_phase 9
+AV PT-001 --a 10 --nota "cierre" >/dev/null 2>&1
+chk   "avanzar a la ultima fase marca terminal"       "INTEGRATED" \
+  sh -c 'node -e "console.log(JSON.parse(require(String.fromCharCode(102,115)).readFileSync(process.argv[1],\"utf8\")).allocations.find(a=>a.id===\"PT-001\").status)" "$1/docs/implementation/REGISTRY.json"' _ "$WORK"
+chk   "…y lo escribe TAMBIEN en el YAML"              "status: INTEGRATED" \
+  grep "^status:" "$WORK/changes/PT-001-login/intake.md"
+
+# Y NO decide por una tarea que ya declaro como termina: FDGE-R53 es de la tarea, no de la
+# herramienta. Una DEFERRED que llegue a la ultima fase sigue DEFERRED.
+build_fixture; git_fixture
+reg_set "r.allocations.find(a=>a.id==='PT-001').status='DEFERRED'"
+reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"
+con_phase 9
+AV PT-001 --a 10 --nota "cierre" >/dev/null 2>&1
+chk   "…y no pisa un estado terminal ya declarado"    "DEFERRED" \
+  sh -c 'node -e "console.log(JSON.parse(require(String.fromCharCode(102,115)).readFileSync(process.argv[1],\"utf8\")).allocations.find(a=>a.id===\"PT-001\").status)" "$1/docs/implementation/REGISTRY.json"' _ "$WORK"
+
+# ── sobre el arbol real: las seis quedaron sincronizadas ────────────────────
+# AC-05 · «no procede» SI es comprobable: que SUITE-R35 no tenga fila en RIGE_DESDE y que aun
+# asi el arbol este verde. Un AC sin escenario es huerfano (FDGE-R15), y declarar «no procede»
+# sin poder ensenarlo seria exactamente lo que este lote persigue.
+chk   "SUITE-R35 no necesita fila en RIGE_DESDE"      "SIN_FILA" \
+  PAT_KEY SUITE-R35
+
+chk   "el arbol real no tiene ninguna sin sincronizar" "VACIO" \
+  sh -c 'cd "$1" && node -e "
+const fs = require(String.fromCharCode(102,115));
+const r = JSON.parse(fs.readFileSync(\"docs/implementation/REGISTRY.json\", \"utf8\"));
+const T = new Set([\"INTEGRATED\",\"CLOSED\",\"REVERTED\",\"REJECTED\",\"DEFERRED\"]);
+const mal = [];
+for (const a of r.allocations.filter(x => /^PT-/.test(x.id))) {
+  const d = \"changes/\" + (a.slug ? a.id + \"-\" + a.slug : a.id) + \"/intake.md\";
+  if (!fs.existsSync(d)) continue;
+  const m = /^status:[ \t]*(\S+)/m.exec(fs.readFileSync(d, \"utf8\"));
+  if (m && T.has(String(a.status)) && !T.has(m[1])) mal.push(a.id);
+}
+console.log(mal.length ? mal.join(\" \") : \"VACIO\");
+"' _ "$RAIZ"
+
+sec "── PT-090 · la frescura del grafo viaja con el repositorio ──"
+#
+# H-005 y TD-17. El manifiesto guarda «ast_hash» EN LA MISMA LINEA que «mtime», y derivaDelGrafo
+# usaba el mtime: el dato bueno estaba al lado y se eligio el barato. «git clone» reescribe los
+# mtime con la fecha del clon, asi que los 17 archivos salian cambiados con el contenido
+# identico — y dos commit seguidos tambien los mueven. Paso DOS VECES en este mismo lote.
+
+# ── el hash manda, y el mtime deja de importar ──────────────────────────────
+chk   "mismo hash, distinto mtime: NO hay deriva"     "VACIO" \
+  PAT_H derivaDelGrafo AAA '[{"a.js":{"mtime":100,"ast_hash":"AAA"}}]'
+chk   "hash distinto: SI hay deriva"                  '"a.js"' \
+  PAT_H derivaDelGrafo BBB '[{"a.js":{"mtime":100,"ast_hash":"AAA"}}]'
+# Un manifiesto VIEJO no trae hash. Darlo todo por cambiado seria nacer rojo, asi que se cae al
+# mtime — que es lo que media antes, ni mejor ni peor.
+chk   "sin hash en el manifiesto, cae al mtime"       '"b.js"' \
+  PAT_M derivaDelGrafo 999 '[{"b.js":{"mtime":200}}]'
+chk   "un archivo que no existe se nombra"            "no existe" \
+  PAT_N derivaDelGrafo '[{"c.js":{"ast_hash":"A"}}]'
+
+# ── las rutas del manifiesto son absolutas y se relativizan ─────────────────
+#
+# Sin esto, versionar el grafo NO bastaria: el manifiesto solo serviria en un disco donde el
+# proyecto estuviera exactamente en esa ruta. Es la mitad del hallazgo que H-005 daba por hecha.
+chk   "una ruta absoluta de windows se relativiza"    "bin/cauce.mjs" \
+  PAT_R "C:\\DevOps\\Desarrollos\\cauce\\bin\\cauce.mjs" "C:/DevOps/Desarrollos/cauce"
+chk   "…y una de posix tambien"                       "bin/cauce.mjs" \
+  PAT_R "/home/x/cauce/bin/cauce.mjs" "/home/x/cauce"
+chk   "…y una ya relativa se queda igual"             "bin/cauce.mjs" \
+  PAT_R "bin/cauce.mjs" "C:/DevOps/Desarrollos/cauce"
+# Si la raiz no aparece en la ruta NO se inventa una relativa: se devuelve lo que hay. Fabricar
+# una ruta plausible seria peor que decir que no se pudo.
+chk   "…y si la raiz no casa, no se inventa nada"     "otra/raiz/x.js" \
+  PAT_R "otra/raiz/x.js" "/no/coincide"
+
+# ── MISSING deja de ser un bloqueo mudo ─────────────────────────────────────
+#
+# En un clon limpio —CI incluida— graphify-out NUNCA existe: esta en .gitignore. La comprobacion
+# no bloqueaba «a veces»: no llegaba a evaluarse fuera de la maquina que genero el grafo, y aun
+# asi decia «Bloquea G2» como si si.
+build_fixture
+rm -rf "$WORK/graphify-out"
+chk   "sin graphify-out dice NO ES EVALUABLE"         "NO ES EVALUABLE" V --all
+chk   "…y ya no dice que bloquea G2"                  "NO ES EVALUABLE" V --all
+chkno "…y no promete bloquear lo que no evalua"       "Bloquea G2 en PTs MAJOR" V --all
+
+sec "── PT-091 · las cifras se derivan, no se transcriben ──"
+#
+# H-007 y H-006. services.md se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no
+# describian el arbol UN DIA DESPUES. Durante EP-018 las distancias habian CRECIDO: 3541
+# documentado contra 4919 reales. PTSA-R76 obliga a construir el universo auditable DESDE el
+# inventario, y uno que envejece en un dia lo convierte en una fuente de memoria.
+
+# ── el contrato ─────────────────────────────────────────────────────────────
+chk   "una cifra que coincide no se reporta"          "VACIO" \
+  PAT_C cifrasQueMienten 12 '[[{"herramienta":"a.mjs","lineas":12}]]'
+chk   "…y una desviada si, con las dos cifras"        '"real":99' \
+  PAT_C cifrasQueMienten 99 '[[{"herramienta":"a.mjs","lineas":12}]]'
+# NULL no es cero: una herramienta retirada es un hecho DISTINTO de una con cero lineas, y se
+# nombra aparte para que no se confunda con una cifra desviada (PT-058).
+chk   "…y una herramienta retirada se nombra aparte"  "no existe" \
+  PAT_N2 cifrasQueMienten '[[{"herramienta":"a.mjs","lineas":12}]]'
+
+chk   "las filas de services.md se leen"              '"herramienta":"tracker.mjs"' \
+  PAT_T cifrasTranscritas "| \`tracker.mjs\` | 2576 | hace cosas |"
+chk   "…y una linea que no es fila no cuenta"         "VACIO" \
+  PAT_T cifrasTranscritas "tracker.mjs tiene 2576 lineas"
+
+# ── el recuento de CLAUDE.md, que se corrigio A MANO en la auditoria ─────────
+chk   "el recuento de herramientas se lee"            '"herramientas":16' \
+  PAT_T recuentosDeClaude "── HERRAMIENTAS ─── 16, y ninguna es opcional ──"
+chk   "…y el de comandos tambien"                     '"comandos":3' \
+  PAT_T recuentosDeClaude "El binario: install · verify · core"
+
+# ── la accion recalcula, y sin --aplicar no escribe ─────────────────────────
+build_fixture
+mkdir -p "$WORK/docs/enterprise-documentation/inventory"
+printf '| Herramienta | Lineas |\n|:--|--:|\n| `tracker.mjs` | 1 | x |\n' > "$WORK/docs/enterprise-documentation/inventory/services.md"
+chk   "inventario enumera la cifra desviada"          "services.md dice 1 y son" TR inventario
+chk   "…y dice como arreglarlo"                       "--aplicar"                TR inventario
+chk   "…y sin la marca NO ha escrito nada"            "| 1 |" \
+  cat "$WORK/docs/enterprise-documentation/inventory/services.md"
+
+build_fixture
+mkdir -p "$WORK/docs/enterprise-documentation/inventory"
+printf '| Herramienta | Lineas |\n|:--|--:|\n| `tracker.mjs` | 1 | x |\n' > "$WORK/docs/enterprise-documentation/inventory/services.md"
+TR inventario --aplicar >/dev/null 2>&1
+chkno "…y con la marca la reescribe"                  "| 1 |" \
+  cat "$WORK/docs/enterprise-documentation/inventory/services.md"
+
+# ── y sobre el arbol real, la comprobacion en verde ─────────────────────────
+chk   "el arbol real tiene sus cifras al dia"         "coinciden con el árbol" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-fdge.mjs PT-091 2>&1 | grep FND-R14' _ "$RAIZ"
+
+sec "── PT-093 · el limite de las compuertas se declara ──"
+#
+# H-009. main exige PR y CI en verde INCLUSO PARA ADMINISTRADORES, sin force push ni borrado,
+# pero con CERO revisores aprobadores — la unica configuracion viable para el equipo de una
+# persona que SUITE-R22 declara soportado. El control de EXEC-R04 es por tanto un REGISTRO
+# POSTERIOR CONTRASTABLE, no una prevencion, y eso no estaba escrito en ningun sitio.
+#
+# SUITE-R27 ya lo declara con esa franqueza para las FIRMAS. EXEC-R04 no lo decia, y es donde
+# la consecuencia es irreversible.
+
+chk   "EXEC-R04 declara que garantiza"          "Qué garantiza esta compuerta" \
+  cat "$SUITE/EXECUTION-MODES.md"
+chk   "…y que NO puede garantizar"              "ejecutara el merge" \
+  cat "$SUITE/EXECUTION-MODES.md"
+# Sin esta linea, «0 revisores» se leeria como un descuido de configuracion en vez de como la
+# unica opcion viable para el caso que SUITE-R22 declara soportado.
+chk   "…y que 0 revisores no es un descuido"    "no es un descuido de configuración" \
+  cat "$SUITE/EXECUTION-MODES.md"
+
+chk   "EXEC-R04a fija la forma de la constancia" "forma fija" \
+  cat "$SUITE/EXECUTION-MODES.md"
+chk   "…y dice DONDE mirar"                      "SESSION_LOG.md" \
+  grep -A4 "EXEC-R04a" "$SUITE/EXECUTION-MODES.md"
+
+# ── PT-093 · dos lectores del mismo hecho, divergentes ──────────────────────
+#
+# LEX-R24 admite sub-IDs con letra minuscula pegada. «reglasDelMarco» de patrones.mjs los
+# aceptaba y los DOS extractores de build-core los rechazaban: una sub-regla en prosa quedaba
+# fuera de CORE.md EN SILENCIO, y CORE.md es lo unico que el agente carga.
+chk   "una sub-regla llega a CORE.md"            "EXEC-R04a" \
+  grep "EXEC-R04a" "$SUITE/CORE.md"
+chk   "…y los dos extractores aceptan el sufijo" "2" \
+  sh -c 'grep -c "A-Z]+-\[RP\].d+\[a-z\]?" "$1/tools/build-core.mjs"' _ "$SUITE"
+chk   "…y la regla nueva declara desde cuando"   "TIENE_FILA" \
+  PAT_KEY EXEC-R04a
+# AC-03 · «ya lo entrego PT-088» tambien es comprobable, y FDGE-R15 tiene razon en pedirlo:
+# un AC sin escenario es huerfano. Es la SEGUNDA vez en el lote — PT-089 AC-05 fue la primera —
+# y las dos veces la leccion es la misma: declarar que algo esta hecho sin poder ensenarlo es
+# exactamente lo que este lote persigue.
+chk   "AC-03 ya lo entrego PT-088, y se ve"      "sin constancia de autorización" \
+  sh -c 'grep -o "sin constancia de autorización" "$1/tools/verify-fdge.mjs" | head -1' _ "$SUITE"
+
+sec "── PT-092 · ejecutar QA y FPGE ──"
+#
+# H-008 y TD-15. De los tres componentes nunca ejecutados, PTSA cayo en su propia auditoria.
+# FPGE se ejecuta aqui. QA NO APLICA: QA-R01 dice que opera SOLO desde el navegador, y
+# inventory/routes.md y endpoints.md declaran que este sistema no tiene rutas ni API.
+#
+# «No aplica» y «sin ejecutar» son hechos DISTINTOS, y contarlos juntos era el defecto de TD-15.
+
+# ── FPGE ejecutado, sobre el arbol real ─────────────────────────────────────
+chk   "hay ROADMAP con candidatos"               "R-001" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
+chk   "…y todo candidato cita su evidencia"      "todos con evidencia de origen" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-qa.mjs 2>&1' _ "$RAIZ"
+chk   "…y declara la frescura de sus fuentes"    "Frescura declarada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-qa.mjs 2>&1' _ "$RAIZ"
+# FPGE-R04 · un roadmap que promueve deja de ser un roadmap y pasa a ser una decision tomada
+# sin firma. Los ocho nacen DRAFT.
+chk   "…y NO promueve nada"                      "prohíbe promover" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
+chk   "…y el historico es append-only"           "primera corrida de FPGE" \
+  cat "$RAIZ/docs/implementation/ROADMAP_HISTORY.log"
+
+# El roadmap dice lo que NO puede decir. Sin esa seccion, ocho cifras con un decimal parecen
+# un calculo — y solo EvidenceWeight sale de un hecho observable.
+chk   "…y dice que el orden es un juicio"        "para que parezca un cálculo" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
+
+# ── QA declarado NO APLICA, que es distinto de pendiente ────────────────────
+chk   "el catalogo declara que QA no aplica"     "no es lo mismo que «no probado»" \
+  cat "$SUITE/CASOS-DE-USO.md"
+chk   "…y dice por que no se forzo"              "fabricar un verde en el" \
+  cat "$SUITE/CASOS-DE-USO.md"
+# TD-15 contaba tres pendientes juntos. Ahora separa lo que no aplica de lo que falta.
+chk   "TD-15 separa «no aplica» de «pendiente»"  "uno pendiente y uno que no aplica" \
+  cat "$RAIZ/docs/enterprise-documentation/10-Technical-Debt.md"
+
+# ── el incidente quedo registrado, y con seguimiento ────────────────────────
+#
+# INC-001: el cierre de dos hallazgos desaparecio sin que nada avisara, y lo encontro FPGE
+# PHASE 2 diecisiete commits despues. Ningun verificador comprueba que un cierre siga cerrado.
+chk   "INC-001 registrado en el ledger"          "INC-001" \
+  cat "$RAIZ/docs/implementation/INCIDENTS.log"
+chk   "…y tiene candidato en el roadmap"         "INC-001" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL

@@ -1,0 +1,108 @@
+{
+  "pt": "PT-093",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "EXEC-R04 declara su limite con la franqueza de SUITE-R27",
+      "scenarios": [
+        "E1",
+        "E2",
+        "E3"
+      ],
+      "tests": [
+        "selftest.sh:EXEC-R04 declara que garantiza",
+        "selftest.sh:…y que NO puede garantizar",
+        "selftest.sh:…y que 0 revisores no es un descuido"
+      ],
+      "evidence": [
+        "salidas/declaracion.txt"
+      ],
+      "verified": true,
+      "nota": "Dos columnas y no un parrafo: lo que hace util la declaracion es que las dos listas se lean A LA VEZ. Un texto corrido invita a quedarse con la primera mitad. Y la frase sobre «0 revisores» impide el malentendido mas probable — que alguien lo «arregle» rompiendo el flujo del equipo de una persona."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La constancia tiene forma fija: donde va y que campos lleva",
+      "scenarios": [
+        "E4",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:EXEC-R04a fija la forma de la constancia",
+        "selftest.sh:…y dice DONDE mirar"
+      ],
+      "evidence": [
+        "salidas/declaracion.txt"
+      ],
+      "verified": true,
+      "nota": "PT-088 la fijo DE HECHO al escribir RE_CONSTANCIA; solo la conocia quien leyera el codigo. Con ID propio se puede emitir por separado, y eso permite distinguir una constancia AUSENTE de una MALFORMADA: dos hechos con arreglos distintos no comparten mensaje."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un merge sin constancia se detecta a posteriori",
+      "scenarios": [
+        "E9"
+      ],
+      "tests": [
+        "selftest.sh:AC-03 ya lo entrego PT-088, y se ve"
+      ],
+      "evidence": [
+        "salidas/declaracion.txt"
+      ],
+      "verified": true,
+      "nota": "NO requeria trabajo aqui: PT-088 lo entrego, con su limite en el mensaje. Pero «ya esta hecho» TAMBIEN es comprobable, y FDGE-R15 lo cazo como criterio huerfano — la SEGUNDA vez en el lote, tras PT-089 AC-05. Declarar que algo esta hecho sin poder ensenarlo es lo que este lote persigue."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La decision del firmante queda registrada, sea cual sea",
+      "scenarios": [
+        "E1",
+        "E2"
+      ],
+      "tests": [
+        "EXECUTION-MODES.md declara la decision tomada"
+      ],
+      "evidence": [
+        "salidas/declaracion.txt"
+      ],
+      "verified": true,
+      "nota": "La decision es DECLARAR el limite, no construir una prevencion: es la salida que la propia auditoria senalaba como mas probable, y PHASE 2 midio que los cuatro caminos alternativos mueven el problema. Escrita bajo el VoBo vigente y con su base en SESSION_LOG.md. Es la unica del lote que el firmante quiza quiera revisar, y se dice."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la autorizacion que una constancia cita existiera.",
+      "por_que": "No es mecanizable desde el repositorio: el agente escribe la constancia y tiene las mismas credenciales. Es precisamente el limite que esta tarea escribe.",
+      "donde": "docs/methodology/EXECUTION-MODES.md"
+    },
+    {
+      "afirmacion": "Que la declaracion se lea y se tenga en cuenta al decidir.",
+      "por_que": "Esta en CORE.md, que el agente carga. Que la tenga en cuenta no se comprueba — el mismo limite que SUITE-R27 tiene desde que existe.",
+      "donde": "changes/PT-093-el-limite-de-las-compuertas-se-declara/test-scenarios.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "LEX-R24 admite sub-IDs y los DOS extractores de build-core los rechazaban.",
+      "regla": "SUITE-R38",
+      "detalle": "Escribi EXEC-R04a, el marco la conto como regla (225) y NO llego a CORE.md — que es lo unico que el agente carga. «reglasDelMarco» de patrones.mjs si los aceptaba: dos lectores del mismo hecho, divergentes, y en silencio. Es la enfermedad que la v4 existe para eliminar, dentro de la herramienta que compila el nucleo. Arreglados los DOS aunque solo el de prosa tuviera una sub-regla hoy."
+    },
+    {
+      "que": "Un caso de PT-088 atado a una cifra que CRECE.",
+      "regla": "—",
+      "detalle": "Aserto «PENDIENTE 122» y fallo DOS TAREAS DESPUES, al entrar EXEC-R04a. El «no hacer» del HANDOFF ya lo advertia y lo hice igual. Corregido a asertar el HECHO: que las tres reglas no sigan en PENDIENTE."
+    },
+    {
+      "que": "Dos aserciones mias con ventana de grep corta y negritas en medio del texto buscado.",
+      "regla": "—",
+      "detalle": "«grep -A2» no alcanzaba la tabla, y «Que una persona» no casa porque el texto real es «Que **una persona**». Extraer por POSICION y asertar sobre texto con formato son dos formas de lo mismo, y el HANDOFF ya avisa de la primera."
+    }
+  ],
+  "suite": {
+    "passed": 1187,
+    "failed": 0,
+    "baseline": 1179,
+    "nota": "1179 mas 8 nuevos. Corrida COMPLETA, cero fallos. Dos corridas: la primera la fallaron tres aserciones mias."
+  }
+}

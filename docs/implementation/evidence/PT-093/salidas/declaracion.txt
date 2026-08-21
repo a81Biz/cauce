@@ -1,0 +1,34 @@
+# PT-093 · el limite de las compuertas, declarado
+
+`EXEC-R04` · **G4 es humana en los tres modos, sin excepción** (`FDGE-R33`, `SUITE-R06a`).
+No existe configuración, urgencia ni tipo de trabajo que la automatice.
+
+**Qué garantiza esta compuerta, y qué no.** Lo mismo que `SUITE-R27` declara de las firmas, y se
+dice aquí porque es donde la consecuencia es irreversible:
+
+| Lo que el marco garantiza | Lo que no puede garantizar |
+|:---|:---|
+| Hace falta un pull request y la verificación en verde, **sin excepción ni para quien administra el repositorio** | Que **una persona** ejecutara el merge. El agente tiene las mismas credenciales |
+| Queda **constancia con nombre** —de la lista `firmantes`— y `verify-fdge` la exige por cada avance de la rama por defecto | Que la autorización que esa constancia cita **existiera**. La escribe el agente |
+| Ni `force push` ni borrado de la rama por defecto: el rastro no se puede retirar | — |
+
+**`0` revisores aprobadores no es un descuido de configuración.** `SUITE-R22` declara soportado el
+equipo de una persona asistida por IA, y nadie puede aprobar su propio pull request. Exigir uno
+haría el flujo imposible, no más seguro.
+
+**El control es posterior y contrastable, no preventivo**, y ésa es la afirmación exacta que el
+marco puede sostener. Quien figura en `firmantes` responde de lo que lleva su nombre — igual que
+en una firma.
+
+`EXEC-R04a` · **La constancia de una `G4` tiene forma fija.** Una entrada en
+`docs/implementation/SESSION_LOG.md` cuyo encabezado sea `## <YYYY-MM-DD> · …` y mencione `G4`,
+`VoBo` o `autorizad…`, con **un nombre de `firmantes` en su cuerpo**. `verify-fdge` la busca así,
+y sin ella el merge falla desde la versión que introduce la comprobación.
+
+Dejarla a criterio de cada sesión la hacía indistinguible de una nota cualquiera: lo que hace
+contrastable a una autorización es que se sepa **dónde mirar** y **qué tiene que decir**.
+
+`EXEC-R08` · `HARD` · **Los tres modos exigen lo mismo.** Un modo cambia **quién** resuelve una compuerta
+
+--- y llega a CORE.md, que es lo unico que el agente carga ---
+`EXEC-R04a` **H** La constancia de una G4 tiene forma fija. Una entrada en docs/implementation/SESSION_LOG.md cuyo encabezado sea ## <YYYY-MM-DD> · �
