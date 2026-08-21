@@ -44,12 +44,23 @@ reales del registro que hoy fallan.
 
 ```
 trlibno "el cuerpo del lote NO lista sus tareas"   "Tareas de este lote"
-  cuerpoDeIssue({id:'EP-9',slug:'x',title:'t'}, {url:'https://h/r', rama:'main',
+  cuerpoDeIssue({id:'EP-9',type:'EP',slug:'x',title:'t'}, {url:'https://h/r', rama:'main',
                  tareas:[{id:'PT-90',issue:77,title:'t'}]})
 ```
 
 **Hoy falla**, y falla **al revés**: hoy la lista se emite y `selftest.sh:1614` lo celebra. Ver
 `design.md` `D-6`.
+
+> **`type:'EP'` en el fixture no es un descuido: es lo que hace válido el rojo.** La primera
+> versión de este escenario lo omitía, y **habría pasado hoy** —sin `type`, `esLote` es falso, la
+> lista no se emite y `trlibno` da verde— es decir: un caso verde por el motivo contrario al que
+> lo justifica. Se vio **ejecutándolo** contra el árbol actual, no leyéndolo.
+>
+> Con `type:'EP'` el caso es rojo hoy (la lista se emite) y verde tras `PT-096.3` (se retira),
+> y sigue siendo correcto con el `esLote` nuevo, porque `EP-9` casa **los dos** predicados.
+>
+> Es la familia de *«una inversa que sale en cero no es un verde, es un aviso»* de `PT-095`,
+> en su forma más barata: un caso que no puede fallar no prueba nada.
 
 ### `TS-05` — la reparación alcanza al cuerpo mudo `AC-04`
 
@@ -99,12 +110,24 @@ cuerpo **rompa un caso** en vez de apagar `esCuerpoDelTracker` en silencio — q
 ### `TS-09` — sin `refDurable` inyectado, nada cambia `regresión`
 
 ```
-trlib "sin el resolvedor, el espejo se comporta como hoy"   "^\[\]$"
-  compararEspejo([viva], [issueConCuerpoMudo], all, refExiste)     // sin quinto argumento
+trlib "sin el resolvedor, el espejo se comporta como hoy"   "VACIO"
+  const d = compararEspejo([viva], [issueConCuerpoMudo], all, refExiste)   // sin quinto argumento
+  console.log(d.length ? d.map((x) => x.regla).join(' ') : 'VACIO')
 ```
 
 Un `undefined` no es un «no hay» (`RULE-06`). Protege a los 12 casos existentes de
 `compararEspejo`, que llaman con cuatro argumentos.
+
+> **Se serializa a la palabra `VACIO` en vez de asertar contra `[]`**, que es la convención de
+> `PT-085` y `PT-090`: para `grep`, `[]` es una **clase de caracteres** y el caso no casa su
+> propia salida. `selftest.sh:1649` lo esquiva escapando (`^\[\]$`) y funciona, pero al fallar
+> solo dice «no casó». Serializando las **reglas** que aparecieron, un fallo dice *cuál* apareció
+> — que es la diferencia entre un rojo y un rojo que se puede diagnosticar.
+
+**El fixture lleva sus etiquetas correctas**, y no es cosmético: sin ellas `compararEspejo`
+devuelve una divergencia `SUITE-R35` por las etiquetas, y `TS-06` pasaría a verde el día que el
+cuerpo mudo dejara de detectarse — verde por la divergencia equivocada. Comprobado ejecutándolo:
+con las etiquetas puestas, hoy devuelve exactamente `[]`.
 
 ---
 

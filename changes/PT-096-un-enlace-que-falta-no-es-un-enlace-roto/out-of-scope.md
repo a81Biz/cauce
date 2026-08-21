@@ -67,3 +67,28 @@ NO: hacer que la lista «Tareas de este lote» aparezca en los tres lotes que no
     corregir un defecto. La medicion lo ordena al reves: 14 issues la llevan hoy, PT-035
     la declaro defecto, y el anidamiento real ya funciona.
 ```
+
+## Medición de los seis de `verify-fdge.mjs`, hecha para que `L-3` la encuentre `Revisión 4`
+
+`D-10` dijo «latentes». Medido sobre los 19 lotes del registro, hoy:
+
+```
+EP-001..EP-016   type=EP        -> las seis comprobaciones aciertan
+EP-017 EP-018    type ausente   -> CLOSED: ninguna las alcanza
+EP-019           type=EPIC      -> solo :1388 lo alcanza, y le pide viabilidad… que TIENE
+
+disparos reales hoy: CERO
+```
+
+**Y la trampa que esto esconde, que es lo que hay que llevarse:**
+
+`:1388` exime del `FDGE-R54` —«consta el veredicto de viabilidad»— a lo que sea `type === 'EP'`.
+`EP-019` pasa **por casualidad**: alguien le registró la viabilidad. El **próximo lote** que se
+abra sin registrarla fallará `FDGE-R54` **como si fuera una tarea**, con un mensaje que dirá que
+le falta algo que a un lote no se le pide.
+
+No es hipotético: `EP-017` y `EP-018` se abrieron **sin campo `type`**, así que la forma de
+escribirlo ya ha cambiado dos veces en tres lotes. La tercera fue `EPIC`.
+
+Sigue siendo `OUT` de `PT-096` —cambiar esas seis altera **veredictos de verificación**, y eso
+merece su propia inversa— pero `L-3` ya no tiene que medirlo.

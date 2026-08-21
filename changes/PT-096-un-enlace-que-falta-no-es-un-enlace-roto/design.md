@@ -207,3 +207,62 @@ se quita del contexto en vez de dejar un cálculo muerto que el siguiente lector
 medición y van a `L-3`: cambiarlas altera **veredictos de verificación**, que es otra clase de
 riesgo —un verde que pasa a rojo o al revés— y merece su propia prueba inversa, no ir de paso en
 una tarea sobre enlaces.
+
+## D-11 · La **decisión** se separa del **efecto**, y es la que se prueba
+
+`TS-05` no era testeable tal como estaba escrito: `repararEnlacesMuertos` no es pura ni exportada
+—habla con la plataforma y escribe—. Se vio al intentar montar el caso, no al diseñarlo.
+
+En vez de escribir un caso que hable con GitHub, se extrae la decisión:
+
+```js
+// puro, exportado, sin git ni red — el patron que PT-048 y PT-079 ya establecieron aqui
+export function decisionDeEnlace(cuerpo, refExiste, durable) {
+  if (!esCuerpoDelTracker(cuerpo)) return 'AJENO';
+  const ref = refDeEnlace(cuerpo);
+  if (ref) return refExiste(ref) ? 'OK' : (durable ? 'REPARAR_MUERTO' : 'ROTO_SIN_SALIDA');
+  return durable ? 'REPARAR_MUDO' : 'MUDO_SIN_REF_DURABLE';
+}
+```
+
+**Cinco resultados, cada uno con nombre.** Hoy el código responde a esta pregunta con dos
+`continue` repartidos entre dos funciones, y por eso `REPARAR_MUDO` no existía: no es que estuviera
+mal decidido, es que **no había dónde decidirlo**.
+
+**Y resuelve `SUITE-R38` de paso:** `repararEnlacesMuertos` y `compararEspejo` preguntan lo mismo
+—«¿este cuerpo está bien?»— y hoy lo responden por separado con la misma guarda copiada. Con esto
+hay **una** fuente:
+
+```
+repararEnlacesMuertos   actua si REPARAR_MUERTO o REPARAR_MUDO
+compararEspejo          reporta si REPARAR_MUERTO (SUITE-R56) o REPARAR_MUDO (SUITE-R51)
+                        y NO reporta si MUDO_SIN_REF_DURABLE: no hay nada que enlazar todavia
+```
+
+`ROTO_SIN_SALIDA` y `AJENO` existen para que **no se confundan con `OK`**, que es lo que pasa hoy:
+los dos caen por el mismo `continue` que el cuerpo sano. `ROTO_SIN_SALIDA` es el caso que `PT-079`
+ya declaraba —*«queda roto y consta»*— y ahora tiene nombre en vez de una rama de `if`.
+
+### `TS-05` reescrito
+
+```
+trlib "un cuerpo mudo con ref durable se repara"      "REPARAR_MUDO"
+  decisionDeEnlace(cuerpoDeIssue({id:'PT-96',slug:'x'},{url:'https://h/r',rama:'main'}),
+                   () => true, 'trabajo')
+
+trlib "…y sin ref durable NO se toca"                 "MUDO_SIN_REF_DURABLE"
+  decisionDeEnlace(<el mismo cuerpo>, () => true, null)
+
+trlib "un issue ajeno no es asunto del tracker"       "AJENO"
+  decisionDeEnlace('un issue escrito a mano por una persona', () => true, 'trabajo')
+
+trlib "un enlace muerto sigue reparandose"            "REPARAR_MUERTO"
+  decisionDeEnlace(<cuerpo con enlace>, () => false, 'trabajo')
+
+trlib "y uno sano se deja en paz"                     "OK"
+  decisionDeEnlace(<cuerpo con enlace>, () => true, 'trabajo')
+```
+
+Los cinco resultados con caso propio. **`MUDO_SIN_REF_DURABLE` y `AJENO` son los que impiden que
+el arreglo se pase de frenada** — sin ellos, «repara lo mudo» acabaría reescribiendo issues que
+nadie del tracker escribió, que es peor que el defecto (`strategy.md` `RIE`).
