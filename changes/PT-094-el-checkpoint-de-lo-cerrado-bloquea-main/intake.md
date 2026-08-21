@@ -7,8 +7,8 @@ type: BUG
 severity: S1
 track: STANDARD
 complexity: STANDARD
-status: VALIDATION_PENDING
-phase: 9
+status: INTEGRATED
+phase: 10
 created: 2026-08-21
 structural: no
 suite_version: 11.0.0
