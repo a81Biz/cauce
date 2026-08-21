@@ -4573,3 +4573,47 @@ tomo bajo el VoBo vigente.
 Compuertas: G1 resuelta el 2026-08-20 · G2 y G3 delegadas POR LOTE con constancia en
   SESSION_LOG.md · G4 y el tag: del firmante, sin delegar · PUBLICAR: NO autorizado.
 Trazabilidad externa: issue #162 · sub-issues #163..#169
+
+## PT-094 — El checkpoint de una tarea cerrada bloquea main
+Fecha: 2026-08-21 · Estado: VALIDATION_PENDING · Version de la suite: 11.0.0
+Estructural: no
+
+publicar.yml fallo dos veces contra main, y la verificacion de main ya estaba roja desde el push
+del PR #173. Un solo error las detenia: LEX-R26 STATE_MISMATCH, porque CHECKPOINT.json declaraba
+la rama chore/alberto-martinez/EP-018-cierre, que se borro al fusionarse.
+
+Antes de abrir nada empece a repararlo POR FUERA del marco: movi el archivo, medi, comprobe que
+verificaba limpio. Sin intake, sin PT y sin issue. Lo corto el firmante — «lo estas reparando
+pero no veo que sigas el marco de trabajo, no hay issue abierto ni nada» — y se deshizo entero
+para volver a empezar por el intake. SUITE-R41 dice que este repositorio se mantiene bajo su
+propio marco, y la prisa por desbloquear la publicacion es exactamente cuando eso se salta.
+
+Y antes de eso declare «cauce esta limpio en main» con main en rojo desde hacia una hora: mire
+git status y los issues, no los workflows. Novena instancia de la familia que EP-018 cerro ocho
+veces, esta vez cometida al INFORMAR.
+
+Dos atajos probados y descartados, los dos en el out-of-scope con su motivo. «tracker checkpoint
+PT-092» —que es lo que el propio mensaje propone— mueve el fallo de rama: escrito en main falla
+en trabajo y al reves, porque el checkpoint anota la rama de la SESION y despues de un merge esa
+nunca es la que CI comprueba. Borrar CHECKPOINT.json verifica limpio en un minuto y deja verde
+borrando el dato en vez de corregir la lectura.
+
+El arreglo: un checkpoint de tarea TERMINAL no se contrasta, que es lo que el propio archivo
+llevaba escrito dentro — «PT-092 ya es INTEGRATED. Lo cerrado es evidencia, no estado
+(SUITE-R36)». DONE queda fuera de terminal heredando ESTADOS_TERMINALES, porque un PT en DONE
+espera G4 con su rama viva y ahi un sha que describe otro arbol si miente.
+
+La parte incomoda: PT-056 CONSTRUYO la guarda para este caso exacto y la conecto solo al camino
+manual. «grep ramaDeclaradaViva» daba dos aciertos —la definicion y checkpoint()— y avanzar, que
+es el que escribe el checkpoint en cada transicion, no la recibia. Estaba escrita y muerta.
+
+Ningun PR pudo avisarlo: actions/checkout deja detached HEAD y PT-056 trata «HEAD» como rama
+ilegible, asi que la comprobacion es ciega justo donde todos los PR la ejecutan y solo ve en el
+push a main — donde ya no hay PR que bloquear. AC-06 saca ese limite del comentario y lo pone en
+el mensaje, con LEX-R26 declarando su sujeto en SUJETOS.
+
+Bateria 1199 -> 1207. Prueba inversa: deshecha la guarda caen TRES casos y solo esos, y
+verify-fdge --all vuelve al rojo exacto que bloqueo la publicacion.
+
+Compuertas: G1 PASS en el intake · G2 PASS sobre la estrategia · G3 PASS con la inversa · G4
+PENDIENTE, humana. Es un BUG: cerrarlo no se automatiza (SUITE-R06b).

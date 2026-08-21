@@ -3996,6 +3996,39 @@ trlib "…dice que reanudar es HUMANO"          "SUITE-R06"        "console.log(
 trlib "…y PROPONE el comando"                 "tracker checkpoint PT-1"  "console.log(m.textoDiscrepancia($DOS))"
 trlibno "…sin ejecutarlo ni repararlo"        "reparad\|corregido\|arreglad"  "console.log(m.textoDiscrepancia($DOS))"
 
+# ── PT-094 · lo cerrado es evidencia, no estado ──────────────────────────────
+#
+# El caso que reproduce el fallo que dejo `main` en rojo y bloqueo `publicar.yml` dos veces:
+# `PT-092` estaba INTEGRATED, su rama se borro al fusionarse, y el checkpoint seguia
+# declarandola. La comprobacion lo leia como «el trabajo va por otro sitio».
+#
+# Sin el arreglo el primero de estos casos da `false`. Con el, `null` — que no es «corresponde»
+# sino «no hay nada que contrastar», y por eso se comprueba tambien que lo DIGA.
+CPFIN='{pt:"PT-92",status:"INTEGRATED",sha:"a".repeat(40),rama:"chore/borrada"}'
+trlib "un PT INTEGRATED no se contrasta"      "^null$"   "console.log(JSON.stringify(m.estadoDelArbol($CPFIN,{sha:\"a\".repeat(40),rama:\"main\"}).corresponde))"
+trlib "…y dice por que, citando SUITE-R36"    "SUITE-R36"   "console.log(m.estadoDelArbol($CPFIN,{sha:\"a\".repeat(40),rama:\"main\"}).motivo)"
+trlibno "…sin inventar discrepancias"         "chore/borrada"   "console.log(JSON.stringify(m.estadoDelArbol($CPFIN,{sha:\"b\".repeat(40),rama:\"main\"}).discrepancias))"
+
+# AC-03 · el arreglo NO puede apagar la comprobacion. Es la mitad que impide la salida facil:
+# devolver `null` para todo checkpoint dejaria el repositorio verde y quitaria la guarda que
+# PT-056 construyo para el caso peligroso — un sha real describiendo un arbol que ya no existe
+# MIENTRAS la tarea sigue abierta.
+CPVIVO='{pt:"PT-93",status:"IN_PROGRESS",sha:"a".repeat(40),rama:"chore/x"}'
+trlib "un PT IN_PROGRESS SI se contrasta"     "^false$"   "console.log(m.estadoDelArbol($CPVIVO,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+trlib "…y un DRAFT tambien"                   "^false$"   "console.log(m.estadoDelArbol({pt:\"P\",status:\"DRAFT\",sha:\"a\".repeat(40),rama:\"chore/x\"},{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+
+# DONE es el caso que decide si el arreglo esta bien trazado. Un PT en DONE espera G4 con su rama
+# VIVA: ahi un sha que describe otro arbol si miente. ESTADOS_TERMINALES ya lo excluye por esta
+# misma razon (PT-085), y este caso existe para que anadirlo cueste un rojo — en las dos reglas.
+trlib "DONE espera G4: sigue vivo"            "^false$"   "console.log(m.estadoDelArbol({pt:\"P\",status:\"DONE\",sha:\"a\".repeat(40),rama:\"chore/x\"},{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+# Un checkpoint SIN estado se contrasta: no declararlo no es declararse cerrado (RULE-06).
+trlib "sin «status» se contrasta igual"       "^false$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
+
+# AC-04 · la guarda de PT-056 tiene que estar en el camino que DE VERDAD escribe el checkpoint.
+# `checkpoint()` la pasaba y `avanzar` no, asi que en cada transicion de fase se volvia a escribir
+# una rama que iba a desaparecer. Se comprueba sobre el fuente porque es una llamada, no un valor.
+trlib "avanzar pasa ramaDeclaradaViva"        "ramaDeclaradaViva"   "console.log(require('fs').readFileSync(process.env.MTH_TRACKER,'utf8').split('3 · el checkpoint')[1].slice(0,900))"
+
 # E10/E13 · las dos herramientas, sobre un repositorio DE VERDAD. El fixture no era git y por eso
 # PT-052 dejo el caso del sha alcanzable fuera del arnes; aqui no se puede: la correspondencia
 # necesita un HEAD contra el que corresponder.

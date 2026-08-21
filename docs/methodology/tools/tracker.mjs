@@ -866,6 +866,24 @@ export function costeDe(cerradas, opciones = {}) {
  */
 export function estadoDelArbol(cp, git = {}) {
   if (!cp) return { corresponde: null, pt: null, discrepancias: [], motivo: 'sin checkpoint: no hay nada que contrastar' };
+  // PT-094 · Una tarea TERMINAL no tiene arbol contra el que contrastar, y su rama se borro al
+  // fusionarse. El propio checkpoint de PT-092 lo llevaba escrito dentro —«PT-092 ya es
+  // INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36)»— mientras esta funcion lo
+  // evaluaba como estado y dejaba `main` en rojo, bloqueando la publicacion.
+  //
+  // `DONE` NO cuenta como terminal, y eso es lo que impide que el arreglo apague la comprobacion:
+  // un PT en DONE espera G4 con su rama viva, y ahi un sha que describe otro arbol SI miente.
+  // ESTADOS_TERMINALES ya excluye DONE por esa misma razon (PT-085), asi que la exclusion se
+  // hereda en vez de escribirse otra vez — SUITE-R38.
+  if (ESTADOS_TERMINALES.has(String(cp.status))) {
+    return {
+      corresponde: null,
+      pt: cp.pt ?? null,
+      discrepancias: [],
+      motivo: `${cp.pt ?? 'la tarea'} esta en ${cp.status}: lo cerrado es evidencia, no estado (SUITE-R36). `
+        + 'Su rama se borro al integrar y no hay arbol vivo contra el que contrastar.',
+    };
+  }
   const d = [];
   // No se contrasta lo que no se declaro: un checkpoint con `sha: null` ya lo avisa PT-052.
   //
@@ -2008,6 +2026,14 @@ const gitDe = (args, { crudo = false } = {}) => {
   } catch { return null; }
 };
 
+// PT-094 · ¿existe esa rama? Una sola forma de preguntarlo: estaba en linea dentro de
+// `checkpoint()` y `avanzar` no la tenia. Un criterio escrito a mano en un sitio es un criterio
+// que el otro camino no aplica (SUITE-R38).
+const ramaViva = (nombre) => {
+  try { execFileSync('git', ['rev-parse', '--verify', `refs/heads/${nombre}`], { cwd: ROOT, stdio: 'pipe' }); return true; }
+  catch { return false; }
+};
+
 function checkpoint() {
   const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
   if (!id) { throw new Error('checkpoint necesita una allocation:  tracker checkpoint PT-052'); }
@@ -2017,9 +2043,7 @@ function checkpoint() {
 
   const sucio = gitDe(['status', '--porcelain'], { crudo: true });
   const ramaReal = gitDe(['rev-parse', '--abbrev-ref', 'HEAD']);
-  const declaradaViva = a.branch
-    ? (() => { try { execFileSync('git', ['rev-parse', '--verify', `refs/heads/${a.branch}`], { cwd: ROOT, stdio: 'pipe' }); return true; } catch { return false; } })()
-    : null;
+  const declaradaViva = a.branch ? ramaViva(a.branch) : null;
   const cp = checkpointDe(a, {
     sha: gitDe(['rev-parse', 'HEAD']),
     rama: ramaReal === 'HEAD' ? null : ramaReal,
@@ -2264,10 +2288,18 @@ function avanzar() {
     }
 
     // 3 · el checkpoint · PT-052
+    //
+    // PT-094 · `ramaDeclaradaViva` FALTABA aqui. `checkpointDe` lo documenta desde PT-056 —«al
+    // integrar, la rama de tarea se borra y el checkpoint pasaba a afirmar una referencia
+    // muerta»— y solo lo pasaba `checkpoint()`, que es el camino manual. `avanzar` es el que
+    // escribe el checkpoint en CADA transicion de fase, o sea el que de verdad lo escribe: la
+    // guarda estaba construida y muerta justo donde hacia falta.
     const sucio = gitDe(['status', '--porcelain'], { crudo: true });
+    const ramaAhora = gitDe(['rev-parse', '--abbrev-ref', 'HEAD']);
     const cp = checkpointDe(a, {
       sha: gitDe(['rev-parse', 'HEAD']),
-      rama: gitDe(['rev-parse', '--abbrev-ref', 'HEAD']),
+      rama: ramaAhora === 'HEAD' ? null : ramaAhora,
+      ramaDeclaradaViva: a.branch ? ramaViva(a.branch) : null,
       fecha: gitDe(['log', '-1', '--format=%cs']),
       sucio: sucio === null ? null : sucio.length > 0,
       archivos: lineas(sucio ?? '').filter(Boolean).map((l) => l.slice(3)).sort(),
