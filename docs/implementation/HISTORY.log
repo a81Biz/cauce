@@ -4778,3 +4778,29 @@ merge; aqui `DONE` antes de la validacion. Las dos veces lo paro `--gate G4` y n
 por eso trabajar sin pasar por ella deja el error invisible hasta el final.
 
 El registro decia `READY` y la entrada decia `DONE`. Ninguno de los dos era cierto.
+
+## PT-094 — CORRIGE: el estado terminal, y quien firmo cada compuerta
+Corrige: las entradas de 2026-08-21
+Motivo: la tarea se reabrio para ampliarla y quedo en `IN_PROGRESS` con su `G4` ya ejecutada. Ni
+la entrada original ni la ampliacion declaran el estado final ni quien firmo `G3` y `G4`.
+Fecha: 2026-08-21
+Estado: INTEGRATED
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-094-la-rama-corrobora
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez · G4 2026-08-21 Alberto Martínez
+integrado por: Alberto Martínez
+
+`G4` se ejecuto en el PR #180 y esta en `main`. `G3` —la validacion del `BUG`— y el cierre van por
+autorizacion expresa del firmante: «haz el G4, cierra el bug y yo hago la publicacion. Realiza a
+mi nombre tienes mi VoBo». Son DOS excepciones declaradas, `SUITE-R06a` y `SUITE-R06b`, con su
+constancia en `SESSION_LOG.md`.
+
+**Lo que esta autorizacion no prueba**, y conviene decirlo cada vez: el agente escribe estos
+archivos. `SUITE-R27` convierte la firma en una afirmacion contrastable —el nombre esta en
+`firmantes`, la instruccion es citable— y nada mas. `PT-093` extendio ese mismo limite a las
+compuertas, que es donde la consecuencia es irreversible.
+
+**PUBLICAR no entra**, y lo dice el mismo mensaje que autoriza lo demas.
