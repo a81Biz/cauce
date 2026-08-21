@@ -1,16 +1,16 @@
 {
-  "pt": "PT-093",
+  "pt": "PT-092",
   "type": "CHORE",
   "epic": "EP-018",
   "status": "READY",
   "phase": 2,
   "fase": "Descubrimiento",
   "rama": "trabajo",
-  "sha": "0e3dd838125e3ed7014be23eb74b3acb9af916f6",
-  "sha_corto": "0e3dd83",
+  "sha": "299bc84209ef73afa4bc6692fb61cb4bd547d099",
+  "sha_corto": "299bc84",
   "sucio": true,
   "archivos": [
-    "changes/PT-093-el-limite-de-las-compuertas-se-declara/intake.md",
+    "changes/PT-092-ejecutar-qa-y-fpge/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
