@@ -476,3 +476,30 @@ un nombre*— y se declara el traslado con motivo. Lo que sí queda establecido 
 **Firmado por:** pendiente. Esta revisión es material `[AGENTE]` (§14, `INTAKE-R07`) y se somete
 junto con el `CHALLENGE` de `G1`: el firmante confirma la severidad y, en el mismo acto, si
 `AC-08`/`AC-09` entran aquí o se trasladan a `L-3`.
+
+---
+
+### Revisión 2 — 2026-08-21 · `G1` resuelta por delegación
+
+**Qué cambia:** el veredicto de `G1` pasa de `CHALLENGE` a `PASS`. Nada más.
+
+**Motivo:** el firmante autorizó el trabajo autónomo del lote completo:
+
+> «sigue sin parar, tienes mi VoBo y autorización necesaria para que trabajes de forma autónoma
+> y no pares hasta terminar la épica».
+
+La constancia con su alcance y sus seis excepciones declaradas está en
+[`SESSION_LOG.md`](../../docs/implementation/SESSION_LOG.md), entrada
+*«`EP-019` completa, autorizada al agente de forma autónoma»* (`EXEC-R04a`).
+
+```
+VEREDICTO: PASS
+CHALLENGE aceptado por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
+```
+
+**Lo que esto NO establece.** Que `S1` haya sido **declarada**. Sigue siendo **derivada** por el
+agente de *«comenzar por ahí»*, y §14 lo dice. La delegación resuelve la compuerta; no convierte
+una derivación en una declaración. Si el firmante la corrige, la corrección entra como Revisión 3.
+
+**Firmado por:** Alberto Martínez (delegada). Base: la instrucción citada arriba. `SUITE-R27`:
+contrastable, no probada.

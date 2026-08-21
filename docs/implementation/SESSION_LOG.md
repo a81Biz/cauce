@@ -2805,3 +2805,61 @@ friccion real del marco, no un descuido.
 **Lo que esta autorizacion no prueba.** El agente escribe este archivo. `SUITE-R27` la convierte en
 una afirmacion contrastable —el nombre esta en `firmantes`, la instruccion es citable— y nada mas.
 `PT-093` extendio ese limite a las compuertas, que es donde la consecuencia es irreversible.
+
+---
+
+## 2026-08-21 · `EP-019` completa, autorizada al agente de forma autónoma
+
+**Instrucción literal:** «sigue sin parar, tienes mi VoBo y autorización necesaria para que
+trabajes de forma autónoma y no pares hasta terminar la épica».
+
+Y antes, en el mismo hilo, la que abre el trabajo: «Comienza en órden y todo de acuerdo al marco
+de trabajo. (…) eso debe ser corregido y agregado como tarea y comenzar por ahí. Todo debe estar
+documentado y si es necesario arreglar la parte de los casos de uso, manuales, claude.md y readme
+necesarios».
+
+Constancia con nombre y forma fija (`EXEC-R04a`): autorizado por Alberto Martínez.
+
+**Alcance.** `EP-019` entera, que a esta fecha son nueve tareas: `L-0` —abierta como `PT-096`— y
+`L-1`…`L-8`. Excepciones declaradas, por cláusula:
+
+```
+SUITE-R06e · modificar docs/methodology/   ->  es el PRODUCTO de este repositorio: todo el
+                                               lote lo toca por definicion (SUITE-R41)
+SUITE-R06b · G3 de un BUG                  ->  cada tarea BUG del lote
+SUITE-R06b · cerrar un BUG                 ->  el paso a INTEGRATED y el cierre de su issue
+SUITE-R06a · merge a main                  ->  G4 del lote
+EXEC-R04   · compuerta humana en los tres modos  ->  G1..G4 resueltas por delegacion
+INTAKE-R06 · la firma del intake           ->  con su BASE citada, tarea por tarea
+```
+
+**PUBLICAR NO ENTRA, y no por prudencia: por registro.** El bloque `decisiones` del `HANDOFF`
+declara que *«la autorización de publicar del 2026-08-18 se usó en la 8.2.0 y no se extiende»*, y
+que la elección del firmante es *«yo hago la publicación»*. La `11.0.0` ya está publicada en npm.
+«Terminar la épica» no es «publicar la siguiente versión»: si el lote acaba exigiendo una versión
+nueva, se deja lista y se describe el comando (`EXEC-R07`).
+
+**Lo que esta autorización tampoco cubre.** Los dos proyectos ajenos —la calculadora y el
+legado— siguen `OUT` por el §5 del intake del lote, y tienen sus propias ramas y su propio
+firmante. Que este lote arregle el marco no autoriza a tocarlos.
+
+**Cómo se ejercerá.** El lote está declarado `MARGINAL` (`FDGE-R54`), que no prohíbe sino que
+obliga a **trabajo atómico con checkpoint entre pasos**: una tarea, su verificación, su commit.
+Autonomía no deroga esa condición — la hace más necesaria, porque nadie va a mirar entre pasos.
+
+**Lo que esta autorización no prueba.** El agente escribe este archivo. `SUITE-R27` la convierte
+en una afirmación **contrastable** —el nombre está en `firmantes`, la instrucción es citable— y
+nada más. `PT-093` extendió ese límite a las compuertas, que es donde la consecuencia es
+irreversible, y aquí se están delegando cuatro.
+
+### Efecto inmediato · `G1` de `PT-096`
+
+`G1` se había emitido `CHALLENGE` por `DoR-02`: la severidad es campo `[HUMANO]` y el firmante no
+la declaró; el agente la derivó de «comenzar por ahí». Esta autorización resuelve el `CHALLENGE`
+por delegación y **no convierte la derivación en una declaración**: `S1` sigue siendo derivada, y
+consta como tal en §14 del intake. Si el firmante la corrige, la corrección va como revisión.
+
+```
+G1 PT-096   CHALLENGE -> PASS
+CHALLENGE aceptado por: Alberto Martínez (delegada, esta constancia)
+```
