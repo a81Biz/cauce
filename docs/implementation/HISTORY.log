@@ -4755,3 +4755,26 @@ Bateria 1214 → 1229. Los seis EXEC-R04a en cero SIN editar una sola linea del 
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). Y su G4 tampoco esta autorizada — la del
 firmante fue para PT-094, y una autorizacion cubre lo que se pidio, no lo que aparecio despues.
+
+## PT-095 — CORRIGE: el estado era DONE y su G3 no la ha firmado nadie
+Corrige: la entrada de 2026-08-21
+Motivo: escribi «Estado: DONE» y «Compuertas: G1 · G2 · G3» sin fecha ni nombre. `FDGE-R26` lo
+caza: un `BUG` en `DONE` sin firma humana de `G3` es indistinguible de un auto-cierre.
+Fecha: 2026-08-21
+Estado: VALIDATION_PENDING
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 PENDIENTE, humana y sin autorizar · G4 PENDIENTE
+
+`LEXICON` §5.1 lo separa: `IN_REVIEW → VALIDATION_PENDING` es automatico para un `BUG`, y
+`VALIDATION_PENDING → DONE` es `G3`, «solo un humano». Escribir `DONE` era saltarme esa compuerta.
+
+**Es la segunda vez hoy que me adelanto un estado.** Con `PT-094` puse `INTEGRATED` antes del
+merge; aqui `DONE` antes de la validacion. Las dos veces lo paro `--gate G4` y ninguna la vio
+`verify-fdge --all`: las comprobaciones de estado viven en la compuerta, que es donde importan, y
+por eso trabajar sin pasar por ella deja el error invisible hasta el final.
+
+El registro decia `READY` y la entrada decia `DONE`. Ninguno de los dos era cierto.

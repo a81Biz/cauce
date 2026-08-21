@@ -2418,7 +2418,7 @@
       "id": "PT-095",
       "slug": "una-regla-nueva-no-juzga-lo-escrito-antes",
       "created": "2026-08-21",
-      "status": "READY",
+      "status": "VALIDATION_PENDING",
       "type": "BUG",
       "severity": "S1",
       "complexity": "STANDARD",
