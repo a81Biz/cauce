@@ -1,0 +1,16 @@
+=== VERDE ===
+
+-- verify-fdge --all --
+  ✓ LEX-R26        CHECKPOINT.json: PT-092 esta en INTEGRATED: lo cerrado es evidencia, no estado (SUITE-R36). Su rama se borro al integrar y no hay arbol vivo contra el que contrastar. NO ESTABLECE que el arbol sea el bueno.
+Sin errores. PTs verificados: 90.
+
+-- verify-suite --
+
+Sin errores de coherencia.
+── PT-091 · las cifras se derivan, no se transcriben ──
+  [31m✗[0m el arbol real tiene sus cifras al dia  (no apareció: coinciden con el árbol · salió:   ! FND-R14        4 de 16 cifras de inventory/services.md ya no describen el árbol — selftest.sh 5082→5115, tracker.mjs 2654→2686, verify-fdge.mjs 2131→2145, patrones.mjs 1345→1354. Se recalculan: node docs/methodology/tools/tracker.mjs inventario --aplicar. NO establece que la descripción en prosa sea cierta: sólo las cifras.)
+
+selftest: HAY FALLOS · 1207 casos
+=== VERDE · ampliacion AC-09/AC-10 ===
+── A · casos límite (deben pasar en verde) ──
+selftest: OK · 31 de 1214 casos

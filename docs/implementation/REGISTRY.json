@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 93,
+    "PT": 94,
     "EP": 18,
     "QA": 0,
     "QR": 0,
@@ -2379,6 +2379,40 @@
       "title": "El limite de las compuertas se declara como ya se declara el de las firmas",
       "origin": "PTSA H-009, D1 MEDIA, tipo INVESTIGATION. main exige pull request y CI en verde incluso para administradores, sin force push ni borrado, pero con CERO revisores aprobadores — que es la unica configuracion viable para el equipo de una persona que SUITE-R22 declara soportado. El control de EXEC-R04 es por tanto un REGISTRO POSTERIOR CONTRASTABLE (verify-fdge exige «integrado por: <persona>» en HISTORY.log), no una prevencion: nada impide mecanicamente que el agente ejecute «gh pr merge». SUITE-R27 ya declara este limite exacto para las FIRMAS y no lo declara para las COMPUERTAS, que es donde la consecuencia es irreversible. La salida mas probable es declararlo con la misma franqueza, no construir una prevencion que un agente con credenciales eludiria igual. Lo decide una persona.",
       "issue": 169
+    },
+    {
+      "id": "PT-094",
+      "slug": "el-checkpoint-de-lo-cerrado-bloquea-main",
+      "created": "2026-08-21",
+      "status": "IN_PROGRESS",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 9,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "El checkpoint de una tarea cerrada bloquea main",
+      "origin": "publicar.yml fallo dos veces contra main (runs 32448409770 y 32448289929) y la verificacion de main ya estaba roja desde el push de PR #173 (run 32445191804). Un solo error las detiene: LEX-R26 STATE_MISMATCH, porque CHECKPOINT.json declara la rama chore/alberto-martinez/EP-018-cierre, que se borro al fusionarse. Tres huecos medidos: avanzar escribe el checkpoint sin pasar ramaDeclaradaViva, asi que la guarda que PT-056 construyo para este caso exacto esta muerta en el camino que de verdad lo escribe; 80 de 111 allocations no declaran branch, y sin el la rama cae a la de la SESION; y LEX-R26 contrasta el checkpoint de una tarea ya terminal cuando el propio archivo declara «lo cerrado es evidencia, no estado (SUITE-R36)». No lo cazo ningun PR porque actions/checkout deja detached HEAD y PT-056 trata «HEAD» como ilegible: la comprobacion es ciega justo donde todos los PR la ejecutan.",
+      "issue": 175,
+      "branch": "fix/alberto-martinez/PT-094-la-rama-corrobora",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 878,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-20"
+      }
     }
   ]
 }

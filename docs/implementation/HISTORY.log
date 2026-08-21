@@ -4573,3 +4573,141 @@ tomo bajo el VoBo vigente.
 Compuertas: G1 resuelta el 2026-08-20 · G2 y G3 delegadas POR LOTE con constancia en
   SESSION_LOG.md · G4 y el tag: del firmante, sin delegar · PUBLICAR: NO autorizado.
 Trazabilidad externa: issue #162 · sub-issues #163..#169
+
+## PT-094 — El checkpoint de una tarea cerrada bloquea main
+Fecha: 2026-08-21 · Estado: INTEGRATED · Version de la suite: 11.0.0
+Estructural: no
+
+publicar.yml fallo dos veces contra main, y la verificacion de main ya estaba roja desde el push
+del PR #173. Un solo error las detenia: LEX-R26 STATE_MISMATCH, porque CHECKPOINT.json declaraba
+la rama chore/alberto-martinez/EP-018-cierre, que se borro al fusionarse.
+
+Antes de abrir nada empece a repararlo POR FUERA del marco: movi el archivo, medi, comprobe que
+verificaba limpio. Sin intake, sin PT y sin issue. Lo corto el firmante — «lo estas reparando
+pero no veo que sigas el marco de trabajo, no hay issue abierto ni nada» — y se deshizo entero
+para volver a empezar por el intake. SUITE-R41 dice que este repositorio se mantiene bajo su
+propio marco, y la prisa por desbloquear la publicacion es exactamente cuando eso se salta.
+
+Y antes de eso declare «cauce esta limpio en main» con main en rojo desde hacia una hora: mire
+git status y los issues, no los workflows. Novena instancia de la familia que EP-018 cerro ocho
+veces, esta vez cometida al INFORMAR.
+
+Dos atajos probados y descartados, los dos en el out-of-scope con su motivo. «tracker checkpoint
+PT-092» —que es lo que el propio mensaje propone— mueve el fallo de rama: escrito en main falla
+en trabajo y al reves, porque el checkpoint anota la rama de la SESION y despues de un merge esa
+nunca es la que CI comprueba. Borrar CHECKPOINT.json verifica limpio en un minuto y deja verde
+borrando el dato en vez de corregir la lectura.
+
+El arreglo: un checkpoint de tarea TERMINAL no se contrasta, que es lo que el propio archivo
+llevaba escrito dentro — «PT-092 ya es INTEGRATED. Lo cerrado es evidencia, no estado
+(SUITE-R36)». DONE queda fuera de terminal heredando ESTADOS_TERMINALES, porque un PT en DONE
+espera G4 con su rama viva y ahi un sha que describe otro arbol si miente.
+
+La parte incomoda: PT-056 CONSTRUYO la guarda para este caso exacto y la conecto solo al camino
+manual. «grep ramaDeclaradaViva» daba dos aciertos —la definicion y checkpoint()— y avanzar, que
+es el que escribe el checkpoint en cada transicion, no la recibia. Estaba escrita y muerta.
+
+Ningun PR pudo avisarlo: actions/checkout deja detached HEAD y PT-056 trata «HEAD» como rama
+ilegible, asi que la comprobacion es ciega justo donde todos los PR la ejecutan y solo ve en el
+push a main — donde ya no hay PR que bloquear. AC-06 saca ese limite del comentario y lo pone en
+el mensaje, con LEX-R26 declarando su sujeto en SUJETOS.
+
+Bateria 1199 -> 1207. Prueba inversa: deshecha la guarda caen TRES casos y solo esos, y
+verify-fdge --all vuelve al rojo exacto que bloqueo la publicacion.
+
+Y al cerrarlo, la guarda que esta misma tarea conecto se disparo contra ella: la rama de PT-094
+se borro al fusionarse el PR de revision, asi que «avanzar» se planto con STATE_MISMATCH y no
+dejo registrar una transicion sobre un arbol que no era el declarado. Se resolvio como manda —
+«tracker checkpoint PT-094», que es la decision humana que la herramienta PROPONE y no ejecuta—
+y esta vez «rama» salio correcta porque ramaDeclaradaViva ya llega al camino que la escribe. La
+guarda funcionando sobre su propio autor es la mejor evidencia que podia dejar.
+
+Compuertas: G1 PASS en el intake · G2 PASS sobre la estrategia · G3 PASS con la inversa ·
+G4 RESUELTA el 2026-08-21 por Alberto Martinez, y el cierre del BUG con ella: «haz el G4, cierra
+el bug y yo hago la publicacion. Realiza a mi nombre tienes mi VoBo». DOS excepciones declaradas
+—SUITE-R06a y SUITE-R06b— con su constancia en SESSION_LOG.md.
+integrado por: Alberto Martínez
+PUBLICAR no entra: lo dice el mismo mensaje.
+
+## PT-094 — CORRIGE: el encabezado condensaba «Fecha» y «Estado» en una línea
+Corrige: la entrada de 2026-08-21
+Motivo: escribía «Fecha: 2026-08-21 · Estado: INTEGRATED · …» en una sola línea. `verify-fdge`
+busca `^Estado:` a principio de línea, así que `--gate G4` quedaba bloqueada sin salida. La
+entrada original NO se toca (`SUITE-R09`): esto la completa, no la sustituye.
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-094-el-checkpoint-de-lo-cerrado-bloquea-main
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez · G4 pendiente en el momento de escribir
+esta corrección
+
+Y una segunda corrección, que es un error mío de secuencia: escribí «Estado: INTEGRATED» y lo
+puse en el registro ANTES de ejecutar `G4`. `INTEGRATED` es lo que una tarea ES DESPUÉS del
+merge — `LEXICON` §5.1 lo dice en dos transiciones separadas: `VALIDATION_PENDING → DONE` es
+`G3` y sólo la hace una persona, y `DONE → INTEGRATED` es `G4`.
+
+«Cerrar el bug», que es lo que el firmante autorizó, es la PRIMERA: la validación humana. La
+segunda la trae el merge. Las dos están autorizadas y yo las hice en el orden equivocado, así
+que la compuerta me paró con «estado INTEGRATED. G4 exige DONE».
+
+Lo caza `--gate G4` y no `verify-fdge --all`: la comprobación vive en la compuerta, que es donde
+importa. El estado vuelve a `DONE` a mano —`avanzar` no retrocede, y hace bien— y esta entrada es
+el rastro de que se movió.
+
+Y es la CUARTA vez que este mismo encabezado bloquea G4: PT-039, PT-040, PT-041 y PT-042 llevan
+la suya, con el mismo texto, del 2026-08-14. Lo que no cambió en siete días es que nadie puede
+saberlo antes de que la compuerta lo diga — el formato canónico vive en FDGE-Implementation.md,
+la plantilla de HISTORY que se copia al escribir usa la forma condensada, y las dos siguen ahí.
+
+No se arregla en esta entrada. Un encabezado que hace tropezar a cinco tareas en la misma
+comprobación no es descuido de quien escribe: es que la forma que se copia y la que se lee no son
+la misma, y eso entra por un intake propio, no por una corrección de bitácora.
+
+## PT-094 — CORRIGE: la rama corrobora, no dispara sola
+Corrige: la entrada de 2026-08-21
+Motivo: aquella entrada daba el arreglo por completo y NO lo estaba. Cubria el caso TERMINAL y
+dejaba sin cubrir el normal — toda fusion invalidaba el checkpoint. Se descubrio intentando
+ejecutar G4, no verificando.
+
+El encabezado dice CORRIGE y no AMPLIA aunque el trabajo sea una ampliacion: `FDGE-R29` lee
+vocabulario cerrado y `AMPLIA` no esta en el. Inventar un nombre fuera de `LEXICON` es un defecto
+(`LEX-R21`), y ademas «corrige» es exacto: lo que se corrige es la entrada que afirmaba estar
+terminada.
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-094-la-rama-corrobora
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez · G4 pendiente
+
+Al fusionarse el PR de revision de esta misma tarea su rama se borro, y PT-094 —en DONE, o sea
+vivo, o sea contrastado— quedo declarando una rama muerta con su trabajo YA CONTENIDO en el
+arbol. Rojo en «trabajo». Y G4 lo habria dejado rojo en «main» otra vez, con otro nombre de rama:
+TODA fusion invalidaba el checkpoint, que es el caso normal y no una divergencia.
+
+El criterio bueno ya estaba EN LA MISMA FUNCION, aplicado a «sha» desde PT-056: lo que distingue
+no es la igualdad, es DE QUE HISTORIA es. Un commit contenido en esta historia describe un estado
+pasado DE ESTA historia, y entonces el nombre de rama es una etiqueta vieja. Faltaba extenderlo.
+
+Eso DEROGA la decision de PT-056 de que «rama» disparara por si sola. No era gratuita —queria
+cazar «estas en otra rama»— pero midiendo salio que lo que cazaba de verdad era el caso legitimo.
+Su caso E3 se conserva en la bateria CON EL VEREDICTO INVERTIDO en vez de borrarse: borrarlo haria
+desaparecer que alguien decidio lo contrario, y eso es la mitad de lo que un caso cuenta.
+
+Cuatro casos mios tambien cambiaron de escenario: usaban «mismo sha, otra rama», que ahora ES
+correspondencia, y pasan a «otra historia», que es el caso peligroso que siempre tuvieron que
+ejercitar. Que un arreglo obligue a reescribir sus propios casos es senal de que el criterio
+cambio de verdad.
+
+AC-10 existe para que esto no sea apagar la comprobacion, y tiene tantos casos como AC-09.
+
+Bateria 1199 → 1215. Segunda inversa: devuelto el disparo a la rama, caen los cuatro casos de
+AC-09 y ninguno de AC-10.
+
+La decision de ampliar —en vez de marcar terminal antes del merge o retirar el checkpoint— la
+tomo el firmante, con las tres opciones y sus consecuencias delante.

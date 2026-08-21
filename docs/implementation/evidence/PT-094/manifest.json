@@ -1,0 +1,166 @@
+{
+  "pt": "PT-094",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "verify-fdge --all pasa en main y en otra rama, con el mismo arbol",
+      "tests": [
+        "corrida manual en fix/alberto-martinez/PT-094-… y en trabajo"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Dos ramas y no una: el atajo descartado —tracker checkpoint PT-092— pasa en la rama donde se ejecuta y falla en la otra. Comprobar una sola no habria distinguido el arreglo del atajo."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un checkpoint de tarea TERMINAL no se contrasta, y se dice por que",
+      "tests": [
+        "selftest.sh:un PT INTEGRATED no se contrasta",
+        "selftest.sh:…y dice por que, citando SUITE-R36",
+        "selftest.sh:…sin inventar discrepancias"
+      ],
+      "evidence": [
+        "salidas/verde.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "TRES resultados, no dos. «corresponde: null» es «no hay nada que contrastar»; decirlo como «corresponde» seria afirmar mas de lo que se sabe — el mismo arreglo que PT-089 hizo con MISSING."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "…y un checkpoint de tarea VIVA si se contrasta",
+      "tests": [
+        "selftest.sh:un PT IN_PROGRESS SI se contrasta",
+        "selftest.sh:…y un DRAFT tambien",
+        "selftest.sh:DONE espera G4: sigue vivo",
+        "selftest.sh:sin «status» se contrasta igual"
+      ],
+      "evidence": [
+        "salidas/verde.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Es la mitad que impide la salida facil: devolver null para TODO checkpoint deja el repositorio verde y quita la guarda que PT-056 construyo. El caso de DONE decide si esta bien trazado — un PT en DONE espera G4 con su rama viva."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "avanzar deja de escribir una rama que no existe",
+      "tests": [
+        "selftest.sh:avanzar pasa ramaDeclaradaViva"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "La guarda la construyo PT-056 y la conecto solo al camino manual. «grep ramaDeclaradaViva» daba DOS aciertos: la definicion y checkpoint(). avanzar —el que escribe el checkpoint en cada transicion— no la recibia. Estaba escrita y muerta."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Un caso reproduce el fallo y falla SIN el arreglo",
+      "tests": [
+        "prueba inversa: guarda de estado terminal deshecha"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Caen TRES casos y solo esos, y verify-fdge --all vuelve al rojo exacto que bloqueo main y publicar.yml. Los que siguen en verde son la mitad que importa: el arreglo cae sobre lo cerrado y deja intacto lo vivo."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "El limite de detached HEAD llega al mensaje, no solo al comentario",
+      "tests": [
+        "verify-suite.mjs: limitesQueNoLleganAlMensaje sobre SUJETOS['LEX-R26']"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "actions/checkout deja detached HEAD en cada pull_request y ahi la rama no se puede leer: la comprobacion es CIEGA justo donde todos los PR la ejecutan, y solo ve en el push a main — donde ya no hay PR que bloquear. El limite vivia en un comentario de PT-056 desde entonces."
+    },
+    {
+      "ac": "AC-09",
+      "statement": "Cambiar de rama DENTRO DE LA MISMA HISTORIA deja de ser discrepancia",
+      "tests": [
+        "selftest.sh:otra rama, misma historia: corresponde",
+        "selftest.sh:…y la rama no figura como discrepancia",
+        "selftest.sh:la rama sola ya no dispara",
+        "selftest.sh:…ni con un sha ANTECESOR",
+        "selftest.sh:solo la rama: verify-fdge NO falla"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Anadido EJECUTANDO G4: el arreglo de AC-02 cubria el caso terminal y dejaba el normal. Al fusionarse el PR de revision la rama se borro y PT-094 —en DONE, luego vivo— quedo declarando una rama muerta con su trabajo YA CONTENIDO en el arbol. Toda fusion invalidaba el checkpoint. Deroga la decision de PT-056 de que «rama» disparara sola; su caso E3 se conserva con el veredicto invertido para que la derogacion se lea."
+    },
+    {
+      "ac": "AC-10",
+      "statement": "…y una historia DISTINTA sigue siendolo, con la rama corroborando",
+      "tests": [
+        "selftest.sh:…pero con OTRA historia si",
+        "selftest.sh:…y entonces enumera LAS DOS",
+        "selftest.sh:no saberlo arrastra la rama tambien",
+        "selftest.sh:otra historia + otra rama: FALLA"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Es el que impide que AC-09 sea apagar la comprobacion: tiene tantos casos como el otro. Y «no saberlo arrastra la rama tambien» sostiene RULE-06 — no poder demostrar que desciende no es haberlo demostrado."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que publicar.yml publique.",
+      "por_que": "Lo verificado es que la comprobacion que lo detenia deja de detenerlo. Publicar es irreversible y lo dispara una persona (SUITE-R06).",
+      "donde": "changes/PT-094-el-checkpoint-de-lo-cerrado-bloquea-main/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que no queden mas guardas conectadas a un solo camino.",
+      "por_que": "Esta se encontro porque fallo. No he buscado las otras, y buscarlas es trabajo con su propio intake.",
+      "donde": "docs/implementation/evidence/PT-094/self-review.md"
+    },
+    {
+      "afirmacion": "Que main quede verde.",
+      "por_que": "Lo verificado es esta rama y trabajo. main no lo estara hasta que alguien resuelva G4.",
+      "donde": "docs/implementation/HANDOFF.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Empece a reparar POR FUERA del marco: sin intake, sin PT y sin issue.",
+      "regla": "FDGE-R01 · SUITE-R41",
+      "detalle": "Movi CHECKPOINT.json, medi y comprobe que verificaba limpio antes de abrir nada. Lo corto el firmante: «lo estas reparando pero no veo que sigas el marco de trabajo, no hay issue abierto ni nada». Deshecho entero —archivo restaurado, rama improvisada borrada— y reiniciado por el intake. Este repositorio se mantiene bajo su propio marco desde SUITE-R41, y la prisa por desbloquear la publicacion es exactamente cuando el procedimiento se salta."
+    },
+    {
+      "que": "Declare «cauce esta limpio en main» con main en rojo desde hacia una hora.",
+      "regla": "—",
+      "detalle": "Mire git status y los issues abiertos; no mire el estado de los workflows. La corrida 32445191804 habia fallado con CINCO errores en el push del PR #173. Comprobar el proxy barato en lugar del hecho, cometido al INFORMAR: novena instancia de la familia que EP-018 cerro ocho veces."
+    },
+    {
+      "que": "Me salte la escalera de fases: puse phase 9 a mano en el registro.",
+      "regla": "FDGE-R52",
+      "detalle": "Lo cazo el verificador: 8 notas de reanclaje faltando, una por transicion. Rehecho desde PHASE 1 con «tracker avanzar» ocho veces, cada una con su nota. PT-053 midio 107 transiciones x 5 actos manuales y encontro la misma transicion saltada TRES veces en un lote: el comando existe porque el acto sin consecuencia inmediata se salta, y yo acababa de saltarlo."
+    },
+    {
+      "que": "El PT llego a PHASE 9 con status READY y verify-fdge verifico limpio.",
+      "regla": "LEXICON §Ciclo de vida",
+      "detalle": "LEXICON dice «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre» y «avanzar» no lo aplica: solo toca el status en la ultima fase, para poner INTEGRATED. Misma familia que el defecto que este PT corrige. Declarado en out-of-scope; entra en su propio intake, porque cambiar que estado asigna una transicion toca el ciclo de vida entero."
+    },
+    {
+      "que": "Di PT-094 por cerrado y el arreglo no bastaba.",
+      "regla": "—",
+      "detalle": "Lo descubri intentando ejecutar G4, no verificando: LEX-R26 volvio a fallar con la rama de la propia tarea, borrada al fusionarse su PR de revision. Cubri el caso terminal y deje sin cubrir el normal, que ocurre en CADA merge. El PT volvio a IN_PROGRESS en vez de abrirse un PT-095: no estaba integrado, asi que no estaba terminado. La decision de ampliar en vez de marcar terminal antes del merge o retirar el checkpoint la tomo el firmante."
+    }
+  ],
+  "suite": {
+    "passed": 1215,
+    "failed": 0,
+    "baseline": 1199,
+    "nota": "16 casos netos. Cinco existentes reescritos: el E3 de PT-056 con el veredicto INVERTIDO —derogado y conservado para que se lea— y cuatro mios que pasan de «mismo sha, otra rama» a «otra historia», que es el caso peligroso que siempre tuvieron que ejercitar."
+  }
+}

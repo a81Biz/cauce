@@ -2665,3 +2665,83 @@ también para las compuertas. Se aplica a esta misma entrada.
 
 **Precondiciones comprobadas antes:** `verify-fdge --all` 89 tareas sin errores · `verify-suite`
 sin errores · `verify-ptsa` sin errores · `selftest` 1118 casos sin fallos · espejo cuadrado.
+
+## 2026-08-20 · `G4` de `EP-018` y tag `v11.0.0` — **excepción declarada**
+
+**Instrucción literal:** «realiza el cierre de todo, el merge y pr comleto para publicar. Asegúrate
+que no quede nada pendiente salvo la parte de azure y lo que se debe ejecutar en el otro proyecto».
+
+| Acción | Regla | Autorizada |
+|:---|:---|:---|
+| `G4` — merge de `trabajo` a `main` | `EXEC-R04` · `SUITE-R06a` | **sí** · PR #173, CI en verde antes de fusionar |
+| `git tag -a v11.0.0`, **después** del merge | — | **sí** · apunta a `0382e43` |
+| Cerrar los issues que `SUITE-R46` retenía | `SUITE-R46` | **sí** · nueve cerrados |
+| **Publicar en npm** | `SUITE-R06a` | **NO.** El firmante lo dispara él, preguntado y respondido en esta sesión |
+
+**Por qué se escribe entera.** La autorización anterior cubría `EP-018` hasta su cierre; ésta cubre
+la integración y el tag. Una excepción que se hereda deja de serlo.
+
+**Sobre publicar.** Se preguntó explícitamente y la respuesta fue *«la dejo lista y la disparas
+tú»*. `publicar.yml` es un `workflow_dispatch` que exige teclear `PUBLICAR` **precisamente** para
+que lo haga una persona, y el marco no lo automatiza (`SUITE-R06a`).
+
+**Estado al cerrar:** una sola allocation viva —`PT-025`, Azure, `DEFERRED`— y un solo issue
+abierto, el suyo. `PT-013` declaró que un aplazado está **vivo** para el espejo, porque aplazar
+algo debe ponerlo a la vista y no sacarlo de ella.
+
+**Precondiciones comprobadas antes:** `selftest` 1199 casos sin fallos · `verify-fdge --all` 89
+tareas sin errores · `--gate G4` en cero · `verify-suite`, `verify-ptsa`, `verify-qa`,
+`verify-patrones` y el espejo en verde · sello completo.
+
+## 2026-08-20 · sesion cerrada
+
+<!-- cauce:agente -->  Handoff DERIVADO del checkpoint y de la sesion:
+
+```
+sesion       desde 982bcd3 (2026-08-20)
+             19 (MEDIDO) commits · 35693 (MEDIDO) lineas
+tareas       PT-073 · PT-081 · PT-087 · PT-088 · PT-089 · PT-090 · PT-091 · PT-093
+en curso     PT-092 · PHASE 10
+sobre        a7277f2  chore/alberto-martinez/EP-018-cierre
+sigue        PT-092 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).
+```
+
+## 2026-08-21 · G4 de PT-094 y cierre del BUG, autorizados al agente
+
+**Instruccion literal:** «haz el G4, cierra el bug y yo hago la publicacion. Realiza a mi nombre
+tienes mi VoBo».
+
+Son **dos** excepciones declaradas, y conviene nombrarlas por separado porque no son la misma
+clausula:
+
+```
+SUITE-R06a · merge a la rama principal   ->  G4 de PT-094
+SUITE-R06b · cerrar un item de tipo BUG  ->  PT-094 pasa de VALIDATION_PENDING a INTEGRATED
+```
+
+`EXEC-R04` dice que `G4` es humana en los tres modos, y la ultima linea de `CLAUDE.md` deja la
+via: una persona autoriza la excepcion **dejando registro de esa autorizacion**. Este es el
+registro.
+
+Constancia con nombre y forma fija (`EXEC-R04a`): autorizado por Alberto Martinez.
+
+**Lo que la autorizacion NO cubre, dicho porque el limite importa mas que el permiso:**
+
+```
+PUBLICAR   -> sigue siendo del firmante, y lo dice el mismo mensaje: «yo hago la publicacion»
+```
+
+La eleccion anterior —«La dejo lista y la disparas tu»— no queda derogada por este VoBo: queda
+CONFIRMADA por el.
+
+**Lo que esta autorizacion no prueba.** `SUITE-R27` lo declara para las firmas y `PT-093` lo
+extendio a las compuertas: el agente escribe este archivo, asi que esto no demuestra que una
+persona autorizara. Convierte la autorizacion en una afirmacion **contrastable** —el nombre esta
+en `firmantes`, la instruccion es citable— y nada mas. Es lo unico que un marco puede ofrecer
+aqui, y decirlo es la diferencia entre un control y la apariencia de uno.
+
+**Orden de los actos, y por que ese.** El `BUG` se cierra ANTES del `G4`. `SUITE-R46` solo deja
+cerrar un issue cuando su estado terminal esta en la rama por defecto; marcarlo despues del merge
+obligaria a un merge extra, que es la friccion que `EP-017` declaro inevitable y `EP-018` resolvio
+haciendolo al reves. Lo que convierte una tarea en terminal es que su TRABAJO este completo, no el
+merge.

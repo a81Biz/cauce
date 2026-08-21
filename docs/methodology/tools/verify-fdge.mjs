@@ -606,6 +606,13 @@ function checkCheckpoint() {
     rama: real(['rev-parse', '--abbrev-ref', 'HEAD']),
     descendiente: desc,
   });
+  // PT-094 · TRES resultados, no dos. `corresponde: null` es «no hay nada que contrastar», y
+  // decirlo como si fuera «corresponde» seria afirmar mas de lo que se sabe — lo mismo que
+  // PT-089 corrigio para MISSING.
+  if (e.corresponde === null) {
+    ok('LEX-R26', `CHECKPOINT.json: ${e.motivo ?? 'no hay nada que contrastar'} NO ESTABLECE que el arbol sea el bueno.`);
+    return;
+  }
   if (e.corresponde === false) {
     // Acortar SOLO lo que parece un SHA. `slice(0, 7)` a secas dejaba «chore/O» donde decia
     // «chore/OTRA-RAMA»: un mensaje que trunca el dato por el que se detiene no sirve de nada.
@@ -616,7 +623,14 @@ function checkCheckpoint() {
       + `Si el arbol es el bueno:  tracker checkpoint ${cp.pt}`);
     return;
   }
-  ok('LEX-R26', `CHECKPOINT.json: ${cp.pt} en PHASE ${cp.phase}, sobre un commit alcanzable y con el arbol correspondiente.`);
+  // PT-094 · AC-06 · el limite viaja en el mensaje. `actions/checkout` deja detached HEAD en cada
+  // `pull_request`, y ahi la rama no se puede leer: la comprobacion es CIEGA justo donde todos los
+  // PR la ejecutan, y solo abre los ojos en el push a la principal — donde ya no hay PR que
+  // bloquear. Vivia en un comentario, que es donde solo lo ve quien no lo necesita.
+  const ciego = real(['rev-parse', '--abbrev-ref', 'HEAD']) === 'HEAD'
+    ? ' En detached HEAD —lo que deja actions/checkout en un pull_request— la rama NO se pudo leer: esta corrida NO establece que la rama corresponda.'
+    : '';
+  ok('LEX-R26', `CHECKPOINT.json: ${cp.pt} en PHASE ${cp.phase}, sobre un commit alcanzable y con el arbol correspondiente.${ciego}`);
 }
 
 // SUITE-R33/R34 · el estado, y su frescura contra git.
