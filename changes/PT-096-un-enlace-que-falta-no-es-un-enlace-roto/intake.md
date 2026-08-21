@@ -530,3 +530,80 @@ dueño, que es distinto de resolverse.
 Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
 Fecha: 2026-08-21
 ```
+
+---
+
+### Revisión 4 — 2026-08-21 · el alcance crece a los ocho sitios de `tracker.mjs`, y se dice por qué
+
+**Qué cambia:** `D-1` deja de ser «cambiar una línea» y pasa a ser «un hecho, una fuente».
+`AC-08` se amplía. `AC-01`…`AC-07` no se tocan.
+
+**Motivo — dos hallazgos de `PHASE 4`, los dos medidos:**
+
+#### a) La decisión de `D-1` ya estaba tomada en este repositorio
+
+`patrones.mjs:859` tiene **el mismo helper con el mismo razonamiento**, escrito por quien tropezó
+antes:
+
+```js
+// Un lote se reconoce por su IDENTIFICADOR, no por el campo «type». Lo escribi primero con
+// `type === 'EP'` y no caso NINGUNO: EP-017 no tiene ese campo. El ID lo asigna el registro
+// (SUITE-R08) y siempre esta; el campo es opcional, asi que fiarse de el es depender de dos
+// fuentes del mismo hecho y quedarse con la peor (SUITE-R38).
+const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
+```
+
+`D-1` no era una invención: era **redescubrir lo ya escrito**. Y escribir una tercera copia sería
+justamente lo que ese comentario condena. `patrones.mjs` es el módulo **compartido** —«los
+patrones críticos, con su contrato»—, así que el helper se **exporta desde ahí** y se reutiliza.
+
+#### b) `PT-096` no aparece en `tracker estado`
+
+Encontrado ejecutando, y es el que obliga a ampliar:
+
+```
+$ node docs/methodology/tools/tracker.mjs estado
+  · 16 implementación(es) · 99 tarea(s)
+  … PT-096 NO aparece en ninguna linea
+```
+
+```js
+const eps = all.filter((a) => a?.type === 'EP');    // EP-019 tiene type «EPIC»: NO entra
+const pts = all.filter((a) => a?.type !== 'EP');    // los tres lotes SI entran, como si fueran tareas
+for (const ep of eps) …                             // el grupo de EP-019 no se imprime nunca
+const sueltos = pts.filter((p) => !p.epic);         // PT-096 tiene epic: tampoco es «suelto»
+```
+
+**La tarea se cuenta y no se lista.** Cae entre los dos grupos. La herramienta que responde *qué
+hay abierto* pierde una tarea **en silencio**, que es exactamente el fallo por el que se abrió
+esta tarea, en la otra mitad del tablero.
+
+#### El recuento completo
+
+```
+tracker.mjs      8 sitios   :175 :367 :564 :1120 :1372 :1373 :1966   y :2583, que YA usa /^EP-/
+verify-fdge.mjs  6 sitios   :707 :717 :1368 :1369 :1388
+patrones.mjs     1 sitio    :859 — el correcto, y el que se exporta
+```
+
+**Qué entra y qué no:**
+
+```
+ENTRA  los 8 de tracker.mjs, con el helper importado de patrones.mjs
+       Arreglar 2 de 8 y decir «un hecho, un nombre» seria la hipocresia que este lote
+       condena. Y es MENOS arriesgado que arreglar dos: una fuente, no seis.
+
+NO ENTRA  los 6 de verify-fdge.mjs  ->  L-3
+       Medidos y HOY LATENTES: EP-019 esta en DRAFT, no en IN_PROGRESS, y declara «phase»,
+       asi que ninguna de las seis comprobaciones cambia de resultado. Tocarlas cambiaria
+       veredictos de verificacion, que es otra clase de riesgo y merece su propia inversa.
+```
+
+**Lo que esta revisión NO establece:** que las seis de `verify-fdge` estén bien. Están **mal y sin
+consecuencia hoy**, que es distinto, y por eso van declaradas con su medición en vez de
+arregladas de paso.
+
+```
+Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
+Fecha: 2026-08-21
+```

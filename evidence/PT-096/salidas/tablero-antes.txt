@@ -1,0 +1,16 @@
+TABLERO ANTES — medido 2026-08-21T17:43:34Z sobre 192 elementos
+
+denominador: cuerpos de ISSUE con la linea «Intake, criterios…»
+115
+
+cuerpos SIN enlace (solo ISSUE):
+181 169 168 167 166 165 164 163 162 160 
+cuerpos con el literal «null»:
+181 169 168 167 166 165 164 163 162 160 
+cuerpos de LOTE con la lista en prosa:
+91 90 89 73 71 59 53 52 48 41 34 31 17 13 
+cuerpos con enlace /tree/ :
+94
+
+nota: #148 aparece en «sin enlace» como PR, no como issue — se excluye por eso
+  #148 es PR

@@ -144,3 +144,66 @@ una red de seguridad: es el defecto con un test que lo protege.
 - **`sincronizarCuerpos`** — ya reescribe las vivas y funciona.
 - **`espejo` no escribe.** Sigue siendo lectura (`strategy.md` §3, `A-2`).
 - **`SUITE-R51`** — se cita, no se toca. Ya dice lo necesario.
+
+---
+
+## D-8 · `esLote` se **importa** de `patrones.mjs`, no se reescribe — `Revisión 4`
+
+`D-1` decía «se cambia por `/^EP-/`». Al buscar dónde ponerlo apareció que **ya está escrito**:
+
+```js
+// patrones.mjs:859
+const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
+```
+
+con el comentario de quien tropezó antes y llegó a la misma conclusión, citando `SUITE-R38`: *«el
+campo es opcional, así que fiarse de él es depender de dos fuentes del mismo hecho y quedarse con
+la peor»*.
+
+**Decisión:** se **exporta** desde `patrones.mjs` —el módulo compartido, cuyo papel declarado es
+«los patrones críticos, con su contrato»— y se importa en `tracker.mjs`. Escribir una tercera
+copia sería exactamente lo que ese comentario condena, y `D-1` habría sido la segunda.
+
+**Riesgo, y por qué se acepta:** `patrones.mjs` lo importan ocho herramientas, y el intake del
+lote midió que tocarlo obliga a ~669 casos. **Aquí solo se añade un `export`**: ninguna función
+existente cambia de comportamiento, así que el riesgo es el de un símbolo nuevo, no el de un
+cambio semántico. La batería completa se corre igual antes de `G3`.
+
+## D-9 · Los ocho sitios de `tracker.mjs`, no dos — `Revisión 4`
+
+```
+:175    etiquetas       «implementación» vs «tarea»
+:367    cuerpoDeIssue   la cabecera del cuerpo            <- AC-08
+:564    orden           los lotes al final de la lista
+:1120   contextoCuerpo  a quien se le calculan «tareas»   <- AC-08
+:1372   estado          quien es lote                     <- el que pierde PT-096
+:1373   estado          quien es tarea                    <- idem
+:1966   pendiente       a quien se le pide fase
+:2583   indices         YA usa /^EP-/ — se deja, y pasa a usar el helper
+```
+
+**Por qué los ocho y no los dos de `AC-08`.** Porque el defecto **no es del cuerpo del issue**: es
+del predicado. Arreglar dos y declarar *«un hecho, un nombre»* sería la hipocresía que este lote
+existe para señalar — y `EP-017` ya pagó dos veces por arreglar instancias sin tocar la causa.
+
+Y es **menos** arriesgado que arreglar dos: con el helper importado hay **una** fuente; con dos
+sitios arreglados hay seis que siguen respondiendo distinto a la misma pregunta.
+
+**`:1120` desaparece entero.** Con `D-2` retirada la lista en prosa, `tareas` no lo consume nadie:
+se quita del contexto en vez de dejar un cálculo muerto que el siguiente lector creerá vivo.
+
+## D-10 · Los seis de `verify-fdge.mjs` **no** entran — `Revisión 4`
+
+```
+:707   lotes IN_PROGRESS          EP-019 esta en DRAFT           -> no dispara hoy
+:717   huerfanos                  trataria a EP-019 como tarea   -> no dispara: tiene epic? no,
+                                                                    pero VIVOS/type filtran antes
+:1368  exencion de «sin fase»     EP-019 declara phase 1         -> no dispara hoy
+:1369  el texto de esa exencion   idem
+:1388  FDGE-R54 viabilidad        EP-019 la tiene registrada     -> no dispara hoy
+```
+
+**Están mal y hoy no tienen consecuencia**, que no es lo mismo que estar bien. Se declaran con su
+medición y van a `L-3`: cambiarlas altera **veredictos de verificación**, que es otra clase de
+riesgo —un verde que pasa a rojo o al revés— y merece su propia prueba inversa, no ir de paso en
+una tarea sobre enlaces.
