@@ -35,7 +35,7 @@
   },
   "counters": {
     "PT": 95,
-    "EP": 18,
+    "EP": 19,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -2435,6 +2435,39 @@
         "coste": {
           "valor": 878,
           "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      }
+    },
+    {
+      "id": "EP-019",
+      "slug": "lo-que-tres-proyectos-encontraron",
+      "created": "2026-08-21",
+      "status": "DRAFT",
+      "type": "EPIC",
+      "severity": "S1",
+      "complexity": "MAJOR",
+      "track": "STANDARD",
+      "phase": 1,
+      "structural": true,
+      "suite_version": "11.0.0",
+      "title": "Lo que tres proyectos encontraron",
+      "origin": "Veinte defectos del marco encontrados EJECUTANDOLO fuera de el: 2 declarados y sin arreglar al cerrar PT-095, 6 en el proyecto legado (4.12.0, 114 tareas) y 12 en la calculadora durante el primer ciclo FQAGE completo que ha corrido este marco. Tres causas medidas: (C-1) el estado de una tarea se escribe una vez y nada lo reconcilia, y un terminal FALSO apaga cinco comprobaciones —verify-fdge daba verde con huecos todos los dias—; (C-2) un hecho con varios nombres dentro de las herramientas: TRANSICIONES.log vs bitacora.md, EDGE|NEG vs EC|EF, QA/ vs qa/ —que en Linux salta la verificacion entera en silencio— y cuatro herramientas distintas bajo el mismo 11.0.0; (C-3) RIGE_DESDE cubre 8 de 151 reglas HARD, asi que 143 juzgan hacia atras y el legado midio que 31 de las 36 nuevas alcanzan a sus 113 PT. Y uno que no encaja en ninguna y es el mas grave: PTSA-R08 exige emitir una letra A/B/C/F y los umbrales se citan en §24.2 y §24.4, que NO EXISTEN en ninguna version — nuestro propio RESUMEN.md dice «certificacion B (75-89)» con una banda inventada, y fue el argumento con el que se publico. Ademas INC-003 lleva dos dias declarado sin PT: lo encontro la calculadora comprobando si actualizar el marco cerraba los hallazgos previos.",
+      "issue": 189,
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
         },
         "precedente": {
           "valor": 9583,
