@@ -220,6 +220,19 @@ intake antes de que los asigne es inventarlos.
 Misma forma que `INC-015` en `FPGE-R01` —cualquier mención cuenta como declaración— y entra en
 `L-7`.
 
+### `INC-017` · abrir un lote no sella el estado, y `SUITE-R34` lo caza en CI
+
+`tracker avanzar` estampa la línea `actualizado:` del `HANDOFF` como parte del acto atómico, y por
+eso una transición de fase nunca deja el estado atrás. **Abrir un lote no pasa por `avanzar`**, así
+que escribe en `changes/` sin tocar el estado y `SUITE-R34` bloquea — en CI, no en local, porque
+compara marcas de **commit**.
+
+Medido en esta sesión: **cuatro veces**, y las cuatro por el mismo camino —abrir, corregir un
+estado a mano, escribir una constancia—. La regla hace su trabajo; lo que falta es que el acto que
+escribe en `changes/` estampe el estado, igual que `avanzar`.
+
+Entra en `L-7`.
+
 ---
 
 ## 8. Reparto propuesto y análisis de solapamiento   `[AGENTE]` · `FDGE-R40`
