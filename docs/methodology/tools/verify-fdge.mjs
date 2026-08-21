@@ -49,6 +49,10 @@ import { execFileSync, spawnSync } from 'node:child_process';
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
          lineasPerdidas, mergesSinConstancia } from './patrones.mjs';
+// PT-095 · el criterio de «esto anuncia una autorizacion» y la frontera desde la que una regla
+// alcanza. Los dos viven en patrones.mjs porque los usan dos bucles de este archivo, y un
+// criterio escrito dos veces diverge (SUITE-R38).
+import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from './patrones.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -989,7 +993,9 @@ function checkG4ConConstancia() {
   const constancias = [];
   for (const b of bloques) {
     const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
-    if (!m || !/G4|VoBo|autorizad/i.test(m[2])) continue;
+    // PT-095 · «a la espera de G4» NO es una autorizacion: anuncia lo contrario. El criterio
+    // vive en patrones.mjs porque lo usan los DOS bucles de aqui, y escrito dos veces divergiria.
+    if (!m || !anunciaAutorizacion(m[2])) continue;
     const quien = lista.find((n) => b.includes(n));
     if (quien) constancias.push({ nombre: quien, fecha: m[1] });
   }
@@ -1000,12 +1006,33 @@ function checkG4ConConstancia() {
   // QUE ESTABLECE: que un encabezado que anuncia una autorizacion lleve un nombre de firmantes.
   // QUE NO ESTABLECE: que ese encabezado sea el de la autorizacion que cubre este merge — eso
   //   lo empareja la fecha, y el limite ya esta declarado en EXEC-R04.
-  if (rigeGlobal('EXEC-R04a')) {
+  // PT-095 · la regla nacio con la 11.0.0 y estaba juzgando entradas del 13 de agosto, en un
+  // ledger donde SUITE-R09 PROHIBE corregirlas. Una regla que no se puede cumplir esta rota, no
+  // es exigente. La frontera se DERIVA del tag de la version que la trajo — no se escribe a mano,
+  // que es lo que SUITE-R40 lleva persiguiendo desde que un verificador guardaba su propia copia
+  // del numero de version y se quedaba atras.
+  const fronteraR04a = (() => {
+    const v = RIGE_DESDE['EXEC-R04a'];
+    if (!v) return null;
+    try {
+      return execFileSync('git', ['log', '-1', '--format=%cs', `v${v.join('.')}`],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim() || null;
+    } catch { return null; }
+  })();
+  if (rigeGlobal('EXEC-R04a') && !fronteraR04a) {
+    warn('EXEC-R04a', `sin tag v${(RIGE_DESDE['EXEC-R04a'] ?? []).join('.')}: no hay frontera desde la que la regla alcance, `
+      + 'y sin ella juzgaría lo escrito antes de existir. NO SE EVALÚA, y se dice.');
+  } else if (rigeGlobal('EXEC-R04a')) {
     for (const b of bloques) {
       const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
-      if (!m || !/G4|VoBo|autorizad/i.test(m[2])) continue;
+      if (!m || !anunciaAutorizacion(m[2])) continue;
+      if (!alcanzadaPor(m[1], fronteraR04a)) continue;
       if (lista.some((n) => b.includes(n))) continue;
-      fail('EXEC-R04a', `SESSION_LOG.md, entrada del ${m[1]}: anuncia una autorización y no lleva ningún nombre de «firmantes» en su cuerpo. La forma es fija —encabezado con fecha y un nombre de la lista— porque lo que hace contrastable a una autorización es saber dónde mirar y qué tiene que decir. NO establece que sea la autorización de un merge concreto: eso lo empareja la fecha.`);
+      // PT-095 · en un ledger append-only lo malformado se corrige ANADIENDO. Sin esto la
+      // unica salida seria editar SESSION_LOG.md, que SUITE-R09 prohibe: dos reglas
+      // haciendose imposibles entre si. HISTORY.log ya lo resuelve asi desde PT-046.
+      if (corregidaDespues(m[1], bloques, lista)) continue;
+      fail('EXEC-R04a', `SESSION_LOG.md, entrada del ${m[1]}: anuncia una autorización y no lleva ningún nombre de «firmantes» en su cuerpo. La forma es fija —encabezado con fecha y un nombre de la lista— porque lo que hace contrastable a una autorización es saber dónde mirar y qué tiene que decir. NO establece que sea la autorización de un merge concreto: eso lo empareja la fecha. Alcanza a lo escrito DESPUÉS de ${fronteraR04a}, el día en que se selló la versión que la trajo: NO establece nada sobre lo escrito ese mismo día ni antes.`);
     }
   }
 

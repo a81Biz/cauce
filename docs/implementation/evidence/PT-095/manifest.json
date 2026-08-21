@@ -1,0 +1,136 @@
+{
+  "pt": "PT-095",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "EXEC-R04a no juzga una entrada anterior a la version que la trajo",
+      "tests": [
+        "selftest.sh:lo anterior al sello NO lo alcanza",
+        "selftest.sh:sin frontera no alcanza a nada",
+        "selftest.sh:…ni con una fecha que no lo es"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "La frontera se DERIVA del tag de la version, no se escribe: SUITE-R40 lleva persiguiendo eso desde que un verificador guardaba su propia copia del numero de version SIENDO EL la autoridad. Sin tag no hay frontera y la regla no alcanza a nada — no poder situar el limite no es no tenerlo (RULE-06)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "…y SI juzga una posterior: el arreglo no apaga la regla",
+      "tests": [
+        "selftest.sh:…lo POSTERIOR si"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "«a la espera de G4» no se lee como una autorizacion",
+      "tests": [
+        "selftest.sh:«a la espera de G4» NO es autorizacion"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Se EXCLUYE la espera en vez de afinar el detector positivo: afinar el positivo dejaria fuera constancias que hoy valen, y «a la espera de» es vocabulario corto y cerrado."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "…y una autorizacion real se sigue leyendo como tal",
+      "tests": [
+        "selftest.sh:…y «autorizados al agente» SI lo es",
+        "selftest.sh:…y un VoBo tambien",
+        "selftest.sh:…y un encabezado sin nada de eso, no"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Tres casos, uno de ellos negativo. AC-03 sin AC-04 se cumpliria apagando el detector."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El limite de la frontera —granularidad de DIA— queda declarado en el mensaje",
+      "tests": [
+        "selftest.sh:…y el MISMO dia del sello escapa"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "Lo escrito el mismo dia del sello escapa. Se prefiere ese error al contrario —juzgar hacia atras— que es el que dejaba main rojo sin arreglo posible. El mensaje emitido lo dice, no solo el comentario."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "EXEC-R04 vuelve a verde con una constancia ANADIDA, sin editar el ledger",
+      "tests": [
+        "selftest.sh:una entrada CORRIGE posterior excusa",
+        "selftest.sh:…pero una CORRIGE SIN nombre no",
+        "selftest.sh:…ni una ANTERIOR a lo que corrige",
+        "selftest.sh:…ni una entrada que no diga CORRIGE",
+        "selftest.sh:…ni una POSTERIOR de otro dia"
+      ],
+      "evidence": [
+        "salidas/verde.txt"
+      ],
+      "verified": true,
+      "nota": "CINCO casos y CUATRO negativos: excusar es facil de convertir en un agujero, y el ultimo lo encontro la prueba inversa al salir en CERO. El mecanismo no es nuevo — HISTORY.log usa CORRIGE desde PT-046 y FDGE-R29 lo prefiere."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Un caso reproduce el fallo y falla SIN el arreglo",
+      "tests": [
+        "prueba inversa"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que EXEC-R04a no tenga mas agujeros.",
+      "por_que": "Nacio hace un dia y esta es la primera vez que corre contra un ledger real de doscientas entradas.",
+      "donde": "changes/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes/context.md"
+    },
+    {
+      "afirmacion": "Que las otras siete reglas de RIGE_DESDE no esten juzgando hacia atras.",
+      "por_que": "alcanzadaPor ya existe y aplicarlo a las ocho cabria en una tarde. NO lo he medido, y extenderlo a ciegas seria lo mismo que este PT corrige.",
+      "donde": "changes/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que main quede verde.",
+      "por_que": "Lo verificado es esta rama. La autorizacion del firmante fue para PT-094; PT-095 aparecio despues y su G4 necesita la suya.",
+      "donde": "docs/implementation/HANDOFF.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "La clase de palabra de un regex acabo siendo el byte 0x08 al pasar por el editor.",
+      "regla": "—",
+      "detalle": "«/‹0x08›CORRIGE‹0x08›/» no casa NUNCA y no se ve al leer: la funcion devolvia false siempre. Y el comentario que escribi para advertir del byte CONTENIA el byte. Lo cazo un escaneo hecho por desconfianza, no una comprobacion; ahora hay un caso que lo pone rojo. Es la leccion de PT-085 sobre secuencias de escape en tools/, y van tres veces en esta sesion que el escapado rompe algo en silencio."
+    },
+    {
+      "que": "Escribi los casos tres veces con comillas anidadas antes de mirar que PAT() ya existia.",
+      "regla": "—",
+      "detalle": "PAT() pasa los argumentos por ENTORNO como JSON y lleva ahi desde PT-058. Y al usarlo seguia fallando con «PAT: command not found» porque puse el bloque OCHOCIENTAS lineas antes de su definicion; el arnes lo reporta como salida inesperada, no como «ese ayudante no existe todavia». Misma familia que el rojo del runner en PT-001 y PT-002: un rojo que no prueba lo que pretende probar. Tercera vez en la sesion, en tres herramientas distintas."
+    },
+    {
+      "que": "La primera «corregidaDespues» era una llave maestra, y casi lo apunto como verde.",
+      "regla": "FDGE-R17",
+      "detalle": "Aceptaba CUALQUIER dia posterior: una sola entrada CORRIGE excusaba TODO el ledger anterior para siempre. Lo delato que la INVERSA SALIO EN CERO — deshice el arreglo y no cayo nada—. Una inversa que sale en cero no es un verde: es un aviso. La ventana es el MISMO DIA, y hay un caso que lo sostiene."
+    }
+  ],
+  "suite": {
+    "passed": 1227,
+    "failed": 0,
+    "baseline": 1214,
+    "nota": "13 casos. Cuatro de AC-06 y TRES de ellos negativos, porque excusar una entrada malformada es facil de convertir en un agujero."
+  }
+}

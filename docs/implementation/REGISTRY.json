@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 94,
+    "PT": 95,
     "EP": 18,
     "QA": 0,
     "QR": 0,
@@ -2412,6 +2412,40 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-20"
+      }
+    },
+    {
+      "id": "PT-095",
+      "slug": "una-regla-nueva-no-juzga-lo-escrito-antes",
+      "created": "2026-08-21",
+      "status": "READY",
+      "type": "BUG",
+      "severity": "S1",
+      "complexity": "STANDARD",
+      "track": "STANDARD",
+      "phase": 9,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "branch": "fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes",
+      "title": "Una regla nueva no juzga lo escrito antes de que existiera",
+      "origin": "G4 de PT-094 se ejecuto (PR #180) y main siguio rojo: run 32468108612 falla con seis EXEC-R04a y un EXEC-R04. Medido sobre 338a728 —el main de antes— que los seis ya estaban: no los trajo el merge, los DESTAPA, porque sin un merge nuevo que contrastar checkG4ConConstancia volvia antes de enumerarlos. EXEC-R04a entra en la 11.0.0, etiquetada el 2026-08-20, y esta juzgando entradas del 13 de agosto. rigeGlobal() comprueba que la SUITE este en 11.0.0, no que lo JUZGADO sea posterior a la regla: es RIGE_DESDE de PT-081 aplicado a medias. Y el filtro /G4|VoBo|autorizad/ lee «a la espera de G4» como una autorizacion. SESSION_LOG es append-only (SUITE-R09), asi que las cinco entradas historicas NO se pueden corregir editandolas: main queda rojo para siempre en cuanto haya un merge. No es una regla dificil de cumplir, es una que no se puede cumplir.",
+      "issue": 181,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 878,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
       }
     }
   ]

@@ -3953,7 +3953,6 @@ trlib "sha distinto ⇒ NO corresponde"         "^false$" \
 # — con otro nombre de rama cada vez. TODA fusion lo invalidaba, que es el caso normal.
 trlib "otra rama, misma historia: corresponde" "^true$"   "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
 trlibno "…y la rama no figura como discrepancia" "rama"   "console.log(JSON.stringify(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).discrepancias))"
-  "console.log(m.estadoDelArbol($CPOK,{sha:\"a\".repeat(40),rama:\"otra\"}).corresponde)"
 
 # E4/E5 · lo que separa esto de una herramienta que molesta. Medido en PHASE 2: la lista de
 # archivos paso de 3 a 5 con el sha intacto en el tiempo de escribir tres parrafos. Si eso fuera
@@ -4805,6 +4804,55 @@ chk   "un limite que no llega al mensaje CAE"    '["X"]' \
   PAT limitesQueNoLleganAlMensaje '[{"X":{"establece":"a","noEstablece":"zzz"}},{"t":"hola"}]'
 chk   "…y uno que si llega, pasa"                "VACIO" \
   PAT limitesQueNoLleganAlMensaje '[{"X":{"establece":"a","noEstablece":"zzz"}},{"t":"dice zzz"}]'
+
+
+# ── PT-095 · una regla nueva no juzga lo escrito antes de que existiera ──────
+#
+# `G4` de PT-094 se ejecuto y `main` siguio ROJO: seis EXEC-R04a sobre entradas del 13 y el 20 de
+# agosto, juzgadas por una regla que entro con la 11.0.0 —etiquetada el 2026-08-20—. En un ledger
+# append-only, donde SUITE-R09 PROHIBE corregirlas. Una regla que no se puede cumplir esta rota.
+#
+# Los casos usan PAT(), que pasa los argumentos por ENTORNO como JSON. Los escribi tres veces con
+# comillas anidadas y las tres reventaron el shell; el ayudante lleva ahi desde PT-058.
+sec "── PT-095 · una regla nueva no juzga lo escrito antes ──"
+
+# AC-03/AC-04 · «a la espera de G4» anuncia lo CONTRARIO de una autorizacion. El detector positivo
+# se deja como estaba —afinarlo dejaria fuera constancias que hoy valen— y se EXCLUYE la espera,
+# que es vocabulario corto y cerrado.
+chk   "«a la espera de G4» NO es autorizacion"  "^false$"  PAT anunciaAutorizacion '["EP-001 cerrado · version 5.3.0 · a la espera de G4"]'
+chk   "…y «autorizados al agente» SI lo es"     "^true$"   PAT anunciaAutorizacion '["G4 de PT-094 y cierre del BUG, autorizados al agente"]'
+chk   "…y un VoBo tambien"                      "^true$"   PAT anunciaAutorizacion '["VoBo para cerrar pendientes y ejecutar EP-018"]'
+chk   "…y un encabezado sin nada de eso, no"    "^false$"  PAT anunciaAutorizacion '["sesion cerrada"]'
+
+# AC-01/AC-02 · la frontera. Lo escrito ANTES del sello no lo alcanza; lo de DESPUES si. Sin las
+# dos mitades, «arreglado» seria «ya no comprueba nada».
+chk   "lo anterior al sello NO lo alcanza"      "^false$"  PAT alcanzadaPor '["2026-08-13","2026-08-20"]'
+chk   "…lo POSTERIOR si"                        "^true$"   PAT alcanzadaPor '["2026-08-21","2026-08-20"]'
+# AC-05 · el limite declarado: el MISMO dia del sello escapa, y se prefiere ese error al contrario
+# —juzgar hacia atras—, que es el que dejaba main rojo sin arreglo posible.
+chk   "…y el MISMO dia del sello escapa"        "^false$"  PAT alcanzadaPor '["2026-08-20","2026-08-20"]'
+# RULE-06 · sin frontera no se juzga nada: no poder situar el limite no es no tenerlo.
+chk   "sin frontera no alcanza a nada"          "^false$"  PAT alcanzadaPor '["2026-08-21",null]'
+chk   "…ni con una fecha que no lo es"          "^false$"  PAT alcanzadaPor '["ayer","2026-08-20"]'
+
+# AC-06 · en un ledger append-only lo malformado se corrige ANADIENDO. Sin esto la unica salida
+# seria editar SESSION_LOG.md, que SUITE-R09 prohibe: dos reglas haciendose imposibles entre si.
+# HISTORY.log ya lo resuelve asi desde PT-046, y FDGE-R29 prefiere la correccion.
+chk   "una entrada CORRIGE del dia excusa"      "^true$"   PAT corregidaDespues '["2026-08-21",["2026-08-21 · CORRIGE la constancia: el nombre iba sin acento\n\nautorizado por Ana Ruiz."],["Ana Ruiz"]]'
+# CUATRO negativos, y no son de adorno: excusar es facil de convertir en un agujero.
+chk   "…pero una CORRIGE SIN nombre no"         "^false$"  PAT corregidaDespues '["2026-08-21",["2026-08-21 · CORRIGE la constancia\n\nsin ningun nombre"],["Ana Ruiz"]]'
+chk   "…ni una ANTERIOR a lo que corrige"       "^false$"  PAT corregidaDespues '["2026-08-21",["2026-08-20 · CORRIGE algo\n\nautorizado por Ana Ruiz."],["Ana Ruiz"]]'
+chk   "…ni una entrada que no diga CORRIGE"     "^false$"  PAT corregidaDespues '["2026-08-21",["2026-08-21 · otra cosa cualquiera\n\nautorizado por Ana Ruiz."],["Ana Ruiz"]]'
+# Este lo encontro la PRUEBA INVERSA de este mismo PT: con «cualquier dia posterior» UNA entrada
+# CORRIGE excusaba TODO el ledger anterior para siempre, y la inversa salia en CERO — o sea que no
+# probaba nada. Una inversa que sale en cero no es un verde: es un aviso.
+chk   "…ni una POSTERIOR de otro dia"           "^false$"  PAT corregidaDespues '["2026-08-13",["2026-08-21 · CORRIGE otra cosa\n\nautorizado por Ana Ruiz."],["Ana Ruiz"]]'
+
+# Y el byte que se colo escribiendo esto: la clase de palabra de un regex acabo siendo 0x08 al
+# pasar por el editor. «/‹0x08›CORRIGE‹0x08›/» no casa NUNCA y no se ve al leer, asi que la funcion
+# devolvia false siempre y el caso habria dado verde por VACIO. Y el comentario que escribi para
+# advertirlo contenia el mismo byte. Es la leccion de PT-085, repetida.
+chkno "ningun byte de control en patrones.mjs"  "CONTROL"  sh -c 'tr -dc "\010\013\014\033" < "$1" | sed "s/.*/CONTROL/"' _ "$SUITE/tools/patrones.mjs"
 
 # Sobre el arbol REAL: las tres de PT-088 declaran sujeto y su limite llega al mensaje.
 chk   "las tres del arbol real estan completas"  "VACIO" \

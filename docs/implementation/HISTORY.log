@@ -4711,3 +4711,47 @@ AC-09 y ninguno de AC-10.
 
 La decision de ampliar —en vez de marcar terminal antes del merge o retirar el checkpoint— la
 tomo el firmante, con las tres opciones y sus consecuencias delante.
+
+## PT-095 — Una regla nueva no juzga lo escrito antes de que existiera
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 · G4 PENDIENTE, y su autorizacion no esta dada
+
+G4 de PT-094 se ejecuto y main siguio ROJO: seis EXEC-R04a y un EXEC-R04. Lo PRIMERO fue medir si
+lo habia traido el merge: sobre 338a728 —el main de antes— los seis ya estaban. El merge no los
+crea, hace que la comprobacion LLEGUE a enumerarlos, porque sin un merge nuevo que contrastar
+volvia antes. Medirlo costo un minuto y evito escribir un PT sobre una causa inventada.
+
+La regla no era exigente: era IMPOSIBLE. SESSION_LOG.md es append-only (SUITE-R09) y EXEC-R04a
+exigia arreglar entradas del 13 de agosto que no se pueden tocar. La unica salida era editar el
+ledger, que es lo que la otra regla prohibe. PT-029 construyo un detector de reglas que se hacen
+imposibles entre si y no encontro esta, porque el choque no esta entre dos textos sino entre un
+texto y un DATO: doscientas entradas escritas antes de que la regla existiera.
+
+La causa tiene nombre aqui desde PT-081. EXEC-R04a entra en la 11.0.0, etiquetada el 2026-08-20, y
+juzgaba entradas del 13. RIGE_DESDE decide si la comprobacion CORRE, no a que ALCANZA — aplicado a
+medias. Durante siete dias no molesto porque las demas reglas juzgan artefactos corregibles; muerde
+cuando lo juzgado no se puede reescribir.
+
+Tres arreglos, uno por clase, y ninguno inventa vocabulario: excluir la espera del detector
+—«a la espera de G4» anuncia lo contrario—, una frontera DERIVADA del tag de la version que trajo
+la regla, y entradas CORRIGE que superan a una malformada, como HISTORY.log hace desde PT-046.
+
+La PRUEBA INVERSA encontro un agujero que yo no buscaba: «corregidaDespues» aceptaba cualquier dia
+posterior, asi que UNA entrada CORRIGE excusaba TODO el ledger anterior para siempre — el mecanismo
+pensado para no dejar main rojo se convertia en una llave maestra. Lo delato que la inversa SALIO
+EN CERO, y yo iba a apuntarlo como verde. Una inversa que sale en cero no es un verde: es un aviso.
+
+Y un byte: la clase de palabra de un regex acabo siendo 0x08 al pasar por el editor. No casa nunca
+y no se ve al leer. El comentario que escribi para advertirlo contenia el mismo byte. Hay un caso
+que lo pone rojo.
+
+Bateria 1214 → 1229. Los seis EXEC-R04a en cero SIN editar una sola linea del ledger.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). Y su G4 tampoco esta autorizada — la del
+firmante fue para PT-094, y una autorizacion cubre lo que se pidio, no lo que aparecio despues.
