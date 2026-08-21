@@ -4823,3 +4823,28 @@ Tienes mi Vo Bo». Constancia en `SESSION_LOG.md`.
 
 **PUBLICAR no entra**: la instruccion dice «listo PARA publicar», y la eleccion registrada del
 firmante sigue siendo suya.
+
+## PT-095 — CORRIGE: el estado terminal, tras la G4
+Corrige: las entradas de 2026-08-21
+Motivo: la anterior declaraba `DONE` porque `G4` aun no se habia ejecutado. Ya esta en `main`.
+Fecha: 2026-08-21
+Estado: INTEGRATED
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: — (tarea suelta, fuera de lote)
+Rama: fix/alberto-martinez/PT-095-una-regla-nueva-no-juzga-lo-escrito-antes
+Modo de ejecución: SUPERVISED
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez · G4 2026-08-21 Alberto Martínez
+integrado por: Alberto Martínez
+
+`G4` en el PR #183. **`main` quedo VERDE por primera vez en la sesion**: la corrida 32487099812 es
+la primera `verificacion` sobre `main` en success desde antes de la 11.0.0.
+
+Esta entrada existe por la friccion que su propia autorizacion anticipo: `SUITE-R46` no deja cerrar
+el issue #181 hasta que el estado terminal este en `main`, y `FDGE-R34` exigia `DONE` —no
+`INTEGRATED`— para resolver `G4`. Marcar `INTEGRATED` solo es honesto DESPUES del merge, y entonces
+hace falta un segundo merge para que llegue. `EP-018` resolvio esto para los LOTES; para una tarea
+la compuerta lo rechaza expresamente.
+
+**No es un descuido y no se arregla aqui**: es un choque entre dos reglas, del mismo tipo que
+`PT-095` acaba de cerrar para `EXEC-R04a`, y merece su propio intake.
