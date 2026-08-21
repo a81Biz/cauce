@@ -10,4 +10,4 @@ Proyectado el 2026-08-21 · 2 allocation(es) viva(s).
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
-| PT-094 | BUG | INTEGRATED | 10 | fix/alberto-martinez/PT-094-el-checkpoint-de-lo-cerrado-bloquea-main | — | 375e85e |
+| PT-094 | BUG | IN_PROGRESS | 6 | fix/alberto-martinez/PT-094-la-rama-corrobora | 758fb50 | 6a68054 |
