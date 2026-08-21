@@ -912,15 +912,47 @@ export function selloSinResolver(actaDelSello) {
  * todos los MAJOR de forma permanente y la comprobacion se desactivaria. STALE bloqueante sigue
  * reservado a lo estructural; esto produce SUSPECT con la lista.
  */
-export function derivaDelGrafo(manifest, mtimeDe) {
+export function derivaDelGrafo(manifest, huellaDe) {
   if (!manifest || typeof manifest !== 'object') return null;
   const cambiados = [];
   for (const [ruta, d] of Object.entries(manifest)) {
-    const actual = mtimeDe(ruta);
+    const esperado = d?.ast_hash ?? d?.semantic_hash ?? null;
+    const actual = huellaDe(ruta, esperado == null);
     if (actual == null) { cambiados.push(`${ruta} (no existe)`); continue; }
-    if (Math.abs(actual - Number(d?.mtime ?? 0)) > 1) cambiados.push(ruta);
+    // PT-090 · el manifiesto guarda «ast_hash» EN LA MISMA LINEA que «mtime», y esta funcion
+    // usaba el mtime: el dato bueno estaba al lado y se eligio el barato. «git clone» reescribe
+    // los mtime con la fecha del clon, asi que los 17 archivos salian cambiados aunque el
+    // contenido fuera identico — y dos commit seguidos tambien los mueven. Paso DOS VECES en
+    // este mismo lote, la ultima con 6 de 17 por una normalizacion de CRLF.
+    //
+    // Solo se cae al mtime si el manifiesto NO trae hash: un manifiesto viejo sigue midiendose
+    // como antes en vez de dar todo por cambiado, que seria nacer rojo.
+    if (esperado == null) {
+      if (Math.abs(Number(actual) - Number(d?.mtime ?? 0)) > 1) cambiados.push(ruta);
+    } else if (String(actual) !== String(esperado)) {
+      cambiados.push(ruta);
+    }
   }
   return cambiados;
+}
+
+/**
+ * PT-090 · La ruta de un archivo del manifiesto, relativa a la raiz del proyecto.
+ *
+ * El manifiesto guarda rutas ABSOLUTAS —«C:\\DevOps\\…\\bin\\cauce.mjs»— asi que solo sirve en un
+ * disco donde el proyecto este exactamente ahi. Versionar el grafo NO bastaria, que es lo que
+ * H-005 daba por hecho.
+ *
+ * QUE ESTABLECE: la ruta relativa dentro del proyecto, con separadores «/».
+ * QUE NO ESTABLECE: que el archivo exista. Solo normaliza la forma.
+ */
+export function rutaRelativaDelManifiesto(ruta, raiz) {
+  const norm = (s) => String(s ?? '').split(String.fromCharCode(92)).join('/');
+  const r = norm(ruta);
+  const base = norm(raiz).replace(/\/+$/, '');
+  if (!base) return r;
+  const i = r.toLowerCase().indexOf(base.toLowerCase() + '/');
+  return i >= 0 ? r.slice(i + base.length + 1) : r;
 }
 
 /**

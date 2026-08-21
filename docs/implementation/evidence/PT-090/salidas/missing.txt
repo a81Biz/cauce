@@ -1,0 +1,12 @@
+# PT-090 · MISSING dice lo que pasa, y deja de prometer lo que no hace
+
+--- ANTES ---
+! FDGE-R43  Grafo MISSING — no existe graphify-out/. Bloquea G2 en PTs MAJOR.
+
+--- AHORA ---
+! FDGE-R43  Grafo MISSING — no existe graphify-out/ en este clon — el directorio esta en
+            .gitignore, asi que la frescura NO ES EVALUABLE aqui. No es lo mismo que estar
+            desactualizado.
+
+La comprobacion no bloqueaba «a veces»: fuera de la maquina que genero el grafo NO LLEGABA
+A EVALUARSE NUNCA, y aun asi prometia bloquear.

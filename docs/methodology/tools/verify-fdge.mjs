@@ -58,7 +58,8 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
-import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA } from './patrones.mjs';
+import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
+         rutaRelativaDelManifiesto } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -265,7 +266,16 @@ function checkFoundation() {
 // cumplirla declarando que el grafo no existía. Una regla dura que se satisface diciendo
 // que no se puede cumplir no es una regla. Aquí se vuelve computable.
 function graphState(reg) {
-  if (!existsSync(join(ROOT, 'graphify-out'))) return { state: 'MISSING', reason: 'no existe graphify-out/' };
+  // PT-090 · MISSING era un BLOQUEO MUDO: en un clon limpio —CI incluida— el directorio nunca
+  // existe, porque «.gitignore» lo excluye. La comprobacion no bloqueaba «a veces»: no llegaba
+  // a evaluarse NUNCA fuera de la maquina que genero el grafo, y decia «Bloquea G2» como si si.
+  //
+  // Ahora dice lo que pasa: NO EVALUABLE AQUI. Es honesto, y no es lo mismo que comprobarlo —
+  // eso solo lo cerraria versionar el grafo o generarlo en CI, y las dos son decisiones de
+  // alcance que PT-090 no toma.
+  if (!existsSync(join(ROOT, 'graphify-out'))) {
+    return { state: 'MISSING', reason: 'no existe graphify-out/ en este clon — el directorio está en .gitignore, así que la frescura NO ES EVALUABLE aquí. No es lo mismo que estar desactualizado' };
+  }
   const g = reg?.graph;
   if (g?.pt_at_generation == null) {
     warn('FND-R14', 'REGISTRY.graph no declara pt_at_generation: el grafo no forma parte del paquete.');
@@ -293,12 +303,32 @@ function graphState(reg) {
   // aquí dejaría G2 cerrada en todos los MAJOR de forma permanente — y una comprobación que
   // siempre bloquea se desactiva. STALE bloqueante sigue reservado a lo estructural.
   const man = (() => { try { return JSON.parse(readFileSync(join(ROOT, 'graphify-out', 'manifest.json'), 'utf8')); } catch { return null; } })();
-  const deriva = derivaDelGrafo(man, (ruta) => {
-    const ruta2 = ruta.split(String.fromCharCode(92)).join('/');
-    try { return statSync(ruta2).mtimeMs / 1000; } catch { return null; }
+  // PT-090 · el manifiesto guarda «ast_hash» junto al «mtime», y esta llamada usaba el mtime.
+  // «git clone» los reescribe con la fecha del clon, asi que los 17 archivos salian cambiados
+  // aunque el contenido fuera identico — y dos commit seguidos tambien. Paso DOS VECES en este
+  // lote, la ultima con 6 de 17 por una normalizacion de CRLF.
+  //
+  // Y las rutas del manifiesto son ABSOLUTAS, asi que se relativizan a la raiz: sin eso, el
+  // manifiesto solo sirve en un disco donde el proyecto este exactamente en esa ruta.
+  const deriva = derivaDelGrafo(man, (ruta, usaMtime) => {
+    const rel = rutaRelativaDelManifiesto(ruta, ROOT);
+    const f = join(ROOT, rel);
+    if (!existsSync(f)) return null;
+    if (usaMtime) { try { return statSync(f).mtimeMs / 1000; } catch { return null; } }
+    // La huella es del CONTENIDO NORMALIZADO: sin esto, un checkout con CRLF y otro con LF
+    // darian hashes distintos para el mismo archivo, que es el defecto que se esta cerrando.
+    try {
+      const txt = readFileSync(f, 'utf8').split(String.fromCharCode(13)).join('');
+      return createHash('md5').update(txt).digest('hex');
+    } catch { return null; }
   });
   if (deriva && deriva.length) {
-    const muestra = deriva.slice(0, 6).map((r) => r.split('/').pop()).join(', ');
+    // La muestra en ruta RELATIVA: el manifiesto guarda absolutas y un mensaje con
+    // «C:\DevOps\…» cuatro veces no se lee, ademas de decir donde vive el disco de quien lo
+    // genero. Es el mismo material que H-001 saco del tarball.
+    const muestra = deriva.slice(0, 6)
+      .map((r) => rutaRelativaDelManifiesto(r.replace(' (no existe)', ''), ROOT))
+      .join(', ');
     return {
       state: 'SUSPECT',
       reason: `${deriva.length} de ${Object.keys(man).length} archivos que describe han cambiado desde ${g.generated}`
@@ -1996,7 +2026,7 @@ checkEpics();
 GRAPH = graphState(reg);
 if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);
 else if (GRAPH.state === 'SUSPECT') warn('FDGE-R43', `Grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);
-else warn('FDGE-R43', `Grafo ${GRAPH.state} — ${GRAPH.reason}. Bloquea G2 en PTs MAJOR.`);
+else warn('FDGE-R43', `Grafo ${GRAPH.state} — ${GRAPH.reason}.${GRAPH.state === 'MISSING' ? '' : ' Bloquea G2 en PTs MAJOR.'}`);
 
 const pts = all ? allOpenPTs(reg) : [...new Set(targets)];
 if (!pts.length && !all) {

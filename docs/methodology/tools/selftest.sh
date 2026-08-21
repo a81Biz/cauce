@@ -4649,6 +4649,38 @@ sec "── PT-087 · la comprobacion declara que hecho establece ──"
 # el sujeto y el observable.
 # Dice si una regla tiene fila en RIGE_DESDE. Se escribe aparte porque PAT() serializa el
 # RESULTADO de una funcion, y aqui lo que se mira es una TABLA.
+# PT-090 · cuatro variantes de PAT para derivaDelGrafo, que recibe una FUNCION de huella:
+# PAT_H fija el hash devuelto · PAT_M fija el mtime · PAT_N devuelve null · PAT_R normaliza ruta.
+PAT_H() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_H="$2" MTH_ARGS="$3" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](a[0], () => process.env.MTH_H);
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+PAT_M() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_H="$2" MTH_ARGS="$3" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](a[0], (_, usaMtime) => (usaMtime ? Number(process.env.MTH_H) : 'X'));
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+PAT_N() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_ARGS="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  console.log(JSON.stringify(m[process.env.MTH_FN](a[0], () => null)));
+});"
+}
+PAT_R() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_P="$1" MTH_B="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  console.log(m.rutaRelativaDelManifiesto(process.env.MTH_P, process.env.MTH_B));
+});"
+}
+
 PAT_KEY() {
   MTH_MOD="$SUITE/tools/patrones.mjs" MTH_ID="$1" node -e "
 import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
@@ -4809,6 +4841,51 @@ for (const a of r.allocations.filter(x => /^PT-/.test(x.id))) {
 }
 console.log(mal.length ? mal.join(\" \") : \"VACIO\");
 "' _ "$RAIZ"
+
+sec "── PT-090 · la frescura del grafo viaja con el repositorio ──"
+#
+# H-005 y TD-17. El manifiesto guarda «ast_hash» EN LA MISMA LINEA que «mtime», y derivaDelGrafo
+# usaba el mtime: el dato bueno estaba al lado y se eligio el barato. «git clone» reescribe los
+# mtime con la fecha del clon, asi que los 17 archivos salian cambiados con el contenido
+# identico — y dos commit seguidos tambien los mueven. Paso DOS VECES en este mismo lote.
+
+# ── el hash manda, y el mtime deja de importar ──────────────────────────────
+chk   "mismo hash, distinto mtime: NO hay deriva"     "VACIO" \
+  PAT_H derivaDelGrafo AAA '[{"a.js":{"mtime":100,"ast_hash":"AAA"}}]'
+chk   "hash distinto: SI hay deriva"                  '"a.js"' \
+  PAT_H derivaDelGrafo BBB '[{"a.js":{"mtime":100,"ast_hash":"AAA"}}]'
+# Un manifiesto VIEJO no trae hash. Darlo todo por cambiado seria nacer rojo, asi que se cae al
+# mtime — que es lo que media antes, ni mejor ni peor.
+chk   "sin hash en el manifiesto, cae al mtime"       '"b.js"' \
+  PAT_M derivaDelGrafo 999 '[{"b.js":{"mtime":200}}]'
+chk   "un archivo que no existe se nombra"            "no existe" \
+  PAT_N derivaDelGrafo '[{"c.js":{"ast_hash":"A"}}]'
+
+# ── las rutas del manifiesto son absolutas y se relativizan ─────────────────
+#
+# Sin esto, versionar el grafo NO bastaria: el manifiesto solo serviria en un disco donde el
+# proyecto estuviera exactamente en esa ruta. Es la mitad del hallazgo que H-005 daba por hecha.
+chk   "una ruta absoluta de windows se relativiza"    "bin/cauce.mjs" \
+  PAT_R "C:\\DevOps\\Desarrollos\\cauce\\bin\\cauce.mjs" "C:/DevOps/Desarrollos/cauce"
+chk   "…y una de posix tambien"                       "bin/cauce.mjs" \
+  PAT_R "/home/x/cauce/bin/cauce.mjs" "/home/x/cauce"
+chk   "…y una ya relativa se queda igual"             "bin/cauce.mjs" \
+  PAT_R "bin/cauce.mjs" "C:/DevOps/Desarrollos/cauce"
+# Si la raiz no aparece en la ruta NO se inventa una relativa: se devuelve lo que hay. Fabricar
+# una ruta plausible seria peor que decir que no se pudo.
+chk   "…y si la raiz no casa, no se inventa nada"     "otra/raiz/x.js" \
+  PAT_R "otra/raiz/x.js" "/no/coincide"
+
+# ── MISSING deja de ser un bloqueo mudo ─────────────────────────────────────
+#
+# En un clon limpio —CI incluida— graphify-out NUNCA existe: esta en .gitignore. La comprobacion
+# no bloqueaba «a veces»: no llegaba a evaluarse fuera de la maquina que genero el grafo, y aun
+# asi decia «Bloquea G2» como si si.
+build_fixture
+rm -rf "$WORK/graphify-out"
+chk   "sin graphify-out dice NO ES EVALUABLE"         "NO ES EVALUABLE" V --all
+chk   "…y ya no dice que bloquea G2"                  "NO ES EVALUABLE" V --all
+chkno "…y no promete bloquear lo que no evalua"       "Bloquea G2 en PTs MAJOR" V --all
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL

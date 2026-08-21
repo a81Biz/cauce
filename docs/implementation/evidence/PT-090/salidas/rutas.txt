@@ -1,0 +1,6 @@
+# PT-090 · las rutas absolutas del manifiesto se relativizan
+
+absoluta windows -> bin/cauce.mjs
+absoluta posix   -> bin/cauce.mjs
+ya relativa      -> bin/cauce.mjs
+raiz que NO casa -> otra/raiz/x.js   <- se devuelve tal cual, no se inventa

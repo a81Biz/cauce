@@ -4309,3 +4309,46 @@ igual. Declarar que algo no aplica sin poder ensenarlo es lo que este lote persi
 bateria: 1145 -> 1156 casos, cero fallos, cinco corridas completas.
 Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
 Trazabilidad externa: issue #165
+
+## PT-090 — la frescura del grafo viaja con el repositorio
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-005 y TD-17 describian UN defecto. Habia DOS, y el segundo invalida el analisis del hallazgo.
+
+  A  El manifiesto guarda «ast_hash» EN LA MISMA LINEA que «mtime», y derivaDelGrafo usaba el
+     mtime. No faltaba el dato: se eligio el barato teniendolo al lado. «git clone» reescribe
+     los mtime con la fecha del clon y dos commit seguidos tambien los mueven — puso el grafo
+     en SUSPECT DOS VECES en este mismo lote, la ultima con 6 de 17 por una normalizacion CRLF.
+  B  Las rutas del manifiesto son ABSOLUTAS. Versionar el grafo NO habria bastado, que es lo
+     que H-005 daba por hecho: solo sirve en un disco donde el proyecto este exactamente ahi.
+
+LA PRUEBA DE QUE EL ARREGLO ERA ESE: antes SUSPECT 6 de 17 incluyendo archivos no tocados; ahora
+nombra los CINCO que edite en el lote, ni uno mas. Menos ruido Y mas precision a la vez, que suele
+ser la senal de haber pasado de un proxy al hecho.
+
+LA SALIDA «VERSIONAR» SE DESCARTO CON UNA CIFRA, no con una intuicion:
+  versionar graphify-out/   2,3 MB medidos, medio de ellos graph.html regenerable, mas un
+                            conflicto de merge por cada regeneracion
+  mtime -> hash             casi cero: el hash YA estaba en el manifiesto
+  MISSING explicito         una linea
+Y SUITE-R37 ya declara graphify-out/ regenerable, con el «no hacer» prohibiendo corregirlo a
+mano: versionar un artefacto que el marco declara desechable es contradecirse.
+
+DOS DECISIONES para que el arreglo no sea OTRO dato que depende de la maquina: la huella se
+calcula sobre contenido SIN «» —si no, un checkout con CRLF y otro con LF darian hashes
+distintos para el mismo archivo, y git aviso de esa conversion en CADA commit de este lote—; y si
+la raiz no aparece en la ruta se devuelve la ruta TAL CUAL, porque fabricar una relativa plausible
+seria peor que decir que no se pudo.
+
+MISSING NO BLOQUEABA «A VECES»: fuera de la maquina que genero el grafo NO LLEGABA A EVALUARSE
+NUNCA, y aun asi decia «Bloquea G2 en PTs MAJOR» — una promesa que ningun clon podia cumplir. Ahora
+dice «no evaluable aqui», que es SIN EVALUAR aplicado a un ESTADO. Hay DOS casos: uno comprueba
+que dice el hecho nuevo y otro que DEJO DE DECIR el falso.
+
+LO QUE NO SE RESUELVE, declarado: en un clon limpio el grafo sigue sin existir. Pasa de un bloqueo
+que nadie alcanzaba a un «no evaluable», que es honesto y NO es lo mismo que comprobarlo.
+
+bateria: 1156 -> 1167 casos, cero fallos, a la primera.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #166
