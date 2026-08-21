@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": null,
   "status": "READY",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "fix/alberto-martinez/PT-094-el-checkpoint-de-lo-cerrado-bloquea-main",
   "sha": "338a72821023e21f9ba0c9ed7a28158a238cbddf",
   "sha_corto": "338a728",
@@ -23,11 +23,8 @@
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-20"
 }
