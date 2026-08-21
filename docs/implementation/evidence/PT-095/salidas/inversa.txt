@@ -1,0 +1,29 @@
+=== INVERSA 1 · sin la frontera, la regla vuelve a juzgar hacia atras ===
+
+entradas acusadas: 2      (con el arreglo: 0)
+
+=== INVERSA 2 · «cualquier dia posterior» en vez de «el mismo dia» ===
+
+  X …ni una POSTERIOR de otro dia   (no aparecio: ^false$ · salio: true)
+
+=== Por que la INVERSA 1 acusa DOS y no seis ===
+
+Los seis originales eran de TRES clases, y los arreglos se reparten:
+
+  3 del 2026-08-13   los caza «anunciaAutorizacion»: dicen «a la espera de G4»
+  2 del 2026-08-20   los caza la FRONTERA: son autorizaciones anteriores a la regla
+  1 del 2026-08-21   la excusa la entrada CORRIGE anadida
+
+Quitar solo la frontera deja al descubierto los DOS que le tocan. Decir «caen seis»
+seria atribuir a un arreglo lo que hacen tres.
+
+=== Lo que la INVERSA 2 encontro, y no era el objetivo ===
+
+La primera version de «corregidaDespues» aceptaba CUALQUIER dia posterior. Con eso,
+UNA sola entrada CORRIGE excusaba TODO el ledger anterior para siempre — y la inversa
+salia en CERO, o sea que el caso no probaba nada.
+
+Una inversa que sale en cero no es un verde: es un aviso.
+
+La ventana es el MISMO DIA, que es la real: una constancia mal escrita se corrige al
+notarlo, y EXEC-R04 ya empareja merges con constancias POR FECHA.

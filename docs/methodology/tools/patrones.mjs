@@ -1228,7 +1228,91 @@ export const SUJETOS = {
     establece: 'el commit declarado es alcanzable, y en una tarea VIVA el arbol corresponde a lo declarado',
     noEstablece: 'NO establece que la rama corresponda',
   },
+  // PT-095 · la frontera es de DIA, y eso deja escapar lo escrito la vispera del sello. Se
+  // prefiere ese error al contrario —juzgar hacia atras— que es el que dejaba main rojo sin
+  // arreglo posible en un ledger append-only.
+  'EXEC-R04a': {
+    establece: 'toda entrada POSTERIOR al sello de la version que trajo la regla lleva un nombre de firmantes',
+    noEstablece: 'NO establece nada sobre lo escrito el mismo dia del sello ni antes',
+  },
 };
+
+/**
+ * PT-095 · ¿este encabezado ANUNCIA una autorizacion?
+ *
+ * `EXEC-R04a` leia `/G4|VoBo|autorizad/` sobre el encabezado, y con eso tres entradas del
+ * 2026-08-13 que dicen «`EP-00N` cerrado · version X · A LA ESPERA DE `G4`» contaban como
+ * autorizaciones malformadas. Anuncian que ESPERAN una compuerta, que es lo contrario.
+ *
+ * No se afina el detector positivo —eso mueve el problema— sino que se EXCLUYE la espera, que es
+ * un vocabulario corto y cerrado. El positivo se deja como estaba para no dejar fuera ninguna
+ * constancia que hoy vale.
+ *
+ * QUE ESTABLECE: que el encabezado nombre una autorizacion y no una espera.
+ * QUE NO ESTABLECE: que el cuerpo diga lo que el encabezado anuncia. Eso lo mira quien lo lee.
+ */
+const RE_ANUNCIA = /G4|VoBo|autorizad/i;
+const RE_ESPERA = /a la espera de|pendiente de|esperando|queda para|sin resolver/i;
+export const anunciaAutorizacion = (encabezado) => {
+  const h = String(encabezado ?? '');
+  return RE_ANUNCIA.test(h) && !RE_ESPERA.test(h);
+};
+
+/**
+ * PT-095 · ¿alcanza esta regla a algo escrito en `fecha`?
+ *
+ * `PT-081` construyo `RIGE_DESDE` para que «una regla nueva no rija hacia atras», y quedo aplicado
+ * A MEDIAS: la version de entrada decide si la COMPROBACION corre, no a que ALCANZA. `EXEC-R04a`
+ * nacio con la 11.0.0 y estaba juzgando entradas del 13 de agosto — en un ledger append-only,
+ * donde corregirlas esta PROHIBIDO. Una regla que no se puede cumplir no es exigente: esta rota.
+ *
+ * `frontera` es la fecha del tag de la version que trajo la regla, derivada de git. Si no hay tag
+ * no hay frontera y la regla NO ALCANZA a nada: no poder situar el limite no es no tenerlo.
+ *
+ * QUE ESTABLECE: que lo juzgado se escribio DESPUES del dia en que la version se etiqueto.
+ * QUE NO ESTABLECE: nada dentro de ese mismo dia. La granularidad es de DIA, asi que lo escrito
+ *   la vispera del sello escapa — y se prefiere ese error al contrario, que es juzgar hacia atras.
+ */
+export function alcanzadaPor(fecha, frontera) {
+  if (!frontera) return false;
+  const f = String(fecha ?? '');
+  return /^\d{4}-\d{2}-\d{2}$/.test(f) && f > String(frontera);
+}
+
+/**
+ * PT-095 · una entrada MALFORMADA de un ledger append-only se corrige ANADIENDO.
+ *
+ * `SUITE-R09` prohibe editar, asi que sin esto una constancia con el nombre mal escrito deja la
+ * rama principal roja PARA SIEMPRE: la unica salida seria editar el ledger, que es justo lo que
+ * la otra regla prohibe. Dos reglas que se hacen imposibles entre si — lo que `PT-029` construyo
+ * un detector para encontrar.
+ *
+ * `HISTORY.log` ya resuelve esto desde `PT-046` con las entradas `CORRIGE`, y `FDGE-R29` las
+ * PREFIERE. Aqui se aplica el mismo mecanismo al mismo problema: no es vocabulario nuevo.
+ *
+ * QUE ESTABLECE: que existe una entrada DEL MISMO DIA que dice CORRIGE y lleva un nombre de
+ * firmantes.
+ * QUE NO ESTABLECE: que corrija ESA entrada en concreto. Eso lo dice su texto, y lo lee una
+ *   persona — igual que `FDGE-R29` no comprueba que una correccion corrija lo que dice corregir.
+ */
+export function corregidaDespues(fecha, bloques, lista) {
+  return (bloques ?? []).some((b) => {
+    const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
+    // EL MISMO DIA, no «cualquier dia posterior». Lo encontro la prueba inversa de este PT: con
+    // «posterior» UNA sola entrada CORRIGE excusaba TODO el ledger anterior para siempre, y la
+    // inversa salio en cero — o sea que el caso no probaba nada. Excusar es facil de convertir
+    // en un agujero, y ese era el agujero.
+    //
+    // El mismo dia es la ventana real: una constancia mal escrita se corrige al notarlo, y
+    // EXEC-R04 ya empareja merges con constancias POR FECHA.
+    if (!m || m[1] !== String(fecha)) return false;
+    // Sin la clase de palabra de un regex: escribirla aqui ya se convirtio UNA vez en el
+    // editor, y un regex que busca un caracter de control no casa nunca y NO SE VE al leer.
+    // Es la misma leccion que PT-085 dejo sobre las secuencias de escape en tools/.
+    if (!m[2].includes('CORRIGE')) return false;
+    return (lista ?? []).some((n) => b.includes(n));
+  });
+}
 
 /** El sujeto declarado de `id`, o `null` si la regla todavia no lo declara. */
 export const sujetoDe = (id) => SUJETOS[id] ?? null;

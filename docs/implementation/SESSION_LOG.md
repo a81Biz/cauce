@@ -2745,3 +2745,32 @@ cerrar un issue cuando su estado terminal esta en la rama por defecto; marcarlo 
 obligaria a un merge extra, que es la friccion que `EP-017` declaro inevitable y `EP-018` resolvio
 haciendolo al reves. Lo que convierte una tarea en terminal es que su TRABAJO este completo, no el
 merge.
+
+## 2026-08-21 · CORRIGE la constancia de la G4 de PT-094: el nombre iba sin acento
+
+La entrada anterior de hoy escribió **«Alberto Martinez»** y `firmantes:` dice **«Alberto
+Martínez»**. `EXEC-R04` busca un nombre de la lista **literalmente**, así que aquella constancia
+no contaba: la `G4` de `PT-094` figuraba como un merge sin autorización.
+
+**No se edita, se añade** (`SUITE-R09`). El ledger es append-only y esa regla no admite excepción
+para arreglar otra — es exactamente lo que `PT-095` tuvo que respetar para no poder tocar las
+cinco entradas históricas.
+
+Constancia con nombre y forma fija (`EXEC-R04a`): autorizado por Alberto Martínez.
+
+Cubre lo mismo que la anterior y nada más:
+
+```
+SUITE-R06a · merge a la rama principal   ->  G4 de PT-094, ya ejecutada (PR #180)
+SUITE-R06b · cerrar un item de tipo BUG  ->  PT-094
+```
+
+**No cubre `PT-095`.** La autorización del firmante fue para `PT-094`; `PT-095` apareció después,
+al ver que `main` seguía rojo, y su `G4` necesita la suya.
+
+**Y `PUBLICAR` sigue siendo del firmante**: «yo hago la publicación».
+
+Es la tercera vez en esta sesión que un nombre falla por su forma —el punto final en
+`HISTORY.log`, y ahora el acento—. Que se rompa así es el precio de que la firma sea
+contrastable: `SUITE-R27` no compara personas, compara cadenas, y esa es toda la defensa mecánica
+que hay contra una firma inventada.

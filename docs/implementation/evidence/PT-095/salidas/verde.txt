@@ -1,0 +1,7 @@
+=== VERDE ===
+
+1
+   ^ errores EXEC-R04/R04a (antes del arreglo: 7)
+
+
+Sin errores de coherencia.

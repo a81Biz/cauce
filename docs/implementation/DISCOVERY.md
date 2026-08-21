@@ -58,3 +58,4 @@
 | PT-090 | BUG | S2 | DRAFT | EP-018 | La frescura del grafo es comprobable en cualquier clon |
 | PT-091 | BUG | S3 | DRAFT | EP-018 | Las cifras del inventario se derivan, no se transcriben |
 | PT-094 | BUG | S1 | IN_PROGRESS | — | El checkpoint de una tarea cerrada bloquea main |
+| PT-095 | BUG | S1 | READY | — | Una regla nueva no juzga lo escrito antes de que existiera |
