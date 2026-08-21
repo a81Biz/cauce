@@ -12,5 +12,5 @@ Proyectado el 2026-08-21 · 5 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-019 | EPIC | DRAFT | 1 | — | — | 977bf8b |
 | PT-096 | BUG | DONE | 8 | bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto | 9c1ea4a | d682338 |
-| PT-097 | BUG | DRAFT | 7 | — | — | 06e367a |
+| PT-097 | BUG | DONE | 8 | — | — | 06e367a |
 | PT-098 | BUG | DRAFT | 1 | — | — | — |
