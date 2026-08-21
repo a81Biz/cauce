@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": null,
   "status": "IN_PROGRESS",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 9,
+  "fase": "Integración",
   "rama": "fix/alberto-martinez/PT-094-la-rama-corrobora",
   "sha": "758fb50a52e9ff63427e1706e50d51912cbc86ce",
   "sha_corto": "758fb50",
@@ -16,6 +16,7 @@
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-094/manifest.json",
     "docs/implementation/evidence/PT-094/salidas/inversa.txt",
@@ -24,11 +25,8 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/tracker.mjs"
   ],
-  "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "compuerta": "G4",
+  "produce": [],
+  "siguiente": "PHASE 9 · Integración — cierra con: G4 · HUMANA sin excepción (EXEC-R04, SUITE-R06a). Luego PHASE 10 · Cierre.",
   "generado": "2026-08-21"
 }
