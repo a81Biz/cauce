@@ -10,5 +10,5 @@ Proyectado el 2026-08-21 · 3 allocation(es) viva(s).
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
-| EP-019 | EPIC | DRAFT | 1 | — | — | ee3159d |
-| PT-096 | BUG | DRAFT | 7 | bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto | 498902f | 498902f |
+| EP-019 | EPIC | DRAFT | 1 | — | — | 977bf8b |
+| PT-096 | BUG | DONE | 8 | bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto | 9c1ea4a | 0906ad3 |
