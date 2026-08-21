@@ -1,0 +1,18 @@
+# PT-091 · el inventario, antes y despues
+
+--- ANTES · 8 de 16, y las distancias habian CRECIDO durante el lote ---
+selftest.sh       doc 3541 · H-007 medio 4533 · ahora 4919
+patrones.mjs      doc  588 · H-007 medio 1082 · ahora 1280   mas del DOBLE
+tracker.mjs       doc 2070 · H-007 medio 2515 · ahora 2576
+verify-fdge.mjs   doc 1618 · H-007 medio 1859 · ahora 2057
+
+--- LA COMPROBACION SE CAZO A SI MISMA ---
+Al escribir checkInventario dentro de verify-fdge.mjs el archivo crecio, y su PRIMERA
+ejecucion reporto su propia cifra:
+  ! FND-R14  1 de 16 cifras ya no describen el arbol — verify-fdge.mjs 2057->2106.
+El arreglo caduco antes de terminar de escribirlo.
+
+--- DESPUES ---
+  · las 16 cifras de services.md coinciden con el arbol (8b1f847).
+
+  ✓ FND-R14        las 16 cifras de inventory/services.md coinciden con el árbol.

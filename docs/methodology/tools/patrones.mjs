@@ -1278,3 +1278,67 @@ export function reglasNuevasFueraDeLaGuia(rigeDesde, version, entrada) {
     .filter(([id]) => !String(entrada).includes(id))
     .map(([id]) => id);
 }
+
+/**
+ * PT-091 · H-007 · Las cifras del inventario se DERIVAN, no se transcriben.
+ *
+ * `inventory/services.md` se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no
+ * describian el arbol un dia despues. Todas hacia arriba, porque EP-017 aterrizo detras. Al
+ * medirlo de nuevo durante EP-018 las distancias habian CRECIDO: selftest.sh documentado 3541
+ * contra 4919 reales.
+ *
+ * PTSA-R76 obliga a construir el universo auditable DESDE el inventario. Un inventario que
+ * envejece en un dia convierte la fuente mecanica de la auditoria en una fuente de memoria — y
+ * en PTSA-2026-08-20 no llego a estropear nada solo porque el auditor enumero contra `ls`, que
+ * fue una decision suya y no una propiedad del marco.
+ *
+ * QUE ESTABLECE: que cada cifra transcrita coincide con la que se deriva del arbol.
+ * QUE NO ESTABLECE: que la DESCRIPCION en prosa sea cierta. Que services.md diga bien cuantas
+ *   lineas tiene tracker.mjs no dice nada sobre si describe bien lo que hace.
+ *
+ * `texto` es el de services.md. Devuelve [{herramienta, lineas}] tal como estan ESCRITAS.
+ */
+export function cifrasTranscritas(texto) {
+  const filas = [];
+  for (const l of String(texto ?? '').split(/\r?\n/)) {
+    const m = /^\|\s*`([a-z0-9-]+\.(?:mjs|sh))`\s*\|\s*(\d+)\s*\|/.exec(l);
+    if (m) filas.push({ herramienta: m[1], lineas: Number(m[2]) });
+  }
+  return filas;
+}
+
+/**
+ * PT-091 · Las cifras transcritas que ya no describen el arbol.
+ *
+ * `realDe(herramienta)` devuelve el recuento real, o `null` si el archivo no existe. NULL NO
+ * ES CERO: una herramienta retirada es un hecho distinto de una con cero lineas, y se nombra
+ * aparte para que no se confunda con una cifra desviada (PT-058).
+ */
+export function cifrasQueMienten(transcritas, realDe) {
+  const fuera = [];
+  for (const f of transcritas ?? []) {
+    const real = realDe(f.herramienta);
+    if (real == null) { fuera.push({ ...f, real: null, motivo: 'no existe' }); continue; }
+    if (Number(real) !== Number(f.lineas)) fuera.push({ ...f, real: Number(real), motivo: 'desviada' });
+  }
+  return fuera;
+}
+
+/**
+ * PT-091 · H-006 · Los recuentos de CLAUDE.md.
+ *
+ * Decia 15 herramientas y 4 comandos cuando eran 16 y 7. Se corrigio A MANO en la auditoria, y
+ * ese arreglo es exactamente el que vuelve a caducar: la proxima herramienta lo falsea otra vez.
+ *
+ * QUE ESTABLECE: que el numero escrito coincide con el derivado.
+ * QUE NO ESTABLECE: que la lista de comandos este completa ni en el orden util — solo que su
+ *   CANTIDAD cuadre. Enumerarlos bien es prosa, y la prosa no se deriva.
+ */
+export function recuentosDeClaude(texto) {
+  const out = {};
+  const h = /HERRAMIENTAS\s*[-─—]+\s*(\d+)/.exec(String(texto ?? ''));
+  if (h) out.herramientas = Number(h[1]);
+  const c = /El binario[^:\n]*:\s*([^\n]+)/.exec(String(texto ?? ''));
+  if (c) out.comandos = c[1].split('·').map((s) => s.trim()).filter(Boolean).length;
+  return out;
+}

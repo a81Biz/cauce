@@ -4681,6 +4681,31 @@ import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
 });"
 }
 
+# PT-091 · tres variantes mas: PAT_C fija el recuento real, PAT_N2 lo hace null, PAT_T pasa
+# un TEXTO en vez de JSON —las filas de una tabla llevan comillas invertidas y pipes—.
+PAT_C() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_R="$2" MTH_ARGS="$3" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  const r = m[process.env.MTH_FN](a[0], () => Number(process.env.MTH_R));
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+PAT_N2() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_ARGS="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const a = JSON.parse(process.env.MTH_ARGS);
+  console.log(JSON.stringify(m[process.env.MTH_FN](a[0], () => null)));
+});"
+}
+PAT_T() {
+  MTH_MOD="$SUITE/tools/patrones.mjs" MTH_FN="$1" MTH_TXT="$2" node -e "
+import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
+  const r = m[process.env.MTH_FN](process.env.MTH_TXT);
+  console.log(Array.isArray(r) && !r.length ? 'VACIO' : JSON.stringify(r));
+});"
+}
+
 PAT_KEY() {
   MTH_MOD="$SUITE/tools/patrones.mjs" MTH_ID="$1" node -e "
 import(require('url').pathToFileURL(process.env.MTH_MOD).href).then(m => {
@@ -4886,6 +4911,54 @@ rm -rf "$WORK/graphify-out"
 chk   "sin graphify-out dice NO ES EVALUABLE"         "NO ES EVALUABLE" V --all
 chk   "…y ya no dice que bloquea G2"                  "NO ES EVALUABLE" V --all
 chkno "…y no promete bloquear lo que no evalua"       "Bloquea G2 en PTs MAJOR" V --all
+
+sec "── PT-091 · las cifras se derivan, no se transcriben ──"
+#
+# H-007 y H-006. services.md se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no
+# describian el arbol UN DIA DESPUES. Durante EP-018 las distancias habian CRECIDO: 3541
+# documentado contra 4919 reales. PTSA-R76 obliga a construir el universo auditable DESDE el
+# inventario, y uno que envejece en un dia lo convierte en una fuente de memoria.
+
+# ── el contrato ─────────────────────────────────────────────────────────────
+chk   "una cifra que coincide no se reporta"          "VACIO" \
+  PAT_C cifrasQueMienten 12 '[[{"herramienta":"a.mjs","lineas":12}]]'
+chk   "…y una desviada si, con las dos cifras"        '"real":99' \
+  PAT_C cifrasQueMienten 99 '[[{"herramienta":"a.mjs","lineas":12}]]'
+# NULL no es cero: una herramienta retirada es un hecho DISTINTO de una con cero lineas, y se
+# nombra aparte para que no se confunda con una cifra desviada (PT-058).
+chk   "…y una herramienta retirada se nombra aparte"  "no existe" \
+  PAT_N2 cifrasQueMienten '[[{"herramienta":"a.mjs","lineas":12}]]'
+
+chk   "las filas de services.md se leen"              '"herramienta":"tracker.mjs"' \
+  PAT_T cifrasTranscritas "| \`tracker.mjs\` | 2576 | hace cosas |"
+chk   "…y una linea que no es fila no cuenta"         "VACIO" \
+  PAT_T cifrasTranscritas "tracker.mjs tiene 2576 lineas"
+
+# ── el recuento de CLAUDE.md, que se corrigio A MANO en la auditoria ─────────
+chk   "el recuento de herramientas se lee"            '"herramientas":16' \
+  PAT_T recuentosDeClaude "── HERRAMIENTAS ─── 16, y ninguna es opcional ──"
+chk   "…y el de comandos tambien"                     '"comandos":3' \
+  PAT_T recuentosDeClaude "El binario: install · verify · core"
+
+# ── la accion recalcula, y sin --aplicar no escribe ─────────────────────────
+build_fixture
+mkdir -p "$WORK/docs/enterprise-documentation/inventory"
+printf '| Herramienta | Lineas |\n|:--|--:|\n| `tracker.mjs` | 1 | x |\n' > "$WORK/docs/enterprise-documentation/inventory/services.md"
+chk   "inventario enumera la cifra desviada"          "services.md dice 1 y son" TR inventario
+chk   "…y dice como arreglarlo"                       "--aplicar"                TR inventario
+chk   "…y sin la marca NO ha escrito nada"            "| 1 |" \
+  cat "$WORK/docs/enterprise-documentation/inventory/services.md"
+
+build_fixture
+mkdir -p "$WORK/docs/enterprise-documentation/inventory"
+printf '| Herramienta | Lineas |\n|:--|--:|\n| `tracker.mjs` | 1 | x |\n' > "$WORK/docs/enterprise-documentation/inventory/services.md"
+TR inventario --aplicar >/dev/null 2>&1
+chkno "…y con la marca la reescribe"                  "| 1 |" \
+  cat "$WORK/docs/enterprise-documentation/inventory/services.md"
+
+# ── y sobre el arbol real, la comprobacion en verde ─────────────────────────
+chk   "el arbol real tiene sus cifras al dia"         "coinciden con el árbol" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-fdge.mjs PT-091 2>&1 | grep FND-R14' _ "$RAIZ"
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL

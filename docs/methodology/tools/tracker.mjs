@@ -56,6 +56,8 @@ import {
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
+// PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
+import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
 // PT-064 · separador de campos para `git log`: no aparece en un nombre ni en un asunto.
@@ -962,7 +964,11 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'indices']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'indices',
+  // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
+  // seria pedirle una credencial para leer «wc -l», y dejaria sin arreglo a un proyecto
+  // que no declara tablero — el caso que SUITE-R22 declara soportado y PT-084 defendio.
+  'inventario']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -2552,7 +2558,70 @@ function indices() {
   cerrarPasada();
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, sellar, indices };
+// ── PT-091 · H-007 · inventario · las cifras se recalculan ──────────────────
+//
+// services.md se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no describian el arbol
+// un dia despues. Durante EP-018 las distancias habian CRECIDO: selftest.sh documentado 3541
+// contra 4919 reales. PTSA-R76 obliga a construir el universo auditable DESDE el inventario, y
+// un inventario que envejece en un dia lo convierte en una fuente de memoria.
+//
+// QUE ESTABLECE: que cada cifra transcrita coincide con la derivada del arbol.
+// QUE NO ESTABLECE: que la DESCRIPCION en prosa sea cierta. Que diga bien cuantas lineas tiene
+//   tracker.mjs no dice nada sobre si describe bien lo que hace.
+const RE_LINEA_INV = new RegExp(String.fromCharCode(92) + 'r?' + String.fromCharCode(92) + 'n');
+const RE_TOOL_INV = new RegExp('[.](mjs|sh)$');
+const F_SERVICES = join(ROOT, 'docs', 'enterprise-documentation', 'inventory', 'services.md');
+const DIR_TOOLS = join(ROOT, 'docs', 'methodology', 'tools');
+
+function lineasDe(herramienta) {
+  const f = join(DIR_TOOLS, herramienta);
+  if (!existsSync(f)) return null;
+  return readFileSync(f, 'utf8').split(RE_LINEA_INV).length - 1;
+}
+
+function inventario() {
+  if (!existsSync(F_SERVICES)) {
+    notas.push('no hay inventory/services.md: nada que recalcular.');
+    return;
+  }
+  const texto = readFileSync(F_SERVICES, 'utf8');
+  const mal = cifrasQueMienten(cifrasTranscritas(texto), lineasDe);
+
+  // El ancla: de que commit sale el recuento. FND-R14 lo hace con pt_at_generation para el
+  // grafo, y el inventario no tenia equivalente — asi que nada distinguia «al dia» de «nadie
+  // lo ha vuelto a mirar».
+  const ancla = gitDe(['rev-parse', '--short', 'HEAD']);
+
+  const cl = join(ROOT, 'CLAUDE.md');
+  const rec = existsSync(cl) ? recuentosDeClaude(readFileSync(cl, 'utf8')) : {};
+  const nTools = existsSync(DIR_TOOLS) ? readdirSync(DIR_TOOLS).filter((f) => RE_TOOL_INV.test(f)).length : null;
+
+  if (!mal.length) notas.push(`las ${cifrasTranscritas(texto).length} cifras de services.md coinciden con el arbol${ancla ? ` (${ancla})` : ''}.`);
+  for (const m of mal) {
+    notas.push(m.motivo === 'no existe'
+      ? `${m.herramienta}: en services.md y NO en el arbol.`
+      : `${m.herramienta}: services.md dice ${m.lineas} y son ${m.real}.`);
+  }
+  if (rec.herramientas != null && nTools != null && rec.herramientas !== nTools) {
+    notas.push(`CLAUDE.md declara ${rec.herramientas} herramientas y hay ${nTools}.`);
+  }
+
+  if (!APLICAR) {
+    if (mal.length) notas.push('--aplicar   las reescribe. Sin la marca, esto solo las enumera.');
+    return;
+  }
+  if (!mal.length) return;
+  let nuevo = texto;
+  for (const m of mal) {
+    if (m.real == null) continue;
+    const re = new RegExp('(^\\|\\s*`' + m.herramienta.replace('.', '[.]') + '`\\s*\\|\\s*)\\d+', 'm');
+    nuevo = nuevo.replace(re, `$1${m.real}`);
+  }
+  writeFileSync(F_SERVICES, nuevo);
+  notas.push(`${mal.filter((m) => m.real != null).length} cifra(s) reescritas en services.md.`);
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, sellar, indices };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

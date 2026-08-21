@@ -4336,7 +4336,8 @@ Y SUITE-R37 ya declara graphify-out/ regenerable, con el «no hacer» prohibiend
 mano: versionar un artefacto que el marco declara desechable es contradecirse.
 
 DOS DECISIONES para que el arreglo no sea OTRO dato que depende de la maquina: la huella se
-calcula sobre contenido SIN «» —si no, un checkout con CRLF y otro con LF darian hashes
+calcula sobre contenido SIN «
+» —si no, un checkout con CRLF y otro con LF darian hashes
 distintos para el mismo archivo, y git aviso de esa conversion en CADA commit de este lote—; y si
 la raiz no aparece en la ruta se devuelve la ruta TAL CUAL, porque fabricar una relativa plausible
 seria peor que decir que no se pudo.
@@ -4352,3 +4353,48 @@ que nadie alcanzaba a un «no evaluable», que es honesto y NO es lo mismo que c
 bateria: 1156 -> 1167 casos, cero fallos, a la primera.
 Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
 Trazabilidad externa: issue #166
+
+## PT-091 — las cifras se derivan, no se transcriben
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-007 y H-006, que son el mismo defecto. inventory/services.md se genero el 2026-08-19 y OCHO de
+sus dieciseis cifras ya no describian el arbol UN DIA DESPUES.
+
+REMEDIDO AL ABRIR LA TAREA: las mismas ocho, y MAS LEJOS. El propio lote las estaba alejando
+mientras se escribia.
+  selftest.sh    doc 3541 · H-007 medio 4533 · ahora 4919
+  patrones.mjs   doc  588 · H-007 medio 1082 · ahora 1280    mas del DOBLE
+
+LA COMPROBACION SE CAZO A SI MISMA, y no hizo falta construir el caso. Al escribir
+checkInventario DENTRO de verify-fdge.mjs el archivo crecio, y su PRIMERA ejecucion dijo:
+  ! FND-R14  1 de 16 cifras ya no describen el arbol — verify-fdge.mjs 2057->2106.
+El arreglo caduco antes de terminar de escribirlo. Es la demostracion mas directa de por que una
+cifra escrita a mano no se sostiene, y ocurrio sola.
+
+LA SEVERIDAD QUEDO OPUESTA A LA DE PT-089, y la diferencia esta medida:
+  PT-089  registro terminal + YAML vivo   -> «fase >= N» no se cumple -> las comprobaciones
+                                             posteriores NO SE EJECUTAN -> ERROR
+  PT-091  cifra desviada en el inventario -> ninguna comprobacion cambia de resultado
+                                          -> AVISO, y con el comando que lo arregla
+La CONSECUENCIA decide la severidad, no la gravedad aparente (PT-023).
+
+EL ANCLA ES LO QUE HACE UTIL AL RESTO. FND-R14 ancla el grafo con pt_at_generation y el
+inventario no tenia equivalente: «al dia» y «nadie lo ha vuelto a mirar» eran indistinguibles.
+«tracker inventario» publica ahora el HEAD corto con el que cuadro.
+
+LO QUE TRAJO LA BATERIA Y EL PLAN NO TENIA: «inventario» recalcula cifras del arbol y NO espeja
+nada, pero la guarda de plataforma se dispara antes del despacho. Exigirle una credencial para
+leer «wc -l» dejaria sin arreglo a un proyecto sin tablero — el caso que SUITE-R22 declara
+soportado y que PT-084 defendio. Entra en SIN_PLATAFORMA con «indices» y «sellar».
+
+H-006 SE CIERRA POR SU CAUSA, no por su sintoma: CLAUDE.md decia 15 herramientas y 4 comandos y
+se corrigio A MANO en la auditoria — el arreglo que vuelve a caducar. Ahora hay quien lo diga.
+
+LO QUE NO SE VERIFICA, declarado: que la PROSA del inventario sea cierta, y que la lista de
+comandos de CLAUDE.md sea la util. Se cuenta su CANTIDAD: un CLAUDE.md que dijera «install» siete
+veces pasaria.
+
+bateria: 1167 -> 1179 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #167

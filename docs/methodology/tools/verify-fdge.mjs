@@ -60,6 +60,8 @@ import { rigeDesde } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
 import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
          rutaRelativaDelManifiesto } from './patrones.mjs';
+// PT-091 · las cifras del inventario se derivan, no se transcriben.
+import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -810,6 +812,52 @@ function checkIrreversibles(modo) {
 // de modulo— y mi propio grep sobre la salida lo escondio: filtrar antes de mirar es la
 // version de consola del patron que PT-087 cierra.
 const rigeGlobal = (id) => rigeDesde(id, reg?.suite_version ?? '0.0.0');
+
+// ─── FND-R14 · las cifras del inventario describen el arbol ─────────────────
+//
+// PT-091 · H-007. services.md se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no
+// describian el arbol un dia despues. Durante EP-018 las distancias habian CRECIDO: 3541
+// documentado contra 4919 reales.
+//
+// PTSA-R76 obliga a construir el universo auditable DESDE el inventario. Un inventario que
+// envejece en un dia convierte la fuente mecanica de la auditoria en una fuente de memoria — y
+// en PTSA-2026-08-20 no llego a estropear nada solo porque el auditor enumero contra «ls», que
+// fue una decision suya y no una propiedad del marco.
+//
+// QUE ESTABLECE: que cada cifra transcrita coincide con la derivada del arbol.
+// QUE NO ESTABLECE: que la DESCRIPCION en prosa sea cierta. Que services.md diga bien cuantas
+//   lineas tiene tracker.mjs no dice nada sobre si describe bien lo que hace.
+//
+// AVISA y no bloquea: el inventario lo escribe Foundation y una cifra desviada no apaga
+// ninguna comprobacion — al reves que SUITE-R35, donde SI las apagaba (PT-089). Y hay un
+// comando que lo arregla: «tracker inventario --aplicar».
+const F_SERV = join(ED, 'inventory', 'services.md');
+const DIR_T = join(ROOT, 'docs', 'methodology', 'tools');
+function checkInventario() {
+  if (!existsSync(F_SERV) || !existsSync(DIR_T)) return;
+  const transcritas = cifrasTranscritas(read(F_SERV) ?? '');
+  if (!transcritas.length) return;
+  const mal = cifrasQueMienten(transcritas, (h) => {
+    const f = join(DIR_T, h);
+    if (!existsSync(f)) return null;
+    try { return readFileSync(f, 'utf8').split(RE_LINEA).length - 1; } catch { return null; }
+  });
+  if (mal.length) {
+    const muestra = mal.slice(0, 4)
+      .map((m) => `${m.herramienta} ${m.lineas}→${m.real ?? 'no existe'}`).join(', ');
+    warn('FND-R14', `${mal.length} de ${transcritas.length} cifras de inventory/services.md ya no describen el árbol — ${muestra}${mal.length > 4 ? ' …' : ''}. Se recalculan: node docs/methodology/tools/tracker.mjs inventario --aplicar. NO establece que la descripción en prosa sea cierta: sólo las cifras.`);
+  } else {
+    ok('FND-R14', `las ${transcritas.length} cifras de inventory/services.md coinciden con el árbol.`);
+  }
+
+  // H-006 · el recuento de CLAUDE.md, que se corrigio A MANO en la auditoria — el arreglo que
+  // vuelve a caducar en cuanto entre una herramienta.
+  const rec = recuentosDeClaude(read(join(ROOT, 'CLAUDE.md')) ?? '');
+  const nT = readdirSync(DIR_T).filter((f) => /\.(mjs|sh)$/.test(f)).length;
+  if (rec.herramientas != null && rec.herramientas !== nT) {
+    warn('FND-R14', `CLAUDE.md declara ${rec.herramientas} herramientas y hay ${nT}. Es una cifra escrita a mano que nadie recalcula, y por eso vuelve a caducar cada vez que se corrige.`);
+  }
+}
 
 // ─── SUITE-R09 · el ledger append-only no pierde lineas ─────────────────────
 //
@@ -2012,6 +2060,7 @@ checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
 checkLedgers();
 checkG4ConConstancia();
+checkInventario();
 checkImplementacion(reg);
 checkEstado();
 checkCheckpoint();
