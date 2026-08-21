@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": null,
   "status": "IN_PROGRESS",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "fix/alberto-martinez/PT-094-la-rama-corrobora",
   "sha": "758fb50a52e9ff63427e1706e50d51912cbc86ce",
   "sha_corto": "758fb50",
@@ -24,8 +24,11 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/tracker.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-21"
 }
