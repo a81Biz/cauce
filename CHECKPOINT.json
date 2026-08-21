@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": null,
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "fix/alberto-martinez/PT-094-el-checkpoint-de-lo-cerrado-bloquea-main",
   "sha": "338a72821023e21f9ba0c9ed7a28158a238cbddf",
   "sha_corto": "338a728",
@@ -12,7 +12,9 @@
   "archivos": [
     "changes/PT-094-el-checkpoint-de-lo-cerrado-bloquea-main/",
     "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-094/",
@@ -23,8 +25,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-20"
 }
