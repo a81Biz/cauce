@@ -1,0 +1,168 @@
+{
+  "pt": "PT-087",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una comprobacion declara su SUJETO: que hecho establece",
+      "scenarios": [
+        "E1"
+      ],
+      "tests": [
+        "selftest.sh:una celda vacia del sujeto no pasa"
+      ],
+      "evidence": [
+        "salidas/sujetos.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un sujeto incompleto no pasa verify-suite",
+      "scenarios": [
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:…y falta noEstablece tampoco"
+      ],
+      "evidence": [
+        "salidas/sujetos.txt"
+      ],
+      "verified": true,
+      "nota": "Una celda vacia no pasa por lo mismo que no pasa en LAYOUT ni en SELLO (FND-R22): es indistinguible de una que nadie miro."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El limite declarado LLEGA AL MENSAJE que el usuario lee",
+      "scenarios": [
+        "E4",
+        "E5"
+      ],
+      "tests": [
+        "selftest.sh:un limite que no llega al mensaje CAE",
+        "selftest.sh:…y uno que si llega, pasa"
+      ],
+      "evidence": [
+        "salidas/sujetos.txt"
+      ],
+      "verified": true,
+      "nota": "SE ESTRECHO EN PHASE 3, y se dice. El intake prometia contrastar el sujeto con lo que la funcion LEE, y eso exige entender el codigo: no es mecanizable. Entregar una comprobacion de PRESENCIA llamandola contraste habria sido la NOVENA instancia. Lo que si hace trabajo: en las ocho instancias, cuando el limite estaba escrito vivia en un COMENTARIO del codigo fuente."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "«null» es una declaracion, no una celda vacia",
+      "scenarios": [
+        "E3"
+      ],
+      "tests": [
+        "selftest.sh:…y «null» SI vale: es una declaracion"
+      ],
+      "evidence": [
+        "salidas/sujetos.txt"
+      ],
+      "verified": true,
+      "nota": "Es la distincion de PT-058 —null no es cero— aplicada a una declaracion en vez de a una cifra: «no hay limite que expresar» y «nadie escribio el limite» no son el mismo hecho."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "QUINTA instancia corregida: la guia de migracion ENUMERA lo nuevo",
+      "scenarios": [
+        "E6",
+        "E7",
+        "E8"
+      ],
+      "tests": [
+        "selftest.sh:una guia que olvida una regla nueva CAE",
+        "selftest.sh:…y una que las nombra todas, pasa",
+        "selftest.sh:…y sin entrada dice null, no «vacio»"
+      ],
+      "evidence": [
+        "salidas/guia.txt"
+      ],
+      "verified": true,
+      "nota": "El paso 1 de sellar NO COMPROBABA NADA: era una linea de una lista. Yo mire a mano que la entrada existiera y di por hecho que enumeraba lo nuevo. SUITE-R57 quedo fuera de la guia de la 10.0.0."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "SEPTIMA instancia corregida: revento() mira la TRAZA",
+      "scenarios": [
+        "E9",
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:revento() caza un reviente de verdad",
+        "selftest.sh:…y NO acusa a quien solo nombra el error"
+      ],
+      "evidence": [
+        "salidas/revento.txt"
+      ],
+      "verified": true,
+      "nota": "Seis de los siete patrones eran NOMBRES DE CLASES DE ERROR. Y el septimo, «at file:///», tampoco servia: un reviente en contexto eval imprime «at [eval]:1:1» y habria FALLADO. Pasar del proxy al hecho subio la cobertura Y bajo los falsos positivos a la vez."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "El mecanismo se estrena en TRES reglas, no en 224",
+      "scenarios": [
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:verify-suite publica cuantas lo declaran"
+      ],
+      "evidence": [
+        "salidas/sujetos.txt"
+      ],
+      "verified": true,
+      "nota": "3 de 107 reglas que emiten. La cifra SE PUBLICA: sin ella, «sin errores de coherencia» diria que el marco esta cubierto cuando cubre el 3 %. Es lo que SUITE-R11 y PTSA-R21 prohiben para cualquier score."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "OCTAVA instancia: «tag anterior» era un proxy de «lo ya sellado»",
+      "scenarios": [
+        "E12"
+      ],
+      "tests": [
+        "tracker sellar sobre el repositorio real, despues de crear v10.0.0"
+      ],
+      "evidence": [
+        "salidas/deuda.txt"
+      ],
+      "verified": true,
+      "nota": "NO estaba en el intake. Aparecio EJECUTANDO sellar tras etiquetar: 21 de deuda contra umbral 3, y las 21 estan DENTRO de v10.0.0. Funcionaba mientras la version en curso no estuviera etiquetada — y nunca lo habia estado, porque hasta hoy nadie habia sellado de verdad. Ninguna lectura del codigo lo habria dado."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el sujeto declarado de una comprobacion sea CIERTO.",
+      "por_que": "Un autor puede escribir «establece que el grafo describe el codigo» sobre una funcion que mira mtime, y el mecanismo lo aceptara. Comprobarlo exigiria entender el codigo, y prometerlo seria la NOVENA instancia del patron.",
+      "donde": "changes/PT-087-la-comprobacion-declara-que-hecho-establece/strategy.md"
+    },
+    {
+      "afirmacion": "Que las 104 reglas que emiten y no declaran sujeto no escondan mas instancias.",
+      "por_que": "La adopcion es declarada y cubre 3 de 107. La cifra se publica precisamente para que el 3 % no se lea como cobertura.",
+      "donde": "docs/methodology/tools/verify-suite.mjs"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Use «file://» con una ruta RELATIVA en el ayudante de la bateria.",
+      "regla": "SUITE-R38",
+      "detalle": "import() exige ruta absoluta y en Windows la del arnes no lo es: diez casos reventaron. El arnes solo dice «la herramienta revento», que es el observable barato de «algo fallo, mira tu donde». Resuelto con pathToFileURL."
+    },
+    {
+      "que": "Aserte contra «[]», que para grep es una CLASE DE CARACTERES.",
+      "regla": "—",
+      "detalle": "Cuatro casos no casaban su propia salida: la salida era exactamente «[]» y la asercion no podia verla. El ayudante dice ahora VACIO, que ademas se lee. Es hermano del caso de PT-085 que exigia una salida vacia con «^$»."
+    },
+    {
+      "que": "Escapes de un RegExp dentro de un heredoc, por DECIMA vez en este proyecto.",
+      "regla": "—",
+      "detalle": "El «\\r?\\n» se convirtio en salto real y partio una linea de tracker.mjs en dos. Resuelto como siempre: QUITANDO la necesidad —new RegExp con cadenas— en vez de escapando mejor."
+    }
+  ],
+  "suite": {
+    "passed": 1145,
+    "failed": 0,
+    "baseline": 1131,
+    "nota": "1131 mas 14 nuevos. Corrida COMPLETA, cero fallos."
+  }
+}

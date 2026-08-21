@@ -1,0 +1,12 @@
+# PT-087 · QUINTA instancia · la guia de migracion ENUMERA lo nuevo
+
+  guia de migracion  enumera las reglas que entran con esta version.
+
+  ── lo que falta para sellar ──────────────────────────────────────────
+  1 · entrada en CHANGELOG.md que ENUMERE las reglas nuevas   [SUITE-R19]
+  2 · node tools/version.mjs --aplicar   (los 21 documentos)
+
+--- contrastes ---
+guia que olvida B-R2 : ["B-R2"]
+guia que las nombra  : []
+sin entrada          : null   <- null, NO lista vacia

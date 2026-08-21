@@ -328,7 +328,22 @@ Lo que este catálogo **no** cubre hoy, dicho en vez de callado (`RULE-06`):
 | **Un legado sintético** | `PT-019` lo declaró reducido: el real provoca los casos mejor, y un sintético habría medido mi capacidad de inventar defectos |
 | **`comparar-marco` ejecutada desde el marco** | Llama «canónica» al argumento, así que ejecutada desde cauce contra un destino **invierte las etiquetas**. El contenido es correcto; el rótulo miente. Está pensada para correr **desde el proyecto**, y eso no estaba escrito (`HL-1` de `PT-019`) |
 
+| **`FQAGE` sobre un paquete sin interfaz** | **No aplica, y no es lo mismo que «no probado».** `QA-R01` dice que el componente *opera SOLO desde el navegador, nunca lee código*, y `inventory/routes.md` y `endpoints.md` declaran que este sistema no tiene rutas ni API. Un caso de QA sin navegador no es un QA relajado: es otra cosa con el mismo nombre. Lo más cercano a «el usuario puede usar el sistema» para un paquete de línea de comandos —instalarlo limpio y cerrar un trabajo entero— **ya está hecho** y es `PT-072`, una tarea de `FDGE` |
+
 Un caso que aparezca y no esté aquí **entra como `PT`**, no como párrafo.
+
+## `QA` no aplica, y por qué se declara en vez de forzarlo
+
+`PT-092` tenía que ejecutar `QA` y `FPGE`. **`FPGE` se ejecutó** —`ROADMAP.md`, ocho candidatos con
+su evidencia—. `QA` **no**, y la razón está medida arriba.
+
+Montar un `QA/` con casos que no usan navegador habría puesto `verify-qa` en verde y dejado este
+catálogo diciendo que el ciclo completo se ha ejercitado. **Sería fabricar un verde en el
+componente cuyo lema es *«sin captura el paso no ocurrió»***.
+
+Es la misma decisión que `PT-072` tomó al **no declarar plataforma** en el proyecto de prueba: un
+caso configurado para que salga bien no prueba nada — y aquel silencio fue lo que destapó `H7`, el
+único hueco crítico de aquella prueba.
 
 ## Lo que `EP-017` cerró, y ya no es hueco
 

@@ -1,0 +1,16 @@
+# PT-089 · las seis divergencias, antes y despues
+
+--- ANTES (medido en PHASE 2) ---
+status divergente con estado TERMINAL en el registro:  6
+status divergente entre estados NO terminales       :  0
+phase divergente en tareas ya terminales            : 22
+
+  PT-055: registro INTEGRATED · YAML REOPENED
+  PT-066: registro INTEGRATED · YAML READY
+  PT-068: registro INTEGRATED · YAML READY
+  PT-074: registro INTEGRATED · YAML READY
+  PT-075: registro INTEGRATED · YAML READY
+  PT-076: registro INTEGRATED · YAML READY
+
+--- DESPUES ---
+terminales sin sincronizar: NINGUNA

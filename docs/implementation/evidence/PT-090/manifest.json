@@ -1,0 +1,121 @@
+{
+  "pt": "PT-090",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La deriva se calcula con HASH: dos clones del mismo commit dan el mismo veredicto",
+      "scenarios": [
+        "E1",
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:mismo hash, distinto mtime: NO hay deriva",
+        "selftest.sh:hash distinto: SI hay deriva"
+      ],
+      "evidence": [
+        "salidas/deriva.txt"
+      ],
+      "verified": true,
+      "nota": "El ast_hash estaba EN LA MISMA LINEA del manifiesto que el mtime. No faltaba el dato: se eligio el barato teniendolo al lado. Antes decia SUSPECT 6 de 17 incluyendo archivos que no toque; ahora nombra los CINCO que edite, ni uno mas."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "MISSING deja de ser un bloqueo mudo: dice «no evaluable en este clon»",
+      "scenarios": [
+        "E9",
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:sin graphify-out dice NO ES EVALUABLE",
+        "selftest.sh:…y no promete bloquear lo que no evalua"
+      ],
+      "evidence": [
+        "salidas/missing.txt"
+      ],
+      "verified": true,
+      "nota": "No bloqueaba «a veces»: fuera de la maquina que genero el grafo NO LLEGABA A EVALUARSE NUNCA, y aun asi decia «Bloquea G2». Hay DOS casos: uno para lo que dice y otro para lo que dejo de decir — sin el segundo, el mensaje podria decir las dos cosas."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "…y esa distincion aparece en la salida, no solo en el codigo",
+      "scenarios": [
+        "E9"
+      ],
+      "tests": [
+        "selftest.sh:…y ya no dice que bloquea G2"
+      ],
+      "evidence": [
+        "salidas/missing.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R38: el fallo se distingue del exito, y aqui ademas «no evaluable» se distingue de «desactualizado». Es SIN EVALUAR aplicado a un estado, no a una cifra."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "FDGE-R43 declara su SUJETO segun PT-087",
+      "scenarios": [
+        "E3",
+        "E8"
+      ],
+      "tests": [
+        "selftest.sh:sin hash en el manifiesto, cae al mtime",
+        "selftest.sh:…y si la raiz no casa, no se inventa nada"
+      ],
+      "evidence": [
+        "salidas/deriva.txt"
+      ],
+      "verified": true,
+      "nota": "Que NO establece: que el grafo describa el codigo cuando no esta. Y dos limites concretos: un manifiesto viejo sin hash se sigue midiendo por mtime —no se da todo por cambiado, que seria nacer rojo— y una ruta cuya raiz no casa se devuelve tal cual en vez de inventar una relativa plausible."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Las rutas absolutas del manifiesto se normalizan",
+      "scenarios": [
+        "E5",
+        "E6",
+        "E7"
+      ],
+      "tests": [
+        "selftest.sh:una ruta absoluta de windows se relativiza",
+        "selftest.sh:…y una de posix tambien",
+        "selftest.sh:…y una ya relativa se queda igual"
+      ],
+      "evidence": [
+        "salidas/rutas.txt"
+      ],
+      "verified": true,
+      "nota": "NO estaba en el intake ni en H-005. El hallazgo daba por hecho que versionar el grafo resolveria el problema, y NO lo resolveria: el manifiesto solo sirve en un disco donde el proyecto este exactamente en esa ruta. Ademas el mensaje decia cuatro veces «C:\\\\DevOps\\\\…», que es donde vive el disco de quien lo genero — el mismo material que H-001 saco del tarball."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que en un clon limpio la frescura del grafo se compruebe.",
+      "por_que": "No se resuelve: pasa de un bloqueo que nadie alcanzaba a un «no evaluable aqui». Cerrarlo exige versionar el grafo —2,3 MB medidos y un conflicto por regeneracion— o generarlo en CI, contra FDGE-R32.",
+      "donde": "changes/PT-090-la-frescura-del-grafo-viaja-con-el-repositorio/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que el ast_hash del manifiesto describa bien el archivo.",
+      "por_que": "Lo calcula graphify, no el marco. Se compara contra un md5 del contenido normalizado, asi que lo que se establece es que el CONTENIDO no cambio — no que el AST sea correcto.",
+      "donde": "changes/PT-090-la-frescura-del-grafo-viaja-con-el-repositorio/design.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Probe rutaRelativaDelManifiesto desde la linea de comandos con barras invertidas.",
+      "regla": "—",
+      "detalle": "«bin» salio como «in»: el «\\\\b» se comio como retroceso, y el resultado parecia un fallo de la funcion. Repetido desde un ARCHIVO, las cuatro direcciones correctas. Es la undecima vez del patron de escapes en este proyecto."
+    },
+    {
+      "que": "Calcule la huella sobre contenido NORMALIZADO y graphify guarda el hash de los BYTES CRUDOS.",
+      "regla": "SUITE-R38",
+      "detalle": "Los archivos con CRLF no casaban NUNCA: 6 de 17 salian cambiados incluso recien regenerado el grafo. Y parecia correcto porque esos 6 eran justo los que yo habia editado — tienen CRLF porque git los deja asi al escribirlos. Medido al sellar EP-018: 11 casaban con el normalizado y 6 con el crudo. La afirmacion de la autorrevision —«nombra exactamente los cinco que edite»— era una COINCIDENCIA, no una prueba, y esta corregida ahi. El caso CRLF-vs-LF que la normalizacion cubria no existe hoy: el manifiesto esta en .gitignore y nunca viaja."
+    }
+  ],
+  "suite": {
+    "passed": 1167,
+    "failed": 0,
+    "baseline": 1156,
+    "nota": "1156 mas 11 nuevos. Corrida COMPLETA a la primera, cero fallos."
+  }
+}

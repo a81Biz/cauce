@@ -406,3 +406,44 @@ que el veredicto se vea con su `medido_en` (`PT-074`).
 y ninguna de las tres de la cadena depende de ellas.
 
 **Firmado por:** Alberto Martínez, por delegación con constancia.
+
+---
+
+## Cierre efectivo   `2026-08-20`
+
+```
+G4 ejecutada:  PR #171 · trabajo -> main · CI en verde antes de fusionar
+merge:         29d1681
+tag:           v10.0.0 · 9ce9853 · creado DESPUES del merge
+integrado por: Alberto Martínez
+```
+
+**El orden de `G4` y el tag no fue cosmético.** Un tag creado antes del merge apunta a un árbol
+sin lo que la versión trae, y la línea base de `FDGE-R43` y del detector de reglas nuevas quedaría
+mintiendo. Es el error que `PT-081` cometió eligiendo `origin/main`, en otra forma.
+
+**Trece issues cerrados** al llegar el estado terminal a la rama por defecto (`SUITE-R46`). `#35`
+(`PT-025`, `DEFERRED`) sigue abierto **a propósito**: `PT-013` declaró que un aplazado está vivo
+para el espejo, porque aplazar algo debe ponerlo a la vista y no sacarlo de ella.
+
+**Auditado antes de cerrar.** `PTSA-2026-08-20`, certificación `B`, `Health` 79.9,
+`coverage` 0.89. Nueve hallazgos: dos cerrados, siete abiertos en `EP-018`.
+
+**`PUBLICAR` sigue sin autorizar.** El lote cierra sin publicar, y eso se dice.
+
+### El issue del lote no cierra en su propio ciclo, y es correcto
+
+`tracker cerrar` lo rechaza:
+
+```
+✗ SUITE-R46  EP-017 (aqui CLOSED, en main DONE). El orden es: apuntar el estado terminal
+   AQUI, mergear, y cerrar DESPUES.
+```
+
+**Es un huevo y gallina real**, no un defecto: `G4` **es** lo que convierte el lote en terminal,
+así que su estado terminal no puede estar en `main` en el momento de `G4`.
+
+`#127` cerrará en el siguiente merge a la rama por defecto, que es el `G4` de `EP-018`. Es lo que
+hicieron los dieciséis lotes anteriores —los dieciséis están `CLOSED` con su issue cerrado— y
+forzar un merge extra sólo para cerrar un issue multiplicaría `G4`, que es justo lo que
+`EXEC-R03` prohíbe.

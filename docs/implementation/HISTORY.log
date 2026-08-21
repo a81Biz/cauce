@@ -4147,3 +4147,429 @@ limite declarado en el propio bloque. Es, literalmente, el limite que PT-093 exi
 
 Compuertas: G1 propuesta, la resuelve el firmante. G4, el tag y PUBLICAR siguen siendo suyos.
 Trazabilidad externa: issue #162 · sub-issues #163..#169
+
+## PT-088 — las reglas del dominio se verifican o se declaran
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-002 de PTSA-2026-08-20 nombraba TRES reglas que sostienen el dominio declarado y que ningun
+verificador emitia. Medidas una a una: DOS salieron y UNA no.
+
+  SUITE-R09  cuenta las lineas «-» del diff de los seis ledgers contra el tag anterior
+  EXEC-R04   exige constancia con NOMBRE por cada merge a la principal, desde su version
+  SUITE-R01  declarada NO_VERIFICABLE, con motivo y firma, y la ULTIMA de las tres
+
+  VERIFICADA 94 -> 96 · NO_VERIFICABLE 5 -> 6 · PENDIENTE 125 -> 122
+  Las dos rigen desde 11.0.0: medido, hay 18 merges a main y UNO desde el ultimo tag. Sin
+  ventana, EXEC-R04 nace con 17 fallos sobre trabajo de agosto — inaplicable, no «menos
+  elegante»: una comprobacion que nace roja se apaga (PT-023).
+
+SUITE-R01 ES UNA REGLA SOMBRILLA. Su sujeto es una negacion sobre el ORIGEN de una creencia, y
+«se apoyo en evidencia» y «se apoyo en intuicion y luego busco evidencia» producen artefactos
+IDENTICOS. No se verifica: se INSTANCIA, y sus cuatro instancias —FDGE-R23, FDGE-R24, PTSA-R14,
+SUITE-R11— si se comprueban. Va la ultima a proposito: declararla antes de intentar las otras dos
+habria sido declarar sin haber medido.
+
+CINCO DEFECTOS MIOS, Y CUATRO LOS CAZO LA BATERIA. Los cinco son el patron de este lote:
+
+  1  Aserte contra el IDENTIFICADOR de la regla en vez de contra el fallo. En verde la
+     comprobacion emite «✓ SUITE-R09», asi que el ID aparece igual.
+  2  Mi propio grep escondio un reviente: el patron casaba la linea del CODIGO FUENTE y yo lei
+     «no emite nada todavia». Y exit=0, porque la tuberia devuelve el codigo del grep.
+  3  Declare en CINCO documentos y en el mensaje que una alteracion de igual recuento pasaba.
+     FALSO: git la representa como borrado mas alta. Monte el caso esperando verde y salio
+     ROJO. La comprobacion era MAS FUERTE de lo que su autor creia, y lo corregido fue mi
+     descripcion, no el codigo.
+  4  Escribi el nombre de una clase de error de node en un COMENTARIO de verify-fdge.mjs, y
+     trece casos que hacen «cat» de ese archivo reportaron un reviente inexistente: «revento()»
+     busca la palabra EN TODA LA SALIDA. Persegui el fantasma en tres repositorios sinteticos
+     antes de mirar el texto que yo mismo habia escrito. SEPTIMA INSTANCIA del patron, y la
+     mas limpia: el observable correcto —el codigo de salida— existe y la funcion no lo mira.
+  5  SINTETIZABA el nombre del firmante desde la lista en vez de extraerlo de la constancia,
+     asi que el filtro NO PODIA FALLAR NUNCA y AC-05 quedaba vacuo. Este no lo cazo la
+     bateria: lo cace releyendo mi propio codigo, y es la forma mas silenciosa de todas
+     porque el caso positivo pasa y el negativo tambien.
+
+Y UN SUSTO: borre con «git branch -D» la rama temporal de la prueba inversa y se llevo el commit
+con todo el trabajo de la tarea. Recuperado del reflog, y A PROPOSITO solo los tres artefactos —
+no HISTORY.log, que en ese commit estaba mutilado para la prueba.
+
+LA PRUEBA INVERSA QUE NO DISPARO, y por que estaba bien: «git diff tag HEAD» compara COMMITS, y
+mi borrado estaba sin commitear. Una reescritura solo CUENTA cuando entra en la historia, que es
+lo que la regla protege. Rehecha con el borrado commiteado: roja, con las cuatro lineas.
+
+bateria: 1118 -> 1131 casos, cero fallos. Hicieron falta CINCO corridas completas.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #164
+
+## PT-087 — la comprobacion declara que hecho establece
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-003 documentaba CINCO instancias del patron del proxy. Al terminar hay OCHO, y las tres
+ultimas no salieron de leer el codigo: salieron de EJECUTAR el marco.
+
+  6  SUITE-R27   «la firma es de la lista»       leia una FRASE en todo el archivo
+  7  revento()   «la herramienta revento»        leia una PALABRA en toda la salida
+  8  sellar      «lo ya sellado»                 leia el TAG ANTERIOR
+
+LA OCTAVA ES LA MAS INSTRUCTIVA. «El tag anterior» funcionaba mientras la version en curso no
+estuviera etiquetada — y NUNCA lo habia estado, porque hasta hoy nadie habia llegado a sellar de
+verdad. En cuanto se creo v10.0.0, las 21 tareas de EP-017 —que estan DENTRO de el— aparecieron
+como deuda: 21 contra un umbral de 3, bloqueando G2 justo despues de sellar. Ninguna lectura del
+codigo lo habria dado.
+
+QUE SE ENTREGA:
+  SUJETOS          registro con «establece» y «noEstablece» por comprobacion. «null» es una
+                   DECLARACION, no una celda vacia — la distincion de PT-058 aplicada a una
+                   declaracion en vez de a una cifra.
+  verify-suite     falla si el sujeto esta incompleto, y falla si el limite NO LLEGA AL MENSAJE.
+                   Y PUBLICA la cobertura: 3 de 107 reglas que emiten.
+  sellar paso 1    la guia de migracion ENUMERA las reglas nuevas. Antes no comprobaba NADA:
+                   era una linea de una lista, y por eso SUITE-R57 quedo fuera de la 10.0.0.
+  revento()        mira la TRAZA DE PILA, no nombres de clases de error.
+
+LA MITAD QUE HACE TRABAJO es que el limite llegue al MENSAJE. En las ocho instancias, cuando el
+limite estaba escrito vivia en un COMENTARIO del codigo fuente — donde solo lo ve quien ya esta
+leyendo el codigo, o sea quien no lo necesita.
+
+AC-03 SE ESTRECHO EN PHASE 3, y se dice. El intake prometia contrastar el sujeto con lo que la
+funcion LEE, y eso exige entender el codigo: no es mecanizable. Entregar una comprobacion de
+PRESENCIA llamandola contraste habria sido la NOVENA instancia, escrita por la tarea que cierra
+el patron.
+
+revento(): MAS COBERTURA Y MENOS FALSOS POSITIVOS A LA VEZ. Seis de sus siete patrones eran
+nombres de clases de error —cualquier texto que hable de errores los tiene— y el septimo,
+«at file:///», tampoco servia: un reviente en contexto eval imprime «at [eval]:1:1» y habria
+FALLADO. Suele ser la senal de que el cambio era pasar del proxy al hecho, y no un umbral.
+
+LA COBERTURA SE PUBLICA Y ES DEL 3 %. Sin esa linea, «sin errores de coherencia» diria que el
+marco esta cubierto cuando cubre el 3 %. Adopcion declarada como RIGE_DESDE: hay 313 emisiones y
+105 reglas que emiten, y exigirlo a todas de golpe nace con cientos de fallos.
+
+TRES DEFECTOS MIOS, los tres del mismo linaje: «file://» con ruta RELATIVA reviento diez casos y
+el arnes solo dice «la herramienta revento»; aserte contra «[]», que para grep es una CLASE DE
+CARACTERES, y cuatro casos no casaban su propia salida; y escapes de un RegExp en un heredoc por
+DECIMA vez, resuelto como siempre QUITANDO la necesidad en vez de escapando mejor.
+
+LO QUE NO SE VERIFICA, declarado: que el sujeto declarado sea CIERTO. Un autor puede escribir
+«establece que el grafo describe el codigo» sobre una funcion que mira mtime. Lo que si impide es
+lo que paso ocho veces: que nadie se hiciera la pregunta.
+
+bateria: 1131 -> 1145 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #163
+
+## PT-089 — la divergencia no apaga comprobaciones
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-004. verify-fdge avisaba de la divergencia entre el registro y el YAML del intake y usaba el
+del intake (PT-004: es lo que el PT dice de si mismo). Esa precedencia NO cambia. Lo que cambia
+es la consecuencia: un estado TERMINAL en el registro con uno VIVO en el YAML hace que
+«fase >= N» no se cumpla y las comprobaciones posteriores NO SE EJECUTEN.
+
+LA MEDICION CAMBIO EL DISENO ANTES DE ESCRIBIR NADA:
+  status divergente con estado TERMINAL en el registro:  6
+  status divergente entre estados NO terminales       :  0
+  phase divergente en tareas ya terminales            : 22
+
+Las SEIS son de la clase peligrosa. CERO benignas: el aviso estaba calibrado para una mezcla que
+no existe. Y eso estrecho el alcance a «status»: convertir las 22 de «phase» en error habria
+puesto el arbol en rojo por trabajo ya cerrado — el error que PT-088 evito con RIGE_DESDE.
+
+DONDE NACIAN, Y QUIEN LAS CAUSO. «avanzar» sincronizaba «phase» en las dos fuentes y NO «status»,
+asi que al llegar a la ultima fase alguien marcaba INTEGRATED a mano en el registro y el YAML se
+quedaba atras. ESE ALGUIEN HE SIDO YO, en este mismo lote, cerrando PT-087 y PT-088 con un script
+sobre REGISTRY.json. La tarea que arregla el defecto lo estaba cometiendo mientras se escribia.
+Marcar terminal entra ahora en el acto atomico, y NO pisa un estado ya declarado: FDGE-R53 dice
+que eso lo decide la tarea, asi que una DEFERRED sigue DEFERRED.
+
+DOS CRITERIOS DEL INTAKE RESULTARON SER OTRA COSA:
+  AC-03  «avanzar escribe las dos fuentes»  ->  YA lo hacia para «phase»; faltaba «status»
+  AC-05  «fila en RIGE_DESDE»               ->  NO PROCEDE: nace verde porque las seis se
+                                                resolvieron aqui. PT-088 si lo necesitaba —17
+                                                fallos sobre agosto— y copiar el criterio habria
+                                                anadido una fila que mantener y que no protege.
+
+AC-07 no estaba en el intake: lo trajo PT-087, terminado el dia antes. El limite de una
+comprobacion tiene que LLEGAR AL MENSAJE. Aqui el limite es que NO dice cual de las dos fuentes
+tiene razon — sin esa frase, el rojo se leeria como «manda el registro».
+
+TRES DEFECTOS MIOS EN LOS CASOS, los tres del linaje del lote: el intake del fixture NO declara
+«phase» y mis tres casos comparaban un campo inexistente, asi que PASABAN POR VACIO; pedi
+«avanzar --a 10» desde la 8 —solo se va a la SIGUIENTE— y habia redirigido la salida a /dev/null,
+asi que tuve que ejecutarlo A LA VISTA, el mismo error que dos tareas antes; y un salto de linea
+dentro de «sed s///» no es portable, resuelto con el comando «i», que no necesita escapar nada.
+
+FDGE-R15 me cazo un AC HUERFANO: deje AC-05 sin escenario al declararlo «no procede». Y «no
+procede» SI es comprobable — que SUITE-R35 no tenga fila en RIGE_DESDE y que el arbol este verde
+igual. Declarar que algo no aplica sin poder ensenarlo es lo que este lote persigue.
+
+bateria: 1145 -> 1156 casos, cero fallos, cinco corridas completas.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #165
+
+## PT-090 — la frescura del grafo viaja con el repositorio
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-005 y TD-17 describian UN defecto. Habia DOS, y el segundo invalida el analisis del hallazgo.
+
+  A  El manifiesto guarda «ast_hash» EN LA MISMA LINEA que «mtime», y derivaDelGrafo usaba el
+     mtime. No faltaba el dato: se eligio el barato teniendolo al lado. «git clone» reescribe
+     los mtime con la fecha del clon y dos commit seguidos tambien los mueven — puso el grafo
+     en SUSPECT DOS VECES en este mismo lote, la ultima con 6 de 17 por una normalizacion CRLF.
+  B  Las rutas del manifiesto son ABSOLUTAS. Versionar el grafo NO habria bastado, que es lo
+     que H-005 daba por hecho: solo sirve en un disco donde el proyecto este exactamente ahi.
+
+LA PRUEBA DE QUE EL ARREGLO ERA ESE: antes SUSPECT 6 de 17 incluyendo archivos no tocados; ahora
+nombra los CINCO que edite en el lote, ni uno mas. Menos ruido Y mas precision a la vez, que suele
+ser la senal de haber pasado de un proxy al hecho.
+
+LA SALIDA «VERSIONAR» SE DESCARTO CON UNA CIFRA, no con una intuicion:
+  versionar graphify-out/   2,3 MB medidos, medio de ellos graph.html regenerable, mas un
+                            conflicto de merge por cada regeneracion
+  mtime -> hash             casi cero: el hash YA estaba en el manifiesto
+  MISSING explicito         una linea
+Y SUITE-R37 ya declara graphify-out/ regenerable, con el «no hacer» prohibiendo corregirlo a
+mano: versionar un artefacto que el marco declara desechable es contradecirse.
+
+DOS DECISIONES para que el arreglo no sea OTRO dato que depende de la maquina: la huella se
+calcula sobre contenido SIN «
+» —si no, un checkout con CRLF y otro con LF darian hashes
+distintos para el mismo archivo, y git aviso de esa conversion en CADA commit de este lote—; y si
+la raiz no aparece en la ruta se devuelve la ruta TAL CUAL, porque fabricar una relativa plausible
+seria peor que decir que no se pudo.
+
+MISSING NO BLOQUEABA «A VECES»: fuera de la maquina que genero el grafo NO LLEGABA A EVALUARSE
+NUNCA, y aun asi decia «Bloquea G2 en PTs MAJOR» — una promesa que ningun clon podia cumplir. Ahora
+dice «no evaluable aqui», que es SIN EVALUAR aplicado a un ESTADO. Hay DOS casos: uno comprueba
+que dice el hecho nuevo y otro que DEJO DE DECIR el falso.
+
+LO QUE NO SE RESUELVE, declarado: en un clon limpio el grafo sigue sin existir. Pasa de un bloqueo
+que nadie alcanzaba a un «no evaluable», que es honesto y NO es lo mismo que comprobarlo.
+
+bateria: 1156 -> 1167 casos, cero fallos, a la primera.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #166
+
+## PT-091 — las cifras se derivan, no se transcriben
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-007 y H-006, que son el mismo defecto. inventory/services.md se genero el 2026-08-19 y OCHO de
+sus dieciseis cifras ya no describian el arbol UN DIA DESPUES.
+
+REMEDIDO AL ABRIR LA TAREA: las mismas ocho, y MAS LEJOS. El propio lote las estaba alejando
+mientras se escribia.
+  selftest.sh    doc 3541 · H-007 medio 4533 · ahora 4919
+  patrones.mjs   doc  588 · H-007 medio 1082 · ahora 1280    mas del DOBLE
+
+LA COMPROBACION SE CAZO A SI MISMA, y no hizo falta construir el caso. Al escribir
+checkInventario DENTRO de verify-fdge.mjs el archivo crecio, y su PRIMERA ejecucion dijo:
+  ! FND-R14  1 de 16 cifras ya no describen el arbol — verify-fdge.mjs 2057->2106.
+El arreglo caduco antes de terminar de escribirlo. Es la demostracion mas directa de por que una
+cifra escrita a mano no se sostiene, y ocurrio sola.
+
+LA SEVERIDAD QUEDO OPUESTA A LA DE PT-089, y la diferencia esta medida:
+  PT-089  registro terminal + YAML vivo   -> «fase >= N» no se cumple -> las comprobaciones
+                                             posteriores NO SE EJECUTAN -> ERROR
+  PT-091  cifra desviada en el inventario -> ninguna comprobacion cambia de resultado
+                                          -> AVISO, y con el comando que lo arregla
+La CONSECUENCIA decide la severidad, no la gravedad aparente (PT-023).
+
+EL ANCLA ES LO QUE HACE UTIL AL RESTO. FND-R14 ancla el grafo con pt_at_generation y el
+inventario no tenia equivalente: «al dia» y «nadie lo ha vuelto a mirar» eran indistinguibles.
+«tracker inventario» publica ahora el HEAD corto con el que cuadro.
+
+LO QUE TRAJO LA BATERIA Y EL PLAN NO TENIA: «inventario» recalcula cifras del arbol y NO espeja
+nada, pero la guarda de plataforma se dispara antes del despacho. Exigirle una credencial para
+leer «wc -l» dejaria sin arreglo a un proyecto sin tablero — el caso que SUITE-R22 declara
+soportado y que PT-084 defendio. Entra en SIN_PLATAFORMA con «indices» y «sellar».
+
+H-006 SE CIERRA POR SU CAUSA, no por su sintoma: CLAUDE.md decia 15 herramientas y 4 comandos y
+se corrigio A MANO en la auditoria — el arreglo que vuelve a caducar. Ahora hay quien lo diga.
+
+LO QUE NO SE VERIFICA, declarado: que la PROSA del inventario sea cierta, y que la lista de
+comandos de CLAUDE.md sea la util. Se cuenta su CANTIDAD: un CLAUDE.md que dijera «install» siete
+veces pasaria.
+
+bateria: 1167 -> 1179 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #167
+
+## PT-093 — el limite de las compuertas se declara
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 10.0.0 · Lote: EP-018
+Estructural: no
+
+H-009, tipo INVESTIGATION porque no estaba claro que tuviera arreglo dentro del repositorio.
+MEDIDO EN PHASE 2: no lo tiene. Los cuatro caminos que lo parecen mueven el problema —un revisor
+aprobador es imposible para el equipo de una persona (SUITE-R22); retirar credenciales de gh rompe
+el espejo (SUITE-R35); una firma criptografica vive en la maquina donde ejecuta el agente; y dos
+agentes con las mismas credenciales no son dos personas.
+
+LA DECISION: DECLARAR el limite, como SUITE-R27 ya hace con las firmas, y no prometer una
+prevencion. Prometerla seria peor que declarar: daria por resuelto lo que sigue abierto, que es el
+patron que este lote combate.
+
+  EXEC-R04   gana una tabla de DOS COLUMNAS —lo que garantiza y lo que no— porque lo que hace
+             util la declaracion es que las dos listas se lean A LA VEZ. Y una frase: «0
+             revisores aprobadores NO es un descuido de configuracion», que impide que alguien
+             lo «arregle» rompiendo el flujo del equipo de una persona.
+  EXEC-R04a  fija la FORMA de la constancia. PT-088 la fijo de hecho al escribir RE_CONSTANCIA;
+             solo la conocia quien leyera el codigo.
+
+LO QUE APARECIO Y NO BUSCABA NADIE. Escribi EXEC-R04a, el marco la conto como regla —225— y NO
+LLEGO A CORE.md, que es lo unico que el agente carga.
+
+  patrones.mjs  reglasDelMarco  [A-Z]+-R\d+[a-z]?   la aceptaba
+  build-core    RE_PROSE_HEAD   [A-Z]+-[RP]\d+      la rechazaba
+  build-core    rulesFrom       [A-Z]+-[RP]\d+      la rechazaba
+
+LEX-R24 ADMITE EXPLICITAMENTE los sub-identificadores, y los dos extractores del compilador los
+descartaban EN SILENCIO. Dos lectores del mismo hecho, divergentes: la enfermedad que la v4 existe
+para eliminar, dentro de la herramienta que compila el nucleo. Arreglados los DOS aunque hoy solo
+el de prosa tuviera una sub-regla — dejar el defecto en la mitad que no se estreno es esperar a
+que lo encuentre otro, y este lote lleva ocho instancias de exactamente eso.
+
+EL MARCO SE CAZO SOLO, DOS VECES: en cuanto la regla llego a CORE, el detector de PT-081 la marco
+por no declarar desde cuando rige; y «audit» la conto como PENDIENTE hasta que le escribi su
+emision — que es como descubri que una constancia MALFORMADA y una AUSENTE son hechos distintos
+con arreglos distintos, y no debian compartir mensaje.
+
+UN CASO MIO ATADO A UNA CIFRA QUE CRECE: PT-088 aserto «PENDIENTE 122» y fallo DOS TAREAS DESPUES,
+al entrar EXEC-R04a. El «no hacer» del HANDOFF ya lo advertia y lo hice igual. Corregido a asertar
+el HECHO: que las tres reglas no sigan en PENDIENTE.
+
+AC-03 NO REQUERIA TRABAJO: PT-088 lo entrego. Segunda vez en el lote que un AC resulta estar
+hecho, y las dos veces se dice en vez de disimularlo.
+
+AC-04 es la decision, y se declara cual se tomo. Escrita bajo el VoBo vigente con su base en
+SESSION_LOG.md. ES LA UNICA DECISION DEL LOTE QUE EL FIRMANTE QUIZA QUIERA REVISAR, y se dice.
+
+bateria: 1179 -> 1187 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #169
+
+## PT-092 — ejecutar QA y FPGE
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 11.0.0 · Lote: EP-018
+Estructural: no
+
+H-008 y TD-15. De los tres componentes nunca ejecutados, PTSA cayo en su propia auditoria. Aqui
+se resuelven los otros dos, y de formas OPUESTAS.
+
+FPGE SE EJECUTO. Ocho candidatos en ROADMAP.md, cada uno con su evidencia, ninguno promovido
+(FPGE-R04). Era la PRIMERA VEZ que podia ejecutarse: antes de PTSA-2026-08-20 no habia hallazgos
+que priorizar, asi que no le faltaba oportunidad sino insumo.
+
+QA NO APLICA. QA-R01 dice que el componente «opera SOLO desde el navegador, nunca lee codigo», y
+inventory/routes.md y endpoints.md declaran que este sistema no tiene rutas ni API. Un caso de QA
+sin navegador no es un QA relajado: es otra cosa con el mismo nombre.
+
+  Montarlo habria puesto verify-qa en verde y dejado CASOS-DE-USO.md diciendo que el ciclo
+  completo se ha ejercitado — FABRICAR UN VERDE en el componente cuyo lema es «sin captura el
+  paso no ocurrio». Es la misma decision que PT-072 tomo al NO declarar plataforma en el proyecto
+  de prueba, y aquel silencio destapo H7.
+
+  Declarado como hueco en CASOS-DE-USO.md, que es distinto de dejarlo pendiente. Y TD-15 pasa de
+  contar TRES componentes juntos a decir UNO PENDIENTE (FIDE) y UNO QUE NO APLICA (QA) — dos
+  hechos que no debian sumarse, la distincion de PT-058 aplicada a una deuda.
+
+LO QUE EJECUTAR ENCONTRO Y LEER NO HABRIA ENCONTRADO: INC-001. PHASE 2 lee los hallazgos vivos, y
+aparecieron H-001 y H-006 en VALIDATION_PENDING cuando se habian cerrado DIECISIETE COMMITS ANTES.
+El commit de cierre nunca existio: «git commit -q» calla en exito y su salida iba filtrada por
+«grep -v ^warning | tail -2». TERCERA vez en la sesion que filtrar antes de mirar esconde un
+fallo, y las dos anteriores las escribi en el «no hacer».
+
+  Y nada lo habria cazado nunca: verify-ptsa comprueba la matriz, los productos y los cierres sin
+  firma; NO comprueba que un cierre siga estando. Reconstruido, registrado, y es R-005 del roadmap
+  con EvidenceWeight 16 —el maximo— porque su evidencia es un INCIDENTE OBSERVADO.
+
+DOS DE LOS SEIS FACTORES DE LA PRIORIDAD SON JUICIO, y los dos multiplican. Publicar ocho numeros
+con decimal sin decirlo los haria parecer un calculo, y por eso el roadmap lleva una seccion que
+lo dice y un caso que la comprueba.
+
+FPGE-R01 me obligo a rehacer el roadmap: exige evidencia en TODA linea que nombre un R-NNN,
+incluidas las de prosa. Mi primera version citaba TD-15, QA-R01 y COVERAGE.md —reales, sin
+identificador reconocido— y cayeron doce. Es mas rigido de lo que parece y es correcto: una fila
+que dice «esto es prioritario» sin identificador al lado es una opinion con numero.
+
+bateria: 1188 -> 1199 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #168
+
+## EP-018 — LOTE: lo que la auditoria encontro
+Fecha: 2026-08-20 · Estado: DONE · Version: 11.0.0
+Estructural: no
+
+Que se pidio: «atendemos todo, abre una epica con estos hallazgos, el que descubriste al cierre
+anterior mas esta auditoria». Siete tareas, todas integradas.
+
+RESULTADO: los NUEVE hallazgos de PTSA-2026-08-20 resueltos — dos CLOSED y siete en
+VALIDATION_PENDING, que es donde PTSA-R44 los deja hasta que una persona los valide.
+Version 11.0.0. Bateria 1118 -> 1199 casos. Reglas 224 -> 225.
+
+  VERIFICADA 94 -> 97 · NO_VERIFICABLE 5 -> 6 · PENDIENTE 125 -> 122
+
+EL HALLAZGO DEL LOTE, y no es el que se buscaba. EP-017 documento CUATRO comprobaciones que
+verificaban un proxy barato en lugar del hecho. EP-018 venia a cerrar ese patron con un mecanismo
+—PT-087— y encontro CUATRO MAS haciendolo:
+
+  5  sellar paso 1   comprobaba que EXISTIERA entrada en el CHANGELOG, no que ENUMERARA
+  6  SUITE-R27       buscaba una frase en TODO el archivo, no la firma en su bloque
+  7  revento()       buscaba una palabra en la salida, no una traza de pila
+  8  sellar deuda    miraba «el tag anterior», no «lo ya sellado»
+
+LAS CUATRO APARECIERON EJECUTANDO, no leyendo. Y la octava solo podia aparecer hoy: «el tag
+anterior» funcionaba mientras la version en curso no estuviera etiquetada, y hasta la 10.0.0
+NADIE HABIA LLEGADO A SELLAR DE VERDAD. Con umbral 3 bloqueaba G2 justo despues de sellar.
+
+LO QUE EL LOTE ENTREGA:
+  PT-088  SUITE-R09 y EXEC-R04 con verificador · SUITE-R01 declarada NO_VERIFICABLE, la ultima
+          de las tres a proposito: declararla antes habria sido declarar sin haber medido
+  PT-087  el registro SUJETOS —que establece / que NO— y la mitad que hace trabajo: que el
+          limite LLEGUE AL MENSAJE. La cobertura se publica y es del 3 %
+  PT-089  la divergencia con estado terminal pasa a ERROR, y «avanzar» cierra donde nacian
+  PT-090  la deriva del grafo con HASH y no mtime · MISSING dice «no evaluable en este clon»
+  PT-091  las cifras del inventario se DERIVAN, con ancla de commit
+  PT-093  EXEC-R04 declara que garantiza y que NO · EXEC-R04a fija la forma de la constancia
+  PT-092  FPGE ejecutado · QA declarado NO APLICA · INC-001 registrado
+
+EL MARCO SE CAZO A SI MISMO, y muchas veces:
+  · la bateria encontro CUATRO defectos mios en PT-088, incluido uno que aserto contra el
+    IDENTIFICADOR de una regla en vez de contra el fallo — el patron del lote, escrito por mi
+    dentro del lote que existe para cerrarlo
+  · el detector de PT-081 marco EXEC-R04a en cuanto llego a CORE
+  · «audit» la conto PENDIENTE hasta que le escribi su emision
+  · FDGE-R15 cazo DOS criterios huerfanos, y las dos veces la leccion fue la misma: «no procede»
+    y «ya esta hecho» TAMBIEN son comprobables
+  · FND-R14 se cazo a si misma: al escribir checkInventario, verify-fdge crecio y su propia cifra
+    quedo desviada en la primera ejecucion. El arreglo caduco antes de terminar de escribirlo
+
+DOS DEFECTOS MIOS QUE NADIE HABRIA VISTO sin ejecutar:
+  · LEX-R24 admite sub-IDs y los DOS extractores de build-core los rechazaban EN SILENCIO: una
+    regla contaba como existente y NO llegaba a CORE.md, que es lo unico que el agente carga
+  · calcule la huella del grafo sobre contenido NORMALIZADO y graphify guarda el hash de los
+    BYTES CRUDOS: los archivos con CRLF salian cambiados SIEMPRE. Y parecia correcto porque eran
+    justo los que yo habia editado. La afirmacion de PT-090 —«nombra exactamente los cinco que
+    edite»— era una COINCIDENCIA, y esta corregida en su autorrevision
+
+LO QUE EL LOTE NO CERRO, declarado y no escondido:
+  · FIDE sigue sin ejecutarse. Ultimo componente pendiente y PRIMER candidato del roadmap:
+    necesita un proyecto que incubar, e inventarlo seria lo que este lote combate
+  · migrate --apply sigue sin ejecutarse contra un legado real
+  · la segunda corrida de PTSA: EP-018 cambio siete de los nueve hallazgos, asi que el Health
+    79.9 ya no describe el arbol. Es R-004
+  · INC-001: nada comprueba que un cierre de PTSA siga cerrado. Es R-005
+  · la cobertura del registro de sujetos es del 3 %. Es R-003
+  · H-008 queda en VALIDATION_PENDING: es lo unico del lote que no queda resuelto
+
+LA DECISION QUE EL FIRMANTE QUIZA QUIERA REVISAR: PT-093 declaro el limite de las compuertas en
+vez de construir una prevencion. Es la salida que la auditoria senalaba como mas probable y que
+PHASE 2 confirmo midiendo los cuatro caminos alternativos, pero es una decision de diseno y se
+tomo bajo el VoBo vigente.
+
+Compuertas: G1 resuelta el 2026-08-20 · G2 y G3 delegadas POR LOTE con constancia en
+  SESSION_LOG.md · G4 y el tag: del firmante, sin delegar · PUBLICAR: NO autorizado.
+Trazabilidad externa: issue #162 · sub-issues #163..#169

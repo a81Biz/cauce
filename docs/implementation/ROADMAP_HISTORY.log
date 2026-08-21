@@ -1,0 +1,32 @@
+# ROADMAP_HISTORY — append-only   FPGE-R02
+
+Una entrada por corrida de FPGE. ROADMAP.md se sobrescribe; esto no.
+
+## 2026-08-20 · primera corrida de FPGE sobre este repositorio
+Origen: PT-092 · lote EP-018
+Frescura: PTSA FRESH (2026-08-20, audit_due 2026-09-20) · QA NO APLICA · INC-001 abierto
+
+Es la primera vez que FPGE tiene material del que tirar: antes de PTSA-2026-08-20 no habia
+hallazgos que priorizar, y por eso el componente nunca se habia ejecutado (TD-15).
+
+8 candidatos. Excluidos los que ya tienen PT: H-002..H-007 y H-009 los cerro EP-018.
+
+  R-001  13.5  ejecutar FIDE                                    TD-15 · H-008      D1
+  R-002  11.3  migrate --apply contra un legado real            PT-019             D1
+  R-003   9.0  cobertura del registro de sujetos, hoy 3 de 107  PT-087             D1
+  R-004   8.4  segunda corrida de PTSA sobre el arbol de EP-018 PTSA-R20           D1
+  R-005   8.0  un cierre de PTSA no puede desaparecer           INC-001            D3
+  R-006   4.5  las 7 aserciones sospechosas, una a una          TD-16              D2
+  R-007   4.0  declarar que QA no aplica a un paquete CLI       QA-R01             D4
+  R-008   3.0  las 21 celdas NO_EVALUADA de la matriz           COVERAGE.md §3     D4
+
+R-005 lleva EvidenceWeight 16 —el maximo— porque su evidencia es un INCIDENTE OBSERVADO y no una
+inferencia: INC-001, el cierre de dos hallazgos que desaparecio sin que nada avisara. Y Urgency
+2.0 por el +1.0 que FPGE-R05 aplica a un incidente abierto sin PT de seguimiento.
+
+NINGUNO SE PROMUEVE (FPGE-R04). Todos nacen DRAFT y entran a FDGE PHASE 1 solo cuando una persona
+los pase a READY.
+
+Lo que esta corrida NO puede decir: si el orden es el correcto. Solo EvidenceWeight sale de un
+hecho observable; ScoreImpact y Effort son juicios del agente, y por eso se publica el desglose de
+los tres primeros — para que el juicio sea contrastable, no para que parezca un calculo.

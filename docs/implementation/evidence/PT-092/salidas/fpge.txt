@@ -1,0 +1,24 @@
+# PT-092 · FPGE ejecutado
+
+PASA
+  ✓ FPGE-R01     14 candidato(s), todos con evidencia de origen.
+  ✓ FPGE-R05     Frescura declarada en el roadmap.
+  ✓ FPGE-R03     Ningún artefacto ajeno lleva rastro de escritura de FPGE.
+
+Sin errores.
+
+--- los ocho candidatos ---
+| `R-001` | **Ejecutar `FIDE`**: incubar un proyecto desde una idea de n
+| `R-002` | **`migrate --apply`** contra un legado real, sobre copia des
+| `R-003` | Elevar la cobertura del registro de **sujetos**, hoy 3 de 10
+| `R-004` | **Segunda corrida de PTSA** sobre el árbol que dejó el lot
+| `R-005` | Que un **cierre de PTSA no pueda desaparecer** sin que nada 
+| `R-006` | Las **7 aserciones sospechosas** de `lint_aserciones`, una a
+| `R-007` | Declarar en `CASOS-DE-USO.md` que **`QA` no aplica** a un pa
+| `R-008` | Las **21 celdas `NO_EVALUADA`** de la matriz de cobertura 
+| `R-001` | `H-008` 
+| `R-002` | `PT-019` 
+| `R-004` | `PT-092` 
+| `R-007` | `PT-092` 
+| `R-008` | `PT-092` 
+| `R-006` | `PT-079` 

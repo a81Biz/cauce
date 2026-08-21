@@ -30,6 +30,7 @@
  */
 
 import { readFileSync, existsSync, writeFileSync, rmSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -52,8 +53,12 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
+  sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
+// PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
+import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
+// PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
+import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
 // PT-064 · separador de campos para `git log`: no aparece en un nombre ni en un asunto.
@@ -960,7 +965,11 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'indices']);
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'indices',
+  // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
+  // seria pedirle una credencial para leer «wc -l», y dejaria sin arreglo a un proyecto
+  // que no declara tablero — el caso que SUITE-R22 declara soportado y PT-084 defendio.
+  'inventario']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -2228,13 +2237,29 @@ function avanzar() {
   try {
     // 1 · el registro ASIGNA
     a.phase = destino;
+    // PT-089 · H-004. «avanzar» sincronizaba «phase» en las dos fuentes y NO «status», asi que
+    // al llegar a la ultima fase alguien tenia que marcar el estado terminal A MANO — y lo hacia
+    // en el registro, dejando el YAML atras. De ahi salian las SEIS divergencias medidas, y las
+    // seis eran de la clase que apaga comprobaciones.
+    //
+    // Marcar terminal es parte del MISMO acto atomico: los cinco actos o ninguno (FDGE-R52).
+    // NO se toca un estado que ya sea terminal: una tarea puede acabar REJECTED o DEFERRED, y
+    // FDGE-R53 dice que la tarea declara como termina — esto no lo decide por ella.
+    const esFinal = Number(destino) === Math.max(...Object.keys(FASES).map(Number));
+    const terminal = esFinal && !ESTADOS_TERMINALES.has(String(a.status));
+    if (terminal) a.status = 'INTEGRATED';
     writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
 
     // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo
     if (existsSync(fIntake)) {
       const txt = readFileSync(fIntake, 'utf8');
-      const nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
+      let nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
       if (nuevo === txt) throw new Error(`el intake de ${id} no declara «phase»: no se puede sincronizar (SUITE-R08).`);
+      if (terminal) {
+        const conEstado = nuevo.replace(/^status:[ 	]*\S+[ 	]*$/m, `status: ${a.status}`);
+        if (conEstado === nuevo) throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
+        nuevo = conEstado;
+      }
       writeFileSync(fIntake, nuevo);
     }
 
@@ -2348,7 +2373,15 @@ const VERSION_DEL_PROYECTO = reg?.suite_version ?? '0.0.0';
 function sellar() {
   const idsDelTag = (() => {
     const tag = (gitDe(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
-      .trim().split(/\s+/).filter(Boolean).find((t) => t !== `v${VERSION_DEL_PROYECTO}`);
+      // PT-087 · «el tag anterior» era un PROXY de «lo ya sellado». Se escribio cuando la
+      // version en curso todavia NO estaba etiquetada, asi que saltarse su propio tag era
+      // inofensivo. En cuanto se sella de verdad deja de serlo: recien creado v10.0.0, las 21
+      // tareas de EP-017 —que ESTAN dentro de el— aparecian como deuda sin sellar, y con
+      // umbral 3 eso bloquea G2 justo despues de haber sellado.
+      //
+      // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
+      // exista, sea o no el de la version en curso.
+      .trim().split(/\s+/).filter(Boolean)[0];
     if (!tag) return { tag: null, ids: null };
     const j = gitDe(['show', `${tag}:docs/implementation/REGISTRY.json`], { crudo: true });
     if (!j) return { tag, ids: null };
@@ -2376,9 +2409,17 @@ function sellar() {
 
   // E · el grafo al dia
   const man = leerJSON(join(ROOT, 'graphify-out', 'manifest.json'));
-  const deriva = derivaDelGrafo(man, (ruta) => {
-    const p = ruta.split(String.fromCharCode(92)).join('/');
-    try { return statSync(p).mtimeMs / 1000; } catch { return null; }
+  // PT-090 cambio derivaDelGrafo para comparar HASH y esta llamada seguia pasando el mtime:
+  // decia «17 de 17 cambiaron» recien regenerado el grafo. DOS LECTORES DEL MISMO HECHO,
+  // divergentes — y lo cazo «sellar», no una lectura del codigo.
+  //
+  // La huella es de BYTES CRUDOS, que es lo que graphify guarda en «ast_hash».
+  const deriva = derivaDelGrafo(man, (ruta, usaMtime) => {
+    const rel = rutaRelativaDelManifiesto(ruta, ROOT);
+    const f = join(ROOT, rel);
+    if (!existsSync(f)) return null;
+    if (usaMtime) { try { return statSync(f).mtimeMs / 1000; } catch { return null; } }
+    try { return createHash('md5').update(readFileSync(f)).digest('hex'); } catch { return null; }
   });
   di('');
   if (deriva === null) di('  grafo              SIN MANIFIESTO — no hay con que comparar (FDGE-R43).');
@@ -2401,9 +2442,44 @@ function sellar() {
     di('  indistinguible de una que nadie miro, y por eso no pasa.');
   }
 
+  const RE_LINEA_CH = new RegExp('\r?\n');
+  const RE_ENTRADA_CH = new RegExp('^## [0-9]+[.][0-9]+[.][0-9]+ ');
+  const SALTO_CH = String.fromCharCode(10);
+  // ── PT-087 · el paso 1 comprueba el HECHO, no que la entrada exista ───────
+  //
+  // QUINTA instancia del patron. Este paso era una linea de una lista: no comprobaba nada.
+  // Yo mire a mano que la entrada del CHANGELOG existiera y DI POR HECHO que enumeraba lo
+  // nuevo. No lo hacia — SUITE-R57 quedo fuera de la guia de la 10.0.0.
+  //
+  // QUE ESTABLECE: que toda regla cuya version de entrada es la vigente esta NOMBRADA en la
+  //   entrada del CHANGELOG de esa version.
+  // QUE NO ESTABLECE: que lo que la guia diga de ella sea correcto ni suficiente.
+  const entradaDeLaVersion = (() => {
+    const fCh = join(ROOT, 'docs', 'methodology', 'CHANGELOG.md');
+    const ch = existsSync(fCh) ? readFileSync(fCh, 'utf8') : null;
+    if (!ch) return null;
+    const lineas = ch.split(RE_LINEA_CH);
+    const i = lineas.findIndex((l) => l.startsWith(`## ${VERSION_DEL_PROYECTO} `));
+    if (i < 0) return null;
+    const j = lineas.findIndex((x, k) => k > i && RE_ENTRADA_CH.test(x));
+    return lineas.slice(i, j < 0 ? lineas.length : j).join(SALTO_CH);
+  })();
+  const fueraDeLaGuia = reglasNuevasFueraDeLaGuia(RIGE_DESDE, VERSION_DEL_PROYECTO, entradaDeLaVersion);
+  di('');
+  if (entradaDeLaVersion === null) {
+    di(`  guia de migracion  SIN ENTRADA para ${VERSION_DEL_PROYECTO} en CHANGELOG.md. SUITE-R19 la exige.`);
+  } else if (fueraDeLaGuia && fueraDeLaGuia.length) {
+    di(`  guia de migracion  ${fueraDeLaGuia.length} regla(s) nueva(s) NO nombradas: ${fueraDeLaGuia.join(', ')}.`);
+    di('                     Un proyecto destino se encontraria la regla sin una linea que se la');
+    di('                     explique. Nombrarlas es el minimo; que la instruccion sirva no se');
+    di('                     comprueba aqui.');
+  } else {
+    di('  guia de migracion  enumera las reglas que entran con esta version.');
+  }
+
   di('');
   di('  ── lo que falta para sellar ──────────────────────────────────────────');
-  di('  1 · entrada en CHANGELOG.md con su guia de migracion        [SUITE-R19]');
+  di('  1 · entrada en CHANGELOG.md que ENUMERE las reglas nuevas   [SUITE-R19]');
   di('  2 · node tools/version.mjs --aplicar   (los 21 documentos)');
   di('  3 · node tools/build-core.mjs          (CORE regenerado)');
   di('  4 · bash tools/selftest.sh             BATERIA COMPLETA, no parcial');
@@ -2491,7 +2567,70 @@ function indices() {
   cerrarPasada();
 }
 
-const acciones = { espejo, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, sellar, indices };
+// ── PT-091 · H-007 · inventario · las cifras se recalculan ──────────────────
+//
+// services.md se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no describian el arbol
+// un dia despues. Durante EP-018 las distancias habian CRECIDO: selftest.sh documentado 3541
+// contra 4919 reales. PTSA-R76 obliga a construir el universo auditable DESDE el inventario, y
+// un inventario que envejece en un dia lo convierte en una fuente de memoria.
+//
+// QUE ESTABLECE: que cada cifra transcrita coincide con la derivada del arbol.
+// QUE NO ESTABLECE: que la DESCRIPCION en prosa sea cierta. Que diga bien cuantas lineas tiene
+//   tracker.mjs no dice nada sobre si describe bien lo que hace.
+const RE_LINEA_INV = new RegExp(String.fromCharCode(92) + 'r?' + String.fromCharCode(92) + 'n');
+const RE_TOOL_INV = new RegExp('[.](mjs|sh)$');
+const F_SERVICES = join(ROOT, 'docs', 'enterprise-documentation', 'inventory', 'services.md');
+const DIR_TOOLS = join(ROOT, 'docs', 'methodology', 'tools');
+
+function lineasDe(herramienta) {
+  const f = join(DIR_TOOLS, herramienta);
+  if (!existsSync(f)) return null;
+  return readFileSync(f, 'utf8').split(RE_LINEA_INV).length - 1;
+}
+
+function inventario() {
+  if (!existsSync(F_SERVICES)) {
+    notas.push('no hay inventory/services.md: nada que recalcular.');
+    return;
+  }
+  const texto = readFileSync(F_SERVICES, 'utf8');
+  const mal = cifrasQueMienten(cifrasTranscritas(texto), lineasDe);
+
+  // El ancla: de que commit sale el recuento. FND-R14 lo hace con pt_at_generation para el
+  // grafo, y el inventario no tenia equivalente — asi que nada distinguia «al dia» de «nadie
+  // lo ha vuelto a mirar».
+  const ancla = gitDe(['rev-parse', '--short', 'HEAD']);
+
+  const cl = join(ROOT, 'CLAUDE.md');
+  const rec = existsSync(cl) ? recuentosDeClaude(readFileSync(cl, 'utf8')) : {};
+  const nTools = existsSync(DIR_TOOLS) ? readdirSync(DIR_TOOLS).filter((f) => RE_TOOL_INV.test(f)).length : null;
+
+  if (!mal.length) notas.push(`las ${cifrasTranscritas(texto).length} cifras de services.md coinciden con el arbol${ancla ? ` (${ancla})` : ''}.`);
+  for (const m of mal) {
+    notas.push(m.motivo === 'no existe'
+      ? `${m.herramienta}: en services.md y NO en el arbol.`
+      : `${m.herramienta}: services.md dice ${m.lineas} y son ${m.real}.`);
+  }
+  if (rec.herramientas != null && nTools != null && rec.herramientas !== nTools) {
+    notas.push(`CLAUDE.md declara ${rec.herramientas} herramientas y hay ${nTools}.`);
+  }
+
+  if (!APLICAR) {
+    if (mal.length) notas.push('--aplicar   las reescribe. Sin la marca, esto solo las enumera.');
+    return;
+  }
+  if (!mal.length) return;
+  let nuevo = texto;
+  for (const m of mal) {
+    if (m.real == null) continue;
+    const re = new RegExp('(^\\|\\s*`' + m.herramienta.replace('.', '[.]') + '`\\s*\\|\\s*)\\d+', 'm');
+    nuevo = nuevo.replace(re, `$1${m.real}`);
+  }
+  writeFileSync(F_SERVICES, nuevo);
+  notas.push(`${mal.filter((m) => m.real != null).length} cifra(s) reescritas en services.md.`);
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, sellar, indices };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

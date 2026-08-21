@@ -35,6 +35,8 @@ import { selloDe, PATRONES, NATURALEZAS, MEDIDO, ESTIMADO, SIN_EVALUAR } from '.
 import { reglasDelMarco, reglasNuevasSinVersion } from './patrones.mjs';
 // PT-080 · una regla no se define dos veces. Es la enfermedad que motivo la v4.
 import { definidasDosVeces } from './patrones.mjs';
+// PT-087 · el sujeto de una comprobacion: que hecho establece, y cual NO.
+import { SUJETOS, sujetosIncompletos, limitesQueNoLleganAlMensaje } from './patrones.mjs';
 import { execFileSync } from 'node:child_process';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
@@ -645,6 +647,59 @@ const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''
     warn('SUITE-R19', 'RULES.md', 0, `${id} es una regla HARD nueva y no declara desde qué versión rige. `
       + 'Sin fila en RIGE_DESDE (tools/patrones.mjs) regirá sobre tareas escritas antes de existir, '
       + 'y la guía de migración no podrá enumerarla.');
+  }
+})();
+
+// ─── PT-087 · SUITE-R38 · una comprobacion declara QUE HECHO establece ──────
+//
+// Siete veces el marco comprobo un proxy barato en lugar del hecho. La causa no esta en las
+// siete instancias: esta en que NADA OBLIGA a declarar que mide una comprobacion.
+//
+// Dos comprobaciones, y la segunda es la que hace trabajo:
+//   1  el sujeto declarado esta COMPLETO — una celda vacia no pasa (FND-R22)
+//   2  el limite declarado LLEGA AL MENSAJE que el usuario lee
+//
+// La segunda importa porque en las siete instancias, cuando el limite estaba escrito, vivia en
+// un COMENTARIO del codigo fuente: donde solo lo ve quien ya esta leyendo el codigo.
+//
+// QUE NO ESTABLECE, y va dicho aqui por la misma razon: que el sujeto declarado sea CIERTO.
+// Comprobarlo exigiria entender el codigo, y prometerlo seria la octava instancia.
+(() => {
+  const incompletos = sujetosIncompletos(SUJETOS);
+  for (const id of incompletos) {
+    fail('SUITE-R38', 'tools/patrones.mjs', 0, `${id}: su entrada en SUJETOS está incompleta. `
+      + 'Una celda vacía no pasa: es indistinguible de una que nadie miró (FND-R22). '
+      + '«noEstablece: null» sí vale, y es distinto de vacío: declara que no hay límite que expresar.');
+  }
+
+  const dirT = join(BASE, 'tools');
+  const emisiones = {};
+  if (existsSync(dirT)) {
+    for (const f of readdirSync(dirT)) {
+      if (!/\.(mjs|sh)$/.test(f)) continue;
+      try { emisiones[f] = readFileSync(join(dirT, f), 'utf8'); } catch { /* ilegible */ }
+    }
+  }
+  const mudos = limitesQueNoLleganAlMensaje(SUJETOS, emisiones);
+  for (const id of mudos) {
+    fail('SUITE-R38', 'tools/patrones.mjs', 0, `${id}: declara un límite que NO aparece en ningún `
+      + 'mensaje de las herramientas. Un límite que vive sólo en un comentario protege a quien ya '
+      + 'está leyendo el código, es decir a quien no lo necesita — y es como las siete instancias '
+      + 'del patrón pasaron desapercibidas.');
+  }
+
+  if (!incompletos.length && !mudos.length && Object.keys(SUJETOS).length) {
+    // Se dice CUANTAS declaran sujeto y cuantas emiten, para que la adopcion parcial se VEA.
+    // Publicar solo «sin errores» dejaria la cobertura invisible, que es lo que SUITE-R11 y
+    // PTSA-R21 prohiben para cualquier score.
+    const emiten = new Set();
+    for (const cuerpo of Object.values(emisiones)) {
+      for (const m of String(cuerpo).matchAll(/\b(?:fail|warn|ok)\(\s*'([A-Z]+-R\d+[a-z]?)'/g)) emiten.add(m[1]);
+    }
+    warn('SUITE-R38', 'tools/patrones.mjs', 0,
+      `${Object.keys(SUJETOS).length} de ${emiten.size} reglas que emiten declaran su sujeto. `
+      + 'La tabla crece por adopción declarada, como RIGE_DESDE: lo que la hace útil no es cuántas '
+      + 'cubre hoy, sino que ninguna pueda quedarse fuera en silencio.');
   }
 })();
 

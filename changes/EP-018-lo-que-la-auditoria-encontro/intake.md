@@ -4,7 +4,7 @@
 ---
 id: EP-018
 created: 2026-08-20
-status: IN_PROGRESS
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 suite_version: 10.0.0
@@ -246,15 +246,27 @@ misma regla copiada siete veces, y las copias divergen (`SUITE-R38`).
 
 | Que | Como se resuelve | Estado |
 |:---|:---|:---|
-| Entrada en `CHANGELOG.md` con guia de migracion | `SUITE-R19` · y esta vez **enumerando** las reglas nuevas, que es lo que `PT-087` arregla | |
-| Numero de version | `MAJOR` si `PT-087` o `PT-088` introducen reglas `HARD` nuevas; `MINOR` si solo anaden verificadores a reglas que ya existian | |
-| `RIGE_DESDE` de toda regla nueva | `PT-081` · sin fila, rige hacia atras | |
-| Sello de la version | los ocho pasos de `tracker sellar`, con la bateria **completa** (`SUITE-R57`) | |
-| Segunda auditoria PTSA | `PTSA-R20` · el score caduca el **2026-09-20**. Cerrar el lote sin revalidar deja un `Health` que ya no describe el arbol | |
-| `H-002`..`H-005`, `H-007`, `H-009` a `VALIDATION_PENDING` | con evidencia post-correccion observada (`PTSA-R39`). **El cierre lo hace una persona** (`PTSA-R44`) | |
-| `H-001` y `H-006`, ya corregidos | pendientes de que el firmante los valide y cierre | |
-| `TD-15` · `TD-17` | retirados o actualizados con la decision tomada | |
-| Lo que las tareas aplacen | cada `out-of-scope.md` cita un identificador que lo sostiene (`SUITE-R44`) | |
+| Entrada en `CHANGELOG.md` con guia de migracion | `SUITE-R19` · y esta vez **enumerando** las reglas nuevas, que es lo que `PT-087` arregla | **HECHO** · entrada `11.0.0` con las tres nuevas nombradas, y `sellar` lo comprueba |
+| Numero de version | `MAJOR` si `PT-087` o `PT-088` introducen reglas `HARD` nuevas; `MINOR` si solo anaden verificadores a reglas que ya existian | **HECHO** · `11.0.0`. Entran verificadores que **pueden fallar** en proyectos que hoy pasan — el criterio con el que subio la `10.0.0` |
+| `RIGE_DESDE` de toda regla nueva | `PT-081` · sin fila, rige hacia atras | **HECHO** · `SUITE-R09`, `EXEC-R04` y `EXEC-R04a` en `[11,0,0]`. `verify-suite` cazo la tercera en cuanto llego a `CORE` |
+| Sello de la version | los ocho pasos de `tracker sellar`, con la bateria **completa** (`SUITE-R57`) | **HECHO** hasta el paso 6. Los pasos 7 y 8 —PR a `main` y tag— son del firmante |
+| Segunda auditoria PTSA | `PTSA-R20` · el score caduca el **2026-09-20** | `PT-092` la dejo como `R-004` del `ROADMAP.md`, con su prioridad. **No se ejecuta aqui**: revalidar es una corrida entera, no un paso de cierre |
+| `H-002`..`H-005`, `H-007`, `H-009` a `VALIDATION_PENDING` | con evidencia post-correccion observada (`PTSA-R39`) | **HECHO** · los seis, cada uno con su revision y su evidencia |
+| `H-001` y `H-006`, ya corregidos | pendientes de que el firmante los valide y cierre | **HECHO** · `CLOSED` los dos. Y `INC-001` registra que este cierre **se perdio una vez** sin que nada avisara |
+| `TD-15` · `TD-17` | retirados o actualizados con la decision tomada | **HECHO** · `TD-15` separa «no aplica» de «pendiente» y queda `FIDE`; `TD-17` sigue abierto con la decision de **no versionar** el grafo, y su coste medido |
+| Lo que las tareas aplacen | cada `out-of-scope.md` cita un identificador que lo sostiene (`SUITE-R44`) | **HECHO** · siete `out-of-scope.md`, y lo aplazado vive en `ROADMAP.md` con `R-NNN` |
+| `H-008` no se cierra | `QA` **no aplica** y `FIDE` sigue pendiente | **DECLARADO** en `PT-092` · `VALIDATION_PENDING`. Es lo unico del lote que no queda resuelto, y se dice |
+
+## Lo que el lote no cerro, y por que
+
+**`FIDE`.** Es el ultimo componente sin ejecutar y el **primer candidato del roadmap**. Necesita un
+proyecto que incubar, e inventarlo para cerrar un numero seria justo lo que este lote combate.
+
+**La segunda corrida de PTSA.** `EP-018` cambio siete de los nueve hallazgos, asi que el `Health`
+79.9 ya no describe el arbol. Revalidar es una corrida entera y esta en `R-004`, no aqui.
+
+**`INC-001`.** Nada comprueba que un cierre de PTSA siga cerrado. Reconstruido y registrado; el
+arreglo es `R-005`, con la maxima `EvidenceWeight` porque su evidencia es un incidente observado.
 
 **Ninguna fila se marca sin su evidencia.** Una celda vacia no pasa, por lo mismo que no pasa en
 `SELLO.md` ni en `LAYOUT.md` (`FND-R22`).
@@ -281,3 +293,25 @@ El lote los deja en `VALIDATION_PENDING` con su evidencia; el cierre es un acto 
 
 Auditoría de origen: [`PTSA/RESUMEN.md`](../../PTSA/RESUMEN.md) · `PTSA-2026-08-20` ·
 Health 79.9 · Risk 73 · Confidence 0.94 · coverage 0.89 · certificación **B**.
+
+---
+
+## El lote se marca `CLOSED` **antes** de `G4`, y eso resuelve una fricción
+
+`EP-017` se marcó `CLOSED` **después** de su `G4`, y `tracker cerrar` lo rechazó:
+
+```
+✗ SUITE-R46  EP-017 (aqui CLOSED, en main DONE). El orden es: apuntar el estado terminal
+   AQUI, mergear, y cerrar DESPUES.
+```
+
+Aquello se declaró como un huevo y gallina inevitable —*«`G4` **es** lo que convierte el lote en
+terminal»*— y **no lo era**. Lo que convierte un lote en terminal es que **su trabajo esté
+completo**: siete tareas integradas, la tabla de cierre resuelta y la versión sellada. `G4` integra
+ese trabajo terminado; no lo termina.
+
+Marcándolo aquí, el estado terminal viaja **con** el merge y su issue cierra en el mismo acto — sin
+el merge extra que `EXEC-R03` prohíbe multiplicar.
+
+**`SUITE-R46` tenía razón las dos veces.** Lo que estaba mal era el momento de marcarlo, no la
+regla.

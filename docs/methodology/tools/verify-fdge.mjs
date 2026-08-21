@@ -47,7 +47,8 @@ import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
-import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn } from './patrones.mjs';
+import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
+         lineasPerdidas, mergesSinConstancia } from './patrones.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -57,7 +58,10 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
-import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA } from './patrones.mjs';
+import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
+         rutaRelativaDelManifiesto } from './patrones.mjs';
+// PT-091 · las cifras del inventario se derivan, no se transcriben.
+import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
@@ -264,7 +268,16 @@ function checkFoundation() {
 // cumplirla declarando que el grafo no existía. Una regla dura que se satisface diciendo
 // que no se puede cumplir no es una regla. Aquí se vuelve computable.
 function graphState(reg) {
-  if (!existsSync(join(ROOT, 'graphify-out'))) return { state: 'MISSING', reason: 'no existe graphify-out/' };
+  // PT-090 · MISSING era un BLOQUEO MUDO: en un clon limpio —CI incluida— el directorio nunca
+  // existe, porque «.gitignore» lo excluye. La comprobacion no bloqueaba «a veces»: no llegaba
+  // a evaluarse NUNCA fuera de la maquina que genero el grafo, y decia «Bloquea G2» como si si.
+  //
+  // Ahora dice lo que pasa: NO EVALUABLE AQUI. Es honesto, y no es lo mismo que comprobarlo —
+  // eso solo lo cerraria versionar el grafo o generarlo en CI, y las dos son decisiones de
+  // alcance que PT-090 no toma.
+  if (!existsSync(join(ROOT, 'graphify-out'))) {
+    return { state: 'MISSING', reason: 'no existe graphify-out/ en este clon — el directorio está en .gitignore, así que la frescura NO ES EVALUABLE aquí. No es lo mismo que estar desactualizado' };
+  }
   const g = reg?.graph;
   if (g?.pt_at_generation == null) {
     warn('FND-R14', 'REGISTRY.graph no declara pt_at_generation: el grafo no forma parte del paquete.');
@@ -292,12 +305,41 @@ function graphState(reg) {
   // aquí dejaría G2 cerrada en todos los MAJOR de forma permanente — y una comprobación que
   // siempre bloquea se desactiva. STALE bloqueante sigue reservado a lo estructural.
   const man = (() => { try { return JSON.parse(readFileSync(join(ROOT, 'graphify-out', 'manifest.json'), 'utf8')); } catch { return null; } })();
-  const deriva = derivaDelGrafo(man, (ruta) => {
-    const ruta2 = ruta.split(String.fromCharCode(92)).join('/');
-    try { return statSync(ruta2).mtimeMs / 1000; } catch { return null; }
+  // PT-090 · el manifiesto guarda «ast_hash» junto al «mtime», y esta llamada usaba el mtime.
+  // «git clone» los reescribe con la fecha del clon, asi que los 17 archivos salian cambiados
+  // aunque el contenido fuera identico — y dos commit seguidos tambien. Paso DOS VECES en este
+  // lote, la ultima con 6 de 17 por una normalizacion de CRLF.
+  //
+  // Y las rutas del manifiesto son ABSOLUTAS, asi que se relativizan a la raiz: sin eso, el
+  // manifiesto solo sirve en un disco donde el proyecto este exactamente en esa ruta.
+  const deriva = derivaDelGrafo(man, (ruta, usaMtime) => {
+    const rel = rutaRelativaDelManifiesto(ruta, ROOT);
+    const f = join(ROOT, rel);
+    if (!existsSync(f)) return null;
+    if (usaMtime) { try { return statSync(f).mtimeMs / 1000; } catch { return null; } }
+    // La huella se calcula sobre BYTES CRUDOS, porque es lo que graphify guarda en «ast_hash».
+    //
+    // La primera version normalizaba el retorno de carro para que un checkout con CRLF y otro
+    // con LF dieran el mismo hash. Sonaba bien y estaba MAL: el hash normalizado no casa con el
+    // asi que los archivos con CRLF salian cambiados SIEMPRE — 6 de 17, tambien recien
+    // regenerado el grafo. Y parecia correcto porque esos 6 eran justo los que yo habia editado:
+    // tienen CRLF porque git los deja asi al escribirlos en Windows.
+    //
+    // Medido: 11 de 17 casaban con el hash normalizado y los 6 restantes casaban con el CRUDO.
+    //
+    // El caso CRLF-vs-LF que la normalizacion pretendia cubrir NO EXISTE hoy: «graphify-out/»
+    // esta en .gitignore, asi que el manifiesto nunca viaja entre maquinas — se regenera en cada
+    // una junto a los archivos que describe. Si algun dia se versiona, vuelve a importar, y eso
+    // es lo que TD-17 sigue rastreando.
+    try { return createHash('md5').update(readFileSync(f)).digest('hex'); } catch { return null; }
   });
   if (deriva && deriva.length) {
-    const muestra = deriva.slice(0, 6).map((r) => r.split('/').pop()).join(', ');
+    // La muestra en ruta RELATIVA: el manifiesto guarda absolutas y un mensaje con
+    // «C:\DevOps\…» cuatro veces no se lee, ademas de decir donde vive el disco de quien lo
+    // genero. Es el mismo material que H-001 saco del tarball.
+    const muestra = deriva.slice(0, 6)
+      .map((r) => rutaRelativaDelManifiesto(r.replace(' (no existe)', ''), ROOT))
+      .join(', ');
     return {
       state: 'SUSPECT',
       reason: `${deriva.length} de ${Object.keys(man).length} archivos que describe han cambiado desde ${g.generated}`
@@ -771,6 +813,198 @@ function checkIrreversibles(modo) {
     } else ok('SUITE-R06', `AUTONOMOUS con ${eps.length} lote(s) de alcance declarado.`);
   }
 }
+// PT-088 · `rige` GLOBAL. El de checkPT usa la version DEL PT —es lo correcto para una
+// comprobacion por tarea—, pero SUITE-R09 y EXEC-R04 son del REPOSITORIO: no hay tarea de la
+// que sacar la version. Se toma del registro, que es quien la declara (SUITE-R13).
+//
+// Escribir estas dos con el `rige` de checkPT reventaba —ese identificador no existe a nivel
+// de modulo— y mi propio grep sobre la salida lo escondio: filtrar antes de mirar es la
+// version de consola del patron que PT-087 cierra.
+const rigeGlobal = (id) => rigeDesde(id, reg?.suite_version ?? '0.0.0');
+
+// ─── FND-R14 · las cifras del inventario describen el arbol ─────────────────
+//
+// PT-091 · H-007. services.md se genero el 2026-08-19 y OCHO de sus dieciseis cifras ya no
+// describian el arbol un dia despues. Durante EP-018 las distancias habian CRECIDO: 3541
+// documentado contra 4919 reales.
+//
+// PTSA-R76 obliga a construir el universo auditable DESDE el inventario. Un inventario que
+// envejece en un dia convierte la fuente mecanica de la auditoria en una fuente de memoria — y
+// en PTSA-2026-08-20 no llego a estropear nada solo porque el auditor enumero contra «ls», que
+// fue una decision suya y no una propiedad del marco.
+//
+// QUE ESTABLECE: que cada cifra transcrita coincide con la derivada del arbol.
+// QUE NO ESTABLECE: que la DESCRIPCION en prosa sea cierta. Que services.md diga bien cuantas
+//   lineas tiene tracker.mjs no dice nada sobre si describe bien lo que hace.
+//
+// AVISA y no bloquea: el inventario lo escribe Foundation y una cifra desviada no apaga
+// ninguna comprobacion — al reves que SUITE-R35, donde SI las apagaba (PT-089). Y hay un
+// comando que lo arregla: «tracker inventario --aplicar».
+const F_SERV = join(ED, 'inventory', 'services.md');
+const DIR_T = join(ROOT, 'docs', 'methodology', 'tools');
+function checkInventario() {
+  if (!existsSync(F_SERV) || !existsSync(DIR_T)) return;
+  const transcritas = cifrasTranscritas(read(F_SERV) ?? '');
+  if (!transcritas.length) return;
+  const mal = cifrasQueMienten(transcritas, (h) => {
+    const f = join(DIR_T, h);
+    if (!existsSync(f)) return null;
+    try { return readFileSync(f, 'utf8').split(RE_LINEA).length - 1; } catch { return null; }
+  });
+  if (mal.length) {
+    const muestra = mal.slice(0, 4)
+      .map((m) => `${m.herramienta} ${m.lineas}→${m.real ?? 'no existe'}`).join(', ');
+    warn('FND-R14', `${mal.length} de ${transcritas.length} cifras de inventory/services.md ya no describen el árbol — ${muestra}${mal.length > 4 ? ' …' : ''}. Se recalculan: node docs/methodology/tools/tracker.mjs inventario --aplicar. NO establece que la descripción en prosa sea cierta: sólo las cifras.`);
+  } else {
+    ok('FND-R14', `las ${transcritas.length} cifras de inventory/services.md coinciden con el árbol.`);
+  }
+
+  // H-006 · el recuento de CLAUDE.md, que se corrigio A MANO en la auditoria — el arreglo que
+  // vuelve a caducar en cuanto entre una herramienta.
+  const rec = recuentosDeClaude(read(join(ROOT, 'CLAUDE.md')) ?? '');
+  const nT = readdirSync(DIR_T).filter((f) => /\.(mjs|sh)$/.test(f)).length;
+  if (rec.herramientas != null && rec.herramientas !== nT) {
+    warn('FND-R14', `CLAUDE.md declara ${rec.herramientas} herramientas y hay ${nT}. Es una cifra escrita a mano que nadie recalcula, y por eso vuelve a caducar cada vez que se corrige.`);
+  }
+}
+
+// ─── SUITE-R09 · el ledger append-only no pierde lineas ─────────────────────
+//
+// PT-088 · H-002 de PTSA-2026-08-20. SUITE-R09 declara que los ledgers son append-only y
+// NINGUN verificador la emitia: la base de evidencia del marco entero no tenia guarda.
+//
+// QUE ESTABLECE: que ninguna linea anterior desaparecio NI CAMBIO desde el tag. Cuenta las
+//   lineas «-» del diff, y git representa una modificacion como borrado mas alta.
+// QUE NO ESTABLECE: cual de los dos fue. No distingue una correccion legitima de una
+//   falsificacion — en un append-only las dos estan prohibidas, y lo que se corrige se
+//   corrige ANADIENDO.
+//
+// Declare al escribirla que una alteracion de igual recuento pasaba, y era FALSO: lo midio
+// el arnes, no yo. Declarar un limite sin medirlo es la misma forma que PT-087 cierra.
+//
+// La ventana es el TAG, no origin/main: PT-081 eligio origin/main y la comprobacion se apago
+// justo el dia que lo que buscaba aterrizo alli.
+const LEDGERS = ['HISTORY.log', 'SESSION_LOG.md', 'INCIDENTS.log',
+                 'RECONCILIATION.log', 'MIGRATION.log', 'INSTALL.log'];
+function checkLedgers() {
+  if (!rigeGlobal('SUITE-R09')) return;
+  const git = (args) => {
+    try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }); }
+    catch { return null; }
+  };
+  const tag = (git(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
+    .trim().split(/\s+/).filter(Boolean)[0];
+  if (!tag) {
+    // Sin tag no hay reloj y NO SE INVENTA UNO: se omite la comprobacion y se dice, que es
+    // lo que integrations.md declara para git en todo el marco.
+    warn('SUITE-R09', 'sin ningún tag v*: no hay línea base contra la que medir el ledger. No se comprueba, y se dice.');
+    return;
+  }
+  const presentes = LEDGERS
+    .map((f) => join('docs', 'implementation', f).split(sep).join('/'))
+    .filter((f) => existsSync(join(ROOT, f)));
+  const fuera = lineasPerdidas(presentes, (f) => git(['diff', tag, 'HEAD', '--', f]));
+  const sinBase = fuera.filter((x) => x.borradas === null);
+  const perdidas = fuera.filter((x) => x.borradas !== null);
+  for (const x of sinBase) {
+    warn('SUITE-R09', `${x.archivo}: no se pudo obtener el diff contra ${tag}. SIN EVALUAR — que no es lo mismo que «ninguna línea borrada».`);
+  }
+  for (const x of perdidas) {
+    fail('SUITE-R09', `${x.archivo}: ${x.borradas} línea(s) desaparecida(s) o alterada(s) desde ${tag}. Un ledger append-only no reescribe lo ya escrito: se corrige añadiendo. Cuenta las líneas «-» del diff, así que una modificación cuenta —git la representa como borrado más alta—. Lo que NO distingue es una corrección legítima de una falsificación: en un append-only las dos están prohibidas.`);
+  }
+  if (!perdidas.length && !sinBase.length) {
+    ok('SUITE-R09', `${presentes.length} ledger(s) sin líneas perdidas desde ${tag}.`);
+  }
+}
+
+// ─── EXEC-R04 · la G4 deja constancia con nombre ────────────────────────────
+//
+// PT-088 · H-002. EXEC-R04 dice que G4 es humana en los tres modos y ningun verificador la
+// emitia. Lo que existia era SUITE-R06 por TAREA; esto es por MERGE.
+//
+// QUE ESTABLECE: que hay una entrada de autorizacion, con nombre en «firmantes», el mismo dia
+//   de cada merge a la rama por defecto posterior a la version de entrada.
+// QUE NO ESTABLECE: que la autorizacion fuera real — el agente escribe la constancia. Es el
+//   limite que SUITE-R27 declara para las firmas, y H-009 pide declararlo tambien aqui.
+//
+// La ventana no es cosmetica: medido, hay 18 merges a main y UNO desde el ultimo tag. Sin
+// ventana la regla nace con 17 fallos sobre trabajo de agosto y se apaga (PT-023).
+const RE_CONSTANCIA = /^##\s+(\d{4}-\d{2}-\d{2})\s+·\s+.*(?:G4|VoBo|autorizad)/gim;
+function checkG4ConConstancia() {
+  if (!rigeGlobal('EXEC-R04')) return;
+  const git = (args) => {
+    try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }); }
+    catch { return null; }
+  };
+  const tag = (git(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
+    .trim().split(/\s+/).filter(Boolean)[0];
+  const principal = (git(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']) ?? '')
+    .trim().split('/').pop() || 'main';
+  const ref = `origin/${principal}`;
+  if (git(['rev-parse', '--verify', '--quiet', ref]) === null) {
+    warn('EXEC-R04', `no existe ${ref}: sin rama por defecto publicada no hay merges que contrastar. SIN EVALUAR.`);
+    return;
+  }
+  const rango = tag ? `${tag}..${ref}` : ref;
+  const crudo = git(['log', '--merges', '--first-parent', rango, '--format=%h|%cs']) ?? '';
+  const merges = crudo.trim().split(/\r?\n/).filter(Boolean)
+    .map((l) => { const [sha, fecha] = l.split('|'); return { sha, fecha }; });
+  if (!merges.length) {
+    ok('EXEC-R04', `sin merges a ${principal}${tag ? ` desde ${tag}` : ''}: nada que autorizar.`);
+    return;
+  }
+  const sesion = read(join(IMPL, 'SESSION_LOG.md')) ?? '';
+  // firmantesDeclarados() devuelve NULL —no lista vacia— si no hay CLAUDE.md o no declara
+  // «firmantes:». Sin lista no hay contra que contrastar un nombre, asi que la comprobacion
+  // NO SE HACE y se dice, en vez de reventar o de dar por buena cualquier constancia.
+  // Reventaba en 13 casos del arnes, y SUITE-R27 ya avisa de la lista ausente.
+  // NOTA: no se nombra aqui la clase de error de node. «revento()» del arnes la busca EN TODA
+  // LA SALIDA, y trece casos hacen «cat» de este archivo: escribirla convierte el comentario
+  // en un falso positivo. Es el mismo aviso que el HANDOFF ya da sobre escribir el patron de
+  // una emision dentro de un comentario.
+  const lista = firmantesDeclarados();
+  if (!lista) {
+    warn('EXEC-R04', 'CLAUDE.md no declara «firmantes:»: sin esa lista, una constancia con cualquier nombre valdría. SIN EVALUAR, y SUITE-R27 ya lo señala.');
+    return;
+  }
+  // El nombre se EXTRAE del cuerpo de la entrada, no se sintetiza desde «firmantes». Lo
+  // escribi al reves —generaba una constancia por cada firmante declarado— y entonces el
+  // filtro por nombre no podia fallar NUNCA: AC-05 quedaba vacuo. Es un verificador que
+  // comprueba su propia entrada, la forma mas silenciosa del patron que PT-087 cierra.
+  const bloques = sesion.split(/^##\s+/m);
+  const constancias = [];
+  for (const b of bloques) {
+    const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
+    if (!m || !/G4|VoBo|autorizad/i.test(m[2])) continue;
+    const quien = lista.find((n) => b.includes(n));
+    if (quien) constancias.push({ nombre: quien, fecha: m[1] });
+  }
+  // PT-093 · EXEC-R04a · una constancia MALFORMADA es un hecho distinto de una AUSENTE, y el
+  // arreglo tambien: la primera se corrige anadiendo el nombre, la segunda escribiendo la
+  // entrada. Fundirlas en un solo mensaje mandaba a quien lo lee a buscar cual de las dos era.
+  //
+  // QUE ESTABLECE: que un encabezado que anuncia una autorizacion lleve un nombre de firmantes.
+  // QUE NO ESTABLECE: que ese encabezado sea el de la autorizacion que cubre este merge — eso
+  //   lo empareja la fecha, y el limite ya esta declarado en EXEC-R04.
+  if (rigeGlobal('EXEC-R04a')) {
+    for (const b of bloques) {
+      const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
+      if (!m || !/G4|VoBo|autorizad/i.test(m[2])) continue;
+      if (lista.some((n) => b.includes(n))) continue;
+      fail('EXEC-R04a', `SESSION_LOG.md, entrada del ${m[1]}: anuncia una autorización y no lleva ningún nombre de «firmantes» en su cuerpo. La forma es fija —encabezado con fecha y un nombre de la lista— porque lo que hace contrastable a una autorización es saber dónde mirar y qué tiene que decir. NO establece que sea la autorización de un merge concreto: eso lo empareja la fecha.`);
+    }
+  }
+
+  const huerfanos = mergesSinConstancia(merges, constancias, lista);
+  if (huerfanos.length) {
+    for (const h of huerfanos) {
+      fail('EXEC-R04', `${h.sha} (${h.fecha}): merge a «${principal}» sin constancia de autorización en SESSION_LOG.md. G4 es humana en los tres modos; sin registro con un nombre de «firmantes» no hay decisión humana que contrastar. NO prueba que la autorización fuera real (SUITE-R27, H-009).`);
+    }
+  } else {
+    ok('EXEC-R04', `${merges.length} merge(s) a «${principal}»${tag ? ` desde ${tag}` : ''}, todos con constancia.`);
+  }
+}
+
 // ─── SUITE-R15 · el proyecto debe tener el núcleo que el agente carga ────────
 // Un proyecto sin CORE.md no puede cumplir SUITE-R15: no tiene qué cargar. Hasta la 4.3.1,
 // los instaladores de FIDE enumeraban archivos uno a uno y omitían CORE.md — el proyecto
@@ -1215,8 +1449,35 @@ function checkPT(pt, { gate } = {}) {
       + 'YAML que se queda atrás apaga comprobaciones sin que nada avise.';
     if (gate === 'G4') fail('SUITE-R35', m); else warn('SUITE-R35', m);
   };
+  // PT-089 · H-004. Una divergencia con estado TERMINAL en el registro y NO terminal en el
+  // YAML no es una diferencia de opinion entre dos fuentes: es un archivo que se quedo atras,
+  // y su consecuencia es que «fase >= N» no se cumple y las comprobaciones de las fases
+  // posteriores NO SE EJECUTAN. Es el defecto que PT-044 documento y al que se le puso un
+  // aviso — y un aviso no impide que una comprobacion se apague.
+  //
+  // Medido antes de escribir esto: de las 6 divergencias de «status» del repositorio, las 6
+  // son de esta clase. CERO benignas. El aviso estaba calibrado para una mezcla que no existe.
+  //
+  // QUE ESTABLECE: que ninguna tarea terminal en el registro se presenta como viva en su YAML.
+  // QUE NO ESTABLECE: cual de las dos fuentes tiene razon. La precedencia de PT-004 no cambia
+  //   —manda el YAML— y por eso el arreglo es SINCRONIZAR, no elegir.
+  //
+  // «phase» sigue siendo aviso: 22 divergencias en tareas ya terminales, y una terminal con
+  // «phase» viejo no apaga nada. Convertirlas en error nace con 22 fallos sobre trabajo
+  // cerrado, que es el error que PT-088 evito con RIGE_DESDE.
+  const divergenciaTerminal = (enYaml, enRegistro) => {
+    if (!enYaml || !enRegistro) return;
+    if (!ESTADOS_TERMINALES.has(String(enRegistro))) return;
+    if (ESTADOS_TERMINALES.has(String(enYaml))) return;
+    fail('SUITE-R35', `${pt}: el registro dice «${enRegistro}» —terminal— y su intake dice `
+      + `«${enYaml}», que no lo es. No es una diferencia de opinión: es un archivo que se quedó `
+      + 'atrás, y con él las comprobaciones de las fases posteriores no llegan a ejecutarse. '
+      + 'Se arregla SINCRONIZANDO, no eligiendo: la precedencia de PT-004 no cambia. '
+      + 'NO establece cuál de las dos fuentes tiene razón.');
+  };
   divergencia('phase', intake.match(RE_PHASE_YAML)?.[1], enRegistroPT?.phase, 'su intake dice');
   divergencia('status', intake.match(RE_STATUS_YAML)?.[1], enRegistroPT?.status, 'su intake dice');
+  divergenciaTerminal(intake.match(RE_STATUS_YAML)?.[1], enRegistroPT?.status);
 
   // Un artefacto se exige DESDE la fase que lo produce (CORE.md §Procedimiento por fase).
   // Exigirlo antes ponia en rojo a todo PT recien abierto, y CI corre `verify-fdge --all`:
@@ -1367,7 +1628,15 @@ function checkPT(pt, { gate } = {}) {
       catch { return null; }
     };
     const tag = (git(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
-      .trim().split(/\s+/).filter(Boolean).find((t) => t !== `v${REGISTRO?.suite_version ?? ''}`);
+      // PT-087 · «el tag anterior» era un PROXY de «lo ya sellado». Se escribio cuando la
+      // version en curso todavia NO estaba etiquetada, asi que saltarse su propio tag era
+      // inofensivo. En cuanto se sella de verdad deja de serlo: recien creado v10.0.0, las 21
+      // tareas de EP-017 —que ESTAN dentro de el— aparecian como deuda sin sellar, y con
+      // umbral 3 eso bloquea G2 justo despues de haber sellado.
+      //
+      // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
+      // exista, sea o no el de la version en curso.
+      .trim().split(/\s+/).filter(Boolean)[0];
     const idsTag = (() => {
       if (!tag) return null;
       const j = git(['show', `${tag}:docs/implementation/REGISTRY.json`]);
@@ -1814,6 +2083,9 @@ if (gate === 'G4' && LOTES_EVALUADOS.size) {
 checkFoundation();
 checkCore();
 checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
+checkLedgers();
+checkG4ConConstancia();
+checkInventario();
 checkImplementacion(reg);
 checkEstado();
 checkCheckpoint();
@@ -1828,7 +2100,7 @@ checkEpics();
 GRAPH = graphState(reg);
 if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);
 else if (GRAPH.state === 'SUSPECT') warn('FDGE-R43', `Grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);
-else warn('FDGE-R43', `Grafo ${GRAPH.state} — ${GRAPH.reason}. Bloquea G2 en PTs MAJOR.`);
+else warn('FDGE-R43', `Grafo ${GRAPH.state} — ${GRAPH.reason}.${GRAPH.state === 'MISSING' ? '' : ' Bloquea G2 en PTs MAJOR.'}`);
 
 const pts = all ? allOpenPTs(reg) : [...new Set(targets)];
 if (!pts.length && !all) {

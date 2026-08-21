@@ -1,0 +1,5 @@
+# PT-088 · AC-09 · cada comprobacion declara QUE NO establece
+
+Comprueba el recuento, no el contenido: una alteración que conserve el número de líneas NO la detecta.`);
+
+NO prueba que la autorización fuera real (SUITE-R27, H-009).
