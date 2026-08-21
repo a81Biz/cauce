@@ -5005,6 +5005,51 @@ chk   "…y la regla nueva declara desde cuando"   "TIENE_FILA" \
 chk   "AC-03 ya lo entrego PT-088, y se ve"      "sin constancia de autorización" \
   sh -c 'grep -o "sin constancia de autorización" "$1/tools/verify-fdge.mjs" | head -1' _ "$SUITE"
 
+sec "── PT-092 · ejecutar QA y FPGE ──"
+#
+# H-008 y TD-15. De los tres componentes nunca ejecutados, PTSA cayo en su propia auditoria.
+# FPGE se ejecuta aqui. QA NO APLICA: QA-R01 dice que opera SOLO desde el navegador, y
+# inventory/routes.md y endpoints.md declaran que este sistema no tiene rutas ni API.
+#
+# «No aplica» y «sin ejecutar» son hechos DISTINTOS, y contarlos juntos era el defecto de TD-15.
+
+# ── FPGE ejecutado, sobre el arbol real ─────────────────────────────────────
+chk   "hay ROADMAP con candidatos"               "R-001" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
+chk   "…y todo candidato cita su evidencia"      "todos con evidencia de origen" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-qa.mjs 2>&1' _ "$RAIZ"
+chk   "…y declara la frescura de sus fuentes"    "Frescura declarada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-qa.mjs 2>&1' _ "$RAIZ"
+# FPGE-R04 · un roadmap que promueve deja de ser un roadmap y pasa a ser una decision tomada
+# sin firma. Los ocho nacen DRAFT.
+chk   "…y NO promueve nada"                      "prohíbe promover" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
+chk   "…y el historico es append-only"           "primera corrida de FPGE" \
+  cat "$RAIZ/docs/implementation/ROADMAP_HISTORY.log"
+
+# El roadmap dice lo que NO puede decir. Sin esa seccion, ocho cifras con un decimal parecen
+# un calculo — y solo EvidenceWeight sale de un hecho observable.
+chk   "…y dice que el orden es un juicio"        "para que parezca un cálculo" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
+
+# ── QA declarado NO APLICA, que es distinto de pendiente ────────────────────
+chk   "el catalogo declara que QA no aplica"     "no es lo mismo que «no probado»" \
+  cat "$SUITE/CASOS-DE-USO.md"
+chk   "…y dice por que no se forzo"              "fabricar un verde en el" \
+  cat "$SUITE/CASOS-DE-USO.md"
+# TD-15 contaba tres pendientes juntos. Ahora separa lo que no aplica de lo que falta.
+chk   "TD-15 separa «no aplica» de «pendiente»"  "uno pendiente y uno que no aplica" \
+  cat "$RAIZ/docs/enterprise-documentation/10-Technical-Debt.md"
+
+# ── el incidente quedo registrado, y con seguimiento ────────────────────────
+#
+# INC-001: el cierre de dos hallazgos desaparecio sin que nada avisara, y lo encontro FPGE
+# PHASE 2 diecisiete commits despues. Ningun verificador comprueba que un cierre siga cerrado.
+chk   "INC-001 registrado en el ledger"          "INC-001" \
+  cat "$RAIZ/docs/implementation/INCIDENTS.log"
+chk   "…y tiene candidato en el roadmap"         "INC-001" \
+  cat "$RAIZ/docs/implementation/ROADMAP.md"
+
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que

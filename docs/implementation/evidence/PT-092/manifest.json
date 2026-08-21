@@ -1,0 +1,140 @@
+{
+  "pt": "PT-092",
+  "generated": "2026-08-20",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "QA ejecutado sobre algo real y verify-qa sin errores",
+      "scenarios": [
+        "E7",
+        "E8"
+      ],
+      "tests": [
+        "selftest.sh:el catalogo declara que QA no aplica",
+        "selftest.sh:…y dice por que no se forzo"
+      ],
+      "evidence": [
+        "salidas/qa.txt"
+      ],
+      "verified": true,
+      "nota": "NO APLICA, y esa es la salida que el propio intake declaro legitima. QA-R01 dice que opera SOLO desde el navegador y el inventario declara que no hay rutas ni API. Montar casos sin navegador habria puesto verify-qa en verde: fabricar un verde en el componente cuyo lema es «sin captura el paso no ocurrio». Declarado como hueco en CASOS-DE-USO.md, que es distinto de dejarlo pendiente."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "FPGE ejecutado: ROADMAP con items R-NNN trazables a evidencia",
+      "scenarios": [
+        "E1",
+        "E2"
+      ],
+      "tests": [
+        "selftest.sh:hay ROADMAP con candidatos",
+        "selftest.sh:…y todo candidato cita su evidencia"
+      ],
+      "evidence": [
+        "salidas/fpge.txt"
+      ],
+      "verified": true,
+      "nota": "Ocho candidatos. Era la PRIMERA VEZ que FPGE podia ejecutarse: antes de PTSA-2026-08-20 no habia hallazgos que priorizar, asi que no le faltaba oportunidad sino insumo."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El roadmap CONSUME los hallazgos abiertos de PTSA",
+      "scenarios": [
+        "E1",
+        "E11"
+      ],
+      "tests": [
+        "selftest.sh:hay ROADMAP con candidatos",
+        "selftest.sh:…y tiene candidato en el roadmap"
+      ],
+      "evidence": [
+        "salidas/fpge.txt"
+      ],
+      "verified": true,
+      "nota": "Y EXCLUYE lo que ya tiene PT (FPGE-R01): siete de los nueve hallazgos los trabajo EP-018. Sin esa exclusion el roadmap habria listado el trabajo recien hecho — un roadmap que se felicita a si mismo."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "FPGE-R05: si el score de PTSA esta STALE se declara en el encabezado",
+      "scenarios": [
+        "E3"
+      ],
+      "tests": [
+        "selftest.sh:…y declara la frescura de sus fuentes"
+      ],
+      "evidence": [
+        "salidas/fpge.txt"
+      ],
+      "verified": true,
+      "nota": "PTSA esta FRESH —es de hoy— y se declara igual, junto con que QA NO APLICA y que INC-001 esta abierto sin PT: eso ultimo da Urgency +1.0 al candidato que lo cita."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Las fricciones de las ejecuciones quedan escritas",
+      "scenarios": [
+        "E6",
+        "E10"
+      ],
+      "tests": [
+        "selftest.sh:…y dice que el orden es un juicio",
+        "selftest.sh:INC-001 registrado en el ledger"
+      ],
+      "evidence": [
+        "salidas/fpge.txt",
+        "salidas/qa.txt"
+      ],
+      "verified": true,
+      "nota": "Tres fricciones reales: FPGE-R01 exige evidencia en TODA linea que nombre un R-NNN, incluidas las de prosa —cayeron doce—; dos de los seis factores de la prioridad son JUICIO y los dos multiplican; y ejecutar PHASE 2 destapo INC-001."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "TD-15 retirado o con FIDE como unico pendiente",
+      "scenarios": [
+        "E9"
+      ],
+      "tests": [
+        "selftest.sh:TD-15 separa «no aplica» de «pendiente»"
+      ],
+      "evidence": [
+        "salidas/qa.txt"
+      ],
+      "verified": true,
+      "nota": "Queda FIDE pendiente y QA declarado NO APLICA. Contarlos juntos hacia que el numero bajara por dos motivos distintos sin que nadie pudiera saber cual — la distincion de PT-058 aplicada a una deuda."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el orden del roadmap sea el correcto.",
+      "por_que": "Dos de los seis factores —ScoreImpact y Effort— son juicio del agente, y los dos multiplican. Lo que SI se comprueba es que el juicio este declarado como tal.",
+      "donde": "docs/implementation/ROADMAP.md"
+    },
+    {
+      "afirmacion": "Que QA no aplique de verdad a este sistema.",
+      "por_que": "Es una lectura de QA-R01 contra un inventario que declara ausencia de interfaz. Si cauce tuviera una, la fila sale del catalogo.",
+      "donde": "docs/methodology/CASOS-DE-USO.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "El cierre de H-001 y H-006 desaparecio sin que nada avisara.",
+      "regla": "SUITE-R09",
+      "detalle": "INC-001. Lo encontro FPGE PHASE 2 —que lee los hallazgos vivos— DIECISIETE COMMITS DESPUES. El commit de cierre nunca existio: «git commit -q» calla en exito y su salida iba filtrada por «grep -v ^warning | tail -2». TERCERA vez en la sesion que filtrar antes de mirar esconde un fallo, y las dos anteriores las escribi en el «no hacer». Reconstruido y registrado; que un cierre no pueda desaparecer es R-005 del roadmap."
+    },
+    {
+      "que": "La primera version del roadmap citaba fuentes sin identificador reconocido.",
+      "regla": "FPGE-R01",
+      "detalle": "Citaba TD-15, QA-R01 y COVERAGE.md — reales, pero el verificador exige H-NNN, QD-NNN, PT-NNN o INC-NNN, y en TODA linea que nombre un R-NNN incluidas las de prosa. Cayeron doce. Es mas rigido de lo que parece necesario y es correcto: una fila que dice «esto es prioritario» sin identificador al lado es una opinion con numero."
+    },
+    {
+      "que": "Una asercion mia contra una frase partida en dos lineas.",
+      "regla": "—",
+      "detalle": "El grep casa por LINEA y la frase iba envuelta. Es hermano del «[]» de PT-087 y del «^$» de PT-085: asertar sobre texto con formato sin comprobar como llega."
+    }
+  ],
+  "suite": {
+    "passed": 1199,
+    "failed": 0,
+    "baseline": 1188,
+    "nota": "1188 mas 11 nuevos. Corrida COMPLETA, cero fallos. Tres corridas: dos las fallo una asercion mia contra una frase partida en dos lineas."
+  }
+}

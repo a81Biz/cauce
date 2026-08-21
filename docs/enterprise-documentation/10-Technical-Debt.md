@@ -405,6 +405,15 @@ se silencia y ocupa el sitio del que haría falta.
 > `QA` y `FPGE`. La deuda no se reescribe —esta seccion es acumulativa— se anota aqui y el
 > hallazgo vivo es `PTSA/Findings/H-008.md`.
 
+> **Segunda revisión, 2026-08-20 · `PT-092`.** `FPGE` se ejecutó: `ROADMAP.md` con ocho candidatos,
+> cada uno con su evidencia, y `verify-qa` en verde sobre él. **`QA` no se ejecutó porque no
+> aplica**: `QA-R01` dice que el componente opera *sólo desde el navegador* y este sistema no
+> tiene rutas ni API — está declarado como hueco en `CASOS-DE-USO.md`, que es distinto de dejarlo
+> como pendiente.
+>
+> **Queda uno: `FIDE`**, y es el primero del roadmap. `TD-15` deja de decir «tres» y pasa a decir
+> **uno pendiente y uno que no aplica** — dos hechos que no debían contarse juntos.
+
 ### `TD-17` · El grafo está en `.gitignore`, así que `FDGE-R43` sólo puede dar `FRESH` en la máquina que lo generó
 
 Apareció **sellando la `10.0.0`**, no leyendo el código: al regenerar el grafo, `git status` no

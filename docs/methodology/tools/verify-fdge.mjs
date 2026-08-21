@@ -317,12 +317,21 @@ function graphState(reg) {
     const f = join(ROOT, rel);
     if (!existsSync(f)) return null;
     if (usaMtime) { try { return statSync(f).mtimeMs / 1000; } catch { return null; } }
-    // La huella es del CONTENIDO NORMALIZADO: sin esto, un checkout con CRLF y otro con LF
-    // darian hashes distintos para el mismo archivo, que es el defecto que se esta cerrando.
-    try {
-      const txt = readFileSync(f, 'utf8').split(String.fromCharCode(13)).join('');
-      return createHash('md5').update(txt).digest('hex');
-    } catch { return null; }
+    // La huella se calcula sobre BYTES CRUDOS, porque es lo que graphify guarda en «ast_hash».
+    //
+    // La primera version normalizaba el retorno de carro para que un checkout con CRLF y otro
+    // con LF dieran el mismo hash. Sonaba bien y estaba MAL: el hash normalizado no casa con el
+    // asi que los archivos con CRLF salian cambiados SIEMPRE — 6 de 17, tambien recien
+    // regenerado el grafo. Y parecia correcto porque esos 6 eran justo los que yo habia editado:
+    // tienen CRLF porque git los deja asi al escribirlos en Windows.
+    //
+    // Medido: 11 de 17 casaban con el hash normalizado y los 6 restantes casaban con el CRUDO.
+    //
+    // El caso CRLF-vs-LF que la normalizacion pretendia cubrir NO EXISTE hoy: «graphify-out/»
+    // esta en .gitignore, asi que el manifiesto nunca viaja entre maquinas — se regenera en cada
+    // una junto a los archivos que describe. Si algun dia se versiona, vuelve a importar, y eso
+    // es lo que TD-17 sigue rastreando.
+    try { return createHash('md5').update(readFileSync(f)).digest('hex'); } catch { return null; }
   });
   if (deriva && deriva.length) {
     // La muestra en ruta RELATIVA: el manifiesto guarda absolutas y un mensaje con

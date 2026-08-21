@@ -105,6 +105,11 @@
       "que": "Probe rutaRelativaDelManifiesto desde la linea de comandos con barras invertidas.",
       "regla": "—",
       "detalle": "«bin» salio como «in»: el «\\\\b» se comio como retroceso, y el resultado parecia un fallo de la funcion. Repetido desde un ARCHIVO, las cuatro direcciones correctas. Es la undecima vez del patron de escapes en este proyecto."
+    },
+    {
+      "que": "Calcule la huella sobre contenido NORMALIZADO y graphify guarda el hash de los BYTES CRUDOS.",
+      "regla": "SUITE-R38",
+      "detalle": "Los archivos con CRLF no casaban NUNCA: 6 de 17 salian cambiados incluso recien regenerado el grafo. Y parecia correcto porque esos 6 eran justo los que yo habia editado — tienen CRLF porque git los deja asi al escribirlos. Medido al sellar EP-018: 11 casaban con el normalizado y 6 con el crudo. La afirmacion de la autorrevision —«nombra exactamente los cinco que edite»— era una COINCIDENCIA, no una prueba, y esta corregida ahi. El caso CRLF-vs-LF que la normalizacion cubria no existe hoy: el manifiesto esta en .gitignore y nunca viaja."
     }
   ],
   "suite": {

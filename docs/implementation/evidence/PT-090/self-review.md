@@ -24,6 +24,22 @@ SUSPECT · 5 de 17 — docs/methodology/tools/patrones.mjs, …/selftest.sh, …
 **Exactamente los cinco que edité en este lote, ni uno más.** Cuando el cambio es pasar de un
 proxy al hecho, la señal suele ser ésta: menos ruido *y* más precisión a la vez.
 
+> **Corrección del 2026-08-20, encontrada al sellar `EP-018`.** Aquí se dijo que la comprobación
+> «nombra exactamente los cinco que edité, ni uno más». **Era una coincidencia, no una prueba.**
+>
+> `graphify` calcula `ast_hash` sobre **bytes crudos** y mi huella normalizaba el retorno de
+> carro. Los archivos con `CRLF` no casaban **nunca** — y los que yo editaba tenían `CRLF`
+> precisamente porque los acababa de escribir. Medido: **11 de 17 casaban con el hash
+> normalizado y los 6 restantes con el crudo.**
+>
+> Recién regenerado el grafo seguía diciendo `SUSPECT · 6 de 17`. Con bytes crudos: `FRESH`.
+>
+> **El caso `CRLF`-vs-`LF` que la normalización pretendía cubrir no existe hoy**: `graphify-out/`
+> está en `.gitignore`, así que el manifiesto nunca viaja — se regenera en cada máquina junto a
+> los archivos que describe. Si algún día se versiona, vuelve a importar, y eso es lo que `TD-17`
+> sigue rastreando.
+
+
 ## La salida «versionar» se descartó con una cifra
 
 `H-005` presentaba tres salidas como equivalentes. **No lo son:**

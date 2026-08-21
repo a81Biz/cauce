@@ -23,6 +23,34 @@ No es una promesa: `EP-017` lo ejecutó y anotó lo que salió mal.
 
 **Lo que no está demostrado**: ejecutar la migración de extremo a extremo. Se validó que el
 informe es correcto y accionable, no que aplicarlo funcione — y entre las dos cosas hay un paso.
+
+## El marco auditado a sí mismo   `EP-018`
+
+`PTSA-2026-08-20`, la primera auditoría del marco con su propio componente de auditoría:
+
+```
+certificacion B · Health 79.9 · Risk 73 · Confidence 0.94 · coverage 0.89 · 9 hallazgos
+```
+
+**Los nueve están resueltos**: dos cerrados y siete esperando validación humana — `PTSA-R44`
+reserva el cierre de un `BUG` o un `DOMAIN` a una persona.
+
+| Componente | Estado |
+|:---|:---|
+| `Foundation` · `FDGE` | ejecutados · 93 tareas |
+| `PTSA` | ejecutado · la auditoría de arriba |
+| `FPGE` | ejecutado · `ROADMAP.md` con ocho candidatos trazables |
+| `FQAGE` | **no aplica** · opera sólo desde navegador y esto no tiene interfaz |
+| `FIDE` | **pendiente** · necesita un proyecto que incubar |
+
+**Y el hallazgo que el marco encontró sobre sí mismo**: ocho comprobaciones verificaban *un proxy
+barato en lugar del hecho* —la fecha del archivo en vez de su contenido, una palabra en la salida
+en vez de una traza—. Cuatro las encontró `EP-017`; las otras cuatro aparecieron **ejecutando** el
+lote que venía a cerrarlas.
+
+Desde la `11.0.0` una comprobación puede declarar **qué establece y qué no**, y el límite tiene
+que llegar al mensaje que lees. La cobertura de eso es hoy del **3 %**, y esa cifra se publica —
+porque un «sin errores» que no la diga afirma más de lo que sabe.
 Los huecos abiertos están en [`CASOS-DE-USO.md`](docs/methodology/CASOS-DE-USO.md), dichos en vez
 de callados.
 

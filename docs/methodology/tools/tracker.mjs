@@ -30,6 +30,7 @@
  */
 
 import { readFileSync, existsSync, writeFileSync, rmSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -52,7 +53,7 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
+  sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
@@ -2408,9 +2409,17 @@ function sellar() {
 
   // E · el grafo al dia
   const man = leerJSON(join(ROOT, 'graphify-out', 'manifest.json'));
-  const deriva = derivaDelGrafo(man, (ruta) => {
-    const p = ruta.split(String.fromCharCode(92)).join('/');
-    try { return statSync(p).mtimeMs / 1000; } catch { return null; }
+  // PT-090 cambio derivaDelGrafo para comparar HASH y esta llamada seguia pasando el mtime:
+  // decia «17 de 17 cambiaron» recien regenerado el grafo. DOS LECTORES DEL MISMO HECHO,
+  // divergentes — y lo cazo «sellar», no una lectura del codigo.
+  //
+  // La huella es de BYTES CRUDOS, que es lo que graphify guarda en «ast_hash».
+  const deriva = derivaDelGrafo(man, (ruta, usaMtime) => {
+    const rel = rutaRelativaDelManifiesto(ruta, ROOT);
+    const f = join(ROOT, rel);
+    if (!existsSync(f)) return null;
+    if (usaMtime) { try { return statSync(f).mtimeMs / 1000; } catch { return null; } }
+    try { return createHash('md5').update(readFileSync(f)).digest('hex'); } catch { return null; }
   });
   di('');
   if (deriva === null) di('  grafo              SIN MANIFIESTO — no hay con que comparar (FDGE-R43).');

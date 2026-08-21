@@ -4451,3 +4451,125 @@ SESSION_LOG.md. ES LA UNICA DECISION DEL LOTE QUE EL FIRMANTE QUIZA QUIERA REVIS
 bateria: 1179 -> 1187 casos, cero fallos.
 Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
 Trazabilidad externa: issue #169
+
+## PT-092 — ejecutar QA y FPGE
+Fecha: 2026-08-20 · Estado: INTEGRATED · Version: 11.0.0 · Lote: EP-018
+Estructural: no
+
+H-008 y TD-15. De los tres componentes nunca ejecutados, PTSA cayo en su propia auditoria. Aqui
+se resuelven los otros dos, y de formas OPUESTAS.
+
+FPGE SE EJECUTO. Ocho candidatos en ROADMAP.md, cada uno con su evidencia, ninguno promovido
+(FPGE-R04). Era la PRIMERA VEZ que podia ejecutarse: antes de PTSA-2026-08-20 no habia hallazgos
+que priorizar, asi que no le faltaba oportunidad sino insumo.
+
+QA NO APLICA. QA-R01 dice que el componente «opera SOLO desde el navegador, nunca lee codigo», y
+inventory/routes.md y endpoints.md declaran que este sistema no tiene rutas ni API. Un caso de QA
+sin navegador no es un QA relajado: es otra cosa con el mismo nombre.
+
+  Montarlo habria puesto verify-qa en verde y dejado CASOS-DE-USO.md diciendo que el ciclo
+  completo se ha ejercitado — FABRICAR UN VERDE en el componente cuyo lema es «sin captura el
+  paso no ocurrio». Es la misma decision que PT-072 tomo al NO declarar plataforma en el proyecto
+  de prueba, y aquel silencio destapo H7.
+
+  Declarado como hueco en CASOS-DE-USO.md, que es distinto de dejarlo pendiente. Y TD-15 pasa de
+  contar TRES componentes juntos a decir UNO PENDIENTE (FIDE) y UNO QUE NO APLICA (QA) — dos
+  hechos que no debian sumarse, la distincion de PT-058 aplicada a una deuda.
+
+LO QUE EJECUTAR ENCONTRO Y LEER NO HABRIA ENCONTRADO: INC-001. PHASE 2 lee los hallazgos vivos, y
+aparecieron H-001 y H-006 en VALIDATION_PENDING cuando se habian cerrado DIECISIETE COMMITS ANTES.
+El commit de cierre nunca existio: «git commit -q» calla en exito y su salida iba filtrada por
+«grep -v ^warning | tail -2». TERCERA vez en la sesion que filtrar antes de mirar esconde un
+fallo, y las dos anteriores las escribi en el «no hacer».
+
+  Y nada lo habria cazado nunca: verify-ptsa comprueba la matriz, los productos y los cierres sin
+  firma; NO comprueba que un cierre siga estando. Reconstruido, registrado, y es R-005 del roadmap
+  con EvidenceWeight 16 —el maximo— porque su evidencia es un INCIDENTE OBSERVADO.
+
+DOS DE LOS SEIS FACTORES DE LA PRIORIDAD SON JUICIO, y los dos multiplican. Publicar ocho numeros
+con decimal sin decirlo los haria parecer un calculo, y por eso el roadmap lleva una seccion que
+lo dice y un caso que la comprueba.
+
+FPGE-R01 me obligo a rehacer el roadmap: exige evidencia en TODA linea que nombre un R-NNN,
+incluidas las de prosa. Mi primera version citaba TD-15, QA-R01 y COVERAGE.md —reales, sin
+identificador reconocido— y cayeron doce. Es mas rigido de lo que parece y es correcto: una fila
+que dice «esto es prioritario» sin identificador al lado es una opinion con numero.
+
+bateria: 1188 -> 1199 casos, cero fallos.
+Compuertas: G1 · G2 · G3 delegadas por lote con constancia · G4 del lote, del firmante.
+Trazabilidad externa: issue #168
+
+## EP-018 — LOTE: lo que la auditoria encontro
+Fecha: 2026-08-20 · Estado: DONE · Version: 11.0.0
+Estructural: no
+
+Que se pidio: «atendemos todo, abre una epica con estos hallazgos, el que descubriste al cierre
+anterior mas esta auditoria». Siete tareas, todas integradas.
+
+RESULTADO: los NUEVE hallazgos de PTSA-2026-08-20 resueltos — dos CLOSED y siete en
+VALIDATION_PENDING, que es donde PTSA-R44 los deja hasta que una persona los valide.
+Version 11.0.0. Bateria 1118 -> 1199 casos. Reglas 224 -> 225.
+
+  VERIFICADA 94 -> 97 · NO_VERIFICABLE 5 -> 6 · PENDIENTE 125 -> 122
+
+EL HALLAZGO DEL LOTE, y no es el que se buscaba. EP-017 documento CUATRO comprobaciones que
+verificaban un proxy barato en lugar del hecho. EP-018 venia a cerrar ese patron con un mecanismo
+—PT-087— y encontro CUATRO MAS haciendolo:
+
+  5  sellar paso 1   comprobaba que EXISTIERA entrada en el CHANGELOG, no que ENUMERARA
+  6  SUITE-R27       buscaba una frase en TODO el archivo, no la firma en su bloque
+  7  revento()       buscaba una palabra en la salida, no una traza de pila
+  8  sellar deuda    miraba «el tag anterior», no «lo ya sellado»
+
+LAS CUATRO APARECIERON EJECUTANDO, no leyendo. Y la octava solo podia aparecer hoy: «el tag
+anterior» funcionaba mientras la version en curso no estuviera etiquetada, y hasta la 10.0.0
+NADIE HABIA LLEGADO A SELLAR DE VERDAD. Con umbral 3 bloqueaba G2 justo despues de sellar.
+
+LO QUE EL LOTE ENTREGA:
+  PT-088  SUITE-R09 y EXEC-R04 con verificador · SUITE-R01 declarada NO_VERIFICABLE, la ultima
+          de las tres a proposito: declararla antes habria sido declarar sin haber medido
+  PT-087  el registro SUJETOS —que establece / que NO— y la mitad que hace trabajo: que el
+          limite LLEGUE AL MENSAJE. La cobertura se publica y es del 3 %
+  PT-089  la divergencia con estado terminal pasa a ERROR, y «avanzar» cierra donde nacian
+  PT-090  la deriva del grafo con HASH y no mtime · MISSING dice «no evaluable en este clon»
+  PT-091  las cifras del inventario se DERIVAN, con ancla de commit
+  PT-093  EXEC-R04 declara que garantiza y que NO · EXEC-R04a fija la forma de la constancia
+  PT-092  FPGE ejecutado · QA declarado NO APLICA · INC-001 registrado
+
+EL MARCO SE CAZO A SI MISMO, y muchas veces:
+  · la bateria encontro CUATRO defectos mios en PT-088, incluido uno que aserto contra el
+    IDENTIFICADOR de una regla en vez de contra el fallo — el patron del lote, escrito por mi
+    dentro del lote que existe para cerrarlo
+  · el detector de PT-081 marco EXEC-R04a en cuanto llego a CORE
+  · «audit» la conto PENDIENTE hasta que le escribi su emision
+  · FDGE-R15 cazo DOS criterios huerfanos, y las dos veces la leccion fue la misma: «no procede»
+    y «ya esta hecho» TAMBIEN son comprobables
+  · FND-R14 se cazo a si misma: al escribir checkInventario, verify-fdge crecio y su propia cifra
+    quedo desviada en la primera ejecucion. El arreglo caduco antes de terminar de escribirlo
+
+DOS DEFECTOS MIOS QUE NADIE HABRIA VISTO sin ejecutar:
+  · LEX-R24 admite sub-IDs y los DOS extractores de build-core los rechazaban EN SILENCIO: una
+    regla contaba como existente y NO llegaba a CORE.md, que es lo unico que el agente carga
+  · calcule la huella del grafo sobre contenido NORMALIZADO y graphify guarda el hash de los
+    BYTES CRUDOS: los archivos con CRLF salian cambiados SIEMPRE. Y parecia correcto porque eran
+    justo los que yo habia editado. La afirmacion de PT-090 —«nombra exactamente los cinco que
+    edite»— era una COINCIDENCIA, y esta corregida en su autorrevision
+
+LO QUE EL LOTE NO CERRO, declarado y no escondido:
+  · FIDE sigue sin ejecutarse. Ultimo componente pendiente y PRIMER candidato del roadmap:
+    necesita un proyecto que incubar, e inventarlo seria lo que este lote combate
+  · migrate --apply sigue sin ejecutarse contra un legado real
+  · la segunda corrida de PTSA: EP-018 cambio siete de los nueve hallazgos, asi que el Health
+    79.9 ya no describe el arbol. Es R-004
+  · INC-001: nada comprueba que un cierre de PTSA siga cerrado. Es R-005
+  · la cobertura del registro de sujetos es del 3 %. Es R-003
+  · H-008 queda en VALIDATION_PENDING: es lo unico del lote que no queda resuelto
+
+LA DECISION QUE EL FIRMANTE QUIZA QUIERA REVISAR: PT-093 declaro el limite de las compuertas en
+vez de construir una prevencion. Es la salida que la auditoria senalaba como mas probable y que
+PHASE 2 confirmo midiendo los cuatro caminos alternativos, pero es una decision de diseno y se
+tomo bajo el VoBo vigente.
+
+Compuertas: G1 resuelta el 2026-08-20 · G2 y G3 delegadas POR LOTE con constancia en
+  SESSION_LOG.md · G4 y el tag: del firmante, sin delegar · PUBLICAR: NO autorizado.
+Trazabilidad externa: issue #162 · sub-issues #163..#169
