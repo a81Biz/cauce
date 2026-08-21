@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 95,
+    "PT": 96,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2468,6 +2468,37 @@
         "coste": {
           "valor": null,
           "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      }
+    },
+    {
+      "id": "PT-096",
+      "slug": "un-enlace-que-falta-no-es-un-enlace-roto",
+      "created": "2026-08-21",
+      "status": "DRAFT",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "Un enlace que falta no es un enlace roto",
+      "origin": "El cuerpo publicado de #189 dice «sin enlace: no hay ref durable que lo contenga» y debajo «El enlace apunta a null». Medido sobre los 190 issues del tablero: 11 de los 114 cuerpos no enlazan y esos 11 son EXACTAMENTE los abiertos desde el 2026-08-19, la fecha en que PT-079 cerro midiendo «0 de 85 rotos». La causa es un mismo supuesto en tres sitios de tracker.mjs: que el fallo de un enlace es que apunte MAL. cuerpoDeIssue:472 imprime el null porque PT-048 arreglo esa contradiccion solo en la rama hermana; repararEnlacesMuertos:1194 salta el cuerpo sin enlace con «if (!ref) continue», que son 9 de los 11 y ademas terminales; y compararEspejo:208 lleva la misma guarda, asi que el espejo declara «cuadra» con 11 cuerpos rotos publicados. Ningun verificador lee el cuerpo de un issue. SUITE-R51 es HARD y dice que el cuerpo enlaza donde el contenido esta. La premisa del firmante —«los .md no estan publicados»— se midio y es falsa: el contenido esta en origin/trabajo y tres de los cuatro directorios contrastados estan tambien en main; lo que falta es el camino desde el issue.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
         },
         "precedente": {
           "valor": 9583,
