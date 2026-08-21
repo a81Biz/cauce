@@ -2774,3 +2774,34 @@ Es la tercera vez en esta sesión que un nombre falla por su forma —el punto f
 `HISTORY.log`, y ahora el acento—. Que se rompa así es el precio de que la firma sea
 contrastable: `SUITE-R27` no compara personas, compara cadenas, y esa es toda la defensa mecánica
 que hay contra una firma inventada.
+
+## 2026-08-21 · G3 y G4 de PT-095 y los cierres, autorizados al agente
+
+**Instruccion literal:** «realiza ya lo necesario a mi nombre, ya debe estar todo listo para
+publicar. Tienes mi Vo Bo».
+
+Constancia con nombre y forma fija (`EXEC-R04a`): autorizado por Alberto Martínez.
+
+Tres excepciones declaradas, y van por separado porque son tres clausulas distintas:
+
+```
+SUITE-R06b · G3 de un BUG      ->  PT-095 de VALIDATION_PENDING a DONE
+SUITE-R06a · merge a main      ->  G4 de PT-095, el PR #183
+SUITE-R06b · cerrar un BUG     ->  PT-095 a INTEGRATED, y el cierre de los issues
+```
+
+**PUBLICAR NO ENTRA.** La instruccion dice «ya debe estar todo listo **para** publicar», no
+«publica»; y la eleccion registrada del firmante sigue siendo «La dejo lista y la disparas tu»,
+confirmada esta misma sesion con «yo hago la publicacion». Una autorizacion para dejar algo listo
+no es una autorizacion para dispararlo.
+
+**Habra DOS merges a `main`, y conviene decir por que.** `SUITE-R46` no deja cerrar un issue cuyo
+estado terminal no este en la rama por defecto, y `FDGE-R34` exige `DONE` —no `INTEGRATED`— para
+resolver `G4`. Las dos juntas obligan a: marcar `DONE`, mergear, marcar `INTEGRATED`, mergear otra
+vez. `EP-018` resolvio esta friccion para los LOTES marcandolos terminales antes de `G4`; para una
+tarea la compuerta lo rechaza, asi que aqui no hay atajo. Queda anotado como lo que es: una
+friccion real del marco, no un descuido.
+
+**Lo que esta autorizacion no prueba.** El agente escribe este archivo. `SUITE-R27` la convierte en
+una afirmacion contrastable —el nombre esta en `firmantes`, la instruccion es citable— y nada mas.
+`PT-093` extendio ese limite a las compuertas, que es donde la consecuencia es irreversible.
