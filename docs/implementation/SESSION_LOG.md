@@ -2863,3 +2863,44 @@ consta como tal en §14 del intake. Si el firmante la corrige, la corrección va
 G1 PT-096   CHALLENGE -> PASS
 CHALLENGE aceptado por: Alberto Martínez (delegada, esta constancia)
 ```
+
+---
+
+## 2026-08-21 · excepción declarada · escribir `phase` a mano, una vez, en `PT-096`
+
+`CLAUDE.md` dice **«Nunca edites `phase` ni `status` a mano»**, y aquí se hace. Va con su motivo
+porque una excepción sin registro es exactamente lo que este marco existe para impedir.
+
+**La condición bloqueante.** `tracker asignar` —el comando que `PHASE 1` obliga a usar
+(`SUITE-R08`)— escribe la `allocation` **sin campo `phase`**:
+
+```js
+reg.allocations.push({ id, slug, created: …, status: 'DRAFT' });      // tracker.mjs:1870
+```
+
+y `avanzar` lee `const actual = Number(a.phase)` → `NaN`, con lo que
+`destino !== actual + 1` es **siempre cierto**:
+
+```
+$ tracker avanzar PT-096 --a 2
+PT-096 esta en PHASE NaN y --a dice 2. Solo se avanza a la SIGUIENTE.
+```
+
+**Ninguna tarea creada por `asignar` puede avanzar nunca.** No es un caso raro: es el único
+camino que `PHASE 1` autoriza para asignar un identificador.
+
+**Por qué no había saltado.** `asignar` entró en `PT-062` (`EP-016`) y **`PT-096` es la primera
+allocation que se crea con él** — las 95 anteriores son de antes. Es la `FAMILIA C` de `PT-079`
+otra vez: escrito, documentado, verificado, y nunca ejecutado hasta hoy.
+
+**Qué se hace y qué no.** Se escribe `phase: 1` en la `allocation` de `PT-096`, que es el valor
+que su propio `intake.md` ya declara en el YAML. **No es una transición**: es la inicialización
+que `asignar` omitió, y por eso no pasa por `avanzar` — no hay fase anterior desde la que avanzar.
+Ninguna transición posterior de `PT-096` se hará a mano.
+
+**Dónde se arregla.** No aquí. `PT-096` cierra por el enlace del issue y su out-of-scope no cubre
+esto; ampliarlo sería el error que `EP-017` pagó dos veces. Queda anotado en la Revisión 2 del
+intake de `EP-019` como material de `L-1`, que es la tarea dueña del estado y de `tracker.mjs`.
+
+**Autorizado por:** Alberto Martínez, por la delegación autónoma de esta misma fecha. `SUITE-R27`:
+contrastable, no probada.
