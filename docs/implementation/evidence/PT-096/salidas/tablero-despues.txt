@@ -1,0 +1,39 @@
+TABLERO DESPUES — medido 2026-08-21T19:17:55Z
+
+Dos pasadas de «tracker abrir --aplicar»: la primera con el arreglo del enlace (79
+cuerpos), la segunda tras corregir refDurableDe para cumplir SUITE-R51 (111).
+
+  cuerpos del tracker                115
+    enlace absoluto que resuelve     113
+      …a main · terminal (SUITE-R51)   111
+      …a trabajo · viva             1
+      …a un commit · sin integrar aun     1
+    SIN enlace                         0
+    enlace RELATIVO (404)              0
+    aplazado, exento SUITE-R44         2
+
+  con el literal «null»              0
+  lista de tareas en prosa             0
+  nota falsa «puede no resolver»     0
+
+CONTRASTE                         ANTES  DESPUES
+  inutilizables                      20        0
+  con «null»                         10        0
+  lista en prosa (lotes)             14        0
+  nota falsa sobre trabajo integrado  ?        0
+
+LAS TRES EXCEPCIONES, cada una con su motivo:
+
+  #35  PT-025 DEFERRED   «Sin artefactos todavia» — SUITE-R44 la exime de tenerlos
+  #45  PT-032 CLOSED     lo mismo: cerrada sin llegar a crear su directorio
+  #191 PT-096 viva       enlaza a un COMMIT, no a una rama: su contenido esta en su
+                         rama de tarea y todavia no en «trabajo». Es exactamente lo
+                         que PT-079 diseño y lo que esta tarea hizo alcanzable.
+
+LO QUE ESTA MEDICION NO ESTABLECE:
+
+· Que cada URL devuelva 200. Se comprueba la FORMA —absoluta, con su ref y su ruta— y
+  que el ref sea uno que git contiene. Pedir la pagina exigiria red en una comprobacion
+  que hoy no la tiene, y es el limite que PT-010 ya declaro.
+· Que «espejo» reporte una divergencia de TEXTO. Corrige «abrir --aplicar», no la
+  comprueba el espejo — que compara estado, no cuerpo. Es material de L-7.

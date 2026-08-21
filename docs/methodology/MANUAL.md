@@ -238,6 +238,30 @@ No es una precaución teórica: el día que se midió, **14 de los 16 enlaces de
 404**, y uno apuntaba a la rama de otra tarea. La proyección estaba diseñada desde `PT-054` y
 tenía `--publicar` — nunca se había ejecutado, porque nada la exigía.
 
+### Si el issue dice «sin enlace», no está roto: es que aún no había dónde apuntar
+
+Cuando abres el issue en `PHASE 1`, tu `intake.md` **acaba de escribirse y no está en ningún
+commit todavía**. No hay ref durable, así que el cuerpo publica la ruta en texto plano y lo dice —
+inventar una URL que da 404 sería peor (`RULE-06`).
+
+El enlace aparece en cuanto el trabajo entra en un commit y algo republica el cuerpo. Dos formas:
+
+```bash
+node docs/methodology/tools/tracker.mjs abrir --aplicar    # republica los cuerpos
+node docs/methodology/tools/tracker.mjs espejo             # te dice si falta alguno
+```
+
+**Y si prefieres que nazca bien, commitea el intake antes de abrir el issue.** Las dos secuencias
+son válidas; ésta se ahorra el paso.
+
+Lo que **no** puede pasar es que nadie se entere: desde `SUITE-R51`, un cuerpo que publica su ruta
+sin enlace teniendo ya un ref durable es una **divergencia**, y `tracker espejo` la reporta —
+bloqueando en la rama de trabajo, que es donde se decide (`SUITE-R47`).
+
+Se escribió porque pasó: **10 de 115 cuerpos** del tablero de `cauce` estaban así, y eran
+exactamente los issues abiertos después del arreglo que dejó los enlaces muertos a cero. Se arregló
+el enlace **muerto**; el **ausente** no era el mismo caso, y ninguna comprobación lo miraba.
+
 Publicar el paquete es aparte, es manual y es tuyo.
 
 ---

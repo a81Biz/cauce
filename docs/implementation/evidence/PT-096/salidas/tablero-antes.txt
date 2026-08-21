@@ -1,0 +1,21 @@
+TABLERO ANTES — remedido 2026-08-21T18:27:49Z, y CORRIGE la cifra de mi propia §7
+
+La primera medicion busco la cadena «sin enlace» y conto 10. Ejecutar la reparacion
+encontro VEINTE: los 10 mudos, y otros 10 con un enlace RELATIVO —«](changes/…)»— que
+en el cuerpo de un issue resuelve contra la URL del issue y da 404. Es el defecto que
+PT-010 arreglo en el CODIGO y que nadie republico: llevan asi desde EP-001.
+
+Mi filtro buscaba el sintoma que YA conocia. El que no conocia no tenia esa cadena.
+
+cuerpos del tracker          115
+  enlace absoluto OK          94
+  SIN enlace (mudo)           10
+  enlace RELATIVO (404)       10
+  aplazado, exento R44         1
+  INUTILIZABLES               20
+
+mudos   : 160 162 163 164 165 166 167 168 169 181
+relativos:  2   3   4   5   6   8   9  10  11  12
+exento  :  35   (PT-025 DEFERRED · «Sin artefactos todavia», SUITE-R44 — correcto)
+
+«tracker abrir» con el arreglo puesto anuncia las VEINTE. Sin el, cero.

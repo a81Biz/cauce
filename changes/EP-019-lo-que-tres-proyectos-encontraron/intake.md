@@ -332,3 +332,124 @@ VEREDICTO: PASS
 supuestas · `DoR-3` criterio de éxito con cinco condiciones observables y una que declara cuándo
 el lote **falló** aunque todo esté cerrado · `DoR-4` out-of-scope con motivo, incluidos los dos
 proyectos que no se tocan · `DoR-5` firma con su base y su límite.
+
+---
+
+## Cierre del lote   `SUITE-R45`
+
+Lo que se resuelve **al cerrar** y en ningún otro sitio: escrito como fila en cada tarea sería la
+misma regla copiada nueve veces, y las copias divergen (`SUITE-R38`).
+
+> **El lote está abierto.** Casi todo está `PENDIENTE` a propósito: rellenar estas filas para que
+> la compuerta pase sería fabricar un verde, que es lo que `PT-055` señaló y lo que el bloque
+> `no hacer` del `HANDOFF` prohíbe por escrito. Se declara la forma; el estado se escribe cuando
+> ocurra.
+
+| Qué | Cómo se resuelve | Estado |
+|:---|:---|:---|
+| Entrada en `CHANGELOG.md` con guía de migración | `SUITE-R19`, enumerando las reglas nuevas si las hay | **PENDIENTE** |
+| Número de versión | `MAJOR` si alguna tarea introduce una regla `HARD` nueva; `MINOR` si sólo añade verificadores a reglas existentes. `L-5` es la candidata a `MAJOR`: `RIGE_DESDE` para las 151 `HARD` cambia a qué alcanza cada regla | **PENDIENTE** |
+| `RIGE_DESDE` de toda regla nueva | `PT-081` · sin fila, rige hacia atrás | **PENDIENTE** |
+| Sello de la versión | los ocho pasos de `tracker sellar`, con la batería **completa** (`SUITE-R57`) | **PENDIENTE** · los pasos 7 y 8 son del firmante |
+| Los quince `INC` de los tres proyectos | cerrados, o declarados con motivo y su destino | **PENDIENTE** · `INC-016` y `INC-017` ya están declarados en §7 |
+| `INC-003` de la calculadora | lleva desde el 2026-08-20 declarado y sin `PT` — es la fila `5` del criterio de éxito | **PENDIENTE** |
+| El `type` canónico de un lote en `LEXICON` | `AC-09` de `L-0`, **retirado** allí y trasladado aquí: `EP` ×16, ausente ×2, `EPIC` ×1 | **PENDIENTE** · es de `L-3` |
+| Que `tracker asignar` escriba `phase` | encontrado ejecutando `L-0`: sin él, ninguna tarea creada por `asignar` puede avanzar | **PENDIENTE** · es de `L-1` |
+| Que `avanzar` aplique la escalera de `status` | `LEXICON:304` la declara obligatoria para un `BUG` y nadie la aplica | **PENDIENTE** · es de `L-2`, y es `INC-006` |
+| Los seis `type === 'EP'` de `verify-fdge.mjs` | medidos y hoy latentes; el próximo lote sin viabilidad fallará `FDGE-R54` como si fuera una tarea | **PENDIENTE** · es de `L-3` |
+| Que el espejo **reporte** una divergencia de texto | `L-0` hizo que `abrir --aplicar` la corrija; el espejo compara estado, no cuerpo | **PENDIENTE** · es de `L-7` |
+| Lo que las tareas aplacen | cada `out-of-scope.md` cita un identificador que lo sostiene (`SUITE-R44`) | **PENDIENTE** |
+| Un cuarto proyecto instalado desde npm | §6 lo exige: los tres que encontraron esto **no** son el banco de pruebas de la solución | **PENDIENTE** |
+
+**El merge y la publicación no son filas de esta tabla** (`SUITE-R45`): no son trabajo que el lote
+absorba al cerrar, son el cierre mismo — listarlos convertiría la compuerta en su propio bloqueo.
+
+### Una fila que ya se puede escribir, y su límite
+
+`L-0` cerró con el tablero medido: **20 cuerpos de issue inutilizables → 0**, `10` con el literal
+`null` → `0`, `14` listas en prosa → `0`. Eso **no** es una fila de cierre —es trabajo de una
+tarea, y ahí está su evidencia— pero sí adelanta parte de la fila del criterio de éxito §4·1: un
+proyecto destino ya no puede estar en verde mientras su tablero no lleva a ninguna parte.
+
+Lo que **no** adelanta, y conviene no confundirlo: `§4` habla del **estado terminal falso**, que
+es `C-1` y sigue entero.
+
+---
+
+## Revisión 1 — 2026-08-21 · entra `L-0`, y el reparto pasa a nueve
+
+> `SUITE-R09` · append-only. Nada de lo anterior se modifica.
+
+**Qué cambia:** el reparto de §8 pasa de ocho tareas a nueve. Se añade `L-0` **delante de todas**,
+incluida `L-6`.
+
+**Motivo:** un hallazgo del firmante, medido antes de aceptarlo.
+
+```
+L-0  ---   un enlace que falta no es un enlace roto
+              el cuerpo del issue no enlaza al directorio, y el issue de un lote no
+              lista sus tareas · 10 de 114 cuerpos publicados
+              tracker.mjs · selftest.sh · CASOS-DE-USO · MANUAL · README · CLAUDE.md
+```
+
+### Por qué delante de `L-6`
+
+`L-6` va primero porque *«este lote acabará auditándose»*. `L-0` va antes por la misma clase de
+razón, un escalón más abajo: **este lote acabará siguiéndose desde el tablero**, y hoy el tablero
+no lleva a ninguna parte. Las nueve tareas van a abrir su issue por el mismo camino que abrió el
+de este lote, así que cada una nacerá con el mismo hueco mientras no se cierre.
+
+No es una prioridad declarada de oficio: el firmante escribió *«eso debe ser corregido y agregado
+como tarea y **comenzar por ahí**»*.
+
+### Solapamiento
+
+```
+L-0 <-> L-1   tracker.mjs                       -> SERIALIZADOS
+L-0 <-> L-2   tracker.mjs                       -> SERIALIZADOS
+L-0 <-> L-3   tracker.mjs                       -> SERIALIZADOS
+L-0 <-> L-7   selftest.sh                       -> SERIALIZADOS
+L-0 <-> L-6   ninguno
+```
+
+`L-0` toca `tracker.mjs`, que ya estaba serializado con `L-1`, `L-2` y `L-3`. Ir **primero** no
+añade ningún par nuevo: lo que hace es que las tres lo encuentren ya arreglado. El orden queda:
+
+```
+L-0 · L-6 · L-1 · L-2 · L-3 · L-4 · L-5 · L-7 · L-8
+```
+
+### La cuarta cara, y a quién pertenece
+
+Midiendo `L-0` apareció que el `type` de un lote está escrito de **tres formas** en el registro
+—`EP` (16), ausente (2) y `EPIC` (1)— y que `LEXICON` §8.1 no declara ninguna: enumera el `type`
+de una **tarea** y nada para un lote. La consecuencia es que el issue de un lote **nunca ha
+listado sus tareas**: `EP-017`, `EP-018` y `EP-019` fallan la comparación de la herramienta.
+
+Es la causa `C-2` de §2 —*un hecho, varios nombres*— y por tanto **material de `L-3`**. Se declara
+aquí para que no se descubra dos veces, y el reparto entre `L-0` y `L-3` se decide al abrir la
+primera de las dos: `L-0` no puede publicar la lista de tareas de un lote sin que exista el nombre
+canónico, y elegirlo por su cuenta sería inventar vocabulario, que es lo que `LEX-R21` prohíbe.
+
+### Lo que esta revisión NO establece
+
+Que nueve sea el número correcto, igual que §8 no establecía que lo fuera ocho. Y tampoco que
+`L-0` sea la última tarea que se añada: aparecerán más mientras el lote se ejecute, y ese es el
+comportamiento previsto — §4 declara que el lote **falla** si al cerrarlo reaparece un defecto de
+la misma forma, no si el reparto crece.
+
+### Sobre `INC-016`
+
+Esta revisión **no escribe ningún identificador de tarea**, por el mismo motivo que §8: el
+registro asigna (`SUITE-R08`), y citarlo aquí convertiría la mención en pertenencia por el
+respaldo que `INC-016` describe. La pertenencia de `L-0` al lote vive donde tiene que vivir —el
+campo `epic` de su `allocation`— y desde ahí la deriva la plataforma.
+
+```
+Revisión solicitada por: Alberto Martínez
+Fecha: 2026-08-21
+Confirmo que la ampliación del reparto refleja mi intención: SÍ
+```
+
+> **Base de esta firma**, escrita por el agente (`INTAKE-R06`): *«eso debe ser corregido y
+> agregado como tarea y comenzar por ahí»*, 2026-08-21. `SUITE-R27`: contrastable, no probada.

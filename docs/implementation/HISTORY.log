@@ -4848,3 +4848,139 @@ la compuerta lo rechaza expresamente.
 
 **No es un descuido y no se arregla aqui**: es un choque entre dos reglas, del mismo tipo que
 `PT-095` acaba de cerrar para `EXEC-R04a`, y merece su propio intake.
+
+## PT-096 — Un enlace que falta no es un enlace roto
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-0, y va delante de todas
+Rama: bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+Lo abrió el firmante mirando el tablero: el cuerpo de #189 publicaba la ruta a changes/ en texto
+plano y debajo ponia «El enlace apunta a null». Dos frases seguidas que se contradicen.
+
+Lo PRIMERO fue medir la premisa, no aceptarla. «Los .md no estan publicados en github» es FALSA:
+el intake esta en origin/trabajo y de los cuatro directorios contrastados tres estan ademas en
+main. No se habia dejado de subir nada. Lo que falta es el CAMINO desde el issue, que es el unico
+que una persona recorre — asi que la consecuencia que observo es exacta aunque la causa que
+supuso no lo sea. Va en §14 del intake y NO se reescribio §1: INTAKE-R01 prohibe que el agente
+corrija lo que declaro el humano.
+
+La otra mitad de su diagnostico —«en algun punto se cambio»— era correcta Y MEDIBLE: los once
+issues abiertos desde el 2026-08-19, fecha en que PT-079 cerro midiendo «0 de 85 rotos», nacieron
+sin enlace. Los 92 anteriores lo tienen. Once de once no es una muestra: es la poblacion.
+
+CAUSA RAIZ. PT-079 sustituyo «siempre un ref, a veces el equivocado» por «un ref durable, o
+ninguno», que es lo correcto, y no escribio la continuacion del «o ninguno». En PHASE 1 el intake
+acaba de escribirse y no esta commiteado: refDurableDe responde null CON RAZON, y nadie vuelve a
+preguntar. Tres sitios de tracker.mjs compartian el mismo supuesto —que el fallo de un enlace es
+que apunte MAL— y para el que NO apunta los tres terminaban en continue: cuerpoDeIssue imprimia
+el null, repararEnlacesMuertos lo saltaba con «if (!ref) continue», y compararEspejo llevaba la
+misma guarda, asi que el espejo declaraba «cuadra».
+
+POR QUE NO LO CAZO NADA. PT-079 midio 0 de 85 sobre issues QUE YA EXISTIAN. El caso que falla es
+el del issue que todavia no existe. Es el mismo error de muestreo que PT-079 documenta sobre si
+mismo —«medi 0 de 17 sobre los vivos y lo escribi como si fuera el tablero»— una vuelta despues.
+
+MI PROPIA MEDICION SE QUEDO CORTA, y es lo mas util de la tarea. Conte DIEZ cuerpos rotos. Al
+ejecutar la reparacion salieron VEINTE: EP-001, EP-002 y sus tareas publican un enlace RELATIVO
+—«](changes/…)»— que resuelve contra la URL del issue y da 404. Es el defecto que PT-010 arreglo
+EN EL CODIGO y que nadie republico: llevan rotos desde la primera epica. Mi filtro buscaba la
+cadena «sin enlace», el SINTOMA que ya conocia; un cuerpo con enlace relativo no la contiene
+—tiene enlace, solo que no funciona—. Lo cazo decisionDeEnlace porque pregunta por la PROPIEDAD.
+
+EL ARREGLO EVIDENTE ERA EL EQUIVOCADO. esLote fallaba para los tres ultimos lotes, asi que el
+issue de un lote no listaba sus tareas; lo obvio era hacer que saliera. Conte cuantos issues la
+llevan hoy: CATORCE. Y es lo que PT-035 declaro defecto —«una tarea es SUB-ISSUE de su lote, NO un
+enlace en su cuerpo»— y lo que SUITE-R51 hizo regla HARD. PT-035 añadio el anidamiento y no retiro
+la copia narrada. Que esLote fallara estaba TAPANDO una violacion de regla, no causandola.
+
+Y la decision de derivar el predicado del ID ya estaba tomada: patrones.mjs:859 la tenia escrita
+con la misma cita a SUITE-R38. Mi D-1 no era un hallazgo, era la segunda copia — justo lo que ese
+comentario condena. Se exporta desde ahi y se usa en los OCHO sitios de tracker.mjs, uno de los
+cuales hacia que «tracker estado» perdiera PT-096 en silencio: se contaba y no se listaba.
+
+Solucion: la nota del enlace condicionada a que haya enlace (S-1, que es PT-048 aplicado a su rama
+hermana); esLote importado y aplicado a los ocho sitios; la lista en prosa RETIRADA; el espejo
+reportando el cuerpo mudo con refDurable inyectado y opcional; y decisionDeEnlace, que separa la
+DECISION del EFECTO y da cinco resultados con nombre —OK, REPARAR_MUERTO, REPARAR_MUDO,
+ROTO_SIN_SALIDA, AJENO—. REPARAR_MUDO no faltaba por estar mal decidido: faltaba porque no habia
+DONDE decidirlo.
+
+Un cambio que compila, corre y miente: al borrar «const esLote = a?.type === 'EP'», la expresion
+«esLote ? …» paso a referirse a la FUNCION importada, siempre truthy, y PT-96 se publico como
+«Implementacion abierta». Sin error, sin excepcion, sin aviso — el diff solo muestra la linea
+BORRADA, no las que cambiaron de significado. Lo cazo ejecutar la asercion, no leerla.
+
+Y el arreglo llevaba dentro el defecto que arregla: la nota «se repararia el enlace «${ref}»» con
+ref null habria escrito «null» dentro del mensaje del arreglo del null. Tercera vez en este
+repositorio; PT-095 metio el byte 0x08 en el comentario que advertia del byte 0x08.
+
+TRES casos de la bateria protegian el defecto y NO se hicieron pasar: :1614 y :2226 afirmaban que
+la lista en prosa se emite, y :1787 que la nota se emite sin ref durable. Se invierten con su
+motivo al lado. Encontre dos leyendo; la tercera la encontro la bateria completa en rojo.
+
+Y uno MIO habria pasado hoy por el motivo contrario al que lo justifica: sin «type:'EP'» en el
+fixture no es un lote, la lista no se emite y trlibno da verde. Un caso que no puede fallar no
+prueba nada.
+
+Dos hallazgos mas, los dos por mirar el issue PUBLICADO y no el diff. El primero: la nota decia
+«la rama por defecto» apuntando a «trabajo», que no lo es. El segundo, y es de regla: refDurableDe
+devolvia SIEMPRE la rama de integracion, asi que una tarea INTEGRADA enlazaba a «trabajo» y su
+cuerpo publicaba «al integrarse pasara a main» sobre trabajo que YA estaba en main. SUITE-R51 lo
+tenia escrito —«la rama por defecto cuando llega a INTEGRATED»— y el codigo no lo cumplia.
+
+Y el que ordeno D-13: con los veinte enlaces ya reparados, la lista en prosa SEGUIA en los catorce
+cuerpos. Su enlace funcionaba, la decision era OK y la pasada los saltaba. Una vez que un cuerpo
+esta bien, NADA vuelve a mirarlo: la herramienta no comparaba jamas el cuerpo que publico con el
+que generaria hoy. SUITE-R35 dice que la plataforma ESPEJA el registro, y un espejo que solo se
+actualiza cuando se rompe no es un espejo. Al corregirlo aparecieron 79 de 99 cuerpos terminales
+desfasados, algunos diciendo cosas FALSAS —«este enlace puede no resolver todavia» sobre trabajo
+integrado hace semanas—. El tablero llevaba diecinueve lotes apartandose de su fuente.
+
+Archivos modificados: tools/tracker.mjs · tools/patrones.mjs · tools/selftest.sh ·
+  CASOS-DE-USO.md · MANUAL.md · inventory/services.md (cifras recalculadas, FND-R14)
+
+Evidencia: docs/implementation/evidence/PT-096/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/estado.txt · salidas/ajeno.txt · salidas/espejo.txt ·
+  salidas/tablero-antes.txt · salidas/abrir-dry.txt · salidas/verify-suite.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-08 ✓, los ocho. AC-09 RETIRADO a L-3 en la Revision 3, y consta como
+traslado y no como cumplido.
+
+  CUERPOS INUTILIZABLES   ANTES 20 de 115        DESPUES 0
+  CUERPOS CON «null»      ANTES 10               DESPUES 0
+  LISTA EN PROSA          ANTES 14 lotes         DESPUES 0
+  NOTA FALSA SOBRE LO YA INTEGRADO               DESPUES 0
+  «type === 'EP'»         ANTES 8 sitios, 3 respuestas   DESPUES 0, un helper
+  Bateria 1229 -> 1251, cero fallos.
+
+Prueba inversa: cinco retiradas, ninguna en cero. Y retirar decisionDeEnlace hace caer TAMBIEN el
+caso del espejo — esa es la prueba de que hay UNA fuente y no dos copias de la guarda.
+
+LO QUE NO ESTABLECE, y va aqui porque callarlo seria fabricar un verde:
+
+· Los SEIS casos de decisionDeEnlace no estuvieron en rojo VALIDO. La funcion no existia, asi que
+  su fallo era «la herramienta revento», que el arnes trata —con razon— como «no verifica nada».
+  Son ESPECIFICACION, no reproduccion. Los DIEZ que si lo estuvieron son los demas.
+· Los seis «type === 'EP'» de verify-fdge.mjs siguen ahi. Estan MAL y hoy SIN CONSECUENCIA, que no
+  es estar bien: solo EP-019 alcanza uno de ellos y pasa PORQUE alguien le registro la viabilidad.
+  El proximo lote que se abra sin registrarla fallara FDGE-R54 como si fuera una tarea. Es de L-3.
+· «tracker asignar» crea la allocation SIN campo «phase», y avanzar hace Number(undefined) -> NaN:
+  NINGUNA tarea creada con el puede avanzar. PT-096 es la PRIMERA que se crea con el desde que
+  entro en PT-062 — escrito, documentado, verificado y nunca ejecutado. Desbloqueado a mano UNA
+  vez con su excepcion declarada. Es de L-1.
+· El espejo solo recorre lo VIVO, asi que nunca habria cazado los veinte —todos terminales—. S-3
+  protege el FUTURO y S-2 arregla el PASADO; ninguno sustituye al otro.
+
+Y una desviacion de procedimiento que conviene no borrar: cai en SUITE-R34 con el aviso delante.
+El bloque «no hacer» del HANDOFF lo lleva escrito DOS veces, una diciendo «paso CUATRO veces».
+Leerlo no basta — es el argumento entero de INC-017 y de L-7.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 se resolvio por delegacion con constancia,
+y G4 la autorizo el firmante el 2026-08-21 —«haz el merge, deja todo en main»— con su registro.
+Ese merge NO cierra EP-019: el lote sigue DRAFT con ocho tareas por hacer.

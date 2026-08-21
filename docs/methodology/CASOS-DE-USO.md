@@ -172,15 +172,36 @@ Bloquea en la rama de trabajo; **informa** en la rama por defecto (`SUITE-R47`).
 npm run verify
 ```
 
-### C5 · ¿Sigo pudiendo rastrear una tarea cerrada?
+### C5 · ¿Sigo pudiendo rastrear una tarea, viva o cerrada?
 
 | | |
 |:---|:---|
-| **Entrada** | `node docs/methodology/tools/verify-fdge.mjs --all` |
-| **Recorrido** | Comprueba que ningún issue vivo enlace a un ref que ya no existe (`SUITE-R56`) |
-| **Fin** | Los enlaces del tablero siguen abriendo el intake, la evidencia y la trazabilidad **aunque la rama de la tarea se haya borrado** |
-| **Humano** | Nada. Es solo lectura |
+| **Entrada** | `node docs/methodology/tools/tracker.mjs espejo` · y `verify-fdge.mjs --all` |
+| **Recorrido** | Comprueba las **dos** formas de quedarse sin rastro: que ningún issue enlace a un ref que ya no existe (`SUITE-R56`), y que ninguno publique su ruta **sin enlace** teniendo ya un ref durable (`SUITE-R51`) |
+| **Fin** | Desde el issue se llega al intake, a la evidencia y a la trazabilidad — **aunque la rama de la tarea se haya borrado, y aunque el issue naciera antes que su primer commit** |
+| **Humano** | Nada para comprobarlo. Para corregirlo, `tracker abrir --aplicar`, que republica los cuerpos |
 | **Ojo** | La rama efímera **se borra al fusionar** y eso es correcto (`FDGE-R19`). Lo que no puede morir con ella es el enlace: apunta a la rama de integración o al commit, nunca a la efímera. El día que se midió, **14 de 16 enlaces daban 404** y nada lo decía |
+
+**El enlace que falta no es un enlace roto, y por eso son dos comprobaciones y no una.**
+
+Un issue se abre en `PHASE 1`, cuando el `intake.md` **acaba de escribirse y todavía no está en
+ningún commit**. En ese instante no hay ref durable —la respuesta correcta es «ninguno»— y el
+cuerpo lo dice en vez de inventar una URL. El enlace aparece **después**, cuando el trabajo se
+commitea y algo vuelve a publicar el cuerpo.
+
+Si nadie vuelve a publicarlo, el issue se queda mudo para siempre. Pasó: **10 de 115 cuerpos** del
+tablero de este repositorio publicaban su ruta en texto plano, y eran exactamente los abiertos
+después de que `PT-079` midiera «0 de 85 rotos» — porque `PT-079` arregló el enlace **muerto** y
+el **ausente** no era el mismo caso.
+
+```
+commitea primero, abre el issue despues   ->  nace con enlace
+abre el issue, commitea despues           ->  nace mudo, y «espejo» lo dice en cuanto
+                                              el intake entre en un commit
+```
+
+Las dos secuencias son válidas. La segunda **no se penaliza**: se detecta y se corrige con un
+comando. Lo que ya no ocurre es que nadie se entere.
 
 ### C6 · ¿El sistema hace lo que el negocio necesita?
 

@@ -1,0 +1,203 @@
+# Tasks — `PT-096`
+
+> `PHASE 4`. Objetivo único · input · output · validación · archivos · estado.
+> Orden obligatorio: `PT-096.1` va primero porque el resto se mide contra ella en rojo.
+
+---
+
+## `PT-096.1` · los tests en rojo
+
+| | |
+|:---|:---|
+| **Objetivo** | Que la batería falle **por el defecto**, no por otra cosa |
+| **Input** | `test-scenarios.md` |
+| **Output** | `TS-01`…`TS-08` en `selftest.sh`, en rojo, más las **dos inversiones** de `D-6` |
+| **Validación** | `selftest.sh --solo <nombre>` falla, y el mensaje nombra el hecho, no el símbolo |
+| **Archivos** | `docs/methodology/tools/selftest.sh` |
+| **Estado** | PENDIENTE |
+
+> `FDGE-R17`. El rojo tiene que ser **válido**: un fallo por un helper indefinido o por un
+> `require` mal escrito no es un test en rojo. Se comprueba que cada caso falle **por su
+> aserción**.
+
+## `PT-096.2` · la nota no se emite sin enlace `S-1` `D-3`
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-02` · que ningún cuerpo publique `null` |
+| **Input** | `TS-01` `TS-02` en rojo |
+| **Output** | `cuerpoDeIssue` con las tres ramas explícitas |
+| **Validación** | `TS-01` `TS-02` verdes · `TS-07` (`PT-048`) sigue verde |
+| **Archivos** | `docs/methodology/tools/tracker.mjs` |
+| **Estado** | PENDIENTE |
+
+## `PT-096.3` · un lote se reconoce por su ID, y pierde la lista `S-4` `D-1` `D-2`
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-08` · cabecera correcta en los 19 lotes, y cero listas en prosa |
+| **Input** | `TS-03` `TS-04` en rojo |
+| **Output** | `esLote` derivado de `/^EP-/`; bloque `Tareas de este lote:` retirado |
+| **Validación** | `TS-03` `TS-04` verdes · la inversión de `:1614` pasa a `trlibno` |
+| **Archivos** | `docs/methodology/tools/tracker.mjs` · `selftest.sh` |
+| **Estado** | PENDIENTE |
+
+## `PT-096.4` · la reparación alcanza al cuerpo mudo `S-2` `D-4`
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-04` · los 8 terminales |
+| **Input** | `TS-05` en rojo |
+| **Output** | `esCuerpoDelTracker` + la guarda separada en `repararEnlacesMuertos` |
+| **Validación** | `TS-05` verde · `TS-08` (marcador atado) verde · un issue ajeno **no** se toca |
+| **Archivos** | `docs/methodology/tools/tracker.mjs` |
+| **Estado** | PENDIENTE |
+
+## `PT-096.5` · el espejo reporta el enlace ausente `S-3` `D-5`
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-03` · que la CI lo diga |
+| **Input** | `TS-06` en rojo |
+| **Output** | `compararEspejo` con `refDurable` inyectado y opcional |
+| **Validación** | `TS-06` verde · los 12 casos existentes de `compararEspejo` **sin tocar** y verdes |
+| **Archivos** | `docs/methodology/tools/tracker.mjs` |
+| **Estado** | PENDIENTE |
+
+## `PT-096.6` · la prueba inversa
+
+| | |
+|:---|:---|
+| **Objetivo** | Comprobar que **retirando el arreglo** caen exactamente los casos previstos |
+| **Input** | el árbol con `PT-096.2`…`.5` aplicados |
+| **Output** | `evidence/PT-096/salidas/inversa.txt` con el recuento por cambio |
+| **Validación** | caen los previstos y **solo** ésos |
+| **Archivos** | ninguno del árbol — se revierte y se restaura |
+| **Estado** | PENDIENTE |
+
+> **Si la inversa sale en cero, no es un verde: es un aviso.** Es lo que destapó en `PT-095` que
+> una entrada `CORRIGE` excusaba el ledger entero. Cada uno de los cuatro cambios se retira por
+> separado; si alguno no hace caer ningún caso, ese cambio no está probado.
+
+## `PT-096.7` · los documentos `S-5`
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-07` |
+| **Input** | `strategy.md` §2 `S-5` |
+| **Output** | `C5` de `CASOS-DE-USO` cubre las **dos** formas de perder el rastro; la nota del paso 4 del `MANUAL` dice qué hacer si aún no hay ref durable |
+| **Validación** | `verify-suite` sin errores · la omisión de `README`/`CLAUDE.md` **declarada** en `HISTORY` |
+| **Archivos** | `docs/methodology/CASOS-DE-USO.md` · `docs/methodology/MANUAL.md` |
+| **Estado** | PENDIENTE |
+
+## `PT-096.8` · medir el tablero y republicar
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-05` · la cifra real, con denominador |
+| **Input** | el arreglo completo |
+| **Output** | `salidas/tablero-antes.txt` y `tablero-despues.txt` · `tracker abrir --aplicar` |
+| **Validación** | 0 cuerpos con `null`; 0 rutas mudas con ref durable; 0 listas en prosa |
+| **Archivos** | ninguno — es medición y publicación |
+| **Estado** | PENDIENTE |
+
+---
+
+## Rama propuesta — **NO se crea aquí** (`FDGE-R13`, `FDGE-R19`)
+
+```
+bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto
+```
+
+Nace de `trabajo` en `PHASE 5`. La rama actual —`chore/alberto-martinez/PT-096-apertura`— es la de
+la **apertura**, no la de la tarea, siguiendo el precedente de `EP-019`.
+
+## Orden y por qué
+
+```
+.1  ->  .2 .3 .4 .5  ->  .6  ->  .7  ->  .8
+```
+
+`.2`…`.5` son independientes entre sí —tocan funciones distintas del mismo archivo— pero **todas**
+dependen de `.1`, porque sin el rojo no hay forma de saber que el verde significa algo. `.6` va
+después de las cuatro y antes de documentar: si la inversa descubre que un cambio no estaba
+probado, lo que se escriba en `.7` sería falso.
+
+---
+
+## `PT-096.3` — ampliada por la `Revisión 4`
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-08` · **un hecho, una fuente**: un lote se reconoce igual en los ocho sitios |
+| **Input** | `TS-03` `TS-04` `TS-11` `TS-12` `TS-13` en rojo |
+| **Output** | `esLote` **exportado** desde `patrones.mjs` e importado en `tracker.mjs`; los ocho sitios pasan a usarlo; el bloque `Tareas de este lote:` y el cálculo `tareas` de `contextoCuerpo` se retiran |
+| **Validación** | los cinco `TS` verdes · `TS-13` es el que se mira primero, porque es el que una persona ve |
+| **Archivos** | `docs/methodology/tools/patrones.mjs` · `docs/methodology/tools/tracker.mjs` · `selftest.sh` |
+| **Estado** | PENDIENTE |
+
+```
+:175    etiquetasDe        «implementación» vs «tarea»        TS-11
+:367    cuerpoDeIssue      la cabecera del cuerpo             TS-03
+:564    ordenDeApertura    los lotes al final                 TS-12
+:1120   contextoCuerpo     el calculo «tareas» — se RETIRA    TS-04
+:1372   estado             quien es lote                      TS-13
+:1373   estado             quien es tarea                     TS-13
+:1966   pendiente          a quien se le pide fase            —
+:2583   indices            ya usa /^EP-/ · pasa al helper     —
+```
+
+**`:1966` y `:2583` no tienen `TS` propio y se dice por qué.** `:2583` ya se comporta bien —el
+cambio es de forma, para que no queden dos redacciones del mismo predicado— y `:1966` decide a
+quién se le pide fase en `tracker pendiente`, que es exactamente el camino por el que `PT-096`
+descubrió el bloqueo de `asignar`. Escribir un caso ahí ataría esta tarea al defecto de `L-1`.
+Los dos quedan cubiertos por la **inversa** de `PT-096.6`: si retirar el helper no hace caer nada
+en ellos, se dirá.
+
+## `PT-096.9` · `tracker.mjs` importa de `patrones.mjs` sin duplicar
+
+| | |
+|:---|:---|
+| **Objetivo** | `SUITE-R38` · que no exista una tercera copia del predicado |
+| **Input** | `design.md` `D-8` |
+| **Output** | `export const esLote` en `patrones.mjs`; `sinSellar` usa el exportado, no su copia local |
+| **Validación** | `grep -c "type === 'EP'" tracker.mjs` → `0` · la batería completa sin regresión |
+| **Archivos** | `docs/methodology/tools/patrones.mjs` |
+| **Estado** | PENDIENTE |
+
+> `sinSellar` define hoy el helper **dentro** de la función. Al exportarlo se usa el mismo, o
+> quedarían dos definiciones idénticas en el mismo archivo — que es el defecto en miniatura.
+
+---
+
+## Estado real al cerrar `PHASE 5`
+
+| Tarea | Estado | Qué salió distinto de lo planeado |
+|:---|:---|:---|
+| `PT-096.1` | **DONE** | 10 rojos válidos de 10. Los seis de `decisionDeEnlace` **no** pudieron estar en rojo válido: la función no existía y el fallo era «la herramienta reventó», que `FDGE-R17` no cuenta. Declarado en el propio `selftest.sh` |
+| `PT-096.9` | **DONE** | `esLote` exportado de `patrones.mjs`; `sinSellar` usa el exportado. Cero copias |
+| `PT-096.3` | **DONE** | Los ocho sitios. `contextoCuerpo.tareas` desapareció entero, y el comentario de `ordenDeApertura` se reescribió: el orden sigue valiendo, pero **por el anidamiento**, no por la lista |
+| `PT-096.2` | **DONE** | — |
+| `PT-096.4` | **DONE** | La nota de reparación imprimía `«null»` para el cuerpo mudo: el defecto reapareciendo dentro de su propio arreglo. Se distingue el origen |
+| `PT-096.5` | **DONE** | — |
+| `PT-096.6` | **DONE** | `salidas/inversa.txt`. Cinco retiradas, ninguna en cero |
+| `PT-096.7` | **DONE** | `C5` y `MANUAL`. `README` y `CLAUDE.md` declarados sin tocar, con motivo |
+| `PT-096.8` | pendiente | `PHASE 6` |
+
+### Delta · lo que el plan no vio
+
+**Un fallo que introduje y cazaron los propios casos.** Al borrar `const esLote = a?.type === 'EP'`
+de `cuerpoDeIssue`, la expresión `esLote ? …` pasó a referirse a la **función importada** — siempre
+truthy. `PT-96` se publicó como `**Implementación abierta**`. Lo vio ejecutar la aserción del
+encabezado, no leer el diff: sustituir una variable booleana por una función del mismo nombre es
+un cambio que **compila, corre y miente**.
+
+**La nota de reparación llevaba el mismo defecto que la tarea arregla.** `se repararía el enlace
+«${ref}» -> «${durable}»` con `ref === null` habría escrito `«null»` — dentro del mensaje del
+arreglo del `null`. Es la tercera vez en este repositorio que un arreglo reproduce su propio
+defecto en el texto que lo anuncia (`PT-095` lo hizo con el byte `0x08`, dentro del comentario que
+advertía del byte `0x08`).
+
+**`D-11` arrastra a `S-3` en la inversa, y eso es la prueba de que hay una sola fuente.** Si
+retirar `decisionDeEnlace` sólo hubiera hecho caer sus tres casos propios, significaría que el
+espejo conservaba su copia de la guarda — que es exactamente lo que se venía a quitar.

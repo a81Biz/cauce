@@ -37,5 +37,5 @@
 | PT-065 | CHORE | S2 | INTEGRATED | EP-016 | La sesion es de alguien: SESSION.json deja de ser uno para todos |
 | PT-073 | CHORE | S2 | INTEGRATED | EP-017 | Los tres documentos que lee quien llega |
 | PT-086 | CHORE | S2 | INTEGRATED | EP-017 | La bateria corre lo afectado por tarea y completa solo al sellar |
-| PT-092 | CHORE | S2 | DRAFT | EP-018 | Ejecutar QA y FPGE, los dos componentes que nunca han corrido |
-| PT-093 | CHORE | S2 | DRAFT | EP-018 | El limite de las compuertas se declara como ya se declara el de las firmas |
+| PT-092 | CHORE | S2 | INTEGRATED | EP-018 | Ejecutar QA y FPGE, los dos componentes que nunca han corrido |
+| PT-093 | CHORE | S2 | INTEGRATED | EP-018 | El limite de las compuertas se declara como ya se declara el de las firmas |

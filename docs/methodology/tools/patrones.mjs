@@ -849,14 +849,32 @@ export function contradiceElRegistro(bloque, allocations) {
  *
  * Lo que cuenta es lo que YA cerro y no se sello: ahi la deuda es real y tiene salida.
  */
+
+/**
+ * Un lote se reconoce por su IDENTIFICADOR, no por el campo «type».
+ *
+ * Lo escribi primero con `type === 'EP'` y no caso NINGUNO: EP-017 no tiene ese campo. El ID lo
+ * asigna el registro (SUITE-R08) y siempre esta; el campo es opcional, asi que fiarse de el es
+ * depender de dos fuentes del mismo hecho y quedarse con la peor (SUITE-R38).
+ *
+ * PT-096 · vive AQUI y se EXPORTA. Estaba escrito dentro de `sinSellar`, y `tracker.mjs`
+ * respondia la misma pregunta de otra forma en OCHO sitios —`type === 'EP'`— mientras su
+ * `indices()` ya usaba este predicado: dos redacciones del mismo hecho en un solo archivo.
+ *
+ * Lo que costo, medido: el registro guarda TRES valores para el mismo hecho —`EP` (16), ausente
+ * (2), `EPIC` (1)— porque LEXICON §8.1 enumera el `type` de una TAREA y no declara ninguno para
+ * un lote. Con eso, `tracker estado` perdia una tarea SIN DECIRLO: su lote no entraba en el
+ * grupo de lotes, y ella declaraba `epic`, asi que tampoco era «suelta». Se contaba y no se
+ * listaba.
+ *
+ * El hueco de LEXICON sigue abierto y es de otra tarea. Esto no lo cierra: lo rodea usando el
+ * unico nombre que LEXICON SI declara.
+ */
+export const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
+
 export function sinSellar(allocations, idsEnTag) {
   if (idsEnTag == null) return null;
   const sellados = new Set(idsEnTag);
-  // Un lote se reconoce por su IDENTIFICADOR, no por el campo «type». Lo escribi primero con
-  // `type === 'EP'` y no caso NINGUNO: EP-017 no tiene ese campo. El ID lo asigna el registro
-  // (SUITE-R08) y siempre esta; el campo es opcional, asi que fiarse de el es depender de dos
-  // fuentes del mismo hecho y quedarse con la peor (SUITE-R38).
-  const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
   const abiertos = new Set((allocations ?? [])
     .filter((a) => esLote(a) && !ESTADOS_TERMINALES.has(a?.status))
     .map((a) => a.id));
