@@ -122,3 +122,48 @@ la **apertura**, no la de la tarea, siguiendo el precedente de `EP-019`.
 dependen de `.1`, porque sin el rojo no hay forma de saber que el verde significa algo. `.6` va
 después de las cuatro y antes de documentar: si la inversa descubre que un cambio no estaba
 probado, lo que se escriba en `.7` sería falso.
+
+---
+
+## `PT-096.3` — ampliada por la `Revisión 4`
+
+| | |
+|:---|:---|
+| **Objetivo** | `AC-08` · **un hecho, una fuente**: un lote se reconoce igual en los ocho sitios |
+| **Input** | `TS-03` `TS-04` `TS-11` `TS-12` `TS-13` en rojo |
+| **Output** | `esLote` **exportado** desde `patrones.mjs` e importado en `tracker.mjs`; los ocho sitios pasan a usarlo; el bloque `Tareas de este lote:` y el cálculo `tareas` de `contextoCuerpo` se retiran |
+| **Validación** | los cinco `TS` verdes · `TS-13` es el que se mira primero, porque es el que una persona ve |
+| **Archivos** | `docs/methodology/tools/patrones.mjs` · `docs/methodology/tools/tracker.mjs` · `selftest.sh` |
+| **Estado** | PENDIENTE |
+
+```
+:175    etiquetasDe        «implementación» vs «tarea»        TS-11
+:367    cuerpoDeIssue      la cabecera del cuerpo             TS-03
+:564    ordenDeApertura    los lotes al final                 TS-12
+:1120   contextoCuerpo     el calculo «tareas» — se RETIRA    TS-04
+:1372   estado             quien es lote                      TS-13
+:1373   estado             quien es tarea                     TS-13
+:1966   pendiente          a quien se le pide fase            —
+:2583   indices            ya usa /^EP-/ · pasa al helper     —
+```
+
+**`:1966` y `:2583` no tienen `TS` propio y se dice por qué.** `:2583` ya se comporta bien —el
+cambio es de forma, para que no queden dos redacciones del mismo predicado— y `:1966` decide a
+quién se le pide fase en `tracker pendiente`, que es exactamente el camino por el que `PT-096`
+descubrió el bloqueo de `asignar`. Escribir un caso ahí ataría esta tarea al defecto de `L-1`.
+Los dos quedan cubiertos por la **inversa** de `PT-096.6`: si retirar el helper no hace caer nada
+en ellos, se dirá.
+
+## `PT-096.9` · `tracker.mjs` importa de `patrones.mjs` sin duplicar
+
+| | |
+|:---|:---|
+| **Objetivo** | `SUITE-R38` · que no exista una tercera copia del predicado |
+| **Input** | `design.md` `D-8` |
+| **Output** | `export const esLote` en `patrones.mjs`; `sinSellar` usa el exportado, no su copia local |
+| **Validación** | `grep -c "type === 'EP'" tracker.mjs` → `0` · la batería completa sin regresión |
+| **Archivos** | `docs/methodology/tools/patrones.mjs` |
+| **Estado** | PENDIENTE |
+
+> `sinSellar` define hoy el helper **dentro** de la función. Al exportarlo se usa el mismo, o
+> quedarían dos definiciones idénticas en el mismo archivo — que es el defecto en miniatura.

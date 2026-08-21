@@ -135,7 +135,70 @@ No se hacen pasar. Se invierten, y la inversión lleva su motivo en el comentari
 | `TS-08` | `RIE-4` | `PT-096.4` | verde por construcción |
 | `TS-09` | regresión | `PT-096.5` | verde, debe seguir |
 
-**`AC-01` y `AC-05` no tienen `TS`, y se dice por qué:** se cumplen **sobre el tablero real**, no
-en la batería —la batería no tiene credenciales ni red—. Su evidencia es la medición de
-`PT-096.8`, con su denominador. **`AC-06`** es la existencia de esta tabla en rojo. **`AC-07`** lo
-verifica `verify-suite`. **`AC-09`** no se cumple aquí: está declarado y trasladado a `L-3`.
+**`AC-05` no tiene caso de batería, y se dice por qué:** se cumple **sobre el tablero real**, y la
+batería no tiene credenciales ni red — un caso que simulara el tablero probaría el simulador. Su
+comprobación es `tracker espejo` sobre el tablero, y su evidencia la medición de `PT-096.8` con su
+denominador. **`AC-06`** es la existencia de esta tabla en rojo. **`AC-07`** lo verifica
+`verify-suite`. **`AC-09`** no se cumple aquí: está declarado y trasladado a `L-3`.
+
+> **`AC-01` sí tiene caso desde la `Revisión 4`**: `TS-10`, más abajo. Este párrafo decía lo
+> contrario y se corrige aquí en vez de reescribirlo, porque la contradicción entre dos partes del
+> mismo documento es justo la avería que `SUITE-R38` persigue — y taparla editando arriba dejaría
+> el documento limpio y la lección perdida.
+
+---
+
+## Añadidos por la `Revisión 4` — el predicado, no solo el cuerpo
+
+### `TS-10` — lo que el cuerpo escribe, `refDeEnlace` lo lee `AC-01`
+
+```
+trlib "lo que el cuerpo escribe, refDeEnlace lo lee"   "trabajo"
+  refDeEnlace(cuerpoDeIssue({id:'PT-94',slug:'x',status:'IN_PROGRESS'},
+              {url:'https://h/r', rama:'main', refDurable:'trabajo'}))
+```
+
+**Hoy pasa.** No reproduce un defecto: ata al **escritor** con el **lector**. Si alguien cambia la
+forma de la URL en `cuerpoDeIssue`, `refDeEnlace` deja de reconocerla y `repararEnlacesMuertos`
+se apaga en silencio — el mismo riesgo que `RIE-4`, en la otra dirección.
+
+### `TS-11` — la etiqueta de un lote no depende de cómo se escribiera su `type` `AC-08`
+
+```
+trlib "un lote se etiqueta como implementacion, escriba lo que escriba en type"  "implementación"
+  etiquetasDe({id:'EP-19', type:'EPIC', phase:1})
+```
+
+**Hoy falla:** devuelve `tarea`. Se prueba con `EPIC` y con `type` ausente.
+
+### `TS-12` — los lotes van al final, se llamen como se llamen `AC-08`
+
+```
+trlib "el lote va al final aunque su type sea EPIC"   "^EP-19$"
+  ordenDeApertura([{id:'EP-19',type:'EPIC'},{id:'PT-1',type:'BUG'}]).at(-1).id
+```
+
+**Hoy falla:** con `type:'EPIC'` el lote no se ordena al final y sale primero.
+
+### `TS-13` — una tarea de un lote **aparece** en el tablero `AC-08`
+
+```
+chk "una tarea de un lote aparece en «estado»"   "PT-096"
+  node docs/methodology/tools/tracker.mjs estado
+```
+
+**Hoy falla, y es el caso que ordenó la `Revisión 4`.** `estado()` parte el registro en `eps`
+(`type === 'EP'`) y `pts` (`type !== 'EP'`): `EP-019` no entra en `eps`, así que su grupo no se
+imprime; y `PT-096` declara `epic`, así que tampoco es «suelto». **Se cuenta y no se lista.**
+
+Es un `chk` y no un `trlib` porque `estado()` no es una función pura exportada: lo observable es
+la salida del comando, que es además lo que una persona mira.
+
+## Mapa actualizado
+
+| TS | AC | Tarea | Estado hoy |
+|:---|:---|:---|:---|
+| `TS-10` | `AC-01` | `PT-096.4` | verde, ata escritor y lector |
+| `TS-11` | `AC-08` | `PT-096.3` | **rojo** |
+| `TS-12` | `AC-08` | `PT-096.3` | **rojo** |
+| `TS-13` | `AC-08` | `PT-096.3` | **rojo** |
