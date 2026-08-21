@@ -8,7 +8,7 @@ severity: S1
 complexity:
 track: STANDARD
 status: DRAFT
-phase: 3
+phase: 4
 created: 2026-08-21
 origin: DIRECT
 epic: EP-019
@@ -503,3 +503,30 @@ una derivación en una declaración. Si el firmante la corrige, la corrección e
 
 **Firmado por:** Alberto Martínez (delegada). Base: la instrucción citada arriba. `SUITE-R27`:
 contrastable, no probada.
+
+---
+
+### Revisión 3 — 2026-08-21 · `AC-09` se retira y pasa a `L-3`
+
+**Qué cambia:** `AC-09` sale de la lista canónica de `PT-096`. `AC-01`…`AC-08` no se tocan.
+
+**Motivo.** `PHASE 3` decidió `D-1`: un lote se reconoce por su **ID** —`/^EP-/`, que `LEXICON`
+declara y que `indices()` ya usa— en vez de por el campo `type`, que `LEXICON` no declara. Con eso
+`AC-08` se cumple **sin** resolver el hueco de vocabulario, que era la dependencia que `AC-09`
+existía para cubrir.
+
+El hueco sigue ahí —`EP` ×16, ausente ×2, `EPIC` ×1 en el registro— y su dueña es `L-3`, *un
+hecho un nombre*. Queda escrito en `out-of-scope.md` con su destino.
+
+**Por qué retirarlo y no dejarlo como fila `TRASLADADO`.** Una fila que nunca puede ponerse en
+verde ensucia la matriz para siempre y enseña a ignorar `FDGE-R15`. Y sobre todo: un `AC` que se
+declara no cumplido dentro de la propia tarea es un hueco disfrazado de transparencia. O es
+criterio de esta tarea, o es de otra. Es de otra.
+
+**Lo que esto NO hace:** cerrar el hueco. `AC-09` no se cumple aquí ni allí todavía; cambia de
+dueño, que es distinto de resolverse.
+
+```
+Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
+Fecha: 2026-08-21
+```
