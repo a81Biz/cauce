@@ -1,0 +1,26 @@
+tracker · github · acción espejo
+
+  · 3 allocation(s) viva(s) y 3 issue(s) abierto(s): el espejo cuadra.
+
+Sin divergencias.
+
+---
+
+LO QUE ESTE VERDE SIGNIFICA, Y LO QUE NO
+
+Dice: las TRES allocations vivas —PT-025, EP-019, PT-096— tienen su issue abierto y su cuerpo
+enlaza donde esta el contenido. PT-025 esta DEFERRED y SUITE-R44 la exime de tener artefactos.
+
+NO dice que el tablero este sano. compararEspejo recorre «vivas», y los VEINTE cuerpos
+inutilizables son de allocations TERMINALES: el espejo no los habria cazado nunca, ni antes ni
+ahora. A esos llega repararEnlacesMuertos, que recorre las terminadas.
+
+Es una division deliberada y conviene tenerla escrita:
+
+  S-3  compararEspejo   protege el FUTURO   una tarea VIVA cuyo cuerpo se queda mudo
+                                            se reporta, y bloquea en la rama de trabajo
+  S-2  repararEnlaces…  arregla el PASADO   los cuerpos ya publicados, terminales incluidos
+
+Sin S-3, el defecto vuelve con la siguiente tarea. Sin S-2, los veinte siguen rotos.
+Ninguno de los dos sustituye al otro, y decir «el espejo cuadra» sin esta nota seria dar a
+entender que si.

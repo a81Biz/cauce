@@ -59,10 +59,26 @@
       ],
       "evidence": [
         "salidas/selftest-completo.txt",
-        "salidas/inversa.txt"
+        "salidas/inversa.txt",
+        "salidas/ajeno.txt"
       ],
       "verified": true,
-      "nota": "Seis casos, y CUATRO son frenos. AJENO es el que mas importa: refDeEnlace devuelve null tanto para un cuerpo del tracker sin enlace como para cualquier issue escrito a mano, y sin distinguirlos «repara lo mudo» reescribiria issues ajenos — peor que el defecto que corrige."
+      "nota": "Seis casos, y CUATRO son frenos. AJENO es el que mas importa: refDeEnlace devuelve null tanto para un cuerpo del tracker sin enlace como para cualquier issue escrito a mano, y sin distinguirlos «repara lo mudo» reescribiria issues ajenos — peor que el defecto que corrige. Comprobado ademas sobre issues REALES que el tracker no escribio —uno a mano y tres cuerpos de pull request—: los cuatro dan AJENO y ninguno se toca (salidas/ajeno.txt)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "0 cuerpos mudos y 0 «null» sobre el tablero COMPLETO, con denominador",
+      "tests": [
+        "tracker abrir --aplicar sobre el tablero real",
+        "tracker espejo"
+      ],
+      "evidence": [
+        "salidas/tablero-antes.txt",
+        "salidas/tablero-despues.txt",
+        "salidas/abrir-dry.txt"
+      ],
+      "verified": true,
+      "nota": "115 cuerpos: 113 con enlace absoluto que resuelve —111 a main por SUITE-R51, uno a trabajo y uno a un COMMIT, que es PT-096 y todavia no esta integrada— y dos exentos por SUITE-R44. Cero mudos, cero relativos, cero «null», cero listas en prosa. La cifra ANTES se corrigio dos veces: dije 10 y eran 20 —mi filtro buscaba el sintoma que ya conocia— y escribi «lista en prosa 14 -> 0» ANTES de mirarlo, cuando seguia en 14. Hicieron falta DOS pasadas: la primera arreglo los enlaces (79 cuerpos) y la segunda, tras corregir refDurableDe para cumplir SUITE-R51, republico 111."
     },
     {
       "ac": "AC-06",
@@ -101,10 +117,11 @@
       ],
       "evidence": [
         "salidas/estado.txt",
-        "salidas/selftest-completo.txt"
+        "salidas/selftest-completo.txt",
+        "salidas/tablero-despues.txt"
       ],
       "verified": true,
-      "nota": "El arreglo evidente era el equivocado y lo ordeno CONTAR: 14 issues de lote llevaban la lista en prosa que PT-035 declaro defecto y SUITE-R51 prohibe. Que esLote fuera falso para los tres ultimos lotes estaba TAPANDO esa violacion, no causandola. Y el helper no se escribio: ya existia en patrones.mjs:859 con el mismo razonamiento, asi que se EXPORTA — una tercera copia habria sido el defecto en miniatura."
+      "nota": "El arreglo evidente era el equivocado y lo ordeno CONTAR: 14 issues de lote llevaban la lista en prosa que PT-035 declaro defecto y SUITE-R51 prohibe. Que esLote fuera falso para los tres ultimos lotes estaba TAPANDO esa violacion, no causandola. Y el helper no se escribio: ya existia en patrones.mjs:859 con el mismo razonamiento, asi que se EXPORTA — una tercera copia habria sido el defecto en miniatura. Y el codigo cumpliendo no basta: los catorce cuerpos YA PUBLICADOS no se limpiaron hasta D-13, porque su enlace funcionaba y la pasada los saltaba. Un espejo que solo se actualiza cuando se rompe no es un espejo (SUITE-R35)."
     }
   ],
   "no_verificado": [
@@ -132,6 +149,16 @@
       "afirmacion": "Que el «type» canonico de un lote quede declarado.",
       "por_que": "LEXICON §8.1 enumera el type de una TAREA y no declara ninguno para un lote; el registro guarda tres valores para el mismo hecho. D-1 hace que el arreglo NO dependa de esa decision —deriva del ID, que LEXICON si declara— pero no la toma. Era AC-09 y se RETIRO en la Revision 3: un AC que se declara no cumplido dentro de su propia tarea es un hueco disfrazado de transparencia.",
       "donde": "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/intake.md, Revision 3"
+    },
+    {
+      "afirmacion": "Que cada URL del tablero devuelva 200.",
+      "por_que": "Se comprueba la FORMA —absoluta, con su ref y su ruta— y que el ref sea uno que git contiene. Pedir la pagina exigiria red en una comprobacion que hoy no la tiene, y es el limite que PT-010 ya declaro.",
+      "donde": "docs/implementation/evidence/PT-096/salidas/tablero-despues.txt"
+    },
+    {
+      "afirmacion": "Que «espejo» reporte una divergencia de TEXTO entre el cuerpo publicado y el derivado.",
+      "por_que": "D-13 hace que «abrir --aplicar» la CORRIJA, pero el espejo compara estado y no cuerpo, asi que sigue haciendo falta ejecutar el comando. Es material de L-7.",
+      "donde": "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/design.md, D-13"
     }
   ],
   "desviaciones_de_procedimiento": [
@@ -164,12 +191,22 @@
       "que": "La herramienta anuncio seis reparaciones donde la medicion decia diez.",
       "regla": "RULE-06",
       "detalle": "«try { publicado = cuerpoRemoto(a.issue); } catch { continue; }» convertia «no pude mirar» en «no hay nada que hacer». En una pasada sobre 99 issues, CUATRO lecturas fallaron sin decirlo. Rompe AC-05: «0 cuerpos mudos» habria sido «0 de los que pude leer» publicado como si fuera del tablero entero — el error de muestreo que PT-079 documenta sobre si mismo. Ahora una lectura fallida se declara SIN EVALUAR y entra en el denominador."
+    },
+    {
+      "que": "Escribi «lista en prosa 14 -> 0» en la evidencia ANTES de mirarla.",
+      "regla": "—",
+      "detalle": "La medicion decia 14. Es el error que esta tarea entera persigue, cometido AL INFORMARLA: dar por hecho el efecto de un cambio en vez de medirlo. Se corrigio en el fichero y quedo la explicacion, que resulto ser el hallazgo D-13."
+    },
+    {
+      "que": "refDurableDe no cumplia SUITE-R51, y la regla estaba escrita.",
+      "regla": "SUITE-R51",
+      "detalle": "«El cuerpo enlaza donde el contenido esta: la rama de trabajo mientras la allocation esta viva, LA RAMA POR DEFECTO cuando llega a INTEGRATED». Devolvia siempre la de integracion, asi que una tarea integrada enlazaba a «trabajo» y publicaba «al integrarse pasara a main» sobre trabajo que YA estaba en main. Lo vio mirar el issue #14 recien republicado, no leer la regla — la TERCERA vez en esta tarea que el artefacto publicado encuentra lo que el codigo no."
     }
   ],
   "suite": {
-    "passed": null,
-    "failed": null,
+    "passed": 1251,
+    "failed": 0,
     "baseline": 1229,
-    "nota": "Cifras pendientes de la corrida completa; van en salidas/selftest-completo.txt con su recuento real. No se escriben antes de medirlas."
+    "nota": "22 casos netos: 19 nuevos y TRES que cambian de sentido y no se hicieron pasar (selftest.sh:1614, :1787 y :2226). Los tres afirmaban lo que esta tarea corrige."
   }
 }

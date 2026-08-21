@@ -2485,7 +2485,7 @@
       "id": "PT-096",
       "slug": "un-enlace-que-falta-no-es-un-enlace-roto",
       "created": "2026-08-21",
-      "status": "DRAFT",
+      "status": "DONE",
       "type": "BUG",
       "severity": "S1",
       "track": "STANDARD",
@@ -2512,7 +2512,7 @@
         "fecha": "2026-08-21"
       },
       "issue": 191,
-      "phase": 5,
+      "phase": 7,
       "branch": "bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto"
     }
   ]

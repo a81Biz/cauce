@@ -458,16 +458,7 @@
   [32m✓[0m el EP no se niega a si mismo
   [32m✓[0m y dice que ES una implementacion
   [32m✓[0m el enlace es absoluto
-  [31m✗[0m enumera sus tareas con su issue  (no apareció: #5 · salió: **Implementación abierta** · x
-
-Intake, criterios de aceptación y evidencia: [`changes/EP-9-x/`](https://github.com/o/r/tree/main/changes/EP-9-x)
-
-> El enlace apunta a `main`, que es donde el contenido existe ahora. Al
-> integrarse pasará a `main` y este cuerpo se actualizará solo.
-
-> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el
-> repositorio, versionado junto al código. **No se copia aquí**: dos copias del mismo
-> texto divergen (`SUITE-R35`).)
+  [32m✓[0m el cuerpo del lote NO enumera con su issue
   [32m✓[0m sin URL no se inventa
   [32m✓[0m sigue sin copiar el intake
   [32m✓[0m una tarea sí dice a qué lote va
@@ -528,10 +519,6 @@ Intake, criterios de aceptación y evidencia: [`changes/EP-9-x/`](https://github
   [32m✓[0m …y la version exacta cuenta
   [32m✓[0m …y una anterior por un parche NO
   [32m✓[0m una regla sin fila rige siempre
-  [32m✓[0m 8.2.0 sin viabilidad ⇒ FDGE-R54 NO alcanza
-  [32m✓[0m 10.0.0 sin viabilidad ⇒ FDGE-R54 SI alcanza
-docs/methodology/tools/selftest.sh: line 2578: rigeDesde: command not found
-docs/methodology/tools/selftest.sh: line 2578: el: command not found
   [32m✓[0m 8.2.0 sin viabilidad ⇒ FDGE-R54 NO alcanza
   [32m✓[0m 10.0.0 sin viabilidad ⇒ FDGE-R54 SI alcanza
   [32m✓[0m una regla nueva sin version se señala
@@ -621,3 +608,689 @@ docs/methodology/tools/selftest.sh: line 2578: el: command not found
   [32m✓[0m declara las ejecutadas
   [32m✓[0m declara las que nadie ejecuta
   [32m✓[0m declara las que nadie verifica
+  [32m✓[0m ya no dice cobertura completa
+  [32m✓[0m enumera las que nadie verifica
+  [32m✓[0m enumera las que nadie ejecuta
+  [32m✓[0m las ejecutadas ni 0 ni el total
+  [32m✓[0m sin saber quién ejecuta ⇒ SIN EVALUAR
+  [32m✓[0m el universo sale de los tres documentos
+  [32m✓[0m …y cada una dice de que documento
+  [32m✓[0m un ID definido dos veces cuenta UNA
+  [32m✓[0m …y gana el documento propietario
+  [32m✓[0m una fila sin severidad no entra
+  [32m✓[0m una mencion en comentario NO verifica
+  [32m✓[0m citada solo por selftest NO verifica
+  [32m✓[0m citada en codigo real SI verifica
+  [32m✓[0m la suma de las clases ES el universo
+  [32m✓[0m el universo declara sus tres origenes
+  [32m✓[0m …y el mayor de los tres
+  [32m✓[0m el desglose dice cuantas se anadieron
+  [32m✓[0m …y cuantas dejaron de contar
+  [32m✓[0m …y cuantas eran solo del arnes
+  [32m✓[0m el desglose no lleva cifras a mano
+  [32m✓[0m audit no deriva las reglas por su cuenta
+── PT-058 · la naturaleza de una cifra ──
+  [32m✓[0m una cifra lleva su valor
+  [32m✓[0m …y su naturaleza
+  [32m✓[0m …y ESTIMADO tambien
+  [32m✓[0m la cifra es INMUTABLE
+  [32m✓[0m sin naturaleza LANZA
+  [32m✓[0m una cuarta naturaleza LANZA
+  [32m✓[0m …y el error dice cuales valen
+  [32m✓[0m …y NO asume una por su cuenta
+  [32m✓[0m SIN EVALUAR no tiene valor
+  [32m✓[0m …ni siquiera un cero explicito
+  [32m✓[0m restar con SIN EVALUAR contagia
+  [32m✓[0m …y el valor NO sobrevive
+  [32m✓[0m sumar contagia igual
+  [32m✓[0m …y tampoco suma el valor
+  [32m✓[0m medido con medido sigue MEDIDO
+  [32m✓[0m …y el valor se calcula
+  [32m✓[0m medido con estimado da ESTIMADO
+  [32m✓[0m …y al reves TAMBIEN
+  [32m✓[0m peorNaturaleza es la peor
+  [32m✓[0m …y lo desconocido cuenta como lo peor
+  [32m✓[0m NATURALEZAS son TRES
+  [32m✓[0m …de mejor a peor
+  [32m✓[0m el texto pega la naturaleza
+  [32m✓[0m …y SIN EVALUAR no ensena numero
+  [32m✓[0m verify-suite exige que sean tres
+  [32m✓[0m …y que esten en LEXICON
+  [32m✓[0m MEDIDO esta en LEXICON
+  [32m✓[0m ESTIMADO esta en LEXICON
+  [32m✓[0m SIN EVALUAR esta en LEXICON
+  [32m✓[0m …y dice que NO es cero
+  [32m✓[0m …y que el orden es la regla
+  [32m✓[0m …y que sin naturaleza no existe
+── PT-057 · la referencia de coste ──
+  [32m✓[0m la mediana ignora el caso extremo
+  [32m✓[0m …y no es la media
+  [32m✓[0m con numero par, promedia las dos
+  [32m✓[0m el rango va con la mediana
+  [32m✓[0m …por los dos lados
+  [32m✓[0m …y cuantos casos son
+  [32m✓[0m sin datos NO devuelve cero
+  [32m✓[0m el dueno es el PT del asunto
+  [32m✓[0m …el PRIMERO si hay varios
+  [32m✓[0m …y no el segundo
+  [32m✓[0m un asunto sin PT no tiene dueno
+  [32m✓[0m …y nada no revienta
+  [32m✓[0m con cinco tareas SI hay referencia
+  [32m✓[0m …y las tres medidas
+  [32m✓[0m filtra por tipo Y complejidad
+  [32m✓[0m filtra solo por tipo
+  [32m✓[0m sin filtro, todas
+  [32m✓[0m con cuatro NO extrapola
+  [32m✓[0m …y dice cuantas hay y cuantas faltan
+  [32m✓[0m …y ensena los casos EN CRUDO
+  [32m✓[0m con NINGUNA, motivo distinto
+  [32m✓[0m …y sin casos crudos que ensenar
+  [32m✓[0m sin referencia NO devuelve cero
+  [32m✓[0m el umbral se puede mover
+  [32m✓[0m MINIMO_REFERENCIA esta exportado
+  [32m✓[0m …y se declara como JUICIO, no resultado
+── PT-079 · lo que se aprende se hace mecanico ──
+  [32m✓[0m el enlace usa el ref durable
+  [32m✓[0m …y un SHA tambien vale
+  [32m✓[0m sin ref durable no inventa enlace
+  [32m✓[0m …y lo DICE
+  [32m✓[0m la rama del espejo NO decide
+  [32m✓[0m se extrae la rama de un enlace
+  [32m✓[0m …y null si no hay enlace
+  [32m✓[0m …y el ref de tres segmentos entero
+  [32m✓[0m una inversa que no casa ABORTA
+  [32m✓[0m …y una que casa, aplica
+  [32m✓[0m las aserciones sospechosas se enumeran
+  [32m✓[0m los helpers usados antes se enumeran
+  [32m✓[0m SUITE-R56 existe en RULES
+  [32m✓[0m …y PHASE 9 la cita
+  [32m✓[0m …y el prompt de G4 tambien
+  [32m✓[0m …y CASOS-DE-USO tiene el caso
+  [32m✓[0m …y el MANUAL nombra proyectar
+── PT-066 · definir no es mencionar ──
+  [32m✓[0m cada regla devuelve SU definicion
+  [32m✓[0m una regla inexistente lo sigue siendo
+── PT-074 · el veredicto se ve en el tablero ──
+  [32m✓[0m el cuerpo lleva el veredicto
+  [32m✓[0m …y la naturaleza de la cifra
+  [32m✓[0m …y contra que se midio
+  [32m✓[0m MARGINAL dice que obliga
+  [32m✓[0m UNSAFE dice que detiene
+  [32m✓[0m sin viabilidad no inventa la linea
+── PT-068 · la marca es de quien la abre ──
+  [32m✓[0m marca ajena no se hereda
+  [32m✓[0m …tampoco preguntando por nombre
+  [32m✓[0m sin persona, la marca es mia
+  [32m✓[0m con mi nombre, es mia
+  [32m✓[0m la propia gana al respaldo
+  [32m✓[0m una persona, una sola sesion
+  [32m✓[0m …y gana el archivo propio
+  [32m✓[0m viabilidad no lee SESSION.json a pelo
+  [32m✓[0m las dos lecturas usan marcaDe
+  [32m✓[0m sesion abrir no dice SESSION.json
+  [32m✓[0m …ni cerrar afirma que se sobrescribe
+── PT-076 · el arnes no escribe donde se decide ──
+  [32m✓[0m ninguna accion que escriba va por TRR
+  [32m✓[0m sesion abrir escribe la marca del FIXTURE
+  [32m✓[0m …y abrir otra vez la sobrescribe
+  [32m✓[0m sesion cerrar da el handoff
+  [32m✓[0m …y dice que NO borra la marca
+  [32m✓[0m …y que HANDOFF.md queda INTACTO
+  [32m✓[0m coste sigue leyendo el historial real
+  [32m✓[0m las entradas del arnes estan declaradas
+  [32m✓[0m coste da una cifra para un grupo grande
+  [32m✓[0m …con su rango
+  [32m✓[0m …y de cuantas cerradas sale
+  [32m✓[0m …y avisa de las que no se pueden saber
+  [32m✓[0m …y que es referencia, no prediccion
+  [32m✓[0m un grupo pequeno se declara SIN REFERENCIA
+  [32m✓[0m …y no da mediana de una sola tarea
+  [32m✓[0m …pero ensena el caso que hay
+  [32m✓[0m sin filtro salen todos los grupos
+  [32m✓[0m un tipo no se confunde con el ROOT
+  [32m✓[0m coste funciona SIN credencial
+  [32m✓[0m la cifra no es la misma para todo grupo
+  [32m✓[0m «referencia de coste» esta en LEXICON
+  [32m✓[0m …con de donde sale
+  [32m✓[0m …y que NO mide
+  [32m✓[0m …y por que el asunto y no el cuerpo
+  [32m✓[0m …y que el umbral es un juicio
+── PT-059 · la compuerta de viabilidad ──
+  [32m✓[0m coste bajo el precedente ⇒ SAFE
+  [32m✓[0m …y el motivo lleva las dos cifras
+  [32m✓[0m …y tambien la del coste
+  [32m✓[0m …y habla de PRECEDENTE
+  [32m✓[0m …y NO promete que quepa
+  [32m✓[0m dentro de la holgura ⇒ MARGINAL
+  [32m✓[0m …y restringe a lo ATOMICO
+  [32m✓[0m muy por encima ⇒ UNSAFE
+  [32m✓[0m …y pide checkpoint, handoff y parada
+  [32m✓[0m …y dice que hay evidencia EN CONTRA
+  [32m✓[0m coste SIN EVALUAR ⇒ MARGINAL
+  [32m✓[0m …y NUNCA SAFE
+  [32m✓[0m precedente SIN EVALUAR ⇒ MARGINAL
+  [32m✓[0m …y dice CUAL de los dos falta
+  [32m✓[0m …o el otro, segun cual sea
+  [32m✓[0m …y que no se aprueba por omision
+  [32m✓[0m por encima del techo historico ⇒ UNSAFE
+  [32m✓[0m …y lo marca como NUNCA
+  [32m✓[0m …y pide PARTIR la tarea
+  [32m✓[0m …y dice que no se reintente
+  [32m✓[0m y se decide ANTES que el SIN EVALUAR
+  [32m✓[0m lo que cabe no se marca NUNCA
+  [32m✓[0m HOLGURA esta exportada
+  [32m✓[0m …y se puede cambiar sin tocar la funcion
+  [32m✓[0m …y se declara como JUICIO
+  [32m✓[0m VEREDICTOS son TRES
+  [32m✓[0m BLOCKED_BY_CONTEXT existe
+  [32m✓[0m …y NO es terminal
+  [32m✓[0m …y SI es vivo
+  [32m✓[0m esta en LEXICON
+  [32m✓[0m …y dice que NO es un fallo
+  [32m✓[0m …y que lo desbloquea otra sesion
+  [32m✓[0m verify-fdge lo cuenta como vivo
+  [32m✓[0m SAFE esta en LEXICON
+  [32m✓[0m MARGINAL esta en LEXICON
+  [32m✓[0m UNSAFE esta en LEXICON
+  [32m✓[0m …y que el disponible no existe
+  [32m✓[0m …y que no cabe ahora no es nunca
+  [32m✓[0m viabilidad da un veredicto
+  [32m✓[0m …con el coste y su naturaleza
+  [32m✓[0m …y el precedente con la suya
+  [32m✓[0m …y el techo historico
+  [32m✓[0m …y dice que mide PRECEDENTE
+  [32m✓[0m …y que solo CONSULTA
+  [32m✓[0m funciona sin credencial
+  [32m✓[0m un PT que no existe no se inventa
+── PT-060 · la sesión como entidad ──
+  [32m✓[0m con marca, la sesion esta abierta
+  [32m✓[0m …y las cifras van MEDIDAS
+  [32m✓[0m …y el «desde» sale de la MARCA
+  [32m✓[0m …y las tareas de la sesion
+  [32m✓[0m sin datos de git ⇒ SIN EVALUAR
+  [32m✓[0m …y NO cero
+  [32m✓[0m sin marca, no hay sesion
+  [32m✓[0m …y lo DICE
+  [32m✓[0m …y que el dia NO es la sesion
+  [32m✓[0m …y no inventa cifras
+  [32m✓[0m CHECKPOINTING no es estado terminal
+  [32m✓[0m …ni estado vivo
+  [32m✓[0m HANDOFF_REQUIRED tampoco
+  [32m✓[0m …ni vivo
+  [32m✓[0m WAITING_NEW_SESSION tampoco
+  [32m✓[0m ninguno es status en REGISTRY.json
+  [32m✓[0m …ni HANDOFF_REQUIRED
+  [32m✓[0m el handoff dice que tarea
+  [32m✓[0m …y en que fase
+  [32m✓[0m …y sobre que commit
+  [32m✓[0m …y QUE SIGUE
+  [32m✓[0m …y de donde sale la sesion
+  [32m✓[0m sin checkpoint lo DICE
+  [32m✓[0m …y como conseguirlo
+  [32m✓[0m sin sesion, el handoff lo dice
+  [32m✓[0m sesion abrir escribe la marca
+  [32m✓[0m …y el archivo de sesion existe
+  [32m✓[0m …con la fecha de apertura
+  [32m✓[0m sesion ve lo derivado
+  [32m✓[0m …con cada cifra y su naturaleza
+  [32m✓[0m sesion cerrar da el handoff
+  [32m✓[0m …y dice que NO borra la marca
+  [32m✓[0m …y que HANDOFF.md queda INTACTO
+  [32m✓[0m abrir otra vez sobrescribe
+  [32m✓[0m …y sigue habiendo UN solo archivo de sesion
+  [32m✓[0m viabilidad nombra la sesion abierta
+  [32m✓[0m …y sigue dando su veredicto
+  [32m✓[0m otra identidad NO hereda la sesion
+  [32m✓[0m …y lo dice, no lo calla
+  [32m✓[0m HANDOFF conserva sus decisiones
+  [32m✓[0m …y sus «no hacer»
+  [32m✓[0m …y «sesion cerrar» no los borra
+  [32m✓[0m SESSION.json esta en LEXICON
+  [32m✓[0m …y dice que es una MARCA
+  [32m✓[0m …y que el dia no es la sesion
+  [32m✓[0m …y SESSION != STATE != TASK
+  [32m✓[0m …y que no sustituye a HANDOFF
+── PT-061 · quién es quién ──
+  [32m✓[0m un par declarado da su persona
+  [32m✓[0m …y la segunda identidad, la MISMA
+  [32m✓[0m …y sin motivo, porque no hay duda
+  [32m✓[0m mismo correo, OTRO nombre ⇒ null
+  [32m✓[0m mismo nombre, OTRO correo ⇒ null
+  [32m✓[0m mismo dominio NO es la misma persona
+  [32m✓[0m el motivo nombra al autor
+  [32m✓[0m …y su correo
+  [32m✓[0m …y dice que no se adivina
+  [32m✓[0m …y que hacer con el
+  [32m✓[0m un commit sin autor lo dice
+  [32m✓[0m sin tabla, null y no revienta
+  [32m✓[0m …y no dice que sea culpa del commit
+  [32m✓[0m personaLocal da el CANONICO
+  [32m✓[0m …y no el nombre de git config
+  [32m✓[0m …y sin tabla, null para que el llamador use el de hoy
+  [32m✓[0m ramaDe normaliza el canonico
+  [32m✓[0m …y desde la otra identidad seria OTRA rama
+  [32m✓[0m por eso proyectar pasa por la tabla
+  [32m✓[0m …y sin personas se comporta como antes
+  [32m✓[0m personas enseña a los declarados
+  [32m✓[0m …con cuantos commits lleva cada identidad
+  [32m✓[0m …y las TRES identidades bajo UNA persona
+  [32m✓[0m …y distingue de «firmantes:»
+  [32m✓[0m el texto de los no declarados existe
+  [32m✓[0m …y dice que no se agrupa por parecido
+  [32m✓[0m verify-suite exige firmante ⇒ persona
+  [32m✓[0m …y dice que la direccion es deliberada
+  [32m✓[0m …y NO exige persona ⇒ firmante
+  [32m✓[0m sin personas no se comprueba
+  [32m✓[0m el registro declara personas
+  [32m✓[0m …con las tres identidades
+  [32m✓[0m «personas» esta en LEXICON
+  [32m✓[0m …y que el par casa ENTERO
+  [32m✓[0m …y que no es «firmantes:»
+  [32m✓[0m …y que no dice que puede nadie
+── PT-062 · rangos reservados ──
+  [32m✓[0m rango vacio da el primero
+  [32m✓[0m …y con usados, el siguiente
+  [32m✓[0m los de FUERA del rango no cuentan
+  [32m✓[0m sin rango declarado ⇒ null
+  [32m✓[0m …y lo dice
+  [32m✓[0m un rango agotado NO invade
+  [32m✓[0m …y dice que esta AGOTADO
+  [32m✓[0m …y cuantos hay
+  [32m✓[0m …y que ampliarlo es humano
+  [32m✓[0m rangos disjuntos NO se solapan
+  [32m✓[0m solape parcial SI
+  [32m✓[0m uno dentro de otro tambien
+  [32m✓[0m …y TOCARSE por un extremo tambien
+  [32m✓[0m …y no revienta con basura
+  [32m✓[0m solapes encuentra el par
+  [32m✓[0m …y nombra a los dos
+  [32m✓[0m …y al otro
+  [32m✓[0m sin solapes, lista vacia
+  [32m✓[0m asignar da un ID
+  [32m✓[0m …y NO lleva el nombre de nadie
+  [32m✓[0m …y dice de donde sale
+  [32m✓[0m --ver no escribe nada
+  [32m✓[0m sin rangos, del contador global
+  [32m✓[0m …y sin slug se niega
+  [32m✓[0m verify-fdge detecta rangos solapados
+  [32m✓[0m …y una allocation fuera de todo rango
+  [32m✓[0m …y solo si hay rangos declarados
+  [32m✓[0m …y dice por que se comprueba aqui
+  [32m✓[0m personas puede ensenar el rango
+  [32m✓[0m «rango» esta en LEXICON
+  [32m✓[0m …y que el registro sigue asignando
+  [32m✓[0m …y que NO se namespacea
+  [32m✓[0m …y que tocarse ya es solaparse
+  [32m✓[0m …y que agotado no se invade
+── PT-063 · el usuario en la rama de tarea ──
+  [32m✓[0m la rama lleva al usuario
+  [32m✓[0m …y el tipo en minusculas
+  [32m✓[0m …y el usuario normalizado
+  [32m✓[0m …con el MISMO normalizador que cauce/
+  [32m✓[0m …y el canonico, no el de git config
+  [32m✓[0m …que habria dado otra rama
+  [32m✓[0m sin usuario, dos niveles
+  [32m✓[0m una rama de dos niveles no lleva usuario
+  [32m✓[0m …y una de tres si
+  [32m✓[0m …y «trabajo» no cuenta como rama de tarea
+  [32m✓[0m no existe «trabajo/<usuario>» en RULES
+  [32m✓[0m …ni en LEXICON
+  [32m✓[0m …y LEXICON dice que «trabajo» es UNA
+  [32m✓[0m FDGE-R19 sigue diciendo que G4 no se multiplica
+  [32m✓[0m …y que el PR de tarea es revision
+  [32m✓[0m EXEC-R03 sigue existiendo
+  [32m✓[0m rama propone el nombre
+  [32m✓[0m …y dice que NO se crea
+  [32m✓[0m …y describe el comando
+  [32m✓[0m …y de donde nace
+  [32m✓[0m verify-fdge avisa, no falla
+  [32m✓[0m …y dice desde que version
+  [32m✓[0m …y que las anteriores siguen valiendo
+  [32m✓[0m …y solo con personas declaradas
+  [32m✓[0m …y se dice por que no se falla con el tiempo
+  [32m✓[0m FDGE-R19 dice el formato nuevo
+  [32m✓[0m …y sigue exigiendo commits atomicos
+  [32m✓[0m …y sus prefijos
+  [32m✓[0m …y los TRES niveles
+  [32m✓[0m …y que la rama va al registro
+  [32m✓[0m …y que sin personas sigue el de antes
+── PT-064 · de quién es cada commit ──
+  [32m✓[0m filtra por persona
+  [32m✓[0m …y con null devuelve TODO
+  [32m✓[0m …y los sin persona no entran en el de nadie
+  [32m✓[0m sinPersona los cuenta
+  [32m✓[0m …y con todos declarados, cero
+  [32m✓[0m las derivaciones piden el autor
+  [32m✓[0m …y el correo
+  [32m✓[0m …con un separador que no es un espacio
+  [32m✓[0m …y se dice por que
+  [32m✓[0m el precedente se filtra por persona
+  [32m✓[0m …y el techo tambien
+  [32m✓[0m …y se dice por que siempre
+  [32m✓[0m una sesion es de un dia Y de una persona
+  [32m✓[0m sin filtro dice que es de todas
+  [32m✓[0m --de con persona declarada dice de quien
+  [32m✓[0m …y sigue dando la cifra
+  [32m✓[0m --de tambien filtra
+  [32m✓[0m …y con un nombre que no existe, SIN REFERENCIA
+  [32m✓[0m viabilidad sigue dando veredicto
+  [32m✓[0m …y el techo dice de quien es
+  [32m✓[0m …y el precedente sigue saliendo
+  [32m✓[0m el texto de los no declarados existe
+  [32m✓[0m …y remite a «tracker personas»
+  [32m✓[0m no se toco costeDe
+  [32m✓[0m …y viabilidadDe sigue en patrones
+── PT-065 · la sesión es de alguien ──
+  [32m✓[0m el archivo lleva a la persona
+  [32m✓[0m …sin persona, el de siempre
+  [32m✓[0m …normalizado igual que las ramas
+  [32m✓[0m dos personas, DOS archivos distintos
+  [32m✓[0m las ajenas se enumeran
+  [32m✓[0m …y la propia NO
+  [32m✓[0m …y una marca sin persona no es ajena
+  [32m✓[0m sesion abrir escribe la marca
+  [32m✓[0m …y sesion la lee
+  [32m✓[0m …con las cifras de PT-058
+  [32m✓[0m el texto de las ajenas existe
+  [32m✓[0m …y dice por que se ensenan
+  [32m✓[0m cae a SESSION.json si no hay propio
+  [32m✓[0m …y se dice que es por compatibilidad
+  [32m✓[0m sesion cerrar sigue dando el handoff
+  [32m✓[0m …y dice que HANDOFF.md queda intacto
+  [32m✓[0m …y que no borra la marca
+  [32m✓[0m SESSION-<usuario> esta en LEXICON
+  [32m✓[0m …y dice que la colision se evita
+  [32m✓[0m …y que las ajenas se ven
+  [32m✓[0m …y que NO contradice LEX-R26
+  [32m✓[0m …y por que: el checkpoint es de la TAREA
+── PT-056 · el arbol corresponde al checkpoint ──
+  [32m✓[0m sha y rama iguales ⇒ corresponde
+  [32m✓[0m sha distinto ⇒ NO corresponde
+  [32m✓[0m otra rama, misma historia: corresponde
+  [32m✓[0m …y la rama no figura como discrepancia
+  [32m✓[0m un arbol SUCIO no es discrepancia
+  [32m✓[0m otra lista de archivos tampoco
+  [32m✓[0m la discrepancia dice el campo
+  [32m✓[0m …lo declarado
+  [32m✓[0m …y lo real
+  [32m✓[0m con dos, enumera LAS DOS
+  [32m✓[0m …y el texto las lleva las dos
+  [32m✓[0m un sha ANTECESOR no es discrepancia
+  [32m✓[0m …pero uno de OTRA historia si
+  [32m✓[0m …y no saberlo cuenta como discrepancia
+  [32m✓[0m detached HEAD no es otra rama
+  [32m✓[0m …y no aparece como discrepancia
+  [32m✓[0m sin checkpoint ⇒ null, no false
+  [32m✓[0m …y lo dice en vez de callarlo
+  [32m✓[0m un sha null no es discrepancia
+  [32m✓[0m el texto lo llama por su nombre
+  [32m✓[0m …dice que reanudar es HUMANO
+  [32m✓[0m …y PROPONE el comando
+  [32m✓[0m …sin ejecutarlo ni repararlo
+  [32m✓[0m un PT INTEGRATED no se contrasta
+  [32m✓[0m …y dice por que, citando SUITE-R36
+  [32m✓[0m …sin inventar discrepancias
+  [32m✓[0m un PT IN_PROGRESS SI se contrasta
+  [32m✓[0m …y un DRAFT tambien
+  [32m✓[0m DONE espera G4: sigue vivo
+  [32m✓[0m sin «status» se contrasta igual
+  [32m✓[0m la rama sola ya no dispara
+  [32m✓[0m …ni con un sha ANTECESOR
+  [32m✓[0m …pero con OTRA historia si
+  [32m✓[0m …y entonces enumera LAS DOS
+  [32m✓[0m no saberlo arrastra la rama tambien
+  [32m✓[0m avanzar pasa ramaDeclaradaViva
+  [32m✓[0m tracker siguiente llega a correr
+  [32m✓[0m …y sin credencial de tablero, tambien
+  [32m✓[0m …diciendo que SUITE-R43 no se evaluo
+  [32m✓[0m recien escrito, verify-fdge lo da bueno
+  [32m✓[0m …y tracker siguiente NO bloquea
+  [32m✓[0m solo la rama: verify-fdge NO falla
+  [32m✓[0m otra historia + otra rama: FALLA
+  [32m✓[0m …y nombra el commit inalcanzable
+  [32m✓[0m …y que decidir es humano
+  [32m✓[0m tracker siguiente BLOQUEA
+  [32m✓[0m …y sin credencial BLOQUEA igual
+  [32m✓[0m …nombrando la condicion
+  [32m✓[0m …y propone el comando
+  [32m✓[0m …y no dice que siga como si nada
+  [32m✓[0m rehacer el checkpoint lo resuelve
+  [32m✓[0m …y el bloqueo desaparece
+  [32m✓[0m la rama declarada solo vale si existe
+  [32m✓[0m el checkpoint ajeno no bloquea a PT-004
+  [32m✓[0m STATE_MISMATCH esta en LEXICON
+  [32m✓[0m …y LEX-R26 exige la correspondencia
+  [32m✓[0m …y dice que sucio NO es discrepancia
+  [32m✓[0m …y no lo convierte en un status
+  [32m✓[0m gitDe distingue crudo de recortado
+  [32m✓[0m ningun path del checkpoint pierde letras
+  [32m✓[0m proyecta con fontaneria, sin checkout
+  [32m✓[0m …y con mktree
+  [32m✓[0m …y commit-tree con su padre
+  [32m✓[0m NO hace checkout ni worktree
+  [32m✓[0m cada fila lleva el SHA de SU rama
+  [32m✓[0m …y sin rama NO hereda el de otra
+  [32m✓[0m cada commit lleva la marca
+  [32m✓[0m un commit sin marca se REPORTA
+  [32m✓[0m …y no se borra: eso es humano
+  [32m✓[0m sin usuario NO se proyecta
+  [32m✓[0m el nombre se normaliza a una ref valida
+  [32m✓[0m …y sin nombre devuelve null, no inventa
+  [32m✓[0m sin --publicar se queda LOCAL
+  [32m✓[0m en avanzar la proyeccion va la ULTIMA
+  [32m✓[0m …y su fallo NO revierte la transicion
+  [32m✓[0m sin --nota NO avanza
+  [32m✓[0m …y lo dice como negativa, no aviso
+  [32m✓[0m una --nota vacia tampoco vale
+  [32m✓[0m saltar una fase NO avanza
+  [32m✓[0m …y dice por que
+  [32m✓[0m retroceder tampoco
+  [32m✓[0m un PT que no existe NO avanza
+  [32m✓[0m un PT terminal NO avanza
+  [32m✓[0m …citando que lo cerrado es evidencia
+  [32m✓[0m con tablero y sin issue, NO avanza
+  [32m✓[0m …citando el espejo
+  [32m✓[0m ninguna validacion toco el registro
+  [32m✓[0m la nota se publica la ULTIMA
+  [32m✓[0m hay respaldo antes de escribir
+  [32m✓[0m y restauracion si algo falla
+  [32m✓[0m restaurar lo que no existia lo BORRA
+  [32m✓[0m el valor de una bandera no es ROOT
+  [32m✓[0m …y las banderas con valor van en UN sitio
+  [32m✓[0m avanzar esta en LEXICON
+  [32m✓[0m el sello del HANDOFF es un acto
+  [32m✓[0m …y solo estampa «actualizado:»
+  [32m✓[0m …y HANDOFF.md entra en el respaldo
+  [32m✓[0m el espejo es el quinto acto
+  [32m✓[0m …y va ANTES de la nota
+  [32m✓[0m checkpoint escribe el archivo
+  [32m✓[0m …y declara de que PT es
+  [32m✓[0m …con su fase
+  [32m✓[0m …y la siguiente accion, DERIVADA
+  [32m✓[0m …y el SHA del codigo
+  [32m✓[0m se SOBRESCRIBE: ahora es de PT-001
+  [32m✓[0m …y no quedo el anterior
+  [32m✓[0m un PT que no esta en el registro FALLA
+  [32m✓[0m sin git, el sha se declara null
+  [32m✓[0m un sha que NO existe BLOQUEA
+  [32m✓[0m …y lo dice como lo que es
+  [32m✓[0m sin el campo sha, tambien
+  [32m✓[0m no tenerlo NO es un defecto
+  [32m✓[0m CHECKPOINT.json esta en LEXICON
+  [32m✓[0m …con su contrato de campos
+  [32m✓[0m …y dice que todo se DERIVA
+  [32m✓[0m --donde da archivo Y linea
+  [32m✓[0m …y dice si bloquea o solo avisa
+  [32m✓[0m …enumera TODAS las herramientas
+  [32m✓[0m …y tambien verify-fdge
+  [32m✓[0m una sin verificador lo DICE
+  [32m✓[0m …y no devuelve una lista vacia
+  [32m✓[0m …y cita TD-08 en vez de recalcularlo
+  [32m✓[0m --donde sin regla es un error
+  [32m✓[0m dos emisiones dan lineas DISTINTAS
+  [32m✓[0m …y una COMENTADA no cuenta
+  [32m✓[0m herramientas se deriva de emisiones
+  [32m✓[0m …y la linea sale de m.index
+  [32m✓[0m …nunca de indexOf
+  [32m✓[0m el filtro esta en chk
+  [32m✓[0m …y en chkno
+  [32m✓[0m …y en trlib, la tercera puerta
+  [32m✓[0m …y en trlibno, la cuarta
+  [32m✓[0m el filtro va antes de ejecutar
+  [32m✓[0m el universo sube fuera de la guarda
+  [32m✓[0m …y casa LITERAL, sin regex
+  [32m✓[0m …sin lanzar un proceso por caso
+  [32m✓[0m sin coincidencias, es rojo
+  [32m✓[0m …y lo dice con el patron
+  [32m✓[0m --solo sin valor es un error
+  [32m✓[0m …y el valor se consume ANTES del case
+  [32m✓[0m con --solo la salida lleva dos cifras
+  [32m✓[0m …y sin --solo, una sola
+  [32m✓[0m -q no imprime el bloque PASA
+  [32m✓[0m …y los AVISOS siguen saliendo
+  [32m✓[0m …y el recuento NO se calla
+  [32m✓[0m sin -q el bloque PASA sigue estando
+  [32m✓[0m -q no esconde el bloque ERRORES
+  [32m✓[0m …y dice cuantos son
+  [32m✓[0m pass() lleva la guarda de -q
+  [32m✓[0m bad() NO lleva guarda: un fallo se ve
+  [32m✓[0m TOTAL sube antes que la guarda
+  [32m✓[0m el recuento final existe
+  [32m✓[0m …y no mira QUIET
+  [32m✓[0m -q se FILTRA de los posicionales
+  [32m✓[0m …y WORK sale del posicional filtrado
+  [32m✓[0m …no del primer argumento crudo
+  [32m✓[0m la cabecera se recuerda para el fallo
+  [32m✓[0m …y sin -q se imprime al llegar
+  [32m✓[0m G1 no exige el manifiesto de PHASE 6
+  [32m✓[0m G1 tampoco el self-review
+  [32m✓[0m G1 tampoco la entrada de HISTORY
+  [32m✓[0m G2 sigue sin exigir lo de PHASE 6
+  [32m✓[0m G3 no exige lo que PHASE 8 escribe
+  [32m✓[0m G3 SI exige el manifiesto
+  [32m✓[0m G4 exige el manifiesto
+  [32m✓[0m G4 exige el self-review
+  [32m✓[0m G4 exige la entrada de HISTORY
+  [32m✓[0m sin compuerta, HISTORY solo se avisa
+  [32m✓[0m EXIGIBLE_DESDE se DERIVA de la fase
+  [32m✓[0m ninguna comprobacion se activa con cualquier compuerta
+  [32m✓[0m …y el archivo se leyo de verdad
+  [32m✓[0m el texto copiable dice vocabulario cerrado
+  [32m✓[0m …y que la cita es reciproca
+  [32m✓[0m …y nombra «—» como valor admitido
+  [32m✓[0m …y distingue el propio lote en DONE
+  [32m✓[0m y ya no dice «normalmente»
+  [32m✓[0m el bloque de SUITE-R44 existe y no esta vacio
+  [32m✓[0m el alcance del grafo cubre bin
+  [32m✓[0m …y las herramientas
+  [32m✓[0m sin desbordar a la raiz ni a changes
+  [32m✓[0m pt_at_generation no es 0
+  [32m✓[0m el alcance viejo se declara incompleto
+  [32m✓[0m y su ancla se declara sin poner
+── PT-088 · las reglas del dominio se verifican o se declaran ──
+  [32m✓[0m un ledger que solo CRECE pasa
+  [32m✓[0m …y uno al que le faltan lineas CAE
+  [32m✓[0m …y el mensaje declara que NO distingue
+  [32m✓[0m …y una alteracion de igual recuento TAMBIEN
+  [32m✓[0m sin ningun tag no se comprueba, y se dice
+  [32m✓[0m una suite anterior a 11.0.0 no la sufre
+  [32m✓[0m un merge a la principal SIN constancia CAE
+  [32m✓[0m …y el mensaje dice que NO prueba nada mas
+  [32m✓[0m …y CON constancia del mismo dia, pasa
+  [32m✓[0m …y un nombre fuera de firmantes NO cuenta
+  [32m✓[0m SUITE-R01 esta declarada NO_VERIFICABLE
+  [32m✓[0m …y audit la clasifica, no la deja PENDIENTE
+  [32m✓[0m …y las tres salen de PENDIENTE
+── PT-087 · la comprobacion declara que hecho establece ──
+  [32m✓[0m una celda vacia del sujeto no pasa
+  [32m✓[0m …y falta noEstablece tampoco
+  [32m✓[0m …y «null» SI vale: es una declaracion
+  [32m✓[0m un limite que no llega al mensaje CAE
+  [32m✓[0m …y uno que si llega, pasa
+── PT-095 · una regla nueva no juzga lo escrito antes ──
+  [32m✓[0m «a la espera de G4» NO es autorizacion
+  [32m✓[0m …y «autorizados al agente» SI lo es
+  [32m✓[0m …y un VoBo tambien
+  [32m✓[0m …y un encabezado sin nada de eso, no
+  [32m✓[0m lo anterior al sello NO lo alcanza
+  [32m✓[0m …lo POSTERIOR si
+  [32m✓[0m …y el MISMO dia del sello escapa
+  [32m✓[0m sin frontera no alcanza a nada
+  [32m✓[0m …ni con una fecha que no lo es
+  [32m✓[0m una entrada CORRIGE del dia excusa
+  [32m✓[0m …pero una CORRIGE SIN nombre no
+  [32m✓[0m …ni una ANTERIOR a lo que corrige
+  [32m✓[0m …ni una entrada que no diga CORRIGE
+  [32m✓[0m …ni una POSTERIOR de otro dia
+  [32m✓[0m ningun byte de control en patrones.mjs
+  [32m✓[0m las tres del arbol real estan completas
+  [32m✓[0m verify-suite publica cuantas lo declaran
+  [32m✓[0m una guia que olvida una regla nueva CAE
+  [32m✓[0m …y una que las nombra todas, pasa
+  [32m✓[0m …y sin entrada dice null, no «vacio»
+  [32m✓[0m sellar comprueba la guia, no que exista
+  [32m✓[0m revento() caza un reviente de verdad
+  [32m✓[0m …y NO acusa a quien solo nombra el error
+  [32m✓[0m …y revento() ya no busca la palabra
+── PT-089 · la divergencia no apaga comprobaciones ──
+  [32m✓[0m terminal en el registro y vivo en el YAML CAE
+  [32m✓[0m …y el mensaje dice que NO elige fuente
+  [32m✓[0m dos estados VIVOS distintos no son error
+  [32m✓[0m …ni dos terminales distintos
+  [32m✓[0m una «phase» divergente NO es error
+  [32m✓[0m …pero si avisa
+  [32m✓[0m avanzar a la ultima fase marca terminal
+  [32m✓[0m …y lo escribe TAMBIEN en el YAML
+  [32m✓[0m …y no pisa un estado terminal ya declarado
+  [32m✓[0m SUITE-R35 no necesita fila en RIGE_DESDE
+  [32m✓[0m el arbol real no tiene ninguna sin sincronizar
+── PT-090 · la frescura del grafo viaja con el repositorio ──
+  [32m✓[0m mismo hash, distinto mtime: NO hay deriva
+  [32m✓[0m hash distinto: SI hay deriva
+  [32m✓[0m sin hash en el manifiesto, cae al mtime
+  [32m✓[0m un archivo que no existe se nombra
+  [32m✓[0m una ruta absoluta de windows se relativiza
+  [32m✓[0m …y una de posix tambien
+  [32m✓[0m …y una ya relativa se queda igual
+  [32m✓[0m …y si la raiz no casa, no se inventa nada
+  [32m✓[0m sin graphify-out dice NO ES EVALUABLE
+  [32m✓[0m …y ya no dice que bloquea G2
+  [32m✓[0m …y no promete bloquear lo que no evalua
+── PT-091 · las cifras se derivan, no se transcriben ──
+  [32m✓[0m una cifra que coincide no se reporta
+  [32m✓[0m …y una desviada si, con las dos cifras
+  [32m✓[0m …y una herramienta retirada se nombra aparte
+  [32m✓[0m las filas de services.md se leen
+  [32m✓[0m …y una linea que no es fila no cuenta
+  [32m✓[0m el recuento de herramientas se lee
+  [32m✓[0m …y el de comandos tambien
+  [32m✓[0m inventario enumera la cifra desviada
+  [32m✓[0m …y dice como arreglarlo
+  [32m✓[0m …y sin la marca NO ha escrito nada
+  [32m✓[0m …y con la marca la reescribe
+  [32m✓[0m el arbol real tiene sus cifras al dia
+── PT-093 · el limite de las compuertas se declara ──
+  [32m✓[0m EXEC-R04 declara que garantiza
+  [32m✓[0m …y que NO puede garantizar
+  [32m✓[0m …y que 0 revisores no es un descuido
+  [32m✓[0m EXEC-R04a fija la forma de la constancia
+  [32m✓[0m …y dice DONDE mirar
+  [32m✓[0m una sub-regla llega a CORE.md
+  [32m✓[0m …y los dos extractores aceptan el sufijo
+  [32m✓[0m …y la regla nueva declara desde cuando
+  [32m✓[0m AC-03 ya lo entrego PT-088, y se ve
+── PT-092 · ejecutar QA y FPGE ──
+  [32m✓[0m hay ROADMAP con candidatos
+  [32m✓[0m …y todo candidato cita su evidencia
+  [32m✓[0m …y declara la frescura de sus fuentes
+  [32m✓[0m …y NO promueve nada
+  [32m✓[0m …y el historico es append-only
+  [32m✓[0m …y dice que el orden es un juicio
+  [32m✓[0m el catalogo declara que QA no aplica
+  [32m✓[0m …y dice por que no se forzo
+  [32m✓[0m TD-15 separa «no aplica» de «pendiente»
+  [32m✓[0m INC-001 registrado en el ledger
+  [32m✓[0m …y tiene candidato en el roadmap
+
+selftest: OK · 1248 casos
+EXIT=0

@@ -2904,3 +2904,105 @@ intake de `EP-019` como material de `L-1`, que es la tarea dueña del estado y d
 
 **Autorizado por:** Alberto Martínez, por la delegación autónoma de esta misma fecha. `SUITE-R27`:
 contrastable, no probada.
+
+---
+
+## 2026-08-21 · `G4` autorizada al agente · «haz el merge, deja todo en main»
+
+**Instrucción literal:** «haz el merge, deja todo en main».
+
+Constancia con nombre y forma fija (`EXEC-R04a`): autorizado por Alberto Martínez.
+
+**Qué cubre.** Es `EXCEPCIÓN DECLARADA` a las cláusulas que ningún modo automatiza:
+
+```
+SUITE-R06a · merge a la rama principal   ->  trabajo -> main
+EXEC-R04   · G4 humana en los tres modos ->  resuelta por delegacion
+```
+
+**Qué NO cubre, y no por prudencia sino por registro:**
+
+```
+PUBLICAR   el HANDOFF declara que la autorizacion del 2026-08-18 «se uso en la 8.2.0 y no se
+           extiende», y que la eleccion del firmante es «yo hago la publicacion». La 11.0.0 ya
+           esta en npm. «Dejar todo en main» no es «publicar la siguiente version».
+```
+
+**Y una precisión que hay que dejar escrita antes de ejecutarla.** `CLAUDE.md` dice que el merge
+de `trabajo` a `main` **es** `G4`, y `G4` es la compuerta de **un lote**. `EP-019` sigue abierta
+con ocho tareas por hacer (`L-1`…`L-8`). Por tanto:
+
+- Este merge integra `PT-096` —y lo que haya en `trabajo`— en la rama principal.
+- **NO cierra `EP-019`.** El lote sigue `DRAFT` y su `G4` de cierre será otra, cuando sus nueve
+  tareas estén terminadas y su `## Cierre del lote` escrito (`SUITE-R45`, `FDGE-R53`).
+
+Decirlo importa porque el precedente contrario existe: `EP-013` se integró con un rojo declarado y
+el defecto quedó abierto como `PT-055`. Un merge que se llama `G4` sin cerrar su lote es
+exactamente el estado que hay que dejar por escrito para que la próxima sesión no lo lea como un
+cierre.
+
+**Orden que se sigue, y por qué no se acorta.** `PT-096` está en `PHASE 6`. Antes del merge:
+la batería completa en verde, `PHASE 7` con `G3`, `PHASE 8` con su entrada en `HISTORY.log`, y
+`verify-fdge --gate G4`. Fusionar trabajo sin validar es lo que `FDGE-R34` existe para impedir, y
+la autorización del firmante es para **hacer** el merge, no para saltarse lo que lo precede.
+
+**Lo que esta autorización no prueba.** El agente escribe este archivo. `SUITE-R27` la convierte
+en una afirmación **contrastable** —el nombre está en `firmantes`, la instrucción es citable— y
+nada más.
+
+---
+
+## 2026-08-21 · excepción declarada · escribir `status` a mano en `PT-096`, y `G3` firmada
+
+**Segunda excepción de la misma familia en esta tarea**, y por eso va con su medición: `CLAUDE.md`
+dice «Nunca edites `phase` ni `status` a mano», y aquí se hace `status`.
+
+**La condición.** `tracker avanzar` sincroniza `phase` en las dos fuentes y **sólo escribe
+`status` en la última fase**:
+
+```js
+const terminal = esFinal && !ESTADOS_TERMINALES.has(String(a.status));
+if (terminal) a.status = 'INTEGRATED';           // tracker.mjs:2437-2438
+```
+
+La escalera que `LEXICON` §… declara —`DRAFT → IN_PROGRESS → IN_REVIEW → VALIDATION_PENDING →
+DONE`— **no la aplica nadie**. `PT-096` llegó a `PHASE 7` con `status: DRAFT`, y `verify-fdge`
+verificó limpio: es el mismo hueco por el que `PT-094` llegó a `PHASE 9` con `status: READY`.
+
+Y una de esas transiciones está declarada como **obligatoria y automática**:
+
+```
+LEXICON:304    IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre
+LEXICON:306    VALIDATION_PENDING --> DONE      : G3 · solo un humano
+```
+
+Es `INC-006` de los tres proyectos, medido aquí por tercera vez. **Es de `L-2`**, que lo tiene por
+único objetivo, y no se arregla en esta tarea.
+
+**Qué se escribe, y con qué autoridad.**
+
+```
+PT-096   DRAFT -> VALIDATION_PENDING    la transicion que LEXICON declara «siempre» para un BUG
+         VALIDATION_PENDING -> DONE     G3, y solo un humano — aqui, por delegacion
+```
+
+**`G3` de `PT-096`**, en la forma que `FDGE-R26` exige:
+
+```
+G3 2026-08-21 Alberto Martínez (delegada · constancia de esta misma fecha)
+```
+
+Base: la delegación autónoma del lote y «haz el merge, deja todo en main», las dos citadas arriba
+en este mismo archivo. `SUITE-R27`: contrastable, no probada — **el agente escribe este archivo**,
+y en un `BUG` eso es exactamente lo que `SUITE-R06b` quiere que quede a la vista.
+
+**Lo que sostiene la firma, y es lo que un humano miraría:**
+
+```
+bateria            1251 casos · 0 fallos        (base 1229)
+inversa            cinco retiradas, ninguna en cero
+tablero            20 cuerpos inutilizables -> 0 · 10 «null» -> 0 · 14 listas en prosa -> 0
+verify-fdge        PT-096 sin errores
+verify-suite       sin errores de coherencia
+AC-01..AC-08       ocho de ocho · AC-09 trasladado a L-3, y consta como traslado
+```

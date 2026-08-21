@@ -1869,6 +1869,21 @@ trlib "y uno sano se deja en paz"                 "OK"                    "conso
 # nombrado es lo que impide que se confunda con OK, que es lo que pasa hoy: los tres caen por el
 # mismo «continue» que el cuerpo sano.
 trlib "un enlace roto sin salida CONSTA"          "ROTO_SIN_SALIDA"       "console.log(m.decisionDeEnlace(m.cuerpoDeIssue({id:'PT-94',slug:'x'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}),()=>false,null))"
+# PT-096 · la nota se deriva de A DONDE APUNTA, no de si la allocation esta viva. Decia «la rama
+# por defecto» para toda terminal, y refDurableDe prefiere la de INTEGRACION: los veinte cuerpos
+# reparados quedaban llamando «rama por defecto» a «trabajo», que no lo es. Un enlace correcto con
+# una nota falsa al lado es el «null» en version suave, y se vio mirando el issue PUBLICADO.
+trlibno "una terminal en trabajo no lo llama rama por defecto"  "la rama por defecto"  "console.log(m.cuerpoDeIssue({id:'PT-1',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',refDurable:'trabajo'}))"
+trlib   "…y en main SI lo dice"                                 "la rama por defecto"  "console.log(m.cuerpoDeIssue({id:'PT-1',slug:'x',status:'INTEGRATED'},{url:'https://h/r',rama:'main',refDurable:'main'}))"
+# PT-096 · y la otra mitad, que es de refDurableDe y no de cuerpoDeIssue: SUITE-R51 dice
+# literalmente «la rama de trabajo mientras la allocation esta viva, LA RAMA POR DEFECTO cuando
+# llega a INTEGRATED». refDurableDe devolvia SIEMPRE la de integracion, asi que una tarea ya
+# integrada enlazaba a «trabajo» y su cuerpo publicaba «al integrarse pasara a main» sobre trabajo
+# que YA estaba en main. Lo vio mirar el issue #14 recien republicado, no leer la regla.
+#
+# El orden de preferencia se comprueba aqui como DATO —terminal antes por defecto, viva antes
+# integracion— porque refDurableDe habla con git y no es probable desde el arnes.
+chk "SUITE-R51 · una terminal prefiere la rama por defecto"  "terminal ? \[porDefecto, integracion\]"   cat "$SUITE/tools/tracker.mjs"
 # RIE-4 · esCuerpoDelTracker reconoce por el MARCADOR que cuerpoDeIssue escribe. Si alguien cambia
 # ese texto, la reparacion dejaria de reconocer sus propios cuerpos EN SILENCIO. Este caso ata las
 # dos cosas: cambiar el texto rompe un caso en vez de apagar la reparacion.

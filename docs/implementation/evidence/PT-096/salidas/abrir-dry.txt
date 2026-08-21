@@ -1,0 +1,87 @@
+tracker · github · acción abrir
+
+  · Nada que abrir: toda allocation viva tiene su issue.
+  · PT-025 #35: se regeneraria el cuerpo
+  · EP-019 #189: se regeneraria el cuerpo
+  · PT-096 #191: se regeneraria el cuerpo
+  · EP-001 #2: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-001 #3: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-002 #4: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-003 #5: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-004 #6: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-005 #8: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-002 #9: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-006 #10: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-007 #11: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-008 #12: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-003 #13: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-009 #14: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-010 #15: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-004 #17: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-011 #18: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-012 #19: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-013 #20: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-014 #21: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-015 #22: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-016 #23: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-017 #24: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-018 #25: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-020 #27: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-005 #31: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-021 #29: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-022 #30: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-023 #32: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-006 #34: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-024 #33: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-026 #36: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-027 #37: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-028 #39: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-029 #40: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-007 #41: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-030 #43: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-031 #44: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-032 #45: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-008 #48: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-033 #46: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-034 #47: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-009 #52: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-010 #53: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-011 #59: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-012 #71: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-047 #69: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-048 #70: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-013 #73: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-014 #89: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-049 #83: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-050 #84: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-051 #85: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-052 #86: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-053 #87: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-054 #88: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-015 #90: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-016 #91: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-055 #94: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-056 #103: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-057 #104: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-058 #105: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-059 #106: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-060 #107: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-017 #127: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-066 #128: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-068 #130: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-074 #136: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-075 #137: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-076 #138: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-082 #153: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-086 #160: se republicaria: el texto del cuerpo no coincide con el derivado
+  · EP-018 #162: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-087 #163: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-088 #164: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-089 #165: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-090 #166: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-091 #167: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-092 #168: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-093 #169: se republicaria: el texto del cuerpo no coincide con el derivado
+  · PT-095 #181: se republicaria: el texto del cuerpo no coincide con el derivado
+
+Sin divergencias.

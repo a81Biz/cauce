@@ -308,3 +308,61 @@ plataforma.
 encajado en la frase antigua producía «el enlace sin enlace». Queda `se repararia: sin enlace ->
 «trabajo»`. Es cosmético y se anota porque **lo vio leer la salida real**, no el diff — que es la
 misma forma en que apareció todo lo demás de esta tarea.
+
+## D-13 · El cuerpo se republica cuando **difiere del derivado**, no cuando se rompe
+
+Lo ordenó medir `AC-05`. Con los veinte enlaces ya reparados, la lista en prosa **seguía en los
+catorce** cuerpos de lote:
+
+```
+lista en prosa (lotes)    ANTES 14    DESPUES 14
+```
+
+El código ya no la emite —tres casos lo prueban— pero esos cuerpos tenían el **enlace
+funcionando**, así que `decisionDeEnlace` devolvía `OK` y la pasada de reparación los saltaba.
+
+**Es la avería de esta tarea un nivel más arriba:**
+
+```
+el enlace roto     se reparaba solo si estaba ROTO         -> lo arreglo S-2
+el cuerpo entero   se reescribia solo si el ENLACE fallaba -> seguia igual
+```
+
+Una vez que un cuerpo está `OK`, **nada vuelve a mirarlo**. La herramienta no compara jamás el
+cuerpo que **publicó** con el que **generaría hoy**, así que ninguna mejora del texto alcanza a lo
+ya publicado. `SUITE-R35` dice que la plataforma **espeja** el registro; un espejo que sólo se
+actualiza cuando se rompe no es un espejo.
+
+```js
+const derivado = cuerpoDeIssue(a, contextoCuerpo(a));
+if (decision === 'OK' && norm(publicado) === norm(derivado)) continue;
+```
+
+**Se comparan líneas sin espacios al borde.** Comparar bytes crudos reescribiría los 115 cuerpos
+en cada pasada porque la plataforma normaliza finales de línea — la lección de `PT-090` sobre
+huellas con `CRLF`, aplicada aquí antes de tropezar con ella.
+
+### Lo que destapó: **79 de 99** cuerpos terminales estaban desfasados
+
+Y no de forma inocua. `#14` publicaba, sobre una tarea `INTEGRATED`:
+
+> *«El enlace apunta a `main`. Hasta que el trabajo se integre, el contenido vive en la rama de
+> trabajo y este enlace puede no resolver todavía.»*
+
+**Eso es falso hoy**: el trabajo está integrado. Es el texto anterior a `PT-036`, congelado desde
+entonces. El tablero llevaba diecinueve lotes apartándose de su fuente y nada lo notaba.
+
+Republicarlos **no borra historia**: el cuerpo de un issue es dato **derivado** del registro
+(`SUITE-R35`), y lo que se decidió vive en `changes/`, que es append-only. Lo que se corrige es
+una afirmación que dejó de ser cierta.
+
+### Por qué entra aquí, y no es alcance que crece
+
+`AC-08` exige *«0 listas en prosa»* **sobre el tablero**, no sólo en el código. Sin esto, `AC-08`
+se cumpliría a medias y habría que declararlo — y ya lo declaré una vez antes de arreglarlo,
+porque escribí «14 → 0» en la evidencia **antes de mirarla**. La medición decía 14.
+
+Que el criterio no se pueda cumplir sin este cambio es lo que lo pone dentro. Lo que queda fuera,
+y se dice: **que el espejo COMPRUEBE esa diferencia**. Hoy `abrir --aplicar` la corrige, pero
+`espejo` no la reporta —recorre `vivas` y compara estado, no texto—, así que sigue haciendo falta
+ejecutar el comando. Es material de `L-7`.

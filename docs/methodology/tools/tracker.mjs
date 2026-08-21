@@ -548,10 +548,18 @@ export function cuerpoDeIssue(a, opciones = {}) {
     l.push('> Aparecerá en cuanto se integre — y si ya lo está, `tracker abrir --aplicar` lo republica.');
   } else {
     l.push('');
-    l.push(viva
-      ? `> El enlace apunta a \`${ramaDelEnlace}\`, que es donde el contenido existe ahora. Al`
-      : `> El enlace apunta a \`${ramaDelEnlace}\`, la rama por defecto: aquí es donde se queda.`);
-    if (viva) l.push(`> integrarse pasará a \`${rama ?? 'main'}\` y este cuerpo se actualizará solo.`);
+    // PT-096 · el texto se deriva de A DONDE APUNTA, no de si la allocation esta viva.
+    //
+    // Decia «la rama por defecto: aqui es donde se queda» para toda allocation terminal, y
+    // refDurableDe prefiere la rama de INTEGRACION: los veinte cuerpos reparados quedaban
+    // llamando «rama por defecto» a «trabajo», que no lo es. Un enlace correcto con una nota
+    // falsa al lado es la misma averia que el «null» que esta tarea vino a quitar, en version
+    // suave — y se vio mirando el issue publicado, no el diff.
+    const esPorDefecto = ramaDelEnlace === (rama ?? 'main');
+    l.push(esPorDefecto
+      ? `> El enlace apunta a \`${ramaDelEnlace}\`, la rama por defecto: aquí es donde se queda.`
+      : `> El enlace apunta a \`${ramaDelEnlace}\`, que es donde el contenido existe ahora. Al`);
+    if (!esPorDefecto) l.push(`> integrarse pasará a \`${rama ?? 'main'}\` y este cuerpo se actualizará solo.`);
   }
   l.push('');
   l.push('> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el');
@@ -1237,7 +1245,17 @@ function refDurableDe(a) {
       return true;
     } catch { return false; }
   };
-  if (hay(integracion)) return integracion;
+  // PT-096 · SUITE-R51 lo dice literalmente: el cuerpo enlaza «la rama de trabajo mientras la
+  // allocation esta viva, LA RAMA POR DEFECTO cuando llega a INTEGRATED». Aqui se devolvia
+  // siempre la de integracion, asi que una tarea ya integrada enlazaba a «trabajo» y su cuerpo
+  // publicaba «al integrarse pasara a main» — sobre trabajo que YA esta en main.
+  //
+  // Lo vio mirar el issue #14 recien republicado, no leer la regla: el texto se contradecia con
+  // el estado de la propia tarea.
+  const porDefecto = REPO.rama ?? 'main';
+  const terminal = ESTADOS_TERMINALES.has(String(a?.status));
+  const orden = terminal ? [porDefecto, integracion] : [integracion, porDefecto];
+  for (const ref of orden) if (ref && hay(ref)) return ref;
   const sha = gitDe(['log', '-1', '--format=%H', '--', dir]);
   return sha || null;
 }
@@ -1294,7 +1312,23 @@ function repararEnlacesMuertos() {
     // ademas terminales, o sea los unicos a los que esta pasada llega. SUITE-R56 reparaba el enlace
     // MUERTO y pasaba de largo por el AUSENTE.
     const decision = decisionDeEnlace(publicado, refExiste, durable);
-    if (decision === 'OK' || decision === 'AJENO') continue;
+    if (decision === 'AJENO') continue;
+    // PT-096 · el cuerpo se reescribe cuando DIFIERE del que se generaria hoy, no solo cuando el
+    // enlace esta roto. SUITE-R35 dice que la plataforma ESPEJA el registro, y un espejo que solo
+    // se actualiza cuando se rompe no es un espejo.
+    //
+    // Lo midio esta misma tarea: retirada la lista en prosa que SUITE-R51 prohibe, los CATORCE
+    // cuerpos de lote que la llevaban NO se limpiaron —sus enlaces funcionaban, la decision era
+    // OK y la pasada los saltaba—. Es la averia de esta tarea un nivel mas arriba: el enlace roto
+    // se reparaba solo si estaba roto; el cuerpo entero se reescribia solo si el ENLACE fallaba.
+    // Una vez «OK», nada volvia a mirarlo, asi que ninguna mejora del texto alcanzaba lo publicado.
+    //
+    // Se comparan las lineas SIN espacios al borde: la plataforma normaliza finales de linea, y
+    // comparar bytes crudos reescribiria los 115 cuerpos en cada pasada (la leccion de PT-090
+    // sobre huellas con CRLF).
+    const derivado = cuerpoDeIssue(a, contextoCuerpo(a));
+    const norm = (t) => String(t ?? '').split(String.fromCharCode(10)).map((l) => l.trimEnd()).join(String.fromCharCode(10)).trim();
+    if (decision === 'OK' && norm(publicado) === norm(derivado)) continue;
     if (decision === 'ROTO_SIN_SALIDA') {
       notas.push(`${a.id} #${a.issue}: enlaza a «${ref}», que ya no existe, y no hay ref durable del que derivar uno. Queda roto y consta.`);
       continue;
@@ -1306,9 +1340,11 @@ function repararEnlacesMuertos() {
     // PT-096 · el ORIGEN se nombra segun el caso. Con «${ref}» a secas, el cuerpo mudo —donde ref
     // es null— habria escrito «se repararia el enlace «null» -> «trabajo»»: exactamente el defecto
     // que esta tarea arregla, reapareciendo en la nota que lo arregla.
-    const origen = decision === 'REPARAR_MUDO' ? 'sin enlace' : `«${ref}»`;
-    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se repararia: ${origen} -> «${durable}»`); continue; }
-    try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: enlace reparado: ${origen} -> «${durable}»`); }
+    const que = decision === 'OK'
+      ? 'el texto del cuerpo no coincide con el derivado'
+      : `${decision === 'REPARAR_MUDO' ? 'sin enlace' : `«${ref}»`} -> «${durable}»`;
+    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se republicaria: ${que}`); continue; }
+    try { adaptador.editarCuerpo(a.issue, derivado); notas.push(`${a.id} #${a.issue}: republicado: ${que}`); }
     catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace ${origen} y no se pudo reescribir.`); }
   }
 }

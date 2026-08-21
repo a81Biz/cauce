@@ -5,14 +5,14 @@
 
 | AC | Criterio | Caso | Evidencia | Estado |
 |:---|:---|:---|:---|:---|
-| AC-01 | El cuerpo enlaza donde está el contenido, y el enlace **se puede volver a leer** | `lo que el cuerpo escribe, refDeEnlace lo lee` · `lo vivo enlaza la rama de trabajo` | — | PENDIENTE |
-| AC-02 | Ningún cuerpo publica `null`; la nota no se emite sin enlace | `sin ref durable, no explica el enlace` · `el cuerpo nunca publica «null»` | — | PENDIENTE |
-| AC-03 | El espejo reporta el cuerpo mudo teniendo ref durable | `el espejo ve el cuerpo mudo` · `sin el resolvedor, se comporta como hoy` | — | PENDIENTE |
-| AC-04 | La reparación alcanza al cuerpo sin enlace, y a las terminales | `un cuerpo mudo con ref durable se repara` · `…y sin ref durable NO se toca` · `un issue ajeno no es asunto del tracker` · `un enlace muerto sigue reparandose` · `y uno sano se deja en paz` · `un enlace roto sin salida CONSTA` | — | PENDIENTE |
-| AC-05 | 0 mudos y 0 `null` sobre el tablero completo, con denominador | `node tools/tracker.mjs espejo` sobre el tablero real | — | PENDIENTE |
-| AC-06 | La batería falla **sin** el arreglo, un caso por punto | la prueba inversa, cambio a cambio | — | PENDIENTE |
-| AC-07 | Escrito en `CASOS-DE-USO` y `MANUAL`; `README`/`CLAUDE.md` declarados | `node tools/verify-suite.mjs docs/methodology` | — | PENDIENTE |
-| AC-08 | 19 de 19 lotes con cabecera correcta y 0 listas en prosa | `el lote se reconoce por su ID` · `el cuerpo del lote NO lista sus tareas` | — | PENDIENTE |
+| AC-01 | El cuerpo enlaza donde está el contenido, y el enlace **se puede volver a leer** | `lo que el cuerpo escribe, refDeEnlace lo lee` · `lo vivo enlaza la rama de trabajo` | `salidas/selftest-completo.txt` | VERIFICADO |
+| AC-02 | Ningún cuerpo publica `null`; la nota no se emite sin enlace | `sin ref durable, no explica el enlace` · `el cuerpo nunca publica «null»` | `salidas/selftest-completo.txt` · `salidas/inversa.txt` | VERIFICADO |
+| AC-03 | El espejo reporta el cuerpo mudo teniendo ref durable | `el espejo ve el cuerpo mudo` · `sin el resolvedor, se comporta como hoy` | `salidas/selftest-completo.txt` · `salidas/inversa.txt` | VERIFICADO |
+| AC-04 | La reparación alcanza al cuerpo sin enlace, y a las terminales | `un cuerpo mudo con ref durable se repara` · `…y sin ref durable NO se toca` · `un issue ajeno no es asunto del tracker` · `un enlace muerto sigue reparandose` · `y uno sano se deja en paz` · `un enlace roto sin salida CONSTA` | `salidas/selftest-completo.txt` · `salidas/abrir-dry.txt` | VERIFICADO |
+| AC-05 | 0 mudos y 0 `null` sobre el tablero completo, con denominador | `node tools/tracker.mjs espejo` sobre el tablero real | `salidas/tablero-antes.txt` · `salidas/tablero-despues.txt` | VERIFICADO |
+| AC-06 | La batería falla **sin** el arreglo, un caso por punto | la prueba inversa, cambio a cambio | `salidas/inversa.txt` | VERIFICADO |
+| AC-07 | Escrito en `CASOS-DE-USO` y `MANUAL`; `README`/`CLAUDE.md` declarados | `node tools/verify-suite.mjs docs/methodology` | `salidas/verify-suite.txt` | VERIFICADO |
+| AC-08 | 19 de 19 lotes con cabecera correcta y 0 listas en prosa | `el lote se reconoce por su ID` · `el cuerpo del lote NO lista sus tareas` | `salidas/estado.txt` · `salidas/selftest-completo.txt` | VERIFICADO |
 
 ## Tres criterios se comprueban con una **herramienta**, no con un caso de batería
 

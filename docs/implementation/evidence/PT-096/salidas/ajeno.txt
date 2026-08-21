@@ -1,0 +1,16 @@
+AJENO — el freno que impide reescribir lo que el tracker no escribio
+
+refDeEnlace devuelve null para DOS cosas distintas: un cuerpo del tracker sin enlace,
+y cualquier issue escrito por una persona. Sin distinguirlas, «repara lo mudo» seria
+una llave maestra sobre el tablero entero.
+
+Comprobado sobre issues reales que el tracker NO escribio:
+
+  #1     AJENO     Instalar cauce dentro de cauce dejaba dos binarios homónimos c
+  #7     AJENO     Cierre de la implementación `EP-001` ([#2](https://github.com/
+  #16    AJENO     Cierre de `EP-003` (#13). Dos correcciones sobre lo que la 6.0
+  #148   AJENO     **Revisión, no `G4`** (`FDGE-R19`, `EXEC-R03`). `G4` es del lo
+
+Los cuatro AJENO: uno escrito a mano y tres cuerpos de pull request.
+Ninguno se toca, y no por una lista de excepciones sino por el MARCADOR que
+cuerpoDeIssue escribe y esta funcion busca. Hay un caso que ata las dos cosas.
