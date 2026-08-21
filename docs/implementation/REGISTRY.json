@@ -2524,7 +2524,7 @@
       "severity": "S1",
       "track": "STANDARD",
       "epic": "EP-019",
-      "phase": 1,
+      "phase": 4,
       "structural": false,
       "suite_version": "11.0.0",
       "title": "Los umbrales de la certificacion: la letra se deriva o no se emite",
@@ -2545,7 +2545,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-21"
-      }
+      },
+      "issue": 194
     }
   ]
 }
