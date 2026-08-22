@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-22 · 18 allocation(es) viva(s).
+Proyectado el 2026-08-22 · 19 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -16,7 +16,7 @@ Proyectado el 2026-08-22 · 18 allocation(es) viva(s).
 | PT-098 | BUG | DONE | 8 | — | — | 25e572a |
 | PT-099 | BUG | DONE | 8 | — | — | d161bc4 |
 | PT-100 | BUG | DONE | 8 | — | — | c976c64 |
-| PT-101 | BUG | VALIDATION_PENDING | 8 | — | — | ee4d9f0 |
+| PT-101 | BUG | DONE | 8 | — | — | ee4d9f0 |
 | PT-102 | BUG | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | ee4d9f0 |
 | PT-103 | BUG | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | ee4d9f0 |
 | PT-104 | FEATURE | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | ee4d9f0 |
@@ -26,4 +26,5 @@ Proyectado el 2026-08-22 · 18 allocation(es) viva(s).
 | PT-108 | BUG | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | 965b456 |
 | PT-109 | BUG | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | 965b456 |
 | PT-110 | BUG | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | ee4d9f0 |
-| PT-111 | BUG | DRAFT | 1 | — | — | 965b456 |
+| PT-111 | BUG | DRAFT | 2 | — | — | 965b456 |
+| PT-112 | BUG | DRAFT | 1 | — | — | — |
