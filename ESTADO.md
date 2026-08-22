@@ -16,7 +16,7 @@ Proyectado el 2026-08-22 · 18 allocation(es) viva(s).
 | PT-098 | BUG | DONE | 8 | — | — | 25e572a |
 | PT-099 | BUG | DONE | 8 | — | — | d161bc4 |
 | PT-100 | BUG | DONE | 8 | — | — | c976c64 |
-| PT-101 | BUG | DRAFT | 6 | — | — | ee4d9f0 |
+| PT-101 | BUG | VALIDATION_PENDING | 7 | — | — | ee4d9f0 |
 | PT-102 | BUG | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | ee4d9f0 |
 | PT-103 | BUG | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | ee4d9f0 |
 | PT-104 | FEATURE | DONE | 8 | chore/alberto-martinez/PT-097-apertura | 965b456 | ee4d9f0 |
