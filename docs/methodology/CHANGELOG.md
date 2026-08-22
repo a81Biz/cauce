@@ -8,6 +8,40 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 12.0.1 — 2026-08-22
+
+**`PATCH` · corrige texto.** No cambia ninguna regla, ningún nombre y ninguna herramienta. Si ya
+tienes la `12.0.0`, actualizar es lo único que hay que hacer: **nada que migrar**.
+
+### Qué corrige
+
+La entrada de la `12.0.0` **omitía `SUITE-R59`** de su lista de reglas nuevas y de su guía de
+migración — una regla `HARD` nacida en `PT-101`, **dentro del propio lote que esa entrada
+describe**. El paquete publicado la lleva en `RULES.md` y en `CORE.md`, así que un proyecto
+destino la cargaba en cada sesión y no encontraba una línea que se la explicara.
+
+Se añade también `LEX-R08`, que **no es nueva**: lo que empieza en la `12.0.0` es que se
+compruebe. Su fila en `RIGE_DESDE` es lo que impide que los 51 `BUG` cerrados antes salgan en
+rojo sin salida.
+
+Y la cifra de cabecera estaba **transcrita**: decía «Doce tareas» con **diecisiete** en el
+registro. Ahora dice diez del reparto y siete que salieron de ejecutar.
+
+### Por qué llegó a npm
+
+`tools/tracker.mjs sellar` **paso 1** comprueba exactamente esto —que la guía de migración
+`ENUMERE` las reglas que entran con la versión, no que exista— y lo detectó en cuanto se ejecutó:
+
+```
+guia de migracion  2 regla(s) nueva(s) NO nombradas: LEX-R08, SUITE-R59.
+```
+
+**`.github/workflows/publicar.yml` no ejecuta `sellar` en ningún paso.** Corre ocho
+comprobaciones y ninguna es la que vigila la guía. Queda declarado y abierto: es una fila de
+`EP-020`, no se arregla en un `PATCH`.
+
+---
+
 ## 12.0.0 — 2026-08-22
 
 **Lo que tres proyectos encontraron** (`EP-019`). Diecisiete tareas: **diez** en el reparto y
