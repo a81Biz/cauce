@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 92af7b18424f -->
-<!-- fuentes: RULES.md:b00e868cefb3 LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:87bbfd5eaeff -->
+<!-- cuerpo: 81df553de149 -->
+<!-- fuentes: RULES.md:fc0c5cfea9a5 LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:e730d6b712c0 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -200,6 +200,7 @@ verifica un script y bloquea la integración.
 `SUITE-R56` **H** El rastro de una tarea sobrevive a la rama que lo produjo.
 `SUITE-R57` **H** Lo integrado no se acumula sin sellar. Si hay más de N tareas INTEGRATED de lotes ya cerrados que no están en el último tag de versión, G2 se bloquea hasta que una versión cierre. N = 3 por defecto,…
 `SUITE-R58` **H** El registro solo lo escribe el comando, y el marco lo comprueba.
+`SUITE-R59` **H** El escape que no existe no se rompe. Un patrón se escribe como regex literal; una secuencia de control se produce con String.fromCharCode; un texto largo se escribe a un archivo, nunca por la línea de…
 
 ### LEX — Nombres
 
@@ -557,6 +558,11 @@ LEE  petición o QD/H/R de origen · BACKLOG · HISTORY · ROADMAP (duplicados)
 HAZ  1 asignar PT desde REGISTRY [SUITE-R08] · monotónico, nunca reutilizado [LEX-R04]
        si no puedes escribirlo, PARA
        CON EL COMANDO, y con sus campos: --tipo --severidad --epica [SUITE-R58]
+     0 AL ESCRIBIR CODIGO O TEXTO: el escape que no existe no se rompe [SUITE-R59]
+       regex LITERAL · String.fromCharCode para un salto · texto largo a un ARCHIVO,
+       nunca por la linea de comandos. Y si construyes un patron desde una variable,
+       usa el normalizador de patrones.mjs —comoPalabra, comoLiteral, CLASE, CAR—:
+       ninguno lleva una barra invertida escrita, y lo que no se escribe no se pierde.
        escribir REGISTRY.json a mano deja la allocation sin «phase» — y sin ella
        «avanzar» no puede moverla NUNCA. Si el comando no admite lo que necesitas,
        eso es un defecto del comando: decláralo, no lo rodees en silencio.

@@ -58,7 +58,7 @@ import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from 
 import { estadoContrastado, FASES } from './tracker.mjs';
 // PT-100 · LEX-R27 · un lote se reconoce por su ID. El helper vive en patrones.mjs desde PT-096
 // y aqui quedaban SEIS sitios preguntando por «type», que el registro escribe de tres formas.
-import { esLote } from './patrones.mjs';
+import { CLASE, CAR, esLote } from './patrones.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -677,12 +677,12 @@ function checkEstado() {
     return;
   }
   const cuerpo = m[1];
-  const faltan = CAMPOS_ESTADO.filter((c) => !new RegExp('^\s*' + c + '\s*:', 'im').test(cuerpo));
+  const faltan = CAMPOS_ESTADO.filter((c) => !new RegExp('^' + CLASE.espacio + '*' + c + CLASE.espacio + '*:', 'im').test(cuerpo));
   if (faltan.length) {
     fail('SUITE-R33', `El bloque ESTADO no declara: ${faltan.join(', ')}. El orden es fijo a propósito: se lee siempre igual y por eso se lee entero.`);
   }
   const vacios = CAMPOS_ESTADO.filter((c) => {
-    const v = cuerpo.match(new RegExp('^\s*' + c + '\s*:[ \t]*(.*)$', 'im'))?.[1]?.trim();
+    const v = cuerpo.match(new RegExp('^' + CLASE.espacio + '*' + c + CLASE.espacio + '*:[ ' + CAR.TAB + ']*(.*)$', 'im'))?.[1]?.trim();
     return v !== undefined && v === '';
   });
   if (vacios.length) fail('SUITE-R33', `Campos del bloque ESTADO en blanco: ${vacios.join(', ')}. «ninguna» es una respuesta; el blanco no dice si no hay o si nadie lo escribió.`);

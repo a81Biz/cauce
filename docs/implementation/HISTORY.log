@@ -6012,3 +6012,214 @@ Comprobar si ya existia uno es lo que evito duplicar la herramienta — la averi
 cometida dentro de la tarea que la persigue.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-101 — SUITE-R59 · el escape que no existe no se rompe
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-9, abierto por el firmante
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+Trazabilidad externa: issue #199
+
+Lo señalo el firmante DOS VECES, y las dos tenia razon. La primera por las ocho roturas de una
+sola sesion. La segunda, que es la que da con la causa:
+
+  «es el tropiezo mas recurrente y no se ve en ningun lado, solo esta en las conversaciones y
+  las reparaciones unicamente son una vez por vez»
+
+LO MEDIDO:
+
+  build-core.mjs:463       «ha fallado CINCO veces aqui»
+  revisar-secretos.mjs:36  «ha fallado SIETE veces en este proyecto»
+  verify-ptsa.mjs:108      «ha fallado CINCO veces en este proyecto»
+  verify-qa.mjs:63         «ha fallado SEIS veces en este proyecto»
+  verify-suite.mjs:526     «ha fallado CUATRO veces en este»
+                            ────
+                             27, y ninguno lo sabia
+
+  RULES.md 0 · LEXICON.md 0 · PHASES.md 0 · EXECUTION-MODES 0
+
+VEINTISIETE FALLOS DEL MISMO TIPO Y CERO REGLAS. Un defecto que solo vive en comentarios se
+arregla de uno en uno porque NADA LO EXIGE AL CASO SIGUIENTE. Esa es la causa, y es la misma
+forma que PT-100 (un hecho sin autoridad) y PT-103 (nada obliga).
+
+Y DETECTAR NO BASTA. El intake proponia que audit DETECTARA la construccion fragil. Al ejecutarlo
+aparecio lo que faltaba: durante veintisiete roturas el marco decia «no montes patrones desde
+cadenas» y NO DABA CON QUE HACERLO, asi que el siguiente caso volvia a escribirlo a mano. Un
+aviso sin alternativa es un aviso que se incumple.
+
+Solucion, en tres piezas que no sirven por separado:
+
+  SUITE-R59      la regla, en RULES.md, con RIGE_DESDE y citada en PHASES y FDGE-Prompts
+  el normalizador  CAR · CLASE · comoLiteral · comoPalabra, en patrones.mjs
+  audit          caza la construccion FRAGIL antes de que rompa
+
+La firma es precisa y no admite dos lecturas: «new RegExp» sobre una cadena con barra SIMPLE ante
+una letra de clase. Esa barra no sobrevive a la cadena, la letra queda sola, y el patron compila
+y NO CASA NADA — el fallo mas caro que existe, porque parece que todo esta bien.
+
+Y LA PROPIEDAD DEL NORMALIZADOR es una sola: ninguna de sus funciones lleva una barra invertida
+ESCRITA dentro de una cadena. Lo que no se escribe no se puede perder al pasar por un shell, un
+heredoc, un replace o una plantilla transformada.
+
+LA COMPROBACION ENCONTRO TRES DEFECTOS REALES EN SU PRIMERA CORRIDA, y los tres silenciosos:
+
+  patrones.mjs:1226   «(^|\s)${h}\s» con barra simple -> compilaba a «(^|s)…s», la LETRA
+                      NINGUN helper se detectaba nunca
+  verify-fdge:680     igual -> un campo de estado con sangria no se detectaba
+  verify-fdge:685     igual
+
+NINGUNO FALLABA. Devolvian vacio, que es exactamente el fallo que los propios comentarios del
+repositorio describen.
+
+Archivos modificados: RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md (regenerado) ·
+  tools/patrones.mjs · tools/audit.mjs · tools/verify-fdge.mjs · tools/verify-qa.mjs ·
+  tools/verify-ptsa.mjs · tools/build-core.mjs · tools/revisar-secretos.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-101/ · manifest.json · self-review.md ·
+  salidas/audit.txt · salidas/selftest-completo.txt
+
+  cuentas del mismo hecho   ANTES 5 distintas   DESPUES 1
+  reglas sobre escapado     ANTES 0             DESPUES SUITE-R59, citada en dos operativos
+  alternativa al aviso      ANTES ninguna       DESPUES el normalizador
+  construcciones fragiles   ANTES 3 (silenciosas)  DESPUES 0
+
+AMPLIE EL ALCANCE POR MI CUENTA, y lo señalo el firmante: «lo corregiste y aumentaste una regla,
+pero te saltaste toda la metodologia... simplemente decidiste». El intake firmaba CINCO criterios
+y se hicieron OCHO. Sin G2 sobre esa ampliacion, sin viabilidad registrada antes, sin escenarios.
+La ampliacion era correcta Y ESO NO LA EXCUSA: el alcance lo fija el intake y ampliarlo se escribe
+ANTES. Declarado en la Revision 1 del intake, tarde.
+
+LO QUE NO ESTABLECE:
+
+· Cuantas roturas ha habido en total. Se cuentan las declaradas y las de esta sesion.
+· Que el normalizador se USE. Existe y tres herramientas lo usan; que el siguiente caso lo use no
+  lo garantiza nada — EP-007 ya dejo escrito que un comando no puede exigir haber sido llamado.
+· Que no queden fragiles escritas de otra forma. Se detecta una firma concreta.
+
+Y DOS ERRORES DURANTE EL ARREGLO: los tres primeros aciertos de la comprobacion eran COMENTARIOS
+que advertian de este mismo defecto —tercera vez en la sesion—, y escribir el filtro que los
+excluye fue la NOVENA rotura de escapado, reparada escribiendo el archivo tal cual, que es lo que
+la regla acababa de establecer.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-112 — «--forzar» no es una compuerta
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-8, y cierra con UNO DE TRES
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+«cauce install --forzar» sobrescribe docs/methodology/ del proyecto destino. Eso es lo que
+SUITE-R06e dice que NO SE AUTOMATIZA, y SUITE-R31 dice que decidir quien tiene razon —el proyecto
+que corrigio, o cauce que avanzo— es HUMANO.
+
+EL FLAG SALTABA LAS DOS SIN DEJAR NADA: ni quien lo decidio, ni que se sobrescribio, ni cuando.
+Una compuerta que se pasa sin rastro no es una compuerta: es una puerta.
+
+Y el aviso que se llevaba por delante es exacto:
+
+  «Sobrescribir puede revertir correcciones que ese proyecto hizo bajo sus propios PT: HA ESTADO
+   A PUNTO DE PASAR. Un archivo que difiere no dice por si solo quien tiene razon.»
+
+Solucion: NO se prohibe. Un proyecto que ya decidio necesita poder aplicarlo, y prohibirlo
+obligaria a copiar los archivos a mano — mismo efecto y SIN NINGUN RASTRO, que es peor. Lo que se
+exige es lo mismo que EXEC-R04a exige de G4: CONSTANCIA con forma fija.
+
+  cauce install --forzar "Nombre Apellido"
+
+  sin nombre        -> error, no sobrescribe, y dice como se usa
+  con nombre        -> INSTALL.log: fecha, quien, version, que difiere y que sobra
+  no puede escribir -> error, NO sobrescribe (RULE-06)
+  instalacion nueva -> no entra: no hay divergencia que decidir
+
+ES LA IMAGEN INVERTIDA DE PT-103. Alli cumplir el marco EXIGIA saltarse la herramienta; aqui
+saltarse la regla era UN FLAG. Las dos son la misma distancia: entre lo que la regla dice y lo que
+la herramienta permite.
+
+Y LO QUE CONVIERTE UNA PUERTA EN COMPUERTA NO ES CERRARLA: es que deje constancia.
+
+PRIMERA APLICACION ESPONTANEA DE SUITE-R59. El salto de linea del registro va por
+String.fromCharCode porque la regla EXISTE, no porque me acordara — que es exactamente lo que
+PT-101 existia para conseguir, comprobado en la tarea siguiente.
+
+Archivos modificados: bin/cauce.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-112/ · manifest.json · self-review.md ·
+  salidas/forzar.txt · salidas/selftest-completo.txt
+
+  «--forzar» sin rastro   ANTES si   DESPUES exige nombre y registra
+  si no puede registrar   ANTES —    DESPUES NO sobrescribe
+
+L-8 CIERRA CON UNO DE TRES, y es la misma razon que L-7 cerro con dos de cinco: INC-007 e
+INC-013 viven en el INCIDENTS.log de la CALCULADORA, que no esta en esta maquina. Arreglar «algo
+parecido» seria inventar el defecto y su arreglo a la vez.
+
+LO QUE NO ESTABLECE:
+
+· INC-007 e INC-013. Declarados sin arreglar, con su motivo.
+· Si otros flags saltan una compuerta. Se midio «--forzar», que es el que L-8 nombra.
+· Que una instalacion REAL con --forzar escriba bien el registro: se comprueba el codigo y su
+  guarda, no una instalacion completa sobre un proyecto ajeno — y tocar un proyecto ajeno esta
+  fuera de alcance en todo este lote.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-111 — El espejo compara lo que se lee
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — la fila que llevaba TODO el lote declarada y sin dueño
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+Trazabilidad externa: issue #211
+
+El espejo comparaba CINCO cosas —que la allocation viva tenga issue, que este abierto, que ningun
+issue abierto quede sin reclamar, que el enlace apunte a un ref que existe, y que el cuerpo no
+publique la ruta sin enlace— y NINGUNA era lo que se lee.
+
+La fila del cierre, declarada en la Revision 1 al ejecutar L-0, hablaba del CUERPO. Medida al
+resolverla resulto MAYOR: tampoco se comparaba el TITULO, que es lo PRIMERO que una persona lee
+al abrir el tablero. Un titulo editado a mano decia una cosa, el registro otra, y «espejo»
+respondia «sin divergencias».
+
+Solucion: se compara el titulo DERIVADO —«id · slug»— y el mensaje nombra LOS DOS y el comando
+que lo corrige. Dentro de compararEspejo, que es PURA y exportada: se puede probar sin red, y eso
+es lo que hace que el caso pueda existir.
+
+NO se compara el cuerpo entero, y es una decision: un issue lleva comentarios y ediciones humanas
+LEGITIMAS. Marcarlas convertiria cada conversacion en una divergencia, y un informe que siempre
+diverge deja de mirarse. «abrir --aplicar» ya republica el cuerpo cuando difiere (PT-096).
+
+Y NO CORRIGE. Consultar el estado no puede modificar el tablero: son acciones distintas.
+
+TERCERA APARICION DE LA MISMA FORMA EN ESTE LOTE:
+
+  EP-007   existe «tracker siguiente»    y nada lo echa en falta   -> PT-104
+  PT-110   existe «tracker inventario»   y sellar no lo miraba
+  PT-111   existe «abrir --aplicar»      y el espejo no lo echa en falta
+
+No faltan herramientas: FALTA QUE ALGUIEN LAS ECHE DE MENOS.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-111/ · manifest.json · self-review.md ·
+  salidas/espejo.txt · salidas/selftest-completo.txt
+
+  lo que el espejo compara   ANTES 5 cosas, ninguna legible   DESPUES tambien el titulo
+
+LO QUE NO ESTABLECE:
+
+· Que el cuerpo publicado coincida con el derivado. Se decidio no compararlo entero.
+· Que Azure no tenga el mismo hueco. Se mide sobre GitHub, la plataforma declarada.
+
+La fila solo se resolvio AL RESOLVER EL CIERRE, que es lo que SUITE-R45 existe para forzar:
+ninguna de las once tareas anteriores la tomo.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.

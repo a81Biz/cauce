@@ -33,9 +33,68 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
+
+// ── PT-101 · la construccion FRAGIL, antes de que se rompa ────────────────────
+//
+// `audit` ya caza el byte de control CUANDO YA ESTA ESCRITO: util, y POSTERIOR al daño. Esto
+// mira lo ANTERIOR — una construccion que va a romperse en cuanto pase por una capa de escapado.
+//
+// LA FIRMA es precisa y no admite dos lecturas: un `new RegExp` sobre una cadena que lleva UNA
+// sola barra invertida delante de una letra de clase. En una cadena de JavaScript esa barra no
+// sobrevive: la letra queda sola. `new RegExp` de una cadena con la barra simple ante «s» no
+// busca un espacio — busca la LETRA, y no falla: no casa nada. Un regex que no casa nada es el
+// fallo mas caro que hay, porque parece que todo esta bien.
+//
+// Con DOS barras es correcto y no se marca: la cadena guarda una barra y el regex la lee.
+//
+// Cuenta y motivo: `patrones.mjs` · ROTURAS_DE_ESCAPADO.
+const LETRAS_DE_CLASE = 'bsdwSDWB';
+const BARRA = String.fromCharCode(92);
+
+// Se EXPORTA para que un caso pueda comprobarla sin montar un arbol de metodologia entero —
+// misma forma que PT-097 uso con letraDeCertificacion. Una comprobacion que solo se puede
+// ejercer ejecutando la herramienta completa acaba sin ejercerse.
+export function fragilesEn(txt) {
+  const malas = [];
+  // Los COMENTARIOS fuera. Los tres primeros aciertos de esta comprobacion estaban dentro de
+  // comentarios que advertian de ESTE MISMO defecto — tercera vez en la sesion que un comentario
+  // rompe la comprobacion que lo acompaña. Un aviso con ruido se ignora, y entonces deja de
+  // servir para lo que se escribio.
+  //
+  // Regex LITERALES, como manda la regla que esto comprueba: escribir este mismo filtro con
+  // barras escapadas dentro de una cadena fue la NOVENA rotura de escapado de la sesion.
+  const SIN_COMENTARIO = String(txt ?? '')
+    .split(/\r?\n/)
+    .map((l) => (/^\s*(?:\/\/|\*)/.test(l) ? '' : l))
+    .join(String.fromCharCode(10));
+  for (const m of SIN_COMENTARIO.matchAll(/new RegExp\(\s*(['"`])((?:[^\\]|\\.)*?)\1/g)) {
+    const cuerpo = m[2];
+    for (let i = 0; i < cuerpo.length - 1; i += 1) {
+      if (cuerpo[i] !== BARRA) continue;
+      let barras = 0;
+      let j = i;
+      while (j >= 0 && cuerpo[j] === BARRA) { barras += 1; j -= 1; }
+      if (barras % 2 === 1 && LETRAS_DE_CLASE.includes(cuerpo[i + 1])) {
+        malas.push(BARRA + cuerpo[i + 1]);
+      }
+      i += barras - 1;
+    }
+  }
+  return [...new Set(malas)];
+}
+
 // PT-078 · ninguna regla queda sin clasificar, y estar sin clasificar es un FALLO.
 import { clasificarReglas, noVerificablesDeclaradas } from './patrones.mjs';
+
+// PT-101 · importable para probarla. `fragilesEn` se exporta, y sin esta guarda importar el
+// modulo EJECUTA la auditoria entera y sale con `process.exit` — un caso no puede llamarla.
+// Misma forma que PT-097 aplico a verify-ptsa, por el mismo motivo.
+const EJECUTADO_DIRECTO = !!process.argv[1]
+  && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
+
+if (!EJECUTADO_DIRECTO) { /* importado para probar: no se ejecuta nada */ } else {
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
 if (!existsSync(BASE)) { console.error(`No existe: ${BASE}`); process.exit(2); }
@@ -363,6 +422,18 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
   // texto de `SUITE-R38` —la regla que existe para cazar esto— tenia su propio `\b` degradado a
   // 0x08. Una regla se cita, se copia y acaba en un patron: un byte de control ahi es la misma
   // averia una capa mas arriba, y era invisible porque 0x08 no se ve al leer.
+  // PT-101 · la construccion fragil, ANTES del byte. Solo herramientas: un documento no
+  // ejecuta un regex, y marcarlo seria ruido.
+  for (const [f, txt] of tools) {
+    const fr = fragilesEn(txt ?? '');
+    if (!fr.length) { tick('herramienta'); continue; }
+    gap('herramienta', f, `${fr.length} construccion(es) fragiles: new RegExp sobre una cadena `
+      + `con barra simple ante ${fr.join(' ')}. En una cadena esa barra NO sobrevive y la letra `
+      + `queda sola: el regex compila y NO CASA NADA — el fallo mas caro, porque parece que todo `
+      + `esta bien. Usa un regex LITERAL, o duplica la barra. Cuenta y motivo en patrones.mjs `
+      + `ROTURAS_DE_ESCAPADO.`);
+  }
+
   for (const [f, txt] of [...tools, ...mds]) {
     const esDoc = f.endsWith('.md');
     const malos = [...txt].filter((c) => {
@@ -375,6 +446,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
     gap(dim, f, `${malos.length} byte(s) de control ${cods.join(' ')} en ${esDoc ? 'el texto' : 'el código'}: una secuencia de escape se perdió al editar. ${esDoc ? 'No se ve al leer, y si ese texto acaba en un patrón el patrón no casará nada.' : 'El regex compila y no casa nada — el fallo es silencioso.'} → perl -i -pe 's/\\x08//g' ${f}`);
   }
 }
+
 
 // ── 8. SUITE-R26 · cobertura mecanica por componente ────────────────────────
 // La auditoria adversaria de la 5.2.0 midio esto por primera vez y encontro QA 0/19 y FPGE
@@ -552,3 +624,5 @@ console.log(gaps.length
   ? `\n${gaps.length} hueco(s) de cobertura.`
   : `\nAuditoría sin huecos en los elementos auditados. Cobertura mecánica de reglas: ${cifra}.`);
 process.exit(gaps.length ? 1 : 0);
+
+}

@@ -210,6 +210,29 @@ export function compararEspejo(vivas, issues, todas, refExiste, refDurable) {
       if (ref && refExiste && refExiste(ref) === false) {
         div.push({ regla: 'SUITE-R56', mensaje: `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe. La rama efimera se borra al fusionar (FDGE-R19); el enlace tiene que apuntar a un ref DURABLE — la rama de integracion, o el commit. Se corrige republicando:  tracker abrir --aplicar` });
       }
+      // PT-111 · SUITE-R35 · el TITULO, que es lo primero que una persona lee.
+      //
+      // El espejo comparaba el ESTADO —abierto o cerrado— y que una allocation reclamara el
+      // issue. No comparaba lo que se LEE. Un titulo editado a mano en el tablero decia una cosa
+      // y el registro otra, y «espejo» respondia «sin divergencias».
+      //
+      // Es la misma forma que EP-007 y PT-110: existe un comando que lo corrige —«abrir
+      // --aplicar» republica el cuerpo desde PT-096— y NADA que lo eche en falta.
+      //
+      // Se compara el titulo DERIVADO, no el cuerpo entero: un issue lleva comentarios y
+      // ediciones humanas legitimas, y marcarlas seria ruido.
+      // Sin `slug` NO HAY TITULO QUE DERIVAR, y comparar contra una derivacion imposible
+      // marcaria como divergente todo lo que no lo lleve. Lo delataron TRES fixtures de la
+      // bateria que declaran «espejo exacto» sin slug: la comprobacion estaba mal, no ellos.
+      const tituloDerivado = a.slug ? `${a.id} · ${a.slug}` : null;
+      const tituloPublicado = String(porNumero.get(a.issue)?.title ?? '').trim();
+      if (tituloDerivado && tituloPublicado && tituloPublicado !== tituloDerivado) {
+        div.push({ regla: 'SUITE-R35', mensaje: `${a.id}: el titulo del issue #${a.issue} no es el `
+          + `derivado del registro. Publicado «${tituloPublicado}», derivado «${tituloDerivado}». `
+          + `Lo primero que una persona lee dice algo distinto de lo que el registro dice. `
+          + `Se corrige con «tracker abrir ${a.id} --aplicar».` });
+      }
+
       // PT-096 · SUITE-R51 · y el caso SIMETRICO, que faltaba: el cuerpo que no enlaza en absoluto.
       //
       // La guarda de arriba es «ref && …», asi que un cuerpo SIN enlace no era divergencia — y sin

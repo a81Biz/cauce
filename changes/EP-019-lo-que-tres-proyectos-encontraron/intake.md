@@ -635,3 +635,85 @@ publicado, y publicar es acto del firmante.
 - **Que los seis `INC` sin tocar sean menores.** Dos de ellos son `L-8`, que no se ejecutó.
 - **Que el marco funcione en un proyecto ajeno.** Es exactamente lo que la fila del cuarto
   proyecto existe para comprobar, y sigue sin comprobarse.
+
+
+---
+
+## Revisión 5 — 2026-08-22 · el reparto, completo
+> `SUITE-R09` · append-only. `L-0` a `L-9` tienen dueño y estado. Dos cierran **parcialmente**, y
+> se dice cuál es la parte que no se hizo y por qué.
+
+### El reparto
+
+| | Qué | Quién | Estado |
+|:---|:---|:---|:---|
+| `L-0` | un enlace que falta no es un enlace roto | `PT-096` | **HECHO** |
+| `L-1` | el estado terminal se deriva del árbol | `PT-098` | **HECHO** |
+| `L-2` | la transición de un `BUG` la aplica el comando | `PT-099` | **HECHO** |
+| `L-3` | un hecho, un nombre | `PT-100` | **HECHO** |
+| `L-4` | la versión es un contenido | `PT-102` | **HECHO** |
+| `L-5` | `RIGE_DESDE` se deriva del árbol | `PT-106` | **HECHO** · diecinueve, no 151 |
+| `L-6` | los umbrales de la certificación | `PT-097` | **HECHO** |
+| `L-7` | cinco defectos de forma | `PT-109` | **PARCIAL** · dos de cinco |
+| `L-8` | lo que una compuerta no puede exigir | `PT-112` | **PARCIAL** · uno de tres |
+| `L-9` | el escapado que no existe no se rompe | `PT-101` | **HECHO** · `SUITE-R59` |
+
+### Las que salieron de ejecutar, no de planificar
+
+```
+PT-103   el registro solo lo escribe el comando       señalado por el firmante
+PT-104   el tablero dice en que paso estas            señalado por el firmante
+PT-105   el estado que una compuerta exige            de APLICAR PT-103
+PT-107   el registro no se reescribe entero      S0   de PERDER PT-106
+PT-108   la tercera forma de declarar la version      de SELLAR
+PT-110   sellar mide lo que exige                     de la SEPTIMA caida de FND-R14
+PT-111   el espejo compara lo que se lee              de RESOLVER EL CIERRE
+```
+
+**Siete de catorce.** La mitad del lote no estaba en el reparto.
+
+### Las dos partes que NO se hicieron, y por qué
+
+**Cinco de los quince `INC` no tienen descripción accesible.** `INC-003`, `INC-005`, `INC-007`,
+`INC-013` e `INC-014` viven en el `INCIDENTS.log` de la calculadora, que **no está en esta
+máquina**:
+
+```
+$ find /c/DevOps/Desarrollos -maxdepth 3 -name "INCIDENTS.log" -not -path "*/cauce/*"
+(sin resultados)
+```
+
+Arreglar «algo parecido» sería **inventar el defecto y su arreglo a la vez** — exactamente lo que
+este lote persigue.
+
+**Y la fila del cuarto proyecto desde npm sigue sin hacer**: el paquete publicado es la `11.0.0`,
+que es el marco **anterior** a este lote. Se resuelve cuando exista un paquete `12.0.0`, y
+publicar es acto del firmante.
+
+### La forma que más se repitió
+
+```
+EP-007   existe «tracker siguiente»    y nada lo echa en falta    -> PT-104
+PT-110   existe «tracker inventario»   y sellar no lo miraba
+PT-111   existe «abrir --aplicar»      y el espejo no lo echa en falta
+```
+
+**Tres veces la misma distancia.** No faltaban herramientas: **faltaba que algo las echara de
+menos**.
+
+### Y la que el firmante nombró tres veces
+
+| Señalamiento | Medido | Salió |
+|:---|:---|:---|
+| el grafo no se usa | `SUSPECT` seis tareas, declarado seis veces, usado **cero** | dio el diagnóstico de `PT-102` |
+| problemas con los escapes | **27** roturas, en **cinco** comentarios sin sumar, **cero** reglas | `PT-101` · `SUITE-R59` |
+| nada te obliga a seguir el marco | `asignar` escribía **4 campos de 9** | `PT-103` → `PT-105` → `PT-107` |
+
+**Los tres eran ciertos y ninguna herramienta los tenía.**
+
+### Lo que este cierre NO establece
+
+- **Que el marco funcione en un proyecto ajeno.** Es lo que la fila del cuarto proyecto existe
+  para comprobar, y sigue sin comprobarse.
+- **Que las cinco `INC` sin acceso sean menores.** No lo sé: no las he leído.
+- **Que `PT-104` cambie la conducta del agente.** No es comprobable y no se afirma.

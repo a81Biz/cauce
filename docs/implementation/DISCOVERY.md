@@ -64,7 +64,7 @@
 | PT-098 | BUG | S1 | DONE | EP-019 | El estado terminal se deriva del arbol, no se escribe al avanzar |
 | PT-099 | BUG | S1 | DONE | EP-019 | La transicion de un BUG la aplica el comando, no la memoria |
 | PT-100 | BUG | S1 | DONE | EP-019 | Un hecho, un nombre: las grafias que deciden si una verificacion corre |
-| PT-101 | BUG | S2 | DRAFT | EP-019 | El escapado que no existe no se rompe: normalizar en vez de advertir |
+| PT-101 | BUG | S2 | DONE | EP-019 | El escapado que no existe no se rompe: normalizar en vez de advertir |
 | PT-102 | BUG | S1 | DONE | EP-019 | La version es un contenido, no un numero: version.mjs dice «todo declara 11.0.0» y hay tres muertas |
 | PT-103 | BUG | S1 | DONE | EP-019 | El registro solo lo escribe el comando, y nada lo comprueba |
 | PT-105 | BUG | S1 | DONE | EP-019 | El estado que una compuerta exige lo escribe un comando, o la compuerta es incumplible |
@@ -73,3 +73,5 @@
 | PT-108 | BUG | S2 | DONE | EP-019 | La version del REGISTRO tambien es un contenido: version.mjs no mira REGISTRY.json |
 | PT-109 | BUG | S2 | DONE | EP-019 | Una compuerta no es una revision sorpresa, y una mencion no es una declaracion |
 | PT-110 | BUG | S2 | DONE | EP-019 | Sellar mide lo que exige: el inventario no estaba en la lista |
+| PT-111 | BUG | S2 | DONE | EP-019 | El espejo compara lo que se lee: un titulo divergente no lo ve nadie |
+| PT-112 | BUG | S1 | DONE | EP-019 | «--forzar» no es una compuerta: sobrescribe el marco sin dejar constancia |

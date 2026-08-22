@@ -2060,6 +2060,101 @@ chkno "…ni por su negacion"                                "type !== .EP." cat
 
 
 
+
+
+
+# ── PT-111 · SUITE-R35 · el espejo compara lo que se lee ──────────────────────────────────────
+#
+# Fila del ## Cierre del lote declarada en la Revision 1 y SIN DUEÑO todo el lote. Medida al
+# resolverla, resulto MAYOR de lo que decia: la fila hablaba del CUERPO, y el espejo tampoco
+# comparaba el TITULO — que es lo primero que una persona lee al abrir el tablero.
+#
+# Es la misma forma que EP-007 y PT-110: existe un comando que lo corrige —«abrir --aplicar»
+# republica el cuerpo desde PT-096— y NADA que lo eche en falta.
+esp111() { # $1 nombre · $2 lo que debe salir · $3 el titulo publicado
+  mlib "$1" "$2" "$SUITE/tools/tracker.mjs" \
+    "const a={id:'PT-999',slug:'un-slug',status:'DRAFT',issue:7};
+     const iss=[{number:7,title:process.env.MTH_TIT}];
+     const d=m.compararEspejo([a],iss,[a],()=>true,()=>null).filter(x=>/titulo/.test(x.mensaje));
+     console.log(d.length?'DIVERGE':'IGUAL');"
+}
+MTH_TIT="otra cosa editada a mano" esp111 "el espejo caza un titulo divergente"  "DIVERGE"
+# El NEGATIVO: el titulo derivado NO se marca. Sin esto, el espejo diria que todo diverge y
+# dejaria de significar nada — que es como se deja de mirar un informe.
+MTH_TIT="PT-999 · un-slug"        esp111 "…y NO marca el titulo correcto"        "IGUAL"
+# Y NO se compara el cuerpo entero: un issue lleva comentarios y ediciones humanas legitimas.
+# Marcarlas convertiria cada conversacion en una divergencia.
+chk "…y el mensaje dice con que comando se corrige"  "abrir .* --aplicar" \
+  cat "$SUITE/tools/tracker.mjs"
+# ── PT-112 · L-8 · «--forzar» no es una compuerta ─────────────────────────────────────────────
+#
+# Sobrescribir docs/methodology/ es lo que SUITE-R06e dice que NO SE AUTOMATIZA, y SUITE-R31 dice
+# que decidir quien tiene razon —el proyecto que corrigio, o cauce que avanzo— es HUMANO.
+#
+# «--forzar» saltaba las dos SIN DEJAR NADA: ni quien lo decidio, ni que se sobrescribio, ni
+# cuando. Una compuerta que se pasa sin rastro no es una compuerta: es una puerta.
+#
+# NO se prohibe —un proyecto que ya decidio necesita poder aplicarlo—. Se exige lo mismo que
+# EXEC-R04a exige de G4: CONSTANCIA, y con forma fija.
+chk   "«--forzar» pide quien lo decide"  "quien lo decidio\|SUITE-R06e" cat "$RAIZ/bin/cauce.mjs"
+chk   "…y deja constancia en INSTALL.log"  "INSTALL.log" cat "$RAIZ/bin/cauce.mjs"
+# RULE-06 · si no se puede registrar, NO se sobrescribe. Sobrescribir sin poder dejar rastro es
+# exactamente lo que esto impide, y callarlo seria peor que no comprobarlo.
+chk   "…y si no puede registrarlo, NO sobrescribe"  "No se pudo escribir la constancia" cat "$RAIZ/bin/cauce.mjs"
+# SUITE-R59 · el salto va por codigo, no escapado. La regla que PT-101 acaba de crear, aplicada
+# en la tarea siguiente: es la primera vez que se usa sin que nadie la recuerde a mano.
+chk   "…y el salto se escribe por codigo, no escapado"  "String.fromCharCode(10)" cat "$RAIZ/bin/cauce.mjs"
+# ── PT-101 · SUITE-R59 · el escape que no existe no se rompe ──────────────────────────────────
+#
+# Lo señalo el firmante DOS veces: primero por las ocho roturas de una sesion, y despues porque
+# los arreglos eran «de uno en uno». Tenia razon las dos veces. El marco llevaba la cuenta en
+# comentarios de CINCO archivos —«cinco», «siete», «cinco», «seis», «cuatro»— sin que ninguno
+# sumara: VEINTISIETE roturas y CERO reglas, ni en RULES, ni en LEXICON, ni en PHASES.
+#
+# Un defecto que solo vive en comentarios se arregla de uno en uno, porque NADA LO EXIGE AL CASO
+# SIGUIENTE. Esa es la causa; detectar el sintoma no la toca.
+chk   "la cuenta de roturas vive en UN sitio"   "ROTURAS_DE_ESCAPADO" cat "$SUITE/tools/patrones.mjs"
+chk   "…y SUITE-R59 la convierte en regla"      "SUITE-R59" cat "$SUITE/RULES.md"
+chk   "…citada donde se escribe codigo"         "SUITE-R59" cat "$SUITE/PHASES.md"
+# Y NO juzga lo escrito antes: hay veintisiete construcciones anteriores a la regla, y SUITE-R09
+# no retrofecha (PT-095, PT-106).
+mlib  "…y no juzga lo escrito antes de la regla"  "12.0.0"  "$SUITE/tools/patrones.mjs" \
+  "const v=m.RIGE_DESDE['SUITE-R59']; console.log(v?v.join('.'):'SIN FILA');"
+
+# EL NORMALIZADOR es la mitad que faltaba. Durante veintisiete roturas el marco decia «no montes
+# patrones desde cadenas» y NO DABA CON QUE HACERLO, asi que el siguiente caso volvia a
+# escribirlo a mano. Su unica propiedad: ninguna funcion lleva una barra invertida ESCRITA dentro
+# de una cadena — lo que no se escribe no se puede perder al pasar por un shell o un replace.
+mlib  "comoPalabra casa la palabra suelta"  "CASA"  "$SUITE/tools/patrones.mjs" \
+  "console.log(m.comoPalabra('chk').test('una linea con chk dentro')?'CASA':'NO CASA');"
+mlib  "…y NO casa un trozo de otra palabra"  "NO CASA"  "$SUITE/tools/patrones.mjs" \
+  "console.log(m.comoPalabra('chk').test('chkno')?'CASA':'NO CASA');"
+mlib  "comoLiteral busca el texto TAL CUAL"  "LITERAL"  "$SUITE/tools/patrones.mjs" \
+  "const r=new RegExp(m.comoLiteral('a.b'));
+   console.log(r.test('a.b') && !r.test('axb') ? 'LITERAL':'MAL');"
+
+# audit caza la construccion fragil ANTES de que rompa. La firma es precisa: una barra SIMPLE
+# ante una letra de clase no sobrevive a la cadena y la letra queda sola — el patron compila y NO
+# CASA NADA, que es el fallo mas caro porque parece que todo esta bien.
+mlib  "audit caza la construccion fragil"  "FRAGIL"  "$SUITE/tools/audit.mjs" \
+  "const B=String.fromCharCode(92), Q=String.fromCharCode(39);
+   console.log(m.fragilesEn('new RegExp('+Q+'^'+B+'s*x'+Q+')').length?'FRAGIL':'NO LA VE');"
+# El NEGATIVO: con la barra DOBLE es correcto y NO se marca. Sin esto el aviso se pegaria a todo
+# uso legitimo de new RegExp y dejaria de significar nada — que es como un aviso se vuelve ruido.
+mlib  "…y NO marca la barra doble, que es correcta"  "LIMPIO"  "$SUITE/tools/audit.mjs" \
+  "const B=String.fromCharCode(92), Q=String.fromCharCode(39);
+   console.log(m.fragilesEn('new RegExp('+Q+'^'+B+B+'s*x'+Q+')').length?'MARCA':'LIMPIO');"
+# Ni lo que aparece en un COMENTARIO: los tres primeros aciertos de esta comprobacion estaban
+# dentro de comentarios que advertian de ESTE MISMO defecto.
+mlib  "…ni lo que solo aparece en un comentario"  "LIMPIO"  "$SUITE/tools/audit.mjs" \
+  "const B=String.fromCharCode(92), Q=String.fromCharCode(39);
+   const t='// ejemplo: new RegExp('+Q+'^'+B+'s*x'+Q+')';
+   console.log(m.fragilesEn(t).length?'MARCA':'LIMPIO');"
+# Y el arbol real quedo limpio: las TRES que encontro en su primera corrida eran defectos REALES
+# y silenciosos — patrones.mjs no detectaba NINGUN helper, y verify-fdge no veia un campo de
+# estado con sangria. Ninguna fallaba: devolvian vacio.
+chkno "el arbol real no tiene ninguna construccion fragil"  "construccion(es) fragiles" \
+  node "$SUITE/tools/audit.mjs" "$SUITE"
 # ── PT-108 · la version del REGISTRO tambien es un contenido ──────────────────────────────────
 #
 # Encontrado AL SELLAR la 12.0.0: version.mjs alineo los veintiun documentos y el CLAUDE.md, dijo

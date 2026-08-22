@@ -146,6 +146,11 @@ LEE  petición o QD/H/R de origen · BACKLOG · HISTORY · ROADMAP (duplicados)
 HAZ  1 asignar PT desde REGISTRY [SUITE-R08] · monotónico, nunca reutilizado [LEX-R04]
        si no puedes escribirlo, PARA
        CON EL COMANDO, y con sus campos: --tipo --severidad --epica [SUITE-R58]
+     0 AL ESCRIBIR CODIGO O TEXTO: el escape que no existe no se rompe [SUITE-R59]
+       regex LITERAL · String.fromCharCode para un salto · texto largo a un ARCHIVO,
+       nunca por la linea de comandos. Y si construyes un patron desde una variable,
+       usa el normalizador de patrones.mjs —comoPalabra, comoLiteral, CLASE, CAR—:
+       ninguno lleva una barra invertida escrita, y lo que no se escribe no se pierde.
        escribir REGISTRY.json a mano deja la allocation sin «phase» — y sin ella
        «avanzar» no puede moverla NUNCA. Si el comando no admite lo que necesitas,
        eso es un defecto del comando: decláralo, no lo rodees en silencio.

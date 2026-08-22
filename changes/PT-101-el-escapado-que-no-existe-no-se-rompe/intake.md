@@ -7,8 +7,8 @@ type: BUG
 severity: S2
 complexity:
 track: STANDARD
-status: DRAFT
-phase: 1
+status: DONE
+phase: 8
 created: 2026-08-21
 origin: DIRECT
 epic: EP-019
@@ -257,3 +257,96 @@ Firmado por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
 ## Revisiones
 
 > Append-only una vez firmado (`SUITE-R09`).
+
+
+---
+
+## Revisión 1 — 2026-08-22 · el alcance se amplió, y se declara tarde
+> `SUITE-R09` · append-only. Esta revisión **no reescribe** el intake: dice qué se hizo **fuera**
+> de lo que firmó y por qué, que es lo que debió escribirse **antes**.
+
+### Lo que pasó, sin adornos
+
+El intake firmado declara cinco criterios: **centralizar la cuenta**, que `audit` detecte la
+construcción frágil, que el mensaje diga qué hacer, `RIGE_DESDE`, y que la batería falle sin el
+arreglo.
+
+**Se hizo eso y además dos cosas que no estaban:**
+
+1. **`SUITE-R59`**, una regla `HARD` nueva.
+2. **Un normalizador** en `patrones.mjs` —`comoPalabra`, `comoLiteral`, `CLASE`, `CAR`— y tres
+   herramientas cambiadas para usarlo.
+
+**Lo decidí sobre la marcha.** No hubo `G2` sobre ese alcance, ni viabilidad registrada antes de
+empezar, ni escenarios escritos. Lo señaló el firmante:
+
+> «lo corregiste y aumentaste una regla, pero te saltaste toda la metodología, no tiene `PT` que
+> indique alcance, ni costes, ni pruebas… simplemente decidiste»
+
+### Por qué la ampliación es correcta, y por qué eso no la excusa
+
+El intake mide bien el defecto —veintisiete roturas contadas en cinco comentarios sin sumar— y
+propone **detectarlo**. Al ejecutarlo apareció lo que el intake no vio: **la regla no existe como
+regla**.
+
+```
+RULES.md         0 reglas sobre escapado
+LEXICON.md       0
+PHASES.md        0
+EXECUTION-MODES  0
+comentarios      27 roturas, 5 cuentas distintas
+```
+
+Un defecto que solo vive en comentarios **se arregla de uno en uno**, porque nada lo exige al caso
+siguiente. Eso es lo que el firmante venía diciendo, y es la causa — no el síntoma.
+
+**Y detectar sin ofrecer alternativa repite el error.** Durante veintisiete roturas el marco decía
+«no montes patrones desde cadenas» y **no daba con qué hacerlo**. Por eso el normalizador.
+
+**Nada de esto justifica haberlo decidido sin declararlo.** El alcance de una tarea lo fija su
+intake, y ampliarlo es una decisión que se escribe **antes**, no una que se cuenta después. Es la
+misma avería que `PT-103` describe —cumplir el marco exigiendo saltárselo— cometida por elección,
+no por falta de herramienta.
+
+### Criterios que se añaden, y que estaban sin declarar
+
+```
+AC-06: SUITE-R59 existe en RULES.md, con RIGE_DESDE, y la citan PHASES y FDGE-Prompts —
+       una regla que solo vive en el codigo no la ve quien trabaja en MANUAL (lo exigio
+       audit en PT-100 y vale igual aqui).
+
+AC-07: el normalizador existe y NINGUNA de sus funciones lleva una barra invertida escrita
+       dentro de una cadena. Esa es su unica propiedad y es la que importa: lo que no se
+       escribe no se puede perder al pasar por un shell, un heredoc o un replace.
+
+AC-08: las tres construcciones fragiles encontradas quedan arregladas, y son defectos
+       REALES con efecto medido, no higiene.
+```
+
+### Lo que la comprobación encontró en su primera corrida
+
+Tres construcciones frágiles, **todas silenciosas**:
+
+| Dónde | Qué hacía |
+|:---|:---|
+| `patrones.mjs:1226` | `(^|\s)${h}\s` con barra simple → compila a `(^|s)…s` · **ningún helper se detectaba nunca** |
+| `verify-fdge:680` | igual → un campo de estado con sangría **no se detectaba** |
+| `verify-fdge:685` | igual |
+
+**Ninguna fallaba.** Devolvían vacío, que es el fallo que el propio repositorio describe en sus
+comentarios: «el regex compila y no casa nada — el fallo es silencioso».
+
+### Y dos errores míos durante el arreglo
+
+- **Los tres primeros aciertos de la comprobación eran comentarios** que advertían de este mismo
+  defecto. Tercera vez en la sesión que mis comentarios rompen mi comprobación.
+- **Escribir el filtro que los excluye fue la novena rotura de escapado** de la sesión: los saltos
+  escapados se convirtieron en saltos reales al pasar por una transformación. Se reescribió sin
+  transformar nada.
+
+### Lo que esta revisión NO establece
+
+- **Que no queden más construcciones frágiles de otra forma.** Se detecta `new RegExp` sobre una
+  cadena con barra simple ante una letra de clase. Una escrita de otro modo no aparecería.
+- **Que el normalizador se use.** Existe y tres herramientas lo usan; que el siguiente caso lo use
+  no lo garantiza nada — lo mismo que `EP-007` dejó escrito sobre los comandos.

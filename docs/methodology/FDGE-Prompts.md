@@ -239,6 +239,16 @@ node docs/methodology/tools/tracker.mjs pendiente PT-NNN
 **`SUITE-R42`: el agente no abre el PR ni lo fusiona.** Comprueba que exista. Abrirlo se
 describe (`EXEC-R07`); fusionarlo es humano en los tres modos (`EXEC-R04`).
 
+**El escape que no existe no se rompe** (`SUITE-R59`). Un patrón se escribe como **regex
+literal**; un salto de línea con `String.fromCharCode(10)`; un texto largo **a un archivo**, nunca
+por la línea de comandos. Si construyes un patrón desde una variable, usa el normalizador de
+`patrones.mjs` —`comoPalabra`, `comoLiteral`, `CLASE`, `CAR`—: **ninguno lleva una barra invertida
+escrita dentro de una cadena**, y lo que no se escribe no se puede perder al pasar por un shell,
+un heredoc o un `replace`.
+
+`new RegExp` sobre una cadena con barra **simple** ante una letra de clase está prohibido: compila
+y **no casa nada**. `audit` lo detecta antes de que se rompa.
+
 **La allocation nace completa, y del comando** (`SUITE-R58`). `tracker asignar` acepta
 `--tipo`, `--severidad`, `--epica` y `--titulo`, y escribe siempre `phase: 1`. Escribir
 `REGISTRY.json` a mano deja la tarea sin `phase` —y sin ella `avanzar` no puede moverla

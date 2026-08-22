@@ -61,7 +61,8 @@ const rd = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : null);
 const lineas = (t) => t.split(/\r?\n/);
 
 // Regex LITERALES, nunca construidos con new RegExp: montar patrones desde strings ha fallado
-// seis veces en este proyecto (\b se convierte en 0x08 y \s en «s» segun la capa de escapado).
+// muchas veces — la cuenta vive en patrones.mjs · ROTURAS_DE_ESCAPADO (PT-101).
+// El motivo: \b se convierte en 0x08 y \s en «s» segun la capa de escapado.
 const RE_VEREDICTO_G = /^\s*(?:resultado|veredicto|status)\s*:\s*(.+)$/gim;
 // PT-100 · INC-012 · LEX-R28 · UN vocabulario para el tipo de un caso QA.
 //

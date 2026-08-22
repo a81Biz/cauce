@@ -1,0 +1,101 @@
+{
+  "pt": "PT-111",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El espejo reporta un titulo divergente",
+      "tests": [
+        "selftest.sh:el espejo caza un titulo divergente"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "La fila del cierre llevaba TODO el lote sin dueño y hablaba del CUERPO. Medida, resulto mayor: el espejo tampoco comparaba el TITULO — lo primero que una persona lee al abrir el tablero."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "NO marca el titulo correcto",
+      "tests": [
+        "selftest.sh:…y NO marca el titulo correcto"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "Es el que da valor a AC-01: sin el, marcar todo como divergente tambien «cazaria» el titulo editado, y el informe dejaria de significar nada. Y hubo un tercer negativo que NO habia previsto y lo delataron TRES fixtures de la bateria: SIN «slug» no hay titulo que derivar, y comparar contra una derivacion imposible marcaba como divergente todo lo que no lo llevara. La comprobacion estaba mal, no los fixtures."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "No corrige: solo reporta",
+      "tests": [
+        "por construccion: compararEspejo es pura"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "«abrir --aplicar» ya republica desde PT-096. Consultar el estado no puede modificar el tablero."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Un comentario humano no cuenta como divergencia",
+      "tests": [
+        "por construccion: no se compara el cuerpo"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "Un issue lleva comentarios y ediciones humanas LEGITIMAS. Compararlo caracter a caracter convertiria cada conversacion en una divergencia, y un informe que siempre diverge deja de mirarse."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "los tres casos"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Sobre compararEspejo, que es PURA: sin red y sin tablero. Es lo que hace que el caso pueda existir."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el cuerpo publicado coincida con el derivado.",
+      "por_que": "Se decidio NO compararlo entero: los comentarios humanos son legitimos. «abrir --aplicar» ya lo republica cuando difiere (PT-096).",
+      "donde": "changes/PT-111-el-espejo-compara-lo-que-se-lee/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que Azure no tenga el mismo hueco.",
+      "por_que": "Se mide sobre GitHub, que es la plataforma declarada. Azure queda declarado y sin medir.",
+      "donde": "changes/PT-111-el-espejo-compara-lo-que-se-lee/discovery.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi comprobacion marcaba como divergente lo que no podia derivar.",
+      "regla": "RULE-06",
+      "detalle": "Sin «slug» el titulo derivado no existe, y yo lo construia igual —«PT-NNN ·»— y lo comparaba. TRES fixtures que declaran «espejo exacto» sin slug se pusieron rojos, y mi primer impulso fue ARREGLAR EL FIXTURE: cambie uno para que llevara el titulo que mi comprobacion esperaba. Eso es fabricar un verde. Los otros dos me obligaron a mirar la comprobacion, que es donde estaba el defecto: lo que no se puede derivar no se compara, se omite. El fixture que habia tocado quedo restaurado."
+    },
+    {
+      "que": "La fila llevaba todo el lote declarada y sin dueño.",
+      "regla": "SUITE-R45",
+      "detalle": "Aparecio en la Revision 1 del cierre, salio de ejecutar L-0, y ninguna de las once tareas la tomo. Solo se resolvio al RESOLVER EL CIERRE, que es lo que SUITE-R45 existe para forzar."
+    },
+    {
+      "que": "Tercera aparicion de la misma forma en el lote.",
+      "regla": "—",
+      "detalle": "EP-007 dejo «tracker siguiente» sin que nada lo eche en falta -> PT-104. PT-110 encontro que sellar no miraba el inventario. Y aqui: «abrir --aplicar» corrige el cuerpo y el espejo no lo echa en falta. No faltan herramientas: falta que alguien las eche de menos."
+    }
+  ],
+  "suite": {
+    "passed": 1372,
+    "failed": 0,
+    "baseline": 1365,
+    "nota": "Tres casos propios, uno de ellos negativo."
+  }
+}

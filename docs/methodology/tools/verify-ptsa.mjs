@@ -105,7 +105,8 @@ if (!existsSync(join(P, 'RESUMEN.md')) && !existsSync(join(P, 'Products'))) {
 const VERDICTOS = ['PASS', 'FAIL', 'NO_APLICA', 'NO_EVALUADA'];
 const DIMS = ['D1', 'D2', 'D3', 'D4'];
 const findDirPre = join(P, 'Findings');
-// Regex LITERALES: montarlos desde strings ha fallado cinco veces en este proyecto.
+// Regex LITERALES: montarlos desde strings ha fallado muchas veces.
+// La cuenta vive en patrones.mjs · ROTURAS_DE_ESCAPADO (PT-101, SUITE-R38).
 const RE_SEC_NO_EVALUADA = /^#{1,4}.*NO_EVALUADA/im;
 const RE_SEC_NO_APLICA = /^#{1,4}.*NO_APLICA/im;
 const RE_ENCABEZADO = /^#{1,4}\s/m;

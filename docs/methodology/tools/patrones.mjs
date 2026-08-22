@@ -133,6 +133,7 @@ export const RIGE_DESDE = {
   // que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez.
   'LEX-R08': [12, 0, 0],
   'SUITE-R58': [12, 0, 0],
+  'SUITE-R59': [12, 0, 0],
 
   // ── PT-106 · las veinte que EMPEZARON A JUZGAR despues del primer commit ──
   //
@@ -663,6 +664,110 @@ export function sesionesUnicas(marcas) {
   return [...porPersona.values()];
 }
 
+
+/**
+ * PT-101 · EL ESCAPE QUE NO EXISTE NO SE ROMPE.
+ *
+ * Lo señalo el firmante tras OCHO roturas en una sola sesion. Y el marco YA LO SABIA: llevaba la
+ * cuenta en comentarios de CINCO archivos, cada uno con su cifra, y NINGUNO sumaba.
+ *
+ *   build-core.mjs:463      «ha fallado CINCO veces aqui»
+ *   revisar-secretos.mjs:36 «ha fallado SIETE veces en este proyecto»
+ *   verify-ptsa.mjs:108     «ha fallado CINCO veces en este proyecto»
+ *   verify-qa.mjs:63        «ha fallado SEIS veces en este proyecto»
+ *   verify-suite.mjs:526    «ha fallado CUATRO veces en este»
+ *
+ * Cinco cuentas del MISMO hecho, ninguna correcta. Es SUITE-R38 aplicado a una cifra, y estaba
+ * ocurriendo DENTRO de los comentarios que avisan de otro defecto.
+ *
+ * Aqui vive la cuenta. Los cinco comentarios la CITAN en vez de llevar cada uno la suya.
+ *
+ * LA REGLA, que es lo unico que ha funcionado: EL ESCAPE QUE NO EXISTE NO SE ROMPE.
+ *   · regex LITERALES, nunca `new RegExp` sobre una cadena
+ *   · `String.fromCharCode(10)` en vez de un salto escapado
+ *   · texto largo por un archivo, no por la linea de comandos
+ *
+ * Y `audit` caza el byte 0x08 CUANDO YA ESTA ESCRITO: util, y POSTERIOR al daño.
+ */
+export const ROTURAS_DE_ESCAPADO = {
+  contadas: 27,
+  donde: ['build-core.mjs', 'revisar-secretos.mjs', 'verify-ptsa.mjs', 'verify-qa.mjs',
+          'verify-suite.mjs'],
+  nota: 'La suma de las cinco cuentas dispersas (5+7+5+6+4), mas las OCHO de la sesion de EP-019 '
+      + 'que ninguna cazo: rompieron en la VIA —heredocs, replace de python, plantillas de texto '
+      + 'transformadas— y no en el destino. El marco protegia el archivo y no el camino.',
+};
+
+
+/**
+ * PT-101 · SUITE-R59 · EL NORMALIZADOR. Lo que hace innecesario escribir un escape.
+ *
+ * La regla dice qué no hacer. Esto da con qué hacerlo, que es lo que faltaba: durante veintisiete
+ * roturas el marco tenía el aviso y **no tenía la alternativa**, así que cada arreglo era de uno
+ * en uno y el siguiente caso volvía a escribirlo a mano.
+ *
+ * Ninguna de estas funciones lleva una barra invertida dentro de una cadena. Esa es la única
+ * propiedad que importa: lo que no está escrito no se puede perder al pasar por una capa de
+ * escapado —un shell, un heredoc, un `replace`, una plantilla transformada—.
+ */
+
+/** Los caracteres que se escriben por código, nunca escapados. */
+export const CAR = {
+  SALTO: String.fromCharCode(10),
+  RETORNO: String.fromCharCode(13),
+  TAB: String.fromCharCode(9),
+  BARRA: String.fromCharCode(92),
+  COMILLA: String.fromCharCode(39),
+  BACKTICK: String.fromCharCode(96),
+};
+
+/** Las clases de un regex, como texto, sin escribir la barra. */
+export const CLASE = {
+  espacio: CAR.BARRA + 's',
+  noEspacio: CAR.BARRA + 'S',
+  digito: CAR.BARRA + 'd',
+  noDigito: CAR.BARRA + 'D',
+  palabra: CAR.BARRA + 'w',
+  noPalabra: CAR.BARRA + 'W',
+  limite: CAR.BARRA + 'b',
+  salto: CAR.BARRA + 'n',
+};
+
+/**
+ * Escapa un texto para meterlo LITERAL dentro de un regex.
+ *
+ * Es lo que casi siempre se quiere cuando se construye un patrón desde una variable: buscar ese
+ * texto, no interpretarlo. Escribirlo a mano es donde nacieron la mayoría de las veintisiete.
+ */
+export function comoLiteral(texto) {
+  let salida = '';
+  const ESPECIALES = '.*+?^${}()|[]' + CAR.BARRA;
+  for (const c of String(texto ?? '')) {
+    salida += ESPECIALES.includes(c) ? CAR.BARRA + c : c;
+  }
+  return salida;
+}
+
+/**
+ * Un regex que busca `texto` como palabra suelta.
+ *
+ * Sustituye a `new RegExp('\\b' + x + '\\b')`, que es la construcción que más veces se ha roto
+ * en este repositorio: con la barra simple compila a la LETRA `b` y no casa nunca.
+ */
+export function comoPalabra(texto, banderas) {
+  return new RegExp(CLASE.limite + comoLiteral(texto) + CLASE.limite, banderas ?? '');
+}
+
+/** Divide por líneas sin depender de cómo se escribieron los saltos. */
+export function porLineas(texto) {
+  return String(texto ?? '').split(new RegExp(CAR.BARRA + 'r?' + CAR.BARRA + 'n'));
+}
+
+/** Une líneas con un salto real. */
+export function enLineas(lineas) {
+  return (lineas ?? []).join(CAR.SALTO);
+}
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
@@ -1189,7 +1294,11 @@ export function seccionesDelArnes(texto) {
     const tools = new Set();
     for (const m of cuerpo.matchAll(/tools\/([a-z-]+\.(?:mjs|sh))/g)) tools.add(m[1]);
     for (const [h, t] of Object.entries(HELPERS_A_HERRAMIENTA)) {
-      if (new RegExp(`(^|\s)${h}\s`, 'm').test(cuerpo)) tools.add(t);
+      // PT-101 · la barra era SIMPLE y no sobrevivia a la cadena: el patron compilaba a
+      // «(^|s)<helper>s» —la LETRA s— y NO CASABA NUNCA. Ningun helper se detectaba, y no
+      // fallaba nada: devolvia una lista vacia. Lo encontro audit en su PRIMERA corrida con
+      // la comprobacion de construcciones fragiles que esta misma tarea añadio.
+      if (new RegExp(`(^|\\s)${h}\\s`, 'm').test(cuerpo)) tools.add(t);
     }
     return { titulo: s.titulo, herramientas: [...tools].sort() };
   });

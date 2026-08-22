@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 111,
+    "PT": 112,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2652,12 +2652,12 @@
       "id": "PT-101",
       "slug": "el-escapado-que-no-existe-no-se-rompe",
       "created": "2026-08-21",
-      "status": "DRAFT",
+      "status": "DONE",
       "type": "BUG",
       "severity": "S2",
       "track": "STANDARD",
       "epic": "EP-019",
-      "phase": 1,
+      "phase": 8,
       "structural": false,
       "suite_version": "11.0.0",
       "title": "El escapado que no existe no se rompe: normalizar en vez de advertir",
@@ -2677,9 +2677,10 @@
           "naturaleza": "MEDIDO"
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
-        "fecha": "2026-08-21"
+        "fecha": "2026-08-22"
       },
-      "issue": 199
+      "issue": 199,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-102",
@@ -2844,13 +2845,27 @@
       "id": "PT-111",
       "slug": "el-espejo-compara-lo-que-se-lee",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-019",
       "title": "El espejo compara lo que se lee: un titulo divergente no lo ve nadie",
-      "issue": 211
+      "issue": 211,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
+    },
+    {
+      "id": "PT-112",
+      "slug": "forzar-no-es-una-compuerta",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "«--forzar» no es una compuerta: sobrescribe el marco sin dejar constancia",
+      "issue": 212,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     }
   ]
 }
