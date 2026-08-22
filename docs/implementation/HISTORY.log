@@ -5111,3 +5111,97 @@ LO QUE NO ESTABLECE:
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
 lote y llega al cerrar EP-019 — el firmante acoto el 2026-08-21 que todo se queda en «trabajo».
+
+## PT-098 — El estado terminal se deriva del árbol, no se escribe al avanzar
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-1, la causa C-1 del lote
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+«avanzar --a <ultima>» escribia INTEGRATED sin mirar nada, y ese estado APAGA SEIS comprobaciones
+de verify-fdge que se eximen de lo terminal. La exencion es CORRECTA —existe para no exigir
+bitacora retroactiva a lo integrado antes de la 5.1.0, y quitarla pondria en rojo todo repositorio
+con historia— y lo que fallaba era el DATO que la dispara.
+
+INC-011 de la calculadora lo midio, y lo llama «el mas peligroso de los once»: PT-001 y PT-002 en
+INTEGRATED con «git rev-list --count main» devolviendo 2. Al corregirlos a DONE se encendieron
+cinco reglas y CUATRO salieron en rojo sobre trabajo del dia anterior, mientras «verify-fdge --all»
+daba verde todos los dias, bajo un HANDOFF que decia «todo preparado».
+
+Un falso rojo se investiga; un falso VERDE se archiva.
+
+MI PRIMER DISEÑO ROMPIA OTRA REGLA. Escribi que «avanzar» debia NEGARSE, y SUITE-R46 exige el
+orden contrario: «apuntar el estado terminal en la rama de trabajo, mergear, y cerrar despues».
+Negarse haria imposible lo que otra regla obliga.
+
+Parecia un choque de reglas, de los que PT-029 construyo un detector para encontrar. NO LO ES:
+LEXICON §5.1 ya distingue DONE —«terminado, esperando G4»— de INTEGRATED —«mergeado a la linea
+principal»—, y FDGE-R34 confirma que G4 exige DONE. El comando llevaba escribiendo el estado
+EQUIVOCADO, no uno falso. Y eso reencuadra la tarea: no hay que impedir nada, hay que escribir lo
+cierto. El detector de PT-029 no habria encontrado esto porque no hay dos textos en conflicto: hay
+un texto y un comando que no lo sigue.
+
+Solucion: «integradoEnPrincipal» devuelve TRES valores —true, false, null— y «estadoTerminalDe»
+escribe INTEGRATED solo si el arbol lo sostiene, DONE en los otros dos casos, y lo DICE. Un cambio
+silencioso de estado es lo que causo el problema: «nadie tuvo que decidirlo». Y «estadoContrastado»
+publica el veredicto que verify-fdge reporta: error si el arbol lo desmiente, aviso SIN EVALUAR si
+no se puede saber, silencio si esta.
+
+EL TERCER VALOR ES EL QUE IMPORTA. Con dos, el «false» tendria que cubrir «no esta» y «no lo se»,
+y la segunda produce rojos que nadie puede arreglar: un clon superficial, un origin ausente, una
+rama sin traer. PT-056 pago DOS veces por comprobaciones verdes en local y rojas en CI por el
+ENTORNO y no por el hecho. Verificado sobre datos reales: PT-097 marcado INTEGRATED sale
+SIN EVALUAR —no en rojo— porque su directorio vive en una rama sin fusionar, y afirmar «no
+integrado» ahi seria acusar sin haber mirado.
+
+EL CONTRASTE NO NECESITA LA RAMA, que es lo que lo hacia parecer inviable: 58 de las 91 INTEGRATED
+de este registro no la declaran. Pregunta por el DIRECTORIO, reutilizando el mecanismo que PT-096
+construyo en esta misma sesion, asi que alcanza a las 91. Y no se duplica el «git cat-file»: una
+segunda copia seria lo que PT-096 acaba de quitar de en medio.
+
+DOS CASOS DE LA BATERIA PROTEGIAN EL DEFECTO. :5202 y :5204 afirmaban que llegar a la ultima fase
+marca INTEGRATED; en ese fixture nada se ha mergeado, asi que ese INTEGRATED era FALSO y el caso lo
+celebraba. No se hicieron pasar: se invierten con su motivo, conservando entero lo que SI probaban
+—que «avanzar» escribe el estado terminal en las DOS fuentes, registro y YAML, que es de lo que
+nacio PT-089—. Solo cambia CUAL escribe. Van CINCO casos asi en este lote, y ya no es anecdota: un
+arreglo anterior deja tests que documentan el estado anterior, y nadie vuelve a mirarlos hasta que
+el siguiente los rompe.
+
+Y se añadio el freno que faltaba: «sin merge NO afirma INTEGRATED». Sin el, «escribir siempre DONE»
+pasaria los dos casos corregidos — y seria PEOR que el defecto, porque nada llegaria nunca a
+INTEGRATED.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh ·
+  inventory/services.md (cifras recalculadas, FND-R14)
+
+Evidencia: docs/implementation/evidence/PT-098/ · manifest.json · self-review.md ·
+  salidas/contraste.txt · salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  INTEGRATED contrastables   ANTES 33 (las que declaran rama)   DESPUES 91 de 91
+  el estado al avanzar       ANTES INTEGRATED siempre           DESPUES el que el arbol sostiene
+  un INTEGRATED falso        ANTES verde en --all               DESPUES error
+  lo que no se puede saber   ANTES indistinguible               DESPUES SIN EVALUAR, y lo dice
+
+Bateria 1267 -> 1277, cero fallos. Inversa: cinco retiradas, ninguna en cero.
+
+LOS 91 SE MIDIERON ANTES DE DISEÑAR, no despues: 91 en verde, 0 en rojo. Si alguno hubiera salido
+falso, el intake tendria que decir que se hace con el; no lo dice porque no hay ninguno.
+
+LO QUE NO ESTABLECE:
+
+· Que las 91 sigan ciertas mañana. Se midieron hoy — y el arreglo existe para que esa pregunta
+  tenga respuesta mecanica en vez de una medicion manual.
+· Que los 22 usos de ESTADOS_TERMINALES esten bien. SEIS en verify-fdge estan contados —INC-011
+  conto cinco, las que alcanzaban a SUS dos tareas—; los de tracker (7) y patrones (5) no. Aqui se
+  arregla el DATO que los dispara, no cada consumidor.
+· Que «--all» ejerza lo que ejerce «--gate G4». INC-010 lo llama «cada compuerta es una revision
+  sorpresa». Cambiarlo afecta a TODAS las compuertas y merece su propia medicion.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
+lote y llega al cerrar EP-019.

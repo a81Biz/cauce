@@ -2552,12 +2552,12 @@
       "id": "PT-098",
       "slug": "el-estado-terminal-se-deriva-del-arbol",
       "created": "2026-08-21",
-      "status": "DRAFT",
+      "status": "DONE",
       "type": "BUG",
       "severity": "S1",
       "track": "STANDARD",
       "epic": "EP-019",
-      "phase": 1,
+      "phase": 8,
       "structural": false,
       "suite_version": "11.0.0",
       "title": "El estado terminal se deriva del arbol, no se escribe al avanzar",
@@ -2578,7 +2578,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-21"
-      }
+      },
+      "issue": 196
     }
   ]
 }

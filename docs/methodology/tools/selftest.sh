@@ -1992,6 +1992,45 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 # CARACTERES (PT-085, PT-090) — y ademas, al fallar, dice QUE regla aparecio en vez de «no caso».
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
+# ── PT-098 · SUITE-R08 · LEXICON §5.1 · el estado terminal se deriva del arbol ────────────────
+#
+# «avanzar --a <ultima>» escribia INTEGRATED sin mirar nada, y ese estado APAGA SEIS
+# comprobaciones de verify-fdge que se eximen de lo terminal. La exencion es CORRECTA —existe
+# para no exigir bitacora retroactiva a lo integrado antes de la 5.1.0— y lo que fallaba era el
+# DATO que la dispara.
+#
+# INC-011 de la calculadora lo midio: PT-001 y PT-002 en INTEGRATED con «git rev-list --count
+# main» devolviendo 2. Al corregirlos a DONE se encendieron cinco reglas y CUATRO salieron en
+# rojo sobre trabajo del dia anterior, mientras «verify-fdge --all» daba verde todos los dias.
+# Un falso rojo se investiga; un falso VERDE se archiva.
+#
+# Y NO ES UN CHOQUE DE REGLAS, aunque lo parecia. Mi primer diseño era que «avanzar» se NEGARA,
+# y eso rompe SUITE-R46, que exige apuntar el estado terminal ANTES del merge. Pero LEXICON §5.1
+# ya distingue DONE —«terminado, esperando G4»— de INTEGRATED —«mergeado a la linea principal»—,
+# y FDGE-R34 confirma que G4 exige DONE. El comando escribia el estado EQUIVOCADO, no uno falso.
+trlib "sin merge, la ultima fase da DONE"        "^DONE$"        "console.log(m.estadoTerminalDe({status:'IN_PROGRESS'},false))"
+# El PAR del anterior, y no es relleno: sin el, «escribe siempre DONE» pasaria el primero — y
+# seria PEOR que el defecto, porque nada llegaria nunca a INTEGRATED.
+trlib "con merge, da INTEGRATED"                 "^INTEGRATED$"  "console.log(m.estadoTerminalDe({status:'IN_PROGRESS'},true))"
+# RULE-06 · no saber no es permiso. Un null tampoco afirma el merge.
+trlib "sin poder saberlo, tampoco INTEGRATED"    "^DONE$"        "console.log(m.estadoTerminalDe({status:'IN_PROGRESS'},null))"
+# La guarda que YA habia se conserva: un CLOSED no vuelve a INTEGRATED porque alguien avance.
+trlibno "lo ya terminal no se reescribe"         "INTEGRATED"    "console.log(m.estadoTerminalDe({status:'CLOSED'},true))"
+
+# El veredicto que verify-fdge publica. Separado del efecto, como decisionDeEnlace en PT-096.
+trlib "un INTEGRATED que main no sostiene se reporta"  "error"   "console.log((m.estadoContrastado({id:'PT-1',status:'INTEGRATED'},()=>false)||{}).nivel)"
+# El FRENO: sin este, la comprobacion podria REPORTAR SIEMPRE y el positivo pasaria igual. Es la
+# trampa que PT-096 documento con TS-04 y que PT-095 documento con su inversa en cero.
+trlib "…y uno que SI esta, no"                   "^VACIO$"       "console.log(m.estadoContrastado({id:'PT-1',status:'INTEGRATED'},()=>true) ? 'HAY' : 'VACIO')"
+# RULE-06 otra vez, y aqui es lo que impide un rojo que nadie puede arreglar: un clon superficial
+# o una rama sin traer no dicen nada del estado. PT-056 pago DOS veces por comprobaciones que se
+# ponian en rojo en CI por el ENTORNO y no por el hecho.
+trlib "sin poder comprobarlo, SIN EVALUAR"       "aviso"         "console.log((m.estadoContrastado({id:'PT-1',status:'INTEGRATED'},()=>null)||{}).nivel)"
+trlib "…y el mensaje lo dice"                    "SIN EVALUAR"   "console.log((m.estadoContrastado({id:'PT-1',status:'INTEGRATED'},()=>null)||{}).mensaje)"
+# Solo se contrasta lo que dice INTEGRATED. Un DONE no se acusa de no estar mergeado: es que
+# todavia no lo esta, y eso es correcto.
+trlib "un DONE no se contrasta"                  "^VACIO$"       "console.log(m.estadoContrastado({id:'PT-1',status:'DONE'},()=>false) ? 'HAY' : 'VACIO')"
+
 chk   "abrir tiene UN solo final"             "cerrarPasada" cat "$SUITE/tools/tracker.mjs"
 
 
@@ -5160,9 +5199,26 @@ build_fixture; git_fixture
 reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"
 con_phase 9
 AV PT-001 --a 10 --nota "cierre" >/dev/null 2>&1
-chk   "avanzar a la ultima fase marca terminal"       "INTEGRATED" \
+# PT-098 · estos DOS casos CAMBIAN DE SENTIDO, y no se hacen pasar.
+#
+# Afirmaban que llegar a la ultima fase marca INTEGRATED. LEXICON §5.1 define INTEGRATED como
+# «mergeado a la linea principal» —un hecho del ARBOL— y en este fixture nada se ha mergeado, asi
+# que INTEGRATED era FALSO y el caso lo celebraba.
+#
+# Ese estado APAGA seis comprobaciones de verify-fdge que se eximen de lo terminal. INC-011 de la
+# calculadora lo midio: al corregir dos estados a DONE se encendieron cinco reglas y CUATRO
+# salieron en rojo sobre trabajo dado por bueno un dia antes. Un falso rojo se investiga; un falso
+# VERDE se archiva.
+#
+# Lo que el caso SI probaba —que «avanzar» escribe el estado terminal en las DOS fuentes, registro
+# y YAML, que es de lo que nacio PT-089— se conserva entero: solo cambia CUAL escribe.
+chk   "avanzar a la ultima fase marca el estado terminal"  "DONE" \
   sh -c 'node -e "console.log(JSON.parse(require(String.fromCharCode(102,115)).readFileSync(process.argv[1],\"utf8\")).allocations.find(a=>a.id===\"PT-001\").status)" "$1/docs/implementation/REGISTRY.json"' _ "$WORK"
-chk   "…y lo escribe TAMBIEN en el YAML"              "status: INTEGRATED" \
+chk   "…y lo escribe TAMBIEN en el YAML"              "status: DONE" \
+  grep "^status:" "$WORK/changes/PT-001-login/intake.md"
+# El freno: sin merge NO se afirma INTEGRATED. Sin este, «escribir siempre DONE» pasaria los dos
+# de arriba — y seria peor que el defecto, porque nada llegaria nunca a INTEGRATED.
+chkno "…y sin merge NO afirma INTEGRATED"             "INTEGRATED" \
   grep "^status:" "$WORK/changes/PT-001-login/intake.md"
 
 # Y NO decide por una tarea que ya declaro como termina: FDGE-R53 es de la tarea, no de la

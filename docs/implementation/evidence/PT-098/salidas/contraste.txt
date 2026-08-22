@@ -1,0 +1,24 @@
+CONTRASTE SOBRE EL REGISTRO REAL — 2026-08-21
+
+AC-05 · el arreglo no abre deuda, y se midio ANTES de diseñarlo:
+
+  INTEGRATED en el registro     91
+    en verde                    91   su changes/ esta en main
+    en rojo                      0
+    SIN EVALUAR                  0
+
+  de las 91:  33 declaran rama · 58 NO. El contraste no la necesita —pregunta por el
+  DIRECTORIO, el mecanismo que PT-096 construyo— y por eso alcanza a las 91.
+
+LOS TRES CAMINOS, verificados sobre datos reales y no sobre un fixture:
+
+  PT-096 marcado INTEGRATED   -> error        esta en trabajo y NO en main
+  PT-097 marcado INTEGRATED   -> aviso        no esta en ninguna: no se puede saber
+  las 91 reales               -> silencio     estan donde dicen
+
+El SIN EVALUAR de PT-097 es la prueba de que la logica es conservadora donde debe: su
+directorio vive en una rama sin fusionar, y afirmar «no integrado» seria acusar sin
+haber mirado. RULE-06 · no saber no es permiso, pero tampoco es una acusacion.
+
+LO QUE NO ESTABLECE: que las 91 sigan ciertas mañana. Se midieron hoy — y el arreglo
+existe para que esa pregunta tenga respuesta mecanica en vez de una medicion manual.

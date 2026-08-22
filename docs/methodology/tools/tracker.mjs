@@ -1063,6 +1063,57 @@ export function checkpointDe(alloc, git = {}) {
   };
 }
 
+/**
+ * PT-098 · SUITE-R08 · LEXICON §5.1 · ¿el arbol sostiene el «INTEGRATED» que el registro afirma?
+ *
+ * LEXICON define INTEGRATED como «mergeado a la linea principal»: es un hecho del ARBOL, no una
+ * opinion del registro. Y `avanzar` lo escribia por el mero hecho de que alguien pidiera la
+ * ultima fase — sin mirar nada.
+ *
+ * Eso apaga SEIS comprobaciones de verify-fdge que se eximen de lo terminal. La exencion es
+ * CORRECTA —existe para no exigir bitacora retroactiva a lo integrado antes de la 5.1.0— y lo
+ * que fallaba era el dato que la dispara. INC-011 de la calculadora lo midio: al corregir dos
+ * estados a DONE se encendieron cinco reglas y CUATRO salieron en rojo sobre trabajo del dia
+ * anterior, mientras «verify-fdge --all» daba verde todos los dias.
+ *
+ * Un falso rojo se investiga; un falso VERDE se archiva.
+ *
+ * TRES valores y no dos, y el tercero es el que importa:
+ *   true    su changes/ esta en la rama por defecto
+ *   false   esta en la de integracion pero NO en la principal
+ *   null    no se puede saber  ->  SIN EVALUAR (RULE-06: no saber no es permiso, pero
+ *           tampoco es una acusacion). Un clon superficial o una rama sin traer no dicen
+ *           nada del estado, y PT-056 pago DOS veces por comprobaciones que se ponian en
+ *           rojo en CI por el entorno y no por el hecho.
+ *
+ * NO necesita que la allocation declare rama, que es lo que hacia parecer inviable la
+ * comprobacion: 58 de las 91 INTEGRATED de este registro no la declaran. Pregunta por el
+ * DIRECTORIO, igual que refDurableDe — el mecanismo que PT-096 construyo.
+ */
+export function estadoTerminalDe(a, integrado) {
+  // La guarda que ya habia se CONSERVA: un CLOSED o un REVERTED no vuelven a INTEGRATED
+  // porque alguien avance de fase.
+  if (ESTADOS_TERMINALES.has(String(a?.status))) return null;
+  // null y false escriben DONE: no se afirma un merge que no consta. Y DONE no es una
+  // acusacion — es el estado correcto de algo terminado que aun no consta integrado, y el
+  // que SUITE-R46 pide apuntar ANTES de mergear (FDGE-R34: «G4 exige DONE»).
+  return integrado === true ? 'INTEGRATED' : 'DONE';
+}
+
+/**
+ * PT-098 · el veredicto que verify-fdge publica sobre un estado terminal.
+ * Se separa del efecto, como decisionDeEnlace en PT-096: la decision es pura y comprobable.
+ */
+export function estadoContrastado(a, integrado) {
+  if (String(a?.status) !== 'INTEGRATED') return null;
+  const r = typeof integrado === 'function' ? integrado(a) : integrado;
+  if (r === true) return null;
+  if (r === null || r === undefined) {
+    return { nivel: 'aviso', regla: 'SUITE-R08', mensaje: `${a.id}: declara INTEGRATED y no se pudo contrastar con la rama por defecto — SIN EVALUAR. No saber no es permiso, pero tampoco es una acusacion (RULE-06).` };
+  }
+  return { nivel: 'error', regla: 'SUITE-R08', mensaje: `${a.id}: declara INTEGRATED y su «changes/» NO esta en la rama por defecto. LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal»: el registro afirma un merge que el arbol no tiene, y ese estado APAGA seis comprobaciones que se eximen de lo terminal.` };
+}
+
 const EJECUTADO_DIRECTO = !!process.argv[1]
   && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
 
@@ -1235,6 +1286,25 @@ const contextoCuerpo = (a) => ({
 // enlaces muertos—, y tenerlo dos veces seria dos fuentes del mismo hecho (SUITE-R38).
 const refExiste = (r) => gitDe(['rev-parse', '--verify', '--quiet', r]) !== null
   || gitDe(['rev-parse', '--verify', '--quiet', `origin/${r}`]) !== null;
+
+// PT-098 · el contraste con el arbol. Vive junto a refDurableDe porque comparte su mecanismo:
+// preguntar a git si «changes/<ID>-<slug>/» esta en un ref. NO se duplica el «git cat-file» —una
+// segunda copia seria lo que PT-096 acaba de quitar de en medio.
+function integradoEnPrincipal(a) {
+  const dir = `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`;
+  const porDefecto = REPO.rama ?? 'main';
+  const integracion = reg?.tracker?.rama_integracion ?? 'trabajo';
+  const hay = (ref) => {
+    try { execFileSync('git', ['cat-file', '-e', `${ref}:${dir}`], { cwd: ROOT, stdio: 'pipe' }); return true; }
+    catch { return false; }
+  };
+  if (hay(porDefecto)) return true;
+  // Solo se afirma «NO integrado» si el directorio EXISTE en algun sitio. Si no esta en ninguno
+  // no se sabe nada: puede ser un clon superficial, una rama sin traer, o una allocation sin
+  // artefactos (SUITE-R44). RULE-06.
+  if (hay(integracion)) return false;
+  return null;
+}
 
 function refDurableDe(a) {
   const dir = `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`;
@@ -2434,8 +2504,23 @@ function avanzar() {
     // NO se toca un estado que ya sea terminal: una tarea puede acabar REJECTED o DEFERRED, y
     // FDGE-R53 dice que la tarea declara como termina — esto no lo decide por ella.
     const esFinal = Number(destino) === Math.max(...Object.keys(FASES).map(Number));
+    // PT-098 · aqui se escribia INTEGRATED sin mirar nada, y ese estado APAGA seis
+    // comprobaciones de verify-fdge. LEXICON §5.1 define INTEGRATED como «mergeado a la linea
+    // principal»: es un hecho del ARBOL. El que corresponde al terminar la ultima fase —antes
+    // del merge— es DONE, que es lo que SUITE-R46 pide apuntar y lo que FDGE-R34 exige para G4.
+    //
+    // No se NIEGA: escribe lo cierto. Negarse fue el primer diseño y rompia SUITE-R46, que
+    // obliga al orden «apuntar el estado terminal, mergear, cerrar despues».
     const terminal = esFinal && !ESTADOS_TERMINALES.has(String(a.status));
-    if (terminal) a.status = 'INTEGRATED';
+    if (terminal) {
+      const enPrincipal = integradoEnPrincipal(a);
+      a.status = estadoTerminalDe(a, enPrincipal);
+      // Se DICE. Un cambio silencioso de estado es lo que causo el problema: «nadie tuvo que
+      // decidirlo» (INC-011).
+      notas.push(enPrincipal === true
+        ? `${id}: estado terminal INTEGRATED — su «changes/» esta en la rama por defecto.`
+        : `${id}: estado terminal DONE${enPrincipal === null ? ' — no se pudo contrastar con la rama por defecto (SIN EVALUAR)' : ' — su «changes/» todavia NO esta en la rama por defecto'}. Pasara a INTEGRATED cuando el merge ocurra y se vuelva a avanzar o se sincronice.`);
+    }
     writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
 
     // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo

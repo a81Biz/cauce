@@ -53,6 +53,9 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
 // alcanza. Los dos viven en patrones.mjs porque los usan dos bucles de este archivo, y un
 // criterio escrito dos veces diverge (SUITE-R38).
 import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from './patrones.mjs';
+// PT-098 · la decision de si el arbol sostiene un INTEGRATED es pura y vive en tracker.mjs,
+// junto al mecanismo que la calcula. Aqui solo se consume: una fuente, no dos (SUITE-R38).
+import { estadoContrastado } from './tracker.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -1364,6 +1367,41 @@ function checkPT(pt, { gate } = {}) {
   //
   // Exentos: un EP —su ciclo no tiene fases de tarea, y exigirsela seria inventar un dato— y lo
   // ya terminado, que es la misma frontera que FDGE-R52 y FDGE-R19, ahora compartida.
+  // PT-098 · SUITE-R08 · un INTEGRATED que el arbol no sostiene.
+  //
+  // LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal», y ese estado exime a
+  // SEIS comprobaciones de este archivo. La exencion es CORRECTA —no exigir bitacora retroactiva
+  // a lo integrado antes de la 5.1.0— y lo que fallaba era el dato: «avanzar» lo escribia sin
+  // mirar nada. INC-011 lo midio en otro repositorio: al corregir dos estados a DONE se
+  // encendieron cinco reglas y CUATRO salieron en rojo sobre trabajo dado por bueno un dia antes.
+  //
+  // Un falso rojo se investiga; un falso VERDE se archiva.
+  if (enRegistroPT?.status === 'INTEGRATED') {
+    const v = estadoContrastado(enRegistroPT, (al) => {
+      // La ruta se compone con «/» siempre: git no entiende separadores de Windows en una
+      // referencia «rama:ruta». Es la cuarta rotura de escapado de esta sesion, y por eso va
+      // como constante y no como replace sobre una ruta del sistema.
+      const dir = `changes/${al?.slug ? `${al.id}-${al.slug}` : String(al?.id)}`;
+      const enRef = (ref) => {
+        try { execFileSync('git', ['cat-file', '-e', `${ref}:${dir}`], { cwd: ROOT, stdio: 'pipe' }); return true; }
+        catch { return false; }
+      };
+      // La rama por defecto se DERIVA de origin/HEAD, como el resto del archivo. Si no se
+      // puede derivar no se inventa: se devuelve null y sale SIN EVALUAR (RULE-06).
+      const gitq = (args) => {
+        try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); }
+        catch { return null; }
+      };
+      const principal = (gitq(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']) ?? '').trim().split('/').pop();
+      if (!principal) return null;
+      const integracion = REGISTRO?.tracker?.rama_integracion ?? 'trabajo';
+      if (enRef(principal) || enRef(`origin/${principal}`)) return true;
+      if (enRef(integracion) || enRef(`origin/${integracion}`)) return false;
+      return null;
+    });
+    if (v) (v.nivel === 'error' ? fail : warn)(v.regla, v.mensaje);
+  }
+
   if (faseDeclarada === null) {
     if (enRegistroPT?.type === 'EP' || ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
       warn('SUITE-R08', `${pt}: sin fase declarada — exento (${enRegistroPT?.type === 'EP' ? 'es un lote: su ciclo no tiene fases de tarea' : 'ya terminado: no se retrofecha'}).`);
