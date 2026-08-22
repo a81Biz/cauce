@@ -10,13 +10,13 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ## 12.0.0 — 2026-08-22
 
-**Lo que tres proyectos encontraron** (`EP-019`). Doce tareas, y la mitad salieron de **ejecutar**
-las otras, no de planificarlas.
+**Lo que tres proyectos encontraron** (`EP-019`). Diecisiete tareas: **diez** en el reparto y
+**siete** que salieron de **ejecutar** las otras, no de planificarlas.
 
 ### Reglas nuevas
 
-Cinco, todas `HARD`, y **definidas en `RULES.md`** — aquí solo se citan (`LEX-R23`):
-`PTSA-R81`, `PTSA-R82`, `LEX-R27`, `LEX-R28` y `SUITE-R58`.
+Seis, todas `HARD`, y **definidas en `RULES.md`** — aquí solo se citan (`LEX-R23`):
+`PTSA-R81`, `PTSA-R82`, `LEX-R27`, `LEX-R28`, `SUITE-R58` y `SUITE-R59`.
 
 ### Qué hacer al actualizar
 
@@ -37,6 +37,21 @@ escribió cuando el comando no permitía otra cosa.
 **`PTSA-R81` y `PTSA-R82`.** Si tu `PTSA/RESUMEN.md` publica una letra de certificación, revisa
 que los umbrales estén declarados. Este repositorio publicaba una banda —`B (75-89)`— **que no
 estaba en la especificación**: se retiró y la letra se recalculó.
+**`SUITE-R59` — el escape que no existe no se rompe.** No hay nada que migrar: es una regla sobre
+cómo se **escribe**. Un patrón va como regex literal, una secuencia de control se produce con
+`String.fromCharCode` y un texto largo se escribe **a un archivo**, nunca por la línea de
+comandos. `audit` lo detecta antes de que se rompa. Se redacta ahora porque el marco llevaba la
+cuenta de este fallo en comentarios de **cinco** archivos sin que ninguno sumara: **veintisiete**,
+y ninguna regla.
+
+**`LEX-R08` — no es nueva, y por eso está aquí.** La regla —un `BUG` no transita a `DONE` sin
+pasar por `VALIDATION_PENDING`— existe desde hace versiones, pero **nadie la aplicaba**: 51 `BUG`
+del registro y **cero** pasaron por ese estado. Desde la `12.0.0` se comprueba, y su fila en
+`RIGE_DESDE` es lo que impide que los 51 salgan en rojo **sin salida**: por un estado por el que
+no se pasó no se puede retrofechar. Si tu proyecto tiene `BUG` cerrados antes de esta versión,
+**no hay que tocarlos**; los que abras a partir de ahora sí pasan por ahí, y `tracker avanzar`
+aplica la transición.
+
 
 ### `RIGE_DESDE` — diecinueve reglas dejan de juzgar hacia atrás
 
