@@ -220,6 +220,14 @@ Nada aquí es trabajo de paso: cada tarea se detiene en su punto humano.
 porque comparten causa raíz —§2.1— y porque separar la matriz de la parada dejaría a la primera sin
 la fuente que la mantiene viva. Si el firmante prefiere dos lotes, `L-0` y `L-8` salen solos.
 
+**O-9 · `SUITE-R58` dice «la allocation nace completa» y no nace.** `tracker asignar` escribió
+`EP-020` y `PT-113` sin `suite_version`, y `verify-fdge` avisa: *«2 allocation(s) sin
+`suite_version`. Sin ese sello, una migración no puede respetar el trabajo en vuelo»* (`SUITE-R18`).
+`PT-103` amplió el comando con `--tipo`, `--severidad`, `--epica`, `--titulo` y `phase: 1`, y este
+campo se quedó fuera. **No se escribe a mano**: sería la avería que `PT-103` y `PT-107` cierran —el
+registro solo lo escribe el comando—. Queda medido aquí; si el firmante quiere, es una tarea más o
+entra en `L-9`.
+
 **O-8 · La sexta instancia apareció abriendo este lote.** `DoR-E7` pide declarar el solapamiento en
 `BACKLOG.md`; ese archivo dice de sí mismo que es derivable, prohíbe editarse a mano y **no tiene
 generador**. Es `L-11`, y deja `G1` con una condición que hoy no se puede cumplir sin una excepción
