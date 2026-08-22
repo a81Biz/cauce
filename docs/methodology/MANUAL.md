@@ -69,7 +69,7 @@ estado y terminar lo que ya estaba en vuelo. No se abre trabajo nuevo (`SUITE-R1
 En tu `CLAUDE.md`, y es lo único que se personaliza:
 
 ```yaml
-suite_version: 12.0.0
+suite_version: 12.0.1
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:
   - Tu Nombre
