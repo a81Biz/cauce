@@ -14,4 +14,4 @@ Proyectado el 2026-08-21 · 6 allocation(es) viva(s).
 | PT-096 | BUG | DONE | 8 | bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto | 9c1ea4a | d682338 |
 | PT-097 | BUG | DONE | 8 | — | — | e5955b0 |
 | PT-098 | BUG | DONE | 8 | — | — | 25e572a |
-| PT-099 | BUG | DRAFT | 4 | — | — | — |
+| PT-099 | BUG | DRAFT | 5 | — | — | — |
