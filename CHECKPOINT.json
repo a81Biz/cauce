@@ -1,19 +1,24 @@
 {
-  "pt": "PT-104",
-  "type": "FEATURE",
+  "pt": "PT-105",
+  "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 8,
-  "fase": "Persistencia",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "c976c64af2083b6d1c934fb9a1cea84937c13d8f",
   "sha_corto": "c976c64",
   "sucio": true,
   "archivos": [
     "CLAUDE.md",
+    "changes/EP-019-lo-que-tres-proyectos-encontraron/intake.md",
+    "changes/PT-101-el-escapado-que-no-existe-no-se-rompe/",
     "changes/PT-102-la-version-es-un-contenido/",
     "changes/PT-103-el-registro-solo-lo-escribe-el-comando/",
     "changes/PT-104-el-tablero-dice-en-que-paso-estas/",
+    "changes/PT-105-el-estado-que-una-compuerta-exige-lo-escribe-un-comando/",
+    "changes/PT-106-las-que-empezaron-a-juzgar-despues/",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
@@ -22,6 +27,8 @@
     "docs/implementation/evidence/PT-102/",
     "docs/implementation/evidence/PT-103/",
     "docs/implementation/evidence/PT-104/",
+    "docs/implementation/evidence/PT-105/",
+    "docs/implementation/evidence/PT-106/",
     "docs/methodology/CORE.md",
     "docs/methodology/FDGE-Prompts.md",
     "docs/methodology/MANUAL.md",
@@ -37,9 +44,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-21"
 }
