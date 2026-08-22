@@ -1,10 +1,10 @@
 {
-  "pt": "PT-106",
+  "pt": "PT-107",
   "type": "BUG",
   "epic": "EP-019",
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DRAFT",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "c976c64af2083b6d1c934fb9a1cea84937c13d8f",
   "sha_corto": "c976c64",
@@ -44,8 +44,10 @@
     "docs/methodology/tools/verify-fdge.mjs",
     "docs/methodology/tools/version.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "strategy.md"
+  ],
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-21"
 }
