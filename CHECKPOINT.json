@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "c976c64af2083b6d1c934fb9a1cea84937c13d8f",
   "sha_corto": "c976c64",
@@ -46,8 +46,9 @@
   ],
   "compuerta": null,
   "produce": [
-    "strategy.md"
+    "manifest.json",
+    "self-review.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-21"
 }
