@@ -2,9 +2,9 @@
   "pt": "PT-106",
   "type": "BUG",
   "epic": "EP-019",
-  "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "c976c64af2083b6d1c934fb9a1cea84937c13d8f",
   "sha_corto": "c976c64",
@@ -44,15 +44,8 @@
     "docs/methodology/tools/verify-fdge.mjs",
     "docs/methodology/tools/version.mjs"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-21"
 }
