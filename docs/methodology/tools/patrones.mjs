@@ -127,6 +127,57 @@ export const RIGE_DESDE = {
   'SUITE-R09': [11, 0, 0],  // el ledger no pierde lineas · el verificador nace con EP-018
   'EXEC-R04':  [11, 0, 0],  // la G4 deja constancia · 18 merges historicos sin ella
   'EXEC-R04a': [11, 0, 0],  // la constancia tiene forma fija · nace con EP-018
+  // PT-099 · la entrada a VALIDATION_PENDING se vigila desde 12.0.0. La REGLA es vieja
+  // —LEX-R08 severidad H, FDGE-R26 HARD— pero nadie la aplicaba: 51 BUG del registro y CERO
+  // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
+  // que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez.
+  'LEX-R08': [12, 0, 0],
+  'SUITE-R58': [12, 0, 0],
+  'SUITE-R59': [12, 0, 0],
+
+  // ── PT-106 · las veinte que EMPEZARON A JUZGAR despues del primer commit ──
+  //
+  // El reparto del lote decia «las 151 reglas HARD declaran desde cuando rigen». La medicion
+  // dice VEINTE, y la diferencia no es un recorte: es lo que significa la regla.
+  //
+  //   152  HARD          87 no emiten nada -> NO PUEDEN JUZGAR, no necesitan fila
+  //    65  emiten         7 ya la declaran
+  //                      38 existen desde el PRIMER COMMIT -> nada anterior que juzgar mal
+  //                      20 llegaron DESPUES  <- estas
+  //
+  // Y EL METODO OBVIO HABRIA MENTIDO. Derivar la version del CHANGELOG parece razonable y es
+  // falso: ahi consta cuando se ESCRIBIO la regla, y esto dice desde cuando JUZGA. Contrastado
+  // contra las que ya estaban a mano, DOS discrepan — EXEC-R04 consta en la 8.1.0 y rige desde
+  // la 11.0.0; SUITE-R09 consta en la 4.13.0 y rige desde la 11.0.0. Una cifra plausible y
+  // falsa es peor que ninguna (RULE-06).
+  //
+  // Estas veinte se derivan del ARBOL: el commit donde aparecio la EMISION, y la version que
+  // el proyecto declaraba en ese commit. Cada una trazable a su sha, ninguna inventada.
+  'FDGE-R19': [7, 7, 0],          // 3b528d6f
+  'FDGE-R39': [7, 7, 0],          // 976b8bec
+  'FDGE-R48': [4, 14, 0],          // 5d2772a0
+  'FDGE-R49': [4, 14, 0],          // 5d2772a0
+  'FDGE-R51': [4, 14, 0],          // 5d2772a0
+  'FND-R29': [7, 7, 0],           // 976b8bec
+  'FND-R30': [5, 2, 3],           // 2ad50bed
+  'SUITE-R31': [8, 0, 0],         // 2b971378
+  'SUITE-R33': [5, 0, 0],         // e88a63ba
+  'SUITE-R34': [5, 0, 0],         // e88a63ba
+  // SUITE-R35 NO lleva fila, y es una decision, no un olvido. La derivacion mecanica se la
+  // puso —su comprobacion aparecio en la 5.0.0— y un caso de la bateria la retiro: PT-089 la
+  // declaro «NO PROCEDE» con un motivo mejor que el mio. «Nace verde porque las seis se
+  // resolvieron aqui... copiar el criterio habria anadido UNA FILA QUE MANTENER Y QUE NO
+  // PROTEGE». Una fila derivada no es automaticamente correcta: si ningun trabajo historico
+  // falla la regla, la fila no defiende a nadie y solo puede quedarse obsoleta.
+  'SUITE-R38': [7, 7, 0],         // 976b8bec
+  'SUITE-R40': [5, 2, 1],         // 59726298
+  'SUITE-R42': [5, 3, 0],         // 4287a350
+  'SUITE-R43': [6, 0, 0],         // 781f5e7f
+  'SUITE-R44': [6, 0, 1],         // c7ba859f
+  'SUITE-R45': [7, 0, 0],         // 7fd7eb41
+  'SUITE-R46': [7, 0, 0],         // f0de9489
+  'SUITE-R47': [7, 7, 0],         // 976b8bec
+  'SUITE-R51': [7, 3, 0],         // 567eab2c
 };
 
 /**
@@ -613,6 +664,110 @@ export function sesionesUnicas(marcas) {
   return [...porPersona.values()];
 }
 
+
+/**
+ * PT-101 · EL ESCAPE QUE NO EXISTE NO SE ROMPE.
+ *
+ * Lo señalo el firmante tras OCHO roturas en una sola sesion. Y el marco YA LO SABIA: llevaba la
+ * cuenta en comentarios de CINCO archivos, cada uno con su cifra, y NINGUNO sumaba.
+ *
+ *   build-core.mjs:463      «ha fallado CINCO veces aqui»
+ *   revisar-secretos.mjs:36 «ha fallado SIETE veces en este proyecto»
+ *   verify-ptsa.mjs:108     «ha fallado CINCO veces en este proyecto»
+ *   verify-qa.mjs:63        «ha fallado SEIS veces en este proyecto»
+ *   verify-suite.mjs:526    «ha fallado CUATRO veces en este»
+ *
+ * Cinco cuentas del MISMO hecho, ninguna correcta. Es SUITE-R38 aplicado a una cifra, y estaba
+ * ocurriendo DENTRO de los comentarios que avisan de otro defecto.
+ *
+ * Aqui vive la cuenta. Los cinco comentarios la CITAN en vez de llevar cada uno la suya.
+ *
+ * LA REGLA, que es lo unico que ha funcionado: EL ESCAPE QUE NO EXISTE NO SE ROMPE.
+ *   · regex LITERALES, nunca `new RegExp` sobre una cadena
+ *   · `String.fromCharCode(10)` en vez de un salto escapado
+ *   · texto largo por un archivo, no por la linea de comandos
+ *
+ * Y `audit` caza el byte 0x08 CUANDO YA ESTA ESCRITO: util, y POSTERIOR al daño.
+ */
+export const ROTURAS_DE_ESCAPADO = {
+  contadas: 27,
+  donde: ['build-core.mjs', 'revisar-secretos.mjs', 'verify-ptsa.mjs', 'verify-qa.mjs',
+          'verify-suite.mjs'],
+  nota: 'La suma de las cinco cuentas dispersas (5+7+5+6+4), mas las OCHO de la sesion de EP-019 '
+      + 'que ninguna cazo: rompieron en la VIA —heredocs, replace de python, plantillas de texto '
+      + 'transformadas— y no en el destino. El marco protegia el archivo y no el camino.',
+};
+
+
+/**
+ * PT-101 · SUITE-R59 · EL NORMALIZADOR. Lo que hace innecesario escribir un escape.
+ *
+ * La regla dice qué no hacer. Esto da con qué hacerlo, que es lo que faltaba: durante veintisiete
+ * roturas el marco tenía el aviso y **no tenía la alternativa**, así que cada arreglo era de uno
+ * en uno y el siguiente caso volvía a escribirlo a mano.
+ *
+ * Ninguna de estas funciones lleva una barra invertida dentro de una cadena. Esa es la única
+ * propiedad que importa: lo que no está escrito no se puede perder al pasar por una capa de
+ * escapado —un shell, un heredoc, un `replace`, una plantilla transformada—.
+ */
+
+/** Los caracteres que se escriben por código, nunca escapados. */
+export const CAR = {
+  SALTO: String.fromCharCode(10),
+  RETORNO: String.fromCharCode(13),
+  TAB: String.fromCharCode(9),
+  BARRA: String.fromCharCode(92),
+  COMILLA: String.fromCharCode(39),
+  BACKTICK: String.fromCharCode(96),
+};
+
+/** Las clases de un regex, como texto, sin escribir la barra. */
+export const CLASE = {
+  espacio: CAR.BARRA + 's',
+  noEspacio: CAR.BARRA + 'S',
+  digito: CAR.BARRA + 'd',
+  noDigito: CAR.BARRA + 'D',
+  palabra: CAR.BARRA + 'w',
+  noPalabra: CAR.BARRA + 'W',
+  limite: CAR.BARRA + 'b',
+  salto: CAR.BARRA + 'n',
+};
+
+/**
+ * Escapa un texto para meterlo LITERAL dentro de un regex.
+ *
+ * Es lo que casi siempre se quiere cuando se construye un patrón desde una variable: buscar ese
+ * texto, no interpretarlo. Escribirlo a mano es donde nacieron la mayoría de las veintisiete.
+ */
+export function comoLiteral(texto) {
+  let salida = '';
+  const ESPECIALES = '.*+?^${}()|[]' + CAR.BARRA;
+  for (const c of String(texto ?? '')) {
+    salida += ESPECIALES.includes(c) ? CAR.BARRA + c : c;
+  }
+  return salida;
+}
+
+/**
+ * Un regex que busca `texto` como palabra suelta.
+ *
+ * Sustituye a `new RegExp('\\b' + x + '\\b')`, que es la construcción que más veces se ha roto
+ * en este repositorio: con la barra simple compila a la LETRA `b` y no casa nunca.
+ */
+export function comoPalabra(texto, banderas) {
+  return new RegExp(CLASE.limite + comoLiteral(texto) + CLASE.limite, banderas ?? '');
+}
+
+/** Divide por líneas sin depender de cómo se escribieron los saltos. */
+export function porLineas(texto) {
+  return String(texto ?? '').split(new RegExp(CAR.BARRA + 'r?' + CAR.BARRA + 'n'));
+}
+
+/** Une líneas con un salto real. */
+export function enLineas(lineas) {
+  return (lineas ?? []).join(CAR.SALTO);
+}
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
@@ -693,6 +848,31 @@ export const PATRONES = {
     para: 'el sello que detecta una edición a mano del núcleo (SUITE-R16)',
     casa: ['<!-- cuerpo: 0b550ea075a8 -->'],
     noCasa: ['<!-- cuerpo: -->', '<!-- cuerpo: XYZ -->', '<!-- fuentes: RULES.md:abc -->'],
+  },
+
+  // PT-102 · la version se DECLARA de dos formas y version.mjs conocia una. Terminaba diciendo
+  // «Todo declara 11.0.0» con CUATRO documentos declarando otra —el CLAUDE.md del propio
+  // repositorio, la plantilla que VIAJA a cada proyecto destino, el README y el MANUAL—, porque
+  // la forma que no miraba vivia fuera de aqui, en un regex local suyo. El grafo lo enseño antes
+  // que el grep: era la herramienta que MENOS dependia de este archivo. Un patron critico que no
+  // esta donde se contrasta no puede completarse (SUITE-R38).
+  //
+  // Anclado a inicio de linea A PROPOSITO: el CHANGELOG cita cifras viejas en mitad de una frase
+  // y esas son HISTORIA (SUITE-R09). Y el grupo de captura exige tres numeros, que es lo que deja
+  // fuera el marcador «X.Y.Z» de una plantilla sin personalizar — correcto tal como esta.
+  VERSION_DECLARADA: {
+    re: /^([>\s]*(?:Suite version:\s*\*\*|suite_version:\s*))(\d+\.\d+\.\d+)(\*\*)?/gm,
+    para: 'toda declaracion de la version de la suite, en sus dos formas (SUITE-R40)',
+    casa: [
+      'Suite version: **11.0.0**',
+      'suite_version: 11.0.0',
+      '> Suite version: **5.2.0** \u00b7 Referencia: `docs/methodology/`',
+    ],
+    noCasa: [
+      'suite_version: X.Y.Z',                      // la plantilla sin personalizar: correcta asi
+      'y una tarea con suite_version: 8.2.0 no',   // una cifra citada en prosa: es historia
+      'Suite version: **5.2**',                    // sin parche: no es una version de la suite
+    ],
   },
 
   VERSION_VIGENTE: {
@@ -1114,7 +1294,11 @@ export function seccionesDelArnes(texto) {
     const tools = new Set();
     for (const m of cuerpo.matchAll(/tools\/([a-z-]+\.(?:mjs|sh))/g)) tools.add(m[1]);
     for (const [h, t] of Object.entries(HELPERS_A_HERRAMIENTA)) {
-      if (new RegExp(`(^|\s)${h}\s`, 'm').test(cuerpo)) tools.add(t);
+      // PT-101 · la barra era SIMPLE y no sobrevivia a la cadena: el patron compilaba a
+      // «(^|s)<helper>s» —la LETRA s— y NO CASABA NUNCA. Ningun helper se detectaba, y no
+      // fallaba nada: devolvia una lista vacia. Lo encontro audit en su PRIMERA corrida con
+      // la comprobacion de construcciones fragiles que esta misma tarea añadio.
+      if (new RegExp(`(^|\\s)${h}\\s`, 'm').test(cuerpo)) tools.add(t);
     }
     return { titulo: s.titulo, herramientas: [...tools].sort() };
   });

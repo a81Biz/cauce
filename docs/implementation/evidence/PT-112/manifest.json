@@ -1,0 +1,101 @@
+{
+  "pt": "PT-112",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "«--forzar» exige quien lo decide y sin nombre no sobrescribe",
+      "tests": [
+        "selftest.sh:«--forzar» pide quien lo decide"
+      ],
+      "evidence": [
+        "salidas/forzar.txt"
+      ],
+      "verified": true,
+      "nota": "Sobrescribir docs/methodology/ es SUITE-R06e —no se automatiza— y SUITE-R31 dice que decidir quien tiene razon es HUMANO. El flag saltaba las dos SIN DEJAR NADA. Una compuerta que se pasa sin rastro no es una compuerta: es una puerta."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Deja constancia en INSTALL.log",
+      "tests": [
+        "selftest.sh:…y deja constancia en INSTALL.log"
+      ],
+      "evidence": [
+        "salidas/forzar.txt"
+      ],
+      "verified": true,
+      "nota": "Con la forma que EXEC-R04a exige de G4: quien, cuando, la version y que archivos difieren o sobran. En INSTALL.log y no en un archivo nuevo, que seria otro sitio que mirar."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Si no puede registrar, NO sobrescribe",
+      "tests": [
+        "selftest.sh:…y si no puede registrarlo, NO sobrescribe"
+      ],
+      "evidence": [
+        "salidas/forzar.txt"
+      ],
+      "verified": true,
+      "nota": "RULE-06 · sobrescribir sin poder dejar rastro es EXACTAMENTE lo que esto impide, asi que el fallo al registrar no puede degradarse a un aviso."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Una instalacion nueva no se toca",
+      "tests": [
+        "por construccion: la guarda exige !d.nueva"
+      ],
+      "evidence": [
+        "salidas/forzar.txt"
+      ],
+      "verified": true,
+      "nota": "No hay divergencia que decidir en un destino sin marco previo."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "INC-007 e INC-013 quedan declarados sin arreglar",
+      "tests": [
+        "selftest.sh:«--forzar» pide quien lo decide"
+      ],
+      "evidence": [
+        "salidas/declarado.txt"
+      ],
+      "verified": true,
+      "nota": "Sus descripciones viven en el INCIDENTS.log de la CALCULADORA, que no esta en esta maquina — mismo caso que INC-003, INC-005 e INC-014 en PT-109. L-8 cierra con UNO DE TRES, y eso es una decision: arreglar «algo parecido» seria inventar el defecto y su arreglo a la vez."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que INC-007 e INC-013 esten resueltos.",
+      "por_que": "NO LO ESTAN. Sus descripciones no estan en esta maquina.",
+      "donde": "changes/PT-112-forzar-no-es-una-compuerta/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que otros flags no salten una compuerta.",
+      "por_que": "Se midio «--forzar», que es el que L-8 nombra. Los demas quedan declarados y sin medir.",
+      "donde": "changes/PT-112-forzar-no-es-una-compuerta/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que una instalacion real con --forzar escriba bien el registro.",
+      "por_que": "Se comprueba el codigo y su guarda, no una instalacion completa sobre un proyecto ajeno — y tocar un proyecto ajeno esta fuera de alcance en todo este lote.",
+      "donde": "changes/PT-112-forzar-no-es-una-compuerta/test-scenarios.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "L-8 cierra con uno de tres, como L-7 cerro con dos de cinco.",
+      "regla": "SUITE-R45",
+      "detalle": "Cinco de los quince INC del lote no tienen descripcion accesible en esta maquina. Se declaran con el motivo y el «find» que lo sostiene, en vez de arreglar «algo parecido»."
+    },
+    {
+      "que": "Primera aplicacion espontanea de SUITE-R59.",
+      "regla": "SUITE-R59",
+      "detalle": "El salto de linea del registro va por String.fromCharCode porque la regla EXISTE, no porque me acordara. Es la primera vez en la sesion que una regla nueva se aplica sola en la tarea siguiente — que es exactamente lo que PT-101 existia para conseguir."
+    }
+  ],
+  "suite": {
+    "passed": 1372,
+    "failed": 0,
+    "baseline": 1365,
+    "nota": "Cuatro casos propios."
+  }
+}

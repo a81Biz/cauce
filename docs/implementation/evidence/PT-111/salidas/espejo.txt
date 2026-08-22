@@ -1,0 +1,2 @@
+correcto: sin divergencia
+editado: PT-999: el titulo del issue #7 no es el derivado del registro. Publicado «otra cosa», derivado «PT-999 · un-slug». Lo pr

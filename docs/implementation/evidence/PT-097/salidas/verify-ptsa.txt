@@ -1,0 +1,15 @@
+verify-ptsa — auditoría por enumeración (PTSA-R76..R80)
+
+PASA
+  ✓ PTSA-R47     4 producto(s) con archivo propio.
+  ✓ PTSA-R77     Matriz completa: 51 elemento(s) × 4 dimensiones.
+  ✓ PTSA-R76     Universo cubre los 4 producto(s) de Products/.
+  ✓ PTSA-R76     Universo trazado a 6 fuente(s) de inventory/.
+  ✓ PTSA-R78     coverage 0.89 coherente con la matriz.
+  ✓ PTSA-R21     Score publicado con cobertura y frescura.
+  ✓ PTSA-R08     Certificacion «B» contrastada contra §24.2/§24.4 · topes: B · §13.4 · health_unstable.
+
+AVISOS
+  ! PTSA-R79     Matriz incompleta: 175/196 evaluadas (89 %). La auditoría cierra cuando la matriz está completa, no cuando dejan de aparecer hallazgos.
+
+Auditoría verificable: sin errores.

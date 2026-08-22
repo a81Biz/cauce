@@ -1,0 +1,89 @@
+{
+  "pt": "PT-110",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "sellar mide las cifras del inventario y las publica",
+      "tests": [
+        "selftest.sh:sellar mide las cifras del inventario"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true,
+      "nota": "FND-R14 cayo SIETE VECES en este lote y las siete se arreglaron A MANO. El comando —tracker inventario --aplicar— existia desde ANTES del lote y no lo llamaba nadie. La causa no era que faltara la herramienta: era que sellar no la miraba. Recorria el grafo, los documentos de entrada y la guia de migracion, y el inventario NO ESTABA EN LA LISTA."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Dice SIN EVALUAR si no puede leerlas",
+      "tests": [
+        "selftest.sh:…y dice SIN EVALUAR cuando no puede leerlas"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true,
+      "nota": "RULE-06 · un silencio aqui es INDISTINGUIBLE de «todo coincide». Sin este desenlace, un services.md ilegible produciria el mismo informe que uno perfecto — que es el defecto que este lote entero persigue."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "No las arregla: nombra el comando",
+      "tests": [
+        "por construccion: la medicion solo lee"
+      ],
+      "evidence": [
+        "salidas/sellar.txt"
+      ],
+      "verified": true,
+      "nota": "EXEC-R07 · lo que no se automatiza se DESCRIBE. Y reescribir un documento de Foundation dentro de un comando de estado mezcla dos responsabilidades."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "los dos casos"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Lo primero que detecto el arreglo fue SU PROPIA desviacion: añadir la medicion a tracker.mjs cambio el numero de lineas de tracker.mjs."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que no falte nada mas por mirar en sellar.",
+      "por_que": "Se añadio el que cayo siete veces. Decir «ya no falta nada» seria afirmar sin medir.",
+      "donde": "changes/PT-110-sellar-mide-lo-que-exige/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que la descripcion en prosa del inventario sea cierta.",
+      "por_que": "Se miden las CIFRAS. El propio mensaje de FND-R14 lo declara desde antes.",
+      "donde": "changes/PT-110-sellar-mide-lo-que-exige/discovery.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Cite una evidencia que todavia no existia, y FDGE-R23 lo cazo antes del commit.",
+      "regla": "FDGE-R23",
+      "detalle": "El manifest apuntaba a salidas/selftest-completo.txt cuando la bateria seguia corriendo: el archivo NO ESTABA EN DISCO. Un AC que apunta a una evidencia inexistente es un verde falso de la peor clase —dice «verificado» y no hay nada que mirar—, y es exactamente lo que este lote persigue. Lo cazo verify-fdge --all, que no habria corrido si no llego a ejecutarlo antes de confirmar. La leccion es la misma que llevo repitiendo: correr la comprobacion DONDE SE DECIDE, no solo donde trabajo."
+    },
+    {
+      "que": "Parchee FND-R14 a mano SIETE veces teniendo el comando delante.",
+      "regla": "SUITE-R38",
+      "detalle": "Las siete veces escribi un script de Python que recalculaba las cifras, reimplementando «tracker inventario --aplicar» —que existia desde antes del lote— DENTRO del lote que existe para que el marco se use. Es la forma exacta que el firmante lleva señalando: el marco tenia la respuesta y yo no le preguntaba."
+    },
+    {
+      "que": "Iba a duplicar la herramienta dentro de sellar.",
+      "regla": "SUITE-R38",
+      "detalle": "El primer diseño era escribir un recalculo NUEVO en sellar. Comprobar si ya existia uno es lo que lo evito — la averia de SUITE-R38 cometida dentro de la tarea que la persigue."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": 1345,
+    "nota": "Dos casos propios. Cifras pendientes de la corrida completa."
+  }
+}

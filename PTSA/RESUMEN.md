@@ -14,6 +14,7 @@ health: 79.9
 risk: 73
 confidence: 0.94
 certificacion: B
+health_unstable: true
 ---
 
 # RESUMEN — auditoria PTSA de cauce 10.0.0
@@ -213,4 +214,81 @@ Pendiente de una persona:
   - validar y cerrar los hallazgos BUG y DOMAIN (PTSA-R44)
   - decidir H-009, que es INVESTIGATION y no tiene arreglo obvio
   - autorizar o no la publicacion, sabiendo que H-001 la bloquea hoy
+```
+
+---
+
+## Revisión 1 — 2026-08-21 · la certificación, recalculada contra `§24.2` y `§24.4`
+
+> `SUITE-R09` · append-only. **No se ha tocado una sola línea de lo anterior.** Lo único que cambia
+> arriba es el frontmatter, que gana `health_unstable: true` — un dato que este documento ya
+> declaraba en su prosa y que `PTSA-R82` ahora exige publicar.
+
+### Qué pasaba
+
+Cuando se emitió esta auditoría, `PTSA-R08` obligaba a publicar una letra `A/B/C/F` y **los
+umbrales no existían**: `§24.2` y `§24.4` se citaban desde `§15.6` y `§13.4`, y `§24` era —y sigue
+siendo, ahora como `§24.1`— la tabla de transiciones de estado de un producto.
+
+Ante eso, este documento escribió:
+
+```
+:80    «A requiere Health >= 90»
+:195   «certificacion sigue siendo B (75-89)»
+```
+
+**La banda `(75-89)` no aparece en ninguna especificación.** Se inventó para poder cumplir una
+regla que exigía un entregable sin definirlo. Y `«A requiere Health >= 90»` se escribió como si
+constara: consta **desde ahora**, no constaba entonces.
+
+Lo midió también otro proyecto, de forma independiente, y ante el mismo hueco tomó la decisión
+contraria: publicar los tres scores y **no emitir letra** (`INC-007` del proyecto legado).
+
+### El recálculo
+
+`PT-097` escribió `§24.2` y `§24.4` **sin añadir ninguna cifra**: `C` no es una banda sino un
+techo, que es lo que dicen las dos únicas reglas que la nombran.
+
+```
+base       60 <= 79.9 < 90                          ->  B     §24.2
+topes      health_unstable: true                    ->  B     §13.4
+           Confidence 94 >= 90                      ->  no bloquea A (irrelevante, ya es B)
+           freshness 2026-08-20, conocida           ->  sin techo C
+           riesgo maximo activo = 9 (H-003, ALTO)   ->  sin techo C, no llega a CRITICO
+letra = min(...)                                        B     PTSA-R81
+```
+
+### Veredicto
+
+```
+certificacion: B      SIN CAMBIO
+```
+
+**Y precisamente por no cambiar hay que decir esto:** la letra anterior **no era contrastable**
+cuando se emitió. Que coincida con la derivada **no la valida retroactivamente** — coincidió, no
+se dedujo. Callarlo dejaría escrito que inventar una banda salió bien.
+
+### Lo que esta revisión retira
+
+```
+la banda «(75-89)»              no existe en ninguna especificacion. §24.2 no tiene banda B
+                                por rango bajo: tiene 60 <= Health < 90, que es otra cosa
+«A requiere Health >= 90»       cierto AHORA, por §24.2. No lo era cuando se escribio
+```
+
+### Lo que **no** cambia
+
+`Health`, `Risk`, `Confidence`, `coverage` y `freshness` se quedan como están. Esta revisión toca
+**la letra y su justificación**, no los números.
+
+> **Y un límite declarado:** el `Risk 73` publicado se calculó con `H-001` y `H-006` todavía
+> activos; hoy están `CLOSED` y los hallazgos activos son siete. Recalcularlo **no es de esta
+> tarea** —la letra no depende de `Risk` (`§24.2`, `§24.4`)— y arrastra `INC-008` del proyecto
+> legado: el multiplicador `×4` satura con `Σ ≥ 25`, así que el `Risk` deja de discriminar a partir
+> del cuarto hallazgo. Queda anotado en el `## Cierre del lote` de `EP-019`.
+
+```
+Revisión escrita por: el agente, en PT-097
+Fecha: 2026-08-21
+Firmada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
 ```

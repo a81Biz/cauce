@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **11.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **12.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -552,7 +552,8 @@ changes/PT-XXX-slug/
   test-scenarios.md    PHASE 4
   out-of-scope.md      PHASE 4
   traceability.md      PHASE 4→6 · matriz AC → TS → test → evidencia → caso QA
-  bitacora.md          append-only · tres líneas por transición de fase [FDGE-R52]
+  (la nota de reanclaje NO vive aquí: va al issue si hay plataforma, y si no a
+   docs/implementation/TRANSICIONES.log — uno por repositorio [FDGE-R52, INC-008])
 ```
 
 `LEX-R13` · **Ningún archivo de trabajo de un PT vive en una ruta global.**
@@ -944,6 +945,35 @@ defecto — pero incluso FDGE requiere `[START PT]` para abrir trabajo nuevo.
 `CHORE` es nuevo en v4: trabajo necesario que no es ninguno de los otros cuatro
 (actualizar una dependencia, mover un archivo, ajustar CI). Recorre el track `EXPRESS` por
 defecto y nunca cierra un hallazgo ni un defecto.
+
+`LEX-R27` · Un **lote** (`EP-NNN`) NO lleva `type`: se reconoce por su **identificador**, que el
+registro asigna (`SUITE-R08`) y que siempre está. El campo es opcional y depender de él es
+depender de dos fuentes del mismo hecho quedándose con la peor (`SUITE-R38`).
+
+> Se declara porque la pregunta no tenía respuesta y el registro acumuló **tres**: `EP` en
+> dieciséis lotes, ausente en dos y `EPIC` en uno. Con eso, `tracker estado` perdía una tarea
+> **sin decirlo** —su lote no entraba en el grupo de lotes y ella declaraba `epic`, así que no
+> era «suelta»— y el cuerpo de un issue de lote nunca listaba nada. Las herramientas derivan del
+> ID desde `PT-096` y `PT-100`; esta regla cierra la pregunta en vez de elegir una de las tres.
+
+### 8.1b Tipo de caso de `QA` (`tipo`)
+
+`HP` · `EC` · `EF` · `REG`
+
+| | |
+|:---|:---|
+| `HP` | *happy path* — el camino que el usuario recorre cuando todo va bien |
+| `EC` | caso **borde** — el límite de lo válido |
+| `EF` | caso de **fallo** — lo que debe rechazarse, y cómo se le dice al usuario |
+| `REG` | **regresión** — lo que ya se rompió una vez |
+
+`LEX-R28` · El `tipo` de un caso de `QA` es uno de esos cuatro. `QA-PLAN.md` los escribe y
+`verify-qa` los comprueba **contra esta lista y ninguna otra**.
+
+> Se declara porque había **dos** vocabularios: los documentos —`QA-Prompts`, `PHASES`, `CORE`—
+> decían `HP|EC|EF|REG` y `verify-qa.mjs` esperaba `HP|REG|EDGE|NEG`. Un `QA-PLAN` escrito
+> siguiendo la documentación **fallaba la verificación**, y uno escrito para pasarla contradecía
+> la documentación. `INC-012` lo midió en un proyecto destino.
 
 ### 8.2 Complejidad (`complexity`) — mide **esfuerzo y riesgo técnico**
 

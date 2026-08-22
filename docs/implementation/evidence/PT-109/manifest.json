@@ -1,0 +1,96 @@
+{
+  "pt": "PT-109",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Todo aviso de una regla que falla en una compuerta lo dice",
+      "tests": [
+        "selftest.sh:el aviso dice en que compuerta se convierte en error"
+      ],
+      "evidence": [
+        "salidas/aviso.txt"
+      ],
+      "verified": true,
+      "nota": "CUATRO reglas avisan y fallan en G4 o G2. Eso esta BIEN —una precondicion de merge es mas estricta que una revision de paso— y a la vez producia el defecto: quien corre verify-fdge sin compuerta ve avisos, cree que va bien, y al llegar a la compuerta se encuentra rojos que llevaban ahi desde el principio."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Una regla que NO cambia de severidad no la lleva",
+      "tests": [
+        "selftest.sh:…y no se la pega a una regla que no cambia"
+      ],
+      "evidence": [
+        "salidas/aviso.txt"
+      ],
+      "verified": true,
+      "nota": "Es la mitad del arreglo. Si la coletilla se pegara a todas, dejaria de significar nada — que es como un aviso se vuelve ruido."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "FPGE-R01 reconoce un candidato por su FILA",
+      "tests": [
+        "selftest.sh:FPGE-R01 mira la FILA del roadmap, no la mencion"
+      ],
+      "evidence": [
+        "salidas/aviso.txt"
+      ],
+      "verified": true,
+      "nota": "ES LITERALMENTE EL DEFECTO DE PT-100, EN EL MISMO ARCHIVO: aquel arreglo el vocabulario de los tipos de caso QA, este el reconocimiento de un candidato. Los dos confundian NOMBRAR con DECLARAR."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "los cuatro casos"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Los casos se reescribieron sobre el PROYECTO DE MENTIRA: los primeros corrian verify-fdge sobre el repositorio real y sobre una tarea concreta, asi que fallaban —la bateria trabaja desde un fixture— y ademas habrian caducado en cuanto esa tarea dejara de tener el aviso."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Los tres INC inaccesibles quedan declarados",
+      "tests": [
+        "selftest.sh:…y ya no casa cualquier linea que lo nombre"
+      ],
+      "evidence": [
+        "salidas/declarado.txt"
+      ],
+      "verified": true,
+      "nota": "INC-003, INC-005 e INC-014 viven en el INCIDENTS.log de la CALCULADORA, que no esta en esta maquina. Arreglar «algo parecido» seria inventar el defecto y su arreglo a la vez — exactamente lo que este lote persigue. NOTA DE FORMA: la evidencia apuntaba a una ruta del REPOSITORIO y el manifiesto las resuelve relativas a su propia carpeta, asi que FDGE-R23 la vio inexistente. Se copia aqui lo declarado, que es lo que hay que poder leer sin salir de la evidencia."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que no haya mas reglas que cambien de severidad segun la compuerta.",
+      "por_que": "Se midieron cuatro con un grep sobre «gate ===». Una escrita de otra forma no apareceria.",
+      "donde": "changes/PT-109-una-compuerta-no-es-una-revision-sorpresa/discovery.md"
+    },
+    {
+      "afirmacion": "Que INC-003, INC-005 e INC-014 esten resueltos.",
+      "por_que": "NO LO ESTAN. Sus descripciones no estan en esta maquina y se declaran sin arreglar.",
+      "donde": "changes/PT-109-una-compuerta-no-es-una-revision-sorpresa/out-of-scope.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mis primeros casos corrian sobre el repositorio real.",
+      "regla": "—",
+      "detalle": "Invocaban verify-fdge sobre una tarea concreta del repositorio, y la bateria trabaja desde un proyecto de mentira: fallaron sin que el codigo estuviera mal. Y aunque hubieran pasado, habrian CADUCADO en cuanto esa tarea dejara de tener el aviso — un caso atado a un dato que cambia."
+    },
+    {
+      "que": "L-7 pedia cinco y se cierran DOS.",
+      "regla": "SUITE-R45",
+      "detalle": "Tres de los cinco INC no tienen descripcion accesible. Se declaran con el «find» que no los encuentra, en vez de arreglar «algo parecido» — que seria inventar el defecto y su arreglo a la vez."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": 1345,
+    "nota": "Cuatro casos propios sobre el fixture. Cifras pendientes."
+  }
+}

@@ -1,0 +1,56 @@
+
+  sellar · version vigente 12.0.0 · tag anterior v11.0.0
+
+  deuda de sellado   2 de lotes CERRADOS · umbral 3
+                     PT-094 · PT-095
+                     Las tareas de un lote ABIERTO no cuentan: EXEC-R03 hace del lote
+                     la unidad de sellado, y contarlas lo bloquearia consigo mismo.
+
+
+  inventario         las 16 cifras coinciden con el arbol.
+  grafo              al dia.
+
+  documentos de entrada  (cada uno ACTUALIZADO o NO PROCEDE con motivo — FND-R22)
+    ✓  MANUAL.md
+    ✓  CASOS-DE-USO.md
+    ✓  README.md
+    ✓  Suite-CLAUDE-Template.md
+    ✓  graphify-out/
+
+  guia de migracion  1 regla(s) nueva(s) NO nombradas: LEX-R08.
+                     Un proyecto destino se encontraria la regla sin una linea que se la
+                     explique. Nombrarlas es el minimo; que la instruccion sirva no se
+                     comprueba aqui.
+
+  ── lo que falta para sellar ──────────────────────────────────────────
+  1 · entrada en CHANGELOG.md que ENUMERE las reglas nuevas   [SUITE-R19]
+  2 · node tools/version.mjs --aplicar   (los 21 documentos)
+  3 · node tools/build-core.mjs          (CORE regenerado)
+  4 · bash tools/selftest.sh             BATERIA COMPLETA, no parcial
+  5 · /graphify   y REGISTRY.graph al dia                     [FDGE-R32]
+  6 · docs/implementation/SELLO.md con los cinco resueltos
+  7 · PR a la rama por defecto  ·  HUMANO                     [EXEC-R04]
+  8 · git tag -a v<version>     ·  HUMANO, y DESPUES del merge
+
+  Los pasos 7 y 8 NO los ejecuta el agente (SUITE-R06a). El 8 va despues del 7:
+  un tag antes del merge apunta a un arbol sin lo que la version trae, y la linea
+  base de FDGE-R43 y de AC-08 quedaria mintiendo (PT-081).
+tracker · github · acción sellar
+
+  · PT-025 #35: se regeneraria el cuerpo
+  · EP-019 #189: se regeneraria el cuerpo
+  · PT-096 #191: se regeneraria el cuerpo
+  · PT-097 #194: se regeneraria el cuerpo
+  · PT-098 #196: se regeneraria el cuerpo
+  · PT-099 #197: se regeneraria el cuerpo
+  · PT-100 #198: se regeneraria el cuerpo
+  · PT-101 #199: se regeneraria el cuerpo
+  · PT-102 #200: se regeneraria el cuerpo
+  · PT-103 #201: se regeneraria el cuerpo
+  · PT-104 #202: se regeneraria el cuerpo
+  · PT-105 #203: se regeneraria el cuerpo
+  · PT-106 #204: se regeneraria el cuerpo
+  · PT-107 #205: se regeneraria el cuerpo
+  · PT-032 #45: publica la ruta sin enlace y no hay ref durable todavia. No se inventa uno (RULE-06): consta.
+
+Sin divergencias.

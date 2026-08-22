@@ -1,0 +1,26 @@
+PRUEBA INVERSA — PT-097
+
+Cada cambio se retira POR SEPARADO. Si alguno sale en CERO, ese cambio no esta probado,
+y eso se dice: una inversa que sale en cero no es un verde, es un aviso (PT-095).
+
+§24.2 · la banda A (Health >= 90)               caen  2
+                                                  · Health 95 da A
+                                                  · …y con todo presente SI la hay
+§24.2 · la linea de fallo de dominio (60)       caen  1
+                                                  · Health 55 da F
+§24.4 · el tope de freshness                    caen  1
+                                                  · freshness UNKNOWN topa en C
+§24.4 · el tope de hallazgo CRITICO             caen  2
+                                                  · un hallazgo CRITICO topa en C
+                                                  · dos topes dan el peor, no el ultimo
+§24.4 · el tope de health_unstable              caen  1
+                                                  · health_unstable topa en B
+§24.4 · el tope de Confidence                   caen  1
+                                                  · Confidence < 90 impide la A
+§24.3 · el freno del dato ausente               caen  2
+                                                  · sin Confidence no hay letra
+                                                  · …ni sin Health
+PTSA-R81 · el MIN (se queda el ultimo tope)     caen  1
+                                                  · dos topes dan el peor, no el ultimo
+
+Los ocho cambios hacen caer casos. Ninguno esta sin probar.

@@ -8,7 +8,7 @@ severity: S1
 complexity:
 track: STANDARD
 status: DONE
-phase: 7
+phase: 8
 created: 2026-08-21
 origin: DIRECT
 epic: EP-019

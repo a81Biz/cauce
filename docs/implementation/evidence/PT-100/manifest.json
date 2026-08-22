@@ -1,0 +1,128 @@
+{
+  "pt": "PT-100",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El espacio de QA se busca en las dos grafias, y se dice cual se encontro",
+      "tests": [
+        "selftest.sh:verify-qa ENCUENTRA el espacio en minusculas",
+        "selftest.sh:…y no queda ninguna grafia suelta",
+        "selftest.sh:…y dice donde busco cuando de verdad no lo encuentra"
+      ],
+      "evidence": [
+        "salidas/inversa.txt",
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "El primer caso comprobaba que la constante GRAFIAS_QA existiera —una asercion de TEXTO— y la inversa lo delato: se podia pasar dejando la constante y codificando la ruta a mano. Se cambio por una de COMPORTAMIENTO: montar un proyecto con «qa/» en minusculas y comprobar que lo encuentra. Eso la hizo honesta y a la vez la dejo SIN PODER FALLAR en Windows, donde el sistema de archivos no distingue mayusculas — que es TD-04 describiendose a si mismo. El unico sitio donde ese caso puede ponerse rojo es CI, que corre en Linux, y va declarado."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un vocabulario de tipos de caso QA, declarado y usado",
+      "tests": [
+        "selftest.sh:el tipo de caso QA lo declara LEXICON",
+        "selftest.sh:…y verify-qa usa ese vocabulario",
+        "selftest.sh:…y no el que nadie documentaba"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "TRES documentos —QA-Prompts:583, PHASES:595 y el CORE generado de el— decian un conjunto y la herramienta esperaba otro. Un QA-PLAN escrito siguiendo la documentacion FALLABA la verificacion. La causa no era que la herramienta estuviera mal: era que LEXICON no lo declaraba, asi que no habia a quien preguntar (LEX-R21). Y se añadio una EMISION real —fail('LEX-R28')— porque la regex sola filtraba en silencio: un tipo invalido no fallaba, simplemente no se contaba."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un destino para la nota de reanclaje, declarado en la regla",
+      "tests": [
+        "selftest.sh:FDGE-R52 declara el destino que la herramienta usa",
+        "selftest.sh:…y ya no nombra el que no existe"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Aqui el que estaba mal era el DOCUMENTO, al reves de lo esperado. tracker.mjs:2509 dice «la nota vive AHORA en TRANSICIONES.log» —cambio deliberado, con su motivo en SUITE-R09— y FDGE-R52 se quedo atras. LEX-R22 dice que las reglas mandan sobre las herramientas, pero una regla que describe un comportamiento que ya no existe no manda: DESINFORMA. El CHANGELOG, que tambien lo nombra, NO se toca: es historia y SUITE-R09 la protege."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Cero «type === 'EP'» en verify-fdge",
+      "tests": [
+        "selftest.sh:verify-fdge ya no pregunta por el type de un lote",
+        "selftest.sh:…ni por su negacion"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Seis sitios a cero, con el helper que patrones.mjs exporta desde PT-096 — que arreglo los OCHO de tracker.mjs. Una fuente, no dos (SUITE-R38). Y se añadio un AVISO —no un fallo— para el lote que declare «type»: los diecinueve historicos lo llevan escrito de tres formas y SUITE-R09 es append-only, asi que no se retrofecha."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "LEXICON declara los dos nombres que faltaban",
+      "tests": [
+        "node tools/audit.mjs docs/methodology",
+        "node tools/verify-suite.mjs docs/methodology"
+      ],
+      "evidence": [
+        "salidas/audit.txt",
+        "salidas/verify-suite.txt"
+      ],
+      "verified": true,
+      "nota": "audit pidio algo que no esperaba: declararlas como HARD no bastaba, porque «no la cita ningun documento operativo». Una regla que solo vive en LEXICON y en el codigo NO LA VE quien trabaja en modo MANUAL. Se añadieron a PHASES, a QA-Prompts y a FDGE-Prompts, y verify-suite cazo cada omision por separado. Tres verificadores distintos empujando al mismo sitio: que una regla exista donde alguien la vaya a leer."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "la prueba inversa, cambio a cambio"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "SIETE retiradas, SEIS con efecto y UNA en cero, declarada: la de las grafias no puede caer en Windows porque el sistema de archivos no distingue. Una inversa en cero no es un verde — aqui el aviso dice DONDE hay que mirar, no que el cambio este sin probar."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que el arreglo de las grafias funcione en un sistema sensible a mayusculas.",
+      "por_que": "El caso de comportamiento no puede fallar en Windows: el sistema de archivos no distingue, asi que la version SIN el arreglo encuentra «qa/» igual. Lo establece la corrida de CI, que es Linux, y es el unico sitio donde ese caso puede ponerse rojo. ESTABLECIDO EL 2026-08-22: CI lo cazo, y encontro que el MISMO defecto seguia en el FIXTURE de la bateria —mk_qa creaba «QA/» y tres lineas escribian en «qa/tests»—. En Windows es el mismo directorio y los 1372 casos pasaban; en Linux los specs caian donde verify-qa no mira, y el caso «espera fija ⇒ falla» no emitia QA-R16. Arreglado en PT-100 con una sola grafia. La declaracion sirvio EXACTAMENTE para lo que se escribio: cuando el fallo aparecio, habia donde encajarlo.",
+      "donde": "docs/implementation/evidence/PT-100/salidas/inversa.txt"
+    },
+    {
+      "afirmacion": "Que no queden mas hechos con nombre doble.",
+      "por_que": "Se conocen CINCO y los cinco estan arreglados. Un grep no puede encontrar lo que no sabe buscar, y decir «no quedan» seria afirmar sin medir.",
+      "donde": "changes/PT-100-un-hecho-un-nombre/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que «QA/» en mayusculas sea la grafia correcta.",
+      "por_que": "El arreglo NO elige: busca las dos y dice cual encontro. Elegir obligaria a renombrar el arbol de proyectos ajenos, y en git un cambio de mayusculas rompe clones.",
+      "donde": "changes/PT-100-un-hecho-un-nombre/strategy.md A-1"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mis propios comentarios rompieron mis propios casos.",
+      "regla": "—",
+      "detalle": "Escribi en verify-qa.mjs el vocabulario viejo y en RULES.md el destino viejo, dentro de las explicaciones. Los dos «chkno» que comprueban que ESOS NOMBRES YA NO ESTAN los encontraron en mis comentarios. Es el patron que el HANDOFF advierte para las emisiones —«escribir en un comentario el patron literal»— aqui aplicado a un vocabulario. Reescritos sin nombrar lo viejo, y dicho en el propio archivo."
+    },
+    {
+      "que": "La inversa me obligo a cambiar una asercion, y luego la dejo sin poder fallar.",
+      "regla": "FDGE-R17",
+      "detalle": "S-1 salio en CERO. El caso comprobaba que la constante GRAFIAS_QA existiera —TEXTO— y se podia fingir. Al cambiarlo por COMPORTAMIENTO dejo de poder fingirse Y dejo de poder caer en Windows. Las dos cosas son ciertas a la vez, y la segunda es TD-04 describiendose a si mismo: el defecto no se reproduce en la maquina donde se escribio el codigo."
+    },
+    {
+      "que": "Quinta rotura de escapado de la sesion.",
+      "regla": "—",
+      "detalle": "Los «\\n» de un fixture se convirtieron en saltos de linea reales al pasar por una transformacion de texto, y el modulo no compilaba. Corregido con String.fromCharCode(10) y un join, que es la forma que este repositorio ya usa para no depender de la capa de escapado."
+    }
+  ],
+  "suite": {
+    "passed": 1297,
+    "failed": 0,
+    "baseline": 1286,
+    "nota": "11 casos, y DOS de ellos reescritos a mitad: los de las grafias comprobaban que una constante existiera —TEXTO— y la inversa los delato. Se cambiaron por pruebas de COMPORTAMIENTO que montan un proyecto real."
+  }
+}

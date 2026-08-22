@@ -33,7 +33,8 @@ const ROOT = resolve(ARGS.find((a) => !a.startsWith('--')) ?? process.cwd());
 const CON_HISTORIAL = ARGS.includes('--historial');
 if (!existsSync(ROOT)) { console.error(`No existe: ${ROOT}`); process.exit(2); }
 
-// Regex LITERALES. Montarlos desde strings ha fallado siete veces en este proyecto: \b se
+// Regex LITERALES. Montarlos desde strings ha fallado muchas veces — la cuenta vive en
+// patrones.mjs · ROTURAS_DE_ESCAPADO (PT-101). El motivo: \b se
 // convierte en 0x08 y \s en «s» segun la capa de escapado, y el resultado compila sin casar nada.
 const PATRONES = [
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'clave privada',

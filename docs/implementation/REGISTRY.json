@@ -1,5 +1,5 @@
 {
-  "suite_version": "11.0.0",
+  "suite_version": "12.0.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 96,
+    "PT": 112,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2479,7 +2479,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-21"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-096",
@@ -2512,8 +2513,521 @@
         "fecha": "2026-08-21"
       },
       "issue": 191,
-      "phase": 7,
+      "phase": 8,
       "branch": "bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto"
+    },
+    {
+      "id": "PT-097",
+      "slug": "los-umbrales-de-la-certificacion",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "Los umbrales de la certificacion: la letra se deriva o no se emite",
+      "origin": "PTSA-R08 exige emitir una clasificacion A/B/C/F «auditable y defendible», y los umbrales se citan en §24.2 y §24.4, que NO EXISTEN: §24 es «Reglas de transicion» de estado de PRODUCTO y no tiene subsecciones. Comprobado en las DOS versiones, 4.12.0 del proyecto legado y 11.0.0 de aqui (INC-007 del legado). La especificacion define solo CUATRO TOPES dispersos —PTSA-R30 freshness UNKNOWN no por encima de C, §13.4 health_unstable no por encima de B, §15.6 Confidence<90 no A, §26 un CRITICO bloquea >=B— y ningun suelo: cuatro rebajas de una letra que nunca dice como se obtiene. Consecuencia en este repositorio: PTSA/RESUMEN.md publica «certificacion: B» con la banda «(75-89)», que no aparece en ninguna especificacion, y score-history.json ya la propaga a la siguiente auditoria; esa auditoria fue el argumento con el que se publico la 11.0.0. Nuestro PHASE 0 tampoco declara umbrales, asi que ni la via de PTSA-R24 la respalda. Y verify-ptsa.mjs no contiene la cadena «certificac»: PTSA-R08 es la unica regla HARD de PTSA que exige un entregable y no tiene comprobacion mecanica, por eso una letra inventada paso en verde. El proyecto legado, ante el mismo hueco, publico los tres scores y NO emitio letra.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 194
+    },
+    {
+      "id": "PT-098",
+      "slug": "el-estado-terminal-se-deriva-del-arbol",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "El estado terminal se deriva del arbol, no se escribe al avanzar",
+      "origin": "C-1 del lote, y el hallazgo que INC-011 de la calculadora llama «el mas peligroso de los once». «avanzar --a <ultima>» escribe INTEGRATED sin mirar nada, y ese estado APAGA cinco comprobaciones de verify-fdge que se eximen de lo terminal. Medido en la calculadora: PT-001 y PT-002 en INTEGRATED con «git rev-list --count main» devolviendo 2; al corregirlo a DONE se encendieron las cinco y CUATRO salieron en rojo sobre trabajo del dia anterior, mientras «verify-fdge --all» daba verde todos los dias. LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal»: es un hecho del arbol, no una opinion del registro. Es un falso VERDE, y un falso verde se archiva mientras un falso rojo se investiga. El mecanismo de contraste YA EXISTE —PT-096 construyo refDurableDe, que pregunta a git si changes/<ID>-<slug>/ esta en una rama— y medido sobre este registro: 91 de 91 INTEGRATED tienen su directorio en main y 0 estan solo en trabajo, asi que la comprobacion es posible HOY para todas y no necesita que la allocation declare rama, que es lo que la hacia parecer inviable: 58 de las 91 no la declaran.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 196
+    },
+    {
+      "id": "PT-099",
+      "slug": "la-transicion-de-un-bug-la-aplica-el-comando",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "La transicion de un BUG la aplica el comando, no la memoria",
+      "origin": "INC-006 de los tres proyectos. LEXICON §5.1 declara «IN_REVIEW -> VALIDATION_PENDING: tipo BUG · siempre» y FDGE-R26 (HARD, citando LEX-R08) dice que un BUG transita a VALIDATION_PENDING y ahi SE DETIENE: solo un humano lo lleva a DONE. Medido: «avanzar» toca «status» en UN SOLO sitio —la ultima fase— y VALIDATION_PENDING no se escribe NUNCA; el tipo del PT no se consulta en ningun punto de la transicion. Y ningun verificador cita LEX-R08: FDGE-R26 solo mira un BUG que YA esta en DONE, asi que uno que llegue a PHASE 9 con otro estado se verifica LIMPIO. Medido en este registro: 51 BUGs, 48 INTEGRATED y 3 DONE, y CERO han pasado por VALIDATION_PENDING. Los tres DONE son PT-096, PT-097 y PT-098 —los de este mismo lote— y los tres los escribi A MANO declarando la excepcion cada vez, porque el comando no lo hace. La regla H que protege el unico caso donde el marco exige validacion humana obligatoria no la aplica el comando que cambia de fase ni la comprueba el verificador que guarda la compuerta.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 197
+    },
+    {
+      "id": "PT-100",
+      "slug": "un-hecho-un-nombre",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "Un hecho, un nombre: las grafias que deciden si una verificacion corre",
+      "origin": "Causa C-2 del lote. TRES nombres distintos para tres hechos unicos, y los tres deciden si algo se verifica. (1) INC-008: «avanzar» escribe la nota de reanclaje en TRANSICIONES.log y CORE.md:337 (FDGE-R52) dice «bitacora.md». (2) INC-012: verify-qa.mjs:52 espera tipo(HP|REG|EDGE|NEG) y CORE.md:1003 dice tipo(HP|EC|EF|REG) — dos vocabularios para el tipo de un caso QA, y ninguno de los dos documentos cita al otro. (3) TD-04, y es peor de lo que la entrada describe: verify-qa.mjs usa DOS grafias en dos lineas consecutivas —QA en :36 y qa en :37— y si no encuentra QA/ sale con codigo 2 diciendo «nada que verificar»: en Linux, donde QA/ y qa/ son directorios distintos, la verificacion del ciclo entero se salta EN SILENCIO Y EN VERDE. Ademas L-0 dejo dos hechos mas de la misma causa: el «type» canonico de un lote, que LEXICON no declara y el registro escribe de tres formas (EP x16, ausente x2, EPIC x1), y los seis «type === EP» de verify-fdge.mjs, medidos y hoy latentes.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 198
+    },
+    {
+      "id": "PT-101",
+      "slug": "el-escapado-que-no-existe-no-se-rompe",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S2",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "El escapado que no existe no se rompe: normalizar en vez de advertir",
+      "origin": "Hallazgo del firmante tras CINCO roturas de escapado en una sola sesion (EP-019): un replace(//g) que quedo como regex sin cerrar, unos \n convertidos en saltos reales, y tres mas. Medido: el marco YA lo sabe y lo cuenta en COMENTARIOS de cuatro archivos por separado —build-core:463 «ha fallado cinco veces», verify-ptsa:108 «cinco veces», revisar-secretos:36 «siete veces»— sin sumarlo en ninguna parte: son diecisiete y nadie ve el total. Y audit:375 caza el byte 0x08 cuando YA ESTA ESCRITO, es decir despues del daño. Las cinco de esta sesion no las cazo ninguno porque rompieron en la HERRAMIENTA DE EDICION —heredocs de bash, replace de python— y no en el repositorio: el marco protege el destino y no la via. La propuesta del firmante es normalizar en vez de advertir: que las instrucciones sigan un patron y pasen por un normalizador, en lugar de acumular avisos que no impiden nada.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      },
+      "issue": 199,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
+    },
+    {
+      "id": "PT-102",
+      "slug": "la-version-es-un-contenido",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "La version es un contenido, no un numero: version.mjs dice «todo declara 11.0.0» y hay tres muertas",
+      "origin": "INC-004 de la calculadora, y peor de lo que su entrada describia. version.mjs alinea 21 documentos buscando UNA sola forma —«Suite version: **X.Y.Z**», RE_DECLARA en :61— y termina diciendo «Todo declara 11.0.0». Medido: hay TRES documentos con una version muerta que no mira, y las tres declaradas con OTRA forma («suite_version:»): Suite-CLAUDE-Template.md:49 dice 5.2.0, README.md:690 dice 5.2.0 y MANUAL.md:72 dice 7.4.0. El caso de la plantilla es el grave: es el UNICO documento que se copia a cada proyecto destino, asi que la herramienta que alinea la version es CIEGA justo al archivo que viaja — y ademas ese archivo declara «firmantes: - Nombre Apellido», una lista falsa en el documento contra el que SUITE-R27 contrasta las firmas. El verde de version.mjs no dice que todo este alineado: dice que todo lo que MIRA lo esta.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 200,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
+    },
+    {
+      "id": "PT-103",
+      "slug": "el-registro-solo-lo-escribe-el-comando",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "El registro solo lo escribe el comando, y nada lo comprueba",
+      "origin": "Hallazgo del firmante: el marco no obliga a seguir el marco. Medido: tracker asignar escribe CUATRO campos de nueve —id, slug, created, status— y NO escribe type, severity, epic ni phase, que son los que el marco exige. Un BUG de un lote con severidad no se puede registrar con el comando, asi que cada tarea nueva OBLIGA a escribir el JSON a mano; sin phase, avanzar no mueve nada, y sin type las comprobaciones de BUG no se activan. En esta sesion se escribio a mano CINCO veces y solo la primera quedo declarada. Y la causa de fondo es que CLAUDE.md, CORE.md, la sesion y el agente no son compuertas: no pueden fallar. Las compuertas miran los PRODUCTOS —firma del intake, trazabilidad— y NADIE mira el PROCEDIMIENTO: nada detecta que el registro cambio sin que un comando lo cambiara. NOTA: al abrirla se afirmo que PT-100 habia dejado FDGE-R52 apuntando a un archivo inexistente. Es FALSO y quedo corregido en SESSION_LOG.md: la regla nombra las DOS ramas —issue si hay plataforma, TRANSICIONES.log si no— y el archivo no existe aqui porque SI hay plataforma, que es lo que la regla predice.",
+      "issue": 201,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "branch": "chore/alberto-martinez/PT-097-apertura"
+    },
+    {
+      "id": "PT-104",
+      "slug": "el-tablero-dice-en-que-paso-estas",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida",
+      "issue": 202,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-105",
+      "slug": "el-estado-que-una-compuerta-exige-lo-escribe-un-comando",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "El estado que una compuerta exige lo escribe un comando, o la compuerta es incumplible",
+      "issue": 203,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-106",
+      "slug": "las-que-empezaron-a-juzgar-despues",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "Las que empezaron a juzgar despues: RIGE_DESDE se deriva del arbol, no del CHANGELOG",
+      "issue": 204,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-107",
+      "slug": "el-registro-no-se-reescribe-entero",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S0",
+      "epic": "EP-019",
+      "title": "El registro no se reescribe entero: dos comandos a la vez pierden una allocation en silencio",
+      "issue": 205,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-108",
+      "slug": "la-version-del-registro-tambien-es-un-contenido",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "La version del REGISTRO tambien es un contenido: version.mjs no mira REGISTRY.json",
+      "issue": 208,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-109",
+      "slug": "una-compuerta-no-es-una-revision-sorpresa",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "Una compuerta no es una revision sorpresa, y una mencion no es una declaracion",
+      "issue": 209,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-110",
+      "slug": "sellar-mide-lo-que-exige",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "Sellar mide lo que exige: el inventario no estaba en la lista",
+      "issue": 210,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-111",
+      "slug": "el-espejo-compara-lo-que-se-lee",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "El espejo compara lo que se lee: un titulo divergente no lo ve nadie",
+      "issue": 211,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-112",
+      "slug": "forzar-no-es-una-compuerta",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "«--forzar» no es una compuerta: sobrescribe el marco sin dejar constancia",
+      "issue": 212,
+      "branch": "chore/alberto-martinez/PT-097-apertura",
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     }
   ]
 }

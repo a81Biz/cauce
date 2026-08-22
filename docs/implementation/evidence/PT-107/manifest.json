@@ -1,0 +1,129 @@
+{
+  "pt": "PT-107",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Las cuatro escrituras del registro pasan por una funcion",
+      "tests": [
+        "selftest.sh:ya no queda ninguna escritura del registro a ciegas",
+        "selftest.sh:…todas pasan por el guardia"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Cuatro writeFileSync completos y UNA sola lectura, al arrancar el proceso. Entre esa lectura y cualquiera de las cuatro cabe otro comando entero. SUITE-R38 aplicado a una OPERACION en vez de a un dato: una forma de escribir el registro, no cuatro."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Compara con lo leido y no escribe si cambio",
+      "tests": [
+        "selftest.sh:dos comandos a la vez no pierden una allocation en silencio"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "DOS arreglos, y el segundo lo exigio el propio caso. Comparar el archivo con lo leido ESTRECHA la ventana pero NO la cierra: leer-comparar-escribir no es atomico, asi que si los dos procesos releen antes de que ninguno haya escrito, los dos pasan y el ultimo pisa. El caso salia bien A MANO y fallaba en la BATERIA — un caso INTERMITENTE, que es peor que ninguno porque enseña a ignorarlo. El arreglo real es un cerrojo creado con «wx», que SI es atomico: o lo creas tu o existe. Con el, el resultado es DETERMINISTA —cinco de cinco—: el segundo comando entra con una copia del registro que ya es vieja y se detiene diciendolo."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El mensaje dice cifras, comando y que hacer",
+      "tests": [
+        "selftest.sh:…y si una no entra, se DICE que no se escribio nada"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Cuatro cosas y las cuatro hacen falta: QUE comando —para saber cual repetir—, las DOS CIFRAS —para ver que se perdio algo y no que fallo al azar—, «NO se ha escrito nada» —el registro esta intacto, no hay que reparar— y QUE HACER. Un error que no dice que hacer obliga a leer el codigo."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "No fusiona y no reintenta",
+      "tests": [
+        "por construccion: la funcion solo lanza"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Fusionar sin saber cual gana es como se pierde el dato que esto existe para no perder. Y un reintento a ciegas repite efectos que YA ocurrieron —abrir un issue, escribir una nota en el tablero—."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El registro nunca queda a medias",
+      "tests": [
+        "selftest.sh:el registro nunca queda ilegible"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "O se escribe entero o no se escribe. El guardia va ANTES del write, no en mitad."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria REPRODUCE la perdida",
+      "tests": [
+        "la prueba inversa, con dos asignar en paralelo"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Es el AC que da valor a los demas, y el que corrigio el arreglo. Una condicion de carrera que no se reproduce no prueba nada; una que se reproduce A VECES prueba menos todavia. La primera version del caso aceptaba «entran las dos O una falla diciendolo» para no depender del reloj, y eso TAPABA el defecto: con solo la comparacion, «entran las dos» tambien ocurria por la carrera que se queria cazar. Con el cerrojo el desenlace es UNO SOLO y el caso lo exige."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la carrera no ocurra.",
+      "por_que": "No se arregla la carrera: se arregla el SILENCIO. Dos comandos a la vez siguen sin poder trabajar juntos; lo que cambia es que ahora uno lo DICE en vez de desaparecer.",
+      "donde": "changes/PT-107-el-registro-no-se-reescribe-entero/strategy.md"
+    },
+    {
+      "afirmacion": "Que CHECKPOINT.json y SESSION.json no tengan el mismo patron.",
+      "por_que": "Se escriben igual. Quedan DECLARADOS y sin medir: decir «no lo tienen» seria afirmar sin medir.",
+      "donde": "changes/PT-107-el-registro-no-se-reescribe-entero/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Cuantas veces habia pasado antes.",
+      "por_que": "Una perdida silenciosa NO DEJA RASTRO. Contra HEAD no hay ninguna, pero eso solo cubre esta sesion.",
+      "donde": "changes/PT-107-el-registro-no-se-reescribe-entero/discovery.md"
+    },
+    {
+      "afirmacion": "Que el cerrojo nunca deje el proyecto bloqueado.",
+      "por_que": "Se borra en un «finally» —tambien si la escritura falla— y uno abandonado se retira por EDAD, a los 30 s, con la edad MEDIDA y no supuesta. Pero un proceso congelado que mantenga el cerrojo vivo mas de 30 s haria que otro se lo quitara: es un compromiso deliberado, porque un cerrojo eterno colgaria el proyecto entero (SUITE-R17), que es peor que el defecto que arregla.",
+      "donde": "docs/methodology/tools/tracker.mjs · tomarCerrojo"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi primer arreglo era insuficiente, y lo destapo su propio caso siendo intermitente.",
+      "regla": "FDGE-R17",
+      "detalle": "Comparar el archivo antes de escribir parecia suficiente y no lo era: leer-comparar-escribir no es atomico. La ventana es de microsegundos, asi que el caso PASABA a mano y FALLABA en la bateria. Lo primero que hice fue sospechar del caso —creyendo que descartaba stdout, que era cierto y NO era la causa—; medirlo diez veces seguidas fue lo que enseño que el codigo era el que estaba mal. Un caso intermitente no es ruido: es la unica prueba de que un arreglo tapa el sintoma en vez de la causa."
+    },
+    {
+      "que": "Perdi una allocation entera, y la vio la casualidad.",
+      "regla": "SUITE-R08",
+      "detalle": "PT-106 estaba asignada, trabajada y documentada, y desaparecio porque lance «asignar» mientras «abrir --aplicar» corria en segundo plano. Lo hizo visible el CONTADOR RETROCEDIDO, que mire por otro motivo. Si no llego a mirar, la tarea habria seguido con sus archivos en changes/ y SIN allocation, y verify-fdge habria fallado mucho despues con un mensaje que no apunta a la causa. Restaurada con el mismo identificador porque el contador tambien habia retrocedido."
+    },
+    {
+      "que": "Tercera vez que rompo algo por lanzar comandos en paralelo.",
+      "regla": "—",
+      "detalle": "Antes revente la bateria TRES veces editando archivos mientras corria; ahora perdi un dato. El patron es el mismo y la leccion tambien: de uno en uno."
+    },
+    {
+      "que": "La funcion llevaba «export» dentro de un bloque donde no vale.",
+      "regla": "—",
+      "detalle": "El sitio era el correcto —vive dentro de EJECUTADO_DIRECTO porque quien importa el modulo como libreria no escribe el registro— y el error fue la palabra. Corregido a funcion local."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": 1345,
+    "nota": "Cuatro casos propios, DETERMINISTAS desde el cerrojo. Cifras pendientes."
+  }
+}

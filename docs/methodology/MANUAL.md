@@ -69,7 +69,7 @@ estado y terminar lo que ya estaba en vuelo. No se abre trabajo nuevo (`SUITE-R1
 En tu `CLAUDE.md`, y es lo único que se personaliza:
 
 ```yaml
-suite_version: 7.4.0
+suite_version: 12.0.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:
   - Tu Nombre
@@ -287,7 +287,8 @@ tiempo**, y todas siguen ahí salvo las dos que se arreglaron:
 | `git add -A` se lleva `node_modules` | La instalación **no deja `.gitignore`**. Escríbelo antes del primer commit |
 | `FND-R23` dice que `LAYOUT.md` «no está firmado» | Busca la línea **«refleja la estructura que quiero: SÍ»** y edítala **en su sitio**. Añadir una firma al final deja dos veredictos y falla por otro motivo |
 | `SUITE-R30` rechaza tu `INSTALL.log` | El formato es `I<n> ACCIÓN … OK`, con **dos espacios** antes de `OK` y `I` de un solo dígito |
-| `tracker asignar` y luego `avanzar` dice «PHASE NaN» | La allocation nace sin `phase`. Decláralo en el registro |
+| `tracker asignar` y luego `avanzar` dice «PHASE NaN» | Ya no ocurre desde la `12.0.0`: `asignar` escribe `phase: 1` siempre (`SUITE-R58`). Si lo ves, la allocation se escribió a mano — `verify-fdge` lo avisa y dice qué campo falta |
+| No sé qué poner en `--tipo` o `--severidad` de `asignar` | Los declara `LEXICON`, y el comando **rechaza** lo que no esté ahí. Puedes omitirlos y te dirá cuáles quedan sin declarar antes de `G1` |
 | `INTAKE-R06` dice que la firma está «sin rellenar» | Un intake suelto espera **`Reportado por:`**, no «Firmado por:». Y **copia la plantilla**: escribirlo a mano cuesta cuatro comprobaciones |
 
 **Y dos que ya no verás**, porque las encontró esa misma prueba y se arreglaron en el lote:

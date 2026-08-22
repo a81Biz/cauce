@@ -347,20 +347,19 @@ misma regla copiada nueve veces, y las copias divergen (`SUITE-R38`).
 
 | Qué | Cómo se resuelve | Estado |
 |:---|:---|:---|
-| Entrada en `CHANGELOG.md` con guía de migración | `SUITE-R19`, enumerando las reglas nuevas si las hay | **PENDIENTE** |
-| Número de versión | `MAJOR` si alguna tarea introduce una regla `HARD` nueva; `MINOR` si sólo añade verificadores a reglas existentes. `L-5` es la candidata a `MAJOR`: `RIGE_DESDE` para las 151 `HARD` cambia a qué alcanza cada regla | **PENDIENTE** |
-| `RIGE_DESDE` de toda regla nueva | `PT-081` · sin fila, rige hacia atrás | **PENDIENTE** |
-| Sello de la versión | los ocho pasos de `tracker sellar`, con la batería **completa** (`SUITE-R57`) | **PENDIENTE** · los pasos 7 y 8 son del firmante |
-| Los quince `INC` de los tres proyectos | cerrados, o declarados con motivo y su destino | **PENDIENTE** · `INC-016` y `INC-017` ya están declarados en §7 |
-| `INC-003` de la calculadora | lleva desde el 2026-08-20 declarado y sin `PT` — es la fila `5` del criterio de éxito | **PENDIENTE** |
-| El `type` canónico de un lote en `LEXICON` | `AC-09` de `L-0`, **retirado** allí y trasladado aquí: `EP` ×16, ausente ×2, `EPIC` ×1 | **PENDIENTE** · es de `L-3` |
-| Que `tracker asignar` escriba `phase` | encontrado ejecutando `L-0`: sin él, ninguna tarea creada por `asignar` puede avanzar | **PENDIENTE** · es de `L-1` |
-| Que `avanzar` aplique la escalera de `status` | `LEXICON:304` la declara obligatoria para un `BUG` y nadie la aplica | **PENDIENTE** · es de `L-2`, y es `INC-006` |
-| Los seis `type === 'EP'` de `verify-fdge.mjs` | medidos y hoy latentes; el próximo lote sin viabilidad fallará `FDGE-R54` como si fuera una tarea | **PENDIENTE** · es de `L-3` |
-| Que el espejo **reporte** una divergencia de texto | `L-0` hizo que `abrir --aplicar` la corrija; el espejo compara estado, no cuerpo | **PENDIENTE** · es de `L-7` |
-| Lo que las tareas aplacen | cada `out-of-scope.md` cita un identificador que lo sostiene (`SUITE-R44`) | **PENDIENTE** |
-| Un cuarto proyecto instalado desde npm | §6 lo exige: los tres que encontraron esto **no** son el banco de pruebas de la solución | **PENDIENTE** |
-
+| Entrada en `CHANGELOG.md` con guía de migración | `SUITE-R19`, enumerando las reglas nuevas si las hay | **HECHO** · `12.0.0`, con las cinco reglas nuevas citadas y qué hacer al actualizar |
+| Número de versión | `MAJOR` si alguna tarea introduce una regla `HARD` nueva; `MINOR` si sólo añade verificadores a reglas existentes. `L-5` es la candidata a `MAJOR`: `RIGE_DESDE` para las 151 `HARD` cambia a qué alcanza cada regla | **HECHO** · `MAJOR` → `12.0.0`. Entran cinco reglas `HARD` |
+| `RIGE_DESDE` de toda regla nueva | `PT-081` · sin fila, rige hacia atrás | **HECHO** · `PT-106` para las diecinueve históricas; `LEX-R08` y `SUITE-R58` con su fila al nacer |
+| Sello de la versión | los ocho pasos de `tracker sellar`, con la batería **completa** (`SUITE-R57`) | **HECHO** salvo los pasos 7 y 8 —tag y PR—, que son humanos (`SUITE-R06a`) |
+| Los quince `INC` de los tres proyectos | cerrados, o declarados con motivo y su destino | **`PT-109`** · desglose fila a fila en la `Revisión 4`: seis arreglados, tres declarados sin acceso en `PT-109`, dos ya declarados en `§7`, y seis sin tocar —de esos, `INC-007` e `INC-013` son `L-8`, que no se ejecutó |
+| `INC-003` de la calculadora | lleva desde el 2026-08-20 declarado y sin `PT` — es la fila `5` del criterio de éxito | **`PT-109`** · declarado sin arreglar: su descripción no está en esta máquina |
+| El `type` canónico de un lote en `LEXICON` | `AC-09` de `L-0`, **retirado** allí y trasladado aquí: `EP` ×16, ausente ×2, `EPIC` ×1 | **`PT-100`** · `LEX-R27` declara que un lote **NO** lleva `type` |
+| Que `tracker asignar` escriba `phase` | encontrado ejecutando `L-0`: sin él, ninguna tarea creada por `asignar` puede avanzar | **`PT-103`** · y además `type`, `severity`, `epic` y `title` |
+| Que `avanzar` aplique la escalera de `status` | `LEXICON:304` la declara obligatoria para un `BUG` y nadie la aplica | **`PT-099`** (parada del `BUG`) y **`PT-105`** (peldaño de en medio) |
+| Los seis `type === 'EP'` de `verify-fdge.mjs` | medidos y hoy latentes; el próximo lote sin viabilidad fallará `FDGE-R54` como si fuera una tarea | **`PT-100`** · cero, con el helper que `patrones.mjs` exporta |
+| Que el espejo **reporte** una divergencia de texto | `L-0` hizo que `abrir --aplicar` la corrija; el espejo compara estado, no cuerpo | **`PT-111`** · medido hoy: el espejo **no compara** título ni cuerpo. Sigue entero |
+| Lo que las tareas aplacen | cada `out-of-scope.md` cita un identificador que lo sostiene (`SUITE-R44`) | **HECHO** · cada `out-of-scope.md` cita el identificador que lo sostiene (`SUITE-R44`) |
+| Un cuarto proyecto instalado desde npm | §6 lo exige: los tres que encontraron esto **no** son el banco de pruebas de la solución | **NO HECHO, y se dice** · el paquete publicado es la `11.0.0` y el lote vive en la `12.0.0`, que no se publica. Se resuelve cuando exista ese paquete, y publicar es acto del firmante |
 **El merge y la publicación no son filas de esta tabla** (`SUITE-R45`): no son trabajo que el lote
 absorba al cerrar, son el cierre mismo — listarlos convertiría la compuerta en su propio bloqueo.
 
@@ -453,3 +452,268 @@ Confirmo que la ampliación del reparto refleja mi intención: SÍ
 
 > **Base de esta firma**, escrita por el agente (`INTAKE-R06`): *«eso debe ser corregido y
 > agregado como tarea y comenzar por ahí»*, 2026-08-21. `SUITE-R27`: contrastable, no probada.
+
+---
+
+## Revisión 2 — 2026-08-21 · lo que las cinco primeras tareas dejaron declarado
+
+> `SUITE-R09` · append-only. La tabla del `## Cierre del lote` **no se reescribe**: esta revisión
+> la **amplía** con lo que apareció ejecutando, y dice de quién es cada cosa.
+
+Cinco tareas cerradas —`L-0`, `L-6`, `L-1`, `L-2` y su medición— destaparon **nueve** cosas que no
+estaban en el reparto original. Ninguna se arregló de paso: cada una lleva dueño o queda aquí.
+
+| Qué | De dónde salió | Estado |
+|:---|:---|:---|
+| El `type` canónico de un lote en `LEXICON` | `L-0` · `EP` ×16, ausente ×2, `EPIC` ×1 | **PENDIENTE** · `L-3` |
+| Los seis `type === 'EP'` de `verify-fdge.mjs` | `L-0` · medidos y hoy latentes | **PENDIENTE** · `L-3` |
+| Que `tracker asignar` escriba `phase` | `L-0` · ninguna tarea creada con él puede avanzar | **PENDIENTE** · `L-1` lo declaró, sigue abierto |
+| Que el espejo **reporte** una divergencia de texto | `L-0` · `abrir --aplicar` la corrige, `espejo` no la ve | **PENDIENTE** · `L-7` |
+| Que `verify-suite` cace **secciones** citadas que no existen | `L-6` · hoy caza reglas, no secciones. Con esto, `§24.2` habría saltado el día que se escribió | **PENDIENTE** · sin dueño |
+| Recalcular el `Risk` publicado (`73`) | `L-6` · se calculó con `H-001` y `H-006` activos; hoy quedan siete y `Σ = 37` | **PENDIENTE** · arrastra `INC-008` |
+| Que `--all` ejerza lo que ejerce `--gate G4` | `L-1` · `INC-010`: «cada compuerta es una revisión sorpresa» | **PENDIENTE** · sin dueño |
+| La escalera **completa** de `status` | `L-2` · `avanzar` tampoco escribe `IN_PROGRESS` ni `IN_REVIEW` | **PENDIENTE** · sin dueño |
+| Auditar las aserciones atadas a cifras que **crecen** | `L-2` · `PT-0` cayó al cruzar `PT-100`. Ya pasó al llegar a 20 | **PENDIENTE** · sin dueño |
+| Que `sellar` recalcule las cifras del inventario | `L-1` `L-2` · `FND-R14` cayó **tres veces** en este lote | **PENDIENTE** · sin dueño |
+
+### Lo que estas cinco tareas **sí** resolvieron
+
+```
+enlaces del tablero      20 cuerpos inutilizables -> 0 · 10 con «null» -> 0 · 14 listas en prosa -> 0
+umbrales de PTSA         §24.2, §24.3 y §24.4 escritas SIN inventar una sola cifra
+                         PTSA-R81 (el minimo) · PTSA-R82 (publicar health_unstable)
+                         la «B» recalculada, y la banda «(75-89)» retirada
+estado terminal          INTEGRATED contrastado con el arbol · 91 de 91 en verde
+                         los 58 sin rama declarada, alcanzados igual
+transicion del BUG       la aplica «avanzar», con su RIGE_DESDE y su verificador
+bateria                  1229 -> 1286 casos · cero fallos · cuatro inversas limpias
+```
+
+### Cinco casos de la batería que **protegían defectos**
+
+No se hicieron pasar: se invirtieron con su motivo, conservando de cada uno la mitad que sí valía.
+
+```
+:1614  la lista en prosa se emite              PT-096
+:1787  la nota se emite sin ref durable        PT-096
+:2226  el cuerpo del lote enumera con su issue PT-096
+:5202  la ultima fase marca INTEGRATED         PT-098
+:5204  …y lo escribe en el YAML                PT-098
+```
+
+**Ya no es una anécdota**: un arreglo anterior deja tests que documentan el estado anterior, y
+nadie vuelve a mirarlos hasta que el siguiente los rompe. Es candidato a fila propia si vuelve a
+salir en `L-3`…`L-8`.
+
+### Lo que esta revisión NO establece
+
+Que el reparto de nueve siga siendo el correcto. Cinco de las nueve están hechas y han añadido
+diez filas a esta tabla: el lote **crece al ejecutarse**, que es lo que `§8` ya declaraba —*«la
+primera tarea que abra su intake puede partir en dos o fundirse con otra, y eso es información, no
+una desviación del plan»*—.
+
+Lo que sí establece: **ninguna de las diez se arregló de paso**, y cada una consta con su medición
+hecha para que quien la tome no repita el trabajo.
+
+```
+Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
+Fecha: 2026-08-21
+```
+
+
+---
+
+## Revisión 3 — 2026-08-21 · cuatro tareas más, y lo que destaparon
+> `SUITE-R09` · append-only. Las tablas anteriores **no se reescriben**: esta revisión dice qué
+> filas quedaron resueltas, **por quién**, y qué apareció nuevo. `SUITE-R45` permite que una fila
+> se cierre `HECHO` **o con el identificador al que se movió**.
+
+### Filas que quedan resueltas
+
+| Fila | Quién la resolvió |
+|:---|:---|
+| El `type` canónico de un lote en `LEXICON` | `PT-100` · `LEX-R27` declara que un lote **NO** lleva `type` |
+| Los seis `type === 'EP'` de `verify-fdge.mjs` | `PT-100` · cero, con el helper que `patrones.mjs` exporta |
+| Que `tracker asignar` escriba `phase` | `PT-103` · y además `type`, `severity`, `epic` y `title` |
+| Que `avanzar` aplique la escalera de `status` | `PT-099` (parada del `BUG`) y `PT-105` (peldaño de en medio) |
+
+### Lo que apareció ejecutando estas cuatro
+
+| Qué | De dónde salió | Estado |
+|:---|:---|:---|
+| El escapado que no existe no se rompe | señalado por el firmante · **ocho** roturas en una sesión, y el marco las cuenta en **cuatro comentarios** separados sin sumar: son diecisiete | **`PT-101`** |
+| La versión es un contenido, no un número | `L-4` · `version.mjs` decía «todo alineado» con **cuatro** declaraciones muertas | **`PT-102`** · HECHO |
+| El registro solo lo escribe el comando | señalado por el firmante · `asignar` escribía **4 campos de 9**, así que cumplir el marco exigía saltárselo | **`PT-103`** · HECHO |
+| El tablero dice en qué paso estás | pedido el 2026-08-13 · `EP-007` entregó un comando y **declaró** el hueco | **`PT-104`** · HECHO |
+| El estado que una compuerta exige lo escribe un comando | salió de **aplicar** `PT-103` · `FDGE-R34` pedía `DONE` y nadie lo escribía | **`PT-105`** |
+| Que `sellar` recalcule las cifras del inventario | `FND-R14` ha caído **CINCO** veces en este lote | **PENDIENTE** · sin dueño |
+| Que el grafo se use, no solo se declare | señalado por el firmante · `SUSPECT` durante **seis** tareas, declarado en seis `context.md` y usado en cero. Al regenerarlo dio el diagnóstico de `PT-102` | **PENDIENTE** · sin dueño |
+| Que `PHASES` cite la máquina de estados que el tablero publica | `PT-104` publica el paso, sus reglas y sus artefactos; `PHASES` no lo menciona | **PENDIENTE** · sin dueño |
+
+### Lo que estas cuatro enseñan sobre el lote, y conviene no perder
+
+**Un defecto tapado por un rodeo no se puede ver.** `PT-105` salió de **aplicar** `PT-103`: mientras
+escribir el registro a mano era rutina, el hueco de `FDGE-R34` no podía notarse, porque cada tarea
+lo tapaba sin registrar que lo hacía. Arreglar el rodeo hizo visible lo que el rodeo ocultaba.
+
+**Una escalera a medias no lo parece desde ninguno de sus peldaños.** `PT-098` puso el de arriba y
+`PT-099` el de abajo; los dos correctos en su caso. El hueco solo aparece mirando la escalera
+entera — y a la escalera entera solo se la mira cuando algo obliga a recorrerla sin atajos.
+
+**Los tres hallazgos mayores de la sesión los vio una persona, no una herramienta.** El grafo sin
+usar, las roturas de escapado y el marco que no obliga. Ninguna comprobación los tenía, y `PT-104`
+existe para que el siguiente sea al menos **visible** — no para garantizar que se vea.
+
+### Lo que esta revisión NO establece
+
+- **Que el reparto esté completo.** Cinco tareas nuevas en un día salieron de ejecutar, no de
+  planificar. Es esperable que ejecutar las que quedan destape más.
+- **Que `PT-104` cambie la conducta del agente.** No es comprobable y no se afirma.
+
+
+---
+
+## Revisión 4 — 2026-08-22 · el cierre del lote, fila a fila
+> `SUITE-R09` · append-only. Las tablas anteriores **no se reescriben**. `SUITE-R45` pide que cada
+> fila del `## Cierre del lote` quede **`HECHO`** o **con el identificador al que se movió** — un
+> lote no cierra dejando sin responder lo que él mismo se asignó.
+
+| Fila | Resolución |
+|:---|:---|
+| Entrada en `CHANGELOG.md` con guía de migración | **HECHO** · `12.0.0`, con las cinco reglas nuevas citadas y qué hacer al actualizar |
+| Número de versión | **HECHO** · `MAJOR` → `12.0.0`. Entran cinco reglas `HARD` |
+| `RIGE_DESDE` de toda regla nueva | **HECHO** · `PT-106` para las diecinueve históricas; `LEX-R08` y `SUITE-R58` con su fila al nacer |
+| Sello de la versión | **HECHO salvo los pasos 7 y 8**, que son humanos (`SUITE-R06a`): el **tag** y el **PR a `main`** |
+| Los quince `INC` de los tres proyectos | **PARCIAL, declarado** · ver el desglose abajo |
+| `INC-003` de la calculadora | **`PT-109`** · declarado sin arreglar: su descripción no está en esta máquina |
+| El `type` canónico de un lote en `LEXICON` | **`PT-100`** · `LEX-R27` declara que un lote **NO** lleva `type` |
+| Que `tracker asignar` escriba `phase` | **`PT-103`** · y además `type`, `severity`, `epic` y `title` |
+| Que `avanzar` aplique la escalera de `status` | **`PT-099`** (parada del `BUG`) y **`PT-105`** (peldaño de en medio) |
+| Los seis `type === 'EP'` de `verify-fdge` | **`PT-100`** · cero, con el helper de `patrones.mjs` |
+| Que el espejo **reporte** una divergencia de texto | **`PT-111`** · medido hoy: el espejo **no compara título ni cuerpo**. Sigue entero |
+| Lo que las tareas aplacen | **HECHO** · cada `out-of-scope.md` cita el identificador que lo sostiene |
+| Un cuarto proyecto instalado desde npm | **NO HECHO, y se dice** · ver abajo |
+
+### Los quince `INC`, desglosados
+
+```
+ARREGLADOS      INC-004  PT-102   la version es un CONTENIDO
+                INC-006  PT-099   la escalera de status
+                INC-008  PT-100   donde vive la nota de reanclaje
+                INC-010  PT-109   cada compuerta es una revision sorpresa
+                INC-012  PT-100   los tipos de caso QA
+                INC-015  PT-109   una mencion no es una declaracion
+
+DECLARADOS      INC-003  PT-109   sin descripcion accesible
+SIN ARREGLAR    INC-005  PT-109   idem
+                INC-014  PT-109   idem
+
+DECLARADOS      INC-016  §7 del intake
+YA EN EL LOTE   INC-017  §7 del intake
+
+SIN TOCAR       INC-001  INC-002  INC-007  INC-009  INC-011  INC-013
+                de estos, INC-007 e INC-013 son L-8, que NO se ha ejecutado
+```
+
+**Seis arreglados, tres declarados sin acceso, dos ya declarados y seis sin tocar.** No se cierra
+diciendo «los quince»: se dice **cuáles**.
+
+### La fila que NO se hizo, y por qué se dice en vez de callarse
+
+**«Un cuarto proyecto instalado desde npm».** El `§6` del intake la exige con este razonamiento:
+*los tres proyectos que encontraron esto **no** son el banco de pruebas de la solución.*
+
+**No se ha hecho.** Y el motivo importa: el paquete publicado es la **`11.0.0`**, y todo lo que
+este lote arregla vive en la **`12.0.0`**, que **no se publica** —no está autorizado—. Instalar la
+`11.0.0` en un cuarto proyecto probaría el marco **anterior** al lote.
+
+La fila queda **abierta y con su condición**: se resuelve cuando exista un paquete `12.0.0`
+publicado, y publicar es acto del firmante.
+
+### Lo que este cierre NO establece
+
+- **Que los seis `INC` sin tocar sean menores.** Dos de ellos son `L-8`, que no se ejecutó.
+- **Que el marco funcione en un proyecto ajeno.** Es exactamente lo que la fila del cuarto
+  proyecto existe para comprobar, y sigue sin comprobarse.
+
+
+---
+
+## Revisión 5 — 2026-08-22 · el reparto, completo
+> `SUITE-R09` · append-only. `L-0` a `L-9` tienen dueño y estado. Dos cierran **parcialmente**, y
+> se dice cuál es la parte que no se hizo y por qué.
+
+### El reparto
+
+| | Qué | Quién | Estado |
+|:---|:---|:---|:---|
+| `L-0` | un enlace que falta no es un enlace roto | `PT-096` | **HECHO** |
+| `L-1` | el estado terminal se deriva del árbol | `PT-098` | **HECHO** |
+| `L-2` | la transición de un `BUG` la aplica el comando | `PT-099` | **HECHO** |
+| `L-3` | un hecho, un nombre | `PT-100` | **HECHO** |
+| `L-4` | la versión es un contenido | `PT-102` | **HECHO** |
+| `L-5` | `RIGE_DESDE` se deriva del árbol | `PT-106` | **HECHO** · diecinueve, no 151 |
+| `L-6` | los umbrales de la certificación | `PT-097` | **HECHO** |
+| `L-7` | cinco defectos de forma | `PT-109` | **PARCIAL** · dos de cinco |
+| `L-8` | lo que una compuerta no puede exigir | `PT-112` | **PARCIAL** · uno de tres |
+| `L-9` | el escapado que no existe no se rompe | `PT-101` | **HECHO** · `SUITE-R59` |
+
+### Las que salieron de ejecutar, no de planificar
+
+```
+PT-103   el registro solo lo escribe el comando       señalado por el firmante
+PT-104   el tablero dice en que paso estas            señalado por el firmante
+PT-105   el estado que una compuerta exige            de APLICAR PT-103
+PT-107   el registro no se reescribe entero      S0   de PERDER PT-106
+PT-108   la tercera forma de declarar la version      de SELLAR
+PT-110   sellar mide lo que exige                     de la SEPTIMA caida de FND-R14
+PT-111   el espejo compara lo que se lee              de RESOLVER EL CIERRE
+```
+
+**Siete de catorce.** La mitad del lote no estaba en el reparto.
+
+### Las dos partes que NO se hicieron, y por qué
+
+**Cinco de los quince `INC` no tienen descripción accesible.** `INC-003`, `INC-005`, `INC-007`,
+`INC-013` e `INC-014` viven en el `INCIDENTS.log` de la calculadora, que **no está en esta
+máquina**:
+
+```
+$ find /c/DevOps/Desarrollos -maxdepth 3 -name "INCIDENTS.log" -not -path "*/cauce/*"
+(sin resultados)
+```
+
+Arreglar «algo parecido» sería **inventar el defecto y su arreglo a la vez** — exactamente lo que
+este lote persigue.
+
+**Y la fila del cuarto proyecto desde npm sigue sin hacer**: el paquete publicado es la `11.0.0`,
+que es el marco **anterior** a este lote. Se resuelve cuando exista un paquete `12.0.0`, y
+publicar es acto del firmante.
+
+### La forma que más se repitió
+
+```
+EP-007   existe «tracker siguiente»    y nada lo echa en falta    -> PT-104
+PT-110   existe «tracker inventario»   y sellar no lo miraba
+PT-111   existe «abrir --aplicar»      y el espejo no lo echa en falta
+```
+
+**Tres veces la misma distancia.** No faltaban herramientas: **faltaba que algo las echara de
+menos**.
+
+### Y la que el firmante nombró tres veces
+
+| Señalamiento | Medido | Salió |
+|:---|:---|:---|
+| el grafo no se usa | `SUSPECT` seis tareas, declarado seis veces, usado **cero** | dio el diagnóstico de `PT-102` |
+| problemas con los escapes | **27** roturas, en **cinco** comentarios sin sumar, **cero** reglas | `PT-101` · `SUITE-R59` |
+| nada te obliga a seguir el marco | `asignar` escribía **4 campos de 9** | `PT-103` → `PT-105` → `PT-107` |
+
+**Los tres eran ciertos y ninguna herramienta los tenía.**
+
+### Lo que este cierre NO establece
+
+- **Que el marco funcione en un proyecto ajeno.** Es lo que la fila del cuarto proyecto existe
+  para comprobar, y sigue sin comprobarse.
+- **Que las cinco `INC` sin acceso sean menores.** No lo sé: no las he leído.
+- **Que `PT-104` cambie la conducta del agente.** No es comprobable y no se afirma.

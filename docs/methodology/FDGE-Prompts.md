@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **11.0.0**
+> Suite version: **12.0.0**
 
 ---
 
@@ -239,6 +239,21 @@ node docs/methodology/tools/tracker.mjs pendiente PT-NNN
 **`SUITE-R42`: el agente no abre el PR ni lo fusiona.** Comprueba que exista. Abrirlo se
 describe (`EXEC-R07`); fusionarlo es humano en los tres modos (`EXEC-R04`).
 
+**El escape que no existe no se rompe** (`SUITE-R59`). Un patrón se escribe como **regex
+literal**; un salto de línea con `String.fromCharCode(10)`; un texto largo **a un archivo**, nunca
+por la línea de comandos. Si construyes un patrón desde una variable, usa el normalizador de
+`patrones.mjs` —`comoPalabra`, `comoLiteral`, `CLASE`, `CAR`—: **ninguno lleva una barra invertida
+escrita dentro de una cadena**, y lo que no se escribe no se puede perder al pasar por un shell,
+un heredoc o un `replace`.
+
+`new RegExp` sobre una cadena con barra **simple** ante una letra de clase está prohibido: compila
+y **no casa nada**. `audit` lo detecta antes de que se rompa.
+
+**La allocation nace completa, y del comando** (`SUITE-R58`). `tracker asignar` acepta
+`--tipo`, `--severidad`, `--epica` y `--titulo`, y escribe siempre `phase: 1`. Escribir
+`REGISTRY.json` a mano deja la tarea sin `phase` —y sin ella `avanzar` no puede moverla
+nunca— y sin `type` —y sin él las comprobaciones de su tipo no se activan—.
+
 **El registro asigna; la plataforma espeja.** `SUITE-R08` no se toca: si la plataforma asignara
 identificadores habría dos fuentes divergiendo, que es la causa raíz que la v4 nació para
 eliminar. Y **el issue referencia el intake, no lo copia** — por lo mismo.
@@ -276,7 +291,10 @@ que tocó `HANDOFF.md`, la sesión dejó trabajo sin estado y `SUITE-R03` no se 
 ### El reanclaje se escribe                                                  `FDGE-R52`
 
 En cada transición de fase, tres líneas **en la tarea** — comentario del issue si hay
-plataforma, `changes/PT-NNN-slug/bitacora.md` si no:
+plataforma, `docs/implementation/TRANSICIONES.log` si no:
+
+> Un **lote** (`EP-NNN`) no lleva `type`: se reconoce por su identificador (`LEX-R27`). Ninguna
+> herramienta decide nada mirando ese campo, y `verify-fdge` avisa si un lote lo declara.
 
 ```
 2026-08-12 · PHASE 4 → 5

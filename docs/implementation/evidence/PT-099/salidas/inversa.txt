@@ -1,0 +1,19 @@
+PRUEBA INVERSA — PT-099
+
+Cada cambio se retira POR SEPARADO.
+
+la parada del BUG en validacion         caen  1
+                                          · un BUG en la fase de validacion queda VALIDATION_PENDING
+el filtro por tipo BUG                  caen  1
+                                          · …y un FEATURE no se detiene
+el filtro por fase                      caen  3
+                                          · …ni un BUG en otra fase
+                                          · la ultima fase sigue dando DONE sin merge
+                                          · …y INTEGRATED con merge
+la guarda del BUG ya en DONE            caen  1
+                                          · un BUG ya validado no vuelve a VALIDATION_PENDING
+la delegacion en estadoTerminalDe       caen  2
+                                          · la ultima fase sigue dando DONE sin merge
+                                          · …y INTEGRATED con merge
+
+Los cinco cambios hacen caer casos. Ninguno esta sin probar.

@@ -1,0 +1,169 @@
+{
+  "pt": "PT-097",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "§24.2 define la clasificacion base con cifras que la especificacion ya declara",
+      "tests": [
+        "selftest.sh:la especificacion define la clasificacion base",
+        "selftest.sh:Health 95 da A",
+        "selftest.sh:Health 79.9 da B",
+        "selftest.sh:Health 55 da F"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Cero cifras nuevas: 90 sale de §15.6 y 60 del cap de dominio de §13.3. Escribi «B: 75 <= Health < 90» antes de preguntarme de donde salia el 75 — de ningun sitio, exactamente igual que el «(75-89)» que esta tarea retira. La salida es que C NO ES UNA BANDA, ES UN TECHO: las dos unicas reglas que la nombran la usan como limite superior."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "§24.4 consolida los cuatro topes, cada uno citando su origen",
+      "tests": [
+        "selftest.sh:…y los topes que la rebajan",
+        "selftest.sh:freshness UNKNOWN topa en C",
+        "selftest.sh:un hallazgo CRITICO topa en C",
+        "selftest.sh:health_unstable topa en B",
+        "selftest.sh:Confidence < 90 impide la A"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Los cuatro casos parten de health 95, que SIN tope da A. Si un tope no se aplicara, su caso devolveria A y fallaria. Un caso que partiera de un Health ya bajo pasaria igual con el tope roto — la trampa que PT-096 documento. Lo que ya regia sigue donde estaba: §24 se renombra y gana 24.1 por encima, con PTSA-R38 y R39 intactos, y hay un caso que lo vigila."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La funcion es determinista: misma entrada, misma letra, sin juicio del auditor",
+      "tests": [
+        "selftest.sh:dos topes dan el peor, no el ultimo"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "PTSA-R81 dice MINIMO y no «se aplican en orden», y ese caso es lo que lo prueba: health_unstable (techo B) y un CRITICO (techo C) juntos deben dar C. Retirar el min hace caer ese caso y SOLO ese, lo que confirma que esta probado por si mismo y no de rebote. Con una secuencia de ajustes, dos auditores podrian llegar a letras distintas aplicandolos en otro orden y PTSA-R08 dejaria de poder cumplirse."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Falta un dato ⇒ no se emite letra, y se dice cual falta",
+      "tests": [
+        "selftest.sh:sin Confidence no hay letra",
+        "selftest.sh:…ni sin Health",
+        "selftest.sh:…y con todo presente SI la hay"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "El tercero es el freno del freno: sin el, devolver SIEMPRE null pasaria los dos primeros. Es RULE-06 —no saber no es permiso— y el precedente medido de PT-058, donde «restar(100 MEDIDO, SIN EVALUAR)» devolvia 100 ETIQUETADO COMO MEDIDO. Y no es una invencion: es lo que el proyecto legado hizo POR SU CUENTA ante este hueco. La salida correcta ya se habia tomado sin permiso; faltaba autorizarla."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "verify-ptsa contrasta la letra publicada y falla si difiere",
+      "tests": [
+        "selftest.sh:verify-ptsa contrasta la certificacion",
+        "selftest.sh:la especificacion exige publicar health_unstable"
+      ],
+      "evidence": [
+        "salidas/verify-ptsa.txt"
+      ],
+      "verified": true,
+      "nota": "Hizo falta ponerle a verify-ptsa el guard EJECUTADO_DIRECTO que tracker.mjs tiene desde PT-084: sin el, el archivo SE EJECUTA al importarlo y termina en process.exit(), asi que NINGUNA parte de su logica ha sido nunca comprobable desde el arnes. No es alcance que crece — AC-05 no se puede cumplir sin eso: una funcion que no se puede probar no es una comprobacion, es una afirmacion."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria falla SIN el arreglo, con un caso por banda y por tope",
+      "tests": [
+        "la prueba inversa, cambio a cambio"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Ocho retiradas, ninguna en cero. Cada tope hace caer SU caso y ninguno mas, salvo el del CRITICO que arrastra tambien el del min — correcto, porque ese caso usa los dos."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "La «B» recalculada y su banda inventada retirada, sin borrar lo publicado",
+      "tests": [
+        "verify-ptsa contra el RESUMEN real"
+      ],
+      "evidence": [
+        "salidas/verify-ptsa.txt"
+      ],
+      "verified": true,
+      "nota": "Recalculada da B: LA MISMA LETRA. Y es justo por eso que la revision declara que la anterior NO ERA CONTRASTABLE — si se callara, quedaria escrito que la banda inventada acerto, y la leccion seria que inventar sale bien. Coincidio, no se dedujo."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "CORE-PTSA.md regenerado por build-core, no a mano",
+      "tests": [
+        "npm run core:check"
+      ],
+      "evidence": [
+        "salidas/core-check.txt"
+      ],
+      "verified": true,
+      "nota": "Lleva PTSA-R08 y PTSA-R30, y ahora tambien PTSA-R81 y PTSA-R82. SUITE-R16 y SUITE-R25: se genera, no se edita."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que los once casos de letraDeCertificacion estuvieran en ROJO VALIDO.",
+      "por_que": "La funcion no existia, asi que su fallo previo era «la herramienta revento», que el arnes trata —con razon— como «no verifica nada». FDGE-R17 pide un rojo que falle POR SU ASERCION. Son ESPECIFICACION. Los CUATRO rojos validos son los que comprueban que §24.2 y §24.4 faltan, que verify-ptsa no miraba, y que la banda inventada estaba publicada.",
+      "donde": "docs/methodology/tools/selftest.sh, en el comentario del bloque"
+    },
+    {
+      "afirmacion": "Que el Risk 73 publicado siga siendo correcto.",
+      "por_que": "Se calculo con H-001 y H-006 activos; hoy estan CLOSED y quedan siete activos con suma de riesgo 37. NO se recalcula aqui: la letra no depende de Risk (§24.2, §24.4), asi que no cambiaria ninguna letra, y arrastra INC-008 del legado —el multiplicador x4 satura y el score deja de discriminar al cuarto hallazgo—.",
+      "donde": "changes/PT-097-los-umbrales-de-la-certificacion/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que no exista un quinto tope escrito con otras palabras en la especificacion.",
+      "por_que": "Se busco por «certificac», por «§24.» y por las palabras de los cuatro conocidos; aparecieron cuatro. Un quinto redactado de otra forma no se puede descartar leyendo — por eso la comprobacion vive en el verificador: lo que no este en la funcion fallara cuando alguien lo aplique a mano.",
+      "donde": "changes/PT-097-los-umbrales-de-la-certificacion/context.md §7"
+    },
+    {
+      "afirmacion": "Que verify-suite cace SECCIONES citadas que no existen.",
+      "por_que": "Hoy caza REGLAS citadas que no existen, no secciones. Si lo hiciera, este defecto habria saltado el dia que se escribio §15.6. No entra aqui: es otra comprobacion, sobre otro documento, y con su propio riesgo de falsos positivos. Va al «Cierre del lote» de EP-019 con su medicion hecha: DOS citas rotas, :569 y :744.",
+      "donde": "changes/PT-097-los-umbrales-de-la-certificacion/design.md D-8"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Estuve a punto de inventar la banda que esta tarea existe para retirar.",
+      "regla": "—",
+      "detalle": "Ya tenia escrito «B: 75 <= Health < 90» cuando me detuve a preguntarme de donde salia el 75. De ningun sitio. La leccion no es «leer mejor»: es que cuando un diseño exige una cifra que no esta, la respuesta casi nunca es inventarla — es que el diseño es otro. Aqui: C no es una banda, es un techo."
+    },
+    {
+      "que": "Numere la regla nueva como PTSA-R55, que YA EXISTE.",
+      "regla": "LEX-R04",
+      "detalle": "PTSA-R55 es el Acid Test, en la linea 1613. Habria creado dos reglas con el mismo identificador en el mismo documento —la averia que LEX-R04 y SUITE-R08 existen para impedir— dentro de la tarea que arregla una regla mal definida. Lo cazo comprobar el maximo antes de asumirlo: PTSA-R80. La nueva es PTSA-R81."
+    },
+    {
+      "que": "Cite §27 en el documento que arregla dos citas a secciones inexistentes.",
+      "regla": "—",
+      "detalle": "La regla del hallazgo CRITICO esta en §28.2; §27 es «Severidad». Lo cazo ir a mirar el numero en vez de recordarlo."
+    },
+    {
+      "que": "La comprobacion dio verde POR EL CAMINO EQUIVOCADO.",
+      "regla": "—",
+      "detalle": "El primer verde decia «Certificacion B contrastada» SIN topes: el RESUMEN declara la metrica D5 en Rojo en su PROSA y no publicaba «health_unstable», asi que la funcion lo leia como false y la letra salia de la BASE, no del tope. Mismo resultado, camino distinto, e indistinguible mirando solo el verde — la forma exacta del defecto que este lote persigue. De ahi sale PTSA-R82."
+    },
+    {
+      "que": "Puse el ayudante «mlib» 500 lineas DESPUES de los once casos que lo usan.",
+      "regla": "FDGE-R17",
+      "detalle": "«mlib: command not found» no revienta el arnes: el caso simplemente no existe. El filtro dijo «NINGUN CASO CASA» y el total subio 5 en vez de 16. El bloque «no hacer» del HANDOFF lo lleva escrito desde PT-095: «escribir un bloque de casos ANTES de donde se define el ayudante que usan». Segunda vez."
+    }
+  ],
+  "suite": {
+    "passed": 1267,
+    "failed": 0,
+    "baseline": 1251,
+    "nota": "16 casos: 4 rojos VALIDOS —que §24.2 y §24.4 faltaban, que verify-ptsa no miraba, y que la banda inventada estaba publicada— y 12 de especificacion, que no pudieron estar en rojo valido porque la funcion no existia. Declarado en el propio selftest.sh."
+  }
+}

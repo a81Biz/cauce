@@ -1,0 +1,3 @@
+desde el primer commit (no necesitan RIGE_DESDE): 38
+sin version derivable: 0 
+filas a escribir: 0

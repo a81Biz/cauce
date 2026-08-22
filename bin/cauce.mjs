@@ -20,7 +20,10 @@
  * CRLF: todo parseo por lineas usa split(/\r?\n/).
  */
 
-import { readFileSync, existsSync, readdirSync, mkdirSync, copyFileSync, statSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, mkdirSync, copyFileSync, statSync,
+         writeFileSync } from 'node:fs';
+// PT-112 · el salto por codigo, no escapado (SUITE-R59).
+const SALTO_CAUCE = String.fromCharCode(10);
 import { join, resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -140,6 +143,54 @@ const comandos = {
       return r;
     }
     const d = divergencia();
+    // PT-112 · SUITE-R06e · «--forzar» NO ES UNA COMPUERTA.
+    //
+    // Sobrescribir `docs/methodology/` es de lo que SUITE-R06 dice que no se automatiza, y
+    // SUITE-R31 dice que decidir quien tiene razon es HUMANO. El flag saltaba las dos SIN DEJAR
+    // NADA: ni quien lo decidio, ni que se sobrescribio, ni cuando. Una compuerta que se pasa sin
+    // rastro no es una compuerta — es una puerta.
+    //
+    // No se prohibe: un proyecto que ya decidio necesita poder aplicarlo. Lo que se exige es lo
+    // mismo que EXEC-R04a exige de G4: CONSTANCIA, y con forma fija. El flag pide quien decide, y
+    // sin nombre no sobrescribe.
+    if (!d.nueva && (d.difieren.length || d.soloDestino.length) && FORZAR) {
+      const i = resto.indexOf('--forzar');
+      const quien = (resto[i + 1] && !resto[i + 1].startsWith('--')) ? resto[i + 1] : null;
+      if (!quien) {
+        err('«--forzar» sobrescribe docs/methodology/, y eso es SUITE-R06e: no se automatiza.');
+        di();
+        di('No se prohibe: un proyecto que ya decidio puede aplicarlo. Lo que no puede es');
+        di('hacerlo SIN RASTRO — quien lo decidio, que se sobrescribio y cuando. Una compuerta');
+        di('que se pasa sin constancia no es una compuerta (EXEC-R04a, SUITE-R31).');
+        di();
+        di(`  cauce install --forzar "Nombre Apellido"   ${c.dim}# y queda registrado${c.fin}`);
+        return 2;
+      }
+      const cuando = new Date().toISOString().slice(0, 10);
+      const linea = [
+        '',
+        `## ${cuando} · marco sobrescrito con --forzar`,
+        `Decidido por: ${quien}`,
+        `Version de cauce: ${VERSION}`,
+        `Archivos con contenido distinto: ${d.difieren.length}`,
+        `Archivos solo en el destino: ${d.soloDestino.length}`,
+        ...d.difieren.slice(0, 20).map((f) => `  difiere  ${f}`),
+        ...d.soloDestino.slice(0, 20).map((f) => `  solo destino  ${f}`),
+        'SUITE-R31 · quien tiene razon lo decide una persona, y aqui consta quien lo decidio.',
+        '',
+      ].join(SALTO_CAUCE);
+      try {
+        const reg = join(process.cwd(), 'docs', 'implementation', 'INSTALL.log');
+        const previo = existsSync(reg) ? readFileSync(reg, 'utf8') : '';
+        writeFileSync(reg, previo + linea);
+        di(`${c.dim}Constancia en docs/implementation/INSTALL.log${c.fin}`);
+      } catch {
+        // RULE-06 · si no se puede registrar, NO se sobrescribe: la constancia es la condicion.
+        err('No se pudo escribir la constancia en docs/implementation/INSTALL.log.');
+        di('Sobrescribir sin poder registrarlo es exactamente lo que esto impide.');
+        return 2;
+      }
+    }
     if (!d.nueva && (d.difieren.length || d.soloDestino.length) && !FORZAR) {
       err(`El destino ya tiene una copia del marco y NO es idéntica a la de cauce ${VERSION}.`);
       di();

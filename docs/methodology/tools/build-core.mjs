@@ -460,7 +460,8 @@ node docs/methodology/tools/build-core.mjs --check
 // lo generado, de modo que cualquier retoque a mano se detecta.
 // Regex LITERALES y una sola definicion de «cuerpo»: la linea del sello se elimina y las
 // lineas se normalizan, de modo que el hash no depende de si el archivo se guardo en
-// Windows o en Unix. Montar estos patrones desde strings ha fallado cinco veces aqui.
+// Windows o en Unix. Montarlos desde strings ha fallado muchas veces: la cuenta vive en
+// patrones.mjs · ROTURAS_DE_ESCAPADO, no aqui (PT-101, SUITE-R38).
 const RE_SOLO_SELLO = /^<!-- cuerpo: [0-9a-f]{12} -->$/;
 const RE_LINEAS = /\r?\n/;
 const RE_SELLO_CUERPO = /^<!-- cuerpo: ([0-9a-f]{12}) -->$/m;

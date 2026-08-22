@@ -1,0 +1,7 @@
+46:const FORZAR = resto.includes('--forzar');
+146:    // PT-112 · SUITE-R06e · «--forzar» NO ES UNA COMPUERTA.
+157:      const i = resto.indexOf('--forzar');
+160:        err('«--forzar» sobrescribe docs/methodology/, y eso es SUITE-R06e: no se automatiza.');
+166:        di(`  cauce install --forzar "Nombre Apellido"   ${c.dim}# y queda registrado${c.fin}`);
+172:        `## ${cuando} · marco sobrescrito con --forzar`,
+209:      di(`  cauce install --forzar                           ${c.dim}# sobrescribe, con la decisión tomada${c.fin}`);

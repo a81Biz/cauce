@@ -1,0 +1,12 @@
+verify-suite — coherencia de la metodología (11.0.0)
+Documentos analizados: 36
+
+AVISOS (3)
+  SUITE-R19    RULES.md
+      LEX-R27 es una regla HARD nueva y no declara desde qué versión rige. Sin fila en RIGE_DESDE (tools/patrones.mjs) regirá sobre tareas escritas antes de existir, y la guía de migración no podrá enumerarla.
+  SUITE-R19    RULES.md
+      LEX-R28 es una regla HARD nueva y no declara desde qué versión rige. Sin fila en RIGE_DESDE (tools/patrones.mjs) regirá sobre tareas escritas antes de existir, y la guía de migración no podrá enumerarla.
+  SUITE-R38    tools/patrones.mjs
+      5 de 114 reglas que emiten declaran su sujeto. La tabla crece por adopción declarada, como RIGE_DESDE: lo que la hace útil no es cuántas cubre hoy, sino que ninguna pueda quedarse fuera en silencio.
+
+Sin errores de coherencia.
