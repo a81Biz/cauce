@@ -24,4 +24,4 @@
 | PT-043 | FEATURE | S1 | INTEGRATED | EP-011 | Las siete decisiones de migrar un legado se CONDUCEN, no se enumeran |
 | PT-069 | FEATURE | S2 | INTEGRATED | EP-017 | Los indices derivados necesitan generador |
 | PT-078 | FEATURE | S1 | INTEGRATED | EP-017 | Ninguna regla queda sin clasificar: el universo son 223 y cubierta significa emitida |
-| PT-104 | FEATURE | S1 | DONE | EP-019 | El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida |
+| PT-104 | FEATURE | S1 | INTEGRATED | EP-019 | El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida |
