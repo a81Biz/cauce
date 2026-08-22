@@ -3272,3 +3272,32 @@ comando habria dejado. Es la fila con la que abre `EP-020`.
 
 **Lo que queda y no es del agente:** `/graphify` (`FDGE-R32` · grafo `SUSPECT`), `SELLO.md` con los
 cinco resueltos, los dos merges y el tag (`SUITE-R06a`, `EXEC-R04`).
+
+---
+
+## 2026-08-22 · `G4` de `EP-019` autorizada y ejecutada
+
+**Autorizado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`).
+
+`EXEC-R04` · `EXEC-R04a` · La compuerta de integración de `EP-019` la resolvió el firmante
+ejecutando los dos merges, en el orden que `FDGE-R19` declara:
+
+```
+PR #215   chore/alberto-martinez/EP-019-cierre -> trabajo   revisión, NO es G4
+PR #216   trabajo -> main                                   G4
+main      ee660db
+```
+
+**Qué llevaba el merge:** el estado del cierre de `EP-019` y nada más — 24 archivos, **cero
+empaquetados**. `changes/*/intake.md` y `docs/implementation/`. El árbol y el paquete de npm
+siguen diciendo `12.0.0`.
+
+**Qué NO llevaba, y por decisión del firmante:** la `12.0.1`. Se había escrito en la misma rama
+**sin allocation viva** —sin `PT`, sin intake, sin issue y sin compuerta— y el firmante lo cortó.
+Revertida en `1837c22` y rehecha como `PT-113`, con intake y compuertas.
+
+**Lo que esta constancia no prueba**, y conviene decirlo cada vez: el agente escribe estos
+párrafos. Lo que `SUITE-R27` garantiza es que hay un nombre concreto asociado a la decisión y que
+estaba autorizado; no la voluntad detrás.
+
+**`PUBLICAR` no entra.** La `12.0.1` no está en npm y no se publica hasta que `PT-113` cierre.
