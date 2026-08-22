@@ -1,0 +1,17 @@
+PRUEBA INVERSA — PT-098
+
+Cada cambio se retira POR SEPARADO. Si alguno sale en CERO, ese cambio no esta probado.
+
+el contraste en estadoTerminalDe            caen  2
+                                              · sin merge, la ultima fase da DONE
+                                              · sin poder saberlo, tampoco INTEGRATED
+la guarda de lo ya terminal                 caen  1
+                                              · lo ya terminal no se reescribe
+el filtro de INTEGRATED en estadoContrastado  caen  1
+                                              · un DONE no se contrasta
+el silencio cuando SI esta integrado        caen  1
+                                              · …y uno que SI esta, no
+la distincion SIN EVALUAR / error           caen  1
+                                              · sin poder comprobarlo, SIN EVALUAR
+
+Los cinco cambios hacen caer casos. Ninguno esta sin probar.

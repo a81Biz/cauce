@@ -1,0 +1,134 @@
+{
+  "pt": "PT-104",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El cuerpo publica la FASE actual con su nombre",
+      "tests": [
+        "selftest.sh:el cuerpo dice en que PASO esta"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Lo pidio el firmante el 2026-08-13 —«usarlo hasta de maquina de estados para saber que va cuando», REGISTRY.json:172— y EP-007, que se llama «el tablero como maquina de estados», entrego un COMANDO. Su propio cierre lo declaro: «un comando no puede exigir haber sido llamado». El hueco quedo escrito ocho dias y nadie volvio a el."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Publica la regla de SALIDA y su compuerta",
+      "tests": [
+        "selftest.sh:…que tiene que pasar para SALIR"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Sale del «cierra» que FASES ya declaraba desde siempre. No se invento ninguna regla: se publicaron las que habia, a trescientas lineas del sitio donde hacian falta."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Publica la regla de ENTRADA",
+      "tests": [
+        "selftest.sh:…de donde VIENE"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Es el «cierra» de la fase anterior: lo que tuvo que cumplirse para llegar aqui. Una maquina de estados sin transicion de entrada no dice de donde vienes."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Publica a donde va",
+      "tests": [
+        "selftest.sh:…y a donde va DESPUES"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Con los dos bordes tratados: la primera fase no inventa una entrada y la ultima no inventa una salida. Sin eso se publicaria «undefined» en los extremos, y hay dos casos que lo comprueban."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Publica que artefactos EXISTEN, derivado del arbol",
+      "tests": [
+        "selftest.sh:…y CUALES de sus artefactos existen ya",
+        "selftest.sh:…distinguiendo los que faltan",
+        "selftest.sh:…y DICE cuando no pudo mirar el arbol"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Es la mitad que hace util todo lo demas. Publicar que PHASE 4 «produce seis archivos» es copiar FASES: repetiria la teoria y NUNCA podria discrepar. Publicar cuales de los seis ESTAN convierte el issue en algo que puede contradecir a quien lo escribe. Y devuelve null —no un conjunto vacio— cuando no pudo mirar: no es lo mismo «no ha producido nada» que «no se pudo mirar» (RULE-06)."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Publica los bloqueos que queSigue ya deriva",
+      "tests": [
+        "selftest.sh:…y que le impide avanzar"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Vivian solo en «tracker siguiente», que hay que acordarse de ejecutar — justo lo que EP-007 declaro como no entregado."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "NO copia contenido de changes/",
+      "tests": [
+        "selftest.sh:un lote no lleva maquina de estados"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Por construccion: maquinaDeEstados no lee ningun archivo, recibe la LISTA DE NOMBRES. No hay ruta por la que el contenido pueda llegar al issue. Y se respeto el contrato de PT-048: cuerpoDeIssue sigue siendo pura, el disco se lee en contextoCuerpo — meterle un readdirSync la habria devuelto a ser incomprobable."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "la prueba inversa, retirada a retirada"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "DIEZ retiradas, DIEZ con efecto, a la primera. Unica inversa de la sesion que no necesito segunda pasada: cada medida llama al modulo en un proceso APARTE, porque «import» cachea y con la version rota ya cargada habria medido siempre el codigo bueno — un cero que no significa nada."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que publicarlo cambie la conducta del agente.",
+      "por_que": "No es comprobable. EP-007 y EP-008 ya lo establecieron: un comando no puede exigir haber sido llamado, y un artefacto que el agente escribe sobre si mismo no prueba nada. Lo que esto consigue es que el paso siguiente este escrito DONDE SE MIRA sin acordarse, y que saltarselo sea visible para una persona.",
+      "donde": "changes/PT-104-el-tablero-dice-en-que-paso-estas/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que no falte mas estado por publicar.",
+      "por_que": "Se publican fase, transiciones, artefactos y bloqueos. Si hace falta mas, se vera al usarlo.",
+      "donde": "changes/PT-104-el-tablero-dice-en-que-paso-estas/discovery.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Septima rotura de escapado de la sesion.",
+      "regla": "—",
+      "detalle": "La primera version del helper usaba plantillas de texto y una transformacion rompio las comillas invertidas: el modulo no compilaba. Se reescribio SIN transformar nada — el bloque se escribe tal cual y se inserta verbatim. Es la forma que PT-101 persigue, y hubo una OCTAVA en la misma tarea escribiendo la documentacion por un heredoc."
+    },
+    {
+      "que": "Revente mi propia bateria tres veces.",
+      "regla": "—",
+      "detalle": "selftest.sh y tracker.mjs reescritos con la bateria en marcha. Produjo un error de sintaxis en una linea que no habia tocado y 21 «la herramienta revento» que NO eran rojos reales."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": 1304,
+    "nota": "Doce casos propios. Cifras pendientes de la corrida completa."
+  }
+}

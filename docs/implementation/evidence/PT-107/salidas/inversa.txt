@@ -1,0 +1,16 @@
+PRUEBA INVERSA — PT-107
+
+Se reproduce la perdida REAL: dos comandos que escriben el registro a la vez. Sin guardia,
+el segundo pisa al primero y queda UNA allocation donde debia haber dos — sin error y con
+el contador retrocedido, que es exactamente lo que le paso a PT-106.
+
+S-1 · el guardia entero     caen  3
+                              · ninguna allocation desaparece en silencio
+                              · …y si una no entra, se DICE por que
+                              · …nombrando el comando que se quedo fuera
+S-2 · la huella al leer     caen  3
+                              · ninguna allocation desaparece en silencio
+                              · …y si una no entra, se DICE por que
+                              · …nombrando el comando que se quedo fuera
+
+Las 2 retiradas hacen caer casos. Ninguna esta sin probar.

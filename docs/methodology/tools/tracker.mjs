@@ -57,6 +57,8 @@ import {
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
+// PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
+import { esLote } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 
@@ -172,7 +174,7 @@ export function queSigue(alloc, opciones = {}) {
 
 /** Las etiquetas que el registro DERIVA para el issue de una allocation. Función pura. */
 export function etiquetasDe(alloc) {
-  const et = [alloc?.type === 'EP' ? 'implementación' : 'tarea'];
+  const et = [esLote(alloc) ? 'implementación' : 'tarea'];
   const f = alloc?.phase;
   if (f !== undefined && f !== null) {
     et.push(`fase: ${f}`);
@@ -184,7 +186,7 @@ export function etiquetasDe(alloc) {
 const RE_DERIVADA = /^(fase: \d+|G[1-4])$/;
 
 /** Compara registro y plataforma EN LAS DOS DIRECCIONES. Sin efectos y sin red. */
-export function compararEspejo(vivas, issues, todas, refExiste) {
+export function compararEspejo(vivas, issues, todas, refExiste, refDurable) {
   const div = [];
   const porNumero = new Map((issues ?? []).map((i) => [i.number, i]));
   for (const a of vivas ?? []) {
@@ -207,6 +209,46 @@ export function compararEspejo(vivas, issues, todas, refExiste) {
       const ref = refDeEnlace(i.body);
       if (ref && refExiste && refExiste(ref) === false) {
         div.push({ regla: 'SUITE-R56', mensaje: `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe. La rama efimera se borra al fusionar (FDGE-R19); el enlace tiene que apuntar a un ref DURABLE — la rama de integracion, o el commit. Se corrige republicando:  tracker abrir --aplicar` });
+      }
+      // PT-111 · SUITE-R35 · el TITULO, que es lo primero que una persona lee.
+      //
+      // El espejo comparaba el ESTADO —abierto o cerrado— y que una allocation reclamara el
+      // issue. No comparaba lo que se LEE. Un titulo editado a mano en el tablero decia una cosa
+      // y el registro otra, y «espejo» respondia «sin divergencias».
+      //
+      // Es la misma forma que EP-007 y PT-110: existe un comando que lo corrige —«abrir
+      // --aplicar» republica el cuerpo desde PT-096— y NADA que lo eche en falta.
+      //
+      // Se compara el titulo DERIVADO, no el cuerpo entero: un issue lleva comentarios y
+      // ediciones humanas legitimas, y marcarlas seria ruido.
+      // Sin `slug` NO HAY TITULO QUE DERIVAR, y comparar contra una derivacion imposible
+      // marcaria como divergente todo lo que no lo lleve. Lo delataron TRES fixtures de la
+      // bateria que declaran «espejo exacto» sin slug: la comprobacion estaba mal, no ellos.
+      const tituloDerivado = a.slug ? `${a.id} · ${a.slug}` : null;
+      const tituloPublicado = String(porNumero.get(a.issue)?.title ?? '').trim();
+      if (tituloDerivado && tituloPublicado && tituloPublicado !== tituloDerivado) {
+        div.push({ regla: 'SUITE-R35', mensaje: `${a.id}: el titulo del issue #${a.issue} no es el `
+          + `derivado del registro. Publicado «${tituloPublicado}», derivado «${tituloDerivado}». `
+          + `Lo primero que una persona lee dice algo distinto de lo que el registro dice. `
+          + `Se corrige con «tracker abrir ${a.id} --aplicar».` });
+      }
+
+      // PT-096 · SUITE-R51 · y el caso SIMETRICO, que faltaba: el cuerpo que no enlaza en absoluto.
+      //
+      // La guarda de arriba es «ref && …», asi que un cuerpo SIN enlace no era divergencia — y sin
+      // enlace es como nace HOY todo cuerpo: en PHASE 1 el intake no esta commiteado, refDurableDe
+      // responde null con razon, y nadie vuelve a preguntar. Por eso «tracker espejo» decia «el
+      // espejo cuadra» con diez de 115 cuerpos publicados sin enlace.
+      //
+      // «refDurable» se INYECTA por el mismo motivo que «refExiste» desde PT-079: que esta funcion
+      // siga siendo comprobable sin git ni red. Y es OPCIONAL: sin el dato la comprobacion no se
+      // hace y el comportamiento es el de antes — un undefined no es un «no hay» (RULE-06).
+      //
+      // Solo acusa si HOY existe ref durable. Al abrir el issue no hay nada que enlazar, y exigirlo
+      // entonces seria pedir un enlace a un commit que no existe; en cuanto el intake entra en un
+      // commit, acusa — que es el primer instante en que se puede arreglar.
+      if (refDurable && decisionDeEnlace(i.body, refExiste, refDurable(a)) === 'REPARAR_MUDO') {
+        div.push({ regla: 'SUITE-R51', mensaje: `${a.id}: su issue #${a.issue} publica la ruta SIN enlace y el contenido ya esta en un ref durable. El cuerpo del issue enlaza donde el contenido esta (SUITE-R51); cuando se abrio todavia no habia ref durable y nadie volvio a preguntar. Se corrige republicando:  tracker abrir --aplicar` });
       }
       if (Array.isArray(i.labels)) {
         const tiene = i.labels.map((l) => l.name ?? l).filter((n) => RE_DERIVADA.test(n)).sort();
@@ -362,9 +404,115 @@ ${MARCA_AGENTE}`;
 export const refDeEnlace = (cuerpo) =>
   (String(cuerpo ?? '').match(/\/tree\/([^/)\s]+(?:\/[^/)\s]+)*?)\/changes\//) ?? [null, null])[1];
 
+/**
+ * PT-096 · El MARCADOR por el que un cuerpo se reconoce como escrito por esta herramienta.
+ *
+ * `refDeEnlace` devuelve `null` para DOS cosas distintas: un cuerpo del tracker que no enlaza, y
+ * cualquier issue que el tracker no escribio. Sin distinguirlas, «reparar lo mudo» reescribiria
+ * issues ajenos — peor que el defecto que arregla.
+ *
+ * Lo escribe `cuerpoDeIssue` y lo lee la reparacion, asi que hay un caso del arnes que ATA las
+ * dos cosas: cambiar el texto rompe ese caso en vez de apagar la reparacion en silencio.
+ */
+export const MARCADOR_CUERPO = 'Intake, criterios de aceptación y evidencia:';
+export const esCuerpoDelTracker = (cuerpo) => String(cuerpo ?? '').includes(MARCADOR_CUERPO);
+
+/**
+ * PT-096 · SUITE-R51 · SUITE-R56 · ¿Que le pasa al enlace de este cuerpo?
+ *
+ * La DECISION, separada del EFECTO. `repararEnlacesMuertos` habla con la plataforma y escribe, y
+ * `compararEspejo` reporta: los dos hacen la MISMA pregunta y hasta aqui la respondian por
+ * separado, con la misma guarda copiada —«if (ref && …)» alli, «if (!ref || …) continue» aca—.
+ * Una pregunta, una fuente (SUITE-R38).
+ *
+ * Cinco resultados, y cada uno con nombre a proposito. `REPARAR_MUDO` no faltaba porque estuviera
+ * mal decidido: faltaba porque no habia DONDE decidirlo. Y `ROTO_SIN_SALIDA` y `AJENO` existen
+ * para que no se confundan con `OK`, que es justo lo que pasaba — los tres caian por el mismo
+ * `continue` que un cuerpo sano.
+ *
+ * `MUDO_SIN_REF_DURABLE` es el freno: al abrir el issue el intake todavia no esta commiteado, asi
+ * que `refDurableDe` responde `null` CON RAZON y no hay nada que enlazar. Exigirlo ahi seria
+ * pedir un enlace a un commit que no existe.
+ */
+export function decisionDeEnlace(cuerpo, refExiste, durable) {
+  if (!esCuerpoDelTracker(cuerpo)) return 'AJENO';
+  const ref = refDeEnlace(cuerpo);
+  if (ref) {
+    if (refExiste && refExiste(ref) === false) return durable ? 'REPARAR_MUERTO' : 'ROTO_SIN_SALIDA';
+    return 'OK';
+  }
+  return durable ? 'REPARAR_MUDO' : 'MUDO_SIN_REF_DURABLE';
+}
+
+
+/**
+ * PT-104 · La maquina de estados que el tablero no decia.
+ *
+ * Lo pidio el firmante el 2026-08-13 —«usarlo hasta de maquina de estados para saber que va
+ * cuando»— y `EP-007` entrego `tracker siguiente`, un COMANDO. Su propio cierre lo declaro:
+ * «un comando no puede exigir haber sido llamado». El tablero es lo que se mira SIN acordarse
+ * de nada, y no decia en que paso estabas.
+ *
+ * `FASES` ya declaraba las tres piezas —`nombre`, `produce`, `cierra`— y `queSigue` ya derivaba
+ * los bloqueos. Aqui no se inventa ninguna: se PUBLICAN.
+ *
+ * No copia contenido (`SUITE-R35`): no hay segunda copia porque no hay texto propio. Todo se
+ * recalcula de la allocation y del arbol en cada `abrir --aplicar`, asi que no puede divergir.
+ *
+ * Y la distincion que lo hace util es «deberia» contra «esta»: publicar que `PHASE 4` produce
+ * seis archivos no vale nada; publicar CUALES DE LOS SEIS EXISTEN convierte el issue en algo
+ * que puede contradecir a quien lo escribe.
+ */
+export function maquinaDeEstados(a, opciones = {}) {
+  const { artefactos = null, bloqueos = [], avisos = [] } = opciones;
+  if (esLote(a)) return [];
+  const fase = Number(a?.phase);
+  const tic = String.fromCharCode(96);
+  if (!Number.isInteger(fase) || !FASES[fase]) {
+    // RULE-06 · no saber no es permiso. Una fase ausente se DICE, no se supone cero: con `?? 0`
+    // «PHASE 0» y «nadie lo escribio» daban el mismo numero (PT-004).
+    return ['', '### Dónde está', '',
+      '> La allocation **no declara ' + tic + 'phase' + tic + '**, así que no se puede decir en qué paso está.',
+      '> ' + tic + 'SUITE-R58' + tic + ' · debió crearse con ' + tic + 'tracker asignar' + tic + ', que la escribe.'];
+  }
+  const aqui = FASES[fase];
+  const antes = FASES[fase - 1] ?? null;
+  const luego = FASES[fase + 1] ?? null;
+  const cod = (s) => tic + s + tic;
+  const l = ['', '### Dónde está', '', '| | |', '|:--|:--|'];
+  l.push('| **Paso** | ' + cod('PHASE ' + fase) + ' · ' + aqui.nombre + ' |');
+  l.push(antes
+    ? '| **Entró cuando** | ' + antes.cierra + ' |'
+    : '| **Entró cuando** | es el primer paso: no hay transición de entrada |');
+  l.push('| **Sale cuando** | ' + aqui.cierra + ' |');
+  l.push(luego
+    ? '| **Después** | ' + cod('PHASE ' + (fase + 1)) + ' · ' + luego.nombre + ' |'
+    : '| **Después** | es el último paso |');
+  // Lo que la fase produce, y lo que de verdad hay. Sin la segunda columna esto seria una copia
+  // de FASES; con ella es un contraste — y un contraste puede contradecir a quien lo escribe.
+  if (aqui.produce.length) {
+    l.push('', '**Produce este paso:**', '');
+    for (const f of aqui.produce) {
+      const hay = artefactos ? artefactos.has(f) : null;
+      l.push('- ' + (hay === true ? '✔' : '·') + ' ' + cod(f) + (hay === false ? ' — todavía no' : ''));
+    }
+    if (artefactos === null) {
+      l.push('', '> No se pudo mirar el árbol, así que no se sabe cuáles existen (' + cod('RULE-06') + ').');
+    }
+  }
+  if (bloqueos.length) {
+    l.push('', '**No puede avanzar:**', '');
+    for (const b of bloqueos) l.push('- ' + b);
+  }
+  if (avisos.length) {
+    l.push('', '**Avisos:**', '');
+    for (const v of avisos) l.push('- ' + v);
+  }
+  return l;
+}
+
 export function cuerpoDeIssue(a, opciones = {}) {
-  const { url, rama, tareas, ramaTrabajo, hayDirectorio, refDurable } = opciones;
-  const esLote = a?.type === 'EP';
+  const { url, rama, ramaTrabajo, hayDirectorio, refDurable } = opciones;
   const dir = a?.slug ? `changes/${a.id}-${a.slug}` : `changes/${a?.id}`;
   // PT-036 · el enlace apunta a donde el contenido ESTA, no a donde estara.
   //
@@ -416,16 +564,23 @@ export function cuerpoDeIssue(a, opciones = {}) {
       : `\`${dir}/\` — en el repositorio, sin enlace: no hay ref durable que lo contenga`);
 
   const l = [];
-  l.push(esLote
+  l.push(esLote(a)
     ? `**Implementación abierta** · ${a.title ?? a.slug ?? ''}`
     : `**${a?.type ?? 'PT'}** · severidad ${a?.severity ?? '—'} · ${a?.epic ? `de la implementación \`${a.epic}\`` : 'sin implementación asignada'}`);
   l.push('');
-  if (esLote && (tareas ?? []).length) {
-    l.push('Tareas de este lote:');
-    l.push('');
-    for (const t of tareas) l.push(`- \`${t.id}\`${t.issue ? ` · #${t.issue}` : ''} — ${t.title ?? t.slug ?? ''}`);
-    l.push('');
-  }
+  // PT-096 · SUITE-R51 · la jerarquia es ESTRUCTURA, no prosa.
+  //
+  // Aqui se enumeraban las tareas del lote. PT-035 lo declaro defecto —«una tarea es SUB-ISSUE de
+  // su lote, NO un enlace en su cuerpo: un enlace no da progreso, no cierra en cascada y no sale
+  // en el arbol»—, añadio el anidamiento real… y no retiro la copia narrada. Convivieron: 14
+  // issues de lote la llevaban al medirlo.
+  //
+  // Que `esLote` fuera falso para los tres ultimos lotes estaba TAPANDO esa violacion, no
+  // causandola. Por eso el arreglo del predicado NO es hacer que la lista salga en tres sitios
+  // mas: es retirarla, que es lo que SUITE-R51 pide desde que existe.
+  //
+  // La cabecera de lote se queda: eso es informacion DEL lote, no una segunda representacion de
+  // su jerarquia.
   // PT-074 · SUITE-R35 · el registro asigna y la plataforma ESPEJA. El veredicto de viabilidad
   // es estado —lo escribe «tracker viabilidad --registrar» (FDGE-R54)— y no se espejaba: vivia
   // en REGISTRY.allocations[].viabilidad y era invisible desde el tablero. El firmante lo pidio
@@ -467,15 +622,41 @@ export function cuerpoDeIssue(a, opciones = {}) {
     l.push('');
     l.push('> Un aplazado no tiene intake ni ha recorrido fases: eso es lo que `SUITE-R44` quiere.');
     l.push('> Aplazarlo lo **pone** en el tablero, no lo saca.');
+  } else if (!ramaDelEnlace) {
+    // PT-096 · SEGUNDA instancia de lo que PT-048 arreglo tres lineas mas arriba: la nota que
+    // EXPLICA el enlace se emitia tambien cuando no hay enlace, y ahi `ramaDelEnlace` es null.
+    // El cuerpo publicado decia, en dos frases seguidas:
+    //     «…sin enlace: no hay ref durable que lo contenga»
+    //     «> El enlace apunta a `null`, que es donde el contenido existe ahora.»
+    // Diez de los 115 cuerpos del tablero lo publicaban. PT-048 corrigio la rama hermana
+    // (hayDirectorio === false) y no esta: arreglar la instancia y no el patron.
+    //
+    // Y dice QUE HACER, no solo que pasa: quien lee un issue quiere llegar al intake. RULE-06
+    // obliga a no inventar el dato; no obliga a ser oscuro.
+    l.push('');
+    l.push('> Todavía no hay ref durable que lo contenga: el intake aún no está en ningún commit.');
+    l.push('> Aparecerá en cuanto se integre — y si ya lo está, `tracker abrir --aplicar` lo republica.');
   } else {
     l.push('');
-    l.push(viva
-      ? `> El enlace apunta a \`${ramaDelEnlace}\`, que es donde el contenido existe ahora. Al`
-      : `> El enlace apunta a \`${ramaDelEnlace}\`, la rama por defecto: aquí es donde se queda.`);
-    if (viva) l.push(`> integrarse pasará a \`${rama ?? 'main'}\` y este cuerpo se actualizará solo.`);
+    // PT-096 · el texto se deriva de A DONDE APUNTA, no de si la allocation esta viva.
+    //
+    // Decia «la rama por defecto: aqui es donde se queda» para toda allocation terminal, y
+    // refDurableDe prefiere la rama de INTEGRACION: los veinte cuerpos reparados quedaban
+    // llamando «rama por defecto» a «trabajo», que no lo es. Un enlace correcto con una nota
+    // falsa al lado es la misma averia que el «null» que esta tarea vino a quitar, en version
+    // suave — y se vio mirando el issue publicado, no el diff.
+    const esPorDefecto = ramaDelEnlace === (rama ?? 'main');
+    l.push(esPorDefecto
+      ? `> El enlace apunta a \`${ramaDelEnlace}\`, la rama por defecto: aquí es donde se queda.`
+      : `> El enlace apunta a \`${ramaDelEnlace}\`, que es donde el contenido existe ahora. Al`);
+    if (!esPorDefecto) l.push(`> integrarse pasará a \`${rama ?? 'main'}\` y este cuerpo se actualizará solo.`);
   }
+  // PT-104 · la maquina de estados va ANTES del pie: el pie explica por que no se copia el
+  // contenido, y esa aclaracion solo tiene sentido despues de haber dicho lo que SI se publica.
+  l.push(...maquinaDeEstados(a, opciones));
+
   l.push('');
-  l.push('> Este issue dice **qué está abierto**. Lo que se decidió y lo que se probó vive en el');
+  l.push('> Este issue dice **qué está abierto** y **en qué paso**. Lo que se decidió y lo que se probó vive en el');
   l.push('> repositorio, versionado junto al código. **No se copia aquí**: dos copias del mismo');
   l.push('> texto divergen (`SUITE-R35`).');
   return l.join(String.fromCharCode(10));
@@ -549,19 +730,25 @@ export function cerrablesSinAdelantarse(muertas, enPrincipal) {
 /**
  * PT-014 · En qué orden se crean los issues de una tanda.
  *
- * La dependencia entre cuerpos va en UN SOLO sentido: el de un lote enumera sus tareas **con su
- * número**, y el de una tarea cita a su lote **por identificador**. Creando en el orden del
- * registro —donde el lote va primero— su cuerpo se compone cuando sus tareas aún no tienen
- * número, y salía sin ellos: hacía falta repetir el comando.
+ * La dependencia va en UN SOLO sentido: el lote necesita que sus tareas tengan numero, y ellas no
+ * necesitan nada de el. Creando en el orden del registro —donde el lote va primero— la relacion
+ * se establecia cuando sus tareas aun no tenian numero: hacia falta repetir el comando.
  *
  * No se pide dos veces ni se pospone nada: se crea antes lo que no depende de nadie. Con la
  * dependencia en un sentido, un orden basta y no hay ciclo posible.
+ *
+ * PT-096 · el MOTIVO cambio y el orden NO. Este texto decia «el cuerpo del lote enumera sus
+ * tareas con su numero», y esa enumeracion se ha retirado: era la copia narrada que SUITE-R51
+ * prohibe. Lo que sigue necesitando el numero es el ANIDAMIENTO —`anidarSubIssues` pide el issue
+ * hijo—, asi que el orden vale igual por una razon distinta. Se reescribe el porque en vez de
+ * borrar la regla: un orden correcto con un motivo caduco es el que alguien quita el dia que lee
+ * el motivo y no lo encuentra.
  *
  * Estable dentro de cada grupo (`Array.prototype.sort` lo es desde ES2019): dos tareas
  * conservan el orden del registro, que es el que el humano ve.
  */
 export const ordenDeApertura = (pendientes) =>
-  [...(pendientes ?? [])].sort((x, y) => (x?.type === 'EP' ? 1 : 0) - (y?.type === 'EP' ? 1 : 0));
+  [...(pendientes ?? [])].sort((x, y) => (esLote(x) ? 1 : 0) - (esLote(y) ? 1 : 0));
 
 const ARGS = process.argv.slice(2);
 const ACCION = ARGS[0] ?? 'espejo';
@@ -581,7 +768,12 @@ const APLICAR = ARGS.includes('--aplicar');
 // ROOT, y la primera con un valor que EMPIEZA en mayuscula —un nombre de persona—, que
 // ES_ETIQUETA no filtra. El patron es siempre el mismo: una opcion con valor que no se
 // declara aqui deja su valor suelto entre los posicionales.
-const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de']);
+// PT-103 · los cuatro de «asignar» entran aqui. El comentario de abajo ya avisaba de que era la
+// CUARTA vez que un argumento nuevo se colaba por aqui; esta fue la QUINTA, y se noto en el acto
+// porque «--tipo BUG» hizo que se buscara el registro dentro de ./BUG. Un flag que se añade sin
+// declararse aqui convierte su VALOR en la raiz del proyecto.
+const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de',
+  '--tipo', '--severidad', '--epica', '--titulo']);
 // PT-057 · `coste` recibe TIPO y COMPLEJIDAD como posicionales, y sin esta guarda el primero se
 // tomaba por ROOT: «tracker coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
 // CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
@@ -970,12 +1162,218 @@ export function checkpointDe(alloc, git = {}) {
   };
 }
 
+/**
+ * PT-098 · SUITE-R08 · LEXICON §5.1 · ¿el arbol sostiene el «INTEGRATED» que el registro afirma?
+ *
+ * LEXICON define INTEGRATED como «mergeado a la linea principal»: es un hecho del ARBOL, no una
+ * opinion del registro. Y `avanzar` lo escribia por el mero hecho de que alguien pidiera la
+ * ultima fase — sin mirar nada.
+ *
+ * Eso apaga SEIS comprobaciones de verify-fdge que se eximen de lo terminal. La exencion es
+ * CORRECTA —existe para no exigir bitacora retroactiva a lo integrado antes de la 5.1.0— y lo
+ * que fallaba era el dato que la dispara. INC-011 de la calculadora lo midio: al corregir dos
+ * estados a DONE se encendieron cinco reglas y CUATRO salieron en rojo sobre trabajo del dia
+ * anterior, mientras «verify-fdge --all» daba verde todos los dias.
+ *
+ * Un falso rojo se investiga; un falso VERDE se archiva.
+ *
+ * TRES valores y no dos, y el tercero es el que importa:
+ *   true    su changes/ esta en la rama por defecto
+ *   false   esta en la de integracion pero NO en la principal
+ *   null    no se puede saber  ->  SIN EVALUAR (RULE-06: no saber no es permiso, pero
+ *           tampoco es una acusacion). Un clon superficial o una rama sin traer no dicen
+ *           nada del estado, y PT-056 pago DOS veces por comprobaciones que se ponian en
+ *           rojo en CI por el entorno y no por el hecho.
+ *
+ * NO necesita que la allocation declare rama, que es lo que hacia parecer inviable la
+ * comprobacion: 58 de las 91 INTEGRATED de este registro no la declaran. Pregunta por el
+ * DIRECTORIO, igual que refDurableDe — el mecanismo que PT-096 construyo.
+ */
+export function estadoTerminalDe(a, integrado) {
+  // La guarda que ya habia se CONSERVA: un CLOSED o un REVERTED no vuelven a INTEGRATED
+  // porque alguien avance de fase.
+  if (ESTADOS_TERMINALES.has(String(a?.status))) return null;
+  // null y false escriben DONE: no se afirma un merge que no consta. Y DONE no es una
+  // acusacion — es el estado correcto de algo terminado que aun no consta integrado, y el
+  // que SUITE-R46 pide apuntar ANTES de mergear (FDGE-R34: «G4 exige DONE»).
+  return integrado === true ? 'INTEGRATED' : 'DONE';
+}
+
+/**
+ * PT-099 · LEX-R08 (H) · FDGE-R26 · LEXICON §5.1 · la transicion de un BUG la aplica el COMANDO.
+ *
+ * LEXICON declara «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre» y FDGE-R26 dice que un
+ * BUG «transita a VALIDATION_PENDING y ahi SE DETIENE: solo un humano lo lleva a DONE». PHASES
+ * lo situa sin ambiguedad en PHASE 7 · Validacion: «BUG -> VALIDATION_PENDING y PARA».
+ *
+ * Y no lo aplicaba nadie. Medido: 51 BUG en este registro y CERO han pasado por ahi. Los tres en
+ * DONE son PT-096, PT-097 y PT-098 —las tareas de este mismo lote— y los tres se escribieron A
+ * MANO, declarando la excepcion cada vez, porque el comando no lo hacia.
+ *
+ * Ningun verificador cita LEX-R08. FDGE-R26 vigila la SALIDA —un BUG que YA esta en DONE— y nadie
+ * vigilaba la ENTRADA: un BUG que llega a PHASE 9 con otro estado no esta en DONE, asi que la
+ * comprobacion no lo mira y «--all» lo verifica limpio. Es la forma de PT-096: una comprobacion
+ * escrita para un fallo no ve su AUSENCIA.
+ *
+ * EXTIENDE estadoTerminalDe en vez de añadir un segundo sitio que escriba «status». PT-098 acaba
+ * de crear el unico que habia; un segundo seria la averia de SUITE-R38 cometida UNA TAREA despues
+ * de arreglarla.
+ *
+ * La FASE avanza; el ESTADO se detiene. FDGE-R26 dice que el BUG «se detiene», y lo que se
+ * detiene es el estado: el trabajo siguio, asi que la fase sube. Confundirlos fue lo que se
+ * rechazo en PT-098 (A-1) y volvia a aparecer aqui.
+ *
+ * Devuelve null = «no se toca». Misma convencion que estadoTerminalDe.
+ */
+export function estadoDeFase(a, destino, ctx = {}) {
+  // La fase de validacion se identifica por su NOMBRE en FASES, no por un 7 suelto: si alguien
+  // renumera las fases, un literal se apagaria en silencio (el riesgo que PT-096 documento con
+  // su marcador). Hay un caso que ata el numero al nombre.
+  const faseValidacion = ctx.faseValidacion
+    ?? Number(Object.keys(FASES).find((n) => FASES[n].nombre === 'Validación'));
+  const tipo = String(a?.type ?? '');
+  const st = String(a?.status ?? '');
+  if (tipo === 'BUG' && Number(destino) === faseValidacion
+      && st !== 'DONE' && !ESTADOS_TERMINALES.has(st)) {
+    // Un BUG que YA esta en DONE no vuelve atras: deshacer una firma humana de G3 al avanzar de
+    // fase seria peor que no aplicar la transicion.
+    return 'VALIDATION_PENDING';
+  }
+  // PT-105 · EL PELDANO DE EN MEDIO, que faltaba y no lo parecia.
+  //
+  // PT-098 puso el de arriba —el terminal, derivado del arbol— y PT-099 el de abajo —la parada
+  // de un BUG—. Entre los dos quedo un hueco que ninguno de los dos podia ver, porque cada uno
+  // resolvia su propio caso: un no-BUG que cierra Validacion con G3 y entra en Persistencia NO
+  // pasaba a DONE, y FDGE-R34 exige DONE para G4 — que es la fase SIGUIENTE.
+  //
+  // La compuerta quedaba incumplible sin escribir REGISTRY.json a mano, que es la averia que
+  // PT-103 nombro: cumplir el marco exigiendo saltarse la herramienta. Llevaba QUINCE FEATURE
+  // sin verse porque siempre se habia tapado escribiendo el registro a mano.
+  //
+  // Un BUG NO entra aqui: se detiene en VALIDATION_PENDING y solo una persona lo mueve
+  // (FDGE-R26, LEX-R08, SUITE-R06b). Y un estado YA terminal no se toca: FDGE-R53 dice que la
+  // tarea declara como termina, y el comando no lo decide por ella.
+  if (tipo !== 'BUG' && Number(destino) === faseValidacion + 1
+      && !ESTADOS_TERMINALES.has(st)) {
+    return 'DONE';
+  }
+  if (ctx.esFinal) return estadoTerminalDe(a, ctx.integrado);
+  return null;
+}
+
+/**
+ * PT-098 · el veredicto que verify-fdge publica sobre un estado terminal.
+ * Se separa del efecto, como decisionDeEnlace en PT-096: la decision es pura y comprobable.
+ */
+export function estadoContrastado(a, integrado) {
+  if (String(a?.status) !== 'INTEGRATED') return null;
+  const r = typeof integrado === 'function' ? integrado(a) : integrado;
+  if (r === true) return null;
+  if (r === null || r === undefined) {
+    return { nivel: 'aviso', regla: 'SUITE-R08', mensaje: `${a.id}: declara INTEGRATED y no se pudo contrastar con la rama por defecto — SIN EVALUAR. No saber no es permiso, pero tampoco es una acusacion (RULE-06).` };
+  }
+  return { nivel: 'error', regla: 'SUITE-R08', mensaje: `${a.id}: declara INTEGRATED y su «changes/» NO esta en la rama por defecto. LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal»: el registro afirma un merge que el arbol no tiene, y ese estado APAGA seis comprobaciones que se eximen de lo terminal.` };
+}
+
 const EJECUTADO_DIRECTO = !!process.argv[1]
   && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
 
 if (EJECUTADO_DIRECTO) {
 const reg = leerJSON(join(IMPL, 'REGISTRY.json'));
 if (!reg) { console.error('No hay docs/implementation/REGISTRY.json legible.'); process.exit(2); }
+// PT-107 · SUITE-R08 · el registro no se reescribe a ciegas.
+//
+// LO QUE PASO, medido: `abrir --aplicar` cargo el registro (124 allocations); mientras corria,
+// `asignar` escribio PT-106 (125); al terminar, `abrir` escribio SU copia —la de antes— y
+// PT-106 DESAPARECIO. Sin error, sin aviso, y el contador RETROCEDIO de 106 a 105. Lo unico que
+// lo hizo visible fue ir a leer el estado por otro motivo.
+//
+// Cuatro sitios escribian `REGISTRY.json` entero y UNO SOLO lo leia, al arrancar el proceso.
+// Entre esa lectura y cualquiera de las cuatro escrituras cabe otro comando entero.
+//
+// SUITE-R08 llama a este archivo «el unico asignador de identificadores». Un asignador que
+// puede perder un identificador en silencio no asigna: reparte y a veces olvida.
+//
+// Esto NO hace el registro concurrente —eso exigiria un bloqueo, y un bloqueo mal puesto deja
+// el proyecto colgado—. Hace que la perdida sea IMPOSIBLE DE NO VER: si el archivo cambio
+// desde que se leyo, no se escribe encima y se DICE que hay que repetir el comando.
+const HUELLA_AL_LEER = (() => {
+  try { return readFileSync(join(IMPL, 'REGISTRY.json'), 'utf8'); } catch { return null; }
+})();
+
+// No se exporta: vive DENTRO del bloque que solo corre cuando el modulo se ejecuta como
+// comando (EJECUTADO_DIRECTO). Quien lo importa como libreria no escribe el registro.
+// PT-107 · la comparacion SOLA no basta, y lo destapo su propio caso siendo INTERMITENTE.
+//
+// Leer-comparar-escribir no es atomico: si los dos procesos releen ANTES de que ninguno haya
+// escrito, los dos ven la huella original, los dos pasan la comparacion y el ultimo pisa al
+// primero. La ventana es pequeña —microsegundos— y por eso el caso pasaba a mano y fallaba en la
+// bateria. Un caso intermitente es peor que ninguno: enseña a ignorarlo.
+//
+// El cerrojo lo crea `wx`, que es atomico en el sistema de archivos: o lo creas tu o existe. No
+// hay ventana. Se espera a que se libere, con un limite —un cerrojo abandonado no puede colgar
+// el proyecto (SUITE-R17)— y se borra siempre, tambien si la escritura falla.
+const CERROJO = join(IMPL, 'REGISTRY.json.lock');
+const VIDA_MAXIMA_MS = 30000;
+
+function esperaSincrona(ms) {
+  // Sincrona a proposito: todo este archivo lo es, y meter async aqui obligaria a reescribir las
+  // cuatro llamadas y sus caminos de error.
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function tomarCerrojo(quien) {
+  for (let intento = 0; intento < 100; intento += 1) {
+    try {
+      writeFileSync(CERROJO, `${process.pid} ${quien}${SALTO}`, { flag: 'wx' });
+      return true;
+    } catch {
+      // Un cerrojo viejo es de un proceso que murio sin limpiarlo. Se retira con su edad medida,
+      // no «por si acaso»: borrarlo antes de tiempo devuelve el defecto que esto arregla.
+      try {
+        const edad = Date.now() - statSync(CERROJO).mtimeMs;
+        if (edad > VIDA_MAXIMA_MS) { rmSync(CERROJO, { force: true }); continue; }
+      } catch { /* desaparecio entre medias: se reintenta */ }
+      esperaSincrona(50);
+    }
+  }
+  return false;
+}
+
+function guardarRegistro(datos, quien) {
+  const ruta = join(IMPL, 'REGISTRY.json');
+  if (!tomarCerrojo(quien)) {
+    throw new Error(
+      'No se pudo tomar el cerrojo de REGISTRY.json en 5 s durante «' + quien + '». '
+      + 'NO se ha escrito nada. Otro comando lo tiene ocupado, o quedo un '
+      + 'docs/implementation/REGISTRY.json.lock de un proceso muerto — mira su antiguedad '
+      + 'antes de borrarlo.');
+  }
+  try {
+    return escribirRegistro(ruta, datos, quien);
+  } finally {
+    rmSync(CERROJO, { force: true });
+  }
+}
+
+function escribirRegistro(ruta, datos, quien) {
+  // Dentro del cerrojo la comparacion ya no es una carrera: es la red por si alguien escribio
+  // SIN pasar por aqui — a mano, o con una version anterior de esta herramienta.
+  const ahora = (() => { try { return readFileSync(ruta, 'utf8'); } catch { return null; } })();
+  if (HUELLA_AL_LEER !== null && ahora !== null && ahora !== HUELLA_AL_LEER) {
+    // No se escribe encima, y no se intenta fusionar: fusionar dos versiones de un registro
+    // sin saber cual gana es como se pierde el dato que esto existe para no perder.
+    const nAntes = (() => { try { return JSON.parse(HUELLA_AL_LEER).allocations?.length ?? '?'; } catch { return '?'; } })();
+    const nAhora = (() => { try { return JSON.parse(ahora).allocations?.length ?? '?'; } catch { return '?'; } })();
+    throw new Error(
+      'REGISTRY.json cambio mientras corria «' + quien + '»: tenia ' + nAntes
+      + ' allocations al leerlo y ahora tiene ' + nAhora + '. NO se ha escrito nada. '
+      + 'Otro comando lo modifico en paralelo — escribir encima habria borrado su trabajo '
+      + 'en silencio (SUITE-R08). Espera a que termine y repite este comando.');
+  }
+  writeFileSync(ruta, JSON.stringify(datos, null, 2) + SALTO);
+}
+
 const PLATAFORMA = reg.tracker?.plataforma ?? null;
 
 
@@ -1028,7 +1426,8 @@ const vivas = vivasDe(all);
 // el arnés puede probar sin credenciales.
 function espejo() {
   const issues = adaptador.abiertos();
-  const div = compararEspejo(vivas, issues, all, refExiste);
+  // PT-096 · «refDurableDe» se inyecta para que el espejo vea tambien el cuerpo que NO enlaza.
+  const div = compararEspejo(vivas, issues, all, refExiste, refDurableDe);
   // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
   //
   // El registro que asigna vive en la rama de trabajo. El de la rama por defecto es el del
@@ -1117,7 +1516,6 @@ const RAMA_TRABAJO = (() => {
 const contextoCuerpo = (a) => ({
   ...REPO,
   ramaTrabajo: RAMA_TRABAJO,
-  tareas: a?.type === 'EP' ? all.filter((t) => t.epic === a.id) : undefined,
   // PT-048 · el dato viaja en el contexto y NO se lee dentro de `cuerpoDeIssue`: esa funcion es
   // pura y exportada a proposito —para que un caso pueda comprobarla sin hablar con la
   // plataforma ni con el disco—, y meterle un `existsSync` la habria devuelto a ser inprobable.
@@ -1125,7 +1523,30 @@ const contextoCuerpo = (a) => ({
   // PT-079 · el ref DURABLE se calcula aqui, no en cuerpoDeIssue: esa funcion es pura a
   // proposito (PT-048) y meterle git la devolveria a ser improbable.
   refDurable: refDurableDe(a),
+  // PT-104 · que artefactos EXISTEN de verdad, mirados en el arbol. Mismo contrato que las dos
+  // lineas de arriba: el disco se lee AQUI y `cuerpoDeIssue` sigue siendo pura.
+  //
+  // Es la mitad que hace util la maquina de estados. Publicar que PHASE 4 «produce seis
+  // archivos» es copiar FASES; publicar cuales de los seis ESTAN es un contraste, y un
+  // contraste puede contradecir a quien lo escribe.
+  artefactos: artefactosDe(a),
+  // Los bloqueos ya los deriva `queSigue` desde PT-030. Vivian solo en `tracker siguiente`, que
+  // hay que acordarse de ejecutar — y EP-007 cerro declarando justo eso: «un comando no puede
+  // exigir haber sido llamado».
+  ...(() => { const r = queSigue(a); return { bloqueos: r.bloqueos ?? [], avisos: r.avisos ?? [] }; })(),
 });
+
+/**
+ * PT-104 · Los artefactos que hay, no los que deberia haber.
+ *
+ * Devuelve `null` —y no un conjunto vacio— cuando el directorio no existe: no es lo mismo «no
+ * ha producido nada» que «no se pudo mirar», y el cuerpo lo dice distinto (`RULE-06`).
+ */
+function artefactosDe(a) {
+  const dir = join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`);
+  if (!existsSync(dir)) return null;
+  try { return new Set(readdirSync(dir)); } catch { return null; }
+}
 
 /**
  * PT-079 · SUITE-R56 · Un ref que no desaparece cuando la rama de la tarea se borra.
@@ -1143,6 +1564,25 @@ const contextoCuerpo = (a) => ({
 const refExiste = (r) => gitDe(['rev-parse', '--verify', '--quiet', r]) !== null
   || gitDe(['rev-parse', '--verify', '--quiet', `origin/${r}`]) !== null;
 
+// PT-098 · el contraste con el arbol. Vive junto a refDurableDe porque comparte su mecanismo:
+// preguntar a git si «changes/<ID>-<slug>/» esta en un ref. NO se duplica el «git cat-file» —una
+// segunda copia seria lo que PT-096 acaba de quitar de en medio.
+function integradoEnPrincipal(a) {
+  const dir = `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`;
+  const porDefecto = REPO.rama ?? 'main';
+  const integracion = reg?.tracker?.rama_integracion ?? 'trabajo';
+  const hay = (ref) => {
+    try { execFileSync('git', ['cat-file', '-e', `${ref}:${dir}`], { cwd: ROOT, stdio: 'pipe' }); return true; }
+    catch { return false; }
+  };
+  if (hay(porDefecto)) return true;
+  // Solo se afirma «NO integrado» si el directorio EXISTE en algun sitio. Si no esta en ninguno
+  // no se sabe nada: puede ser un clon superficial, una rama sin traer, o una allocation sin
+  // artefactos (SUITE-R44). RULE-06.
+  if (hay(integracion)) return false;
+  return null;
+}
+
 function refDurableDe(a) {
   const dir = `changes/${a?.slug ? `${a.id}-${a.slug}` : a?.id}`;
   const integracion = reg?.tracker?.rama_integracion ?? 'trabajo';
@@ -1152,7 +1592,17 @@ function refDurableDe(a) {
       return true;
     } catch { return false; }
   };
-  if (hay(integracion)) return integracion;
+  // PT-096 · SUITE-R51 lo dice literalmente: el cuerpo enlaza «la rama de trabajo mientras la
+  // allocation esta viva, LA RAMA POR DEFECTO cuando llega a INTEGRATED». Aqui se devolvia
+  // siempre la de integracion, asi que una tarea ya integrada enlazaba a «trabajo» y su cuerpo
+  // publicaba «al integrarse pasara a main» — sobre trabajo que YA esta en main.
+  //
+  // Lo vio mirar el issue #14 recien republicado, no leer la regla: el texto se contradecia con
+  // el estado de la propia tarea.
+  const porDefecto = REPO.rama ?? 'main';
+  const terminal = ESTADOS_TERMINALES.has(String(a?.status));
+  const orden = terminal ? [porDefecto, integracion] : [integracion, porDefecto];
+  for (const ref of orden) if (ref && hay(ref)) return ref;
   const sha = gitDe(['log', '-1', '--format=%H', '--', dir]);
   return sha || null;
 }
@@ -1189,17 +1639,60 @@ function repararEnlacesMuertos() {
   const terminadas = all.filter((a) => a.issue && !vivas.some((v) => v.id === a.id));
   for (const a of terminadas) {
     let publicado;
-    try { publicado = adaptador.cuerpoRemoto(a.issue); } catch { continue; }
+    // PT-096 · un cuerpo que NO SE PUDO LEER no es un cuerpo sano. El «catch { continue; }» que
+    // habia aqui hacia indistinguible «no pude mirar» de «no hay nada que hacer», y eso es
+    // exactamente lo que RULE-06 prohibe: no saber no es permiso.
+    //
+    // Medido: en una pasada sobre 99 issues, CUATRO lecturas fallaron y la herramienta declaro
+    // seis reparaciones sin decir que faltaban cuatro por mirar. Con eso, «0 cuerpos mudos» al
+    // terminar habria sido «0 de los que pude leer», publicado como si fuera del tablero entero —
+    // el error de muestreo que PT-079 documenta sobre si mismo.
+    try { publicado = adaptador.cuerpoRemoto(a.issue); }
+    catch (e) {
+      notas.push(`${a.id} #${a.issue}: no se pudo leer el cuerpo (${String(e?.message ?? e).split(String.fromCharCode(10))[0].slice(0, 80)}). SIN EVALUAR: no se afirma que este bien.`);
+      continue;
+    }
     const ref = refDeEnlace(publicado);
-    if (!ref || refExiste(ref)) continue;
     const durable = refDurableDe(a);
-    if (!durable) {
+    // PT-096 · la decision es UNA y vive en decisionDeEnlace. Aqui estaba «if (!ref || …) continue»,
+    // que salta el cuerpo SIN enlace — que son justo los que nunca lo tuvieron, ocho de los diez, y
+    // ademas terminales, o sea los unicos a los que esta pasada llega. SUITE-R56 reparaba el enlace
+    // MUERTO y pasaba de largo por el AUSENTE.
+    const decision = decisionDeEnlace(publicado, refExiste, durable);
+    if (decision === 'AJENO') continue;
+    // PT-096 · el cuerpo se reescribe cuando DIFIERE del que se generaria hoy, no solo cuando el
+    // enlace esta roto. SUITE-R35 dice que la plataforma ESPEJA el registro, y un espejo que solo
+    // se actualiza cuando se rompe no es un espejo.
+    //
+    // Lo midio esta misma tarea: retirada la lista en prosa que SUITE-R51 prohibe, los CATORCE
+    // cuerpos de lote que la llevaban NO se limpiaron —sus enlaces funcionaban, la decision era
+    // OK y la pasada los saltaba—. Es la averia de esta tarea un nivel mas arriba: el enlace roto
+    // se reparaba solo si estaba roto; el cuerpo entero se reescribia solo si el ENLACE fallaba.
+    // Una vez «OK», nada volvia a mirarlo, asi que ninguna mejora del texto alcanzaba lo publicado.
+    //
+    // Se comparan las lineas SIN espacios al borde: la plataforma normaliza finales de linea, y
+    // comparar bytes crudos reescribiria los 115 cuerpos en cada pasada (la leccion de PT-090
+    // sobre huellas con CRLF).
+    const derivado = cuerpoDeIssue(a, contextoCuerpo(a));
+    const norm = (t) => String(t ?? '').split(String.fromCharCode(10)).map((l) => l.trimEnd()).join(String.fromCharCode(10)).trim();
+    if (decision === 'OK' && norm(publicado) === norm(derivado)) continue;
+    if (decision === 'ROTO_SIN_SALIDA') {
       notas.push(`${a.id} #${a.issue}: enlaza a «${ref}», que ya no existe, y no hay ref durable del que derivar uno. Queda roto y consta.`);
       continue;
     }
-    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se repararia el enlace «${ref}» -> «${durable}»`); continue; }
-    try { adaptador.editarCuerpo(a.issue, cuerpoDeIssue(a, contextoCuerpo(a))); notas.push(`${a.id} #${a.issue}: enlace reparado «${ref}» -> «${durable}»`); }
-    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} enlaza a «${ref}», que ya no existe, y no se pudo reescribir.`); }
+    if (decision === 'MUDO_SIN_REF_DURABLE') {
+      notas.push(`${a.id} #${a.issue}: publica la ruta sin enlace y no hay ref durable todavia. No se inventa uno (RULE-06): consta.`);
+      continue;
+    }
+    // PT-096 · el ORIGEN se nombra segun el caso. Con «${ref}» a secas, el cuerpo mudo —donde ref
+    // es null— habria escrito «se repararia el enlace «null» -> «trabajo»»: exactamente el defecto
+    // que esta tarea arregla, reapareciendo en la nota que lo arregla.
+    const que = decision === 'OK'
+      ? 'el texto del cuerpo no coincide con el derivado'
+      : `${decision === 'REPARAR_MUDO' ? 'sin enlace' : `«${ref}»`} -> «${durable}»`;
+    if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se republicaria: ${que}`); continue; }
+    try { adaptador.editarCuerpo(a.issue, derivado); notas.push(`${a.id} #${a.issue}: republicado: ${que}`); }
+    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace ${origen} y no se pudo reescribir.`); }
   }
 }
 
@@ -1291,7 +1784,7 @@ function abrir() {
   // sincronizarCuerpos(), PT-022 en checkCierreDeLote(), PT-035 al anidar—. Cuatro veces no es
   // descuido: era que `abrir()` tenia dos finales y solo uno estaba completo. Ahora tiene uno.
   cerrarPasada();
-  writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
+  guardarRegistro(reg, ACCION);
 }
 
 /**
@@ -1369,8 +1862,8 @@ function prAbierto() {
 // No toca la plataforma: por eso responde «qué va cuándo» sin credencial y sin plataforma
 // declarada. Las etiquetas responden lo mismo en GitHub; esto lo responde aquí.
 function estado() {
-  const eps = all.filter((a) => a?.type === 'EP');
-  const pts = all.filter((a) => a?.type !== 'EP');
+  const eps = all.filter((a) => esLote(a));
+  const pts = all.filter((a) => !esLote(a));
   const linea = (a) => {
     const g = COMPUERTA_DE_FASE[Number(a.phase)];
     return `  ${String(a.id).padEnd(8)}${String(a.type ?? '').padEnd(15)}${String(a.severity ?? '—').padEnd(4)}`
@@ -1615,7 +2108,7 @@ function viabilidad() {
     medido_en: marcaSesion?.desde ?? null,
     fecha: hoy,
   };
-  writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + SALTO);
+  guardarRegistro(reg, ACCION);
   notas.push(`${id}: viabilidad ${v.veredicto} registrada en REGISTRY.allocations[].viabilidad`);
   di(`  REGISTRADO: ${id}.viabilidad = ${v.veredicto} (FDGE-R54).`);
 }
@@ -1829,6 +2322,12 @@ const usadosDe = (prefijo) => all
   .filter(Boolean)
   .map((m) => Number(m[1]));
 
+// PT-103 · los tipos que LEXICON declara. Se enumeran aqui —y no se acepta cualquier cadena—
+// porque un campo que admite lo que sea es un campo que no decide nada: es el mismo defecto que
+// PT-100 arreglo para los tipos de caso QA, un paso mas arriba.
+const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'CHANGE', 'TAREA'];
+const SEVERIDADES = ['S0', 'S1', 'S2', 'S3'];
+
 function asignar() {
   const prefijo = ARGS.slice(1).find((a) => /^[A-Z]+$/.test(a)) ?? 'PT';
   const iSlug = ARGS.indexOf('--slug');
@@ -1836,6 +2335,26 @@ function asignar() {
   const soloVer = ARGS.includes('--ver');
   if (!slug && !soloVer) {
     throw new Error('asignar necesita un slug:  tracker asignar PT --slug lo-que-sea');
+  }
+
+  // PT-103 · esto escribia CUATRO campos de nueve y dejaba fuera «type», «severity», «epic» y
+  // «phase» — los que el marco EXIGE. Un BUG de un lote con severidad no se podia registrar con
+  // el comando, asi que cada tarea nueva OBLIGABA a escribir REGISTRY.json a mano; sin «phase»,
+  // avanzar no movia nada. Una regla que solo se puede cumplir saltandose la herramienta no se
+  // cumple: se rodea. En la sesion que abrio esta tarea se rodeo cinco veces.
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const tipo = flag('--tipo');
+  const sev = flag('--severidad');
+  const epica = flag('--epica');
+  const titulo = flag('--titulo');
+  if (tipo && !TIPOS_DE_ITEM.includes(tipo)) {
+    throw new Error(`«${tipo}» no es un tipo de item. LEXICON declara: ${TIPOS_DE_ITEM.join(' · ')}`);
+  }
+  if (sev && !SEVERIDADES.includes(sev)) {
+    throw new Error(`«${sev}» no es una severidad. LEXICON declara: ${SEVERIDADES.join(' · ')}`);
+  }
+  if (epica && !esLote({ id: epica })) {
+    throw new Error(`«${epica}» no es un lote: un lote se reconoce por su ID (LEX-R27).`);
   }
 
   const yo = personaLocal(gitDe(['config', 'user.name']), gitDe(['config', 'user.email']),
@@ -1863,12 +2382,29 @@ function asignar() {
   di('');
   di(`  ${id}${slug ? ` · ${slug}` : ''}`);
   di(`  ${deDonde}`);
+  // PT-103 · se DICE con que nace, incluido lo que no se declaro. Un campo ausente que nadie
+  // nombra es el que luego se escribe a mano.
+  if (tipo) di(`  tipo: ${tipo}`);
+  if (sev) di(`  severidad: ${sev}`);
+  if (epica) di(`  lote: ${epica}`);
+  di('  arranca en PHASE 1');
+  const faltan = [!tipo && '--tipo', !sev && '--severidad'].filter(Boolean);
+  if (faltan.length) di(`  sin declarar: ${faltan.join(' ')} — habra que declararlos antes de G1`);
   if (soloVer) { di(''); di('  --ver: no se ha escrito nada.'); return; }
 
   reg.counters = reg.counters ?? {};
   if (!mia?.rango?.[prefijo]) reg.counters[prefijo] = numero;
-  reg.allocations.push({ id, slug, created: gitDe(['log', '-1', '--format=%cs']), status: 'DRAFT' });
-  writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + SALTO);
+  // PT-103 · «phase: 1» SIEMPRE. Sin el, Number(undefined) es NaN y avanzar no puede mover la
+  // allocation nunca — que es como PT-096 descubrio esto: fue la primera creada con «asignar»
+  // desde PT-062, y hubo que escribir el campo a mano.
+  reg.allocations.push({
+    id, slug, created: gitDe(['log', '-1', '--format=%cs']), status: 'DRAFT', phase: 1,
+    ...(tipo ? { type: tipo } : {}),
+    ...(sev ? { severity: sev } : {}),
+    ...(epica ? { epic: epica } : {}),
+    ...(titulo ? { title: titulo } : {}),
+  });
+  guardarRegistro(reg, ACCION);
   notas.push(`${id} asignado y escrito en REGISTRY.json`);
 }
 
@@ -1963,7 +2499,7 @@ function siguienteDe() {
   const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
   const objetivo = id
     ? [all.find((x) => x?.id === id)]
-    : vivas.filter((a) => a?.type !== 'EP').sort((x, y) => (y.phase ?? -1) - (x.phase ?? -1));
+    : vivas.filter((a) => !esLote(a)).sort((x, y) => (y.phase ?? -1) - (x.phase ?? -1));
   if (!objetivo.length || !objetivo[0]) {
     di(id ? `${id} no existe en el registro.` : 'Nada vivo en el registro: no hay trabajo abierto.');
     return;
@@ -2288,9 +2824,44 @@ function avanzar() {
     // NO se toca un estado que ya sea terminal: una tarea puede acabar REJECTED o DEFERRED, y
     // FDGE-R53 dice que la tarea declara como termina — esto no lo decide por ella.
     const esFinal = Number(destino) === Math.max(...Object.keys(FASES).map(Number));
+    // PT-098 · aqui se escribia INTEGRATED sin mirar nada, y ese estado APAGA seis
+    // comprobaciones de verify-fdge. LEXICON §5.1 define INTEGRATED como «mergeado a la linea
+    // principal»: es un hecho del ARBOL. El que corresponde al terminar la ultima fase —antes
+    // del merge— es DONE, que es lo que SUITE-R46 pide apuntar y lo que FDGE-R34 exige para G4.
+    //
+    // No se NIEGA: escribe lo cierto. Negarse fue el primer diseño y rompia SUITE-R46, que
+    // obliga al orden «apuntar el estado terminal, mergear, cerrar despues».
+    // PT-099 · la escalera la aplica el COMANDO. estadoDeFase cubre los dos peldaños que el
+    // marco declara obligatorios: la parada de un BUG en la fase de validacion (LEXICON §5.1,
+    // FDGE-R26, LEX-R08 severidad H) y el terminal que PT-098 derivo del arbol.
+    const enPrincipal = esFinal ? integradoEnPrincipal(a) : null;
+    const nuevoEstado = estadoDeFase(a, destino, { esFinal, integrado: enPrincipal });
+    // PT-105 · se DICE, con la misma forma que el peldaño del BUG. Un estado que cambia en
+    // silencio es el que luego nadie sabe quien puso — y este es justo el que G4 comprueba.
+    if (nuevoEstado === 'DONE' && !esFinal) {
+      a.status = 'DONE';
+      notas.push(`${id}: cerro Validacion, asi que pasa a DONE — el estado que FDGE-R34 exige `
+        + 'para G4, que es la fase siguiente. La firma de G3 va en la linea «Compuertas:» de '
+        + 'HISTORY.log; esto solo escribe el estado que esa firma implica.');
+    }
+    if (nuevoEstado === 'VALIDATION_PENDING') {
+      a.status = 'VALIDATION_PENDING';
+      // Se DICE, y con la forma que FDGE-R26 exige para la firma. El comando no puede firmar:
+      // un BUG «se detiene» aqui y solo un humano lo mueve.
+      notas.push(`${id}: es un BUG — queda en VALIDATION_PENDING y AHI SE DETIENE (FDGE-R26, LEX-R08). `
+        + `Solo una persona lo lleva a DONE, y al hacerlo registra quien y cuando en la linea `
+        + `«Compuertas:» de HISTORY.log:  G3 ${gitDe(['log', '-1', '--format=%cs']) ?? 'YYYY-MM-DD'} <nombre>`);
+    }
     const terminal = esFinal && !ESTADOS_TERMINALES.has(String(a.status));
-    if (terminal) a.status = 'INTEGRATED';
-    writeFileSync(join(IMPL, 'REGISTRY.json'), JSON.stringify(reg, null, 2) + '\n');
+    if (terminal) {
+      a.status = estadoTerminalDe(a, enPrincipal);
+      // Se DICE. Un cambio silencioso de estado es lo que causo el problema: «nadie tuvo que
+      // decidirlo» (INC-011).
+      notas.push(enPrincipal === true
+        ? `${id}: estado terminal INTEGRATED — su «changes/» esta en la rama por defecto.`
+        : `${id}: estado terminal DONE${enPrincipal === null ? ' — no se pudo contrastar con la rama por defecto (SIN EVALUAR)' : ' — su «changes/» todavia NO esta en la rama por defecto'}. Pasara a INTEGRATED cuando el merge ocurra y se vuelva a avanzar o se sincronice.`);
+    }
+    guardarRegistro(reg, ACCION);
 
     // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo
     if (existsSync(fIntake)) {
@@ -2472,6 +3043,45 @@ function sellar() {
     try { return createHash('md5').update(readFileSync(f)).digest('hex'); } catch { return null; }
   });
   di('');
+  // PT-110 · las cifras del inventario, MEDIDAS aqui.
+  //
+  // FND-R14 ha caido SIETE VECES en este lote: cada tarea que toca una herramienta desvia las
+  // cifras de inventory/services.md, y cada vez alguien las reescribio a mano. El comando existia
+  // —«tracker inventario --aplicar»— y no lo llamaba nadie: sellar recorria el grafo, los
+  // documentos de entrada y la guia de migracion, y el inventario no estaba en la lista.
+  //
+  // Se MIDE y se DICE, no se arregla: sellar informa, y arreglar es una decision (EXEC-R07). Pero
+  // ahora la deuda aparece en el mismo sitio donde se decide sellar, en vez de en una bateria que
+  // se corre despues.
+  const desviadas = (() => {
+    try {
+      const f = join(ROOT, 'docs', 'enterprise-documentation', 'inventory', 'services.md');
+      if (!existsSync(f)) return null;
+      const txt = readFileSync(f, 'utf8');
+      const dirT = join(ROOT, 'docs', 'methodology', 'tools');
+      const mal = [];
+      let total = 0;
+      for (const m of txt.matchAll(/\|\s*`([a-z-]+\.(?:mjs|sh))`\s*\|\s*(\d+)\s*\|/g)) {
+        total += 1;
+        const ruta = join(dirT, m[1]);
+        if (!existsSync(ruta)) continue;
+        const real = readFileSync(ruta, 'utf8').split(SALTO).length - 1;
+        if (real !== Number(m[2])) mal.push(`${m[1]} ${m[2]}→${real}`);
+      }
+      return { mal, total };
+    } catch { return null; }
+  })();
+  di('');
+  if (desviadas === null) {
+    di('  inventario         SIN EVALUAR — no se pudo leer inventory/services.md (RULE-06).');
+  } else if (desviadas.mal.length) {
+    di(`  inventario         ${desviadas.mal.length} de ${desviadas.total} cifras ya no describen el arbol`);
+    di(`                     ${desviadas.mal.slice(0, 3).join(', ')}${desviadas.mal.length > 3 ? ' …' : ''}`);
+    di('                     Se recalculan: node tools/tracker.mjs inventario --aplicar (FND-R14)');
+  } else {
+    di(`  inventario         las ${desviadas.total} cifras coinciden con el arbol.`);
+  }
+
   if (deriva === null) di('  grafo              SIN MANIFIESTO — no hay con que comparar (FDGE-R43).');
   else if (deriva.length) {
     di(`  grafo              SUSPECT · ${deriva.length} de ${Object.keys(man).length} archivos cambiaron`);
@@ -2580,7 +3190,7 @@ function indices() {
   const escribir = ARGS.includes('--aplicar');
   for (const [archivo, def] of Object.entries(INDICES)) {
     const filas = (reg.allocations ?? [])
-      .filter((a) => !/^EP-/.test(String(a?.id ?? '')))
+      .filter((a) => !esLote(a))
       .filter((a) => def.tipos.has(a?.type))
       .sort((x, y) => String(x.id).localeCompare(String(y.id)))
       .map(filaDeIndice);

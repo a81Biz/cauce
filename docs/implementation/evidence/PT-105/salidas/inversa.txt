@@ -1,0 +1,17 @@
+PRUEBA INVERSA — PT-105
+
+El caso feliz es UNA LINEA; lo que hay que probar son los dos negativos: que un BUG NO pase
+a DONE (FDGE-R26, LEX-R08) y que un estado ya terminal no se toque (FDGE-R53).
+
+S-1 · el peldano de en medio        caen  2
+                                      · un no-BUG que cierra Validacion pasa a DONE
+                                      · …un CHORE tambien
+S-2 · la exclusion del BUG          caen  1
+                                      · pero un BUG NO: se detiene
+S-3 · la guarda del estado terminal  caen  2
+                                      · un estado ya terminal no se toca
+                                      · …tampoco uno ya integrado
+S-4 · la atadura a la fase          caen  1
+                                      · no se escribe en una fase cualquiera
+
+Las 4 retiradas hacen caer casos. Ninguna esta sin probar.

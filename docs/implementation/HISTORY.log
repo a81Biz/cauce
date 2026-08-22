@@ -4848,3 +4848,1391 @@ la compuerta lo rechaza expresamente.
 
 **No es un descuido y no se arregla aqui**: es un choque entre dos reglas, del mismo tipo que
 `PT-095` acaba de cerrar para `EXEC-R04a`, y merece su propio intake.
+
+## PT-096 — Un enlace que falta no es un enlace roto
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-0, y va delante de todas
+Rama: bug/alberto-martinez/PT-096-un-enlace-que-falta-no-es-un-enlace-roto
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+Lo abrió el firmante mirando el tablero: el cuerpo de #189 publicaba la ruta a changes/ en texto
+plano y debajo ponia «El enlace apunta a null». Dos frases seguidas que se contradicen.
+
+Lo PRIMERO fue medir la premisa, no aceptarla. «Los .md no estan publicados en github» es FALSA:
+el intake esta en origin/trabajo y de los cuatro directorios contrastados tres estan ademas en
+main. No se habia dejado de subir nada. Lo que falta es el CAMINO desde el issue, que es el unico
+que una persona recorre — asi que la consecuencia que observo es exacta aunque la causa que
+supuso no lo sea. Va en §14 del intake y NO se reescribio §1: INTAKE-R01 prohibe que el agente
+corrija lo que declaro el humano.
+
+La otra mitad de su diagnostico —«en algun punto se cambio»— era correcta Y MEDIBLE: los once
+issues abiertos desde el 2026-08-19, fecha en que PT-079 cerro midiendo «0 de 85 rotos», nacieron
+sin enlace. Los 92 anteriores lo tienen. Once de once no es una muestra: es la poblacion.
+
+CAUSA RAIZ. PT-079 sustituyo «siempre un ref, a veces el equivocado» por «un ref durable, o
+ninguno», que es lo correcto, y no escribio la continuacion del «o ninguno». En PHASE 1 el intake
+acaba de escribirse y no esta commiteado: refDurableDe responde null CON RAZON, y nadie vuelve a
+preguntar. Tres sitios de tracker.mjs compartian el mismo supuesto —que el fallo de un enlace es
+que apunte MAL— y para el que NO apunta los tres terminaban en continue: cuerpoDeIssue imprimia
+el null, repararEnlacesMuertos lo saltaba con «if (!ref) continue», y compararEspejo llevaba la
+misma guarda, asi que el espejo declaraba «cuadra».
+
+POR QUE NO LO CAZO NADA. PT-079 midio 0 de 85 sobre issues QUE YA EXISTIAN. El caso que falla es
+el del issue que todavia no existe. Es el mismo error de muestreo que PT-079 documenta sobre si
+mismo —«medi 0 de 17 sobre los vivos y lo escribi como si fuera el tablero»— una vuelta despues.
+
+MI PROPIA MEDICION SE QUEDO CORTA, y es lo mas util de la tarea. Conte DIEZ cuerpos rotos. Al
+ejecutar la reparacion salieron VEINTE: EP-001, EP-002 y sus tareas publican un enlace RELATIVO
+—«](changes/…)»— que resuelve contra la URL del issue y da 404. Es el defecto que PT-010 arreglo
+EN EL CODIGO y que nadie republico: llevan rotos desde la primera epica. Mi filtro buscaba la
+cadena «sin enlace», el SINTOMA que ya conocia; un cuerpo con enlace relativo no la contiene
+—tiene enlace, solo que no funciona—. Lo cazo decisionDeEnlace porque pregunta por la PROPIEDAD.
+
+EL ARREGLO EVIDENTE ERA EL EQUIVOCADO. esLote fallaba para los tres ultimos lotes, asi que el
+issue de un lote no listaba sus tareas; lo obvio era hacer que saliera. Conte cuantos issues la
+llevan hoy: CATORCE. Y es lo que PT-035 declaro defecto —«una tarea es SUB-ISSUE de su lote, NO un
+enlace en su cuerpo»— y lo que SUITE-R51 hizo regla HARD. PT-035 añadio el anidamiento y no retiro
+la copia narrada. Que esLote fallara estaba TAPANDO una violacion de regla, no causandola.
+
+Y la decision de derivar el predicado del ID ya estaba tomada: patrones.mjs:859 la tenia escrita
+con la misma cita a SUITE-R38. Mi D-1 no era un hallazgo, era la segunda copia — justo lo que ese
+comentario condena. Se exporta desde ahi y se usa en los OCHO sitios de tracker.mjs, uno de los
+cuales hacia que «tracker estado» perdiera PT-096 en silencio: se contaba y no se listaba.
+
+Solucion: la nota del enlace condicionada a que haya enlace (S-1, que es PT-048 aplicado a su rama
+hermana); esLote importado y aplicado a los ocho sitios; la lista en prosa RETIRADA; el espejo
+reportando el cuerpo mudo con refDurable inyectado y opcional; y decisionDeEnlace, que separa la
+DECISION del EFECTO y da cinco resultados con nombre —OK, REPARAR_MUERTO, REPARAR_MUDO,
+ROTO_SIN_SALIDA, AJENO—. REPARAR_MUDO no faltaba por estar mal decidido: faltaba porque no habia
+DONDE decidirlo.
+
+Un cambio que compila, corre y miente: al borrar «const esLote = a?.type === 'EP'», la expresion
+«esLote ? …» paso a referirse a la FUNCION importada, siempre truthy, y PT-96 se publico como
+«Implementacion abierta». Sin error, sin excepcion, sin aviso — el diff solo muestra la linea
+BORRADA, no las que cambiaron de significado. Lo cazo ejecutar la asercion, no leerla.
+
+Y el arreglo llevaba dentro el defecto que arregla: la nota «se repararia el enlace «${ref}»» con
+ref null habria escrito «null» dentro del mensaje del arreglo del null. Tercera vez en este
+repositorio; PT-095 metio el byte 0x08 en el comentario que advertia del byte 0x08.
+
+TRES casos de la bateria protegian el defecto y NO se hicieron pasar: :1614 y :2226 afirmaban que
+la lista en prosa se emite, y :1787 que la nota se emite sin ref durable. Se invierten con su
+motivo al lado. Encontre dos leyendo; la tercera la encontro la bateria completa en rojo.
+
+Y uno MIO habria pasado hoy por el motivo contrario al que lo justifica: sin «type:'EP'» en el
+fixture no es un lote, la lista no se emite y trlibno da verde. Un caso que no puede fallar no
+prueba nada.
+
+Dos hallazgos mas, los dos por mirar el issue PUBLICADO y no el diff. El primero: la nota decia
+«la rama por defecto» apuntando a «trabajo», que no lo es. El segundo, y es de regla: refDurableDe
+devolvia SIEMPRE la rama de integracion, asi que una tarea INTEGRADA enlazaba a «trabajo» y su
+cuerpo publicaba «al integrarse pasara a main» sobre trabajo que YA estaba en main. SUITE-R51 lo
+tenia escrito —«la rama por defecto cuando llega a INTEGRATED»— y el codigo no lo cumplia.
+
+Y el que ordeno D-13: con los veinte enlaces ya reparados, la lista en prosa SEGUIA en los catorce
+cuerpos. Su enlace funcionaba, la decision era OK y la pasada los saltaba. Una vez que un cuerpo
+esta bien, NADA vuelve a mirarlo: la herramienta no comparaba jamas el cuerpo que publico con el
+que generaria hoy. SUITE-R35 dice que la plataforma ESPEJA el registro, y un espejo que solo se
+actualiza cuando se rompe no es un espejo. Al corregirlo aparecieron 79 de 99 cuerpos terminales
+desfasados, algunos diciendo cosas FALSAS —«este enlace puede no resolver todavia» sobre trabajo
+integrado hace semanas—. El tablero llevaba diecinueve lotes apartandose de su fuente.
+
+Archivos modificados: tools/tracker.mjs · tools/patrones.mjs · tools/selftest.sh ·
+  CASOS-DE-USO.md · MANUAL.md · inventory/services.md (cifras recalculadas, FND-R14)
+
+Evidencia: docs/implementation/evidence/PT-096/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/estado.txt · salidas/ajeno.txt · salidas/espejo.txt ·
+  salidas/tablero-antes.txt · salidas/abrir-dry.txt · salidas/verify-suite.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-08 ✓, los ocho. AC-09 RETIRADO a L-3 en la Revision 3, y consta como
+traslado y no como cumplido.
+
+  CUERPOS INUTILIZABLES   ANTES 20 de 115        DESPUES 0
+  CUERPOS CON «null»      ANTES 10               DESPUES 0
+  LISTA EN PROSA          ANTES 14 lotes         DESPUES 0
+  NOTA FALSA SOBRE LO YA INTEGRADO               DESPUES 0
+  «type === 'EP'»         ANTES 8 sitios, 3 respuestas   DESPUES 0, un helper
+  Bateria 1229 -> 1251, cero fallos.
+
+Prueba inversa: cinco retiradas, ninguna en cero. Y retirar decisionDeEnlace hace caer TAMBIEN el
+caso del espejo — esa es la prueba de que hay UNA fuente y no dos copias de la guarda.
+
+LO QUE NO ESTABLECE, y va aqui porque callarlo seria fabricar un verde:
+
+· Los SEIS casos de decisionDeEnlace no estuvieron en rojo VALIDO. La funcion no existia, asi que
+  su fallo era «la herramienta revento», que el arnes trata —con razon— como «no verifica nada».
+  Son ESPECIFICACION, no reproduccion. Los DIEZ que si lo estuvieron son los demas.
+· Los seis «type === 'EP'» de verify-fdge.mjs siguen ahi. Estan MAL y hoy SIN CONSECUENCIA, que no
+  es estar bien: solo EP-019 alcanza uno de ellos y pasa PORQUE alguien le registro la viabilidad.
+  El proximo lote que se abra sin registrarla fallara FDGE-R54 como si fuera una tarea. Es de L-3.
+· «tracker asignar» crea la allocation SIN campo «phase», y avanzar hace Number(undefined) -> NaN:
+  NINGUNA tarea creada con el puede avanzar. PT-096 es la PRIMERA que se crea con el desde que
+  entro en PT-062 — escrito, documentado, verificado y nunca ejecutado. Desbloqueado a mano UNA
+  vez con su excepcion declarada. Es de L-1.
+· El espejo solo recorre lo VIVO, asi que nunca habria cazado los veinte —todos terminales—. S-3
+  protege el FUTURO y S-2 arregla el PASADO; ninguno sustituye al otro.
+
+Y una desviacion de procedimiento que conviene no borrar: cai en SUITE-R34 con el aviso delante.
+El bloque «no hacer» del HANDOFF lo lleva escrito DOS veces, una diciendo «paso CUATRO veces».
+Leerlo no basta — es el argumento entero de INC-017 y de L-7.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 se resolvio por delegacion con constancia,
+y G4 la autorizo el firmante el 2026-08-21 —«haz el merge, deja todo en main»— con su registro.
+Ese merge NO cierra EP-019: el lote sigue DRAFT con ocho tareas por hacer.
+
+## PT-097 — Los umbrales de la certificación: la letra se deriva o no se emite
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-6, y el firmante la puso PRIMERA por el hueco, no por solapamiento
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+PTSA-R08 exigia emitir una letra A/B/C/F «auditable y defendible ante stakeholders», y los
+umbrales se citaban en §24.2 y §24.4 — que NO EXISTEN. §24 era «Reglas de transicion»: la tabla de
+estados de un PRODUCTO, sin subsecciones. Comprobado en las DOS versiones, 4.12.0 y 11.0.0, y
+medido tambien por el proyecto legado de forma independiente (INC-007).
+
+Lo que la especificacion definia eran CUATRO TOPES dispersos y NINGUN SUELO: PTSA-R30 (freshness
+UNKNOWN, no por encima de C), §13.4 (health_unstable, no por encima de B), §15.6 (Confidence < 90,
+no A) y §28.2 (un hallazgo CRITICO bloquea >= B). Cuatro formas de bajar una letra que nunca dice
+como se obtiene.
+
+CONSECUENCIA MEDIDA. Ante ese hueco, dos auditorias hicieron cosas distintas. La del legado
+publico los tres scores y NO emitio letra. La de este repositorio —PTSA-2026-08-20, la que fue el
+argumento con el que se publico la 11.0.0— INVENTO la banda «(75-89)» para poder cumplir, y
+escribio «A requiere Health >= 90» como si constara. Ninguna de las dos cifras aparece en ninguna
+especificacion, y nuestro PHASE 0 tampoco declaraba umbrales, asi que ni la via de PTSA-R24 —«los
+de esta tabla son los valores por defecto»— las respaldaba.
+
+POR QUE NO LO CAZO NADA. «grep -c certificac verify-ptsa.mjs» daba CERO. PTSA-R08 era la unica
+regla HARD de PTSA que exige un entregable y no tenia comprobacion mecanica. Es la familia de
+PT-075 —«una regla sin verificador no ocurre»— pero peor: aqui ocurria MAL, y el propio
+cumplimiento aparente tapaba el hueco.
+
+Y ESTUVE A PUNTO DE COMETER EL DEFECTO AL CORREGIRLO. Hacen falta cuatro letras y la especificacion
+declara DOS anclas: 60 (§13.3, el cap de dominio de la «Regla del Agua Potable») y 90 (§15.6). Dos
+anclas dan tres tramos. Ya tenia escrito «B: 75 <= Health < 90» cuando me detuve a preguntarme de
+donde salia el 75 — de ningun sitio, exactamente igual que el (75-89) que venia a retirar.
+
+La salida estaba en releer las dos unicas reglas que nombran la C: PTSA-R30 dice «no puede
+clasificarse POR ENCIMA DE C» y §28.2 dice que un CRITICO «bloquea certificacion >= B». NINGUNA la
+define como rango; las dos la usan como limite superior. C NO ES UNA BANDA, ES UN TECHO — un
+estado al que se BAJA. Con eso el sistema cierra con las dos anclas que hay, y CERO cifras nuevas.
+
+La leccion no es «leer mejor»: es que cuando un diseño exige una cifra que no esta, la respuesta
+casi nunca es inventarla — es que el diseño es otro.
+
+Solucion: §24 pasa a «Reglas de transicion y clasificacion»; lo que ya habia queda como §24.1 con
+PTSA-R38 y PTSA-R39 INTACTOS, solo ganan un encabezado por encima. §24.2 la base (A >= 90, B
+60-90, F < 60), §24.3 la emision y su ausencia, §24.4 los cuatro topes con su origen citado. Se
+eligio meterlos DENTRO de §24 y no en una seccion nueva porque las dos citas dicen «§24.2» y
+«§24.4» LITERALMENTE y son parte de reglas vigentes: otro numero dejaria dos citas rotas para
+siempre, o exigiria editar reglas que hoy son correctas.
+
+PTSA-R81: la letra es el MINIMO entre la base y todos los topes, y NO DEBE depender del orden. No
+es estilo — con una secuencia de ajustes, dos auditores llegarian a letras distintas aplicandolos
+en otro orden, y PTSA-R08 dejaria de poder cumplirse. Hay un caso que lo prueba: health_unstable
+(techo B) y un CRITICO (techo C) juntos deben dar C.
+
+§24.3 · un dato ausente NO produce letra, y es la unica decision que no se deriva. Se resuelve con
+RULE-06 —no saber no es permiso— y el precedente MEDIDO de PT-058, donde «restar(100 MEDIDO, SIN
+EVALUAR)» devolvia 100 ETIQUETADO COMO MEDIDO. Una letra es lo unico que un stakeholder lee. Y no
+es una invencion: es lo que el proyecto legado hizo POR SU CUENTA. La salida correcta ya se habia
+tomado sin permiso; faltaba autorizarla.
+
+TRES ERRORES MAS, y los tres los cazo comprobar en vez de recordar:
+
+  · Numere la regla nueva PTSA-R55, que YA EXISTE (el Acid Test, :1613). Habria creado dos reglas
+    con el mismo ID en el mismo documento —la averia que LEX-R04 existe para impedir— dentro de la
+    tarea que arregla una regla mal definida. El maximo real era PTSA-R80.
+  · Cite §27 donde era §28.2, en el documento que existe porque dos citas apuntan a secciones
+    inexistentes.
+  · Puse el ayudante «mlib» 500 lineas DESPUES de los once casos que lo usan. No revienta el
+    arnes: el caso simplemente no existe. «--solo» dijo «NINGUN CASO CASA» y el total subio 5 en
+    vez de 16. El bloque «no hacer» del HANDOFF lo advierte desde PT-095. Segunda vez.
+
+Y EL VERDE SALIO POR EL CAMINO EQUIVOCADO. El primero decia «Certificacion B contrastada» SIN
+topes: este RESUMEN declara la metrica D5 en Rojo EN SU PROSA y no publicaba «health_unstable»,
+asi que la funcion lo leia como false y la letra salia de la BASE, no del tope. Mismo resultado,
+camino distinto, e indistinguible mirando solo el verde — la forma exacta del defecto que este
+lote persigue. De ahi sale PTSA-R82: un tope que no se puede leer no se puede contrastar.
+
+Hallazgo estructural que no buscaba: verify-ptsa SE EJECUTA al importarlo y termina en
+process.exit(), asi que NINGUNA parte de su logica ha sido nunca comprobable desde el arnes.
+tracker.mjs lo resolvio en PT-084 con EJECUTADO_DIRECTO; verify-ptsa nunca lo tuvo. No es alcance
+que crece: AC-05 no se puede cumplir sin eso — una funcion que no se puede probar no es una
+comprobacion, es una afirmacion. Obligo tambien a un ayudante generico, «mlib», porque «trlib»
+esta atado a tracker.mjs por su variable de entorno.
+
+Archivos modificados: PTSA/PTSA-V3-Especificacion-Oficial.md · tools/verify-ptsa.mjs ·
+  tools/selftest.sh · CORE-PTSA.md (regenerado) · PTSA/RESUMEN.md (revision añadida)
+
+Evidencia: docs/implementation/evidence/PT-097/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/verify-ptsa.txt · salidas/core-check.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-08 ✓, los ocho.
+
+  §24.2 y §24.4       ANTES citadas y ausentes    DESPUES escritas, con cero cifras nuevas
+  PTSA-R08            ANTES sin verificador       DESPUES contrastada contra los numeros
+  banda «(75-89)»     ANTES publicada             DESPUES retirada
+  health_unstable     ANTES solo en prosa         DESPUES en el frontmatter (PTSA-R82)
+  verify-ptsa         ANTES no importable         DESPUES con EJECUTADO_DIRECTO
+
+Prueba inversa: OCHO retiradas, ninguna en cero. Cada tope hace caer SU caso y ninguno mas, salvo
+el del CRITICO que arrastra tambien el del min — correcto, porque ese caso usa los dos.
+
+LA CERTIFICACION RECALCULADA DA B. LA MISMA LETRA. Y es justo por eso que la revision del RESUMEN
+declara que la anterior NO ERA CONTRASTABLE: si se callara, quedaria escrito que la banda inventada
+acerto, y la leccion seria que inventar sale bien. COINCIDIO, NO SE DEDUJO. El CHANGELOG de la
+11.0.0 sigue diciendo la verdad.
+
+LO QUE NO ESTABLECE:
+
+· Los once casos de letraDeCertificacion no estuvieron en ROJO VALIDO: la funcion no existia y su
+  fallo era «la herramienta revento». Son ESPECIFICACION. Los CUATRO validos son los que
+  comprueban que las secciones faltaban, que verify-ptsa no miraba, y que la banda estaba publicada.
+· El Risk 73 publicado se calculo con H-001 y H-006 activos; hoy quedan siete activos. NO se
+  recalcula: la letra no depende de Risk, asi que no cambiaria ninguna, y arrastra INC-008 del
+  legado —el multiplicador x4 satura y el score deja de discriminar al cuarto hallazgo—.
+· Que no exista un quinto tope escrito con otras palabras. Se busco de tres formas y aparecieron
+  cuatro; uno redactado distinto no se puede descartar leyendo, y por eso la comprobacion vive en
+  el verificador.
+· Que verify-suite cace SECCIONES citadas que no existen. Hoy caza REGLAS. Si lo hiciera, este
+  defecto habria saltado el dia que se escribio §15.6. Va al «Cierre del lote» de EP-019.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
+lote y llega al cerrar EP-019 — el firmante acoto el 2026-08-21 que todo se queda en «trabajo».
+
+## PT-098 — El estado terminal se deriva del árbol, no se escribe al avanzar
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-1, la causa C-1 del lote
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+«avanzar --a <ultima>» escribia INTEGRATED sin mirar nada, y ese estado APAGA SEIS comprobaciones
+de verify-fdge que se eximen de lo terminal. La exencion es CORRECTA —existe para no exigir
+bitacora retroactiva a lo integrado antes de la 5.1.0, y quitarla pondria en rojo todo repositorio
+con historia— y lo que fallaba era el DATO que la dispara.
+
+INC-011 de la calculadora lo midio, y lo llama «el mas peligroso de los once»: PT-001 y PT-002 en
+INTEGRATED con «git rev-list --count main» devolviendo 2. Al corregirlos a DONE se encendieron
+cinco reglas y CUATRO salieron en rojo sobre trabajo del dia anterior, mientras «verify-fdge --all»
+daba verde todos los dias, bajo un HANDOFF que decia «todo preparado».
+
+Un falso rojo se investiga; un falso VERDE se archiva.
+
+MI PRIMER DISEÑO ROMPIA OTRA REGLA. Escribi que «avanzar» debia NEGARSE, y SUITE-R46 exige el
+orden contrario: «apuntar el estado terminal en la rama de trabajo, mergear, y cerrar despues».
+Negarse haria imposible lo que otra regla obliga.
+
+Parecia un choque de reglas, de los que PT-029 construyo un detector para encontrar. NO LO ES:
+LEXICON §5.1 ya distingue DONE —«terminado, esperando G4»— de INTEGRATED —«mergeado a la linea
+principal»—, y FDGE-R34 confirma que G4 exige DONE. El comando llevaba escribiendo el estado
+EQUIVOCADO, no uno falso. Y eso reencuadra la tarea: no hay que impedir nada, hay que escribir lo
+cierto. El detector de PT-029 no habria encontrado esto porque no hay dos textos en conflicto: hay
+un texto y un comando que no lo sigue.
+
+Solucion: «integradoEnPrincipal» devuelve TRES valores —true, false, null— y «estadoTerminalDe»
+escribe INTEGRATED solo si el arbol lo sostiene, DONE en los otros dos casos, y lo DICE. Un cambio
+silencioso de estado es lo que causo el problema: «nadie tuvo que decidirlo». Y «estadoContrastado»
+publica el veredicto que verify-fdge reporta: error si el arbol lo desmiente, aviso SIN EVALUAR si
+no se puede saber, silencio si esta.
+
+EL TERCER VALOR ES EL QUE IMPORTA. Con dos, el «false» tendria que cubrir «no esta» y «no lo se»,
+y la segunda produce rojos que nadie puede arreglar: un clon superficial, un origin ausente, una
+rama sin traer. PT-056 pago DOS veces por comprobaciones verdes en local y rojas en CI por el
+ENTORNO y no por el hecho. Verificado sobre datos reales: PT-097 marcado INTEGRATED sale
+SIN EVALUAR —no en rojo— porque su directorio vive en una rama sin fusionar, y afirmar «no
+integrado» ahi seria acusar sin haber mirado.
+
+EL CONTRASTE NO NECESITA LA RAMA, que es lo que lo hacia parecer inviable: 58 de las 91 INTEGRATED
+de este registro no la declaran. Pregunta por el DIRECTORIO, reutilizando el mecanismo que PT-096
+construyo en esta misma sesion, asi que alcanza a las 91. Y no se duplica el «git cat-file»: una
+segunda copia seria lo que PT-096 acaba de quitar de en medio.
+
+DOS CASOS DE LA BATERIA PROTEGIAN EL DEFECTO. :5202 y :5204 afirmaban que llegar a la ultima fase
+marca INTEGRATED; en ese fixture nada se ha mergeado, asi que ese INTEGRATED era FALSO y el caso lo
+celebraba. No se hicieron pasar: se invierten con su motivo, conservando entero lo que SI probaban
+—que «avanzar» escribe el estado terminal en las DOS fuentes, registro y YAML, que es de lo que
+nacio PT-089—. Solo cambia CUAL escribe. Van CINCO casos asi en este lote, y ya no es anecdota: un
+arreglo anterior deja tests que documentan el estado anterior, y nadie vuelve a mirarlos hasta que
+el siguiente los rompe.
+
+Y se añadio el freno que faltaba: «sin merge NO afirma INTEGRATED». Sin el, «escribir siempre DONE»
+pasaria los dos casos corregidos — y seria PEOR que el defecto, porque nada llegaria nunca a
+INTEGRATED.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh ·
+  inventory/services.md (cifras recalculadas, FND-R14)
+
+Evidencia: docs/implementation/evidence/PT-098/ · manifest.json · self-review.md ·
+  salidas/contraste.txt · salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  INTEGRATED contrastables   ANTES 33 (las que declaran rama)   DESPUES 91 de 91
+  el estado al avanzar       ANTES INTEGRATED siempre           DESPUES el que el arbol sostiene
+  un INTEGRATED falso        ANTES verde en --all               DESPUES error
+  lo que no se puede saber   ANTES indistinguible               DESPUES SIN EVALUAR, y lo dice
+
+Bateria 1267 -> 1277, cero fallos. Inversa: cinco retiradas, ninguna en cero.
+
+LOS 91 SE MIDIERON ANTES DE DISEÑAR, no despues: 91 en verde, 0 en rojo. Si alguno hubiera salido
+falso, el intake tendria que decir que se hace con el; no lo dice porque no hay ninguno.
+
+LO QUE NO ESTABLECE:
+
+· Que las 91 sigan ciertas mañana. Se midieron hoy — y el arreglo existe para que esa pregunta
+  tenga respuesta mecanica en vez de una medicion manual.
+· Que los 22 usos de ESTADOS_TERMINALES esten bien. SEIS en verify-fdge estan contados —INC-011
+  conto cinco, las que alcanzaban a SUS dos tareas—; los de tracker (7) y patrones (5) no. Aqui se
+  arregla el DATO que los dispara, no cada consumidor.
+· Que «--all» ejerza lo que ejerce «--gate G4». INC-010 lo llama «cada compuerta es una revision
+  sorpresa». Cambiarlo afecta a TODAS las compuertas y merece su propia medicion.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
+lote y llega al cerrar EP-019.
+
+## PT-099 — La transición de un BUG la aplica el comando, no la memoria
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-2, INC-006 de los tres proyectos
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+LEXICON §5.1 declara «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre», LEX-R08 tiene
+severidad H y FDGE-R26 (HARD) dice que ahi SE DETIENE: solo un humano lo lleva a DONE. PHASES lo
+situa sin ambiguedad en PHASE 7 · Validacion.
+
+Y no lo aplicaba nadie. Medido: 51 BUG en este registro y CERO pasaron por ahi. «grep -rn LEX-R08
+tools/» no devolvia NADA — la regla de severidad mas alta del LEXICON no tenia una linea de codigo
+detras.
+
+ESTE DEFECTO ME OBLIGO A SALTARME EL MARCO TRES VECES EN ESTA MISMA SESION. Los tres BUG en DONE
+del registro son PT-096, PT-097 y PT-098 —las tres tareas anteriores de este lote— y los tres
+llegaron ahi porque escribi VALIDATION_PENDING y luego DONE A MANO, declarando la excepcion cada
+vez. No es un hallazgo traido de otro proyecto: es el que hizo falta rodear para cerrar las tres.
+
+LA REGLA VIGILABA LA SALIDA Y NADIE LA ENTRADA. FDGE-R26 comprueba que un BUG EN DONE lleve su
+firma de G3. Uno que llega a PHASE 9 con READY o IN_REVIEW no esta en DONE, asi que la
+comprobacion no lo mira y «--all» lo verifica limpio. Es la forma exacta de PT-096: una
+comprobacion escrita para un fallo no ve su AUSENCIA. Alli era el enlace muerto contra el enlace
+que falta; aqui es el BUG mal cerrado contra el BUG que nunca se detuvo.
+
+Solucion: «estadoDeFase» EXTIENDE «estadoTerminalDe» —que L-1 creo una hora antes— en vez de
+añadir un segundo sitio que escriba status. Un segundo habria sido la averia de SUITE-R38 cometida
+UNA TAREA despues de arreglarla. La inversa lo confirma: retirar la delegacion hace caer los dos
+casos de la ultima fase y NO los de la parada — estan conectados, no copiados.
+
+LA FASE AVANZA; EL ESTADO SE DETIENE. FDGE-R26 dice que el BUG «se detiene», y mi primer impulso
+fue detener la FASE — el mismo error que rechace en PT-098 (A-1). La fase sube porque el trabajo
+avanzo; lo que se detiene es el status. Confundirlos habria roto el flujo de todas las tareas para
+arreglar el de los BUG.
+
+Y un BUG que YA esta en DONE no vuelve atras: deshacer una firma humana de G3 al avanzar de fase
+seria peor que no aplicar la transicion.
+
+RIGE_DESDE no es un tramite: 51 BUG existentes nunca pasaron por VALIDATION_PENDING porque el
+comando no los llevaba. Sin la fila saldrian los 51 en rojo SIN SALIDA, porque un estado por el que
+no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez, y la razon entera de L-5.
+
+DOS ERRORES MIOS, y los dos los cazo el arnes por su FORMA:
+
+  · Puse la comprobacion en checkHistory en vez de checkPT. «rige» no existe en ese ambito, asi
+    que verify-fdge REVENTABA y 21 casos salieron como «la herramienta revento: no verifica nada».
+    Eso NO es un rojo, y la distincion existe desde PT-050 precisamente para esto. Aqui funcionaba
+    —«verify-fdge PT-096» pasa limpio— porque no recorre el camino de «--gate G4»: NOVENA instancia
+    de «probar donde trabajo, no donde se decide».
+  · Al asignar PT-099 el siguiente ID paso a ser PT-100 y el caso «asignar da un ID» —que esperaba
+    «PT-0»— cayo. No se rompio nada: CRECIO EL CONTADOR. El bloque «no hacer» lo advierte —«paso al
+    llegar a 20»— y acaba de pasar al llegar a 100. Corregido atandolo a la FORMA.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/patrones.mjs ·
+  tools/selftest.sh · inventory/services.md (cifras recalculadas)
+
+Evidencia: docs/implementation/evidence/PT-099/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  la transicion del BUG    ANTES nadie la aplicaba     DESPUES la aplica «avanzar»
+  LEX-R08                  ANTES 0 verificadores       DESPUES verify-fdge, con RIGE_DESDE
+  BUG que se la salta      ANTES verde en «--all»      DESPUES error
+
+Prueba inversa: cinco retiradas, ninguna en cero.
+
+LO QUE NO ESTABLECE:
+
+· Que la escalera COMPLETA este aplicada. «avanzar» tampoco escribe IN_PROGRESS ni IN_REVIEW.
+  Arreglarla toca el estado de TODAS las tareas y no solo de los BUG. Va al «Cierre del lote».
+· Que ningun otro comando del tracker escriba estado. INC-006 solo midio «avanzar».
+· Que no queden mas aserciones atadas a cifras que crecen. Se corrigio una; NO se audito el resto,
+  y el patron ya salio dos veces.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
+lote y llega al cerrar EP-019.
+
+## PT-100 — Un hecho, un nombre: las grafías que deciden si una verificación corre
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-3, la causa C-2
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+CINCO hechos con dos nombres cada uno, y los cinco decidian si algo se verifica.
+
+TD-04 es peor de lo que su entrada describia. No era «el verificador busca QA/ y git guardo qa/»
+—un desajuste entre herramienta y proyecto—: el MISMO ARCHIVO usaba las dos grafias en LINEAS
+CONSECUTIVAS, join(ROOT,'QA') en :36 y join(ROOT,'qa','tests') en :37. Nadie eligio mal: nadie
+eligio. Y si no encontraba su objeto salia con «nada que verificar» y codigo 2 — correcto para un
+proyecto sin QA e INDISTINGUIBLE de uno que si lo tiene con la otra grafia. La forma de PT-096:
+una salida escrita para un caso legitimo cubriendo uno que no lo es.
+
+DOS DE LOS CINCO NO TENIAN DONDE ESTAR DECLARADOS, y ahi esta la causa comun. LEX-R21 dice que
+los nombres van a LEXICON, y ni el tipo de caso QA ni el «type» de un lote estaban ahi. Cuando un
+nombre no tiene autoridad, cada herramienta elige el suyo — y ninguna esta mal, porque no hay
+contra que contrastarla. Es la enfermedad de la v3 reaparecida DENTRO de las herramientas.
+
+Y UNO IBA AL REVES. En INC-008 el que estaba mal era el DOCUMENTO: tracker.mjs:2509 dice «la nota
+vive AHORA en TRANSICIONES.log» —cambio deliberado, con su motivo en SUITE-R09— y FDGE-R52 se
+quedo atras. LEX-R22 dice que las reglas mandan sobre las herramientas, pero una regla que
+describe un comportamiento que ya no existe no manda: DESINFORMA.
+
+Solucion: LEX-R27 declara que un lote NO lleva «type» —la AUSENCIA, no un valor, que es lo que no
+obliga a migrar diecinueve allocations—; LEX-R28 declara HP · EC · EF · REG, que es lo que ya
+decian los tres documentos; FDGE-R52 nombra el destino real; verify-qa busca las dos grafias y
+DICE cual encontro; y los SEIS «type === 'EP'» de verify-fdge pasan al helper que patrones.mjs
+exporta desde PT-096, que arreglo los ocho de tracker.mjs. Una fuente, no dos (SUITE-R38).
+
+AUDIT PIDIO ALGO QUE NO ESPERABA. Declarar las dos reglas como HARD no bastaba: «no la cita
+ningun documento operativo». Una regla que solo vive en LEXICON y en el codigo NO LA VE quien
+trabaja en modo MANUAL. Se añadieron a PHASES, QA-Prompts y FDGE-Prompts, y verify-suite cazo
+cada omision por separado — tres verificadores distintos empujando al mismo sitio: que una regla
+exista donde alguien la vaya a leer.
+
+MIS PROPIOS COMENTARIOS ROMPIERON MIS PROPIOS CASOS. Escribi el vocabulario viejo en verify-qa y
+el destino viejo en RULES, dentro de las explicaciones, y los dos «chkno» que comprueban que esos
+nombres YA NO ESTAN los encontraron ahi. Es el patron que el HANDOFF advierte para las emisiones,
+aqui aplicado a un vocabulario.
+
+Y LA INVERSA ME OBLIGO A CAMBIAR UNA ASERCION, Y LUEGO LA DEJO SIN PODER FALLAR. S-1 salio en
+CERO: el caso comprobaba que la constante GRAFIAS_QA existiera —una asercion de TEXTO— y se podia
+pasar dejando la constante y codificando la ruta. Al cambiarlo por COMPORTAMIENTO —montar un
+proyecto con «qa/» y comprobar que lo encuentra— dejo de poder fingirse Y dejo de poder caer en
+Windows, porque el sistema de archivos no distingue. Las dos cosas son ciertas a la vez, y la
+segunda es TD-04 describiendose a si mismo. El unico sitio donde ese caso puede ponerse rojo es
+CI, que corre en Linux, y va declarado.
+
+Archivos modificados: tools/verify-qa.mjs · tools/verify-fdge.mjs · tools/selftest.sh ·
+  LEXICON.md · RULES.md · PHASES.md · QA/QA-Prompts.md · FDGE-Prompts.md ·
+  CORE.md (regenerado) · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-100/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/audit.txt · salidas/verify-suite.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  grafias del espacio QA   ANTES 2 en lineas consecutivas   DESPUES se buscan las dos y se DICE
+  vocabulario de QA        ANTES 3 documentos vs 1 tool     DESPUES uno, declarado en LEXICON
+  destino de la nota       ANTES 2 nombres                  DESPUES uno, el que la tool usa
+  type === 'EP'            ANTES 6 en verify-fdge           DESPUES 0
+  reglas sin autoridad     ANTES 2                          DESPUES 0
+
+Bateria 1286 -> 1297, cero fallos. Inversa: siete retiradas, SEIS con efecto y UNA en cero
+DECLARADA — no puede caer en Windows, y se dice por que.
+
+LO QUE NO ESTABLECE:
+
+· Que el arreglo de las grafias funcione en un sistema sensible a mayusculas. Lo establece CI.
+· Que no queden mas hechos con nombre doble. Cinco conocidos, cinco arreglados. Un grep no puede
+  encontrar lo que no sabe buscar.
+· Que «QA/» sea la grafia correcta: el arreglo NO elige, acepta las dos.
+
+El CHANGELOG tambien nombra el destino viejo y NO se toca: es historia, y lo que decia era cierto
+cuando se escribio (SUITE-R09).
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-102 — La version es un CONTENIDO, no un numero
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-4, la causa C-3 (INC-004)
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+version.mjs alinea veintiun documentos y TERMINABA DICIENDO «Todo declara 11.0.0» mientras
+CUATRO declaraban otra. No es que dejara algo sin mirar y lo dijera: AFIRMABA LO CONTRARIO. Un
+silencio se nota; un verde falso, no.
+
+  CLAUDE.md:208                  10.0.0   el propio repositorio
+  Suite-CLAUDE-Template.md:49     5.2.0   el que VIAJA a cada proyecto destino
+  README.md:690                   5.2.0
+  MANUAL.md:72                    7.4.0
+  INTAKE/templates/TAREA.md:22    X.Y.Z   plantilla: CORRECTA, y no se toca
+
+Las cuatro usan una forma —«suite_version:»— que la herramienta no conocia: su regex vivia en
+un RE_DECLARA local, en :61, y solo casaba «Suite version: **X.Y.Z**».
+
+EL GRAFO DIO EL DIAGNOSTICO, NO EL GREP. De las siete herramientas que dependen de
+patrones.mjs, version.mjs era la que MENOS compartia —dos aristas, frente a las 68 de tracker y
+las 42 de verify-fdge— y era exactamente la que tenia el patron critico escrito en local. La
+causa se ve en la ESTRUCTURA, no en el texto. Y el grafo llevaba SUSPECT toda la sesion,
+declarado en SEIS context.md y usado en NINGUNO: FDGE-R43 dice que no bloquea, y eso se
+convirtio en permiso para ignorarlo. Lo señalo el firmante.
+
+EL CASO GRAVE ES EL QUE VIAJA. Suite-CLAUDE-Template.md es el UNICO documento que se copia a
+cada proyecto destino, y declaraba 5.2.0. La herramienta que alinea veintiun documentos era
+ciega justo al que sale del repositorio.
+
+Solucion: PATRONES.VERSION_DECLARADA reconoce las dos formas, con sus «casa» y sus «noCasa»
+como los otros veintitantos patrones criticos; version.mjs lo usa en vez del suyo; y el
+CLAUDE.md del proyecto —dos niveles por encima de docs/methodology— entra en el recorrido, con
+el precedente que ya existia en el mismo archivo: package.json se alcanzaba desde ese nivel.
+
+EL CONTRATO DE patrones.mjs CAZO UN DEFECTO EN EL PROPIO ARREGLO. Al escribir los ejemplos, uno
+de los «casa» FALLO: el documento que viaja declara la version dentro de una CITA —«> Suite
+version: **11.0.0** · Referencia: …»— y el ancla no admitia el «>». Corregido antes de tocar
+nada. Es exactamente lo que un patron local no puede hacer: no tiene ejemplos contra los que
+fallar. La causa de la tarea me corrigio mientras la arreglaba.
+
+Y LA INVERSA SALIO EN CERO PARA EL ANCLA, Y DIJO POR QUE. El negativo de la prosa lo protegia
+la EXCLUSION del CHANGELOG, no el ancla — asi que el ancla no la probaba nada. Se añadio un
+documento que SI se recorre citando una cifra en mitad de una frase, que es lo unico que la
+pone a prueba. Faltaba un caso, no sobraba el cambio.
+
+Archivos modificados: tools/patrones.mjs · tools/version.mjs · tools/selftest.sh ·
+  MANUAL.md · README.md · Suite-CLAUDE-Template.md · CLAUDE.md · CORE.md (regenerado)
+
+Evidencia: docs/implementation/evidence/PT-102/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/audit.txt · salidas/verify-suite.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  formas reconocidas       ANTES 1 de 2         DESPUES las dos, en patrones.mjs
+  declaraciones muertas    ANTES 4              DESPUES 0
+  el CLAUDE.md del proyecto ANTES fuera         DESPUES en el recorrido
+  el marcador X.Y.Z        ANTES —              DESPUES intacto, y con caso
+  la prosa del CHANGELOG   ANTES —              DESPUES intacta, y con caso
+
+Bateria 1297 -> 1304, cero fallos. Inversa: SEIS retiradas, SEIS con efecto tras añadir el caso
+que faltaba.
+
+LO QUE NO ESTABLECE:
+
+· Que no exista una tercera forma de declarar la version. Se conocen dos y se miden cinco
+  sitios. Un grep no encuentra lo que no sabe buscar.
+· Que ningun proyecto destino ajeno use otra. No se han inspeccionado.
+
+Y UN HECHO DISTINTO, DECLARADO PARA QUE NO SE PIERDA: Suite-CLAUDE-Template.md declara
+«firmantes: - Nombre Apellido» — una lista sin firmante real en el documento contra el que
+SUITE-R27 contrasta las firmas, y que se copia a cada proyecto destino. NO entra aqui porque no
+es una version desalineada; se declara al cierre del lote.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-103 — El registro solo lo escribe el comando, y nada lo comprobaba
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — hallazgo del firmante, no de un incidente registrado
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+Lo señalo el firmante, y es la primera tarea de este lote cuyo origen es el PROCEDIMIENTO y no
+un producto:
+
+  «el problema fundamental es que no haces nada de lo que ya dice que debes hacer... ya todo se
+  soluciono antes y sigues sin apegarte al marco de trabajo. Se supone que hay agente
+  especifico mas metodologia mas sesion y NADA DE ESO TE OBLIGA A QUE SIGAS EL MARCO, inventas
+  cosas y te saltas muchas»
+
+La medicion le da la razon de forma mecanica:
+
+  tracker asignar PT --slug <x>    escribia   id · slug · created · status        4
+                                   NO escribia  type · severity · epic · phase     5
+
+CUATRO CAMPOS DE NUEVE. Un BUG de un lote con severidad NO SE PODIA REGISTRAR CON EL COMANDO, y
+el marco exige los que faltaban. Sin «phase», Number(undefined) es NaN y avanzar no puede mover
+la allocation NUNCA; sin «type», las comprobaciones de su tipo no se activan.
+
+Asi que cada tarea nueva OBLIGABA a escribir REGISTRY.json a mano. No es que se eligiera rodear
+la herramienta: CUMPLIR EL MARCO EXIGIA SALTARSELA. En esta sesion ocurrio CINCO veces —PT-096,
+PT-100, PT-101, PT-102 y PT-103— y solo DOS quedaron declaradas: la primera y la ultima. Callar
+las otras tres es lo que convierte un defecto de herramienta en uno de procedimiento, y eso si
+es del agente.
+
+Y PT-096 YA SE HABIA TOPADO CON ESTO. Fue la primera allocation creada con «asignar» desde
+PT-062, choco con el NaN y dejo el arreglo declarado para L-1. L-1 se cerro con PT-098 por otra
+via —el estado terminal— y ESTE HUECO SIGUIO ABIERTO: un hallazgo declarado para otra tarea
+puede perderse si esa tarea resuelve algo distinto con el mismo nombre.
+
+LA CAUSA DE FONDO, que es mas grande que el flag: las compuertas miran los PRODUCTOS —que el
+intake tenga firma, que exista trazabilidad, que haya entrada en HISTORY— y NADIE miraba el
+PROCEDIMIENTO. Y lo que deberia exigirlo no puede fallar: CLAUDE.md parametriza y SUITE-R00 dice
+que no legisla; CORE.md se carga pero no comprueba; SESSION_LOG registra pero no impide; el
+agente lee pero puede no leer. Ninguno puede ponerse rojo.
+
+Solucion, en dos mitades que no sirven por separado: «asignar» acepta --tipo, --severidad,
+--epica y --titulo, valida los dos primeros contra lo que LEXICON declara, escribe «phase: 1»
+SIEMPRE y DICE que campos no se declararon. Y SUITE-R58 (HARD) AVISA cuando una allocation nace
+incompleta, con RIGE_DESDE: las 41 anteriores se escribieron cuando el comando no permitia otra
+cosa, y juzgarlas seria castigar a quien no tenia alternativa (SUITE-R09, PT-095).
+
+MI PROPIO FLAG ROMPIO LA DETECCION DE LA RAIZ DEL PROYECTO. Sin declarar «--severidad» en
+CON_VALOR, su valor «S1» se tomaba por la ruta del proyecto. El comentario contiguo ya lo
+avisaba: «es la CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui». La mia fue la
+QUINTA. Un tipo en mayusculas no lo exponia —ES_ETIQUETA ya lo excluye—, y por eso la inversa
+salio en cero DOS veces antes de dar con el unico valor que lo expone.
+
+Y AUDIT EXIGIO MAS DE LO PREVISTO: declarar la regla HARD y comprobarla en el codigo NO BASTA,
+porque «no la cita ningun documento operativo» — quien trabaja en modo MANUAL no la ve. Se
+añadio a PHASES y a FDGE-Prompts.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/patrones.mjs ·
+  tools/selftest.sh · RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md (regenerado)
+
+Evidencia: docs/implementation/evidence/PT-103/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/audit.txt · salidas/verify-suite.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-05 ✓, los cinco.
+
+  campos que escribe asignar   ANTES 4 de 9      DESPUES los nueve
+  tipo o severidad inventados  ANTES se aceptan  DESPUES fallan
+  quien mira el PROCEDIMIENTO  ANTES nadie       DESPUES SUITE-R58
+  rodeos declarados            ANTES 1 de 5      DESPUES no hara falta rodear
+
+COMPROBACION INDEPENDIENTE: PT-104 se creo ENTERA desde el comando —tipo, severidad, lote,
+titulo y phase: 1—, la primera allocation de la sesion que no hizo falta tocar a mano.
+
+Inversa: SIETE retiradas, SIETE con efecto, tras dos correcciones que la propia inversa exigio.
+
+LO QUE NO ESTABLECE:
+
+· Que los demas comandos no tengan el mismo hueco. Se midio «asignar», que es por donde entra
+  todo. Decir «no lo tienen» seria afirmar sin medir.
+· Que TODO el procedimiento sea comprobable. SUITE-R58 cierra un hueco concreto; el problema
+  general que el firmante señala SIGUE ABIERTO y se declara al cierre del lote.
+· Que escribir a mano el registro deje de ocurrir. La regla AVISA, no impide — y no debe: un
+  arreglo de emergencia a veces exige tocarlo.
+
+Y UNA CORRECCION PROPIA: al abrir esta tarea se afirmo que PT-100 habia dejado FDGE-R52
+apuntando a un archivo inexistente. ES FALSO. La regla nombra las DOS ramas —issue si hay
+plataforma, TRANSICIONES.log si no— y el archivo no existe aqui porque SI hay plataforma, que es
+lo que la regla predice. Se comprobo DESPUES de escribirlo: el mismo error que este lote
+persigue. Corregido en SESSION_LOG.md.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-104 — El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — peticion del firmante, acordada el 2026-08-13
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+Peticion del firmante:
+
+  «cuando publicas en Github y plasmas todo lo que se debe hacer, se supone que deberia servir
+  como una MAQUINA DE ESTADOS que diga en cada paso a donde ir, cual es la regla de entrada y
+  cual es la de salida... en eso habiamos quedado PARA OBLIGARTE A SEGUIR SIEMPRE LA METODOLOGIA»
+
+Y estaba acordado desde el 2026-08-13. REGISTRY.json:172 guarda las palabras originales: «usarlo
+hasta de maquina de estados para saber que va cuando».
+
+EP-007 SE LLAMA «EL TABLERO COMO MAQUINA DE ESTADOS» Y ENTREGO UN COMANDO. Su propio cierre lo
+declaro, textual: «LO QUE NO ENTREGA, y por eso existe EP-008: un comando no puede exigir haber
+sido llamado. La respuesta existe ahora fuera de la memoria del agente y es citable; obligar a
+mirarla es otro problema». EP-008 hizo que CORE.md ABRA con la consulta al tablero — pero el
+tablero NO RESPONDIA lo que hace falta. El hueco quedo escrito ocho dias y nadie volvio a el.
+
+Lo que el cuerpo publicaba: tipo, severidad, lote, veredicto de viabilidad, enlace a changes/ y
+la rama donde vive el contenido. Lo que NO publicaba: en que fase esta, que la dejo entrar, que
+necesita para salir, a donde va, que produce y que hay.
+
+Y LOS DATOS YA EXISTIAN, a trescientas lineas del sitio donde hacian falta: FASES declara
+«nombre», «produce» y «cierra» desde siempre, y queSigue deriva bloqueos y avisos desde PT-030.
+Aqui no se invento ninguna regla: se PUBLICAN las que hay.
+
+LA DECISION QUE LO HACE UTIL es la segunda columna. Publicar que «PHASE 4 produce seis archivos»
+seria copiar FASES: repetiria la teoria y NUNCA PODRIA DISCREPAR. Publicar CUALES DE LOS SEIS
+EXISTEN —mirados en el arbol— convierte el issue en algo que puede CONTRADECIR A QUIEN LO
+ESCRIBE, que es exactamente lo que se pidio.
+
+SUITE-R35 NO LO IMPIDE, y conviene decir por que: prohibe COPIAR CONTENIDO, y con razon —dos
+copias del mismo texto divergen—. Publicar ESTADO DERIVADO es lo contrario: no hay segunda copia
+porque NO HAY TEXTO PROPIO. Todo se recalcula de la allocation y del arbol en cada «abrir
+--aplicar», asi que no puede divergir; si diverge, es que el arbol cambio, y eso es justo lo que
+se quiere ver.
+
+Se respeto el contrato de PT-048: cuerpoDeIssue sigue siendo PURA —para que un caso pueda
+comprobarla sin hablar con la plataforma ni con el disco— y el arbol se lee en contextoCuerpo,
+como PT-079 hizo con el ref durable. Meterle un readdirSync la habria devuelto a ser
+incomprobable.
+
+Los tres casos que no son el feliz, cada uno con su caso: sin «phase» se DICE que no la declara
+—con «?? 0», «PHASE 0» y «nadie lo escribio» daban el mismo numero (PT-004)—; con el directorio
+ilegible se DICE que no se pudo mirar, porque no es lo mismo que «no ha producido nada»
+(RULE-06); y un lote no lleva maquina de estados, porque no recorre fases.
+
+SEPTIMA ROTURA DE ESCAPADO DE LA SESION, y una octava en la misma tarea. La primera version del
+helper usaba plantillas de texto y una transformacion rompio las comillas invertidas: el modulo
+no compilaba. Se reescribio SIN TRANSFORMAR NADA —el bloque se escribe tal cual y se inserta
+verbatim—, que es la forma que PT-101 persigue. Y la documentacion no se pudo escribir por un
+heredoc: se escribio sin pasar por la capa del shell.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-104/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-08 ✓, los ocho.
+
+  en que paso esta        ANTES no se publica   DESPUES PHASE n · nombre
+  regla de ENTRADA        ANTES no se publica   DESPUES el «cierra» de la fase anterior
+  regla de SALIDA         ANTES no se publica   DESPUES el «cierra» de la actual, con compuerta
+  a donde va              ANTES no se publica   DESPUES PHASE n+1 · nombre
+  artefactos              ANTES no se publica   DESPUES cuales DEBERIA y cuales ESTAN
+  bloqueos                ANTES solo en el comando   DESPUES en el tablero
+
+Inversa: DIEZ retiradas, DIEZ con efecto, A LA PRIMERA — unica de la sesion que no necesito una
+segunda pasada. La razon es concreta: cada medida llama al modulo EN UN PROCESO APARTE, porque
+«import» cachea y con la version rota ya cargada habria medido siempre el codigo bueno.
+
+LO QUE NO ESTABLECE:
+
+· QUE PUBLICARLO CAMBIE LA CONDUCTA DEL AGENTE. No es comprobable y no se afirma. EP-007 y
+  EP-008 ya lo establecieron: un comando no puede exigir haber sido llamado, y un artefacto que
+  el agente escribe sobre si mismo no prueba nada. Lo que esto consigue es que el paso siguiente
+  este escrito DONDE SE MIRA sin acordarse, y que saltarselo sea visible PARA UNA PERSONA — que
+  es como salieron los tres fallos de esta sesion.
+· Que no falte mas estado por publicar. Se vera al usarlo.
+
+G3 por delegacion con constancia.
+
+## PT-105 — El estado que una compuerta exige lo escribe un comando
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — salio de APLICAR PT-103, no de leer codigo
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+FDGE-R34 exige «estado del PT en DONE» como precondicion de G4, y NINGUN COMANDO LO ESCRIBIA.
+
+  avanzar --a 7    BUG      -> VALIDATION_PENDING    correcto: cerrar un BUG es humano
+  avanzar --a 8    FEATURE  -> seguia en DRAFT       nadie escribia DONE
+  avanzar --a 10   cualquiera -> DONE o INTEGRATED   POSTERIOR a G4 (que es PHASE 9)
+
+Circular: la compuerta pedia un estado que solo se podia poner rodeando la herramienta.
+
+SALIO DE APLICAR PT-103, Y ESO ES LO IMPORTANTE. PT-104 fue la primera tarea de la sesion creada
+entera desde el comando; al llegar a PHASE 8 seguia en DRAFT y el hueco se vio. Llevaba QUINCE
+FEATURE sin verse porque SIEMPRE SE HABIA TAPADO escribiendo el registro a mano. Mientras rodear
+era rutina, el defecto no podia notarse: cada tarea lo tapaba sin registrar que lo hacia.
+Arreglar el rodeo hizo visible lo que el rodeo ocultaba — que es la razon de ser del lote entero,
+ocurrida dentro del propio lote.
+
+Y LA ESCALERA ESTABA A MEDIAS SIN QUE NINGUNA DE LAS DOS TAREAS ANTERIORES PUDIERA VERLO. PT-098
+puso el peldaño de arriba —el terminal, derivado del arbol— y PT-099 el de abajo —la parada de un
+BUG—; los dos correctos en su caso. El hueco solo aparece mirando la escalera ENTERA, y a la
+escalera entera solo se la mira cuando algo obliga a recorrerla sin atajos.
+
+Solucion: un tercer peldaño DENTRO de estadoDeFase, no un segundo sitio que escriba «status» —
+PT-099 lo dejo prohibido por escrito al crear la funcion: «un segundo seria la averia de
+SUITE-R38 cometida UNA TAREA DESPUES de arreglarla». Un no-BUG que entra en la fase siguiente a
+Validacion pasa a DONE, y se DICE, distinguiendo que EL COMANDO NO FIRMA NADA: escribe el estado
+que una firma humana ya registrada implica.
+
+LOS DOS NEGATIVOS SON LA TAREA. El caso feliz es una linea; cinco de los siete casos comprueban
+que NO rompe dos reglas deliberadas: que un BUG se detiene (FDGE-R26, LEX-R08, SUITE-R06b) y que
+un estado ya terminal no se toca (FDGE-R53). La fase se ata a su NOMBRE y no a un 7 suelto, con
+su caso: renumerar las fases apagaria un literal EN SILENCIO.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-105/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-05 ✓, los cinco.
+
+  peldaños de la escalera   ANTES 2 de 3        DESPUES los tres
+  G4 sin rodear             ANTES imposible     DESPUES el comando escribe lo que exige
+  un BUG                    ANTES se detiene    DESPUES se detiene igual, con dos casos
+  un estado terminal        ANTES no se tocaba  DESPUES no se toca, con dos casos
+
+Bateria 1331 -> 1339, cero fallos. Inversa: CUATRO retiradas, CUATRO con efecto.
+
+LO QUE NO ESTABLECE:
+
+· Si hay MAS estados que una compuerta exija y ningun comando escriba. Se midio este; decir «no
+  los hay» seria afirmar sin medir.
+· Que los quince FEATURE historicos fueran correctos. Llegaron a INTEGRATED, que es un hecho del
+  arbol, y su estado intermedio NO se retrofecha (SUITE-R09).
+
+La excepcion para cerrar PT-104 quedo declarada ANTES de aplicarla, con alcance y condicion de
+cierre. Es la diferencia con las cuatro primeras de la sesion, que se callaron.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-106 — Las que empezaron a juzgar despues: RIGE_DESDE se deriva del arbol
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-5, la causa C-3
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+EL ENUNCIADO DEL LOTE ESTABA EQUIVOCADO, Y EN LA DIRECCION PELIGROSA. Decia «las 151 reglas HARD
+declaran desde cuando rigen». Al medirlo:
+
+  152  HARD
+   87  NO emiten nada           -> no pueden juzgar: no necesitan fila
+   65  emiten
+    7  ya la declaran
+   38  existen desde el PRIMER COMMIT -> nada anterior que puedan juzgar mal
+   20  llegaron DESPUES         <- las unicas que la necesitan
+
+Seguir el enunciado habria escrito 151 filas, de las cuales 125 SERIAN RESTRICCIONES INVENTADAS:
+dirian «antes de esta version no regia» sobre reglas que rigen desde el primer commit. La
+medicion no recorta el trabajo — lo corrige, y en la direccion que importa.
+
+Y EL METODO OBVIO MIENTE EN SILENCIO. Derivar la version del CHANGELOG parece lo natural: 41
+entradas, 166 reglas nombradas. Contrastado contra las diez filas ya escritas a mano, DOS DE CADA
+DIEZ SON FALSAS:
+
+  EXEC-R04    consta en la 8.1.0     rige desde la 11.0.0
+  SUITE-R09   consta en la 4.13.0    rige desde la 11.0.0
+
+La razon es semantica y conviene no perderla: EL CHANGELOG DICE CUANDO SE REDACTO UNA REGLA;
+RIGE_DESDE DICE DESDE CUANDO JUZGA — que es cuando aparecio su COMPROBACION, y puede llegar mucho
+despues. Una cifra plausible y falsa es peor que ninguna (RULE-06), y no habria fallado nada:
+habria quedado escrito, y seria mentira.
+
+Las filas se derivan del ARBOL: «git log -S» sobre la emision da el commit, y «git show
+<sha>:package.json» da la version que el proyecto declaraba entonces. Cada fila lleva su sha en
+el comentario, que es lo que distingue un dato derivado de uno escrito a ojo.
+
+Y LA BATERIA DEFENDIO UNA DECISION HUMANA CONTRA MI DERIVACION. Le puse fila a SUITE-R35 —su
+comprobacion aparecio en la 5.0.0, cronologicamente cierto— y un caso ANTERIOR fallo: «SUITE-R35
+no necesita fila en RIGE_DESDE». Lo puso PT-089 a proposito y con motivo: «nace verde porque las
+seis se resolvieron aqui... copiar el criterio habria anadido UNA FILA QUE MANTENER Y QUE NO
+PROTEGE». Su razon es MEJOR que la mia: la mia era «la derivacion lo dice»; la suya mira si la
+fila defiende a alguien. UNA FILA DERIVADA NO ES AUTOMATICAMENTE CORRECTA. Retirada, y el motivo
+queda escrito en patrones.mjs para que la proxima derivacion no la vuelva a poner.
+
+Quedan DIECINUEVE.
+
+Archivos modificados: tools/patrones.mjs · tools/selftest.sh · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-106/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/derivacion.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  reglas con RIGE_DESDE   ANTES 10        DESPUES 29
+  filas inventadas        ANTES —         DESPUES 0, y 125 NO escritas a proposito
+  cifras del CHANGELOG    ANTES —         DESPUES 0: todas del arbol, con su sha
+
+Bateria 1331 -> 1339, cero fallos. Inversa: TRES retiradas, TRES con efecto — y la S-3 devuelve
+EXEC-R04 al valor que el CHANGELOG sugeriria para comprobar que el caso lo caza. Sin ella la
+bateria habria pasado igual con las cifras falsas.
+
+LO QUE NO ESTABLECE:
+
+· QUE LAS DIECINUEVE FILAS PROTEJAN A ALGUIEN. Se derivo CUANDO empezo a juzgar cada regla, no si
+  hay trabajo historico que la falle. El caso de SUITE-R35 demuestra que son preguntas distintas:
+  una fila puede ser cronologicamente correcta y no defender a nadie. Medirlo exigiria correr
+  cada verificador contra cada tarea cerrada, y no se ha hecho.
+· Si las reglas de PTSA necesitan lo mismo. Numeracion y verificador aparte.
+· Que las 87 sin emision deban tenerla. Es la cobertura mecanica, que audit ya mide.
+
+SOBRE EL NUMERO DE VERSION: el reparto declaraba L-5 candidata a MAJOR porque «cambia a que
+alcanza cada regla». La medicion lo matiza — ninguna regla GANA alcance: diecinueve lo PIERDEN
+hacia atras. Un proyecto destino no puede empezar a fallar por esto, solo dejar de fallar. La
+decision del numero la toma el sello (SUITE-R57) mirando el lote entero, y esta tarea NO la
+fuerza.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-107 — El registro no se reescribe entero
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S0 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — no se busco: OCURRIO
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+Trazabilidad externa: issue #205
+
+PERDIDA DE DATOS REAL, en esta sesion. PT-106 se asigno, se trabajo entera —codigo, casos,
+inversa, documentacion— y al ir a leer su estado NO EXISTIA EN EL REGISTRO.
+
+  t0   abrir PT-105 --aplicar   (segundo plano)   lee REGISTRY   124
+  t1   asignar PT-106                             escribe        125
+  t2   abrir PT-105 --aplicar   termina           escribe        124   <- pisa
+
+Sin error, sin aviso. El contador PT RETROCEDIO de 106 a 105, y eso fue lo unico que lo hizo
+visible — al leer el estado por otro motivo.
+
+`abrir` no hizo nada malo: escribio EL REGISTRO QUE HABIA LEIDO. El problema es que lo escribio
+ENTERO, y entre medias habia cambiado. Cuatro escrituras completas y UNA sola lectura, al
+arrancar el proceso: entre esa lectura y cualquiera de las cuatro cabe otro comando entero.
+
+ES LA UNICA S0 DEL LOTE. Las demas tareas producen un VERDE FALSO —una comprobacion que no ve
+algo—; esta BORRA UN DATO, la categoria que SUITE-R06c nunca automatiza. Y ademas recicla el
+identificador, rompiendo LEX-R04, que exige que nunca se reutilice.
+
+Se comprobo contra HEAD que no se perdio nada mas: las 120 anteriores intactas y las cuatro
+nuevas presentes. SOLO PT-106, restaurada con el mismo identificador porque el contador tambien
+habia retrocedido.
+
+Solucion: UNA funcion escribe el registro y compara el archivo con lo que se leyo al arrancar. Si
+cambio, NO escribe y lanza diciendo cuantas allocations habia, cuantas hay, que comando se quedo
+fuera y que hacer. Las cuatro escrituras sueltas pasan por ella (SUITE-R38 aplicado a una
+OPERACION, no a un dato).
+
+LO QUE DELIBERADAMENTE NO HACE: no bloquea —un bloqueo mal liberado deja el proyecto COLGADO,
+peor que el defecto—, no fusiona —sin saber cual gana se pierde el dato que esto evita— y no
+reintenta —un reintento repite efectos ya ocurridos: abrir un issue, escribir una nota—.
+
+NO SE ARREGLA LA CARRERA: SE ARREGLA EL SILENCIO. Dos comandos a la vez siguen sin poder trabajar
+juntos; lo que cambia es que ahora uno LO DICE en vez de desaparecer.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-107/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/selftest-completo.txt
+
+  escrituras a ciegas   ANTES 4   DESPUES 0
+  perdida silenciosa    ANTES si  DESPUES el comando se detiene y lo dice
+
+MI PRIMER ARREGLO ERA INSUFICIENTE, Y LO DESTAPO SU PROPIO CASO SIENDO INTERMITENTE. Comparar
+el archivo con lo leido ESTRECHA la ventana pero NO la cierra: leer-comparar-escribir no es
+atomico, asi que si los dos procesos releen antes de que ninguno haya escrito, los dos pasan y
+el ultimo pisa. El caso salia bien A MANO y fallaba en la BATERIA.
+
+Lo primero que hice fue sospechar del caso —creyendo que descartaba stdout, que era cierto y NO
+era la causa—. Medirlo DIEZ VECES SEGUIDAS fue lo que enseño que el codigo era el que estaba mal.
+UN CASO INTERMITENTE NO ES RUIDO: es la unica prueba de que un arreglo tapa el sintoma.
+
+Y hay un segundo error ahi: la primera version del caso aceptaba «entran las dos O una falla
+diciendolo» para no depender del reloj — y eso TAPABA el defecto, porque con solo la comparacion
+«entran las dos» tambien ocurria POR LA CARRERA QUE SE QUERIA CAZAR.
+
+El arreglo real es un cerrojo creado con «wx», atomico en el sistema de archivos: o lo creas tu o
+existe. Se borra en un «finally» —tambien si la escritura falla— y uno abandonado se retira por
+EDAD medida, no supuesta: un cerrojo eterno colgaria el proyecto entero (SUITE-R17), que es peor
+que el defecto que arregla.
+
+Con el, el desenlace es UNO SOLO y DETERMINISTA —cinco de cinco—: el segundo comando entra con
+una copia del registro que ya es vieja y SE DETIENE diciendolo.
+
+Inversa: DOS retiradas, DOS con efecto — y REPRODUCE la carrera lanzando dos «asignar» en
+paralelo. Una condicion de carrera que no se reproduce no prueba nada; una que se reproduce A
+VECES prueba menos todavia.
+
+Y MI PROPIO CASO FALLO POR DESCARTAR stdout: tracker imprime el aviso por ahi, y con «>/dev/null»
+el caso media el SILENCIO en vez del mensaje. El defecto de la tarea, cometido en su prueba.
+
+LO QUE NO ESTABLECE:
+
+· Que la carrera no ocurra. Se arregla el silencio.
+· Si CHECKPOINT.json y SESSION.json tienen el mismo patron. Se escriben igual; DECLARADOS y sin
+  medir.
+· Cuantas veces paso antes. Una perdida silenciosa NO DEJA RASTRO.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-108 — La version del REGISTRO tambien es un contenido
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — encontrado AL SELLAR la 12.0.0
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+version.mjs alineo los veintiun documentos y el CLAUDE.md, dijo «Todo declara 12.0.0», y
+REGISTRY.json se quedo en 11.0.0. Lo destapo verify-fdge poniendo el proyecto en MODO RESTRINGIDO
+(SUITE-R17).
+
+ES LA TERCERA FORMA DE DECLARAR LA VERSION, y es la confirmacion de un «no establecido». PT-102
+encontro dos —«Suite version: **X.Y.Z**» y «suite_version: X.Y.Z» en Markdown— y escribio: «lo que
+este intake NO establece: cuantas formas mas existen. Se conocen dos». Declararlo sirvio: cuando
+aparecio la tercera habia DONDE ENCAJARLA, en vez de parecer un defecto nuevo.
+
+Y APARECIO AL SELLAR, NO AL PROGRAMAR. El sello es la unica operacion que toca todas las
+declaraciones a la vez, y por eso es donde una que falta se nota.
+
+Solucion: version.mjs lee y alinea «suite_version» de REGISTRY.json. Se reemplaza sobre el TEXTO
+y no reserializando el JSON —JSON.stringify reordenaria claves y produciria un diff enorme sobre
+el archivo que guarda el estado del marco, y PT-107 acaba de demostrar EL MISMO DIA lo que cuesta
+escribirlo mal—. Comprobado: 128 allocations y el contador intactos tras alinear.
+
+DECLARADO: esta escritura NO pasa por el cerrojo que PT-107 introdujo, porque vive en otra
+herramienta que no lo exporta. Es una operacion del SELLO, que no concurre con trabajo de tareas
+— pero decirlo es la diferencia entre un limite conocido y uno que alguien descubrira.
+
+Archivos modificados: tools/version.mjs
+
+  formas reconocidas   ANTES 2 de 3   DESPUES las tres
+  modo restringido     ANTES tras cada sello   DESPUES no
+
+LO QUE NO ESTABLECE: si hay una cuarta forma. Se conocen tres.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-109 — Una compuerta no es una revision sorpresa
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-7, y se cierra PARCIAL con lo declarado
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+L-7 pedia cinco defectos de FORMA. DOS tienen descripcion accesible y se arreglan; TRES viven en
+el INCIDENTS.log de la CALCULADORA, que no esta en esta maquina —«find» sobre todo el arbol de
+proyectos no encuentra ninguno—. Se DECLARAN: inventar el defecto y su arreglo a la vez es
+exactamente lo que este lote persigue.
+
+INC-010 · CINCO reglas cambian de severidad segun la compuerta: SUITE-R35, FDGE-R19 y FDGE-R52
+avisan y FALLAN en G4; FDGE-R54 avisa y falla en G2. Eso esta BIEN —una precondicion de merge es
+mas estricta que una revision de paso— y a la vez producia el defecto que la calculadora
+registro: quien corre verify-fdge sin compuerta ve AVISOS, cree que va bien, y al llegar a la
+compuerta se encuentra rojos que llevaban ahi desde el principio. «Cada compuerta es una revision
+sorpresa».
+
+EL ARREGLO NO ES IGUALAR LAS SEVERIDADES —seria endurecer cada revision de paso hasta hacerla
+inutil, o ablandar G4—. Es DECIRLO: el aviso lleva ahora «AVISO AHORA, ERROR EN G4». Un aviso que
+no dice en que se va a convertir es una sorpresa aplazada. Y hay un NEGATIVO que impide que la
+coletilla se pegue a todo: una regla que no cambia de severidad no la lleva, porque si la llevara
+dejaria de significar nada.
+
+INC-015 · FPGE-R01 casaba /^.*\b(R-\d+)\b.*$/ — CUALQUIER linea que nombrara un candidato. Una
+cita en prosa contaba como tal y se le exigia evidencia de origen. ES LITERALMENTE EL DEFECTO DE
+PT-100, EN EL MISMO ARCHIVO: aquel arreglo el vocabulario de los tipos de caso QA, este el
+reconocimiento de un candidato. Los dos confundian NOMBRAR con DECLARAR. Ahora se reconoce por la
+FILA de la tabla del roadmap.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/verify-qa.mjs · tools/selftest.sh
+
+  avisos que dicen su compuerta   ANTES 0 de 4   DESPUES los cuatro
+  FPGE-R01                        ANTES cualquier mencion   DESPUES la fila
+
+LO QUE NO ESTABLECE:
+
+· INC-003, INC-005 e INC-014. Sus descripciones NO ESTAN en esta maquina. Del INC-003 se sabe lo
+  que el lote dice —«se registro el 2026-08-20, se escribio reportado a cauce y nadie abrio el
+  PT»—: un defecto de PROCEDIMIENTO que se cierra abriendolo, que es lo que este lote hace.
+· Si hay mas reglas que cambian de severidad. Se midieron cinco con un grep sobre «gate ===»;
+  una escrita de otra forma no apareceria.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-110 — Sellar mide lo que exige
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — la fila que llevaba TODO el lote sin dueño
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+FND-R14 —las cifras de inventory/services.md— CAYO SIETE VECES en este lote. Cada tarea que toca
+una herramienta las desvia, y LAS SIETE SE REESCRIBIERON A MANO, con un script de Python que
+recalculaba las cifras.
+
+Y EL COMANDO EXISTIA DESDE ANTES DEL LOTE: «tracker inventario --aplicar». No lo llamaba nadie.
+Reimplemente una herramienta del propio marco, siete veces, DENTRO del lote que existe para que
+el marco se use. Es la forma exacta que el firmante señalo toda la sesion: el marco tenia la
+respuesta y yo no le preguntaba.
+
+LA CAUSA DE FONDO NO ERA QUE FALTARA LA HERRAMIENTA: ERA DONDE SE LLAMA. «sellar» ya recorria el
+grafo (FDGE-R43), los documentos de entrada (FND-R22) y la guia de migracion (SUITE-R19) — y el
+inventario NO ESTABA EN LA LISTA. Una deuda que solo aparece en la bateria se descubre DESPUES de
+haber decidido sellar.
+
+Solucion: sellar MIDE las cifras y las publica junto a las otras tres, con tres desenlaces —
+coinciden, cuantas se desviaron y con que comando se arreglan, o SIN EVALUAR si no puede leerlas.
+El tercero es el que importa: sin el, un services.md ilegible produciria el mismo informe que uno
+perfecto (RULE-06).
+
+NO LAS ARREGLA. Sellar informa; arreglar es una decision (EXEC-R07), y reescribir un documento de
+Foundation dentro de un comando de estado mezcla dos responsabilidades.
+
+Y LO PRIMERO QUE DETECTO EL ARREGLO FUE SU PROPIA DESVIACION: añadir la medicion a tracker.mjs
+cambio el numero de lineas de tracker.mjs, y la primera corrida lo dijo.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+  lo que sellar mira   ANTES 3   DESPUES 4
+  FND-R14 en el lote   ANTES 7 caidas, 7 arreglos a mano   DESPUES con dueño
+
+LO QUE NO ESTABLECE:
+
+· Que MAS deberia mirar sellar. Se añade el que cayo siete veces; lo demas queda DECLARADO y sin
+  medir.
+· Que la descripcion en prosa del inventario sea cierta. Se miden las CIFRAS, y el propio mensaje
+  de FND-R14 lo declara desde antes.
+
+Y LO QUE CASI HAGO MAL: el primer diseño era escribir un recalculo NUEVO dentro de sellar.
+Comprobar si ya existia uno es lo que evito duplicar la herramienta — la averia de SUITE-R38
+cometida dentro de la tarea que la persigue.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-101 — SUITE-R59 · el escape que no existe no se rompe
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-9, abierto por el firmante
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+Trazabilidad externa: issue #199
+
+Lo señalo el firmante DOS VECES, y las dos tenia razon. La primera por las ocho roturas de una
+sola sesion. La segunda, que es la que da con la causa:
+
+  «es el tropiezo mas recurrente y no se ve en ningun lado, solo esta en las conversaciones y
+  las reparaciones unicamente son una vez por vez»
+
+LO MEDIDO:
+
+  build-core.mjs:463       «ha fallado CINCO veces aqui»
+  revisar-secretos.mjs:36  «ha fallado SIETE veces en este proyecto»
+  verify-ptsa.mjs:108      «ha fallado CINCO veces en este proyecto»
+  verify-qa.mjs:63         «ha fallado SEIS veces en este proyecto»
+  verify-suite.mjs:526     «ha fallado CUATRO veces en este»
+                            ────
+                             27, y ninguno lo sabia
+
+  RULES.md 0 · LEXICON.md 0 · PHASES.md 0 · EXECUTION-MODES 0
+
+VEINTISIETE FALLOS DEL MISMO TIPO Y CERO REGLAS. Un defecto que solo vive en comentarios se
+arregla de uno en uno porque NADA LO EXIGE AL CASO SIGUIENTE. Esa es la causa, y es la misma
+forma que PT-100 (un hecho sin autoridad) y PT-103 (nada obliga).
+
+Y DETECTAR NO BASTA. El intake proponia que audit DETECTARA la construccion fragil. Al ejecutarlo
+aparecio lo que faltaba: durante veintisiete roturas el marco decia «no montes patrones desde
+cadenas» y NO DABA CON QUE HACERLO, asi que el siguiente caso volvia a escribirlo a mano. Un
+aviso sin alternativa es un aviso que se incumple.
+
+Solucion, en tres piezas que no sirven por separado:
+
+  SUITE-R59      la regla, en RULES.md, con RIGE_DESDE y citada en PHASES y FDGE-Prompts
+  el normalizador  CAR · CLASE · comoLiteral · comoPalabra, en patrones.mjs
+  audit          caza la construccion FRAGIL antes de que rompa
+
+La firma es precisa y no admite dos lecturas: «new RegExp» sobre una cadena con barra SIMPLE ante
+una letra de clase. Esa barra no sobrevive a la cadena, la letra queda sola, y el patron compila
+y NO CASA NADA — el fallo mas caro que existe, porque parece que todo esta bien.
+
+Y LA PROPIEDAD DEL NORMALIZADOR es una sola: ninguna de sus funciones lleva una barra invertida
+ESCRITA dentro de una cadena. Lo que no se escribe no se puede perder al pasar por un shell, un
+heredoc, un replace o una plantilla transformada.
+
+LA COMPROBACION ENCONTRO TRES DEFECTOS REALES EN SU PRIMERA CORRIDA, y los tres silenciosos:
+
+  patrones.mjs:1226   «(^|\s)${h}\s» con barra simple -> compilaba a «(^|s)…s», la LETRA
+                      NINGUN helper se detectaba nunca
+  verify-fdge:680     igual -> un campo de estado con sangria no se detectaba
+  verify-fdge:685     igual
+
+NINGUNO FALLABA. Devolvian vacio, que es exactamente el fallo que los propios comentarios del
+repositorio describen.
+
+Archivos modificados: RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md (regenerado) ·
+  tools/patrones.mjs · tools/audit.mjs · tools/verify-fdge.mjs · tools/verify-qa.mjs ·
+  tools/verify-ptsa.mjs · tools/build-core.mjs · tools/revisar-secretos.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-101/ · manifest.json · self-review.md ·
+  salidas/audit.txt · salidas/selftest-completo.txt
+
+  cuentas del mismo hecho   ANTES 5 distintas   DESPUES 1
+  reglas sobre escapado     ANTES 0             DESPUES SUITE-R59, citada en dos operativos
+  alternativa al aviso      ANTES ninguna       DESPUES el normalizador
+  construcciones fragiles   ANTES 3 (silenciosas)  DESPUES 0
+
+AMPLIE EL ALCANCE POR MI CUENTA, y lo señalo el firmante: «lo corregiste y aumentaste una regla,
+pero te saltaste toda la metodologia... simplemente decidiste». El intake firmaba CINCO criterios
+y se hicieron OCHO. Sin G2 sobre esa ampliacion, sin viabilidad registrada antes, sin escenarios.
+La ampliacion era correcta Y ESO NO LA EXCUSA: el alcance lo fija el intake y ampliarlo se escribe
+ANTES. Declarado en la Revision 1 del intake, tarde.
+
+LO QUE NO ESTABLECE:
+
+· Cuantas roturas ha habido en total. Se cuentan las declaradas y las de esta sesion.
+· Que el normalizador se USE. Existe y tres herramientas lo usan; que el siguiente caso lo use no
+  lo garantiza nada — EP-007 ya dejo escrito que un comando no puede exigir haber sido llamado.
+· Que no queden fragiles escritas de otra forma. Se detecta una firma concreta.
+
+Y DOS ERRORES DURANTE EL ARREGLO: los tres primeros aciertos de la comprobacion eran COMENTARIOS
+que advertian de este mismo defecto —tercera vez en la sesion—, y escribir el filtro que los
+excluye fue la NOVENA rotura de escapado, reparada escribiendo el archivo tal cual, que es lo que
+la regla acababa de establecer.
+
+LA DECLARACION DE PT-100 SE CUMPLIO EL MISMO DIA, y conviene registrarlo aqui porque FDGE-R29
+solo admite UNA entrada por tarea y la de PT-100 ya esta cerrada.
+
+Aquella tarea declaro que NO establecia «que el arreglo de las grafias funcione en un sistema
+sensible a mayusculas», y que lo estableceria CI, «el UNICO sitio donde ese caso puede ponerse
+rojo». Se puso rojo: el FIXTURE de la bateria seguia creando el arbol de QA con DOS grafias
+—trece usos de «QA/» y tres de «qa/»—. En Windows es el mismo directorio y los 1372 casos
+pasaban; en Linux los specs caian donde verify-qa no mira.
+
+Arreglado con una sola grafia. La declaracion sirvio para lo que se escribio: cuando el fallo
+aparecio, HABIA DONDE ENCAJARLO.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-112 — «--forzar» no es una compuerta
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-8, y cierra con UNO DE TRES
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+«cauce install --forzar» sobrescribe docs/methodology/ del proyecto destino. Eso es lo que
+SUITE-R06e dice que NO SE AUTOMATIZA, y SUITE-R31 dice que decidir quien tiene razon —el proyecto
+que corrigio, o cauce que avanzo— es HUMANO.
+
+EL FLAG SALTABA LAS DOS SIN DEJAR NADA: ni quien lo decidio, ni que se sobrescribio, ni cuando.
+Una compuerta que se pasa sin rastro no es una compuerta: es una puerta.
+
+Y el aviso que se llevaba por delante es exacto:
+
+  «Sobrescribir puede revertir correcciones que ese proyecto hizo bajo sus propios PT: HA ESTADO
+   A PUNTO DE PASAR. Un archivo que difiere no dice por si solo quien tiene razon.»
+
+Solucion: NO se prohibe. Un proyecto que ya decidio necesita poder aplicarlo, y prohibirlo
+obligaria a copiar los archivos a mano — mismo efecto y SIN NINGUN RASTRO, que es peor. Lo que se
+exige es lo mismo que EXEC-R04a exige de G4: CONSTANCIA con forma fija.
+
+  cauce install --forzar "Nombre Apellido"
+
+  sin nombre        -> error, no sobrescribe, y dice como se usa
+  con nombre        -> INSTALL.log: fecha, quien, version, que difiere y que sobra
+  no puede escribir -> error, NO sobrescribe (RULE-06)
+  instalacion nueva -> no entra: no hay divergencia que decidir
+
+ES LA IMAGEN INVERTIDA DE PT-103. Alli cumplir el marco EXIGIA saltarse la herramienta; aqui
+saltarse la regla era UN FLAG. Las dos son la misma distancia: entre lo que la regla dice y lo que
+la herramienta permite.
+
+Y LO QUE CONVIERTE UNA PUERTA EN COMPUERTA NO ES CERRARLA: es que deje constancia.
+
+PRIMERA APLICACION ESPONTANEA DE SUITE-R59. El salto de linea del registro va por
+String.fromCharCode porque la regla EXISTE, no porque me acordara — que es exactamente lo que
+PT-101 existia para conseguir, comprobado en la tarea siguiente.
+
+Archivos modificados: bin/cauce.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-112/ · manifest.json · self-review.md ·
+  salidas/forzar.txt · salidas/selftest-completo.txt
+
+  «--forzar» sin rastro   ANTES si   DESPUES exige nombre y registra
+  si no puede registrar   ANTES —    DESPUES NO sobrescribe
+
+L-8 CIERRA CON UNO DE TRES, y es la misma razon que L-7 cerro con dos de cinco: INC-007 e
+INC-013 viven en el INCIDENTS.log de la CALCULADORA, que no esta en esta maquina. Arreglar «algo
+parecido» seria inventar el defecto y su arreglo a la vez.
+
+LO QUE NO ESTABLECE:
+
+· INC-007 e INC-013. Declarados sin arreglar, con su motivo.
+· Si otros flags saltan una compuerta. Se midio «--forzar», que es el que L-8 nombra.
+· Que una instalacion REAL con --forzar escriba bien el registro: se comprueba el codigo y su
+  guarda, no una instalacion completa sobre un proyecto ajeno — y tocar un proyecto ajeno esta
+  fuera de alcance en todo este lote.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-111 — El espejo compara lo que se lee
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — la fila que llevaba TODO el lote declarada y sin dueño
+Rama: chore/alberto-martinez/PT-097-apertura
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-22 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+Trazabilidad externa: issue #211
+
+El espejo comparaba CINCO cosas —que la allocation viva tenga issue, que este abierto, que ningun
+issue abierto quede sin reclamar, que el enlace apunte a un ref que existe, y que el cuerpo no
+publique la ruta sin enlace— y NINGUNA era lo que se lee.
+
+La fila del cierre, declarada en la Revision 1 al ejecutar L-0, hablaba del CUERPO. Medida al
+resolverla resulto MAYOR: tampoco se comparaba el TITULO, que es lo PRIMERO que una persona lee
+al abrir el tablero. Un titulo editado a mano decia una cosa, el registro otra, y «espejo»
+respondia «sin divergencias».
+
+Solucion: se compara el titulo DERIVADO —«id · slug»— y el mensaje nombra LOS DOS y el comando
+que lo corrige. Dentro de compararEspejo, que es PURA y exportada: se puede probar sin red, y eso
+es lo que hace que el caso pueda existir.
+
+NO se compara el cuerpo entero, y es una decision: un issue lleva comentarios y ediciones humanas
+LEGITIMAS. Marcarlas convertiria cada conversacion en una divergencia, y un informe que siempre
+diverge deja de mirarse. «abrir --aplicar» ya republica el cuerpo cuando difiere (PT-096).
+
+Y NO CORRIGE. Consultar el estado no puede modificar el tablero: son acciones distintas.
+
+TERCERA APARICION DE LA MISMA FORMA EN ESTE LOTE:
+
+  EP-007   existe «tracker siguiente»    y nada lo echa en falta   -> PT-104
+  PT-110   existe «tracker inventario»   y sellar no lo miraba
+  PT-111   existe «abrir --aplicar»      y el espejo no lo echa en falta
+
+No faltan herramientas: FALTA QUE ALGUIEN LAS ECHE DE MENOS.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-111/ · manifest.json · self-review.md ·
+  salidas/espejo.txt · salidas/selftest-completo.txt
+
+  lo que el espejo compara   ANTES 5 cosas, ninguna legible   DESPUES tambien el titulo
+
+LO QUE NO ESTABLECE:
+
+· Que el cuerpo publicado coincida con el derivado. Se decidio no compararlo entero.
+· Que Azure no tenga el mismo hueco. Se mide sobre GitHub, la plataforma declarada.
+
+La fila solo se resolvio AL RESOLVER EL CIERRE, que es lo que SUITE-R45 existe para forzar:
+ninguna de las once tareas anteriores la tomo.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+

@@ -1,0 +1,99 @@
+{
+  "pt": "PT-098",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Contraste mecanico de INTEGRATED con el arbol, sin depender de la rama declarada",
+      "tests": ["selftest.sh:con merge, da INTEGRATED", "selftest.sh:sin merge, la ultima fase da DONE"],
+      "evidence": ["salidas/contraste.txt"],
+      "verified": true,
+      "nota": "58 de las 91 INTEGRATED no declaran rama, y eso hacia parecer inviable la comprobacion. El contraste pregunta por el DIRECTORIO —el mecanismo que PT-096 construyo esta misma sesion— asi que alcanza a las 91. No se duplica el «git cat-file»: una segunda copia seria lo que PT-096 acaba de quitar de en medio."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "verify-fdge reporta el INTEGRATED que el arbol no sostiene",
+      "tests": ["selftest.sh:un INTEGRATED que main no sostiene se reporta", "selftest.sh:…y uno que SI esta, no"],
+      "evidence": ["salidas/selftest-completo.txt", "salidas/inversa.txt"],
+      "verified": true,
+      "nota": "El segundo es el freno: sin el, la comprobacion podria REPORTAR SIEMPRE y el positivo pasaria igual. Verificado ademas sobre datos reales: PT-096 marcado INTEGRATED da error porque esta en trabajo y no en main."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Lo que no se puede contrastar sale SIN EVALUAR, no en rojo",
+      "tests": ["selftest.sh:sin poder comprobarlo, SIN EVALUAR", "selftest.sh:…y el mensaje lo dice", "selftest.sh:sin poder saberlo, tampoco INTEGRATED"],
+      "evidence": ["salidas/contraste.txt", "salidas/inversa.txt"],
+      "verified": true,
+      "nota": "Con DOS valores el «false» tendria que cubrir «no esta» y «no lo se», y la segunda produce rojos que nadie puede arreglar: clon superficial, origin ausente, rama sin traer. PT-056 pago DOS veces por eso. Verificado sobre datos reales: PT-097 marcado INTEGRATED sale SIN EVALUAR —no en rojo— porque su directorio vive en una rama sin fusionar, y afirmar «no integrado» seria acusar sin mirar."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "avanzar escribe lo cierto y lo dice",
+      "tests": ["selftest.sh:avanzar a la ultima fase marca el estado terminal", "selftest.sh:…y lo escribe TAMBIEN en el YAML", "selftest.sh:…y sin merge NO afirma INTEGRATED", "selftest.sh:lo ya terminal no se reescribe"],
+      "evidence": ["salidas/selftest-completo.txt", "salidas/inversa.txt"],
+      "verified": true,
+      "nota": "Mi primer diseño era que avanzar se NEGARA, y rompia SUITE-R46, que exige apuntar el estado terminal ANTES del merge. Parecia un choque de reglas y no lo es: LEXICON §5.1 ya distingue DONE de INTEGRATED y FDGE-R34 exige DONE para G4. El comando escribia el estado EQUIVOCADO, no uno falso. El detector de PT-029 no habria encontrado esto: no hay dos textos en conflicto, hay un texto y un comando que no lo sigue."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Los 91 INTEGRATED actuales siguen en verde",
+      "tests": ["contraste sobre el registro real"],
+      "evidence": ["salidas/contraste.txt"],
+      "verified": true,
+      "nota": "91 en verde, 0 en rojo, 0 SIN EVALUAR. Medido ANTES de diseñar el arreglo, no despues: si alguno hubiera salido falso, el intake tendria que decir que se hace con el. No lo dice porque no hay ninguno."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": ["la prueba inversa, cambio a cambio"],
+      "evidence": ["salidas/inversa.txt"],
+      "verified": true,
+      "nota": "Cinco retiradas, ninguna en cero. Cada una hace caer exactamente su caso."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que las 91 sigan ciertas mañana.",
+      "por_que": "Se midieron hoy. El arreglo existe justamente para que esa pregunta tenga respuesta mecanica en vez de una medicion manual.",
+      "donde": "docs/implementation/evidence/PT-098/salidas/contraste.txt"
+    },
+    {
+      "afirmacion": "Que los 22 usos de ESTADOS_TERMINALES esten bien.",
+      "por_que": "Seis en verify-fdge estan contados —INC-011 conto CINCO, las que alcanzaban a SUS dos tareas—. Los de tracker.mjs (7) y patrones.mjs (5) no se han revisado uno a uno. Aqui se arregla el DATO que los dispara, no cada consumidor.",
+      "donde": "changes/PT-098-el-estado-terminal-se-deriva-del-arbol/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que «--all» ejerza lo que ejerce «--gate G4».",
+      "por_que": "--gate G4 SI caza este caso —«G4 exige DONE»— y --all no. INC-010 de la calculadora lo llama «cada compuerta es una revision sorpresa». Cambiar que ejerce --all afecta a TODAS las compuertas y merece su propia medicion.",
+      "donde": "changes/PT-098-el-estado-terminal-se-deriva-del-arbol/design.md D-6"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi primer diseño rompia SUITE-R46.",
+      "regla": "SUITE-R46",
+      "detalle": "Escribi que avanzar debia NEGARSE a escribir INTEGRATED sin merge. SUITE-R46 exige el orden contrario: «apuntar el estado terminal, mergear, cerrar despues». Lo dijo leer la regla, no ejecutar. Y la salida no era una excepcion: LEXICON ya distinguia DONE de INTEGRATED."
+    },
+    {
+      "que": "DOS casos de la bateria protegian el defecto.",
+      "regla": "FDGE-R17",
+      "detalle": ":5202 y :5204 afirmaban que llegar a la ultima fase marca INTEGRATED. En ese fixture nada se ha mergeado, asi que ese INTEGRATED era FALSO y el caso lo celebraba. No se hicieron pasar: se invierten con su motivo, conservando lo que SI probaban —que avanzar escribe el estado en las DOS fuentes, de lo que nacio PT-089—. Van CINCO casos asi en este lote."
+    },
+    {
+      "que": "Cuarta rotura de escapado de la sesion.",
+      "regla": "—",
+      "detalle": "Un «replace(/\\\\/g, '/')» paso por una transformacion de texto y quedo como un regex sin cerrar. La solucion NO fue escaparlo mejor: fue QUITARLO. La ruta se compone con «/» desde el principio, que es lo que git necesita en una referencia «rama:ruta». El escape que no existe no se rompe."
+    },
+    {
+      "que": "FND-R14 cayo por tercera vez en este lote.",
+      "regla": "FND-R14",
+      "detalle": "Las cifras del inventario caducan con el ULTIMO cambio del arbol, y cual es el ultimo no se sabe hasta que la tarea termina. No es descuido repetido: es que el sitio correcto para recalcularlas es «tracker sellar», no la memoria de quien trabaja. Va al «Cierre del lote» de EP-019."
+    }
+  ],
+  "suite": {
+    "passed": 1277,
+    "failed": 0,
+    "baseline": 1267,
+    "nota": "10 casos netos: 9 nuevos, DOS invertidos que no se hicieron pasar, y uno añadido como freno —«sin merge NO afirma INTEGRATED»— porque sin el, «escribir siempre DONE» pasaria los dos corregidos."
+  }
+}

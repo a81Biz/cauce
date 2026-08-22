@@ -1,0 +1,17 @@
+PRUEBA INVERSA — PT-106
+
+La mitad de la tarea es lo que NO se toca: 38 reglas existen desde el primer commit y
+ponerles una fila inventaria una restriccion que nunca existio. Por eso hay dos casos
+que comprueban la AUSENCIA, y una retirada que devuelve el valor que el CHANGELOG
+sugeriria para ver que el caso lo caza.
+
+S-1 · las veinte filas          caen  3
+                                  · una regla de la 7.0.0 lo declara
+                                  · …una de la 4.14.0 tambien
+                                  · …y una de la 8.0.0
+S-2 · una fila concreta         caen  1
+                                  · una regla de la 7.0.0 lo declara
+S-3 · el valor decidido a mano  caen  1
+                                  · la que discrepa del CHANGELOG conserva su valor real
+
+Las 3 retiradas hacen caer casos. Ninguna esta sin probar.

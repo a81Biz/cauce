@@ -1,0 +1,141 @@
+EP-001 · el-marco-se-hace-cumplir   CLOSED   #2
+  PT-001  BUG            S2  INTEGRATED          fase 8    —              #3
+  PT-002  BUG            S3  INTEGRATED          fase 8    —              #4
+  PT-003  INVESTIGATION  S3  CLOSED              fase 8    —              #5
+  PT-004  BUG            S2  INTEGRATED          fase 8    —              #6
+  PT-005  BUG            S2  INTEGRATED          fase 8    —              #8
+
+EP-002 · github-como-maquina-de-estados   CLOSED   #9
+  PT-006  CHORE          S3  INTEGRATED          fase 8    —              #10
+  PT-007  FEATURE        S3  INTEGRATED          fase 8    —              #11
+  PT-008  FEATURE        S2  INTEGRATED          fase 8    —              #12
+
+EP-003 · el-issue-se-lee-solo   CLOSED   #13
+  PT-009  BUG            S2  INTEGRATED          fase 8    —              #14
+  PT-010  BUG            S2  INTEGRATED          fase 8    —              #15
+
+EP-004 · lo-aplazado-no-se-olvida   CLOSED   #17
+  PT-011  BUG            S2  INTEGRATED          fase 10   —              #18
+  PT-012  BUG            S2  INTEGRATED          fase 10   —              #19
+  PT-013  BUG            S2  INTEGRATED          fase 10   —              #20
+  PT-014  BUG            S3  INTEGRATED          fase 10   —              #21
+  PT-018  BUG            S2  INTEGRATED          fase 10   —              #25
+
+EP-005 · la-regla-no-puede-premiar-el-silencio   CLOSED   #31
+  PT-021  BUG            S1  INTEGRATED          fase 10   —              #29
+  PT-022  BUG            S1  INTEGRATED          fase 10   —              #30
+
+EP-006 · el-tablero-no-puede-adelantarse-a-main   CLOSED   #34
+  PT-024  BUG            S1  INTEGRATED          fase 10   —              #33
+  PT-026  BUG            S1  INTEGRATED          fase 10   —              #36
+  PT-028  BUG            S1  INTEGRATED          fase 10   —              #39
+
+EP-007 · el-tablero-como-maquina-de-estados   CLOSED   #41
+  PT-030  FEATURE        S1  INTEGRATED          fase 10   —              #43
+  PT-031  BUG            S1  INTEGRATED          fase 10   —              #44
+
+EP-008 · atar-el-agente-al-tablero   CLOSED   #48
+  PT-032  FEATURE        S1  CLOSED              sin fase  —              #45
+  PT-033  FEATURE        S1  INTEGRATED          fase 10   —              #46
+  PT-034  FEATURE        S1  INTEGRATED          fase 10   —              #47
+
+EP-009 · el-tablero-refleja-la-jerarquia-real   CLOSED   #52
+  PT-035  BUG            S2  INTEGRATED          fase 10   —              #51
+  PT-036  BUG            S2  INTEGRATED          fase 10   —              #54
+
+EP-010 · el-manual-completo-de-uso   CLOSED   #53
+  PT-037  FEATURE        S1  INTEGRATED          fase 10   —              #56
+  PT-038  FEATURE        S1  INTEGRATED          fase 10   —              #57
+
+EP-011 · el-marco-se-usa-a-si-mismo   CLOSED   #59
+  PT-039  FEATURE        S1  INTEGRATED          fase 9    G4 pendiente   #60
+  PT-040  FEATURE        S1  INTEGRATED          fase 9    G4 pendiente   #61
+  PT-041  FEATURE        S1  INTEGRATED          fase 9    G4 pendiente   #62
+  PT-042  FEATURE        S1  INTEGRATED          fase 9    G4 pendiente   #63
+  PT-043  FEATURE        S1  INTEGRATED          fase 9    G4 pendiente   #64
+
+EP-012 · el-marco-se-cierra-a-si-mismo   CLOSED   #71
+  PT-044  BUG            S2  INTEGRATED          fase 9    G4 pendiente   #65
+  PT-045  BUG            S2  INTEGRATED          fase 9    G4 pendiente   #66
+  PT-046  BUG            S2  INTEGRATED          fase 9    G4 pendiente   #67
+
+EP-013 · el-tablero-queda-limpio   CLOSED   #73
+  PT-015  CHORE          S4  INTEGRATED          fase 10   —              #22
+  PT-016  CHORE          S4  INTEGRATED          fase 10   —              #23
+  PT-017  CHORE          S4  INTEGRATED          fase 10   —              #24
+  PT-020  CHORE          S3  INTEGRATED          fase 10   —              #27
+  PT-023  CHORE          S2  INTEGRATED          fase 10   —              #32
+  PT-029  CHORE          S2  INTEGRATED          fase 10   —              #40
+  PT-047  BUG            S3  INTEGRATED          fase 10   —              #69
+  PT-048  BUG            S3  INTEGRATED          fase 10   —              #70
+
+EP-014 · la-fontaneria-de-la-transicion   CLOSED   #89
+  PT-049  CHORE          S3  INTEGRATED          fase 10   —              #83
+  PT-050  CHORE          S3  INTEGRATED          fase 10   —              #84
+  PT-051  CHORE          S4  INTEGRATED          fase 10   —              #85
+  PT-052  CHORE          S2  INTEGRATED          fase 10   —              #86
+  PT-053  CHORE          S1  INTEGRATED          fase 10   —              #87
+  PT-054  CHORE          S2  INTEGRATED          fase 10   —              #88
+
+EP-015 · la-continuidad-de-sesion   CLOSED   #90
+  PT-056  CHORE          S1  INTEGRATED          fase 10   —              #103
+  PT-057  CHORE          S2  INTEGRATED          fase 10   —              #104
+  PT-058  CHORE          S1  INTEGRATED          fase 10   —              #105
+  PT-059  CHORE          S1  INTEGRATED          fase 10   —              #106
+  PT-060  CHORE          S2  INTEGRATED          fase 10   —              #107
+
+EP-016 · topologia-y-multiusuario   CLOSED   #91
+  PT-061  CHORE          S1  INTEGRATED          fase 10   —              #116
+  PT-062  CHORE          S1  INTEGRATED          fase 10   —              #117
+  PT-063  CHORE          S1  INTEGRATED          fase 10   —              #118
+  PT-064  CHORE          S2  INTEGRATED          fase 10   —              #119
+  PT-065  CHORE          S2  INTEGRATED          fase 10   —              #120
+
+EP-017 · la-prueba-de-fuego   CLOSED   #127
+  PT-019  CHORE          S2  INTEGRATED          fase 10   —              #26
+  PT-055  BUG            S2  INTEGRATED          fase 10   —              #94
+  PT-066  BUG            S2  INTEGRATED          fase 10   —              #128
+  PT-067  BUG            S2  INTEGRATED          fase 10   —              #129
+  PT-068  BUG            S1  INTEGRATED          fase 10   —              #130
+  PT-069  FEATURE        S2  INTEGRATED          fase 10   —              #131
+  PT-070  BUG            S2  INTEGRATED          fase 10   —              #132
+  PT-071  BUG            S2  INTEGRATED          fase 10   —              #133
+  PT-072  INVESTIGATION  S1  INTEGRATED          fase 10   —              #134
+  PT-073  CHORE          S2  INTEGRATED          fase 10   —              #135
+  PT-074  BUG            S2  INTEGRATED          fase 10   —              #136
+  PT-075  BUG            S1  INTEGRATED          fase 10   —              #137
+  PT-076  BUG            S1  INTEGRATED          fase 10   —              #138
+  PT-077  BUG            S2  INTEGRATED          fase 10   —              #139
+  PT-078  FEATURE        S1  INTEGRATED          fase 10   —              #142
+  PT-079  BUG            S1  INTEGRATED          fase 10   —              #147
+  PT-080  BUG            S2  INTEGRATED          fase 10   —              #150
+  PT-081  BUG            S1  INTEGRATED          fase 10   —              #151
+  PT-082  BUG            S1  INTEGRATED          fase 10   —              #153
+  PT-083  BUG            S1  INTEGRATED          fase 10   —              #155
+  PT-084  BUG            S1  INTEGRATED          fase 10   —              #156
+  PT-085  BUG            S1  INTEGRATED          fase 10   —              #159
+  PT-086  CHORE          S2  INTEGRATED          fase 10   —              #160
+
+EP-018 · lo-que-la-auditoria-encontro   CLOSED   #162
+  PT-087  BUG            S1  INTEGRATED          fase 10   —              #163
+  PT-088  BUG            S1  INTEGRATED          fase 10   —              #164
+  PT-089  BUG            S2  INTEGRATED          fase 10   —              #165
+  PT-090  BUG            S2  INTEGRATED          fase 10   —              #166
+  PT-091  BUG            S3  INTEGRATED          fase 10   —              #167
+  PT-092  CHORE          S2  INTEGRATED          fase 10   —              #168
+  PT-093  CHORE          S2  INTEGRATED          fase 10   —              #169
+
+EP-019 · lo-que-tres-proyectos-encontraron   DRAFT   #189
+  PT-096  BUG            S1  DRAFT               fase 4    G2 pendiente   #191
+
+Sin implementación
+  PT-025  CHORE          S3  DEFERRED            sin fase  —              #35
+  PT-027  CHORE          S1  CLOSED              fase 10   —              #37
+  PT-094  BUG            S1  INTEGRATED          fase 10   —              #175
+  PT-095  BUG            S1  INTEGRATED          fase 10   —              #181
+
+tracker · github · acción estado
+
+  · 19 implementación(es) · 96 tarea(s) · leído del registro, sin tocar la plataforma.
+
+Sin divergencias.

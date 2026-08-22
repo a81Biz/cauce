@@ -1,0 +1,22 @@
+PRUEBA INVERSA — PT-102
+
+Cada retirada devuelve UN cambio sobre un proyecto de mentira con las dos formas y los dos
+negativos, y se mira que cae. Los casos se miden sobre archivos REESCRITOS, no sobre el
+texto de la herramienta: es lo unico que distingue «reconoce el patron» de «lo alinea».
+
+S-1 · la segunda forma                caen  2
+                                        · alinea la forma B
+                                        · alcanza el CLAUDE.md del proyecto
+S-2 · el ancla de inicio de linea     caen  1
+                                        · NO toca una cifra en prosa de un documento que SI se recorre
+S-3 · los tres numeros exigidos       caen  1
+                                        · NO toca el marcador de la plantilla
+S-4 · el prefijo de cita              caen  1
+                                        · alinea la forma A dentro de una cita
+S-5 · el CLAUDE.md en el recorrido    caen  1
+                                        · alcanza el CLAUDE.md del proyecto
+S-6 · el patron compartido            caen  2
+                                        · alinea la forma B
+                                        · alcanza el CLAUDE.md del proyecto
+
+Las 6 retiradas hacen caer casos. Ninguna esta sin probar.

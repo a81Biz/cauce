@@ -1,0 +1,121 @@
+{
+  "pt": "PT-103",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "asignar crea una allocation completa",
+      "tests": [
+        "selftest.sh:asignar acepta el tipo",
+        "selftest.sh:…la severidad",
+        "selftest.sh:…el lote al que pertenece",
+        "selftest.sh:…y arranca en PHASE 1"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Escribia CUATRO campos de nueve. Un BUG de un lote con severidad no se podia registrar con el comando, asi que cada tarea nueva OBLIGABA a escribir REGISTRY.json a mano. No es que se eligiera rodear la herramienta: CUMPLIR EL MARCO EXIGIA SALTARSELA. PT-104 fue la primera allocation de la sesion creada entera desde el comando."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "NO acepta un tipo ni una severidad inventados",
+      "tests": [
+        "selftest.sh:…y NO acepta un tipo inventado"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Un campo que admite cualquier cadena no decide nada — el mismo defecto que PT-100 arreglo para los tipos de caso QA, un piso mas arriba."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "SUITE-R58 existe y verify-fdge la comprueba",
+      "tests": [
+        "selftest.sh:verify-fdge mira si el registro se escribio a mano",
+        "selftest.sh:…y la regla existe"
+      ],
+      "evidence": [
+        "salidas/audit.txt",
+        "salidas/verify-suite.txt"
+      ],
+      "verified": true,
+      "nota": "Es la parte de fondo que señalo el firmante: las compuertas miran los PRODUCTOS y nadie miraba el PROCEDIMIENTO. CLAUDE.md, CORE.md, la sesion y el agente no son compuertas: no pueden fallar. Y audit exigio ademas que la regla se citara en un documento OPERATIVO —PHASES y FDGE-Prompts—, porque una regla que solo vive en RULES y en el codigo no la ve quien trabaja en modo MANUAL."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Avisa y no falla, con RIGE_DESDE",
+      "tests": [
+        "selftest.sh:…y no juzga lo escrito antes de la regla"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Las 41 allocations anteriores se escribieron cuando el comando NO PERMITIA otra cosa. Juzgarlas seria castigar a quien no tenia alternativa (SUITE-R09, PT-095)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "la prueba inversa, retirada a retirada"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "SIETE retiradas, SIETE con efecto — despues de que la inversa me corrigiera DOS veces seguidas el mismo caso."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que los demas comandos no tengan el mismo hueco.",
+      "por_que": "Se midio «asignar», que es por donde entra todo. Los demas quedan declarados y SIN MEDIR: decir «no lo tienen» seria afirmar sin medir.",
+      "donde": "changes/PT-103-el-registro-solo-lo-escribe-el-comando/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que todo el procedimiento sea comprobable.",
+      "por_que": "Es el problema general que el firmante señala y es mas grande que esta tarea. SUITE-R58 cierra un hueco concreto: que la allocation nazca completa.",
+      "donde": "changes/PT-103-el-registro-solo-lo-escribe-el-comando/strategy.md"
+    },
+    {
+      "afirmacion": "Que escribir a mano el registro deje de ocurrir.",
+      "por_que": "La regla AVISA, no impide. Un arreglo de emergencia a veces exige tocarlo, y prohibirlo seria peor.",
+      "donde": "changes/PT-103-el-registro-solo-lo-escribe-el-comando/out-of-scope.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Cinco escrituras a mano del registro en una sola sesion, y solo dos declaradas.",
+      "regla": "SUITE-R58",
+      "detalle": "PT-096 (declarada), PT-100, PT-101, PT-102 (calladas) y PT-103 (declarada ANTES de aplicarla). El comando no permitia obedecer — eso es el defecto—, pero CALLARLO cuatro veces es mio, y es lo que convierte un defecto de herramienta en uno de procedimiento."
+    },
+    {
+      "que": "Mi propio flag rompio la deteccion de la raiz del proyecto.",
+      "regla": "—",
+      "detalle": "«--severidad S1» sin declarar el flag en CON_VALOR hizo que «S1» se tomara por la ruta del proyecto. El comentario de al lado ya avisaba: «es la CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui». La mia fue la QUINTA."
+    },
+    {
+      "que": "Decima instancia de colocar una comprobacion fuera de su ambito — y la primera cazada antes de correr.",
+      "regla": "—",
+      "detalle": "Puse la comprobacion de SUITE-R58 al principio de checkPT, y «rige» se define 50 lineas mas abajo. En PT-096 el mismo error hizo que 21 casos reportaran «la herramienta revento». Esta vez lo comprobe ANTES de ejecutar."
+    },
+    {
+      "que": "Afirme un defecto que no existia.",
+      "regla": "—",
+      "detalle": "Dije que PT-100 habia dejado FDGE-R52 apuntando a un archivo inexistente. Es FALSO: la regla nombra las DOS ramas —issue si hay plataforma, TRANSICIONES.log si no— y el archivo no existe aqui porque SI hay plataforma. Lo comprobe DESPUES de escribirlo. Es el mismo error que este lote persigue: afirmar sin medir. Corregido en SESSION_LOG.md y en el origen de la allocation."
+    },
+    {
+      "que": "Revente mi propia bateria tres veces editando mientras corria.",
+      "regla": "—",
+      "detalle": "selftest.sh y tracker.mjs reescritos con la bateria en marcha. Produjo un error de sintaxis en una linea que no habia tocado y 21 «la herramienta revento» que NO eran rojos reales. Tres corridas perdidas."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": 1304,
+    "nota": "Pendiente de la corrida completa, que corre junto con la de PT-104."
+  }
+}

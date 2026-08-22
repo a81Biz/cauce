@@ -69,7 +69,7 @@ estado y terminar lo que ya estaba en vuelo. No se abre trabajo nuevo (`SUITE-R1
 En tu `CLAUDE.md`, y es lo único que se personaliza:
 
 ```yaml
-suite_version: 7.4.0
+suite_version: 12.0.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:
   - Tu Nombre
@@ -238,6 +238,30 @@ No es una precaución teórica: el día que se midió, **14 de los 16 enlaces de
 404**, y uno apuntaba a la rama de otra tarea. La proyección estaba diseñada desde `PT-054` y
 tenía `--publicar` — nunca se había ejecutado, porque nada la exigía.
 
+### Si el issue dice «sin enlace», no está roto: es que aún no había dónde apuntar
+
+Cuando abres el issue en `PHASE 1`, tu `intake.md` **acaba de escribirse y no está en ningún
+commit todavía**. No hay ref durable, así que el cuerpo publica la ruta en texto plano y lo dice —
+inventar una URL que da 404 sería peor (`RULE-06`).
+
+El enlace aparece en cuanto el trabajo entra en un commit y algo republica el cuerpo. Dos formas:
+
+```bash
+node docs/methodology/tools/tracker.mjs abrir --aplicar    # republica los cuerpos
+node docs/methodology/tools/tracker.mjs espejo             # te dice si falta alguno
+```
+
+**Y si prefieres que nazca bien, commitea el intake antes de abrir el issue.** Las dos secuencias
+son válidas; ésta se ahorra el paso.
+
+Lo que **no** puede pasar es que nadie se entere: desde `SUITE-R51`, un cuerpo que publica su ruta
+sin enlace teniendo ya un ref durable es una **divergencia**, y `tracker espejo` la reporta —
+bloqueando en la rama de trabajo, que es donde se decide (`SUITE-R47`).
+
+Se escribió porque pasó: **10 de 115 cuerpos** del tablero de `cauce` estaban así, y eran
+exactamente los issues abiertos después del arreglo que dejó los enlaces muertos a cero. Se arregló
+el enlace **muerto**; el **ausente** no era el mismo caso, y ninguna comprobación lo miraba.
+
 Publicar el paquete es aparte, es manual y es tuyo.
 
 ---
@@ -263,7 +287,8 @@ tiempo**, y todas siguen ahí salvo las dos que se arreglaron:
 | `git add -A` se lleva `node_modules` | La instalación **no deja `.gitignore`**. Escríbelo antes del primer commit |
 | `FND-R23` dice que `LAYOUT.md` «no está firmado» | Busca la línea **«refleja la estructura que quiero: SÍ»** y edítala **en su sitio**. Añadir una firma al final deja dos veredictos y falla por otro motivo |
 | `SUITE-R30` rechaza tu `INSTALL.log` | El formato es `I<n> ACCIÓN … OK`, con **dos espacios** antes de `OK` y `I` de un solo dígito |
-| `tracker asignar` y luego `avanzar` dice «PHASE NaN» | La allocation nace sin `phase`. Decláralo en el registro |
+| `tracker asignar` y luego `avanzar` dice «PHASE NaN» | Ya no ocurre desde la `12.0.0`: `asignar` escribe `phase: 1` siempre (`SUITE-R58`). Si lo ves, la allocation se escribió a mano — `verify-fdge` lo avisa y dice qué campo falta |
+| No sé qué poner en `--tipo` o `--severidad` de `asignar` | Los declara `LEXICON`, y el comando **rechaza** lo que no esté ahí. Puedes omitirlos y te dirá cuáles quedan sin declarar antes de `G1` |
 | `INTAKE-R06` dice que la firma está «sin rellenar» | Un intake suelto espera **`Reportado por:`**, no «Firmado por:». Y **copia la plantilla**: escribirlo a mano cuesta cuatro comprobaciones |
 
 **Y dos que ya no verás**, porque las encontró esa misma prueba y se arreglaron en el lote:

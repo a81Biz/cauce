@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **11.0.0**
+> Suite version: **12.0.0**
 
 ---
 
@@ -145,6 +145,15 @@ CIERRE   toda tarea declara EN UNA LÍNEA, observable, cómo termina.           
 LEE  petición o QD/H/R de origen · BACKLOG · HISTORY · ROADMAP (duplicados)
 HAZ  1 asignar PT desde REGISTRY [SUITE-R08] · monotónico, nunca reutilizado [LEX-R04]
        si no puedes escribirlo, PARA
+       CON EL COMANDO, y con sus campos: --tipo --severidad --epica [SUITE-R58]
+     0 AL ESCRIBIR CODIGO O TEXTO: el escape que no existe no se rompe [SUITE-R59]
+       regex LITERAL · String.fromCharCode para un salto · texto largo a un ARCHIVO,
+       nunca por la linea de comandos. Y si construyes un patron desde una variable,
+       usa el normalizador de patrones.mjs —comoPalabra, comoLiteral, CLASE, CAR—:
+       ninguno lleva una barra invertida escrita, y lo que no se escribe no se pierde.
+       escribir REGISTRY.json a mano deja la allocation sin «phase» — y sin ella
+       «avanzar» no puede moverla NUNCA. Si el comando no admite lo que necesitas,
+       eso es un defecto del comando: decláralo, no lo rodees en silencio.
      2 crear changes/PT-XXX-slug/ + plantilla por tipo:
        BUG,INVESTIGATION→BUG-REPORT · FEATURE→FEATURE-REQUEST · REFACTOR,CHORE→CHANGE-REQUEST
      3 campos [HUMANO]: transcribir literal — el humano declara la intención y tú la
@@ -287,6 +296,8 @@ JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SU
           esta vivo, rama por defecto si ya es INTEGRATED.
           node tools/tracker.mjs abrir --aplicar   lo mantiene
 LA FASE   toda allocation PT VIVA declara «phase». Falta ⇒ ERROR desde 8.0.0 [SUITE-R08]
+          Un LOTE no lleva «type»: se reconoce por su identificador [LEX-R27], y
+          ninguna herramienta decide nada mirando ese campo.
           EXENTOS: un EP —su ciclo no tiene fases de tarea— y lo ya terminado.
           La frontera «se exige a lo VIVO» la comparten FDGE-R52, FDGE-R19 y
           esta, desde ESTADOS_TERMINALES en patrones.mjs. DONE NO esta ahi: un
@@ -392,7 +403,7 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           de nadie.
 REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
           qué cierras · dónde estás · qué sigue.
-          issue si hay plataforma · changes/PT-NNN-slug/bitacora.md si no.
+          issue si hay plataforma · docs/implementation/TRANSICIONES.log si no [INC-008].
           Escribir obliga a releer; releer no obliga a nada — y no deja rastro.
           Append-only: una bitácora que se reescribe deja de ser un rastro.
 NO        contar aquí lo que se hizo: eso es HISTORY.log y el relato de HANDOFF.
@@ -592,7 +603,7 @@ HAZ  al recibirlo: registrar en el README · discrepancias → 10-Technical-Debt
 PHASE 1 Reconnaissance  LEE 02-PRD · 04-App-Flow · 05-UI-UX-Brief · 08-API-Catalog
                         QA/cases/ · QA-DEFECTS · HANDOFF · test-scenarios de PTs recientes
                         SALE mapa de flujos candidatos (nada en disco todavía)
-PHASE 2 Test Plan       QA-PLAN.md: por caso tipo(HP|EC|EF|REG) · eje · fuente · precondiciones
+PHASE 2 Test Plan       QA-PLAN.md: por caso tipo(HP|EC|EF|REG) [LEX-R28] · eje · fuente · precondiciones
                         pasos · resultado esperado · capturas requeridas
                         todo caso derivado de un PT CITA su AC-nn [QA-R19]
                         QR desde REGISTRY, nunca contando el historial [QA-R13]

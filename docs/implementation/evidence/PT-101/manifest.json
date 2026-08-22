@@ -1,0 +1,146 @@
+{
+  "pt": "PT-101",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La cuenta de roturas vive en un solo sitio",
+      "tests": [
+        "selftest.sh:la cuenta de roturas vive en UN sitio"
+      ],
+      "evidence": [
+        "salidas/audit.txt"
+      ],
+      "verified": true,
+      "nota": "Cinco comentarios llevaban la cuenta —«cinco», «siete», «cinco», «seis», «cuatro»— y NINGUNO sumaba: veintisiete. Es SUITE-R38 aplicado a una cifra, ocurriendo DENTRO de los comentarios que avisan de otro defecto."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "audit detecta la construccion fragil ANTES de que rompa",
+      "tests": [
+        "selftest.sh:audit caza la construccion fragil"
+      ],
+      "evidence": [
+        "salidas/audit.txt"
+      ],
+      "verified": true,
+      "nota": "La firma es precisa: barra SIMPLE ante letra de clase. No sobrevive a la cadena, la letra queda sola, y el patron compila y NO CASA NADA — el fallo mas caro que existe porque parece que todo esta bien. audit ya cazaba el byte 0x08 YA ESCRITO: util, y posterior al daño."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El aviso dice que hacer y no marca lo correcto",
+      "tests": [
+        "selftest.sh:…y NO marca la barra doble, que es correcta",
+        "selftest.sh:…ni lo que solo aparece en un comentario"
+      ],
+      "evidence": [
+        "salidas/audit.txt"
+      ],
+      "verified": true,
+      "nota": "Los DOS negativos son la mitad del arreglo. Si la coletilla se pegara a todo uso de new RegExp, o a los comentarios, el aviso dejaria de significar nada — que es como un aviso se vuelve ruido y se deja de mirar. Los tres primeros aciertos de esta comprobacion fueron COMENTARIOS que advertian de este mismo defecto."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "No juzga lo escrito antes de la regla",
+      "tests": [
+        "selftest.sh:…y no juzga lo escrito antes de la regla"
+      ],
+      "evidence": [
+        "salidas/audit.txt"
+      ],
+      "verified": true,
+      "nota": "RIGE_DESDE [12,0,0]. Hay veintisiete construcciones anteriores y SUITE-R09 no retrofecha (PT-095, PT-106)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "los nueve casos"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Tres de los nueve son NEGATIVOS."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "SUITE-R59 existe y se cita donde se trabaja",
+      "tests": [
+        "selftest.sh:…y SUITE-R59 la convierte en regla",
+        "selftest.sh:…citada donde se escribe codigo"
+      ],
+      "evidence": [
+        "salidas/audit.txt"
+      ],
+      "verified": true,
+      "nota": "AÑADIDO EN LA REVISION 1, despues de hacerlo. VEINTISIETE roturas y CERO reglas: ni en RULES, ni en LEXICON, ni en PHASES, ni en EXECUTION-MODES. Un defecto que solo vive en comentarios se arregla de uno en uno porque NADA LO EXIGE AL CASO SIGUIENTE — que es exactamente lo que el firmante señalo."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "El normalizador existe y no escribe ninguna barra",
+      "tests": [
+        "selftest.sh:comoPalabra casa la palabra suelta",
+        "selftest.sh:…y NO casa un trozo de otra palabra",
+        "selftest.sh:comoLiteral busca el texto TAL CUAL"
+      ],
+      "evidence": [
+        "salidas/audit.txt"
+      ],
+      "verified": true,
+      "nota": "AÑADIDO EN LA REVISION 1. Es la mitad que faltaba: durante veintisiete roturas el marco decia «no montes patrones desde cadenas» y NO DABA CON QUE HACERLO, asi que el siguiente caso volvia a escribirlo a mano. Ninguna funcion lleva una barra invertida ESCRITA dentro de una cadena — lo que no se escribe no se puede perder al pasar por un shell, un heredoc o un replace."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "Las tres construcciones fragiles encontradas, arregladas",
+      "tests": [
+        "selftest.sh:el arbol real no tiene ninguna construccion fragil"
+      ],
+      "evidence": [
+        "salidas/audit.txt"
+      ],
+      "verified": true,
+      "nota": "AÑADIDO EN LA REVISION 1. Son defectos REALES y silenciosos: patrones.mjs:1226 no detectaba NINGUN helper —el patron compilaba a «(^|s)…s», la letra— y verify-fdge:680/685 no veian un campo de estado con sangria. NINGUNO FALLABA: devolvian vacio."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Cuantas roturas de escapado ha habido en total.",
+      "por_que": "Se cuentan las DECLARADAS en comentarios (27) y las de esta sesion. Un total historico seria afirmar sin medir.",
+      "donde": "docs/methodology/tools/patrones.mjs · ROTURAS_DE_ESCAPADO"
+    },
+    {
+      "afirmacion": "Que el normalizador se use en el caso siguiente.",
+      "por_que": "Existe y tres herramientas lo usan. Que el siguiente lo use no lo garantiza nada — EP-007 ya dejo escrito que un comando no puede exigir haber sido llamado.",
+      "donde": "changes/PT-101-el-escapado-que-no-existe-no-se-rompe/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que no queden construcciones fragiles escritas de otra forma.",
+      "por_que": "Se detecta una firma concreta: new RegExp sobre cadena con barra simple ante letra de clase.",
+      "donde": "changes/PT-101-el-escapado-que-no-existe-no-se-rompe/test-scenarios.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Amplie el alcance por mi cuenta, y lo señalo el firmante.",
+      "regla": "FDGE-R02",
+      "detalle": "El intake firmaba CINCO criterios; hice ademas una regla HARD nueva, un normalizador y tres herramientas cambiadas. Sin G2 sobre ese alcance, sin viabilidad registrada antes de empezar, sin escenarios escritos. La ampliacion era CORRECTA —la causa era que la regla no existia— Y ESO NO LA EXCUSA: el alcance lo fija el intake y ampliarlo se escribe ANTES. Es la misma averia que PT-103 describe, esta vez POR ELECCION y no por falta de herramienta, que es peor. Declarado en la Revision 1 y en la viabilidad, tarde."
+    },
+    {
+      "que": "Los tres primeros aciertos de la comprobacion eran mis propios comentarios.",
+      "regla": "—",
+      "detalle": "Estaban dentro de comentarios que advertian de ESTE MISMO defecto. Tercera vez en la sesion que un comentario rompe la comprobacion que lo acompaña. Un aviso con ruido se ignora, asi que se excluyen los comentarios."
+    },
+    {
+      "que": "Novena rotura de escapado, escribiendo el arreglo del escapado.",
+      "regla": "SUITE-R59",
+      "detalle": "Los saltos escapados del filtro que excluye comentarios se convirtieron en saltos reales al pasar por una transformacion, y el modulo no compilaba. Reescrito SIN transformar nada, con el archivo escrito tal cual — que es lo que la regla acababa de establecer."
+    }
+  ],
+  "suite": {
+    "passed": 1372,
+    "failed": 0,
+    "baseline": 1354,
+    "nota": "Nueve casos, TRES de ellos negativos: la barra doble que es correcta, el comentario que solo la menciona, y la palabra que no debe casar dentro de otra. Sin los tres, el aviso se pegaria a todo y dejaria de significar nada."
+  }
+}

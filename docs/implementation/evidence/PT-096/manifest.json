@@ -1,0 +1,212 @@
+{
+  "pt": "PT-096",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El cuerpo enlaza donde esta el contenido, y el enlace se puede volver a leer",
+      "tests": [
+        "selftest.sh:lo que el cuerpo escribe, refDeEnlace lo lee",
+        "selftest.sh:lo vivo enlaza la rama de trabajo",
+        "selftest.sh:lo integrado enlaza la principal"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "El primero ata al ESCRITOR con el LECTOR y no reproduce ningun defecto: existe porque un cambio en la forma de la URL apagaria repararEnlacesMuertos en silencio. Es RIE-4 en la direccion contraria a la del marcador."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Ningun cuerpo publica «null»; la nota que explica el enlace no se emite si no hay enlace",
+      "tests": [
+        "selftest.sh:sin ref durable, no explica el enlace",
+        "selftest.sh:el cuerpo nunca publica «null»",
+        "selftest.sh:sin ref durable, tampoco dice donde esta"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Dos casos y no uno a proposito: el primero ata la CONTRADICCION —«sin enlace» y debajo «el enlace apunta a…»— y el segundo el SINTOMA que vio el firmante. Si alguien reescribe la nota y vuelve a colar un valor interno con otras palabras, el segundo sigue cazandolo. El tercero es la INVERSION de selftest.sh:1787, que afirmaba lo contrario."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El espejo reporta el cuerpo mudo cuando ya existe un ref durable",
+      "tests": [
+        "selftest.sh:el espejo ve el cuerpo mudo",
+        "selftest.sh:y dice como se corrige",
+        "selftest.sh:sin ref durable todavia, no acusa",
+        "selftest.sh:sin el resolvedor, se comporta como hoy"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "«sin ref durable todavia, no acusa» es el freno que impide que la comprobacion muerda en PHASE 1, cuando el intake aun no esta commiteado y no hay nada que enlazar. Y «sin el resolvedor» protege a los doce casos que llaman con cuatro argumentos: un undefined no es un «no hay» (RULE-06)."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La reparacion alcanza al cuerpo SIN enlace, no solo al de enlace muerto, y a las allocations terminales",
+      "tests": [
+        "selftest.sh:un cuerpo mudo con ref durable se repara",
+        "selftest.sh:…y sin ref durable NO se toca",
+        "selftest.sh:un issue ajeno no es asunto del tracker",
+        "selftest.sh:un enlace muerto sigue reparandose",
+        "selftest.sh:y uno sano se deja en paz",
+        "selftest.sh:un enlace roto sin salida CONSTA"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/inversa.txt",
+        "salidas/ajeno.txt"
+      ],
+      "verified": true,
+      "nota": "Seis casos, y CUATRO son frenos. AJENO es el que mas importa: refDeEnlace devuelve null tanto para un cuerpo del tracker sin enlace como para cualquier issue escrito a mano, y sin distinguirlos «repara lo mudo» reescribiria issues ajenos — peor que el defecto que corrige. Comprobado ademas sobre issues REALES que el tracker no escribio —uno a mano y tres cuerpos de pull request—: los cuatro dan AJENO y ninguno se toca (salidas/ajeno.txt)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "0 cuerpos mudos y 0 «null» sobre el tablero COMPLETO, con denominador",
+      "tests": [
+        "tracker abrir --aplicar sobre el tablero real",
+        "tracker espejo"
+      ],
+      "evidence": [
+        "salidas/tablero-antes.txt",
+        "salidas/tablero-despues.txt",
+        "salidas/abrir-dry.txt"
+      ],
+      "verified": true,
+      "nota": "115 cuerpos: 113 con enlace absoluto que resuelve —111 a main por SUITE-R51, uno a trabajo y uno a un COMMIT, que es PT-096 y todavia no esta integrada— y dos exentos por SUITE-R44. Cero mudos, cero relativos, cero «null», cero listas en prosa. La cifra ANTES se corrigio dos veces: dije 10 y eran 20 —mi filtro buscaba el sintoma que ya conocia— y escribi «lista en prosa 14 -> 0» ANTES de mirarlo, cuando seguia en 14. Hicieron falta DOS pasadas: la primera arreglo los enlaces (79 cuerpos) y la segunda, tras corregir refDurableDe para cumplir SUITE-R51, republico 111."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria falla SIN el arreglo, con un caso por cada punto",
+      "tests": [
+        "prueba inversa, cambio a cambio"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Cinco retiradas, ninguna en cero. El dato util no es ese: retirar D-11 hace caer TAMBIEN «el espejo ve el cuerpo mudo», y eso es la prueba de que hay una sola fuente. Si hubiera caido solo sus tres casos propios, significaria que compararEspejo conservaba su copia de la guarda — justo lo que se venia a quitar."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Queda escrito donde una persona lo busca, y lo que no procede se declara con motivo",
+      "tests": [
+        "verify-suite.mjs docs/methodology"
+      ],
+      "evidence": [
+        "salidas/verify-suite.txt"
+      ],
+      "verified": true,
+      "nota": "CASOS-DE-USO C5 pasa a cubrir las DOS formas de perder el rastro —el enlace que murio y el que nunca existio— y el MANUAL gana el apartado de que hacer si el issue dice «sin enlace». README y CLAUDE.md NO se tocan y la omision va DECLARADA: README no describe la operacion del tablero en ningun punto, y CLAUDE.md parametriza y no legisla (SUITE-R00) — su seccion Verificacion ya nombra «npm run verify», que incluye verify:espejo."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "Un lote se reconoce igual en los ocho sitios, y su cuerpo no narra la jerarquia",
+      "tests": [
+        "selftest.sh:el lote se reconoce por su ID",
+        "selftest.sh:…y tambien sin «type» ninguno",
+        "selftest.sh:un lote se etiqueta como implementacion",
+        "selftest.sh:el lote va al final aunque su type sea EPIC",
+        "selftest.sh:el cuerpo del lote NO lista sus tareas",
+        "selftest.sh:el cuerpo del lote NO enumera en prosa"
+      ],
+      "evidence": [
+        "salidas/estado.txt",
+        "salidas/selftest-completo.txt",
+        "salidas/tablero-despues.txt"
+      ],
+      "verified": true,
+      "nota": "El arreglo evidente era el equivocado y lo ordeno CONTAR: 14 issues de lote llevaban la lista en prosa que PT-035 declaro defecto y SUITE-R51 prohibe. Que esLote fuera falso para los tres ultimos lotes estaba TAPANDO esa violacion, no causandola. Y el helper no se escribio: ya existia en patrones.mjs:859 con el mismo razonamiento, asi que se EXPORTA — una tercera copia habria sido el defecto en miniatura. Y el codigo cumpliendo no basta: los catorce cuerpos YA PUBLICADOS no se limpiaron hasta D-13, porque su enlace funcionaba y la pasada los saltaba. Un espejo que solo se actualiza cuando se rompe no es un espejo (SUITE-R35)."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que los seis casos de decisionDeEnlace estuvieran en ROJO VALIDO.",
+      "por_que": "La funcion no existia, asi que su fallo previo era «la herramienta revento», que este arnes trata —con razon— como «no verifica nada». FDGE-R17 pide un rojo que falle POR SU ASERCION. Son ESPECIFICACION de comportamiento nuevo, no reproduccion del defecto. Los DIEZ que si estuvieron en rojo valido son los demas.",
+      "donde": "docs/methodology/tools/selftest.sh, en el comentario del bloque"
+    },
+    {
+      "afirmacion": "Que los ocho sitios de tracker.mjs esten cubiertos uno a uno por la inversa.",
+      "por_que": "La retirada de S-4a alcanza a TRES —los que tienen funcion pura exportada—. Los otros cinco (estado, pendiente, indices, contextoCuerpo) no son puros; el de «estado» se comprueba EJECUTANDO el comando y esta en salidas/estado.txt, y los demas quedan sin asercion propia.",
+      "donde": "docs/implementation/evidence/PT-096/salidas/inversa.txt"
+    },
+    {
+      "afirmacion": "Que los seis «type === 'EP'» de verify-fdge.mjs esten bien.",
+      "por_que": "Estan MAL y hoy sin consecuencia, que no es lo mismo. Medido sobre los 19 lotes: solo EP-019 alcanza uno de ellos (:1388, viabilidad) y pasa PORQUE alguien se la registro. El proximo lote que se abra sin registrarla fallara FDGE-R54 como si fuera una tarea. Va a L-3: cambiarlas altera VEREDICTOS de verificacion y merece su propia inversa.",
+      "donde": "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que «tracker asignar» pueda usarse sin desbloquear la fase a mano.",
+      "por_que": "asignar crea la allocation SIN campo «phase» y avanzar hace Number(undefined) -> NaN, con lo que «destino !== actual + 1» es siempre cierto: ninguna tarea creada por asignar puede avanzar. PT-096 es la PRIMERA que se crea con el desde que entro en PT-062. Desbloqueado a mano una vez con su excepcion declarada; el arreglo es de L-1.",
+      "donde": "docs/implementation/SESSION_LOG.md"
+    },
+    {
+      "afirmacion": "Que el «type» canonico de un lote quede declarado.",
+      "por_que": "LEXICON §8.1 enumera el type de una TAREA y no declara ninguno para un lote; el registro guarda tres valores para el mismo hecho. D-1 hace que el arreglo NO dependa de esa decision —deriva del ID, que LEXICON si declara— pero no la toma. Era AC-09 y se RETIRO en la Revision 3: un AC que se declara no cumplido dentro de su propia tarea es un hueco disfrazado de transparencia.",
+      "donde": "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/intake.md, Revision 3"
+    },
+    {
+      "afirmacion": "Que cada URL del tablero devuelva 200.",
+      "por_que": "Se comprueba la FORMA —absoluta, con su ref y su ruta— y que el ref sea uno que git contiene. Pedir la pagina exigiria red en una comprobacion que hoy no la tiene, y es el limite que PT-010 ya declaro.",
+      "donde": "docs/implementation/evidence/PT-096/salidas/tablero-despues.txt"
+    },
+    {
+      "afirmacion": "Que «espejo» reporte una divergencia de TEXTO entre el cuerpo publicado y el derivado.",
+      "por_que": "D-13 hace que «abrir --aplicar» la CORRIJA, pero el espejo compara estado y no cuerpo, asi que sigue haciendo falta ejecutar el comando. Es material de L-7.",
+      "donde": "changes/PT-096-un-enlace-que-falta-no-es-un-enlace-roto/design.md, D-13"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Cai en SUITE-R34 con el aviso delante, y lo dijo la CI en rojo.",
+      "regla": "SUITE-R34",
+      "detalle": "Toque changes/ en dos commits sin volver a sellar el HANDOFF. El bloque «no hacer» de ese mismo archivo lo lleva escrito DOS veces, una diciendo «paso CUATRO veces». Leerlo no basta: es el argumento entero de INC-017 y de L-7 — lo que falta no es una advertencia mejor, es que el acto que escribe en changes/ ESTAMPE, como hace avanzar."
+    },
+    {
+      "que": "Un cambio que compila, corre y miente.",
+      "regla": "—",
+      "detalle": "Al borrar «const esLote = a?.type === 'EP';» de cuerpoDeIssue, la expresion «esLote ? …» paso a referirse a la FUNCION importada: siempre truthy. PT-96 se publico como «Implementacion abierta». Sin error de sintaxis, sin excepcion, sin aviso — el diff solo muestra la linea BORRADA, no las que cambiaron de significado. Lo cazo ejecutar la asercion del encabezado."
+    },
+    {
+      "que": "El arreglo llevaba dentro el defecto que arregla.",
+      "regla": "—",
+      "detalle": "«se repararia el enlace «${ref}» -> «${durable}»» con ref === null habria escrito «null» — dentro del mensaje del arreglo del null. Es la TERCERA vez en este repositorio: PT-095 metio el byte 0x08 en el comentario que advertia del byte 0x08. La zona mas peligrosa de un arreglo es el texto con el que se anuncia, porque nadie la revisa con el cuidado de la logica."
+    },
+    {
+      "que": "Un caso mio habria pasado HOY, por el motivo contrario al que lo justifica.",
+      "regla": "FDGE-R17",
+      "detalle": "TS-04 sin «type:'EP'» en el fixture no es un lote, la lista no se emite y trlibno da verde. Un caso que no puede fallar no prueba nada — la forma barata de «una inversa que sale en cero». Y otro pasaba con la divergencia EQUIVOCADA: sin etiquetas en el fixture, compararEspejo devolvia un SUITE-R35 espurio, asi que el caso habria seguido verde el dia que el cuerpo mudo dejara de detectarse. Los dos se vieron EJECUTANDOLOS."
+    },
+    {
+      "que": "Redescubri una decision que ya estaba tomada en este repositorio.",
+      "regla": "SUITE-R38",
+      "detalle": "Escribi en PHASE 3 que un lote debe reconocerse por su ID y no por «type». patrones.mjs:859 ya lo decia, con la misma cita a SUITE-R38, escrito por quien tropezo antes. Mi D-1 no era un hallazgo: era la segunda copia — justo lo que ese comentario condena. Redescubrir cuesta lo mismo que descubrir y encima no se nota; solo aparecio al ir a buscar DONDE poner una cosa en vez de ponerla donde toca."
+    },
+    {
+      "que": "La herramienta anuncio seis reparaciones donde la medicion decia diez.",
+      "regla": "RULE-06",
+      "detalle": "«try { publicado = cuerpoRemoto(a.issue); } catch { continue; }» convertia «no pude mirar» en «no hay nada que hacer». En una pasada sobre 99 issues, CUATRO lecturas fallaron sin decirlo. Rompe AC-05: «0 cuerpos mudos» habria sido «0 de los que pude leer» publicado como si fuera del tablero entero — el error de muestreo que PT-079 documenta sobre si mismo. Ahora una lectura fallida se declara SIN EVALUAR y entra en el denominador."
+    },
+    {
+      "que": "Escribi «lista en prosa 14 -> 0» en la evidencia ANTES de mirarla.",
+      "regla": "—",
+      "detalle": "La medicion decia 14. Es el error que esta tarea entera persigue, cometido AL INFORMARLA: dar por hecho el efecto de un cambio en vez de medirlo. Se corrigio en el fichero y quedo la explicacion, que resulto ser el hallazgo D-13."
+    },
+    {
+      "que": "refDurableDe no cumplia SUITE-R51, y la regla estaba escrita.",
+      "regla": "SUITE-R51",
+      "detalle": "«El cuerpo enlaza donde el contenido esta: la rama de trabajo mientras la allocation esta viva, LA RAMA POR DEFECTO cuando llega a INTEGRATED». Devolvia siempre la de integracion, asi que una tarea integrada enlazaba a «trabajo» y publicaba «al integrarse pasara a main» sobre trabajo que YA estaba en main. Lo vio mirar el issue #14 recien republicado, no leer la regla — la TERCERA vez en esta tarea que el artefacto publicado encuentra lo que el codigo no."
+    }
+  ],
+  "suite": {
+    "passed": 1251,
+    "failed": 0,
+    "baseline": 1229,
+    "nota": "22 casos netos: 19 nuevos y TRES que cambian de sentido y no se hicieron pasar (selftest.sh:1614, :1787 y :2226). Los tres afirmaban lo que esta tarea corrige."
+  }
+}

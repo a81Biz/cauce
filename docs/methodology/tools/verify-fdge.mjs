@@ -53,6 +53,12 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
 // alcanza. Los dos viven en patrones.mjs porque los usan dos bucles de este archivo, y un
 // criterio escrito dos veces diverge (SUITE-R38).
 import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from './patrones.mjs';
+// PT-098 · la decision de si el arbol sostiene un INTEGRATED es pura y vive en tracker.mjs,
+// junto al mecanismo que la calcula. Aqui solo se consume: una fuente, no dos (SUITE-R38).
+import { estadoContrastado, FASES } from './tracker.mjs';
+// PT-100 · LEX-R27 · un lote se reconoce por su ID. El helper vive en patrones.mjs desde PT-096
+// y aqui quedaban SEIS sitios preguntando por «type», que el registro escribe de tres formas.
+import { CLASE, CAR, esLote } from './patrones.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -95,7 +101,24 @@ const SUITE_VERSION = existsSync(CAMBIOS)
   : null;
 
 const fail = (rule, msg) => errors.push({ rule, msg });
-const warn = (rule, msg) => warnings.push({ rule, msg });
+// PT-109 · INC-010 · UNA COMPUERTA NO ES UNA REVISION SORPRESA.
+//
+// CINCO reglas cambian de severidad segun la compuerta: avisan en una corrida normal y FALLAN en
+// «--gate G4» o «--gate G2». Eso esta BIEN —una precondicion de merge es mas estricta que una
+// revision de paso— y a la vez producia el defecto que la calculadora registro: quien corre
+// verify-fdge sin compuerta ve AVISOS, cree que va bien, y al llegar a la compuerta se encuentra
+// rojos que llevaban ahi desde el principio.
+//
+// El arreglo NO es igualar las severidades —seria endurecer cada revision de paso hasta hacerla
+// inutil, o ablandar G4—. Es DECIRLO: que el aviso nombre la compuerta en la que se convierte en
+// error. Un aviso que no dice en que se va a convertir es una sorpresa aplazada.
+const AVISA_AHORA_FALLA_EN = {
+  'SUITE-R35': 'G4', 'FDGE-R19': 'G4', 'FDGE-R52': 'G4', 'FDGE-R54': 'G2',
+};
+const warn = (rule, msg) => warnings.push({
+  rule,
+  msg: AVISA_AHORA_FALLA_EN[rule] ? `${msg} · AVISO AHORA, ERROR EN ${AVISA_AHORA_FALLA_EN[rule]}.` : msg,
+});
 const ok = (rule, msg) => passed.push({ rule, msg });
 
 const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : null);
@@ -654,12 +677,12 @@ function checkEstado() {
     return;
   }
   const cuerpo = m[1];
-  const faltan = CAMPOS_ESTADO.filter((c) => !new RegExp('^\s*' + c + '\s*:', 'im').test(cuerpo));
+  const faltan = CAMPOS_ESTADO.filter((c) => !new RegExp('^' + CLASE.espacio + '*' + c + CLASE.espacio + '*:', 'im').test(cuerpo));
   if (faltan.length) {
     fail('SUITE-R33', `El bloque ESTADO no declara: ${faltan.join(', ')}. El orden es fijo a propósito: se lee siempre igual y por eso se lee entero.`);
   }
   const vacios = CAMPOS_ESTADO.filter((c) => {
-    const v = cuerpo.match(new RegExp('^\s*' + c + '\s*:[ \t]*(.*)$', 'im'))?.[1]?.trim();
+    const v = cuerpo.match(new RegExp('^' + CLASE.espacio + '*' + c + CLASE.espacio + '*:[ ' + CAR.TAB + ']*(.*)$', 'im'))?.[1]?.trim();
     return v !== undefined && v === '';
   });
   if (vacios.length) fail('SUITE-R33', `Campos del bloque ESTADO en blanco: ${vacios.join(', ')}. «ninguna» es una respuesta; el blanco no dice si no hay o si nadie lo escribió.`);
@@ -704,7 +727,7 @@ function checkEstado() {
 
 function checkImplementacion(reg) {
   const all = Array.isArray(reg?.allocations) ? reg.allocations : [];
-  const abiertas = all.filter((a) => a?.type === 'EP' && a?.status === 'IN_PROGRESS');
+  const abiertas = all.filter((a) => esLote(a) && a?.status === 'IN_PROGRESS');
   if (abiertas.length > 1) {
     fail('FDGE-R48', `${abiertas.length} implementaciones abiertas a la vez (${abiertas.map((a) => a.id).join(', ')}). Con dos, «esto es lo mismo» deja de tener respuesta y el default de FDGE-R49 no significa nada. Cierra una antes de abrir otra.`);
     return;
@@ -714,7 +737,7 @@ function checkImplementacion(reg) {
   ok('FDGE-R48', `${abierta.id} es la única implementación abierta.`);
   // Default invertido: con una abierta, todo PT vivo le pertenece. La excepcion es HOTFIX,
   // porque produccion caida no espera a que se cierre nada.
-  const huerfanos = all.filter((a) => a?.type && a.type !== 'EP' && VIVOS.has(a?.status)
+  const huerfanos = all.filter((a) => a?.type && !esLote(a) && VIVOS.has(a?.status)
     && !a?.epic && String(a?.track ?? '').toUpperCase() !== 'HOTFIX');
   if (huerfanos.length) {
     fail('FDGE-R49', `${abierta.id} está abierta y ${huerfanos.length} PT vivo(s) no declaran su epic: ${huerfanos.map((a) => a.id).join(', ')}. Mientras haya una implementación abierta todo le pertenece; trabajar fuera exige cerrarla o abrir otra, y ambas cosas se dicen. La única excepción es track HOTFIX.`);
@@ -1335,6 +1358,31 @@ function checkPT(pt, { gate } = {}) {
   const suiteDelPT = intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? '0.0.0';
   const rige = (id) => rigeDesde(id, suiteDelPT);
 
+  // ── SUITE-R58 · el registro solo lo escribe el comando ────────────────────
+  //
+  // PT-103 · esto no existia, y es lo que el firmante señalo: las compuertas miran los
+  // PRODUCTOS —que el intake tenga firma, que exista trazabilidad— y NADIE miraba el
+  // PROCEDIMIENTO. `CLAUDE.md`, `CORE.md`, la sesion y el agente no son compuertas: no pueden
+  // fallar. Una allocation escrita a mano queda escrita, y nada la distinguia de una nacida del
+  // comando — salvo que le falten los campos que el comando ahora si escribe.
+  //
+  // Va AQUI y no al principio de checkPT: `rige` se define en esta linea, y una comprobacion
+  // puesta antes revienta la herramienta entera. Es la decima vez en este lote que una
+  // comprobacion se coloca donde su ambito no llega, y la primera que se caza antes de correr.
+  //
+  // AVISA y no falla, y no es indulgencia: durante 41 tareas `asignar` escribio CUATRO campos
+  // de nueve, asi que lo anterior a la regla se escribio cuando el comando NO PERMITIA otra
+  // cosa. Juzgarlo seria retrofechar (SUITE-R09, RIGE_DESDE).
+  if (enRegistroPT && rige('SUITE-R58')) {
+    const exigidos = ['phase', 'status'];
+    if (String(enRegistroPT.type ?? '') === 'BUG') exigidos.push('severity');
+    const faltan = exigidos.filter((c) => enRegistroPT[c] === undefined || enRegistroPT[c] === null);
+    if (faltan.length) {
+      warn('SUITE-R58', `${pt}: la allocation no declara ${faltan.join(', ')} — se escribio sin `
+        + '«tracker asignar», que ahora los escribe. Sin «phase» no se puede avanzar nunca.');
+    }
+  }
+
   // FDGE-R53 · la deriva ocurre en tareas SIN FORMA. Una que declara como termina lo tiene.
   if (rige('FDGE-R53') && !RE_CIERRE.test(intake)) {
     fail('FDGE-R53', `${pt}: el intake no declara cómo termina. Una tarea sin condición de cierre observable no tiene final: se estira hasta que nadie recuerda dónde empezó. Una línea basta — «Termina cuando: …».`);
@@ -1364,9 +1412,85 @@ function checkPT(pt, { gate } = {}) {
   //
   // Exentos: un EP —su ciclo no tiene fases de tarea, y exigirsela seria inventar un dato— y lo
   // ya terminado, que es la misma frontera que FDGE-R52 y FDGE-R19, ahora compartida.
+  // PT-099 · LEX-R08 (H) · la ENTRADA a VALIDATION_PENDING, que nadie vigilaba.
+  //
+  // FDGE-R26 comprueba la SALIDA: un BUG que YA esta en DONE necesita su firma de G3. Un BUG que
+  // llega a la fase de validacion o mas alla SIN haber pasado por VALIDATION_PENDING no esta en
+  // DONE, asi que esa comprobacion no lo mira y «--all» lo verifica limpio.
+  //
+  // Es la forma de PT-096: una comprobacion escrita para un fallo no ve su AUSENCIA. Y la regla
+  // que se saltaba es la de severidad mas alta del LEXICON — «grep -rn LEX-R08 tools/» no
+  // devolvia NADA antes de esto.
+  //
+  // RIGE_DESDE: 51 BUG existentes nunca pasaron por ahi porque el comando no los llevaba. Sin la
+  // fila saldrian los 51 en rojo sin salida, que es lo que PT-095 corrigio para EXEC-R04a.
+  // La fase se deriva de FASES por su NOMBRE, no de un literal: renumerar las fases apagaria un
+  // 7 suelto en silencio (el riesgo que PT-096 documento con su marcador).
+  const FASE_VALIDACION = Number(Object.keys(FASES).find((n) => FASES[n].nombre === 'Validación'));
+  if (rige('LEX-R08') && type === 'BUG' && fase !== null && FASE_VALIDACION && fase >= FASE_VALIDACION) {
+    const st = String(enRegistroPT?.status ?? '');
+    const paso = st === 'VALIDATION_PENDING' || st === 'DONE' || ESTADOS_TERMINALES.has(st);
+    if (!paso) {
+      fail('LEX-R08', `${pt}: es un BUG en PHASE ${fase} y su estado es «${st || '—'}», que no ha pasado por VALIDATION_PENDING. `
+        + 'LEXICON §5.1 declara «IN_REVIEW → VALIDATION_PENDING: tipo BUG · siempre» y FDGE-R26 dice que ahi SE DETIENE: '
+        + 'solo un humano lo lleva a DONE. Un BUG que llega aqui sin pasar por ese estado se salto la unica validacion '
+        + 'humana obligatoria del marco, y hasta ahora nada lo decia.');
+    } else {
+      ok('LEX-R08', `${pt}: BUG que paso por la validacion humana obligatoria.`);
+    }
+  }
+
+  // PT-100 · LEX-R27 · un lote se reconoce por su ID, y el campo «type» no decide nada.
+  //
+  // El registro acumulo TRES respuestas —EP en dieciseis lotes, ausente en dos, EPIC en uno—
+  // porque la pregunta no tenia respuesta declarada, y con eso «tracker estado» perdia una tarea
+  // SIN DECIRLO. LEX-R27 cierra la pregunta declarando la AUSENCIA: un lote no lleva «type».
+  //
+  // Se AVISA y no se falla: los diecinueve lotes historicos lo llevan escrito de tres formas y
+  // SUITE-R09 es append-only — no se retrofecha. Lo que importa es que nadie DEPENDA de el, y de
+  // eso se ocupan los ocho sitios de tracker.mjs (PT-096) y los seis de aqui.
+  if (esLote(enRegistroPT) && enRegistroPT?.type !== undefined) {
+    warn('LEX-R27', `${pt}: es un lote y declara «type: ${enRegistroPT.type}». LEX-R27 declara que un lote NO lleva «type»: se reconoce por su identificador, que el registro asigna y siempre esta. El campo no decide nada desde PT-096 y PT-100, y no se retrofecha (SUITE-R09).`);
+  }
+
+  // PT-098 · SUITE-R08 · un INTEGRATED que el arbol no sostiene.
+  //
+  // LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal», y ese estado exime a
+  // SEIS comprobaciones de este archivo. La exencion es CORRECTA —no exigir bitacora retroactiva
+  // a lo integrado antes de la 5.1.0— y lo que fallaba era el dato: «avanzar» lo escribia sin
+  // mirar nada. INC-011 lo midio en otro repositorio: al corregir dos estados a DONE se
+  // encendieron cinco reglas y CUATRO salieron en rojo sobre trabajo dado por bueno un dia antes.
+  //
+  // Un falso rojo se investiga; un falso VERDE se archiva.
+  if (enRegistroPT?.status === 'INTEGRATED') {
+    const v = estadoContrastado(enRegistroPT, (al) => {
+      // La ruta se compone con «/» siempre: git no entiende separadores de Windows en una
+      // referencia «rama:ruta». Es la cuarta rotura de escapado de esta sesion, y por eso va
+      // como constante y no como replace sobre una ruta del sistema.
+      const dir = `changes/${al?.slug ? `${al.id}-${al.slug}` : String(al?.id)}`;
+      const enRef = (ref) => {
+        try { execFileSync('git', ['cat-file', '-e', `${ref}:${dir}`], { cwd: ROOT, stdio: 'pipe' }); return true; }
+        catch { return false; }
+      };
+      // La rama por defecto se DERIVA de origin/HEAD, como el resto del archivo. Si no se
+      // puede derivar no se inventa: se devuelve null y sale SIN EVALUAR (RULE-06).
+      const gitq = (args) => {
+        try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); }
+        catch { return null; }
+      };
+      const principal = (gitq(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']) ?? '').trim().split('/').pop();
+      if (!principal) return null;
+      const integracion = REGISTRO?.tracker?.rama_integracion ?? 'trabajo';
+      if (enRef(principal) || enRef(`origin/${principal}`)) return true;
+      if (enRef(integracion) || enRef(`origin/${integracion}`)) return false;
+      return null;
+    });
+    if (v) (v.nivel === 'error' ? fail : warn)(v.regla, v.mensaje);
+  }
+
   if (faseDeclarada === null) {
-    if (enRegistroPT?.type === 'EP' || ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
-      warn('SUITE-R08', `${pt}: sin fase declarada — exento (${enRegistroPT?.type === 'EP' ? 'es un lote: su ciclo no tiene fases de tarea' : 'ya terminado: no se retrofecha'}).`);
+    if (esLote(enRegistroPT) || ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+      warn('SUITE-R08', `${pt}: sin fase declarada — exento (${esLote(enRegistroPT) ? 'es un lote: su ciclo no tiene fases de tarea' : 'ya terminado: no se retrofecha'}).`);
     } else {
       fail('SUITE-R08', `${pt}: no declara «phase», y desde 8.0.0 eso ya no es SIN EVALUAR. `
         + 'Declárala en el YAML de su intake.md o en su allocation de REGISTRY.json. Sin fase '
@@ -1385,7 +1509,7 @@ function checkPT(pt, { gate } = {}) {
   // Se exige en G2 —o desde PHASE 5, que es donde empieza el trabajo— y no en G1: antes de
   // PHASE 2 la tarea no tiene complejidad propuesta, y sin complejidad no hay coste tipico con
   // el que comparar. Antes de eso AVISA. Lo ya terminado no se retrofecha (FDGE-R19, FDGE-R52).
-  if (rige('FDGE-R54') && enRegistroPT?.type !== 'EP' && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+  if (rige('FDGE-R54') && !esLote(enRegistroPT) && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
     const viab = enRegistroPT?.viabilidad;
     if (!viab) {
       const m = `${pt}: no consta el veredicto de viabilidad. Consultarla no basta: una compuerta `
