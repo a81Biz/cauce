@@ -15,4 +15,4 @@ Proyectado el 2026-08-21 · 7 allocation(es) viva(s).
 | PT-097 | BUG | DONE | 8 | — | — | e5955b0 |
 | PT-098 | BUG | DONE | 8 | — | — | 25e572a |
 | PT-099 | BUG | DONE | 8 | — | — | d161bc4 |
-| PT-100 | BUG | DRAFT | 6 | — | — | — |
+| PT-100 | BUG | VALIDATION_PENDING | 7 | — | — | — |
