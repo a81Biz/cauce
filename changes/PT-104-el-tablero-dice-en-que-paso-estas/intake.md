@@ -7,7 +7,7 @@ type: FEATURE
 severity: S1
 complexity:
 track: STANDARD
-status: DONE
+status: INTEGRATED
 phase: 8
 created: 2026-08-21
 origin: DIRECT

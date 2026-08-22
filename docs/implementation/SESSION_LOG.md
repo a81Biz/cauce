@@ -3229,3 +3229,46 @@ conoce— **un sitio más**. Y confirma lo que aquella tarea declaró como no es
 formas más de declarar una versión existen; se conocen dos».
 
 Ahora se conocen **tres**. Actualizado a mano para poder sellar, y abierto como tarea.
+
+---
+
+## 2026-08-22 · El cierre de `EP-019` no habia llegado a `main`, y cuatro comprobaciones lo dijeron
+
+Sesion de **PHASE 0** sobre un lote que el registro daba por cerrado. Lo que se midio antes de
+tocar nada:
+
+```
+origin/main       EP-019 DRAFT · PT-096..PT-112 DONE
+rama de tarea     EP-019 CLOSED · PT-096..PT-112 INTEGRATED
+```
+
+El commit de cierre `d0c8d6c` nunca salio de `chore/alberto-martinez/EP-019-cierre`, y el push
+directo a `trabajo` lo **rechaza la proteccion de rama**: `required_status_checks` exige el check
+`marco`, y `verificacion.yml` solo corre en `push` a `main` y en `pull_request`. Una rama
+protegida no admite push directo **por diseno**, no por un fallo: la via es el pull request.
+
+**`verify-fdge --all`: 34 errores**, en dos familias de diecisiete.
+
+**Diecisiete `SUITE-R35`.** Los `intake.md` decian `status: DONE` con el registro en
+`INTEGRATED`. La transicion `DONE -> INTEGRATED` ocurre **al mergear**, fuera de toda fase, y
+**ningun comando la escribe en el YAML**: `avanzar` sincroniza las dos fuentes pero se niega sobre
+un estado terminal — correctamente. Sincronizado a mano, que es justo lo que `PT-105` existe para
+impedir. **No hay comando, y se declara.**
+
+**Diecisiete `SUITE-R43`.** Ninguno era un comentario humano. El de cierre —«Integrado en `main` ·
+suite 12.0.0 · tag `v12.0.0`»— se publico con `gh issue comment`, **fuera de la herramienta**, asi
+que salio sin `MARCA_AGENTE` y el marco dejo de reconocer como suyo lo que el mismo habia escrito.
+Resuelto con una nota marcada por issue; el comentario anterior **no se edita** (`SUITE-R09`).
+
+Y ese texto afirmaba un **tag `v12.0.0` que no existe**: el ultimo del repositorio es `v9.0.0`.
+
+**`sellar` encontro la cuarta.** El `CHANGELOG` de la `12.0.0` decia «Doce tareas» con diecisiete
+en el registro, y su lista de reglas nuevas omitia `SUITE-R59` — nacida en `PT-101`, **dentro de
+este lote**. La comprobacion que lo caza es la que `EP-018` escribio: que la guia **enumere**, no
+que exista.
+
+**Las cuatro son la misma clase**: un acto hecho **fuera del comando** no deja el rastro que el
+comando habria dejado. Es la fila con la que abre `EP-020`.
+
+**Lo que queda y no es del agente:** `/graphify` (`FDGE-R32` · grafo `SUSPECT`), `SELLO.md` con los
+cinco resueltos, los dos merges y el tag (`SUITE-R06a`, `EXEC-R04`).

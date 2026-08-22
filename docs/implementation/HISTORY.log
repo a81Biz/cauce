@@ -6236,3 +6236,134 @@ ninguna de las once tareas anteriores la tomo.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
 
+
+## EP-019 — CERRADO: lo que tres proyectos encontraron
+Fecha: 2026-08-22 · Estado: CLOSED · Version: 12.0.0
+Estructural: si
+
+Que se pidio: cerrar los veinte defectos que aparecieron al EJECUTAR el marco fuera de el —dos
+declarados al cerrar PT-095, seis en el proyecto legado 4.12.0 y doce en la calculadora durante el
+primer ciclo FQAGE completo— y las tres causas que los producen.
+
+DIECISIETE TAREAS, PT-096 a PT-112, todas INTEGRATED. Diez venian en el reparto y SIETE salieron de
+ejecutar las otras:
+
+  PT-103  el registro solo lo escribe el comando        senalado por el firmante
+  PT-104  el tablero dice en que paso estas             senalado por el firmante
+  PT-105  el estado que una compuerta exige             de APLICAR PT-103
+  PT-107  el registro no se reescribe entero       S0   de PERDER PT-106
+  PT-108  la tercera forma de declarar la version       de SELLAR
+  PT-110  sellar mide lo que exige                      de la SEPTIMA caida de FND-R14
+  PT-111  el espejo compara lo que se lee               de RESOLVER EL CIERRE
+
+SEIS REGLAS NUEVAS, todas HARD: PTSA-R81 · PTSA-R82 · LEX-R27 · LEX-R28 · SUITE-R58 · SUITE-R59.
+Y DIECINUEVE dejaron de juzgar hacia atras (PT-106), derivadas del arbol y no del CHANGELOG: dos
+de cada diez discrepaban entre cuando se REDACTO una regla y desde cuando JUZGA.
+
+LA FORMA QUE MAS SE REPITIO, tres veces y en tres tareas distintas:
+
+  EP-007   existe «tracker siguiente»    y nada lo echa en falta    -> PT-104
+  PT-110   existe «tracker inventario»   y sellar no lo miraba
+  PT-111   existe «abrir --aplicar»      y el espejo no lo echa en falta
+
+No faltaban herramientas: FALTABA QUE ALGO LAS ECHARA DE MENOS. Es el mismo hueco que el lote
+persigue, cometido dentro del lote.
+
+LO QUE EL FIRMANTE NOMBRO TRES VECES, y las tres tenia razon:
+
+  el grafo no se usa            SUSPECT seis tareas, usado CERO      dio el diagnostico de PT-102
+  problemas con los escapes     27 roturas en 5 comentarios sin sumar  PT-101 · SUITE-R59
+  nada te obliga a seguir el marco   «asignar» escribia 4 campos de 9  PT-103 -> PT-105 -> PT-107
+
+LO QUE EL LOTE NO CERRO, declarado y no escondido:
+
+· L-7 (PT-109) cierra DOS de cinco defectos de forma; L-8 (PT-112) UNO de tres.
+· Cinco de los quince INC —INC-003, INC-005, INC-007, INC-013, INC-014— viven en el
+  INCIDENTS.log de la calculadora, que no esta en esta maquina. Arreglar «algo parecido» seria
+  inventar el defecto y su arreglo a la vez.
+· La fila del cuarto proyecto desde npm: el paquete publicado sigue siendo la 11.0.0. Se resuelve
+  cuando exista un paquete 12.0.0, y publicar es acto del firmante.
+
+LO QUE APARECIO AL CERRAR EL LOTE, y es la cuarta vez que el cierre destapa mas que el reparto:
+
+  1  el estado terminal NO LLEGO A main. El merge de PR #214 subio el trabajo; el commit que
+     apunta CLOSED/INTEGRATED se quedo en la rama de la tarea. main declaraba EP-019 en DRAFT y
+     sus diecisiete tareas en DONE mientras aqui estaban cerradas.
+  2  DIECISIETE intake.md decian «status: DONE» con el registro en INTEGRATED. La transicion
+     DONE -> INTEGRATED ocurre AL MERGEAR, fuera de toda fase, y NINGUN comando la escribe en el
+     YAML: «avanzar» sincroniza las dos fuentes y no puede correr sobre un estado terminal.
+     Sincronizado a mano, que es exactamente lo que PT-105 existe para impedir.
+  3  el comentario de cierre —«Integrado en main · suite 12.0.0 · tag v12.0.0»— se escribio con
+     «gh issue comment», FUERA DE LA HERRAMIENTA, y por eso salio sin MARCA_AGENTE. Resultado:
+     SUITE-R43 conto un comentario humano sin responder en los DIECISIETE issues. Ninguno lo era.
+     Y el texto afirmaba un tag «v12.0.0» QUE NO EXISTE: el ultimo del repositorio es v9.0.0.
+  4  el CHANGELOG de la 12.0.0 decia «Doce tareas» con diecisiete en el registro, y su lista de
+     reglas nuevas omitia SUITE-R59 —nacida en PT-101, dentro de este lote—. Lo cazo «sellar»,
+     que desde EP-018 comprueba que la guia ENUMERE y no solo que exista.
+
+LOS CUATRO SON LA MISMA CLASE: un acto que se hace FUERA del comando no deja el rastro que el
+comando habria dejado. Es la fila que abre EP-020.
+
+Compuertas: G1 resuelta el 2026-08-21 · G2 y G3 delegadas POR LOTE con constancia en
+  SESSION_LOG.md · G4 y el tag: del firmante, sin delegar · PUBLICAR: pendiente.
+Trazabilidad externa: issue #189 · sub-issues #191..#212 (no contiguos)
+
+## EP-019 — CORRIGE: la 12.0.0 SI esta publicada, y lo que falto es el tag
+Fecha: 2026-08-22
+Corrige: la entrada «EP-019 — CERRADO» de esta misma fecha
+
+LO QUE ESA ENTRADA DIJO MAL. Escribi «el paquete publicado sigue siendo la 11.0.0», copiado de
+la Revision 5 del intake, que se escribio ANTES. Es falso, y lo senalo el firmante:
+
+  @a81biz/cauce@12.0.0   npm   2026-08-22T21:39:02Z
+  corrida                publicar.yml #32600060157 · workflow_dispatch · main
+  commit                 5b184af · Merge pull request #214
+  ocho compuertas        todas en verde
+
+SUITE-R09 · no se edita la entrada anterior: se corrige con esta, que la referencia.
+
+LO QUE SI FALTA, Y NO ES UN DESPISTE DE ESTA VEZ:
+
+  npm      4.13.0 · 5.0.0 · 5.1.0 · 5.2.1 · 5.2.2 · 5.2.3 · 6.0.1 · 7.1.0 · 8.2.0 · 11.0.0 · 12.0.0
+  tags     ...                                                        v8.2.0 · v9.0.0
+  releases NINGUNA
+
+TRES VERSIONES SEGUIDAS SIN TAG —10.0.0, 11.0.0 y 12.0.0—, y DOS DE ELLAS ESTAN EN NPM. El paso 8
+de «sellar» lo declara acto humano despues del merge; ningun paso de ningun workflow lo ejecuta y
+ningun verificador lo echa en falta. Es la forma del lote otra vez: no falta la herramienta, falta
+que algo la eche de menos.
+
+Y TIENE CONSECUENCIA MEDIBLE: «sellar» cuenta la deuda acumulada desde el ultimo tag. Sin
+v10/v11/v12 la cuenta corre contra v9.0.0.
+
+LO QUE SE PUBLICO CON UN HUECO. Bajado el tarball y comprobado:
+
+  package/docs/methodology/RULES.md      SUITE-R59   1 vez
+  package/docs/methodology/CORE.md       SUITE-R59   2 veces
+  package/docs/methodology/CHANGELOG.md  SUITE-R59   CERO
+
+Un proyecto destino que instale la 12.0.0 recibe una regla HARD, la carga en CORE, y no encuentra
+una sola linea que se la explique. Es EXACTAMENTE lo que el paso 1 de «sellar» existe para
+impedir —la comprobacion que EP-018 escribio, que la guia ENUMERE y no solo que exista— y
+publicar.yml NO EJECUTA «sellar» en ningun paso.
+
+POR QUE LAS OCHO COMPUERTAS DIERON VERDE, y esta es la parte grave. En publicar.yml el paso
+«Cumplimiento FDGE de todos los PT» NO LLEVA GH_TOKEN: solo lo lleva el paso del espejo. Sin
+acceso a la plataforma, «tracker pendiente» sale 3 y SUITE-R43 se resuelve como SIN EVALUAR. La
+corrida lo dice, 108 veces:
+
+  ! SUITE-R43   PT-001: sin acceso a la plataforma, los comentarios del issue #3 quedan SIN EVALUAR.
+  ...
+  Sin errores. PTs verificados: 108.
+
+CIENTO OCHO DE CIENTO OCHO. FDGE-R34 llama a esa comprobacion precondicion de G4, y en el
+workflow que autoriza lo unico irreversible del marco corrio CIEGA en la dimension de plataforma.
+verificacion.yml tiene el mismo hueco: su paso «Cumplimiento de los artefactos propios» tampoco
+lleva token.
+
+NO SE AFIRMA que con token la corrida hubiera fallado: sobre el estado de main —EP-019 en DRAFT y
+las diecisiete en DONE— la divergencia de SUITE-R35 no existia. Lo que se afirma es que SUITE-R43
+NUNCA se ha evaluado en CI, en ninguna de las dos corridas, desde que existe.
+
+Las dos filas van a EP-020: el tag es un acto fuera del comando, y el token que falta es un
+verificador que da verde POR NO HABER MIRADO.
