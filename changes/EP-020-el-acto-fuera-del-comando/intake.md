@@ -45,7 +45,7 @@ ledger entero:
 > «es el tropiezo más recurrente y no se ve en ningún lado, solo está en las conversaciones y las
 > reparaciones únicamente son una vez por vez»
 
-### 2.1 Las quince clases, y cuáles no tienen dueño
+### 2.1 Las dieciséis clases, y cuáles no tienen dueño
 
 `D` = declarado en prosa por quien lo vivió · `M` = medido por una herramienta
 
@@ -66,8 +66,25 @@ ledger entero:
 | Un encabezado mal formado bloquea `G4` | 5 `D` | `FDGE-R29` | `verify-fdge` | DECLARADA |
 | Una regla nueva juzga hacia atrás | 19 `M` | `RIGE_DESDE` | `verify-suite` | CERRADA |
 | El cierre destapa más que el reparto | 5 `D` | — | — | **ABIERTA** |
+| **Trabajar sin allocation** | **≥11** `D` | — | **ninguno** | **SIN DUEÑO** |
 
-**Seis clases sin regla y sin verificador.** Las cuatro `CERRADA` siguieron todas el mismo camino
+**La decimosexta la señaló el firmante**, y faltaba por un error mío concreto: la medí en §2.2 —7
+commits, 0 allocations— y no la convertí ni en clase ni en tarea. Es la única de las dieciséis cuyo
+**único detector conocido es una persona**:
+
+```
+PT-082   commits directos a una rama protegida
+PT-094   «empecé a repararlo POR FUERA del marco: sin intake, sin PT y sin issue»   -> lo cortó el firmante
+PT-099   «me obligó a saltarme el marco TRES VECES en esta misma sesión»
+PT-103   «cumplir el marco exigía saltársela. Ocurrió CINCO veces»
+2026-08-22   7 commits sin allocation, y el impulso de arreglar en línea            -> lo cortó el firmante, dos veces
+```
+
+Y el detector es barato y no existía: los **diez** commits del cierre de `EP-019` citan `EP-019`,
+que estaba `CLOSED`, y `FDGE-R19` exige `<type>: PT-XXX` —un `PT`, no un lote—. Nada mira el
+prefijo ni si la allocation citada está viva. Es `PT-127`.
+
+**Siete clases sin regla y sin verificador.** Las cuatro `CERRADA` siguieron todas el mismo camino
 —**contar** → regla en `RULES.md` → verificador que bloquea— y `SUITE-R59` es el caso puro: 27
 fallos vivían en comentarios de cinco archivos, se contaron **una vez**, y dejó de ocurrir.
 
@@ -109,7 +126,7 @@ Cerrar `EP-020` deja:
   desenlace que deje rastro en el registro sin citar la parada que lo produjo.
 - **(b)** `MATRIZ.md` **derivado**, no escrito, y toda clase con recuento **≥ 3** que no tenga
   regla con verificador apareciendo como candidato en el `ROADMAP` **sin que nadie la transcriba**.
-- **(c)** Las seis clases sin dueño de §2.1: o con dueño, o **declaradas** con su número. Ninguna
+- **(c)** Las siete clases sin dueño de §2.1: o con dueño, o **declaradas** con su número. Ninguna
   callada.
 
 ---
@@ -122,7 +139,7 @@ OUT: publicar la conversación literal. La nota es la explicación, no el transc
 OUT: automatizar nada de la lista cerrada de SUITE-R06
 OUT: los candidatos R-001..R-008 del ROADMAP vigente — siguen en DRAFT donde están
 OUT: coordinación de varios agentes a la vez — sigue siendo hueco declarado
-OUT: arreglar las quince clases. Se cierran las que este lote nombra; el resto queda MEDIDO
+OUT: arreglar las dieciséis clases. Se cierran las que este lote nombra; el resto queda MEDIDO
 ```
 
 ---
@@ -146,7 +163,7 @@ He leído el Intake de cada PT listado en §6 y confirmo que todos reflejan mi i
 
 ## 6. PTs que componen el lote `[AGENTE]`
 
-**Las catorce están asignadas desde `REGISTRY.json` y con su issue abierto** (`SUITE-R08`,
+**Las dieciséis están asignadas desde `REGISTRY.json` y con su issue abierto** (`SUITE-R08`,
 `SUITE-R35`), y cada una lleva su `intake.md` con la plantilla ligera (`FDGE-R51`). `DoR-E6` lo
 exige y la primera versión de este intake decía que se asignarían «al empezar cada una»: eso hacía
 la compuerta **inalcanzable**, y lo señaló el firmante.
@@ -160,13 +177,36 @@ la compuerta **inalcanzable**, y lo señaló el firmante.
 | `L-1` | `PT-115` | FEATURE | S1 | **`PARADA` entra al vocabulario y a las reglas.** `LEXICON`: qué es, sus clases de `motivo` y de `desenlace`, dónde vive. `FDGE-R52` pasa a ser su caso particular | `L-0` |
 | `L-2` | `PT-116` | FEATURE | S1 | **`tracker parada`** — el comando que la escribe. Texto largo desde archivo (`SUITE-R59`), `MARCA_AGENTE`, orden por reversibilidad | `L-1` |
 | `L-3` | `PT-117` | FEATURE | S1 | **Todo desenlace cita la parada que lo produjo.** Incluye el caso que el firmante nombró: un defecto hallado a mitad **no se arregla en línea**, abre su `PT`. Segunda red: hook `Stop` | `L-2` |
-| `L-4` | `PT-118` | FEATURE | S1 | **La taxonomía de clases de evento** en `LEXICON`, cerrada, con las quince de §2.1 como semilla. Necesita una **tercera clase de identificador** | `L-1` |
+| `L-4` | `PT-118` | FEATURE | S1 | **La taxonomía de clases de evento** en `LEXICON`, cerrada, con las dieciséis de §2.1 como semilla. Necesita una **tercera clase de identificador** | `L-1` |
 | `L-5` | `PT-125` | INVESTIGATION | S1 | **Clasificar las 131 entradas cerradas** → `EVENTOS.jsonl`, append-only, con **cita textual** y marcado `DECLARADO` | `L-4` `L-13` |
 | `L-6` | `PT-119` | FEATURE | S1 | **`tools/matriz.mjs` deriva `MATRIZ.md`.** Las cifras se derivan (`PT-091`); lo ilegible sale `SIN EVALUAR` | `L-5` |
 | `L-7` | `PT-126` | CHORE | S2 | **Que no envejezca.** `sellar` la mide (patrón de `PT-110`); `FPGE` lee `MATRIZ.md` y toda clase ≥ 3 sin verificador entra como candidato | `L-6` `L-13` |
 | `L-9` | `PT-121` | BUG | S1 | **El viaje de vuelta tras el merge no lo cubre nada**: ningún comando escribe `DONE → INTEGRATED` en el YAML, `FDGE-R19` no define rama para cerrar un lote, ninguna fase lo lleva a la rama por defecto, y faltan tres tags | `L-1` |
 | `L-10` | `PT-122` | BUG | S2 | **El cierre de un lote pasa por el comando.** El comentario lo escribe `tracker` con `MARCA_AGENTE`; los 17 ya escritos no se editan (`SUITE-R09`) | `L-2` |
 | `L-11` | `PT-123` | BUG | S1 | **`BACKLOG.md` dice que se deriva del registro y nada lo deriva.** `tracker indices` cubre `DISCOVERY`, `ENRICHMENT` y `REFACTOR_SCOPE` — **y a él no**. Lleva **cuatro lotes** declarando `EP-015` como implementación abierta | `L-2` |
+
+| `L-14` | `PT-127` | BUG | S1 | **Nada detecta el trabajo sin allocation: sólo lo corta una persona.** Un commit que toca rutas gobernadas cita un ID que existe **y estaba vivo**, con el formato que `FDGE-R19` ya exige | `L-12` |
+| `L-15` | `PT-128` | FEATURE | S1 | **El cursor del recorrido**: dónde estás, de dónde vienes, a dónde vas — y **qué nodos del subárbol NO se han visitado**. Derivado del registro, del árbol y de `PHASES.md`; garantía por **enumeración**, no por consulta | `L-1` |
+
+### El cursor, y por qué es la columna vertebral
+
+Lo pidió el firmante con esta imagen: *«un cursor que nos indique en dónde estamos parados, de
+dónde venimos y a dónde vamos … recorriendo los padres e hijos para no perderse ninguna puerta
+ningún comportamiento»*.
+
+**Sin cursor, una parada es una nota suelta en un flujo. Con cursor, una parada es el DATO de un
+nodo del recorrido.** `L-1` define el nodo, `L-2` lo escribe, `L-15` lo hace navegable — y es lo
+que convierte el lote de «publicar explicaciones» en «no perderse ningún nodo».
+
+El principio no se inventa: `PTSA-R79` ya dice que una auditoría **cierra por enumeración
+completa, no cuando el que busca deja de encontrar**. `L-15` lo aplica a la navegación.
+
+**Desafío declarado** (`INTAKE-R07`): el árbol de cauce **no es binario**. Un lote tiene N tareas y
+una tarea once fases; los punteros son padre, anterior, siguiente e hijos. Se conserva la propiedad
+—no perderse ningún nodo— y no la forma, que aquí mentiría sobre la estructura.
+
+**Y tiene prueba disponible**: recorrer `EP-019` entero y comprobar si el cursor habría nombrado
+los seis nodos que su cierre se saltó. Si no los nombra, el cursor no sirve.
 
 ### Las tres que aparecieron abriendo el lote
 
@@ -191,8 +231,8 @@ L-2 L-3 L-7 L-9 L-10 L-11 L-12    tools/tracker.mjs                 -> SERIALIZA
 L-13                              tools/tracker.mjs + patrones.mjs  -> SERIALIZADO con los de arriba
 L-0 ↔ L-8                         ninguno: L-8 toca workflows, L-0 documentos
 
-Orden:  L-12 -> L-13 -> L-0 -> L-8 -> L-1 -> L-2 -> L-3 -> L-4 -> L-5 -> L-6 -> L-7
-        -> L-9 -> L-10 -> L-11
+Orden:  L-12 -> L-13 -> L-14 -> L-0 -> L-8 -> L-1 -> L-2 -> L-15 -> L-3 -> L-4 -> L-5
+        -> L-6 -> L-7 -> L-9 -> L-10 -> L-11
 ```
 
 **Por qué `L-12` va primera, y no es preferencia.** Mientras el intake de un lote no se pueda leer
@@ -207,7 +247,11 @@ el comando rechace el vocabulario canónico, dos de las catorce no pueden estar 
 que la explique. **`L-8` inmediatamente detrás**, y ese orden importa: es la compuerta que dejó
 salir a `L-0`, y arreglarla **antes** de volver a publicar es lo que impide repetirlo.
 
-Ejecución **secuencial** por defecto (`EXEC-R08`): siete de las catorce tocan `tools/tracker.mjs`.
+**`L-14` va tercera**: mientras nada detecte el trabajo sin allocation, cualquiera de las quince
+restantes puede escribirse fuera del marco sin que nada lo note. **`L-15` va detrás de `L-2`**
+porque el cursor necesita el nodo definido y escrito antes de poder recorrerlo.
+
+Ejecución **secuencial** por defecto (`EXEC-R08`): nueve de las dieciséis tocan `tools/tracker.mjs`.
 
 ## 8. Supuestos compartidos `[AGENTE]`
 
@@ -275,7 +319,7 @@ DoR-E2 criterio de éxito del lote declarado        [~] borrador del agente · f
 DoR-E3 out-of-scope del lote declarado             [~] borrador del agente · falta confirmación
 DoR-E4 firma única presente                        [ ] FALTA — solo del firmante (INTAKE-R06)
 DoR-E5 EP asignado desde REGISTRY.json             [x] EP-020, con tracker asignar
-DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [~] las 14 tienen intake · «firmado por lote» depende de DoR-E4
+DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [~] las 16 tienen intake · «firmado por lote» depende de DoR-E4
 DoR-E7 solapamiento calculado y declarado en BACKLOG.md                      [!] BLOQUEADA · ver abajo
 DoR-E8 observaciones registradas                   [x] O-1..O-9
 

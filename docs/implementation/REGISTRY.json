@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 126,
+    "PT": 128,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3203,6 +3203,28 @@
       "epic": "EP-020",
       "title": "sellar mide la matriz y FPGE la lee",
       "issue": 244
+    },
+    {
+      "id": "PT-127",
+      "slug": "nada-detecta-el-trabajo-sin-allocation",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "Nada detecta el trabajo sin allocation: solo lo corta una persona"
+    },
+    {
+      "id": "PT-128",
+      "slug": "el-cursor-del-recorrido",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar"
     }
   ]
 }
