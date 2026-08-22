@@ -2,9 +2,9 @@
   "pt": "PT-110",
   "type": "BUG",
   "epic": "EP-019",
-  "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "c976c64af2083b6d1c934fb9a1cea84937c13d8f",
   "sha_corto": "c976c64",
@@ -72,8 +72,8 @@
     "docs/methodology/tools/version.mjs",
     "package.json"
   ],
-  "compuerta": null,
+  "compuerta": "G3",
   "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-21"
 }
