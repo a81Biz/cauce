@@ -6236,3 +6236,74 @@ ninguna de las once tareas anteriores la tomo.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
 
+
+## EP-019 — CERRADO: lo que tres proyectos encontraron
+Fecha: 2026-08-22 · Estado: CLOSED · Version: 12.0.0
+Estructural: si
+
+Que se pidio: cerrar los veinte defectos que aparecieron al EJECUTAR el marco fuera de el —dos
+declarados al cerrar PT-095, seis en el proyecto legado 4.12.0 y doce en la calculadora durante el
+primer ciclo FQAGE completo— y las tres causas que los producen.
+
+DIECISIETE TAREAS, PT-096 a PT-112, todas INTEGRATED. Diez venian en el reparto y SIETE salieron de
+ejecutar las otras:
+
+  PT-103  el registro solo lo escribe el comando        senalado por el firmante
+  PT-104  el tablero dice en que paso estas             senalado por el firmante
+  PT-105  el estado que una compuerta exige             de APLICAR PT-103
+  PT-107  el registro no se reescribe entero       S0   de PERDER PT-106
+  PT-108  la tercera forma de declarar la version       de SELLAR
+  PT-110  sellar mide lo que exige                      de la SEPTIMA caida de FND-R14
+  PT-111  el espejo compara lo que se lee               de RESOLVER EL CIERRE
+
+SEIS REGLAS NUEVAS, todas HARD: PTSA-R81 · PTSA-R82 · LEX-R27 · LEX-R28 · SUITE-R58 · SUITE-R59.
+Y DIECINUEVE dejaron de juzgar hacia atras (PT-106), derivadas del arbol y no del CHANGELOG: dos
+de cada diez discrepaban entre cuando se REDACTO una regla y desde cuando JUZGA.
+
+LA FORMA QUE MAS SE REPITIO, tres veces y en tres tareas distintas:
+
+  EP-007   existe «tracker siguiente»    y nada lo echa en falta    -> PT-104
+  PT-110   existe «tracker inventario»   y sellar no lo miraba
+  PT-111   existe «abrir --aplicar»      y el espejo no lo echa en falta
+
+No faltaban herramientas: FALTABA QUE ALGO LAS ECHARA DE MENOS. Es el mismo hueco que el lote
+persigue, cometido dentro del lote.
+
+LO QUE EL FIRMANTE NOMBRO TRES VECES, y las tres tenia razon:
+
+  el grafo no se usa            SUSPECT seis tareas, usado CERO      dio el diagnostico de PT-102
+  problemas con los escapes     27 roturas en 5 comentarios sin sumar  PT-101 · SUITE-R59
+  nada te obliga a seguir el marco   «asignar» escribia 4 campos de 9  PT-103 -> PT-105 -> PT-107
+
+LO QUE EL LOTE NO CERRO, declarado y no escondido:
+
+· L-7 (PT-109) cierra DOS de cinco defectos de forma; L-8 (PT-112) UNO de tres.
+· Cinco de los quince INC —INC-003, INC-005, INC-007, INC-013, INC-014— viven en el
+  INCIDENTS.log de la calculadora, que no esta en esta maquina. Arreglar «algo parecido» seria
+  inventar el defecto y su arreglo a la vez.
+· La fila del cuarto proyecto desde npm: el paquete publicado sigue siendo la 11.0.0. Se resuelve
+  cuando exista un paquete 12.0.0, y publicar es acto del firmante.
+
+LO QUE APARECIO AL CERRAR EL LOTE, y es la cuarta vez que el cierre destapa mas que el reparto:
+
+  1  el estado terminal NO LLEGO A main. El merge de PR #214 subio el trabajo; el commit que
+     apunta CLOSED/INTEGRATED se quedo en la rama de la tarea. main declaraba EP-019 en DRAFT y
+     sus diecisiete tareas en DONE mientras aqui estaban cerradas.
+  2  DIECISIETE intake.md decian «status: DONE» con el registro en INTEGRATED. La transicion
+     DONE -> INTEGRATED ocurre AL MERGEAR, fuera de toda fase, y NINGUN comando la escribe en el
+     YAML: «avanzar» sincroniza las dos fuentes y no puede correr sobre un estado terminal.
+     Sincronizado a mano, que es exactamente lo que PT-105 existe para impedir.
+  3  el comentario de cierre —«Integrado en main · suite 12.0.0 · tag v12.0.0»— se escribio con
+     «gh issue comment», FUERA DE LA HERRAMIENTA, y por eso salio sin MARCA_AGENTE. Resultado:
+     SUITE-R43 conto un comentario humano sin responder en los DIECISIETE issues. Ninguno lo era.
+     Y el texto afirmaba un tag «v12.0.0» QUE NO EXISTE: el ultimo del repositorio es v9.0.0.
+  4  el CHANGELOG de la 12.0.0 decia «Doce tareas» con diecisiete en el registro, y su lista de
+     reglas nuevas omitia SUITE-R59 —nacida en PT-101, dentro de este lote—. Lo cazo «sellar»,
+     que desde EP-018 comprueba que la guia ENUMERE y no solo que exista.
+
+LOS CUATRO SON LA MISMA CLASE: un acto que se hace FUERA del comando no deja el rastro que el
+comando habria dejado. Es la fila que abre EP-020.
+
+Compuertas: G1 resuelta el 2026-08-21 · G2 y G3 delegadas POR LOTE con constancia en
+  SESSION_LOG.md · G4 y el tag: del firmante, sin delegar · PUBLICAR: pendiente.
+Trazabilidad externa: issue #189 · sub-issues #191..#212 (no contiguos)
