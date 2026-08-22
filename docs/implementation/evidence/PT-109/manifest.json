@@ -54,13 +54,13 @@
       "ac": "AC-05",
       "statement": "Los tres INC inaccesibles quedan declarados",
       "tests": [
-        "out-of-scope.md, con el find que no los encuentra"
+        "selftest.sh:…y ya no casa cualquier linea que lo nombre"
       ],
       "evidence": [
-        "changes/PT-109-una-compuerta-no-es-una-revision-sorpresa/out-of-scope.md"
+        "salidas/declarado.txt"
       ],
       "verified": true,
-      "nota": "INC-003, INC-005 e INC-014 viven en el INCIDENTS.log de la CALCULADORA, que no esta en esta maquina. Arreglar «algo parecido» seria inventar el defecto y su arreglo a la vez — exactamente lo que este lote persigue."
+      "nota": "INC-003, INC-005 e INC-014 viven en el INCIDENTS.log de la CALCULADORA, que no esta en esta maquina. Arreglar «algo parecido» seria inventar el defecto y su arreglo a la vez — exactamente lo que este lote persigue. NOTA DE FORMA: la evidencia apuntaba a una ruta del REPOSITORIO y el manifiesto las resuelve relativas a su propia carpeta, asi que FDGE-R23 la vio inexistente. Se copia aqui lo declarado, que es lo que hay que poder leer sin salir de la evidencia."
     }
   ],
   "no_verificado": [

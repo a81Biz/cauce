@@ -42,11 +42,15 @@
       "ac": "AC-04",
       "statement": "La bateria falla sin el arreglo",
       "tests": [
-        "NO CUBIERTO"
+        "selftest.sh:version.mjs ve la version del REGISTRO",
+        "selftest.sh:…y la alinea",
+        "selftest.sh:…sin tocar ningun otro campo"
       ],
-      "evidence": [],
-      "verified": false,
-      "nota": "NO SE ESCRIBIO. La comprobacion se hizo A MANO sobre el registro real; un caso de bateria exigiria un fixture con su propio REGISTRY.json. Es deuda DECLARADA, no un verde: el AC queda sin verificar y se dice."
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "ESCRITO DESPUES, Y LO EXIGIO LA COMPUERTA. Lo habia declarado como deuda —«un caso de bateria exigiria un fixture con su propio REGISTRY.json»— y G4 lo rechazo: un AC sin escenario es un Orphan Criterion (FDGE-R15) y no pasa a integracion. La compuerta tenia razon, y esto es lo que se supone que hacen: NO dejar pasar una deuda por estar declarada. El tercer caso es el NEGATIVO — alinear la version no puede tocar ningun otro campo, y PT-107 demostro EL MISMO DIA lo que cuesta escribir mal ese archivo."
     }
   ],
   "no_verificado": [
@@ -59,14 +63,14 @@
       "afirmacion": "Que esta escritura sea segura frente a otro comando escribiendo a la vez.",
       "por_que": "NO pasa por el cerrojo de PT-107. Declarado, no protegido.",
       "donde": "changes/PT-108-la-version-del-registro-tambien-es-un-contenido/strategy.md"
-    },
-    {
-      "afirmacion": "Que el arreglo este cubierto por la bateria.",
-      "por_que": "AC-04 sin caso. Comprobado a mano; el caso automatico queda pendiente.",
-      "donde": "changes/PT-108-la-version-del-registro-tambien-es-un-contenido/traceability.md"
     }
   ],
   "desviaciones_de_procedimiento": [
+    {
+      "que": "Declare un AC como deuda y la compuerta lo rechazo, con razon.",
+      "regla": "FDGE-R15",
+      "detalle": "AC-04 quedo sin caso de bateria y lo declare —comprobado a mano— creyendo que declararlo bastaba. G4 lo rechazo como Orphan Criterion. Declarar una deuda la hace HONESTA, no la hace PASABLE: una compuerta que aceptara «lo se y lo digo» no seria una compuerta. Se escribio el caso, con su negativo."
+    },
     {
       "que": "Un AC sin caso de bateria, declarado como tal.",
       "regla": "FDGE-R17",
@@ -76,7 +80,7 @@
   "suite": {
     "passed": null,
     "failed": null,
-    "baseline": 1345,
-    "nota": "Sin casos propios: AC-04 declarado sin cubrir."
+    "baseline": 1351,
+    "nota": "Tres casos propios, escritos cuando G4 rechazo el AC declarado como deuda."
   }
 }

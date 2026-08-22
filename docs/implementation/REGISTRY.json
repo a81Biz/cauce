@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 110,
+    "PT": 111,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2479,7 +2479,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-21"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-096",
@@ -2711,7 +2712,8 @@
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-21"
       },
-      "issue": 200
+      "issue": 200,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-103",
@@ -2744,7 +2746,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-21"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-104",
@@ -2756,7 +2759,8 @@
       "severity": "S1",
       "epic": "EP-019",
       "title": "El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida",
-      "issue": 202
+      "issue": 202,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-105",
@@ -2768,7 +2772,8 @@
       "severity": "S1",
       "epic": "EP-019",
       "title": "El estado que una compuerta exige lo escribe un comando, o la compuerta es incumplible",
-      "issue": 203
+      "issue": 203,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-106",
@@ -2780,7 +2785,8 @@
       "severity": "S1",
       "epic": "EP-019",
       "title": "Las que empezaron a juzgar despues: RIGE_DESDE se deriva del arbol, no del CHANGELOG",
-      "issue": 204
+      "issue": 204,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-107",
@@ -2792,7 +2798,8 @@
       "severity": "S0",
       "epic": "EP-019",
       "title": "El registro no se reescribe entero: dos comandos a la vez pierden una allocation en silencio",
-      "issue": 205
+      "issue": 205,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-108",
@@ -2804,7 +2811,8 @@
       "severity": "S2",
       "epic": "EP-019",
       "title": "La version del REGISTRO tambien es un contenido: version.mjs no mira REGISTRY.json",
-      "issue": 208
+      "issue": 208,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-109",
@@ -2816,7 +2824,8 @@
       "severity": "S2",
       "epic": "EP-019",
       "title": "Una compuerta no es una revision sorpresa, y una mencion no es una declaracion",
-      "issue": 209
+      "issue": 209,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
     },
     {
       "id": "PT-110",
@@ -2828,7 +2837,20 @@
       "severity": "S2",
       "epic": "EP-019",
       "title": "Sellar mide lo que exige: el inventario no estaba en la lista",
-      "issue": 210
+      "issue": 210,
+      "branch": "chore/alberto-martinez/PT-097-apertura"
+    },
+    {
+      "id": "PT-111",
+      "slug": "el-espejo-compara-lo-que-se-lee",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "El espejo compara lo que se lee: un titulo divergente no lo ve nadie",
+      "issue": 211
     }
   ]
 }

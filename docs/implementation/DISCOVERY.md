@@ -70,6 +70,6 @@
 | PT-105 | BUG | S1 | DONE | EP-019 | El estado que una compuerta exige lo escribe un comando, o la compuerta es incumplible |
 | PT-106 | BUG | S1 | DONE | EP-019 | Las que empezaron a juzgar despues: RIGE_DESDE se deriva del arbol, no del CHANGELOG |
 | PT-107 | BUG | S0 | DONE | EP-019 | El registro no se reescribe entero: dos comandos a la vez pierden una allocation en silencio |
-| PT-108 | BUG | S2 | DRAFT | EP-019 | La version del REGISTRO tambien es un contenido: version.mjs no mira REGISTRY.json |
-| PT-109 | BUG | S2 | DRAFT | EP-019 | Una compuerta no es una revision sorpresa, y una mencion no es una declaracion |
-| PT-110 | BUG | S2 | DRAFT | EP-019 | Sellar mide lo que exige: el inventario no estaba en la lista |
+| PT-108 | BUG | S2 | DONE | EP-019 | La version del REGISTRO tambien es un contenido: version.mjs no mira REGISTRY.json |
+| PT-109 | BUG | S2 | DONE | EP-019 | Una compuerta no es una revision sorpresa, y una mencion no es una declaracion |
+| PT-110 | BUG | S2 | DONE | EP-019 | Sellar mide lo que exige: el inventario no estaba en la lista |

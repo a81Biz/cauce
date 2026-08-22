@@ -2059,6 +2059,38 @@ chkno "…ni por su negacion"                                "type !== .EP." cat
 
 
 
+
+# ── PT-108 · la version del REGISTRO tambien es un contenido ──────────────────────────────────
+#
+# Encontrado AL SELLAR la 12.0.0: version.mjs alineo los veintiun documentos y el CLAUDE.md, dijo
+# «Todo declara 12.0.0», y REGISTRY.json se quedo en 11.0.0 — lo que dejo el proyecto en MODO
+# RESTRINGIDO (SUITE-R17). Es la TERCERA forma de declarar la version, y es la confirmacion de un
+# «no establecido»: PT-102 encontro dos y escribio «cuantas formas mas existen. Se conocen dos».
+#
+# Este caso se escribio DESPUES, y lo exigio la compuerta. Yo lo habia declarado como deuda —«un
+# caso de bateria exigiria un fixture con su propio REGISTRY.json»— y G4 lo rechazo: un AC sin
+# escenario es un Orphan Criterion (FDGE-R15) y no pasa a integracion. La compuerta tenia razon.
+ver108() { # monta un proyecto con la version desalineada SOLO en el registro
+  local d="$WORK/ver108"; rm -rf "$d"
+  mkdir -p "$d/docs/methodology" "$d/docs/implementation"
+  printf '%s\n' '## 12.0.0 — 2026-08-22' '' 'nada mas' > "$d/docs/methodology/CHANGELOG.md"
+  printf '%s\n' '# uno' '' 'Suite version: **12.0.0**' > "$d/docs/methodology/UNO.md"
+  printf '%s\n' '{' '  "suite_version": "9.9.9",' '  "counters": {},' '  "allocations": []' '}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  node "$SUITE/tools/version.mjs" "$d/docs/methodology" "$@"
+}
+chk   "version.mjs ve la version del REGISTRO"  "REGISTRY.json" ver108
+# El NEGATIVO que impide que «tocar el registro» pase por bueno: alinear la version NO puede
+# tocar ningun otro campo. PT-107 demostro EL MISMO DIA lo que cuesta escribir mal ese archivo —
+# una allocation perdida en silencio— y por eso se reemplaza sobre el TEXTO, no reserializando.
+alinea108() {
+  ver108 --aplicar >/dev/null 2>&1
+  node -e "const r=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));
+           console.log('VER='+r.suite_version+' CLAVES='+Object.keys(r).join(','));" \
+    "$WORK/ver108/docs/implementation/REGISTRY.json"
+}
+chk   "…y la alinea"                            "VER=12.0.0" alinea108
+chk   "…sin tocar ningun otro campo"  "CLAVES=suite_version,counters,allocations" alinea108
 # ── PT-109 · L-7 · una compuerta no es una revision sorpresa ──────────────────────────────────
 #
 # INC-010 · CINCO reglas cambian de severidad segun la compuerta: avisan en una corrida normal y
