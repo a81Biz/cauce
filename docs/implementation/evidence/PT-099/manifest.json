@@ -1,0 +1,120 @@
+{
+  "pt": "PT-099",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "avanzar escribe VALIDATION_PENDING cuando un BUG llega a la fase de validacion",
+      "tests": [
+        "selftest.sh:un BUG en la fase de validacion queda VALIDATION_PENDING",
+        "selftest.sh:…ni un BUG en otra fase"
+      ],
+      "evidence": [
+        "salidas/inversa.txt",
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "La fase se resuelve por su NOMBRE en FASES, no por un 7 suelto: renumerar las fases apagaria un literal en silencio, que es el riesgo que PT-096 documento con su marcador."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "avanzar se DETIENE ahi para un BUG y lo dice en su salida",
+      "tests": [
+        "selftest.sh:un BUG ya validado no vuelve a VALIDATION_PENDING"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "La FASE avanza; el ESTADO se detiene. Mi primer impulso fue detener la fase, que es el mismo error rechazado en PT-098 (A-1): la fase sube porque el trabajo avanzo. Y un BUG ya en DONE no vuelve atras — deshacer una firma humana de G3 al avanzar seria peor que no aplicar la transicion."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "verify-fdge reporta un BUG que llego a la fase de validacion sin pasar por ahi",
+      "tests": [
+        "selftest.sh:verify-fdge vigila la ENTRADA a VALIDATION_PENDING"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "FDGE-R26 vigila la SALIDA —un BUG que YA esta en DONE— y nadie vigilaba la ENTRADA. Es la forma de PT-096: una comprobacion escrita para un fallo no ve su AUSENCIA. Y «grep -rn LEX-R08 tools/» no devolvia NADA antes de esto: la regla de severidad mas alta del LEXICON no tenia una linea de codigo detras."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "RIGE_DESDE: los 51 BUG existentes no se juzgan hacia atras",
+      "tests": [
+        "selftest.sh:…y declara desde cuando rige"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "No es un tramite. 51 BUG nunca pasaron por VALIDATION_PENDING porque el comando no los llevaba; sin la fila saldrian los 51 en rojo SIN SALIDA, porque un estado por el que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez, y la razon entera de que L-5 exista."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Un FEATURE, REFACTOR o CHORE no se detiene",
+      "tests": [
+        "selftest.sh:…y un FEATURE no se detiene"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Sin este caso, «detenerse siempre» pasaria AC-01 y bloquearia todo FEATURE y CHORE del marco. Misma forma que el freno de PT-098."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria falla SIN el arreglo",
+      "tests": [
+        "la prueba inversa, cambio a cambio"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Cinco retiradas, ninguna en cero. Retirar la delegacion en estadoTerminalDe hace caer los dos casos de la ultima fase y NO los de la parada: estan CONECTADOS, no copiados — que es lo que se buscaba al extender en vez de duplicar."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que la escalera COMPLETA de status este aplicada.",
+      "por_que": "avanzar tampoco escribe IN_PROGRESS ni IN_REVIEW. Arreglarla toca el estado de TODAS las tareas, no solo de los BUG, y es mas de lo que esta tarea declara. Lo que si cierra es la transicion que LEXICON marca «siempre» y que una regla HARD de severidad H exige.",
+      "donde": "changes/PT-099-la-transicion-de-un-bug-la-aplica-el-comando/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que ningun otro comando del tracker escriba estado.",
+      "por_que": "INC-006 declara que solo midio «avanzar», y aqui tampoco se auditan los demas.",
+      "donde": "changes/PT-099-la-transicion-de-un-bug-la-aplica-el-comando/context.md §6"
+    },
+    {
+      "afirmacion": "Que no queden mas aserciones del arnes atadas a cifras que crecen.",
+      "por_que": "Se corrigio la de «asignar da un ID» al cruzar PT-100, pero no se ha auditado el resto de la bateria. El patron ya salio DOS veces —al llegar a 20 y al llegar a 100— y la tercera sera igual de silenciosa.",
+      "donde": "docs/implementation/evidence/PT-099/self-review.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Este defecto me obligo a saltarme el marco TRES veces en esta sesion.",
+      "regla": "LEX-R08",
+      "detalle": "PT-096, PT-097 y PT-098 llegaron a DONE porque escribi VALIDATION_PENDING y luego DONE A MANO, declarando la excepcion cada vez en SESSION_LOG.md. No es un hallazgo traido de otro proyecto: es el que hizo falta rodear tres veces para cerrar las tres tareas anteriores de este mismo lote."
+    },
+    {
+      "que": "Puse la comprobacion en checkHistory en vez de checkPT.",
+      "regla": "—",
+      "detalle": "«rige» no existe en ese ambito, asi que verify-fdge REVENTABA y 21 casos salieron como «la herramienta revento: no verifica nada». Eso NO es un rojo, y la distincion existe desde PT-050 precisamente para esto: sin ella habria visto 21 fallos y buscado 21 causas. Y aqui funcionaba —«verify-fdge PT-096» pasa limpio— porque no recorre el camino de «--gate G4». Novena instancia de «probar donde trabajo, no donde se decide»."
+    },
+    {
+      "que": "Una asercion del arnes atada a una cifra que CRECE cayo al cruzar PT-100.",
+      "regla": "—",
+      "detalle": "«asignar da un ID» esperaba «PT-0». Al asignar PT-099 el siguiente paso a ser PT-100 y el caso cayo: no se rompio nada, crecio el contador. El bloque «no hacer» del HANDOFF lo advierte —«pasó al llegar a 20»— y acaba de pasar al llegar a 100. Corregido atandolo a la FORMA. NO se ha auditado si quedan mas."
+    }
+  ],
+  "suite": {
+    "passed": 1286,
+    "failed": 0,
+    "baseline": 1277,
+    "nota": "9 casos netos: 8 nuevos y uno CORREGIDO —«asignar da un ID», que iba atado a «PT-0» y cayo al cruzar PT-100—. No se rompio nada: crecio el contador, que es lo que el bloque «no hacer» advierte desde que paso al llegar a 20."
+  }
+}

@@ -1101,6 +1101,50 @@ export function estadoTerminalDe(a, integrado) {
 }
 
 /**
+ * PT-099 · LEX-R08 (H) · FDGE-R26 · LEXICON §5.1 · la transicion de un BUG la aplica el COMANDO.
+ *
+ * LEXICON declara «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre» y FDGE-R26 dice que un
+ * BUG «transita a VALIDATION_PENDING y ahi SE DETIENE: solo un humano lo lleva a DONE». PHASES
+ * lo situa sin ambiguedad en PHASE 7 · Validacion: «BUG -> VALIDATION_PENDING y PARA».
+ *
+ * Y no lo aplicaba nadie. Medido: 51 BUG en este registro y CERO han pasado por ahi. Los tres en
+ * DONE son PT-096, PT-097 y PT-098 —las tareas de este mismo lote— y los tres se escribieron A
+ * MANO, declarando la excepcion cada vez, porque el comando no lo hacia.
+ *
+ * Ningun verificador cita LEX-R08. FDGE-R26 vigila la SALIDA —un BUG que YA esta en DONE— y nadie
+ * vigilaba la ENTRADA: un BUG que llega a PHASE 9 con otro estado no esta en DONE, asi que la
+ * comprobacion no lo mira y «--all» lo verifica limpio. Es la forma de PT-096: una comprobacion
+ * escrita para un fallo no ve su AUSENCIA.
+ *
+ * EXTIENDE estadoTerminalDe en vez de añadir un segundo sitio que escriba «status». PT-098 acaba
+ * de crear el unico que habia; un segundo seria la averia de SUITE-R38 cometida UNA TAREA despues
+ * de arreglarla.
+ *
+ * La FASE avanza; el ESTADO se detiene. FDGE-R26 dice que el BUG «se detiene», y lo que se
+ * detiene es el estado: el trabajo siguio, asi que la fase sube. Confundirlos fue lo que se
+ * rechazo en PT-098 (A-1) y volvia a aparecer aqui.
+ *
+ * Devuelve null = «no se toca». Misma convencion que estadoTerminalDe.
+ */
+export function estadoDeFase(a, destino, ctx = {}) {
+  // La fase de validacion se identifica por su NOMBRE en FASES, no por un 7 suelto: si alguien
+  // renumera las fases, un literal se apagaria en silencio (el riesgo que PT-096 documento con
+  // su marcador). Hay un caso que ata el numero al nombre.
+  const faseValidacion = ctx.faseValidacion
+    ?? Number(Object.keys(FASES).find((n) => FASES[n].nombre === 'Validación'));
+  const tipo = String(a?.type ?? '');
+  const st = String(a?.status ?? '');
+  if (tipo === 'BUG' && Number(destino) === faseValidacion
+      && st !== 'DONE' && !ESTADOS_TERMINALES.has(st)) {
+    // Un BUG que YA esta en DONE no vuelve atras: deshacer una firma humana de G3 al avanzar de
+    // fase seria peor que no aplicar la transicion.
+    return 'VALIDATION_PENDING';
+  }
+  if (ctx.esFinal) return estadoTerminalDe(a, ctx.integrado);
+  return null;
+}
+
+/**
  * PT-098 · el veredicto que verify-fdge publica sobre un estado terminal.
  * Se separa del efecto, como decisionDeEnlace en PT-096: la decision es pura y comprobable.
  */
@@ -2511,9 +2555,21 @@ function avanzar() {
     //
     // No se NIEGA: escribe lo cierto. Negarse fue el primer diseño y rompia SUITE-R46, que
     // obliga al orden «apuntar el estado terminal, mergear, cerrar despues».
+    // PT-099 · la escalera la aplica el COMANDO. estadoDeFase cubre los dos peldaños que el
+    // marco declara obligatorios: la parada de un BUG en la fase de validacion (LEXICON §5.1,
+    // FDGE-R26, LEX-R08 severidad H) y el terminal que PT-098 derivo del arbol.
+    const enPrincipal = esFinal ? integradoEnPrincipal(a) : null;
+    const nuevoEstado = estadoDeFase(a, destino, { esFinal, integrado: enPrincipal });
+    if (nuevoEstado === 'VALIDATION_PENDING') {
+      a.status = 'VALIDATION_PENDING';
+      // Se DICE, y con la forma que FDGE-R26 exige para la firma. El comando no puede firmar:
+      // un BUG «se detiene» aqui y solo un humano lo mueve.
+      notas.push(`${id}: es un BUG — queda en VALIDATION_PENDING y AHI SE DETIENE (FDGE-R26, LEX-R08). `
+        + `Solo una persona lo lleva a DONE, y al hacerlo registra quien y cuando en la linea `
+        + `«Compuertas:» de HISTORY.log:  G3 ${gitDe(['log', '-1', '--format=%cs']) ?? 'YYYY-MM-DD'} <nombre>`);
+    }
     const terminal = esFinal && !ESTADOS_TERMINALES.has(String(a.status));
     if (terminal) {
-      const enPrincipal = integradoEnPrincipal(a);
       a.status = estadoTerminalDe(a, enPrincipal);
       // Se DICE. Un cambio silencioso de estado es lo que causo el problema: «nadie tuvo que
       // decidirlo» (INC-011).

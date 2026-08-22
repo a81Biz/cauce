@@ -5205,3 +5205,85 @@ LO QUE NO ESTABLECE:
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
 lote y llega al cerrar EP-019.
+
+## PT-099 — La transición de un BUG la aplica el comando, no la memoria
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-2, INC-006 de los tres proyectos
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+LEXICON §5.1 declara «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre», LEX-R08 tiene
+severidad H y FDGE-R26 (HARD) dice que ahi SE DETIENE: solo un humano lo lleva a DONE. PHASES lo
+situa sin ambiguedad en PHASE 7 · Validacion.
+
+Y no lo aplicaba nadie. Medido: 51 BUG en este registro y CERO pasaron por ahi. «grep -rn LEX-R08
+tools/» no devolvia NADA — la regla de severidad mas alta del LEXICON no tenia una linea de codigo
+detras.
+
+ESTE DEFECTO ME OBLIGO A SALTARME EL MARCO TRES VECES EN ESTA MISMA SESION. Los tres BUG en DONE
+del registro son PT-096, PT-097 y PT-098 —las tres tareas anteriores de este lote— y los tres
+llegaron ahi porque escribi VALIDATION_PENDING y luego DONE A MANO, declarando la excepcion cada
+vez. No es un hallazgo traido de otro proyecto: es el que hizo falta rodear para cerrar las tres.
+
+LA REGLA VIGILABA LA SALIDA Y NADIE LA ENTRADA. FDGE-R26 comprueba que un BUG EN DONE lleve su
+firma de G3. Uno que llega a PHASE 9 con READY o IN_REVIEW no esta en DONE, asi que la
+comprobacion no lo mira y «--all» lo verifica limpio. Es la forma exacta de PT-096: una
+comprobacion escrita para un fallo no ve su AUSENCIA. Alli era el enlace muerto contra el enlace
+que falta; aqui es el BUG mal cerrado contra el BUG que nunca se detuvo.
+
+Solucion: «estadoDeFase» EXTIENDE «estadoTerminalDe» —que L-1 creo una hora antes— en vez de
+añadir un segundo sitio que escriba status. Un segundo habria sido la averia de SUITE-R38 cometida
+UNA TAREA despues de arreglarla. La inversa lo confirma: retirar la delegacion hace caer los dos
+casos de la ultima fase y NO los de la parada — estan conectados, no copiados.
+
+LA FASE AVANZA; EL ESTADO SE DETIENE. FDGE-R26 dice que el BUG «se detiene», y mi primer impulso
+fue detener la FASE — el mismo error que rechace en PT-098 (A-1). La fase sube porque el trabajo
+avanzo; lo que se detiene es el status. Confundirlos habria roto el flujo de todas las tareas para
+arreglar el de los BUG.
+
+Y un BUG que YA esta en DONE no vuelve atras: deshacer una firma humana de G3 al avanzar de fase
+seria peor que no aplicar la transicion.
+
+RIGE_DESDE no es un tramite: 51 BUG existentes nunca pasaron por VALIDATION_PENDING porque el
+comando no los llevaba. Sin la fila saldrian los 51 en rojo SIN SALIDA, porque un estado por el que
+no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez, y la razon entera de L-5.
+
+DOS ERRORES MIOS, y los dos los cazo el arnes por su FORMA:
+
+  · Puse la comprobacion en checkHistory en vez de checkPT. «rige» no existe en ese ambito, asi
+    que verify-fdge REVENTABA y 21 casos salieron como «la herramienta revento: no verifica nada».
+    Eso NO es un rojo, y la distincion existe desde PT-050 precisamente para esto. Aqui funcionaba
+    —«verify-fdge PT-096» pasa limpio— porque no recorre el camino de «--gate G4»: NOVENA instancia
+    de «probar donde trabajo, no donde se decide».
+  · Al asignar PT-099 el siguiente ID paso a ser PT-100 y el caso «asignar da un ID» —que esperaba
+    «PT-0»— cayo. No se rompio nada: CRECIO EL CONTADOR. El bloque «no hacer» lo advierte —«paso al
+    llegar a 20»— y acaba de pasar al llegar a 100. Corregido atandolo a la FORMA.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/patrones.mjs ·
+  tools/selftest.sh · inventory/services.md (cifras recalculadas)
+
+Evidencia: docs/implementation/evidence/PT-099/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  la transicion del BUG    ANTES nadie la aplicaba     DESPUES la aplica «avanzar»
+  LEX-R08                  ANTES 0 verificadores       DESPUES verify-fdge, con RIGE_DESDE
+  BUG que se la salta      ANTES verde en «--all»      DESPUES error
+
+Prueba inversa: cinco retiradas, ninguna en cero.
+
+LO QUE NO ESTABLECE:
+
+· Que la escalera COMPLETA este aplicada. «avanzar» tampoco escribe IN_PROGRESS ni IN_REVIEW.
+  Arreglarla toca el estado de TODAS las tareas y no solo de los BUG. Va al «Cierre del lote».
+· Que ningun otro comando del tracker escriba estado. INC-006 solo midio «avanzar».
+· Que no queden mas aserciones atadas a cifras que crecen. Se corrigio una; NO se audito el resto,
+  y el patron ya salio dos veces.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
+lote y llega al cerrar EP-019.

@@ -55,7 +55,7 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
 import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from './patrones.mjs';
 // PT-098 · la decision de si el arbol sostiene un INTEGRATED es pura y vive en tracker.mjs,
 // junto al mecanismo que la calcula. Aqui solo se consume: una fuente, no dos (SUITE-R38).
-import { estadoContrastado } from './tracker.mjs';
+import { estadoContrastado, FASES } from './tracker.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -1367,6 +1367,34 @@ function checkPT(pt, { gate } = {}) {
   //
   // Exentos: un EP —su ciclo no tiene fases de tarea, y exigirsela seria inventar un dato— y lo
   // ya terminado, que es la misma frontera que FDGE-R52 y FDGE-R19, ahora compartida.
+  // PT-099 · LEX-R08 (H) · la ENTRADA a VALIDATION_PENDING, que nadie vigilaba.
+  //
+  // FDGE-R26 comprueba la SALIDA: un BUG que YA esta en DONE necesita su firma de G3. Un BUG que
+  // llega a la fase de validacion o mas alla SIN haber pasado por VALIDATION_PENDING no esta en
+  // DONE, asi que esa comprobacion no lo mira y «--all» lo verifica limpio.
+  //
+  // Es la forma de PT-096: una comprobacion escrita para un fallo no ve su AUSENCIA. Y la regla
+  // que se saltaba es la de severidad mas alta del LEXICON — «grep -rn LEX-R08 tools/» no
+  // devolvia NADA antes de esto.
+  //
+  // RIGE_DESDE: 51 BUG existentes nunca pasaron por ahi porque el comando no los llevaba. Sin la
+  // fila saldrian los 51 en rojo sin salida, que es lo que PT-095 corrigio para EXEC-R04a.
+  // La fase se deriva de FASES por su NOMBRE, no de un literal: renumerar las fases apagaria un
+  // 7 suelto en silencio (el riesgo que PT-096 documento con su marcador).
+  const FASE_VALIDACION = Number(Object.keys(FASES).find((n) => FASES[n].nombre === 'Validación'));
+  if (rige('LEX-R08') && type === 'BUG' && fase !== null && FASE_VALIDACION && fase >= FASE_VALIDACION) {
+    const st = String(enRegistroPT?.status ?? '');
+    const paso = st === 'VALIDATION_PENDING' || st === 'DONE' || ESTADOS_TERMINALES.has(st);
+    if (!paso) {
+      fail('LEX-R08', `${pt}: es un BUG en PHASE ${fase} y su estado es «${st || '—'}», que no ha pasado por VALIDATION_PENDING. `
+        + 'LEXICON §5.1 declara «IN_REVIEW → VALIDATION_PENDING: tipo BUG · siempre» y FDGE-R26 dice que ahi SE DETIENE: '
+        + 'solo un humano lo lleva a DONE. Un BUG que llega aqui sin pasar por ese estado se salto la unica validacion '
+        + 'humana obligatoria del marco, y hasta ahora nada lo decia.');
+    } else {
+      ok('LEX-R08', `${pt}: BUG que paso por la validacion humana obligatoria.`);
+    }
+  }
+
   // PT-098 · SUITE-R08 · un INTEGRATED que el arbol no sostiene.
   //
   // LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal», y ese estado exime a

@@ -3054,3 +3054,57 @@ PUBLICAR          nunca entro, y sigue sin entrar
 
 **Y el mandato:** «no pares hasta terminar la épica» — nueve tareas, de las cuales `L-0` queda
 `DONE` y pendiente de su merge a `trabajo`.
+
+---
+
+## 2026-08-21 · cierre de sesión · cinco de nueve, y por qué se para aquí
+
+**Instrucción literal del firmante, tras ver el estado:** «me parece bien» — sobre la propuesta de
+cerrar `L-2`, empujar las cinco tareas a `trabajo` con su PR, dejar el `HANDOFF` exacto y
+actualizar el `## Cierre del lote`, en vez de forzar el cierre del lote.
+
+Constancia con nombre y forma fija (`EXEC-R04a`): decidido por Alberto Martínez.
+
+**Qué se cierra y qué no.**
+
+```
+CERRADAS   L-0 PT-096 · L-6 PT-097 · L-1 PT-098 · L-2 PT-099
+PENDIENTES L-3 · L-4 · L-5 · L-7 · L-8
+EP-019     sigue DRAFT. Su G4 esta en ROJO con 13+ filas de cierre sin resolver, y eso es
+           CORRECTO: un lote no cierra dejando sin responder lo que el mismo se asigno.
+```
+
+**Por qué no se forzó el cierre.** El firmante pidió antes *«realiza el cierre y el `G4` completo,
+manda todo a `main`»*, y se le contestó con la medición: cinco tareas sin empezar y trece filas
+`PENDIENTES`, ocho de ellas trabajo de esas cinco tareas. Rellenarlas para que la compuerta pase es
+literalmente lo que el bloque `no hacer` de este repositorio prohíbe —*«la compuerta se pondría
+verde sin que nada esté resuelto»*— y lo que `EP-019` existe para impedir.
+
+**El lote creció al ejecutarse, y eso estaba previsto.** `§8` lo declaraba: *«la primera tarea que
+abra su intake puede partir en dos o fundirse con otra, y eso es información, no una desviación
+del plan»*. Las cinco cerradas añadieron **diez filas** al `## Cierre del lote`, todas con su
+medición hecha y su dueño —o declaradas sin dueño— para que quien las tome no repita el trabajo.
+
+**Lo que queda vigente para la próxima sesión:**
+
+```
+delegacion autonoma        G1, G2, G3, cerrar un BUG, tocar docs/methodology/
+merge de tarea a trabajo   es REVISION, no G4 (FDGE-R19, EXEC-R03)
+trabajo -> main            es G4 de EP-019, y llega al CERRAR el lote
+PUBLICAR                   nunca entro, y sigue sin entrar
+```
+
+**Dos excepciones declaradas en esta sesión que siguen abiertas como deuda:**
+
+```
+phase escrito a mano en PT-096    -> lo arregla L-1... y NO lo arreglo: quedo declarado.
+                                    «tracker asignar» sigue creando allocations sin phase
+status escrito a mano x3          -> lo arregla L-2, que SI se cerro. Desde ahora «avanzar»
+                                    aplica la transicion del BUG por si mismo
+```
+
+La primera merece decirse: `L-1` cerró el estado **terminal** y dejó `asignar` sin `phase`
+declarado en su `out-of-scope`. La deuda existe, tiene dueño, y está en la tabla de cierre.
+
+**Lo que esta constancia no prueba.** El agente escribe este archivo. `SUITE-R27`: contrastable,
+no probada.

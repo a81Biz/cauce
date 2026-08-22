@@ -453,3 +453,70 @@ Confirmo que la ampliación del reparto refleja mi intención: SÍ
 
 > **Base de esta firma**, escrita por el agente (`INTAKE-R06`): *«eso debe ser corregido y
 > agregado como tarea y comenzar por ahí»*, 2026-08-21. `SUITE-R27`: contrastable, no probada.
+
+---
+
+## Revisión 2 — 2026-08-21 · lo que las cinco primeras tareas dejaron declarado
+
+> `SUITE-R09` · append-only. La tabla del `## Cierre del lote` **no se reescribe**: esta revisión
+> la **amplía** con lo que apareció ejecutando, y dice de quién es cada cosa.
+
+Cinco tareas cerradas —`L-0`, `L-6`, `L-1`, `L-2` y su medición— destaparon **nueve** cosas que no
+estaban en el reparto original. Ninguna se arregló de paso: cada una lleva dueño o queda aquí.
+
+| Qué | De dónde salió | Estado |
+|:---|:---|:---|
+| El `type` canónico de un lote en `LEXICON` | `L-0` · `EP` ×16, ausente ×2, `EPIC` ×1 | **PENDIENTE** · `L-3` |
+| Los seis `type === 'EP'` de `verify-fdge.mjs` | `L-0` · medidos y hoy latentes | **PENDIENTE** · `L-3` |
+| Que `tracker asignar` escriba `phase` | `L-0` · ninguna tarea creada con él puede avanzar | **PENDIENTE** · `L-1` lo declaró, sigue abierto |
+| Que el espejo **reporte** una divergencia de texto | `L-0` · `abrir --aplicar` la corrige, `espejo` no la ve | **PENDIENTE** · `L-7` |
+| Que `verify-suite` cace **secciones** citadas que no existen | `L-6` · hoy caza reglas, no secciones. Con esto, `§24.2` habría saltado el día que se escribió | **PENDIENTE** · sin dueño |
+| Recalcular el `Risk` publicado (`73`) | `L-6` · se calculó con `H-001` y `H-006` activos; hoy quedan siete y `Σ = 37` | **PENDIENTE** · arrastra `INC-008` |
+| Que `--all` ejerza lo que ejerce `--gate G4` | `L-1` · `INC-010`: «cada compuerta es una revisión sorpresa» | **PENDIENTE** · sin dueño |
+| La escalera **completa** de `status` | `L-2` · `avanzar` tampoco escribe `IN_PROGRESS` ni `IN_REVIEW` | **PENDIENTE** · sin dueño |
+| Auditar las aserciones atadas a cifras que **crecen** | `L-2` · `PT-0` cayó al cruzar `PT-100`. Ya pasó al llegar a 20 | **PENDIENTE** · sin dueño |
+| Que `sellar` recalcule las cifras del inventario | `L-1` `L-2` · `FND-R14` cayó **tres veces** en este lote | **PENDIENTE** · sin dueño |
+
+### Lo que estas cinco tareas **sí** resolvieron
+
+```
+enlaces del tablero      20 cuerpos inutilizables -> 0 · 10 con «null» -> 0 · 14 listas en prosa -> 0
+umbrales de PTSA         §24.2, §24.3 y §24.4 escritas SIN inventar una sola cifra
+                         PTSA-R81 (el minimo) · PTSA-R82 (publicar health_unstable)
+                         la «B» recalculada, y la banda «(75-89)» retirada
+estado terminal          INTEGRATED contrastado con el arbol · 91 de 91 en verde
+                         los 58 sin rama declarada, alcanzados igual
+transicion del BUG       la aplica «avanzar», con su RIGE_DESDE y su verificador
+bateria                  1229 -> 1286 casos · cero fallos · cuatro inversas limpias
+```
+
+### Cinco casos de la batería que **protegían defectos**
+
+No se hicieron pasar: se invirtieron con su motivo, conservando de cada uno la mitad que sí valía.
+
+```
+:1614  la lista en prosa se emite              PT-096
+:1787  la nota se emite sin ref durable        PT-096
+:2226  el cuerpo del lote enumera con su issue PT-096
+:5202  la ultima fase marca INTEGRATED         PT-098
+:5204  …y lo escribe en el YAML                PT-098
+```
+
+**Ya no es una anécdota**: un arreglo anterior deja tests que documentan el estado anterior, y
+nadie vuelve a mirarlos hasta que el siguiente los rompe. Es candidato a fila propia si vuelve a
+salir en `L-3`…`L-8`.
+
+### Lo que esta revisión NO establece
+
+Que el reparto de nueve siga siendo el correcto. Cinco de las nueve están hechas y han añadido
+diez filas a esta tabla: el lote **crece al ejecutarse**, que es lo que `§8` ya declaraba —*«la
+primera tarea que abra su intake puede partir en dos o fundirse con otra, y eso es información, no
+una desviación del plan»*—.
+
+Lo que sí establece: **ninguna de las diez se arregló de paso**, y cada una consta con su medición
+hecha para que quien la tome no repita el trabajo.
+
+```
+Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
+Fecha: 2026-08-21
+```

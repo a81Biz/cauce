@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 98,
+    "PT": 99,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2580,6 +2580,39 @@
         "fecha": "2026-08-21"
       },
       "issue": 196
+    },
+    {
+      "id": "PT-099",
+      "slug": "la-transicion-de-un-bug-la-aplica-el-comando",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "La transicion de un BUG la aplica el comando, no la memoria",
+      "origin": "INC-006 de los tres proyectos. LEXICON §5.1 declara «IN_REVIEW -> VALIDATION_PENDING: tipo BUG · siempre» y FDGE-R26 (HARD, citando LEX-R08) dice que un BUG transita a VALIDATION_PENDING y ahi SE DETIENE: solo un humano lo lleva a DONE. Medido: «avanzar» toca «status» en UN SOLO sitio —la ultima fase— y VALIDATION_PENDING no se escribe NUNCA; el tipo del PT no se consulta en ningun punto de la transicion. Y ningun verificador cita LEX-R08: FDGE-R26 solo mira un BUG que YA esta en DONE, asi que uno que llegue a PHASE 9 con otro estado se verifica LIMPIO. Medido en este registro: 51 BUGs, 48 INTEGRATED y 3 DONE, y CERO han pasado por VALIDATION_PENDING. Los tres DONE son PT-096, PT-097 y PT-098 —los de este mismo lote— y los tres los escribi A MANO declarando la excepcion cada vez, porque el comando no lo hace. La regla H que protege el unico caso donde el marco exige validacion humana obligatoria no la aplica el comando que cambia de fase ni la comprueba el verificador que guarda la compuerta.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 197
     }
   ]
 }

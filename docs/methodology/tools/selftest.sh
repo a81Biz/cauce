@@ -1992,6 +1992,42 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 # CARACTERES (PT-085, PT-090) — y ademas, al fallar, dice QUE regla aparecio en vez de «no caso».
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
+# ── PT-099 · LEX-R08 (H) · FDGE-R26 · la transicion de un BUG la aplica el COMANDO ────────────
+#
+# LEXICON §5.1 declara «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre» y FDGE-R26 dice
+# que ahi SE DETIENE: solo un humano lo lleva a DONE. PHASES lo situa en PHASE 7 · Validacion.
+#
+# Y no lo aplicaba nadie. Medido: 51 BUG en el registro y CERO pasaron por ahi. Los tres en DONE
+# son PT-096, PT-097 y PT-098 —las tareas de este mismo lote— y los tres se escribieron A MANO
+# declarando la excepcion cada vez, porque el comando no lo hacia.
+#
+# Ningun verificador citaba LEX-R08, la severidad mas alta del LEXICON. FDGE-R26 vigila la SALIDA
+# —un BUG que YA esta en DONE— y nadie vigilaba la ENTRADA: uno que llega a PHASE 9 con otro
+# estado no esta en DONE, asi que no lo mira y «--all» lo verifica limpio. Es la forma de PT-096:
+# una comprobacion escrita para un fallo no ve su AUSENCIA.
+trlib "un BUG en la fase de validacion queda VALIDATION_PENDING"  "^VALIDATION_PENDING$"  "console.log(m.estadoDeFase({type:'BUG',status:'IN_PROGRESS'},7,{}))"
+# EL FRENO. Sin este, «detenerse siempre» pasaria el de arriba y bloquearia todo FEATURE y CHORE
+# del marco. Es la misma forma que el freno de PT-098.
+trlib "…y un FEATURE no se detiene"                    "^NADA$"  "console.log(m.estadoDeFase({type:'FEATURE',status:'IN_PROGRESS'},7,{}) ?? 'NADA')"
+# El segundo freno: la transicion es de UNA fase, no de cualquier avance.
+trlib "…ni un BUG en otra fase"                        "^NADA$"  "console.log(m.estadoDeFase({type:'BUG',status:'IN_PROGRESS'},5,{}) ?? 'NADA')"
+# El tercero, y el mas importante: un BUG que YA esta en DONE no vuelve atras. Deshacer una firma
+# humana de G3 al avanzar de fase seria peor que no aplicar la transicion.
+trlib "un BUG ya validado no vuelve a VALIDATION_PENDING"  "^NADA$"  "console.log(m.estadoDeFase({type:'BUG',status:'DONE'},7,{}) ?? 'NADA')"
+# Y el cuarto: lo que PT-098 dejo sigue funcionando. estadoDeFase EXTIENDE estadoTerminalDe en vez
+# de añadir un segundo sitio que escriba status — un segundo seria la averia de SUITE-R38
+# cometida UNA TAREA despues de arreglarla.
+trlib "la ultima fase sigue dando DONE sin merge"      "^DONE$"        "console.log(m.estadoDeFase({type:'BUG',status:'VALIDATION_PENDING'},10,{esFinal:true,integrado:false}))"
+trlib "…y INTEGRATED con merge"                        "^INTEGRATED$"  "console.log(m.estadoDeFase({type:'BUG',status:'VALIDATION_PENDING'},10,{esFinal:true,integrado:true}))"
+# RIE-3 · la fase se resuelve por su NOMBRE en FASES, no por un 7 suelto: renumerar las fases
+# apagaria un literal en silencio. Es el riesgo que PT-096 documento con su marcador.
+trlib "la fase de validacion sale de FASES, no de un literal"  "Validación"  "console.log(Object.values(m.FASES).map((f)=>f.nombre).join(' '))"
+# Y la comprobacion existe. ROJO VALIDO hoy: «grep -rn LEX-R08 tools/» no devolvia nada.
+chk "verify-fdge vigila la ENTRADA a VALIDATION_PENDING"  "LEX-R08" cat "$SUITE/tools/verify-fdge.mjs"
+# RIGE_DESDE · sin la fila, los 51 BUG existentes saldrian en rojo SIN SALIDA: un estado por el
+# que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez.
+chk "…y declara desde cuando rige"                        "'LEX-R08'" cat "$SUITE/tools/patrones.mjs"
+
 # ── PT-098 · SUITE-R08 · LEXICON §5.1 · el estado terminal se deriva del arbol ────────────────
 #
 # «avanzar --a <ultima>» escribia INTEGRATED sin mirar nada, y ese estado APAGA SEIS
@@ -3989,7 +4025,14 @@ PL "…y al otro"                           "\"b\":\"B\""  "console.log(JSON.str
 PL "sin solapes, lista vacia"             "^0$"      "console.log(m.solapes([{nombre:\"A\",rango:{PT:[1,10]}},{nombre:\"B\",rango:{PT:[11,20]}}]).length)"
 
 # E13-E16 · la accion, sobre el repositorio REAL.
-chk   "asignar da un ID"                  "PT-0"     TRR asignar PT --slug prueba --ver
+# PT-099 · la asercion iba atada a «PT-0», que dejo de casar al cruzar PT-100. Es exactamente lo
+# que el bloque «no hacer» del HANDOFF advierte: «atar una asercion del arnes a una cifra que
+# CRECE fallara algun dia sin que eso signifique nada». Paso al llegar a 20 con «1[0-9] tareas
+# cerradas», y vuelve a pasar al llegar a 100.
+#
+# Se ata a la FORMA —tres digitos tras «PT-»— que es lo que el caso queria comprobar: que asignar
+# devuelve un identificador, no cual.
+chk   "asignar da un ID"                  "PT-[0-9][0-9][0-9]"     TRR asignar PT --slug prueba --ver
 # AC-03 · decision 2 del firmante: el identificador NO se namespacea.
 chkno "…y NO lleva el nombre de nadie"    "alberto"  TRR asignar PT --slug prueba --ver
 chk   "…y dice de donde sale"             "contador global\|del rango de"  TRR asignar PT --slug prueba --ver

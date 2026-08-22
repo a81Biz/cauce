@@ -127,6 +127,11 @@ export const RIGE_DESDE = {
   'SUITE-R09': [11, 0, 0],  // el ledger no pierde lineas · el verificador nace con EP-018
   'EXEC-R04':  [11, 0, 0],  // la G4 deja constancia · 18 merges historicos sin ella
   'EXEC-R04a': [11, 0, 0],  // la constancia tiene forma fija · nace con EP-018
+  // PT-099 · la entrada a VALIDATION_PENDING se vigila desde 12.0.0. La REGLA es vieja
+  // —LEX-R08 severidad H, FDGE-R26 HARD— pero nadie la aplicaba: 51 BUG del registro y CERO
+  // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
+  // que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez.
+  'LEX-R08': [12, 0, 0],
 };
 
 /**
