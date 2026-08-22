@@ -250,7 +250,7 @@ DoR-E4 firma única presente                        [ ] FALTA — solo del firma
 DoR-E5 EP asignado desde REGISTRY.json             [x] EP-020, con tracker asignar
 DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [ ] solo L-0
 DoR-E7 solapamiento calculado y declarado en BACKLOG.md                      [!] BLOQUEADA · ver abajo
-DoR-E8 observaciones registradas                   [x] O-1..O-8
+DoR-E8 observaciones registradas                   [x] O-1..O-9
 
 VEREDICTO: FAIL
 Motivo: falta la firma del bloque §5 y la confirmación de §1, §3 y §4. Sin firma el lote no
