@@ -22,4 +22,4 @@ Proyectado el 2026-08-21 · 14 allocation(es) viva(s).
 | PT-104 | FEATURE | DONE | 8 | — | — | — |
 | PT-105 | BUG | DONE | 8 | — | — | — |
 | PT-106 | BUG | DONE | 8 | — | — | — |
-| PT-107 | BUG | DRAFT | 6 | — | — | — |
+| PT-107 | BUG | VALIDATION_PENDING | 8 | — | — | — |
