@@ -3059,7 +3059,8 @@
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "El cuerpo del issue no se republica cuando aparece la ref durable"
+      "title": "El cuerpo del issue no se republica cuando aparece la ref durable",
+      "issue": 232
     },
     {
       "id": "PT-115",
@@ -3070,7 +3071,8 @@
       "type": "FEATURE",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "PARADA entra al vocabulario y a las reglas"
+      "title": "PARADA entra al vocabulario y a las reglas",
+      "issue": 233
     },
     {
       "id": "PT-116",
@@ -3081,7 +3083,8 @@
       "type": "FEATURE",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "tracker parada: el comando que escribe la parada en su tarea"
+      "title": "tracker parada: el comando que escribe la parada en su tarea",
+      "issue": 234
     },
     {
       "id": "PT-117",
@@ -3092,7 +3095,8 @@
       "type": "FEATURE",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "Todo desenlace cita la parada que lo produjo"
+      "title": "Todo desenlace cita la parada que lo produjo",
+      "issue": 235
     },
     {
       "id": "PT-118",
@@ -3103,7 +3107,8 @@
       "type": "FEATURE",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "La taxonomia de clases de evento, cerrada, en LEXICON"
+      "title": "La taxonomia de clases de evento, cerrada, en LEXICON",
+      "issue": 236
     },
     {
       "id": "PT-119",
@@ -3114,7 +3119,8 @@
       "type": "FEATURE",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "tools/matriz.mjs deriva MATRIZ.md"
+      "title": "tools/matriz.mjs deriva MATRIZ.md",
+      "issue": 237
     },
     {
       "id": "PT-120",
@@ -3125,7 +3131,8 @@
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN"
+      "title": "publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN",
+      "issue": 238
     },
     {
       "id": "PT-121",
@@ -3136,7 +3143,8 @@
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "El viaje de vuelta tras el merge no lo cubre ninguna fase"
+      "title": "El viaje de vuelta tras el merge no lo cubre ninguna fase",
+      "issue": 239
     },
     {
       "id": "PT-122",
@@ -3147,7 +3155,8 @@
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-020",
-      "title": "El cierre de un lote pasa por el comando, no por la mano"
+      "title": "El cierre de un lote pasa por el comando, no por la mano",
+      "issue": 240
     },
     {
       "id": "PT-123",
@@ -3158,7 +3167,8 @@
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "BACKLOG.md dice que se deriva del registro y nada lo deriva"
+      "title": "BACKLOG.md dice que se deriva del registro y nada lo deriva",
+      "issue": 241
     },
     {
       "id": "PT-124",
@@ -3169,7 +3179,8 @@
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "tracker asignar rechaza tres de los cinco tipos que LEXICON declara"
+      "title": "tracker asignar rechaza tres de los cinco tipos que LEXICON declara",
+      "issue": 242
     },
     {
       "id": "PT-125",
@@ -3179,7 +3190,8 @@
       "phase": 1,
       "severity": "S1",
       "epic": "EP-020",
-      "title": "Clasificar las 131 entradas cerradas en EVENTOS.jsonl"
+      "title": "Clasificar las 131 entradas cerradas en EVENTOS.jsonl",
+      "issue": 243
     },
     {
       "id": "PT-126",
@@ -3189,7 +3201,8 @@
       "phase": 1,
       "severity": "S2",
       "epic": "EP-020",
-      "title": "sellar mide la matriz y FPGE la lee"
+      "title": "sellar mide la matriz y FPGE la lee",
+      "issue": 244
     }
   ]
 }

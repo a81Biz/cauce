@@ -30,6 +30,7 @@ suite_version: 12.0.0
 | AC-03 | El mensaje de error deja de ATRIBUIR a `LEXICON` una lista que `LEXICON` no contiene | hoy dice «LEXICON declara: BUG · FEATURE · CHANGE · TAREA» y LEXICON §943 declara otros cinco |
 | AC-04 | `CHANGE` y `TAREA` se resuelven: o entran en `LEXICON`, o salen de la herramienta. No conviven dos vocabularios | LEX-R22: un hecho, un nombre |
 | AC-05 | `PT-125` y `PT-126` reciben su `type` con el comando, no a mano | las dos están hoy SIN TIPO en el registro por este defecto |
+| AC-06 | `tracker asignar` escribe también `suite_version` en la allocation | `SUITE-R58` dice «la allocation nace completa» y hoy nacen sin él: `verify-fdge` avisa por `SUITE-R18` sobre las catorce de este lote |
 
 ## 3. Cómo termina   `FDGE-R53`
 
