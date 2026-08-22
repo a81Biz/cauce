@@ -2,9 +2,9 @@
   "pt": "PT-098",
   "type": "BUG",
   "epic": "EP-019",
-  "status": "DRAFT",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "e5955b0a776ea34550c8c522290f9babdcd31aa6",
   "sha_corto": "e5955b0",
@@ -21,14 +21,18 @@
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-098/",
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-21"
 }
