@@ -1,10 +1,10 @@
 {
-  "pt": "PT-111",
+  "pt": "PT-112",
   "type": "BUG",
   "epic": "EP-019",
-  "status": "VALIDATION_PENDING",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "965b456c990f7e8f9d812ffd3e94122cdabec525",
   "sha_corto": "965b456",
@@ -55,9 +55,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-22"
 }
