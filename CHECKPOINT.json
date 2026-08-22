@@ -1,10 +1,10 @@
 {
-  "pt": "PT-103",
-  "type": "BUG",
+  "pt": "PT-104",
+  "type": "FEATURE",
   "epic": "EP-019",
-  "status": "VALIDATION_PENDING",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "c976c64af2083b6d1c934fb9a1cea84937c13d8f",
   "sha_corto": "c976c64",
@@ -37,9 +37,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-21"
 }
