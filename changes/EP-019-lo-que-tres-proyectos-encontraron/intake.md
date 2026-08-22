@@ -4,7 +4,7 @@
 ---
 id: EP-019
 created: 2026-08-21
-status: DRAFT
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 suite_version: 11.0.0
