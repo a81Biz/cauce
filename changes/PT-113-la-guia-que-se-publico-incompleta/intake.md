@@ -1,0 +1,205 @@
+# Intake — BUG · `PT-113` · la guía de migración que se publicó incompleta
+
+```yaml
+---
+id: PT-113
+type: BUG
+severity: S2
+complexity:
+track: STANDARD
+status: DRAFT
+phase: 1
+created: 2026-08-22
+origin: DIRECT
+epic: EP-020
+---
+```
+
+**Cómo termina, en una línea** (`FDGE-R53`):
+
+> Termina cuando: un proyecto que instale la versión vigente encuentra en su `CHANGELOG` una línea
+> para cada regla que empieza a juzgarle.
+
+---
+
+## 1. Qué está pasando `[HUMANO]`
+
+La `12.0.0` está publicada en npm y su entrada del `CHANGELOG` **no nombra `SUITE-R59`**, una regla
+`HARD` que nació dentro del propio lote que esa entrada describe. El paquete la lleva en `RULES.md`
+y en `CORE.md`, así que un destino la carga en cada sesión y no encuentra la línea que se la
+explica.
+
+npm no se despublica: la única forma de que la corrección llegue es una versión.
+
+---
+
+## 2. Comportamiento esperado `[HUMANO]` — obligatorio
+
+La entrada del `CHANGELOG` de una versión **enumera** todas las reglas que empiezan a juzgar con
+ella —las nuevas y las que estrenan `RIGE_DESDE`— y dice qué hacer con cada una al actualizar.
+
+Lo que hoy tiene npm no cumple eso, y el paquete publicado no se puede cambiar. Se corrige
+publicando la `12.0.1`.
+
+---
+
+## 3. Comportamiento observado `[HUMANO]`
+
+Sobre el tarball descargado de npm:
+
+```
+package/docs/methodology/RULES.md      SUITE-R59   1 vez
+package/docs/methodology/CORE.md       SUITE-R59   2 veces
+package/docs/methodology/CHANGELOG.md  SUITE-R59   CERO
+```
+
+Y en el árbol, `tracker sellar` lo dice sin ambigüedad:
+
+```
+guia de migracion  2 regla(s) nueva(s) NO nombradas: LEX-R08, SUITE-R59.
+```
+
+La entrada declara además **«Doce tareas»** cuando el registro tiene **diecisiete** en `EP-019`:
+una cifra transcrita, que es `H-007` otra vez (`PT-091`).
+
+---
+
+## 4. Reproducción `[HUMANO]`
+
+```
+npm pack @a81biz/cauce@12.0.0 && tar -xzf a81biz-cauce-12.0.0.tgz
+grep -c "SUITE-R59" package/docs/methodology/CHANGELOG.md    -> 0
+grep -c "SUITE-R59" package/docs/methodology/CORE.md         -> 2
+
+node docs/methodology/tools/tracker.mjs sellar --ver
+  -> guia de migracion  2 regla(s) nueva(s) NO nombradas: LEX-R08, SUITE-R59.
+```
+
+Frecuencia: **siempre**. Es un contenido publicado, no una condición de carrera.
+
+---
+
+## 5. Entorno `[HUMANO]`
+
+```
+paquete   @a81biz/cauce@12.0.0 · npm · publicado 2026-08-22T21:39:02Z
+corrida   publicar.yml #32600060157 · workflow_dispatch · main · 5b184af
+árbol     main @ ee660db · suite_version 12.0.0
+```
+
+---
+
+## 6. Impacto `[HUMANO]`
+
+**Afectados:** todo proyecto destino que instale o actualice a la `12.0.0`.
+
+**Qué les pasa:** reciben una regla `HARD` que su `CORE.md` carga en cada sesión, y su guía de
+migración no la menciona. `SUITE-R19` existe para que eso no ocurra.
+
+`S2` y no `S1`: la regla es sobre cómo se escribe código y no rompe nada al actualizar — el daño
+es que nadie sabe que existe.
+
+---
+
+## 7. Out of scope `[HUMANO]` — obligatorio
+
+```
+OUT: arreglar la compuerta que dejó salir la 12.0.0 sin pasar por «sellar». Es L-8 de EP-020:
+     un PATCH corrige el texto, no la compuerta que no lo vigiló
+OUT: despublicar o modificar la 12.0.0 de npm. No se puede, y se dice
+OUT: cambiar ninguna regla, ningún nombre y ninguna herramienta. Es un PATCH
+OUT: crear los tags v10.0.0 y v11.0.0 que también faltan. Va con L-9
+```
+
+---
+
+## 8. Criterios de aceptación del arreglo `[HUMANO]`
+
+```
+AC-01  La entrada 12.0.1 del CHANGELOG nombra SUITE-R59 y LEX-R08, y dice qué hacer con cada una
+AC-02  La cifra de cabecera de la 12.0.0 coincide con lo que el registro dice de EP-019
+AC-03  «tracker sellar» deja de reportar reglas nuevas no nombradas
+AC-04  Las 25 declaraciones de versión —los 21 documentos, CLAUDE.md, package.json y
+       REGISTRY.suite_version— declaran 12.0.1, y «version.mjs» lo confirma sin --aplicar
+AC-05  CORE.md y CORE-PTSA.md quedan sincronizados con sus fuentes
+AC-06  Ninguna regla, nombre ni herramienta cambia: el diff fuera del CHANGELOG y de las
+       declaraciones de versión es vacío
+```
+
+---
+
+## 9. Firma `[HUMANO]` — obligatorio
+
+```
+Firmado por lote: EP-020
+```
+
+---
+
+---
+
+# A partir de aquí lo completa el agente
+
+## 10. Criterios de aceptación — versión canónica `[AGENTE]`
+
+Los seis de §8 se toman tal cual: son verificables con ✓/✗ observando el árbol y la salida de las
+herramientas (`INTAKE-R05`). No se añade ninguno.
+
+## 11. Complejidad propuesta `[AGENTE]`
+
+`TRIVIAL` en riesgo, `STANDARD` en alcance: toca 27 archivos pero 25 de ellos son una línea que
+escribe `version.mjs --aplicar`. Se propone **`STANDARD`** y se confirma en `PHASE 2`.
+
+## 12. Verificación de duplicados `[AGENTE]`
+
+No duplica ningún PT vivo —no hay ninguno— ni ítem de `ROADMAP`: `R-001..R-008` son de otra
+naturaleza. **Sí tiene precedente**: este trabajo se hizo el 2026-08-22 **sin allocation** sobre la
+rama de cierre de `EP-019` y se **revirtió** en `1837c22` por ese motivo. Este intake es el que le
+faltaba.
+
+## 13. Observaciones del agente `[AGENTE]` — obligatorio
+
+**O-1 · `LEX-R08` no es una regla nueva y no se puede presentar como tal.** Existe desde hace
+versiones; lo que empieza en la `12.0.0` es que **se compruebe**. Su fila en `RIGE_DESDE` es lo que
+impide que los 51 `BUG` cerrados antes salgan en rojo sin salida. La guía tiene que decir eso, no
+fingir que es nueva.
+
+**O-2 · `sellar` sólo mira la versión vigente.** `reglasNuevasFueraDeLaGuia` filtra por
+`RIGE_DESDE === versión actual`, así que en cuanto el árbol declare `12.0.1` **dejará de mirar la
+entrada de la `12.0.0`**. El arreglo pasaría la compuerta aunque no se hubiera hecho. Es un hueco
+de la comprobación, se declara aquí y su arreglo es de `L-8`, no de esta tarea.
+
+**O-3 · El diff será grande y casi todo mecánico.** 25 de 27 archivos son una línea escrita por
+`version.mjs --aplicar`. `AC-06` existe para que eso sea comprobable en vez de tener que confiar.
+
+**O-4 · Publicar no entra en esta tarea.** El `PATCH` deja el árbol listo; `npm publish` es acto del
+firmante (`SUITE-R06`, `EXEC-R04`), y `L-8` debería ir antes de volver a pulsarlo.
+
+## 14. Resultado de la compuerta `G1` `[AGENTE]`
+
+```
+DoR-01  tipo declarado: BUG                                          [x]
+DoR-02  severidad declarada por el humano: S2                        [~] propuesta · falta confirmar
+DoR-03  bloque ## Firma con nombre y fecha                           [ ] por lote: EP-020, SIN FIRMAR
+DoR-04  out-of-scope declarado explícitamente                        [x] cuatro líneas
+DoR-05  PT-113 asignado desde REGISTRY.json                          [x] tracker asignar
+DoR-06  no duplica un PT vivo ni un ítem de roadmap promovido        [x] §12
+DoR-07  observaciones del agente registradas                         [x] O-1..O-4
+DoR-B1  comportamiento esperado declarado, no deducido del código    [~] borrador del agente
+DoR-B2  comportamiento observado con detalle observable              [x] tres cifras del tarball
+DoR-B3  pasos de reproducción                                        [x] §4
+DoR-B4  entorno identificado                                         [x] §5, con corrida y sha
+DoR-B5  frecuencia declarada                                         [x] siempre
+DoR-B6  impacto y usuarios afectados declarados                      [x] §6
+
+VEREDICTO: FAIL
+Motivo: DoR-03. La firma del lote EP-020 no existe todavía, y sin ella este intake no está
+        firmado (INTAKE-R08). §1, §2, §6 y §8 son borrador del agente y necesitan confirmación
+        del firmante: son las partes que INTAKE-R06 le reserva.
+```
+
+---
+
+## Revisiones
+
+> Append-only una vez firmado (`SUITE-R09`).

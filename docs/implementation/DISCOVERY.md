@@ -75,3 +75,4 @@
 | PT-110 | BUG | S2 | INTEGRATED | EP-019 | Sellar mide lo que exige: el inventario no estaba en la lista |
 | PT-111 | BUG | S2 | INTEGRATED | EP-019 | El espejo compara lo que se lee: un titulo divergente no lo ve nadie |
 | PT-112 | BUG | S1 | INTEGRATED | EP-019 | «--forzar» no es una compuerta: sobrescribe el marco sin dejar constancia |
+| PT-113 | BUG | S2 | DRAFT | EP-020 | La 12.0.1: la guia de migracion que se publico incompleta |

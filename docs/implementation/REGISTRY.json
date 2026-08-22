@@ -34,8 +34,8 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 112,
-    "EP": 19,
+    "PT": 113,
+    "EP": 20,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -3028,6 +3028,27 @@
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-22"
       }
+    },
+    {
+      "id": "EP-020",
+      "slug": "el-acto-fuera-del-comando",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "title": "El acto fuera del comando: lo que ocurre en la conversacion no llega a ningun registro que se pueda contar",
+      "issue": 218
+    },
+    {
+      "id": "PT-113",
+      "slug": "la-guia-que-se-publico-incompleta",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "La 12.0.1: la guia de migracion que se publico incompleta",
+      "issue": 217
     }
   ]
 }
