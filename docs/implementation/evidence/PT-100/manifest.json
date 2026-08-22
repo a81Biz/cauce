@@ -88,7 +88,7 @@
   "no_verificado": [
     {
       "afirmacion": "Que el arreglo de las grafias funcione en un sistema sensible a mayusculas.",
-      "por_que": "El caso de comportamiento no puede fallar en Windows: el sistema de archivos no distingue, asi que la version SIN el arreglo encuentra «qa/» igual. Lo establece la corrida de CI, que es Linux, y es el unico sitio donde ese caso puede ponerse rojo.",
+      "por_que": "El caso de comportamiento no puede fallar en Windows: el sistema de archivos no distingue, asi que la version SIN el arreglo encuentra «qa/» igual. Lo establece la corrida de CI, que es Linux, y es el unico sitio donde ese caso puede ponerse rojo. ESTABLECIDO EL 2026-08-22: CI lo cazo, y encontro que el MISMO defecto seguia en el FIXTURE de la bateria —mk_qa creaba «QA/» y tres lineas escribian en «qa/tests»—. En Windows es el mismo directorio y los 1372 casos pasaban; en Linux los specs caian donde verify-qa no mira, y el caso «espera fija ⇒ falla» no emitia QA-R16. Arreglado en PT-100 con una sola grafia. La declaracion sirvio EXACTAMENTE para lo que se escribio: cuando el fallo aparecio, habia donde encajarlo.",
       "donde": "docs/implementation/evidence/PT-100/salidas/inversa.txt"
     },
     {

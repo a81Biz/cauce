@@ -6223,3 +6223,20 @@ La fila solo se resolvio AL RESOLVER EL CIERRE, que es lo que SUITE-R45 existe p
 ninguna de las once tareas anteriores la tomo.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
+
+## PT-100 — nota posterior: la declaración se cumplió
+Fecha: 2026-08-22
+
+`PT-100` cerró declarando que NO establecía «que el arreglo de las grafías funcione en un sistema
+sensible a mayúsculas», y que eso lo establecería CI, «que es el único sitio donde ese caso puede
+ponerse rojo».
+
+**Se puso rojo.** Y encontró que el mismo defecto seguía en el FIXTURE de la batería: `mk_qa`
+creaba `QA/` y tres líneas escribían en `qa/tests`. En Windows es el mismo directorio y los 1372
+casos pasaban; en Linux los specs caían donde `verify-qa` no mira, y el caso «espera fija ⇒
+falla» no emitía `QA-R16`.
+
+Arreglado con UNA sola grafía. Trece usos de `QA/` y tres de `qa/`, medidos.
+
+La declaración sirvió exactamente para lo que se escribió: cuando el fallo apareció, **había
+dónde encajarlo** — no pareció un defecto nuevo, sino el que ya estaba anotado.

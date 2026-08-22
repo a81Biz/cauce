@@ -1174,7 +1174,11 @@ sec "── J · QA y FPGE ──"
 VQ() { node "$WORK/docs/methodology/tools/verify-qa.mjs" "$WORK"; }
 
 mk_qa() {
-  mkdir -p "$WORK/QA/cases" "$WORK/QA/reports/QR-001" "$WORK/qa/tests"
+  # PT-100 · TD-04 en el FIXTURE, que aquella tarea no toco: el arbol de QA se creaba con
+  # DOS grafias —«QA/» para casos e informes, «qa/» para specs—. En Windows son el MISMO
+  # directorio y todo pasaba; en Linux son distintos, y los specs caian donde verify-qa no
+  # mira. Lo delato CI, que es el unico sitio donde puede caer — declarado en PT-100.
+  mkdir -p "$WORK/QA/cases" "$WORK/QA/reports/QR-001" "$WORK/QA/tests"
   mkdir -p "$WORK/QA/cases/evidence" && : > "$WORK/QA/cases/evidence/a.png"
   printf 'tipo: HP
 resultado: PASS
@@ -1184,7 +1188,7 @@ Verifica AC-01
   printf 'QA-A
 ' > "$WORK/QA/QA-LOG.md"
   printf 'await expect(page.getByRole("button")).toBeVisible();
-' > "$WORK/qa/tests/QA-001-login.spec.ts"
+' > "$WORK/QA/tests/QA-001-login.spec.ts"
   perl -0pi -e 's/"QR":0/"QR":1/' "$WORK/docs/implementation/REGISTRY.json" 2>/dev/null || true
 }
 
@@ -1205,7 +1209,7 @@ perl -0pi -e 's/Verifica AC-01//' "$WORK/QA/cases/QA-001-login.md"
 chk   "caso sin AC-nn ⇒ falla"             "✗ QA-R19"   VQ
 build_fixture; mk_qa
 printf 'await page.waitForTimeout(3000);
-' > "$WORK/qa/tests/QA-002-x.spec.ts"
+' > "$WORK/QA/tests/QA-002-x.spec.ts"
 chk   "espera fija ⇒ falla"                "✗ QA-R16"   VQ
 build_fixture; mk_qa
 printf '# ROADMAP
