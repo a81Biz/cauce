@@ -1,0 +1,46 @@
+PRUEBA INVERSA — PT-100
+
+Los cinco hechos viven en GRAFIAS y en TEXTO, no en una funcion que se pueda llamar, asi que
+la inversa se hace sobre los archivos. Cada retirada devuelve UN cambio y se mira que cae.
+
+S-1 · la busqueda de las dos grafias    caen  0
+                                          AVISO: cero. NO probado.
+S-1b · decir donde se busco             caen  1
+                                          · …y dice donde busco cuando de verdad no lo encuentra
+S-2 · el vocabulario alineado           caen  1
+                                          · …y verify-qa usa ese vocabulario
+S-2b · la emision de LEX-R28            caen  1
+                                          · …y lo hace cumplir con una emision
+S-3 · el destino en la regla            caen  1
+                                          · …y ya no nombra el que no existe
+S-4 · LEX-R27 en LEXICON                caen  1
+                                          · LEXICON declara que un lote NO lleva type
+S-4b · el aviso de LEX-R27              caen  1
+                                          · …y avisa si un lote lo declara
+
+AVISO: 1 sin efecto.
+
+---
+
+POR QUE «S-1» SALE EN CERO, Y NO SE TAPA
+
+La retirada sustituye la busqueda de las dos grafias por «join(ROOT, 'QA')» a secas. El caso de
+comportamiento —montar un proyecto con «qa/» en minusculas y comprobar que lo encuentra— DEBERIA
+caer. No cae, y el motivo es el defecto mismo:
+
+  en Windows el sistema de archivos NO distingue mayusculas, asi que «join(ROOT,'QA')»
+  encuentra «qa/» igual. El caso es correcto y AQUI no puede fallar.
+
+Es exactamente lo que TD-04 describe: el defecto no se reproduce en la maquina donde se escribio
+el codigo. Y la primera version de este caso comprobaba que la constante GRAFIAS_QA existiera en
+el archivo —una asercion de TEXTO— que si caia con la retirada... pero pasaba igual dejando la
+constante y codificando la ruta a mano. Cambiarla por una de COMPORTAMIENTO la hizo honesta y a
+la vez la dejo sin poder fallar aqui.
+
+LO QUE ESTO ESTABLECE: que la asercion mira lo correcto.
+LO QUE NO ESTABLECE: que el arreglo funcione en un sistema sensible a mayusculas. Eso lo
+establece la corrida de CI, que es Linux — y es el unico sitio donde este caso puede ponerse
+rojo. Queda declarado en el out-of-scope de la tarea.
+
+Una inversa que sale en cero no es un verde: es un aviso. Aqui el aviso dice DONDE hay que
+mirar, no que el cambio este sin probar.

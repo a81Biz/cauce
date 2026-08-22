@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 055e564b2e56 -->
-<!-- fuentes: RULES.md:fdecf93979dd LEXICON.md:810a94d170c7 EXECUTION-MODES.md:2454719ff743 PHASES.md:548f8ed2f915 -->
+<!-- cuerpo: 197bf690d0b8 -->
+<!-- fuentes: RULES.md:9c99764118a7 LEXICON.md:277f41939691 EXECUTION-MODES.md:2454719ff743 PHASES.md:de2bffe47928 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -228,6 +228,8 @@ verifica un script y bloquea la integración.
 `LEX-R24` **H** Sub-identificadores. Una regla con cláusulas enumeradas admite sub-IDs con letra minúscula pegada: SUITE-R06a, SUITE-R06f. Solo para citar una cláusula concreta; la regla sigue siendo una sola y se define…
 `LEX-R25` **H** CORE.md, CORE-PTSA.md, PHASES.md, tools/ y los directorios templates/ forman parte del paquete instalable.
 `LEX-R26` **H** Un campo que solo pueda rellenar la memoria no entra en CHECKPOINT.json.
+`LEX-R27` **H** Un lote (EP-NNN) NO lleva type: se reconoce por su identificador, que el registro asigna (SUITE-R08) y que siempre está.
+`LEX-R28` **H** El tipo de un caso de QA es uno de esos cuatro.
 
 ### EXEC — Compuertas y modos
 
@@ -334,7 +336,7 @@ verifica un script y bloquea la integración.
 `FDGE-R49` **H** Mientras haya una implementación abierta, todo le pertenece.
 `FDGE-R50` **H** Nueva o parte de: el criterio está escrito.
 `FDGE-R51` **H** El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.
-`FDGE-R52` **H** El reanclaje se escribe, no se relee. Cada transición de fase deja tres líneas en la tarea —comentario del issue si hay plataforma, bitacora.md del PT si no—: qué se cierra · dónde se está · qué sigue.…
+`FDGE-R52` **H** El reanclaje se escribe, no se relee. Cada transición de fase deja tres líneas en la tarea —comentario del issue si hay plataforma, docs/implementation/TRANSICIONES.log si no—: qué se cierra · dónde se está…
 `FDGE-R53` **H** Toda tarea declara cómo termina. Una línea, observable, en el intake: la condición que hace que la tarea esté hecha. La deriva ocurre en tareas sin forma: una tarea que declara su final lo tiene; una que…
 `FDGE-R54` **H** No se empieza lo que no se puede terminar, y consta.
 
@@ -695,6 +697,8 @@ JERARQUIA una tarea con `epic` es SUB-ISSUE de su lote, no un enlace en su   [SU
           esta vivo, rama por defecto si ya es INTEGRATED.
           node tools/tracker.mjs abrir --aplicar   lo mantiene
 LA FASE   toda allocation PT VIVA declara «phase». Falta ⇒ ERROR desde 8.0.0 [SUITE-R08]
+          Un LOTE no lleva «type»: se reconoce por su identificador [LEX-R27], y
+          ninguna herramienta decide nada mirando ese campo.
           EXENTOS: un EP —su ciclo no tiene fases de tarea— y lo ya terminado.
           La frontera «se exige a lo VIVO» la comparten FDGE-R52, FDGE-R19 y
           esta, desde ESTADOS_TERMINALES en patrones.mjs. DONE NO esta ahi: un
@@ -800,7 +804,7 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           de nadie.
 REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
           qué cierras · dónde estás · qué sigue.
-          issue si hay plataforma · changes/PT-NNN-slug/bitacora.md si no.
+          issue si hay plataforma · docs/implementation/TRANSICIONES.log si no [INC-008].
           Escribir obliga a releer; releer no obliga a nada — y no deja rastro.
           Append-only: una bitácora que se reescribe deja de ser un rastro.
 NO        contar aquí lo que se hizo: eso es HISTORY.log y el relato de HANDOFF.
@@ -1000,7 +1004,7 @@ HAZ  al recibirlo: registrar en el README · discrepancias → 10-Technical-Debt
 PHASE 1 Reconnaissance  LEE 02-PRD · 04-App-Flow · 05-UI-UX-Brief · 08-API-Catalog
                         QA/cases/ · QA-DEFECTS · HANDOFF · test-scenarios de PTs recientes
                         SALE mapa de flujos candidatos (nada en disco todavía)
-PHASE 2 Test Plan       QA-PLAN.md: por caso tipo(HP|EC|EF|REG) · eje · fuente · precondiciones
+PHASE 2 Test Plan       QA-PLAN.md: por caso tipo(HP|EC|EF|REG) [LEX-R28] · eje · fuente · precondiciones
                         pasos · resultado esperado · capturas requeridas
                         todo caso derivado de un PT CITA su AC-nn [QA-R19]
                         QR desde REGISTRY, nunca contando el historial [QA-R13]

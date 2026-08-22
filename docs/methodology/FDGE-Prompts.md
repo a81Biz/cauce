@@ -276,7 +276,10 @@ que tocó `HANDOFF.md`, la sesión dejó trabajo sin estado y `SUITE-R03` no se 
 ### El reanclaje se escribe                                                  `FDGE-R52`
 
 En cada transición de fase, tres líneas **en la tarea** — comentario del issue si hay
-plataforma, `changes/PT-NNN-slug/bitacora.md` si no:
+plataforma, `docs/implementation/TRANSICIONES.log` si no:
+
+> Un **lote** (`EP-NNN`) no lleva `type`: se reconoce por su identificador (`LEX-R27`). Ninguna
+> herramienta decide nada mirando ese campo, y `verify-fdge` avisa si un lote lo declara.
 
 ```
 2026-08-12 · PHASE 4 → 5

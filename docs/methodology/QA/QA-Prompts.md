@@ -580,7 +580,7 @@ Para cada FAIL nuevo, genera un QD-XXX con este template:
 Ciclo QA: QR-[XXX]
 Fecha: [YYYY-MM-DD]
 Caso de origen: QA-[NNN]
-Tipo del caso: [HP|EC|EF|REG]
+Tipo del caso: [HP|EC|EF|REG]   (`LEX-R28` — el vocabulario lo declara `LEXICON` §8.1b)
 Eje: [Funcionalidad|Validación|Error Flow|Regresión|Accesibilidad|Performance]
 Severidad: [CRITICAL|HIGH|MEDIUM|LOW]
 Estado: READY

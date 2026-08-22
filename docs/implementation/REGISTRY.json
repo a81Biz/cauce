@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 99,
+    "PT": 101,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2613,6 +2613,71 @@
         "fecha": "2026-08-21"
       },
       "issue": 197
+    },
+    {
+      "id": "PT-100",
+      "slug": "un-hecho-un-nombre",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "Un hecho, un nombre: las grafias que deciden si una verificacion corre",
+      "origin": "Causa C-2 del lote. TRES nombres distintos para tres hechos unicos, y los tres deciden si algo se verifica. (1) INC-008: «avanzar» escribe la nota de reanclaje en TRANSICIONES.log y CORE.md:337 (FDGE-R52) dice «bitacora.md». (2) INC-012: verify-qa.mjs:52 espera tipo(HP|REG|EDGE|NEG) y CORE.md:1003 dice tipo(HP|EC|EF|REG) — dos vocabularios para el tipo de un caso QA, y ninguno de los dos documentos cita al otro. (3) TD-04, y es peor de lo que la entrada describe: verify-qa.mjs usa DOS grafias en dos lineas consecutivas —QA en :36 y qa en :37— y si no encuentra QA/ sale con codigo 2 diciendo «nada que verificar»: en Linux, donde QA/ y qa/ son directorios distintos, la verificacion del ciclo entero se salta EN SILENCIO Y EN VERDE. Ademas L-0 dejo dos hechos mas de la misma causa: el «type» canonico de un lote, que LEXICON no declara y el registro escribe de tres formas (EP x16, ausente x2, EPIC x1), y los seis «type === EP» de verify-fdge.mjs, medidos y hoy latentes.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 198
+    },
+    {
+      "id": "PT-101",
+      "slug": "el-escapado-que-no-existe-no-se-rompe",
+      "created": "2026-08-21",
+      "status": "DRAFT",
+      "type": "BUG",
+      "severity": "S2",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 1,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "El escapado que no existe no se rompe: normalizar en vez de advertir",
+      "origin": "Hallazgo del firmante tras CINCO roturas de escapado en una sola sesion (EP-019): un replace(//g) que quedo como regex sin cerrar, unos \n convertidos en saltos reales, y tres mas. Medido: el marco YA lo sabe y lo cuenta en COMENTARIOS de cuatro archivos por separado —build-core:463 «ha fallado cinco veces», verify-ptsa:108 «cinco veces», revisar-secretos:36 «siete veces»— sin sumarlo en ninguna parte: son diecisiete y nadie ve el total. Y audit:375 caza el byte 0x08 cuando YA ESTA ESCRITO, es decir despues del daño. Las cinco de esta sesion no las cazo ninguno porque rompieron en la HERRAMIENTA DE EDICION —heredocs de bash, replace de python— y no en el repositorio: el marco protege el destino y no la via. La propuesta del firmante es normalizar en vez de advertir: que las instrucciones sigan un patron y pasen por un normalizador, en lugar de acumular avisos que no impiden nada.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      }
     }
   ]
 }

@@ -56,6 +56,9 @@ import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from 
 // PT-098 · la decision de si el arbol sostiene un INTEGRATED es pura y vive en tracker.mjs,
 // junto al mecanismo que la calcula. Aqui solo se consume: una fuente, no dos (SUITE-R38).
 import { estadoContrastado, FASES } from './tracker.mjs';
+// PT-100 · LEX-R27 · un lote se reconoce por su ID. El helper vive en patrones.mjs desde PT-096
+// y aqui quedaban SEIS sitios preguntando por «type», que el registro escribe de tres formas.
+import { esLote } from './patrones.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -707,7 +710,7 @@ function checkEstado() {
 
 function checkImplementacion(reg) {
   const all = Array.isArray(reg?.allocations) ? reg.allocations : [];
-  const abiertas = all.filter((a) => a?.type === 'EP' && a?.status === 'IN_PROGRESS');
+  const abiertas = all.filter((a) => esLote(a) && a?.status === 'IN_PROGRESS');
   if (abiertas.length > 1) {
     fail('FDGE-R48', `${abiertas.length} implementaciones abiertas a la vez (${abiertas.map((a) => a.id).join(', ')}). Con dos, «esto es lo mismo» deja de tener respuesta y el default de FDGE-R49 no significa nada. Cierra una antes de abrir otra.`);
     return;
@@ -717,7 +720,7 @@ function checkImplementacion(reg) {
   ok('FDGE-R48', `${abierta.id} es la única implementación abierta.`);
   // Default invertido: con una abierta, todo PT vivo le pertenece. La excepcion es HOTFIX,
   // porque produccion caida no espera a que se cierre nada.
-  const huerfanos = all.filter((a) => a?.type && a.type !== 'EP' && VIVOS.has(a?.status)
+  const huerfanos = all.filter((a) => a?.type && !esLote(a) && VIVOS.has(a?.status)
     && !a?.epic && String(a?.track ?? '').toUpperCase() !== 'HOTFIX');
   if (huerfanos.length) {
     fail('FDGE-R49', `${abierta.id} está abierta y ${huerfanos.length} PT vivo(s) no declaran su epic: ${huerfanos.map((a) => a.id).join(', ')}. Mientras haya una implementación abierta todo le pertenece; trabajar fuera exige cerrarla o abrir otra, y ambas cosas se dicen. La única excepción es track HOTFIX.`);
@@ -1395,6 +1398,19 @@ function checkPT(pt, { gate } = {}) {
     }
   }
 
+  // PT-100 · LEX-R27 · un lote se reconoce por su ID, y el campo «type» no decide nada.
+  //
+  // El registro acumulo TRES respuestas —EP en dieciseis lotes, ausente en dos, EPIC en uno—
+  // porque la pregunta no tenia respuesta declarada, y con eso «tracker estado» perdia una tarea
+  // SIN DECIRLO. LEX-R27 cierra la pregunta declarando la AUSENCIA: un lote no lleva «type».
+  //
+  // Se AVISA y no se falla: los diecinueve lotes historicos lo llevan escrito de tres formas y
+  // SUITE-R09 es append-only — no se retrofecha. Lo que importa es que nadie DEPENDA de el, y de
+  // eso se ocupan los ocho sitios de tracker.mjs (PT-096) y los seis de aqui.
+  if (esLote(enRegistroPT) && enRegistroPT?.type !== undefined) {
+    warn('LEX-R27', `${pt}: es un lote y declara «type: ${enRegistroPT.type}». LEX-R27 declara que un lote NO lleva «type»: se reconoce por su identificador, que el registro asigna y siempre esta. El campo no decide nada desde PT-096 y PT-100, y no se retrofecha (SUITE-R09).`);
+  }
+
   // PT-098 · SUITE-R08 · un INTEGRATED que el arbol no sostiene.
   //
   // LEXICON §5.1 define INTEGRATED como «mergeado a la linea principal», y ese estado exime a
@@ -1431,8 +1447,8 @@ function checkPT(pt, { gate } = {}) {
   }
 
   if (faseDeclarada === null) {
-    if (enRegistroPT?.type === 'EP' || ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
-      warn('SUITE-R08', `${pt}: sin fase declarada — exento (${enRegistroPT?.type === 'EP' ? 'es un lote: su ciclo no tiene fases de tarea' : 'ya terminado: no se retrofecha'}).`);
+    if (esLote(enRegistroPT) || ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+      warn('SUITE-R08', `${pt}: sin fase declarada — exento (${esLote(enRegistroPT) ? 'es un lote: su ciclo no tiene fases de tarea' : 'ya terminado: no se retrofecha'}).`);
     } else {
       fail('SUITE-R08', `${pt}: no declara «phase», y desde 8.0.0 eso ya no es SIN EVALUAR. `
         + 'Declárala en el YAML de su intake.md o en su allocation de REGISTRY.json. Sin fase '
@@ -1451,7 +1467,7 @@ function checkPT(pt, { gate } = {}) {
   // Se exige en G2 —o desde PHASE 5, que es donde empieza el trabajo— y no en G1: antes de
   // PHASE 2 la tarea no tiene complejidad propuesta, y sin complejidad no hay coste tipico con
   // el que comparar. Antes de eso AVISA. Lo ya terminado no se retrofecha (FDGE-R19, FDGE-R52).
-  if (rige('FDGE-R54') && enRegistroPT?.type !== 'EP' && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
+  if (rige('FDGE-R54') && !esLote(enRegistroPT) && !ESTADOS_TERMINALES.has(enRegistroPT?.status)) {
     const viab = enRegistroPT?.viabilidad;
     if (!viab) {
       const m = `${pt}: no consta el veredicto de viabilidad. Consultarla no basta: una compuerta `

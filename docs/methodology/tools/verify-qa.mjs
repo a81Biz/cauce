@@ -33,8 +33,22 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const ROOT = resolve(process.argv[2] ?? process.cwd());
-const QA = join(ROOT, 'QA');
-const SPECS = join(ROOT, 'qa', 'tests');
+
+// PT-100 · TD-04 · el espacio de QA se BUSCA, no se supone.
+//
+// Aqui habia DOS grafias en LINEAS CONSECUTIVAS —join(ROOT,'QA') y join(ROOT,'qa','tests')—.
+// Nadie eligio mal: nadie eligio. En Windows no se nota porque el sistema de archivos no
+// distingue mayusculas, y por eso se escribio y se probo donde no se ve. En Linux son
+// directorios DISTINTOS, y la calculadora midio la consecuencia: el verificador no encontraba
+// su objeto y salia con «nada que verificar» — el ciclo entero sin verificar, EN VERDE.
+//
+// Se busca en las dos y se DICE cual se encontro. No se renombra el arbol de nadie (OUT del
+// intake): la herramienta se adapta al proyecto, no al reves.
+const GRAFIAS_QA = ['QA', 'qa'];
+const dirQA = GRAFIAS_QA.map((g) => join(ROOT, g)).find((d) => existsSync(d)) ?? join(ROOT, 'QA');
+const QA = dirQA;
+const GRAFIA_USADA = GRAFIAS_QA.find((g) => join(ROOT, g) === dirQA) ?? 'QA';
+const SPECS = join(dirQA, 'tests');
 const IMPL = join(ROOT, 'docs', 'implementation');
 
 const errors = [];
@@ -49,7 +63,19 @@ const lineas = (t) => t.split(/\r?\n/);
 // Regex LITERALES, nunca construidos con new RegExp: montar patrones desde strings ha fallado
 // seis veces en este proyecto (\b se convierte en 0x08 y \s en «s» segun la capa de escapado).
 const RE_VEREDICTO_G = /^\s*(?:resultado|veredicto|status)\s*:\s*(.+)$/gim;
-const RE_TIPO_CASO = /^\s*tipo\s*:\s*(HP|REG|EDGE|NEG)\b/im;
+// PT-100 · INC-012 · LEX-R28 · UN vocabulario para el tipo de un caso QA.
+//
+// Aqui habia otro conjunto, distinto del que dicen los TRES documentos —QA-Prompts:583,
+// PHASES:595 y el CORE que se genera de el—. Un QA-PLAN escrito siguiendo la documentacion
+// FALLABA la verificacion, y uno escrito para pasarla contradecia la documentacion.
+//
+// La causa: LEXICON no lo declaraba, asi que no habia a quien preguntar. Ahora si (LEX-R28).
+//
+// El conjunto ANTERIOR no se escribe en este comentario a proposito: el caso de bateria que
+// comprueba que ya no esta hace «grep» sobre el archivo entero, y un comentario que lo nombre
+// lo encuentra igual. Es el patron que el HANDOFF advierte para las emisiones, aqui aplicado
+// a un vocabulario.
+const RE_TIPO_CASO = /^\s*tipo\s*:\s*(HP|EC|EF|REG)\b/im;
 const RE_AC = /\bAC-\d+\b/;
 // Una REFERENCIA a un archivo de imagen, no la palabra «captura»: el patron anterior daba por
 // buena la frase «no se pudo tomar captura», es decir certificaba justo lo contrario de lo que
@@ -79,7 +105,11 @@ function capturas(txt, base) {
 const hayQA = existsSync(QA) && (existsSync(join(QA, 'cases')) || existsSync(join(QA, 'QA-PLAN.md')));
 const roadmap = rd(join(IMPL, 'ROADMAP.md'));
 if (!hayQA && roadmap === null) {
-  console.log('No hay QA/ ni docs/implementation/ROADMAP.md: nada que verificar.');
+  // PT-100 · se DICE donde se busco. «Nada que verificar» era correcto para un proyecto sin QA
+  // e INDISTINGUIBLE de uno que si lo tiene y escribio la otra grafia: una salida escrita para
+  // un caso legitimo cubriendo uno que no lo es (la forma de PT-096).
+  console.log(`No hay espacio de QA —se busco ${GRAFIAS_QA.map((g) => g + '/').join(' y ')}— `
+    + 'ni docs/implementation/ROADMAP.md: nada que verificar.');
   process.exit(2);
 }
 
@@ -138,6 +168,15 @@ if (hayQA) {
       }
       // QA-R09 · un HP en FAIL fuerza QA-F
       if (RE_TIPO_CASO.exec(txt)?.[1] === 'HP') hpFail = true;
+    // PT-100 · LEX-R28 · el tipo de un caso sale del vocabulario que LEXICON declara. Sin esta
+    // emision la regla no la hacia cumplir nadie: la regex filtraba en silencio, asi que un
+    // «tipo» invalido no fallaba — simplemente no se contaba como HP y el caso pasaba.
+    const declaraTipo = /^\s*tipo\s*:\s*(\S+)/im.exec(txt);
+    if (declaraTipo && !RE_TIPO_CASO.test(txt)) {
+      fail('LEX-R28', `${id}: declara «tipo: ${declaraTipo[1]}», que no es uno de HP · EC · EF · REG. `
+        + 'El vocabulario lo declara LEXICON §8.1b y lo citan QA-Prompts y PHASES: un tipo fuera de esa lista '
+        + 'no se puede clasificar, y hasta ahora se ignoraba en silencio.');
+    }
     }
   }
   if (casos.length && conCaptura === casos.length) ok('QA-R03', `${casos.length} caso(s), todos con captura.`);

@@ -1992,6 +1992,67 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 # CARACTERES (PT-085, PT-090) — y ademas, al fallar, dice QUE regla aparecio en vez de «no caso».
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
+# ── PT-100 · C-2 · un hecho, un nombre ────────────────────────────────────────────────────────
+#
+# CINCO hechos con nombre doble, y los cinco decidian si algo se verifica.
+#
+# TD-04 es el que mas asusta y es peor de lo que su entrada describia: verify-qa.mjs usaba DOS
+# grafias en LINEAS CONSECUTIVAS —join(ROOT,'QA') en :36 y join(ROOT,'qa','tests') en :37—.
+# Nadie eligio mal: nadie eligio. En Windows no se nota porque el sistema de archivos no
+# distingue mayusculas, y por eso se escribio y se probo donde no se ve; en Linux son
+# directorios DISTINTOS y el verificador salia con «nada que verificar» — el ciclo QA entero
+# sin verificar, EN VERDE. Es la forma de PT-096: una salida escrita para un caso legitimo
+# cubriendo uno que no lo es.
+# La prueba es de COMPORTAMIENTO, no de que exista una constante. La primera version comprobaba
+# que el texto «GRAFIAS_QA» estuviera en el archivo, y la INVERSA SALIO EN CERO: se podia dejar
+# la constante y codificar la ruta a mano, y el caso pasaba igual. Una inversa en cero no es un
+# verde: es un aviso (PT-095).
+#
+# Aqui se monta un proyecto con el espacio en MINUSCULAS y se comprueba que la herramienta LO
+# ENCUENTRA. Es lo unico que no se puede fingir.
+qa_min() {
+  local d="$WORK/qamin"; rm -rf "$d"; mkdir -p "$d/qa/cases"
+  printf 'coverage
+' > "$d/qa/QA-PLAN.md"
+  printf -- '---
+tipo: HP
+resultado: PASS
+---
+AC-01 ![x](a.png)
+' > "$d/qa/cases/QA-001.md"
+  printf 'x' > "$d/qa/cases/a.png"
+  node "$SUITE/tools/verify-qa.mjs" "$d"
+}
+chkno "verify-qa ENCUENTRA el espacio en minusculas"  "nada que verificar" qa_min
+chkno "…y no queda ninguna grafia suelta"  "join(ROOT, 'qa'" cat "$SUITE/tools/verify-qa.mjs"
+# Y cuando de verdad no hay nada, DICE donde busco. Sin esto, «nada que verificar» era correcto
+# para un proyecto sin QA e indistinguible de uno que si lo tiene con la otra grafia.
+qa_sin() { local d="$WORK/qasin"; rm -rf "$d"; mkdir -p "$d"; node "$SUITE/tools/verify-qa.mjs" "$d"; }
+chk "…y dice donde busco cuando de verdad no lo encuentra"  "se busco" qa_sin
+
+# INC-012 · UN vocabulario para el tipo de un caso QA. verify-qa esperaba «HP|REG|EDGE|NEG» y los
+# TRES documentos —QA-Prompts:583, PHASES:595 y el CORE generado de el— dicen «HP|EC|EF|REG». Un
+# QA-PLAN escrito siguiendo la documentacion FALLABA la verificacion, y uno escrito para pasarla
+# contradecia la documentacion. LEXICON no lo declaraba: ahora si (LEX-R28).
+chk   "el tipo de caso QA lo declara LEXICON"      "LEX-R28"  cat "$SUITE/LEXICON.md"
+chk   "…y verify-qa usa ese vocabulario"           "HP|EC|EF|REG" cat "$SUITE/tools/verify-qa.mjs"
+chkno "…y no el que nadie documentaba"             "EDGE|NEG" cat "$SUITE/tools/verify-qa.mjs"
+
+# INC-008 · UN destino para la nota de reanclaje. FDGE-R52 decia «bitacora.md del PT» y la
+# herramienta escribe TRANSICIONES.log «ahora» — un cambio deliberado que la regla no siguio.
+# Gana el destino real: un ledger append-only por repositorio, no uno por tarea (SUITE-R09).
+chk   "FDGE-R52 declara el destino que la herramienta usa"  "TRANSICIONES.log" cat "$SUITE/RULES.md"
+chkno "…y ya no nombra el que no existe"                    "bitacora.md. del PT" cat "$SUITE/RULES.md"
+
+# LEX-R27 · un lote se reconoce por su ID. El registro acumulo TRES respuestas —EP x16, ausente
+# x2, EPIC x1— porque la pregunta no tenia respuesta declarada. Con eso «tracker estado» perdia
+# una tarea SIN DECIRLO: su lote no entraba en el grupo de lotes y ella declaraba «epic», asi que
+# tampoco era «suelta». PT-096 arreglo los OCHO sitios de tracker.mjs; aqui los SEIS de
+# verify-fdge, con el mismo helper de patrones.mjs — una fuente, no dos (SUITE-R38).
+chk   "LEXICON declara que un lote NO lleva type"  "LEX-R27" cat "$SUITE/LEXICON.md"
+chkno "verify-fdge ya no pregunta por el type de un lote"  "type === .EP." cat "$SUITE/tools/verify-fdge.mjs"
+chkno "…ni por su negacion"                                "type !== .EP." cat "$SUITE/tools/verify-fdge.mjs"
+
 # ── PT-099 · LEX-R08 (H) · FDGE-R26 · la transicion de un BUG la aplica el COMANDO ────────────
 #
 # LEXICON §5.1 declara «IN_REVIEW --> VALIDATION_PENDING : tipo BUG · siempre» y FDGE-R26 dice

@@ -370,6 +370,17 @@
   [32m✓[0m y dice como se corrige
   [32m✓[0m sin ref durable todavia, no acusa
   [32m✓[0m sin el resolvedor, se comporta como hoy
+  [32m✓[0m verify-qa ENCUENTRA el espacio en minusculas
+  [32m✓[0m …y no queda ninguna grafia suelta
+  [32m✓[0m …y dice donde busco cuando de verdad no lo encuentra
+  [32m✓[0m el tipo de caso QA lo declara LEXICON
+  [32m✓[0m …y verify-qa usa ese vocabulario
+  [32m✓[0m …y no el que nadie documentaba
+  [32m✓[0m FDGE-R52 declara el destino que la herramienta usa
+  [32m✓[0m …y ya no nombra el que no existe
+  [32m✓[0m LEXICON declara que un lote NO lleva type
+  [32m✓[0m verify-fdge ya no pregunta por el type de un lote
+  [32m✓[0m …ni por su negacion
   [32m✓[0m un BUG en la fase de validacion queda VALIDATION_PENDING
   [32m✓[0m …y un FEATURE no se detiene
   [32m✓[0m …ni un BUG en otra fase
@@ -1330,6 +1341,5 @@
   [32m✓[0m INC-001 registrado en el ledger
   [32m✓[0m …y tiene candidato en el roadmap
 
-selftest: OK · 1286 casos
-EXIT=0
+selftest: OK · 1297 casos
 EXIT=0

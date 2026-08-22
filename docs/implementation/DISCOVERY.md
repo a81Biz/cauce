@@ -63,3 +63,4 @@
 | PT-097 | BUG | S1 | DONE | EP-019 | Los umbrales de la certificacion: la letra se deriva o no se emite |
 | PT-098 | BUG | S1 | DONE | EP-019 | El estado terminal se deriva del arbol, no se escribe al avanzar |
 | PT-099 | BUG | S1 | DONE | EP-019 | La transicion de un BUG la aplica el comando, no la memoria |
+| PT-100 | BUG | S1 | DONE | EP-019 | Un hecho, un nombre: las grafias que deciden si una verificacion corre |

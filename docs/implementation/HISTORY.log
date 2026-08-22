@@ -5287,3 +5287,87 @@ LO QUE NO ESTABLECE:
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia. G4 es la del
 lote y llega al cerrar EP-019.
+
+## PT-100 — Un hecho, un nombre: las grafías que deciden si una verificación corre
+Fecha: 2026-08-21
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-019 — es su L-3, la causa C-2
+Rama: chore/alberto-martinez/PT-097-apertura
+Modo de ejecución: SUPERVISED con delegación autónoma declarada
+Estructural: no
+Compuertas: G1 · G2 · G3 2026-08-21 Alberto Martínez (delegada, constancia en SESSION_LOG.md) · G4
+
+CINCO hechos con dos nombres cada uno, y los cinco decidian si algo se verifica.
+
+TD-04 es peor de lo que su entrada describia. No era «el verificador busca QA/ y git guardo qa/»
+—un desajuste entre herramienta y proyecto—: el MISMO ARCHIVO usaba las dos grafias en LINEAS
+CONSECUTIVAS, join(ROOT,'QA') en :36 y join(ROOT,'qa','tests') en :37. Nadie eligio mal: nadie
+eligio. Y si no encontraba su objeto salia con «nada que verificar» y codigo 2 — correcto para un
+proyecto sin QA e INDISTINGUIBLE de uno que si lo tiene con la otra grafia. La forma de PT-096:
+una salida escrita para un caso legitimo cubriendo uno que no lo es.
+
+DOS DE LOS CINCO NO TENIAN DONDE ESTAR DECLARADOS, y ahi esta la causa comun. LEX-R21 dice que
+los nombres van a LEXICON, y ni el tipo de caso QA ni el «type» de un lote estaban ahi. Cuando un
+nombre no tiene autoridad, cada herramienta elige el suyo — y ninguna esta mal, porque no hay
+contra que contrastarla. Es la enfermedad de la v3 reaparecida DENTRO de las herramientas.
+
+Y UNO IBA AL REVES. En INC-008 el que estaba mal era el DOCUMENTO: tracker.mjs:2509 dice «la nota
+vive AHORA en TRANSICIONES.log» —cambio deliberado, con su motivo en SUITE-R09— y FDGE-R52 se
+quedo atras. LEX-R22 dice que las reglas mandan sobre las herramientas, pero una regla que
+describe un comportamiento que ya no existe no manda: DESINFORMA.
+
+Solucion: LEX-R27 declara que un lote NO lleva «type» —la AUSENCIA, no un valor, que es lo que no
+obliga a migrar diecinueve allocations—; LEX-R28 declara HP · EC · EF · REG, que es lo que ya
+decian los tres documentos; FDGE-R52 nombra el destino real; verify-qa busca las dos grafias y
+DICE cual encontro; y los SEIS «type === 'EP'» de verify-fdge pasan al helper que patrones.mjs
+exporta desde PT-096, que arreglo los ocho de tracker.mjs. Una fuente, no dos (SUITE-R38).
+
+AUDIT PIDIO ALGO QUE NO ESPERABA. Declarar las dos reglas como HARD no bastaba: «no la cita
+ningun documento operativo». Una regla que solo vive en LEXICON y en el codigo NO LA VE quien
+trabaja en modo MANUAL. Se añadieron a PHASES, QA-Prompts y FDGE-Prompts, y verify-suite cazo
+cada omision por separado — tres verificadores distintos empujando al mismo sitio: que una regla
+exista donde alguien la vaya a leer.
+
+MIS PROPIOS COMENTARIOS ROMPIERON MIS PROPIOS CASOS. Escribi el vocabulario viejo en verify-qa y
+el destino viejo en RULES, dentro de las explicaciones, y los dos «chkno» que comprueban que esos
+nombres YA NO ESTAN los encontraron ahi. Es el patron que el HANDOFF advierte para las emisiones,
+aqui aplicado a un vocabulario.
+
+Y LA INVERSA ME OBLIGO A CAMBIAR UNA ASERCION, Y LUEGO LA DEJO SIN PODER FALLAR. S-1 salio en
+CERO: el caso comprobaba que la constante GRAFIAS_QA existiera —una asercion de TEXTO— y se podia
+pasar dejando la constante y codificando la ruta. Al cambiarlo por COMPORTAMIENTO —montar un
+proyecto con «qa/» y comprobar que lo encuentra— dejo de poder fingirse Y dejo de poder caer en
+Windows, porque el sistema de archivos no distingue. Las dos cosas son ciertas a la vez, y la
+segunda es TD-04 describiendose a si mismo. El unico sitio donde ese caso puede ponerse rojo es
+CI, que corre en Linux, y va declarado.
+
+Archivos modificados: tools/verify-qa.mjs · tools/verify-fdge.mjs · tools/selftest.sh ·
+  LEXICON.md · RULES.md · PHASES.md · QA/QA-Prompts.md · FDGE-Prompts.md ·
+  CORE.md (regenerado) · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-100/ · manifest.json · self-review.md ·
+  salidas/inversa.txt · salidas/audit.txt · salidas/verify-suite.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  grafias del espacio QA   ANTES 2 en lineas consecutivas   DESPUES se buscan las dos y se DICE
+  vocabulario de QA        ANTES 3 documentos vs 1 tool     DESPUES uno, declarado en LEXICON
+  destino de la nota       ANTES 2 nombres                  DESPUES uno, el que la tool usa
+  type === 'EP'            ANTES 6 en verify-fdge           DESPUES 0
+  reglas sin autoridad     ANTES 2                          DESPUES 0
+
+Bateria 1286 -> 1297, cero fallos. Inversa: siete retiradas, SEIS con efecto y UNA en cero
+DECLARADA — no puede caer en Windows, y se dice por que.
+
+LO QUE NO ESTABLECE:
+
+· Que el arreglo de las grafias funcione en un sistema sensible a mayusculas. Lo establece CI.
+· Que no queden mas hechos con nombre doble. Cinco conocidos, cinco arreglados. Un grep no puede
+  encontrar lo que no sabe buscar.
+· Que «QA/» sea la grafia correcta: el arreglo NO elige, acepta las dos.
+
+El CHANGELOG tambien nombra el destino viejo y NO se toca: es historia, y lo que decia era cierto
+cuando se escribio (SUITE-R09).
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
