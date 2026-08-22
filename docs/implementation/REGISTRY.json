@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 113,
+    "PT": 126,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3049,6 +3049,147 @@
       "epic": "EP-020",
       "title": "La 12.0.1: la guia de migracion que se publico incompleta",
       "issue": 217
+    },
+    {
+      "id": "PT-114",
+      "slug": "el-cuerpo-del-issue-no-se-republica",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "El cuerpo del issue no se republica cuando aparece la ref durable"
+    },
+    {
+      "id": "PT-115",
+      "slug": "la-parada-entra-al-vocabulario",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "PARADA entra al vocabulario y a las reglas"
+    },
+    {
+      "id": "PT-116",
+      "slug": "tracker-parada",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "tracker parada: el comando que escribe la parada en su tarea"
+    },
+    {
+      "id": "PT-117",
+      "slug": "la-parada-no-depende-de-la-memoria",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "Todo desenlace cita la parada que lo produjo"
+    },
+    {
+      "id": "PT-118",
+      "slug": "la-taxonomia-de-clases-de-evento",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "La taxonomia de clases de evento, cerrada, en LEXICON"
+    },
+    {
+      "id": "PT-119",
+      "slug": "la-matriz-se-deriva",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "tools/matriz.mjs deriva MATRIZ.md"
+    },
+    {
+      "id": "PT-120",
+      "slug": "publicar-no-ejecuta-sellar",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN"
+    },
+    {
+      "id": "PT-121",
+      "slug": "el-viaje-de-vuelta-tras-el-merge",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "El viaje de vuelta tras el merge no lo cubre ninguna fase"
+    },
+    {
+      "id": "PT-122",
+      "slug": "el-cierre-de-un-lote-pasa-por-el-comando",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "El cierre de un lote pasa por el comando, no por la mano"
+    },
+    {
+      "id": "PT-123",
+      "slug": "backlog-no-tiene-generador",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "BACKLOG.md dice que se deriva del registro y nada lo deriva"
+    },
+    {
+      "id": "PT-124",
+      "slug": "la-herramienta-rechaza-el-vocabulario-canonico",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "tracker asignar rechaza tres de los cinco tipos que LEXICON declara"
+    },
+    {
+      "id": "PT-125",
+      "slug": "clasificar-las-tareas-cerradas",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "Clasificar las 131 entradas cerradas en EVENTOS.jsonl"
+    },
+    {
+      "id": "PT-126",
+      "slug": "la-matriz-no-envejece",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "sellar mide la matriz y FPGE la lee"
     }
   ]
 }

@@ -146,41 +146,68 @@ He leído el Intake de cada PT listado en §6 y confirmo que todos reflejan mi i
 
 ## 6. PTs que componen el lote `[AGENTE]`
 
-| # | PT | Tipo | Sev | Qué cierra | Archivos | Depende |
-|:--|:--|:--|:--|:---|:---|:--|
-| `L-0` | `PT-113` | BUG | S2 | **La `12.0.1`**: la guía de migración que la `12.0.0` publicó incompleta — `SUITE-R59` en `RULES` y en `CORE`, y cero veces en su `CHANGELOG` | `CHANGELOG.md` · los 21 documentos · `CORE.md` · `package.json` · `REGISTRY.json` | — |
-| `L-1` | | FEATURE | S1 | **`PARADA` entra al vocabulario y a las reglas.** `LEXICON`: qué es, sus clases de `motivo` y de `desenlace`, dónde vive. `RULES`: `FDGE-R55`. `FDGE-R52` pasa a ser su caso particular | `LEXICON.md` `RULES.md` `CORE.md` | `L-0` |
-| `L-2` | | FEATURE | S1 | **`tracker parada`** — el comando que la escribe. Texto largo desde archivo (`SUITE-R59`), `MARCA_AGENTE`, orden por reversibilidad. Destino: issue si hay plataforma, `TRANSICIONES.log` si no | `tools/tracker.mjs` `selftest.sh` | `L-1` |
-| `L-3` | | FEATURE | S1 | **Que no dependa de que el agente se acuerde.** Todo desenlace con rastro en el registro cita su parada: `asignar --desde-parada`, exigido por `verify-fdge` desde su `RIGE_DESDE`. Segunda red: hook `Stop` | `tools/verify-fdge.mjs` `tools/tracker.mjs` `.claude/settings.json` | `L-2` |
-| `L-4` | | FEATURE | S1 | **La taxonomía de clases de evento** en `LEXICON` (`LEX-R29`), cerrada, con las quince de §2.1 como semilla. Necesita **tercera clase de identificador**: no es ítem de trabajo, no pasa por `REGISTRY` | `LEXICON.md` `CORE.md` | `L-1` |
-| `L-5` | | INVESTIGATION | S1 | **Clasificar las 131 entradas cerradas** → `docs/implementation/EVENTOS.jsonl`, append-only, un registro por evento **con su cita textual** y marcado `DECLARADO`. No produce código (`FDGE-R10`) | `EVENTOS.jsonl` | `L-4` |
-| `L-6` | | FEATURE | S1 | **`tools/matriz.mjs` deriva `MATRIZ.md`**: clase · veces · primera/última · tareas · regla dueña · ¿verificador? · estado. Las cifras se derivan (`PT-091`); lo ilegible sale `SIN EVALUAR` | `tools/matriz.mjs` `MATRIZ.md` `package.json` | `L-5` |
-| `L-7` | | CHORE | S2 | **Que no envejezca.** `sellar` la mide y la publica junto a las otras cuatro (patrón de `PT-110`); toda entrada nueva de `HISTORY.log` declara su clase; `FPGE` lee `MATRIZ.md` y toda clase ≥ 3 sin verificador entra como candidato | `tools/tracker.mjs` `FPGE-Implementation.md` `PHASES.md` | `L-6` |
-| `L-8` | | BUG | S1 | **`publicar.yml` no ejecuta `sellar`**, y ni él ni `verificacion.yml` pasan `GH_TOKEN` a `verify-fdge --all`: 108 de 108 `SUITE-R43` salieron `SIN EVALUAR` y el paso cerró en verde, en el workflow que autoriza lo único irreversible | `.github/workflows/*.yml` | `L-0` |
-| `L-9` | | BUG | S1 | **El viaje de vuelta tras el merge no lo cubre nada**: ningún comando escribe `DONE → INTEGRATED` en el YAML, `FDGE-R19` no define forma de rama para cerrar un lote, y ninguna fase lleva el estado terminal a la rama por defecto | `tools/tracker.mjs` `RULES.md` `PHASES.md` | `L-1` |
-| `L-10` | | BUG | S2 | **El cierre de un lote pasa por el comando.** El comentario de cierre lo escribe `tracker` con `MARCA_AGENTE`; los 17 ya escritos no se editan (`SUITE-R09`), se referencian | `tools/tracker.mjs` | `L-2` |
-| `L-11` | | BUG | S1 | **`BACKLOG.md` dice que es derivable y nada lo deriva.** Su cabecera declara «regenerable desde `REGISTRY.json`», el bloque `no hacer` prohíbe editarlo a mano, `tracker indices` cubre `DISCOVERY`, `ENRICHMENT` y `REFACTOR_SCOPE` — **y a él no**. Lleva **cuatro lotes** declarando `EP-015` como la implementación abierta | `tools/tracker.mjs` `BACKLOG.md` | `L-2` |
+**Las catorce están asignadas desde `REGISTRY.json` y con su issue abierto** (`SUITE-R08`,
+`SUITE-R35`), y cada una lleva su `intake.md` con la plantilla ligera (`FDGE-R51`). `DoR-E6` lo
+exige y la primera versión de este intake decía que se asignarían «al empezar cada una»: eso hacía
+la compuerta **inalcanzable**, y lo señaló el firmante.
 
-Los `PT-NNN` de `L-1` a `L-11` los asigna `tracker asignar` al empezar cada uno (`SUITE-R08`).
-`L-0` ya está asignado porque desbloquea publicar.
+| # | PT | Tipo | Sev | Qué cierra | Depende |
+|:--|:--|:--|:--|:---|:--|
+| `L-12` | `PT-114` | BUG | S1 | **El cuerpo del issue no se republica cuando aparece la ref durable.** El intake de un lote queda ilegible desde su issue, así que **`G1` no puede pasar nunca** | — |
+| `L-13` | `PT-124` | BUG | S1 | **`tracker asignar` rechaza tres de los cinco tipos que `LEXICON` declara** y atribuye a `LEXICON` una lista que no contiene. 32 allocations usan `CHORE`/`INVESTIGATION`; `CHANGE` y `TAREA` no las usa nadie | — |
+| `L-0` | `PT-113` | BUG | S2 | **La `12.0.1`**: la guía de migración que la `12.0.0` publicó incompleta — `SUITE-R59` en `RULES` y en `CORE`, y cero veces en su `CHANGELOG` | `L-12` |
+| `L-8` | `PT-120` | BUG | S1 | **`publicar.yml` no ejecuta `sellar`**, y ni él ni `verificacion.yml` pasan `GH_TOKEN` a `verify-fdge --all`: 108 de 108 `SUITE-R43` salieron `SIN EVALUAR` y el paso cerró en verde | `L-0` |
+| `L-1` | `PT-115` | FEATURE | S1 | **`PARADA` entra al vocabulario y a las reglas.** `LEXICON`: qué es, sus clases de `motivo` y de `desenlace`, dónde vive. `FDGE-R52` pasa a ser su caso particular | `L-0` |
+| `L-2` | `PT-116` | FEATURE | S1 | **`tracker parada`** — el comando que la escribe. Texto largo desde archivo (`SUITE-R59`), `MARCA_AGENTE`, orden por reversibilidad | `L-1` |
+| `L-3` | `PT-117` | FEATURE | S1 | **Todo desenlace cita la parada que lo produjo.** Incluye el caso que el firmante nombró: un defecto hallado a mitad **no se arregla en línea**, abre su `PT`. Segunda red: hook `Stop` | `L-2` |
+| `L-4` | `PT-118` | FEATURE | S1 | **La taxonomía de clases de evento** en `LEXICON`, cerrada, con las quince de §2.1 como semilla. Necesita una **tercera clase de identificador** | `L-1` |
+| `L-5` | `PT-125` | INVESTIGATION | S1 | **Clasificar las 131 entradas cerradas** → `EVENTOS.jsonl`, append-only, con **cita textual** y marcado `DECLARADO` | `L-4` `L-13` |
+| `L-6` | `PT-119` | FEATURE | S1 | **`tools/matriz.mjs` deriva `MATRIZ.md`.** Las cifras se derivan (`PT-091`); lo ilegible sale `SIN EVALUAR` | `L-5` |
+| `L-7` | `PT-126` | CHORE | S2 | **Que no envejezca.** `sellar` la mide (patrón de `PT-110`); `FPGE` lee `MATRIZ.md` y toda clase ≥ 3 sin verificador entra como candidato | `L-6` `L-13` |
+| `L-9` | `PT-121` | BUG | S1 | **El viaje de vuelta tras el merge no lo cubre nada**: ningún comando escribe `DONE → INTEGRATED` en el YAML, `FDGE-R19` no define rama para cerrar un lote, ninguna fase lo lleva a la rama por defecto, y faltan tres tags | `L-1` |
+| `L-10` | `PT-122` | BUG | S2 | **El cierre de un lote pasa por el comando.** El comentario lo escribe `tracker` con `MARCA_AGENTE`; los 17 ya escritos no se editan (`SUITE-R09`) | `L-2` |
+| `L-11` | `PT-123` | BUG | S1 | **`BACKLOG.md` dice que se deriva del registro y nada lo deriva.** `tracker indices` cubre `DISCOVERY`, `ENRICHMENT` y `REFACTOR_SCOPE` — **y a él no**. Lleva **cuatro lotes** declarando `EP-015` como implementación abierta | `L-2` |
 
-**`L-11` apareció abriendo este lote**, intentando cumplir `DoR-E7`. Es la instancia número **seis**
-de «existe la herramienta y nada la echa en falta» —aquí ni siquiera existe— y la segunda vez que
-`BACKLOG.md` se queda atrás: su propia cabecera registra que ya «llevó ocho lotes sin regenerarse».
+### Las tres que aparecieron abriendo el lote
+
+Ninguna estaba en la propuesta: las tres salieron de **ejecutar la apertura**, que es la proporción
+que `EP-019` ya midió (siete de diecisiete).
+
+- **`L-11` · `PT-123`** — intentando cumplir `DoR-E7`.
+- **`L-12` · `PT-114`** — lo encontró el firmante: *«no puedo leer el intake por lo que no puedo
+  firmar nada»*. Es la instancia **siete** de «existe la herramienta y nada la echa en falta»: el
+  propio cuerpo del issue le pide a un humano que ejecute un comando que nada exige.
+- **`L-13` · `PT-124`** — bloqueó la asignación de `PT-125` y `PT-126`, que están en el registro
+  **sin `type`** porque el comando rechaza el suyo. Ausente antes que inventado (`RULE-06`).
+
+**Y las tres son la misma clase que el lote persigue**, cometidas al abrirlo. `O-7` lo anticipaba;
+llegaron antes de lo previsto.
 
 ## 7. Análisis de solapamiento `[AGENTE]` — `FDGE-R40`
 
 ```
-L-1 ↔ L-4 ↔ L-9                LEXICON.md · RULES.md · CORE.md   -> SERIALIZADOS
-L-2 ↔ L-3 ↔ L-7 ↔ L-9 ↔ L-10   tools/tracker.mjs                 -> SERIALIZADOS
-L-0 ↔ L-8                      ninguno: L-8 toca workflows, L-0 documentos
+L-1 ↔ L-4 ↔ L-9                   LEXICON.md · RULES.md · CORE.md   -> SERIALIZADOS
+L-2 L-3 L-7 L-9 L-10 L-11 L-12    tools/tracker.mjs                 -> SERIALIZADOS
+L-13                              tools/tracker.mjs + patrones.mjs  -> SERIALIZADO con los de arriba
+L-0 ↔ L-8                         ninguno: L-8 toca workflows, L-0 documentos
 
-Orden: L-0 -> L-8 -> L-1 -> L-2 -> L-3 -> L-4 -> L-5 -> L-6 -> L-7 -> L-9 -> L-10
-
-Motivo: L-0 primero porque desbloquea publicar la 12.0.1, que es deuda con npm.
-        L-8 segundo porque es la compuerta que dejó salir a L-0: arreglarla antes de
-        volver a publicar es lo que impide repetirlo. Secuencial (EXEC-R08).
+Orden:  L-12 -> L-13 -> L-0 -> L-8 -> L-1 -> L-2 -> L-3 -> L-4 -> L-5 -> L-6 -> L-7
+        -> L-9 -> L-10 -> L-11
 ```
+
+**Por qué `L-12` va primera, y no es preferencia.** Mientras el intake de un lote no se pueda leer
+desde su issue, `G1` no puede pasar — ni la de este lote ni la de ninguno. Es la única tarea que
+bloquea la firma de todas las demás.
+
+**`L-13` va segunda** porque `PT-125` y `PT-126` están hoy en el registro **sin `type`**: mientras
+el comando rechace el vocabulario canónico, dos de las catorce no pueden estar completas y
+`DoR-01` no se cumple para ellas.
+
+**`L-0` tercera** porque la `12.0.1` es deuda con npm: hay una regla `HARD` publicada sin una línea
+que la explique. **`L-8` inmediatamente detrás**, y ese orden importa: es la compuerta que dejó
+salir a `L-0`, y arreglarla **antes** de volver a publicar es lo que impide repetirlo.
+
+Ejecución **secuencial** por defecto (`EXEC-R08`): siete de las catorce tocan `tools/tracker.mjs`.
 
 ## 8. Supuestos compartidos `[AGENTE]`
 
@@ -248,7 +275,7 @@ DoR-E2 criterio de éxito del lote declarado        [~] borrador del agente · f
 DoR-E3 out-of-scope del lote declarado             [~] borrador del agente · falta confirmación
 DoR-E4 firma única presente                        [ ] FALTA — solo del firmante (INTAKE-R06)
 DoR-E5 EP asignado desde REGISTRY.json             [x] EP-020, con tracker asignar
-DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [ ] solo L-0
+DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [~] las 14 tienen intake · «firmado por lote» depende de DoR-E4
 DoR-E7 solapamiento calculado y declarado en BACKLOG.md                      [!] BLOQUEADA · ver abajo
 DoR-E8 observaciones registradas                   [x] O-1..O-9
 
