@@ -2762,7 +2762,24 @@
       "title": "El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida",
       "issue": 202,
       "branch": "chore/alberto-martinez/PT-097-apertura",
-      "suite_version": "12.0.0"
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-105",
@@ -2776,7 +2793,24 @@
       "title": "El estado que una compuerta exige lo escribe un comando, o la compuerta es incumplible",
       "issue": 203,
       "branch": "chore/alberto-martinez/PT-097-apertura",
-      "suite_version": "12.0.0"
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-106",
@@ -2790,7 +2824,24 @@
       "title": "Las que empezaron a juzgar despues: RIGE_DESDE se deriva del arbol, no del CHANGELOG",
       "issue": 204,
       "branch": "chore/alberto-martinez/PT-097-apertura",
-      "suite_version": "12.0.0"
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-107",
@@ -2804,7 +2855,24 @@
       "title": "El registro no se reescribe entero: dos comandos a la vez pierden una allocation en silencio",
       "issue": 205,
       "branch": "chore/alberto-martinez/PT-097-apertura",
-      "suite_version": "12.0.0"
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-108",
@@ -2818,7 +2886,24 @@
       "title": "La version del REGISTRO tambien es un contenido: version.mjs no mira REGISTRY.json",
       "issue": 208,
       "branch": "chore/alberto-martinez/PT-097-apertura",
-      "suite_version": "12.0.0"
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-109",
@@ -2832,7 +2917,24 @@
       "title": "Una compuerta no es una revision sorpresa, y una mencion no es una declaracion",
       "issue": 209,
       "branch": "chore/alberto-martinez/PT-097-apertura",
-      "suite_version": "12.0.0"
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-110",
@@ -2846,7 +2948,24 @@
       "title": "Sellar mide lo que exige: el inventario no estaba en la lista",
       "issue": 210,
       "branch": "chore/alberto-martinez/PT-097-apertura",
-      "suite_version": "12.0.0"
+      "suite_version": "12.0.0",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-111",

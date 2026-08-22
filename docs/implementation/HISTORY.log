@@ -6104,6 +6104,18 @@ que advertian de este mismo defecto —tercera vez en la sesion—, y escribir e
 excluye fue la NOVENA rotura de escapado, reparada escribiendo el archivo tal cual, que es lo que
 la regla acababa de establecer.
 
+LA DECLARACION DE PT-100 SE CUMPLIO EL MISMO DIA, y conviene registrarlo aqui porque FDGE-R29
+solo admite UNA entrada por tarea y la de PT-100 ya esta cerrada.
+
+Aquella tarea declaro que NO establecia «que el arreglo de las grafias funcione en un sistema
+sensible a mayusculas», y que lo estableceria CI, «el UNICO sitio donde ese caso puede ponerse
+rojo». Se puso rojo: el FIXTURE de la bateria seguia creando el arbol de QA con DOS grafias
+—trece usos de «QA/» y tres de «qa/»—. En Windows es el mismo directorio y los 1372 casos
+pasaban; en Linux los specs caian donde verify-qa no mira.
+
+Arreglado con una sola grafia. La declaracion sirvio para lo que se escribio: cuando el fallo
+aparecio, HABIA DONDE ENCAJARLO.
+
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
 
 ## PT-112 — «--forzar» no es una compuerta
@@ -6224,19 +6236,3 @@ ninguna de las once tareas anteriores la tomo.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion con constancia.
 
-## PT-100 — nota posterior: la declaración se cumplió
-Fecha: 2026-08-22
-
-`PT-100` cerró declarando que NO establecía «que el arreglo de las grafías funcione en un sistema
-sensible a mayúsculas», y que eso lo establecería CI, «que es el único sitio donde ese caso puede
-ponerse rojo».
-
-**Se puso rojo.** Y encontró que el mismo defecto seguía en el FIXTURE de la batería: `mk_qa`
-creaba `QA/` y tres líneas escribían en `qa/tests`. En Windows es el mismo directorio y los 1372
-casos pasaban; en Linux los specs caían donde `verify-qa` no mira, y el caso «espera fija ⇒
-falla» no emitía `QA-R16`.
-
-Arreglado con UNA sola grafía. Trece usos de `QA/` y tres de `qa/`, medidos.
-
-La declaración sirvió exactamente para lo que se escribió: cuando el fallo apareció, **había
-dónde encajarlo** — no pareció un defecto nuevo, sino el que ya estaba anotado.
