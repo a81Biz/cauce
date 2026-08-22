@@ -1,0 +1,30 @@
+PRUEBA INVERSA — PT-104
+
+Cada medida llama al modulo en un proceso APARTE: `import` cachea, y con la version rota ya
+cargada la inversa mediria siempre el codigo bueno — un cero que no significa nada.
+
+S-1 · el paso actual                caen  1
+                                      · dice en que PASO esta
+S-2 · la regla de ENTRADA           caen  1
+                                      · dice de donde VIENE
+S-3 · la regla de SALIDA            caen  1
+                                      · dice que tiene que pasar para SALIR
+S-4 · a donde va despues            caen  1
+                                      · dice a donde va DESPUES
+S-5 · el contraste deberia/esta     caen  2
+                                      · dice CUALES artefactos existen ya
+                                      · …y cuales faltan
+S-6 · decir que no se pudo mirar    caen  1
+                                      · DICE cuando no pudo mirar el arbol
+S-7 · los bloqueos                  caen  1
+                                      · dice que le impide avanzar
+S-8 · los bordes de la maquina      caen  2
+                                      · la primera fase no inventa una entrada
+                                      · la ultima no inventa una salida
+S-9 · la guarda de la fase ausente  caen  2
+                                      · sin phase NO se supone el paso cero
+                                      · no revienta en ningun caso
+S-10 · el lote sin maquina          caen  1
+                                      · un lote no lleva maquina de estados
+
+Las 10 retiradas hacen caer casos. Ninguna esta sin probar.

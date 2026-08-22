@@ -1,0 +1,23 @@
+PRUEBA INVERSA — PT-103
+
+La allocation se CREA de verdad en un proyecto de mentira y se lee de vuelta del JSON.
+Medir sobre el texto de la herramienta diria «acepta el flag», no «lo escribe».
+
+S-1 · los flags de asignar            caen  2
+                                        · escribe el tipo
+                                        · NO acepta un tipo inventado
+S-2 · el guardia del tipo inventado   caen  2
+                                        · NO acepta un tipo inventado
+                                        · …y no lo escribe
+S-3 · phase 1 al nacer                caen  1
+                                        · escribe phase 1 SIEMPRE, tambien sin flags
+S-4 · decir que campos faltan         caen  1
+                                        · dice que campos no se declararon
+S-5 · los flags en CON_VALOR          caen  1
+                                        · el valor de un flag no se toma por la raiz del proyecto
+S-6 · la comprobacion de SUITE-R58    caen  1
+                                        · SUITE-R58 la comprueba verify-fdge
+S-7 · el RIGE_DESDE de la regla       caen  1
+                                        · …y no juzga lo escrito antes de la regla
+
+Las 7 retiradas hacen caer casos. Ninguna esta sin probar.

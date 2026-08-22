@@ -8,6 +8,66 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 12.0.0 — 2026-08-22
+
+**Lo que tres proyectos encontraron** (`EP-019`). Doce tareas, y la mitad salieron de **ejecutar**
+las otras, no de planificarlas.
+
+### Reglas nuevas
+
+Cinco, todas `HARD`, y **definidas en `RULES.md`** — aquí solo se citan (`LEX-R23`):
+`PTSA-R81`, `PTSA-R82`, `LEX-R27`, `LEX-R28` y `SUITE-R58`.
+
+### Qué hacer al actualizar
+
+**`LEX-R27` — el `type` de un lote.** Si tu registro declara `type: EP` o `type: EPIC` en un lote,
+**no hay que tocarlo**: la regla dice que la ausencia es lo canónico y `verify-fdge` **avisa**, no
+falla. Los diecinueve lotes históricos de este repositorio lo llevan escrito de tres formas y
+`SUITE-R09` no retrofecha.
+
+**`LEX-R28` — los tipos de caso `QA`.** Si tienes un `QA-PLAN` con tipos `EDGE` o `NEG`,
+renómbralos a `EC` y `EF`. La herramienta esperaba un conjunto y **tres documentos decían otro**:
+un plan escrito siguiendo la documentación fallaba la verificación.
+
+**`SUITE-R58` — la allocation nace completa.** `tracker asignar` acepta ahora `--tipo`,
+`--severidad`, `--epica` y `--titulo`, y escribe `phase: 1` siempre. **Empieza a usarlos**: sin
+`phase` una allocation no se puede avanzar nunca. Lo anterior **no se juzga** (`RIGE_DESDE`): se
+escribió cuando el comando no permitía otra cosa.
+
+**`PTSA-R81` y `PTSA-R82`.** Si tu `PTSA/RESUMEN.md` publica una letra de certificación, revisa
+que los umbrales estén declarados. Este repositorio publicaba una banda —`B (75-89)`— **que no
+estaba en la especificación**: se retiró y la letra se recalculó.
+
+### `RIGE_DESDE` — diecinueve reglas dejan de juzgar hacia atrás
+
+`FDGE-R19` `FDGE-R39` `FDGE-R48` `FDGE-R49` `FDGE-R51` `FND-R29` `FND-R30` `SUITE-R31`
+`SUITE-R33` `SUITE-R34` `SUITE-R38` `SUITE-R40` `SUITE-R42` `SUITE-R43` `SUITE-R44` `SUITE-R45`
+`SUITE-R46` `SUITE-R47` `SUITE-R51`
+
+**Ninguna gana alcance: lo pierden.** Un proyecto destino no puede empezar a fallar por esto —
+solo dejar de fallar sobre trabajo anterior a la versión en que cada regla empezó a comprobarse.
+
+Las cifras **se derivan del árbol**, no del `CHANGELOG`: aquí consta cuándo se **redactó** una
+regla, y `RIGE_DESDE` dice desde cuándo **juzga**. Se midió, y **dos de cada diez discrepan**.
+
+### Correcciones que no cambian ninguna regla
+
+- **El tablero dice en qué paso está cada tarea** — el issue publica la fase, qué la dejó entrar,
+  qué necesita para salir, a dónde va y **cuáles de sus artefactos existen ya**.
+- **La versión es un contenido**: `version.mjs` decía «todo alineado» con **cuatro** declaraciones
+  muertas, incluida la de la plantilla que viaja a cada proyecto destino.
+- **El registro no se reescribe entero**: dos comandos a la vez **perdían una allocation en
+  silencio**. Ocurrió de verdad.
+- **El estado que una compuerta exige lo escribe un comando**: `FDGE-R34` pedía `DONE` para `G4` y
+  ninguno lo ponía.
+- **Un hecho, un nombre**: cinco hechos con dos nombres cada uno, y los cinco decidían si algo se
+  verificaba.
+
+### Si vienes de la `11.0.0`
+
+No hay migración de datos. Lo único que **debes** revisar es el `QA-PLAN` (`LEX-R28`) y el
+`RESUMEN.md` de `PTSA` si publicas una letra (`PTSA-R81`). Todo lo demás avisa, no falla.
+
 ## 11.0.0 — 2026-08-20
 
 **Lo que la auditoría encontró.** `EP-018`: cerrar los nueve hallazgos de `PTSA-2026-08-20` —la

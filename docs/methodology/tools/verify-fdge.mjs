@@ -101,7 +101,24 @@ const SUITE_VERSION = existsSync(CAMBIOS)
   : null;
 
 const fail = (rule, msg) => errors.push({ rule, msg });
-const warn = (rule, msg) => warnings.push({ rule, msg });
+// PT-109 · INC-010 · UNA COMPUERTA NO ES UNA REVISION SORPRESA.
+//
+// CINCO reglas cambian de severidad segun la compuerta: avisan en una corrida normal y FALLAN en
+// «--gate G4» o «--gate G2». Eso esta BIEN —una precondicion de merge es mas estricta que una
+// revision de paso— y a la vez producia el defecto que la calculadora registro: quien corre
+// verify-fdge sin compuerta ve AVISOS, cree que va bien, y al llegar a la compuerta se encuentra
+// rojos que llevaban ahi desde el principio.
+//
+// El arreglo NO es igualar las severidades —seria endurecer cada revision de paso hasta hacerla
+// inutil, o ablandar G4—. Es DECIRLO: que el aviso nombre la compuerta en la que se convierte en
+// error. Un aviso que no dice en que se va a convertir es una sorpresa aplazada.
+const AVISA_AHORA_FALLA_EN = {
+  'SUITE-R35': 'G4', 'FDGE-R19': 'G4', 'FDGE-R52': 'G4', 'FDGE-R54': 'G2',
+};
+const warn = (rule, msg) => warnings.push({
+  rule,
+  msg: AVISA_AHORA_FALLA_EN[rule] ? `${msg} · AVISO AHORA, ERROR EN ${AVISA_AHORA_FALLA_EN[rule]}.` : msg,
+});
 const ok = (rule, msg) => passed.push({ rule, msg });
 
 const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : null);
@@ -1340,6 +1357,31 @@ function checkPT(pt, { gate } = {}) {
   // que actualizara veia fallar --gate G2 en toda tarea en vuelo sin viabilidad.
   const suiteDelPT = intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? '0.0.0';
   const rige = (id) => rigeDesde(id, suiteDelPT);
+
+  // ── SUITE-R58 · el registro solo lo escribe el comando ────────────────────
+  //
+  // PT-103 · esto no existia, y es lo que el firmante señalo: las compuertas miran los
+  // PRODUCTOS —que el intake tenga firma, que exista trazabilidad— y NADIE miraba el
+  // PROCEDIMIENTO. `CLAUDE.md`, `CORE.md`, la sesion y el agente no son compuertas: no pueden
+  // fallar. Una allocation escrita a mano queda escrita, y nada la distinguia de una nacida del
+  // comando — salvo que le falten los campos que el comando ahora si escribe.
+  //
+  // Va AQUI y no al principio de checkPT: `rige` se define en esta linea, y una comprobacion
+  // puesta antes revienta la herramienta entera. Es la decima vez en este lote que una
+  // comprobacion se coloca donde su ambito no llega, y la primera que se caza antes de correr.
+  //
+  // AVISA y no falla, y no es indulgencia: durante 41 tareas `asignar` escribio CUATRO campos
+  // de nueve, asi que lo anterior a la regla se escribio cuando el comando NO PERMITIA otra
+  // cosa. Juzgarlo seria retrofechar (SUITE-R09, RIGE_DESDE).
+  if (enRegistroPT && rige('SUITE-R58')) {
+    const exigidos = ['phase', 'status'];
+    if (String(enRegistroPT.type ?? '') === 'BUG') exigidos.push('severity');
+    const faltan = exigidos.filter((c) => enRegistroPT[c] === undefined || enRegistroPT[c] === null);
+    if (faltan.length) {
+      warn('SUITE-R58', `${pt}: la allocation no declara ${faltan.join(', ')} — se escribio sin `
+        + '«tracker asignar», que ahora los escribe. Sin «phase» no se puede avanzar nunca.');
+    }
+  }
 
   // FDGE-R53 · la deriva ocurre en tareas SIN FORMA. Una que declara como termina lo tiene.
   if (rige('FDGE-R53') && !RE_CIERRE.test(intake)) {

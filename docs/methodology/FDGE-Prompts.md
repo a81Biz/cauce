@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **11.0.0**
+> Suite version: **12.0.0**
 
 ---
 
@@ -238,6 +238,11 @@ node docs/methodology/tools/tracker.mjs pendiente PT-NNN
 
 **`SUITE-R42`: el agente no abre el PR ni lo fusiona.** Comprueba que exista. Abrirlo se
 describe (`EXEC-R07`); fusionarlo es humano en los tres modos (`EXEC-R04`).
+
+**La allocation nace completa, y del comando** (`SUITE-R58`). `tracker asignar` acepta
+`--tipo`, `--severidad`, `--epica` y `--titulo`, y escribe siempre `phase: 1`. Escribir
+`REGISTRY.json` a mano deja la tarea sin `phase` —y sin ella `avanzar` no puede moverla
+nunca— y sin `type` —y sin él las comprobaciones de su tipo no se activan—.
 
 **El registro asigna; la plataforma espeja.** `SUITE-R08` no se toca: si la plataforma asignara
 identificadores habría dos fuentes divergiendo, que es la causa raíz que la v4 nació para

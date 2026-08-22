@@ -132,6 +132,51 @@ export const RIGE_DESDE = {
   // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
   // que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez.
   'LEX-R08': [12, 0, 0],
+  'SUITE-R58': [12, 0, 0],
+
+  // ── PT-106 · las veinte que EMPEZARON A JUZGAR despues del primer commit ──
+  //
+  // El reparto del lote decia «las 151 reglas HARD declaran desde cuando rigen». La medicion
+  // dice VEINTE, y la diferencia no es un recorte: es lo que significa la regla.
+  //
+  //   152  HARD          87 no emiten nada -> NO PUEDEN JUZGAR, no necesitan fila
+  //    65  emiten         7 ya la declaran
+  //                      38 existen desde el PRIMER COMMIT -> nada anterior que juzgar mal
+  //                      20 llegaron DESPUES  <- estas
+  //
+  // Y EL METODO OBVIO HABRIA MENTIDO. Derivar la version del CHANGELOG parece razonable y es
+  // falso: ahi consta cuando se ESCRIBIO la regla, y esto dice desde cuando JUZGA. Contrastado
+  // contra las que ya estaban a mano, DOS discrepan — EXEC-R04 consta en la 8.1.0 y rige desde
+  // la 11.0.0; SUITE-R09 consta en la 4.13.0 y rige desde la 11.0.0. Una cifra plausible y
+  // falsa es peor que ninguna (RULE-06).
+  //
+  // Estas veinte se derivan del ARBOL: el commit donde aparecio la EMISION, y la version que
+  // el proyecto declaraba en ese commit. Cada una trazable a su sha, ninguna inventada.
+  'FDGE-R19': [7, 7, 0],          // 3b528d6f
+  'FDGE-R39': [7, 7, 0],          // 976b8bec
+  'FDGE-R48': [4, 14, 0],          // 5d2772a0
+  'FDGE-R49': [4, 14, 0],          // 5d2772a0
+  'FDGE-R51': [4, 14, 0],          // 5d2772a0
+  'FND-R29': [7, 7, 0],           // 976b8bec
+  'FND-R30': [5, 2, 3],           // 2ad50bed
+  'SUITE-R31': [8, 0, 0],         // 2b971378
+  'SUITE-R33': [5, 0, 0],         // e88a63ba
+  'SUITE-R34': [5, 0, 0],         // e88a63ba
+  // SUITE-R35 NO lleva fila, y es una decision, no un olvido. La derivacion mecanica se la
+  // puso —su comprobacion aparecio en la 5.0.0— y un caso de la bateria la retiro: PT-089 la
+  // declaro «NO PROCEDE» con un motivo mejor que el mio. «Nace verde porque las seis se
+  // resolvieron aqui... copiar el criterio habria anadido UNA FILA QUE MANTENER Y QUE NO
+  // PROTEGE». Una fila derivada no es automaticamente correcta: si ningun trabajo historico
+  // falla la regla, la fila no defiende a nadie y solo puede quedarse obsoleta.
+  'SUITE-R38': [7, 7, 0],         // 976b8bec
+  'SUITE-R40': [5, 2, 1],         // 59726298
+  'SUITE-R42': [5, 3, 0],         // 4287a350
+  'SUITE-R43': [6, 0, 0],         // 781f5e7f
+  'SUITE-R44': [6, 0, 1],         // c7ba859f
+  'SUITE-R45': [7, 0, 0],         // 7fd7eb41
+  'SUITE-R46': [7, 0, 0],         // f0de9489
+  'SUITE-R47': [7, 7, 0],         // 976b8bec
+  'SUITE-R51': [7, 3, 0],         // 567eab2c
 };
 
 /**
@@ -698,6 +743,31 @@ export const PATRONES = {
     para: 'el sello que detecta una edición a mano del núcleo (SUITE-R16)',
     casa: ['<!-- cuerpo: 0b550ea075a8 -->'],
     noCasa: ['<!-- cuerpo: -->', '<!-- cuerpo: XYZ -->', '<!-- fuentes: RULES.md:abc -->'],
+  },
+
+  // PT-102 · la version se DECLARA de dos formas y version.mjs conocia una. Terminaba diciendo
+  // «Todo declara 11.0.0» con CUATRO documentos declarando otra —el CLAUDE.md del propio
+  // repositorio, la plantilla que VIAJA a cada proyecto destino, el README y el MANUAL—, porque
+  // la forma que no miraba vivia fuera de aqui, en un regex local suyo. El grafo lo enseño antes
+  // que el grep: era la herramienta que MENOS dependia de este archivo. Un patron critico que no
+  // esta donde se contrasta no puede completarse (SUITE-R38).
+  //
+  // Anclado a inicio de linea A PROPOSITO: el CHANGELOG cita cifras viejas en mitad de una frase
+  // y esas son HISTORIA (SUITE-R09). Y el grupo de captura exige tres numeros, que es lo que deja
+  // fuera el marcador «X.Y.Z» de una plantilla sin personalizar — correcto tal como esta.
+  VERSION_DECLARADA: {
+    re: /^([>\s]*(?:Suite version:\s*\*\*|suite_version:\s*))(\d+\.\d+\.\d+)(\*\*)?/gm,
+    para: 'toda declaracion de la version de la suite, en sus dos formas (SUITE-R40)',
+    casa: [
+      'Suite version: **11.0.0**',
+      'suite_version: 11.0.0',
+      '> Suite version: **5.2.0** \u00b7 Referencia: `docs/methodology/`',
+    ],
+    noCasa: [
+      'suite_version: X.Y.Z',                      // la plantilla sin personalizar: correcta asi
+      'y una tarea con suite_version: 8.2.0 no',   // una cifra citada en prosa: es historia
+      'Suite version: **5.2**',                    // sin parche: no es una version de la suite
+    ],
   },
 
   VERSION_VIGENTE: {

@@ -1,0 +1,99 @@
+{
+  "pt": "PT-105",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un no-BUG pasa a DONE al cerrar Validacion",
+      "tests": [
+        "selftest.sh:un no-BUG que cierra Validacion pasa a DONE",
+        "selftest.sh:el peldaño se ata al NOMBRE de la fase, no a un numero"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "El peldaño de EN MEDIO. PT-098 puso el de arriba —el terminal— y PT-099 el de abajo —la parada de un BUG—; entre los dos quedo un hueco que ninguno podia ver, porque cada uno resolvia su propio caso. FDGE-R34 exige DONE para G4, y el unico peldaño que lo escribia estaba DESPUES de la compuerta que lo pide."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un BUG sigue deteniendose en VALIDATION_PENDING",
+      "tests": [
+        "selftest.sh:…pero un BUG NO: se detiene",
+        "selftest.sh:…y sigue parando en Validacion"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "FDGE-R26 y LEX-R08 (severidad H) dicen que un BUG se DETIENE y solo una persona lo mueve (SUITE-R06b). Es el peldaño que PT-099 puso a proposito y aqui hay dos casos que comprueban que sigue en pie."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un estado ya terminal no se toca",
+      "tests": [
+        "selftest.sh:…un estado ya terminal no se toca",
+        "selftest.sh:…tampoco uno ya integrado"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "FDGE-R53 · la tarea declara COMO TERMINA y el comando no lo decide por ella. REJECTED, DEFERRED e INTEGRATED no se pisan ni para «corregirlos»."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Se dice lo que se escribio y por que",
+      "tests": [
+        "la nota que emite avanzar"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Con la misma forma que el peldaño del BUG. Y la nota distingue explicitamente que EL COMANDO NO FIRMA NADA: escribe el estado que una firma humana ya registrada implica. Un estado que cambia en silencio es el que luego nadie sabe quien puso — y este es justo el que G4 comprueba."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "la prueba inversa, retirada a retirada"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "CUATRO retiradas, CUATRO con efecto. El caso feliz es UNA LINEA: lo que hay que probar son los dos negativos, y las retiradas S-2 y S-3 son exactamente eso."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que no haya mas estados que una compuerta exija y ningun comando escriba.",
+      "por_que": "Se midio este. Decir «no los hay» seria afirmar sin medir, que es lo que este lote persigue.",
+      "donde": "changes/PT-105-el-estado-que-una-compuerta-exige-lo-escribe-un-comando/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que los quince FEATURE historicos fueran correctos.",
+      "por_que": "Llegaron a INTEGRATED, que es un hecho del arbol. Su estado intermedio no se retrofecha (SUITE-R09).",
+      "donde": "changes/PT-105-el-estado-que-una-compuerta-exige-lo-escribe-un-comando/discovery.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Segunda excepcion declarada ANTES de aplicarla.",
+      "regla": "SUITE-R58",
+      "detalle": "PT-104 se marco DONE a mano para poder cerrarse, con alcance y condicion de cierre en SESSION_LOG.md. En las CUATRO primeras de la sesion el orden fue el contrario, y por eso quedaron calladas."
+    },
+    {
+      "que": "El defecto solo se vio al DEJAR de rodear.",
+      "regla": "—",
+      "detalle": "Mientras escribir el registro a mano era rutina, este hueco no podia notarse: cada tarea lo tapaba sin registrar que lo hacia. Arreglar el rodeo (PT-103) hizo visible lo que el rodeo ocultaba — que es la razon de ser del lote entero, ocurrida dentro del propio lote."
+    }
+  ],
+  "suite": {
+    "passed": 1339,
+    "failed": 0,
+    "baseline": 1324,
+    "nota": "Siete casos. El caso feliz es UNA LINEA; cinco de los siete son los negativos —el BUG que no debe pasar y los dos estados terminales que no deben tocarse— y la atadura de la fase a su NOMBRE."
+  }
+}

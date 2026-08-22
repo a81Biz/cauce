@@ -1,0 +1,119 @@
+{
+  "pt": "PT-102",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La forma de declarar una version vive en PATRONES",
+      "tests": [
+        "selftest.sh:la forma de declarar una version vive en PATRONES",
+        "selftest.sh:…y trae sus ejemplos"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "El grafo dio el diagnostico, no el grep: version.mjs era la que MENOS dependia de patrones.mjs —dos aristas frente a 68 de tracker— y la unica con un patron critico en local. Un patron que no esta donde se contrasta no puede completarse (SUITE-R38)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Reconoce las dos formas y realinea las cuatro muertas",
+      "tests": [
+        "selftest.sh:…y reconoce tambien la segunda forma"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Las dos formas son legitimas y distintas: una es prosa de encabezado, la otra un campo yaml parametrizable. Unificarlas obligaria a reescribir el CLAUDE.md de todo proyecto ya instalado."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El marcador X.Y.Z de la plantilla NO se toca",
+      "tests": [
+        "selftest.sh:…y NO casa el marcador de una plantilla"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Es el negativo que impide que «aceptar cualquier cosa» pase. Si el patron lo alineara, habria roto el documento que enseña como se rellena uno."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La prosa no se toca: ancla a inicio de linea",
+      "tests": [
+        "selftest.sh:…ni una cifra citada en mitad de una frase"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "NO estuvo verificado hasta la segunda pasada. La inversa salio en CERO y dijo por que: el negativo de la prosa lo protegia la EXCLUSION del CHANGELOG, no el ancla. Se añadio un documento que SI se recorre citando una cifra en mitad de una frase — lo unico que pone el ancla a prueba."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El CLAUDE.md del proyecto entra en el recorrido",
+      "tests": [
+        "selftest.sh:el CLAUDE.md del proyecto entra en el recorrido"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Vive dos niveles por encima de docs/methodology y quedaba fuera del arbol. Precedente en el mismo archivo: package.json ya se alcanzaba desde ese nivel. El propio repositorio declaraba 10.0.0 mientras la suite iba por 11.0.0."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "la prueba inversa, retirada a retirada"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "SEIS retiradas, SEIS con efecto. Los casos se miden sobre archivos REESCRITOS en un proyecto de mentira, no sobre el texto de la herramienta: es lo unico que distingue «reconoce el patron» de «lo alinea»."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que no exista una tercera forma de declarar la version.",
+      "por_que": "Se conocen dos y se miden cinco sitios. Un grep no encuentra lo que no sabe buscar.",
+      "donde": "changes/PT-102-la-version-es-un-contenido/discovery.md"
+    },
+    {
+      "afirmacion": "Que ningun proyecto destino ajeno use otra forma.",
+      "por_que": "No se han inspeccionado proyectos ajenos.",
+      "donde": "changes/PT-102-la-version-es-un-contenido/out-of-scope.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "El contrato de patrones.mjs cazo un defecto en mi propio arreglo.",
+      "regla": "SUITE-R38",
+      "detalle": "Uno de los «casa» fallo: el documento que VIAJA declara la version dentro de una cita —«> Suite version: …»— y el ancla no admitia el «>». Es exactamente lo que un patron local no puede hacer: no tiene ejemplos contra los que fallar. La causa de la tarea me corrigio mientras la arreglaba."
+    },
+    {
+      "que": "La inversa salio en cero para el ancla.",
+      "regla": "FDGE-R17",
+      "detalle": "Y dijo por que: el negativo de la prosa lo protegia la exclusion del CHANGELOG, no el ancla. Faltaba un caso, no sobraba el cambio."
+    },
+    {
+      "que": "Sexta rotura de escapado de la sesion.",
+      "regla": "—",
+      "detalle": "El intake no se pudo escribir por un heredoc de bash. Se escribio sin pasar por la capa del shell. Es lo que PT-101 persigue, ocurrido DENTRO de la sesion que la abrio."
+    },
+    {
+      "que": "El grafo llevaba SUSPECT toda la sesion y no se habia mirado.",
+      "regla": "FDGE-R43",
+      "detalle": "Ocho de diecisiete archivos cambiados, declarado en SEIS context.md y usado en NINGUNO. FDGE-R43 dice que no bloquea, y eso se convirtio en permiso para ignorarlo. Lo señalo el firmante, y al regenerarlo dio el diagnostico de esta tarea."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": 1297,
+    "nota": "Pendiente de la corrida completa; los once casos propios pasan (1304 con ellos)."
+  }
+}

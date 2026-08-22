@@ -243,7 +243,17 @@ if (hayQA) {
 // ── FPGE ────────────────────────────────────────────────────────────────────
 if (roadmap !== null) {
   // FPGE-R01 · todo candidato cita su evidencia
-  const items = [...roadmap.matchAll(/^.*\b(R-\d+)\b.*$/gm)].map((m) => [m[1], m[0]]);
+  //
+  // PT-109 · INC-015 · una MENCION no es una DECLARACION. Esto casaba CUALQUIER linea que
+  // nombrara un «R-NNN», asi que una frase en prosa —«como se decidio en R-007»— contaba como
+  // candidato del roadmap y se le exigia evidencia de origen que no tiene por que llevar. Es la
+  // misma forma que LEX-R28 tenia en este mismo archivo: un patron que reconoce el NOMBRE en vez
+  // del SITIO donde el nombre significa algo.
+  //
+  // Un candidato se declara en una FILA de tabla, que es como el roadmap los escribe: la linea
+  // empieza por «|» y el identificador va en su primera celda. Una cita en prosa no lo es, y
+  // exigirle evidencia convierte el verificador en ruido — que es como se deja de mirar.
+  const items = [...roadmap.matchAll(/^\s*\|\s*`?(R-\d+)`?\s*\|.*$/gm)].map((m) => [m[1], m[0]]);
   let sinEvidencia = 0;
   for (const [id, linea] of items) {
     if (!RE_EVIDENCIA.test(linea.replace(id, ''))) {

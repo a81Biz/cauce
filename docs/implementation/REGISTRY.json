@@ -1,5 +1,5 @@
 {
-  "suite_version": "11.0.0",
+  "suite_version": "12.0.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 101,
+    "PT": 110,
     "EP": 19,
     "QA": 0,
     "QR": 0,
@@ -2677,7 +2677,158 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-21"
+      },
+      "issue": 199
+    },
+    {
+      "id": "PT-102",
+      "slug": "la-version-es-un-contenido",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "La version es un contenido, no un numero: version.mjs dice «todo declara 11.0.0» y hay tres muertas",
+      "origin": "INC-004 de la calculadora, y peor de lo que su entrada describia. version.mjs alinea 21 documentos buscando UNA sola forma —«Suite version: **X.Y.Z**», RE_DECLARA en :61— y termina diciendo «Todo declara 11.0.0». Medido: hay TRES documentos con una version muerta que no mira, y las tres declaradas con OTRA forma («suite_version:»): Suite-CLAUDE-Template.md:49 dice 5.2.0, README.md:690 dice 5.2.0 y MANUAL.md:72 dice 7.4.0. El caso de la plantilla es el grave: es el UNICO documento que se copia a cada proyecto destino, asi que la herramienta que alinea la version es CIEGA justo al archivo que viaja — y ademas ese archivo declara «firmantes: - Nombre Apellido», una lista falsa en el documento contra el que SUITE-R27 contrasta las firmas. El verde de version.mjs no dice que todo este alineado: dice que todo lo que MIRA lo esta.",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
+      },
+      "issue": 200
+    },
+    {
+      "id": "PT-103",
+      "slug": "el-registro-solo-lo-escribe-el-comando",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "type": "BUG",
+      "severity": "S1",
+      "track": "STANDARD",
+      "epic": "EP-019",
+      "phase": 8,
+      "structural": false,
+      "suite_version": "11.0.0",
+      "title": "El registro solo lo escribe el comando, y nada lo comprueba",
+      "origin": "Hallazgo del firmante: el marco no obliga a seguir el marco. Medido: tracker asignar escribe CUATRO campos de nueve —id, slug, created, status— y NO escribe type, severity, epic ni phase, que son los que el marco exige. Un BUG de un lote con severidad no se puede registrar con el comando, asi que cada tarea nueva OBLIGA a escribir el JSON a mano; sin phase, avanzar no mueve nada, y sin type las comprobaciones de BUG no se activan. En esta sesion se escribio a mano CINCO veces y solo la primera quedo declarada. Y la causa de fondo es que CLAUDE.md, CORE.md, la sesion y el agente no son compuertas: no pueden fallar. Las compuertas miran los PRODUCTOS —firma del intake, trazabilidad— y NADIE mira el PROCEDIMIENTO: nada detecta que el registro cambio sin que un comando lo cambiara. NOTA: al abrirla se afirmo que PT-100 habia dejado FDGE-R52 apuntando a un archivo inexistente. Es FALSO y quedo corregido en SESSION_LOG.md: la regla nombra las DOS ramas —issue si hay plataforma, TRANSICIONES.log si no— y el archivo no existe aqui porque SI hay plataforma, que es lo que la regla predice.",
+      "issue": 201,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1020,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-21"
       }
+    },
+    {
+      "id": "PT-104",
+      "slug": "el-tablero-dice-en-que-paso-estas",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida",
+      "issue": 202
+    },
+    {
+      "id": "PT-105",
+      "slug": "el-estado-que-una-compuerta-exige-lo-escribe-un-comando",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "El estado que una compuerta exige lo escribe un comando, o la compuerta es incumplible",
+      "issue": 203
+    },
+    {
+      "id": "PT-106",
+      "slug": "las-que-empezaron-a-juzgar-despues",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-019",
+      "title": "Las que empezaron a juzgar despues: RIGE_DESDE se deriva del arbol, no del CHANGELOG",
+      "issue": 204
+    },
+    {
+      "id": "PT-107",
+      "slug": "el-registro-no-se-reescribe-entero",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S0",
+      "epic": "EP-019",
+      "title": "El registro no se reescribe entero: dos comandos a la vez pierden una allocation en silencio",
+      "issue": 205
+    },
+    {
+      "id": "PT-108",
+      "slug": "la-version-del-registro-tambien-es-un-contenido",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "La version del REGISTRO tambien es un contenido: version.mjs no mira REGISTRY.json",
+      "issue": 208
+    },
+    {
+      "id": "PT-109",
+      "slug": "una-compuerta-no-es-una-revision-sorpresa",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "Una compuerta no es una revision sorpresa, y una mencion no es una declaracion",
+      "issue": 209
+    },
+    {
+      "id": "PT-110",
+      "slug": "sellar-mide-lo-que-exige",
+      "created": "2026-08-21",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-019",
+      "title": "Sellar mide lo que exige: el inventario no estaba en la lista",
+      "issue": 210
     }
   ]
 }

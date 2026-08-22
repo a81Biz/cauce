@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **11.0.0**
+> Suite version: **12.0.0**
 
 ---
 
@@ -145,6 +145,10 @@ CIERRE   toda tarea declara EN UNA LÍNEA, observable, cómo termina.           
 LEE  petición o QD/H/R de origen · BACKLOG · HISTORY · ROADMAP (duplicados)
 HAZ  1 asignar PT desde REGISTRY [SUITE-R08] · monotónico, nunca reutilizado [LEX-R04]
        si no puedes escribirlo, PARA
+       CON EL COMANDO, y con sus campos: --tipo --severidad --epica [SUITE-R58]
+       escribir REGISTRY.json a mano deja la allocation sin «phase» — y sin ella
+       «avanzar» no puede moverla NUNCA. Si el comando no admite lo que necesitas,
+       eso es un defecto del comando: decláralo, no lo rodees en silencio.
      2 crear changes/PT-XXX-slug/ + plantilla por tipo:
        BUG,INVESTIGATION→BUG-REPORT · FEATURE→FEATURE-REQUEST · REFACTOR,CHORE→CHANGE-REQUEST
      3 campos [HUMANO]: transcribir literal — el humano declara la intención y tú la

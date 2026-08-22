@@ -1,0 +1,122 @@
+{
+  "pt": "PT-106",
+  "generated": "2026-08-21",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Las veinte declaran su version real",
+      "tests": [
+        "selftest.sh:una regla que llego con la 7.0.0 lo declara",
+        "selftest.sh:…y una que llego con la 4.14.0 tambien",
+        "selftest.sh:…y una de la 8.0.0"
+      ],
+      "evidence": [
+        "salidas/inversa.txt",
+        "salidas/derivacion.txt"
+      ],
+      "verified": true,
+      "nota": "El reparto del lote decia «las 151 reglas HARD». La medicion dice VEINTE, y al ejecutar quedaron DIECINUEVE: 87 no emiten nada —no pueden juzgar—, 7 ya la declaran, 38 existen desde el primer commit y una, SUITE-R35, la tenia DECLARADA COMO «NO PROCEDE» por PT-089 con un motivo mejor que el mio."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Las 38 del primer commit NO llevan fila",
+      "tests": [
+        "selftest.sh:una regla del primer commit NO lleva fila"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Es la mitad de la tarea. Ponerles fila diria «antes de esta version no regia» y es FALSO: regian desde siempre. Habria inventado 125 restricciones que nunca existieron."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Las 87 que no emiten NO llevan fila",
+      "tests": [
+        "selftest.sh:…ni una que no emite nada"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Una regla que no puede fallar no juzga nada. RIGE_DESDE gobierna una EMISION, no un texto."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Ninguna cifra sale del CHANGELOG",
+      "tests": [
+        "la derivacion, con git log -S y git show <sha>:package.json"
+      ],
+      "evidence": [
+        "salidas/derivacion.txt"
+      ],
+      "verified": true,
+      "nota": "MEDIDO Y DESCARTADO: el CHANGELOG parece la fuente natural —41 entradas, 166 reglas nombradas— y contrastado contra las diez filas ya escritas, DOS DE CADA DIEZ son falsas. EXEC-R04 consta en la 8.1.0 y rige desde la 11.0.0; SUITE-R09 consta en la 4.13.0 y rige desde la 11.0.0. La razon es semantica: el CHANGELOG dice cuando se REDACTO la regla, y esto dice desde cuando JUZGA — que es cuando aparecio su comprobacion. Cada fila lleva su sha, que es lo que distingue un dato derivado de uno escrito a ojo."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Las dos que discrepan conservan su valor",
+      "tests": [
+        "selftest.sh:la que discrepa conserva su valor real",
+        "selftest.sh:…y la otra tambien"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La retirada S-3 devuelve EXEC-R04 a 8.1.0 —lo que el CHANGELOG diria— y el caso cae. Sin ese caso, la bateria habria pasado igual con las cifras falsas."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "la prueba inversa, retirada a retirada"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "TRES retiradas, TRES con efecto. Una no aplico a la primera —el patron buscaba un espaciado que el archivo no tiene— y la inversa lo DIJO en vez de contarlo como cero."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que las reglas de PTSA no necesiten lo mismo.",
+      "por_que": "Tienen su propia numeracion y su propio verificador. Quedan DECLARADAS y sin medir.",
+      "donde": "changes/PT-106-las-que-empezaron-a-juzgar-despues/out-of-scope.md"
+    },
+    {
+      "afirmacion": "Que las 87 reglas sin emision deban tenerla.",
+      "por_que": "Es la cobertura mecanica, que audit ya mide (119/228). Otra pregunta.",
+      "donde": "changes/PT-106-las-que-empezaron-a-juzgar-despues/discovery.md"
+    },
+    {
+      "afirmacion": "Que las otras diecinueve filas SI protejan a alguien.",
+      "por_que": "Se derivo CUANDO empezo a juzgar cada regla, no si hay trabajo historico que la falle. El caso de SUITE-R35 demuestra que son preguntas distintas: una fila puede ser cronologicamente correcta y no defender a nadie. Medir eso exigiria correr cada verificador contra cada tarea cerrada, y no se ha hecho.",
+      "donde": "docs/methodology/tools/patrones.mjs · la nota de SUITE-R35"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Mi derivacion mecanica piso una decision humana razonada, y la bateria la defendio.",
+      "regla": "FDGE-R17",
+      "detalle": "La derivacion le puso fila a SUITE-R35 —su comprobacion aparecio en la 5.0.0, es cierto— y un caso ANTERIOR de la bateria fallo: «SUITE-R35 no necesita fila en RIGE_DESDE». Lo puso PT-089 a proposito y con motivo: «nace verde porque las seis se resolvieron aqui... copiar el criterio habria anadido UNA FILA QUE MANTENER Y QUE NO PROTEGE». Su razon es mejor que la mia: la mia era «la derivacion lo dice». UNA FILA DERIVADA NO ES AUTOMATICAMENTE CORRECTA — si ningun trabajo historico falla la regla, la fila no defiende a nadie y solo puede quedarse obsoleta. Retirada, con el motivo escrito en patrones.mjs para que la proxima derivacion no la vuelva a poner."
+    },
+    {
+      "que": "El enunciado del lote estaba equivocado por un factor de siete.",
+      "regla": "—",
+      "detalle": "«Las 151 reglas HARD declaran desde cuando rigen» habria producido 151 filas, de las cuales 125 serian restricciones INVENTADAS. La medicion no recorta el trabajo: lo corrige. Y la direccion importa — de haberlo seguido, el resultado habria sido peor que no hacer nada."
+    },
+    {
+      "que": "Una retirada no aplico a la primera.",
+      "regla": "—",
+      "detalle": "El patron buscaba «'EXEC-R04': [11, 0, 0],» y el archivo lo tiene alineado con doble espacio. La inversa lo dijo —«NO APLICADA, el patron no caso»— en vez de contarlo como cero: la diferencia entre un aviso util y uno mudo."
+    }
+  ],
+  "suite": {
+    "passed": 1339,
+    "failed": 0,
+    "baseline": 1331,
+    "nota": "Ocho casos propios, DOS de AUSENCIA. Cifras pendientes de la corrida completa."
+  }
+}

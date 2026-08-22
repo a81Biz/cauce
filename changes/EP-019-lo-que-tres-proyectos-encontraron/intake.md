@@ -520,3 +520,53 @@ hecha para que quien la tome no repita el trabajo.
 Revisión solicitada por: Alberto Martínez (delegada · constancia en SESSION_LOG.md)
 Fecha: 2026-08-21
 ```
+
+
+---
+
+## Revisión 3 — 2026-08-21 · cuatro tareas más, y lo que destaparon
+> `SUITE-R09` · append-only. Las tablas anteriores **no se reescriben**: esta revisión dice qué
+> filas quedaron resueltas, **por quién**, y qué apareció nuevo. `SUITE-R45` permite que una fila
+> se cierre `HECHO` **o con el identificador al que se movió**.
+
+### Filas que quedan resueltas
+
+| Fila | Quién la resolvió |
+|:---|:---|
+| El `type` canónico de un lote en `LEXICON` | `PT-100` · `LEX-R27` declara que un lote **NO** lleva `type` |
+| Los seis `type === 'EP'` de `verify-fdge.mjs` | `PT-100` · cero, con el helper que `patrones.mjs` exporta |
+| Que `tracker asignar` escriba `phase` | `PT-103` · y además `type`, `severity`, `epic` y `title` |
+| Que `avanzar` aplique la escalera de `status` | `PT-099` (parada del `BUG`) y `PT-105` (peldaño de en medio) |
+
+### Lo que apareció ejecutando estas cuatro
+
+| Qué | De dónde salió | Estado |
+|:---|:---|:---|
+| El escapado que no existe no se rompe | señalado por el firmante · **ocho** roturas en una sesión, y el marco las cuenta en **cuatro comentarios** separados sin sumar: son diecisiete | **`PT-101`** |
+| La versión es un contenido, no un número | `L-4` · `version.mjs` decía «todo alineado» con **cuatro** declaraciones muertas | **`PT-102`** · HECHO |
+| El registro solo lo escribe el comando | señalado por el firmante · `asignar` escribía **4 campos de 9**, así que cumplir el marco exigía saltárselo | **`PT-103`** · HECHO |
+| El tablero dice en qué paso estás | pedido el 2026-08-13 · `EP-007` entregó un comando y **declaró** el hueco | **`PT-104`** · HECHO |
+| El estado que una compuerta exige lo escribe un comando | salió de **aplicar** `PT-103` · `FDGE-R34` pedía `DONE` y nadie lo escribía | **`PT-105`** |
+| Que `sellar` recalcule las cifras del inventario | `FND-R14` ha caído **CINCO** veces en este lote | **PENDIENTE** · sin dueño |
+| Que el grafo se use, no solo se declare | señalado por el firmante · `SUSPECT` durante **seis** tareas, declarado en seis `context.md` y usado en cero. Al regenerarlo dio el diagnóstico de `PT-102` | **PENDIENTE** · sin dueño |
+| Que `PHASES` cite la máquina de estados que el tablero publica | `PT-104` publica el paso, sus reglas y sus artefactos; `PHASES` no lo menciona | **PENDIENTE** · sin dueño |
+
+### Lo que estas cuatro enseñan sobre el lote, y conviene no perder
+
+**Un defecto tapado por un rodeo no se puede ver.** `PT-105` salió de **aplicar** `PT-103`: mientras
+escribir el registro a mano era rutina, el hueco de `FDGE-R34` no podía notarse, porque cada tarea
+lo tapaba sin registrar que lo hacía. Arreglar el rodeo hizo visible lo que el rodeo ocultaba.
+
+**Una escalera a medias no lo parece desde ninguno de sus peldaños.** `PT-098` puso el de arriba y
+`PT-099` el de abajo; los dos correctos en su caso. El hueco solo aparece mirando la escalera
+entera — y a la escalera entera solo se la mira cuando algo obliga a recorrerla sin atajos.
+
+**Los tres hallazgos mayores de la sesión los vio una persona, no una herramienta.** El grafo sin
+usar, las roturas de escapado y el marco que no obliga. Ninguna comprobación los tenía, y `PT-104`
+existe para que el siguiente sea al menos **visible** — no para garantizar que se vea.
+
+### Lo que esta revisión NO establece
+
+- **Que el reparto esté completo.** Cinco tareas nuevas en un día salieron de ejecutar, no de
+  planificar. Es esperable que ejecutar las que quedan destape más.
+- **Que `PT-104` cambie la conducta del agente.** No es comprobable y no se afirma.

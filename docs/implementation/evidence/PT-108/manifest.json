@@ -1,0 +1,82 @@
+{
+  "pt": "PT-108",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "version.mjs ve el suite_version del registro",
+      "tests": [
+        "a mano, sobre el registro real"
+      ],
+      "evidence": [
+        "salidas/alineado.txt"
+      ],
+      "verified": true,
+      "nota": "Es la TERCERA forma de declarar la version, y la confirmacion de un «no establecido»: PT-102 escribio «cuantas formas mas existen. Se conocen dos». Declararlo sirvio — cuando aparecio la tercera habia DONDE ENCAJARLA en vez de parecer un defecto nuevo. Y aparecio AL SELLAR, que es la unica operacion que toca todas las declaraciones a la vez."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "No toca ningun otro campo del registro",
+      "tests": [
+        "leer allocations y contador tras alinear"
+      ],
+      "evidence": [
+        "salidas/alineado.txt"
+      ],
+      "verified": true,
+      "nota": "Se reemplaza sobre el TEXTO y no reserializando: JSON.stringify reordenaria claves y produciria un diff enorme sobre el archivo que guarda el estado del marco. PT-107 demostro EL MISMO DIA lo que cuesta escribirlo mal. Comprobado: 128 allocations y contador 109, intactos."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El limite del cerrojo queda declarado",
+      "tests": [
+        "por construccion: el comentario lo dice"
+      ],
+      "evidence": [
+        "salidas/alineado.txt"
+      ],
+      "verified": true,
+      "nota": "Esta escritura NO pasa por el cerrojo de PT-107 porque vive en otra herramienta que no lo exporta. Es una operacion del SELLO, que no concurre con trabajo de tareas — pero decirlo es la diferencia entre un limite conocido y uno que alguien descubrira (RULE-06)."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La bateria falla sin el arreglo",
+      "tests": [
+        "NO CUBIERTO"
+      ],
+      "evidence": [],
+      "verified": false,
+      "nota": "NO SE ESCRIBIO. La comprobacion se hizo A MANO sobre el registro real; un caso de bateria exigiria un fixture con su propio REGISTRY.json. Es deuda DECLARADA, no un verde: el AC queda sin verificar y se dice."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que no exista una cuarta forma de declarar la version.",
+      "por_que": "Se conocen tres. PT-102 declaro dos y aparecio la tercera al sellar; lo mismo puede pasar otra vez.",
+      "donde": "changes/PT-108-la-version-del-registro-tambien-es-un-contenido/discovery.md"
+    },
+    {
+      "afirmacion": "Que esta escritura sea segura frente a otro comando escribiendo a la vez.",
+      "por_que": "NO pasa por el cerrojo de PT-107. Declarado, no protegido.",
+      "donde": "changes/PT-108-la-version-del-registro-tambien-es-un-contenido/strategy.md"
+    },
+    {
+      "afirmacion": "Que el arreglo este cubierto por la bateria.",
+      "por_que": "AC-04 sin caso. Comprobado a mano; el caso automatico queda pendiente.",
+      "donde": "changes/PT-108-la-version-del-registro-tambien-es-un-contenido/traceability.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "Un AC sin caso de bateria, declarado como tal.",
+      "regla": "FDGE-R17",
+      "detalle": "AC-04 pide que la bateria falle sin el arreglo y NO se escribio el caso: exigiria un fixture con su propio REGISTRY.json. Se comprobo a mano —desalinear a 9.9.9, detectar, alinear, releer— y queda como deuda DECLARADA. Rellenarlo diciendo «verificado» habria sido fabricar un verde."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": 1345,
+    "nota": "Sin casos propios: AC-04 declarado sin cubrir."
+  }
+}

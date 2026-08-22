@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 197bf690d0b8 -->
-<!-- fuentes: RULES.md:9c99764118a7 LEXICON.md:277f41939691 EXECUTION-MODES.md:2454719ff743 PHASES.md:de2bffe47928 -->
+<!-- cuerpo: 92af7b18424f -->
+<!-- fuentes: RULES.md:b00e868cefb3 LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:87bbfd5eaeff -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -199,6 +199,7 @@ verifica un script y bloquea la integración.
 `SUITE-R55` **H** Las decisiones humanas de una migración se conducen, no se enumeran.
 `SUITE-R56` **H** El rastro de una tarea sobrevive a la rama que lo produjo.
 `SUITE-R57` **H** Lo integrado no se acumula sin sellar. Si hay más de N tareas INTEGRATED de lotes ya cerrados que no están en el último tag de versión, G2 se bloquea hasta que una versión cierre. N = 3 por defecto,…
+`SUITE-R58` **H** El registro solo lo escribe el comando, y el marco lo comprueba.
 
 ### LEX — Nombres
 
@@ -555,6 +556,10 @@ CIERRE   toda tarea declara EN UNA LÍNEA, observable, cómo termina.           
 LEE  petición o QD/H/R de origen · BACKLOG · HISTORY · ROADMAP (duplicados)
 HAZ  1 asignar PT desde REGISTRY [SUITE-R08] · monotónico, nunca reutilizado [LEX-R04]
        si no puedes escribirlo, PARA
+       CON EL COMANDO, y con sus campos: --tipo --severidad --epica [SUITE-R58]
+       escribir REGISTRY.json a mano deja la allocation sin «phase» — y sin ella
+       «avanzar» no puede moverla NUNCA. Si el comando no admite lo que necesitas,
+       eso es un defecto del comando: decláralo, no lo rodees en silencio.
      2 crear changes/PT-XXX-slug/ + plantilla por tipo:
        BUG,INVESTIGATION→BUG-REPORT · FEATURE→FEATURE-REQUEST · REFACTOR,CHORE→CHANGE-REQUEST
      3 campos [HUMANO]: transcribir literal — el humano declara la intención y tú la
