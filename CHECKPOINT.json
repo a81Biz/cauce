@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-019",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-097-apertura",
   "sha": "c976c64af2083b6d1c934fb9a1cea84937c13d8f",
   "sha_corto": "c976c64",
@@ -14,6 +14,8 @@
     "changes/PT-102-la-version-es-un-contenido/",
     "changes/PT-103-el-registro-solo-lo-escribe-el-comando/",
     "changes/PT-104-el-tablero-dice-en-que-paso-estas/",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md",
@@ -35,8 +37,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-21"
 }
