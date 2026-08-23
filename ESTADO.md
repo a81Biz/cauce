@@ -17,7 +17,7 @@ Proyectado el 2026-08-23 · 25 allocation(es) viva(s).
 | PT-116 | FEATURE | DONE | 8 | — | — | 8352fde |
 | PT-117 | FEATURE | DONE | 8 | — | — | 95d794f |
 | PT-118 | FEATURE | DONE | 8 | chore/alberto-martinez/PT-113-apertura | 38eed33 | 39153f6 |
-| PT-119 | FEATURE | DRAFT | 6 | chore/alberto-martinez/PT-113-apertura | 38eed33 | 922379b |
+| PT-119 | FEATURE | DRAFT | 7 | chore/alberto-martinez/PT-113-apertura | 38eed33 | 922379b |
 | PT-120 | BUG | DONE | 8 | — | — | 0b2c724 |
 | PT-121 | BUG | DRAFT | 1 | — | — | 829cb38 |
 | PT-122 | BUG | DRAFT | 1 | — | — | 829cb38 |
