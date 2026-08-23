@@ -2,9 +2,9 @@
   "pt": "PT-124",
   "type": "BUG",
   "epic": "EP-020",
-  "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "f7973b88de5dd6fe2de4a21634d16ab3ceccb0ba",
   "sha_corto": "f7973b8",
@@ -19,6 +19,7 @@
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REFACTOR_SCOPE.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-124/",
@@ -27,11 +28,8 @@
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-suite.mjs"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-22"
 }
