@@ -3233,7 +3233,7 @@
       "slug": "la-topologia-de-ramas-no-se-enumera",
       "created": "2026-08-22",
       "status": "DRAFT",
-      "phase": 1,
+      "phase": 2,
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-020",
