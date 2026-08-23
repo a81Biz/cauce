@@ -3262,7 +3262,7 @@
       "slug": "nada-detecta-el-trabajo-sin-allocation",
       "created": "2026-08-22",
       "status": "DRAFT",
-      "phase": 1,
+      "phase": 3,
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",

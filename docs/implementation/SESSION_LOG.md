@@ -3502,3 +3502,45 @@ anticipa. Lo que lo hace contrastable es la condición: **`G4` sólo se ejecuta 
 
 `SUITE-R27` · el agente escribe esta constancia. Lo contrastable es el literal citado arriba y
 el estado de las comprobaciones en el momento del merge.
+
+---
+
+## 2026-08-23 · `EP-020` · el orden cambia: la cadena de la parada sube
+
+**Lo señaló el firmante:** *«uno de los PT que te pedí es que escribieras esto en el PT en el que
+estás trabajando, no sé si ya llegaste a él o lo pusiste»*.
+
+**No había llegado, y mientras tanto llevaba seis tareas cerradas explicando cada hallazgo sólo en
+la conversación** — que es exactamente lo que este lote existe para impedir. Los issues sólo
+tenían las tres líneas de reanclaje de `FDGE-R52`; la explicación —el hallazgo, el porqué, lo que
+casi sale mal— vivía en el chat y en `HISTORY.log`.
+
+`O-7` del intake anticipaba que el lote podía cumplirse a sí mismo. No de forma tan literal.
+
+### Lo hecho ahora, a mano
+
+Publicadas las **seis paradas** de las tareas cerradas, con la forma que el lote define:
+
+```
+PT-131 #252 · PT-129 #249 · PT-132 #253 · PT-114 #232 · PT-124 #242 · PT-123 #241
+motivo · la explicacion · el desenlace · y «lo que casi hago mal» donde lo hubo
+```
+
+**Que sea a mano es el dato**, y cada nota lo dice al pie: el comando que las escribiría es
+`PT-116` y todavía no existe.
+
+### El orden nuevo
+
+```
+PT-115  PARADA entra al vocabulario y a las reglas
+PT-116  tracker parada — el comando que la escribe
+PT-117  todo desenlace cita la parada que lo produjo
+luego   PT-113 · PT-120 · PT-128 · PT-118 · PT-125 · PT-119 · PT-126 · PT-121 · PT-122 · PT-130
+```
+
+**Motivo:** sin el mecanismo, cada tarea que cierre repite el fallo. El criterio del orden no
+cambia —antes va lo que habría cazado los defectos de esta sesión—; lo que cambia es que **la
+sesión demostró que la parada es uno de ellos**, y no lo estaba.
+
+`PT-130` baja al final: su defecto —una comprobación que acusa a quien documenta— no bloquea a
+nadie mientras se escriba con cuidado, y ya se sabe cómo esquivarlo.
