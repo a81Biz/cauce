@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 130,
+    "PT": 131,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3268,6 +3268,17 @@
       "epic": "EP-020",
       "title": "Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho",
       "issue": 250
+    },
+    {
+      "id": "PT-131",
+      "slug": "el-candado-con-la-llave-dentro",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene"
     }
   ]
 }
