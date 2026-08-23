@@ -3,8 +3,8 @@
   "type": "FEATURE",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "56f9b374c0a68d8e1d0f93694d66025cdce6e000",
   "sha_corto": "56f9b37",
@@ -29,7 +29,10 @@
     "docs/methodology/tools/tracker.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-23"
 }
