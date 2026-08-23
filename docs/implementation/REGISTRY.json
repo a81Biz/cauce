@@ -3274,11 +3274,12 @@
       "slug": "el-candado-con-la-llave-dentro",
       "created": "2026-08-22",
       "status": "DRAFT",
-      "phase": 1,
+      "phase": 2,
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene"
+      "title": "SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene",
+      "issue": 252
     }
   ]
 }
