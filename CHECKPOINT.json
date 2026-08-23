@@ -3,8 +3,8 @@
   "type": "FEATURE",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "38eed3349d2a888b11bf21a9fd96a7f6f19c1e62",
   "sha_corto": "38eed33",
@@ -31,10 +31,15 @@
     "docs/methodology/tools/selftest.sh",
     "package.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-23"
 }
