@@ -7,7 +7,7 @@ type: BUG
 severity: S2
 complexity:
 track: STANDARD
-status: DRAFT
+status: READY
 phase: 1
 created: 2026-08-22
 origin: DIRECT
@@ -179,23 +179,23 @@ firmante (`SUITE-R06`, `EXEC-R04`), y `L-8` debería ir antes de volver a pulsar
 
 ```
 DoR-01  tipo declarado: BUG                                          [x]
-DoR-02  severidad declarada por el humano: S2                        [~] propuesta · falta confirmar
-DoR-03  bloque ## Firma con nombre y fecha                           [ ] por lote: EP-020, SIN FIRMAR
+DoR-02  severidad declarada por el humano: S2                        [x] confirmada con la firma del lote
+DoR-03  bloque ## Firma con nombre y fecha                           [x] por lote: EP-020, firmado 2026-08-22
 DoR-04  out-of-scope declarado explícitamente                        [x] cuatro líneas
 DoR-05  PT-113 asignado desde REGISTRY.json                          [x] tracker asignar
 DoR-06  no duplica un PT vivo ni un ítem de roadmap promovido        [x] §12
 DoR-07  observaciones del agente registradas                         [x] O-1..O-4
-DoR-B1  comportamiento esperado declarado, no deducido del código    [~] borrador del agente
+DoR-B1  comportamiento esperado declarado, no deducido del código    [x] confirmado con la firma del lote
 DoR-B2  comportamiento observado con detalle observable              [x] tres cifras del tarball
 DoR-B3  pasos de reproducción                                        [x] §4
 DoR-B4  entorno identificado                                         [x] §5, con corrida y sha
 DoR-B5  frecuencia declarada                                         [x] siempre
 DoR-B6  impacto y usuarios afectados declarados                      [x] §6
 
-VEREDICTO: FAIL
-Motivo: DoR-03. La firma del lote EP-020 no existe todavía, y sin ella este intake no está
-        firmado (INTAKE-R08). §1, §2, §6 y §8 son borrador del agente y necesitan confirmación
-        del firmante: son las partes que INTAKE-R06 le reserva.
+VEREDICTO: PASS
+Motivo: la firma única de EP-020 —Alberto Martínez, 2026-08-22— cubre este intake
+        (INTAKE-R08), y con ella §1, §2, §6 y §8 dejan de ser borrador. La base de esa
+        firma y su límite (SUITE-R27) están declarados en el §5 del intake del lote.
 ```
 
 ---

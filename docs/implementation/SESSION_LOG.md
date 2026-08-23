@@ -3301,3 +3301,63 @@ párrafos. Lo que `SUITE-R27` garantiza es que hay un nombre concreto asociado a
 estaba autorizado; no la voluntad detrás.
 
 **`PUBLICAR` no entra.** La `12.0.1` no está en npm y no se publica hasta que `PT-113` cierre.
+
+---
+
+## 2026-08-22 · `G1` de `EP-020` · VoBo del firmante y tres decisiones delegadas
+
+**Autorizado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`).
+
+Literal de la sesión: *«primero el pt que arregla las ramas, firma todo con mi vobo en el bloque
+completo de la ep y las tareas necesarias. A partir de esto toma las decisiones que mejor se
+adapten a la corrección y mejora del sistema»*.
+
+`INTAKE-R06` no permite al agente firmar, así que la firma de §5 del intake de `EP-020` la
+**transcribe** el agente y declara su base. `SUITE-R27` dice qué vale: hay un nombre concreto,
+está en `firmantes`, y la afirmación es contrastable contra esta entrada. **No prueba la voluntad**
+**detrás** — el agente escribe el archivo.
+
+`G1` de `EP-020`: **PASS**. Dieciocho tareas, `PT-113` a `PT-130`, cubiertas por la firma única
+(`INTAKE-R08`).
+
+### Las tres decisiones delegadas, resueltas por el agente y nombradas como tales
+
+**`O-1` — parada con decisión, no literal.** Se publica la parada cuyo motivo esté en una lista
+cerrada —hallazgo · condición bloqueante · compuerta · abrir trabajo nuevo · límite alcanzado ·
+desafío al Intake—. Se pierde el registro de las paradas sin decisión; se acepta porque 40
+comentarios por tarea entierran `SUITE-R43`, que es la regla que detecta al humano sin responder.
+Cambiar una invisibilidad por otra no es ganar. **Queda medido**: `PT-119` publicará cuántas
+paradas se registraron por tarea, y si la cifra deja la clase inútil la lista se amplía con
+evidencia.
+
+**`DoR-E7` — se elige (b), el generador, y se descarta la excepción.** El agente había
+recomendado (a) —escribir a mano el bloque de `EP-020` en `BACKLOG.md`—. Se cambia de opinión con
+motivo medido: este lote existe porque **una edición a mano declarada se olvida y una herramienta
+no**, y `BACKLOG.md` ya lleva **dos** episodios de quedarse atrás —ocho lotes la primera vez,
+cuatro ahora—, los dos empezados por editarlo «sólo esta vez». Autorizar la excepción en el intake
+del lote que persigue esa clase habría sido la instancia siguiente. `PT-123` sube al reparto.
+
+**El orden — `PT-129` primero por decisión del firmante; el resto por un solo criterio:** antes va
+lo que habría cazado los defectos de esta misma sesión.
+
+```
+1 PT-129  las ramas se enumeran          4 PT-123  BACKLOG tiene generador
+2 PT-114  el intake se puede leer        5 PT-127  trabajo sin allocation
+3 PT-124  el vocabulario canónico        6 PT-130  la comprobación no acusa
+   ── las seis primeras son las que hacen que las doce siguientes no repitan la sesión ──
+7 PT-113 · 8 PT-120 · 9 PT-115 · 10 PT-116 · 11 PT-128 · 12 PT-117
+13 PT-118 · 14 PT-125 · 15 PT-119 · 16 PT-126 · 17 PT-121 · 18 PT-122
+```
+
+**No es una promesa de que no se repetirán.** Una promesa no es un mecanismo, y este lote existe
+por eso. Es una apuesta ordenada y **medible**: al cerrar, `PT-119` publicará cuántas veces los
+detectores de las seis primeras cazaron algo **dentro del propio lote**. Si la cifra es cero, o el
+orden no sirvió o los detectores no valen — y las dos cosas se sabrán.
+
+### Lo que queda declarado y no resuelto
+
+`REGISTRY.allocations[EP-020].status` sigue diciendo `DRAFT` con el YAML del intake en `READY`.
+**Ningún comando escribe el estado que `G1` produce** — es el gemelo exacto de `DONE -> INTEGRATED`
+que `PT-121` persigue, y se le añade como `AC-05` en vez de escribir el registro a mano, que es lo
+que `PT-103` y `PT-107` existen para impedir. `SUITE-R35` lo reporta como aviso, no como error, y
+la precedencia de `PT-004` no cambia: manda el YAML.

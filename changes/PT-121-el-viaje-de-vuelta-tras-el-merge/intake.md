@@ -9,7 +9,7 @@ id: PT-121
 type: BUG
 epic: EP-020
 track: STANDARD
-status: DRAFT
+status: READY
 phase: 1
 created: 2026-08-22
 structural: si
@@ -28,6 +28,7 @@ suite_version: 12.0.0
 | AC-01 | Existe un comando que escribe la transición `DONE -> INTEGRATED` en el YAML del intake y en el registro, en un solo acto | hoy no existe: `avanzar` se niega —con razón— sobre un estado terminal, y los 17 de EP-019 se sincronizaron a mano |
 | AC-02 | `FDGE-R19` declara la forma de rama para cerrar un lote, o declara explícitamente que se usa la de tarea y por qué | verify-fdge deja de avisar sobre una rama de lote |
 | AC-03 | `PHASES.md` declara dónde ocurre el viaje de vuelta, con su artefacto y su salida | SUITE-R20: el bloque existe en PHASES y en los prompts de su componente |
+| AC-05 | **Ningún comando escribe el estado que `G1` produce**: al pasar `G1`, un lote debe quedar `READY` en el registro y hoy hay que escribirlo a mano | es el gemelo de `DONE -> INTEGRATED`: la compuerta produce un estado y ningún comando lo apunta (`PT-105`) |
 | AC-04 | Falta un tag por versión y algo lo echa en falta: `v10.0.0`, `v11.0.0` y `v12.0.0` no existen y dos de esas versiones están en npm | sellar lo reporta contra los tags reales |
 
 ## 3. Cómo termina   `FDGE-R53`

@@ -9,7 +9,7 @@ id: PT-117
 type: FEATURE
 epic: EP-020
 track: STANDARD
-status: DRAFT
+status: READY
 phase: 1
 created: 2026-08-22
 structural: no

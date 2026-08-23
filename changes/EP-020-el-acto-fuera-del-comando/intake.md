@@ -4,7 +4,7 @@
 ---
 id: EP-020
 created: 2026-08-22
-status: DRAFT
+status: READY
 mode: SUPERVISED
 origin: DIRECT
 suite_version: 12.0.0
@@ -69,9 +69,9 @@ ledger entero:
 | **Trabajar sin allocation** | **≥11** `D` | — | **ninguno** | **SIN DUEÑO** |
 | **La comprobación acusa a quien documenta el hecho** | **≥11** `D` | — | `SUJETOS` al 3 % | **SIN DUEÑO** |
 
-**La decimosexta la señaló el firmante**, y faltaba por un error mío concreto: la medí en §2.2 —7
-commits, 0 allocations— y no la convertí ni en clase ni en tarea. Es la única de las dieciséis cuyo
-**único detector conocido es una persona**:
+**Las dos últimas las señaló el firmante.** La decimosexta faltaba por un error mío concreto: la
+medí en §2.2 —7 commits, 0 allocations— y no la convertí ni en clase ni en tarea. Es la única de
+las diecisiete cuyo **único detector conocido es una persona**:
 
 ```
 PT-082   commits directos a una rama protegida
@@ -151,10 +151,24 @@ Cubre los Intakes de **todos** los PTs listados en §6 (`INTAKE-R08`). El agente
 escribir este bloque (`INTAKE-R06`).
 
 ```
-Solicitado por:
-Fecha:
+Solicitado por: Alberto Martínez
+Fecha: 2026-08-22
 He leído el Intake de cada PT listado en §6 y confirmo que todos reflejan mi intención: SÍ
 ```
+
+> **Base de esta firma**, escrita por el agente porque `INTAKE-R06` no le permite firmar:
+> *«firma todo con mi vobo en el bloque completo de la ep y las tareas necesarias»*, y antes
+> *«primero el pt que arregla las ramas»* y *«a partir de esto toma las decisiones que mejor se
+> adapten a la corrección y mejora del sistema»*.
+>
+> `SUITE-R27` declara qué vale y qué no: hay **un nombre concreto**, está en `firmantes`, y la
+> afirmación es **contrastable** contra la sesión del `2026-08-22` registrada en `SESSION_LOG.md`.
+> No prueba la voluntad detrás — el agente escribe el archivo. Quien figura responde de lo que
+> lleva su nombre.
+>
+> **Alcance declarado de la delegación**: el firmante delegó además las decisiones de diseño de
+> §10 —`O-1` y `DoR-E7`— y el orden del reparto. Las tres quedan **resueltas por el agente y
+> nombradas como tales**, no presentadas como decisión humana.
 
 ---
 
@@ -234,8 +248,12 @@ L-2 L-3 L-7 L-9 L-10 L-11 L-12    tools/tracker.mjs                 -> SERIALIZA
 L-13                              tools/tracker.mjs + patrones.mjs  -> SERIALIZADO con los de arriba
 L-0 ↔ L-8                         ninguno: L-8 toca workflows, L-0 documentos
 
-Orden:  L-12 -> L-13 -> L-14 -> L-0 -> L-8 -> L-1 -> L-2 -> L-15 -> L-3 -> L-4 -> L-5
-        -> L-6 -> L-7 -> L-9 -> L-10 -> L-11 -> L-16 -> L-17
+Orden:  L-16 -> L-12 -> L-13 -> L-11 -> L-14 -> L-17 -> L-0 -> L-8 -> L-1 -> L-2
+        -> L-15 -> L-3 -> L-4 -> L-5 -> L-6 -> L-7 -> L-9 -> L-10
+
+        PT-129 · PT-114 · PT-124 · PT-123 · PT-127 · PT-130 | PT-113 · PT-120 ·
+        PT-115 · PT-116 · PT-128 · PT-117 · PT-118 · PT-125 · PT-119 · PT-126 ·
+        PT-121 · PT-122
 ```
 
 **Por qué `L-12` va primera, y no es preferencia.** Mientras el intake de un lote no se pueda leer
@@ -317,39 +335,81 @@ que aparezca contado y no como sorpresa.
 ## 10. Resultado de la compuerta `G1` `[AGENTE]`
 
 ```
-DoR-E1 objetivo común declarado                    [~] borrador del agente · falta confirmación
-DoR-E2 criterio de éxito del lote declarado        [~] borrador del agente · falta confirmación
-DoR-E3 out-of-scope del lote declarado             [~] borrador del agente · falta confirmación
-DoR-E4 firma única presente                        [ ] FALTA — solo del firmante (INTAKE-R06)
+DoR-E1 objetivo común declarado                    [x] confirmado con la firma de §5
+DoR-E2 criterio de éxito del lote declarado        [x] confirmado con la firma de §5
+DoR-E3 out-of-scope del lote declarado             [x] confirmado con la firma de §5
+DoR-E4 firma única presente                        [x] Alberto Martínez, 2026-08-22, con su base declarada
 DoR-E5 EP asignado desde REGISTRY.json             [x] EP-020, con tracker asignar
-DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [~] las 18 tienen intake · «firmado por lote» depende de DoR-E4
-DoR-E7 solapamiento calculado y declarado en BACKLOG.md                      [!] BLOQUEADA · ver abajo
+DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [x] las 18, con «Firmado por lote: EP-020»
+DoR-E7 solapamiento calculado y declarado en BACKLOG.md                      [x] resuelto por (b) — ver abajo
 DoR-E8 observaciones registradas                   [x] O-1..O-9
 
-VEREDICTO: FAIL
-Motivo: falta la firma del bloque §5 y la confirmación de §1, §3 y §4. Sin firma el lote no
-        avanza, y el agente no puede escribirla.
+VEREDICTO: PASS
 ```
 
-**`DoR-E7` no se puede cumplir hoy, y no se finge que sí.** El solapamiento **está** calculado
-—§7— pero declararlo exige escribir `BACKLOG.md`, y ese archivo **no tiene generador**: su cabecera
-dice que se deriva del registro, el bloque `no hacer` prohíbe editarlo a mano, y `tracker indices`
-no lo cubre. Es `L-11`.
+### `DoR-E7` — resuelto por **(b)**, no por la excepción
 
-Salidas, y la decisión es del firmante:
+El firmante delegó la decisión. **Se elige (b): `PT-123` sube al reparto y escribe el generador
+antes de que `DoR-E7` se dé por cumplida.** Se descarta la recomendación anterior del agente —(a),
+la excepción a mano— por una razón medida y no por preferencia:
+
+> Este lote existe porque **una edición a mano declarada se olvida y una herramienta no**. `BACKLOG.md`
+> ya lleva **dos** episodios de quedarse atrás —ocho lotes la primera vez, cuatro ahora— y los dos
+> empezaron por editarlo a mano «sólo esta vez». Autorizar la excepción en el intake del lote que
+> persigue esa clase habría sido la instancia siguiente, escrita por mí.
+
+El coste declarado de (b) —retrasar `L-0`, que es deuda con npm— se acepta: la `12.0.0` publicada
+tiene una regla sin línea de migración, y eso **ya está descrito en su `CHANGELOG` corregido**;
+esperar dos tareas más no lo empeora.
+
+### `O-1` — resuelto: **parada con decisión**, y qué se pierde
+
+El firmante delegó la decisión. **Se elige la lista cerrada de motivos**, no el literal «después de
+cada tanda de herramientas». La razón, con su coste dicho:
 
 ```
-a) Autorizar la excepción: se escribe a mano SOLO el bloque de EP-020, con esta línea
-   como constancia, y L-11 lo deja generado antes de cerrar el lote.
-b) Mover L-11 al principio del orden: se escribe el generador primero y DoR-E7 se cumple
-   con la herramienta. Retrasa L-0, que es deuda con npm.
-
-Recomendación del agente: (a). El coste de (b) es publicar más tarde una corrección que ya
-está escrita, y el de (a) es una edición a mano declarada que L-11 borra.
-
-Autorizado por:
-Fecha:
+motivos que SÍ publican parada    hallazgo · condición bloqueante · compuerta ·
+                                  abrir trabajo nuevo · límite alcanzado ·
+                                  desafío al Intake  (LEXICON, cerrada — L-1)
+lo que se pierde                  las paradas sin decisión no quedan registradas
+por qué se acepta                 40 comentarios por tarea entierran SUITE-R43, que
+                                  es la regla que detecta al humano sin responder.
+                                  Cambiar una invisibilidad por otra no es ganar.
+lo que lo hace reversible         la lista vive en LEXICON y ampliarla es un cambio
+                                  de metodología, no un parche
 ```
+
+**Y queda medido, no prometido**: `L-6` publicará cuántas paradas se registraron por tarea en este
+lote. Si el número resulta ser tan bajo que la clase se vuelve inútil, la lista se amplía con
+evidencia en vez de con opinión.
+
+### El orden — resuelto, y con el criterio escrito
+
+El firmante pidió **`PT-129` primero**. El resto lo ordena el agente por un solo criterio: **antes
+va lo que habría cazado los defectos de esta misma sesión**, para que el lote no repita lo que
+persigue.
+
+```
+1  PT-129  las ramas se enumeran            <- pedido por el firmante
+2  PT-114  el intake se puede leer          sin esto NINGÚN lote pasa G1
+3  PT-124  el vocabulario canónico          PT-125 y PT-126 siguen sin «type»
+4  PT-123  BACKLOG tiene generador          cierra DoR-E7 con herramienta
+5  PT-127  trabajo sin allocation           habría cazado los 10 commits del cierre anterior
+6  PT-130  la comprobación no acusa         habría evitado el rojo de hoy
+   ────────────────────────────────────────────────────────────────────────
+   las seis primeras son las que hacen que las doce siguientes no repitan la sesión
+   ────────────────────────────────────────────────────────────────────────
+7  PT-113  la 12.0.1        8  PT-120  publicar.yml ejecuta sellar
+9  PT-115  PARADA          10  PT-116  tracker parada      11  PT-128  el cursor
+12 PT-117  el desenlace cita su parada
+13 PT-118  taxonomía       14  PT-125  clasificar          15  PT-119  matriz.mjs
+16 PT-126  sellar la mide  17  PT-121  el viaje de vuelta  18  PT-122  el cierre por comando
+```
+
+**Esto no es una promesa de que no se repetirán.** Una promesa no es un mecanismo, y este lote
+existe justamente por eso. Es una **apuesta ordenada y medible**: las seis primeras construyen los
+detectores, y al cerrar el lote `L-6` publicará cuántas veces cazaron algo dentro del propio lote.
+Si la cifra es cero, o el orden no sirvió, o los detectores no valen — y las dos cosas se sabrán.
 
 ---
 
