@@ -1997,6 +1997,96 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-119 · EP-020 · MATRIZ.md se deriva, no se escribe ──────────────────────────────────────
+#
+# Lo pidio el firmante: «quiero la matriz para saber que falta por corregir, que errores se
+# repiten y como los vamos a solventar».
+#
+# Es H-007 otra vez aplicado a una tabla nueva: PT-091 demostro que una cifra transcrita caduca
+# en un dia. Una matriz escrita a mano seria la instancia siguiente de CE-010.
+MZ119="$SUITE/tools/matriz.mjs"
+
+# AC-01 · la fila lleva clase, veces, primera y ultima aparicion, tareas, regla dueña y si esa
+# regla tiene verificador.
+mlib "la fila lleva clase, veces y fechas" "CE-001 2 2026-01-01 2026-02-02" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-001",nombre:"x",enunciado:"y"}],
+     [{clase:"CE-001",fecha:"2026-01-01",tarea:"PT-1",polaridad:"INSTANCIA"},
+      {clase:"CE-001",fecha:"2026-02-02",tarea:"PT-2",polaridad:"INSTANCIA"}],
+     new Map(), new Map())[0];
+   console.log(f.id, f.veces, f.primera, f.ultima);'
+mlib "…y las tareas donde ocurrio" "PT-1 PT-2" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-001",nombre:"x",enunciado:"y"}],
+     [{clase:"CE-001",fecha:"a",tarea:"PT-1",polaridad:"INSTANCIA"},
+      {clase:"CE-001",fecha:"b",tarea:"PT-2",polaridad:"INSTANCIA"}],
+     new Map(), new Map())[0];
+   console.log(f.tareas.join(" "));'
+
+# AC-02 · TODAS las cifras se DERIVAN. La inversa: alterar el jsonl cambia la cifra.
+mlib "alterar el jsonl cambia la cifra" "1 luego 3" "$MZ119" \
+  'const uno=m.filasDe([{id:"CE-001"}],[{clase:"CE-001",polaridad:"INSTANCIA"}],new Map(),new Map())[0].veces;
+   const tres=m.filasDe([{id:"CE-001"}],[1,2,3].map(()=>({clase:"CE-001",polaridad:"INSTANCIA"})),new Map(),new Map())[0].veces;
+   console.log(uno+" luego "+tres);'
+# Y una MENCION no suma: contarla inflaria la matriz con una recurrencia que no ocurrio (PT-125).
+mlib "una MENCION no suma como instancia" "1 instancia 1 mencion" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-001"}],
+     [{clase:"CE-001",polaridad:"INSTANCIA"},{clase:"CE-001",polaridad:"MENCION"}],
+     new Map(), new Map())[0];
+   console.log(f.veces+" instancia "+f.menciones+" mencion");'
+
+# AC-04 · la regla dueña se DERIVA de que la regla CITE la clase, en su propio texto. Una tabla
+# clase→regla escrita a mano seria justo la copia que diverge (SUITE-R38, LEX-R23).
+mlib "la regla dueña sale de que la regla cite la clase" "X-R01" "$MZ119" \
+  'const d=m.duenasPorClase(["| `X-R01` | HARD | gobierna CE-002 |"]);
+   console.log(d.get("CE-002")[0].id);'
+# LAS DOS FORMAS de definir una regla. Mirar solo la fila de tabla dejaba fuera a SUITE-R14
+# —definida suelta— y con ella a CE-008: una clase habria salido «sin dueño» TENIENDO dueño.
+mlib "…tambien en la forma suelta, que ocupa varias lineas" "Y-R02" "$MZ119" \
+  'const L=String.fromCharCode(10);
+   const d=m.duenasPorClase(["`Y-R02` · **(CHECK)** algo"+L+"  que gobierna CE-008 aqui"+L]);
+   console.log(d.get("CE-008")[0].id);'
+mlib "…y sin cita, la clase sale SIN DUEÑO" "SIN DUENO" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-099"}],[],new Map(),new Map())[0];
+   console.log(f.duenas.length?"CON DUENO":"SIN DUENO");'
+# «Tiene verificador» NO es «la regla existe»: es que alguna herramienta EMITA por ella. La
+# primera corrida encontro que SUITE-R59 existe y NADA emite por ella.
+mlib "tener regla no es tener verificador" "CON REGLA SIN VERIFICADOR" "$MZ119" \
+  'const d=new Map([["CE-002",[{id:"S-R59",severidad:"HARD"}]]]);
+   const f=m.filasDe([{id:"CE-002"}],[],d,new Map())[0];
+   console.log(f.duenas.length&&!f.verificadores.length?"CON REGLA SIN VERIFICADOR":"otra cosa");'
+
+# AC-03 · RULE-06 · lo que no puede leerse sale SIN EVALUAR y es DISTINGUIBLE de «cero». Sin este
+# desenlace, un EVENTOS.jsonl ilegible produciria el mismo informe que uno perfecto — la leccion
+# de PT-110, y el tercer desenlace que el propio intake declaro como lo que importa.
+mlib "un jsonl ilegible NO es un jsonl vacio" "SIN EVALUAR" "$MZ119" \
+  'const r=m.construye({lexicon:"| `CE-001` | x | y |",rules:["| `A-R1` | HARD | z |"],
+     jsonl:"{esto no es json}",verificadores:new Map()});
+   console.log(r.sinEvaluar?"SIN EVALUAR "+r.sinEvaluar.join(","):"ESCRIBIO IGUAL");'
+mlib "…y un jsonl vacio SI produce matriz, con ceros" "0" "$MZ119" \
+  'const r=m.construye({lexicon:"| `CE-001` | x | y |",rules:["| `A-R1` | HARD | z |"],
+     jsonl:"",verificadores:new Map()});
+   console.log(r.sinEvaluar?"SIN EVALUAR":String(r.filas[0].veces));'
+mz119_sin_fuente() {
+  local d="$WORK/mz119"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/docs/methodology/tools"
+  (cd "$d" && node "$MZ119" --raiz="$d" 2>&1); echo "codigo $?"
+  [ -f "$d/docs/implementation/MATRIZ.md" ] && echo "ESCRIBIO IGUAL" || echo "NO ESCRIBIO"
+}
+chk   "sin fuentes NO escribe una matriz vacia"  "NO ESCRIBIO"  mz119_sin_fuente
+chk   "…y lo DICE en vez de callar"              "no es lo mismo"  mz119_sin_fuente
+
+# AC-05 · «npm run matriz» existe y la frescura se comprueba: un .md derivado desincronizado falla.
+chk   "npm run matriz existe"        "matriz.mjs"   cat "$RAIZ/package.json"
+chk   "…y la frescura entra en verify"  "matriz:check"  cat "$RAIZ/package.json"
+mz119_check() { (cd "$RAIZ" && node "$MZ119" --check 2>&1); }
+chk   "la matriz publicada esta al dia"  "al dia"  mz119_check
+# EL ARCHIVO NO LLEVA FECHA DE GENERACION, y es deliberado: la haria irreproducible y «--check»
+# fallaria SIEMPRE, que es la forma de que una comprobacion de frescura se apague sola. Lleva el
+# RANGO de los datos, que se deriva.
+chkno "la matriz no estampa la fecha de hoy"  "Derivada el"  cat "$RAIZ/docs/implementation/MATRIZ.md"
+chk   "…lleva el rango de los datos"          "datos de"     cat "$RAIZ/docs/implementation/MATRIZ.md"
+
+# Y NO PRIORIZA NI ABRE NADA: enumera. Puntuar es FPGE, y abrir lo decide una persona (FPGE-R04).
+chk   "la matriz dice que no prioriza"  "no prioriza ni abre"  cat "$RAIZ/docs/implementation/MATRIZ.md"
+
 # ── PT-125 · EP-020 · clasificar las entradas cerradas ────────────────────────────────────────
 #
 # Lo pidio el firmante: «quiero que releas las tareas ya cerradas y realices una matriz de

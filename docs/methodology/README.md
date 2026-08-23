@@ -1112,6 +1112,7 @@ medio camino, y comprueban que once defectos inyectados se detectan.
 | `tools/migrate.mjs` | migración de versión, encadenada a verificación | al subir de versión |
 | `tools/audit.mjs` | cobertura: enumera reglas, fases, triggers, artefactos, herramientas | tras cualquier cambio en la suite |
 | `tools/eventos.mjs` | clasifica las entradas cerradas contra las clases de evento de `LEXICON` §4.4 y escribe `EVENTOS.jsonl` | al cerrar un lote, y antes de derivar la matriz |
+| `tools/matriz.mjs` | deriva `MATRIZ.md`: qué se repite, qué clase no tiene regla y qué regla no puede fallar | tras clasificar, y en `verify` para comprobar su frescura |
 | `tools/selftest.sh` | límites, defectos inyectados, migración y seguridad · imprime el total al terminar | antes de publicar una versión |
 
 ---

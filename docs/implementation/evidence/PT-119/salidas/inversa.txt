@@ -1,0 +1,6 @@
+   sin separar MENCION de INSTANCIA             cae: mencion  OK
+   sin la forma SUELTA de definir una regla     cae: suelta  OK
+   sin el desenlace SIN EVALUAR                 cae: sinEvaluar  OK
+   sin distinguir regla de verificador          cae: verificador  OK
+
+4 de 4 supresiones tumban el escenario esperado.

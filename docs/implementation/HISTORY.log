@@ -7801,3 +7801,83 @@ LO QUE NO ESTABLECE:
   decisiones estan escritas con su motivo PRECISAMENTE para que se puedan contradecir.
 · Que los cinco INC de EP-019 esten cubiertos. Viven en el INCIDENTS.log de otro proyecto que no
   esta en esta maquina. Se declaran ausentes, no se inventan.
+
+## PT-119 — MATRIZ.md se deriva, no se escribe
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — tercer eslabon: PT-118 dio las clases, PT-125 las aplico, esta las cuenta
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: si
+  (tools/matriz.mjs y docs/implementation/MATRIZ.md son archivos nuevos)
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · G4 pendiente
+Clase de evento: CE-002
+
+Lo pidio el firmante: «quiero la matriz para saber que falta por corregir, que errores se repiten
+y como los vamos a solventar».
+
+LA DECISION QUE DEFINE LA TAREA. AC-04 pide que «regla dueña» se DERIVE. Una tabla clase→regla
+seria exactamente la copia que diverge —CE-008, la clase que esta matriz existe para contar—
+cometida dentro de la matriz. Asi que la pertenencia la AFIRMA LA REGLA, en su propio texto: diez
+reglas la declaran ahora, y una clase que ninguna cita sale SIN DUEÑO, que es un hecho medido y
+no un fallo del generador.
+
+EL HALLAZGO DE LA PRIMERA CORRIDA. SUITE-R59 EXISTE Y NADA EMITE POR ELLA. Creada por PT-101 tras
+medir 27 roturas de escapado, gobierna CE-002, y ninguna herramienta la fail() ni la warn(). audit
+detecta construcciones fragiles, pero bajo su propio recuento de huecos, no bajo la regla. Es
+P-003 de la Declaracion de Valor en su enunciado literal: «cada regla HARD que declara
+comprobacion tiene un script que puede fallar». Lo vio la matriz LA PRIMERA VEZ QUE SE EJECUTO.
+
+CUATRO DEFECTOS APARECIERON CONSTRUYENDOLA:
+
+  1  la derivacion solo veia la FILA DE TABLA. SUITE-R14 se define en forma suelta, asi que
+     CE-008 salia «sin dueño» TENIENDO dueño. Una clase mal marcada como huerfana es peor que no
+     derivar nada: parece un hecho.
+  2  «142 entradas recorridas» y son 164. Yo contaba identificadores distintos, y PT-094 tiene
+     tres entradas. La cifra buena ya estaba derivada en la cabecera de EVENTOS.jsonl: recontarla
+     era una segunda fuente del mismo hecho (CE-008) con un numero distinto (CE-010), publicada
+     bajo la etiqueta equivocada.
+  3  la fecha de generacion rompia «--check»: el archivo no era reproducible y la comprobacion de
+     frescura habria fallado SIEMPRE, que es la forma en que una comprobacion se apaga sola. Se
+     sustituyo por el RANGO de los datos, que se deriva y ademas dice mas.
+  4  y la duodecima rotura de escapado de la sesion: el primer parche entro por heredoc y el
+     separador de linea llego literal. Se resolvio como manda SUITE-R59: escribiendo el archivo.
+
+Y LA PRUEBA INVERSA DIO CUATRO ROJOS FALSOS. Las cuatro mutaciones decian «no compila»; no era
+cierto: las copias se escribian en un directorio temporal y matriz.mjs importa ./regla.mjs, que
+ahi no existe. Cuatro rojos por el motivo equivocado CONTADOS COMO ACIERTOS — CE-005 dentro de la
+prueba que existe para detectarlo, y la tercera vez en esta sesion que un arnes tiene el defecto
+que persigue.
+
+Archivos modificados: tools/matriz.mjs (nuevo) · docs/implementation/MATRIZ.md (nuevo) ·
+  RULES.md (diez reglas citan su clase) · package.json · tools/selftest.sh · CORE.md (generado)
+
+Evidencia: docs/implementation/evidence/PT-119/ · manifest.json · self-review.md ·
+  salidas/casos-119.txt · salidas/inversa.txt · salidas/matriz.txt · salidas/MATRIZ-al-cerrar.md
+
+Criterios AC-01..AC-05 ✓, los cinco. Dieciocho escenarios de dieciocho. Inversa: cuatro
+supresiones, cuatro escenarios distintos.
+
+  clases                       17
+  sin regla dueña               9
+  con regla y SIN verificador   1   ← SUITE-R59
+  reglas que citan su clase     10  (antes 0)
+
+LAS TRES MAS REPETIDAS ESTAN ENTRE LAS HUERFANAS:
+
+  CE-004 probar donde trabajo, no donde se decide   7 instancias · ordinal declarado  9
+  CE-001 el proxy en lugar del hecho                6 instancias · ordinal declarado 12
+  CE-003 un argumento por la deteccion de ROOT      6 instancias · ordinal declarado  7
+
+LO QUE NO ESTABLECE:
+
+· Que las nueve huerfanas deban tener regla. Dice que no la tienen. Decidir cuales la merecen es
+  PT-126, y el umbral que aplicara sale de aqui, no de la impresion de nadie.
+· Que CE-002 este desprotegida. Dice que NADA EMITE bajo SUITE-R59. Es distinto, y por eso la
+  columna dice «la regla existe y nada emite por ella» y no «sin vigilancia».
+· Que la matriz priorice. Enumera. Puntuar es FPGE y tiene su propia formula; abrir una tarea lo
+  decide una persona (FPGE-R04).
+· Que CE-005 no tenga dueño de verdad. El ledger se la atribuye a RULE-06, que vive en
+  11-Conventions.md y NO se lee: AC-04 dice RULES.md. El limite queda declarado.

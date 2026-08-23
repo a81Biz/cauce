@@ -502,6 +502,14 @@ SESSION.json           sobrescribible · el estado de la SESION, no de la tarea 
                        «desde» es lo unico capturado; el resto se deriva de «desde..HEAD»
                        sin el, lo que lleva la sesion es SIN EVALUAR — el dia NO es la sesion
 
+EVENTOS.jsonl          append-only   · un registro por evento Y por entrada RECORRIDA del
+                       ledger, con su CITA LITERAL. La clase va siempre DECLARADO: es un
+                       juicio (LEX-R31), y separar una instancia de una simple mención lo
+                       decide una persona. Lo escribe «tools/eventos.mjs»          [PT-125]
+MATRIZ.md              GENERADO · qué se repite y qué clase no tiene regla que la reclame.
+                       Toda cifra se deriva; ninguna se transcribe. «Tiene verificador» NO
+                       es «la regla existe»: es que alguna herramienta EMITA por ella.
+                       Lo escribe «tools/matriz.mjs»; su frescura entra en verify [PT-119]
 CHECKPOINT.json        sobrescribible · el estado de la tarea EN CURSO, legible por máquina
                        responde por la TAREA, y es UNO: escribirlo sobre otra la sustituye
                        STATE_MISMATCH · la CONDICION que se reporta cuando el arbol no
@@ -922,6 +930,12 @@ tools/
                       Automatiza el MATERIAL —la frase con que el ledger se autodescribe y la
                       cita literal—, NO el juicio: la clase va siempre DECLARADO, y separar
                       una instancia de una simple mención lo decide una persona.
+  matriz.mjs          deriva la matriz de eventos: qué se repite y qué clase no tiene
+                      dueño · PT-119 · su salida se declara en §6.2
+                      cruza EVENTOS.jsonl con LEXICON §4.4, con la regla que CITA la clase
+                      y con los fail() REALES. «Tiene verificador» no es «la regla existe»:
+                      SUITE-R59 existe y nada emite por ella, y la matriz lo dice.
+                      Sin fuente legible NO escribe: SIN EVALUAR no es una matriz de ceros.
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35

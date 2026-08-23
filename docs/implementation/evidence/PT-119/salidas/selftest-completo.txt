@@ -370,6 +370,24 @@
   [32m✓[0m y dice como se corrige
   [32m✓[0m sin ref durable todavia, no acusa
   [32m✓[0m sin el resolvedor, se comporta como hoy
+  [32m✓[0m la fila lleva clase, veces y fechas
+  [32m✓[0m …y las tareas donde ocurrio
+  [32m✓[0m alterar el jsonl cambia la cifra
+  [32m✓[0m una MENCION no suma como instancia
+  [32m✓[0m la regla dueña sale de que la regla cite la clase
+  [32m✓[0m …tambien en la forma suelta, que ocupa varias lineas
+  [32m✓[0m …y sin cita, la clase sale SIN DUEÑO
+  [32m✓[0m tener regla no es tener verificador
+  [32m✓[0m un jsonl ilegible NO es un jsonl vacio
+  [32m✓[0m …y un jsonl vacio SI produce matriz, con ceros
+  [32m✓[0m sin fuentes NO escribe una matriz vacia
+  [32m✓[0m …y lo DICE en vez de callar
+  [32m✓[0m npm run matriz existe
+  [32m✓[0m …y la frescura entra en verify
+  [32m✓[0m la matriz publicada esta al dia
+  [32m✓[0m la matriz no estampa la fecha de hoy
+  [32m✓[0m …lleva el rango de los datos
+  [32m✓[0m la matriz dice que no prioriza
   [32m✓[0m un registro lleva clase, cita y naturaleza
   [32m✓[0m …y la cita es LITERAL, no parafraseada
   [32m✓[0m toda clasificacion va DECLARADO
@@ -455,8 +473,8 @@
   [32m✓[0m version.mjs ve la version del REGISTRO
   [32m✓[0m …y la alinea
   [32m✓[0m …sin tocar ningun otro campo
-docs/methodology/tools/selftest.sh: line 2499: git_fixture: command not found
-docs/methodology/tools/selftest.sh: line 2501: con_phase: command not found
+docs/methodology/tools/selftest.sh: line 2589: git_fixture: command not found
+docs/methodology/tools/selftest.sh: line 2591: con_phase: command not found
   [32m✓[0m el aviso dice en que compuerta se convierte en error
   [32m✓[0m …y no se la pega a una regla que no cambia
   [32m✓[0m FPGE-R01 mira la FILA del roadmap, no la mencion
@@ -1547,6 +1565,5 @@ docs/methodology/tools/selftest.sh: line 2501: con_phase: command not found
   [32m✓[0m INC-001 registrado en el ledger
   [32m✓[0m …y tiene candidato en el roadmap
 
-selftest: OK · 1501 casos
-codigo 0
+selftest: OK · 1519 casos
 codigo 0

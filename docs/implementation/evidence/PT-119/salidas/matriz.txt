@@ -1,0 +1,3 @@
+MATRIZ.md escrito · 17 clases
+  sin regla duena            9
+  con regla y sin verificador 1

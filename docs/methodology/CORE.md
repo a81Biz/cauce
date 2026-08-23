@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: b47b58bfa990 -->
-<!-- fuentes: RULES.md:c94acca23ff8 LEXICON.md:ce96986a5725 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:a477fd3ee691 -->
+<!-- cuerpo: 36804a53a979 -->
+<!-- fuentes: RULES.md:9ef6a8184513 LEXICON.md:bcfd6e03b5b6 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:a477fd3ee691 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -176,7 +176,7 @@ verifica un script y bloquea la integración.
 `SUITE-R06` **H** Lista cerrada de acciones irreversibles. Ningún modo de ejecución automatiza: (a) merge o push a la rama principal; (b) cierre de un ítem de tipo BUG; (c) migración, borrado o transformación destructiva de…
 `SUITE-R07` **H** No Foundation Skip. Ningún componente opera sobre un proyecto sin docs/enterprise-documentation/ generada y validada con [FOUNDATION VALIDATED]. Ver FND-R08 para la verificación real.
 `SUITE-R08` **C** Un solo asignador de identificadores. Todo ID se obtiene de docs/implementation/REGISTRY.json. Derivarlo contando entradas en un .md o .json está prohibido (LEX-R04, LEX-R06). Y toda allocation de tipo PT…
-`SUITE-R09` **H** Append-only es literal. Un artefacto declarado append-only nunca se reescribe, reordena ni compacta. Corregir un error pasado se hace con una entrada nueva que lo referencia, no editando la anterior.
+`SUITE-R09` **H** Append-only es literal. Un artefacto declarado append-only nunca se reescribe, reordena ni compacta. Corregir un error pasado se hace con una entrada nueva que lo referencia, no editando la anterior. Es la…
 `SUITE-R10` **H** Propiedad de artefactos. Cada artefacto tiene exactamente un componente dueño. Solo el dueño escribe en él. Ver la matriz de §Parte 9.
 `SUITE-R11` **S** Declared coverage. Ningún score (Health PTSA, QA Health, confianza de fase) es válido sin cobertura y freshness declaradas junto al número.
 `SUITE-R12` **H** Sin auto-activación. Ningún componente se activa sin su trigger explícito (LEX-R18).
