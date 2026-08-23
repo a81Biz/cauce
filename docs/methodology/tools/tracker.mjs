@@ -2423,6 +2423,18 @@ function rama() {
   const propuesta = ramaDeTarea(a.type, a.id, a.slug, yo);
   const integracion = 'trabajo';
 
+  // PT-129 · sin «type» no se propone un nombre inventado: se dice que falta y de donde sale.
+  if (propuesta === null) {
+    di('');
+    di(`  ${id} no declara «type», asi que NO hay nombre de rama que proponer.`);
+    di('');
+    di('  El <type> de una rama es el «type» del item en minusculas, que declara LEXICON §4.1');
+    di('  y escribe el registro (FDGE-R19). Sin el, cualquier nombre seria inventado.');
+    di('');
+    di(`    node docs/methodology/tools/tracker.mjs asignar --tipo <TIPO>   # o declararlo en el intake`);
+    return;
+  }
+
   di('');
   di(`  ${propuesta}`);
   di('');
@@ -2431,11 +2443,38 @@ function rama() {
     di('  no tiene que declarar nada (LEXICON 6.5f).');
     di('');
   }
+  // PT-129 · FDGE-R19 exige que un PT vivo en PHASE 5+ declare su rama en
+  // REGISTRY.allocations[].branch, y NINGUN comando la escribia: 47 de 151 la llevan, todas a
+  // mano. Una regla que solo se puede cumplir escribiendo el registro a mano es la averia que
+  // PT-103 y PT-107 cierran — el registro solo lo escribe el comando.
+  //
+  // «--declarar» escribe la rama REAL, la que git dice que esta en curso, no la propuesta: son
+  // cosas distintas cuando un lote se trabaja sobre una sola rama, como hizo EP-019.
+  if (ARGS.includes('--declarar')) {
+    const actual = gitDe(['rev-parse', '--abbrev-ref', 'HEAD']);
+    if (!actual || actual === 'HEAD') {
+      throw new Error('no hay rama en curso que declarar: git esta en HEAD desacoplado.');
+    }
+    if (actual !== propuesta) {
+      di(`  La rama en curso es «${actual}» y la propuesta era «${propuesta}».`);
+      di('  Se declara LA REAL: el registro dice donde esta el trabajo, no donde deberia estar.');
+      di('');
+    }
+    a.branch = actual;
+    guardarRegistro(reg, ACCION);
+    notas.push(`${id}: rama «${actual}» declarada en REGISTRY.allocations[].branch (FDGE-R19)`);
+    return;
+  }
+
   di('  Asi debe llamarse. NO se crea: crear una rama toca el arbol de trabajo, y si falla');
   di('  a mitad deja a quien la usa en otro sitio. Lo que no se automatiza se describe:');
   di('');
   di(`    git switch ${integracion}`);
   di(`    git checkout -b ${propuesta}`);
+  di('');
+  di('  Y cuando exista, se DECLARA en el registro — FDGE-R19 la exige desde PHASE 5:');
+  di('');
+  di(`    node docs/methodology/tools/tracker.mjs rama ${id} --declarar`);
 }
 
 function personas() {

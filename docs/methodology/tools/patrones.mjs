@@ -554,8 +554,52 @@ export const normalizaRef = (nombre) => String(nombre ?? '')
  *
  * Sin usuario resuelto, DOS niveles como siempre: un proyecto de una persona no cambia nada.
  */
+/**
+ * PT-129 · Las ramas que EXISTEN, contrastadas con la topologia que FDGE-R19 declara.
+ *
+ * verify-fdge comprobaba `allocations[].branch` —EL CAMPO QUE LA ALLOCATION DECLARA— y jamas
+ * preguntaba al arbol que ramas hay. Con eso una rama puede sobrevivir a su tarea integrada, o
+ * existir sin ninguna, sin que nada lo note: es donde se esconde el trabajo sin allocation que
+ * persigue PT-127. El proxy en lugar del hecho, decima instancia.
+ *
+ * CUATRO TIPOS, no tres. La enumeracion de la regla decia tres y `tracker proyectar` lleva
+ * creando `cauce/<usuario>` desde PT-054, declarada en LEXICON §6.5.
+ *
+ * QUE ESTABLECE: que cada rama encaja en un tipo declarado, y que ninguna efimera sobrevive a su
+ *   tarea terminal.
+ * QUE NO ESTABLECE: que la topologia declarada sea la correcta. Si lo declarado esta mal, esto
+ *   sale verde.
+ *
+ * NUNCA BORRA (SUITE-R06f): nombra y describe el comando (EXEC-R07).
+ *
+ * @param ramas       string[]   las que existen, locales y remotas, sin prefijo
+ * @param allocations las del registro
+ * @param defecto     nombre de la rama por defecto · @param integracion la de integracion
+ */
+export function topologiaDeRamas(ramas, allocations, defecto = 'main', integracion = 'trabajo') {
+  if (ramas == null) return null;                    // sin acceso: SIN EVALUAR (RULE-06)
+  const porId = new Map((allocations ?? []).map((a) => [a?.id, a]));
+  const sobrantes = [];
+  const huerfanas = [];
+  for (const r of ramas) {
+    if (r === defecto || r === integracion) continue;            // por defecto · integracion
+    if (/^cauce\/[^/]+$/.test(r)) continue;                      // derivada · LEXICON §6.5
+    const id = r.match(/\/((?:PT|EP)-\d+)-/)?.[1] ?? r.match(/\/((?:PT|EP)-\d+)$/)?.[1];
+    if (!id) { sobrantes.push(r); continue; }                    // no encaja en ningun tipo
+    const a = porId.get(id);
+    if (!a) { sobrantes.push(r); continue; }                     // cita un ID que no existe
+    if (ESTADOS_TERMINALES.has(String(a.status))) huerfanas.push({ rama: r, id, estado: a.status });
+  }
+  return { sobrantes, huerfanas };
+}
+
 export function ramaDeTarea(tipo, id, slug, usuario = null) {
-  const t = String(tipo ?? 'chore').toLowerCase();
+  // PT-129 · sin «type» NO hay nombre de rama. Antes devolvia «chore/...» con la misma cara que
+  // devolveria un tipo real: un dato INVENTADO donde RULE-06 pide un «no lo se». Tiene caso hoy
+  // —PT-125 y PT-126 estan sin «type» por el defecto de PT-124— y la respuesta era un nombre que
+  // nadie habia decidido.
+  if (!tipo) return null;
+  const t = String(tipo).toLowerCase();
   const u = usuario ? normalizaRef(usuario) : null;
   const cola = `${id}-${slug}`;
   return u ? `${t}/${u}/${cola}` : `${t}/${cola}`;

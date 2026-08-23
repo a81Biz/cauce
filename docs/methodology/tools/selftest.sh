@@ -3538,6 +3538,46 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-129 · la topologia de ramas se ENUMERA, no se recuerda.
+#
+# verify-fdge comprobaba «allocations[].branch» —EL CAMPO QUE LA ALLOCATION DECLARA— y jamas
+# preguntaba al arbol que ramas hay. Con eso una efimera puede sobrevivir a su tarea
+# integrada, o existir una rama sin tarea, sin que nada lo note: es donde se esconde el
+# trabajo sin allocation que persigue PT-127. Medido: origin/fix/.../PT-081 seguia viva con
+# PT-081 en INTEGRATED, y origin/desarrollo lleva declarada sobrante desde Foundation D8.
+#
+# CUATRO TIPOS, no tres: la regla enumeraba tres y «tracker proyectar» lleva creando
+# cauce/<usuario> desde PT-054, declarada en LEXICON.
+ALLOC="[{id:'PT-1',status:'INTEGRATED'},{id:'PT-2',status:'IN_PROGRESS'}]"
+patlib "las cuatro de la topologia encajan"        '^0$' \
+  "console.log(m.topologiaDeRamas(['main','trabajo','cauce/ada','bug/ada/PT-2-x'],$ALLOC).sobrantes.length)"
+# La efimera SE BORRA AL FUSIONARSE y nada lo comprobaba. Este caso es el que lo dice.
+patlib "efimera sobre tarea terminal ⇒ se nombra"  '"PT-1"' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(['main','fix/ada/PT-1-x'],$ALLOC).huerfanas))"
+# INVERSA · una efimera sobre tarea VIVA no se toca: es trabajo en curso, no una sobrante.
+patlib "…y sobre tarea viva NO se nombra"          '^0$' \
+  "console.log(m.topologiaDeRamas(['main','bug/ada/PT-2-x'],$ALLOC).huerfanas.length)"
+# Una rama que no encaja en ningun tipo SE NOMBRA. No se borra: SUITE-R06f.
+patlib "rama fuera de la topologia ⇒ se nombra"    'desarrollo' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(['main','desarrollo'],$ALLOC).sobrantes))"
+# Una rama que cita un ID que el registro no tiene tampoco encaja: el registro asigna.
+patlib "…y una que cita un ID inexistente tambien" 'PT-999' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(['main','bug/ada/PT-999-x'],$ALLOC).sobrantes))"
+# RULE-06 · sin poder enumerar NO se aprueba por omision. Devolver {} vacio diria «todo
+# encaja» sin haber mirado, que es el verde por omision dentro de la compuerta.
+patlib "sin poder enumerar ⇒ null"                 '^null$' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(null,$ALLOC)))"
+
+# PT-129 · el <type> de una RAMA es el del ITEM, no el del commit. La regla decia «fix/» y
+# la herramienta escribia «bug/» desde que existe: dos vocabularios para el mismo hecho, y
+# ninguna de las dos ramas de tarea del repositorio salia de la herramienta.
+patlib "ramaDeTarea deriva del type del item"      '^bug/ada/PT-9-x$' \
+  "console.log(m.ramaDeTarea('BUG','PT-9','x','ada'))"
+# Sin «type» NO hay nombre: antes devolvia «chore/...» con la misma cara que un tipo real,
+# un dato INVENTADO donde RULE-06 pide un «no lo se». Tiene caso hoy: PT-125 y PT-126.
+patlib "sin type no hay nombre de rama"            '^null$' \
+  "console.log(JSON.stringify(m.ramaDeTarea(null,'PT-125','x','ada')))"
+
 # PT-131 · «lo ya sellado» se deriva del ARBOL del tag, no de lo que su REGISTRY declaraba.
 #
 # PT-087 cambio QUE TAG mirar y siguio mirando su registro. Mientras el estado terminal se

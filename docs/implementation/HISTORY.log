@@ -6506,3 +6506,100 @@ compuerta.
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 pedida expresamente al firmante aunque la
 sesion tenia delegacion amplia — usarla ahi habria convertido «decide lo que convenga» en
 «firmate todo».
+
+## PT-129 — La topologia de ramas se enumera, no se recuerda
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su L-16, y el firmante la puso PRIMERA
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: si
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #249
+
+Lo senalo el firmante: «tenemos ramas como cauce/ chore/ y fix/ y no es algo que este en la
+convencion del propio marco». Medido, eran TRES hechos distintos y ninguno era el que parecia.
+
+D-1 · LA CAUSA RAIZ, y no estaba en el intake: EL <type> DE UNA RAMA ESTABA DECLARADO DOS VECES
+Y DISTINTO.
+
+  FDGE-R19 (la regla)          feat fix refactor test docs chore   -> fix/...
+  ramaDeTarea (patrones:557)   el type del ITEM en minusculas      -> bug/...
+
+«bug» no estaba en la lista de la regla. «feature» tampoco. «fix» no es un tipo de item. Se
+solapaban solo en chore y refactor. Es LEX-R28 y PT-100 en un tercer campo.
+
+D-2 · NINGUNA de las dos ramas de tarea del repositorio salia de la herramienta: las dos se
+nombraron a mano. «tracker rama» propone el nombre correcto y nadie lo invocaba.
+
+D-3 · FDGE-R19 decia «la topologia es ESTA, en tres niveles» y hay CUATRO tipos.
+cauce/<usuario> la crea «tracker proyectar» desde PT-054 y esta declarada SOLO en LEXICON.
+LEX-R21 la hace legitima: lo que fallaba era la enumeracion que se presentaba como completa.
+
+D-4 · patrones:558 «String(tipo ?? 'chore')»: sin type la rama se INVENTABA un chore, con la
+misma cara que un tipo real. RULE-06 al reves.
+
+D-5 · Y EL HUECO DE FONDO: verify-fdge comprobaba «allocations[].branch» —EL CAMPO QUE LA
+ALLOCATION DECLARA— y JAMAS preguntaba al arbol que ramas hay. Decima instancia del proxy en
+lugar del hecho. Es donde puede esconderse el trabajo sin allocation que persigue PT-127.
+
+D-6 · «fix» aparecia en la lista de types Y en la de prohibidos, en la misma frase.
+
+ESTRATEGIA: tres caminos, y gano el que NO anade una representacion nueva. Que gane el
+vocabulario de la REGLA obligaba a un mapeo item->commit —tercera copia del mismo hecho— y
+dejaba INVESTIGATION sin destino. Un vocabulario propio para las ramas seria un tercer nombre
+con siete documentos que citar. Gana LEXICON, y no es preferencia: LEX-R21 lo dice.
+
+CINCO MOVIMIENTOS, y el quinto salio IMPLEMENTANDO:
+
+  E-1  FDGE-R19 CITA a LEXICON para el <type> de rama y conserva el de git para el commit
+  E-2  la topologia pasa a CUATRO tipos · «Prohibidos» dice que son DESCRIPCIONES
+  E-3  ramaDeTarea devuelve null sin type · «tracker rama» lo dice
+  E-4  la comprobacion que ENUMERA las ramas reales, con su tercer desenlace SIN EVALUAR
+  E-5  «tracker rama --declarar» escribe allocations[].branch
+
+E-5 LO DESCUBRIO LA PROPIA COMPROBACION ACUSANDOME: «PT-129 esta en PHASE 5 y no declara rama».
+Al ir a declararla salio que NINGUN COMANDO ESCRIBE ESE CAMPO — 47 de 151 la llevan, todas a
+mano. Una regla que solo se puede cumplir escribiendo el registro a mano es la averia que
+PT-103 y PT-107 cierran. Y escribe LA RAMA REAL, no la propuesta: el registro dice donde ESTA
+el trabajo, no donde deberia estar.
+
+Archivos modificados: RULES.md · CORE.md · tools/patrones.mjs · tools/verify-fdge.mjs ·
+  tools/tracker.mjs · tools/selftest.sh · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-129/ · manifest.json · self-review.md ·
+  salidas/verify.txt · salidas/gate-g4.txt · salidas/casos.txt · salidas/rama-sin-tipo.txt ·
+  salidas/rama-con-tipo.txt
+
+  tipos de rama enumerados   ANTES 3 de 4        DESPUES 4
+  vocabularios del <type>    ANTES 2 divergentes DESPUES 1, el de LEXICON
+  ramas contrastadas         ANTES 0             DESPUES todas, locales y remotas
+  bateria                    ANTES 1377          DESPUES 1385
+
+LO QUE ENCONTRO, contra el arbol de verdad:
+
+  «desarrollo»                      no encaja en ninguno de los cuatro tipos
+  «fix/.../PT-081-una-regla-nueva»  sigue viva y PT-081 esta INTEGRATED
+
+Las dos se sabian POR CONVERSACION. Ahora las dice una comprobacion, y en G4 bloquean. Borrarlas
+es SUITE-R06f y queda descrito, no ejecutado.
+
+EL FALSO POSITIVO QUE SOLO APARECIO EJECUTANDO: «refs/remotes/origin/HEAD» se abrevia a «origin»
+a secas y salio como rama sobrante en la primera corrida. Es el puntero a la rama por defecto.
+Leyendo el codigo no se ve.
+
+Y DOS ERRORES MIOS DE PROGRAMACION, los dos al primer intento: «git» es ayudante LOCAL del
+bloque de G2 y mi bloque lo usaba —ReferenceError—, y «REPO» no existe en verify-fdge: la rama
+por defecto SE DERIVA de origin/HEAD, como ya hacia la linea 1482. Copiar lo que ya funciona en
+vez de inventar otra forma.
+
+LO QUE NO ESTABLECE:
+
+· Que la topologia declarada sea la correcta. Si lo declarado esta mal, esto sale verde.
+· Que la proyeccion cauce/<usuario> este fresca. Se la excluye de las sobrantes; medir su
+  frescura queda DECLARADO y sin hacer.
+· Que nadie haga caso al aviso. No es comprobable y no se afirma.
+· El comportamiento contra Azure. Se mide sobre GitHub, la plataforma declarada.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.

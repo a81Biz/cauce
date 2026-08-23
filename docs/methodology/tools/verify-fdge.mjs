@@ -68,7 +68,7 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
-import { contradiceElRegistro, sinSellar, selladoEnTag, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
+import { contradiceElRegistro, sinSellar, selladoEnTag, topologiaDeRamas, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
          rutaRelativaDelManifiesto } from './patrones.mjs';
 // PT-091 · las cifras del inventario se derivan, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
@@ -76,6 +76,7 @@ import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patron
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
 const CHANGES = join(ROOT, 'changes');
+let TOPOLOGIA_REPORTADA = false;   // PT-129 · la topologia es del REPOSITORIO, no de cada PT
 const EVIDENCE = join(IMPL, 'evidence');
 const ED = join(ROOT, 'docs', 'enterprise-documentation');
 
@@ -1700,6 +1701,51 @@ function checkPT(pt, { gate } = {}) {
       warn('FDGE-R19', `${pt}: la rama «${enRegistroPT.branch}» no lleva usuario. Desde 8.3.0 el `
         + 'formato es «<type>/<usuario>/PT-NNN-slug». Las ramas anteriores siguen valiendo: una '
         + 'rama abierta se termina como empezo.');
+    }
+  }
+
+  // PT-129 · FDGE-R19 · las ramas que EXISTEN, contra la topologia declarada. Se comprobaba el
+  // CAMPO «branch» de la allocation y nunca el arbol: una efimera podia sobrevivir a su tarea
+  // integrada —o existir sin tarea— sin que nada lo dijera.
+  //
+  // AVISA fuera de G4 y FALLA dentro, con el mismo criterio que esta regla ya usa para el usuario
+  // en la rama: un fail inmediato pondria en rojo un repositorio sano por dos ramas historicas.
+  //
+  // NUNCA BORRA (SUITE-R06f): describe el comando.
+  if (!TOPOLOGIA_REPORTADA) {
+    TOPOLOGIA_REPORTADA = true;
+    // `git` vive dentro del bloque de G2: aqui hace falta el suyo. verify-fdge llama a
+    // execFileSync directo en todo el archivo, y esto lo hace igual en vez de inventar otra forma.
+    const gitTopo = (args) => {
+      try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }); }
+      catch { return null; }
+    };
+    const ramas = (() => {
+      const l = gitTopo(['for-each-ref', '--format=%(refname:short)', 'refs/heads']);
+      const r = gitTopo(['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin']);
+      if (l == null && r == null) return null;
+      return [...new Set([...(l ?? '').trim().split(/\r?\n/), ...(r ?? '').trim().split(/\r?\n/)]
+        .filter(Boolean).map((x) => x.replace(/^origin\//, ''))
+        // «refs/remotes/origin/HEAD» se abrevia a «origin» a secas: es el PUNTERO a la rama por
+        // defecto, no una rama. Salio como sobrante en la primera corrida, y es la clase de
+        // falso positivo que solo aparece EJECUTANDO.
+        .filter((x) => x !== 'HEAD' && x !== 'origin'))];
+    })();
+    // La rama por defecto se DERIVA de origin/HEAD, como el resto del archivo (:1482).
+    const principal = (gitTopo(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']) ?? '')
+      .trim().split('/').pop() || 'main';
+    const topo = topologiaDeRamas(ramas, REGISTRO?.allocations ?? [], principal);
+    if (topo === null) {
+      warn('FDGE-R19', 'topologia de ramas SIN EVALUAR: no se pudo enumerar las ramas. No se '
+        + 'aprueba por omision (RULE-06).');
+    } else if (!topo.sobrantes.length && !topo.huerfanas.length) {
+      ok('FDGE-R19', `topologia: ${(ramas ?? []).length} rama(s), todas encajan en los cuatro tipos.`);
+    } else {
+      const partes = [];
+      for (const r of topo.sobrantes) partes.push(`«${r}» no encaja en ninguno de los cuatro tipos`);
+      for (const h of topo.huerfanas) partes.push(`«${h.rama}» sigue viva y ${h.id} esta ${h.estado}: FDGE-R19 dice que la efimera se borra al fusionarse`);
+      const m = `topologia de ramas: ${partes.length} · ${partes.join(' · ')}. Borrarlas es SUITE-R06f y no se automatiza:  git push origin --delete <rama>`;
+      if (gate === 'G4') fail('FDGE-R19', m); else warn('FDGE-R19', m);
     }
   }
 

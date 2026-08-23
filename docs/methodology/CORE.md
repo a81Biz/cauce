@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 81df553de149 -->
-<!-- fuentes: RULES.md:fc0c5cfea9a5 LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:e730d6b712c0 -->
+<!-- cuerpo: 1c50880790e2 -->
+<!-- fuentes: RULES.md:6c1080e12ff5 LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:e730d6b712c0 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -305,7 +305,7 @@ verifica un script y bloquea la integración.
 `FDGE-R16` **H** Toda tarea de tasks.md tiene objetivo único, input definido, output definido y método de validación.
 `FDGE-R17` **H** Tests first. Los tests derivados de test-scenarios.md existen y fallan antes de escribir la primera línea de implementación. Si no puedes escribir el test, no entendiste el requisito. En track HOTFIX, donde…
 `FDGE-R18` **S** Excepción de tests para cambios sin lógica.
-`FDGE-R19` **H** Commits atómicos, y una rama por tarea. Un commit = un cambio lógico. Formato obligatorio: <type>: PT-XXX <descripción específica> con type ∈ feat·fix·refactor·test·docs·chore. Prohibidos: WIP, fix,…
+`FDGE-R19` **H** Commits atómicos, y una rama por tarea. Un commit = un cambio lógico. Formato obligatorio: <type>: PT-XXX <descripción específica> con type ∈ feat·fix·refactor·test·docs·chore — el vocabulario de git, y…
 `FDGE-R20` **H** Scope lock. Está prohibido tocar archivos fuera de lo declarado en tasks.md, y prohibido implementar cualquier ítem de out-of-scope.md.
 `FDGE-R21` **H** Alerta de desvío. Si durante la implementación el trabajo resulta más complejo de lo planificado: detención inmediata y reporte con evidencia. Un desvío dentro del scope declarado continúa con ACK. Un…
 `FDGE-R22` **H** Carril HOTFIX. Solo para severity: S1. Permite recorrer PHASE 1 → 5 → 6 → 9 con G1 y G4 vivas y G2/G3 diferidas. Obliga a: rama hotfix/PT-XXX-slug, un INC-NNN abierto, y completar PHASE 2, 3, 4, 7 y 8 de…

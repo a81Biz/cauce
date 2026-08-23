@@ -3455,3 +3455,50 @@ estado terminal deje de llegar tarde a la rama por defecto, que es `PT-121`. Los
 están declarados en `out-of-scope.md` con su destino.
 
 `SUITE-R27` · el agente escribe esta constancia. Lo contrastable son los cuatro comandos.
+
+---
+
+## 2026-08-22 · `EP-020` · VoBo por lote para las compuertas pendientes
+
+**Autorizado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`). Literal:
+*«tienes mi VoBo para todas las tareas pendientes hasta terminar la épica, trabaja de forma
+automatizada hasta que termines. Lo único que quiero ver es que falte la publicación a npm»*.
+
+### Qué autoriza
+
+```
+G2 de las 18 tareas pendientes    delegada, con constancia por tarea en HISTORY.log
+G3 de las 18 tareas pendientes    delegada, incluidas las de tipo BUG (FDGE-R26)
+G4 del lote                       DECISION DEL FIRMANTE, tomada por adelantado y ejecutada
+                                  por el agente. Condicion: verify-fdge --gate G4 en cero
+                                  errores y CI en verde
+el tag de la version              tras el merge, nunca antes (PT-081)
+borrar las dos ramas remotas      SUITE-R06f, previa comprobacion de que no cuelga nada
+```
+
+### Qué NO autoriza
+
+```
+npm publish                       RESERVADO al firmante, y lo pidio expresamente
+tocar ESTADOS_TERMINALES, el      nada de esto entra en el alcance del lote
+  umbral de sellado, o un tag
+  ya creado
+reescribir historia               SUITE-R06f: el borrado de rama es lo unico que entra
+```
+
+### La distinción que hay que dejar escrita
+
+`EXEC-R04` dice que `G4` es humana **en los tres modos, sin excepción**, y `SUITE-R06a` que el
+merge a la rama principal no lo automatiza **ningún** modo. Este VoBo **no convierte `G4` en
+automática**: la decisión la toma una persona —por adelantado, para un lote concreto, con esta
+constancia— y el agente ejecuta el comando. Un modo de ejecución no puede autorizarse a sí
+mismo; una persona sí puede decidir antes.
+
+**Lo que esto pierde, y se dice:** una decisión tomada por adelantado no ha visto lo que va a
+aprobar. `EXEC-R03` acepta ese cambio explícitamente —el humano decide *dos veces por lote* en
+vez de cuatro por tarea— pero aquí la primera de esas dos ya ocurrió (`G1`) y la segunda se
+anticipa. Lo que lo hace contrastable es la condición: **`G4` sólo se ejecuta con `verify-fdge`
+`--gate G4` en cero errores y CI en verde**. Si algo sale rojo, se detiene y se reporta.
+
+`SUITE-R27` · el agente escribe esta constancia. Lo contrastable es el literal citado arriba y
+el estado de las comprobaciones en el momento del merge.

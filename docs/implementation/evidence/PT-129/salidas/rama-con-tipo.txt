@@ -1,0 +1,16 @@
+
+  bug/alberto-martinez/PT-129-la-topologia-de-ramas-no-se-enumera
+
+  Asi debe llamarse. NO se crea: crear una rama toca el arbol de trabajo, y si falla
+  a mitad deja a quien la usa en otro sitio. Lo que no se automatiza se describe:
+
+    git switch trabajo
+    git checkout -b bug/alberto-martinez/PT-129-la-topologia-de-ramas-no-se-enumera
+
+  Y cuando exista, se DECLARA en el registro — FDGE-R19 la exige desde PHASE 5:
+
+    node docs/methodology/tools/tracker.mjs rama PT-129 --declarar
+tracker · github · acción rama
+
+
+Sin divergencias.

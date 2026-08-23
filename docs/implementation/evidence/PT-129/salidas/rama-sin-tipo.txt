@@ -1,0 +1,11 @@
+
+  PT-125 no declara «type», asi que NO hay nombre de rama que proponer.
+
+  El <type> de una rama es el «type» del item en minusculas, que declara LEXICON §4.1
+  y escribe el registro (FDGE-R19). Sin el, cualquier nombre seria inventado.
+
+    node docs/methodology/tools/tracker.mjs asignar --tipo <TIPO>   # o declararlo en el intake
+tracker · github · acción rama
+
+
+Sin divergencias.
