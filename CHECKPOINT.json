@@ -3,8 +3,8 @@
   "type": "FEATURE",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "38eed3349d2a888b11bf21a9fd96a7f6f19c1e62",
   "sha_corto": "38eed33",
@@ -19,6 +19,8 @@
     "changes/PT-119-la-matriz-se-deriva/tasks.md",
     "changes/PT-119-la-matriz-se-deriva/test-scenarios.md",
     "changes/PT-119-la-matriz-se-deriva/traceability.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/MATRIZ.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-119/",
@@ -31,8 +33,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-23"
 }
