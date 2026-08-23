@@ -2,9 +2,9 @@
   "pt": "PT-120",
   "type": "BUG",
   "epic": "EP-020",
-  "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "df8d6627b94a9d51efb63456b26e3ec9bb622fa6",
   "sha_corto": "df8d662",
@@ -16,7 +16,8 @@
     "changes/PT-113-la-guia-que-se-publico-incompleta/out-of-scope.md",
     "changes/PT-113-la-guia-que-se-publico-incompleta/traceability.md",
     "changes/PT-120-publicar-no-ejecuta-sellar/intake.md",
-    "changes/PT-120-publicar-no-sella/",
+    "changes/PT-120-publicar-no-ejecuta-sellar/out-of-scope.md",
+    "changes/PT-120-publicar-no-ejecuta-sellar/traceability.md",
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
@@ -29,11 +30,8 @@
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-23"
 }
