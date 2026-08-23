@@ -3538,6 +3538,26 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-132 · «abrir» creaba el issue —IRREVERSIBLE— y guardaba el registro al FINAL del bucle.
+# Una interrupcion dejaba los issues creados y el registro sin conocerlos, y la pasada
+# siguiente los volvia a crear: DIECISEIS duplicados medidos el 2026-08-22, PT-129 por TRES.
+#
+# Es el contrato que «avanzar» declara tres funciones mas abajo, CONTRADICHO aqui: dos
+# comandos del mismo archivo con reglas opuestas sobre lo mismo (SUITE-R38).
+ABIERTOS="[{number:9,title:'PT-1 · a'},{number:10,title:'PT-2 · b'}]"
+patlib "un issue huerfano con el titulo se adopta"  '^9$' \
+  "console.log(m.issueAAdoptar('PT-1 · a',$ABIERTOS))"
+# INVERSA · si no hay ninguno con ese titulo se CREA. Adoptar de mas seria peor que duplicar.
+patlib "…y si no lo hay, no se adopta nada"         '^null$' \
+  "console.log(JSON.stringify(m.issueAAdoptar('PT-3 · c',$ABIERTOS)))"
+# RULE-06 · sin poder consultar la plataforma NO se decide. «abrir» ademas no crea a ciegas:
+# crear sin poder comprobar es exactamente como se duplicaron los dieciseis.
+patlib "sin saber que hay abierto, no se decide"    '^null$' \
+  "console.log(JSON.stringify(m.issueAAdoptar('PT-1 · a',null)))"
+# Un titulo vacio no adopta: sin slug no hay titulo que derivar (PT-096).
+patlib "sin titulo derivable no se adopta"          '^null$' \
+  "console.log(JSON.stringify(m.issueAAdoptar('',$ABIERTOS)))"
+
 # PT-129 · la topologia de ramas se ENUMERA, no se recuerda.
 #
 # verify-fdge comprobaba «allocations[].branch» —EL CAMPO QUE LA ALLOCATION DECLARA— y jamas

@@ -1,0 +1,4 @@
+  [32m✓[0m un issue huerfano con el titulo se adopta
+  [32m✓[0m …y si no lo hay, no se adopta nada
+  [32m✓[0m sin saber que hay abierto, no se decide
+  [32m✓[0m sin titulo derivable no se adopta

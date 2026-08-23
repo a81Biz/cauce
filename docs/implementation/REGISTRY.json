@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 131,
+    "PT": 132,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3055,7 +3055,7 @@
       "slug": "el-cuerpo-del-issue-no-se-republica",
       "created": "2026-08-22",
       "status": "DRAFT",
-      "phase": 1,
+      "phase": 2,
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
@@ -3299,6 +3299,35 @@
         "fecha": "2026-08-22"
       },
       "branch": "chore/alberto-martinez/PT-113-apertura"
+    },
+    {
+      "id": "PT-132",
+      "slug": "abrir-no-es-atomico",
+      "created": "2026-08-22",
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica",
+      "issue": 253,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     }
   ]
 }

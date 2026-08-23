@@ -6603,3 +6603,84 @@ LO QUE NO ESTABLECE:
 · El comportamiento contra Azure. Se mide sobre GitHub, la plataforma declarada.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.
+
+## PT-132 — abrir creaba el issue antes de guardar el registro, y una interrupcion duplicaba
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — no estaba en el reparto: aparecio EJECUTANDO, y lo encontro el espejo
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #253
+
+TRES DEFECTOS ENCADENADOS, y el tercero es el que ensena:
+
+  1  abrir crea el issue —IRREVERSIBLE— y guardaba el registro al FINAL del bucle
+  2  el arreglo obvio —guardar tras cada issue— dispara la guarda de PT-107
+  3  ...porque HUELLA_AL_LEER es «const»: la guarda asumia UNA escritura por ejecucion
+
+EL PRIMERO. El orden de actos era el INVERSO al que el propio tracker.mjs declara en «avanzar»,
+tres funciones mas abajo:
+
+  «EL ORDEN LO DECIDE LA REVERSIBILIDAD. Lo irreversible va el ULTIMO, y todo lo anterior se
+   restaura si algo falla.»
+
+Dos comandos del mismo archivo con contratos opuestos sobre lo mismo: SUITE-R38.
+
+DANO MEDIDO: DIECISEIS issues duplicados en EP-020 —PT-114..PT-126 por dos y PT-129 por TRES—.
+Los provoque yo ejecutando «abrir --aplicar» en ventanas de dos minutos que expiraron a mitad,
+dos veces. Pero un comando que duplica cuando se interrumpe es FRAGIL: la interrupcion es normal
+—red, timeout, Ctrl+C— y el marco entero esta construido sobre que un acto se completa o no
+ocurre.
+
+LO ENCONTRO EL ESPEJO, NO YO. SUITE-R35 reporto dieciseis issues abiertos que ninguna allocation
+reclamaba. Sin esa comprobacion habrian quedado ahi y el tablero diria que el lote tiene el
+doble de tareas.
+
+EL TERCERO NO LO BUSCABA NADIE. PT-107 construyo la guarda del registro para cazar a OTRO
+proceso escribiendo en paralelo. Como NINGUN comando escribia dos veces, nunca se ejercito en el
+camino que ahora hacia falta — y en cuanto hizo falta, SE DENUNCIO A SI MISMA:
+
+  «REGISTRY.json cambio mientras corria abrir: tenia 152 allocations al leerlo y ahora tiene 152»
+
+Es la SEGUNDA vez en este lote. PT-131 encontro que PT-087 arreglo QUE TAG mirar y dejo el
+OBSERVABLE sin tocar. La clase «un arreglo anterior deja el mecanismo sin probar donde importa»
+lleva dos instancias medidas aqui, y la matriz la tenia en cinco SIN DUENO.
+
+SOLUCION, tres defensas:
+
+  AC-01  el registro se guarda TRAS CADA issue: una interrupcion cuesta UNO, no trece
+  AC-02  se ADOPTA el issue abierto que ya lleva el titulo derivado, en vez de crear otro
+  AC-04  sin poder consultar la plataforma NO SE CREA A CIEGAS (RULE-06): crear sin poder
+         comprobar es exactamente como se duplicaron los dieciseis
+
+Y la decision de adoptar vive como funcion PURA en patrones.mjs, para que su inversa se pueda
+escribir sin fabricar un tablero: si no hay ninguno con ese titulo, NO SE ADOPTA NADA. Adoptar
+de mas seria peor que duplicar — un issue ajeno absorbido en silencio no lo ve nadie.
+
+La guarda de PT-107 conserva TODO lo demas: el cerrojo, la comparacion, y el negarse a fusionar.
+Lo unico que cambia es que lo escrito por nosotros pasa a ser la linea base.
+
+Archivos modificados: tools/tracker.mjs · tools/patrones.mjs · tools/selftest.sh ·
+  inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-132/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/espejo.txt · salidas/issues-abiertos.txt ·
+  salidas/duplicados-cerrados.txt
+
+  issues duplicados      ANTES 16          DESPUES 0, los 16 cerrados con su nota
+  escrituras del registro ANTES 1 al final DESPUES 1 por issue
+  espejo                 ANTES 17 divergencias  DESPUES cuadra: 22 vivas, 22 abiertos
+  bateria                ANTES 1385        DESPUES 1389
+
+LO QUE NO ESTABLECE:
+
+· Que el resto de «tracker» sea transaccional. Se arreglo EL COMANDO QUE DUPLICO.
+· Que un duplicado se pueda borrar: la plataforma no lo permite sin permisos de admin y
+  SUITE-R06 no lo contempla. Se cierran.
+· Que el issue adoptado sea el correcto. Un titulo repetido a mano tambien casa, y se declara
+  en el contrato: adoptar uno ajeno SE VE en el espejo; duplicar no.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.

@@ -1126,6 +1126,56 @@ export const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
  * @param ls      () => string[] | null   los directorios de changes/ dentro del tag, o null
  * @param existe  (alloc) => boolean      si la tarea tiene trabajo en el arbol de HOY
  */
+/**
+ * PT-114 · ¿El cuerpo publicado se quedo SIN ENLACE con la ref durable ya existente?
+ *
+ * PT-096 decidio bien: sin ref durable se publica la ruta SIN enlace y se dice por que, en vez
+ * de inventar una URL (RULE-06). Lo que faltaba es la otra mitad — QUE ALGO LO ECHE DE MENOS
+ * DESPUES. El cuerpo se publica al abrir el issue, la rama se empuja despues, y nada vuelve a
+ * mirar: «una vez que un cuerpo esta bien, NADA vuelve a mirarlo» (PT-096).
+ *
+ * La consecuencia no es cosmetica: el firmante NO PUEDE LEER el intake que se le pide firmar, asi
+ * que G1 no puede pasar. Lo encontro una persona abriendo EP-020, no un verificador.
+ *
+ * Septima instancia de «existe la herramienta y nada la echa en falta»: el propio cuerpo dice
+ * «`tracker abrir --aplicar` lo republica» — le pide a un humano que ejecute un comando que nada
+ * exige.
+ *
+ * QUE ESTABLECE: que el cuerpo publica la ruta sin enlace TENIENDO ref durable.
+ * QUE NO ESTABLECE: que el enlace resuelva. Eso depende de la plataforma, no del texto.
+ *
+ * @param cuerpo    el cuerpo publicado, o null si no se pudo leer
+ * @param hayRef    true si existe ref durable, false si no, null si no se sabe
+ */
+export const RE_SIN_ENLACE = /sin enlace: no hay ref durable que lo contenga/;
+
+/**
+ * PT-132 · ¿Hay ya un issue ABIERTO con el titulo que esta allocation derivaria?
+ *
+ * Si lo hay, es lo que dejo una pasada interrumpida de `abrir`: el issue se creo —irreversible—
+ * y el registro no llego a guardarse. Adoptarlo es recuperar; crear otro es duplicar, y asi
+ * salieron DIECISEIS el 2026-08-22.
+ *
+ * QUE ESTABLECE: que existe un issue abierto con ese titulo exacto.
+ * QUE NO ESTABLECE: que ese issue sea el correcto. Un titulo repetido a mano en el tablero
+ *   tambien casa — y es preferible adoptar uno ajeno, que se ve en el espejo, a crear un
+ *   duplicado que nadie mira.
+ *
+ * @param titulo   el derivado del registro · @param abiertos [{number,title}] o null
+ */
+export function issueAAdoptar(titulo, abiertos) {
+  if (abiertos == null) return null;                       // sin saber, no se decide (RULE-06)
+  const t = String(titulo ?? '').trim();
+  if (!t) return null;
+  const m = abiertos.find((i) => String(i?.title ?? '').trim() === t);
+  return m ? m.number : null;
+}
+
+export function cuerpoSinEnlaceConRef(cuerpo, hayRef) {
+  if (cuerpo == null || hayRef == null) return null;      // SIN EVALUAR (RULE-06)
+  return hayRef === true && RE_SIN_ENLACE.test(String(cuerpo));
+}
+
 export function selladoEnTag(ls, existe, allocations) {
   const dirs = ls();
   if (dirs == null) return null;                 // sin tag o sin git: SIN EVALUAR (RULE-06)

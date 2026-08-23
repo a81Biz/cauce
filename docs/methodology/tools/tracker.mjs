@@ -53,7 +53,7 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selladoEnTag, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
+  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
@@ -1297,7 +1297,14 @@ if (!reg) { console.error('No hay docs/implementation/REGISTRY.json legible.'); 
 // Esto NO hace el registro concurrente —eso exigiria un bloqueo, y un bloqueo mal puesto deja
 // el proyecto colgado—. Hace que la perdida sea IMPOSIBLE DE NO VER: si el archivo cambio
 // desde que se leyo, no se escribe encima y se DICE que hay que repetir el comando.
-const HUELLA_AL_LEER = (() => {
+// PT-132 · la huella era `const` y no se actualizaba nunca, asi que la guarda asumia UNA
+// escritura por ejecucion. En cuanto un comando escribe dos veces —lo que «abrir» hace desde
+// PT-132, uno por issue— la segunda se acusa a si misma: «el registro cambio mientras corria».
+//
+// La guarda existe para cazar a OTRO proceso, no al propio. Tras una escritura nuestra, lo
+// escrito ES la nueva linea base. Se conserva todo lo demas: el cerrojo, la comparacion, y el
+// negarse a fusionar.
+let HUELLA_AL_LEER = (() => {
   try { return readFileSync(join(IMPL, 'REGISTRY.json'), 'utf8'); } catch { return null; }
 })();
 
@@ -1371,7 +1378,11 @@ function escribirRegistro(ruta, datos, quien) {
       + 'Otro comando lo modifico en paralelo — escribir encima habria borrado su trabajo '
       + 'en silencio (SUITE-R08). Espera a que termine y repite este comando.');
   }
-  writeFileSync(ruta, JSON.stringify(datos, null, 2) + SALTO);
+  const contenido = JSON.stringify(datos, null, 2) + SALTO;
+  writeFileSync(ruta, contenido);
+  // PT-132 · lo que acabamos de escribir es la nueva linea base. Sin esto, la segunda escritura
+  // de la misma ejecucion se denuncia a si misma.
+  HUELLA_AL_LEER = contenido;
 }
 
 const PLATAFORMA = reg.tracker?.plataforma ?? null;
@@ -1464,6 +1475,33 @@ function espejo() {
   if (div.some((d) => !d.pendienteDeCierre)) {
     fail('SUITE-R47', `el espejo BLOQUEA aquí y no solo informa: «${RAMA_TRABAJO ?? '¿?'}» no es la rama por defecto («${REPO.rama ?? '¿?'}»), así que es donde el registro asigna.`);
   }
+  // PT-114 · el cuerpo que publica la ruta SIN ENLACE teniendo ya ref durable.
+  //
+  // PT-096 decidio bien —sin ref durable no se inventa una URL— y faltaba la otra mitad: que algo
+  // lo eche de menos DESPUES. El cuerpo se publica al abrir el issue, la rama se empuja despues,
+  // y «una vez que un cuerpo esta bien, NADA vuelve a mirarlo» (PT-096).
+  //
+  // La consecuencia la encontro una PERSONA abriendo EP-020, no un verificador: el firmante no
+  // podia leer el intake que se le pedia firmar, asi que G1 no podia pasar. Va en el espejo y no
+  // en verify-fdge porque el espejo es lo que corre CON credencial en los dos workflows.
+  //
+  // Se REPORTA, no se repara: repararlo aqui mezclaria informar con actuar, y «abrir --aplicar»
+  // ya lo hace. Lo que faltaba era que alguien lo exigiera.
+  if (adaptador.cuerpoRemoto) {
+    const mudos = [];
+    for (const a of vivas.filter((x) => x.issue)) {
+      let publicado = null;
+      try { publicado = adaptador.cuerpoRemoto(a.issue); } catch { /* sin acceso: no se afirma */ }
+      const veredicto = cuerpoSinEnlaceConRef(publicado, refDurableDe(a) ? true : false);
+      if (veredicto === true) mudos.push(`${a.id} #${a.issue}`);
+    }
+    if (mudos.length) {
+      fail('SUITE-R35', `${mudos.length} cuerpo(s) publican la ruta SIN ENLACE y YA existe ref durable que la `
+        + `contiene: ${mudos.join(', ')}. Quien abra el issue no puede llegar al intake, y sin leerlo no se `
+        + `puede firmar (INTAKE-R06). Se republica:  tracker abrir --aplicar`);
+    }
+  }
+
   if (!errores.length) {
     notas.push(`${vivas.length} allocation(s) viva(s) y ${issues.length} issue(s) abierto(s): el espejo cuadra.`);
   }
@@ -1770,13 +1808,50 @@ function abrir() {
   }
   // PT-014 · las tareas antes que su lote, para que el cuerpo del lote las enumere con numero
   // en esta misma pasada. Es un reordenamiento: ni una llamada mas a la plataforma.
+  // PT-132 · EL ORDEN LO DECIDE LA REVERSIBILIDAD, y aqui estaba al reves.
+  //
+  // Se creaban TODOS los issues —acto irreversible— y el registro se guardaba al FINAL del bucle.
+  // Una interrupcion a mitad —timeout, red, Ctrl+C— dejaba los issues creados y el registro sin
+  // conocerlos, y la pasada siguiente los volvia a crear. Medido el 2026-08-22: DIECISEIS
+  // duplicados en EP-020, PT-129 por TRES.
+  //
+  // Es el contrato que «avanzar» declara tres funciones mas abajo, contradicho aqui: dos comandos
+  // del mismo archivo con reglas opuestas sobre lo mismo (SUITE-R38).
+  //
+  // DOS defensas, y las dos hacen falta:
+  //   AC-01  guardar DESPUES DE CADA UNO: una interrupcion cuesta como mucho UNO, no trece.
+  //   AC-02  ADOPTAR el issue abierto que ya lleva el titulo derivado, en vez de crear otro: lo
+  //          que quedo huerfano de una pasada anterior se recupera solo.
+  //
+  // Y si no se puede consultar la plataforma NO SE CREA A CIEGAS (RULE-06): crear sin poder
+  // comprobar es exactamente como se duplico.
+  const yaAbiertos = (() => {
+    try { return adaptador.abiertos(); }
+    catch { return null; }
+  })();
+  if (yaAbiertos === null) {
+    fail('SUITE-R35', 'no se pudo consultar que issues hay abiertos, asi que NO se crea ninguno: '
+      + 'crear sin poder comprobar es como se duplicaron dieciseis (PT-132).');
+    cerrarPasada();
+    return;
+  }
   for (const a of ordenDeApertura(pendientes)) {
+    const titulo = `${a.id} · ${a.slug ?? a.type}`;
+    const huerfano = issueAAdoptar(titulo, yaAbiertos);
+    if (huerfano) {
+      a.issue = huerfano;
+      guardarRegistro(reg, ACCION);
+      notas.push(`${a.id} → issue #${huerfano} ADOPTADO: ya estaba abierto con este titulo y el `
+        + `registro no lo reclamaba. Es lo que deja una pasada interrumpida (PT-132).`);
+      continue;
+    }
     // El issue REFERENCIA el intake; no lo copia. Dos copias del mismo texto divergen — es la
     // causa raiz que la v4 nacio para eliminar, reintroducida por la puerta nueva.
     const cuerpo = cuerpoDeIssue(a, contextoCuerpo(a));
     const etiquetas = etiquetasDe(a);   // PT-007 · incluye fase y compuerta, derivadas
-    const n = adaptador.crear(`${a.id} · ${a.slug ?? a.type}`, cuerpo, etiquetas);
+    const n = adaptador.crear(titulo, cuerpo, etiquetas);
     a.issue = n;
+    guardarRegistro(reg, ACCION);       // PT-132 · uno a uno, no al final del bucle
     notas.push(`${a.id} → issue #${n}`);
   }
   // PT-035 · PT-036 · la pasada que CREA termina igual que la que no crea. Es la CUARTA vez en

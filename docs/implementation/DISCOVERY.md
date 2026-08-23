@@ -83,6 +83,7 @@
 | PT-123 | BUG | S1 | DRAFT | EP-020 | BACKLOG.md dice que se deriva del registro y nada lo deriva |
 | PT-124 | BUG | S1 | DRAFT | EP-020 | tracker asignar rechaza tres de los cinco tipos que LEXICON declara |
 | PT-127 | BUG | S1 | DRAFT | EP-020 | Nada detecta el trabajo sin allocation: solo lo corta una persona |
-| PT-129 | BUG | S2 | DRAFT | EP-020 | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
+| PT-129 | BUG | S2 | VALIDATION_PENDING | EP-020 | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
 | PT-130 | BUG | S2 | DRAFT | EP-020 | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
-| PT-131 | BUG | S1 | DRAFT | EP-020 | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
+| PT-131 | BUG | S1 | VALIDATION_PENDING | EP-020 | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
+| PT-132 | BUG | S1 | DRAFT | EP-020 | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
