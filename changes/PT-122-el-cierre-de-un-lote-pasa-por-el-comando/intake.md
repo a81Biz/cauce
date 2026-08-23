@@ -26,7 +26,7 @@ suite_version: 12.0.0
 | AC | Criterio | Cómo se comprueba |
 |:---|:---|:---|
 | AC-01 | `tracker` publica el comentario de cierre de un lote, con `MARCA_AGENTE`, y es la única forma sancionada de hacerlo | un caso que comprueba la marca en el comentario publicado |
-| AC-02 | El comentario NO afirma nada que no pueda derivar: si no hay tag, no dice que lo hay | el texto de EP-019 afirmaba «tag v12.0.0» y el último del repositorio era v9.0.0 |
+| AC-02 | El comentario **deriva** lo que afirma en vez de escribirlo: versión, tag y commit salen del árbol | el texto de `EP-019` los acertó, pero escritos a mano; derivar es lo que hace que acertar no dependa de la suerte |
 | AC-03 | Los diecisiete comentarios ya escritos NO se editan: la nota marcada que los referencia ya está publicada y se conserva | SUITE-R09 |
 | AC-04 | `SUITE-R43` distingue «comentario humano» de «comentario del agente sin marca» o declara `SIN EVALUAR` | hoy no puede, y por eso contó diecisiete fantasma |
 
@@ -49,4 +49,5 @@ Firmado por lote: EP-020
 
 ## Observaciones del agente   `INTAKE-R07`
 
-- **Medido el 2026-08-22**: el comentario «Integrado en main · suite 12.0.0 · tag v12.0.0» se escribió con `gh issue comment` en diecisiete issues, salió sin marca, y `verify-fdge` lo contó como comentario humano sin responder en los diecisiete. Ninguno lo era, y el tag que afirmaba no existía.
+- **Medido el 2026-08-22**: el comentario «Integrado en main · suite 12.0.0 · tag v12.0.0» se escribió con `gh issue comment` en diecisiete issues, salió **sin marca**, y `verify-fdge` lo contó como comentario humano sin responder en los diecisiete. Ninguno lo era.
+- **Corrección del 2026-08-22**: este intake afirmó además que ese comentario mentía sobre el tag. **No mentía**: `v12.0.0` existe y apunta a `5b184af`. El error fue mío al medir —`git tag -l | tail -5` ordena lexicográficamente— y queda retirado. El defecto real es **la marca que falta**, no el contenido.

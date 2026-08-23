@@ -96,7 +96,8 @@ El lote se declaró cerrado **cuatro veces en tres sesiones**, y ninguna complet
 ```
 1  el commit del registro          se quedó en la rama de tarea
 2  los 17 comentarios de cierre    escritos con «gh issue comment», sin MARCA_AGENTE
-                                   -> 17 SUITE-R43 fantasma, y un tag AFIRMADO que no existía
+                                   -> 17 SUITE-R43 fantasma. (El tag que afirmaba SI existe: eso
+                                      lo midio mal el agente y esta corregido en HISTORY.log)
 3  la entrada de HISTORY.log       no existía · y al escribirla el agente afirmó «el paquete
                                    publicado sigue siendo la 11.0.0» con la 12.0.0 ya en npm
 4  la corrección de esa entrada    CORRIGE, tras señalarlo el firmante

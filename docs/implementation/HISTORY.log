@@ -6367,3 +6367,59 @@ NUNCA se ha evaluado en CI, en ninguna de las dos corridas, desde que existe.
 
 Las dos filas van a EP-020: el tag es un acto fuera del comando, y el token que falta es un
 verificador que da verde POR NO HABER MIRADO.
+
+## EP-019 — CORRIGE: los tags SI existen, y el error fue mio al medir
+Fecha: 2026-08-22
+Corrige: la entrada «EP-019 — CORRIGE: la 12.0.0 SI esta publicada» de esta misma fecha
+
+LO QUE DIJE MAL, y lo cazo el firmante al intentar ejecutar lo que yo le habia escrito:
+
+  «git tag -a v12.0.0 5b184af»  ->  fatal: tag v12.0.0 already exists
+
+Aquella entrada afirmaba «TRES VERSIONES SEGUIDAS SIN TAG —10.0.0, 11.0.0 y 12.0.0—, y DOS DE
+ELLAS ESTAN EN NPM» y «el ultimo del repositorio es v9.0.0». LAS DOS AFIRMACIONES SON FALSAS.
+
+EL HECHO, derivado con «git tag -l --sort=v:refname»:
+
+  v4.13.0  v5.0.0  v5.1.0  v5.2.0  v8.2.0  v9.0.0  v10.0.0  v11.0.0  v12.0.0
+
+  v12.0.0 -> 5b184af   EL MISMO COMMIT que publicar.yml subio a npm
+  v11.0.0 -> f0dcc28   ·  v10.0.0 -> 29d1681  ·  v9.0.0 -> 7b7bbf4
+
+Las cuatro ultimas versiones tienen su tag y apunta donde debe. Las que faltan son historicas
+—5.2.x, 6.x, 7.x, 8.0, 8.1—, anteriores a que «sellar» existiera.
+
+COMO ME EQUIVOQUE, y es la clase que este lote persigue cometida contra si misma:
+
+  ejecute        git tag -l | tail -5
+  eso ordena     LEXICOGRAFICAMENTE: v10, v11 y v12 van ANTES que v4.13.0
+  lei            el final del ALFABETO
+  afirme         «el ultimo tag es v9.0.0»
+
+Es EL PROXY EN LUGAR DEL HECHO, instancia once contando la de PT-130: lei el orden de una lista
+en vez de preguntar que tags existen. Y volvi a hacerlo DENTRO del comando que corregia el
+primer error —escribi «unico que falta de verdad: v10.0.0» como TEXTO LITERAL en un echo, sin
+derivarlo, y v10.0.0 tambien existia—. Dos veces seguidas, la segunda dentro de la correccion.
+
+LO QUE ESTO RETIRA, y no es poco:
+
+· «el comentario de cierre afirmaba un tag que no existe». NO MENTIA. El defecto real de esos
+  diecisiete comentarios es UNO SOLO: la MARCA que falta. El contenido era correcto.
+· «sellar deriva el tag anterior del CHANGELOG y no de los tags reales». Sin comprobar. Cuando
+  el arbol declaraba 12.0.1, «sellar» dijo «tag anterior v12.0.0» y ESE TAG EXISTE: acerto.
+· AC-04 de PT-121 y AC-02 de PT-122, retirados en sus intakes con su motivo.
+· «faltan tres tags» en HANDOFF y en SESSION_LOG.
+
+LO QUE SIGUE EN PIE, porque no dependia de esa medicion:
+
+· PT-122: el cierre de un lote se escribio FUERA de la herramienta y por eso salio sin
+  MARCA_AGENTE. Diecisiete SUITE-R43 fantasma. Eso esta medido y es cierto.
+· PT-121: no hay comando que escriba DONE -> INTEGRATED en el YAML, ni forma de rama para
+  cerrar un lote, ni fase que lleve el estado terminal a la rama por defecto. Tres huecos
+  medidos que no tocan los tags.
+
+ES LA TERCERA AFIRMACION FALSA QUE ESCRIBO EN ESTA SESION y la tercera que caza el firmante:
+la 11.0.0 «sin publicar» cuando la 12.0.0 ya estaba en npm, los tags, y los tags otra vez. Las
+tres tienen la misma forma —afirmar sobre una lectura parcial en vez de derivar el dato— y las
+tres las cazo una persona. Es exactamente PT-127 y PT-130, y por eso van quinta y sexta del
+reparto: el detector que falta es el que me habria parado.
