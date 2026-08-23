@@ -27,5 +27,5 @@ Proyectado el 2026-08-22 · 20 allocation(es) viva(s).
 | PT-126 |  | DRAFT | 1 | — | — | 922379b |
 | PT-127 | BUG | DRAFT | 1 | — | — | 922379b |
 | PT-128 | FEATURE | DRAFT | 1 | — | — | 922379b |
-| PT-129 | BUG | DRAFT | 2 | — | — | 922379b |
+| PT-129 | BUG | DRAFT | 3 | — | — | 684ad4e |
 | PT-130 | BUG | DRAFT | 1 | — | — | 922379b |
