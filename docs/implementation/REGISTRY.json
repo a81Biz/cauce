@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 128,
+    "PT": 129,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3227,6 +3227,17 @@
       "epic": "EP-020",
       "title": "El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar",
       "issue": 246
+    },
+    {
+      "id": "PT-129",
+      "slug": "la-topologia-de-ramas-no-se-enumera",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales"
     }
   ]
 }

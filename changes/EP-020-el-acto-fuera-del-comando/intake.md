@@ -163,7 +163,7 @@ He leído el Intake de cada PT listado en §6 y confirmo que todos reflejan mi i
 
 ## 6. PTs que componen el lote `[AGENTE]`
 
-**Las dieciséis están asignadas desde `REGISTRY.json` y con su issue abierto** (`SUITE-R08`,
+**Las diecisiete están asignadas desde `REGISTRY.json` y con su issue abierto** (`SUITE-R08`,
 `SUITE-R35`), y cada una lleva su `intake.md` con la plantilla ligera (`FDGE-R51`). `DoR-E6` lo
 exige y la primera versión de este intake decía que se asignarían «al empezar cada una»: eso hacía
 la compuerta **inalcanzable**, y lo señaló el firmante.
@@ -186,6 +186,7 @@ la compuerta **inalcanzable**, y lo señaló el firmante.
 | `L-11` | `PT-123` | BUG | S1 | **`BACKLOG.md` dice que se deriva del registro y nada lo deriva.** `tracker indices` cubre `DISCOVERY`, `ENRICHMENT` y `REFACTOR_SCOPE` — **y a él no**. Lleva **cuatro lotes** declarando `EP-015` como implementación abierta | `L-2` |
 
 | `L-14` | `PT-127` | BUG | S1 | **Nada detecta el trabajo sin allocation: sólo lo corta una persona.** Un commit que toca rutas gobernadas cita un ID que existe **y estaba vivo**, con el formato que `FDGE-R19` ya exige | `L-12` |
+| `L-16` | `PT-129` | BUG | S2 | **`FDGE-R19` enumera tres niveles y el árbol tiene cuatro tipos**, y nada compara las ramas **reales** con la topología declarada. `cauce/<usuario>` sólo está en `LEXICON`; una rama efímera sobrevive a su tarea integrada y nada lo dice | `L-14` |
 | `L-15` | `PT-128` | FEATURE | S1 | **El cursor del recorrido**: dónde estás, de dónde vienes, a dónde vas — y **qué nodos del subárbol NO se han visitado**. Derivado del registro, del árbol y de `PHASES.md`; garantía por **enumeración**, no por consulta | `L-1` |
 
 ### El cursor, y por qué es la columna vertebral
@@ -232,7 +233,7 @@ L-13                              tools/tracker.mjs + patrones.mjs  -> SERIALIZA
 L-0 ↔ L-8                         ninguno: L-8 toca workflows, L-0 documentos
 
 Orden:  L-12 -> L-13 -> L-14 -> L-0 -> L-8 -> L-1 -> L-2 -> L-15 -> L-3 -> L-4 -> L-5
-        -> L-6 -> L-7 -> L-9 -> L-10 -> L-11
+        -> L-6 -> L-7 -> L-9 -> L-10 -> L-11 -> L-16
 ```
 
 **Por qué `L-12` va primera, y no es preferencia.** Mientras el intake de un lote no se pueda leer
@@ -251,7 +252,7 @@ salir a `L-0`, y arreglarla **antes** de volver a publicar es lo que impide repe
 restantes puede escribirse fuera del marco sin que nada lo note. **`L-15` va detrás de `L-2`**
 porque el cursor necesita el nodo definido y escrito antes de poder recorrerlo.
 
-Ejecución **secuencial** por defecto (`EXEC-R08`): nueve de las dieciséis tocan `tools/tracker.mjs`.
+Ejecución **secuencial** por defecto (`EXEC-R08`): diez de las diecisiete tocan `tools/tracker.mjs`.
 
 ## 8. Supuestos compartidos `[AGENTE]`
 
@@ -319,7 +320,7 @@ DoR-E2 criterio de éxito del lote declarado        [~] borrador del agente · f
 DoR-E3 out-of-scope del lote declarado             [~] borrador del agente · falta confirmación
 DoR-E4 firma única presente                        [ ] FALTA — solo del firmante (INTAKE-R06)
 DoR-E5 EP asignado desde REGISTRY.json             [x] EP-020, con tracker asignar
-DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [~] las 16 tienen intake · «firmado por lote» depende de DoR-E4
+DoR-E6 todos los PTs listados tienen su intake completo y firmado por lote   [~] las 17 tienen intake · «firmado por lote» depende de DoR-E4
 DoR-E7 solapamiento calculado y declarado en BACKLOG.md                      [!] BLOQUEADA · ver abajo
 DoR-E8 observaciones registradas                   [x] O-1..O-9
 
