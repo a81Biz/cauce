@@ -3,20 +3,25 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "684ad4ee55c26edf90b3c542dd37919447ed784d",
-  "sha_corto": "684ad4e",
+  "sha": "5324c126f3f9eaf0d091b1ef72048a0e8f26a7a2",
+  "sha_corto": "5324c12",
   "sucio": true,
   "archivos": [
     "changes/PT-129-la-topologia-de-ramas-no-se-enumera/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-22"
 }
