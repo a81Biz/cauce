@@ -30,4 +30,4 @@ Proyectado el 2026-08-22 · 22 allocation(es) viva(s).
 | PT-129 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | 85c4b17 | 85c4b17 |
 | PT-130 | BUG | DRAFT | 1 | — | — | 922379b |
 | PT-131 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | 85c4b17 | 11611d9 |
-| PT-132 | BUG | VALIDATION_PENDING | 7 | — | — | — |
+| PT-132 | BUG | VALIDATION_PENDING | 8 | — | — | — |
