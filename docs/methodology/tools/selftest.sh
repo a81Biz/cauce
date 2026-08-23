@@ -3538,6 +3538,33 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-124 · la lista de tipos de tracker.mjs era la de las PLANTILLAS, no la de los tipos.
+#
+# Decia ['BUG','FEATURE','CHANGE','TAREA'] y su mensaje de error los ATRIBUIA a LEXICON.
+# LEXICON §8.1 declara BUG · FEATURE · REFACTOR · INVESTIGATION · CHORE, y el registro le da
+# la razon: 30 CHORE y 2 INVESTIGATION escritos, CERO CHANGE y CERO TAREA.
+#
+# «CHANGE» y «TAREA» no existen en ningun otro sitio del codigo: son nombres de PLANTILLA
+# —BUG-REPORT, FEATURE-REQUEST, CHANGE-REQUEST, TAREA—. Alguien derivo la lista de las CUATRO
+# plantillas y la etiqueto como los CINCO tipos. Por eso se solapa en BUG y FEATURE, donde
+# plantilla y tipo se llaman igual, y falla justo en los tres donde no.
+patlib "los cinco tipos son los de LEXICON 8.1"     '^BUG FEATURE REFACTOR INVESTIGATION CHORE$' \
+  "console.log(m.TIPOS_DE_ITEM.join(' '))"
+# INVERSA · los dos que solo existian en la herramienta NO estan. Si volvieran, la lista habria
+# vuelto a ser la de las plantillas.
+patlib "…y los dos de las plantillas ya no"         '^false$' \
+  "console.log(m.TIPOS_DE_ITEM.includes('CHANGE')||m.TIPOS_DE_ITEM.includes('TAREA'))"
+# SUITE-R38 · la constante NO basta: verify-suite la compara con LEXICON 8.1 y falla si divergen.
+# Sin eso seria una copia, solo que UNA — y PT-080 midio que tres copias de una regla divergen
+# las tres sin que nada las compare.
+build_fixture
+# Se rompe la constante EN EL FIXTURE para que el fallo ocurra DE VERDAD. Buscar el texto en el
+# fuente no prueba nada: un mensaje que nunca se imprime no comprueba nada — es la leccion que
+# este mismo archivo escribio para verify-patrones treinta lineas mas arriba.
+perl -0pi -e "s/'BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'/'BUG', 'FEATURE', 'CHANGE', 'TAREA'/" "$WORK/docs/methodology/tools/patrones.mjs"
+chk   "la constante divergente de LEXICON falla"  "TIPOS_DE_ITEM y LEXICON"  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+build_fixture
+
 # PT-114 · el cuerpo del issue publica la ruta SIN ENLACE y nada lo republica despues.
 #
 # PT-096 decidio BIEN: sin ref durable no se inventa una URL (RULE-06). Lo que faltaba es la

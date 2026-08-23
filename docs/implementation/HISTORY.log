@@ -6752,3 +6752,85 @@ LO QUE NO ESTABLECE:
   comprobacion.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.
+
+## PT-124 — La lista de tipos era la de las PLANTILLAS, no la de los tipos
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su L-13, tercera del reparto: bloqueaba el «type» de PT-125 y PT-126
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #242
+
+tracker.mjs:2328 declaraba ['BUG','FEATURE','CHANGE','TAREA'] y su mensaje de error los ATRIBUIA
+a LEXICON:
+
+  «INVESTIGATION» no es un tipo de item. LEXICON declara: BUG · FEATURE · CHANGE · TAREA
+
+LEXICON §8.1 declara otra cosa —BUG · FEATURE · REFACTOR · INVESTIGATION · CHORE— y lo mismo
+DoR-01 del Intake-Protocol. Y EL REGISTRO LE DA LA RAZON A LA DOCUMENTACION: 76 BUG, 30 CHORE,
+22 FEATURE, 2 INVESTIGATION. CERO CHANGE y CERO TAREA.
+
+NO ERA UNA LISTA DESACTUALIZADA: ERA UNA LISTA DE OTRA COSA. «CHANGE» y «TAREA» no existen en
+ningun otro sitio del codigo. Son nombres de PLANTILLA de intake:
+
+  BUG · INVESTIGATION   ->  templates/BUG-REPORT.md
+  FEATURE               ->  templates/FEATURE-REQUEST.md
+  REFACTOR · CHORE      ->  templates/CHANGE-REQUEST.md
+  una tarea de un lote  ->  templates/TAREA.md
+
+Alguien derivo la lista de las CUATRO plantillas y la etiqueto como los CINCO tipos. Por eso se
+solapaba en BUG y FEATURE —donde plantilla y tipo se llaman igual— y fallaba justo en los tres
+donde no: REFACTOR y CHORE comparten plantilla, e INVESTIGATION comparte la de BUG.
+
+Es LEX-R28 otra vez, en otro campo: «la herramienta esperaba un conjunto y TRES documentos decian
+otro». Aquello fueron los tipos de caso QA; esto los de item.
+
+LO QUE CIERRA LA CLASE NO ES MOVER LA CONSTANTE. Mover la lista a patrones.mjs la deja siendo una
+copia, SOLO QUE UNA — y PT-080 midio que tres copias de una regla divergen las tres sin que nada
+las compare. Lo que cierra es que verify-suite la COMPARE con LEXICON §8.1 y FALLE.
+
+Probado en las dos direcciones: con la lista vieja falla y DICE QUE DIVERGE; restaurada, verde.
+
+Y «tracker tipo PT-NNN» DERIVA el valor del intake —PT-004: manda el YAML, es lo que el PT dice de
+si mismo—, lo valida contra LEXICON, y si el intake no lo declara LO DICE en vez de adivinar. No se
+escribe a mano en el registro (PT-103, PT-107).
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/verify-suite.mjs ·
+  tools/selftest.sh · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-124/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/tipos.txt
+
+  tipos aceptados por el comando  ANTES 4, dos inventados  DESPUES los 5 de LEXICON
+  copias de la lista              ANTES 2 divergentes      DESPUES 1, comparada
+  bateria                         ANTES 1395               DESPUES 1398
+
+LO QUE ARRASTRO AL CERRARSE, sin tocarlo:
+
+  PT-125  type: INVESTIGATION  ->  DISCOVERY.md        ✓ FDGE-R31
+  PT-126  type: CHORE          ->  REFACTOR_SCOPE.md   ✓ FDGE-R31
+
+Eran los DOS UNICOS errores del arbol tras firmar el lote.
+
+DOS ERRORES MIOS, los dos cazados por el marco:
+
+· Escribi la inversa como «¿esta el texto en el fuente de verify-suite?». ESO NO COMPRUEBA NADA, y
+  la leccion esta en este mismo archivo treinta lineas mas arriba: «se rompe un patron EN EL
+  FIXTURE para que el fallo ocurra de verdad; un ID en un texto que nunca se imprime no cita
+  nada». Es el proxy en lugar del hecho DENTRO del caso que prueba una comprobacion contra
+  proxies. Lo cazo patlib reventando, no leerlo.
+· Use un AC para DECLARAR algo no hecho —«asignar escribe suite_version»— y FDGE-R15 lo rechazo:
+  «AC-06 sin escenario de test (Orphan Criterion)». Tenia razon: un AC es lo que la tarea ENTREGA;
+  lo declarado va a out-of-scope con su destino. Movido a PT-121.
+
+LO QUE NO ESTABLECE:
+
+· Que «asignar» escriba suite_version. Declarado en O-9 del lote y fuera de aqui: mezclaria dos
+  defectos en un arreglo.
+· Que LEXICON §8.1 sea la enumeracion correcta. Si LEXICON se equivoca, esto pasa.
+· Nada sobre el vocabulario de casos QA, que es otro conjunto bien separado.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.

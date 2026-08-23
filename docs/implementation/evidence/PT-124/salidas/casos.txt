@@ -1,0 +1,4 @@
+  [32m✓[0m los cinco tipos son los de LEXICON 8.1
+  [32m✓[0m …y los dos de las plantillas ya no
+  [32m✓[0m la constante divergente de LEXICON falla
+selftest: OK · 1398 casos

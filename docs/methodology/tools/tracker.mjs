@@ -53,7 +53,7 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
+  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
@@ -2400,7 +2400,7 @@ const usadosDe = (prefijo) => all
 // PT-103 · los tipos que LEXICON declara. Se enumeran aqui —y no se acepta cualquier cadena—
 // porque un campo que admite lo que sea es un campo que no decide nada: es el mismo defecto que
 // PT-100 arreglo para los tipos de caso QA, un paso mas arriba.
-const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'CHANGE', 'TAREA'];
+// PT-124 · la lista vive en patrones.mjs y verify-suite la compara con LEXICON §8.1.
 const SEVERIDADES = ['S0', 'S1', 'S2', 'S3'];
 
 function asignar() {
@@ -2423,7 +2423,7 @@ function asignar() {
   const epica = flag('--epica');
   const titulo = flag('--titulo');
   if (tipo && !TIPOS_DE_ITEM.includes(tipo)) {
-    throw new Error(`«${tipo}» no es un tipo de item. LEXICON declara: ${TIPOS_DE_ITEM.join(' · ')}`);
+    throw new Error(`«${tipo}» no es un tipo de item. LEXICON §8.1 declara: ${TIPOS_DE_ITEM.join(' · ')}`);
   }
   if (sev && !SEVERIDADES.includes(sev)) {
     throw new Error(`«${sev}» no es una severidad. LEXICON declara: ${SEVERIDADES.join(' · ')}`);
@@ -2481,6 +2481,50 @@ function asignar() {
   });
   guardarRegistro(reg, ACCION);
   notas.push(`${id} asignado y escrito en REGISTRY.json`);
+}
+
+// ── tipo · el «type» del registro sale del intake, que es quien manda ───────
+//
+// PT-124 · PT-125 y PT-126 quedaron SIN «type» en el registro porque «asignar» rechazaba
+// INVESTIGATION y CHORE. Sus intakes SI lo declaran, y PT-004 dice que manda el YAML: es lo que
+// el PT dice de si mismo.
+//
+// NO SE ESCRIBE A MANO en REGISTRY.json —el registro solo lo escribe el comando (PT-103,
+// PT-107)— y no se INVENTA: se DERIVA del intake, se valida contra LEXICON §8.1, y si el intake
+// no lo declara se dice en vez de adivinar (RULE-06).
+//
+// Lo general —sincronizar TODO lo que el YAML manda hacia el registro— es de PT-121. Esto es el
+// campo que PT-124 dejo pendiente, y nada mas.
+function tipo() {
+  const id = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+  if (!id) throw new Error('tipo necesita una allocation:  tracker tipo PT-125');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
+  if (esLote(a)) throw new Error(`${id} es un lote y un lote NO lleva «type» (LEX-R27).`);
+
+  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  if (!existsSync(fIntake)) throw new Error(`${id} no tiene intake en ${fIntake}: sin el no hay de donde derivar el tipo.`);
+  const enYaml = readFileSync(fIntake, 'utf8').match(/^type:[ \t]*([A-Z]+)[ \t]*$/m)?.[1];
+  if (!enYaml) {
+    throw new Error(`el intake de ${id} no declara «type». Se declara ahi primero: manda el YAML `
+      + '(PT-004), y el registro lo espeja.');
+  }
+  if (!TIPOS_DE_ITEM.includes(enYaml)) {
+    throw new Error(`el intake de ${id} declara «${enYaml}», que no es un tipo de item. `
+      + `LEXICON §8.1 declara: ${TIPOS_DE_ITEM.join(' · ')}`);
+  }
+  if (a.type === enYaml) { notas.push(`${id}: el registro ya declara «${enYaml}». Nada que hacer.`); return; }
+  if (a.type && a.type !== enYaml) {
+    // No se elige: se DICE. La precedencia de PT-004 no cambia, pero pisar en silencio un valor
+    // distinto es lo que SUITE-R35 existe para impedir.
+    di('');
+    di(`  ${id}: el registro dice «${a.type}» y su intake «${enYaml}».`);
+    di('  Se espeja el del intake, que es lo que el PT dice de si mismo (PT-004).');
+    di('');
+  }
+  a.type = enYaml;
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: «type: ${enYaml}» espejado desde el intake al registro (PT-004, SUITE-R35)`);
 }
 
 // ── rama · como debe llamarse la de una tarea ───────────────────────────────
@@ -3405,7 +3449,7 @@ function inventario() {
   notas.push(`${mal.filter((m) => m.real != null).length} cifra(s) reescritas en services.md.`);
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, sellar, indices };
+const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, sellar, indices };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

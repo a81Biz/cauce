@@ -1094,6 +1094,30 @@ export function contradiceElRegistro(bloque, allocations) {
  * El hueco de LEXICON sigue abierto y es de otra tarea. Esto no lo cierra: lo rodea usando el
  * unico nombre que LEXICON SI declara.
  */
+/**
+ * PT-124 · Los tipos de trabajo que LEXICON §8.1 declara.
+ *
+ * tracker.mjs los tenia escritos a mano como ['BUG','FEATURE','CHANGE','TAREA'] y su mensaje de
+ * error los ATRIBUIA a LEXICON. LEXICON nunca declaro eso.
+ *
+ * NO ERA UNA LISTA DESACTUALIZADA: ERA UNA LISTA DE OTRA COSA. «CHANGE» y «TAREA» no existen en
+ * ningun otro sitio del codigo — son nombres de PLANTILLA de intake:
+ *
+ *   BUG · INVESTIGATION   ->  templates/BUG-REPORT.md
+ *   FEATURE               ->  templates/FEATURE-REQUEST.md
+ *   REFACTOR · CHORE      ->  templates/CHANGE-REQUEST.md
+ *   una tarea de un lote  ->  templates/TAREA.md
+ *
+ * Alguien derivo la lista de las CUATRO plantillas y la etiqueto como los CINCO tipos. Por eso
+ * se solapa en BUG y FEATURE —donde plantilla y tipo se llaman igual— y falla justo en los tres
+ * donde no. El registro le da la razon a la documentacion: 30 CHORE y 2 INVESTIGATION escritos,
+ * CERO CHANGE y CERO TAREA.
+ *
+ * Vivir aqui no basta: seria una copia, solo que UNA. verify-suite la compara con LEXICON §8.1
+ * y falla si divergen — sin eso, esto se repite el dia que LEXICON cambie (PT-080).
+ */
+export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'];
+
 export const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
 
 /**

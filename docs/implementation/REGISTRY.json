@@ -3191,13 +3191,30 @@
       "id": "PT-124",
       "slug": "la-herramienta-rechaza-el-vocabulario-canonico",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
       "title": "tracker asignar rechaza tres de los cinco tipos que LEXICON declara",
-      "issue": 242
+      "issue": 242,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-125",
@@ -3208,7 +3225,8 @@
       "severity": "S1",
       "epic": "EP-020",
       "title": "Clasificar las 131 entradas cerradas en EVENTOS.jsonl",
-      "issue": 243
+      "issue": 243,
+      "type": "INVESTIGATION"
     },
     {
       "id": "PT-126",
@@ -3219,7 +3237,8 @@
       "severity": "S2",
       "epic": "EP-020",
       "title": "sellar mide la matriz y FPGE la lee",
-      "issue": 244
+      "issue": 244,
+      "type": "CHORE"
     },
     {
       "id": "PT-127",
