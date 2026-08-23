@@ -2,9 +2,9 @@
   "pt": "PT-114",
   "type": "BUG",
   "epic": "EP-020",
-  "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "267c1ea16b6f2b291e3048611acaff3a4cd68c6a",
   "sha_corto": "267c1ea",
@@ -22,15 +22,13 @@
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-114/",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-22"
 }
