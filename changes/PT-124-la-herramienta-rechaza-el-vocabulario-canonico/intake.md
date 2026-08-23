@@ -53,4 +53,10 @@ Firmado por lote: EP-020
 
 - **Es `LEX-R28` otra vez, en otro campo.** Aquella regla nació porque «la herramienta esperaba un conjunto y tres documentos decían otro: un plan escrito siguiendo la documentación fallaba la verificación». Aquí es idéntico, con los tipos de ítem.
 - **Y el registro le da la razón a la documentación, no a la herramienta**: 30 `CHORE` y 2 `INVESTIGATION` ya escritos, contra 0 `CHANGE` y 0 `TAREA`. La lista de la herramienta describe un vocabulario que nadie usa.
+- **La consecuencia se midió al verificar, y encadena**: `tracker indices` reparte por `type`
+  —`BUG`/`INVESTIGATION` a `DISCOVERY`, `FEATURE` a `ENRICHMENT`, `REFACTOR` a `REFACTOR_SCOPE`—,
+  así que `PT-125` y `PT-126`, sin `type`, **no caen en ningún índice** y `verify-fdge` los pone en
+  rojo por `FDGE-R31`: *«no aparece en ningún índice. FPGE no podrá verlo»*. Son los **dos únicos**
+  errores que quedan en el árbol tras firmar el lote. No se escriben a mano: cerrarlos es cerrar
+  esta tarea.
 - **Bloqueó la apertura de este lote**: `PT-125` y `PT-126` están en el registro sin `type` porque el comando rechaza el suyo, y se dejó ausente antes que inventado (`RULE-06`).
