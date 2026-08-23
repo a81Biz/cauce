@@ -1,26 +1,21 @@
 {
-  "pt": "PT-131",
+  "pt": "PT-129",
   "type": "BUG",
   "epic": "EP-020",
-  "status": "VALIDATION_PENDING",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "21930d875a20ee44c6f4b2afdbf6788744033c90",
-  "sha_corto": "21930d8",
+  "sha": "11611d9b3f2f0fe08b21c2e83a1f7d409ca73726",
+  "sha_corto": "11611d9",
   "sucio": true,
   "archivos": [
-    "changes/PT-131-el-candado-con-la-llave-dentro/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
+    "changes/PT-129-la-topologia-de-ramas-no-se-enumera/intake.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md"
   ],
   "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-22"
 }
