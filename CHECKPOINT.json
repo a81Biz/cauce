@@ -3,18 +3,24 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "21930d875a20ee44c6f4b2afdbf6788744033c90",
   "sha_corto": "21930d8",
   "sucio": true,
   "archivos": [
     "changes/PT-131-el-candado-con-la-llave-dentro/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SESSION_LOG.md"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-22"
 }
