@@ -20,14 +20,14 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 | PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
-| PT-113 | BUG | S2 | DRAFT | 1 | [#217](https://github.com/a81Biz/cauce/issues/217) | La 12.0.1: la guia de migracion que se publico incompleta |
+| PT-113 | BUG | S2 | VALIDATION_PENDING | 8 | [#217](https://github.com/a81Biz/cauce/issues/217) | La 12.0.1: la guia de migracion que se publico incompleta |
 | PT-114 | BUG | S1 | VALIDATION_PENDING | 8 | [#232](https://github.com/a81Biz/cauce/issues/232) | El cuerpo del issue no se republica cuando aparece la ref durable |
 | PT-115 | FEATURE | S1 | DONE | 8 | [#233](https://github.com/a81Biz/cauce/issues/233) | PARADA entra al vocabulario y a las reglas |
 | PT-116 | FEATURE | S1 | DONE | 8 | [#234](https://github.com/a81Biz/cauce/issues/234) | tracker parada: el comando que escribe la parada en su tarea |
 | PT-117 | FEATURE | S1 | DRAFT | 4 | [#235](https://github.com/a81Biz/cauce/issues/235) | Todo desenlace cita la parada que lo produjo |
 | PT-118 | FEATURE | S1 | DRAFT | 1 | [#236](https://github.com/a81Biz/cauce/issues/236) | La taxonomia de clases de evento, cerrada, en LEXICON |
 | PT-119 | FEATURE | S1 | DRAFT | 1 | [#237](https://github.com/a81Biz/cauce/issues/237) | tools/matriz.mjs deriva MATRIZ.md |
-| PT-120 | BUG | S1 | DRAFT | 1 | [#238](https://github.com/a81Biz/cauce/issues/238) | publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN |
+| PT-120 | BUG | S1 | VALIDATION_PENDING | 8 | [#238](https://github.com/a81Biz/cauce/issues/238) | publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN |
 | PT-121 | BUG | S1 | DRAFT | 1 | [#239](https://github.com/a81Biz/cauce/issues/239) | El viaje de vuelta tras el merge no lo cubre ninguna fase |
 | PT-122 | BUG | S2 | DRAFT | 1 | [#240](https://github.com/a81Biz/cauce/issues/240) | El cierre de un lote pasa por el comando, no por la mano |
 | PT-123 | BUG | S1 | VALIDATION_PENDING | 8 | [#241](https://github.com/a81Biz/cauce/issues/241) | BACKLOG.md dice que se deriva del registro y nada lo deriva |
@@ -41,16 +41,18 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-131 | BUG | S1 | VALIDATION_PENDING | 8 | [#252](https://github.com/a81Biz/cauce/issues/252) | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
 | PT-132 | BUG | S1 | VALIDATION_PENDING | 8 | [#253](https://github.com/a81Biz/cauce/issues/253) | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
 | PT-133 | BUG | S2 | VALIDATION_PENDING | 8 | [#254](https://github.com/a81Biz/cauce/issues/254) | parada exige plataforma para escribir en TRANSICIONES.log |
+| PT-134 | CHORE | S3 | DEFERRED | 1 | — | No hay forma de declarar un AC caido: o se finge verde o bloquea |
 
-**2 de 21 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**3 de 22 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
-## Aplazado — 1 allocation(s) `DEFERRED`
+## Aplazado — 2 allocation(s) `DEFERRED`
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
 | Id | Tipo | Issue | Por qué sigue fuera |
 |:---|:---|:---|:---|
 | PT-025 | CHORE | [#35](https://github.com/a81Biz/cauce/issues/35) | el adaptador de Azure existe pero no hay proyecto que lo use; escribir la guarda a ciegas seria codigo sin ejecucion |
+| PT-134 | CHORE | — | Aplazado por PT-113: AC-06 decayo con el reanclaje a la 13.0.0 y el marco no tiene forma de declararlo. FDGE-R15 exige T |
 
 <!-- /BACKLOG:DERIVADO -->
 

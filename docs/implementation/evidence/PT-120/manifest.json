@@ -1,0 +1,64 @@
+{
+  "pt": "PT-120",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "publicar.yml ejecuta tracker sellar y bloquea si el sello no esta resuelto",
+      "tests": [
+        "selftest.sh:sellar --gate bloquea con el sello roto",
+        "selftest.sh:…y sale con codigo distinto de cero",
+        "selftest.sh:…y sin deuda mecanica, deja pasar",
+        "selftest.sh:…y NO bloquea por el grafo, que no evalua"
+      ],
+      "evidence": [
+        "salidas/casos.txt",
+        "salidas/gate.txt"
+      ],
+      "verified": true,
+      "nota": "Se mide el CODIGO DE SALIDA, no el texto: mi primera version imprimia «No se publica» y salia con 0. Bloquea solo lo MECANICO y evaluable ahi; el grafo no entra porque en CI sale MISSING y bloquear por algo no evaluable es lo contrario de RULE-06."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "verify-fdge --all recibe GH_TOKEN en publicar.yml Y en verificacion.yml",
+      "tests": [
+        "selftest.sh:publicar.yml da GH_TOKEN a verify-fdge",
+        "selftest.sh:verificacion.yml tambien"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "En la corrida 32600060157 hubo 108 avisos SUITE-R43 SIN EVALUAR sobre 108 PT. No se afirma que con token hubiera fallado: se afirma que SUITE-R43 NUNCA se ha evaluado en CI."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un paso que no puede evaluar una regla no cierra con «Sin errores» sin decir cuantas quedaron SIN EVALUAR",
+      "tests": [
+        "selftest.sh:el resumen no calla lo SIN EVALUAR",
+        "selftest.sh:…y sigue sin bloquear: codigo cero"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "NO se convierte en error: SIN EVALUAR no aprueba ni bloquea, y hacerlo fallar dejaria sin salida al proyecto sin plataforma (SUITE-R22). La cifra se DERIVA de los avisos emitidos, no se cuenta a mano (PT-115)."
+    }
+  ],
+  "decaidos": [
+    {
+      "ac": "AC-04",
+      "statement": "sellar deja de derivar «tag anterior» del CHANGELOG y lo lee de los tags reales",
+      "motivo": "sellar YA leia los tags reales, con --sort=-v:refname. El criterio se escribio contra un defecto que no existe: el error original —creer que v12.0.0 no existia— fue mio, de ordenar tags POR TEXTO. R-1 de este intake lo «reformulo» contra otro defecto que tampoco existe, acusando al codigo del error que habia cometido yo; R-2 lo corrige tras abrir la funcion.",
+      "consta_en": "changes/PT-120-publicar-no-sella/intake.md · R-1 y R-2",
+      "aplazado_en": "PT-134 — el marco no tiene vocabulario para un AC firmado que deja de aplicar"
+    }
+  ],
+  "huecos": [
+    {
+      "que": "Nada comprueba que una correccion alcanzada en unos documentos no siga viva en otro",
+      "medido": "el dato del tag v12.0.0 se retracto en PT-121, PT-122 y el intake de EP-020, y SOBREVIVIO en PT-120",
+      "por_que_no_entra": "no lo cubre ningun AC de esta tarea, y meterlo aqui mezclaria dos defectos en un arreglo"
+    }
+  ]
+}

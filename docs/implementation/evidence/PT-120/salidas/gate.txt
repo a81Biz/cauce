@@ -1,0 +1,12 @@
+# PT-120 · AC-01 · «sellar --gate», medido por su CODIGO DE SALIDA en las dos direcciones.
+#
+# Antes: codigo 0 SIEMPRE. Era un informe con forma de compuerta, y publicar.yml corria OCHO
+# comprobaciones sin llamarlo — porque llamarlo no habria servido de nada.
+
+  con deuda mecanica    exit 1    NO se publica
+  sin deuda mecanica    exit 0    pasa
+  sin acceso a la red   exit 0    pasa: --gate juzga el ARBOL, no la plataforma
+
+# La tercera linea es un arreglo del arreglo. La primera version llamaba a cerrarPasada(), que
+# sincroniza con GitHub: en un repositorio sin acceso lanzaba y la compuerta bloqueaba PORQUE NO
+# HUBO RED. SUITE-R22 declara soportado ese proyecto.

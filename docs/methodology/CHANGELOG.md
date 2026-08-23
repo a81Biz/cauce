@@ -35,6 +35,29 @@ rodea —que es lo que `PT-103` midió cuando a `asignar` le faltaban campos—.
 sigue igual. Lo único que cambia es que deja de ser el único rastro que una tarea deja de sí
 misma.
 
+### Lo que la `12.0.0` publicó sin decir   `PT-113`
+
+La entrada de la `12.0.0` **no nombra dos reglas que empiezan a juzgar con ella**. npm no se
+despublica, así que la corrección llega por la única vía que existe: esta versión.
+
+**`SUITE-R59` — el texto largo entra por archivo, no por la línea de comandos.** Es una regla
+`HARD` **nueva** en la `12.0.0`, y tu `CORE.md` la carga en cada sesión desde entonces sin que
+nada te la explicara. Qué hacer: cuando una herramienta reciba una explicación de varios párrafos
+—una nota, un cuerpo de issue, una parada—, pásala como **ruta a un archivo**. Construir ese texto
+dentro del literal de otro lenguaje es de dónde salen las roturas de escapado, y en el lote que
+escribió esta línea hubo **siete**.
+
+**`LEX-R08` — no es una regla nueva, y presentarla como tal sería mentir.** Existe desde hace
+versiones; lo que empieza en la `12.0.0` es que **se compruebe**. Su fila en `RIGE_DESDE` es
+exactamente lo que impide que los `BUG` cerrados antes salgan en rojo sin salida. **No hay nada
+que migrar**: si tu trabajo anterior no la cumplía, sigue sin juzgarse.
+
+**Y un aviso sobre la propia comprobación** (`SUITE-R26`): `sellar` contrasta la guía **sólo con
+las reglas cuya `RIGE_DESDE` es igual a la versión vigente**. En cuanto el árbol pasó a `13.0.0`
+dejó de mirar la entrada de la `12.0.0`, y estas dos omisiones quedaron **fuera del alcance de la
+compuerta que existe para cazarlas**: verde sobre un defecto vivo. Se corrige en `PT-120`. Se dice
+aquí porque una compuerta con un hueco conocido y callado es peor que no tenerla.
+
 ### Por qué existe esta versión
 
 El principio ya estaba escrito desde la v4 —`SUITE-R04`: *«una decisión que sólo existe en el chat
@@ -49,8 +72,13 @@ señaló una persona, no un verificador, y las seis explicaciones hubo que publi
 
 ## 12.0.0 — 2026-08-22
 
-**Lo que tres proyectos encontraron** (`EP-019`). Doce tareas, y la mitad salieron de **ejecutar**
-las otras, no de planificarlas.
+**Lo que tres proyectos encontraron** (`EP-019`). Diecisiete tareas, y la mitad salieron de
+**ejecutar** las otras, no de planificarlas.
+
+> La entrada decía «Doce» cuando el registro tenía **diecisiete** (`PT-113`). Es `H-007` otra
+> vez —`PT-091`, *las cifras se derivan, no se transcriben*— y aquí no se puede derivar: una
+> entrada en prosa no se genera. Lo que sí puede existir es algo que **la contraste**, y eso es
+> `PT-120`.
 
 ### Reglas nuevas
 

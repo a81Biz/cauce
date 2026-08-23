@@ -8,7 +8,7 @@ severity: S2
 complexity:
 track: STANDARD
 status: READY
-phase: 1
+phase: 8
 created: 2026-08-22
 origin: DIRECT
 epic: EP-020
@@ -203,3 +203,38 @@ Motivo: la firma única de EP-020 —Alberto Martínez, 2026-08-22— cubre este
 ## Revisiones
 
 > Append-only una vez firmado (`SUITE-R09`).
+
+### R-1 · Reanclaje: la `12.0.1` no existe, y la corrección viaja en la `13.0.0`
+
+**Fecha:** 2026-08-23 · **Motivo:** el arreglo perdió su versión de destino.
+
+Este intake se escribió para una `12.0.1`. Esa versión **se revirtió** —`1837c22`— porque el
+trabajo se había hecho **sin allocation** sobre la rama de cierre de `EP-019`, que es justo lo
+que `§12` de este documento ya registraba. Después, `PT-115` llevó el lote a `13.0.0` al
+introducir `FDGE-R55`, `LEX-R29` y `LEX-R30`: tres reglas nuevas obligan a `MAJOR`.
+
+**Qué cambia y qué no:**
+
+| | Escrito en el intake | Vigente |
+|:---|:---|:---|
+| Versión que corrige | `12.0.1` (`PATCH`) | **`13.0.0`** (`MAJOR`, por `PT-115`) |
+| `AC-04` — declaraciones de versión | «declaran `12.0.1`» | declaran **`13.0.0`** |
+| `AC-06` — el diff es sólo texto | ya no se sostiene | **decae**: la `13.0.0` trae reglas y herramientas |
+| `AC-01` `AC-02` `AC-03` `AC-05` | — | **intactos** |
+
+`AC-06` decae y se dice en vez de darlo por cumplido: fue escrito para un `PATCH`, y en un
+`MAJOR` que trae `FDGE-R55` y cuatro herramientas tocadas exigir «diff vacío fuera del
+`CHANGELOG`» sería exigir lo contrario de lo que el lote hace. Un criterio que ya no puede
+evaluarse **no se marca cumplido**: se declara caído con su motivo (`RULE-06`).
+
+**Lo que el reanclaje NO cambia:** el defecto sigue siendo el mismo y sigue vivo. La `12.0.0`
+está publicada en npm sin nombrar `SUITE-R59` ni `LEX-R08`, npm no se despublica, y la única
+forma de que la corrección llegue a un destino es **una versión**. Ahora es la `13.0.0`.
+
+**`O-2` se agrava y hay que decirlo.** La observación decía que `sellar` sólo mira la versión
+vigente, así que en cuanto el árbol declarara `12.0.1` dejaría de mirar la entrada de la
+`12.0.0`. Con el árbol en `13.0.0` **eso ya ha ocurrido**: `sellar` dice *«la guía enumera las
+reglas que entran con esta versión»* en verde, y las dos reglas que motivan esta tarea **no las
+mira nadie**. La compuerta está verde sobre un defecto vivo. Su arreglo sigue siendo `PT-120`
+(`L-8`), y ahora tiene una instancia medida en vez de una hipótesis.
+

@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 133,
+    "PT": 134,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3042,13 +3042,30 @@
       "id": "PT-113",
       "slug": "la-guia-que-se-publico-incompleta",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-020",
       "title": "La 12.0.1: la guia de migracion que se publico incompleta",
-      "issue": 217
+      "issue": 217,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
     },
     {
       "id": "PT-114",
@@ -3194,13 +3211,30 @@
       "id": "PT-120",
       "slug": "publicar-no-ejecuta-sellar",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
       "title": "publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN",
-      "issue": 238
+      "issue": 238,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
     },
     {
       "id": "PT-121",
@@ -3465,6 +3499,24 @@
           "naturaleza": "MEDIDO"
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
+    },
+    {
+      "id": "PT-134",
+      "slug": "un-ac-firmado-que-deja-de-aplicar",
+      "created": "2026-08-23",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-020",
+      "title": "No hay forma de declarar un AC caido: o se finge verde o bloquea",
+      "origin": "Aplazado por PT-113: AC-06 decayo con el reanclaje a la 13.0.0 y el marco no tiene forma de declararlo. FDGE-R15 exige TS a todo AC y un criterio caido no puede tenerlo: o se finge verde o bloquea la tarea.",
+      "origen_parada": {
+        "de": "PT-113",
+        "motivo": "hallazgo",
         "fecha": "2026-08-23"
       }
     }

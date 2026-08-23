@@ -1,0 +1,5 @@
+# PT-113 · AC-04 · las 25 declaraciones de version. Salida real de version.mjs, sin --aplicar.
+
+version — vigente según el CHANGELOG: 13.0.0
+
+Todo declara 13.0.0.

@@ -3526,6 +3526,61 @@ function sellar() {
   di('  Los pasos 7 y 8 NO los ejecuta el agente (SUITE-R06a). El 8 va despues del 7:');
   di('  un tag antes del merge apunta a un arbol sin lo que la version trae, y la linea');
   di('  base de FDGE-R43 y de AC-08 quedaria mintiendo (PT-081).');
+
+  // ── PT-120 · --gate · «sellar» podia decirlo todo y no impedir nada ─────
+  //
+  // Salia con codigo 0 SIEMPRE, asi que ningun workflow podia usarlo de compuerta. La 12.0.0
+  // se publico con dos reglas fuera de su guia de migracion y publicar.yml corrio ocho
+  // comprobaciones sin llamar a la unica que lo habria visto — porque llamarla no habria
+  // servido de nada: informa, no bloquea.
+  //
+  // QUE BLOQUEA: solo lo MECANICO y solo lo que se puede evaluar aqui. Los pasos 7 y 8 son
+  // humanos (SUITE-R06a) y no entran; el grafo tampoco, porque graphify-out/ esta en
+  // .gitignore y en CI sale MISSING — hacerlo fallar dejaria la publicacion bloqueada por algo
+  // que NO ES EVALUABLE ahi, que es lo contrario de lo que RULE-06 pide.
+  //
+  // QUE NO ESTABLECE: que la guia SIRVA. Nombrar la regla es el minimo comprobable; que la
+  // instruccion sea util lo lee una persona.
+  // NO llama a cerrarPasada(): esa sincroniza con la plataforma, y una compuerta que necesita
+  // red BLOQUEA LA PUBLICACION CUANDO NO PUEDE HABLAR CON GITHUB — no porque el sello este mal.
+  // Convertir «no lo se» en «no pasas» es tan falso como convertirlo en verde (RULE-06), y una
+  // compuerta que falla por motivos ajenos se acaba desactivando. «--gate» juzga EL ARBOL;
+  // espejar es de «espejo», que tiene su propio paso en publicar.yml.
+  if (ARGS.includes('--gate')) {
+    const motivos = [];
+    if (entradaDeLaVersion === null) {
+      motivos.push(`SUITE-R19: no hay entrada para ${VERSION_DEL_PROYECTO} en CHANGELOG.md.`);
+    } else if (fueraDeLaGuia && fueraDeLaGuia.length) {
+      motivos.push(`SUITE-R19: ${fueraDeLaGuia.length} regla(s) nueva(s) fuera de la guia: ${fueraDeLaGuia.join(
+)}.`);
+    }
+    if (sinResolver.length) {
+      motivos.push(`FND-R22: ${sinResolver.length} documento(s) de entrada sin resolver en SELLO.md: ${sinResolver.join(
+)}.`);
+    }
+    if (desviadas && desviadas.mal && desviadas.mal.length) {
+      motivos.push(`FND-R14: ${desviadas.mal.length} cifra(s) de inventory/services.md ya no describen el arbol.`);
+    }
+    di('');
+    if (!motivos.length) {
+      di('  --gate: lo mecanico del sello esta resuelto.');
+      di('  NO dice que se pueda publicar: los pasos 7 y 8 son humanos, y el grafo no se');
+      di('  evalua aqui (FDGE-R32, .gitignore). SIN EVALUAR no es lo mismo que aprobado.');
+      return;
+    }
+    di('  --gate: EL SELLO NO ESTA RESUELTO. No se publica.');
+    di('');
+    for (const m of motivos) di(`    ✗ ${m}`);
+    di('');
+    di('  La 12.0.0 salio a npm con dos reglas fuera de su guia porque esto no bloqueaba nada.');
+    // LANZA, no pone process.exitCode: la ultima linea del despachador hace process.exit(0)
+    // incondicional y lo pisaria. Esa era la primera version de este bloque, y tenia el defecto
+    // EXACTO que PT-120 corrige: decir «no se publica» y salir en verde. Lo cazo comprobar el
+    // codigo de salida — leyendo el bloque no se ve, porque la linea que lo anula esta a 190
+    // lineas y en otra funcion.
+    throw new Error(`el sello no esta resuelto: ${motivos.length} condicion(es) sin cumplir. No se publica.`);
+  }
+
   cerrarPasada();
 }
 

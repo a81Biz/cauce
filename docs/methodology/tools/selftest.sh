@@ -3552,6 +3552,69 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-120 · la compuerta que autoriza lo unico irreversible del marco no comprobaba lo que decia.
+#
+# publicar.yml corria OCHO comprobaciones y ninguna era «sellar». Pero llamarlo no habria servido:
+# «sellar» salia con codigo 0 SIEMPRE. Era un informe con forma de compuerta, y la 12.0.0 salio a
+# npm con DOS reglas fuera de su guia de migracion.
+#
+# AC-01 · «--gate» BLOQUEA. El caso rompe una cifra del inventario EN EL FIXTURE y exige el codigo
+# de salida 1. Se mide el CODIGO, no el texto: la primera version de este bloque imprimia «No se
+# publica» y salia con 0, porque la ultima linea del despachador hace process.exit(0) incondicional
+# y pisaba el process.exitCode. Leyendo el bloque no se ve — esta a 190 lineas y en otra funcion.
+build_fixture
+perl -0pi -e 's/\| `selftest\.sh` \| \d+ \|/| `selftest.sh` | 1 |/' "$WORK/docs/enterprise-documentation/inventory/services.md" 2>/dev/null || true
+chk   "sellar --gate bloquea con el sello roto"   "EL SELLO NO ESTA RESUELTO" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate 2>&1' _ "$WORK"
+# Y EL CODIGO DE SALIDA, que es lo que un workflow mira. Un caso que solo comprobara el texto
+# habria pasado con la version rota: decia exactamente lo mismo y autorizaba la publicacion.
+chk   "…y sale con codigo distinto de cero"       "^1$" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate >/dev/null 2>&1; echo $?' _ "$WORK"
+# INVERSA · sin deuda mecanica, pasa. Sin ella, el caso de arriba pasaria igual si «--gate»
+# bloqueara SIEMPRE — y una compuerta que nunca deja pasar se desactiva, no se cumple.
+build_fixture
+# El fixture no trae SELLO.md, asi que sin esto los CINCO documentos de entrada salen sin
+# resolver y la compuerta bloquea con razon: el caso estaria midiendo su propio montaje, no la
+# compuerta. Se le da lo que pide, y entonces la inversa mide lo que dice medir.
+mkdir -p "$WORK/docs/implementation"
+{ echo "| Documento | Estado | Motivo |"
+  echo "|:---|:---|:---|"
+  echo "| MANUAL.md | ACTUALIZADO | |"
+  echo "| CASOS-DE-USO.md | ACTUALIZADO | |"
+  echo "| README.md | ACTUALIZADO | |"
+  echo "| Suite-CLAUDE-Template.md | ACTUALIZADO | |"
+  echo "| graphify-out/ | NO PROCEDE | esta en .gitignore y no se evalua aqui |"
+} > "$WORK/docs/implementation/SELLO.md"
+chk   "…y sin deuda mecanica, deja pasar"         "^0$" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate >/dev/null 2>&1; echo $?' _ "$WORK"
+# LO QUE --gate NO BLOQUEA, y es deliberado: el grafo. graphify-out/ esta en .gitignore y en CI
+# sale MISSING. Bloquear una publicacion por algo QUE NO ES EVALUABLE ahi es convertir «no lo se»
+# en «no pasas», tan falso como convertirlo en verde (RULE-06). Los pasos humanos tampoco
+# (SUITE-R06a): una compuerta no puede exigir lo que solo una persona puede hacer.
+chkno "…y NO bloquea por el grafo, que no evalua" "grafo" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate 2>&1 | grep "✗" || true' _ "$WORK"
+# AC-03 · «Sin errores» no puede ser lo ultimo que se lee cuando hay reglas que NO SE LLEGARON A
+# MIRAR. En la corrida 32600060157 hubo 108 avisos SIN EVALUAR sobre 108 PT y el paso cerro con
+# «Sin errores. PTs verificados: 108» — el verde que FDGE-R34 llama precondicion de G4.
+#
+# NO se convierte en error: SIN EVALUAR no aprueba NI bloquea, y hacerlo fallar dejaria sin salida
+# al proyecto sin plataforma que SUITE-R22 declara soportado. Lo que se arregla es que el resumen
+# NO PUEDA CALLARLO.
+build_fixture
+chk   "el resumen no calla lo SIN EVALUAR"        "SIN EVALUAR" \
+  sh -c 'cd "$1" && GH_TOKEN= node docs/methodology/tools/verify-fdge.mjs --all 2>&1 | tail -5' _ "$WORK"
+# Y sigue siendo un PASE: SIN EVALUAR no bloquea. Si esto saliera 1, todo proyecto sin plataforma
+# quedaria fuera del marco.
+chk   "…y sigue sin bloquear: codigo cero"        "^0$" \
+  sh -c 'cd "$1" && GH_TOKEN= node docs/methodology/tools/verify-fdge.mjs --all >/dev/null 2>&1; echo $?' _ "$WORK"
+# AC-02 · el token llega al paso que lo necesita, en LOS DOS workflows. Se mide sobre el YAML
+# porque es donde vive el hecho: el paso de verify-fdge declara su env.
+chk   "publicar.yml da GH_TOKEN a verify-fdge"    "PT-120" \
+  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/publicar.yml"' _ "$RAIZ"
+chk   "verificacion.yml tambien"                  "PT-120" \
+  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/verificacion.yml"' _ "$RAIZ"
+build_fixture
+
 # PT-117 · AC-03 · «--pendientes» es la consulta que el hook Stop invoca.
 #
 # CASI SE REPITE PT-133 AQUI MISMO: el hook iba a llamar a «pendiente --parada», UNA BANDERA QUE

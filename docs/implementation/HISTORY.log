@@ -7255,3 +7255,170 @@ LO QUE ESTA TAREA NO CIERRA:
   detectores. Probablemente no se puede en general, y decirlo es mas util que prometerlo.
 
 Es una FEATURE. G3 por delegacion del firmante con constancia.
+
+## PT-113 — La guia de migracion que se publico incompleta
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — su L-0
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 PASS con la firma del lote · G2 y G3 delegadas POR LOTE · G4 del lote
+Trazabilidad externa: issue #217
+
+REANCLADA. Este intake se escribio para una 12.0.1 que SE REVIRTIO —1837c22— porque el trabajo se
+habia hecho SIN ALLOCATION sobre la rama de cierre de EP-019, que es lo que su propio §12 ya
+registraba. Despues PT-115 llevo el lote a 13.0.0 al introducir tres reglas nuevas. La correccion
+viaja ahora en la 13.0.0, y consta en R-1 del intake (SUITE-R09: se anade, no se reescribe).
+
+QUE CORRIGE. La 12.0.0 esta publicada en npm y su entrada del CHANGELOG NO NOMBRA SUITE-R59 ni
+LEX-R08, dos reglas que empiezan a juzgar con ella. npm no se despublica: la unica via es una
+version. Ahora la entrada de la 13.0.0 las nombra y dice que hacer con cada una.
+
+LEX-R08 NO SE PRESENTA COMO NUEVA. Existe desde hace versiones; lo que empieza en la 12.0.0 es que
+SE COMPRUEBE. Su fila en RIGE_DESDE es lo que impide que los BUG cerrados antes salgan en rojo sin
+salida. Escribirla como regla nueva habria sido mas limpio de leer y falso (O-1 del intake).
+
+AC-03 ESTARIA EN VERDE AUNQUE NO HUBIERA HECHO NADA, y esto es el hallazgo de la tarea. El intake
+lo previo como HIPOTESIS en O-2; con el arbol en 13.0.0 YA HA OCURRIDO:
+
+    reglasNuevasFueraDeLaGuia filtra por IGUALDAD con la version vigente
+    SUITE-R59 rige desde 12.0.0 · el arbol declara 13.0.0
+    -> no se contrasta contra ninguna entrada
+    -> «sellar» reporta la guia EN VERDE
+
+LA COMPUERTA QUE EXISTE PARA CAZAR ESTA OMISION ESTA VERDE SOBRE EL DEFECTO VIVO QUE LA MOTIVO. Lo
+que sostiene el criterio de verdad es AC-01, que se DERIVA leyendo el documento. Se declara en el
+manifest en vez de apuntarse un verde vacio. Es la QUINTA instancia de la familia que aparecio
+cuatro veces en PT-117 —una comprobacion que no se ejecuta sobre lo que dice vigilar— y la primera
+en una COMPUERTA DE VERSION, que es donde mas caro sale. Su arreglo es PT-120.
+
+LA CIFRA. La cabecera decia «Doce tareas» y el registro tiene DIECISIETE con epic EP-019. H-007
+otra vez (PT-091). Se corrige, pero NO SE DERIVA: una entrada en prosa no se genera. Lo que si
+puede existir es algo que la CONTRASTE, y eso tambien es PT-120.
+
+AC-06 DECAE, Y EL MARCO NO TIENE COMO DECIRLO. El criterio —«el diff fuera del CHANGELOG y las
+versiones es vacio»— fue escrito para un PATCH. En un MAJOR que trae FDGE-R55 y cuatro
+herramientas tocadas, exigirlo seria exigir lo contrario de lo que el lote hace.
+
+    FDGE-R15 exige un TS a TODO criterio
+    un AC caido NO PUEDE TENERLO
+    -> o se finge un verde   -> o bloquea la tarea
+
+Hoy BLOQUEO, que es la menos mala de las dos y por eso se ve. Ni RULES.md ni LEXICON.md nombran el
+caso en ningun sitio. Se resuelve con lo que el marco SI tiene: AC-06 sale de «criteria» y entra
+en un bloque «decaidos» del manifiesto —no se afirma verificado y no se pierde— y PT-134 queda
+DEFERRED con su «origin» citando esta tarea, que es lo que SUITE-R44 pide para que aplazar no sea
+narrar.
+
+Archivos modificados: methodology/CHANGELOG.md · methodology/CORE.md · CORE-PTSA.md ·
+  changes/PT-113-*/intake.md (R-1) · traceability.md · out-of-scope.md · REGISTRY.json
+
+Evidencia: docs/implementation/evidence/PT-113/ · manifest.json · self-review.md ·
+  salidas/guia.txt · salidas/version.txt · salidas/coherencia.txt
+
+  SUITE-R59 en la guia   ANTES 0 veces   DESPUES nombrada, con que hacer
+  LEX-R08 en la guia     ANTES 0 veces   DESPUES nombrada, y NO como nueva
+  cifra de EP-019        ANTES Doce      DESPUES Diecisiete, del registro
+  criterios              5 verificados · 1 DECAIDO, declarado
+
+LO QUE ESTA TAREA NO CIERRA:
+· El hueco de «sellar»: PT-120. Tiene ahora una instancia MEDIDA en vez de una hipotesis.
+· Contrastar la cifra de cabecera con el registro: PT-120.
+· Declarar un AC caido sin fingir verde ni bloquear: PT-134, DEFERRED.
+· La 12.0.0 de npm sigue como esta. No se puede cambiar, y se dice.
+
+Es un BUG. SUITE-R06b: cerrar un item de tipo BUG no se automatiza — queda en DONE con evidencia
+completa y el cierre va con el del lote.
+
+## PT-120 — publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — su L-8
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE · G4 del lote
+Trazabilidad externa: issue #238
+
+QUE ESTABA MAL. La compuerta que autoriza LO UNICO IRREVERSIBLE DEL MARCO no comprobaba lo que
+decia. publicar.yml corria OCHO comprobaciones y ninguna era «sellar» — y llamarlo no habria
+servido: SELLAR SALIA CON CODIGO 0 SIEMPRE. Era un informe con forma de compuerta.
+
+La 12.0.0 salio a npm con dos reglas fuera de su guia de migracion. No porque nadie mirara: PORQUE
+LO QUE MIRABA NO PODIA IMPEDIR NADA.
+
+Y verify-fdge --all corria SIN GH_TOKEN en los DOS workflows. En la corrida 32600060157 emitio 108
+avisos «SUITE-R43 … SIN EVALUAR» sobre 108 PT y cerro con «Sin errores. PTs verificados: 108».
+FDGE-R34 llama a ese verde PRECONDICION DE G4. No se afirma que con token hubiera fallado: se
+afirma que SUITE-R43 NUNCA SE HA EVALUADO EN CI, en ninguna corrida, desde que existe.
+
+CUATRO INSTANCIAS DE LA MISMA AVERIA, Y DOS LAS ESCRIBI YO:
+
+  1  publicar.yml corria ocho comprobaciones sin llamar a sellar
+  2  sellar salia con codigo 0 SIEMPRE
+  3  MI --gate imprimia «No se publica» y salia con 0
+  4  MI --gate bloqueaba por no poder hablar con GitHub
+
+Las cuatro son ALGO QUE PARECE UNA COMPUERTA Y NO LO ES. Las dos ultimas las escribi con el
+defecto delante, mientras lo arreglaba.
+
+LA TERCERA: process.exitCode = 1 funciona SALVO si algo hace process.exit(0) despues — y la ultima
+linea del despachador lo hace, incondicional, 190 LINEAS MAS ABAJO Y EN OTRA FUNCION. Leyendo mi
+bloque no se ve. El arreglo no fue anadir nada: fue LANZAR, que es la via que la herramienta YA
+TENIA. Un segundo mecanismo de salida habria sido un hecho con dos nombres (LEX-R22) y habria
+tenido el mismo problema que el primero.
+
+LA CUARTA: --gate llamaba a cerrarPasada(), que sincroniza con la plataforma. En un repositorio
+sin acceso —el fixture, o cualquier proyecto que SUITE-R22 declara soportado— eso lanza y la
+compuerta BLOQUEA PORQUE NO HUBO RED. Convertir «no lo se» en «no pasas» es tan falso como
+convertirlo en verde (RULE-06), y una compuerta que falla por motivos ajenos SE ACABA DESACTIVANDO.
+
+NINGUNA DE LAS CUATRO SE VIO LEYENDO. Se vieron ejecutando y mirando EL CODIGO DE SALIDA.
+
+QUE BLOQUEA --gate, y que deliberadamente no. Bloquea solo lo MECANICO y evaluable ahi: la guia de
+migracion (SUITE-R19), los documentos de entrada de SELLO.md (FND-R22) y las cifras del inventario
+(FND-R14). NO bloquea por el grafo —graphify-out/ esta en .gitignore y en CI sale MISSING— ni
+exige los pasos humanos (SUITE-R06a): una compuerta no puede pedir lo que solo una persona puede
+hacer.
+
+AC-03 NO CONVIERTE «SIN EVALUAR» EN ERROR, y es deliberado. No aprueba NI bloquea, y hacerlo
+fallar dejaria sin salida a todo proyecto sin plataforma. Lo que se arregla es que el resumen NO
+PUEDA CALLARLO, con la cifra DERIVADA de los avisos emitidos.
+
+AC-04 DECAE, y su historia es la tarea entera en pequeno. Decia que sellar imprime «tag anterior
+v12.0.0» «y ese tag no existe». EXISTE, y v10.0.0 y v11.0.0 tambien. El error original fue mio —
+ordenar tags POR TEXTO, donde v10, v11 y v12 caen ANTES que v4.13.0 — y lo corregi en PT-121,
+PT-122 y el intake de EP-020. AQUI SOBREVIVIO.
+
+Al venir a arreglarlo escribi R-1, que diagnostica mal la causa: ACUSE AL CODIGO DEL ERROR QUE
+HABIA COMETIDO YO, sin abrir la funcion. R-2 existe porque SI la abri, dos pasos despues: sellar
+usa --sort=-v:refname y SIEMPRE hizo lo que AC-04 pedia. La diferencia entre R-1 y R-2 no es
+cuidado ni intencion: es haber ejecutado un comando y haber leido cuatro lineas.
+
+Y TRES CASOS MIOS DE ESTA SESION NO MEDIAN LO QUE DECIAN MEDIR: el perl sobre el intake de PT-117
+(no casaba nada), la inversa de ROOT en PT-116 (probaba lo contrario) y la inversa de --gate
+(media el montaje del fixture). Las tres las detecto EJECUTAR LA BATERIA, no releer el caso.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/selftest.sh ·
+  .github/workflows/publicar.yml · .github/workflows/verificacion.yml · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-120/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/gate.txt
+
+  sellar en publicar.yml     ANTES no se llamaba      DESPUES paso propio, antes de publicar
+  sellar como compuerta      ANTES codigo 0 siempre   DESPUES 1 con deuda, 0 sin ella
+  GH_TOKEN en verify-fdge    ANTES en ninguno         DESPUES en los dos workflows
+  SUITE-R43 en CI            ANTES nunca evaluada     DESPUES evaluada
+  resumen con SIN EVALUAR    ANTES «Sin errores»      DESPUES dice cuantas y de que regla
+  bateria                    ANTES 1440               DESPUES 1448
+
+LO QUE ESTA TAREA NO CIERRA:
+· NADA COMPRUEBA QUE UNA CORRECCION ALCANZADA EN UNOS DOCUMENTOS NO SIGA VIVA EN OTRO. Esta
+  medido: el dato del tag se retracto en tres sitios y sobrevivio en un cuarto. No lo cubre
+  ningun AC de esta tarea y meterlo aqui mezclaria dos defectos en un arreglo.
+· Que la guia de migracion SIRVA: nombrar la regla es el minimo comprobable (SUITE-R26).
+· Declarar un AC caido sin fingir verde ni bloquear: PT-134, DEFERRED.
+
+Es un BUG. SUITE-R06b: cerrar un item de tipo BUG no se automatiza — queda en DONE con evidencia
+completa y el cierre va con el del lote.

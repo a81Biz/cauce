@@ -2424,5 +2424,26 @@ if (errors.length) {
   console.log(`${errors.length} error(es).${gate ? ` La compuerta ${gate} queda bloqueada.` : ''}`);
   process.exit(1);
 }
+// PT-120 · las reglas que NO se llegaron a mirar salen en el resumen, siempre.
+//
+// «Sin errores» era lo ultimo que se leia aunque 108 avisos dijeran SIN EVALUAR — y ese verde
+// es el que FDGE-R34 llama precondicion de G4. No se convierte en error: SIN EVALUAR no aprueba
+// ni bloquea, y hacerlo fallar dejaria sin salida al proyecto sin plataforma que SUITE-R22
+// declara soportado. Lo que se arregla es que el resumen NO PUEDA CALLARLO (RULE-06).
+//
+// Se DERIVA de los avisos emitidos, no se cuenta a mano: atar el resumen a una cifra escrita
+// es la leccion de PT-115, y en esta misma sesion volvio a repetirse.
+const sinEvaluar = warnings.filter((w) => /SIN EVALUAR/.test(String(w.msg ?? '')));
+if (sinEvaluar.length) {
+  const porRegla = new Map();
+  for (const w of sinEvaluar) porRegla.set(w.rule, (porRegla.get(w.rule) ?? 0) + 1);
+  const detalle = [...porRegla.entries()].sort((a, b) => b[1] - a[1])
+    .map(([r, n]) => `${r} (${n})`).join(' · ');
+  console.log(`Sin errores, PERO ${sinEvaluar.length} comprobacion(es) quedaron SIN EVALUAR: ${detalle}.`);
+  console.log('SIN EVALUAR no aprueba ni bloquea (RULE-06): son reglas que NO se llegaron a mirar,');
+  console.log('no reglas que pasaron. Si esto autoriza una compuerta, la autoriza a medias.');
+  console.log(`PTs verificados: ${pts.length}.`);
+  process.exit(0);
+}
 console.log(`Sin errores. PTs verificados: ${pts.length}.`);
 process.exit(0);
