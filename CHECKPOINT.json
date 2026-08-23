@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "95d794ff0b9598cf3a64396e08e4f279084ed395",
   "sha_corto": "95d794f",
@@ -19,6 +19,8 @@
     "changes/PT-127-nada-detecta-el-trabajo-sin-allocation/tasks.md",
     "changes/PT-127-nada-detecta-el-trabajo-sin-allocation/test-scenarios.md",
     "changes/PT-127-nada-detecta-el-trabajo-sin-allocation/traceability.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-127/",
     "docs/methodology/CORE.md",
@@ -27,15 +29,8 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-23"
 }
