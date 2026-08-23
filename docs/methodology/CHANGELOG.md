@@ -8,6 +8,45 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 13.0.0 — 2026-08-23
+
+**El acto fuera del comando** (`EP-020`). En curso: esta entrada se completa al cerrar el lote.
+
+### Reglas nuevas
+
+Tres hasta ahora, todas `HARD`, y **definidas en su documento propietario** — aquí sólo se citan
+(`LEX-R23`): `FDGE-R55`, `LEX-R29` y `LEX-R30`.
+
+### Qué hacer al actualizar
+
+**`FDGE-R55` — la parada con decisión se escribe en su tarea.** Es una obligación **nueva** y por
+eso esta versión es `MAJOR`. Cuando el agente se detiene y devuelve el control con una decisión
+encima, eso va al issue de la tarea —o a `TRANSICIONES.log` si no declaras plataforma—, con su
+motivo, la explicación y su desenlace. **No hay nada que migrar**: `RIGE_DESDE` la acota a las
+tareas abiertas a partir de esta versión, así que tu trabajo cerrado no empieza a fallar.
+
+**`LEX-R29` y `LEX-R30` — el vocabulario de la parada.** Dos listas **cerradas** en `LEXICON`
+§8.5: seis clases de `motivo` y cinco de `desenlace`. Si un motivo real no encaja en las seis,
+**no lo fuerces**: ampliarlas es un cambio de metodología, y una lista cerrada mal elegida se
+rodea —que es lo que `PT-103` midió cuando a `asignar` le faltaban campos—.
+
+**`FDGE-R52` no cambia y no se relaja.** Pasa a estar declarada como el **caso particular** de
+`FDGE-R55`: una transición de fase es una parada cuyo desenlace es `cambia-fase`. Su verificador
+sigue igual. Lo único que cambia es que deja de ser el único rastro que una tarea deja de sí
+misma.
+
+### Por qué existe esta versión
+
+El principio ya estaba escrito desde la v4 —`SUITE-R04`: *«una decisión que sólo existe en el chat
+no existe»*— y **le faltaba granularidad y destino**. La unidad de registro era la **fase**, nueve
+por tarea; la unidad de interacción es la **parada**, decenas.
+
+Se midió sobre el propio lote que la corrige: **seis tareas cerradas con todos sus hallazgos
+explicados sólo en la conversación**, y sus issues con únicamente las notas de `FDGE-R52`. Lo
+señaló una persona, no un verificador, y las seis explicaciones hubo que publicarlas a mano.
+
+---
+
 ## 12.0.0 — 2026-08-22
 
 **Lo que tres proyectos encontraron** (`EP-019`). Doce tareas, y la mitad salieron de **ejecutar**

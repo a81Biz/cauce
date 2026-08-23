@@ -1,0 +1,9 @@
+  [32m✓[0m ninguna fila mira mas alla de la version que entra
+  [32m✓[0m LEXICON declara la parada
+  [32m✓[0m …con sus seis motivos
+  [32m✓[0m …y sus cinco desenlaces
+  [32m✓[0m FDGE-R55 existe en RULES
+  [32m✓[0m la parada llega a CORE.md
+  [32m✓[0m FDGE-R55 declara desde cuando rige
+  [32m✓[0m …y las dos de LEXICON tambien
+selftest: OK · 1412 casos

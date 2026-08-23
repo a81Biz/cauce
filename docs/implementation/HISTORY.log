@@ -6916,3 +6916,87 @@ LO QUE NO ESTABLECE:
 · Nada sobre el historico de lotes cerrados: el bloque describe LO ABIERTO.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.
+
+## PT-115 — PARADA entra al vocabulario y a las reglas
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su L-1, y SUBIO en el orden porque la sesion demostro que hacia falta ya
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: si
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #233
+
+EL PRINCIPIO YA ESTABA ESCRITO desde la v4 —SUITE-R04: «una decision que solo existe en el chat no
+existe»— y le faltaba GRANULARIDAD y DESTINO:
+
+  unidad de registro     la FASE     nueve por tarea    FDGE-R52
+  unidad de interaccion  la PARADA   decenas por tarea  no tenia nombre
+
+MEDIDO SOBRE EL PROPIO LOTE QUE LO CORRIGE: seis tareas cerradas —PT-131, PT-129, PT-132, PT-114,
+PT-124, PT-123— con TODOS sus hallazgos explicados solo en la conversacion, y sus issues con
+unicamente las notas de FDGE-R52. Lo senalo el firmante, no un verificador, y las seis
+explicaciones hubo que publicarlas A MANO.
+
+O-7 del intake anticipaba que el lote podia cumplirse a si mismo. No de forma tan literal.
+
+LAS SEIS CLASES DE «motivo» NO SE INVENTARON. Cada una nacio de una instancia medida:
+
+  hallazgo              los 16 issues duplicados, hallados por el espejo
+  condicion-bloqueante  SUITE-R57 bloqueando G2 de todo el repositorio
+  compuerta             la G3 de PT-131, pedida expresamente
+  abre-trabajo          PT-132 naciendo de los duplicados
+  limite-alcanzado      el AC-06 de PT-124, declarado sin hacer
+  desafio-al-intake     O-1, el desafio al enunciado literal
+
+Inventar casos habria producido una lista QUE SE RODEA —PT-103 midio que pasa entonces: «cumplir
+el marco exigia saltarselo»— y por eso PT-119 publicara cuantas paradas hubo POR CLASE: una clase
+en cero o sobra, o la lista esta mal.
+
+TRES HUECOS QUE CERRO EL MARCO, NO YO, los tres al primer intento:
+
+  verify-suite  «FDGE-R55 es HARD nueva y no declara desde que version rige»
+  SUITE-R20     «PHASES cita 3 reglas que los prompts no mencionan. En MANUAL no se verian»
+  reciprocidad  FDGE-R52 tenia que citar que es el caso particular, o divergirian
+
+LA VERSION LA DECIDIO UN CASO, NO YO. Puse RIGE_DESDE 13.0.0 y un caso dijo «ninguna fila mira mas
+alla de la version que entra», con el comentario «salvo las que entran CON esta version». O las
+filas bajaban a 12.0.0 —y las reglas juzgarian trabajo anterior a existir— o subia la version.
+SUBIO: el proyecto declara 13.0.0, con su entrada de CHANGELOG abierta.
+
+Y EL CASO QUE ME HIZO DUDAR ESTABA MAL. Seguia rojo con la version ya en 13.0.0 porque tenia la
+cifra QUEMADA: «v[0] > 12». Es lo que el bloque «no hacer» advierte —«atar una asercion a una
+cifra que CRECE: fallara algun dia sin que eso signifique nada»— y YA HABIA PASADO: PT-088 lo hizo
+con «PENDIENTE 122» y fallo dos tareas despues. LA ADVERTENCIA ESTABA ESCRITA Y NO IMPIDIO LA
+SEGUNDA INSTANCIA, que es la tesis entera de este lote: una nota no es un mecanismo.
+
+Mi primer impulso fue revisar mis filas. NO ESTABAN MAL: el codigo no cumplia lo que su propio
+comentario prometia.
+
+Y MI PRIMER ARREGLO REVENTO: meti «await» de nivel superior y un regex con barras dentro del
+cuerpo de mlib. revento() lo distinguio de un fallo real —«la herramienta reventó: no verifica
+nada»—, que es para lo que existe desde PT-050. El segundo QUITA LA NECESIDAD: bash deriva la
+version y el JS solo compara. Quinta rotura de escapado de la sesion, resuelta igual que las cuatro
+anteriores.
+
+Archivos modificados: LEXICON.md · RULES.md · PHASES.md · FDGE-Prompts.md · CORE.md ·
+  CHANGELOG.md · tools/patrones.mjs · tools/selftest.sh · los 21 documentos y el registro (13.0.0)
+
+Evidencia: docs/implementation/evidence/PT-115/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/suite.txt
+
+  reglas        ANTES 253         DESPUES 256
+  version       ANTES 12.0.0      DESPUES 13.0.0, decidida por un caso
+  bateria       ANTES 1404        DESPUES 1412
+
+LO QUE NO HACE:
+
+· NO exige nada todavia. FDGE-R55 nace SIN verificador, y SUITE-R26 llama a eso «una
+  recomendacion» si se queda ahi. Quien lo pone es PT-117, y por eso las tres van seguidas.
+· NO construye el comando: es PT-116.
+· NO relaja FDGE-R52: conserva sus tres lineas, su destino y su verificador.
+· NO promete que las seis clases sean las correctas. Salen de una sesion; PT-119 las medira.
+
+Es una FEATURE estructural: toca LEXICON, RULES y CORE, asi que FDGE-R32 pide regenerar el grafo
+antes de cerrar el lote. G3 por delegacion del firmante con constancia.

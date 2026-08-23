@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **12.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **13.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -999,6 +999,49 @@ mismo camino con la misma urgencia. La severidad la declara el **humano** en el 
 `FDGE-R22`).
 
 ---
+
+### 8.5 Parada (`PARADA`)
+
+`LEX-R29` · Una **parada** es el punto en que el agente detiene el trabajo y devuelve el control.
+La que **lleva una decisión** se escribe en la tarea que la motiva, con tres cosas: su **motivo**,
+la **explicación**, y su **desenlace** (`FDGE-R55`).
+
+**Dónde vive**: el issue de la tarea si el proyecto declara plataforma, y
+`docs/implementation/TRANSICIONES.log` si no — **el mismo destino que la nota de reanclaje**, no
+uno nuevo. Un hecho con dos nombres es la avería que la v4 nació para eliminar (`LEX-R22`,
+`INC-008`).
+
+**Clases de `motivo`** — cerrada. Cada una nació de una instancia medida en `EP-020`, no de
+imaginar casos:
+
+| `motivo` | Qué es |
+|:---|:---|
+| `hallazgo` | Se encontró un defecto que no se buscaba |
+| `condicion-bloqueante` | Algo impide seguir y no depende del agente |
+| `compuerta` | Una compuerta pide decisión humana |
+| `abre-trabajo` | La parada produce una allocation nueva |
+| `limite-alcanzado` | Se llegó al borde de lo que se puede afirmar |
+| `desafio-al-intake` | El agente discrepa de lo firmado (`INTAKE-R07`) |
+
+**Clases de `desenlace`** — cerrada:
+
+| `desenlace` | Qué ocurre después |
+|:---|:---|
+| `continua` | Se sigue con la misma tarea |
+| `abre` | Nace una allocation: `PT-NNN` o `EP-NNN` |
+| `cambia-fase` | Es una transición — **el caso particular de `FDGE-R52`** |
+| `detiene` | El trabajo para y espera a una persona |
+| `declara` | Se registra un límite y no se hace nada más |
+
+`LEX-R30` · **Una transición de fase es una parada cuyo desenlace es `cambia-fase`.** `FDGE-R52`
+no se relaja ni desaparece: es el caso particular que ya está implementado y verificado. Una
+parada que **no** sea transición no lleva la forma `PHASE n → m`, o inflaría el recuento de
+reanclajes y una tarea parecería tener transiciones que no tuvo.
+
+**Ampliar cualquiera de las dos listas es un cambio de metodología**, no un parche. Una lista
+cerrada mal elegida **se rodea**: si un motivo real no encaja, quien trabaja se salta la
+herramienta —que es lo que `PT-103` midió cuando a `asignar` le faltaban campos—. Por eso `EP-020`
+publica cuántas paradas hubo **por clase**: una clase en cero o sobra, o la lista está mal.
 
 ## 9. Prohibiciones de vocabulario
 

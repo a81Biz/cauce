@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **12.0.0**
+> Suite version: **13.0.0**
 
 ---
 
@@ -401,6 +401,15 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           Si hay trabajo posterior, la sesión terminó sin dejar el estado
           retomable. Se comprueba contra git, el único reloj que no depende
           de nadie.
+PARADA con decisión, ESCRIBE en la TAREA antes de continuar:                  [FDGE-R55]
+          motivo · la explicación · desenlace.  Listas CERRADAS en LEXICON §8.5.
+          motivo   ∈ hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
+                     limite-alcanzado · desafio-al-intake
+          desenlace ∈ continua · abre · cambia-fase · detiene · declara
+          MISMO destino que el reanclaje: issue, o TRANSICIONES.log sin plataforma.
+          NO lleva la forma «PHASE n → m» salvo que SEA una transición  [LEX-R30].
+          Lo que sólo está en la conversación no está                   [SUITE-R04].
+
 REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
           qué cierras · dónde estás · qué sigue.
           issue si hay plataforma · docs/implementation/TRANSICIONES.log si no [INC-008].

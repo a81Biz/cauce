@@ -2321,10 +2321,24 @@ rige106 "la que discrepa conserva su valor real"        "11.0.0" EXEC-R04
 rige106 "…y la otra tambien"                            "11.0.0" SUITE-R09
 # Ninguna fila puede quedar por encima de la version vigente: una regla no puede regir desde un
 # futuro que todavia no se ha publicado, salvo las que entran CON esta version.
+# PT-115 · la version SE DERIVA del CHANGELOG en cada corrida. Estaba quemada —«v[0] > 12»— y
+# este caso fallo en cuanto el proyecto llego a la 13, SIN QUE ESO SIGNIFICARA NADA: es lo que
+# el bloque «no hacer» advierte, «atar una asercion a una cifra que CRECE», y ya paso en PT-088
+# con «PENDIENTE 122». Una asercion que caduca sola ensena a ignorar el rojo.
+#
+# Lo deriva BASH y el JS solo compara: el cuerpo de mlib corre dentro de un .then() —sin await
+# de nivel superior— y un regex con barras no sobrevive a la cadena. Se quita la necesidad de
+# escapar en vez de escapar mejor (PT-087, decima instancia).
+MAYOR_VIGENTE="$(grep -m1 -oE '^## [0-9]+' "$SUITE/CHANGELOG.md" | grep -oE '[0-9]+')"
+if [ -z "$MAYOR_VIGENTE" ]; then
+  bad "ninguna fila mira mas alla de la version que entra  (SIN EVALUAR: no se pudo leer la version vigente del CHANGELOG)"
+else
 mlib "ninguna fila mira mas alla de la version que entra" "COHERENTE" \
   "$SUITE/tools/patrones.mjs" \
-  "const R=m.RIGE_DESDE; const malas=Object.entries(R).filter(([,v])=>v[0]>12);
+  "const M=$MAYOR_VIGENTE; const R=m.RIGE_DESDE;
+   const malas=Object.entries(R).filter(([,v])=>v[0]>M);
    console.log(malas.length?'FUTURO '+malas.map(x=>x[0]).join(','):'COHERENTE');"
+fi
 # ── PT-105 · el estado que una compuerta exige lo escribe un COMANDO ──────────────────────────
 #
 # Salio de APLICAR PT-103, no de leer codigo: PT-104 fue la primera tarea creada entera desde el
@@ -3538,6 +3552,30 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-115 · la PARADA entra al vocabulario y a las reglas.
+#
+# El principio YA ESTABA escrito —SUITE-R04: «una decision que solo existe en el chat no existe»—
+# y le faltaba GRANULARIDAD y DESTINO: la unidad de registro era la fase, nueve por tarea, y la
+# unidad de interaccion es la parada, decenas.
+#
+# Se midio: SEIS tareas de EP-020 se cerraron con todos sus hallazgos explicados solo en la
+# conversacion, y sus issues llevaban unicamente las notas de FDGE-R52. Lo senalo el firmante, no
+# un verificador, y las seis explicaciones hubo que publicarlas A MANO.
+chk   "LEXICON declara la parada"            "8.5 Parada"    cat docs/methodology/LEXICON.md
+chk   "…con sus seis motivos"                "desafio-al-intake"  cat docs/methodology/LEXICON.md
+chk   "…y sus cinco desenlaces"              "cambia-fase"   cat docs/methodology/LEXICON.md
+chk   "FDGE-R55 existe en RULES"             "FDGE-R55"      cat docs/methodology/RULES.md
+# LEX-R30 · una transicion ES una parada. La relacion es RECIPROCA o cada regla dice una cosa
+# distinta del mismo hecho, que es la enfermedad que la v4 elimino.
+chk   "FDGE-R52 cita que es su caso particular" "caso particular de \`FDGE-R55\`" cat docs/methodology/RULES.md
+# SUITE-R16 · la regla no vale si no llega a CORE.md: es lo unico que el agente carga.
+chk   "la parada llega a CORE.md"            "FDGE-R55"      cat docs/methodology/CORE.md
+# PT-081 · PT-095 · PT-106 · una regla HARD nueva que no declara desde cuando rige juzga trabajo
+# escrito antes de existir. Sin esta fila, FDGE-R55 alcanzaria a las 131 tareas ya cerradas.
+patlib "FDGE-R55 declara desde cuando rige"  '^true$' \
+  "console.log(Boolean(m.RIGE_DESDE['FDGE-R55']))"
+patlib "…y las dos de LEXICON tambien"       '^true$' \
+  "console.log(Boolean(m.RIGE_DESDE['LEX-R29'] && m.RIGE_DESDE['LEX-R30']))"
 # PT-123 · BACKLOG.md decia de si mismo «regenerable desde REGISTRY.json», el bloque «no hacer»
 # prohibia editarlo a mano, y NINGUN comando lo escribia. Las tres cosas a la vez dejaban una
 # sola salida practicable —saltarse la regla—, que es FDGE-R51 aplicado al reves.

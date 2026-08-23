@@ -131,6 +131,16 @@ export const RIGE_DESDE = {
   // —LEX-R08 severidad H, FDGE-R26 HARD— pero nadie la aplicaba: 51 BUG del registro y CERO
   // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
   // que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez.
+  // PT-115 · EP-020 · la parada entra al vocabulario y a las reglas. Anadir reglas vinculantes es
+  // MAJOR (CHANGELOG, cabecera): el lote cierra en 13.0.0.
+  //
+  // RIGE_DESDE no es una formalidad aqui. FDGE-R55 exige publicar la parada en su tarea, y sin
+  // esta fila juzgaria las 131 tareas cerradas antes de que la regla existiera — que es el defecto
+  // que PT-081 y PT-095 documentaron y PT-106 midio: dos de cada diez reglas discrepan entre
+  // cuando se REDACTARON y desde cuando JUZGAN.
+  'FDGE-R55': [13, 0, 0],
+  'LEX-R29':  [13, 0, 0],
+  'LEX-R30':  [13, 0, 0],
   'LEX-R08': [12, 0, 0],
   'SUITE-R58': [12, 0, 0],
   'SUITE-R59': [12, 0, 0],

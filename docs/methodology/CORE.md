@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 2fb5426718a8 -->
-<!-- fuentes: RULES.md:26e7781ea2de LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:e730d6b712c0 -->
+<!-- cuerpo: d48f74005b47 -->
+<!-- fuentes: RULES.md:097b31f273d2 LEXICON.md:c6faeb33a743 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:6beacb074068 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -232,6 +232,8 @@ verifica un script y bloquea la integración.
 `LEX-R26` **H** Un campo que solo pueda rellenar la memoria no entra en CHECKPOINT.json.
 `LEX-R27` **H** Un lote (EP-NNN) NO lleva type: se reconoce por su identificador, que el registro asigna (SUITE-R08) y que siempre está.
 `LEX-R28` **H** El tipo de un caso de QA es uno de esos cuatro.
+`LEX-R29` **H** Una parada es el punto en que el agente detiene el trabajo y devuelve el control.
+`LEX-R30` **H** Una transición de fase es una parada cuyo desenlace es cambia-fase.
 
 ### EXEC — Compuertas y modos
 
@@ -338,9 +340,10 @@ verifica un script y bloquea la integración.
 `FDGE-R49` **H** Mientras haya una implementación abierta, todo le pertenece.
 `FDGE-R50` **H** Nueva o parte de: el criterio está escrito.
 `FDGE-R51` **H** El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.
-`FDGE-R52` **H** El reanclaje se escribe, no se relee. Cada transición de fase deja tres líneas en la tarea —comentario del issue si hay plataforma, docs/implementation/TRANSICIONES.log si no—: qué se cierra · dónde se está…
+`FDGE-R52` **H** El reanclaje se escribe, no se relee. Es el caso particular de FDGE-R55: una transición de fase es una parada cuyo desenlace es cambia-fase (LEX-R30). No se relaja y conserva su verificador — lo que cambia…
 `FDGE-R53` **H** Toda tarea declara cómo termina. Una línea, observable, en el intake: la condición que hace que la tarea esté hecha. La deriva ocurre en tareas sin forma: una tarea que declara su final lo tiene; una que…
 `FDGE-R54` **H** No se empieza lo que no se puede terminar, y consta.
+`FDGE-R55` **H** La parada con decisión se escribe en su tarea, antes de continuar.
 
 ### INTAKE — Admisión
 
@@ -813,6 +816,15 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           Si hay trabajo posterior, la sesión terminó sin dejar el estado
           retomable. Se comprueba contra git, el único reloj que no depende
           de nadie.
+PARADA con decisión, ESCRIBE en la TAREA antes de continuar:                  [FDGE-R55]
+          motivo · la explicación · desenlace.  Listas CERRADAS en LEXICON §8.5.
+          motivo   ∈ hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
+                     limite-alcanzado · desafio-al-intake
+          desenlace ∈ continua · abre · cambia-fase · detiene · declara
+          MISMO destino que el reanclaje: issue, o TRANSICIONES.log sin plataforma.
+          NO lleva la forma «PHASE n → m» salvo que SEA una transición  [LEX-R30].
+          Lo que sólo está en la conversación no está                   [SUITE-R04].
+
 REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
           qué cierras · dónde estás · qué sigue.
           issue si hay plataforma · docs/implementation/TRANSICIONES.log si no [INC-008].
