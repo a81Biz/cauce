@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "3c860d6d5f4094ff1f7bc2dc0f0c97256c775da9",
   "sha_corto": "3c860d6",
@@ -12,15 +12,35 @@
   "archivos": [
     "changes/PT-123-backlog-no-tiene-generador/discovery.md",
     "changes/PT-123-backlog-no-tiene-generador/intake.md",
+    "changes/PT-123-backlog-no-tiene-generador/out-of-scope.md",
+    "changes/PT-123-backlog-no-tiene-generador/spec-changes.md",
     "changes/PT-123-backlog-no-tiene-generador/strategy.md",
+    "changes/PT-123-backlog-no-tiene-generador/tasks.md",
+    "changes/PT-123-backlog-no-tiene-generador/test-scenarios.md",
+    "changes/PT-123-backlog-no-tiene-generador/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/BACKLOG.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-123/",
+    "docs/methodology/CORE.md",
+    "docs/methodology/RULES.md",
+    "docs/methodology/tools/patrones.mjs",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/tracker.mjs",
+    "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-22"
 }
