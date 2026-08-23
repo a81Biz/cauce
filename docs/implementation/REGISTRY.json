@@ -34,7 +34,7 @@
     "plataforma": "github"
   },
   "counters": {
-    "PT": 129,
+    "PT": 130,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3238,6 +3238,17 @@
       "severity": "S2",
       "epic": "EP-020",
       "title": "FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales"
+    },
+    {
+      "id": "PT-130",
+      "slug": "la-comprobacion-acusa-a-quien-la-documenta",
+      "created": "2026-08-22",
+      "status": "DRAFT",
+      "phase": 1,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho"
     }
   ]
 }

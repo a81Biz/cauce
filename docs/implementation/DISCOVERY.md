@@ -76,3 +76,12 @@
 | PT-111 | BUG | S2 | INTEGRATED | EP-019 | El espejo compara lo que se lee: un titulo divergente no lo ve nadie |
 | PT-112 | BUG | S1 | INTEGRATED | EP-019 | «--forzar» no es una compuerta: sobrescribe el marco sin dejar constancia |
 | PT-113 | BUG | S2 | DRAFT | EP-020 | La 12.0.1: la guia de migracion que se publico incompleta |
+| PT-114 | BUG | S1 | DRAFT | EP-020 | El cuerpo del issue no se republica cuando aparece la ref durable |
+| PT-120 | BUG | S1 | DRAFT | EP-020 | publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN |
+| PT-121 | BUG | S1 | DRAFT | EP-020 | El viaje de vuelta tras el merge no lo cubre ninguna fase |
+| PT-122 | BUG | S2 | DRAFT | EP-020 | El cierre de un lote pasa por el comando, no por la mano |
+| PT-123 | BUG | S1 | DRAFT | EP-020 | BACKLOG.md dice que se deriva del registro y nada lo deriva |
+| PT-124 | BUG | S1 | DRAFT | EP-020 | tracker asignar rechaza tres de los cinco tipos que LEXICON declara |
+| PT-127 | BUG | S1 | DRAFT | EP-020 | Nada detecta el trabajo sin allocation: solo lo corta una persona |
+| PT-129 | BUG | S2 | DRAFT | EP-020 | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
+| PT-130 | BUG | S2 | DRAFT | EP-020 | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
