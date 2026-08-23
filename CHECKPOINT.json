@@ -2,9 +2,9 @@
   "pt": "PT-119",
   "type": "FEATURE",
   "epic": "EP-020",
-  "status": "DRAFT",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "38eed3349d2a888b11bf21a9fd96a7f6f19c1e62",
   "sha_corto": "38eed33",
@@ -31,8 +31,11 @@
     "docs/methodology/tools/selftest.sh",
     "package.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-23"
 }
