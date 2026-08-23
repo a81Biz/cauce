@@ -3,8 +3,8 @@
   "type": "FEATURE",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "56f9b374c0a68d8e1d0f93694d66025cdce6e000",
   "sha_corto": "56f9b37",
@@ -12,20 +12,24 @@
   "archivos": [
     "changes/PT-116-tracker-parada/enrichment.md",
     "changes/PT-116-tracker-parada/intake.md",
+    "changes/PT-116-tracker-parada/out-of-scope.md",
+    "changes/PT-116-tracker-parada/spec-changes.md",
     "changes/PT-116-tracker-parada/strategy.md",
+    "changes/PT-116-tracker-parada/tasks.md",
+    "changes/PT-116-tracker-parada/test-scenarios.md",
+    "changes/PT-116-tracker-parada/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-116/",
+    "docs/methodology/tools/patrones.mjs",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/tracker.mjs"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-23"
 }
