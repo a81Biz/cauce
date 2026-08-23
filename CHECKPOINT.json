@@ -3,8 +3,8 @@
   "type": "INVESTIGATION",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "dc884f13697e5d63381074340488737578f56b4c",
   "sha_corto": "dc884f1",
@@ -25,15 +25,8 @@
     "docs/methodology/tools/eventos.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-23"
 }
