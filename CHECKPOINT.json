@@ -1,37 +1,22 @@
 {
-  "pt": "PT-114",
+  "pt": "PT-124",
   "type": "BUG",
   "epic": "EP-020",
-  "status": "VALIDATION_PENDING",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "267c1ea16b6f2b291e3048611acaff3a4cd68c6a",
-  "sha_corto": "267c1ea",
+  "sha": "f7973b88de5dd6fe2de4a21634d16ab3ceccb0ba",
+  "sha_corto": "f7973b8",
   "sucio": true,
   "archivos": [
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/design.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/discovery.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/intake.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/out-of-scope.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/spec-changes.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/strategy.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/tasks.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/test-scenarios.md",
-    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-114/",
-    "docs/methodology/tools/selftest.sh"
+    "changes/PT-124-la-herramienta-rechaza-el-vocabulario-canonico/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-22"
 }
