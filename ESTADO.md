@@ -13,8 +13,8 @@ Proyectado el 2026-08-23 · 22 allocation(es) viva(s).
 | EP-020 |  | DRAFT | 1 | — | — | 829cb38 |
 | PT-113 | BUG | DRAFT | 1 | — | — | 922379b |
 | PT-114 | BUG | VALIDATION_PENDING | 8 | — | — | f7973b8 |
-| PT-115 | FEATURE | DONE | 8 | — | — | 922379b |
-| PT-116 | FEATURE | DRAFT | 1 | — | — | 922379b |
+| PT-115 | FEATURE | DONE | 8 | — | — | 56f9b37 |
+| PT-116 | FEATURE | DRAFT | 2 | — | — | 922379b |
 | PT-117 | FEATURE | DRAFT | 1 | — | — | 922379b |
 | PT-118 | FEATURE | DRAFT | 1 | — | — | 922379b |
 | PT-119 | FEATURE | DRAFT | 1 | — | — | 922379b |
@@ -27,7 +27,7 @@ Proyectado el 2026-08-23 · 22 allocation(es) viva(s).
 | PT-126 | CHORE | DRAFT | 1 | — | — | 922379b |
 | PT-127 | BUG | DRAFT | 3 | — | — | b79e75f |
 | PT-128 | FEATURE | DRAFT | 1 | — | — | 922379b |
-| PT-129 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | b79e75f | 85c4b17 |
+| PT-129 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | 56f9b37 | 85c4b17 |
 | PT-130 | BUG | DRAFT | 1 | — | — | 922379b |
-| PT-131 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | b79e75f | 11611d9 |
+| PT-131 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | 56f9b37 | 11611d9 |
 | PT-132 | BUG | VALIDATION_PENDING | 8 | — | — | 267c1ea |
