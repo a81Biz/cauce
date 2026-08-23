@@ -1,38 +1,24 @@
 {
-  "pt": "PT-133",
+  "pt": "PT-113",
   "type": "BUG",
   "epic": "EP-020",
-  "status": "VALIDATION_PENDING",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "8352fdebeb759a2813074ff22f771376fbe0bdff",
-  "sha_corto": "8352fde",
+  "sha": "df8d6627b94a9d51efb63456b26e3ec9bb622fa6",
+  "sha_corto": "df8d662",
   "sucio": true,
   "archivos": [
-    "changes/PT-117-la-parada-no-depende-de-la-memoria/intake.md",
-    "changes/PT-117-la-parada-no-depende-de-la-memoria/out-of-scope.md",
-    "changes/PT-117-la-parada-no-depende-de-la-memoria/strategy.md",
-    "changes/PT-117-la-parada-no-depende-de-la-memoria/tasks.md",
-    "changes/PT-117-la-parada-no-depende-de-la-memoria/test-scenarios.md",
-    "changes/PT-117-la-parada-no-depende-de-la-memoria/traceability.md",
-    "changes/PT-133-parada-exige-plataforma-que-no-necesita/",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
+    "changes/PT-113-la-guia-que-se-publico-incompleta/intake.md",
     "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-133/",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/tracker.mjs",
-    "docs/methodology/tools/verify-fdge.mjs",
-    "docs/methodology/tools/verify-suite.mjs"
+    "docs/implementation/evidence/PT-113/",
+    "docs/methodology/CHANGELOG.md"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-23"
 }
