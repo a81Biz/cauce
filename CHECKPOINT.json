@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "95d794ff0b9598cf3a64396e08e4f279084ed395",
   "sha_corto": "95d794f",
@@ -29,8 +29,11 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-23"
 }
