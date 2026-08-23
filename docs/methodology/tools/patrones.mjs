@@ -1891,3 +1891,76 @@ export function recuentosDeClaude(texto) {
   if (c) out.comandos = c[1].split('·').map((s) => s.trim()).filter(Boolean).length;
   return out;
 }
+
+/**
+ * PT-128 · EL CURSOR · los nodos del recorrido se DERIVAN, no se enumeran a mano.
+ *
+ * «un cursor que nos indique en donde estamos parados, de donde venimos y a donde vamos, lo mas
+ * parecido a un cursor en un arbol binario donde cada nodo es una cajita que tiene el dato, el
+ * puntero de salida hacia la derecha y el de la izquierda, y va recorriendo los padres e hijos
+ * para no perderse ninguna puerta ningun comportamiento».
+ *
+ * LAS FASES Y SUS COMPUERTAS SALEN DE PHASES.md. Escribirlas aqui seria una segunda copia de una
+ * lista que ya existe, y PT-080 midio que tres copias de una regla divergen las tres sin que nada
+ * las compare. El encabezado de PHASES.md ya lleva las dos cosas:
+ *
+ *     ### PHASE 1 · Intake — **G1**
+ *     ### PHASE 2 · Analysis — `2-B` bug/investigacion · ...
+ *
+ * QUE ESTABLECE: que fase existe, como se llama, y que compuerta la cierra si la cierra alguna.
+ * QUE NO ESTABLECE: que la fase se haya hecho. Eso lo dice el registro, y son cosas distintas —
+ *   confundirlas es exactamente el defecto que este cursor existe para no repetir.
+ */
+export function fasesDeFDGE(textoDePhases) {
+  const t = String(textoDePhases ?? '');
+  // Solo el bloque de FDGE: Foundation y QA tienen sus propias PHASE con los mismos numeros, y
+  // mezclarlas daria dos nodos distintos con el mismo nombre.
+  const bloque = t.split(/^## FDGE\s*$/m)[1] ?? '';
+  const hasta = bloque.split(/^## /m)[0] ?? '';
+  const fases = [];
+  for (const m of hasta.matchAll(/^### PHASE (\d+) · ([^\n]*)$/gm)) {
+    const titulo = m[2];
+    // La compuerta va en el propio encabezado, en negrita: «— **G1**».
+    const g = titulo.match(/\*\*(G\d)\*\*/);
+    fases.push({
+      n: Number(m[1]),
+      nombre: titulo.split(/ — | · /)[0].trim(),
+      compuerta: g ? g[1] : null,
+    });
+  }
+  return fases;
+}
+
+/**
+ * PT-128 · AC-04 · LA GARANTIA ES POR ENUMERACION, NO POR CONSULTA.
+ *
+ * Es el mismo principio que PTSA-R79: se cierra cuando la enumeracion esta completa, no cuando el
+ * que busca deja de encontrar. Un nodo sin visitar SE NOMBRA; no se asume cumplido.
+ *
+ * Y no se inventa lo que no se puede saber: una fase por la que el registro no puede decir si se
+ * paso sale SIN EVALUAR, que es DISTINGUIBLE de «visitada» (RULE-06). Sin esa distincion el
+ * cursor prometeria cobertura donde solo tiene silencio — el defecto que EP-020 midio NUEVE veces
+ * en su propio lote.
+ *
+ * QUE ESTABLECE: que fases del recorrido tienen rastro, cuales no lo tienen, y cuales no se
+ *   pueden evaluar.
+ * QUE NO ESTABLECE: que lo hecho en una fase con rastro sea correcto. Que exista la nota de
+ *   PHASE 5 no dice nada sobre el codigo que se escribio en ella.
+ */
+export function nodosSinVisitar(fases, faseActual, rastro) {
+  const actual = Number(faseActual);
+  if (!Number.isFinite(actual)) {
+    return { visitados: [], sinVisitar: [], sinEvaluar: (fases ?? []).map((f) => f.n) };
+  }
+  const visitados = [];
+  const sinVisitar = [];
+  const sinEvaluar = [];
+  for (const f of fases ?? []) {
+    if (f.n > actual) continue;              // todavia no toca: no es «sin visitar», es futuro
+    const r = rastro?.(f.n);
+    if (r === null || r === undefined) sinEvaluar.push(f.n);
+    else if (r) visitados.push(f.n);
+    else sinVisitar.push(f.n);
+  }
+  return { visitados, sinVisitar, sinEvaluar };
+}

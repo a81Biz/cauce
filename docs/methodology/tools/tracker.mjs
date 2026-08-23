@@ -56,6 +56,8 @@ import {
   sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, bloqueDeBacklog,
   MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
+// PT-128 · las fases y sus compuertas salen de PHASES.md, no de una lista escrita aqui.
+import { fasesDeFDGE, nodosSinVisitar } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
 // PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
@@ -1458,6 +1460,10 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
   // seria pedirle una credencial para leer «wc -l», y dejaria sin arreglo a un proyecto
   // que no declara tablero — el caso que SUITE-R22 declara soportado y PT-084 defendio.
+  // PT-128 · el cursor LEE: registro, PHASES.md y disco. No espeja nada. Exigirle plataforma
+  // seria el defecto EXACTO de PT-133 dos comandos mas alla — y SUITE-R22 declara soportado el
+  // proyecto que no declara tablero.
+  'cursor',
   'inventario',
   // PT-133 · «parada» escribe en el issue SI hay plataforma y en TRANSICIONES.log si no — igual
   // que «avanzar», que ya estaba aqui. Faltando de esta lista, la herramienta salia ANTES de
@@ -3749,7 +3755,188 @@ function inventario() {
   notas.push(`${mal.filter((m) => m.real != null).length} cifra(s) reescritas en services.md.`);
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices };
+
+// ── cursor · PT-128 · donde estas, de donde vienes, a donde vas ─────────────
+//
+// «un cursor que nos indique en donde estamos parados, de donde venimos y a donde vamos, lo mas
+// parecido a un cursor en un arbol binario donde cada nodo es una cajita que tiene el dato, el
+// puntero de salida hacia la derecha y el de la izquierda, y va recorriendo los padres e hijos
+// para no perderse ninguna puerta ningun comportamiento».
+//
+// EL ARBOL:   lote  ->  tarea  ->  fase  ->  compuerta
+//
+// Todo se DERIVA: los lotes y tareas del registro (SUITE-R08), las fases y sus compuertas de
+// PHASES.md (LEX-R21: manda el documento), y el rastro de cada fase de lo que hay EN DISCO. Nada
+// se escribe a mano y nada se recuerda — recordar es justo lo que este comando existe para no
+// tener que hacer.
+//
+// NO ESCRIBE NADA. Avanzar es de «avanzar», con su nota (FDGE-R52). Un comando que informa y a la
+// vez mueve no se puede consultar sin consecuencias, y entonces no se consulta.
+//
+// LA GARANTIA ES POR ENUMERACION, NO POR CONSULTA (AC-04). Es PTSA-R79 aplicado al recorrido: se
+// cierra cuando la enumeracion esta completa, no cuando el que busca deja de encontrar. Un nodo
+// sin rastro SE NOMBRA; uno que no se puede evaluar sale SIN EVALUAR y es distinguible de
+// «visitado» (RULE-06). Sin esa distincion el cursor prometeria cobertura donde solo tiene
+// silencio, que es el defecto que este lote lleva NUEVE veces midiendo.
+function cursor() {
+  const foco = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+
+  const fases = (() => {
+    const p = join(ROOT, 'docs', 'methodology', 'PHASES.md');
+    if (!existsSync(p)) return [];
+    return fasesDeFDGE(readFileSync(p, 'utf8'));
+  })();
+  if (!fases.length) {
+    throw new Error('no se pudo derivar las fases de PHASES.md. No saber no es permiso (RULE-06): '
+      + 'si la seccion cambio de forma, el cursor hay que arreglarlo, no adivinar el recorrido.');
+  }
+
+  // El foco por defecto: la implementacion abierta. FDGE-R48 garantiza que como mucho hay una.
+  const lote = all.find((a) => String(a?.id ?? '').startsWith('EP-') && a?.status === 'IN_PROGRESS')
+    ?? all.find((a) => String(a?.id ?? '').startsWith('EP-') && !ESTADOS_TERMINALES.has(String(a?.status ?? '')));
+  const nodo = foco ? all.find((a) => a?.id === foco) : null;
+  if (foco && !nodo) {
+    throw new Error(`${foco} no esta en el registro. El registro asigna (SUITE-R08).`);
+  }
+
+  const esLoteNodo = (a) => String(a?.id ?? '').startsWith('EP-');
+  const actual = nodo ?? lote;
+  if (!actual) {
+    di('');
+    di('  cursor: no hay implementacion abierta ni foco. Nada que recorrer.');
+    return;
+  }
+
+  // ── el NODO y su DATO ────────────────────────────────────────────────────
+  di('');
+  di(`  ESTAS EN   ${actual.id}${actual.slug ? ` · ${actual.slug}` : ''}`);
+  di(`             ${actual.type ?? 'sin tipo'} · ${actual.status ?? 'sin estado'}`
+    + (actual.phase != null ? ` · PHASE ${actual.phase}` : ''));
+
+  // ── DE DONDE VIENES ──────────────────────────────────────────────────────
+  di('');
+  di('  VIENES DE');
+  if (actual.origen_parada?.de) {
+    di(`    ${actual.origen_parada.de} · la parada que abrio esta (${actual.origen_parada.motivo})`);
+  }
+  if (actual.epic) {
+    const p = all.find((x) => x?.id === actual.epic);
+    di(`    ${actual.epic}${p?.slug ? ` · ${p.slug}` : ''} · el lote que la contiene`);
+  }
+  if (!actual.epic && !actual.origen_parada?.de) {
+    di('    nada la precede: es raiz del recorrido.');
+  }
+
+  // ── A DONDE VAS ──────────────────────────────────────────────────────────
+  di('');
+  di('  PUEDES IR A');
+  const hijos = all.filter((x) => x?.epic === actual.id);
+  if (esLoteNodo(actual)) {
+    const vivos = hijos.filter((x) => !ESTADOS_TERMINALES.has(String(x?.status ?? '')));
+    const cerrados = hijos.length - vivos.length;
+    di(`    ${hijos.length} tarea(s): ${cerrados} cerrada(s), ${vivos.length} viva(s)`);
+    for (const h of vivos.slice(0, 8)) {
+      di(`      ${h.id} · ${h.status ?? '?'}${h.phase != null ? ` · PHASE ${h.phase}` : ''}`);
+    }
+    if (vivos.length > 8) di(`      … y ${vivos.length - 8} mas`);
+  } else {
+    const sig = fases.find((f) => f.n === Number(actual.phase) + 1);
+    if (sig) {
+      di(`    PHASE ${sig.n} · ${sig.nombre}${sig.compuerta ? ` — cierra ${sig.compuerta}` : ''}`);
+      di(`      node docs/methodology/tools/tracker.mjs avanzar ${actual.id} --a ${sig.n} --nota "..."`);
+    } else di('    no hay fase siguiente declarada en PHASES.md.');
+  }
+
+  // ── LO QUE NO SE HA VISITADO ─────────────────────────────────────────────
+  //
+  // El rastro de una fase es lo que esa fase DEJA EN DISCO. Se comprueba el ARTEFACTO, no que la
+  // fase «se hiciera»: PT-133 midio la diferencia entre comprobar que una rama existe y
+  // ejecutarla, y aqui es la misma. Una fase cuyo artefacto no sabemos nombrar sale SIN EVALUAR.
+
+  // PT-128 · AC-04 · LA ENUMERACION TAMBIEN PARA UN LOTE, que es donde el propio intake puso la
+  // prueba: «recorrer EP-019 entero y comprobar si el cursor habria nombrado los nodos que su
+  // cierre se salto. Si no los nombra, el cursor no sirve».
+  //
+  // La primera version CONTABA las tareas —«17 cerradas, 0 vivas»— y no nombraba ninguna. Contar
+  // es lo contrario de enumerar: un recuento correcto convive con cualquier hueco, porque no dice
+  // CUAL. Es la forma que PTSA-R79 rechaza —«se cierra cuando la matriz esta completa, no cuando
+  // el que busca deja de encontrar»— y la que este lote entero persigue.
+  //
+  // Se recorre el SUBARBOL: cada tarea del lote, y de cada una sus fases. Un nodo sin rastro se
+  // NOMBRA con su tarea y su fase; uno que no se sabe evaluar sale SIN EVALUAR, que no es lo
+  // mismo (RULE-06).
+  if (esLoteNodo(actual)) {
+    const sinRastro = [];
+    const sinEvaluar = [];
+    for (const h of hijos) {
+      const dh = join(ROOT, 'changes', h.slug ? `${h.id}-${h.slug}` : String(h.id));
+      const eh = join(IMPL, 'evidence', String(h.id));
+      const hay = (p) => existsSync(p);
+      const RASTRO_H = {
+        1: () => hay(join(dh, 'intake.md')),
+        3: () => hay(join(dh, 'strategy.md')),
+        4: () => hay(join(dh, 'traceability.md')),
+        6: () => hay(join(eh, 'manifest.json')) && hay(join(eh, 'self-review.md')),
+        8: () => {
+          const f = join(IMPL, 'HISTORY.log');
+          if (!existsSync(f)) return null;
+          return readFileSync(f, 'utf8').includes(`## ${h.id} `);
+        },
+      };
+      const r = nodosSinVisitar(fases, h.phase, (n) => (RASTRO_H[n] ? RASTRO_H[n]() : null));
+      for (const n of r.sinVisitar) sinRastro.push(`${h.id} PHASE ${n}`);
+      for (const n of r.sinEvaluar) sinEvaluar.push(`${h.id} PHASE ${n}`);
+    }
+    di('');
+    di('  ENUMERADO, no consultado   (PTSA-R79 · el SUBARBOL entero, nodo a nodo)');
+    di(`    tareas recorridas   ${hijos.length}`);
+    if (sinRastro.length) {
+      di(`    SIN RASTRO    ${sinRastro.length} nodo(s):`);
+      for (const s of sinRastro.slice(0, 12)) di(`      ${s}`);
+      if (sinRastro.length > 12) di(`      … y ${sinRastro.length - 12} mas`);
+      di('                  la tarea dice haber pasado por ahi y no dejo el artefacto.');
+    } else di('    SIN RASTRO    ninguno: cada fase recorrida dejo su artefacto.');
+    if (sinEvaluar.length) {
+      di(`    SIN EVALUAR   ${sinEvaluar.length} nodo(s) · no se sabe nombrar su artefacto (RULE-06)`);
+      for (const s of sinEvaluar.slice(0, 6)) di(`      ${s}`);
+      if (sinEvaluar.length > 6) di(`      … y ${sinEvaluar.length - 6} mas`);
+    }
+  }
+
+  if (!esLoteNodo(actual)) {
+    const dir = join(ROOT, 'changes', actual.slug ? `${actual.id}-${actual.slug}` : String(actual.id));
+    const ev = join(IMPL, 'evidence', String(actual.id));
+    const hay = (p) => existsSync(p);
+    const RASTRO = {
+      1: () => hay(join(dir, 'intake.md')),
+      3: () => hay(join(dir, 'strategy.md')),
+      4: () => hay(join(dir, 'traceability.md')),
+      6: () => hay(join(ev, 'manifest.json')) && hay(join(ev, 'self-review.md')),
+      8: () => {
+        const h = join(IMPL, 'HISTORY.log');
+        if (!existsSync(h)) return null;
+        return readFileSync(h, 'utf8').includes(`## ${actual.id} `);
+      },
+    };
+    const r = nodosSinVisitar(fases, actual.phase, (n) => (RASTRO[n] ? RASTRO[n]() : null));
+    di('');
+    di('  ENUMERADO, no consultado   (PTSA-R79 · un nodo sin rastro SE NOMBRA)');
+    di(`    con rastro    ${r.visitados.length ? r.visitados.map((n) => `PHASE ${n}`).join(' · ') : 'ninguna'}`);
+    if (r.sinVisitar.length) {
+      di(`    SIN RASTRO    ${r.sinVisitar.map((n) => `PHASE ${n}`).join(' · ')}`);
+      di('                  la tarea dice haber pasado por ahi y no dejo el artefacto.');
+    }
+    if (r.sinEvaluar.length) {
+      di(`    SIN EVALUAR   ${r.sinEvaluar.map((n) => `PHASE ${n}`).join(' · ')}`);
+      di('                  no se sabe nombrar su artefacto. NO es lo mismo que visitada (RULE-06).');
+    }
+  }
+
+  di('');
+  di('  El cursor NO escribe: avanzar es de «avanzar», con su nota (FDGE-R52).');
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

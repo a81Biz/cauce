@@ -1,0 +1,112 @@
+{
+  "pt": "PT-128",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El nodo, su dato, de donde se viene y a donde se puede ir",
+      "tests": [
+        "selftest.sh:el cursor dice DONDE ESTAS",
+        "selftest.sh:…de DONDE VIENES",
+        "selftest.sh:…y a DONDE PUEDES IR",
+        "selftest.sh:…con el DATO del nodo"
+      ],
+      "evidence": [
+        "salidas/cursor.txt"
+      ],
+      "verified": true,
+      "nota": "Lo pidio el firmante: «un cursor que nos indique en donde estamos parados, de donde venimos y a donde vamos». El DATO es lo que hace del nodo una «cajita» y no un puntero suelto."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Los nodos se DERIVAN del registro, del arbol y de PHASES.md",
+      "tests": [
+        "selftest.sh:las fases se derivan de PHASES.md"
+      ],
+      "evidence": [
+        "salidas/cursor.txt"
+      ],
+      "verified": true,
+      "nota": "Ninguno se escribe a mano ni se recuerda. Y si PHASES.md cambia de forma, el cursor NO adivina: falla y lo dice — un recorrido inventado es peor que ninguno (RULE-06)."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El recorrido baja y sube: lote a tareas, tarea a fases",
+      "tests": [
+        "selftest.sh:un lote enumera su SUBARBOL, no lo cuenta"
+      ],
+      "evidence": [
+        "salidas/cursor.txt"
+      ],
+      "verified": true,
+      "nota": "Las compuertas aparecen DENTRO de la fase que las cierra, no como nodo propio: separarlas duplicaria el recorrido sin añadir un nodo visitable."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La garantia es por ENUMERACION, no por consulta",
+      "tests": [
+        "selftest.sh:…nombrando cada nodo con su tarea y su fase"
+      ],
+      "evidence": [
+        "salidas/cursor.txt"
+      ],
+      "verified": true,
+      "nota": "ES EL AC QUE LA PRUEBA DEL PROPIO INTAKE ENCONTRO SIN CUMPLIR. El intake escribio su condicion —«recorrer EP-019 y comprobar si el cursor habria nombrado los nodos que su cierre se salto; si no los nombra, el cursor no sirve»— y NO LOS NOMBRABA: para un lote CONTABA, «17 cerradas, 0 vivas». Contar es lo contrario de enumerar: un recuento correcto convive con cualquier hueco porque no dice CUAL. Es la forma que PTSA-R79 rechaza, cometida en la tarea que existe para aplicar PTSA-R79. Con la enumeracion del subarbol: 17 tareas recorridas, 68 nodos nombrados uno a uno."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "SIN EVALUAR es distinguible de visitado",
+      "tests": [
+        "selftest.sh:…y distingue SIN EVALUAR de visitado"
+      ],
+      "evidence": [
+        "salidas/cursor.txt"
+      ],
+      "verified": true,
+      "nota": "TRES respuestas, no dos. Sin esta, el cursor marcaria como hueco toda fase que no produce archivo —PHASE 0, 2, 5, 7— e INVENTARIA INCUMPLIMIENTOS. Distinguir «no dejo rastro» de «no se que buscar» es lo que lo hace utilizable (RULE-06)."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "El cursor no decide ni avanza: informa",
+      "tests": [
+        "selftest.sh:el cursor NO escribe en el registro",
+        "selftest.sh:…y lo DICE en su propia salida"
+      ],
+      "evidence": [
+        "salidas/cursor.txt"
+      ],
+      "verified": true,
+      "nota": "El caso compara el registro ANTES y DESPUES de ejecutarlo. Si escribiera, consultar donde estas cambiaria donde estas — y no seria un cursor, seria un avance encubierto (FDGE-R52)."
+    }
+  ],
+  "no_verificado": [
+    {
+      "afirmacion": "Que los 68 nodos SIN EVALUAR de EP-019 sean huecos.",
+      "por_que": "NO LO SON. Son fases cuyo artefacto el cursor no sabe nombrar —PHASE 0, 2, 5, 7 no producen un archivo fijo—. RULE-06: no saber no es lo mismo que estar mal.",
+      "donde": "changes/PT-128-el-cursor-del-recorrido/discovery.md"
+    },
+    {
+      "afirmacion": "Que el cursor cubra todo tipo de nodo del marco.",
+      "por_que": "Recorre lotes y tareas con sus fases. Las compuertas viven dentro de la fase que cierran.",
+      "donde": "changes/PT-128-el-cursor-del-recorrido/out-of-scope.md"
+    }
+  ],
+  "desviaciones_de_procedimiento": [
+    {
+      "que": "El codigo estaba escrito, SIN CONFIRMAR, sin casos y sin evidencia.",
+      "regla": "FDGE-R19",
+      "detalle": "La tarea figuraba en PHASE 1 con el intake como unico documento, y en el arbol de trabajo habia 211 lineas de codigo sin commitear. Si se hubiera perdido la copia de trabajo, desaparecia entero. Es el patron «codigo primero, procedimiento despues» que PT-101 tuvo que declarar tarde en el lote anterior."
+    },
+    {
+      "que": "La prueba que el propio intake declaro, fallo.",
+      "regla": "FDGE-R17",
+      "detalle": "El intake dejo escrita su condicion de utilidad —«si no los nombra, el cursor no sirve»— y la primera version NO los nombraba. Declarar la prueba sirvio exactamente para lo que se escribio: se ejecuto, fallo, y el arreglo estaba delimitado. Sin esa frase, «17 cerradas, 0 vivas» habria parecido una respuesta correcta."
+    }
+  ],
+  "suite": {
+    "passed": null,
+    "failed": null,
+    "baseline": null,
+    "nota": "Diez casos propios, dos de ellos negativos."
+  }
+}

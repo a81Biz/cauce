@@ -1996,6 +1996,43 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 # CARACTERES (PT-085, PT-090) — y ademas, al fallar, dice QUE regla aparecio en vez de «no caso».
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
+
+# ── PT-128 · EP-020 · el cursor del recorrido ─────────────────────────────────────────────────
+#
+# Lo pidio el firmante: «no podemos [asegurar que las cosas ocurren] si no tenemos un cursor que
+# nos indique en donde estamos parados, de donde venimos y a donde vamos... para no perderse
+# ninguna puerta ningun comportamiento».
+#
+# La ultima frase es la tarea entera: NO PERDERSE NINGUNO. Eso no se consigue consultando —una
+# consulta responde lo que se le pregunta— sino ENUMERANDO. Es PTSA-R79 aplicado a la navegacion:
+# «la auditoria cierra cuando la matriz esta completa, no cuando el auditor deja de encontrar».
+cur128() { node "$SUITE/tools/tracker.mjs" cursor "$@"; }
+chk   "el cursor dice DONDE ESTAS"        "ESTAS EN"      cur128 PT-128
+chk   "…de DONDE VIENES"                  "VIENES DE"     cur128 PT-128
+chk   "…y a DONDE PUEDES IR"              "PUEDES IR A"   cur128 PT-128
+# El DATO del nodo, que es lo que lo hace una «cajita» y no un puntero suelto.
+chk   "…con el DATO del nodo"             "PHASE"         cur128 PT-128
+# AC-04 · la garantia es por ENUMERACION. Un lote enumera su SUBARBOL —cada tarea y cada fase—,
+# no cuenta. Contar es lo contrario: un recuento correcto convive con cualquier hueco porque no
+# dice CUAL. La primera version contaba «17 cerradas, 0 vivas» y no nombraba ni un nodo.
+chk   "un lote enumera su SUBARBOL, no lo cuenta"  "ENUMERADO, no consultado" cur128 EP-019
+chk   "…nombrando cada nodo con su tarea y su fase"  "PT-096 PHASE" cur128 EP-019
+# AC-05 · RULE-06 · lo que no se sabe evaluar NO es lo mismo que visitado, y se dice distinto.
+chk   "…y distingue SIN EVALUAR de visitado"  "SIN EVALUAR" cur128 EP-019
+# AC-02 · los nodos se DERIVAN. Si PHASES.md cambia de forma, el cursor NO adivina: falla y lo
+# dice. Un recorrido inventado es peor que ninguno.
+chk   "las fases se derivan de PHASES.md"  "fasesDeFDGE" cat "$SUITE/tools/tracker.mjs"
+# AC-06 · EL NEGATIVO que sostiene todo lo demas: el cursor LEE. Si escribiera, consultar donde
+# estas cambiaria donde estas — y entonces no seria un cursor, seria un avance encubierto.
+cur128_escribe() {
+  local a="$WORK/reg.antes"; local b="$WORK/reg.despues"
+  cp docs/implementation/REGISTRY.json "$a" 2>/dev/null
+  node "$SUITE/tools/tracker.mjs" cursor EP-019 >/dev/null 2>&1
+  cp docs/implementation/REGISTRY.json "$b" 2>/dev/null
+  if cmp -s "$a" "$b"; then echo "NO ESCRIBE"; else echo "ESCRIBIO"; fi
+}
+chk   "el cursor NO escribe en el registro"  "NO ESCRIBE" cur128_escribe
+chk   "…y lo DICE en su propia salida"       "El cursor NO escribe" cur128 PT-128
 # ── PT-100 · C-2 · un hecho, un nombre ────────────────────────────────────────────────────────
 #
 # CINCO hechos con nombre doble, y los cinco decidian si algo se verifica.

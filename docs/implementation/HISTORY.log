@@ -7422,3 +7422,81 @@ LO QUE ESTA TAREA NO CIERRA:
 
 Es un BUG. SUITE-R06b: cerrar un item de tipo BUG no se automatiza — queda en DONE con evidencia
 completa y el cierre va con el del lote.
+
+## PT-128 — El cursor del recorrido: donde estas, de donde vienes, a donde vas
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su columna vertebral
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: SI
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · G4
+
+Lo pidio el firmante, y la ultima frase es la tarea entera:
+
+  «no podemos [asegurar que las cosas ocurren] si no tenemos un cursor que nos indique en donde
+   estamos parados, de donde venimos y a donde vamos... PARA NO PERDERSE NINGUNA PUERTA NINGUN
+   COMPORTAMIENTO»
+
+No perderse ninguno no se consigue CONSULTANDO —una consulta responde lo que se le pregunta—
+sino ENUMERANDO. Es PTSA-R79 aplicado a la navegacion: «la auditoria cierra cuando la matriz
+esta completa, no cuando el auditor deja de encontrar hallazgos».
+
+AL RETOMARLA, EL CODIGO ESTABA ESCRITO Y SIN CONFIRMAR. La tarea figuraba en PHASE 1 con el
+intake como unico documento, y en el arbol de trabajo habia 211 lineas sin commitear, sin un solo
+caso y sin evidencia. Si se hubiera perdido la copia de trabajo, desaparecia entero. Es el patron
+«codigo primero, procedimiento despues» que PT-101 tuvo que declarar tarde en el lote anterior.
+
+Y LA PRUEBA QUE EL PROPIO INTAKE DECLARO, FALLO. Aquel escribio su condicion de utilidad:
+
+  «recorrer EP-019 entero y comprobar si el cursor habria nombrado los nodos que su cierre se
+   salto. SI NO LOS NOMBRA, EL CURSOR NO SIRVE.»
+
+No los nombraba. Para un lote CONTABA:
+
+  PUEDES IR A
+    17 tarea(s): 17 cerrada(s), 0 viva(s)
+
+CONTAR ES LO CONTRARIO DE ENUMERAR: un recuento correcto convive con cualquier hueco, porque no
+dice CUAL. Es exactamente la forma que PTSA-R79 rechaza, cometida en la tarea que existe para
+aplicar PTSA-R79.
+
+Añadida la enumeracion del SUBARBOL —cada tarea del lote por cada una de sus fases—:
+
+  tareas recorridas   17
+  SIN RASTRO          ninguno
+  SIN EVALUAR         68 nodo(s), nombrados uno a uno
+
+Y SON TRES RESPUESTAS, NO DOS. Sin «SIN EVALUAR» el cursor marcaria como hueco toda fase que no
+produce archivo —PHASE 0, 2, 5, 7— e INVENTARIA INCUMPLIMIENTOS. Distinguir «no dejo rastro» de
+«no se que artefacto buscar» es lo que lo hace utilizable (RULE-06).
+
+Lo que el cursor NO hace, y esta comprobado: no escribe. Un caso compara el registro ANTES y
+DESPUES de ejecutarlo. Si escribiera, consultar donde estas cambiaria donde estas — y no seria un
+cursor, seria un avance encubierto (FDGE-R52).
+
+Y NO ES BINARIO, aunque el firmante lo nombro asi. El arbol de cauce no lo es: un lote tiene N
+tareas y una tarea once fases. Se conserva la PROPIEDAD que pidio —no perderse ningun nodo— y no
+la forma, que aqui mentiria sobre la estructura. Estaba declarado en el intake por INTAKE-R07.
+
+Archivos modificados: tools/tracker.mjs · tools/patrones.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-128/ · manifest.json · self-review.md ·
+  salidas/cursor.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-06 ✓, los seis.
+
+  para una tarea    ANTES enumeraba        DESPUES igual
+  para un LOTE      ANTES contaba          DESPUES enumera el subarbol, nodo a nodo
+  nodos nombrados   ANTES 0                DESPUES 68 en EP-019
+
+LO QUE NO ESTABLECE:
+
+· Que los 68 SIN EVALUAR sean huecos. NO lo son: son fases sin artefacto fijo.
+· Que el cursor cubra todo tipo de nodo. Las compuertas viven DENTRO de la fase que cierran.
+· Que sustituya a «tracker siguiente»: responden preguntas distintas, y si divergen manda
+  PHASES.md.
+
+Declarar la prueba sirvio exactamente para lo que se escribio: se ejecuto, fallo, y el arreglo
+quedo delimitado. Sin esa frase, «17 cerradas, 0 vivas» habria parecido una respuesta correcta.
