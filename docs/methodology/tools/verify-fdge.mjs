@@ -720,7 +720,11 @@ function checkEstado() {
     fail('SUITE-R34', `El bloque ESTADO contradice al registro: ${c}. El estado retomable que miente es peor que el que falta — se actúa sobre él.`);
   }
   if (!contra.length && tEstado) {
-    ok('SUITE-R34', 'El bloque ESTADO no contradice al registro.');
+    // PT-130 · el LIMITE va en el mensaje y no en un comentario: un limite que solo vive en
+    // el codigo protege a quien ya esta leyendo el codigo, no a quien lee el rojo.
+    ok('SUITE-R34', 'El bloque ESTADO no contradice al registro. Se lee el SUJETO de cada '
+      + 'linea —el primer identificador—: NO evalua los demas identificadores que la linea '
+      + 'mencione, porque nombrar una tarea cerrada PARA DECIR que lo esta es correcto.');
   }
   // Lo NO derivable se declara, no se finge verificado (AC-03).
   if (!/^\s*decisiones:/im.test(cuerpo) || !/^\s*no hacer:/im.test(cuerpo)) {

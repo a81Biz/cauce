@@ -1997,6 +1997,84 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-130 · EP-020 · la comprobacion deja de acusar a quien la documenta ─────────────────────
+#
+# Lo pidio el firmante: «que describir un hecho en un artefacto no haga fallar la comprobacion
+# que vigila ese hecho».
+#
+# Es CE-017, y es la unica clase que se hace MAS probable cuanto mejor se escribe el ledger:
+# escribir «los diez commits del cierre citaban EP-019 estando CLOSED» —para REGISTRAR el defecto
+# que PT-127 arreglaba— hacia fallar SUITE-R34.
+P130="$SUITE/tools/patrones.mjs"
+vf130() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" "$@" 2>&1); }
+A130='[{"id":"PT-126","status":"DONE"},{"id":"EP-019","status":"CLOSED"},{"id":"PT-096","status":"INTEGRATED"}]'
+
+# AC-01 · la lectura se ancla al SUJETO —el primer identificador—, que es lo que la linea afirma
+# en curso. El checkpoint es UNO (LEX-R26), asi que la linea afirma UNA tarea.
+mlib "el sujeto de «tarea:» es el primer identificador" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-126 en PHASE 8 — los commits citaban EP-019 estando CLOSED", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# AC-02 · citar una allocation cerrada PARA DECIR que esta cerrada no es un error.
+mlib "citar una cerrada para decir que lo esta, no falla" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-126 sigue · EP-019 quedo CLOSED y PT-096 INTEGRATED", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# EL CASO QUE SOLO SALVA EL ANCLAJE: se menciona una cerrada SIN decir que lo esta. Con la
+# lectura vieja —todos los identificadores de la linea— esto fallaba, y es prosa correcta.
+mlib "…y mencionarla sin decir su estado, tampoco" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-126 en PHASE 8 — el cierre de EP-019 dejo esto pendiente", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# Y NO se pierde lo que la comprobacion existe para cazar: un sujeto terminal presentado en curso.
+mlib "un sujeto TERMINAL presentado en curso SIGUE fallando" "PT-096" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-096 sigue en curso y falta poco", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+mlib "…y si la linea LO DECLARA terminal, no falla" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-096 INTEGRATED, cerrada el martes", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# La linea «implementacion:» conserva su lectura, que ya estaba anclada por adyacencia.
+mlib "un lote declarado ABIERTA y cerrado en el registro falla" "EP-019" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("implementación:  EP-019 ABIERTA con doce tareas", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+
+# AC-03 · la comprobacion DECLARA que hecho establece y cual NO, en el registro de sujetos que
+# construyo PT-087. Un rojo sin alcance declarado se lee como «el bloque entero contradice».
+mlib "SUITE-R34 declara que establece" "primer identificador" "$P130" \
+  'console.log(m.SUJETOS["SUITE-R34"].establece);'
+mlib "…y que NO establece" "NO evalua los demas" "$P130" \
+  'console.log(m.SUJETOS["SUITE-R34"].noEstablece);'
+# Y EL LIMITE VIVE EN EL MENSAJE, no solo en el registro: uno que solo vive en el codigo
+# protege a quien ya esta leyendo el codigo, no a quien lee el rojo (SUITE-R38).
+chk   "…y el limite llega al mensaje"  "NO evalua los demas identificadores"  vf130 PT-130
+
+# AC-04 · las OTRAS lecturas de alcance amplio se ENUMERAN, aunque no se arreglen aqui. RULE-06:
+# se declara lo medido y no se promete lo no medido.
+mlib "las lecturas de alcance amplio se enumeran" "SON VARIAS" "$P130" \
+  'const f=[{archivo:"x.mjs",texto:"if (txt.includes(algo)) fallo();"},
+             {archivo:"y.mjs",texto:"if (RE_X.test(cuerpo)) fallo();"}];
+   const r=m.lecturasDeAlcanceAmplio(f);
+   console.log(r.length>=2?"SON VARIAS "+r.length:"SOLO "+r.length);'
+mlib "…y dicen SOBRE QUE leen y en que linea" "x.mjs 1 txt" "$P130" \
+  'const r=m.lecturasDeAlcanceAmplio([{archivo:"x.mjs",texto:"if (txt.includes(a)) f();"}]);
+   console.log(r[0].archivo, r[0].linea, r[0].sobre);'
+# Un COMENTARIO que nombra el patron no es una lectura: es la autorreferencia que ya mordio en
+# PT-051 y en el lint de helpers, y aqui se evita por construccion.
+mlib "…y un comentario que lo nombra NO cuenta" "0" "$P130" \
+  'console.log(m.lecturasDeAlcanceAmplio([{archivo:"c.mjs",texto:"// ojo con txt.includes(algo)"}]).length);'
+# Sin fuentes NO devuelve una lista vacia: devuelve null. Cero lecturas y «no se pudo mirar» no
+# son lo mismo (RULE-06) — y un cero fue exactamente el sintoma del primer intento roto.
+mlib "…y sin fuentes dice null, no cero" "null" "$P130" \
+  'console.log(String(m.lecturasDeAlcanceAmplio(null)));'
+
+# AC-05 · EL ARREGLO NO ES ESQUIVAR LA PALABRA. El texto que hoy fallaba sigue escrito igual y
+# ahora pasa: lo que cambio es el ALCANCE DE LA LECTURA, no la prosa.
+chk   "el HANDOFF sigue nombrando identificadores en prosa"  "PT-127"  cat "$RAIZ/docs/implementation/HANDOFF.md"
+chkno "…y SUITE-R34 no lo acusa por nombrarlos"  "afirma que .* sigue en curso"  vf130 PT-130
+
 # ── PT-126 · EP-020 · sellar mide la matriz y FPGE la lee ─────────────────────────────────────
 #
 # Lo pidio el firmante: «teniendo las explicaciones y la matriz tendremos una nutrida base de

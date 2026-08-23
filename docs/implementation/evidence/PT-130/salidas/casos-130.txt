@@ -1,0 +1,18 @@
+── A · casos límite (deben pasar en verde) ──
+  [32m✓[0m el sujeto de «tarea:» es el primer identificador
+  [32m✓[0m citar una cerrada para decir que lo esta, no falla
+  [32m✓[0m …y mencionarla sin decir su estado, tampoco
+  [32m✓[0m un sujeto TERMINAL presentado en curso SIGUE fallando
+  [32m✓[0m …y si la linea LO DECLARA terminal, no falla
+  [32m✓[0m un lote declarado ABIERTA y cerrado en el registro falla
+  [32m✓[0m SUITE-R34 declara que establece
+  [32m✓[0m …y que NO establece
+  [32m✓[0m …y el limite llega al mensaje
+  [32m✓[0m las lecturas de alcance amplio se enumeran
+  [32m✓[0m …y dicen SOBRE QUE leen y en que linea
+  [32m✓[0m …y un comentario que lo nombra NO cuenta
+  [32m✓[0m …y sin fuentes dice null, no cero
+  [32m✓[0m el HANDOFF sigue nombrando identificadores en prosa
+  [32m✓[0m …y SUITE-R34 no lo acusa por nombrarlos
+
+== 15 casos, 0 fallos ==

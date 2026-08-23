@@ -7962,3 +7962,87 @@ LO QUE NO ESTABLECE:
 · Que el umbral 3 sea el correcto. Es un juicio declarado, con su motivo, y parametrizable.
 · Que FPGE haya corrido con esta fuente. Establece que la recoleccion la DECLARA; ejecutar FPGE
   es otra cosa, y PT-092 ya midio lo que cuesta.
+
+## PT-130 — La comprobacion deja de acusar a quien la documenta
+Fecha: 2026-08-23
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-017
+
+Lo pidio el firmante: «que describir un hecho en un artefacto no haga fallar la comprobacion que
+vigila ese hecho».
+
+COMO APARECIO, Y ES LA PARTE QUE IMPORTA. Escribiendo en el bloque ESTADO del HANDOFF que los
+commits del cierre citaban EP-019 ESTANDO CLOSED —es decir, REGISTRANDO el defecto que PT-127
+acababa de dotar de detector— SUITE-R34 se puso en rojo. La comprobacion acuso a quien
+documentaba el hecho que ella vigila.
+
+Es CE-017, y es la unica clase que se vuelve MAS probable cuanto MEJOR se escribe el ledger:
+cuanta mas precision al registrar lo que paso, mas identificadores en prosa, mas superficie para
+el falso positivo.
+
+DONDE ESTABA EL DEFECTO. La linea «tarea:» se cortaba en la primera palabra de estado terminal y
+TODOS los identificadores del trozo de delante se daban por afirmados «en curso». Pero esa linea
+afirma UNA tarea en curso —el checkpoint es uno (LEX-R26)—: todo lo demas es CONTEXTO.
+
+EL ARREGLO: anclar al SUJETO, el primer identificador. Y una guarda que impide sobrecorregir —si
+la propia linea DECLARA que esta cerrada, no falla— porque acusar al texto que acierta seria el
+mismo defecto por el otro lado.
+
+Y LO QUE NO ES: esquivar la palabra. El HANDOFF ya advertia de citar identificadores en prosa, y
+seguir esquivandolos seria DOCUMENTAR LA LIMITACION EN VEZ DE QUITARLA. El texto que fallaba
+sigue escrito igual, y dos casos lo comprueban.
+
+NO SE PIERDE NADA DE LO QUE EXISTIA PARA CAZAR:
+
+  «PT-126 … citaban EP-019 estando CLOSED»        ANTES falla   AHORA pasa
+  «PT-126 … el cierre de EP-019 dejo esto»        ANTES falla   AHORA pasa
+  «PT-096 sigue en curso» (esta INTEGRATED)       ANTES falla   AHORA FALLA
+  «PT-096 INTEGRATED, cerrada el martes»          ANTES pasa    AHORA pasa
+
+LAS OTRAS LECTURAS DE ALCANCE AMPLIO, ENUMERADAS: ONCE, derivadas de tools/*.mjs con archivo y
+linea, asi que la cifra no caduca. NO se arreglan aqui: hacerlo sin un caso que sostenga cada una
+seria cambiar once comportamientos a ciegas. RULE-06 pide declarar lo medido, no prometer lo no
+medido.
+
+DOS DEFECTOS APARECIERON CONSTRUYENDOLO:
+
+  1  EL ENUMERADOR MIDIO CERO, Y EL CERO PARECIA UNA MEDICION. La pieza del punto ya lo contenia
+     y se le anadia otro, asi que la expresion no casaba nada — en un arbol donde grep encuentra
+     cuatro a simple vista. Un cero que no se contrasta con nada es INDISTINGUIBLE de un cero
+     real, y es exactamente por eso que la funcion devuelve null cuando no puede mirar.
+     Decimotercera rotura de escapado de la sesion; se resolvio como manda SUITE-R59.
+  2  LA PRUEBA INVERSA TENIA UNA MUTACION INFIEL: «sin anclar al sujeto» cambiaba QUE
+     identificador es el sujeto, no el ALCANCE de la lectura, asi que tumbaba un escenario
+     distinto del que declaraba. Una supresion que no reproduce el defecto que suprime no prueba
+     nada, aunque salga roja. Rehecha restaurando el bucle anterior de verdad.
+
+Archivos modificados: tools/patrones.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-130/ · manifest.json · self-review.md ·
+  salidas/casos-130.txt · salidas/inversa.txt · salidas/alcance-amplio.txt
+
+Criterios AC-01..AC-05 ✓, los cinco. Catorce escenarios de catorce. Inversa: cinco supresiones,
+cinco escenarios distintos.
+
+LO QUE NO ESTABLECE:
+
+· Que las once lecturas enumeradas sean defectos. Son candidatas a mirar.
+· Que sean TODAS. Son las que la heuristica encuentra hoy, y la heuristica enumera FORMAS, no
+  intenciones: una lectura amplia legitima entra igual, y sacarla exige mirarla.
+· Que CE-017 este cerrada. Tiene UNA instancia cerrada y su alcance declarado; las otras diez que
+  el ledger narra siguen ahi, y la matriz las cuenta.
+· QUE EL TRABAJO DE LOTE PUEDA CITAR EL EP. Es la pregunta que dejo PT-127 —15 commits de EP-020
+  citan el lote donde FDGE-R19 pide un PT— y NO se responde aqui: es sobre FDGE-R19, no sobre
+  como lee SUITE-R34. Cambiar una regla de commits desde una tarea cuyo alcance es el alcance de
+  las LECTURAS seria la ampliacion silenciosa que este lote persigue. Queda declarada, con su
+  medicion hecha y su detector construido.
+
+Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING. Llevarlo a DONE es un acto humano
+que deja constancia de quien y cuando (FDGE-R26, LEX-R08, SUITE-R06b).

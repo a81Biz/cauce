@@ -1,0 +1,7 @@
+   sin anclar al sujeto: vuelve a juzgar TODA la linea cae: mencionSinEstado  OK
+   sin mirar si la linea LO DECLARA terminal          cae: declaraTerminal  OK
+   sin el alcance declarado en SUJETOS                cae: declara  OK
+   sin la guarda de comentarios en la enumeracion     cae: comentario  OK
+   sin distinguir «no se pudo mirar» de cero          cae: sinFuentes  OK
+
+5 de 5 supresiones tumban el escenario esperado.

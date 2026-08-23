@@ -5,12 +5,12 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-166 entradas recorridas · 144 identificadores · 74 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-23
+167 entradas recorridas · 145 identificadores · 75 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-23
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
 | `CE-001` | El proxy en lugar del hecho | 8 | 12 | 2026-08-20 | 2026-08-23 | **—** | **sin dueño** |
-| `CE-002` | Rotura de escapado | 9 | 7 | 2026-08-21 | 2026-08-23 | `SUITE-R59` | **NO**: la regla existe y nada emite por ella |
+| `CE-002` | Rotura de escapado | 10 | 7 | 2026-08-21 | 2026-08-23 | `SUITE-R59` | **NO**: la regla existe y nada emite por ella |
 | `CE-003` | Un argumento se cuela por la detección de `ROOT` | 8 | 7 | 2026-08-18 | 2026-08-23 | **—** | **sin dueño** |
 | `CE-004` | Probar donde trabajo, no donde se decide | 9 | 9 | 2026-08-18 | 2026-08-23 | **—** | **sin dueño** |
 | `CE-005` | Verde por no haber mirado | 6 | 2 | 2026-08-14 | 2026-08-23 | **—** | **sin dueño** |

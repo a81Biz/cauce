@@ -1,0 +1,100 @@
+{
+  "pt": "PT-130",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "contradiceElRegistro ancla su lectura al hecho que evalua —que tarea esta EN CURSO— y no a cualquier identificador que aparezca en la linea",
+      "tests": [
+        "selftest.sh:el sujeto de «tarea:» es el primer identificador",
+        "selftest.sh:…y mencionarla sin decir su estado, tampoco",
+        "selftest.sh:un sujeto TERMINAL presentado en curso SIGUE fallando",
+        "selftest.sh:un lote declarado ABIERTA y cerrado en el registro falla"
+      ],
+      "evidence": [
+        "salidas/casos-130.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La linea «tarea:» afirma UNA tarea en curso —el checkpoint es uno (LEX-R26)— y ese es su sujeto: el primer identificador. La version anterior cortaba en la primera palabra de estado terminal y juzgaba TODOS los identificadores del trozo de delante."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Citar una allocation cerrada PARA DECIR que esta cerrada no produce un error",
+      "tests": [
+        "selftest.sh:citar una cerrada para decir que lo esta, no falla",
+        "selftest.sh:…y si la linea LO DECLARA terminal, no falla"
+      ],
+      "evidence": [
+        "salidas/casos-130.txt"
+      ],
+      "verified": true,
+      "nota": "La guarda no sobra: decir «PT-096 INTEGRATED, cerrada el martes» es correcto, y acusarlo seria el mismo defecto por el otro lado — acusar al texto que acierta. El estado tiene que estar JUNTO al identificador (80 caracteres), por la misma razon que el ordinal de PT-125."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La comprobacion declara que hecho establece y que no, en el registro de sujetos de PT-087",
+      "tests": [
+        "selftest.sh:SUITE-R34 declara que establece",
+        "selftest.sh:…y que NO establece",
+        "selftest.sh:…y el limite llega al mensaje"
+      ],
+      "evidence": [
+        "salidas/casos-130.txt"
+      ],
+      "verified": true,
+      "nota": "Un rojo sin alcance declarado se lee como «el bloque entero contradice al registro». El criterio pide que SUJETOS cubra SUITE-R34, y lo hace; no pide subir la cobertura general, y el registro crece por adopcion declarada — la via que PT-087 eligio. Y SUITE-R38 lo cazo: el limite vivia solo en el registro y en un comentario. Un limite que solo vive en el codigo protege a quien ya esta leyendo el codigo, no a quien lee el rojo — ahora va en el mensaje de SUITE-R34."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Las otras comprobaciones de alcance «todo el archivo» se enumeran, aunque no se arreglen aqui",
+      "tests": [
+        "selftest.sh:las lecturas de alcance amplio se enumeran",
+        "selftest.sh:…y dicen SOBRE QUE leen y en que linea",
+        "selftest.sh:…y un comentario que lo nombra NO cuenta",
+        "selftest.sh:…y sin fuentes dice null, no cero"
+      ],
+      "evidence": [
+        "salidas/alcance-amplio.txt",
+        "salidas/casos-130.txt"
+      ],
+      "verified": true,
+      "nota": "ONCE, derivadas de tools/*.mjs con archivo y linea, asi que la cifra no caduca. La heuristica se declara: enumera FORMAS —una variable cuyo nombre dice que es un archivo o un cuerpo entero, sobre la que se pregunta .includes( o .test(— no intenciones. NO se arreglan: hacerlo sin un caso que sostenga cada una seria cambiar once comportamientos a ciegas."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Ninguna correccion consiste en evitar la palabra en la prosa: se arregla el alcance de la lectura, no el texto que la dispara",
+      "tests": [
+        "selftest.sh:el HANDOFF sigue nombrando identificadores en prosa",
+        "selftest.sh:…y SUITE-R34 no lo acusa por nombrarlos"
+      ],
+      "evidence": [
+        "salidas/casos-130.txt"
+      ],
+      "verified": true,
+      "nota": "El texto que fallaba SIGUE ESCRITO IGUAL y ahora pasa. Sin estos dos casos, alguien podria «arreglar» el defecto reescribiendo la prosa y los demas casos seguirian en verde."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 5,
+    "distinct_reds": 5,
+    "evidence": "salidas/inversa.txt",
+    "nota": "La primera mutacion era INFIEL: «sin anclar al sujeto» cambiaba QUE identificador es el sujeto, no el ALCANCE de la lectura, asi que tumbaba un escenario distinto del que declaraba. Una supresion que no reproduce el defecto que suprime no prueba nada, aunque salga roja. Rehecha restaurando el bucle sobre todos los identificadores, y con el escenario que SOLO el anclaje salva: mencionar una cerrada sin decir que lo esta."
+  },
+  "defecto_del_enumerador": {
+    "que": "La primera version de lecturasDeAlcanceAmplio midio CERO en un arbol donde grep encuentra cuatro a simple vista.",
+    "causa": "BS_D ya contenia el punto y se le anadia otro: la expresion buscaba «\\..includes» y no casaba nada. Decimotercera rotura de escapado de la sesion.",
+    "por_que_importa": "Un cero que no se contrasta con nada es INDISTINGUIBLE de un cero real. Es exactamente por eso que la funcion devuelve null cuando no puede mirar, y por eso TS-12 existe."
+  },
+  "measured": {
+    "lecturas_de_alcance_amplio": 11,
+    "casos": "15 de 15",
+    "instancias_de_CE_017_cerradas": 1,
+    "comportamiento_conservado": {
+      "sujeto terminal presentado en curso": "SIGUE fallando",
+      "sujeto terminal que la linea declara": "pasa, como antes",
+      "lote ABIERTA contra registro cerrado": "SIGUE fallando"
+    },
+    "bateria_completa": "selftest OK · 1551 casos · codigo 0 · salidas/selftest-completo.txt"
+  }
+}

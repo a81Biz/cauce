@@ -1153,15 +1153,31 @@ export function contradiceElRegistro(bloque, allocations) {
   const linea = (pref) => (texto.split(/\r?\n/).find((l) => l.trim().startsWith(pref)) ?? '');
   const fallos = [];
 
-  // «tarea:» — un identificador nombrado ahi se afirma EN CURSO, salvo que la propia linea lo
-  // liste como ya cerrado. Por eso se corta en la primera mencion a estados terminales: el
-  // bloque real enumera las INTEGRADAS despues, y contarlas seria acusar al texto correcto.
+  // «tarea:» — PT-130 · SE LEE EL SUJETO, NO LA LINEA ENTERA.
+  //
+  // La linea afirma UNA tarea en curso —el checkpoint es uno (LEX-R26)— y ese es su SUJETO: el
+  // PRIMER identificador. Todo lo que viene despues es contexto: la tarea anterior, el lote, una
+  // que se cerro, una que espera validacion.
+  //
+  // La version anterior cortaba en la primera palabra de estado terminal y juzgaba TODOS los
+  // identificadores del trozo de delante. Con eso, escribir «los diez commits del cierre citaban
+  // EP-019 estando CLOSED» —para REGISTRAR el defecto que PT-127 arreglaba— hacia fallar
+  // SUITE-R34. La comprobacion acusaba a quien documentaba el hecho que ella vigila, que es
+  // CE-017 y es la unica clase que se hace mas probable cuanto mejor se escribe el ledger.
+  //
+  // EL ARREGLO NO ES ESQUIVAR LA PALABRA. Anclar al sujeto quita el falso positivo sin pedirle
+  // a nadie que deje de nombrar identificadores en prosa — que seria documentar la limitacion
+  // en vez de quitarla.
   const lt = linea('tarea:');
-  const vivasAfirmadas = lt.split(/INTEGRAD|CERRAD|CLOSED|DEFERRED|READY:/i)[0];
-  for (const id of vivasAfirmadas.match(/\b(?:PT|EP)-\d{3}\b/g) ?? []) {
-    const st = estado.get(id);
-    if (ESTADOS_TERMINALES.has(st)) {
-      fallos.push(`«tarea:» afirma que ${id} sigue en curso y el registro dice ${st}`);
+  const sujeto = (lt.match(/\b(?:PT|EP)-\d{3}\b/) ?? [])[0] ?? null;
+  if (sujeto) {
+    const st = estado.get(sujeto);
+    // Se mira si la propia linea DICE que esta cerrada: decirlo es correcto, y acusar al texto
+    // que acierta seria el mismo defecto por el otro lado.
+    const loDeclara = new RegExp(sujeto + '[^.]{0,80}(INTEGRAD|CERRAD|CLOSED|DEFERRED)', 'i')
+      .test(lt);
+    if (ESTADOS_TERMINALES.has(st) && !loDeclara) {
+      fallos.push(`«tarea:» afirma que ${sujeto} sigue en curso y el registro dice ${st}`);
     }
   }
 
@@ -1773,10 +1789,64 @@ export function mergesSinConstancia(merges, constancias, firmantes) {
  * a todas de golpe nace con cientos de fallos, y una comprobacion que nace roja se apaga
  * (PT-023). La tabla crece; lo que la hace util es que NADIE PUEDA QUEDARSE FUERA EN SILENCIO.
  */
+const BS_B = String.fromCharCode(92) + "b";
+const BS_S = String.fromCharCode(92) + "s";
+const BS_D = String.fromCharCode(92) + ".";
+const BS_P = String.fromCharCode(92) + "(";
+const BS_PC = String.fromCharCode(92) + ")";
+const RE_SALTO = new RegExp(String.fromCharCode(92) + "r?" + String.fromCharCode(92) + "n");
+
+/**
+ * PT-130 · AC-04 · las lecturas de ALCANCE AMPLIO, enumeradas.
+ *
+ * Una lectura de alcance amplio busca una marca en TODO un texto y concluye algo sobre un hecho
+ * concreto. Es barata y casi siempre acierta — hasta que el texto DESCRIBE el hecho que la marca
+ * senala, y entonces acusa a quien lo documenta (CE-017).
+ *
+ * NO SE ARREGLAN AQUI. Se ENUMERAN, que es lo que RULE-06 pide: se declara lo medido y no se
+ * promete lo no medido. Arreglar once lecturas de golpe, sin un caso que sostenga cada una,
+ * seria cambiar once comportamientos a ciegas.
+ *
+ * QUE CUENTA COMO ALCANCE AMPLIO, y por que asi: una variable cuyo nombre dice que es un archivo
+ * o un cuerpo entero —txt, texto, cuerpo, contenido, md, doc— sobre la que se pregunta
+ * «.includes(» o «.test(». Es una heuristica y se dice: no enumera intenciones, enumera FORMAS.
+ * Una lectura amplia legitima entra en la lista igual, y sacarla exige mirarla.
+ */
+export function lecturasDeAlcanceAmplio(fuentes) {
+  if (!fuentes) return null;
+  const RE = new RegExp(
+    '(' + BS_B + '(?:txt|texto|cuerpo|contenido|md|doc|fuente|bloque)[A-Za-z]*)'
+    + BS_S + '*' + BS_D + 'includes' + BS_P,
+    'g');
+  const RE2 = new RegExp(
+    '(' + BS_B + '[A-Za-z_]*(?:RE|Re|regex|patron)[A-Za-z_]*)' + BS_D + 'test' + BS_P
+    + BS_S + '*(?:txt|texto|cuerpo|contenido|md|doc|fuente|bloque)[A-Za-z]*' + BS_S + '*' + BS_PC,
+    'g');
+  const salida = [];
+  for (const { archivo, texto } of fuentes) {
+    String(texto).split(RE_SALTO).forEach((linea, i) => {
+      const l = linea.trim();
+      if (l.startsWith('//') || l.startsWith('*') || l.startsWith('/*')) return;
+      const m = RE.exec(linea) ?? RE2.exec(linea);
+      RE.lastIndex = 0; RE2.lastIndex = 0;
+      if (m) salida.push({ archivo, linea: i + 1, sobre: m[1], texto: l.slice(0, 120) });
+    });
+  }
+  return salida;
+}
+
 export const SUJETOS = {
   'SUITE-R09': {
     establece: 'ninguna linea anterior del ledger desaparecio ni cambio desde el tag',
     noEstablece: 'correccion legitima de una falsificacion',
+  },
+  // PT-130 · la lectura se ancla al SUJETO de cada linea. Decir aqui QUE evalua es lo que impide
+  // que alguien lea el rojo como «el bloque entero contradice al registro».
+  'SUITE-R34': {
+    establece: 'el SUJETO de «tarea:» —el primer identificador— no esta terminal en el registro '
+      + 'mientras la linea lo presenta en curso, y ningun lote declarado ABIERTA o CERRADA se '
+      + 'contradice con su estado',
+    noEstablece: 'NO evalua los demas identificadores que la linea mencione',
   },
   'EXEC-R04': {
     establece: 'existe constancia con un nombre de firmantes para cada merge a la principal',

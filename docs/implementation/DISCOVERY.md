@@ -82,10 +82,11 @@
 | PT-122 | BUG | S2 | DRAFT | EP-020 | El cierre de un lote pasa por el comando, no por la mano |
 | PT-123 | BUG | S1 | DONE | EP-020 | BACKLOG.md dice que se deriva del registro y nada lo deriva |
 | PT-124 | BUG | S1 | DONE | EP-020 | tracker asignar rechaza tres de los cinco tipos que LEXICON declara |
-| PT-125 | INVESTIGATION | S1 | DRAFT | EP-020 | Clasificar las 131 entradas cerradas en EVENTOS.jsonl |
+| PT-125 | INVESTIGATION | S1 | DONE | EP-020 | Clasificar las 131 entradas cerradas en EVENTOS.jsonl |
 | PT-127 | BUG | S1 | VALIDATION_PENDING | EP-020 | Nada detecta el trabajo sin allocation: solo lo corta una persona |
 | PT-129 | BUG | S2 | DONE | EP-020 | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
-| PT-130 | BUG | S2 | DRAFT | EP-020 | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
+| PT-130 | BUG | S2 | VALIDATION_PENDING | EP-020 | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
 | PT-131 | BUG | S1 | DONE | EP-020 | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
 | PT-132 | BUG | S1 | DONE | EP-020 | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
 | PT-133 | BUG | S2 | DONE | EP-020 | parada exige plataforma para escribir en TRANSICIONES.log |
+| PT-135 | BUG | S2 | DRAFT | EP-020 | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |
