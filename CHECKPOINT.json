@@ -3,20 +3,24 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "3c860d6d5f4094ff1f7bc2dc0f0c97256c775da9",
   "sha_corto": "3c860d6",
   "sucio": true,
   "archivos": [
+    "changes/PT-123-backlog-no-tiene-generador/discovery.md",
     "changes/PT-123-backlog-no-tiene-generador/intake.md",
+    "changes/PT-123-backlog-no-tiene-generador/strategy.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-22"
 }
