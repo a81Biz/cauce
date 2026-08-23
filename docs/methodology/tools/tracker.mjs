@@ -3463,6 +3463,58 @@ function sellar() {
     di(`  inventario         las ${desviadas.total} cifras coinciden con el arbol.`);
   }
 
+  // PT-126 · LA MATRIZ SE MIDE DONDE YA SE MIRA. Es el patron de PT-110: la deuda de sellado, el
+  // inventario y el grafo ya se recorren aqui, y una medicion en un comando nuevo es una medicion
+  // que nadie ejecuta — CE-007, «existe la herramienta y nada la echa en falta», siete instancias.
+  //
+  // TRES DESENLACES, no dos. Una MATRIZ.md ausente NO es una matriz sin candidatos: la primera
+  // dice «no se pudo mirar» y la segunda «no hay nada que corregir», y decirlas igual es lo que
+  // RULE-06 prohibe.
+  const matriz = (() => {
+    try {
+      const txt = readFileSync(join(IMPL, 'MATRIZ.md'), 'utf8');
+      // Se leen las filas de la tabla, que es lo que matriz.mjs deriva. La ultima columna dice
+      // si la regla dueña puede fallar; la penultima, quien es dueña.
+      const filas = [...txt.matchAll(/^\|\s*`(CE-\d{3})`\s*\|([^|]*)\|\s*(\d+)\s*\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|/gm)]
+        .map((m) => ({
+          id: m[1], nombre: m[2].trim(), veces: Number(m[3]),
+          duena: m[7].trim(), verificador: m[8].trim(),
+        }));
+      if (!filas.length) return null;
+      return filas;
+    } catch { return null; }
+  })();
+
+  di('');
+  if (matriz === null) {
+    di('  matriz de eventos  SIN EVALUAR — no se pudo leer MATRIZ.md o no tiene filas (RULE-06).');
+    di('                     Se deriva: node tools/matriz.mjs. Una matriz ausente NO es una');
+    di('                     matriz sin candidatos.');
+  } else {
+    // EL UMBRAL ES UN PARAMETRO DECLARADO, no un numero escondido (SUITE-R38). Vive en el
+    // registro para que un proyecto pueda subirlo o bajarlo y que se vea que lo hizo.
+    const umbralClase = Number(reg?.tracker?.umbral_clase_sin_dueno ?? 3);
+    const huerfanas = matriz.filter((f) => f.veces >= umbralClase && f.duena === '**—**');
+    const sinVerificador = matriz.filter((f) => f.duena !== '**—**'
+      && f.verificador.startsWith('**NO**'));
+    di(`  matriz de eventos  ${matriz.length} clases · umbral ${umbralClase} para ser candidata`);
+    if (huerfanas.length) {
+      di(`                     ${huerfanas.length} sin regla que las reclame y con ${umbralClase}+ instancias:`);
+      for (const f of huerfanas.sort((a, b) => b.veces - a.veces)) {
+        di(`                       ${f.id}  ${f.veces}x  ${f.nombre}`);
+      }
+    } else {
+      di('                     ninguna clase sin dueño llega al umbral.');
+    }
+    // Este caso es PEOR que no tener regla: hay obligacion y no puede fallar (P-003).
+    for (const f of sinVerificador) {
+      di(`                     ${f.id}: tiene regla (${f.duena}) y NADA EMITE POR ELLA.`);
+    }
+    if (huerfanas.length || sinVerificador.length) {
+      di('                     No se promueve nada: son CANDIDATOS y decide una persona (FPGE-R04).');
+    }
+  }
+
   if (deriva === null) di('  grafo              SIN MANIFIESTO — no hay con que comparar (FDGE-R43).');
   else if (deriva.length) {
     di(`  grafo              SUSPECT · ${deriva.length} de ${Object.keys(man).length} archivos cambiaron`);

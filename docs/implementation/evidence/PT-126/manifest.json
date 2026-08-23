@@ -1,0 +1,100 @@
+{
+  "pt": "PT-126",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "tracker sellar mide la matriz y la publica junto a las otras cosas que ya recorre",
+      "tests": [
+        "selftest.sh:sellar mide la matriz",
+        "selftest.sh:…y nombra la clase que llega al umbral",
+        "selftest.sh:…y NO la que no llega",
+        "selftest.sh:…y una regla que no puede fallar se nombra",
+        "selftest.sh:…y no se promueve nada"
+      ],
+      "evidence": [
+        "salidas/casos-126.txt",
+        "salidas/sellar.txt"
+      ],
+      "verified": true,
+      "nota": "El patron de PT-110: se mide DONDE YA SE MIRA. Un comando nuevo habria sido la OCTAVA instancia de CE-007 —«existe la herramienta y nada la echa en falta»— construida dentro del lote que las cuenta."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Toda entrada nueva de HISTORY.log declara su clase de evento, y verify-fdge avisa cuando falta",
+      "tests": [
+        "selftest.sh:una entrada que declara su clase, en verde",
+        "selftest.sh:…y una que no la declara, AVISA",
+        "selftest.sh:…y no la hace fallar",
+        "selftest.sh:…y el aviso dice que es opcional"
+      ],
+      "evidence": [
+        "salidas/casos-126.txt"
+      ],
+      "verified": true,
+      "nota": "AVISA, NO FALLA: RIGE_DESDE acota LEX-R31 a la 13.0.0, asi que las entradas anteriores no pasan a estar incompletas (SUITE-R09). Es CE-014 evitado a proposito en la comprobacion que nace para contar CE-014. Y declararla es OPCIONAL: exigirla siempre haria que se inventara una clase para callar el aviso."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "FPGE lee MATRIZ.md y toda clase con recuento >= 3 sin regla con verificador entra como candidato, sin que nadie la transcriba",
+      "tests": [
+        "selftest.sh:FPGE recolecta desde MATRIZ.md",
+        "selftest.sh:…citando la clase por su CE-nnn",
+        "selftest.sh:…y no repite el numero del umbral"
+      ],
+      "evidence": [
+        "salidas/casos-126.txt"
+      ],
+      "verified": true,
+      "nota": "El criterio junta en una frase DOS situaciones que la matriz separa: «sin regla que la reclame» (6 clases) y «con regla y NADA EMITE por ella» (1, CE-002 / SUITE-R59). Las dos entran como candidato pero se publican distintas, porque la segunda es PEOR: parece cubierta."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El umbral 3 esta DECLARADO con su motivo y es un parametro, no un numero escondido en el codigo",
+      "tests": [
+        "selftest.sh:el umbral sale del registro",
+        "selftest.sh:…y declara su motivo",
+        "selftest.sh:…y sellar lo publica"
+      ],
+      "evidence": [
+        "salidas/casos-126.txt",
+        "salidas/sellar.txt"
+      ],
+      "verified": true,
+      "nota": "Vive en REGISTRY.tracker.umbral_clase_sin_dueno con su motivo al lado: sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio, y subirlo o bajarlo es un acto visible."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 4,
+    "distinct_reds": 4,
+    "evidence": "salidas/inversa.txt",
+    "nota": "Cada supresion sobre una copia de la herramienta real, y cada una tumba su escenario: el umbral, el desenlace SIN EVALUAR, la separacion regla/verificador y el aviso de LEX-R31."
+  },
+  "defectos_al_construirlo": [
+    {
+      "que": "«rige» no estaba en ambito en checkHistory: ReferenceError y verify-fdge entero reventaba.",
+      "arreglo": "rigeGlobal, que ademas es lo correcto: la clase la exige la SUITE desde la 13.0.0, no cada tarea desde su propia version."
+    },
+    {
+      "que": "Los casos colgaban la bateria contra GitHub: llamaban a «sellar» sobre el repositorio REAL, y sellar termina consultando la plataforma. El bloque estuvo mas de tres minutos sin imprimir una linea.",
+      "arreglo": "Rehechos sobre el proyecto de mentira, con una MATRIZ.md SINTETICA escrita en el propio caso. Un arnes que depende de la red no es un arnes: daria rojo el dia que GitHub este lento, y ese rojo no diria nada sobre el marco. Y con la matriz real los casos caducarian en cuanto la matriz cambiara — CE-010 en el arnes que la publica."
+    }
+  ],
+  "measured": {
+    "clases": 17,
+    "umbral": 3,
+    "candidatas_sin_dueno": 6,
+    "con_regla_y_sin_verificador": 1,
+    "casos": "17 de 17",
+    "candidatos_publicados": {
+      "CE-004": "8x · probar donde trabajo, no donde se decide",
+      "CE-001": "7x · el proxy en lugar del hecho",
+      "CE-003": "7x · un argumento se cuela por la deteccion de ROOT",
+      "CE-005": "5x · verde por no haber mirado",
+      "CE-015": "4x · el cierre destapa mas que el reparto",
+      "CE-007": "3x · existe la herramienta y nada la echa en falta",
+      "CE-002": "tiene regla (SUITE-R59) y NADA EMITE POR ELLA"
+    },
+    "bateria_completa": "selftest OK · 1536 casos · codigo 0 · salidas/selftest-completo.txt"
+  }
+}

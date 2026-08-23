@@ -31,7 +31,9 @@
     "pt_at_generation": 93
   },
   "tracker": {
-    "plataforma": "github"
+    "plataforma": "github",
+    "umbral_clase_sin_dueno": 3,
+    "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
     "PT": 135,
@@ -3388,13 +3390,31 @@
       "id": "PT-126",
       "slug": "la-matriz-no-envejece",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "severity": "S2",
       "epic": "EP-020",
       "title": "sellar mide la matriz y FPGE la lee",
       "issue": 244,
-      "type": "CHORE"
+      "type": "CHORE",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2009,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
     },
     {
       "id": "PT-127",

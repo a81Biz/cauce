@@ -1997,6 +1997,72 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-126 · EP-020 · sellar mide la matriz y FPGE la lee ─────────────────────────────────────
+#
+# Lo pidio el firmante: «teniendo las explicaciones y la matriz tendremos una nutrida base de
+# conocimiento y estas reglas se pueden aplicar a cualquier trabajo».
+#
+# Es el cierre del bucle: PT-118 nombro las clases, PT-125 las aplico, PT-119 las conto, y aqui
+# la cuenta se convierte en algo que alguien VE sin ir a buscarlo.
+#
+# SE MIDE SOBRE EL PROYECTO DE MENTIRA, como el resto de la bateria. La primera version llamaba
+# a «sellar» sobre el repositorio real: sellar termina consultando la plataforma, asi que los
+# casos colgaban contra la red — un arnes que depende de GitHub no es un arnes.
+sel126() {
+  local d="$WORK/sel126"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  cp "$RAIZ/docs/implementation/REGISTRY.json" "$d/docs/implementation/" 2>/dev/null
+  [ -n "${1:-}" ] && cp "$1" "$d/docs/implementation/MATRIZ.md"
+  (cd "$d" && node "$SUITE/tools/tracker.mjs" sellar 2>&1 | sed -n '/matriz de eventos/,/^$/p')
+}
+# Una matriz de mentira con las tres situaciones que importan, escrita aqui para que el caso no
+# dependa de cuantas clases tenga el repositorio hoy.
+mat126() {
+  cat > "$WORK/mat126.md" <<'MAT'
+| Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
+|:---|:---|--:|--:|:---|:---|:---|:---|
+| `CE-901` | Se repite y nadie la reclama | 5 | 5 | 2026-01-01 | 2026-02-02 | **—** | **sin dueño** |
+| `CE-902` | Se repite poco y nadie la reclama | 1 | — | 2026-01-01 | 2026-01-01 | **—** | **sin dueño** |
+| `CE-903` | Tiene regla que no puede fallar | 4 | — | 2026-01-01 | 2026-01-01 | `X-R01` | **NO**: la regla existe y nada emite por ella |
+MAT
+  echo "$WORK/mat126.md"
+}
+
+# AC-01 · se mide DONDE YA SE MIRA. El patron de PT-110: una medicion en un comando nuevo es una
+# medicion que nadie ejecuta — CE-007, «existe la herramienta y nada la echa en falta», 7 veces.
+chk   "sellar mide la matriz"                    "matriz de eventos"  sel126 "$(mat126)"
+chk   "…y nombra la clase que llega al umbral"   "CE-901"             sel126 "$(mat126)"
+chkno "…y NO la que no llega"                    "CE-902"             sel126 "$(mat126)"
+# El caso PEOR que no tener regla: hay obligacion y NO PUEDE FALLAR (P-003).
+chk   "…y una regla que no puede fallar se nombra"  "NADA EMITE POR ELLA"  sel126 "$(mat126)"
+chk   "…y no se promueve nada"                     "decide una persona"    sel126 "$(mat126)"
+
+# AC-04 · el umbral es un PARAMETRO DECLARADO, no un numero escondido en el codigo (SUITE-R38).
+chk   "el umbral sale del registro"   "umbral_clase_sin_dueno"  cat "$RAIZ/docs/implementation/REGISTRY.json"
+chk   "…y declara su motivo"          "menor de esas cuentas fue tres"  cat "$RAIZ/docs/implementation/REGISTRY.json"
+chk   "…y sellar lo publica"          "para ser candidata"      sel126 "$(mat126)"
+
+# AC-03 · RULE-06 · TRES desenlaces. Una MATRIZ.md ausente NO es una matriz sin candidatos: la
+# primera dice «no se pudo mirar» y la segunda «no hay nada que corregir».
+chk   "sin MATRIZ.md dice SIN EVALUAR"       "SIN EVALUAR"  sel126
+chk   "…y no lo confunde con «no hay nada»"  "NO es una"    sel126
+
+# AC-02 · toda entrada nueva declara su clase, y verify-fdge AVISA cuando falta. Avisa y NO
+# falla: RIGE_DESDE acota LEX-R31 a la 13.0.0, asi que las 163 anteriores no pasan a estar
+# incompletas (SUITE-R09). Es CE-014 evitado a proposito en la comprobacion que cuenta CE-014.
+vf126() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" "$@" 2>&1); }
+chk   "una entrada que declara su clase, en verde"  "declara «Clase de evento"     vf126 PT-119
+chk   "…y una que no la declara, AVISA"             "no declara «Clase de evento"  vf126 PT-129
+chkno "…y no la hace fallar"                        "✗ LEX-R31"                    vf126 PT-129
+# Declararla es OPCIONAL a proposito: exigirla siempre haria que se inventara una clase para
+# callar el aviso, que es peor que no tener aviso.
+chk   "…y el aviso dice que es opcional"            "Es opcional"                  vf126 PT-129
+
+# AC-03 · FPGE lee la matriz SIN QUE NADIE LA TRANSCRIBA.
+chk   "FPGE recolecta desde MATRIZ.md"   "MATRIZ.md"  cat "$SUITE/FPGE-Implementation.md"
+chk   "…citando la clase por su CE-nnn"  "CE-nnn"     cat "$SUITE/FPGE-Implementation.md"
+# Y el umbral NO se repite alli: dos numeros que puedan divergir es CE-008.
+chkno "…y no repite el numero del umbral"  "umbral_clase_sin_dueno.*3\|≥ 3"  cat "$SUITE/FPGE-Implementation.md"
+
 # ── PT-119 · EP-020 · MATRIZ.md se deriva, no se escribe ──────────────────────────────────────
 #
 # Lo pidio el firmante: «quiero la matriz para saber que falta por corregir, que errores se

@@ -76,6 +76,15 @@ QA/                         LEE   QA-DEFECTS.md · qa-score-history.json
     FDGE  INCIDENTS.log → incidentes y su estado
     FDGE  DISCOVERY.md / ENRICHMENT.md / REFACTOR_SCOPE.md → trabajo especificado, no hecho
     FDGE  BACKLOG.md + changes/ → trabajo YA en vuelo: no proponerlo de nuevo
+    FDGE  MATRIZ.md → toda clase de evento con recuento ≥ el umbral declarado y SIN regla
+                      que la reclame entra como CANDIDATO, y se cita por su `CE-nnn`.
+                      La cifra NO se transcribe: la fila de la matriz es la evidencia,
+                      y la matriz se deriva (`LEX-R31`, `LEX-R32`).
+                      Y hay un caso PEOR que no tener regla, y también entra: una clase
+                      con regla dueña cuya columna dice «la regla existe y nada emite
+                      por ella» — una obligación que no puede fallar.
+                      El umbral vive en `REGISTRY.tracker.umbral_clase_sin_dueno`; no se
+                      escribe aquí, para que no haya dos números que puedan divergir.
 
 [3] SÍNTESIS DE CANDIDATOS
 

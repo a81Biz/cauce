@@ -1,0 +1,13 @@
+  matriz de eventos  17 clases · umbral 3 para ser candidata
+                     6 sin regla que las reclame y con 3+ instancias:
+                       CE-004  8x  Probar donde trabajo, no donde se decide
+                       CE-001  7x  El proxy en lugar del hecho
+                       CE-003  7x  Un argumento se cuela por la detección de `ROOT`
+                       CE-005  5x  Verde por no haber mirado
+                       CE-015  4x  El cierre destapa más que el reparto
+                       CE-007  3x  Existe la herramienta y nada la echa en falta
+                     CE-002: tiene regla (`SUITE-R59`) y NADA EMITE POR ELLA.
+                     No se promueve nada: son CANDIDATOS y decide una persona (FPGE-R04).
+  grafo              SUSPECT · 6 de 17 archivos cambiaron
+                     Regeneralo antes de sellar: /graphify (FDGE-R32, lo dispara el humano)
+

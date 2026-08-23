@@ -7881,3 +7881,84 @@ LO QUE NO ESTABLECE:
   decide una persona (FPGE-R04).
 · Que CE-005 no tenga dueño de verdad. El ledger se la atribuye a RULE-06, que vive en
   11-Conventions.md y NO se lee: AC-04 dice RULES.md. El limite queda declarado.
+
+## PT-126 — Sellar mide la matriz, y FPGE la lee
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — cierra la cadena: PT-118 nombro, PT-125 aplico, PT-119 conto, esta hace que se vea
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · G4 pendiente
+Clase de evento: CE-007
+
+Lo pidio el firmante: «teniendo las explicaciones y la matriz tendremos una nutrida base de
+conocimiento y estas reglas se pueden aplicar a cualquier trabajo».
+
+EL BUCLE ESTABA ABIERTO POR EL ULTIMO TRAMO. La matriz existia y NADA LA MIRABA — que es CE-007,
+«existe la herramienta y nada la echa en falta», con SIETE instancias declaradas en el ledger.
+Construir una octava dentro del lote que las cuenta habria sido el desenlace mas ironico posible.
+
+POR QUE DENTRO DE «SELLAR» Y NO EN UN COMANDO NUEVO. Es el patron de PT-110: se mide DONDE YA SE
+MIRA. sellar ya recorre la deuda de sellado, el inventario, el grafo y los documentos de entrada,
+y se ejecuta ANTES DE UNA VERSION, que es el momento en que conviene saber que se repite.
+
+DOS SITUACIONES, NO UNA, y la segunda es PEOR porque parece cubierta:
+
+  sin regla que la reclame           6 clases
+  con regla y NADA EMITE por ella    1 clase — CE-002 / SUITE-R59
+
+AC-03 las junta en una frase; la implementacion las separa y lo dice, en vez de fundirlas para que
+el criterio encaje sin roce.
+
+LO QUE EL UMBRAL SELECCIONA HOY, y ninguno lo eligio nadie:
+
+  CE-004  8x  Probar donde trabajo, no donde se decide
+  CE-001  7x  El proxy en lugar del hecho
+  CE-003  7x  Un argumento se cuela por la deteccion de ROOT
+  CE-005  5x  Verde por no haber mirado
+  CE-015  4x  El cierre destapa mas que el reparto
+  CE-007  3x  Existe la herramienta y nada la echa en falta
+  CE-002      tiene regla (SUITE-R59) y NADA EMITE POR ELLA
+
+EL UMBRAL ES UN PARAMETRO DECLARADO, no un numero escondido: vive en
+REGISTRY.tracker.umbral_clase_sin_dueno CON SU MOTIVO al lado — sale de que las cuatro clases hoy
+CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio, y
+subirlo o bajarlo es un acto visible.
+
+Y EL AVISO DE LEX-R31 AVISA, NO FALLA. RIGE_DESDE lo acota a la 13.0.0, asi que las entradas
+anteriores no pasan a estar incompletas (SUITE-R09): es CE-014 evitado A PROPOSITO en la
+comprobacion que nace para contar CE-014. Declarar la clase es OPCIONAL, porque exigirla siempre
+haria que se inventara una clase para callar el aviso — peor que no tener aviso.
+
+DOS DEFECTOS APARECIERON CONSTRUYENDOLO:
+
+  1  «rige» no estaba en ambito en checkHistory: ReferenceError, y verify-fdge ENTERO reventaba.
+     La correccion —rigeGlobal— es ademas la correcta: la clase la exige la SUITE desde la
+     13.0.0, no cada tarea desde su propia version.
+  2  LOS CASOS COLGABAN LA BATERIA CONTRA GITHUB. La primera version llamaba a «sellar» sobre el
+     repositorio REAL, y sellar termina consultando la plataforma: el bloque estuvo mas de tres
+     minutos sin imprimir una linea y hubo que matarlo. UN ARNES QUE DEPENDE DE LA RED NO ES UN
+     ARNES: daria rojo el dia que GitHub este lento, y ese rojo no diria nada sobre el marco.
+     Rehechos sobre el proyecto de mentira, con una MATRIZ.md SINTETICA — con la real, los casos
+     caducarian en cuanto la matriz cambiara, que es CE-010 en el arnes que la publica.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · FPGE-Implementation.md ·
+  docs/implementation/REGISTRY.json · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-126/ · manifest.json · self-review.md ·
+  salidas/casos-126.txt · salidas/inversa.txt · salidas/sellar.txt
+
+Criterios AC-01..AC-04 ✓, los cuatro. Diecisiete escenarios de diecisiete. Inversa: cuatro
+supresiones, cuatro escenarios distintos.
+
+LO QUE NO ESTABLECE:
+
+· Que las seis huerfanas deban tener regla. Son CANDIDATOS: decide una persona (FPGE-R04), y el
+  propio mensaje de sellar lo dice.
+· Que declarar la clase sea obligatorio. Es opcional a proposito.
+· Que el umbral 3 sea el correcto. Es un juicio declarado, con su motivo, y parametrizable.
+· Que FPGE haya corrido con esta fuente. Establece que la recoleccion la DECLARA; ejecutar FPGE
+  es otra cosa, y PT-092 ya midio lo que cuesta.

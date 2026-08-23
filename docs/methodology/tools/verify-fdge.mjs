@@ -2177,6 +2177,28 @@ function checkHistory(pt, rel, type, { gate }) {
   // mitad y dejar la otra leyendose de la entrada vieja seria peor que no corregir.
   const campo = (re) => (cuerpoCorrige?.match(re)?.[1]) ?? cuerpoOriginal.match(re)?.[1];
 
+  // PT-126 · LEX-R31 · la clase de evento de una entrada nueva.
+  //
+  // AVISA, NO FALLA, y la frontera es la version: RIGE_DESDE acota LEX-R31 a la 13.0.0, asi que
+  // las entradas anteriores no pasan a estar incompletas por no declarar clase (SUITE-R09). Es
+  // CE-014 evitado a proposito en la comprobacion que nace para contar CE-014.
+  //
+  // Y declararla es OPCIONAL: PHASE 8 la pide «si el trabajo cae en una de LEXICON §4.4». No todo
+  // trabajo repite un tropiezo, y exigirla siempre haria que se inventara una clase para callar
+  // el aviso — que es peor que no tener el aviso.
+  // `rigeGlobal` y no `rige`: aqui no hay una version del PT en ambito, y usar la del proyecto
+  // es lo correcto — la clase de evento la exige la SUITE desde la 13.0.0, no cada tarea.
+  if (rigeGlobal('LEX-R31')) {
+    const clase = campo(/^Clase de evento:\s*(CE-\d{3})\s*$/im);
+    if (clase === undefined) {
+      warn('LEX-R31', `${pt}: su entrada de HISTORY.log no declara «Clase de evento: CE-NNN». `
+        + 'Es opcional —no todo trabajo repite un tropiezo— pero sin ella la matriz de eventos '
+        + 'no puede contar esta tarea, y lo que no se cuenta no se corrige.');
+    } else {
+      ok('LEX-R31', `${pt}: declara «Clase de evento: ${clase}».`);
+    }
+  }
+
   // FDGE-R44 · marcado estructural — es lo que hace computable FDGE-R43
   const estructural = campo(/^Estructural:\s*(sí|si|no)\s*$/im);
   if (estructural === undefined) {
