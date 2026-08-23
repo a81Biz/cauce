@@ -15,7 +15,7 @@ Proyectado el 2026-08-23 · 22 allocation(es) viva(s).
 | PT-114 | BUG | VALIDATION_PENDING | 8 | — | — | f7973b8 |
 | PT-115 | FEATURE | DONE | 8 | — | — | 56f9b37 |
 | PT-116 | FEATURE | DONE | 8 | — | — | 8352fde |
-| PT-117 | FEATURE | DRAFT | 3 | — | — | 922379b |
+| PT-117 | FEATURE | DRAFT | 4 | — | — | 922379b |
 | PT-118 | FEATURE | DRAFT | 1 | — | — | 922379b |
 | PT-119 | FEATURE | DRAFT | 1 | — | — | 922379b |
 | PT-120 | BUG | DRAFT | 1 | — | — | 922379b |

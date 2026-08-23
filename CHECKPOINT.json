@@ -3,23 +3,32 @@
   "type": "FEATURE",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "8352fdebeb759a2813074ff22f771376fbe0bdff",
   "sha_corto": "8352fde",
   "sucio": true,
   "archivos": [
     "changes/PT-117-la-parada-no-depende-de-la-memoria/intake.md",
+    "changes/PT-117-la-parada-no-depende-de-la-memoria/out-of-scope.md",
     "changes/PT-117-la-parada-no-depende-de-la-memoria/strategy.md",
+    "changes/PT-117-la-parada-no-depende-de-la-memoria/tasks.md",
+    "changes/PT-117-la-parada-no-depende-de-la-memoria/test-scenarios.md",
+    "changes/PT-117-la-parada-no-depende-de-la-memoria/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-23"
 }
