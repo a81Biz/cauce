@@ -88,3 +88,4 @@
 | PT-130 | BUG | S2 | DRAFT | EP-020 | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
 | PT-131 | BUG | S1 | VALIDATION_PENDING | EP-020 | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
 | PT-132 | BUG | S1 | VALIDATION_PENDING | EP-020 | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
+| PT-133 | BUG | S2 | VALIDATION_PENDING | EP-020 | parada exige plataforma para escribir en TRANSICIONES.log |

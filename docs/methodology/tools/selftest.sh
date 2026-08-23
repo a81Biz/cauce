@@ -3552,6 +3552,152 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-117 · AC-03 · «--pendientes» es la consulta que el hook Stop invoca.
+#
+# CASI SE REPITE PT-133 AQUI MISMO: el hook iba a llamar a «pendiente --parada», UNA BANDERA QUE
+# NO EXISTE. Un hook que invoca algo inexistente es una segunda red que no puede ejecutarse —
+# exactamente el defecto que PT-133 acaba de arreglar, en otro archivo. Lo paro probar el comando
+# ANTES de escribirlo en la configuracion.
+#
+# La lista se DERIVA del registro y de RIGE_DESDE. No hay estado nuevo: un segundo sitio donde
+# apuntar que algo esta pendiente seria un hecho con dos nombres (LEX-R22).
+build_fixture
+reg_set "r.allocations.push({id:'PT-777',slug:'sin-citar',status:'DRAFT',phase:1,suite_version:'13.0.0'})"
+chk   "--pendientes ve la que no cita su parada"  "PT-777" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+# INVERSA · con el enlace escrito NO aparece. Sin ella, el caso pasaria igual si «--pendientes»
+# enumerara TODAS las allocations, que es el motivo contrario al que dice medir.
+build_fixture
+reg_set "r.allocations.push({id:'PT-777',slug:'ya-cita',status:'DRAFT',phase:1,suite_version:'13.0.0',origen_parada:{de:'PT-001',motivo:'hallazgo'}})"
+chkno "…y la que si la cita, no"                  "PT-777" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+# Y lo anterior a la regla tampoco: --pendientes usa el MISMO alcance que el verificador. Si
+# usaran alcances distintos, el hook avisaria de trabajo que la compuerta no exige — y un aviso
+# que no corresponde a nada ensena a ignorar el aviso.
+build_fixture
+reg_set "r.allocations.push({id:'PT-777',slug:'vieja',status:'DRAFT',phase:1,suite_version:'12.0.0'})"
+chkno "…ni lo anterior a la regla"                "PT-777" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+# El hook vive en .claude/settings.json, FUERA del paquete: un proyecto destino que instale cauce
+# NO LO RECIBE. Se comprueba que la bandera que invoca EXISTE — que es lo unico comprobable desde
+# aqui, y decir el limite es el punto de AC-03 (SUITE-R26).
+build_fixture
+chk   "el hook invoca una bandera que existe"     "ninguna allocation alcanzada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+build_fixture
+
+# PT-133 · «parada» exigia plataforma para escribir en un archivo local.
+#
+# La accion no estaba en SIN_PLATAFORMA, asi que la herramienta salia ANTES de llegar a su propio
+# codigo. La rama que escribe en TRANSICIONES.log ESTA ESCRITA —es el «else» de la publicacion—
+# pero era INALCANZABLE: codigo correcto detras de una puerta cerrada.
+#
+# PT-116 lo declaro cumplido con verified: true, y su evidencia fue «la rama sin
+# adaptador.comentar»: se comprobo que la rama EXISTE, no que se EJECUTA. Es la clase que PT-124
+# nombro —buscar el texto en el fuente no comprueba el hecho— y la TERCERA instancia en dos
+# tareas seguidas.
+#
+# Y PT-084 habia medido este defecto EXACTO en «avanzar»: exigia plataforma y un proyecto sin ella
+# no podia avanzar ni una fase. PT-116 CITO ese precedente en su propio AC-03 y volvio a
+# cometerlo en el archivo de al lado, en la misma sesion. SUITE-R22 declara soportado el equipo
+# de una sola persona: sin este arreglo, ese proyecto no puede registrar una sola parada.
+#
+# El caso EJECUTA la rama sobre el fixture, que no declara plataforma. Que la ejecute es el punto:
+# es justo lo que no se hizo la primera vez.
+build_fixture
+printf 'una parada en un proyecto sin tablero\n' > "$WORK/nota.txt"
+chk   "parada corre sin plataforma declarada"     "TRANSICIONES.log" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace continua 2>&1' _ "$WORK"
+# Y lo escribe DE VERDAD: que el comando no falle no prueba que el ledger tenga la parada.
+chk   "…y la parada queda en el ledger"           "PARADA" \
+  cat "$WORK/docs/implementation/TRANSICIONES.log"
+# INVERSA · con plataforma sigue publicando en el issue. El arreglo NO cambia la ruta que ya
+# funcionaba: sin esta inversa, «meter la accion en SIN_PLATAFORMA» podria haber apagado el
+# espejado sin que nada lo dijera (SUITE-R35).
+build_fixture
+reg_set "r.tracker={plataforma:'github'}"
+printf 'x\n' > "$WORK/nota.txt"
+chk   "…y con plataforma toma la otra rama"       "debe espejarse" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace continua 2>&1' _ "$WORK"
+build_fixture
+
+# PT-117 · FDGE-R55 deja de ser una recomendacion.
+#
+# PT-116 construyo «tracker parada» y lo dejo SIN EXIGIR. Un comando que existe y nadie invoca no
+# cambia nada, y las OCHO tareas cerradas de EP-020 lo demuestran: LA HERRAMIENTA EXISTIA EN LAS
+# OCHO. SUITE-R26 llama a eso «una recomendacion».
+#
+# T-01 · la allocation nace declarando bajo que version se abre. NO es un campo mas: `checkPT`
+# deriva el alcance de intake -> registro -> '0.0.0', y una allocation RECIEN CREADA no tiene
+# intake. Sin este campo cae a '0.0.0', ninguna regla nueva la alcanza, y la recien creada es
+# JUSTO la que FDGE-R55 tiene que cazar: la comprobacion habria salido VERDE POR CONSTRUCCION
+# sobre su propio caso de uso.
+build_fixture
+reg_set "r.suite_version='13.0.0'"
+chk   "la allocation nace con su suite_version"   "suite_version: 13.0.0" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs asignar PT --slug x --ver 2>&1' _ "$WORK"
+# INVERSA · si la version NO se puede leer no se inventa (RULE-06). Un '0.0.0' escrito a proposito
+# afirmaria que la allocation nacio antes de todo, y eso apagaria comprobaciones EN SILENCIO.
+# Ausente se distingue de falso; un valor inventado, no.
+build_fixture
+reg_set "delete r.suite_version"
+chk   "…y sin version legible, SIN EVALUAR"       "SIN EVALUAR" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs asignar PT --slug x --ver 2>&1' _ "$WORK"
+# T-02 · el enlace es un HECHO DEL REGISTRO, no una nota que haya que leer. Se comprueba contra el
+# registro y no contra los comentarios del issue: un verificador que necesitara red para decidir
+# si una tarea cumple no podria correr en un repositorio sin plataforma, y SUITE-R22 declara ese
+# caso soportado. El registro asigna (SUITE-R08); el tablero espeja (SUITE-R35).
+build_fixture
+printf 'un hallazgo que abre trabajo\n' > "$WORK/nota.txt"
+chk   "«abre» deja el enlace en la que nace"      "origen_parada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace abre --abre PT-002 2>&1' _ "$WORK"
+chk   "…y el enlace queda ESCRITO en el registro" '"de": "PT-001"' \
+  cat "$WORK/docs/implementation/REGISTRY.json"
+# TS-05 · las precondiciones de plataforma van ANTES de escribir. Estaban DENTRO del if que
+# publica, o sea DESPUES del guardado: una parada que no pudiera publicarse habria dejado un
+# origen_parada apuntando a una nota que NO EXISTE. El orden es validar todo -> escribir lo
+# reversible -> publicar lo irreversible, y es el contrato que PT-132 arreglo en «abrir».
+build_fixture
+printf 'x\n' > "$WORK/nota.txt"
+chkno "una parada que no puede publicarse no escribe" "origen_parada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace abre --abre PT-999 2>&1; cat docs/implementation/REGISTRY.json' _ "$WORK"
+# T-03 · lo que hace que la regla EXIJA. Una allocation alcanzada y sin origen_parada FALLA.
+build_fixture
+reg_set "r.allocations.find((a)=>a.id==='PT-001').suite_version='13.0.0'"
+chk   "una alcanzada sin origen_parada falla"     "sin «origen_parada»" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-fdge.mjs PT-001 2>&1' _ "$WORK"
+# INVERSA · lo anterior a la regla NI SE MIRA. Sin esta puerta, adoptar FDGE-R55 pondria en rojo
+# todo el trabajo en vuelo de cualquier proyecto destino que actualizara — y obligar a rehacer
+# trabajo valido es la forma mas rapida de que se abandone el marco (FDGE-R19, FDGE-R52).
+build_fixture
+chkno "…y lo anterior a la regla, ni se mira"     "sin «origen_parada»" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-fdge.mjs PT-001 2>&1' _ "$WORK"
+# El lote RAIZ esta exento: no hay tarea anterior desde la que parar. Sin esta puerta, instalar
+# cauce y abrir el primer EP empezaria EN ROJO — y una compuerta que falla sobre el caso inicial
+# no se cumple: se rodea.
+patlib "los motivos siguen siendo seis"           '^6$' \
+  "console.log(m.MOTIVOS_DE_PARADA.length)"
+# T-04 · la deuda que PT-116 declaro: NADA comparaba las dos listas con LEXICON §8.5. Es PT-080 en
+# miniatura y es la enfermedad que motivo la v4 — el mismo hecho en dos sitios, sin nada que los
+# contraste. Se rompe la constante EN EL FIXTURE para que el fallo ocurra DE VERDAD: buscar el
+# texto en el fuente no comprueba nada (PT-124, y lo que PT-116 tuvo que rehacer).
+build_fixture
+perl -0pi -e "s/'hallazgo', 'condicion-bloqueante'/'hallazgo', 'INVENTADO'/" "$WORK/docs/methodology/tools/patrones.mjs"
+chk   "la clase divergente de LEXICON falla"      "MOTIVOS_DE_PARADA y LEXICON" \
+  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+# INVERSA · sin romper nada, silencio. Sin ella el caso de arriba pasaria igual si la comparacion
+# fallara SIEMPRE, que es el motivo contrario al que dice medir.
+build_fixture
+chkno "…y sin divergencia, silencio"              "MOTIVOS_DE_PARADA y LEXICON" \
+  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+# La cabecera de la tabla NO es una clase. Sin cortar por el separador «|:---|», «| `motivo` |»
+# entra como si lo fuera y la comparacion falla SIEMPRE, enumerando una clase que no existe. Lo
+# delimita el separador, no la posicion de la fila.
+build_fixture
+chkno "la cabecera de la tabla no es una clase"   "LEXICON «abre-trabajo · compuerta · condicion-bloqueante · desafio-al-intake · hallazgo · limite-alcanzado · motivo»" \
+  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+build_fixture
+
 # PT-116 · «tracker parada» · el comando que escribe lo que hasta ahora se publicaba a mano.
 #
 # El medio YA EXISTIA —«avanzar» publica en el issue, o en TRANSICIONES.log si no hay plataforma

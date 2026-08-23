@@ -35,6 +35,8 @@ import { selloDe, PATRONES, NATURALEZAS, MEDIDO, ESTIMADO, SIN_EVALUAR } from '.
 import { reglasDelMarco, reglasNuevasSinVersion } from './patrones.mjs';
 // PT-080 · una regla no se define dos veces. Es la enfermedad que motivo la v4.
 import { definidasDosVeces, TIPOS_DE_ITEM } from './patrones.mjs';
+// PT-117 · deuda que PT-116 declaro: las clases de la parada tambien se comparan con LEXICON.
+import { MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA } from './patrones.mjs';
 // PT-087 · el sujeto de una comprobacion: que hecho establece, y cual NO.
 import { SUJETOS, sujetosIncompletos, limitesQueNoLleganAlMensaje } from './patrones.mjs';
 import { execFileSync } from 'node:child_process';
@@ -118,6 +120,61 @@ if (existsSync(PKG)) {
         `TIPOS_DE_ITEM y LEXICON §8.1 no enumeran lo mismo. La constante dice «${a}» y LEXICON «${b}». `
         + 'Manda LEXICON (LEX-R21): la constante se corrige, no el documento. Asi nacio PT-124 — la lista '
         + 'estaba escrita a mano y era la de las PLANTILLAS, no la de los tipos.');
+    }
+  }
+}
+
+// ── PT-117 · las clases de la PARADA y LEXICON §8.5 enumeran lo mismo ────────
+//
+// Deuda declarada por PT-116 y trasladada aqui: alli se escribieron MOTIVOS_DE_PARADA y
+// DESENLACES_DE_PARADA en patrones.mjs y LEXICON §8.5 los declaro, PERO NADA LAS COMPARABA.
+// Es PT-080 en miniatura, y es literalmente la enfermedad que motivo la v4: el mismo hecho
+// escrito en dos sitios, sin nada que los contraste, divergiendo en silencio.
+//
+// Mover la lista a patrones.mjs no bastaba —seria una copia, solo que UNA—. Lo que cierra la
+// clase es que ALGO LAS COMPARE, exactamente como PT-124 hizo con TIPOS_DE_ITEM.
+//
+// QUE ESTABLECE: que las constantes y LEXICON §8.5 enumeran lo mismo.
+// QUE NO ESTABLECE: que esa enumeracion sea la correcta. Si LEXICON se equivoca, esto pasa.
+{
+  const lex = readFileSync(resolve(BASE, 'LEXICON.md'), 'utf8');
+  const seccion = lex.split(/^### 8\.5 /m)[1] ?? '';
+  // Se corta en el siguiente encabezado para no arrastrar tablas de otra seccion.
+  const hasta = seccion.split(/^#{2,3} /m)[0] ?? '';
+  // Las dos tablas van precedidas de «**Clases de `motivo`**» y «**Clases de `desenlace`**», en
+  // ese orden. Cada clase es la primera celda de una fila DE CUERPO, entre comillas invertidas.
+  //
+  // El cuerpo empieza DESPUES del separador «|:---|»: sin ese corte la cabecera —«| `motivo` |»,
+  // «| `desenlace` |»— entra como si fuera una clase mas, y la comparacion falla siempre
+  // enumerando una clase que no existe. Lo delimita el separador, no la posicion de la fila.
+  const tablas = hasta.split(/^\*\*Clases de /m).slice(1);
+  const clasesDe = (bloqueTabla) => {
+    const NL_LEX = String.fromCharCode(10);
+    const lineas = String(bloqueTabla ?? '').split(NL_LEX);
+    const sep = lineas.findIndex((l) => /^\|\s*:?-{3,}/.test(l.trim()));
+    if (sep < 0) return [];
+    return [...lineas.slice(sep + 1).join(NL_LEX)
+      .matchAll(/^\|\s*`([a-z-]+)`\s*\|/gm)].map((m) => m[1]);
+  };
+
+  const pares = [
+    ['MOTIVOS_DE_PARADA', MOTIVOS_DE_PARADA, clasesDe(tablas[0])],
+    ['DESENLACES_DE_PARADA', DESENLACES_DE_PARADA, clasesDe(tablas[1])],
+  ];
+  for (const [nombre, constante, enLexicon] of pares) {
+    if (!enLexicon.length) {
+      fail('SUITE-R38', 'LEXICON.md', 0,
+        `No se pudo leer la enumeracion de §8.5 para ${nombre}, asi que NO se compara con la constante. `
+        + 'No saber no es permiso (RULE-06): si la seccion cambio de forma, esta comprobacion hay que arreglarla.');
+      continue;
+    }
+    const a = [...constante].sort().join(' · ');
+    const b = [...enLexicon].sort().join(' · ');
+    if (a !== b) {
+      fail('SUITE-R38', 'tools/patrones.mjs', 0,
+        `${nombre} y LEXICON §8.5 no enumeran lo mismo. La constante dice «${a}» y LEXICON «${b}». `
+        + 'Manda LEXICON (LEX-R21): la constante se corrige, no el documento. Es la deuda que PT-116 '
+        + 'declaro al escribir las dos listas sin nada que las contrastara.');
     }
   }
 }

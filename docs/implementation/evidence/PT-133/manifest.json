@@ -1,0 +1,44 @@
+{
+  "pt": "PT-133",
+  "generated": "2026-08-23",
+  "origen_parada": "PT-117",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "parada corre en un proyecto sin plataforma y escribe en TRANSICIONES.log",
+      "tests": [
+        "selftest.sh:parada corre sin plataforma declarada",
+        "selftest.sh:…y la parada queda en el ledger"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "El caso EJECUTA la rama. PT-116 comprobo que la rama EXISTE — «la rama sin adaptador.comentar» — y esa es exactamente la diferencia que dejo el defecto vivo."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Con plataforma sigue tomando la rama del issue: el arreglo no apaga el espejado",
+      "tests": [
+        "selftest.sh:…y con plataforma toma la otra rama"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Asercion POSITIVA: exige el mensaje de SUITE-R35, que solo puede salir de la rama de plataforma. Un chkno habria pasado tambien si el comando reventara por otra causa."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El AC-03 de PT-116 se corrige en el ledger, no se reescribe",
+      "tests": [
+        "entrada CORRIGE en HISTORY.log"
+      ],
+      "evidence": [
+        "../../HISTORY.log"
+      ],
+      "verified": true,
+      "nota": "SUITE-R09 es append-only y FDGE-R29 PREFIERE la entrada CORRIGE. Borrar la afirmacion equivocada borraria la prueba de que se hizo."
+    }
+  ]
+}

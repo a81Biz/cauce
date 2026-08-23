@@ -7086,3 +7086,172 @@ LO QUE ESTA TAREA NO CIERRA, y se dice para que nadie la lea como suficiente:
 · Cuantas paradas hubo por clase, y si las seis son las correctas: PT-119.
 
 Es una FEATURE. G3 por delegacion del firmante con constancia.
+
+## PT-133 — parada exigia plataforma para escribir en un archivo local
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md
+Trazabilidad externa: issue #254
+Origen: la PARADA de PT-117 publicada en #235 (motivo hallazgo, desenlace abre)
+
+QUE ESTABA MAL. «tracker parada» no estaba en SIN_PLATAFORMA, asi que la herramienta salia ANTES
+de llegar a su propio codigo:
+
+    El proyecto no declara plataforma de trabajo en REGISTRY.tracker.plataforma.
+
+La rama que escribe en TRANSICIONES.log ESTA ESCRITA —es el «else» de la publicacion— pero era
+INALCANZABLE. Codigo correcto detras de una puerta cerrada.
+
+PT-116 LO DECLARO CUMPLIDO. Su AC-03 dice, con verified: true, «sin plataforma escribe en
+TRANSICIONES.log, append-only, y NO exige issue». Era falso, y su evidencia explica por que se
+escapo: «la rama sin adaptador.comentar». SE COMPROBO QUE LA RAMA EXISTE, NO QUE SE EJECUTA.
+
+Es la clase que PT-124 nombro —buscar el texto en el fuente no comprueba el hecho— y la TERCERA
+INSTANCIA EN DOS TAREAS SEGUIDAS: PT-116 ya tuvo que rehacer su propio caso de ROOT por lo mismo,
+a mitad de tarea.
+
+LA PARTE QUE NO ES UN DESCUIDO. PT-084 midio ESTE DEFECTO EXACTO en «avanzar»: exigia plataforma
+y un proyecto sin ella no podia avanzar ni una fase. PT-116 CITO ESE PRECEDENTE EN SU PROPIO
+AC-03 —esta escrito en su manifest.json— y volvio a cometerlo en el archivo de al lado, EN LA
+MISMA SESION. SUITE-R22 declara soportado el equipo de una sola persona asistida por IA: sin este
+arreglo, ese proyecto no podia registrar NI UNA PARADA, que es justo lo que EP-020 construye.
+
+COMO SE CAZO. Un caso de PT-117 que NO BUSCABA ESTO: invocaba «parada» sobre el fixture, que no
+declara plataforma. No lo encontro una revision ni una relectura — lo encontro EJECUTAR LA RUTA.
+
+NO SE ARREGLO EN LINEA. El firmante lo exigio el 2026-08-22 —«debes abrir el pt con el bug»— y es
+AC-02 de PT-117. Arreglarlo de paso habria demostrado lo contrario de lo que se esta construyendo.
+Es la primera vez en el repositorio que el ciclo completo corre solo: hallazgo -> parada publicada
+POR EL COMANDO -> allocation nueva -> origen_parada escrito en el registro, sin que nadie lo pida.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-133/ · manifest.json · self-review.md ·
+  salidas/casos.txt
+
+  proyectos sin tablero que pueden registrar una parada   ANTES 0    DESPUES todos
+  bateria                                                 ANTES 1433 DESPUES 1436
+
+LO QUE ESTA TAREA NO CIERRA:
+· Las demas acciones de SIN_PLATAFORMA no se revisaron. Si hay mas en la misma situacion es un
+  hallazgo aparte y se abre aparte: mezclarlos haria imposible saber cual rompio que.
+· Nada caza la clase «rama escrita pero inalcanzable» en general. Se declara sin numero porque
+  probablemente no se puede en general, y decirlo es mas util que fingir que se cubrira.
+
+Es un BUG. SUITE-R06b: cerrar un item de tipo BUG no se automatiza — el cierre lo hace una
+persona. Aqui se deja en DONE con evidencia completa, y el cierre va con el del lote.
+
+## CORRIGE PT-116 — AC-03 estaba en verde sobre una ruta inalcanzable
+Fecha: 2026-08-23
+Corrige: la entrada de PT-116 de 2026-08-23 y su evidence/PT-116/manifest.json
+Firmantes: Alberto Martínez
+
+PT-116 afirmo en su AC-03, con verified: true, que «sin plataforma escribe en TRANSICIONES.log,
+append-only, y NO exige issue». ERA FALSO: la accion no estaba en SIN_PLATAFORMA y la herramienta
+salia antes de llegar a esa rama.
+
+El manifest.json de PT-116 NO SE REESCRIBE. SUITE-R09 es append-only y FDGE-R29 PREFIERE la
+entrada CORRIGE: borrar la afirmacion equivocada borraria la prueba de que se hizo, y esa prueba
+es lo unico que permite medir cuantas veces se repite la clase — que es el objeto de EP-020.
+
+Lo arregla PT-133, con un caso que EJECUTA la rama.
+
+## PT-117 — Todo desenlace cita la parada que lo produjo
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — su L-3
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #235
+
+QUE HACE. PT-116 construyo «tracker parada» y LO DEJO SIN EXIGIR; SUITE-R26 llama a eso «una
+recomendacion». Aqui FDGE-R55 pasa a fallar mecanicamente en la parte que la propia regla declara
+mecanizable: toda allocation nueva cita la parada que la produjo.
+
+    tracker parada … --desenlace abre --abre PT-NNN
+        valida TODO  ->  escribe origen_parada en el registro  ->  publica en el issue
+    verify-fdge
+        allocation alcanzada sin origen_parada  =  error
+
+CONTRA EL REGISTRO, no contra los comentarios del issue: un verificador que necesitara red para
+decidir si una tarea cumple no podria correr en un repositorio sin plataforma, y SUITE-R22
+declara ese caso soportado. El registro asigna (SUITE-R08); el tablero espeja (SUITE-R35).
+
+EL MECANISMO SE ESTRENO SOLO, SOBRE UN HALLAZGO REAL. No hizo falta un caso para demostrarlo:
+escribiendo esta tarea aparecio el defecto de PT-133 y el ciclo corrio entero sin que nadie lo
+pidiera — un caso que no buscaba eso tropieza con el defecto, parada publicada POR EL COMANDO en
+#235, PT-133 asignado, origen_parada escrito en el registro en el mismo acto. Es exactamente lo
+que el firmante senalo el 2026-08-22: «si no te lo digo, no lo harias». Esta vez no hizo falta.
+
+EL AGUJERO DEL DISENO, Y ERA EL PEOR POSIBLE. `checkPT` deriva el alcance de intake -> registro ->
+'0.0.0', y una allocation RECIEN CREADA no tiene intake. Caia a '0.0.0' y NINGUNA regla nueva la
+alcanzaba: la unica que el verificador nunca habria podido cazar era la recien creada, que es
+justo la que hay que cazar. VERDE POR CONSTRUCCION SOBRE SU PROPIO CASO DE USO. Se tapa donde
+nace: «asignar» escribe suite_version, y de paso apaga el aviso SUITE-R18 para todo lo nuevo.
+
+CUATRO APARICIONES DE LA MISMA AVERIA EN UNA SOLA TAREA:
+
+  PT-133        la rama del ledger, escrita pero INALCANZABLE
+  mi perl       un caso montado sobre un cambio que NUNCA OCURRIO — perl no protesta si no casa
+  err()         una comprobacion que no puede ni ejecutarse: node --check PASABA
+  el hook       iba a invocar «pendiente --parada», una bandera que NO EXISTE
+
+Las cuatro pasan TODAS las comprobaciones existentes, porque las cuatro son verdes POR NO
+EJECUTARSE. El caso de err() es el que mas importa: sin el caso nuevo se habria integrado con
+`npm run verify` en verde, y el verificador habria reventado LA PRIMERA VEZ QUE SIRVIERA PARA
+ALGO — en un proyecto destino, meses despues, sobre la primera tarea abierta bajo la 13.0.0.
+
+La cuarta la pare probando el comando ANTES de escribirlo en la configuracion. No por una regla,
+y eso tambien se dice.
+
+TS-05 CONTRADIJO LO QUE YO ACABABA DE ESCRIBIR, y tenia razon. Puse el guardado del registro antes
+de las precondiciones de plataforma razonando «lo reversible primero», pero eso deja un
+origen_parada apuntando a una nota QUE NADIE PUBLICO. El orden tiene TRES tiempos, no dos:
+validar TODO -> escribir lo reversible -> publicar lo irreversible. Es el contrato que PT-132
+arreglo en «abrir», y yo lo habia vuelto a romper en el archivo de al lado.
+
+UN ANCLA QUE NO ERA UNICA. «{ const lex = readFileSync(...LEXICON.md...)» aparece DOS veces —el
+bloque de TIPOS_DE_ITEM empieza igual— asi que mi linea se inserto en el bloque equivocado. Un
+ancla ambigua no ancla: elige por ti, y en silencio.
+
+LO QUE SE DECLARA Y NO SE PROMETE (SUITE-R26). FDGE-R55 es exigible en 2 DE 5 desenlaces, y la
+cifra se DERIVA de la lista:
+
+    declarados en LEXICON 8.5   5   continua · abre · cambia-fase · detiene · declara
+    con rastro                  2   abre · cambia-fase
+    SIN rastro, NO exigibles    3   continua · detiene · declara
+
+Los tres sin rastro no dejan nada contra lo que contrastar: ningun script puede probar la ausencia
+de algo que no se escribe. Para esos el mecanismo es el hook Stop, que vive en
+.claude/settings.json —configuracion de la MAQUINA, no del repositorio instalado— y un proyecto
+destino que instale cauce NO LO RECIBE. Que la cifra sea derivada es la leccion de PT-115, «atar
+una asercion a una cifra que crece», que en esta misma sesion volvio a repetirse.
+
+SALDADA LA DEUDA DE PT-116: verify-suite compara MOTIVOS_DE_PARADA y DESENLACES_DE_PARADA con
+LEXICON §8.5. Alli se escribieron las dos listas y el documento las declaro, PERO NADA LAS
+COMPARABA — PT-080 en miniatura, y la enfermedad que motivo la v4.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/verify-suite.mjs ·
+  tools/selftest.sh · .claude/settings.json · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-117/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/hueco.txt · salidas/hook.txt
+
+  FDGE-R55                   ANTES recomendacion   DESPUES exigible en 2 de 5, MEDIDO
+  listas comparadas          ANTES 1 (TIPOS)       DESPUES 3
+  allocations con version    ANTES ninguna nueva   DESPUES todas, desde asignar
+  bateria                    ANTES 1422            DESPUES 1440
+
+LO QUE ESTA TAREA NO CIERRA:
+· Cuantas paradas hubo por clase, y si las seis clases son las correctas: PT-119.
+· NADA CAZA LA CLASE «ESCRITO PERO INALCANZABLE» EN GENERAL. Cuatro instancias hoy y cero
+  detectores. Probablemente no se puede en general, y decirlo es mas util que prometerlo.
+
+Es una FEATURE. G3 por delegacion del firmante con constancia.

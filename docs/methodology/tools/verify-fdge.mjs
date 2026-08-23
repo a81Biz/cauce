@@ -52,7 +52,7 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
 // PT-095 · el criterio de «esto anuncia una autorizacion» y la frontera desde la que una regla
 // alcanza. Los dos viven en patrones.mjs porque los usan dos bucles de este archivo, y un
 // criterio escrito dos veces diverge (SUITE-R38).
-import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from './patrones.mjs';
+import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE, MOTIVOS_DE_PARADA } from './patrones.mjs';
 // PT-098 · la decision de si el arbol sostiene un INTEGRATED es pura y vive en tracker.mjs,
 // junto al mecanismo que la calcula. Aqui solo se consume: una fuente, no dos (SUITE-R38).
 import { estadoContrastado, FASES } from './tracker.mjs';
@@ -1359,6 +1359,45 @@ function checkPT(pt, { gate } = {}) {
   // que actualizara veia fallar --gate G2 en toda tarea en vuelo sin viabilidad.
   const suiteDelPT = intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? '0.0.0';
   const rige = (id) => rigeDesde(id, suiteDelPT);
+
+  // ── FDGE-R55 · toda allocation nueva cita la parada que la produjo ───────
+  //
+  // PT-116 construyo «tracker parada» y la dejo SIN EXIGIR. Un comando que existe y nadie
+  // invoca no cambia nada: las ocho tareas cerradas de EP-020 lo demuestran, porque LA
+  // HERRAMIENTA EXISTIA EN LAS OCHO. SUITE-R26 llama a eso «una recomendacion».
+  //
+  // ALCANCE: solo la parte que FDGE-R55 declara mecanizable. La regla lleva su propio limite
+  // escrito — una parada de desenlace «continua» no deja rastro contra el que contrastar, y
+  // ningun script puede probar la ausencia de algo que no se escribe. Eso va como HUECO MEDIDO
+  // (SUITE-R26), no como comprobacion verde.
+  //
+  // CONTRA EL REGISTRO, no contra los comentarios del issue: un verificador que necesitara red
+  // para decidir si una tarea cumple no podria correr en un repositorio sin plataforma, y
+  // SUITE-R22 declara ese caso soportado.
+  //
+  // NO SE RETROFECHA: rige() lo decide con la suite_version del PT, y RIGE_DESDE la fija en
+  // 13.0.0. Las 20 allocations de EP-020 declaran 12.0.0 y ni se miran — criterio de FDGE-R19
+  // y FDGE-R52. Obligar a rehacer trabajo valido es la forma mas rapida de que se abandone el
+  // marco.
+  if (enRegistroPT && rige('FDGE-R55')) {
+    // Un lote SIN PADRE esta exento: no hay tarea anterior desde la que parar. Sin esta puerta,
+    // instalar cauce y abrir el primer EP empezaria en rojo — y una compuerta que falla sobre
+    // el caso inicial no se cumple: se rodea.
+    const esRaiz = !enRegistroPT.epic && String(enRegistroPT.id ?? '').startsWith('EP-');
+    const o = enRegistroPT.origen_parada;
+    if (esRaiz) {
+      ok('FDGE-R55', `${pt}: lote raiz — exento: no hay tarea anterior desde la que parar.`);
+    } else if (!o?.de) {
+      fail('FDGE-R55', `${pt}: sin «origen_parada». Abrir trabajo cita la parada que lo produjo — `
+        + `y la escribe el comando en el mismo acto que la publica: `
+        + `tracker parada <PT que paro> --motivo <clase> --texto <ruta> --desenlace abre --abre ${pt}`);
+    } else if (!MOTIVOS_DE_PARADA.includes(String(o.motivo ?? ''))) {
+      fail('FDGE-R55', `${pt}: «origen_parada.motivo» dice «${o.motivo}», que no es una clase de `
+        + `LEXICON §8.5. Un valor libre convierte la clase en prosa y la matriz no puede contar nada.`);
+    } else {
+      ok('FDGE-R55', `${pt}: nace de la parada de ${o.de} · motivo ${o.motivo}.`);
+    }
+  }
 
   // ── SUITE-R58 · el registro solo lo escribe el comando ────────────────────
   //

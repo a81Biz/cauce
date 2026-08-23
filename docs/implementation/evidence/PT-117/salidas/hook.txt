@@ -1,0 +1,16 @@
+# PT-117 · AC-03 · el hook Stop y la consulta que invoca. Derivado de la salida real.
+#
+# CASI SE REPITE PT-133 AQUI MISMO: el hook iba a llamar a «pendiente --parada», una bandera
+# que NO EXISTE. Un hook que invoca algo inexistente es una segunda red que no puede
+# ejecutarse. Lo paro probar el comando ANTES de escribirlo en la configuracion.
+#
+# LIMITE, y es el punto de AC-03 (SUITE-R26): .claude/settings.json es configuracion de la
+# MAQUINA, no del repositorio instalado. Un proyecto destino que instale cauce NO RECIBE este
+# hook. Lo unico comprobable desde aqui es que la bandera que invoca existe.
+
+  ✓ --pendientes ve la que no cita su parada
+  ✓ …y la que si la cita, no
+  ✓ …ni lo anterior a la regla
+  ✓ el hook invoca una bandera que existe
+
+selftest: OK · 1440 casos

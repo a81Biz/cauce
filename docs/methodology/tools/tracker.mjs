@@ -1458,7 +1458,16 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
   // seria pedirle una credencial para leer «wc -l», y dejaria sin arreglo a un proyecto
   // que no declara tablero — el caso que SUITE-R22 declara soportado y PT-084 defendio.
-  'inventario']);
+  'inventario',
+  // PT-133 · «parada» escribe en el issue SI hay plataforma y en TRANSICIONES.log si no — igual
+  // que «avanzar», que ya estaba aqui. Faltando de esta lista, la herramienta salia ANTES de
+  // llegar a su propio codigo y la rama del ledger, que ESTA ESCRITA, era INALCANZABLE.
+  //
+  // PT-116 lo declaro cumplido con verified: true. Su evidencia fue «la rama sin
+  // adaptador.comentar»: se comprobo que la rama EXISTE, no que se EJECUTA — la clase que PT-124
+  // nombro. Y PT-084 habia medido este defecto exacto en «avanzar»; PT-116 CITO ese precedente en
+  // su propio AC-03 y volvio a cometerlo en el archivo de al lado, en la misma sesion.
+  'parada']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -2509,6 +2518,24 @@ function asignar() {
   di('  arranca en PHASE 1');
   const faltan = [!tipo && '--tipo', !sev && '--severidad'].filter(Boolean);
   if (faltan.length) di(`  sin declarar: ${faltan.join(' ')} — habra que declararlos antes de G1`);
+  // PT-117 · SUITE-R18 · la allocation nace declarando bajo que version se abre, y no es un
+  // campo mas: `checkPT` deriva el alcance de una regla de
+  //
+  //     intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? "0.0.0"
+  //
+  // y una allocation RECIEN CREADA no tiene intake todavia. Sin este campo cae a "0.0.0", asi
+  // que NINGUNA regla nueva la alcanza — y la recien creada es justo la que FDGE-R55 tiene que
+  // cazar. La comprobacion habria salido VERDE POR CONSTRUCCION sobre su propio caso de uso.
+  //
+  // Si la version no se puede leer NO SE INVENTA (RULE-06): un "0.0.0" escrito a proposito
+  // afirmaria que la allocation nacio antes de todo, y eso apagaria comprobaciones en silencio.
+  // Ausente se distingue de falso; un valor inventado, no.
+  //
+  // VA ANTES del return de --ver: esa bandera existe para DECIR con que nace la allocation sin
+  // escribirla, y una version que solo se dice cuando ya se ha escrito no sirve para eso.
+  const versionAlNacer = VERSION_DEL_PROYECTO !== '0.0.0' ? VERSION_DEL_PROYECTO : null;
+  if (versionAlNacer) di(`  suite_version: ${versionAlNacer}`);
+  else di(`  suite_version: SIN EVALUAR — el registro no la declara y no se inventa (RULE-06)`);
   if (soloVer) { di(''); di('  --ver: no se ha escrito nada.'); return; }
 
   reg.counters = reg.counters ?? {};
@@ -2516,8 +2543,10 @@ function asignar() {
   // PT-103 · «phase: 1» SIEMPRE. Sin el, Number(undefined) es NaN y avanzar no puede mover la
   // allocation nunca — que es como PT-096 descubrio esto: fue la primera creada con «asignar»
   // desde PT-062, y hubo que escribir el campo a mano.
+
   reg.allocations.push({
     id, slug, created: gitDe(['log', '-1', '--format=%cs']), status: 'DRAFT', phase: 1,
+    ...(versionAlNacer ? { suite_version: versionAlNacer } : {}),
     ...(tipo ? { type: tipo } : {}),
     ...(sev ? { severity: sev } : {}),
     ...(epica ? { epic: epica } : {}),
@@ -2540,6 +2569,39 @@ function asignar() {
 // EL TEXTO ENTRA POR ARCHIVO (SUITE-R59). Una explicacion son parrafos, y esta sesion acumulo
 // CINCO roturas de escapado por construir texto dentro del literal de otro lenguaje.
 function parada() {
+  // PT-117 · «--pendientes» es CONSULTA: enumera las allocations que la regla alcanza y todavia
+  // no citan la parada que las produjo. No escribe nada y no toca la plataforma.
+  //
+  // Existe porque el hook Stop necesita algo REAL que invocar. Sin esto, el hook habria llamado a
+  // una bandera inventada — y una segunda red que no puede ejecutarse es exactamente el defecto
+  // que PT-133 acaba de arreglar: codigo correcto detras de una puerta cerrada.
+  //
+  // La lista se DERIVA del registro. No hay estado nuevo: un segundo sitio donde apuntar que algo
+  // esta pendiente seria un hecho con dos nombres (LEX-R22).
+  if (ARGS.includes('--pendientes')) {
+    const desde = RIGE_DESDE['FDGE-R55'] ?? [13, 0, 0];
+    const alcanza = (v) => {
+      const p = String(v ?? '0.0.0').split('.').map(Number);
+      for (let i = 0; i < 3; i += 1) {
+        if ((p[i] ?? 0) !== (desde[i] ?? 0)) return (p[i] ?? 0) > (desde[i] ?? 0);
+      }
+      return true;
+    };
+    const sinCitar = all.filter((a) => a?.suite_version && alcanza(a.suite_version)
+      && !a.origen_parada?.de
+      && !(String(a.id ?? '').startsWith('EP-') && !a.epic));
+    di('');
+    if (!sinCitar.length) {
+      di('  FDGE-R55: ninguna allocation alcanzada sin citar su parada.');
+    } else {
+      di(`  FDGE-R55 · ${sinCitar.length} allocation(s) sin citar la parada que las produjo:`);
+      for (const a of sinCitar) di(`    ${a.id}${a.slug ? ` · ${a.slug}` : ''}`);
+      di('');
+      di('  tracker parada <PT que paro> --motivo <clase> --texto <ruta> --desenlace abre --abre <ID>');
+    }
+    return;
+  }
+
   const id = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
   const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
   const motivo = flag('--motivo');
@@ -2586,11 +2648,44 @@ function parada() {
 
   const cuerpo = cuerpoDeParada({ id, motivo, texto, desenlace, abre });
 
+  // PT-117 · TS-05 · las precondiciones de plataforma suben AQUI, antes de escribir nada.
+  // Estaban dentro del if que publica, o sea DESPUES del guardado: una parada que no pudiera
+  // publicarse habria dejado un origen_parada apuntando a una nota que no existe. El orden es
+  // VALIDAR TODO -> escribir lo reversible -> publicar lo irreversible, y es el mismo contrato
+  // que PT-132 arreglo en «abrir».
   if (adaptador?.comentar) {
     if (!a.issue) throw new Error(`${id} no tiene issue y hay plataforma declarada: la parada debe espejarse (SUITE-R35).  tracker abrir --aplicar`);
     if (adaptador.disponible && !adaptador.disponible()) {
       throw new Error('hay plataforma declarada y no hay acceso: la parada no podria publicarse (FND-R30).  gh auth login');
     }
+  }
+  // PT-117 · FDGE-R55 · EL ENLACE ES UN HECHO DEL REGISTRO, no una nota que haya que leer.
+  //
+  // La regla declara su propio limite: lo mecanizable es «toda allocation nueva cita la parada
+  // que la produjo». Se escribe AQUI, en el mismo acto que publica, porque la pregunta «que
+  // parada abrio esto» solo tiene respuesta fiable EN EL MOMENTO: a las dos horas se
+  // reconstruye de memoria, que es el defecto original.
+  //
+  // Contra el REGISTRO y no contra los comentarios del issue: un verificador que necesitara red
+  // para decidir si una tarea cumple no podria correr en un repositorio sin plataforma, y
+  // SUITE-R22 declara ese caso soportado. El registro asigna (SUITE-R08); el tablero espeja.
+  //
+  // ORDEN: el registro se guarda ANTES de publicar. Lo reversible primero, lo irreversible al
+  // final — contrato de avanzar (PT-053) y el que PT-132 acaba de arreglar en abrir. Si se
+  // publicara primero y fallara el guardado, quedaria una nota sin enlace; al reves solo queda
+  // un enlace que la siguiente ejecucion vuelve a intentar publicar.
+  if (desenlace === 'abre') {
+    const nacida = all.find((x) => x?.id === abre);
+    nacida.origen_parada = {
+      de: id,
+      motivo,
+      fecha: gitDe(['log', '-1', '--format=%cs']) ?? null,
+    };
+    guardarRegistro(reg, ACCION);
+    notas.push(`${abre}: origen_parada ← ${id} · motivo ${motivo}`);
+  }
+
+  if (adaptador?.comentar) {
     adaptador.comentar(a.issue, cuerpo);
     notas.push(`${id}: parada publicada en #${a.issue} · motivo ${motivo} · desenlace ${desenlace}`);
   } else {
