@@ -3233,12 +3233,29 @@
       "slug": "la-topologia-de-ramas-no-se-enumera",
       "created": "2026-08-22",
       "status": "DRAFT",
-      "phase": 3,
+      "phase": 4,
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-020",
       "title": "FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales",
-      "issue": 249
+      "issue": 249,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
     },
     {
       "id": "PT-130",
