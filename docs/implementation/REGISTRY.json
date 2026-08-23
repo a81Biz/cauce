@@ -3213,7 +3213,8 @@
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "Nada detecta el trabajo sin allocation: solo lo corta una persona"
+      "title": "Nada detecta el trabajo sin allocation: solo lo corta una persona",
+      "issue": 245
     },
     {
       "id": "PT-128",
@@ -3224,7 +3225,8 @@
       "type": "FEATURE",
       "severity": "S1",
       "epic": "EP-020",
-      "title": "El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar"
+      "title": "El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar",
+      "issue": 246
     }
   ]
 }
