@@ -1,27 +1,22 @@
 {
-  "pt": "PT-129",
+  "pt": "PT-131",
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "5324c126f3f9eaf0d091b1ef72048a0e8f26a7a2",
-  "sha_corto": "5324c12",
+  "sha": "2304bc809351fd0d3147f9c371f84a99d6885334",
+  "sha_corto": "2304bc8",
   "sucio": true,
   "archivos": [
-    "changes/PT-129-la-topologia-de-ramas-no-se-enumera/intake.md",
+    "changes/PT-131-el-candado-con-la-llave-dentro/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
+  "compuerta": null,
   "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-22"
 }
