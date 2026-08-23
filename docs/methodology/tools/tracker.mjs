@@ -53,7 +53,8 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, bloqueDeBacklog, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
+  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, bloqueDeBacklog,
+  MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
@@ -376,6 +377,37 @@ export function comentarioSinResponder(cuerpos) {
  * Es una función y no una plantilla en línea para que un caso pueda comprobarlo sin hablar
  * con la plataforma — el defecto existía justo porque nadie comprobaba lo que se escribía.
  */
+/**
+ * PT-116 · FDGE-R55 · El cuerpo de una PARADA. Puro y exportado.
+ *
+ * Es una funcion y no una plantilla en linea por el motivo que PT-009 dejo escrito tres funciones
+ * mas arriba: «para que un caso pueda comprobarlo SIN HABLAR CON LA PLATAFORMA — el defecto
+ * existia justo porque nadie comprobaba lo que se escribia».
+ *
+ * NO PUEDE CASAR RE_NOTA (LEX-R30). «contarNotas» cuenta los reanclajes buscando «PHASE n -> m», y
+ * una parada que no sea transicion inflaria ese recuento: la tarea pareceria tener transiciones que
+ * no tuvo, y FDGE-R52 daria por escrito lo que nadie escribio. Hay un caso que lo vigila.
+ *
+ * QUE ESTABLECE: que el cuerpo lleva la marca de procedencia, el motivo, la explicacion y el
+ *   desenlace, y que no se confunde con un reanclaje.
+ * QUE NO ESTABLECE: que la explicacion sea cierta ni util. No es mecanizable, y decirlo es mas
+ *   honesto que fingir que se comprueba (SUITE-R26).
+ */
+export function cuerpoDeParada({ id, motivo, texto, desenlace, abre = null }) {
+  const L = [];
+  L.push(MARCA_AGENTE);
+  L.push('**PARADA** · `' + id + '` · motivo: `' + motivo + '` · desenlace: `' + desenlace + '`'
+    + (abre ? ' · abre `' + abre + '`' : ''));
+  L.push('');
+  L.push(String(texto ?? '').trim());
+  L.push('');
+  L.push('---');
+  L.push('');
+  L.push('> `FDGE-R55` · Lo que solo esta en la conversacion no esta (`SUITE-R04`). Append-only:'
+    + ' una correccion se escribe como parada NUEVA que referencia a esta (`SUITE-R09`).');
+  return L.join(String.fromCharCode(10));
+}
+
 export const mensajeDeCierre = (a) =>
   `${a?.id} pasó a ${a?.status}. La evidencia está en el repositorio.
 
@@ -772,24 +804,36 @@ const APLICAR = ARGS.includes('--aplicar');
 // CUARTA vez que un argumento nuevo se colaba por aqui; esta fue la QUINTA, y se noto en el acto
 // porque «--tipo BUG» hizo que se buscara el registro dentro de ./BUG. Un flag que se añade sin
 // declararse aqui convierte su VALOR en la raiz del proyecto.
+// PT-116 · LA REGLA DE FORMA, por fin. Van OCHO veces que un argumento nuevo se cuela por aqui
+// —-q (PT-049), --solo (PT-050), --a (PT-053), las etiquetas y --de (PT-057), los subcomandos
+// (PT-060), --slug (PT-062), --de otra vez (PT-064), y --motivo/--texto/--desenlace/--abre aqui—
+// y las ocho se arreglaron IGUAL: anadiendo el flag nuevo a una lista escrita a mano.
+//
+// El comentario de PT-057 ya decia, hace cuatro instancias, que «se arreglan con una regla de
+// FORMA, no con un caso mas». No se hizo, y por eso hay ocho. Esta es la regla de forma:
+//
+//   EL VALOR DE UN FLAG NUNCA ES LA RAIZ.
+//
+// Se deriva de la POSICION —lo que sigue a un «--algo»— en vez de enumerar cuales llevan valor.
+// Un flag booleano seguido de una ruta deja de poder pasar la ruta ahi, y eso es correcto: la
+// raiz es el PRIMER posicional, y ponerla detras de un booleano era ambiguo desde siempre.
+//
+// CON_VALOR se conserva porque hay un caso que la nombra y porque documenta cuales llevan valor,
+// pero YA NO ES LA GUARDA: la guarda es la forma.
 const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de',
-  '--tipo', '--severidad', '--epica', '--titulo']);
-// PT-057 · `coste` recibe TIPO y COMPLEJIDAD como posicionales, y sin esta guarda el primero se
-// tomaba por ROOT: «tracker coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
-// CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
-// ahora estos—, y las cuatro se arreglan con una regla de FORMA, no con un caso mas.
+  '--tipo', '--severidad', '--epica', '--titulo',
+  '--motivo', '--texto', '--desenlace', '--abre']);
 const ES_ETIQUETA = /^[A-Z][A-Z_]*$/;
-// PT-060 · y los SUBCOMANDOS tampoco son rutas. Quinta vez que un argumento nuevo se cuela por
-// aqui —-q, --solo, --a, las etiquetas y ahora estos—: «tracker sesion abrir» tomaba «abrir» por
-// ROOT, buscaba el registro en ./abrir y no hacia nada, EN SILENCIO.
 const SUBCOMANDOS = new Set(['abrir', 'cerrar', 'ver']);
 const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
   !a.startsWith('--')
   && !/^(?:PT|EP)-\d+$/.test(a)
   && !ES_ETIQUETA.test(a)
   && !SUBCOMANDOS.has(a)
-  && !CON_VALOR.has(xs[i - 1])) ?? process.cwd());
+  // La regla de FORMA: lo que sigue a un flag es su valor, sea cual sea el flag.
+  && !String(xs[i - 1] ?? '').startsWith('--')) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
+
 
 const errores = [];
 const notas = [];
@@ -2483,6 +2527,83 @@ function asignar() {
   notas.push(`${id} asignado y escrito en REGISTRY.json`);
 }
 
+// ── parada · FDGE-R55 · lo que se detiene se escribe en su tarea ────────────
+//
+// El medio ya existia: «avanzar» publica su nota en el issue, o en TRANSICIONES.log si no hay
+// plataforma (PT-084). Lo que faltaba era un comando para la parada QUE NO ES UNA TRANSICION —
+// el hallazgo, la condicion bloqueante, la compuerta, el limite—, y por eso las explicaciones
+// vivian en la conversacion: la unica forma de publicarlas era a mano.
+//
+// Medido en EP-020: SIETE tareas cerradas con todos sus hallazgos solo en el chat, y las siete
+// notas publicadas a mano despues de que lo senalara el firmante.
+//
+// EL TEXTO ENTRA POR ARCHIVO (SUITE-R59). Una explicacion son parrafos, y esta sesion acumulo
+// CINCO roturas de escapado por construir texto dentro del literal de otro lenguaje.
+function parada() {
+  const id = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const motivo = flag('--motivo');
+  const ruta = flag('--texto');
+  const desenlace = flag('--desenlace');
+  const abre = flag('--abre');
+
+  if (!id) throw new Error('parada necesita una allocation:  tracker parada PT-131 --motivo hallazgo --texto nota.md --desenlace continua');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay parada.`);
+
+  // Las dos listas son CERRADAS y las declara LEXICON §8.5. Un valor fuera de ellas se RECHAZA:
+  // aceptarlo convertiria la clase en prosa, y entonces la matriz de PT-119 no podria contar nada.
+  if (!motivo || !MOTIVOS_DE_PARADA.includes(motivo)) {
+    throw new Error(`--motivo es obligatorio y de la lista cerrada. LEXICON §8.5 declara: ${MOTIVOS_DE_PARADA.join(' · ')}`);
+  }
+  if (!desenlace || !DESENLACES_DE_PARADA.includes(desenlace)) {
+    throw new Error(`--desenlace es obligatorio y de la lista cerrada. LEXICON §8.5 declara: ${DESENLACES_DE_PARADA.join(' · ')}`);
+  }
+  if (!ruta) throw new Error('--texto es obligatorio y es una RUTA a un archivo, no el texto: una explicacion son parrafos (SUITE-R59).');
+  if (!existsSync(ruta)) throw new Error(`no existe «${ruta}». --texto es una RUTA (SUITE-R59): escribe la explicacion en un archivo.`);
+  const texto = readFileSync(ruta, 'utf8').trim();
+  if (!texto) throw new Error(`«${ruta}» esta vacio. Una parada sin explicacion es una nota que no explica nada.`);
+
+  // «abre» sin destino seria una afirmacion sin contraste, y es justo el enlace que PT-117
+  // necesita para exigir que toda allocation nueva cite la parada que la produjo.
+  if (desenlace === 'abre') {
+    if (!abre) throw new Error('--desenlace abre exige --abre con la allocation que nace.');
+    if (!all.some((x) => x?.id === abre)) {
+      throw new Error(`--abre cita «${abre}», que no esta en el registro. El registro asigna (SUITE-R08).`);
+    }
+  } else if (abre) {
+    throw new Error(`--abre solo tiene sentido con «--desenlace abre», y este dice «${desenlace}».`);
+  }
+
+  // Una transicion de fase NO se publica por aqui: es FDGE-R52 y la escribe «avanzar», que ademas
+  // mueve el registro en el mismo acto atomico. Publicarla suelta dejaria una nota sobre una
+  // transicion que no ocurrio (LEX-R30).
+  if (desenlace === 'cambia-fase') {
+    throw new Error('«cambia-fase» es el caso particular de FDGE-R52 y lo escribe «avanzar», que '
+      + 'ademas mueve el registro en el mismo acto. Publicarla aqui dejaria una nota sobre una '
+      + 'transicion que no ocurrio (LEX-R30):  tracker avanzar ' + id + ' --a <fase> --nota "..."');
+  }
+
+  const cuerpo = cuerpoDeParada({ id, motivo, texto, desenlace, abre });
+
+  if (adaptador?.comentar) {
+    if (!a.issue) throw new Error(`${id} no tiene issue y hay plataforma declarada: la parada debe espejarse (SUITE-R35).  tracker abrir --aplicar`);
+    if (adaptador.disponible && !adaptador.disponible()) {
+      throw new Error('hay plataforma declarada y no hay acceso: la parada no podria publicarse (FND-R30).  gh auth login');
+    }
+    adaptador.comentar(a.issue, cuerpo);
+    notas.push(`${id}: parada publicada en #${a.issue} · motivo ${motivo} · desenlace ${desenlace}`);
+  } else {
+    // PT-084 · sin tablero, al ledger. Append-only (SUITE-R09): una parada que se reescribe deja
+    // de ser un rastro, y SUITE-R22 declara soportado el proyecto que no espeja.
+    const rutaLog = join(IMPL, 'TRANSICIONES.log');
+    const previo = (() => { try { return readFileSync(rutaLog, 'utf8'); } catch { return ''; } })();
+    const cuando = gitDe(['log', '-1', '--format=%cs']) ?? 'sin-fecha';
+    writeFileSync(rutaLog, `${previo}${SALTO}## ${cuando} · ${id} · PARADA · ${motivo}${SALTO}${SALTO}${cuerpo}${SALTO}`, 'utf8');
+    notas.push(`${id}: parada en docs/implementation/TRANSICIONES.log — no hay plataforma declarada`);
+  }
+}
+
 // ── tipo · el «type» del registro sale del intake, que es quien manda ───────
 //
 // PT-124 · PT-125 y PT-126 quedaron SIN «type» en el registro porque «asignar» rechazaba
@@ -3478,7 +3599,7 @@ function inventario() {
   notas.push(`${mal.filter((m) => m.real != null).length} cifra(s) reescritas en services.md.`);
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, sellar, indices };
+const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

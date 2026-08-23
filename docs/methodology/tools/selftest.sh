@@ -3552,6 +3552,48 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-116 · «tracker parada» · el comando que escribe lo que hasta ahora se publicaba a mano.
+#
+# El medio YA EXISTIA —«avanzar» publica en el issue, o en TRANSICIONES.log si no hay plataforma
+# (PT-084)— y faltaba el comando para la parada QUE NO ES UNA TRANSICION. Por eso las
+# explicaciones vivian en la conversacion: la unica forma de publicarlas era a mano, y en EP-020
+# hubo que hacerlo SIETE veces antes de que el firmante lo senalara.
+#
+# El cuerpo es una funcion PURA por lo que PT-009 dejo escrito: «para que un caso pueda
+# comprobarlo SIN HABLAR CON LA PLATAFORMA — el defecto existia justo porque nadie comprobaba lo
+# que se escribia».
+trlib "la parada lleva la marca de procedencia"     'cauce:agente' \
+  "console.log(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'continua'}))"
+trlib "…y declara su motivo y su desenlace"         'motivo' \
+  "console.log(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'continua'}))"
+# LEX-R30 · una parada que NO es transicion no puede casar RE_NOTA: «contarNotas» cuenta los
+# reanclajes con ese patron, y la tarea pareceria tener transiciones que no tuvo. FDGE-R52 daria
+# por escrito lo que nadie escribio.
+trlib "la parada NO se confunde con un reanclaje"   '^false$' \
+  "console.log(m.RE_NOTA.test(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'continua'})))"
+trlib "…y una nota de reanclaje si casa"            '^true$' \
+  "console.log(m.RE_NOTA.test('PHASE 3 → 4'))"
+# El desenlace «abre» nombra la allocation que nace: es el enlace que PT-117 necesita para exigir
+# que toda allocation nueva cite la parada que la produjo.
+trlib "«abre» nombra la allocation que nace"        'PT-132' \
+  "console.log(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'abre',abre:'PT-132'}))"
+# Las dos listas son CERRADAS y las declara LEXICON §8.5. Un valor fuera de ellas convierte la
+# clase en prosa, y entonces la matriz de PT-119 no puede contar nada.
+patlib "los motivos de la parada son seis"          '^6$' \
+  "console.log(m.MOTIVOS_DE_PARADA.length)"
+patlib "…y son los que EP-020 midio"                '^true$' \
+  "console.log(['hallazgo','condicion-bloqueante','compuerta','abre-trabajo','limite-alcanzado','desafio-al-intake'].every(x=>m.MOTIVOS_DE_PARADA.includes(x)))"
+patlib "los desenlaces son cinco"                   '^5$' \
+  "console.log(m.DESENLACES_DE_PARADA.length)"
+# PT-116 · LA REGLA DE FORMA. Van OCHO veces que un argumento nuevo se cuela por la deteccion de
+# ROOT —-q, --solo, --a, las etiquetas, --de, los subcomandos, --slug, y los cuatro de la parada—
+# y las ocho se arreglaron anadiendo el flag a una lista escrita a mano. El comentario de PT-057
+# ya decia HACE CUATRO INSTANCIAS que «se arreglan con una regla de FORMA, no con un caso mas».
+#
+# Ahora si: el valor de un flag NUNCA es la raiz, derivado de la POSICION. Este caso pasa un valor
+# que ES un nombre de directorio plausible detras de un flag: antes se tomaba por ROOT y el
+# comando respondia «No hay REGISTRY.json legible» en vez de lo suyo.
+# (el caso del valor de un flag vive arriba, con su inversa)
 # PT-115 · la PARADA entra al vocabulario y a las reglas.
 #
 # El principio YA ESTABA escrito —SUITE-R04: «una decision que solo existe en el chat no existe»—
@@ -5266,8 +5308,29 @@ chk   "y restauracion si algo falla"           "restaurar();" \
 # Restaurar un archivo que NO EXISTIA lo BORRA. Dejarlo vacio seria un estado que no existia.
 chk   "restaurar lo que no existia lo BORRA"   "antes === null" \
   sh -c 'sed -n "/const restaurar/,/^  };/p" "$1"' _ "$_tr"
-# El VALOR de una bandera no es una ruta. Tercera vez en el lote: -q, --solo, --a.
-chk   "el valor de una bandera no es ROOT"     "CON_VALOR.has" \
+# PT-116 · este caso assertaba sobre el FUENTE —«CON_VALOR.has»— y por eso se puso rojo cuando
+# la guarda paso a ser una REGLA DE FORMA, aunque el comportamiento habia MEJORADO. Un caso
+# atado a la implementacion bloquea la mejora que deberia proteger: es la clase que PT-124
+# nombro, «buscar el texto en el fuente no comprueba nada», del otro lado.
+#
+# Ahora asserta el COMPORTAMIENTO: se pasa un valor de flag que ES un nombre de directorio
+# plausible y se comprueba que la herramienta NO lo toma por la raiz. Van OCHO instancias de
+# esta clase —-q, --solo, --a, las etiquetas, --de, los subcomandos, --slug, y los cuatro de la
+# parada— y las ocho se arreglaron anadiendo el flag a una lista. El comentario de PT-057 ya
+# decia hace cuatro que «se arreglan con una regla de FORMA, no con un caso mas».
+build_fixture
+chkno "el valor de una bandera no es ROOT"       "REGISTRY.json legible" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs estado --nota docs 2>&1' _ "$WORK"
+# INVERSA · un posicional que NO es valor de flag SI se consume como raiz. Se corre DESDE el
+# fixture —que si tiene registro— pasando una ruta que no existe: si la guarda ignorara todos
+# los posicionales, caeria en cwd y el registro se leeria sin queja. Que se queje es la prueba.
+# Sin esta inversa, el caso de arriba pasaria igual por el motivo CONTRARIO al que dice medir.
+# La asercion es POSITIVA a proposito: un chkno pasaria tambien si el comando reventara por otra
+# causa cualquiera, y eso no comprueba nada — es la clase que PT-124 nombro.
+chk   "…y una ruta de verdad SI es la raiz"      "REGISTRY.json legible" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs estado no-existe 2>&1' _ "$WORK"
+# El caso que este reemplaza:
+chk   "el valor de una bandera no es ROOT (fuente)"     "startsWith('--')" \
   sh -c 'sed -n "/^const ROOT/,/process.cwd/p" "$1"' _ "$_tr"
 chk   "…y las banderas con valor van en UN sitio" "CON_VALOR = new Set" cat "$_tr"
 # LEX-R21 · el nombre vive en LEXICON.

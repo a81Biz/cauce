@@ -1126,6 +1126,30 @@ export function contradiceElRegistro(bloque, allocations) {
  * Vivir aqui no basta: seria una copia, solo que UNA. verify-suite la compara con LEXICON §8.1
  * y falla si divergen — sin eso, esto se repite el dia que LEXICON cambie (PT-080).
  */
+/**
+ * PT-116 · FDGE-R55 · Las dos listas CERRADAS de la parada, que LEXICON §8.5 declara.
+ *
+ * Viven AQUI y no en tracker.mjs por lo que PT-124 acaba de medir: una lista escrita a mano en el
+ * consumidor diverge del documento que la declara, y su mensaje de error acaba ATRIBUYENDO al
+ * documento lo que el documento no dice. Paso con TIPOS_DE_ITEM, que era la lista de las
+ * PLANTILLAS etiquetada como la de los tipos.
+ *
+ * Y vivir aqui NO BASTA: seria una copia, solo que UNA. verify-suite las compara con LEXICON §8.5
+ * y falla si divergen — sin eso esto se repite el dia que LEXICON cambie (PT-080).
+ *
+ * Las seis de «motivo» no se inventaron: cada una nacio de una instancia medida en EP-020. Una
+ * lista cerrada mal elegida SE RODEA, que es lo que PT-103 midio cuando a «asignar» le faltaban
+ * campos: «cumplir el marco exigia saltarselo».
+ */
+export const MOTIVOS_DE_PARADA = [
+  'hallazgo', 'condicion-bloqueante', 'compuerta',
+  'abre-trabajo', 'limite-alcanzado', 'desafio-al-intake',
+];
+
+export const DESENLACES_DE_PARADA = [
+  'continua', 'abre', 'cambia-fase', 'detiene', 'declara',
+];
+
 export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'];
 
 // ── PT-123 · BACKLOG.md · el bloque DERIVADO, entre marcas ──────────────────

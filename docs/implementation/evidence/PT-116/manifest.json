@@ -1,0 +1,94 @@
+{
+  "pt": "PT-116",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "tracker parada publica la nota en el issue de la tarea con MARCA_AGENTE",
+      "tests": [
+        "selftest.sh:la parada lleva la marca de procedencia",
+        "tracker parada PT-116"
+      ],
+      "evidence": [
+        "salidas/publicada.txt"
+      ],
+      "verified": true,
+      "nota": "La parada de PT-116 en el issue #234 LA PUBLICO EL COMANDO. Es la primera del repositorio que no se escribe a mano: las siete anteriores fueron con gh issue comment."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El texto largo entra por ARCHIVO, nunca por la linea de comandos",
+      "tests": [
+        "tracker parada --texto <texto>"
+      ],
+      "evidence": [
+        "salidas/negativas.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R59. Una explicacion son parrafos, y esta sesion acumulo CINCO roturas de escapado por construir texto dentro del literal de otro lenguaje."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Sin plataforma escribe en TRANSICIONES.log, append-only, y NO exige issue",
+      "tests": [
+        "la rama sin adaptador.comentar"
+      ],
+      "evidence": [
+        "salidas/negativas.txt"
+      ],
+      "verified": true,
+      "nota": "PT-084 lo midio: avanzar exigia plataforma y un proyecto sin ella no podia avanzar ni una fase, mientras SUITE-R22 declara soportado el equipo de una persona."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La nota NO casa RE_NOTA, asi que no infla el recuento de FDGE-R52",
+      "tests": [
+        "selftest.sh:la parada NO se confunde con un reanclaje",
+        "selftest.sh:…y una nota de reanclaje si casa"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "LEX-R30. Si casara, la tarea pareceria tener transiciones que no tuvo y FDGE-R52 daria por escrito lo que nadie escribio. La inversa comprueba que un reanclaje SI casa: sin ella el caso pasaria con un patron roto."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Un motivo o un desenlace fuera de la lista cerrada se RECHAZA, enumerando los validos",
+      "tests": [
+        "selftest.sh:los motivos de la parada son seis",
+        "tracker parada --motivo inventado"
+      ],
+      "evidence": [
+        "salidas/negativas.txt",
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Aceptar un valor libre convertiria la clase en prosa, y entonces la matriz de PT-119 no podria contar nada."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Lo irreversible —publicar— va el ULTIMO, y todo lo anterior valida antes",
+      "tests": [
+        "tracker parada con cada negativa"
+      ],
+      "evidence": [
+        "salidas/negativas.txt"
+      ],
+      "verified": true,
+      "nota": "Las seis validaciones corren ANTES de tocar la plataforma. Es el contrato de avanzar (PT-053) y el que PT-132 acaba de arreglar en abrir."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "El valor de un flag NUNCA se toma por la raiz del repositorio",
+      "tests": [
+        "selftest.sh:el valor de un flag no se toma por raiz"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "SALIO PROBANDO EL COMANDO: instancia OCHO de la clase. Las ocho se arreglaron anadiendo el flag a una lista escrita a mano, y el comentario de PT-057 ya decia hace cuatro instancias que «se arreglan con una regla de FORMA». Ahora se deriva de la POSICION."
+    }
+  ]
+}

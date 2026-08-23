@@ -7000,3 +7000,89 @@ LO QUE NO HACE:
 
 Es una FEATURE estructural: toca LEXICON, RULES y CORE, asi que FDGE-R32 pide regenerar el grafo
 antes de cerrar el lote. G3 por delegacion del firmante con constancia.
+
+## PT-116 — tracker parada: el comando que escribe lo que se publicaba a mano
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su L-2, y subio en el orden con L-1 y L-3 cuando el firmante senalo que
+  llevaba siete tareas explicandose solo en la conversacion
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #234
+
+LA PRUEBA DE LA TAREA ES SU PROPIA PARADA. El issue #234 lleva una nota PUBLICADA POR EL COMANDO:
+la primera del repositorio que no se escribe a mano. Las siete anteriores —PT-131, PT-129, PT-132,
+PT-114, PT-124, PT-123 y PT-115— se publicaron con «gh issue comment» porque esto no existia.
+
+LO QUE NO SE INVENTO. El medio ya estaba: «avanzar» publica en el issue, o en TRANSICIONES.log si
+no hay plataforma (PT-084). Escribir una segunda forma de publicar en la tarea habria sido una
+segunda representacion del mismo hecho — y PT-132 acaba de arreglar DOS COMANDOS DEL MISMO ARCHIVO
+con contratos opuestos.
+
+EL TEXTO ENTRA POR ARCHIVO (SUITE-R59). Una explicacion son parrafos, y esta sesion acumulo CINCO
+roturas de escapado por construir texto dentro del literal de otro lenguaje.
+
+SEIS NEGATIVAS, y todas corren ANTES de tocar la plataforma:
+
+  motivo fuera de la lista cerrada      enumera los seis que LEXICON §8.5 declara
+  desenlace fuera de la lista           enumera los cinco
+  --texto con contenido, no ruta        SUITE-R59
+  --desenlace abre sin --abre           «abre trabajo» sin contraste no es una afirmacion
+  --abre con un ID que no existe        el registro asigna (SUITE-R08)
+  --desenlace cambia-fase               ES DE «avanzar», que ademas mueve el registro en el
+                                        mismo acto atomico. Publicarla suelta dejaria una nota
+                                        sobre una transicion que no ocurrio (LEX-R30)
+
+La ultima NO estaba en la propuesta: salio escribiendo el comando.
+
+EL HALLAZGO DEL CAMINO: INSTANCIA OCHO. Al probar las negativas, TODAS respondian «No hay
+REGISTRY.json legible». Mis cuatro flags nuevos no estaban en CON_VALOR, asi que el valor del
+primero SE TOMABA POR LA RAIZ del repositorio.
+
+  -q PT-049 · --solo PT-050 · --a PT-053 · etiquetas y --de PT-057 · subcomandos PT-060 ·
+  --slug PT-062 · --de otra vez PT-064 · y los cuatro de la parada, hoy
+
+Y EL COMENTARIO DE PT-057 YA LO DECIA, HACE CUATRO INSTANCIAS: «las cuatro se arreglan con una
+regla de FORMA, no con un caso mas». NO SE HIZO. Las ocho se arreglaron anadiendo el flag nuevo a
+una lista escrita a mano.
+
+Ahora si:  EL VALOR DE UN FLAG NUNCA ES LA RAIZ, derivado de la POSICION.
+
+ES LA SEGUNDA ADVERTENCIA ESCRITA QUE NO IMPIDIO SU PROPIA REPETICION en esta sesion. La otra fue
+«atar una asercion a una cifra que crece», en PT-115. Las dos son la tesis del lote: UNA NOTA QUE
+AVISA NO ES UN MECANISMO.
+
+Y SU CASO TAMBIEN HUBO QUE REESCRIBIRLO. El que vigilaba esto assertaba sobre el FUENTE
+—«CON_VALOR.has»— asi que se puso rojo cuando la implementacion MEJORO. Un caso atado a la
+implementacion bloquea la mejora que deberia proteger: es la clase que PT-124 nombro, «buscar el
+texto en el fuente no comprueba nada», VISTA DEL OTRO LADO. Alli un caso pasaba sin comprobar;
+aqui uno falla sin que nada este mal. Los dos danos son el mismo: el caso no habla del hecho,
+habla de como esta escrito hoy.
+
+Reescrito para assertar COMPORTAMIENTO, con su inversa: una ruta de verdad SI debe tomarse por
+raiz. Sin ella, el caso pasaria igual si la guarda ignorara todos los posicionales.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh ·
+  inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-116/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/negativas.txt · salidas/publicada.txt
+
+  paradas publicadas a mano   ANTES 7        DESPUES 0, hay comando
+  flags que pueden colarse    ANTES todos    DESPUES ninguno, por forma
+  bateria                     ANTES 1412     DESPUES 1422
+
+LO QUE ESTA TAREA NO CIERRA, y se dice para que nadie la lea como suficiente:
+
+· UN COMANDO QUE EXISTE Y NADIE INVOCA NO CAMBIA NADA. Es la clase que este lote persigue, y las
+  ocho tareas anteriores lo demuestran: la herramienta existia en las ocho. FDGE-R55 sigue SIN
+  verificador, y SUITE-R26 llama a eso «una recomendacion». Quien lo pone es PT-117.
+· verify-suite TODAVIA NO compara las dos listas con LEXICON §8.5. PT-124 construyo esa
+  comparacion para TIPOS_DE_ITEM y aqui falta la equivalente. Se declara y va a PT-117: meterla
+  aqui mezclaria dos defectos en un arreglo, que es como se pierde cual rompio que.
+· Cuantas paradas hubo por clase, y si las seis son las correctas: PT-119.
+
+Es una FEATURE. G3 por delegacion del firmante con constancia.

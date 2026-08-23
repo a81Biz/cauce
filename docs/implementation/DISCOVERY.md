@@ -80,7 +80,7 @@
 | PT-120 | BUG | S1 | DRAFT | EP-020 | publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN |
 | PT-121 | BUG | S1 | DRAFT | EP-020 | El viaje de vuelta tras el merge no lo cubre ninguna fase |
 | PT-122 | BUG | S2 | DRAFT | EP-020 | El cierre de un lote pasa por el comando, no por la mano |
-| PT-123 | BUG | S1 | DRAFT | EP-020 | BACKLOG.md dice que se deriva del registro y nada lo deriva |
+| PT-123 | BUG | S1 | VALIDATION_PENDING | EP-020 | BACKLOG.md dice que se deriva del registro y nada lo deriva |
 | PT-124 | BUG | S1 | VALIDATION_PENDING | EP-020 | tracker asignar rechaza tres de los cinco tipos que LEXICON declara |
 | PT-125 | INVESTIGATION | S1 | DRAFT | EP-020 | Clasificar las 131 entradas cerradas en EVENTOS.jsonl |
 | PT-127 | BUG | S1 | DRAFT | EP-020 | Nada detecta el trabajo sin allocation: solo lo corta una persona |

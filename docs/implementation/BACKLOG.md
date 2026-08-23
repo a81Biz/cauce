@@ -22,26 +22,26 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-113 | BUG | S2 | DRAFT | 1 | [#217](https://github.com/a81Biz/cauce/issues/217) | La 12.0.1: la guia de migracion que se publico incompleta |
 | PT-114 | BUG | S1 | VALIDATION_PENDING | 8 | [#232](https://github.com/a81Biz/cauce/issues/232) | El cuerpo del issue no se republica cuando aparece la ref durable |
-| PT-115 | FEATURE | S1 | DRAFT | 1 | [#233](https://github.com/a81Biz/cauce/issues/233) | PARADA entra al vocabulario y a las reglas |
-| PT-116 | FEATURE | S1 | DRAFT | 1 | [#234](https://github.com/a81Biz/cauce/issues/234) | tracker parada: el comando que escribe la parada en su tarea |
+| PT-115 | FEATURE | S1 | DONE | 8 | [#233](https://github.com/a81Biz/cauce/issues/233) | PARADA entra al vocabulario y a las reglas |
+| PT-116 | FEATURE | S1 | DONE | 8 | [#234](https://github.com/a81Biz/cauce/issues/234) | tracker parada: el comando que escribe la parada en su tarea |
 | PT-117 | FEATURE | S1 | DRAFT | 1 | [#235](https://github.com/a81Biz/cauce/issues/235) | Todo desenlace cita la parada que lo produjo |
 | PT-118 | FEATURE | S1 | DRAFT | 1 | [#236](https://github.com/a81Biz/cauce/issues/236) | La taxonomia de clases de evento, cerrada, en LEXICON |
 | PT-119 | FEATURE | S1 | DRAFT | 1 | [#237](https://github.com/a81Biz/cauce/issues/237) | tools/matriz.mjs deriva MATRIZ.md |
 | PT-120 | BUG | S1 | DRAFT | 1 | [#238](https://github.com/a81Biz/cauce/issues/238) | publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN |
 | PT-121 | BUG | S1 | DRAFT | 1 | [#239](https://github.com/a81Biz/cauce/issues/239) | El viaje de vuelta tras el merge no lo cubre ninguna fase |
 | PT-122 | BUG | S2 | DRAFT | 1 | [#240](https://github.com/a81Biz/cauce/issues/240) | El cierre de un lote pasa por el comando, no por la mano |
-| PT-123 | BUG | S1 | DRAFT | 3 | [#241](https://github.com/a81Biz/cauce/issues/241) | BACKLOG.md dice que se deriva del registro y nada lo deriva |
+| PT-123 | BUG | S1 | VALIDATION_PENDING | 8 | [#241](https://github.com/a81Biz/cauce/issues/241) | BACKLOG.md dice que se deriva del registro y nada lo deriva |
 | PT-124 | BUG | S1 | VALIDATION_PENDING | 8 | [#242](https://github.com/a81Biz/cauce/issues/242) | tracker asignar rechaza tres de los cinco tipos que LEXICON declara |
 | PT-125 | INVESTIGATION | S1 | DRAFT | 1 | [#243](https://github.com/a81Biz/cauce/issues/243) | Clasificar las 131 entradas cerradas en EVENTOS.jsonl |
 | PT-126 | CHORE | S2 | DRAFT | 1 | [#244](https://github.com/a81Biz/cauce/issues/244) | sellar mide la matriz y FPGE la lee |
-| PT-127 | BUG | S1 | DRAFT | 1 | [#245](https://github.com/a81Biz/cauce/issues/245) | Nada detecta el trabajo sin allocation: solo lo corta una persona |
+| PT-127 | BUG | S1 | DRAFT | 3 | [#245](https://github.com/a81Biz/cauce/issues/245) | Nada detecta el trabajo sin allocation: solo lo corta una persona |
 | PT-128 | FEATURE | S1 | DRAFT | 1 | [#246](https://github.com/a81Biz/cauce/issues/246) | El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar |
 | PT-129 | BUG | S2 | VALIDATION_PENDING | 8 | [#249](https://github.com/a81Biz/cauce/issues/249) | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
 | PT-130 | BUG | S2 | DRAFT | 1 | [#250](https://github.com/a81Biz/cauce/issues/250) | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
 | PT-131 | BUG | S1 | VALIDATION_PENDING | 8 | [#252](https://github.com/a81Biz/cauce/issues/252) | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
 | PT-132 | BUG | S1 | VALIDATION_PENDING | 8 | [#253](https://github.com/a81Biz/cauce/issues/253) | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
 
-**0 de 20 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**2 de 20 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Aplazado — 1 allocation(s) `DEFERRED`
 
