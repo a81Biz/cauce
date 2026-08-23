@@ -2,12 +2,13 @@
 
 <!-- ESTADO -->
 implementación: EP-020 (#218) READY · el acto fuera del comando. VEINTITRÉS tareas, PT-113 a PT-135 — nacieron veinte y tres las abrió el propio trabajo: PT-133, PT-134 y PT-135. G1 PASS el 2026-08-22. El lote cierra cuando las diecisiete clases de evento tengan dueño o número declarado.
-tarea:          PT-125 (#243) en PHASE 8, DONE — EVENTOS.jsonl y su generador. Cerradas 16 de 23. PT-127 (#245) sigue en VALIDATION_PENDING: es BUG y ahí se detiene (FDGE-R26, SUITE-R06b), lo cierra una persona.
+tarea:          PT-126 (#244) en PHASE 8, DONE — cierra la cadena PT-118 → PT-125 → PT-119 → PT-126: nombrar, clasificar, contar y hacer que se vea. Cerradas 19 de 23. PT-127 (#245) sigue en VALIDATION_PENDING: es BUG y lo cierra una persona (FDGE-R26, SUITE-R06b).
 compuerta:      G1 de EP-020 PASS. G2 y G3 delegadas por lote, constancia en SESSION_LOG.md del 2026-08-22. G4 pendiente: NINGUNA tarea de este lote está integrada.
-siguiente:      1) PT-119 deriva MATRIZ.md de EVENTOS.jsonl, que ya existe con denominador declarado. 2) PT-126 hace que sellar la mida y FPGE la lea; su umbral —clase con recuento ≥ 3 sin regla con verificador— hoy seleccionaría CE-001, CE-003, CE-004, CE-013, CE-015 y CE-016. 3) PT-121 y PT-122: el viaje de vuelta y el cierre por comando. 4) PT-130 responde si el trabajo DE LOTE puede citar el EP. 5) PT-135 arregla el lint de helpers.
+siguiente:      Quedan cuatro vivas: PT-121 (el viaje de vuelta tras el merge), PT-122 (el cierre de un lote pasa por el comando), PT-130 (la comprobación que acusa a quien documenta — y responde si el trabajo DE LOTE puede citar el EP, pregunta que dejó PT-127) y PT-135 (el lint de helpers). PT-134 sigue DEFERRED.
 decisiones:     El firmante autorizó dejar trabajo y main limpias y reservó la publicación a npm PARA ÉL: npm publish no lo ejecuta el agente, en ninguna circunstancia. G2 y G3 delegadas por lote. La regeneración del grafo sigue reservada (FDGE-R32) y la autorización del 2026-08-20 NO se hereda.
-no hacer:       1) npm publish. 2) DOS baterías a la vez sobre el mismo archivo de salida — escrito aquí tras PT-118 y VUELTO A OCURRIR en PT-125: la advertencia por sí sola no impide nada, que es la tesis del lote. La pista de que pasó: «HAY FALLOS» con CERO marcas de fallo en el archivo. 3) declarar verified sin abrir la salida de la batería: obligó a corregir PT-128 con una entrada CORRIGE.
-actualizado:    2026-08-23 · PT-125 cerrado en PHASE 8; EVENTOS.jsonl publicado con 164 entradas recorridas
+no hacer:       1) npm publish. 2) DOS baterías a la vez sobre el mismo archivo de salida — escrito aquí tras PT-118 y VUELTO A OCURRIR en PT-125. La pista de que pasó: «HAY FALLOS» con CERO marcas de fallo. 3) casos de batería que llamen a «sellar» sobre el repositorio REAL: consulta la plataforma y cuelga el arnés contra la red (PT-126). 4) declarar verified sin abrir la salida de la batería: obligó a corregir PT-128 con una entrada CORRIGE.
+lo que la matriz dice hoy: seis clases sin regla que las reclame —CE-004 8x, CE-001 7x, CE-003 7x, CE-005 5x, CE-015 4x, CE-007 3x— y una PEOR: CE-002 tiene regla (SUITE-R59) y NADA EMITE POR ELLA. Son candidatos publicados; promoverlos es del firmante (FPGE-R04).
+actualizado:    2026-08-23 · PT-126 cerrado en PHASE 8 · selftest OK 1536 casos
 <!-- /ESTADO -->
 
 ---
