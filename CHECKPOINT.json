@@ -3,20 +3,25 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "e94407d283f17c668cab901394a446361eb99d81",
-  "sha_corto": "e94407d",
+  "sha": "3694e0ce4b3a69d8bb1ee9a97fbdf1b7c34aba1b",
+  "sha_corto": "3694e0c",
   "sucio": true,
   "archivos": [
     "changes/PT-131-el-candado-con-la-llave-dentro/intake.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-22"
 }
