@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-22 · 22 allocation(es) viva(s).
+Proyectado el 2026-08-23 · 22 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -13,7 +13,7 @@ Proyectado el 2026-08-22 · 22 allocation(es) viva(s).
 | EP-020 |  | DRAFT | 1 | — | — | 829cb38 |
 | PT-113 | BUG | DRAFT | 1 | — | — | 922379b |
 | PT-114 | BUG | VALIDATION_PENDING | 8 | — | — | f7973b8 |
-| PT-115 | FEATURE | DRAFT | 1 | — | — | 922379b |
+| PT-115 | FEATURE | DRAFT | 2 | — | — | 922379b |
 | PT-116 | FEATURE | DRAFT | 1 | — | — | 922379b |
 | PT-117 | FEATURE | DRAFT | 1 | — | — | 922379b |
 | PT-118 | FEATURE | DRAFT | 1 | — | — | 922379b |
@@ -25,9 +25,9 @@ Proyectado el 2026-08-22 · 22 allocation(es) viva(s).
 | PT-124 | BUG | VALIDATION_PENDING | 8 | — | — | 3c860d6 |
 | PT-125 | INVESTIGATION | DRAFT | 1 | — | — | 922379b |
 | PT-126 | CHORE | DRAFT | 1 | — | — | 922379b |
-| PT-127 | BUG | DRAFT | 3 | — | — | 922379b |
+| PT-127 | BUG | DRAFT | 3 | — | — | b79e75f |
 | PT-128 | FEATURE | DRAFT | 1 | — | — | 922379b |
-| PT-129 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | c4c637d | 85c4b17 |
+| PT-129 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | b79e75f | 85c4b17 |
 | PT-130 | BUG | DRAFT | 1 | — | — | 922379b |
-| PT-131 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | c4c637d | 11611d9 |
+| PT-131 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | b79e75f | 11611d9 |
 | PT-132 | BUG | VALIDATION_PENDING | 8 | — | — | 267c1ea |

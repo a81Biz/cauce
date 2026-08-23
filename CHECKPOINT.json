@@ -1,25 +1,22 @@
 {
-  "pt": "PT-127",
-  "type": "BUG",
+  "pt": "PT-115",
+  "type": "FEATURE",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "c4c637d0a42575ae173a20922397f14350fb384d",
-  "sha_corto": "c4c637d",
+  "sha": "b79e75fb3cf454bef20a861cecfd4aa401ebc442",
+  "sha_corto": "b79e75f",
   "sucio": true,
   "archivos": [
-    "changes/PT-127-nada-detecta-el-trabajo-sin-allocation/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SESSION_LOG.md"
+    "changes/PT-115-la-parada-entra-al-vocabulario/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "strategy.md"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
-  "generado": "2026-08-22"
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "generado": "2026-08-23"
 }
