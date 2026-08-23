@@ -250,6 +250,60 @@ El bloque `graph` hace computable la frescura del grafo (`FDGE-R43`): un grafo g
 valor **y** añadir la entrada a `allocations` en la misma operación. Si el agente no puede
 escribir en `REGISTRY.json`, no puede asignar el identificador: se detiene y reporta.
 
+
+### 4.4 Identificadores de **clase de evento** — `CE-NNN`   `PT-118`
+
+`LEX-R31` · **Hay una tercera clase de identificador, y no se asigna desde `REGISTRY.json`.**
+Un `CE-NNN` no es un ítem de trabajo —no se abre, no se cierra, no tiene fases ni compuertas— ni
+una regla —no obliga a nada—. Nombra **una forma de fallar que se repite**, para que quince
+descripciones distintas del mismo tropiezo dejen de ser quince cosas.
+
+Es la **única excepción** a `LEX-R04`, y por eso se enuncia aquí en vez de darse por supuesta:
+`counters` cuenta trabajo, y meter una taxonomía en el asignador haría que el número de clases
+dependiera del orden en que alguien las escribió. Un `CE-NNN` se declara **en esta tabla** y su
+número no cambia nunca (`LEX-R04` sigue rigiendo lo demás: único, permanente, nunca reutilizado).
+
+`LEX-R32` · **La lista es cerrada por versión y ampliable por cambio de metodología.** Citar un
+`CE-NNN` que esta tabla no declara es un defecto que `verify-suite` bloquea. Ampliarla es
+modificar `docs/methodology/`, que no se automatiza (`SUITE-R06e`).
+
+**El prefijo `CE` se eligió midiendo, no por gusto.** Los prefijos vivos son `AC` `E` `EP` `H`
+`INC` `P` `PT` `QA` `QD` `QR` `R` `RC` `TS` `U` para trabajo y `EXEC` `FDGE` `FIDE` `FND` `FPGE`
+`INTAKE` `LEX` `PTSA` `QA` `SUITE` para reglas. `CE` no está en ninguna.
+
+El riesgo real no era el prefijo sino la **subcadena**: `CE-001` contiene `E-001`, así que una
+expresión que buscara `E-\d+` sin anclar lo cazaría. Se midió: **ninguna herramienta busca un
+`E-\d+` suelto** —los que hay son `EP-\d+`, precedidos de letra— y los únicos patrones de una
+sola letra son `P-\d+` y `H-\d+`, que no pueden casar dentro de `CE-NNN`.
+
+Lo que la medición **sí** encontró, y aquí se declara en vez de callarse (`RULE-06`):
+`tools/verify-ptsa.mjs:203` usa `/H-\d+/` **sin anclar**. No afecta a `CE`, pero es un riesgo
+latente para cualquier prefijo futuro acabado en `H`.
+
+| ID | Clase | Enunciado en una frase |
+|:---|:---|:---|
+| `CE-001` | El proxy en lugar del hecho | Se comprueba algo que acompaña al hecho —una palabra, un archivo, un recuento— en vez del hecho mismo |
+| `CE-002` | Rotura de escapado | Una barra invertida escrita en un literal llega al destino distinta de como se pensó, y la expresión deja de casar |
+| `CE-003` | Un argumento se cuela por la detección de `ROOT` | Una bandera con valor no está declarada, y su valor se toma por la raíz del proyecto |
+| `CE-004` | Probar donde trabajo, no donde se decide | El caso pasa en el entorno en que se escribió y falla en el que decide, porque no ancla lo que depende del entorno |
+| `CE-005` | Verde por no haber mirado | Una comprobación no encuentra nada porque no llegó a ejecutarse, y el cero se lee como conformidad |
+| `CE-006` | El acto hecho fuera del comando | Existe un comando que escribe ese estado y se escribe a mano, así que ninguna de sus comprobaciones corre |
+| `CE-007` | Existe la herramienta y nada la echa en falta | La herramienta correcta existe, nadie la invoca, y ningún verificador nota su ausencia |
+| `CE-008` | Un hecho, varios nombres | El mismo hecho se nombra de dos maneras en dos documentos, y las dos versiones divergen |
+| `CE-009` | El estado terminal escrito a mano o adelantado | Un estado que sólo debía escribirse al cumplirse una condición se escribe antes, o sin ella |
+| `CE-010` | La cifra transcrita caduca | Una cifra se copia a un documento y el árbol sigue cambiando; la copia describe un pasado |
+| `CE-011` | Un arreglo deja tests del estado anterior | El comportamiento cambia y los casos que describían el anterior siguen verdes describiendo lo que ya no ocurre |
+| `CE-012` | Filtrar la salida antes de mirarla | Se aplica un filtro a la salida de una herramienta y lo que el filtro descarta no se lee nunca |
+| `CE-013` | Un encabezado mal formado bloquea la integración | Un artefacto correcto en contenido no cumple la forma que una comprobación exige, y detiene una compuerta |
+| `CE-014` | Una regla nueva juzga hacia atrás | Una regla recién escrita marca como incumplimiento trabajo hecho cuando no existía |
+| `CE-015` | El cierre destapa más que el reparto | Cerrar un lote encuentra más defectos que repartirlo, porque el cierre es el primer momento en que todo se mira junto |
+| `CE-016` | Trabajar sin allocation | El trabajo se hace sin ítem abierto: sin intake, sin identificador y sin compuerta, y sólo lo corta una persona |
+| `CE-017` | La comprobación acusa a quien documenta el hecho | Una comprobación cuyo alcance es todo el texto falla porque el texto **describe** el hecho que vigila |
+
+**Diecisiete, y la lista no se promete completa.** Son las clases **medidas** en `EP-020` §2.1;
+clasificar las entradas cerradas puede encontrar más, y encontrarlas es la tarea funcionando, no
+un defecto de esta tabla (`RULE-06`: se declara lo medido).
+
 ---
 
 ## 5. Estados

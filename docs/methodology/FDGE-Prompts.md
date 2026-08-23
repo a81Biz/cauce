@@ -1155,6 +1155,11 @@ Compuertas: G1 YYYY-MM-DD [nombre] · G2 YYYY-MM-DD [nombre|auto] · G3 YYYY-MM-
             Para un BUG, G3 DEBE llevar fecha y nombre humano: es la prueba de que no
             hubo auto-cierre, y la comprueba verify-fdge.                    [FDGE-R26]
 Trazabilidad externa: [QD-XXX] [H-XXX] [R-XXX]     (omitir las que no apliquen)
+Clase de evento: [CE-NNN]     (omitir si el trabajo no cae en ninguna)
+            Las clases estan en LEXICON §4.4 y NO se asignan desde REGISTRY.json: una
+            clase no es un item de trabajo.                              [LEX-R31]
+            Citar un CE-NNN que LEXICON no declara es un defecto que bloquea; ampliar
+            la lista es modificar docs/methodology/ y no se automatiza.  [LEX-R32]
 
 Append-only. NUNCA reescribas ni edites una entrada existente.               [SUITE-R09]
 

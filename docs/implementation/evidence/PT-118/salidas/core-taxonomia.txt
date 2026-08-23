@@ -1,0 +1,25 @@
+## Clases de evento — `CE-nnn`   `LEX-R31` · `LEX-R32`
+
+Nombran una forma de fallar que se repite. No se abren ni se cierran: se **citan**.
+Citar una que LEXICON no declara es un defecto que bloquea (`LEX-R32`).
+
+```
+CE-001  El proxy en lugar del hecho
+CE-002  Rotura de escapado
+CE-003  Un argumento se cuela por la detección de `ROOT`
+CE-004  Probar donde trabajo, no donde se decide
+CE-005  Verde por no haber mirado
+CE-006  El acto hecho fuera del comando
+CE-007  Existe la herramienta y nada la echa en falta
+CE-008  Un hecho, varios nombres
+CE-009  El estado terminal escrito a mano o adelantado
+CE-010  La cifra transcrita caduca
+CE-011  Un arreglo deja tests del estado anterior
+CE-012  Filtrar la salida antes de mirarla
+CE-013  Un encabezado mal formado bloquea la integración
+CE-014  Una regla nueva juzga hacia atrás
+CE-015  El cierre destapa más que el reparto
+CE-016  Trabajar sin allocation
+CE-017  La comprobación acusa a quien documenta el hecho
+```
+

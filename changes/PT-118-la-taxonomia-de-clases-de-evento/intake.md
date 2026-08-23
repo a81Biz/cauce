@@ -10,7 +10,7 @@ type: FEATURE
 epic: EP-020
 track: STANDARD
 status: READY
-phase: 1
+phase: 8
 created: 2026-08-22
 structural: si
 suite_version: 12.0.0

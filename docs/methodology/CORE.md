@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 394dc9efe38c -->
-<!-- fuentes: RULES.md:c94acca23ff8 LEXICON.md:c6faeb33a743 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:6beacb074068 -->
+<!-- cuerpo: de1b132064a9 -->
+<!-- fuentes: RULES.md:c94acca23ff8 LEXICON.md:b3655f4533b9 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:75bd12a01523 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -106,6 +106,32 @@ Phase      NOT_STARTED IN_PROGRESS BLOCKED COMPLETE NEEDS_REVIEW
 
 ```
 PT EP QA QR QD H E P R INC · AC-nn TS-nn RC-nn por PT · RULE-nn en 11-Conventions
+CE-nnn NO sale del registro: es la tercera clase, y se declara en LEXICON §4.4 (LEX-R31)
+```
+
+## Clases de evento — `CE-nnn`   `LEX-R31` · `LEX-R32`
+
+Nombran una forma de fallar que se repite. No se abren ni se cierran: se **citan**.
+Citar una que LEXICON no declara es un defecto que bloquea (`LEX-R32`).
+
+```
+CE-001  El proxy en lugar del hecho
+CE-002  Rotura de escapado
+CE-003  Un argumento se cuela por la detección de `ROOT`
+CE-004  Probar donde trabajo, no donde se decide
+CE-005  Verde por no haber mirado
+CE-006  El acto hecho fuera del comando
+CE-007  Existe la herramienta y nada la echa en falta
+CE-008  Un hecho, varios nombres
+CE-009  El estado terminal escrito a mano o adelantado
+CE-010  La cifra transcrita caduca
+CE-011  Un arreglo deja tests del estado anterior
+CE-012  Filtrar la salida antes de mirarla
+CE-013  Un encabezado mal formado bloquea la integración
+CE-014  Una regla nueva juzga hacia atrás
+CE-015  El cierre destapa más que el reparto
+CE-016  Trabajar sin allocation
+CE-017  La comprobación acusa a quien documenta el hecho
 ```
 
 ## Triggers
@@ -234,6 +260,8 @@ verifica un script y bloquea la integración.
 `LEX-R28` **H** El tipo de un caso de QA es uno de esos cuatro.
 `LEX-R29` **H** Una parada es el punto en que el agente detiene el trabajo y devuelve el control.
 `LEX-R30` **H** Una transición de fase es una parada cuyo desenlace es cambia-fase.
+`LEX-R31` **H** Hay una tercera clase de identificador, y no se asigna desde REGISTRY.json.
+`LEX-R32` **H** La lista es cerrada por versión y ampliable por cambio de metodología.
 
 ### EXEC — Compuertas y modos
 
@@ -842,6 +870,8 @@ HAZ  1 HISTORY (append, formato canónico único):
        Archivos modificados / Evidencia / Criterios AC-nn ✓ / Delta real vs planificado
        Compuertas: G1 fecha nombre · G2 … · G3 … · G4 …
        Trazabilidad externa: QD-XXX H-XXX R-XXX
+       Clase de evento: CE-NNN si el trabajo cae en una de LEXICON §4.4         [LEX-R31]
+         citar un CE-NNN que LEXICON no declara es defecto y bloquea            [LEX-R32]
      2 HANDOFF en MODO MERGE: leer el existente y PRESERVAR validaciones e investigaciones
        ajenas al PT [FDGE-R30]
      3 regenerar BACKLOG desde REGISTRY y changes/

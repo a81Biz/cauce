@@ -142,6 +142,8 @@ export const RIGE_DESDE = {
   'LEX-R29':  [13, 0, 0],
   'LEX-R30':  [13, 0, 0],
   'LEX-R08': [12, 0, 0],
+  'LEX-R31': [13, 0, 0],           // PT-118 · la tercera clase de identificador
+  'LEX-R32': [13, 0, 0],           // PT-118 · citar un CE que LEXICON no declara
   'SUITE-R58': [12, 0, 0],
   'SUITE-R59': [12, 0, 0],
 

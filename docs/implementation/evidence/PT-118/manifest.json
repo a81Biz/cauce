@@ -1,0 +1,95 @@
+{
+  "pt": "PT-118",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "LEXICON declara una TERCERA clase de identificador y dice explicitamente que NO se asigna desde REGISTRY.json",
+      "tests": [
+        "selftest.sh:LEXICON declara la clase de evento",
+        "selftest.sh:…y dice que NO se asigna desde REGISTRY",
+        "selftest.sh:…con su regla propia, LEX-R31",
+        "selftest.sh:…declarandose excepcion a LEX-R04"
+      ],
+      "evidence": [
+        "salidas/casos-118.txt",
+        "salidas/verify-suite.txt"
+      ],
+      "verified": true,
+      "nota": "La excepcion a LEX-R04 se ENUNCIA con su motivo en vez de dejarse implicita: counters cuenta trabajo, y meter una taxonomia en el asignador haria que el numero de una clase dependiera del orden en que alguien la escribio."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El prefijo elegido no colisiona con E-NNN, P-NNN, R-NNN, H-NNN ni U-NNN",
+      "tests": [
+        "selftest.sh:el prefijo CE no colisiona con ningun otro",
+        "selftest.sh:…y ninguna expresion busca «E-NNN» suelto",
+        "selftest.sh:…con el riesgo latente que si existe, declarado"
+      ],
+      "evidence": [
+        "salidas/casos-118.txt"
+      ],
+      "verified": true,
+      "nota": "El riesgo no era el prefijo sino la SUBCADENA: CE-001 contiene E-001. Se midio que ninguna herramienta busca un E-\\d+ suelto. Y se DECLARA lo que la medicion si encontro: verify-ptsa.mjs:203 usa /H-\\d+/ sin anclar. No afecta a CE, pero la primera redaccion de LEXICON afirmaba que TODAS iban ancladas — y era falso."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Las clases medidas en EP-020 §2.1 entran como semilla, cada una con su enunciado en una frase",
+      "tests": [
+        "selftest.sh:las diecisiete clases estan declaradas",
+        "selftest.sh:…y la ultima es la que faltaba en la matriz",
+        "selftest.sh:…y ninguna se queda sin enunciado",
+        "selftest.sh:…y la lista no se promete completa"
+      ],
+      "evidence": [
+        "salidas/casos-118.txt"
+      ],
+      "verified": true,
+      "nota": "El criterio dice «quince» porque el intake se escribio cuando §2.1 tenia quince. El firmante señalo dos mas y §2.1 las incorporo: la semilla entra con DIECISIETE, que es lo medido. Y no se promete completa: PT-125 puede encontrar mas."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "CORE.md la lleva",
+      "tests": [
+        "selftest.sh:la taxonomia llega al nucleo"
+      ],
+      "evidence": [
+        "salidas/core-taxonomia.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "ESTUVO EN ROJO DE VERDAD: la primera medicion dio grep -c '^CE-0' CORE.md = 0. build-core compila reglas, y la tabla no llegaba. El arreglo no fue copiarla al generador —eso es CE-008 dentro de la herramienta que existe para que el nucleo no sea una copia— sino DERIVARLA de LEXICON, con SIN EVALUAR si no esta."
+    }
+  ],
+  "negativo": {
+    "que": "LEX-R32: citar un CE-NNN que LEXICON no declara FALLA, no avisa",
+    "tests": [
+      "selftest.sh:citar un CE que LEXICON no declara FALLA",
+      "selftest.sh:…y es error, no aviso"
+    ],
+    "evidence": "salidas/casos-118.txt",
+    "nota": "Sin el, AC-01..AC-04 solo probarian que un texto esta escrito. Con el, LEX-R31 es una regla y no una recomendacion."
+  },
+  "inverse_test": {
+    "suppressions": 3,
+    "distinct_reds": 4,
+    "evidence": "salidas/inversa.txt",
+    "nota": "Y la propia prueba inversa tuvo su defecto: el fixture copiaba la suite PLANA, build-core no encontraba docs/methodology/ ni PTSA/, se negaba a compilar y CORE.md se quedaba como estaba — asi que la supresion parecia no tener efecto. CE-005, verde por no haber mirado, dentro de la prueba que existe para evitarlo. Corregido y escrito en el script."
+  },
+  "measured": {
+    "clases_declaradas": 17,
+    "CE_en_CORE_antes": 0,
+    "CE_en_CORE_despues": 17,
+    "coste_del_nucleo": "de ~25 696 a ~25 990 tokens",
+    "casos": "14 de 14",
+    "bateria_completa": "selftest OK · 1483 casos · codigo 0 · salidas/selftest-completo.txt",
+    "nota_de_la_corrida": "La corrida anterior salio «HAY FALLOS» con CERO lineas rojas: dos batidas escribiendo el MISMO archivo a la vez habian entremezclado la salida. Esta es una sola, sin nada concurrente. Un «HAY FALLOS» sin un solo ✗ era la pista de que el archivo no describia una corrida, y no de que la bateria mintiera."
+  },
+  "hallazgo_producido": {
+    "que": "La corrida completa saco dos «command not found»: git_fixture (definido en la linea 4803) y con_phase (6397) se usan en la 2402. El caso de PT-109 que va detras pasa SIN su montaje: sin git inicializado y sin phase 8.",
+    "clase": "CE-005",
+    "por_que_el_lint_no_lo_vio": "lint_helpers solo reconoce un helper cuando es el COMANDO de un caso; estos se invocan como lineas de montaje sueltas. No se le escapo: no puede verlo por construccion. Y su lista de helpers esta escrita a mano.",
+    "donde_va": "PT-135 · issue #256",
+    "no_se_arregla_aqui": "Tiene su propia causa y su propio alcance. Arreglarlo de paso seria trabajo sin allocation — CE-016, la clase que PT-127 acaba de dotar de detector."
+  }
+}

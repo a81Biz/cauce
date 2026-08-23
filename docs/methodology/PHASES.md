@@ -427,6 +427,8 @@ HAZ  1 HISTORY (append, formato canónico único):
        Archivos modificados / Evidencia / Criterios AC-nn ✓ / Delta real vs planificado
        Compuertas: G1 fecha nombre · G2 … · G3 … · G4 …
        Trazabilidad externa: QD-XXX H-XXX R-XXX
+       Clase de evento: CE-NNN si el trabajo cae en una de LEXICON §4.4         [LEX-R31]
+         citar un CE-NNN que LEXICON no declara es defecto y bloquea            [LEX-R32]
      2 HANDOFF en MODO MERGE: leer el existente y PRESERVAR validaciones e investigaciones
        ajenas al PT [FDGE-R30]
      3 regenerar BACKLOG desde REGISTRY y changes/

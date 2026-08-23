@@ -370,6 +370,20 @@
   [32m✓[0m y dice como se corrige
   [32m✓[0m sin ref durable todavia, no acusa
   [32m✓[0m sin el resolvedor, se comporta como hoy
+  [32m✓[0m LEXICON declara la clase de evento
+  [32m✓[0m …y dice que NO se asigna desde REGISTRY
+  [32m✓[0m …con su regla propia, LEX-R31
+  [32m✓[0m …declarandose excepcion a LEX-R04
+  [32m✓[0m el prefijo CE no colisiona con ningun otro
+  [32m✓[0m …y ninguna expresion busca «E-NNN» suelto
+  [32m✓[0m …con el riesgo latente que si existe, declarado
+  [32m✓[0m las diecisiete clases estan declaradas
+  [32m✓[0m …y la ultima es la que faltaba en la matriz
+  [32m✓[0m …y ninguna se queda sin enunciado
+  [32m✓[0m …y la lista no se promete completa
+  [32m✓[0m la taxonomia llega al nucleo
+  [32m✓[0m citar un CE que LEXICON no declara FALLA
+  [32m✓[0m …y es error, no aviso
   [32m✓[0m un commit con «feat: PT-NNN» y allocation viva no es hallazgo
   [32m✓[0m un commit que no toca ruta gobernada no necesita allocation
   [32m✓[0m citar un LOTE no es citar una allocation
@@ -423,8 +437,8 @@
   [32m✓[0m version.mjs ve la version del REGISTRO
   [32m✓[0m …y la alinea
   [32m✓[0m …sin tocar ningun otro campo
-docs/methodology/tools/selftest.sh: line 2334: git_fixture: command not found
-docs/methodology/tools/selftest.sh: line 2336: con_phase: command not found
+docs/methodology/tools/selftest.sh: line 2402: git_fixture: command not found
+docs/methodology/tools/selftest.sh: line 2404: con_phase: command not found
   [32m✓[0m el aviso dice en que compuerta se convierte en error
   [32m✓[0m …y no se la pega a una regla que no cambia
   [32m✓[0m FPGE-R01 mira la FILA del roadmap, no la mencion
@@ -965,7 +979,102 @@ docs/methodology/tools/selftest.sh: line 2336: con_phase: command not found
   [32m✓[0m …y que es referencia, no prediccion
   [32m✓[0m un grupo pequeno se declara SIN REFERENCIA
   [32m✓[0m …y no da mediana de una sola tarea
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       [32m✓[0m otra identidad NO hereda la sesion
+  [32m✓[0m …pero ensena el caso que hay
+  [32m✓[0m sin filtro salen todos los grupos
+  [32m✓[0m un tipo no se confunde con el ROOT
+  [32m✓[0m coste funciona SIN credencial
+  [32m✓[0m la cifra no es la misma para todo grupo
+  [32m✓[0m «referencia de coste» esta en LEXICON
+  [32m✓[0m …con de donde sale
+  [32m✓[0m …y que NO mide
+  [32m✓[0m …y por que el asunto y no el cuerpo
+  [32m✓[0m …y que el umbral es un juicio
+── PT-059 · la compuerta de viabilidad ──
+  [32m✓[0m coste bajo el precedente ⇒ SAFE
+  [32m✓[0m …y el motivo lleva las dos cifras
+  [32m✓[0m …y tambien la del coste
+  [32m✓[0m …y habla de PRECEDENTE
+  [32m✓[0m …y NO promete que quepa
+  [32m✓[0m dentro de la holgura ⇒ MARGINAL
+  [32m✓[0m …y restringe a lo ATOMICO
+  [32m✓[0m muy por encima ⇒ UNSAFE
+  [32m✓[0m …y pide checkpoint, handoff y parada
+  [32m✓[0m …y dice que hay evidencia EN CONTRA
+  [32m✓[0m coste SIN EVALUAR ⇒ MARGINAL
+  [32m✓[0m …y NUNCA SAFE
+  [32m✓[0m precedente SIN EVALUAR ⇒ MARGINAL
+  [32m✓[0m …y dice CUAL de los dos falta
+  [32m✓[0m …o el otro, segun cual sea
+  [32m✓[0m …y que no se aprueba por omision
+  [32m✓[0m por encima del techo historico ⇒ UNSAFE
+  [32m✓[0m …y lo marca como NUNCA
+  [32m✓[0m …y pide PARTIR la tarea
+  [32m✓[0m …y dice que no se reintente
+  [32m✓[0m y se decide ANTES que el SIN EVALUAR
+  [32m✓[0m lo que cabe no se marca NUNCA
+  [32m✓[0m HOLGURA esta exportada
+  [32m✓[0m …y se puede cambiar sin tocar la funcion
+  [32m✓[0m …y se declara como JUICIO
+  [32m✓[0m VEREDICTOS son TRES
+  [32m✓[0m BLOCKED_BY_CONTEXT existe
+  [32m✓[0m …y NO es terminal
+  [32m✓[0m …y SI es vivo
+  [32m✓[0m esta en LEXICON
+  [32m✓[0m …y dice que NO es un fallo
+  [32m✓[0m …y que lo desbloquea otra sesion
+  [32m✓[0m verify-fdge lo cuenta como vivo
+  [32m✓[0m SAFE esta en LEXICON
+  [32m✓[0m MARGINAL esta en LEXICON
+  [32m✓[0m UNSAFE esta en LEXICON
+  [32m✓[0m …y que el disponible no existe
+  [32m✓[0m …y que no cabe ahora no es nunca
+  [32m✓[0m viabilidad da un veredicto
+  [32m✓[0m …con el coste y su naturaleza
+  [32m✓[0m …y el precedente con la suya
+  [32m✓[0m …y el techo historico
+  [32m✓[0m …y dice que mide PRECEDENTE
+  [32m✓[0m …y que solo CONSULTA
+  [32m✓[0m funciona sin credencial
+  [32m✓[0m un PT que no existe no se inventa
+── PT-060 · la sesión como entidad ──
+  [32m✓[0m con marca, la sesion esta abierta
+  [32m✓[0m …y las cifras van MEDIDAS
+  [32m✓[0m …y el «desde» sale de la MARCA
+  [32m✓[0m …y las tareas de la sesion
+  [32m✓[0m sin datos de git ⇒ SIN EVALUAR
+  [32m✓[0m …y NO cero
+  [32m✓[0m sin marca, no hay sesion
+  [32m✓[0m …y lo DICE
+  [32m✓[0m …y que el dia NO es la sesion
+  [32m✓[0m …y no inventa cifras
+  [32m✓[0m CHECKPOINTING no es estado terminal
+  [32m✓[0m …ni estado vivo
+  [32m✓[0m HANDOFF_REQUIRED tampoco
+  [32m✓[0m …ni vivo
+  [32m✓[0m WAITING_NEW_SESSION tampoco
+  [32m✓[0m ninguno es status en REGISTRY.json
+  [32m✓[0m …ni HANDOFF_REQUIRED
+  [32m✓[0m el handoff dice que tarea
+  [32m✓[0m …y en que fase
+  [32m✓[0m …y sobre que commit
+  [32m✓[0m …y QUE SIGUE
+  [32m✓[0m …y de donde sale la sesion
+  [32m✓[0m sin checkpoint lo DICE
+  [32m✓[0m …y como conseguirlo
+  [32m✓[0m sin sesion, el handoff lo dice
+  [32m✓[0m sesion abrir escribe la marca
+  [32m✓[0m …y el archivo de sesion existe
+  [32m✓[0m …con la fecha de apertura
+  [32m✓[0m sesion ve lo derivado
+  [32m✓[0m …con cada cifra y su naturaleza
+  [32m✓[0m sesion cerrar da el handoff
+  [32m✓[0m …y dice que NO borra la marca
+  [32m✓[0m …y que HANDOFF.md queda INTACTO
+  [32m✓[0m abrir otra vez sobrescribe
+  [32m✓[0m …y sigue habiendo UN solo archivo de sesion
+  [32m✓[0m viabilidad nombra la sesion abierta
+  [32m✓[0m …y sigue dando su veredicto
+  [32m✓[0m otra identidad NO hereda la sesion
   [32m✓[0m …y lo dice, no lo calla
   [32m✓[0m HANDOFF conserva sus decisiones
   [32m✓[0m …y sus «no hacer»
@@ -1420,4 +1529,5 @@ docs/methodology/tools/selftest.sh: line 2336: con_phase: command not found
   [32m✓[0m INC-001 registrado en el ledger
   [32m✓[0m …y tiene candidato en el roadmap
 
-selftest: OK · 1469 casos
+selftest: OK · 1483 casos
+codigo 0

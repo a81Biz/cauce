@@ -7583,3 +7583,127 @@ LO QUE NO ESTABLECE:
 
 Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING y ahi se detiene. Llevarlo a DONE
 es un acto humano que deja constancia de quien y cuando (FDGE-R26, LEX-R08, SUITE-R06b).
+
+## PT-128 — CORRIGE: la evidencia declarada y el alcance de su verificacion
+Corrige: la entrada de 2026-08-22
+Motivo: declaro como evidencia «salidas/selftest-completo.txt», que NO EXISTIA, y su
+        manifest.json declaraba verified:true sobre nueve casos de bateria que, corridos
+        DENTRO de la bateria, estaban en ROJO.
+
+Evidencia: docs/implementation/evidence/PT-128/ · manifest.json · self-review.md ·
+  salidas/cursor.txt · salidas/selftest-completo.txt — este ultimo generado el 2026-08-23,
+  con la bateria completa: selftest OK, 1469 casos, 0 fallos.
+
+Criterios AC-01..AC-06 ✓, los seis — ahora con la corrida que lo respalda.
+
+QUE FALLABA. Los casos no anclaban su directorio:
+
+  cur128() { node "$SUITE/tools/tracker.mjs" cursor "$@"; }
+
+Ejecutado suelto desde la raiz, el cursor lee el REGISTRY real y encuentra PT-128 y EP-019.
+Ejecutado dentro de la bateria, el directorio activo es el fixture vigente en ese punto —que no
+los contiene— y la salida es «PT-128 no esta en el registro». Nueve casos en rojo, y ninguno lo
+vio porque nadie abrio la salida.
+
+Es CE-004, «probar donde trabajo, no donde se decide»: novena instancia en la matriz de EP-020,
+DECIMA aqui, y sigue SIN DUENO. Esta correccion es su numero, no su arreglo.
+
+LO GRAVE NO ES EL «cd» QUE FALTABA. Es que se escribio verified:true sin haber mirado la salida
+de la bateria, y se escribio en HISTORY.log el nombre de un archivo que se iba a generar y no se
+genero. Un verde fabricado no tiene atenuante: el marco entero existe para que una afirmacion
+tenga evidencia en disco (FDGE-R23).
+
+QUE SE ARREGLO. Los casos se anclan a $RAIZ; «cur128_escribe» declara SIN EVALUAR si no puede
+leer el registro, en vez de decir «no escribe» sobre algo que no miro (RULE-06); el manifiesto
+lleva la correccion; y la bateria completa se corrio de verdad. Lo encontro PT-127 al ejecutar la
+suya — que tenia el mismo defecto y todavia no se habia commiteado.
+
+LO QUE ESTA CORRECCION NO HACE. No reabre PT-128 ni lo rejuzga (SUITE-R36). El cursor funciona, y
+su hallazgo —que para un lote CONTABA en vez de enumerar— sigue siendo cierto y esta medido en
+cursor.txt. Lo falso era el alcance de la verificacion, no el resultado.
+
+Consta tambien en docs/implementation/SESSION_LOG.md · 2026-08-23.
+
+## PT-118 — La taxonomia de clases de evento, cerrada, en LEXICON
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es la raiz de la cadena: PT-125, PT-119 y PT-126 dependen de ella
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: NO
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · G4 pendiente
+Clase de evento: CE-008
+
+Lo pidio el firmante: «quiero saber que ocurrio, que se mejoro, QUE SE REPITE». Las dos primeras
+las contesta HISTORY.log. La tercera no, y la razon es concreta: el mismo tropiezo esta escrito
+con quince redacciones distintas a lo largo de 131 entradas. NADA LAS JUNTA PORQUE NADA LAS
+NOMBRA.
+
+QUE SE CONSTRUYO. La TERCERA clase de identificador del marco. LEXICON §4.4 declara CE-NNN con
+las diecisiete clases medidas en EP-020 §2.1, cada una con su enunciado en una frase. LEX-R31
+enuncia la excepcion a LEX-R04; LEX-R32 hace que citar una clase inexistente FALLE; build-core la
+lleva al nucleo DERIVANDOLA.
+
+LAS TRES DECISIONES QUE SE ENUNCIAN EN VEZ DE SUPONERSE:
+
+  1  LEX-R04 dice «exclusivamente via REGISTRY.json» y un CE-NNN no sale de ahi. Callarlo dejaba
+     una contradiccion silenciosa —CE-008— dentro del documento que existe para impedirla.
+     LEX-R31 la declara CON SU MOTIVO: counters cuenta trabajo, y meter una taxonomia en el
+     asignador haria que el numero de una clase dependiera del orden en que alguien la escribio.
+  2  LEX-R32 FALLA, no avisa. Sin comprobacion, LEX-R31 es una sugerencia y en dos versiones hay
+     un CE-018 escrito de memoria y otro escrito contando filas — la averia que LEX-R04 impide en
+     los identificadores de trabajo, repetida en la clase recien creada para no repetir cosas.
+  3  Al nucleo, DERIVADA. Copiarla al generador habria sido la copia que diverge dentro de la
+     herramienta que existe para que el nucleo no sea una copia.
+
+EL PREFIJO SE ELIGIO MIDIENDO. «CE» esta libre en las dos tablas de LEXICON. Pero el riesgo no
+era el prefijo sino la SUBCADENA: CE-001 contiene E-001, asi que una expresion que buscara E-\d+
+sin anclar lo cazaria. Ninguna lo hace — las que hay son EP-\d+, precedidas de letra.
+
+TRES DEFECTOS APARECIERON CONSTRUYENDOLO:
+
+  1  UNA FRASE QUE AFIRMABA MAS DE LO MEDIDO. LEXICON decia que las expresiones de una sola letra
+     iban «todas ancladas con ^ o \b». Es FALSO: tools/verify-ptsa.mjs:203 usa /H-\d+/ sin
+     anclar. La frase se escribio antes de terminar de mirar, y la desmintio construir el caso
+     que debia respaldarla. Ahora el texto dice lo medido y DECLARA el riesgo latente.
+  2  AC-04 ESTABA EN ROJO DE VERDAD. «grep -c '^CE-0' CORE.md» daba 0: build-core compila reglas,
+     y la tabla no llegaba. No se dio por parecido — se midio, salio cero, y se construyo la
+     derivacion. De paso, la linea de IDs del nucleo estaba ESCRITA A MANO dentro del generador.
+  3  LA PRUEBA INVERSA DABA «REVISAR» EN ESCENARIOS CORRECTOS. El fixture copiaba la suite plana;
+     build-core no encontraba docs/methodology/ ni PTSA/, se negaba a compilar y CORE.md se
+     quedaba COMO ESTABA. La supresion no se notaba porque NADA LLEGO A CORRER: CE-005, verde por
+     no haber mirado, dentro de la prueba que existe para evitarlo.
+
+Archivos modificados: LEXICON.md · PHASES.md · FDGE-Prompts.md · tools/patrones.mjs ·
+  tools/verify-suite.mjs · tools/build-core.mjs · tools/selftest.sh · CORE.md (generado)
+
+Evidencia: docs/implementation/evidence/PT-118/ · manifest.json · self-review.md ·
+  salidas/casos-118.txt · salidas/inversa.txt · salidas/core-taxonomia.txt ·
+  salidas/verify-suite.txt · salidas/selftest-completo.txt
+
+Criterios AC-01..AC-04 ✓, los cuatro. Catorce escenarios de catorce. Inversa: tres supresiones,
+cuatro rojos distintos.
+
+  clases de identificador   ANTES 2          DESPUES 3
+  clases de evento          ANTES 0 con ID   DESPUES 17, cada una con enunciado
+  CE en CORE.md             ANTES 0          DESPUES 17, derivadas
+  coste del nucleo          ANTES ~25 696    DESPUES ~25 990 tokens
+
+Delta (real vs planificado): AC-03 dice «quince» porque el intake se escribio cuando §2.1 tenia
+quince clases; el firmante señalo dos mas y la semilla entra con DIECISIETE, que es lo medido.
+Lo demas, segun plan.
+
+LO QUE NO ESTABLECE:
+
+· Que las diecisiete sean todas. PT-125 puede encontrar mas, y encontrarlas es la tarea
+  funcionando (RULE-06).
+· Que ninguna herramienta pueda confundir un CE-NNN. Establece que HOY ninguna busca un E-\d+
+  suelto. El /H-\d+/ sin anclar de verify-ptsa.mjs:203 queda DECLARADO y no se arregla aqui:
+  tocarlo es entrar en el verificador de otro componente sin allocation que lo cubra — CE-016,
+  la clase que PT-127 acaba de dotar de detector.
+· Que citar bien una clase sea clasificar bien. La clasificacion es un juicio, y PT-125 la
+  marcara DECLARADO.
+· Que la lista quede cerrada para siempre. Cerrada POR VERSION, ampliable por cambio de
+  metodologia (SUITE-R06e).

@@ -1997,6 +1997,74 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-118 · EP-020 · la taxonomia de clases de evento ────────────────────────────────────────
+#
+# Lo pidio el firmante: «quiero saber que ocurrio, que se mejoro, que se repite». Eso no se puede
+# saber mientras el mismo tropiezo se llame de quince maneras. La clase es lo que convierte
+# quince descripciones en una cosa contable.
+LEX118="$RAIZ/docs/methodology/LEXICON.md"
+
+# AC-01 · LEXICON declara una TERCERA clase de identificador y dice que NO sale del asignador.
+chk   "LEXICON declara la clase de evento"          "CE-NNN"        cat "$LEX118"
+chk   "…y dice que NO se asigna desde REGISTRY"     "no se asigna desde .REGISTRY.json"  cat "$LEX118"
+chk   "…con su regla propia, LEX-R31"               "LEX-R31"       cat "$LEX118"
+# Y la excepcion se ENUNCIA: LEX-R04 dice «exclusivamente via REGISTRY.json», asi que una tercera
+# clase que no pasa por ahi tiene que declararse excepcion o es una contradiccion silenciosa.
+chk   "…declarandose excepcion a LEX-R04"           "nica excepci"  cat "$LEX118"
+
+# AC-02 · el prefijo no colisiona. El caso ENUMERA los prefijos vivos y comprueba la ausencia,
+# en vez de afirmarla: afirmar que algo no colisiona sin mirar es la forma de que colisione.
+ce118_prefijos() {
+  # Los prefijos de trabajo y de regla que LEXICON declara, y si «CE» esta entre ellos.
+  grep -oE '\| `[A-Z]+-(N+|R)' "$LEX118" | sed 's/.*`//;s/-.*//' | sort -u | grep -x "CE" \
+    && echo "COLISIONA" || echo "PREFIJO LIBRE"
+}
+chk   "el prefijo CE no colisiona con ningun otro"  "PREFIJO LIBRE"  ce118_prefijos
+# Y el otro riesgo, que no es el prefijo sino la SUBCADENA: «CE-001» contiene «E-001». Solo es
+# seguro porque toda expresion que busca E-NNN, P-NNN, H-NNN o U-NNN va anclada.
+ce118_subcadena() {
+  # Se busca lo CONTRARIO de lo que se quiere: una expresion que busque «E-NNN» suelto, o sea con
+  # una «E» que no venga precedida de otra letra. Si existiera, cazaria dentro de «CE-001».
+  if grep -hoE "[^A-Za-z]E-.?d" "$SUITE"/tools/*.mjs 2>/dev/null | grep -q .; then
+    echo "HAY UNA E SUELTA"
+  else
+    echo "NINGUNA E SUELTA"
+  fi
+}
+chk   "…y ninguna expresion busca «E-NNN» suelto"  "NINGUNA E SUELTA"  ce118_subcadena
+# Y lo que la medicion SI encontro se declara, en vez de callarse (RULE-06).
+chk   "…con el riesgo latente que si existe, declarado"  "verify-ptsa.mjs:203"  cat "$LEX118"
+
+# AC-03 · las diecisiete clases medidas entran como semilla, cada una con su enunciado.
+ce118_cuantas() { grep -cE '^\| `CE-[0-9]{3}`' "$LEX118"; }
+chk   "las diecisiete clases estan declaradas"      "17"            ce118_cuantas
+chk   "…y la ultima es la que faltaba en la matriz" "CE-017"        cat "$LEX118"
+# Cada una con enunciado: una fila con la celda de enunciado vacia seria un nombre sin contenido.
+ce118_sin_enunciado() {
+  awk -F'|' '/^\| `CE-[0-9]{3}`/ { gsub(/ /,"",$4); if ($4=="") print "VACIA: " $2 }' "$LEX118"
+  echo "TODAS CON ENUNCIADO"
+}
+chk   "…y ninguna se queda sin enunciado"           "TODAS CON ENUNCIADO"  ce118_sin_enunciado
+# Y NO se promete completa: PT-125 puede encontrar mas, y encontrarlas es la tarea funcionando.
+chk   "…y la lista no se promete completa"          "no se promete completa"  cat "$LEX118"
+
+# AC-04 · CORE.md la lleva: si no llega al nucleo, el agente no la ve en ninguna sesion.
+chk   "la taxonomia llega al nucleo"                "CE-016"        cat "$SUITE/CORE.md"
+
+# LEX-R32 · EL NEGATIVO, y es el que hace util a todo lo anterior: citar una clase que LEXICON
+# no declara FALLA. Sin esto, la lista es una sugerencia y en dos versiones habra un CE-018
+# escrito de memoria — la averia que LEX-R04 impide en los identificadores de trabajo.
+ce118_inventada() {
+  local d="$WORK/ce118"; rm -rf "$d"; mkdir -p "$d"
+  cp "$LEX118" "$d/LEXICON.md"
+  cp "$SUITE/RULES.md" "$SUITE/EXECUTION-MODES.md" "$SUITE/PHASES.md" "$d/" 2>/dev/null
+  cp "$SUITE/CHANGELOG.md" "$SUITE/CORE.md" "$d/" 2>/dev/null
+  printf '\n`CE-099` es una clase que nadie declaro.\n' >> "$d/PHASES.md"
+  node "$SUITE/tools/verify-suite.mjs" "$d" 2>&1
+}
+chk   "citar un CE que LEXICON no declara FALLA"    "CE-099"        ce118_inventada
+chk   "…y es error, no aviso"                       "ERRORES"       ce118_inventada
+
 # ── PT-127 · EP-020 · nada detecta el trabajo sin allocation ──────────────────────────────────
 #
 # Lo pidio el firmante con una frase que se describe a si misma:

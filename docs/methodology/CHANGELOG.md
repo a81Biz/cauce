@@ -14,8 +14,8 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ### Reglas nuevas
 
-Tres hasta ahora, todas `HARD`, y **definidas en su documento propietario** — aquí sólo se citan
-(`LEX-R23`): `FDGE-R55`, `LEX-R29` y `LEX-R30`.
+Cinco hasta ahora, todas `HARD`, y **definidas en su documento propietario** — aquí sólo se
+citan (`LEX-R23`): `FDGE-R55`, `LEX-R29`, `LEX-R30`, `LEX-R31` y `LEX-R32`.
 
 ### Qué hacer al actualizar
 
@@ -29,6 +29,24 @@ tareas abiertas a partir de esta versión, así que tu trabajo cerrado no empiez
 §8.5: seis clases de `motivo` y cinco de `desenlace`. Si un motivo real no encaja en las seis,
 **no lo fuerces**: ampliarlas es un cambio de metodología, y una lista cerrada mal elegida se
 rodea —que es lo que `PT-103` midió cuando a `asignar` le faltaban campos—.
+
+**`LEX-R31` y `LEX-R32` — hay una tercera clase de identificador.**   `PT-118`
+
+`LEXICON` §4.4 declara `CE-NNN`: una **clase de evento**, que nombra una forma de fallar que se
+repite. No es un ítem de trabajo —no se abre ni se cierra— ni una regla —no obliga a nada—, y es
+la **única excepción** a `LEX-R04`: **no se asigna desde `REGISTRY.json`**. El motivo se enuncia
+en vez de suponerse: `counters` cuenta trabajo, y meter una taxonomía en el asignador haría que
+el número de una clase dependiera del orden en que alguien la escribió.
+
+**Qué hacer al actualizar: nada, salvo que cites una.** La lista nace con **diecisiete** clases,
+las medidas en `EP-020`. Si citas un `CE-NNN` que `LEXICON` §4.4 no declara, `verify-suite`
+**falla** —no avisa—: la lista es cerrada por versión. Ampliarla es modificar
+`docs/methodology/`, que no se automatiza (`SUITE-R06e`).
+
+**Y no empieza a exigir nada hacia atrás.** `RIGE_DESDE` las acota a la `13.0.0`: tu
+`HISTORY.log` anterior no pasa a estar incompleto por no declarar clase. Declararla es opcional
+—`PHASE 8` la pide «si el trabajo cae en una de §4.4»—; **citar una que no existe** es lo que
+falla.
 
 **`FDGE-R52` no cambia y no se relaja.** Pasa a estar declarada como el **caso particular** de
 `FDGE-R55`: una transición de fase es una parada cuyo desenlace es `cambia-fase`. Su verificador

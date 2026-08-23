@@ -345,6 +345,53 @@ if (!existsSync(rulesPath)) {
   }
 }
 
+// ── LEX-R32 · un CE-NNN citado existe en LEXICON §4.4   PT-118 ───────────────
+//
+// La tercera clase de identificador NO se asigna desde REGISTRY.json (LEX-R31), asi que el
+// asignador no puede protegerla: si nadie comprueba lo que se cita, dentro de dos versiones
+// habra un CE-018 escrito de memoria y otro escrito contando filas. Es exactamente la averia
+// que LEX-R04 existe para impedir en los identificadores de trabajo.
+//
+// FALLA, no avisa: citar una clase que no existe es afirmar que un tropiezo pertenece a una
+// familia que nadie declaro — y toda la matriz de eventos se apoya en que la familia exista.
+{
+  const RE_CE = /\bCE-(\d{3})\b/g;
+  const lexPath = files.find((f) => relOf(f) === 'LEXICON.md');
+  const lex = lexPath ? readFileSync(lexPath, 'utf8') : null;
+
+  if (lex === null) {
+    // Sin LEXICON no se sabe que clases existen. No saber no es permiso (RULE-06): se dice,
+    // y no se da por bueno lo que no se pudo comprobar.
+    warn('LEX-R32', 'LEXICON.md', 0,
+      'no se pudo leer LEXICON.md: SIN EVALUAR si los CE-NNN citados existen.');
+  } else {
+    // Declaradas = las que aparecen como PRIMERA celda de una fila de tabla. Citar es cualquier
+    // otra posicion, igual que en SUITE-R14: la severidad alli, la posicion de definicion aqui.
+    const declaradas = new Set(
+      [...lex.matchAll(/^\|\s*`CE-(\d{3})`\s*\|/gm)].map((m) => `CE-${m[1]}`));
+
+    if (declaradas.size === 0) {
+      warn('LEX-R32', 'LEXICON.md', 0,
+        'LEXICON no declara ninguna clase de evento: SIN EVALUAR (RULE-06).');
+    } else {
+      for (const f of files) {
+        const rf = relOf(f);
+        if (rf === 'LEXICON.md' || rf === 'CORE.md') continue;   // la fuente y su compilado
+        readFileSync(f, 'utf8').split(/\r?\n/).forEach((line, i) => {
+          for (const m of line.matchAll(RE_CE)) {
+            const id = `CE-${m[1]}`;
+            if (declaradas.has(id)) continue;
+            fail('LEX-R32', rf, i + 1,
+              `cita «${id}», que LEXICON §4.4 no declara. Las clases de evento son una lista `
+              + `cerrada por version (LEX-R32): ampliarla es modificar docs/methodology/, que `
+              + `no se automatiza (SUITE-R06e). Declaradas hoy: ${declaradas.size}.`);
+          }
+        });
+      }
+    }
+  }
+}
+
 // ── 4. Los Framework-*.md explican; no mandan (LEX-R22) ──────────────────────
 const IMPERATIVE = /\b(DEBE|DEBERÁ|OBLIGATORIO|SE EXIGE|PROHIBIDO|NO DEBE|es obligatorio|queda prohibido)\b/;
 for (const f of files) {
