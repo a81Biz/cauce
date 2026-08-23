@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-23 · 24 allocation(es) viva(s).
+Proyectado el 2026-08-23 · 25 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -16,20 +16,21 @@ Proyectado el 2026-08-23 · 24 allocation(es) viva(s).
 | PT-115 | FEATURE | DONE | 8 | — | — | 56f9b37 |
 | PT-116 | FEATURE | DONE | 8 | — | — | 8352fde |
 | PT-117 | FEATURE | DONE | 8 | — | — | 95d794f |
-| PT-118 | FEATURE | DONE | 8 | chore/alberto-martinez/PT-113-apertura | fddee00 | 922379b |
+| PT-118 | FEATURE | DONE | 8 | chore/alberto-martinez/PT-113-apertura | dc884f1 | 39153f6 |
 | PT-119 | FEATURE | DRAFT | 1 | — | — | 922379b |
 | PT-120 | BUG | DONE | 8 | — | — | 0b2c724 |
 | PT-121 | BUG | DRAFT | 1 | — | — | 829cb38 |
 | PT-122 | BUG | DRAFT | 1 | — | — | 829cb38 |
 | PT-123 | BUG | DONE | 8 | — | — | c4c637d |
 | PT-124 | BUG | DONE | 8 | — | — | 3c860d6 |
-| PT-125 | INVESTIGATION | DRAFT | 1 | — | — | 922379b |
+| PT-125 | INVESTIGATION | DRAFT | 2 | chore/alberto-martinez/PT-113-apertura | dc884f1 | 922379b |
 | PT-126 | CHORE | DRAFT | 1 | — | — | 922379b |
-| PT-127 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | fddee00 | fddee00 |
+| PT-127 | BUG | VALIDATION_PENDING | 8 | chore/alberto-martinez/PT-113-apertura | dc884f1 | fddee00 |
 | PT-128 | FEATURE | DONE | 8 | — | — | 95d794f |
-| PT-129 | BUG | DONE | 8 | chore/alberto-martinez/PT-113-apertura | fddee00 | 85c4b17 |
+| PT-129 | BUG | DONE | 8 | chore/alberto-martinez/PT-113-apertura | dc884f1 | 85c4b17 |
 | PT-130 | BUG | DRAFT | 1 | — | — | 922379b |
-| PT-131 | BUG | DONE | 8 | chore/alberto-martinez/PT-113-apertura | fddee00 | 11611d9 |
+| PT-131 | BUG | DONE | 8 | chore/alberto-martinez/PT-113-apertura | dc884f1 | 11611d9 |
 | PT-132 | BUG | DONE | 8 | — | — | 267c1ea |
 | PT-133 | BUG | DONE | 8 | — | — | df8d662 |
 | PT-134 | CHORE | DEFERRED | 1 | — | — | — |
+| PT-135 | BUG | DRAFT | 1 | — | — | 39153f6 |
