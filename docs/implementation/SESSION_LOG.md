@@ -3361,3 +3361,59 @@ orden no sirvió o los detectores no valen — y las dos cosas se sabrán.
 que `PT-121` persigue, y se le añade como `AC-05` en vez de escribir el registro a mano, que es lo
 que `PT-103` y `PT-107` existen para impedir. `SUITE-R35` lo reporta como aviso, no como error, y
 la precedencia de `PT-004` no cambia: manda el YAML.
+
+---
+
+## 2026-08-22 · `G2` de `PT-131` · excepción declarada, y por qué no hay otra salida
+
+**Autorizado por: Alberto Martínez** — bajo la delegación registrada más arriba:
+*«a partir de esto toma las decisiones que mejor se adapten a la corrección y mejora del
+sistema»* y *«comienza ahora y no pares hasta terminar la épica»*.
+
+### La condición bloqueante
+
+```
+$ verify-fdge --gate G2 PT-131
+  ✗ SUITE-R57  17 tarea(s) integradas de lotes CERRADOS sin sellar, umbral 3
+```
+
+`PT-131` **es** la tarea que arregla `SUITE-R57`. Exigirle pasar la compuerta que viene a
+reparar es el candado con la llave dentro, y no tiene salida dentro del marco:
+
+```
+PT-131 necesita G2  ->  SUITE-R57 la bloquea  ->  la limpia un tag nuevo  ->  lo produce PT-113
+PT-113 necesita G2  ->  SUITE-R57 la bloquea  ->  ...
+```
+
+**Ninguna de las diecinueve tareas de `EP-020` puede pasar `G2`**, y ninguna tarea futura del
+repositorio tampoco. No es un bloqueo de este lote: es un bloqueo del marco sobre sí mismo.
+
+### Por qué la excepción y no las alternativas
+
+Las tres alternativas están medidas y descartadas en `changes/PT-131-…/strategy.md`:
+
+```
+meter DONE en ESTADOS_TERMINALES   apaga seis comprobaciones (SUITE-R08 lo declara a proposito)
+bajar el umbral de sellado         apagar la compuerta en vez de arreglar su medida
+retag de v12.0.0                   reescritura de historia (SUITE-R06f) y el tarball de npm
+                                   apunta a 5b184af: tag y paquete dejarian de coincidir
+```
+
+### Qué autoriza exactamente esta excepción, y qué no
+
+**AUTORIZA:** que `PT-131` avance de `PHASE 4` a `PHASE 5` con `SUITE-R57` en rojo, **y sólo
+ella**. Ninguna otra tarea usa esta excepción: en cuanto `PT-131` cierre, la deuda se mide con
+el observable nuevo y las demás pasan `G2` **por la compuerta**, no por una nota.
+
+**NO AUTORIZA:** ni saltarse `G3` —humana, `FDGE-R26`—, ni `G4`, ni publicar. Ni tocar
+`ESTADOS_TERMINALES`, ni el umbral, ni ningún tag.
+
+### Cómo se comprueba que la excepción no fabricó un verde
+
+La inversa `TS-02`: **una tarea terminal cuyo `changes/` no viajó en ningún tag tiene que seguir
+contando como deuda.** Si esa inversa no puede ponerse en rojo, el arreglo se tira y la excepción
+no habrá servido para nada — que es exactamente lo que hay que poder decir de una excepción.
+
+`SUITE-R27` · el agente escribe esta constancia. Lo que vale es que la afirmación sea
+contrastable: la condición bloqueante se reproduce con un comando, y las tres alternativas están
+medidas en el árbol.

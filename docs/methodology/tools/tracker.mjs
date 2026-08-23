@@ -53,7 +53,7 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
+  sinSellar, selladoEnTag, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
@@ -2992,23 +2992,24 @@ function avanzar() {
 const VERSION_DEL_PROYECTO = reg?.suite_version ?? '0.0.0';
 
 function sellar() {
+  // PT-131 · el observable vive UNA vez, en patrones.mjs · selladoEnTag. Aqui estaba duplicado
+  // con verify-fdge, comentario incluido, y esa duplicacion es como el defecto de PT-087
+  // sobrevivio a su propio arreglo (SUITE-R38): se corrigio en un lado y el otro siguio igual.
   const idsDelTag = (() => {
     const tag = (gitDe(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
-      // PT-087 · «el tag anterior» era un PROXY de «lo ya sellado». Se escribio cuando la
-      // version en curso todavia NO estaba etiquetada, asi que saltarse su propio tag era
-      // inofensivo. En cuanto se sella de verdad deja de serlo: recien creado v10.0.0, las 21
-      // tareas de EP-017 —que ESTAN dentro de el— aparecian como deuda sin sellar, y con
-      // umbral 3 eso bloquea G2 justo despues de haber sellado.
-      //
-      // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
-      // exista, sea o no el de la version en curso.
       .trim().split(/\s+/).filter(Boolean)[0];
     if (!tag) return { tag: null, ids: null };
-    const j = gitDe(['show', `${tag}:docs/implementation/REGISTRY.json`], { crudo: true });
-    if (!j) return { tag, ids: null };
-    try {
-      return { tag, ids: JSON.parse(j).allocations.filter((a) => ESTADOS_TERMINALES.has(a?.status)).map((a) => a.id) };
-    } catch { return { tag, ids: null }; }
+    const ids = selladoEnTag(
+      () => {
+        const s = gitDe(['ls-tree', '--name-only', tag, 'changes/'], { crudo: true });
+        if (s == null) return null;
+        return s.trim().split(/\r?\n/).filter(Boolean)
+          .map((x) => x.replace(/^changes\//, '').replace(/\/$/, ''));
+      },
+      (a) => existsSync(join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`)),
+      reg.allocations ?? [],
+    );
+    return { tag, ids };
   })();
 
   const falta = sinSellar(reg.allocations ?? [], idsDelTag.ids);

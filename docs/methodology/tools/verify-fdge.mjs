@@ -68,7 +68,7 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
-import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
+import { contradiceElRegistro, sinSellar, selladoEnTag, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
          rutaRelativaDelManifiesto } from './patrones.mjs';
 // PT-091 · las cifras del inventario se derivan, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
@@ -1802,11 +1802,20 @@ function checkPT(pt, { gate } = {}) {
       // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
       // exista, sea o no el de la version en curso.
       .trim().split(/\s+/).filter(Boolean)[0];
-    const idsTag = (() => {
-      if (!tag) return null;
-      const j = git(['show', `${tag}:docs/implementation/REGISTRY.json`]);
-      try { return JSON.parse(j).allocations.filter((a) => ESTADOS_TERMINALES.has(a?.status)).map((a) => a.id); } catch { return null; }
-    })();
+    // PT-131 · el observable es el ARBOL del tag, no lo que su registro declaraba. La lectura
+    // vive UNA vez, en patrones.mjs: estaba duplicada aqui y en tracker.mjs con este mismo
+    // comentario copiado, y esa duplicacion es como el defecto sobrevivio a PT-087 (SUITE-R38).
+    const idsTag = selladoEnTag(
+      () => {
+        if (!tag) return null;
+        const s = git(['ls-tree', '--name-only', tag, 'changes/']);
+        if (s == null) return null;
+        return s.trim().split(/\r?\n/).filter(Boolean)
+          .map((x) => x.replace(/^changes\//, '').replace(/\/$/, ''));
+      },
+      (a) => existsSync(join(CHANGES, `${a?.id}-${a?.slug}`)),
+      REGISTRO?.allocations ?? [],
+    );
     const debe = sinSellar(REGISTRO?.allocations ?? [], idsTag);
     const umbral = Number(REGISTRO?.tracker?.umbral_sellado ?? 3);
     if (debe === null) {

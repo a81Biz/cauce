@@ -85,3 +85,4 @@
 | PT-127 | BUG | S1 | DRAFT | EP-020 | Nada detecta el trabajo sin allocation: solo lo corta una persona |
 | PT-129 | BUG | S2 | DRAFT | EP-020 | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
 | PT-130 | BUG | S2 | DRAFT | EP-020 | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
+| PT-131 | BUG | S1 | DRAFT | EP-020 | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |

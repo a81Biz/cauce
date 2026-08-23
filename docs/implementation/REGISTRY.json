@@ -3274,7 +3274,7 @@
       "slug": "el-candado-con-la-llave-dentro",
       "created": "2026-08-22",
       "status": "DRAFT",
-      "phase": 3,
+      "phase": 4,
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",

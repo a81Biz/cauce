@@ -3538,6 +3538,37 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-131 · «lo ya sellado» se deriva del ARBOL del tag, no de lo que su REGISTRY declaraba.
+#
+# PT-087 cambio QUE TAG mirar y siguio mirando su registro. Mientras el estado terminal se
+# escribe en el mismo commit que se etiqueta las dos cosas coinciden y el proxy sale gratis.
+# Con EP-019 dejaron de coincidir: v12.0.0 CONTIENE los changes/ de las diecisiete y su
+# REGISTRY las declaraba en DONE, que no es terminal. Resultado: 17 de deuda contra un umbral
+# de 3, y G2 bloqueada para TODAS las tareas — incluida la que produciria el tag que las
+# limpiaria. El candado con la llave dentro, por segunda vez en este archivo.
+#
+# DOS CONDICIONES, no una. Sin la primera —tiene trabajo AHORA— salian PT-025 (DEFERRED,
+# nunca trabajada) y PT-032 (cerrada sin artefactos): una tarea sin trabajo no tiene nada
+# que sellar.
+SELLADO="[{id:'PT-010',slug:'a'},{id:'PT-011',slug:'b'},{id:'PT-025',slug:'z'}]"
+patlib "lo sellado sale del arbol del tag"          '^\["PT-010"\]$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>['PT-010-a'],()=>true,$SELLADO)))"
+# LA INVERSA QUE DECIDE SI EL ARREGLO VALE. Si esto no puede ponerse en rojo, la compuerta
+# dejo de proteger y el arreglo es PEOR que el defecto: se equivocaria HACIA EL VERDE.
+patlib "…y el trabajo FUERA del tag NO sale"        '^false$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>['PT-010-a'],()=>true,$SELLADO)).includes('PT-011'))"
+# Una tarea SIN trabajo no tiene nada que sellar: cuenta como sellada, no como deuda.
+patlib "sin trabajo no hay nada que sellar"         '^true$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>[],(a)=>a.id!=='PT-025',$SELLADO)).includes('PT-025'))"
+# RULE-06 · sin tag o sin git NO se aprueba por omision. Devolver [] haria que TODO pareciera
+# sellado: el verde por omision, en la comprobacion que autoriza G2.
+patlib "sin poder leer el arbol ⇒ null"             '^null$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>null,()=>true,$SELLADO)))"
+# El observable es «el trabajo viajo», no «el estado lo decia»: una tarea cuyo changes/ esta
+# en el tag cuenta como sellada AUNQUE su estado terminal se escribiera despues.
+patlib "el estado posterior al tag no lo desella"   '"PT-011"' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>['PT-010-a','PT-011-b'],(a)=>a.id!=='PT-025',$SELLADO)))"
+
 # D · los documentos de entrada se RESUELVEN, no se actualizan. Exigir que cambien produciria
 # retoques cosmeticos para acallar la comprobacion — fabricar un verde, en documentacion.
 patlib "un acta vacia deja los cinco sin resolver" "MANUAL.md" \

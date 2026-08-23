@@ -1052,6 +1052,45 @@ export function contradiceElRegistro(bloque, allocations) {
  */
 export const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
 
+/**
+ * PT-131 · Lo que YA VIAJO en un tag, derivado del ARBOL y no de lo que el tag declaraba.
+ *
+ * PT-087 arreglo QUE TAG mirar —el mas alto— y siguio mirando su REGISTRY.json, que es una
+ * DECLARACION SOBRE el trabajo y no el trabajo. Mientras el estado terminal se escriba en el
+ * mismo commit que se etiqueta, las dos cosas coinciden y el proxy sale gratis. En cuanto el
+ * terminal llega DESPUES del tag dejan de coincidir:
+ *
+ *   v12.0.0 -> 5b184af   su REGISTRY declaraba  EP-019 DRAFT · las 17 en DONE
+ *   main    -> ee660db   su REGISTRY declara    EP-019 CLOSED · las 17 INTEGRATED
+ *
+ * DONE no esta en ESTADOS_TERMINALES —y hace bien, SUITE-R08 lo declara a proposito—, asi que
+ * las diecisiete no constaban selladas y bloqueaban G2 de TODAS las tareas, incluida la que
+ * produciria el tag que las limpiaria. El candado con la llave dentro, y es la segunda vez que
+ * esta forma aparece aqui.
+ *
+ * DOS CONDICIONES, no una. Con «esta el directorio dentro del tag» a secas salian PT-025
+ * —DEFERRED, nunca trabajada— y PT-032 —cerrada sin artefactos—: ninguna de las dos tiene
+ * changes/ en ningun sitio, y UNA TAREA SIN TRABAJO NO TIENE NADA QUE SELLAR.
+ *
+ * QUE ESTABLECE: que el trabajo de una tarea viajo dentro del tag mas alto.
+ * QUE NO ESTABLECE: que ese tag este publicado, ni que su contenido sea correcto. Solo que el
+ *   directorio existe ahi.
+ *
+ * `ls` y `existe` se INYECTAN: este archivo no ejecuta git ni toca el disco, y asi la funcion
+ * es pura y su inversa se puede escribir sin fabricar un repositorio.
+ *
+ * @param ls      () => string[] | null   los directorios de changes/ dentro del tag, o null
+ * @param existe  (alloc) => boolean      si la tarea tiene trabajo en el arbol de HOY
+ */
+export function selladoEnTag(ls, existe, allocations) {
+  const dirs = ls();
+  if (dirs == null) return null;                 // sin tag o sin git: SIN EVALUAR (RULE-06)
+  const enTag = new Set(dirs);
+  return (allocations ?? [])
+    .filter((a) => !existe(a) || enTag.has(`${a?.id}-${a?.slug}`))
+    .map((a) => a?.id);
+}
+
 export function sinSellar(allocations, idsEnTag) {
   if (idsEnTag == null) return null;
   const sellados = new Set(idsEnTag);

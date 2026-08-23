@@ -8,6 +8,7 @@
 | `TS-04` | Sin tag o sin git, devuelve `null` y el llamador dice `SIN EVALUAR` | `null` | devolver conjunto vacío ⇒ **todo** parecería sellado |
 | `TS-05` | `verify-fdge --gate G2` y `tracker sellar` dan **la misma** cuenta | idénticas | dejar una copia sin migrar ⇒ divergen |
 | `TS-06` | `ESTADOS_TERMINALES` sigue **sin** `DONE` | `DONE` ausente | meterlo ⇒ seis comprobaciones cambian |
+| `TS-07` | El límite declarado cita a quien lo recoge, y la cita es recíproca | `SUITE-R44` pasa sobre `out-of-scope.md` | citar a alguien que no es hermano del lote ni `DEFERRED` recíproco ⇒ falla |
 
 ## La inversa que decide si esta tarea vale
 

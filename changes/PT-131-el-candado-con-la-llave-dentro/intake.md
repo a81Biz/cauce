@@ -10,7 +10,7 @@ type: BUG
 epic: EP-020
 track: STANDARD
 status: READY
-phase: 3
+phase: 4
 created: 2026-08-22
 structural: no
 suite_version: 12.0.0
