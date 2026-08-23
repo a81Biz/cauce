@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 1c50880790e2 -->
-<!-- fuentes: RULES.md:6c1080e12ff5 LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:e730d6b712c0 -->
+<!-- cuerpo: 2fb5426718a8 -->
+<!-- fuentes: RULES.md:26e7781ea2de LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:e730d6b712c0 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -317,7 +317,7 @@ verifica un script y bloquea la integración.
 `FDGE-R28` **S** Cierre asistido por QA. Si el PT se originó en un QD-nnn, la validación humana puede apoyarse en delta QA PT-XXX con resultado PASS del caso de origen. La ejecución QA es evidencia; la decisión de cerrar…
 `FDGE-R29` **C** HISTORY.log recibe exactamente una entrada por PT, en el formato canónico de FDGE-Implementation.md.
 `FDGE-R30` **H** HANDOFF.md se sobrescribe en modo merge: antes de escribir, se lee el existente y se preservan todas las validaciones pendientes e investigaciones activas ajenas al PT que se cierra.
-`FDGE-R31` **C** El índice de origen (DISCOVERY.md, ENRICHMENT.md o REFACTOR_SCOPE.md) actualiza el estado del PT al valor canónico correspondiente.
+`FDGE-R31` **C** El índice de origen actualiza el estado del PT al valor canónico correspondiente.
 `FDGE-R32` **H** Si el PT es Estructural: sí (FDGE-R44), el agente solicita explícitamente la regeneración del grafo antes de cerrar PHASE 8, y la anota como pendiente en HANDOFF.md.
 `FDGE-R33` **H** Integration Gate (G4). El merge a la línea principal es siempre una decisión humana, en todos los modos de ejecución, sin excepción (SUITE-R06a).
 `FDGE-R34` **C** Precondiciones de G4, todas verificables: CI en verde · verify-fdge sin errores · entrada en HISTORY.log · manifest.json válido · self-review.md presente · traceability.md sin AC huérfanos · estado del PT…

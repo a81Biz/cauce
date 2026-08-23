@@ -1,0 +1,32 @@
+tracker · github · acción indices
+
+  · DISCOVERY.md: 79 fila(s) · ya al dia
+  · ENRICHMENT.md: 22 fila(s) · ya al dia
+  · REFACTOR_SCOPE.md: 31 fila(s) · ya al dia
+  · BACKLOG.md: ya al dia
+  · --aplicar los escribe. Sin la marca, esto solo enumera.
+  · PT-025 #35: se regeneraria el cuerpo
+  · EP-020 #218: se regeneraria el cuerpo
+  · PT-113 #217: se regeneraria el cuerpo
+  · PT-114 #232: se regeneraria el cuerpo
+  · PT-115 #233: se regeneraria el cuerpo
+  · PT-116 #234: se regeneraria el cuerpo
+  · PT-117 #235: se regeneraria el cuerpo
+  · PT-118 #236: se regeneraria el cuerpo
+  · PT-119 #237: se regeneraria el cuerpo
+  · PT-120 #238: se regeneraria el cuerpo
+  · PT-121 #239: se regeneraria el cuerpo
+  · PT-122 #240: se regeneraria el cuerpo
+  · PT-123 #241: se regeneraria el cuerpo
+  · PT-124 #242: se regeneraria el cuerpo
+  · PT-125 #243: se regeneraria el cuerpo
+  · PT-126 #244: se regeneraria el cuerpo
+  · PT-127 #245: se regeneraria el cuerpo
+  · PT-128 #246: se regeneraria el cuerpo
+  · PT-129 #249: se regeneraria el cuerpo
+  · PT-130 #250: se regeneraria el cuerpo
+  · PT-131 #252: se regeneraria el cuerpo
+  · PT-132 #253: se regeneraria el cuerpo
+  · PT-032 #45: publica la ruta sin enlace y no hay ref durable todavia. No se inventa uno (RULE-06): consta.
+
+Sin divergencias.

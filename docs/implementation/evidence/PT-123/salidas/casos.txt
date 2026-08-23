@@ -1,0 +1,7 @@
+  [32m✓[0m el bloque declara la implementacion abierta
+  [32m✓[0m …con sus tareas y su estado
+  [32m✓[0m …y los aplazados con su motivo
+  [32m✓[0m un lote cerrado NO sale como abierto
+  [32m✓[0m sin lote abierto lo dice
+  [32m✓[0m las cifras del bloque se derivan
+selftest: OK · 1404 casos

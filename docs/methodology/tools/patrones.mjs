@@ -1118,6 +1118,68 @@ export function contradiceElRegistro(bloque, allocations) {
  */
 export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'];
 
+// ── PT-123 · BACKLOG.md · el bloque DERIVADO, entre marcas ──────────────────
+//
+// El archivo dice de si mismo «regenerable desde REGISTRY.json» desde la primera version, el
+// bloque «no hacer» prohibe editarlo a mano, y NINGUN comando lo escribia: «tracker indices»
+// cubria DISCOVERY, ENRICHMENT y REFACTOR_SCOPE, y a el no.
+//
+// Las tres cosas a la vez dejaban una sola salida practicable —saltarse la regla—, que es
+// FDGE-R51 aplicado al reves. Y la consecuencia esta medida en su propia cabecera: ocho lotes de
+// retraso la primera vez, CUATRO cuando esto se escribio.
+//
+// NO SE GENERA ENTERO. El PORQUE del orden —«PT-088 va antes que PT-087 porque sus tres
+// comprobaciones son el banco de pruebas del mecanismo»— no sale de ningun campo, y es lo mas
+// valioso que tiene el archivo. Misma frontera que LEX-R26 traza en CHECKPOINT.json y HANDOFF.md
+// entre lo derivado y la prosa: se reescribe SOLO lo de dentro de las marcas.
+const MARCA_BACKLOG = ['<!-- BACKLOG:DERIVADO -->', '<!-- /BACKLOG:DERIVADO -->'];
+
+export function bloqueDeBacklog(allocations, urlRepo = null) {
+  const TERM = ESTADOS_TERMINALES;
+  const enlace = (n) => (urlRepo && n ? `[#${n}](${urlRepo}/issues/${n})` : (n ? `#${n}` : '—'));
+  const q = (s) => '`' + s + '`';
+  const L = [];
+  const lotes = (allocations ?? []).filter((a) => esLote(a) && !TERM.has(String(a?.status)));
+
+  if (!lotes.length) {
+    L.push('**Ninguna implementación abierta.** El registro no declara ningún lote vivo.');
+    L.push('');
+  }
+  for (const lote of lotes) {
+    const hijos = (allocations ?? []).filter((a) => a?.epic === lote.id);
+    const cerradas = hijos.filter((h) => TERM.has(String(h.status)) || String(h.status) === 'DONE').length;
+    L.push('## Implementación abierta — ' + q(lote.id));
+    L.push('');
+    L.push(q(lote.id) + ' · **' + (lote.title ?? '') + '** · ' + q(lote.status) + ' · issue ' + enlace(lote.issue) + '.');
+    L.push('');
+    L.push('| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |');
+    L.push('|:---|:---|:---|:---|:---|:---|:---|');
+    for (const h of hijos) {
+      L.push('| ' + h.id + ' | ' + (h.type ?? '—') + ' | ' + (h.severity ?? '—') + ' | ' + h.status
+        + ' | ' + (h.phase ?? '—') + ' | ' + enlace(h.issue) + ' | ' + (h.title ?? '') + ' |');
+    }
+    L.push('');
+    L.push('**' + cerradas + ' de ' + hijos.length + ' cerradas.** Las cifras salen del registro: '
+      + 'no se transcriben (' + q('PT-091') + ').');
+    L.push('');
+  }
+
+  const aplazadas = (allocations ?? []).filter((a) => String(a?.status) === 'DEFERRED');
+  L.push('## Aplazado — ' + aplazadas.length + ' allocation(s) ' + q('DEFERRED'));
+  L.push('');
+  L.push(q('SUITE-R44') + ' · aplazar algo lo **pone** en el tablero, no lo saca.');
+  L.push('');
+  if (!aplazadas.length) { L.push('Ninguna.'); } else {
+    L.push('| Id | Tipo | Issue | Por qué sigue fuera |');
+    L.push('|:---|:---|:---|:---|');
+    for (const a of aplazadas) {
+      const motivo = String(a.origin ?? '').split('·').pop().trim().slice(0, 120) || '—';
+      L.push('| ' + a.id + ' | ' + (a.type ?? '—') + ' | ' + enlace(a.issue) + ' | ' + motivo + ' |');
+    }
+  }
+  return L.join(String.fromCharCode(10));
+}
+
 export const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
 
 /**

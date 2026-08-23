@@ -53,7 +53,7 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
+  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, bloqueDeBacklog, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
@@ -3382,6 +3382,35 @@ function indices() {
     writeFileSync(ruta, cuerpo, 'utf8');
     notas.push(`${archivo}: ${filas.length} fila(s) escritas`);
   }
+  // PT-123 · BACKLOG.md · se reescribe SOLO lo de dentro de las marcas.
+  //
+  // No entra en INDICES porque no es la misma forma: los otros tres son «todos los PT de estos
+  // tipos» y este es «el lote abierto y sus tareas». Por eso quedo fuera del generador que habia,
+  // y por eso llevaba CUATRO lotes declarando EP-015 como implementacion abierta — su propia
+  // cabecera registra que la vez anterior fueron OCHO.
+  //
+  // El PORQUE del orden queda FUERA de las marcas y no se toca: no sale de ningun campo y es lo
+  // mas valioso que tiene el archivo (LEX-R26, y la misma frontera que HANDOFF.md).
+  {
+    const ruta = join(IMPL, 'BACKLOG.md');
+    const marca = ['<!-- BACKLOG:DERIVADO -->', '<!-- /BACKLOG:DERIVADO -->'];
+    const derivado = bloqueDeBacklog(reg.allocations ?? [], REPO.url ?? null);
+    const actual = existsSync(ruta) ? readFileSync(ruta, 'utf8') : null;
+    if (actual === null) {
+      notas.push('BACKLOG.md: no existe, no se crea desde aqui.');
+    } else if (!actual.includes(marca[0]) || !actual.includes(marca[1])) {
+      notas.push('BACKLOG.md: sin las marcas ' + marca[0] + ' … ' + marca[1] + ', asi que NO se toca. '
+        + 'Anadirlas es una decision: lo de dentro se reescribe entero y lo de fuera no (RULE-06).');
+    } else {
+      const i = actual.indexOf(marca[0]) + marca[0].length;
+      const j = actual.indexOf(marca[1]);
+      const nuevo = actual.slice(0, i) + SALTO + SALTO + derivado + SALTO + SALTO + actual.slice(j);
+      if (nuevo === actual) notas.push('BACKLOG.md: ya al dia');
+      else if (!escribir) notas.push('BACKLOG.md: se reescribiria el bloque derivado');
+      else { writeFileSync(ruta, nuevo); notas.push('BACKLOG.md: bloque derivado reescrito'); }
+    }
+  }
+
   if (!escribir) notas.push('--aplicar los escribe. Sin la marca, esto solo enumera.');
   cerrarPasada();
 }

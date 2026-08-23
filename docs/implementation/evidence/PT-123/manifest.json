@@ -1,0 +1,81 @@
+{
+  "pt": "PT-123",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "tracker indices incluye BACKLOG.md y lo escribe con --aplicar",
+      "tests": [
+        "tracker indices --aplicar"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "No entra en INDICES porque no es la misma forma: los otros tres son «todos los PT de estos tipos» y este es «el lote abierto y sus tareas». Por eso quedo fuera del generador que habia."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El bloque se DERIVA del registro: lote, tareas, orden, estado, fase e issue",
+      "tests": [
+        "selftest.sh:el bloque declara la implementacion abierta",
+        "selftest.sh:…con sus tareas y su estado",
+        "selftest.sh:las cifras del bloque se derivan"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Las cifras salen del registro y no se transcriben (PT-091, H-007). NO se genera entero: el PORQUE del orden queda fuera de las marcas, intacto (LEX-R26)."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El solapamiento tiene su sitio y se dice cual: DoR-E7 deja de ser incumplible",
+      "tests": [
+        "tracker indices --aplicar"
+      ],
+      "evidence": [
+        "salidas/backlog.txt"
+      ],
+      "verified": true,
+      "nota": "El CALCULADO lo escribe la herramienta; el RAZONADO, quien reparte, fuera de la marca. Antes exigia declararlo en un archivo que no se podia editar a mano ni generar: una sola salida practicable, saltarse la regla."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "verify-fdge avisa cuando BACKLOG.md declara una implementacion que el registro no tiene abierta",
+      "tests": [
+        "verify-fdge PT-123"
+      ],
+      "evidence": [
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "ES LO QUE IMPIDE QUE VUELVA A PASAR. Sin esto el generador existe y NADA lo echa de menos, que es la clase entera de este lote. La inversa nombra el defecto que estuvo cuatro lotes vivo."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La herramienta NO toca el archivo si no lleva las marcas",
+      "tests": [
+        "tracker indices"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "Anadirlas es una decision, no un efecto colateral: un generador que se anade sus propias marcas decide por su cuenta que parte del archivo le pertenece (RULE-06)."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "FDGE-R31 enumera los CUATRO indices, no tres",
+      "tests": [
+        "verify-suite",
+        "core:check"
+      ],
+      "evidence": [
+        "salidas/indices.txt"
+      ],
+      "verified": true,
+      "nota": "SALIO AL CORREGIR UN CASO ROTO. La regla enumeraba tres y hay cuatro — la misma forma que PT-129 encontro en FDGE-R19, dos reglas del mismo lote con el mismo defecto."
+    }
+  ]
+}

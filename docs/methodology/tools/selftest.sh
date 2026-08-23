@@ -3538,6 +3538,34 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-123 · BACKLOG.md decia de si mismo «regenerable desde REGISTRY.json», el bloque «no hacer»
+# prohibia editarlo a mano, y NINGUN comando lo escribia. Las tres cosas a la vez dejaban una
+# sola salida practicable —saltarse la regla—, que es FDGE-R51 aplicado al reves.
+#
+# La consecuencia esta en su propia cabecera: OCHO lotes de retraso la primera vez, CUATRO cuando
+# esto se escribio. Y dejaba DoR-E7 incumplible: exige declarar el solapamiento en un archivo que
+# no se puede editar a mano ni generar.
+#
+# NO SE GENERA ENTERO: el PORQUE del orden no sale de ningun campo y es lo mas valioso que tiene.
+# Se reescribe solo lo de dentro de las marcas, como HANDOFF.md hace con ESTADO (LEX-R26).
+ALLOCB="[{id:'EP-9',status:'IN_PROGRESS',title:'t'},{id:'PT-1',epic:'EP-9',type:'BUG',severity:'S1',status:'DONE',phase:8},{id:'PT-2',status:'DEFERRED',type:'CHORE',origin:'x · porque si'}]"
+patlib "el bloque declara la implementacion abierta" 'Implementación abierta' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
+patlib "…con sus tareas y su estado"                'PT-1' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
+patlib "…y los aplazados con su motivo"             'porque si' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
+# INVERSA · un lote CERRADO no es una implementacion abierta. Si saliera, el archivo volveria a
+# declarar lo de hace cuatro lotes.
+patlib "un lote cerrado NO sale como abierto"       '^false$' \
+  "console.log(m.bloqueDeBacklog([{id:'EP-8',status:'CLOSED',title:'t'}]).includes('EP-8'))"
+# Sin ningun lote vivo se DICE, en vez de dejar el bloque vacio: un hueco es indistinguible de
+# una seccion que nadie escribio (FND-R22).
+patlib "sin lote abierto lo dice"                   'Ninguna implementación abierta' \
+  "console.log(m.bloqueDeBacklog([]))"
+# Las cifras SE DERIVAN, no se transcriben (PT-091, H-007).
+patlib "las cifras del bloque se derivan"           '1 de 1 cerradas' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
 # PT-124 · la lista de tipos de tracker.mjs era la de las PLANTILLAS, no la de los tipos.
 #
 # Decia ['BUG','FEATURE','CHANGE','TAREA'] y su mensaje de error los ATRIBUIA a LEXICON.

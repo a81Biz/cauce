@@ -6834,3 +6834,85 @@ LO QUE NO ESTABLECE:
 · Nada sobre el vocabulario de casos QA, que es otro conjunto bien separado.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.
+
+## PT-123 — BACKLOG.md decia que se derivaba del registro y nada lo derivaba
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su L-11, y aparecio intentando cumplir DoR-E7 al ABRIR el lote
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #241
+
+TRES COSAS A LA VEZ dejaban una sola salida practicable:
+
+  el archivo decia de si mismo   «regenerable desde REGISTRY.json»
+  el bloque «no hacer»           prohibia editarlo a mano
+  «tracker indices»              cubria DISCOVERY, ENRICHMENT y REFACTOR_SCOPE, y a el NO
+
+Es FDGE-R51 aplicado al reves: «cobrar el ritual completo tiene una sola salida practicable,
+saltarselo». Y la consecuencia esta en su propia cabecera: OCHO lotes de retraso la primera vez,
+CUATRO cuando esto se escribio — declarando EP-015 como implementacion abierta con EP-015 CLOSED
+y cuatro lotes cerrados desde entonces.
+
+POR QUE QUEDO FUERA, y no es descuido: los tres indices de INDICES responden a la misma forma
+—«todos los PT de estos tipos»— y BACKLOG.md es un CORTE POR LOTE VIVO. No encajaba en el
+generador que habia.
+
+NO SE GENERA ENTERO, y esa es la decision de la tarea:
+
+  DERIVABLE      el lote abierto, sus tareas, orden, estado, fase, issue, y los aplazados
+  NO DERIVABLE   el PORQUE del orden — «PT-088 va antes que PT-087 porque sus tres
+                 comprobaciones son el banco de pruebas del mecanismo»
+
+Generarlo entero borraria el porque en cada corrida, y la primera persona que lo notara volveria a
+escribirlo a mano: ES COMO SE LLEGO A LOS OCHO LOTES. Se reescribe solo lo de dentro de las
+marcas, igual que HANDOFF.md con ESTADO (LEX-R26).
+
+Y LA HERRAMIENTA SE NIEGA A TOCAR EL ARCHIVO SIN LAS MARCAS. Anadirlas fue un acto aparte: un
+generador que se anade sus propias marcas decide por su cuenta que parte del archivo le pertenece.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/verify-fdge.mjs ·
+  tools/selftest.sh · RULES.md · CORE.md · BACKLOG.md · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-123/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/indices.txt · salidas/backlog.txt · salidas/inversa.txt
+
+  BACKLOG.md            ANTES 4 lotes de retraso   DESPUES derivado y al dia
+  indices con generador ANTES 3 de 4               DESPUES 4
+  DoR-E7                ANTES incumplible          DESPUES se cumple con la herramienta
+  bateria               ANTES 1398                 DESPUES 1404
+
+EL HALLAZGO DEL CIERRE: ROMPI UN CASO ESCRITO PARA CAZAR ESTO. Emiti la comprobacion bajo
+SUITE-R35 y un caso existente se puso rojo. Su comentario decia:
+
+  «Sin plataforma, G4 no se bloquea por el espejo: la garantia de los proyectos que no espejan.
+   Si este caso se pone rojo, el cambio ha alcanzado a proyectos que no debia tocar.»
+
+Alguien lo escribio PREVIENDO ESTE ERROR y dejo dicho que significaria verlo en rojo. SUITE-R35 es
+la regla del espejo CON LA PLATAFORMA, y yo la use para una comprobacion que compara un archivo
+con el REGISTRO. Un proyecto que no espeja habria empezado a recibir un error sobre BACKLOG.md.
+
+Mi primer impulso fue mirar si el caso estaba sobre-especificado. LO ESTABA YO.
+
+Y AL CORREGIRLO APARECIO EL MISMO PATRON OTRA VEZ: FDGE-R31 enumeraba TRES indices y hay CUATRO.
+Es LITERALMENTE lo que PT-129 encontro en FDGE-R19 — dos reglas, el mismo defecto, dos tareas del
+mismo lote. La regla ahora enumera los cuatro y declara que se comprueba CONTRA EL REGISTRO, no
+contra la plataforma.
+
+LA CUARTA ROTURA DE ESCAPADO DE LA SESION, resuelta de raiz: el cuerpo de la funcion se escribio
+en un ARCHIVO de texto plano y un script generico —«inserta.mjs», sin un solo backtick que
+escapar— lo inserto comprobando el ancla antes. Es PT-087 en su decima instancia, «resuelto
+QUITANDO la necesidad en vez de escapando mejor», aplicado a mi propia herramienta despues de
+tropezar cuatro veces.
+
+LO QUE NO ESTABLECE:
+
+· Que el porque escrito sea cierto. Se conserva; no se juzga.
+· Que alguien ejecute «indices --aplicar». AC-04 avisa, que es lo maximo que puede hacer una
+  comprobacion.
+· Nada sobre el historico de lotes cerrados: el bloque describe LO ABIERTO.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.

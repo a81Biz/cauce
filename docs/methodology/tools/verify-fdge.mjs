@@ -77,6 +77,7 @@ const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
 const CHANGES = join(ROOT, 'changes');
 let TOPOLOGIA_REPORTADA = false;   // PT-129 · la topologia es del REPOSITORIO, no de cada PT
+let BACKLOG_REPORTADO = false;     // PT-123 · el indice es del REPOSITORIO, no de cada PT
 const EVIDENCE = join(IMPL, 'evidence');
 const ED = join(ROOT, 'docs', 'enterprise-documentation');
 
@@ -1701,6 +1702,43 @@ function checkPT(pt, { gate } = {}) {
       warn('FDGE-R19', `${pt}: la rama «${enRegistroPT.branch}» no lleva usuario. Desde 8.3.0 el `
         + 'formato es «<type>/<usuario>/PT-NNN-slug». Las ramas anteriores siguen valiendo: una '
         + 'rama abierta se termina como empezo.');
+    }
+  }
+
+  // PT-123 · BACKLOG.md declara una implementacion que el registro no tiene abierta.
+  //
+  // El generador existe desde esta tarea. Sin algo que lo eche de menos, el archivo vuelve a
+  // quedarse atras — llevaba CUATRO lotes declarando EP-015, y su cabecera registra que la vez
+  // anterior fueron OCHO. Es la clase entera de este lote: no faltaba la herramienta, faltaba
+  // que algo la echara de menos.
+  //
+  // AVISA fuera de G4 y FALLA dentro, con el mismo criterio que el resto de FDGE-R19: un fail
+  // inmediato pondria en rojo un repositorio cuyo unico defecto es no haber corrido un comando.
+  if (!BACKLOG_REPORTADO) {
+    BACKLOG_REPORTADO = true;
+    const rutaB = join(IMPL, 'BACKLOG.md');
+    const texto = read(rutaB);
+    if (texto === null) {
+      warn('FDGE-R31', 'BACKLOG.md no se puede leer: la implementacion abierta que declara queda SIN EVALUAR (RULE-06).');
+    } else if (!texto.includes('<!-- BACKLOG:DERIVADO -->')) {
+      warn('FDGE-R31', 'BACKLOG.md no lleva las marcas del bloque derivado, asi que nadie lo regenera: '
+        + 'node tools/tracker.mjs indices --aplicar  (PT-123).');
+    } else {
+      const declarados = [...texto.matchAll(/^## Implementación abierta — `(EP-\d+)`/gm)].map((m) => m[1]);
+      const abiertos = (REGISTRO?.allocations ?? [])
+        .filter((a) => /^EP-/.test(String(a?.id)) && !ESTADOS_TERMINALES.has(String(a?.status)))
+        .map((a) => a.id);
+      const sobran = declarados.filter((x) => !abiertos.includes(x));
+      const faltan = abiertos.filter((x) => !declarados.includes(x));
+      if (!sobran.length && !faltan.length) {
+        ok('FDGE-R31', `BACKLOG.md declara la misma implementacion abierta que el registro${abiertos.length ? `: ${abiertos.join(', ')}` : ' (ninguna)'}.`);
+      } else {
+        const m = 'BACKLOG.md y el registro no dicen lo mismo sobre que hay abierto'
+          + (sobran.length ? ` · declara ${sobran.join(', ')} y el registro no lo tiene abierto` : '')
+          + (faltan.length ? ` · el registro abre ${faltan.join(', ')} y el archivo no lo declara` : '')
+          + '. Se regenera:  node tools/tracker.mjs indices --aplicar';
+        if (gate === 'G4') fail('FDGE-R31', m); else warn('FDGE-R31', m);
+      }
     }
   }
 
