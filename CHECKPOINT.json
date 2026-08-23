@@ -1,5 +1,5 @@
 {
-  "pt": "PT-114",
+  "pt": "PT-132",
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
@@ -11,7 +11,14 @@
   "sucio": true,
   "archivos": [
     "changes/PT-114-el-cuerpo-del-issue-no-se-republica/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "changes/PT-132-abrir-no-es-atomico/",
+    "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/methodology/tools/patrones.mjs",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/tracker.mjs"
   ],
   "compuerta": null,
   "produce": [
