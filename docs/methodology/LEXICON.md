@@ -917,6 +917,11 @@ tools/
   verify-patrones.mjs ejecuta ese contrato: un patrón degradado falla su propio ejemplo
   version.mjs         propaga la versión del CHANGELOG a documentos y paquete · SUITE-R40
   regla.mjs           qué exige una regla y qué puede fallar, DERIVADO del código · SUITE-R53
+  eventos.mjs         clasifica las entradas cerradas contra las clases de evento · LEX-R31
+                      escribe EVENTOS.jsonl: un registro por evento Y por entrada RECORRIDA.
+                      Automatiza el MATERIAL —la frase con que el ledger se autodescribe y la
+                      cita literal—, NO el juicio: la clase va siempre DECLARADO, y separar
+                      una instancia de una simple mención lo decide una persona.
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35

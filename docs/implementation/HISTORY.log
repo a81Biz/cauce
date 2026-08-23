@@ -7707,3 +7707,97 @@ LO QUE NO ESTABLECE:
   marcara DECLARADO.
 · Que la lista quede cerrada para siempre. Cerrada POR VERSION, ampliable por cambio de
   metodologia (SUITE-R06e).
+
+## PT-125 — Clasificar las entradas cerradas: EVENTOS.jsonl
+Fecha: 2026-08-23
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — segundo eslabon: PT-118 dio las clases, esta las aplica, PT-119 derivara la matriz
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: si
+  (tools/eventos.mjs y docs/implementation/EVENTOS.jsonl son archivos nuevos)
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · G4 pendiente
+Clase de evento: CE-002 (una rotura de escapado mas, dentro de la tarea)
+
+Lo pidio el firmante: «quiero que releas las tareas ya cerradas y realices una matriz de eventos,
+quiero saber que ocurrio, que se mejoro, QUE SE REPITE».
+
+QUE SE CONSTRUYO. EVENTOS.jsonl: 163 entradas RECORRIDAS, 56 instancias clasificadas contra
+CE-001..CE-017, 14 menciones separadas a mano, y 40 entradas que afirman recurrencia sin nombrar
+la forma, declaradas con su cita. Mas su generador, tools/eventos.mjs, para que se pueda rehacer
+y contradecir.
+
+LA FRONTERA QUE HABIA QUE TRAZAR BIEN. AC-02 dice que la clase es un JUICIO. Clasificar 163
+entradas a mano da un juicio real pero irreproducible; clasificar con un matcher y llamarlo
+medicion es CE-001 en estado puro. SE AUTOMATIZA EL MATERIAL, NO EL JUICIO: el matcher busca las
+frases con que el ledger se AUTODESCRIBE y devuelve la cita LITERAL; una persona lee y decide.
+
+CUATRO DEFECTOS APARECIERON CONSTRUYENDOLO:
+
+  1  el primer matcher salio inflado: «a mano» y «diverg» dieron 43 CE-006 y 41 CE-008 en 162
+     entradas. Cifras que NO PUEDEN SER CIERTAS. Apretado a frases autodescriptivas: 70 señales.
+  2  catorce de las 70 eran MENCIONES. PT-127 dice literalmente «NO es el acto fuera del comando»
+     y quedaba contada como instancia. Nombrar una clase no es incurrir en ella — CE-001 cometido
+     dentro de la herramienta que existe para contar instancias de CE-001. NO SE BORRAN: se marcan
+     con su motivo, porque un registro borrado no se puede contradecir.
+  3  la clave (tarea, clase) no distinguia dos entradas de la misma tarea: EP-019 tiene tres, y la
+     lista marcaba las dos de CE-002 cuando una SI es instancia.
+  4  y una rotura de escapado mas: el extractor de ordinales devolvia 1 de 26 porque un limite de
+     palabra escrito a traves de un heredoc llego como barra literal seguida de «b». La respuesta
+     fue la que SUITE-R59 prescribe: escribir el archivo, no pasar el texto por la linea de ordenes.
+
+Y LA PRUEBA INVERSA TUVO DOS DEFECTOS SUYOS. El escenario de la cita comprobaba que CONTUVIERA el
+texto, y asi quitar fraseDe no tumbaba nada porque el recorte de respaldo tambien lo contiene:
+un caso pasando por el motivo equivocado dentro de la prueba que existe para detectarlos. Y al
+hacerlo estricto FALLO SOBRE EL MODULO INTACTO, porque el fixture no tenia un punto antes de la
+frase. Se corrigio EL FIXTURE, no el comportamiento — el error que estuve a punto de cometer en
+PT-111.
+
+UNA DESVIACION DEL INTAKE, DECLARADA. El intake dijo «no produce codigo, asi que esta exenta de la
+matriz de trazabilidad» (FDGE-R10). Deja de ser cierto: una clasificacion sin su generador no es
+reproducible —nadie podria rehacerla ni contradecirla, y el ledger crecio 32 entradas entre el
+intake y este trabajo—, asi que se publica tools/eventos.mjs y LA EXENCION DECAE. Consta en
+strategy.md en vez de aplicarse en silencio: ampliar el alcance sin declararlo es el defecto que
+este lote persigue.
+
+Archivos modificados: tools/eventos.mjs (nuevo) · docs/implementation/EVENTOS.jsonl (nuevo) ·
+  tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-125/ · manifest.json · self-review.md ·
+  salidas/casos-125.txt · salidas/inversa.txt · salidas/eventos.txt · salidas/distribucion.txt
+
+Criterios AC-01..AC-04 ✓, los cuatro. Dieciseis escenarios de dieciseis. Inversa: cuatro
+supresiones, cuatro escenarios distintos.
+
+  entradas recorridas       163 (el intake decia 131: el ledger crecio 32 con EP-020)
+  instancias                 56
+  menciones                  14
+  afirman y no nombran       40
+  clases sin instancia        0 — ninguna de las diecisiete quedo vacia
+
+LO QUE SE REPITE, con el numero que el propio ledger declara:
+
+  CE-001 el proxy en lugar del hecho          12   PT-131 «instancia doce»
+  CE-004 probar donde trabajo                  9   PT-082 «novena» (10 con PT-118)
+  CE-002 rotura de escapado                    7   PT-104
+  CE-003 un argumento por la deteccion de ROOT 7   PT-064
+  CE-007 existe la herramienta y nada la echa en falta  7   PT-114
+  CE-015 el cierre destapa mas que el reparto  6   EP-018
+
+LAS DOS QUE MAS SE REPITEN NO TIENEN REGLA CON VERIFICADOR. A CE-001 solo la vigila un registro
+de sujetos con cobertura del 3 %; a CE-004 no la vigila nada.
+
+LO QUE NO ESTABLECE:
+
+· Que las 56 sean todas las instancias. Son las que el ledger NOMBRA. Las 40 mudas son un hueco
+  MEDIDO, no una ausencia: clasificarlas exigiria reinterpretarlas, y eso inventaria justo la
+  recurrencia que la matriz va a contar (RULE-06).
+· Que el recuento sea de OCURRENCIAS. Es de ENTRADAS que nombran la clase. EP-020 §2.1 conto
+  ocurrencias —27 roturas de escapado frente a 6 entradas aqui—. Sumarlos seria falso, y la
+  diferencia va escrita en la cabecera del propio archivo para que PT-119 no la adivine.
+· Que la separacion INSTANCIA/MENCION sea incontestable. Es un juicio, va DECLARADO, y las catorce
+  decisiones estan escritas con su motivo PRECISAMENTE para que se puedan contradecir.
+· Que los cinco INC de EP-019 esten cubiertos. Viven en el INCIDENTS.log de otro proyecto que no
+  esta en esta maquina. Se declaran ausentes, no se inventan.

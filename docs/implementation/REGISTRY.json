@@ -3340,13 +3340,31 @@
       "id": "PT-125",
       "slug": "clasificar-las-tareas-cerradas",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "severity": "S1",
       "epic": "EP-020",
       "title": "Clasificar las 131 entradas cerradas en EVENTOS.jsonl",
       "issue": 243,
-      "type": "INVESTIGATION"
+      "type": "INVESTIGATION",
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
     },
     {
       "id": "PT-126",

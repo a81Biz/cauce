@@ -429,6 +429,9 @@ HAZ  1 HISTORY (append, formato canónico único):
        Trazabilidad externa: QD-XXX H-XXX R-XXX
        Clase de evento: CE-NNN si el trabajo cae en una de LEXICON §4.4         [LEX-R31]
          citar un CE-NNN que LEXICON no declara es defecto y bloquea            [LEX-R32]
+         «node tools/eventos.mjs» reclasifica el ledger entero y reescribe
+         EVENTOS.jsonl. La clase es un JUICIO: sale marcada DECLARADO, y separar
+         una instancia de una mencion lo decide una persona, no la herramienta.
      2 HANDOFF en MODO MERGE: leer el existente y PRESERVAR validaciones e investigaciones
        ajenas al PT [FDGE-R30]
      3 regenerar BACKLOG desde REGISTRY y changes/

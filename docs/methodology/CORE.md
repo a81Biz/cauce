@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: de1b132064a9 -->
-<!-- fuentes: RULES.md:c94acca23ff8 LEXICON.md:b3655f4533b9 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:75bd12a01523 -->
+<!-- cuerpo: b47b58bfa990 -->
+<!-- fuentes: RULES.md:c94acca23ff8 LEXICON.md:ce96986a5725 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:a477fd3ee691 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -872,6 +872,9 @@ HAZ  1 HISTORY (append, formato canónico único):
        Trazabilidad externa: QD-XXX H-XXX R-XXX
        Clase de evento: CE-NNN si el trabajo cae en una de LEXICON §4.4         [LEX-R31]
          citar un CE-NNN que LEXICON no declara es defecto y bloquea            [LEX-R32]
+         «node tools/eventos.mjs» reclasifica el ledger entero y reescribe
+         EVENTOS.jsonl. La clase es un JUICIO: sale marcada DECLARADO, y separar
+         una instancia de una mencion lo decide una persona, no la herramienta.
      2 HANDOFF en MODO MERGE: leer el existente y PRESERVAR validaciones e investigaciones
        ajenas al PT [FDGE-R30]
      3 regenerar BACKLOG desde REGISTRY y changes/

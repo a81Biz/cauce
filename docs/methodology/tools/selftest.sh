@@ -1997,6 +1997,103 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-125 · EP-020 · clasificar las entradas cerradas ────────────────────────────────────────
+#
+# Lo pidio el firmante: «quiero que releas las tareas ya cerradas y realices una matriz de
+# eventos, quiero saber que ocurrio, que se mejoro, QUE SE REPITE».
+#
+# La clase es un JUICIO y todo registro sale DECLARADO. Lo que se automatiza —y lo que estos
+# casos ejercen— es el MATERIAL: la frase con que el ledger se autodescribe y la cita literal.
+EV125="$SUITE/tools/eventos.mjs"
+
+# AC-01 · un registro lleva tarea, fecha, clase, CITA TEXTUAL y naturaleza.
+mlib "un registro lleva clase, cita y naturaleza" "CE-001" "$EV125" \
+  'const r=m.clasifica("PT-131","2026-08-22","## PT-131 — x\nFecha: 2026-08-22\nEs el proxy en lugar del hecho, instancia doce.","HISTORY.log");
+   console.log(r[0].clase, r[0].naturaleza, r[0].cita ? "CON CITA" : "SIN CITA");'
+mlib "…y la cita es LITERAL, no parafraseada" "instancia doce" "$EV125" \
+  'const r=m.clasifica("PT-131","2026-08-22","## PT-131 — x\nEs el proxy en lugar del hecho, instancia doce.","HISTORY.log");
+   console.log(r[0].cita);'
+
+# AC-02 · toda clasificacion va marcada DECLARADO: la clase es un juicio, no una derivacion.
+mlib "toda clasificacion va DECLARADO" "DECLARADO" "$EV125" \
+  'const r=m.clasifica("PT-X","2026-01-01","## PT-X — y\nrotura de escapado otra vez.","HISTORY.log");
+   console.log(r[0].naturaleza);'
+mlib "…y ninguna se presenta como MEDIDO" "NINGUNA MEDIDO" "$EV125" \
+  'const t=["## A — a\nel proxy en lugar del hecho","## B — b\nnada de nada"];
+   const r=t.flatMap((x,i)=>m.clasifica("T"+i,null,x,"HISTORY.log"));
+   console.log(r.some(x=>x.naturaleza==="MEDIDO")?"HAY MEDIDO":"NINGUNA MEDIDO");'
+
+# EL JUICIO QUE LA MAQUINA NO PUEDE HACER · nombrar una clase no es ser una instancia de ella.
+# PT-127 dice literalmente «NO es el acto fuera del comando» y el matcher la marcaba como tal.
+# Contarla habria inflado la matriz con una recurrencia que no ocurrio — CE-001 cometido en la
+# herramienta que existe para contar instancias de CE-001.
+mlib "una MENCION no se cuenta como instancia" "MENCION" "$EV125" \
+  'const r=m.clasifica("PT-127",null,"## PT-127 — z\nNo es «el acto fuera del comando» —alli existe una herramienta que no se uso—:","HISTORY.log");
+   console.log(r.find(x=>x.clase==="CE-006").polaridad);'
+mlib "…y NO se borra: se marca con su motivo" "explicitamente" "$EV125" \
+  'const r=m.clasifica("PT-127",null,"## PT-127 — z\nNo es «el acto fuera del comando»:","HISTORY.log");
+   console.log(r.find(x=>x.clase==="CE-006").como);'
+mlib "…y la misma clase en otra tarea SI es instancia" "INSTANCIA" "$EV125" \
+  'const r=m.clasifica("PT-999",null,"## PT-999 — w\nel registro solo lo escribe el comando y nada lo comprobaba.","HISTORY.log");
+   console.log(r.find(x=>x.clase==="CE-006").polaridad);'
+
+# AC-03 · TODAS las entradas quedan recorridas, y las que no encajan se DECLARAN en vez de
+# forzarse. Son TRES estados y no dos: sin el de en medio se perderia que 40 entradas dicen que
+# algo se repite sin decir QUE — que es un hueco medido, no ausencia de dato.
+mlib "una entrada sin clase queda RECORRIDA igual" "recorrida" "$EV125" \
+  'const r=m.clasifica("PT-Y",null,"## PT-Y — y\nse cambio una coma.","HISTORY.log");
+   console.log(r[0].clase===null?r[0].como:"CLASIFICADA");'
+mlib "…y afirmar recurrencia sin nombrar la forma es OTRO estado" "NO nombra la forma" "$EV125" \
+  'const r=m.clasifica("PT-Z",null,"## PT-Z — z\nEs la tercera vez que pasa lo mismo.","HISTORY.log");
+   console.log(r[0].clase===null?r[0].como:"CLASIFICADA");'
+mlib "…y ese estado conserva su cita" "tercera vez" "$EV125" \
+  'const r=m.clasifica("PT-Z",null,"## PT-Z — z\nEs la tercera vez que pasa lo mismo.","HISTORY.log");
+   console.log(r[0].cita);'
+
+# El ordinal se DERIVA de la cita, no se cuenta: entradas y ocurrencias son denominadores
+# distintos —EP-020 §2.1 conto 27 roturas y aqui hay 6 entradas que las nombran—.
+mlib "el ordinal sale de lo que la cita declara" "12" "$EV125" \
+  'console.log(m.ordinalDe("Es el proxy en lugar del hecho, instancia doce.").valor);'
+mlib "…tambien en forma cardinal" "27" "$EV125" \
+  'console.log(m.ordinalDe("se rompio veintisiete veces").valor);'
+mlib "…y sin numero declarado dice null, no cero" "null" "$EV125" \
+  'console.log(String(m.ordinalDe("se rompio otra vez")));'
+# EL ORDINAL NO CRUZA DE LINEA. Una entrada con TABLA —como la de PT-125, que lista cada clase
+# con su recuento— hacia que «instancia doce», escrito en la fila de CE-001, se le atribuyera
+# tambien a CE-003, CE-004, CE-007 y CE-015: cuatro cifras plausibles y FALSAS. Es CE-001
+# cometido dentro de la herramienta que cuenta instancias de CE-001. Una ventana de 140
+# caracteres tampoco bastaba: en una tabla densa alcanza la fila de arriba.
+mlib "el ordinal no se toma de la fila de al lado" "null" "$EV125" \
+  'const L = String.fromCharCode(10);
+   const t = "CE-001 el proxy en lugar del hecho 12 instancia doce" + L
+           + "CE-012 filtrar antes de mirar, sin numero";
+   console.log(String(m.ordinalDe(t, /filtrar antes de mirar/i)));'
+mlib "…y si SI esta en su linea, se toma" "3" "$EV125" \
+  'const L = String.fromCharCode(10);
+   const t = "CE-001 el proxy 12 instancia doce" + L
+           + "TERCERA vez que filtrar antes de mirar esconde un fallo";
+   console.log(m.ordinalDe(t, /filtrar antes de mirar/i).valor);'
+
+# AC-04 · SUITE-R36 · ninguna tarea cerrada se rejuzga ni se reabre: la herramienta solo LEE.
+ev125_no_escribe() {
+  local a="$WORK/reg125.antes" b="$WORK/reg125.despues"
+  local h="$RAIZ/docs/implementation/HISTORY.log"
+  [ -f "$h" ] || { echo "SIN EVALUAR"; return; }
+  cp "$h" "$a"; (cd "$RAIZ" && node "$EV125" >/dev/null 2>&1); cp "$h" "$b"
+  cmp -s "$a" "$b" && echo "NO TOCA EL LEDGER" || echo "TOCO EL LEDGER"
+}
+chk   "clasificar no toca HISTORY.log"  "NO TOCA EL LEDGER"  ev125_no_escribe
+
+# EL NEGATIVO · sin ledger legible NO se escribe un archivo vacio. Un EVENTOS.jsonl sin registros
+# diria «ningun evento», que no es lo mismo que «no se pudo mirar» (RULE-06).
+ev125_sin_ledger() {
+  local d="$WORK/ev125"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/docs/methodology"
+  (cd "$d" && node "$EV125" --raiz="$d" 2>&1); echo "codigo $?"
+  [ -f "$d/docs/implementation/EVENTOS.jsonl" ] && echo "ESCRIBIO IGUAL" || echo "NO ESCRIBIO"
+}
+chk   "sin ledger legible NO escribe un archivo vacio"  "NO ESCRIBIO"  ev125_sin_ledger
+chk   "…y lo DICE en vez de callar"                     "no es lo mismo"  ev125_sin_ledger
+
 # ── PT-118 · EP-020 · la taxonomia de clases de evento ────────────────────────────────────────
 #
 # Lo pidio el firmante: «quiero saber que ocurrio, que se mejoro, que se repite». Eso no se puede
