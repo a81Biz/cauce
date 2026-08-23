@@ -6423,3 +6423,86 @@ la 11.0.0 «sin publicar» cuando la 12.0.0 ya estaba en npm, los tags, y los ta
 tres tienen la misma forma —afirmar sobre una lectura parcial en vez de derivar el dato— y las
 tres las cazo una persona. Es exactamente PT-127 y PT-130, y por eso van quinta y sexta del
 reparto: el detector que falta es el que me habria parado.
+
+## PT-131 — El candado con la llave dentro: SUITE-R57 medía una declaración, no el árbol
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su L-18, y aparecio BLOQUEANDO la G2 de todas las demas
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 2026-08-22 CON EXCEPCION DECLARADA en SESSION_LOG.md ·
+  G3 2026-08-22 Alberto Martinez, pedida expresamente y NO delegada · G4 del lote
+Trazabilidad externa: issue #252
+
+SUITE-R57 bloqueaba G2 de TODAS las tareas del repositorio, incluida PT-113 —la 12.0.1— que es
+la que produciria el tag que lo limpiaria:
+
+  PT-131 necesita G2 -> SUITE-R57 bloquea -> la limpia un tag -> lo produce PT-113
+  PT-113 necesita G2 -> SUITE-R57 bloquea -> ...
+
+LA CAUSA. verify-fdge:1806 leia «git show <tag>:REGISTRY.json» y tomaba las que EL TAG
+DECLARABA terminales. DONE no esta en ESTADOS_TERMINALES —y hace bien, SUITE-R08 lo declara a
+proposito— asi que:
+
+  v12.0.0 -> 5b184af   su REGISTRY decia   EP-019 DRAFT · las 17 en DONE
+  main    -> ee660db   su REGISTRY dice    EP-019 CLOSED · las 17 INTEGRATED
+
+PERO SU TRABAJO SI VIAJO EN v12.0.0: los changes/ de las diecisiete estan DENTRO del tag,
+comprobado con git cat-file. Lo que llego despues fue LA ETIQUETA DE ESTADO, no el codigo.
+
+EL MARCO YA CAZO ESTA FORMA UNA VEZ Y LA ARREGLO A MEDIAS. El comentario de verify-fdge:1796
+lo cuenta: «recien creado v10.0.0, las 21 tareas de EP-017 —que ESTAN dentro de el— aparecian
+como deuda sin sellar». PT-087 cambio QUE TAG mirar —el mas alto— y siguio mirando SU REGISTRO.
+El comentario NOMBRA el hecho correcto —«lo que ya viajo en algun tag»— y elige un observable
+que no lo mide. Es el proxy en lugar del hecho, instancia doce.
+
+SOLUCION: «selladoEnTag» en patrones.mjs deriva del ARBOL del tag con un solo comando
+—git ls-tree <tag> changes/— para las 131 entradas. DOS condiciones, no una: la tarea tiene
+trabajo AHORA, y ese trabajo no esta en el tag. Sin la primera salian PT-025 —DEFERRED, nunca
+trabajada— y PT-032 —cerrada sin artefactos—: UNA TAREA SIN TRABAJO NO TIENE NADA QUE SELLAR.
+
+Y VIVE EN patrones.mjs, NO en verify-fdge. La lectura del tag estaba DUPLICADA en verify-fdge y
+en tracker sellar, con el comentario de PT-087 copiado palabra por palabra en los dos. Escribir
+el arreglo donde estaba el sintoma habria dejado a tracker sellar con el proxy viejo — que es
+EXACTAMENTE como el defecto de PT-087 sobrevivio a su propio arreglo (SUITE-R38).
+
+LO QUE LO EVITO FUE EL GRAFO, no leer el codigo: «sinSellar» aparece con dos llamadores.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · tools/tracker.mjs ·
+  tools/selftest.sh · inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-131/ · manifest.json · self-review.md ·
+  salidas/gate-g2.txt · salidas/sellar.txt · salidas/casos.txt · salidas/inventario.txt
+
+  deuda de sellado    ANTES 17 contra umbral 3    DESPUES 0
+  fuentes que la miden  ANTES 2 copias divergentes  DESPUES 1 funcion
+  bateria             ANTES 1372 casos            DESPUES 1377
+
+DOS DEFECTOS MIOS, los dos cazados EJECUTANDO:
+
+· ROMPI selftest.sh con «$'» dentro del texto de reemplazo de String.replace, que significa
+  «todo lo que va DESPUES del match»: se comio el bloque entero. Lo dijo bash, no yo. Es la
+  familia de SUITE-R59 EN UN SITIO QUE LA REGLA NO CUBRE —habla de patrones y de la linea de
+  comandos, no del texto de REEMPLAZO—, asi que entra en la matriz como instancia nueva y no
+  como violacion. Arreglado con git checkout y un replacer de FUNCION.
+· FND-R14 se desvio al cambiar lineas en cuatro herramientas, y NO se arreglo a mano:
+  «tracker inventario --aplicar», que es lo que PT-110 construyo tras reimplementarlo SIETE
+  veces. Que la bateria lo cazara el mismo dia CON EL COMANDO EN EL MENSAJE es la clase
+  CERRADA comportandose como cerrada.
+
+LO QUE NO ESTABLECE:
+
+· Que el tag este publicado ni que su contenido sea correcto. Solo que el directorio existe ahi.
+· Que el estado terminal deje de llegar tarde a la rama por defecto. Es PT-121: esta tarea hace
+  que esa demora deje de BLOQUEAR, no que deje de OCURRIR.
+· Que no queden mas proxies en «sellar»: se arreglo UNA de sus cinco comprobaciones.
+· Que el umbral 3 sea el correcto. No se toco y no se juzga.
+
+LA EXCEPCION DE G2 SE AGOTA AQUI. Decia como comprobarse: que la inversa TS-02 pudiera ponerse
+en rojo. Puede, y pasa. Ninguna otra tarea la usa: las diecinueve del lote pasan G2 por la
+compuerta.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 pedida expresamente al firmante aunque la
+sesion tenia delegacion amplia — usarla ahi habria convertido «decide lo que convenga» en
+«firmate todo».

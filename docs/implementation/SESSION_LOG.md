@@ -3417,3 +3417,41 @@ no habrá servido para nada — que es exactamente lo que hay que poder decir de
 `SUITE-R27` · el agente escribe esta constancia. Lo que vale es que la afirmación sea
 contrastable: la condición bloqueante se reproduce con un comando, y las tres alternativas están
 medidas en el árbol.
+
+---
+
+## 2026-08-22 · `G3` de `PT-131` · validada por el firmante
+
+**Validado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`). Literal: *«G3 de PT-131»*.
+
+`FDGE-R26` reserva la validación de un `BUG` a una persona y `SUITE-R06b` mantiene su cierre
+fuera de la automatización. **No se delegó**, y se pidió expresamente aunque la sesión tenía una
+delegación amplia: usarla aquí habría convertido «decide lo que convenga» en «fírmate todo», y
+eso vacía la única compuerta que separa *funciona* de *lo dije yo*.
+
+### Lo validado, reproducible con cuatro comandos
+
+```
+verify-fdge PT-131                Sin errores. PTs verificados: 1.
+verify-fdge --gate G2 PT-131      ✓ SUITE-R57  0 integrada(s) sin sellar, umbral 3   (antes 17)
+tracker sellar --ver              deuda de sellado  0 de lotes CERRADOS · umbral 3
+npm run selftest                  1377 casos                                (antes 1372)
+```
+
+**La línea que decide** es la inversa, en `evidence/PT-131/salidas/casos.txt`:
+`✓ …y el trabajo FUERA del tag NO sale`. Si el observable nuevo se equivocara hacia el verde,
+ese caso lo pone en rojo.
+
+### La excepción de `G2` queda cerrada por su propio criterio
+
+La excepción registrada más arriba decía cómo comprobar que no había fabricado un verde: **que
+la inversa `TS-02` pudiera ponerse en rojo**. Puede, y pasa. La excepción se agota aquí: ninguna
+otra tarea la usa, y las diecinueve del lote pasan `G2` **por la compuerta**.
+
+### Lo que esta validación no prueba
+
+Que no queden más proxies en `sellar`: se arregló **una** de sus cinco comprobaciones. Y que el
+estado terminal deje de llegar tarde a la rama por defecto, que es `PT-121`. Los dos límites
+están declarados en `out-of-scope.md` con su destino.
+
+`SUITE-R27` · el agente escribe esta constancia. Lo contrastable son los cuatro comandos.
