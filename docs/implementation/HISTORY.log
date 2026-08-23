@@ -6684,3 +6684,71 @@ LO QUE NO ESTABLECE:
   en el contrato: adoptar uno ajeno SE VE en el espejo; duplicar no.
 
 Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.
+
+## PT-114 — El cuerpo del issue no se republica cuando aparece la ref durable
+Fecha: 2026-08-22
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — es su L-12, y el firmante la puso segunda: sin ella G1 no pasa en NINGUN lote
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Compuertas: G1 heredada del lote · G2 y G3 delegadas POR LOTE con constancia en SESSION_LOG.md ·
+  G4 del lote
+Trazabilidad externa: issue #232
+
+Lo encontro el firmante, no un verificador:
+
+  «en el issue del EP-020 tenemos changes/EP-020-el-acto-fuera-del-comando/ que no lleva a
+   ningun lado, no puedo leer el intake por lo que no puedo firmar nada»
+
+PT-096 DECIDIO BIEN y esta tarea NO toca esa decision: sin ref durable no se inventa una URL, se
+publica la ruta sin enlace y se dice por que (RULE-06). Lo que faltaba es LA OTRA MITAD, que
+PT-096 dejo escrita y no cerro:
+
+  «Una vez que un cuerpo esta bien, NADA vuelve a mirarlo: la herramienta no comparaba jamas el
+   cuerpo que publico con el derivado.»
+
+El cuerpo se publica al CREAR el issue, la rama se empuja DESPUES, y nada vuelve. Y el propio
+cuerpo publicado le pedia a un humano que lo arreglara —«si ya lo esta, tracker abrir --aplicar lo
+republica»—: SEPTIMA INSTANCIA de «existe la herramienta y nada la echa en falta».
+
+LA CONSECUENCIA NO ES COSMETICA: sin intake no hay firma, y sin firma no hay G1. Bloqueaba la
+apertura de CUALQUIER lote.
+
+POR QUE EL ESPEJO Y NO verify-fdge, medido: verify-fdge NO lleva credencial en CI —la corrida
+32600060157 emitio 108 avisos «SUITE-R43 SIN EVALUAR» sobre 108 PT y cerro con «Sin errores»— y
+«tracker espejo» SI la lleva, con GH_TOKEN explicito, en los dos workflows. Ademas es su
+territorio: SUITE-R35 dice que la plataforma ESPEJA el registro.
+
+FALLA, NO AVISA. Un cuerpo ilegible impide leer el intake; no es una molestia, es una compuerta
+que no puede pasar.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh ·
+  inventory/services.md
+
+Evidencia: docs/implementation/evidence/PT-114/ · manifest.json · self-review.md ·
+  salidas/casos.txt · salidas/espejo.txt
+
+  cuerpos revisados tras publicar   ANTES 0        DESPUES todos los vivos, en cada espejo
+  bateria                          ANTES 1389     DESPUES 1395
+
+LA INVERSA QUE DECIDE: «…y SIN ref durable es correcto». Marcar ese caso seria acusar a PT-096 de
+un defecto que no tiene, y el ruido en cada corrida ensena a ignorar la comprobacion — peor que no
+tenerla.
+
+DOS ERRORES MIOS, los dos cazados ANTES de ejecutar:
+
+· Escribi el caso del literal con «patlib» —que carga patrones.mjs— llamando a cuerpoDeIssue, que
+  vive en tracker.mjs. Habria fallado por EL MOTIVO EQUIVOCADO: «la funcion no existe» en vez de
+  «el literal divergio». Un caso que falla por el motivo equivocado ensena a desconfiar del arnes.
+· Mi script de edicion no encontro el texto exacto y ABORTO SIN TOCAR NADA. Es el contrato que
+  PT-132 acaba de arreglar en «abrir»: si no se puede hacer entero, no se hace.
+
+LO QUE NO ESTABLECE:
+
+· Que el enlace RESUELVA. Depende de la plataforma, no del texto.
+· Que verify-fdge vea esto en CI. Sin credencial no puede: es PT-120.
+· Que alguien ejecute el comando que se le dice. Bloquear es lo maximo que puede hacer una
+  comprobacion.
+
+Es un BUG: cerrarlo no se automatiza (SUITE-R06b). G3 por delegacion del firmante con constancia.

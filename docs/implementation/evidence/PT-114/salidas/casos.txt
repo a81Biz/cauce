@@ -1,0 +1,7 @@
+  [32m✓[0m cuerpo mudo CON ref durable ⇒ divergencia
+  [32m✓[0m …y SIN ref durable es correcto
+  [32m✓[0m …y un cuerpo con enlace tampoco
+  [32m✓[0m sin poder leer el cuerpo ⇒ null
+  [32m✓[0m …y sin saber si hay ref, tambien
+  [32m✓[0m el literal buscado es el que se escribe
+selftest: OK · 1395 casos

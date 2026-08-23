@@ -3538,6 +3538,34 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-114 · el cuerpo del issue publica la ruta SIN ENLACE y nada lo republica despues.
+#
+# PT-096 decidio BIEN: sin ref durable no se inventa una URL (RULE-06). Lo que faltaba es la
+# otra mitad — que algo lo eche de menos DESPUES. El cuerpo se publica al crear el issue, la
+# rama se empuja despues, y «una vez que un cuerpo esta bien, NADA vuelve a mirarlo» (PT-096).
+#
+# La consecuencia la encontro una PERSONA abriendo EP-020, no un verificador: «no puedo leer
+# el intake por lo que no puedo firmar nada». Sin intake no hay firma, y sin firma no hay G1.
+patlib "cuerpo mudo CON ref durable ⇒ divergencia"  '^true$' \
+  "console.log(m.cuerpoSinEnlaceConRef('sin enlace: no hay ref durable que lo contenga',true))"
+# INVERSA · sin ref durable el cuerpo mudo es CORRECTO: es la decision de PT-096 y no se toca.
+# Marcarlo seria acusar a un acierto, y el ruido ensena a ignorar la comprobacion.
+patlib "…y SIN ref durable es correcto"             '^false$' \
+  "console.log(m.cuerpoSinEnlaceConRef('sin enlace: no hay ref durable que lo contenga',false))"
+# Un cuerpo CON enlace no se marca nunca.
+patlib "…y un cuerpo con enlace tampoco"            '^false$' \
+  "console.log(m.cuerpoSinEnlaceConRef('[changes/x](https://h/r/tree/abc/changes/x)',true))"
+# RULE-06 · sin poder leer el cuerpo NO se dice «todo bien». Devolver false seria el verde
+# por omision, que es lo que publicar.yml hace hoy con SUITE-R43: 108 de 108 SIN EVALUAR.
+patlib "sin poder leer el cuerpo ⇒ null"            '^null$' \
+  "console.log(JSON.stringify(m.cuerpoSinEnlaceConRef(null,true)))"
+patlib "…y sin saber si hay ref, tambien"           '^null$' \
+  "console.log(JSON.stringify(m.cuerpoSinEnlaceConRef('lo que sea',null)))"
+# El literal que se BUSCA es el mismo que cuerpoDeIssue ESCRIBE: una sola constante. Dos
+# copias del mismo literal divergen, y este caso lo caza.
+trlib "el literal buscado es el que se escribe"     'sin enlace: no hay ref durable' \
+  "console.log(m.cuerpoDeIssue({id:'PT-9',slug:'x',status:'READY'},{url:null,rama:'main'}))"
+
 # PT-132 · «abrir» creaba el issue —IRREVERSIBLE— y guardaba el registro al FINAL del bucle.
 # Una interrupcion dejaba los issues creados y el registro sin conocerlos, y la pasada
 # siguiente los volvia a crear: DIECISEIS duplicados medidos el 2026-08-22, PT-129 por TRES.
