@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "267c1ea16b6f2b291e3048611acaff3a4cd68c6a",
   "sha_corto": "267c1ea",
@@ -18,19 +18,16 @@
     "changes/PT-114-el-cuerpo-del-issue-no-se-republica/strategy.md",
     "changes/PT-114-el-cuerpo-del-issue-no-se-republica/tasks.md",
     "changes/PT-114-el-cuerpo-del-issue-no-se-republica/test-scenarios.md",
+    "changes/PT-114-el-cuerpo-del-issue-no-se-republica/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-114/",
+    "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-22"
 }
