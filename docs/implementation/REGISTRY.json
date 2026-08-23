@@ -3346,13 +3346,31 @@
       "id": "PT-127",
       "slug": "nada-detecta-el-trabajo-sin-allocation",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 3,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "type": "BUG",
       "severity": "S1",
       "epic": "EP-020",
       "title": "Nada detecta el trabajo sin allocation: solo lo corta una persona",
-      "issue": 245
+      "issue": 245,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
     },
     {
       "id": "PT-128",

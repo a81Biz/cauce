@@ -7500,3 +7500,86 @@ LO QUE NO ESTABLECE:
 
 Declarar la prueba sirvio exactamente para lo que se escribio: se ejecuto, fallo, y el arreglo
 quedo delimitado. Sin esa frase, «17 cerradas, 0 vivas» habria parecido una respuesta correcta.
+
+## PT-127 — Nada detecta el trabajo sin allocation: solo lo corta una persona
+Fecha: 2026-08-23
+Estado: VALIDATION_PENDING
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — clase dieciseis, la que faltaba en la matriz
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: NO
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+
+Lo pidio el firmante con una frase que se describe a si misma:
+
+  «lo empezaras a arreglar, ese arreglo te vas a saltar el marco de trabajo, entonces debes abrir
+   el pt con el bug para poder hacer la correccion necesaria (SI NO TE LO DIGO, NO LO HARIAS) y
+   esto es algo que se debe evitar»
+
+El parentesis es el defecto entero: lo que solo ocurre cuando una persona lo dice, no ocurre.
+
+LO QUE HACE DISTINTA A ESTA CLASE. No es «el acto fuera del comando» —alli existe una herramienta
+que no se uso—: aqui NO HAY GOBIERNO EN ABSOLUTO. Dieciseis instancias medidas en el ledger
+(PT-082, PT-094, PT-099, PT-103, EP-019 y dos de esta sesion), y a las dieciseis las corto una
+PERSONA, o no las corto nadie. Ningun verificador miro nunca.
+
+Y LA MITAD DE FDGE-R19 LLEVABA DESDE LA 7.7.0 SIN COMPROBAR. La regla dice, literal, «formato
+obligatorio: <type>: PT-XXX». Sus tres comprobaciones miran el REGISTRO —la rama declarada, el
+usuario canonico, la topologia—, no la historia. El asunto del commit no lo miraba nada. No es
+un caso de P-001 (la regla estaba bien escrita) sino de P-003: una regla HARD que declara
+comprobacion y sale gratis.
+
+LA PRIMERA MEDICION, sobre 60 commits: 33 citan un LOTE donde la regla pide un PT, y 1 usa un
+tipo que la regla no declara. Treinta y cuatro commits que tocan docs/methodology/,
+docs/implementation/ y changes/ sin citar ninguna allocation, y ni un solo aviso.
+
+CUATRO DEFECTOS APARECIERON CONSTRUYENDOLO, y el cuarto es el que hay que retener:
+
+  1  el parseo veia UN commit de sesenta: separador al final del formato, y --name-only escribe
+     los archivos DESPUES. Lo delato un numero absurdo; con «48» habria pasado.
+  2  «merge» metido en la lista de tipos — legislar desde una herramienta lo que la regla no
+     dice. Sustituido por el numero de PADRES, que es un dato de git.
+  3  la clasificacion mentia en 34 de 34: buscaba el identificador y la palabra «excepcion» en el
+     ledger ENTERO. Decia «el marco te obligo» donde nadie habia declarado nada — un motivo
+     plausible y falso que ademas repartia la culpa al reves (RULE-06).
+  4  Y EL ARREGLO DEL 3 TAMPOCO TROCEABA. «split(/\b(?=## )/)» devuelve UNA entrada de 226: un
+     limite de palabra no cae entre un salto y una almohadilla, porque las dos son no-palabra.
+     «La misma entrada» volvia a ser el documento entero.
+
+El arreglo de un defecto de laxitud era igual de laxo, y PARECIA correcto: leyendolo, se ve como
+«trocea por encabezado». Solo CONTAR las entradas lo desmintio. Por eso TS-10 mide el troceo en
+vez de confiar en el.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · tools/selftest.sh · RULES.md
+
+Evidencia: docs/implementation/evidence/PT-127/ · manifest.json · self-review.md ·
+  salidas/casos-127.txt · salidas/inversa.txt · salidas/verify-fdge.txt
+
+Criterios AC-01..AC-05 ✓, los cinco. Once escenarios de once. Prueba inversa: cuatro supresiones,
+cuatro rojos distintos y UNICOS — cada una tumba el escenario esperado y solo ese.
+
+  comprobaciones de FDGE-R19   ANTES 3, todas sobre el registro   DESPUES 4, una sobre la historia
+  commits nombrados            ANTES 0                            DESPUES 34, agrupados en 3 lineas
+  lineas de salida             ANTES —                            DESPUES 3, no 34 identicas
+
+UNA CORRECCION AL PROPIO INTAKE. AC-03 decia que la fila de RIGE_DESDE impedia juzgar los 200+
+commits anteriores. Es FALSO: la fila de FDGE-R19 es 7.7.0, asi que la obligacion ESTABA EN VIGOR
+cuando se escribieron. Lo que acota la lectura es la ventana de 60 commits. Se escribe en vez de
+dejar que el criterio afirme lo que la medicion contradice — la leccion de PT-100.
+
+LO QUE NO ESTABLECE:
+
+· Que los 34 detectados sean incumplimientos. NO lo son: 15 de EP-020 son trabajo DE LOTE, que no
+  pertenece a ningun PT porque no existe un PT al que pertenezca. Si FDGE-R19 debe admitir el
+  identificador del lote es una pregunta sobre la REGLA. El detector la hizo visible; va a PT-130.
+· Que FORZADO pruebe que el marco obligo. Observa co-ocurrencia DECLARADA en una entrada del
+  ledger, no intencion. La forma estricta necesita un campo estructurado — PT-125.
+· Que un PT abierto DESPUES del commit que lo cita se detecte. Aqui no; lo cazan FDGE-R52 y
+  SUITE-R08.
+· Que impida nada. Avisa, y AVISA_AHORA_FALLA_EN lo mapea a G4: el aviso tiene fecha de caducidad
+  mecanica. Un hook local se desactiva con una bandera, y una compuerta que cualquiera abre no es
+  una compuerta (EXEC-R03).
+
+Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING y ahi se detiene. Llevarlo a DONE
+es un acto humano que deja constancia de quien y cuando (FDGE-R26, LEX-R08, SUITE-R06b).

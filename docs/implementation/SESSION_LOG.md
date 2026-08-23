@@ -3544,3 +3544,48 @@ sesión demostró que la parada es uno de ellos**, y no lo estaba.
 
 `PT-130` baja al final: su defecto —una comprobación que acusa a quien documenta— no bloquea a
 nadie mientras se escriba con cuidado, y ya se sabe cómo esquivarlo.
+
+## 2026-08-23 · `PT-128` declaró verificado lo que no había corrido — **corrección**
+
+`SUITE-R09` · `HISTORY.log` es append-only y la entrada de `PT-128` ya está commiteada en
+`95d794f`. No se reescribe: se corrige aquí, que es donde el marco pone las correcciones de lo
+ya cerrado.
+
+**Qué dice esa entrada y no es cierto.** Declara como evidencia
+`salidas/selftest-completo.txt` — **ese archivo no existe**. El directorio
+`evidence/PT-128/salidas/` contiene únicamente `cursor.txt`. Y su `manifest.json` declara nueve
+tests `selftest.sh:…` como `verified: true`; al correr la batería completa, **nueve están en
+rojo**.
+
+**Por qué salieron verdes cuando los ejecuté.** El caso decía:
+
+```
+cur128() { node "$SUITE/tools/tracker.mjs" cursor "$@"; }
+```
+
+Sin directorio. Ejecutado suelto desde la raíz, el cursor lee el `REGISTRY.json` real y encuentra
+`PT-128` y `EP-019`. Ejecutado **dentro** de la batería, el directorio activo es el fixture
+vigente en ese punto — que no los contiene — y la salida es *«PT-128 no está en el registro»*.
+
+Es la clase **«probar donde trabajo, no donde se decide»** de la matriz del lote: novena
+instancia allí, **décima** aquí. Sigue **SIN DUEÑO**, y esta entrada es su número, no su arreglo
+(`RULE-06`, y `§3(c)` del intake del lote: o con dueño, o declarada con su número).
+
+**Y el defecto de fondo no es el `cd`.** Es que **declaré `verified: true` sin haber mirado la
+salida de la batería**. La corrida existía, no la abrí, y escribí en `HISTORY.log` el nombre de
+un archivo que iba a generar y no generé. Eso es un verde fabricado, y no tiene atenuante: el
+marco entero existe para que una afirmación tenga evidencia en disco (`FDGE-R23`).
+
+**Qué se hace.**
+
+1. Los tres casos se anclan a `$RAIZ` — los de `PT-128` y el `TS-11` de `PT-127`, que tenía el
+   mismo defecto y todavía no se había commiteado.
+2. `cur128_escribe` deja de comparar un registro que quizá no leyó: si no puede leerlo, dice
+   `SIN EVALUAR` en vez de «no escribe».
+3. Se genera la batería completa **de verdad**, y va como evidencia de `PT-127` y de `PT-128`.
+4. `evidence/PT-128/manifest.json` corrige sus `verified` a lo que la corrida diga. El manifiesto
+   **no** es append-only: describe el estado de la evidencia, y describirlo mal es el defecto.
+
+**Lo que esta corrección NO hace.** No reabre `PT-128` ni lo rejuzga (`SUITE-R36`): el cursor
+funciona, y su hallazgo —que para un lote contaba en vez de enumerar— sigue siendo cierto y está
+medido en `cursor.txt`. Lo que era falso es el alcance de su verificación, no su resultado.

@@ -773,6 +773,10 @@ export const CAR = {
   BARRA: String.fromCharCode(92),
   COMILLA: String.fromCharCode(39),
   BACKTICK: String.fromCharCode(96),
+  // Los dos separadores de registro de ASCII. Se usan para leer «git log»: no aparecen en
+  // ningun asunto ni en ninguna ruta, asi que separan sin poder confundirse con el contenido.
+  SEPARADOR: String.fromCharCode(30),
+  UNIDAD: String.fromCharCode(31),
 };
 
 /** Las clases de un regex, como texto, sin escribir la barra. */
@@ -820,6 +824,112 @@ export function porLineas(texto) {
 /** Une líneas con un salto real. */
 export function enLineas(lineas) {
   return (lineas ?? []).join(CAR.SALTO);
+}
+
+
+/**
+ * PT-127 · EP-020 · Nada detecta el trabajo sin allocation.
+ *
+ * Lo pidio el firmante con una frase que se describe a si misma:
+ *
+ *   «lo empezaras a arreglar, ese arreglo te vas a saltar el marco de trabajo, entonces debes
+ *    abrir el pt con el bug para poder hacer la correccion necesaria (SI NO TE LO DIGO, NO LO
+ *    HARIAS) y esto es algo que se debe evitar»
+ *
+ * El parentesis es el defecto entero: lo que solo ocurre cuando una persona lo dice, no ocurre.
+ *
+ * Y hay una medicion que lo prueba: los commits del cierre de EP-019 citan «EP-019», que para
+ * entonces estaba CLOSED, con formato «fix: EP-019» en vez de «fix: PT-NNN». FDGE-R19 exige un
+ * PT y ningun verificador miraba el prefijo. Diez commits, ningun rojo.
+ *
+ * PURA a proposito: recibe los commits ya leidos y el registro. Un caso puede ejercerla sin git
+ * y sin disco, que es lo que hace que el caso exista (PT-048, PT-097, PT-101).
+ */
+
+/** Las rutas que el marco gobierna: tocarlas es trabajo, y el trabajo necesita allocation. */
+export const RUTAS_GOBERNADAS = ['docs/methodology/', 'docs/implementation/', 'changes/', 'bin/'];
+
+/**
+ * Los SEIS tipos que FDGE-R19 declara para un commit. La regla es su propietaria; aqui viven una
+ * sola vez para que ningun verificador los reescriba (SUITE-R38).
+ *
+ * «merge» NO esta, y «revert» tampoco: anadirlos seria legislar desde una herramienta lo que la
+ * regla no dice. Un merge se reconoce por su FORMA —dos padres— y no por un tipo inventado.
+ */
+export const TIPOS_DE_COMMIT = ['feat', 'fix', 'refactor', 'test', 'docs', 'chore'];
+
+const RE_SUJETO = new RegExp(
+  '^(' + TIPOS_DE_COMMIT.join('|') + ')' + CLASE.espacio + '*:' + CLASE.espacio + '*'
+  + '(?:([A-Z]+)-(' + CLASE.digito + '+))?');
+
+/**
+ * Clasifica UN commit. Devuelve `null` si no toca ninguna ruta gobernada — un commit que no
+ * toca lo que el marco gobierna no necesita allocation, y exigirsela seria ruido.
+ *
+ * `vivoEn` decide si el ID estaba vivo: se inyecta para que el caso pueda decidirlo sin registro.
+ */
+export function commitSinAllocation(commit, vivoEn) {
+  // Un merge no es trabajo: es integracion, y su asunto lo escribe git. Se reconoce por tener mas
+  // de un padre — el dato lo da git, no lo adivina una lista de tipos.
+  if (Number(commit?.padres ?? 1) > 1) return null;
+
+  const rutas = commit?.rutas ?? [];
+  if (!rutas.some((r) => RUTAS_GOBERNADAS.some((g) => String(r).startsWith(g)))) return null;
+
+  const m = RE_SUJETO.exec(String(commit?.sujeto ?? ''));
+  if (!m) {
+    return { sha: commit?.sha, clase: 'SIN_FORMATO',
+      dice: 'el asunto no sigue «<type>: PT-NNN» con type en '
+        + `«${TIPOS_DE_COMMIT.join(' · ')}» (FDGE-R19), asi que no cita ninguna allocation` };
+  }
+  const pfx = m[2];
+  const id = pfx ? `${pfx}-${String(m[3]).padStart(3, '0')}` : null;
+
+  if (!id) {
+    return { sha: commit?.sha, clase: 'SIN_ID',
+      dice: 'el asunto tiene tipo pero no cita ningun identificador' };
+  }
+  if (pfx !== 'PT') {
+    return { sha: commit?.sha, clase: 'NO_ES_PT', id,
+      dice: `cita «${id}», que no es un PT. FDGE-R19 pide un PT: un lote no es la unidad de trabajo` };
+  }
+  const v = vivoEn ? vivoEn(id, commit) : null;
+  if (v === null || v === undefined) {
+    return { sha: commit?.sha, clase: 'SIN_EVALUAR', id,
+      dice: `no se pudo decidir si «${id}» estaba vivo. No saber no es permiso (RULE-06)` };
+  }
+  if (v === false) {
+    return { sha: commit?.sha, clase: 'NO_VIVO', id,
+      dice: `cita «${id}», que no estaba vivo en ese commit: el trabajo se hizo sin allocation abierta` };
+  }
+  return null;
+}
+
+/**
+ * Separa las dos cosas que el ledger distingue y que NO son lo mismo (AC-04):
+ *
+ *   ELEGIDO   el agente rodeo el marco pudiendo no hacerlo
+ *   FORZADO   el marco OBLIGO a rodearlo porque la herramienta no podia cumplirlo
+ *
+ * La diferencia no se infiere: se DECLARA, y una declaracion tiene DOS partes que van JUNTAS —
+ * el identificador rodeado y la REGLA que se exceptua— dentro de UNA MISMA entrada del ledger.
+ *
+ * La primera version buscaba el identificador y la palabra «excepcion» en el ledger ENTERO. Con
+ * eso, treinta y cuatro commits salian FORZADO porque el documento menciona «EP-019» en un sitio
+ * y «excepcion» en otro, sin ninguna relacion entre ambos. Un motivo plausible y falso es peor
+ * que no clasificar: RULE-06 lo prohibe, y aqui ademas repartia la culpa al reves.
+ */
+export function clasificaRodeo(hallazgo, textoDelLedger, regla = 'FDGE-R19') {
+  const id = hallazgo?.id;
+  if (!id) return { ...hallazgo, motivo: 'ELEGIDO' };
+  // Se trocea por el ENCABEZADO de entrada. La primera version troceaba por «\b(?=## )» y no
+  // troceaba nada —un limite de palabra no cae entre un salto y una almohadilla, que son las
+  // dos no-palabra—: 226 entradas salian como UNA, y «la misma entrada» volvia a ser el
+  // documento entero. La comprobacion de la comprobacion es lo que lo vio.
+  const entradas = String(textoDelLedger ?? '').split(CAR.SALTO + '## ');
+  const declarada = entradas.some((e) => e.includes(id) && e.includes(regla)
+    && /[Ee]xcepci[oó]n/.test(e));
+  return { ...hallazgo, motivo: declarada ? 'FORZADO' : 'ELEGIDO' };
 }
 
 export const PATRONES = {

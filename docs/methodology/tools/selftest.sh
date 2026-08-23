@@ -1997,6 +1997,87 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-127 · EP-020 · nada detecta el trabajo sin allocation ──────────────────────────────────
+#
+# Lo pidio el firmante con una frase que se describe a si misma:
+#
+#   «lo empezaras a arreglar, ese arreglo te vas a saltar el marco de trabajo, entonces debes
+#    abrir el pt con el bug para poder hacer la correccion necesaria (SI NO TE LO DIGO, NO LO
+#    HARIAS) y esto es algo que se debe evitar»
+#
+# El parentesis es el defecto entero: lo que solo ocurre cuando una persona lo dice, no ocurre.
+# La funcion es PURA — recibe los commits ya leidos y quien decide si un ID esta vivo—, y por eso
+# estos casos la ejercen sin git y sin disco.
+P127="$SUITE/tools/patrones.mjs"
+
+# AC-01 · lo correcto sale limpio. Un commit bien formado que cita un PT vivo no es un hallazgo.
+mlib "un commit con «feat: PT-NNN» y allocation viva no es hallazgo" "SIN HALLAZGO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a1",padres:1,sujeto:"feat: PT-127 el detector",
+     rutas:["docs/methodology/tools/patrones.mjs"]},()=>true);
+   console.log(r===null?"SIN HALLAZGO":"HALLAZGO "+r.clase);'
+
+# AC-02 · EL NEGATIVO. Un commit que no toca ninguna ruta gobernada NO necesita allocation, y
+# exigirsela convertiria la comprobacion en ruido. Sin este caso, una comprobacion que marcase
+# TODO tambien pasaria los demas.
+mlib "un commit que no toca ruta gobernada no necesita allocation" "SIN HALLAZGO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a2",padres:1,sujeto:"lo que sea, sin formato",
+     rutas:["README.md","package.json"]},()=>false);
+   console.log(r===null?"SIN HALLAZGO":"HALLAZGO "+r.clase);'
+
+# AC-03 · el hallazgo que dio origen a la tarea: diez commits del cierre de EP-019 citaban el
+# LOTE. FDGE-R19 pide un PT, y ningun verificador miraba el prefijo.
+mlib "citar un LOTE no es citar una allocation" "NO_ES_PT" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a3",padres:1,sujeto:"docs: EP-020 las seis paradas",
+     rutas:["changes/x/intake.md"]},()=>true);
+   console.log(r?r.clase:"SIN HALLAZGO");'
+
+# AC-04 · un PT que no existe en el registro es trabajo sin allocation abierta.
+mlib "citar un PT que no existe es trabajo sin allocation" "NO_VIVO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a4",padres:1,sujeto:"fix: PT-999 algo",
+     rutas:["bin/cauce.mjs"]},()=>false);
+   console.log(r?r.clase:"SIN HALLAZGO");'
+
+# AC-05 · RULE-06 · no poder decidir NO es lo mismo que estar bien, y se dice distinto.
+mlib "no poder decidir si esta vivo no es permiso" "SIN_EVALUAR" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a5",padres:1,sujeto:"fix: PT-127 algo",
+     rutas:["bin/cauce.mjs"]},()=>null);
+   console.log(r?r.clase:"SIN HALLAZGO");'
+
+# AC-06 · un merge NO es trabajo: es integracion, y su asunto lo escribe git. Se reconoce por su
+# FORMA —dos padres— y no por un tipo de commit que FDGE-R19 no declara. La primera version
+# metia «merge» en la lista de tipos: legislar desde una herramienta lo que la regla no dice.
+mlib "un merge no es trabajo: se reconoce por sus dos padres" "SIN HALLAZGO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a6",padres:2,sujeto:"Merge pull request #215",
+     rutas:["docs/methodology/RULES.md"]},()=>false);
+   console.log(r===null?"SIN HALLAZGO":"HALLAZGO "+r.clase);'
+mlib "…y los tipos de commit son los SEIS que declara FDGE-R19" "SEIS feat fix refactor test docs chore" "$P127" \
+  'console.log("SEIS "+m.TIPOS_DE_COMMIT.join(" "));'
+
+# AC-07 · ELEGIDO vs FORZADO. La diferencia no se infiere: se DECLARA, y la declaracion nombra
+# el identificador Y la regla que exceptua, DENTRO DE UNA MISMA entrada del ledger.
+mlib "sin excepcion declarada, el rodeo es ELEGIDO" "ELEGIDO" "$P127" \
+  'const l="\n## una entrada\ntexto sin nada\n\n## otra\nhabla de EP-020 y ya esta.";
+   console.log(m.clasificaRodeo({id:"EP-020",clase:"NO_ES_PT"},l).motivo);'
+mlib "…con la excepcion en la MISMA entrada, es FORZADO" "FORZADO" "$P127" \
+  'const l="\n## excepcion declarada a FDGE-R19 para EP-020\nla herramienta no podia cumplirlo.";
+   console.log(m.clasificaRodeo({id:"EP-020",clase:"NO_ES_PT"},l).motivo);'
+# AC-07b · LA REGRESION QUE CASI SE PUBLICA. La primera version troceaba por «\b(?=## )», que no
+# trocea nada —un limite de palabra no cae entre un salto y una almohadilla—, y «la misma
+# entrada» volvia a ser el DOCUMENTO ENTERO: la palabra en una entrada y el ID en otra bastaban.
+mlib "la excepcion en OTRA entrada no vale: el troceo trocea" "ELEGIDO" "$P127" \
+  'const l="\n## aqui se declara una excepcion a FDGE-R19\npero de otra cosa.\n\n## y aqui EP-020";
+   console.log(m.clasificaRodeo({id:"EP-020",clase:"NO_ES_PT"},l).motivo);'
+
+# AC-08 · y la comprobacion CORRE dentro del verificador, agrupando por lo que dice — treinta y
+# cuatro lineas identicas no enumeran nada, solo tapan las demas.
+# Se ancla al repositorio por lo mismo que los de PT-128. Y el observable es «commit(s)» sin
+# los dos puntos A PROPOSITO: aparece tanto cuando hay hallazgos —«15 commit(s): cita…»—
+# como cuando no los hay —«60 commit(s) recientes: todos citan un PT vivo»—. Con los dos
+# puntos, el caso se pondria rojo el dia que los 34 commits salgan de la ventana, que es
+# justo el dia en que la comprobacion estaria funcionando mejor.
+vf127() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" "$@"); }
+chk "verify-fdge ejecuta la comprobacion y agrupa los commits" "commit(s)" vf127 PT-127
+
 # ── PT-128 · EP-020 · el cursor del recorrido ─────────────────────────────────────────────────
 #
 # Lo pidio el firmante: «no podemos [asegurar que las cosas ocurren] si no tenemos un cursor que
@@ -2006,7 +2087,12 @@ trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEsp
 # La ultima frase es la tarea entera: NO PERDERSE NINGUNO. Eso no se consigue consultando —una
 # consulta responde lo que se le pregunta— sino ENUMERANDO. Es PTSA-R79 aplicado a la navegacion:
 # «la auditoria cierra cuando la matriz esta completa, no cuando el auditor deja de encontrar».
-cur128() { node "$SUITE/tools/tracker.mjs" cursor "$@"; }
+# EL CASO SE ANCLA AL REPOSITORIO, no al directorio que haya activo. Sin «cd "$RAIZ"» estos
+# casos corrian sobre el fixture vigente en ese punto de la bateria —que no contiene PT-128
+# ni EP-019— y salian «no esta en el registro». Pasaban al ejecutarlos sueltos y fallaban
+# dentro de la bateria: es la clase «probar donde trabajo, no donde se decide», decima
+# instancia medida, y la que hizo que PT-128 declarase verificados unos casos rojos.
+cur128() { (cd "$RAIZ" && node "$SUITE/tools/tracker.mjs" cursor "$@"); }
 chk   "el cursor dice DONDE ESTAS"        "ESTAS EN"      cur128 PT-128
 chk   "…de DONDE VIENES"                  "VIENES DE"     cur128 PT-128
 chk   "…y a DONDE PUEDES IR"              "PUEDES IR A"   cur128 PT-128
@@ -2026,9 +2112,13 @@ chk   "las fases se derivan de PHASES.md"  "fasesDeFDGE" cat "$SUITE/tools/track
 # estas cambiaria donde estas — y entonces no seria un cursor, seria un avance encubierto.
 cur128_escribe() {
   local a="$WORK/reg.antes"; local b="$WORK/reg.despues"
-  cp docs/implementation/REGISTRY.json "$a" 2>/dev/null
-  node "$SUITE/tools/tracker.mjs" cursor EP-019 >/dev/null 2>&1
-  cp docs/implementation/REGISTRY.json "$b" 2>/dev/null
+  local r="$RAIZ/docs/implementation/REGISTRY.json"
+  # Si el registro no se puede leer, el caso NO puede decir «no escribe»: diria que no cambio algo
+  # que nunca miro, que es un verde por no haber mirado (RULE-06).
+  [ -f "$r" ] || { echo "SIN EVALUAR: no se pudo leer $r"; return; }
+  cp "$r" "$a"
+  (cd "$RAIZ" && node "$SUITE/tools/tracker.mjs" cursor EP-019 >/dev/null 2>&1)
+  cp "$r" "$b"
   if cmp -s "$a" "$b"; then echo "NO ESCRIBE"; else echo "ESCRIBIO"; fi
 }
 chk   "el cursor NO escribe en el registro"  "NO ESCRIBE" cur128_escribe

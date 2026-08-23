@@ -12,7 +12,8 @@
         "selftest.sh:…con el DATO del nodo"
       ],
       "evidence": [
-        "salidas/cursor.txt"
+        "salidas/cursor.txt",
+        "salidas/selftest-completo.txt"
       ],
       "verified": true,
       "nota": "Lo pidio el firmante: «un cursor que nos indique en donde estamos parados, de donde venimos y a donde vamos». El DATO es lo que hace del nodo una «cajita» y no un puntero suelto."
@@ -24,7 +25,8 @@
         "selftest.sh:las fases se derivan de PHASES.md"
       ],
       "evidence": [
-        "salidas/cursor.txt"
+        "salidas/cursor.txt",
+        "salidas/selftest-completo.txt"
       ],
       "verified": true,
       "nota": "Ninguno se escribe a mano ni se recuerda. Y si PHASES.md cambia de forma, el cursor NO adivina: falla y lo dice — un recorrido inventado es peor que ninguno (RULE-06)."
@@ -36,7 +38,8 @@
         "selftest.sh:un lote enumera su SUBARBOL, no lo cuenta"
       ],
       "evidence": [
-        "salidas/cursor.txt"
+        "salidas/cursor.txt",
+        "salidas/selftest-completo.txt"
       ],
       "verified": true,
       "nota": "Las compuertas aparecen DENTRO de la fase que las cierra, no como nodo propio: separarlas duplicaria el recorrido sin añadir un nodo visitable."
@@ -48,7 +51,8 @@
         "selftest.sh:…nombrando cada nodo con su tarea y su fase"
       ],
       "evidence": [
-        "salidas/cursor.txt"
+        "salidas/cursor.txt",
+        "salidas/selftest-completo.txt"
       ],
       "verified": true,
       "nota": "ES EL AC QUE LA PRUEBA DEL PROPIO INTAKE ENCONTRO SIN CUMPLIR. El intake escribio su condicion —«recorrer EP-019 y comprobar si el cursor habria nombrado los nodos que su cierre se salto; si no los nombra, el cursor no sirve»— y NO LOS NOMBRABA: para un lote CONTABA, «17 cerradas, 0 vivas». Contar es lo contrario de enumerar: un recuento correcto convive con cualquier hueco porque no dice CUAL. Es la forma que PTSA-R79 rechaza, cometida en la tarea que existe para aplicar PTSA-R79. Con la enumeracion del subarbol: 17 tareas recorridas, 68 nodos nombrados uno a uno."
@@ -60,7 +64,8 @@
         "selftest.sh:…y distingue SIN EVALUAR de visitado"
       ],
       "evidence": [
-        "salidas/cursor.txt"
+        "salidas/cursor.txt",
+        "salidas/selftest-completo.txt"
       ],
       "verified": true,
       "nota": "TRES respuestas, no dos. Sin esta, el cursor marcaria como hueco toda fase que no produce archivo —PHASE 0, 2, 5, 7— e INVENTARIA INCUMPLIMIENTOS. Distinguir «no dejo rastro» de «no se que buscar» es lo que lo hace utilizable (RULE-06)."
@@ -73,7 +78,8 @@
         "selftest.sh:…y lo DICE en su propia salida"
       ],
       "evidence": [
-        "salidas/cursor.txt"
+        "salidas/cursor.txt",
+        "salidas/selftest-completo.txt"
       ],
       "verified": true,
       "nota": "El caso compara el registro ANTES y DESPUES de ejecutarlo. Si escribiera, consultar donde estas cambiaria donde estas — y no seria un cursor, seria un avance encubierto (FDGE-R52)."
@@ -108,5 +114,13 @@
     "failed": null,
     "baseline": null,
     "nota": "Diez casos propios, dos de ellos negativos."
+  },
+  "correccion": {
+    "fecha": "2026-08-23",
+    "que": "Este manifiesto declaraba verified:true sobre nueve casos de bateria que NUNCA se corrieron dentro de la bateria, y HISTORY.log declaraba una evidencia «salidas/selftest-completo.txt» que no existia.",
+    "causa": "Los casos no anclaban su directorio: «cur128()» ejecutaba el cursor sobre el fixture vigente en ese punto de la bateria —que no contiene PT-128 ni EP-019— y salian «no esta en el registro». Sueltos, desde la raiz, pasaban. Es la clase «probar donde trabajo, no donde se decide», decima instancia medida, todavia SIN DUENO.",
+    "arreglo": "Los casos se anclan a $RAIZ y «cur128_escribe» declara SIN EVALUAR si no puede leer el registro, en vez de decir «no escribe» sobre algo que no miro (RULE-06). La bateria completa se corrio de verdad y su salida es ahora la evidencia.",
+    "donde_consta": "docs/implementation/SESSION_LOG.md · 2026-08-23",
+    "no_hace": "No reabre PT-128 ni lo rejuzga (SUITE-R36): el cursor funciona y su hallazgo esta medido en cursor.txt. Lo falso era el alcance de la verificacion, no el resultado."
   }
 }

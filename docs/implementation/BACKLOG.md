@@ -34,7 +34,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-124 | BUG | S1 | DONE | 8 | [#242](https://github.com/a81Biz/cauce/issues/242) | tracker asignar rechaza tres de los cinco tipos que LEXICON declara |
 | PT-125 | INVESTIGATION | S1 | DRAFT | 1 | [#243](https://github.com/a81Biz/cauce/issues/243) | Clasificar las 131 entradas cerradas en EVENTOS.jsonl |
 | PT-126 | CHORE | S2 | DRAFT | 1 | [#244](https://github.com/a81Biz/cauce/issues/244) | sellar mide la matriz y FPGE la lee |
-| PT-127 | BUG | S1 | DRAFT | 3 | [#245](https://github.com/a81Biz/cauce/issues/245) | Nada detecta el trabajo sin allocation: solo lo corta una persona |
+| PT-127 | BUG | S1 | VALIDATION_PENDING | 8 | [#245](https://github.com/a81Biz/cauce/issues/245) | Nada detecta el trabajo sin allocation: solo lo corta una persona |
 | PT-128 | FEATURE | S1 | DONE | 8 | [#246](https://github.com/a81Biz/cauce/issues/246) | El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar |
 | PT-129 | BUG | S2 | DONE | 8 | [#249](https://github.com/a81Biz/cauce/issues/249) | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
 | PT-130 | BUG | S2 | DRAFT | 1 | [#250](https://github.com/a81Biz/cauce/issues/250) | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |

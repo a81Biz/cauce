@@ -67,6 +67,7 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde } from './patrones.mjs';
+import { commitSinAllocation, clasificaRodeo } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
 import { contradiceElRegistro, sinSellar, selladoEnTag, topologiaDeRamas, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
          rutaRelativaDelManifiesto } from './patrones.mjs';
@@ -885,6 +886,83 @@ const rigeGlobal = (id) => rigeDesde(id, reg?.suite_version ?? '0.0.0');
 // comando que lo arregla: «tracker inventario --aplicar».
 const F_SERV = join(ED, 'inventory', 'services.md');
 const DIR_T = join(ROOT, 'docs', 'methodology', 'tools');
+
+// ── PT-127 · FDGE-R19 · el trabajo sin allocation, detectado ────────────────
+//
+// Lo pidio el firmante: «si no te lo digo, no lo harias». Lo que solo ocurre cuando una persona
+// lo dice, no ocurre.
+//
+// Se recorren los commits DESDE la version en que la comprobacion empieza a regir —RIGE_DESDE—
+// y no la historia entera: SUITE-R09 no retrofecha, y los 200+ commits anteriores se escribieron
+// cuando esto no se exigia.
+function checkTrabajoSinAllocation() {
+  if (!rigeGlobal('FDGE-R19')) return;
+  const crudo = (() => {
+    try {
+      return execFileSync('git',
+        // El separador va AL PRINCIPIO: con «--name-only» los archivos se escriben DESPUES del
+        // formato, asi que un separador final deja la cabecera del commit siguiente pegada al
+        // bloque anterior — y el parseo veia UN solo commit de sesenta.
+        // «%P» son los padres: un merge tiene mas de uno, y asi se reconoce por su FORMA en vez
+        // de por un tipo de commit que FDGE-R19 no declara.
+        ['log', '--format=%x1e%H%x1f%P%x1f%s', '--name-only', '-n', '60'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+    } catch { return null; }
+  })();
+  if (crudo === null) {
+    warn('FDGE-R19', 'no se pudo leer la historia de git: no se sabe si hay trabajo sin '
+      + 'allocation. No saber no es permiso (RULE-06).');
+    return;
+  }
+  const commits = crudo.split(CAR.SEPARADOR).map((bloque) => {
+    const [cab, ...resto] = bloque.split(CAR.SALTO);
+    const [sha, padres, sujeto] = String(cab ?? '').split(CAR.UNIDAD);
+    return {
+      sha: String(sha ?? '').trim(),
+      padres: String(padres ?? '').trim().split(new RegExp(CLASE.espacio + '+')).filter(Boolean).length,
+      sujeto: sujeto ?? '',
+      rutas: resto.map((r) => r.trim()).filter(Boolean),
+    };
+  }).filter((c) => c.sha);
+
+  // «Vivo en ese commit» se decide con lo que el registro sabe HOY: la allocation existe o no.
+  // Reconstruir el estado exacto de entonces exigiria leer el REGISTRY de cada commit, y eso
+  // convierte una comprobacion en una arqueologia. El limite se DECLARA, no se disimula: un PT
+  // que se abrio DESPUES del commit que lo cita sale verde aqui, y lo cazan FDGE-R52 y SUITE-R08.
+  const vivoEn = (id) => Boolean((reg?.allocations ?? []).find((x) => x?.id === id));
+
+  const ledger = read(join(IMPL, 'SESSION_LOG.md')) ?? '';
+  const hallazgos = commits
+    .map((c) => commitSinAllocation(c, vivoEn))
+    .filter(Boolean)
+    .map((h) => clasificaRodeo(h, ledger));
+
+  if (!hallazgos.length) {
+    ok('FDGE-R19', `${commits.length} commit(s) recientes: todos los que tocan rutas gobernadas `
+      + 'citan un PT vivo.');
+    return;
+  }
+
+  // Se AGRUPA por lo que dice, no por commit: treinta y cuatro lineas identicas no enumeran nada,
+  // solo tapan las demas. Cada grupo nombra sus commits uno a uno — el dato que hace falta para
+  // ir a mirarlos— en UNA linea.
+  const grupos = new Map();
+  for (const h of hallazgos) {
+    const clave = `${h.clase}|${h.id ?? ''}|${h.motivo}`;
+    if (!grupos.has(clave)) grupos.set(clave, { ...h, shas: [] });
+    grupos.get(clave).shas.push(String(h.sha).slice(0, 8));
+  }
+  for (const g of grupos.values()) {
+    const cola = g.clase === 'SIN_EVALUAR' ? ''
+      : g.motivo === 'FORZADO'
+        ? ' · SESSION_LOG.md declara una excepcion a FDGE-R19 que nombra este identificador: el '
+          + 'marco obligo a rodearlo, y lo que se arregla es la herramienta.'
+        : ' · sin excepcion declarada en SESSION_LOG.md.';
+    warn('FDGE-R19', `${g.shas.length} commit(s): ${g.dice}${cola} · ${g.shas.join(' ')}`);
+  }
+}
+
+
 function checkInventario() {
   if (!existsSync(F_SERV) || !existsSync(DIR_T)) return;
   const transcritas = cifrasTranscritas(read(F_SERV) ?? '');
@@ -2383,6 +2461,7 @@ checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
 checkLedgers();
 checkG4ConConstancia();
 checkInventario();
+checkTrabajoSinAllocation();
 checkImplementacion(reg);
 checkEstado();
 checkCheckpoint();
