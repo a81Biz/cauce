@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "f7973b88de5dd6fe2de4a21634d16ab3ceccb0ba",
   "sha_corto": "f7973b8",
@@ -12,20 +12,23 @@
   "archivos": [
     "changes/PT-124-la-herramienta-rechaza-el-vocabulario-canonico/discovery.md",
     "changes/PT-124-la-herramienta-rechaza-el-vocabulario-canonico/intake.md",
+    "changes/PT-124-la-herramienta-rechaza-el-vocabulario-canonico/out-of-scope.md",
     "changes/PT-124-la-herramienta-rechaza-el-vocabulario-canonico/strategy.md",
+    "changes/PT-124-la-herramienta-rechaza-el-vocabulario-canonico/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REFACTOR_SCOPE.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-124/",
+    "docs/methodology/tools/patrones.mjs",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/tracker.mjs",
+    "docs/methodology/tools/verify-suite.mjs"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-22"
 }
