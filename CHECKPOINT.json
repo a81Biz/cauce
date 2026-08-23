@@ -3,11 +3,11 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "2304bc809351fd0d3147f9c371f84a99d6885334",
-  "sha_corto": "2304bc8",
+  "sha": "e94407d283f17c668cab901394a446361eb99d81",
+  "sha_corto": "e94407d",
   "sucio": true,
   "archivos": [
     "changes/PT-131-el-candado-con-la-llave-dentro/intake.md",
@@ -15,8 +15,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-22"
 }
