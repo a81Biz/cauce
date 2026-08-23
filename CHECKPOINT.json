@@ -1,38 +1,23 @@
 {
-  "pt": "PT-116",
+  "pt": "PT-117",
   "type": "FEATURE",
   "epic": "EP-020",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-113-apertura",
-  "sha": "56f9b374c0a68d8e1d0f93694d66025cdce6e000",
-  "sha_corto": "56f9b37",
+  "sha": "8352fdebeb759a2813074ff22f771376fbe0bdff",
+  "sha_corto": "8352fde",
   "sucio": true,
   "archivos": [
-    "changes/PT-116-tracker-parada/enrichment.md",
-    "changes/PT-116-tracker-parada/intake.md",
-    "changes/PT-116-tracker-parada/out-of-scope.md",
-    "changes/PT-116-tracker-parada/spec-changes.md",
-    "changes/PT-116-tracker-parada/strategy.md",
-    "changes/PT-116-tracker-parada/tasks.md",
-    "changes/PT-116-tracker-parada/test-scenarios.md",
-    "changes/PT-116-tracker-parada/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-116/",
-    "docs/methodology/tools/patrones.mjs",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/tracker.mjs"
+    "changes/PT-117-la-parada-no-depende-de-la-memoria/intake.md",
+    "changes/PT-117-la-parada-no-depende-de-la-memoria/strategy.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-23"
 }
