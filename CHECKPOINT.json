@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "df8d6627b94a9d51efb63456b26e3ec9bb622fa6",
   "sha_corto": "df8d662",
@@ -20,8 +20,11 @@
     "docs/implementation/evidence/PT-113/",
     "docs/methodology/CHANGELOG.md"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-23"
 }
