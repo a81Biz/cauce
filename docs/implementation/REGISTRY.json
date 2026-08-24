@@ -3881,7 +3881,7 @@
       "id": "PT-138",
       "slug": "el-aplazado-declara-cuando-se-revisa",
       "created": "2026-08-24",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
@@ -3910,6 +3910,12 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-24"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
       }
     },
     {
