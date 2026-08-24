@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-020",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "e8df1373a53a412cee57a956d67572cfbf999643",
   "sha_corto": "e8df137",
@@ -19,6 +19,8 @@
     "changes/PT-122-el-cierre-de-un-lote-pasa-por-el-comando/tasks.md",
     "changes/PT-122-el-cierre-de-un-lote-pasa-por-el-comando/test-scenarios.md",
     "changes/PT-122-el-cierre-de-un-lote-pasa-por-el-comando/traceability.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-122/",
     "docs/methodology/tools/patrones.mjs",
@@ -27,8 +29,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-23"
 }
