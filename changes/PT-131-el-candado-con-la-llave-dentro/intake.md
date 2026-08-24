@@ -9,7 +9,7 @@ id: PT-131
 type: BUG
 epic: EP-020
 track: STANDARD
-status: READY
+status: INTEGRATED
 phase: 8
 created: 2026-08-22
 structural: no

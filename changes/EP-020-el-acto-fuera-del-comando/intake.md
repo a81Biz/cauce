@@ -4,7 +4,7 @@
 ---
 id: EP-020
 created: 2026-08-22
-status: READY
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 suite_version: 12.0.0
