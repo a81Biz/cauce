@@ -36,8 +36,8 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 136,
-    "EP": 20,
+    "PT": 143,
+    "EP": 21,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -3796,6 +3796,148 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-24"
         }
+      }
+    },
+    {
+      "id": "EP-021",
+      "slug": "el-aplazado-sin-puerta-de-vuelta",
+      "created": "2026-08-24",
+      "status": "READY",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "title": "Un aplazado entra al tablero y ningun comando puede sacarlo: DEFERRED no tiene transicion de vuelta",
+      "issue": 270,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
+    },
+    {
+      "id": "PT-137",
+      "slug": "retomar-un-aplazado-por-comando",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-021",
+      "title": "DEFERRED no tiene transicion de vuelta: ningun comando lo saca y todo comando de estado exige un intake que un aplazado no tiene",
+      "issue": 263,
+      "origen_parada": {
+        "de": "EP-021",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      }
+    },
+    {
+      "id": "PT-138",
+      "slug": "el-aplazado-declara-cuando-se-revisa",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-021",
+      "title": "SUITE-R44 pone el aplazado en el tablero y no exige condicion de reentrada, fecha de revision ni dueno",
+      "issue": 264,
+      "origen_parada": {
+        "de": "EP-021",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      }
+    },
+    {
+      "id": "PT-139",
+      "slug": "un-aplazado-caducado-bloquea-en-g4",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-021",
+      "title": "Nada mide la edad de un aplazado: uno de ayer y uno de hace meses son indistinguibles en el tablero",
+      "issue": 265,
+      "origen_parada": {
+        "de": "EP-021",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      }
+    },
+    {
+      "id": "PT-140",
+      "slug": "proyectar-sin-rama-local-no-empieza-de-cero",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-021",
+      "title": "tracker proyectar arranca un linaje nuevo en silencio si falta refs/heads de la rama de proyeccion",
+      "issue": 266,
+      "origen_parada": {
+        "de": "EP-021",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      }
+    },
+    {
+      "id": "PT-141",
+      "slug": "el-manejador-de-error-que-lanza-otro-error",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-021",
+      "title": "El catch de SUITE-R56 referencia una variable inexistente: el comando revienta, tapa el fallo real y deja efecto a medias",
+      "issue": 267,
+      "origen_parada": {
+        "de": "EP-021",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      }
+    },
+    {
+      "id": "PT-142",
+      "slug": "la-rama-no-se-contrasta-con-la-derivada",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-021",
+      "title": "Nada compara el nombre de una rama con lo que ramaDeTarea deriva: type y slug inventados pasan la topologia",
+      "issue": 268,
+      "origen_parada": {
+        "de": "EP-021",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      }
+    },
+    {
+      "id": "PT-143",
+      "slug": "asignar-deriva-el-prefijo-de-un-argumento-suelto",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-021",
+      "title": "asignar toma el primer argumento en mayusculas como prefijo, asi que --tipo BUG crea BUG-001",
+      "issue": 269,
+      "origen_parada": {
+        "de": "EP-021",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
       }
     }
   ]
