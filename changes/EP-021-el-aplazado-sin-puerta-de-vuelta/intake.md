@@ -120,7 +120,27 @@ comando, la cuarta fila de esta tabla sólo se puede ejecutar rompiendo el marco
 épica y esta vez **no se escribe a mano**. Entra al trabajo de `EP-021` por su fila aquí, y
 `PT-137` decidirá si reasignar la épica forma parte de retomar.
 
-## 7. Lo que este intake NO establece `[AGENTE]`
+## 7. Análisis de solapamiento `[AGENTE]` — `FDGE-R40`
+
+```
+PT-137 PT-139 PT-141 PT-143   tools/tracker.mjs              -> SERIALIZADOS
+PT-138                        RULES.md + LEXICON.md + CORE   -> tras PT-137
+PT-139 PT-142                 tools/patrones.mjs             -> SERIALIZADOS entre si
+PT-142                        patrones.mjs + verify-fdge     -> con los de arriba
+PT-134                        RULES.md + FDGE-R15            -> tras PT-137, que la libera
+PT-140                        tools/tracker.mjs (proyectar)  -> serializada con las de tracker
+
+Orden:  PT-137 -> PT-138 -> PT-139 -> PT-134 -> PT-140 -> PT-141 -> PT-142 -> PT-143
+```
+
+**Por qué `PT-137` va primera, y no es preferencia.** `PT-134` está `DEFERRED` y **ningún comando
+puede sacarla**. Hasta que exista `retomar`, la cuarta fila de este lote sólo se puede ejecutar
+rompiendo el marco. `PT-137` no es la más grave por su severidad: es la que desbloquea a otra.
+
+**Seis de las ocho tocan `tools/tracker.mjs`**, así que van serializadas: dos ediciones a la vez
+sobre el mismo archivo fue el defecto que `EP-020` cometió con la batería y no se repite.
+
+## 8. Lo que este intake NO establece `[AGENTE]`
 
 - **Que `DEFERRED` deba desaparecer.** Aplazar es legítimo; lo que falta es la vuelta.
 - **Que la fecha de revisión sea obligatoria siempre.** Lo decide `PT-138`; forzarla sin más

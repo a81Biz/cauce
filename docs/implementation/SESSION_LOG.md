@@ -3721,3 +3721,24 @@ establecido al pie de la letra»* — Alberto Martínez.
 una persona: el agente escribe el archivo. Lo que hace es convertirla en una afirmación
 contrastable, y esta entrada es el contraste. **La excepción no se hereda**: el siguiente lote
 vuelve a necesitar autorización.
+
+### Excepción declarada a `FDGE-R19` para el trabajo de lote de `EP-021`
+
+`FDGE-R19` pide que el asunto de cada commit cite un `PT`. El trabajo **de lote** —abrir `EP-021`,
+firmar su `G1`, publicar su cierre— no pertenece a ninguna tarea: citar un `PT` sería atribuirle a
+esa tarea un acto que no es suyo. Esos commits citan **`EP-021`** y esto es la **excepción**
+declarada que la propia regla contempla, con el mismo criterio que la de `EP-019` y `EP-020`.
+
+Sigue siendo un rodeo **forzado**, no elegido, y la pregunta de fondo —si el trabajo de lote puede
+citar el `EP`— continúa abierta sobre `FDGE-R19`.
+
+### Y un segundo defecto de `FDGE-R19`, encontrado al nombrar la rama del lote
+
+`FDGE-R19` manda que la rama de lote sea `<type>/<usuario>/EP-NNN-slug` **«con el `type` del
+propio lote»**. `LEX-R27` dice que **un lote NO lleva `type`** —`tracker tipo` lo rechaza con esa
+regla en la mano— y `ramaDeTarea` devuelve `null` para un `EP`.
+
+Las dos reglas se contradicen, y `LEXICON` manda sobre `RULES` (`LEX-R21`). **Por eso `EP-021` no
+tiene nombre de rama derivable**, y su commit de apertura viaja en la rama de `PT-137`. Es
+también la causa de que el 2026-08-24 se inventara `chore/alberto-martinez/EP-020-viaje-de-vuelta`:
+la regla pedía un dato que otra regla prohíbe que exista. Va a `PT-142`.
