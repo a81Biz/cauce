@@ -2039,6 +2039,77 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-122 · EP-020 · el cierre de un lote pasa por el comando ────────────────────────────────
+#
+# Lo pidio el firmante: «que publicar el cierre de un lote no dependa de que alguien escriba un
+# comentario a mano».
+#
+# Medido el 2026-08-22: el comentario «Integrado en main · suite 12.0.0 · tag v12.0.0» se escribio
+# con «gh issue comment» en DIECISIETE issues, salio SIN MARCA, y SUITE-R43 los conto como
+# humanos. Es CE-006 —el acto hecho fuera del comando— repetido diecisiete veces.
+TK122="$SUITE/tools/tracker.mjs"
+
+# AC-01 · el comentario lo publica el comando, y lleva MARCA_AGENTE por construccion.
+mlib "el cierre de lote lleva la marca del agente" "cauce:agente" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"9.9.9",tag:"v9.9.9",
+     commit:"abc12345",tareas:[{id:"PT-1",status:"INTEGRATED",terminal:true}]}));'
+# «tracker xxx» sin plataforma sale ANTES de listar las acciones, asi que preguntarselo
+# medía el arnes y no el hecho. Se mira el despachador, que es donde vive la respuesta.
+chk   "…y la accion existe en el despachador"  "firmar, cierre"  cat "$TK122"
+
+# AC-02 · el comentario DERIVA lo que afirma. El texto de EP-019 acerto version, tag y commit
+# escritos a mano: acertar no es lo mismo que no poder equivocarse.
+# Se comprueba que los TRES valores aparezcan, no la forma exacta del rotulo: contar los
+# caracteres entre «Version de la suite» y el numero —dos asteriscos y un acento grave— es
+# fragil y no es lo que el criterio pide. Lo que importa es que salen de FUERA del texto.
+mlib "la version, el tag y el commit salen de fuera del texto" "LOS TRES" "$TK122" \
+  'const c=m.comentarioDeCierreDeLote({lote:"EP-001",version:"9.9.9",tag:"v9.9.9",
+     commit:"abc12345",tareas:[]});
+   const hay=(s)=>c.includes(s);
+   console.log(hay("9.9.9")&&hay("v9.9.9")&&hay("abc12345")?"LOS TRES":"FALTA ALGUNO");'
+# Y CUENTA las tareas terminales, no las transcribe.
+mlib "…y el recuento de tareas se cuenta" "1 de 3" "$TK122" \
+  'const c=m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,
+     tareas:[{id:"A",status:"INTEGRATED",terminal:true},{id:"B",status:"DONE",terminal:false},
+             {id:"C",status:"DONE",terminal:false}]});
+   console.log((/Tareas.. (\d+ de \d+)/.exec(c)||[])[1]);'
+mlib "…y nombra las que siguen vivas" "B" "$TK122" \
+  'const c=m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,
+     tareas:[{id:"A",status:"INTEGRATED",terminal:true},{id:"B",status:"DONE",terminal:false}]});
+   console.log(/Siguen vivas/.test(c)?"B":"NO LAS NOMBRA");'
+
+# EL NEGATIVO que impide la afirmacion falsa: si el tag NO existe, el comentario NO dice que
+# existe. Un comentario que anuncia un tag inexistente es la clase de afirmacion que este marco
+# existe para impedir.
+mlib "sin tag, NO se afirma que exista" "todavia no existe" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,tareas:[]}));'
+mlib "…y dice de quien es el paso"      "paso 8" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,tareas:[]}));'
+# Y un tag que figura pero no resuelve tampoco se da por bueno.
+mlib "un tag que no resuelve se dice"   "SIN EVALUAR" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:"v1.0.0",
+     commit:null,tareas:[]}));'
+
+# AC-03 · SUITE-R09 · los comentarios ya escritos NO se editan, y el propio texto lo dice.
+mlib "el comentario declara que no edita los anteriores" "no se editan" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,tareas:[]}));'
+chkno "…y el comando no tiene forma de editar"  "editarComentario\|actualizarComentario"  cat "$TK122"
+
+# AC-04 · SUITE-R43 declara su limite, y lo declara DONDE PROTEGE: en el mensaje, no solo en un
+# comentario del codigo. La marca solo garantiza lo que la herramienta escribe.
+mlib "SUITE-R43 declara que establece"  "ultima nota MARCADA" "$SUITE/tools/patrones.mjs" \
+  'console.log(m.SUJETOS["SUITE-R43"].establece);'
+mlib "…y que NO establece"              "por contenido son indistinguibles" "$SUITE/tools/patrones.mjs" \
+  'console.log(m.SUJETOS["SUITE-R43"].noEstablece);'
+chk   "…y el limite llega al mensaje"   "por contenido son indistinguibles"  cat "$TK122"
+# Y el desenlace que ya existia y hay que conservar: sin ningun comentario marcado, SIN EVALUAR.
+mlib "sin ningun comentario marcado dice null, no «limpio»" "null" "$TK122" \
+  'console.log(String(m.comentarioSinResponder(["uno","otro"])));'
+mlib "…y con uno marcado y otro despues, pendiente" "true" "$TK122" \
+  'console.log(String(m.comentarioSinResponder(["a <!-- cauce:agente -->","una persona"])));'
+mlib "…y con el marcado al final, limpio" "false" "$TK122" \
+  'console.log(String(m.comentarioSinResponder(["una persona","a <!-- cauce:agente -->"])));'
+
 # ── PT-121 · EP-020 · el viaje de vuelta tras el merge ────────────────────────────────────────
 #
 # Lo pidio el firmante: «que el estado terminal de un lote llegue a la rama por defecto sin que

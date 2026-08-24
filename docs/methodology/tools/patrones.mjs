@@ -1842,6 +1842,14 @@ export const SUJETOS = {
   },
   // PT-130 · la lectura se ancla al SUJETO de cada linea. Decir aqui QUE evalua es lo que impide
   // que alguien lea el rojo como «el bloque entero contradice al registro».
+  // PT-122 · la regla distingue por MARCA DE PROCEDENCIA, no por autor, y eso tiene un limite
+  // que hay que decir: la marca solo garantiza lo que la herramienta escribe.
+  'SUITE-R43': {
+    establece: 'todo comentario posterior a la ultima nota MARCADA del agente esta sin responder, '
+      + 'y si ninguno lleva marca lo dice SIN EVALUAR en vez de suponerlo',
+    noEstablece: 'un comentario sin marca se atribuye a una persona, asi que uno del agente '
+      + 'escrito FUERA del comando cuenta igual: por contenido son indistinguibles',
+  },
   'SUITE-R34': {
     establece: 'el SUJETO de «tarea:» —el primer identificador— no esta terminal en el registro '
       + 'mientras la linea lo presenta en curso, y ningun lote declarado ABIERTA o CERRADA se '

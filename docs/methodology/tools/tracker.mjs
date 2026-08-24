@@ -143,7 +143,12 @@ export function queSigue(alloc, opciones = {}) {
   // cambiar todo lo demás: preguntar qué sigue sin haber leído la respuesta anterior es el
   // defecto que esta acción existe para impedir.
   if (comentarioPendiente === true) {
-    bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43).`);
+    // PT-122 · EL LIMITE VA EN EL MENSAJE. Un comentario SIN marca se atribuye a una persona
+    // por defecto, y eso es lo correcto —una persona nunca pone la marca—, pero significa que
+    // un comentario del AGENTE escrito fuera del comando tambien cuenta como humano. Los
+    // diecisiete del cierre de EP-019 se contaron asi. Por contenido son indistinguibles: la
+    // unica garantia es que la herramienta SIEMPRE marca los suyos, y por eso «cierre» existe.
+    bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43). El limite: un comentario sin marca se atribuye a una persona, asi que uno del agente escrito FUERA del comando cuenta igual: por contenido son indistinguibles.`);
   } else if (comentarioPendiente === null) {
     // PT-056 · RULE-06 · no es «no hay»: es que nadie pudo mirar. Callarlo convertiria SUITE-R43
     // en una garantia que se apaga sola cuando no hay credencial.
@@ -414,6 +419,48 @@ export const mensajeDeCierre = (a) =>
   `${a?.id} pasó a ${a?.status}. La evidencia está en el repositorio.
 
 ${MARCA_AGENTE}`;
+
+/**
+ * PT-122 · El comentario de cierre de un LOTE. Puro, exportado y DERIVADO.
+ *
+ * Los diecisiete comentarios del cierre de EP-019 se escribieron con `gh issue comment` a mano:
+ * salieron SIN MARCA, y `SUITE-R43` los conto como humanos. Es CE-006 —el acto hecho fuera del
+ * comando— con la agravante de que el acto se hizo diecisiete veces.
+ *
+ * TODO LO QUE AFIRMA SE DERIVA. El texto de EP-019 acerto version, tag y commit, pero escritos a
+ * mano: acertar no es lo mismo que no poder equivocarse. Aqui la version sale del registro, el
+ * tag de `git tag --sort=v:refname` y el commit de a donde apunta ese tag.
+ *
+ * Y SI EL TAG NO EXISTE, NO SE AFIRMA QUE EXISTE. Se dice que falta y de quien es el paso: el 8,
+ * humano y despues del merge (SUITE-R06a). Un comentario que anuncia un tag inexistente es
+ * exactamente la clase de afirmacion que este marco existe para impedir.
+ */
+export function comentarioDeCierreDeLote({ lote, version, tag, commit, tareas }) {
+  const S = String.fromCharCode(10);
+  const L = [];
+  L.push(`## ${lote} cerrado`);
+  L.push('');
+  L.push(`- **Version de la suite** \`${version ?? 'SIN EVALUAR'}\``);
+  if (tag) {
+    L.push(`- **Tag** \`${tag}\`${commit ? ` → \`${commit}\`` : ' → **SIN EVALUAR**: el tag no resuelve'}`);
+  } else {
+    L.push(`- **Tag** \`v${version}\` **todavia no existe**. Crearlo es el paso 8: humano y`);
+    L.push('  DESPUES del merge (`SUITE-R06a`). Este comentario no afirma que exista.');
+  }
+  const cerradas = (tareas ?? []).filter((x) => x?.terminal).length;
+  L.push(`- **Tareas** ${cerradas} de ${(tareas ?? []).length} en estado terminal`);
+  const vivas = (tareas ?? []).filter((x) => !x?.terminal);
+  if (vivas.length) {
+    L.push(`- **Siguen vivas** ${vivas.map((x) => `\`${x.id}\` (${x.status})`).join(' · ')}`);
+  }
+  L.push('');
+  L.push('> Publicado por `tracker cierre`. Toda cifra de aqui se DERIVA del arbol y del registro:');
+  L.push('> ninguna se escribe a mano (`FND-R14`). Los comentarios anteriores no se editan');
+  L.push('> (`SUITE-R09`).');
+  L.push('');
+  L.push(MARCA_AGENTE);
+  return L.join(S);
+}
 
 /**
  * PT-010 · El cuerpo de un issue. Puro y exportado.
@@ -1464,7 +1511,9 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   // locales. Exigirles plataforma repetiria lo que PT-133 acabo de arreglar en «parada»:
   // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
   // al proyecto que no declara tablero — el caso que SUITE-R22 declara soportado.
-  'integrar', 'firmar', 'indices',
+  'integrar', 'firmar',
+  // PT-122 · «cierre» sin --aplicar solo DERIVA y enumera el texto: no habla con nadie.
+  'cierre', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
   // seria pedirle una credencial para leer «wc -l», y dejaria sin arreglo a un proyecto
   // que no declara tablero — el caso que SUITE-R22 declara soportado y PT-084 defendio.
@@ -4143,7 +4192,54 @@ function firmar() {
   notas.push(`${id}: DRAFT -> READY · ${compuerta} firmada por ${quien}`);
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+// ── cierre · el comentario de cierre de un lote, por comando   PT-122 ───────
+//
+// AC-01 · es la UNICA forma sancionada: lleva MARCA_AGENTE por construccion, y un comentario sin
+// marca no se puede producir con las herramientas del marco.
+function cierre() {
+  const id = ARGS.slice(1).find((a) => /^EP-\d+$/.test(a));
+  if (!id) {
+    console.error('cierre necesita un lote:  tracker cierre EP-020 [--aplicar]');
+    process.exit(2);
+  }
+  const lote = all.find((x) => x?.id === id);
+  if (!lote) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+
+  const tareas = all.filter((x) => x?.epic === id)
+    .map((x) => ({ id: x.id, status: x.status, issue: x.issue,
+      terminal: ESTADOS_TERMINALES.has(x.status) }));
+
+  // TODO SE DERIVA. El tag se busca por VERSION, no por alfabeto: el orden de por defecto pone
+  // v10 antes de v4.13.0 y da un tag equivocado (PT-121).
+  const version = VERSION_DEL_PROYECTO;
+  const tagEsperado = `v${version}`;
+  const existe = gitDe(['rev-parse', '--verify', `${tagEsperado}^{commit}`]);
+  const cuerpo = comentarioDeCierreDeLote({
+    lote: id, version, tag: existe ? tagEsperado : null,
+    commit: existe ? existe.trim().slice(0, 8) : null, tareas,
+  });
+
+  const destinos = [lote, ...tareas].filter((x) => x?.issue);
+  if (!APLICAR) {
+    di(`  ${id}: comentario de cierre para ${destinos.length} issue(s)`);
+    di('');
+    for (const linea of cuerpo.split(String.fromCharCode(10))) di(`    ${linea}`);
+    di('');
+    di('  --aplicar   lo publica, con la marca del agente.');
+    return;
+  }
+  if (!adaptador?.comentar) {
+    fail('SUITE-R35', 'la plataforma declarada no sabe comentar: no se publica nada. Sin eso el '
+      + 'cierre vive solo en el repositorio, que sigue siendo valido (SUITE-R22).');
+    return;
+  }
+  for (const d of destinos) {
+    adaptador.comentar(d.issue, cuerpo);
+    notas.push(`#${d.issue} · cierre de ${id} publicado con marca`);
+  }
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

@@ -8218,3 +8218,89 @@ LO QUE NO ESTABLECE:
   seria inventar cuando se sello cada version.
 
 Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING (FDGE-R26, LEX-R08, SUITE-R06b).
+
+## PT-122 — El cierre de un lote pasa por el comando
+Fecha: 2026-08-23
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — ultima tarea viva del lote
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-006
+
+Lo pidio el firmante: «que publicar el cierre de un lote no dependa de que alguien escriba un
+comentario a mano».
+
+EL HUECO, MEDIDO. Cerrando EP-019, el comentario «Integrado en main · suite 12.0.0 · tag v12.0.0»
+se escribio con «gh issue comment» en DIECISIETE issues. Salio SIN MARCA, y SUITE-R43 los conto
+como HUMANOS: diecisiete comentarios fantasma bloqueando el avance de sus tareas.
+
+Es CE-006 repetido diecisiete veces, con la agravante de que el marco TIENE una marca para esto y
+el acto la evito por no pasar por la herramienta. EL HUECO NO ERA DE DISCIPLINA: ERA DE
+HERRAMIENTA — no habia comando, y a mano no lleva marca.
+
+ACERTAR NO ES LO MISMO QUE NO PODER EQUIVOCARSE. El texto de EP-019 ACERTO version, tag y commit
+—la correccion del propio intake lo deja claro: no mentia, v12.0.0 existe y apunta a 5b184af—,
+pero estaban escritos a mano. El mismo texto, escrito el dia antes del tag, habria anunciado un
+tag inexistente sin que nada lo impidiera.
+
+QUE SE CONSTRUYO:
+
+  comentarioDeCierreDeLote   puro, exportado, con MARCA_AGENTE POR CONSTRUCCION: no hay rama que
+                             la omita. Y TRES desenlaces para el tag — existe y resuelve · figura
+                             y NO resuelve · no existe todavia, y entonces dice de quien es el
+                             paso: el 8, humano y DESPUES del merge (SUITE-R06a).
+  tracker cierre             deriva version del registro, tag de git y commit de donde apunta ese
+                             tag; cuenta las tareas contra ESTADOS_TERMINALES. Sin --aplicar solo
+                             enumera y NO exige plataforma: pedir credencial para imprimir un
+                             texto dejaria al proyecto sin tablero sin poder ni verlo.
+  SUITE-R43                  su LIMITE, declarado en el MENSAJE y en SUJETOS.
+
+AC-04 SE CUMPLE POR LA SEGUNDA RAMA, y se dice cual. El criterio admite distinguir O declarar SIN
+EVALUAR. DISTINGUIR NO SE PUEDE: por contenido son indistinguibles —los diecisiete lo
+demostraron— y por autor tampoco, porque el agente comenta con la credencial de una persona y
+SUITE-R43 es explicita en eso. La defensa real no es detectarlo: es que exista un comando que no
+haga falta rodear.
+
+DOS DEFECTOS AL CONSTRUIRLO:
+
+  1  el limite de SUITE-R43 vivia solo en SUJETOS y en un comentario. Lo cazo SUITE-R38: «protege
+     a quien ya esta leyendo el codigo», no a quien lee el rojo. Y hubo que alinearlo LITERAL —el
+     mensaje decia «—» donde el limite declarado decia «:»—.
+  2  dos casos mios median el arnes y no el hecho: uno preguntaba a «tracker xxx» por la lista de
+     acciones, que sin plataforma no se imprime; otro contaba los caracteres entre un rotulo en
+     negrita y su valor.
+
+Y LA PRUEBA INVERSA TUVO TRES DEFECTOS SUYOS, y el primero es el mas caro que un arnes inverso
+puede producir:
+
+  a  un escenario comprobaba SUJETOS, que vive en patrones.mjs y NO en tracker.mjs: fallaba sobre
+     el modulo INTACTO y caia en las cinco mutaciones, HACIENDOLAS PARECER CORRECTAS.
+  b  una mutacion tocaba otro sitio: «L.push(MARCA_AGENTE);» aparece tambien en el constructor de
+     la parada, y replace sustituye la PRIMERA.
+  c  la DECIMOCUARTA rotura de escapado: al anclar con dos lineas, el salto entro literal en una
+     cadena y el arnes dejo de compilar. Resuelto componiendolo, como manda SUITE-R59.
+
+Archivos modificados: tools/tracker.mjs · tools/patrones.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-122/ · manifest.json · self-review.md ·
+  salidas/casos-122.txt · salidas/inversa.txt · salidas/cierre.txt
+
+Criterios AC-01..AC-04 ✓, los cuatro. Dieciseis escenarios de dieciseis. Inversa: cinco
+supresiones, cinco escenarios distintos.
+
+LO QUE NO ESTABLECE:
+
+· Que el cierre se haya publicado. «cierre --aplicar» NO se ha ejecutado sobre EP-020: el lote no
+  esta integrado, y publicar su cierre antes seria anunciar algo que no ha pasado.
+· Que los diecisiete dejen de contar como humanos. Se curan solos con el primer comentario marcado
+  en su issue; no se migra nada y no se toca la historia (SUITE-R09).
+· Que la marca pruebe autoria. Es falsificable —cualquiera puede pegarla— y el codigo lo declara,
+  igual que SUITE-R27 declara que prueba una firma.
+· Que nadie pueda comentar por fuera. Es imposible de impedir, y no se intenta: la marca distingue
+  PROCEDENCIA, no restringe a nadie.
+
+Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING (FDGE-R26, LEX-R08, SUITE-R06b).

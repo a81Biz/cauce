@@ -3308,13 +3308,31 @@
       "id": "PT-122",
       "slug": "el-cierre-de-un-lote-pasa-por-el-comando",
       "created": "2026-08-22",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-020",
       "title": "El cierre de un lote pasa por el comando, no por la mano",
-      "issue": 240
+      "issue": 240,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
     },
     {
       "id": "PT-123",

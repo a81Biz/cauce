@@ -1,0 +1,95 @@
+{
+  "pt": "PT-122",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "tracker publica el comentario de cierre de un lote, con MARCA_AGENTE, y es la unica forma sancionada de hacerlo",
+      "tests": [
+        "selftest.sh:el cierre de lote lleva la marca del agente",
+        "selftest.sh:…y la accion existe en el despachador"
+      ],
+      "evidence": [
+        "salidas/casos-122.txt",
+        "salidas/cierre.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La marca va POR CONSTRUCCION: no hay rama que la omita. Garantiza que con las herramientas del marco no se puede producir un cierre sin marca; NO garantiza que nadie escriba un comentario por fuera — eso es imposible de impedir, y SUITE-R43 lo asume."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El comentario DERIVA lo que afirma en vez de escribirlo: version, tag y commit salen del arbol",
+      "tests": [
+        "selftest.sh:la version, el tag y el commit salen de fuera del texto",
+        "selftest.sh:…y el recuento de tareas se cuenta",
+        "selftest.sh:…y nombra las que siguen vivas",
+        "selftest.sh:sin tag, NO se afirma que exista",
+        "selftest.sh:…y dice de quien es el paso",
+        "selftest.sh:un tag que no resuelve se dice"
+      ],
+      "evidence": [
+        "salidas/casos-122.txt",
+        "salidas/cierre.txt"
+      ],
+      "verified": true,
+      "nota": "El texto de EP-019 ACERTO version, tag y commit —la correccion del intake lo deja claro: no mentia—, pero escritos a mano. ACERTAR NO ES LO MISMO QUE NO PODER EQUIVOCARSE: el mismo texto, el dia que el tag no exista, anunciaria un tag inexistente. TRES desenlaces para el tag, no dos: existe y resuelve · figura y NO resuelve · no existe todavia."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Los diecisiete comentarios ya escritos NO se editan",
+      "tests": [
+        "selftest.sh:el comentario declara que no edita los anteriores",
+        "selftest.sh:…y el comando no tiene forma de editar"
+      ],
+      "evidence": [
+        "salidas/casos-122.txt"
+      ],
+      "verified": true,
+      "nota": "No basta con DECIRLO: el segundo caso comprueba que el comando no PUEDE. Y no se migran: se curan solos en cuanto el agente escriba uno marcado en ese issue, sin tocar la historia."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "SUITE-R43 distingue «comentario humano» de «comentario del agente sin marca» o declara SIN EVALUAR",
+      "tests": [
+        "selftest.sh:SUITE-R43 declara que establece",
+        "selftest.sh:…y que NO establece",
+        "selftest.sh:…y el limite llega al mensaje",
+        "selftest.sh:sin ningun comentario marcado dice null, no «limpio»",
+        "selftest.sh:…y con uno marcado y otro despues, pendiente",
+        "selftest.sh:…y con el marcado al final, limpio"
+      ],
+      "evidence": [
+        "salidas/casos-122.txt"
+      ],
+      "verified": true,
+      "nota": "SE CUMPLE POR LA SEGUNDA RAMA, y se dice cual. Distinguir NO SE PUEDE: por contenido son indistinguibles —los diecisiete lo demostraron— y por autor tampoco, porque el agente comenta con la credencial de una persona y SUITE-R43 es explicita en eso. Asi que se declara el limite, y se declara EN EL MENSAJE: SUITE-R38 lo cazo viviendo solo en SUJETOS y en un comentario."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 5,
+    "distinct_reds": 5,
+    "evidence": "salidas/inversa.txt",
+    "nota": "Y la inversa tuvo TRES defectos suyos: (a) un escenario que comprobaba SUJETOS —que vive en patrones.mjs y no en tracker.mjs— fallaba sobre el modulo INTACTO y caia en las cinco mutaciones, haciendolas parecer correctas; (b) una mutacion tocaba otro sitio, porque «L.push(MARCA_AGENTE);» aparece tambien en el constructor de la parada y replace sustituye la primera; (c) la decimocuarta rotura de escapado: al anclar con dos lineas, el salto entro literal en una cadena y el arnes dejo de compilar. Resuelto componiendolo (SUITE-R59)."
+  },
+  "defectos_al_construirlo": [
+    {
+      "que": "El limite de SUITE-R43 vivia solo en SUJETOS y en un comentario del codigo.",
+      "quien_lo_vio": "SUITE-R38, que exige que un limite declarado aparezca en algun mensaje real.",
+      "por_que_importa": "Un limite que vive solo en el codigo protege a quien ya esta leyendo el codigo, no a quien lee el rojo.",
+      "y_ademas": "Hubo que alinearlo LITERAL: el mensaje decia «—» donde el limite decia «:», y la comprobacion compara la cadena entera."
+    },
+    {
+      "que": "Dos casos mios median el arnes y no el hecho.",
+      "detalle": "Uno preguntaba a «tracker xxx» por la lista de acciones —y sin plataforma sale antes de imprimirla—; otro contaba los caracteres entre «Version de la suite» y el numero, que son dos asteriscos y un acento grave.",
+      "arreglo": "El primero mira el despachador; el segundo comprueba que los TRES valores aparezcan, que es lo que el criterio pide."
+    }
+  ],
+  "measured": {
+    "casos": "16 de 16",
+    "comentarios_sin_marca_medidos": 17,
+    "desenlaces_del_tag": 3,
+    "estados_de_la_marca": 3,
+    "bateria_completa": "selftest OK · 1600 casos · codigo 0 · 1600 verdes y 0 rojos"
+  }
+}
