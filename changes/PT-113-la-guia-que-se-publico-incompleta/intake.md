@@ -7,7 +7,7 @@ type: BUG
 severity: S2
 complexity:
 track: STANDARD
-status: READY
+status: INTEGRATED
 phase: 8
 created: 2026-08-22
 origin: DIRECT
