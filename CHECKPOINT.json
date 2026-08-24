@@ -2,9 +2,9 @@
   "pt": "PT-135",
   "type": "BUG",
   "epic": "EP-020",
-  "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-113-apertura",
   "sha": "39d57a3fe21efdf7503d6bb49310438d8daca84f",
   "sha_corto": "39d57a3",
@@ -27,11 +27,8 @@
     "docs/implementation/evidence/PT-135/",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-23"
 }
