@@ -63,6 +63,17 @@
       ],
       "verified": true,
       "nota": "256 reglas."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "El diff de la guia queda vacio tras aplicar la version",
+      "tests": [],
+      "evidence": [
+        "../../../../changes/PT-113-la-guia-que-se-publico-incompleta/intake.md"
+      ],
+      "verified": false,
+      "caido": "Decayo con el reanclaje a la 13.0.0. Fue escrito para un PATCH; en un MAJOR que trae FDGE-R55 y cuatro herramientas tocadas, exigir «diff vacio» seria exigir lo contrario de lo que el lote hace. NO se marca verificado: un criterio que ya no se comprueba no esta verificado. Declarado con el vocabulario que creo PT-134, que hasta el 2026-08-24 no existia — por eso la primera version lo saco de la matriz y lo explico en prosa.",
+      "nota": "ANADIDO el 2026-08-24 por PT-134 (FDGE-R29: se anade, no se reescribe). La evidencia es la revision R-1 del intake, que es el documento donde consta la decision: no hay salida de herramienta que pueda decir «este criterio dejo de aplicar»."
     }
   ],
   "decaidos": [

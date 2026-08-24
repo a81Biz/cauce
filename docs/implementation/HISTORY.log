@@ -8661,3 +8661,157 @@ Evidencia: evidence/PT-138/ — selftest OK · 1655 casos, 0 rojos · verify-sui
 LO QUE NO ESTABLECE: que una condicion de reentrada sea BUENA —se exige que diga algo, no que diga
 algo util (SUITE-R26)—; que la fecha elegida sea la correcta —se exige futura, no oportuna—; ni
 que un aplazado caducado bloquee, que es PT-139.
+
+## PT-139 — nada media la edad de un aplazado
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-007
+
+PT-137 construyo la puerta de vuelta y PT-138 escribe cuando cruzarla. SIN COMPUERTA, LOS DOS
+ERAN DOCUMENTACION: un campo que nadie mira es un campo que se rellena mal.
+
+EL MENSAJE DICE TRES COSAS, y cada una tiene su motivo. CUANTOS DIAS lleva vencido: «vencido» sin
+la cifra no distingue dos dias de dos anos, que es justo lo que hace falta para decidir. DE QUIEN
+ES: un aviso sin destinatario no es una decision pendiente de nadie. QUE COMANDO lo arregla: un
+aviso que obliga a ir a buscarlo es un aviso que se ignora.
+
+NO DECIDE NADA. El mensaje del caducado enumera los tres caminos —retomar, mover la fecha,
+cerrar— y declara que la compuerta obliga a MIRAR. Cerrar automaticamente un aplazado seria
+SUITE-R06 roto por comodidad.
+
+LOS DOS LIMITES, cada uno con su clase. CE-014: lo anterior a LEX-R34 no se juzga hacia atras —
+PT-025 no pudo declarar lo que nadie le pedia—. CE-010: la fecha de hoy SE DERIVA, del ultimo
+commit y del reloj del sistema cuando no hay git, y el fixture usa 2099 para que el caso no
+caduque solo.
+
+EL DEFECTO QUE APARECIO, Y NO ESTA EN EL CODIGO NUEVO. Siete casos antiguos afirmaban sobre el ID
+DE LA REGLA —«chkno … SUITE-R44»—, que significa «que esta regla no diga nada». Al anadirle una
+clausula, la regla empezo a hablar en corridas donde antes callaba y siete casos QUE MIDEN OTRA
+COSA se pusieron rojos.
+
+No es que el codigo este mal: EL PATRON ERA DEMASIADO GRUESO. Afirmar sobre un ID de regla acopla
+el caso a todo lo que esa regla pueda decir en el futuro. Afinados al hallazgo concreto. El
+septimo casaba el identificador a secas y la linea de exentos lo NOMBRA justamente para decir que
+NO es deuda: afinado a «PT-020:», que es la forma en que verify-fdge le EXIGE algo a un PT.
+Mencionar no es exigir.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/patrones.mjs · tools/selftest.sh · RULES.md ·
+  PHASES.md · CORE.md (generado) · MATRIZ.md (derivado) · inventory/services.md (derivado)
+
+Evidencia: evidence/PT-139/ — selftest OK · 1678 casos, 0 rojos · verify-suite sin errores ·
+  auditoria sin huecos, cobertura mecanica 130/236.
+
+LO QUE NO ESTABLECE: que el umbral deba ser «vencido» y no un margen de gracia —seria un juicio
+sin datos—; ni que alguien vaya a mirar el aviso: la compuerta obliga en G4 y fuera de ella avisa.
+
+
+## PT-134 — un AC que decae no tenia donde declararse
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021 — nacio aplazada en EP-020 y la RETOMO «tracker retomar» (PT-137, AC-06)
+Rama: bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-005
+
+ESTA TAREA ES LA PRUEBA DE PT-137. Estuvo DEFERRED bajo EP-020, que esta CLOSED, y ningun comando
+podia sacarla. Que exista su intake es el AC-06 de PT-137 cumplido.
+
+FDGE-R15 exigia un TS a TODO AC. Un criterio que DECAE no puede tenerlo, y quedaban dos salidas y
+las dos malas: «verified: true» sobre algo que ya nadie comprueba, o un Orphan Criterion
+permanente que nadie puede cerrar. La primera es PEOR, porque parece verde.
+
+PT-113 eligio una tercera —sacar el AC fuera de la tabla y explicarlo en prosa— que funciono como
+DECISION y falla como MECANISMO: un criterio que no esta en la matriz NO SE PUEDE CONTAR. Su
+propia trazabilidad lo decia: «no hay herramienta que pueda decir que este criterio dejo de
+aplicar — el marco no tiene ese vocabulario».
+
+SE PIDEN DOS COSAS. La palabra CAIDO en la celda del escenario Y el motivo en el manifiesto. La
+fila sola serian cinco letras que apagan una comprobacion sin que nadie responda; el motivo solo
+no se veria al leer la matriz, que es donde se mira la cobertura.
+
+Y UN AC CAIDO NO CUENTA COMO VERIFICADO: declararlo caido y «verified: true» a la vez FALLA. Es la
+tentacion entera de esta tarea.
+
+EL RIESGO, DE FRENTE: esto puede convertirse en la salida comoda para todo criterio incomodo. Lo
+frenan el motivo con contenido y la prohibicion del verde, LAS DOS JUNTAS. Si el motivo es honesto
+no es mecanizable y se declara (SUITE-R26).
+
+EL DEFECTO QUE APARECIO CONSTRUYENDOLO, y lo cazo el auditor. El «\b» del reconocedor se convirtio
+en un byte de control 0x08 al insertarlo: el regex COMPILABA Y NO CASABA NADA — un fallo
+silencioso, CE-002. Lo detecto audit.mjs, que tiene esa comprobacion exactamente para esto, y dio
+el comando. Rehecho sin secuencias escapadas, que es la respuesta de SUITE-R59.
+
+AC-04 · PT-113. Su AC-06 VUELVE a la matriz declarado CAIDO, con el motivo en su manifiesto. La
+prosa anterior SE CONSERVA y encima se escribe la correccion con su fecha (SUITE-R09 append-only,
+FDGE-R29). LIMITE DECLARADO: PT-113 esta INTEGRATED y verify-fdge no juzga lo terminal
+(SUITE-R36), asi que la declaracion es DOCUMENTAL y el mecanismo se demuestra sobre fixture.
+Afirmar que el verificador la aprueba seria falso, porque no la mira.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · RULES.md · PHASES.md ·
+  CORE.md (generado) · changes/PT-113-…/traceability.md · evidence/PT-113/manifest.json
+
+Evidencia: evidence/PT-134/ — selftest OK · 1678 casos · seis casos con su negativo.
+
+LO QUE NO ESTABLECE: que ningun AC del repositorio este caido sin declarar. Retrofechar es lo que
+FDGE-R52 y CE-014 desaconsejan.
+
+
+## PT-140 — proyectar arrancaba un linaje nuevo en silencio
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-005
+
+LO COMETI YO, el 2026-08-24, dejando una sola rama local a peticion del firmante. `proyectar`
+toma refs/heads/<rama> como padre; sin ella el commit se crea SIN «-p» y la rama arranca un
+linaje nuevo. La salida fue IDENTICA a la del caso bueno: «26 allocation(es), 2 archivo(s)».
+
+NO SE PERDIO NADA PORQUE EL PUSH HABRIA SIDO RECHAZADO por no ser fast-forward. Protegido POR
+ACCIDENTE, NO POR DISEÑO: con ese rechazo sin explicacion, la lectura obvia —«la rama esta rara,
+la fuerzo»— si destruye. Y «--publicar» lleva el push dentro.
+
+Es CE-005, verde por no haber mirado, y CE-005 es una de las seis clases SIN REGLA QUE LA RECLAME:
+esta es su primera instancia cerrada con mecanismo.
+
+LA MITAD QUE YA EXISTIA. SUITE-R31 tenia el criterio correcto para el caso hermano —un commit sin
+la marca «cauce:proyeccion» SE REPORTA Y NO SE BORRA, porque decidir que hacer con el trabajo de
+alguien es humano—. Faltaba la simetrica, y ahora la regla las tiene las dos: un commit sin marca
+se REPORTA y no se borra; una rama que falta se DICE y no se rehace.
+
+NULL NO ES FALSE, y es la mitad del diseno. «git ls-remote» puede fallar por red, por credenciales
+o porque no hay remoto. Tratar ese null como «no existe» convertiria un fallo de acceso en PERMISO
+PARA DESCARTAR HISTORIA (RULE-06).
+
+Y NO TRAE LA RAMA SOLA: un fetch implicito dentro de un comando que ESCRIBE es el efecto colateral
+que este marco evita. Se DESCRIBE el comando (EXEC-R07), que cabe en una linea.
+
+EL FIXTURE LLEVA SU PROPIO REMOTO, un --bare local. Un arnes que necesita la red no es un arnes:
+daria rojo el dia que GitHub este lento y ese rojo no diria nada del marco. PT-126 lo pago con la
+bateria colgada tres minutos.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · RULES.md · CORE.md (generado)
+
+Evidencia: evidence/PT-140/ — selftest OK · 1678 casos · seis casos, y el fixture REPITE
+  exactamente lo que ocurrio.
+
+LO QUE NO ESTABLECE: que ninguna otra accion asuma que una rama local existe —si las hay es un
+hallazgo aparte—; ni que AC-04 tenga caso: forzar el fallo de «git ls-remote» sin tocar la red
+exigiria un remoto que exista y falle a la vez, asi que se establece que el CODIGO distingue los
+tres estados y no que se haya provocado el tercero.

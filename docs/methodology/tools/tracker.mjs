@@ -3115,6 +3115,43 @@ function proyectar({ silencioso = false } = {}) {
   // Un commit sin la marca es HUMANO. Se REPORTA y no se borra: decidir que hacer con el trabajo
   // de alguien es humano (SUITE-R06), y borrarlo seria reescribirlo sin preguntar.
   const padre = gitDe(['rev-parse', '--verify', `refs/heads/${rama}`]);
+
+  // PT-140 · SI FALTA LA RAMA LOCAL PERO EL REMOTO LA TIENE, NO SE EMPIEZA DE CERO.
+  //
+  // Sin esto, «padre» quedaba null, el commit se creaba SIN «-p» y la rama arrancaba un linaje
+  // nuevo — con una salida IDENTICA a la del caso bueno. Ocurrio el 2026-08-24 al dejar una sola
+  // rama local. No se perdio nada porque el push normal habria sido rechazado por no ser
+  // fast-forward: PROTEGIDO POR ACCIDENTE, NO POR DISEÑO, y con el rechazo sin explicacion la
+  // lectura obvia —«la rama esta rara, la fuerzo»— si destruye.
+  //
+  // Es CE-005, verde por no haber mirado. SUITE-R31 ya tenia el criterio para el caso hermano —un
+  // commit sin la marca se REPORTA y no se borra— y faltaba la mitad simetrica.
+  //
+  // NO se trae la rama sola: un «fetch» implicito dentro de un comando que escribe es el efecto
+  // colateral que este marco evita. Se DESCRIBE el comando (EXEC-R07).
+  if (!padre) {
+    // `null` = no se pudo mirar el remoto. `false` = se miro y no esta. No saber NO es permiso.
+    let enRemoto = null;
+    try {
+      const o = execFileSync('git', ['ls-remote', '--heads', 'origin', rama],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+      enRemoto = o.length > 0;
+    } catch { enRemoto = null; }
+    if (enRemoto === true) {
+      fail('SUITE-R31', `«${rama}» no existe en local y SI en origin: proyectar empezaria un linaje `
+        + 'NUEVO y la publicacion seria rechazada sin decir por que. Traela primero:  '
+        + `git branch ${rama} origin/${rama}`);
+      return { rama: null, motivo: 'sin rama local y con rama remota' };
+    }
+    if (enRemoto === null) {
+      fail('SUITE-R31', `«${rama}» no existe en local y NO SE PUDO MIRAR el remoto. No saber no es `
+        + 'permiso (RULE-06): empezar de cero podria descartar una historia que existe. '
+        + `Comprueba con:  git ls-remote --heads origin ${rama}`);
+      return { rama: null, motivo: 'remoto no evaluable' };
+    }
+    // Se miro y no esta en ninguna parte: es la primera vez, y SE DICE.
+    if (!silencioso) notas.push(`${rama}: no existe ni en local ni en origin — se crea AHORA, es la primera proyeccion.`);
+  }
   let ajenos = 0;
   if (padre) {
     const msgs = gitDe(['log', '--format=%s%n%b', `refs/heads/${rama}`]) ?? '';

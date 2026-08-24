@@ -1,0 +1,75 @@
+{
+  "pt": "PT-134",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un AC puede declararse CAIDO con motivo, y eso no es un Orphan Criterion",
+      "tests": [
+        "selftest.sh:un AC declarado CAIDO con motivo no es Orphan",
+        "selftest.sh:…y no se le exige escenario de test",
+        "selftest.sh:sin la palabra, sigue siendo Orphan Criterion"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "El ultimo caso es el NEGATIVO y es el que hace validos a los demas: sin el, una comprobacion que aceptase todo tambien pasaria el primero."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un AC caido NO cuenta como verificado",
+      "tests": [
+        "selftest.sh:CAIDO y verified:true a la vez falla"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Es la tentacion entera de esta tarea. Un criterio que ya no se comprueba no esta verificado; decir las dos cosas es exactamente el verde fingido que declararlo caido existe para evitar."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Declararlo caido exige motivo: sin el, falla",
+      "tests": [
+        "selftest.sh:CAIDO sin motivo en el manifiesto falla",
+        "selftest.sh:…y un motivo de dos palabras tampoco vale"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Se piden DOS cosas —la palabra en la matriz y el motivo en el manifiesto— porque la fila sola seria una palabra que apaga una comprobacion, y el motivo solo no se veria al leer la matriz. Que el motivo sea HONESTO no es mecanizable y se declara (SUITE-R26)."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El AC-06 de PT-113 se declara caido en su evidencia, sin reescribir lo afirmado",
+      "tests": [],
+      "evidence": [
+        "salidas/pt-113.txt"
+      ],
+      "verified": true,
+      "nota": "SE ANADE, NO SE REESCRIBE (FDGE-R29, SUITE-R09 append-only): la prosa que explicaba el caido sigue ahi y encima se escribe la correccion con su fecha. LIMITE DECLARADO: PT-113 esta INTEGRATED y verify-fdge no juzga lo terminal (SUITE-R36), asi que la declaracion es DOCUMENTAL — el mecanismo se demuestra sobre fixture, no sobre ella."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "FDGE-R15 declara el caso y LEXICON el vocabulario",
+      "tests": [],
+      "evidence": [
+        "salidas/verify-suite.txt"
+      ],
+      "verified": true,
+      "nota": "verify-suite sin errores de coherencia. PHASES lo cita en la linea «AC CAIDO», que es lo que SUITE-R20 exige para que el humano en modo MANUAL lo vea."
+    }
+  ],
+  "el_riesgo_de_frente": {
+    "que": "«Declarar un AC caido» puede convertirse en la salida comoda para todo criterio incomodo.",
+    "que_lo_frena": "AC-03 exige motivo con contenido y AC-02 impide que cuente como verde. Las dos cosas juntas, no una.",
+    "lo_que_no_se_puede": "Comprobar si el motivo es honesto. Se declara en vez de fingir que se detecta (SUITE-R26)."
+  },
+  "measured": {
+    "casos": 6,
+    "negativo": 1,
+    "AC_caidos_declarados_en_el_repositorio": 1
+  }
+}

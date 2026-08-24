@@ -6,4 +6,4 @@
 | Caducar un aplazado viejo y bloquear en `G4` | Necesita el campo que `PT-138` crea | `PT-139` |
 | Escribir el intake de lo retomado | Es `PHASE 1`, no un comando de estado | — |
 | Que `REJECTED` tenga vuelta | Rechazar no es aplazar y no debe tenerla | — |
-| `PT-025` sin campo `origin` | Es anterior a `SUITE-R44` y retrofecharlo sería inventar | `PT-025` |
+| Retrofechar los aplazados anteriores a la regla | Es lo que `FDGE-R52` y `CE-014` desaconsejan: convierte trabajo correcto en deuda | — |

@@ -9,9 +9,18 @@
 | AC-03 | `sellar` deja de reportar reglas nuevas no nombradas | `TS-03` | `tracker sellar` | `salidas/guia.txt` |
 | AC-04 | Las 25 declaraciones de versión declaran la vigente | `TS-04` | `version.mjs` sin `--aplicar` | `salidas/version.txt` |
 | AC-05 | `CORE.md` y `CORE-PTSA.md` sincronizados con sus fuentes | `TS-05` | `build-core.mjs` + `verify-suite.mjs` | `salidas/coherencia.txt` |
+| AC-06 | El `diff` de la guía queda vacío tras aplicar la versión | `CAÍDO` | — decayó con el reanclaje a la `13.0.0` | `../../../changes/PT-113-la-guia-que-se-publico-incompleta/intake.md` |
 
 
-## `AC-06` sale de la matriz: está **caído**, no cumplido
+## `AC-06` VUELVE a la matriz, declarado **caído**   `PT-134`
+
+> **Corrección del 2026-08-24.** Cuando se escribió esto, el marco **no tenía vocabulario** para
+> decir «este criterio dejó de aplicar», así que `AC-06` se sacó de la tabla y se explicó en prosa
+> — un criterio que no se puede contar. `PT-134` creó el vocabulario: la celda del escenario dice
+> `CAÍDO` y el manifiesto declara **por qué**. La fila **se añade**, no se reescribe lo anterior
+> (`FDGE-R29`), y `AC-06` **no** cuenta como verificado.
+
+## Por qué está caído, y no cumplido
 
 Fue escrito para un `PATCH`. En un `MAJOR` que trae `FDGE-R55` y cuatro herramientas tocadas,
 exigir *«diff vacío»* sería exigir lo contrario de lo que el lote hace. Su evidencia es la

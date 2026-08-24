@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: f574bd9a8683 -->
-<!-- fuentes: RULES.md:f9d857ab4945 LEXICON.md:84baf7a2dc12 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:176683bb7e6a -->
+<!-- cuerpo: 2174a68547bf -->
+<!-- fuentes: RULES.md:a7555502caaa LEXICON.md:84baf7a2dc12 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:34cd0609ad7a -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -775,6 +775,15 @@ APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de
           RECIPROCA — hermano del lote vale siempre; el propio lote solo si
           esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
           «origin» mencionando el PT. En G4 bloquea.
+CADUCA    un aplazado sin bloque, o con la revision VENCIDA, se nombra:       [SUITE-R44]
+          aviso durante el trabajo, ERROR EN G4. Dice cuantos dias lleva y
+          de quien es. NO cierra nada por su cuenta: obliga a mirarlo. Lo
+          anterior a LEX-R34 no se juzga hacia atras (RIGE_DESDE, CE-014).
+AC CAIDO  un criterio que deja de aplicar se DECLARA, no se finge:            [FDGE-R15]
+          traceability.md   celda del escenario = CAIDO
+          manifest.json     criteria[].caido = por que decayo
+          LAS DOS COSAS. Y NO cuenta como verificado: CAIDO con
+          «verified: true» falla, que es el verde fingido que esto evita.
 APLAZAR2  y la puerta de IDA tambien es un comando:                         [LEX-R34]
           node tools/tracker.mjs aplazar PT-NNN --reentrada "..."           [SUITE-R44]
                  --revision AAAA-MM-DD --dueno "..." [--de PT-NNN] --aplicar

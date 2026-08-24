@@ -2112,6 +2112,139 @@ proj136_cerrable() {
 }
 chk   "…y con todas terminales, READY -> CLOSED"  "READY -> CLOSED"  int136 "$(proj136_cerrable)"
 
+# ── PT-139 · EP-021 · nada media la edad de un aplazado ───────────────────────────────────────
+#
+# PT-137 construyo la puerta de vuelta y PT-138 escribe cuando cruzarla. Sin compuerta, los dos
+# son documentacion: un campo que nadie mira es un campo que se rellena mal.
+V139() { (cd "$1" && node "$SUITE/tools/verify-fdge.mjs" "${@:2}" 2>&1); }
+
+# Proyecto de mentira: un aplazado SIN bloque, uno CADUCADO, uno al dia, y uno anterior a la regla.
+proj139() {
+  local d="$WORK/p139"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes" "$d/docs/methodology"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', firmantes:['Alberto Martínez'], counters:{PT:4},
+      allocations:[
+        {id:'PT-001',slug:'sin-bloque',type:'BUG',status:'DEFERRED',suite_version:'13.1.0'},
+        {id:'PT-002',slug:'caducado',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+         aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2020-01-01',dueno:'Alberto Martínez'}},
+        {id:'PT-003',slug:'al-dia',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+         aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2099-01-01',dueno:'Alberto Martínez'}},
+        {id:'PT-004',slug:'antiguo',type:'BUG',status:'DEFERRED',suite_version:'12.0.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+
+# AC-01 · sin bloque: avisa durante el trabajo y FALLA en G4.
+chk   "un aplazado sin bloque se nombra"          "sin declarar cuando se revisan"  V139 "$(proj139)" --all
+chk   "…y en G4 deja de ser un aviso"             "sin declarar cuando se revisan"  V139 "$(proj139)" --gate G4 PT-001
+# AC-02 · caducado: se nombra Y SE DICE CUANTOS DIAS. «Vencido» sin la cifra no dice si son dos
+# dias o dos anos, que es justo lo que hay que saber para decidir.
+chk   "un aplazado con la revision vencida se nombra"  "revision VENCIDA"  V139 "$(proj139)" --all
+chk   "…y dice cuantos dias lleva"                     "dia(s), responde"  V139 "$(proj139)" --all
+chk   "…y de quien es"                                 "Alberto Martínez"  V139 "$(proj139)" --all
+# AC-03 · LA FECHA DE HOY SE DERIVA. Un literal aqui convertiria el caso en CE-010 —cifra
+# transcrita que caduca— dentro del arnes que la persigue: 2099 no es «hoy», es «muy despues».
+chkno "el que esta al dia NO se nombra"                "PT-003"            V139 "$(proj139)" --all
+# AC-04 · CE-014 · una regla nueva no juzga hacia atras.
+chk   "el anterior a la regla NO se juzga"             "no se juzgan hacia atras"  V139 "$(proj139)" --all
+chk   "…y se dice cual es"                             "PT-004"                    V139 "$(proj139)" --all
+# AC-05 · el mensaje DICE QUE HACER. Un aviso que no nombra el comando obliga a ir a buscarlo.
+chk   "el aviso nombra el comando que lo arregla"      "tracker aplazar PT-NNN"    V139 "$(proj139)" --all
+chk   "…y el del caducado nombra los tres caminos"     "tracker retomar"           V139 "$(proj139)" --all
+# NO CIERRA NADA POR SU CUENTA: decidir que pasa con un caducado es humano.
+chk   "la compuerta obliga a mirar, no decide"         "no decide por nadie"       V139 "$(proj139)" --all
+
+# ── PT-134 · EP-021 · un AC que decae no tenia donde declararse ────────────────────────────────
+#
+# FDGE-R15 exige un TS a TODO AC. Un criterio caido no puede tenerlo, y quedaban dos salidas y las
+# dos malas: fingir verde sobre algo que ya no se comprueba, o un Orphan Criterion permanente.
+# Salio de PT-113, cuyo AC-06 decayo con el reanclaje a la 13.0.0.
+proj134() { # $1 celda del escenario · $2 motivo en el manifiesto · $3 verified
+  local d="$WORK/p134"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation/evidence/PT-001" "$d/changes/PT-001-tarea"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', counters:{PT:1},
+      allocations:[{id:'PT-001',slug:'tarea',type:'FEATURE',severity:'S2',status:'IN_PROGRESS',
+                    phase:6,structural:false,suite_version:'13.1.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  printf '%s\n' '---' 'id: PT-001' 'type: FEATURE' 'status: IN_PROGRESS' 'phase: 6' '---' \
+    '## 3. Como termina' '> Termina cuando: pasa.' > "$d/changes/PT-001-tarea/intake.md"
+  printf '%s\n' '| AC | Criterio | Escenario | Test | Evidencia |' '|:---|:---|:---|:---|:---|' \
+    "| AC-01 | El criterio que decayo | $1 | — | salidas/x.txt |" > "$d/changes/PT-001-tarea/traceability.md"
+  mkdir -p "$d/docs/implementation/evidence/PT-001/salidas"
+  echo "algo" > "$d/docs/implementation/evidence/PT-001/salidas/x.txt"
+  node -e "
+    const fs=require('fs');
+    const c={ac:'AC-01',statement:'x',tests:[],evidence:['salidas/x.txt'],verified:process.argv[3]==='true'};
+    if (process.argv[2]) c.caido=process.argv[2];
+    fs.writeFileSync(process.argv[1], JSON.stringify({pt:'PT-001',criteria:[c]},null,2));
+  " "$d/docs/implementation/evidence/PT-001/manifest.json" "$2" "$3"
+  echo "$d"
+}
+V134() { (cd "$1" && node "$SUITE/tools/verify-fdge.mjs" PT-001 2>&1); }
+
+# AC-01 · declarado CAIDO con motivo: NO es un Orphan Criterion.
+chk   "un AC declarado CAIDO con motivo no es Orphan"  "CAIDO con motivo" \
+  V134 "$(proj134 '`CAÍDO`' 'decayo con el reanclaje a la 13.0.0, que cambio lo que el criterio media' false)"
+chkno "…y no se le exige escenario de test"            "sin escenario de test" \
+  V134 "$(proj134 '`CAÍDO`' 'decayo con el reanclaje a la 13.0.0, que cambio lo que el criterio media' false)"
+# AC-03 · sin motivo, la palabra apagaria la comprobacion sin que nadie respondiera.
+chk   "CAIDO sin motivo en el manifiesto falla"        "no dice POR QUE" \
+  V134 "$(proj134 '`CAÍDO`' '' false)"
+chk   "…y un motivo de dos palabras tampoco vale"      "no dice POR QUE" \
+  V134 "$(proj134 '`CAÍDO`' 'porque si' false)"
+# AC-02 · un criterio caido NO cuenta como verificado. Decir las dos cosas es el verde fingido que
+# declararlo caido existe para EVITAR.
+chk   "CAIDO y verified:true a la vez falla"           "verde fingido" \
+  V134 "$(proj134 '`CAÍDO`' 'decayo con el reanclaje a la 13.0.0, que cambio lo que el criterio media' true)"
+# Y sin la palabra, un AC sin escenario sigue siendo Orphan: la puerta nueva no abre la vieja.
+chk   "sin la palabra, sigue siendo Orphan Criterion"  "Orphan Criterion" \
+  V134 "$(proj134 '' 'da igual el motivo si la fila no lo declara' false)"
+
+# ── PT-140 · EP-021 · proyectar arrancaba un linaje nuevo en silencio ──────────────────────────
+#
+# Ocurrio el 2026-08-24 al dejar una sola rama local. No se perdio nada porque el push habria sido
+# rechazado por no ser fast-forward: protegido POR ACCIDENTE, no por diseño.
+proj140() {
+  local d="$WORK/p140"; rm -rf "$d"; local r="$WORK/p140-remoto"; rm -rf "$r"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', personas:[{nombre:'Alberto Martínez'}], counters:{PT:1},
+      allocations:[{id:'PT-001',slug:'viva',type:'BUG',status:'READY',phase:1}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  (cd "$d" && git init -q . && git add -A && git -c user.email=a@b -c user.name=c commit -qm base)
+  git init -q --bare "$r"
+  (cd "$d" && git remote add origin "$r" && git push -q origin HEAD:refs/heads/main 2>/dev/null)
+  echo "$d"
+}
+pro140() { (cd "$1" && node "$SUITE/tools/tracker.mjs" proyectar "${@:2}" 2>&1); }
+
+# AC-02 · si no existe en ninguna parte, la crea Y LO DICE: la primera vez no es un error.
+chk   "sin rama en ningun sitio, la crea y lo dice"  "es la primera proyeccion"  pro140 "$(proj140)"
+# AC-01 · si el remoto la tiene y el local no, SE NIEGA y dice como traerla.
+pro140_solo_remoto() {
+  local d; d=$(proj140)
+  (cd "$d" && node "$SUITE/tools/tracker.mjs" proyectar >/dev/null 2>&1 \
+     && git push -q origin "cauce/alberto-martinez" 2>/dev/null \
+     && git branch -D "cauce/alberto-martinez" >/dev/null 2>&1
+   node "$SUITE/tools/tracker.mjs" proyectar 2>&1)
+}
+chk   "con rama SOLO en el remoto, se niega"      "SUITE-R31"       pro140_solo_remoto
+chk   "…y dice el comando para traerla"           "git branch"      pro140_solo_remoto
+chkno "…y NO empieza un linaje nuevo"             "allocation(es)"  pro140_solo_remoto
+# AC-03 · con la rama local presente, se comporta igual que siempre.
+pro140_normal() {
+  local d; d=$(proj140)
+  (cd "$d" && node "$SUITE/tools/tracker.mjs" proyectar >/dev/null 2>&1
+   node "$SUITE/tools/tracker.mjs" proyectar 2>&1)
+}
+chk   "con la rama local, sigue proyectando igual"  "allocation(es)"  pro140_normal
+chkno "…y ya no dice que sea la primera vez"        "primera proyeccion"  pro140_normal
+
 # ── PT-138 · EP-021 · el aplazado no decia cuando se revisa ni quien responde ─────────────────
 #
 # PT-137 encontro que DEFERRED no tenia SALIDA. Midiendo esta tarea resulta que tampoco tenia
@@ -4102,12 +4235,12 @@ chk   "en G4 bloquea"                      "✗ SUITE-R44" V --gate G4 PT-001
 build_fixture; oos '`PT-004`'
 chk   "citar a cualquiera ya no basta"     "SUITE-R44"   V PT-001
 build_fixture; oos '—'
-chkno "un guion no aplaza nada"            "SUITE-R44"   V PT-001
+chkno "un guion no aplaza nada"            "no declaran su destino"   V PT-001
 
 # DEFERRED: exento para la verificacion, VIVO para el espejo. Las dos caras.
 build_fixture
 reg_set "r.allocations.push({id:'PT-020',type:'BUG',severity:'S3',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1'}); r.counters.PT=20"
-chkno "un DEFERRED no exige artefactos"    "PT-020"      V --all
+chkno "un DEFERRED no exige artefactos"    "PT-020:"     V --all
 trlib "un DEFERRED sí es vivo"             "^VIVO$"   "console.log(m.vivasDe([{id:\"PT-020\",status:\"DEFERRED\"}]).length?\"VIVO\":\"NO\")"
 
 
@@ -4124,13 +4257,13 @@ chk   "destino en prosa falla"             "SUITE-R44"   V PT-001
 build_fixture; oos 'ya veremos'
 chk   "otra prosa cualquiera, también"     "SUITE-R44"   V PT-001
 build_fixture; oos '—'
-chkno "un guion sigue siendo válido"       "SUITE-R44"   V PT-001
+chkno "un guion sigue siendo válido"       "no declaran su destino"   V PT-001
 
 # Reciprocidad: citar no basta. PT-012 citaba PT-013 —que no iba a hacer ese trabajo— y pasaba.
 build_fixture
 reg_set "r.allocations.push({id:'PT-030',type:'CHORE',severity:'S4',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-001'}); r.counters.PT=30"
 oos '`PT-030`'
-chkno "un DEFERRED que reconoce su origen vale"  "SUITE-R44"  V PT-001
+chkno "un DEFERRED que reconoce su origen vale"  "no declaran su destino"  V PT-001
 build_fixture
 reg_set "r.allocations.push({id:'PT-031',type:'CHORE',severity:'S4',slug:'otro',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-999'}); r.counters.PT=31"
 oos '`PT-031`'
@@ -4158,12 +4291,12 @@ build_fixture
 reg_set "r.allocations.push({id:'EP-030',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-030'; r.counters.EP=30"
 ep_cierre EP-030
 oos '`EP-030`'
-chkno "el propio lote en DONE vale"          "SUITE-R44"  V --gate G4 PT-001
+chkno "el propio lote en DONE vale"          "no declaran su destino"  V --gate G4 PT-001
 build_fixture
 reg_set "r.allocations.push({id:'EP-031',type:'EP',slug:'lote',created:'2026-08-13',status:'CLOSED',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-031'; r.counters.EP=31"
 ep_cierre EP-031
 oos '`EP-031`'
-chkno "y en CLOSED tambien"                  "SUITE-R44"  V --gate G4 PT-001
+chkno "y en CLOSED tambien"                  "no declaran su destino"  V --gate G4 PT-001
 # La intencion original, intacta: mientras el lote sigue abierto es una intencion, no una asignacion.
 build_fixture
 reg_set "r.allocations.push({id:'EP-032',type:'EP',slug:'lote',created:'2026-08-13',status:'IN_PROGRESS',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-032'; r.counters.EP=32"
@@ -4225,7 +4358,7 @@ build_fixture; ep_intake "## Cierre del lote
 |:---|:---|
 | Entrada de CHANGELOG | HECHO |"
 oos '`EP-040`'
-chkno "citarlo cuando si lo declara, vale"        "SUITE-R44"  V PT-001
+chkno "citarlo cuando si lo declara, vale"        "no declaran su destino"  V PT-001
 
 # PT-055 . SUITE-R45 — la compuerta del lote que CIERRA mira al lote que ABRE.
 #
