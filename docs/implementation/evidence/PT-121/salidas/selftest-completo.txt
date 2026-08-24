@@ -370,6 +370,22 @@
   [32m✓[0m y dice como se corrige
   [32m✓[0m sin ref durable todavia, no acusa
   [32m✓[0m sin el resolvedor, se comporta como hoy
+  [32m✓[0m el cierre de lote lleva la marca del agente
+  [32m✓[0m …y la accion existe en el despachador
+  [32m✓[0m la version, el tag y el commit salen de fuera del texto
+  [32m✓[0m …y el recuento de tareas se cuenta
+  [32m✓[0m …y nombra las que siguen vivas
+  [32m✓[0m sin tag, NO se afirma que exista
+  [32m✓[0m …y dice de quien es el paso
+  [32m✓[0m un tag que no resuelve se dice
+  [32m✓[0m el comentario declara que no edita los anteriores
+  [32m✓[0m …y el comando no tiene forma de editar
+  [32m✓[0m SUITE-R43 declara que establece
+  [32m✓[0m …y que NO establece
+  [32m✓[0m …y el limite llega al mensaje
+  [32m✓[0m sin ningun comentario marcado dice null, no «limpio»
+  [32m✓[0m …y con uno marcado y otro despues, pendiente
+  [32m✓[0m …y con el marcado al final, limpio
   [32m✓[0m integrar propone DONE -> INTEGRATED
   [32m✓[0m …nombrando las DOS fuentes
   [32m✓[0m …y al aplicar escribe las dos
@@ -379,6 +395,7 @@
   [32m✓[0m firmar propone DRAFT -> READY
   [32m✓[0m un firmante que no esta en la lista falla
   [32m✓[0m …y G1 solo produce READY desde DRAFT
+  [32m✓[0m la fecha de la compuerta se puede DECIR
   [32m✓[0m FDGE-R19 declara la rama del trabajo de lote
   [32m✓[0m …y FDGE-R19 llega al nucleo
   [32m✓[0m PHASES declara el viaje de vuelta
@@ -1628,5 +1645,5 @@
   [32m✓[0m INC-001 registrado en el ledger
   [32m✓[0m …y tiene candidato en el roadmap
 
-selftest: OK · 1584 casos
+selftest: OK · 1601 casos
 codigo 0

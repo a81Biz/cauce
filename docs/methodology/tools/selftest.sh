@@ -2177,6 +2177,17 @@ chk   "un firmante que no esta en la lista falla"  "SUITE-R27" \
   fir121 "$(proj121 DONE DRAFT)" EP-001 --firmante "Quien Sea"
 chk   "…y G1 solo produce READY desde DRAFT"  "G1 produce READY desde DRAFT" \
   fir121 "$(proj121 DONE READY)" EP-001 --firmante "Alberto Martínez"
+# LA FECHA ES LA DE LA COMPUERTA, NO LA DE EJECUTAR EL COMANDO. Lo encontro usar «firmar» sobre
+# EP-020: su G1 paso el 2026-08-22 y el comando escribio el 23, porque derivaba la fecha del
+# ultimo commit. Una cifra plausible y falsa en el campo que dice cuando se firmo (RULE-06).
+fir121_fecha() {
+  local d; d=$(proj121 DONE DRAFT)
+  (cd "$d" && node "$TK121" firmar EP-001 --firmante "Alberto Martínez" --fecha 2020-01-02 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='EP-001');
+           console.log(a.compuertas?.G1?.fecha ?? 'SIN FECHA');" "$d"
+}
+chk   "la fecha de la compuerta se puede DECIR"  "2020-01-02"  fir121_fecha
 
 # AC-02 · FDGE-R19 declara la forma de rama para el trabajo DE LOTE, y dice por que.
 chk   "FDGE-R19 declara la rama del trabajo de lote"  "El trabajo DE LOTE usa la forma de tarea"  cat "$SUITE/RULES.md"

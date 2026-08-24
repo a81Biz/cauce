@@ -45,6 +45,18 @@ condensa cada regla a ~210 caracteres (`SUITE-R15`), así que una declaración a
 de 5387 no lo alcanza — el documento completo se abre cuando `CORE` lo remite. El caso exige ahora
 lo que sí tiene que llegar.
 
+## El cuarto defecto, y lo encontró USAR el comando
+
+`firmar` grababa la fecha del **último commit** en el campo que dice cuándo se firmó la compuerta.
+Al aplicarlo sobre `EP-020` —cuya `G1` pasó el **2026-08-22**— escribió el **23**.
+
+Una compuerta se resuelve cuando se resuelve, y el comando puede correr después: grabar «cuándo lo
+escribí» donde pone «cuándo se firmó» es una cifra plausible y falsa.
+
+**No lo vio leer el código: lo vio usarlo sobre datos reales.** Arreglado con `--fecha`, declarada
+en `CON_VALOR` —sin eso su valor se habría tomado por la raíz del proyecto, que es `CE-003` otra
+vez—. Por defecto sigue siendo hoy, que es el caso normal.
+
 ## `AC-04` está retirado y no se cuenta como cumplido
 
 Lo retiró el propio intake: `git tag -l | tail -5` ordena **lexicográficamente**, y el final de esa

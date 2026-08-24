@@ -31,6 +31,10 @@ antes. Rehechos sobre un fixture con **sus propios tags** —`v4.13.0`, `v9.0.0`
 `v12.0.0`—, que además es lo único que permite medir el orden: son los cuatro que hacen que el
 alfabeto y la versión den respuestas distintas.
 
+**4 · Y el cuarto lo encontró USAR el comando, no leerlo.** `firmar` grababa la fecha del último
+commit en el campo que dice cuándo se firmó la compuerta: aplicado sobre `EP-020` —`G1` del
+**22**— escribió el **23**. Arreglado con `--fecha`, declarada en `CON_VALOR`.
+
 ## Y una expectativa mía que era falsa
 
 Un caso esperaba que «trabajo DE LOTE» llegara a `CORE.md`. **No llega, y está bien**: el núcleo

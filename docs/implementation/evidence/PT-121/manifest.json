@@ -54,7 +54,8 @@
       "tests": [
         "selftest.sh:firmar propone DRAFT -> READY",
         "selftest.sh:un firmante que no esta en la lista falla",
-        "selftest.sh:…y G1 solo produce READY desde DRAFT"
+        "selftest.sh:…y G1 solo produce READY desde DRAFT",
+        "selftest.sh:la fecha de la compuerta se puede DECIR"
       ],
       "evidence": [
         "salidas/casos-121.txt",
@@ -109,15 +110,22 @@
       "que": "Los casos de sellar iban contra el repositorio REAL y salian a la red: el bloque no termino dentro del tiempo.",
       "por_que_importa": "Es lo que PT-126 habia enseñado horas antes: un arnes que depende de la red no es un arnes.",
       "arreglo": "Fixture con sus propios tags, que ademas es lo unico que permite controlar QUE tags hay — que es justo lo que se mide."
+    },
+    {
+      "que": "«firmar» grababa la fecha del ultimo commit en el campo que dice cuando se firmo la compuerta. Al usarlo sobre EP-020 —cuya G1 paso el 2026-08-22— escribio el 23.",
+      "como_se_vio": "USANDO EL COMANDO SOBRE DATOS REALES, no leyendolo.",
+      "por_que_importa": "Una compuerta se resuelve cuando se resuelve y el comando puede correr despues: grabar «cuando lo escribi» donde pone «cuando se firmo» es una cifra plausible y falsa (RULE-06).",
+      "arreglo": "«--fecha AAAA-MM-DD», declarada en CON_VALOR. Por defecto sigue siendo hoy —el caso normal es firmar y registrar en el mismo acto— pero se puede DECIR la real.",
+      "caso": "selftest.sh:la fecha de la compuerta se puede DECIR"
     }
   ],
   "measured": {
-    "casos": "20 de 20",
+    "casos": "21 de 21",
     "comandos_nuevos": [
       "integrar",
       "firmar"
     ],
     "tags_reales": "v12.0.0 por version · v9.0.0 por alfabeto — la diferencia que causo el AC retirado",
-    "bateria_completa": "selftest OK · 1584 casos · codigo 0 · 1584 verdes y 0 rojos"
+    "bateria_completa": "selftest OK · 1601 casos · codigo 0 · 1601 verdes y 0 rojos"
   }
 }

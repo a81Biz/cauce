@@ -874,7 +874,7 @@ const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de',
   '--motivo', '--texto', '--desenlace', '--abre',
   // PT-121 · CE-003, la clase con SIETE instancias declaradas: una bandera con valor que no
   // esta aqui hace que su valor se tome por la raiz del proyecto. Van al entrar, no despues.
-  '--firmante', '--compuerta']);
+  '--firmante', '--compuerta', '--fecha']);
 const ES_ETIQUETA = /^[A-Z][A-Z_]*$/;
 const SUBCOMANDOS = new Set(['abrir', 'cerrar', 'ver']);
 const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
@@ -4157,7 +4157,7 @@ function firmar() {
   const compuerta = (flag('--compuerta') ?? 'G1').toUpperCase();
   if (!id || !quien) {
     console.error('firmar necesita allocation y firmante:  '
-      + 'tracker firmar EP-020 --compuerta G1 --firmante "Nombre" [--aplicar]');
+      + 'tracker firmar EP-020 --compuerta G1 --firmante "Nombre" [--fecha AAAA-MM-DD] [--aplicar]');
     process.exit(2);
   }
   if (compuerta !== 'G1') {
@@ -4186,8 +4186,17 @@ function firmar() {
     return;
   }
   a.status = 'READY';
+  // PT-121 · LA FECHA ES LA DE LA COMPUERTA, NO LA DE EJECUTAR EL COMANDO.
+  //
+  // La primera version derivaba la fecha del ultimo commit, y al usarla sobre EP-020 —cuya G1
+  // paso el 2026-08-22— escribio el 23. Una compuerta se resuelve cuando se resuelve, y el
+  // comando puede correr despues: grabar «cuando lo escribi» en el campo que dice «cuando se
+  // firmo» es una cifra plausible y falsa, que es lo que RULE-06 prohibe.
+  //
+  // Por defecto sigue siendo hoy —el caso normal es firmar y registrar en el mismo acto— pero
+  // se puede DECIR la real. Lo encontro usar el comando sobre datos de verdad.
   a.compuertas = { ...(a.compuertas ?? {}), [compuerta]: { firmante: quien,
-    fecha: gitDe(['log', '-1', '--format=%cs']) ?? null } };
+    fecha: flag('--fecha') ?? gitDe(['log', '-1', '--format=%cs']) ?? null } };
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: DRAFT -> READY · ${compuerta} firmada por ${quien}`);
 }

@@ -3035,10 +3035,16 @@
       "id": "EP-020",
       "slug": "el-acto-fuera-del-comando",
       "created": "2026-08-22",
-      "status": "DRAFT",
+      "status": "READY",
       "phase": 1,
       "title": "El acto fuera del comando: lo que ocurre en la conversacion no llega a ningun registro que se pueda contar",
-      "issue": 218
+      "issue": 218,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-22"
+        }
+      }
     },
     {
       "id": "PT-113",

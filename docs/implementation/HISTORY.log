@@ -8304,3 +8304,38 @@ LO QUE NO ESTABLECE:
   PROCEDENCIA, no restringe a nadie.
 
 Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING (FDGE-R26, LEX-R08, SUITE-R06b).
+
+## PT-121 — CORRIGE: un cuarto defecto, encontrado USANDO el comando
+Corrige: la entrada de 2026-08-23
+Motivo: aquella declaro TRES defectos aparecidos al construirlo. Hay un CUARTO, y no aparecio
+        construyendo sino USANDO «firmar» sobre datos reales — que es donde este marco dice que
+        aparecen los que importan.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-121/ · manifest.json · self-review.md ·
+  salidas/casos-121.txt
+
+Criterios AC-01, AC-02, AC-03, AC-05 y AC-06 ✓, los cinco vivos. VEINTIUN escenarios de veintiuno
+—uno mas que la entrada original, el de la fecha.
+
+EL CUARTO DEFECTO. «firmar» grababa la fecha del ULTIMO COMMIT en el campo que dice cuando se
+firmo la compuerta. Aplicado sobre EP-020 —cuya G1 paso el 2026-08-22— escribio el 23.
+
+Una compuerta se resuelve cuando se resuelve, y el comando puede correr DESPUES. Grabar «cuando lo
+escribi» donde pone «cuando se firmo» es una cifra plausible y falsa, que es lo que RULE-06
+prohibe y lo que CE-010 nombra.
+
+NO LO VIO LEER EL CODIGO: LO VIO USARLO. La entrada original se escribio con los casos en verde y
+el comando sin estrenar sobre nada real. La primera vez que se aplico a una compuerta de verdad,
+el defecto salio solo.
+
+ARREGLO: «--fecha AAAA-MM-DD», declarada en CON_VALOR —sin eso su valor se habria tomado por la
+raiz del proyecto, que es CE-003 y va por la septima instancia—. Por defecto sigue siendo hoy,
+que es el caso normal: firmar y registrar en el mismo acto.
+
+Y EL ESTADO YA ESCRITO SE REHIZO, no se parcheo: se devolvio EP-020 a DRAFT y se volvio a escribir
+con el comando y la fecha correcta. Corregir a mano lo que un comando escribe mal seria CE-006 en
+la tarea que existe para que el comando lo escriba.
+
+Caso que lo fija: «la fecha de la compuerta se puede DECIR».
