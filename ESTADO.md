@@ -34,4 +34,4 @@ Proyectado el 2026-08-24 · 26 allocation(es) viva(s).
 | PT-133 | BUG | DONE | 8 | — | — | df8d662 |
 | PT-134 | CHORE | DEFERRED | 1 | — | — | — |
 | PT-135 | BUG | DONE | 8 | chore/alberto-martinez/PT-113-apertura | 6b119e0 | 9d7f7d9 |
-| PT-136 | BUG | DRAFT | 4 | chore/alberto-martinez/PT-113-apertura | 6b119e0 | — |
+| PT-136 | BUG | DRAFT | 5 | chore/alberto-martinez/PT-113-apertura | 6b119e0 | — |
