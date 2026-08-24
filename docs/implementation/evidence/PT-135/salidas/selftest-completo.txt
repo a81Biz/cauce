@@ -370,6 +370,53 @@
   [32m✓[0m y dice como se corrige
   [32m✓[0m sin ref durable todavia, no acusa
   [32m✓[0m sin el resolvedor, se comporta como hoy
+  [32m✓[0m validar lleva un BUG de VALIDATION_PENDING a DONE
+  [32m✓[0m …y deja quien y cuando en el registro
+  [32m✓[0m un no-BUG no pasa por esta validacion
+  [32m✓[0m …ni un BUG que ya esta en DONE
+  [32m✓[0m un firmante que no esta en la lista falla
+  [32m✓[0m si una del lote falla, NINGUNA se escribe
+  [32m✓[0m la fecha de la validacion se puede DECIR
+  [32m✓[0m un lote con tareas vivas NO se cierra
+  [32m✓[0m …y las nombra, no solo las cuenta
+  [32m✓[0m …y con todas terminales, READY -> CLOSED
+  [32m✓[0m el cierre de lote lleva la marca del agente
+  [32m✓[0m …y la accion existe en el despachador
+  [32m✓[0m la version, el tag y el commit salen de fuera del texto
+  [32m✓[0m …y el recuento de tareas se cuenta
+  [32m✓[0m …y nombra las que siguen vivas
+  [32m✓[0m sin tag, NO se afirma que exista
+  [32m✓[0m …y dice de quien es el paso
+  [32m✓[0m un tag que no resuelve se dice
+  [32m✓[0m el comentario declara que no edita los anteriores
+  [32m✓[0m …y el comando no tiene forma de editar
+  [32m✓[0m SUITE-R43 declara que establece
+  [32m✓[0m …y que NO establece
+  [32m✓[0m …y el limite llega al mensaje
+  [32m✓[0m sin ningun comentario marcado dice null, no «limpio»
+  [32m✓[0m …y con uno marcado y otro despues, pendiente
+  [32m✓[0m …y con el marcado al final, limpio
+  [32m✓[0m integrar propone DONE -> INTEGRATED
+  [32m✓[0m …nombrando las DOS fuentes
+  [32m✓[0m …y al aplicar escribe las dos
+  [32m✓[0m un estado que no es DONE no se integra
+  [32m✓[0m sin intake, el comando falla
+  [32m✓[0m …y el registro NO se toca
+  [32m✓[0m firmar propone DRAFT -> READY
+  [32m✓[0m un firmante que no esta en la lista falla
+  [32m✓[0m …y G1 solo produce READY desde DRAFT
+  [32m✓[0m la fecha de la compuerta se puede DECIR
+  [32m✓[0m FDGE-R19 declara la rama del trabajo de lote
+  [32m✓[0m …y FDGE-R19 llega al nucleo
+  [32m✓[0m PHASES declara el viaje de vuelta
+  [32m✓[0m …con su comando
+  [32m✓[0m …y su salida
+  [32m✓[0m …y el texto copiable lo lleva
+  [32m✓[0m sellar nombra el tag anterior por VERSION, no por alfabeto
+  [32m✓[0m …y dice que resuelve
+  [32m✓[0m …y que el de esta version todavia no existe
+  [32m✓[0m …y que crearlo es humano y va despues del merge
+  [32m✓[0m el tag anterior se deriva por version, no por alfabeto
   [32m✓[0m el lint mira los usos de MONTAJE
   [32m✓[0m …y tambien tras un «;» o un «&&»
   [32m✓[0m la lista de helpers NO esta escrita a mano
@@ -383,6 +430,7 @@
   [32m✓[0m …exige «ningun helper», que es una sola
   [32m✓[0m el lint sale limpio sobre el arbol real
   [32m✓[0m el caso de PT-109 corre con su fixture montado
+  [32m✓[0m …y el directorio de trabajo sobrevive al fixture
   [32m✓[0m el sujeto de «tarea:» es el primer identificador
   [32m✓[0m citar una cerrada para decir que lo esta, no falla
   [32m✓[0m …y mencionarla sin decir su estado, tampoco
@@ -1608,5 +1656,4 @@
   [32m✓[0m INC-001 registrado en el ledger
   [32m✓[0m …y tiene candidato en el roadmap
 
-selftest: OK · 1564 casos
-codigo 0
+selftest: OK · 1612 casos

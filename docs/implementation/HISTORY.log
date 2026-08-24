@@ -8490,3 +8490,38 @@ LO QUE NO ESTABLECE:
 · Que las 21 allocations sin «suite_version» se rellenen. Seria inventar bajo que version nacio
   cada una: PT-115 subio el lote a 13.0.0 a mitad.
 · Que un lote no pueda cerrarse mal. Establece que no puede cerrarse CON TRABAJO DENTRO.
+
+## PT-135 — CORRIGE: su propio caso dejaba el directorio de trabajo borrado
+Corrige: la entrada de 2026-08-24
+Motivo: el caso «el caso de PT-109 corre con su fixture montado» dejaba al shell PADRE apuntando a
+        un directorio BORRADO. En esta maquina no se nota; en CI reventaba cien casos mas adelante.
+
+Archivos modificados: tools/selftest.sh
+
+Evidencia: la corrida de CI del PR #258 —dos casos de PT-111 en rojo con «ENOENT: uv_cwd»— y la
+  corrida local posterior: selftest OK · 1612 casos, 1612 verdes y 0 rojos.
+
+QUE PASABA. «chk» ejecuta su comando en una SUSTITUCION, es decir en un subshell. El caso llamaba
+a «pt109_con_fixture», que empieza con «build_fixture», y build_fixture empieza con
+«rm -rf "$WORK"». El subshell se recoloca con su «cd» final; el shell PADRE se queda apuntando al
+inodo borrado, porque el mkdir posterior crea uno NUEVO con el mismo nombre.
+
+EN WINDOWS NO SE VE. Borrar un directorio en uso falla, asi que el padre sobrevive y la corrida
+local sale en verde — 1611 casos, 0 rojos. En Linux el padre queda huerfano y el siguiente «node»
+muere con «ENOENT: uv_cwd».
+
+Y EL SINTOMA APUNTABA A OTRO SITIO: los dos casos que fallaron son de PT-111 —el espejo y los
+titulos—, a novecientas lineas de distancia y sin ninguna relacion. Un caso que corrompe el
+entorno no falla el mismo: hace fallar a otro.
+
+Es CE-004 en su forma mas cara: verde donde trabajo, rojo donde se decide, y el rojo señalando a
+un inocente. Lo cazo CI. La corrida de esta maquina, la que escribi como evidencia, NO PODIA
+cazarlo — y eso es exactamente lo que la clase dice.
+
+ARREGLO. «cd "$WORK" 2>/dev/null || cd "$RAIZ"» detras del caso, y un caso nuevo que lo vigila:
+«…y el directorio de trabajo sobrevive al fixture». Sin ese segundo, el arreglo seria una linea
+que alguien quita algun dia sin que nada lo diga.
+
+LO QUE NO ESTABLECE: que ningun otro caso pueda corromper el entorno. Se reviso el bloque entero
+de EP-020 y este era el unico que llama a build_fixture dentro de un subshell. Los demas lo llaman
+a nivel superior, donde el «cd» final de build_fixture SI recoloca al shell que importa.

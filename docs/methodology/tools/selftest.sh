@@ -2373,6 +2373,23 @@ pt109_con_fixture() {
 }
 chk   "el caso de PT-109 corre con su fixture montado"  "AVISO AHORA, ERROR EN G4" \
   pt109_con_fixture
+# Y SE RESTAURA EL DIRECTORIO, que es un defecto que SOLO SE VE EN LINUX.
+#
+# «chk» ejecuta su comando en una SUSTITUCION —un subshell—, y «build_fixture» empieza con
+# «rm -rf "$WORK"». El subshell se recoloca con su «cd» final, pero el shell PADRE se queda
+# apuntando al inodo BORRADO: el mkdir crea uno nuevo con el mismo nombre.
+#
+# En Windows borrar un directorio en uso falla, asi que el padre sobrevive y no se nota. En Linux
+# el padre queda huerfano y el siguiente «node» muere con «ENOENT: uv_cwd» — lejos de aqui, en los
+# casos de PT-111, que no tienen nada que ver.
+#
+# Es CE-004 en su forma mas cara: verde en local, rojo donde se decide, y el sintoma apuntando a
+# otro sitio. Lo cazo CI, no la corrida de esta maquina.
+cd "$WORK" 2>/dev/null || cd "$RAIZ"
+# Y un caso que lo vigila: si el directorio no existe, esto lo dice EN SU SITIO en vez de dejar
+# que reviente cien casos mas adelante.
+cwd135() { [ -d "$PWD" ] && echo "DIRECTORIO VIVO" || echo "DIRECTORIO BORRADO"; }
+chk   "…y el directorio de trabajo sobrevive al fixture"  "DIRECTORIO VIVO"  cwd135
 
 # ── PT-130 · EP-020 · la comprobacion deja de acusar a quien la documenta ─────────────────────
 #
