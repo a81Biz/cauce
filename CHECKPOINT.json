@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-021",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4",
   "sha": "db80c42cd4ec3b740715e4805a908553245924ad",
   "sha_corto": "db80c42",
@@ -39,7 +39,9 @@
     "changes/PT-140-proyectar-sin-rama-local-no-empieza-de-cero/test-scenarios.md",
     "changes/PT-140-proyectar-sin-rama-local-no-empieza-de-cero/traceability.md",
     "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
     "docs/implementation/EVENTOS.jsonl",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
     "docs/implementation/MATRIZ.md",
     "docs/implementation/REGISTRY.json",
@@ -57,8 +59,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-24"
 }
