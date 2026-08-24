@@ -1,0 +1,5 @@
+=== con el archivo declarando otro lote, avisa ===
+  ! FDGE-R31       BACKLOG.md y el registro no dicen lo mismo sobre que hay abierto · declara EP-015 y el registro no lo tiene abierto · el registro abre EP-020 y el archivo no lo declara. Se regenera:  node tools/tracker.mjs indices --aplicar
+
+=== restaurado ===
+  ✓ FDGE-R31       BACKLOG.md declara la misma implementacion abierta que el registro: EP-020.

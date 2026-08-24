@@ -25,3 +25,9 @@
 | PT-069 | FEATURE | S2 | INTEGRATED | EP-017 | Los indices derivados necesitan generador |
 | PT-078 | FEATURE | S1 | INTEGRATED | EP-017 | Ninguna regla queda sin clasificar: el universo son 223 y cubierta significa emitida |
 | PT-104 | FEATURE | S1 | INTEGRATED | EP-019 | El tablero dice en que paso estas, cual es la regla de entrada y cual la de salida |
+| PT-115 | FEATURE | S1 | DONE | EP-020 | PARADA entra al vocabulario y a las reglas |
+| PT-116 | FEATURE | S1 | DONE | EP-020 | tracker parada: el comando que escribe la parada en su tarea |
+| PT-117 | FEATURE | S1 | DONE | EP-020 | Todo desenlace cita la parada que lo produjo |
+| PT-118 | FEATURE | S1 | DONE | EP-020 | La taxonomia de clases de evento, cerrada, en LEXICON |
+| PT-119 | FEATURE | S1 | DONE | EP-020 | tools/matriz.mjs deriva MATRIZ.md |
+| PT-128 | FEATURE | S1 | DONE | EP-020 | El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar |

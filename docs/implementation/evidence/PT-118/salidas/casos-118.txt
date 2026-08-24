@@ -1,0 +1,17 @@
+── A · casos límite (deben pasar en verde) ──
+  [32m✓[0m LEXICON declara la clase de evento
+  [32m✓[0m …y dice que NO se asigna desde REGISTRY
+  [32m✓[0m …con su regla propia, LEX-R31
+  [32m✓[0m …declarandose excepcion a LEX-R04
+  [32m✓[0m el prefijo CE no colisiona con ningun otro
+  [32m✓[0m …y ninguna expresion busca «E-NNN» suelto
+  [32m✓[0m …con el riesgo latente que si existe, declarado
+  [32m✓[0m las diecisiete clases estan declaradas
+  [32m✓[0m …y la ultima es la que faltaba en la matriz
+  [32m✓[0m …y ninguna se queda sin enunciado
+  [32m✓[0m …y la lista no se promete completa
+  [32m✓[0m la taxonomia llega al nucleo
+  [32m✓[0m citar un CE que LEXICON no declara FALLA
+  [32m✓[0m …y es error, no aviso
+
+== 14 casos, 0 fallos ==

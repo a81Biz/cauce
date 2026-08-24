@@ -1,0 +1,10 @@
+=== asignar --tipo INVESTIGATION (antes lo rechazaba) ===
+  PT-133 · p
+  tipo: INVESTIGATION
+
+=== asignar --tipo CHANGE (ahora lo rechaza, citando LEXICON 8.1) ===
+«CHANGE» no es un tipo de item. LEXICON §8.1 declara: BUG · FEATURE · REFACTOR · INVESTIGATION · CHORE
+
+=== tracker tipo: deriva del intake ===
+  · PT-125: el registro ya declara «INVESTIGATION». Nada que hacer.
+  · PT-126: el registro ya declara «CHORE». Nada que hacer.

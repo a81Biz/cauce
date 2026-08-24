@@ -1,0 +1,49 @@
+
+  ESTAS EN   PT-128 · el-cursor-del-recorrido
+             FEATURE · DRAFT · PHASE 1
+
+  VIENES DE
+    EP-020 · el-acto-fuera-del-comando · el lote que la contiene
+
+  PUEDES IR A
+    PHASE 2 · Analysis
+      node docs/methodology/tools/tracker.mjs avanzar PT-128 --a 2 --nota "..."
+
+  ENUMERADO, no consultado   (PTSA-R79 · un nodo sin rastro SE NOMBRA)
+    con rastro    PHASE 1
+    SIN EVALUAR   PHASE 0
+                  no se sabe nombrar su artefacto. NO es lo mismo que visitada (RULE-06).
+
+  El cursor NO escribe: avanzar es de «avanzar», con su nota (FDGE-R52).
+tracker · github · acción cursor
+
+
+Sin divergencias.
+=== y el lote ===
+
+  ESTAS EN   EP-019 · lo-que-tres-proyectos-encontraron
+             EPIC · CLOSED · PHASE 1
+
+  VIENES DE
+    nada la precede: es raiz del recorrido.
+
+  PUEDES IR A
+    17 tarea(s): 17 cerrada(s), 0 viva(s)
+
+  ENUMERADO, no consultado   (PTSA-R79 · el SUBARBOL entero, nodo a nodo)
+    tareas recorridas   17
+    SIN RASTRO    ninguno: cada fase recorrida dejo su artefacto.
+    SIN EVALUAR   68 nodo(s) · no se sabe nombrar su artefacto (RULE-06)
+      PT-096 PHASE 0
+      PT-096 PHASE 2
+      PT-096 PHASE 5
+      PT-096 PHASE 7
+      PT-097 PHASE 0
+      PT-097 PHASE 2
+      … y 62 mas
+
+  El cursor NO escribe: avanzar es de «avanzar», con su nota (FDGE-R52).
+tracker · github · acción cursor
+
+
+Sin divergencias.

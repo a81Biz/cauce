@@ -1,0 +1,63 @@
+
+  sellar · version vigente 12.0.0 · tag anterior v12.0.0
+
+  deuda de sellado   0 de lotes CERRADOS · umbral 3
+                     Las tareas de un lote ABIERTO no cuentan: EXEC-R03 hace del lote
+                     la unidad de sellado, y contarlas lo bloquearia consigo mismo.
+
+
+  inventario         las 16 cifras coinciden con el arbol.
+  grafo              SUSPECT · 4 de 17 archivos cambiaron
+                     Regeneralo antes de sellar: /graphify (FDGE-R32, lo dispara el humano)
+
+  documentos de entrada  (cada uno ACTUALIZADO o NO PROCEDE con motivo — FND-R22)
+    ✓  MANUAL.md
+    ✓  CASOS-DE-USO.md
+    ✓  README.md
+    ✓  Suite-CLAUDE-Template.md
+    ✓  graphify-out/
+
+  guia de migracion  2 regla(s) nueva(s) NO nombradas: LEX-R08, SUITE-R59.
+                     Un proyecto destino se encontraria la regla sin una linea que se la
+                     explique. Nombrarlas es el minimo; que la instruccion sirva no se
+                     comprueba aqui.
+
+  ── lo que falta para sellar ──────────────────────────────────────────
+  1 · entrada en CHANGELOG.md que ENUMERE las reglas nuevas   [SUITE-R19]
+  2 · node tools/version.mjs --aplicar   (los 21 documentos)
+  3 · node tools/build-core.mjs          (CORE regenerado)
+  4 · bash tools/selftest.sh             BATERIA COMPLETA, no parcial
+  5 · /graphify   y REGISTRY.graph al dia                     [FDGE-R32]
+  6 · docs/implementation/SELLO.md con los cinco resueltos
+  7 · PR a la rama por defecto  ·  HUMANO                     [EXEC-R04]
+  8 · git tag -a v<version>     ·  HUMANO, y DESPUES del merge
+
+  Los pasos 7 y 8 NO los ejecuta el agente (SUITE-R06a). El 8 va despues del 7:
+  un tag antes del merge apunta a un arbol sin lo que la version trae, y la linea
+  base de FDGE-R43 y de AC-08 quedaria mintiendo (PT-081).
+tracker · github · acción sellar
+
+  · PT-025 #35: se regeneraria el cuerpo
+  · EP-020 #218: se regeneraria el cuerpo
+  · PT-113 #217: se regeneraria el cuerpo
+  · PT-114 #232: se regeneraria el cuerpo
+  · PT-115 #233: se regeneraria el cuerpo
+  · PT-116 #234: se regeneraria el cuerpo
+  · PT-117 #235: se regeneraria el cuerpo
+  · PT-118 #236: se regeneraria el cuerpo
+  · PT-119 #237: se regeneraria el cuerpo
+  · PT-120 #238: se regeneraria el cuerpo
+  · PT-121 #239: se regeneraria el cuerpo
+  · PT-122 #240: se regeneraria el cuerpo
+  · PT-123 #241: se regeneraria el cuerpo
+  · PT-124 #242: se regeneraria el cuerpo
+  · PT-125 #243: se regeneraria el cuerpo
+  · PT-126 #244: se regeneraria el cuerpo
+  · PT-127 #245: se regeneraria el cuerpo
+  · PT-128 #246: se regeneraria el cuerpo
+  · PT-129 #249: se regeneraria el cuerpo
+  · PT-130 #250: se regeneraria el cuerpo
+  · PT-131 #252: se regeneraria el cuerpo
+  · PT-032 #45: publica la ruta sin enlace y no hay ref durable todavia. No se inventa uno (RULE-06): consta.
+
+Sin divergencias.

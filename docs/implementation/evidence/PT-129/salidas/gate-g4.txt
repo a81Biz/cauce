@@ -1,0 +1,69 @@
+verify-fdge — cumplimiento mecánico de la Methodology Suite 12.0.0
+
+  lote(s) bajo evaluacion: EP-020
+
+PASA
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+  ✓ FND-R05        11-Conventions.md declara 7 Hard Rules.
+  ✓ FND-R08        Foundation presente (archivos del núcleo verificados).
+  ✓ SUITE-R15      CORE.md presente y sincronizado.
+  ✓ SUITE-R06      Toda integración registrada lleva nombre humano.
+  ✓ SUITE-R09      6 ledger(s) sin líneas perdidas desde v12.0.0.
+  ✓ EXEC-R04       1 merge(s) a «main» desde v12.0.0, todos con constancia.
+  ✓ FND-R14        las 16 cifras de inventory/services.md coinciden con el árbol.
+  ✓ FDGE-R48       Sin implementación abierta.
+  ✓ SUITE-R33      Bloque ESTADO completo.
+  ✓ SUITE-R34      El estado es más reciente que el último trabajo.
+  ✓ SUITE-R34      El bloque ESTADO no contradice al registro.
+  ✓ LEX-R26        CHECKPOINT.json: PT-129 en PHASE 5, sobre un commit alcanzable y con el arbol correspondiente.
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ FND-R22        Plan de terreno resuelto y firmado.
+  ✓ FND-R24        Declaración de Valor firmada por Alberto Martínez.
+  ✓ SUITE-R30      INSTALL.log con 28 acción(es) registrada(s), todas las decisiones con rastro.
+  ✓ FND-R13        Línea base de reconciliación completa.
+  ✓ FDGE-R39       ningún artefacto de PT vive en una ruta global.
+  ✓ INTAKE-R09     EP-001: intake del lote completo.
+  ✓ INTAKE-R09     EP-002: intake del lote completo.
+  ✓ INTAKE-R09     EP-003: intake del lote completo.
+  ✓ INTAKE-R09     EP-004: intake del lote completo.
+  ✓ INTAKE-R09     EP-005: intake del lote completo.
+  ✓ INTAKE-R09     EP-006: intake del lote completo.
+  ✓ INTAKE-R09     EP-007: intake del lote completo.
+  ✓ INTAKE-R09     EP-008: intake del lote completo.
+  ✓ INTAKE-R09     EP-009: intake del lote completo.
+  ✓ INTAKE-R09     EP-010: intake del lote completo.
+  ✓ INTAKE-R09     EP-011: intake del lote completo.
+  ✓ INTAKE-R09     EP-012: intake del lote completo.
+  ✓ INTAKE-R09     EP-013: intake del lote completo.
+  ✓ INTAKE-R09     EP-014: intake del lote completo.
+  ✓ INTAKE-R09     EP-015: intake del lote completo.
+  ✓ INTAKE-R09     EP-016: intake del lote completo.
+  ✓ INTAKE-R09     EP-017: intake del lote completo.
+  ✓ INTAKE-R09     EP-018: intake del lote completo.
+  ✓ INTAKE-R09     EP-019: intake del lote completo.
+  ✓ INTAKE-R09     EP-020: intake del lote completo.
+  ✓ INTAKE-R08     PT-129: firmado por lote EP-020.
+  ✓ FDGE-R51       PT-129: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R54       PT-129: viabilidad SAFE · medida contra 982bcd3.
+  ✓ FDGE-R19       PT-129: su trabajo no esta escrito directamente en «trabajo».
+  ✓ FDGE-R19       PT-129: rama «chore/alberto-martinez/PT-113-apertura» declarada.
+  ✓ FDGE-R52       PT-129: 4 nota(s) de reanclaje en el issue #249 para PHASE 5.
+  ✓ SUITE-R43      PT-129: sin comentarios pendientes en el issue #249.
+  ✓ FDGE-R15       PT-129: 8 criterios con TS asignado (Test/Evidencia se exigen desde PHASE 6).
+  ✓ FDGE-R45       PT-129: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-129: presente en DISCOVERY.md con estado canónico.
+
+AVISOS
+  ! SUITE-R18      20 allocation(s) sin suite_version. Sin ese sello, una migración no puede respetar el trabajo en vuelo: EP-020, PT-113, PT-114, PT-115, PT-116
+  ! FDGE-R43       Grafo SUSPECT — 4 de 17 archivos que describe han cambiado desde 2026-08-20 — docs/methodology/tools/patrones.mjs, docs/methodology/tools/selftest.sh, docs/methodology/tools/tracker.mjs, docs/methodology/tools/verify-fdge.mjs. No bloquea; sellar sí lo exige al día (SUITE-R57).
+  ! FDGE-R43       PT-129: grafo SUSPECT — 4 de 17 archivos que describe han cambiado desde 2026-08-20 — docs/methodology/tools/patrones.mjs, docs/methodology/tools/selftest.sh, docs/methodology/tools/tracker.mjs, docs/methodology/tools/verify-fdge.mjs. No bloquea; sellar sí lo exige al día (SUITE-R57).
+
+ERRORES
+  ✗ SUITE-R45      EP-020: 6 fila(s) de «## Cierre del lote» sin resolver en G4: «La `12.0.1` publicada en npm», «`publicar.yml` ejecuta `sellar` y ve `SU», «Una parada con decisión se publica en su», «`MATRIZ.md` derivado y alimentando el `R», «El viaje de vuelta tras el merge tiene d», «El cierre de un lote pasa por el comando». Cada una declara HECHO o el identificador al que se movió — un lote no cierra dejando sin responder lo que él mismo se asignó.
+  ✗ SUITE-R35      PT-129: «status» divergente — el registro dice «DRAFT» y su intake dice «READY». Se usa el del intake (PT-004: es lo que el PT dice de sí mismo), y por eso se dice: un YAML que se queda atrás apaga comprobaciones sin que nada avise.
+  ✗ FDGE-R19       topologia de ramas: 2 · «desarrollo» no encaja en ninguno de los cuatro tipos · «fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras» sigue viva y PT-081 esta INTEGRATED: FDGE-R19 dice que la efimera se borra al fusionarse. Borrarlas es SUITE-R06f y no se automatiza:  git push origin --delete <rama>
+  ✗ FDGE-R23       PT-129: falta evidence/PT-129/manifest.json. Sin manifiesto no hay PHASE 7.
+  ✗ FDGE-R25       PT-129: falta evidence/PT-129/self-review.md.
+  ✗ FDGE-R29       PT-129: sin entrada en HISTORY.log.
+
+6 error(es). La compuerta G4 queda bloqueada.

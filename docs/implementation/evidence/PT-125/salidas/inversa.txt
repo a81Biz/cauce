@@ -1,0 +1,6 @@
+   sin la lista de MENCIONES revisada a mano        cae: mencion  OK
+   sin ordinalDe: el numero declarado se pierde     cae: ordinal  OK
+   sin el registro por entrada RECORRIDA            cae: recorrida muda  OK (arrastra)
+   sin fraseDe: la cita deja de ser literal         cae: cita  OK
+
+4 de 4 supresiones tumban el escenario esperado.

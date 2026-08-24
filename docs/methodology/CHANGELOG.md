@@ -8,10 +8,95 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 13.0.0 — 2026-08-23
+
+**El acto fuera del comando** (`EP-020`). En curso: esta entrada se completa al cerrar el lote.
+
+### Reglas nuevas
+
+Cinco hasta ahora, todas `HARD`, y **definidas en su documento propietario** — aquí sólo se
+citan (`LEX-R23`): `FDGE-R55`, `LEX-R29`, `LEX-R30`, `LEX-R31` y `LEX-R32`.
+
+### Qué hacer al actualizar
+
+**`FDGE-R55` — la parada con decisión se escribe en su tarea.** Es una obligación **nueva** y por
+eso esta versión es `MAJOR`. Cuando el agente se detiene y devuelve el control con una decisión
+encima, eso va al issue de la tarea —o a `TRANSICIONES.log` si no declaras plataforma—, con su
+motivo, la explicación y su desenlace. **No hay nada que migrar**: `RIGE_DESDE` la acota a las
+tareas abiertas a partir de esta versión, así que tu trabajo cerrado no empieza a fallar.
+
+**`LEX-R29` y `LEX-R30` — el vocabulario de la parada.** Dos listas **cerradas** en `LEXICON`
+§8.5: seis clases de `motivo` y cinco de `desenlace`. Si un motivo real no encaja en las seis,
+**no lo fuerces**: ampliarlas es un cambio de metodología, y una lista cerrada mal elegida se
+rodea —que es lo que `PT-103` midió cuando a `asignar` le faltaban campos—.
+
+**`LEX-R31` y `LEX-R32` — hay una tercera clase de identificador.**   `PT-118`
+
+`LEXICON` §4.4 declara `CE-NNN`: una **clase de evento**, que nombra una forma de fallar que se
+repite. No es un ítem de trabajo —no se abre ni se cierra— ni una regla —no obliga a nada—, y es
+la **única excepción** a `LEX-R04`: **no se asigna desde `REGISTRY.json`**. El motivo se enuncia
+en vez de suponerse: `counters` cuenta trabajo, y meter una taxonomía en el asignador haría que
+el número de una clase dependiera del orden en que alguien la escribió.
+
+**Qué hacer al actualizar: nada, salvo que cites una.** La lista nace con **diecisiete** clases,
+las medidas en `EP-020`. Si citas un `CE-NNN` que `LEXICON` §4.4 no declara, `verify-suite`
+**falla** —no avisa—: la lista es cerrada por versión. Ampliarla es modificar
+`docs/methodology/`, que no se automatiza (`SUITE-R06e`).
+
+**Y no empieza a exigir nada hacia atrás.** `RIGE_DESDE` las acota a la `13.0.0`: tu
+`HISTORY.log` anterior no pasa a estar incompleto por no declarar clase. Declararla es opcional
+—`PHASE 8` la pide «si el trabajo cae en una de §4.4»—; **citar una que no existe** es lo que
+falla.
+
+**`FDGE-R52` no cambia y no se relaja.** Pasa a estar declarada como el **caso particular** de
+`FDGE-R55`: una transición de fase es una parada cuyo desenlace es `cambia-fase`. Su verificador
+sigue igual. Lo único que cambia es que deja de ser el único rastro que una tarea deja de sí
+misma.
+
+### Lo que la `12.0.0` publicó sin decir   `PT-113`
+
+La entrada de la `12.0.0` **no nombra dos reglas que empiezan a juzgar con ella**. npm no se
+despublica, así que la corrección llega por la única vía que existe: esta versión.
+
+**`SUITE-R59` — el texto largo entra por archivo, no por la línea de comandos.** Es una regla
+`HARD` **nueva** en la `12.0.0`, y tu `CORE.md` la carga en cada sesión desde entonces sin que
+nada te la explicara. Qué hacer: cuando una herramienta reciba una explicación de varios párrafos
+—una nota, un cuerpo de issue, una parada—, pásala como **ruta a un archivo**. Construir ese texto
+dentro del literal de otro lenguaje es de dónde salen las roturas de escapado, y en el lote que
+escribió esta línea hubo **siete**.
+
+**`LEX-R08` — no es una regla nueva, y presentarla como tal sería mentir.** Existe desde hace
+versiones; lo que empieza en la `12.0.0` es que **se compruebe**. Su fila en `RIGE_DESDE` es
+exactamente lo que impide que los `BUG` cerrados antes salgan en rojo sin salida. **No hay nada
+que migrar**: si tu trabajo anterior no la cumplía, sigue sin juzgarse.
+
+**Y un aviso sobre la propia comprobación** (`SUITE-R26`): `sellar` contrasta la guía **sólo con
+las reglas cuya `RIGE_DESDE` es igual a la versión vigente**. En cuanto el árbol pasó a `13.0.0`
+dejó de mirar la entrada de la `12.0.0`, y estas dos omisiones quedaron **fuera del alcance de la
+compuerta que existe para cazarlas**: verde sobre un defecto vivo. Se corrige en `PT-120`. Se dice
+aquí porque una compuerta con un hueco conocido y callado es peor que no tenerla.
+
+### Por qué existe esta versión
+
+El principio ya estaba escrito desde la v4 —`SUITE-R04`: *«una decisión que sólo existe en el chat
+no existe»*— y **le faltaba granularidad y destino**. La unidad de registro era la **fase**, nueve
+por tarea; la unidad de interacción es la **parada**, decenas.
+
+Se midió sobre el propio lote que la corrige: **seis tareas cerradas con todos sus hallazgos
+explicados sólo en la conversación**, y sus issues con únicamente las notas de `FDGE-R52`. Lo
+señaló una persona, no un verificador, y las seis explicaciones hubo que publicarlas a mano.
+
+---
+
 ## 12.0.0 — 2026-08-22
 
-**Lo que tres proyectos encontraron** (`EP-019`). Doce tareas, y la mitad salieron de **ejecutar**
-las otras, no de planificarlas.
+**Lo que tres proyectos encontraron** (`EP-019`). Diecisiete tareas, y la mitad salieron de
+**ejecutar** las otras, no de planificarlas.
+
+> La entrada decía «Doce» cuando el registro tenía **diecisiete** (`PT-113`). Es `H-007` otra
+> vez —`PT-091`, *las cifras se derivan, no se transcriben*— y aquí no se puede derivar: una
+> entrada en prosa no se genera. Lo que sí puede existir es algo que **la contraste**, y eso es
+> `PT-120`.
 
 ### Reglas nuevas
 

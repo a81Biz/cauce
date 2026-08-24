@@ -1,0 +1,120 @@
+{
+  "pt": "PT-129",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "FDGE-R19 enumera todos los tipos de rama o remite al documento que los declara",
+      "tests": [
+        "verify-suite",
+        "core:check"
+      ],
+      "evidence": [
+        "salidas/verify.txt"
+      ],
+      "verified": true,
+      "nota": "Remite a LEXICON §4.1 para el <type> y enumera CUATRO tipos. No copia la lista: LEX-R23, y esa lista ya habia divergido — la regla decia fix/ y la herramienta escribia bug/."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Existe una comprobacion que ENUMERA las ramas reales y las contrasta con la topologia",
+      "tests": [
+        "selftest.sh:las cuatro de la topologia encajan",
+        "selftest.sh:sin poder enumerar ⇒ null"
+      ],
+      "evidence": [
+        "salidas/casos.txt",
+        "salidas/verify.txt"
+      ],
+      "verified": true,
+      "nota": "Deriva de git for-each-ref sobre refs/heads y refs/remotes/origin. Antes se comprobaba «allocations[].branch», el campo DECLARADO, y nunca el arbol."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una rama efimera cuya tarea esta terminal se reporta",
+      "tests": [
+        "selftest.sh:efimera sobre tarea terminal ⇒ se nombra",
+        "selftest.sh:…y sobre tarea viva NO se nombra"
+      ],
+      "evidence": [
+        "salidas/casos.txt",
+        "salidas/verify.txt"
+      ],
+      "verified": true,
+      "nota": "Encontro fix/alberto-martinez/PT-081-… con PT-081 en INTEGRATED. La inversa impide que acuse a una rama de trabajo en curso."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Una rama que no encaja en ningun tipo se nombra, no se ignora ni se borra sola",
+      "tests": [
+        "selftest.sh:rama fuera de la topologia ⇒ se nombra",
+        "selftest.sh:…y una que cita un ID inexistente tambien"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Encontro «desarrollo», declarada sobrante desde la divergencia D8 de Foundation."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La comprobacion informa y NO borra",
+      "tests": [
+        "selftest.sh:rama fuera de la topologia ⇒ se nombra"
+      ],
+      "evidence": [
+        "salidas/verify.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R06f. El mensaje describe «git push origin --delete <rama>» y no lo ejecuta (EXEC-R07)."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La proyeccion cauce/usuario NO se reporta como sobrante",
+      "tests": [
+        "selftest.sh:las cuatro de la topologia encajan"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Es el cuarto tipo, declarado en LEXICON §6.5. La frescura de la proyeccion queda DECLARADA y sin medir: se dice."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "El type de una rama tiene UN SOLO vocabulario, el que LEXICON declara",
+      "tests": [
+        "selftest.sh:ramaDeTarea deriva del type del item"
+      ],
+      "evidence": [
+        "salidas/rama-con-tipo.txt"
+      ],
+      "verified": true,
+      "nota": "PT-129 -> bug/alberto-martinez/PT-129-…, derivado del type del ITEM. La regla ya no enuncia un vocabulario propio."
+    },
+    {
+      "ac": "AC-08",
+      "statement": "Sin type, ramaDeTarea NO inventa: devuelve null y quien llama lo dice",
+      "tests": [
+        "selftest.sh:sin type no hay nombre de rama"
+      ],
+      "evidence": [
+        "salidas/rama-sin-tipo.txt"
+      ],
+      "verified": true,
+      "nota": "Probado contra el arbol REAL: PT-125 no tiene type por el defecto de PT-124, y antes devolvia «chore/…» — un nombre que nadie habia decidido."
+    },
+    {
+      "ac": "AC-09",
+      "statement": "Un comando escribe allocations[].branch, que FDGE-R19 exige desde PHASE 5",
+      "tests": [
+        "tracker rama PT-129 --declarar"
+      ],
+      "evidence": [
+        "salidas/verify.txt"
+      ],
+      "verified": true,
+      "nota": "Salio IMPLEMENTANDO: 47 de 151 allocations la llevaban y TODAS a mano. Escribe la rama REAL, no la propuesta: son distintas cuando un lote se trabaja sobre una sola rama, como hizo EP-019."
+    }
+  ]
+}

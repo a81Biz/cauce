@@ -34,7 +34,9 @@ import { selloDe, PATRONES, NATURALEZAS, MEDIDO, ESTIMADO, SIN_EVALUAR } from '.
 // PT-081 · AC-08 · lo que impide la CUARTA regla nueva sin version de entrada declarada.
 import { reglasDelMarco, reglasNuevasSinVersion } from './patrones.mjs';
 // PT-080 · una regla no se define dos veces. Es la enfermedad que motivo la v4.
-import { definidasDosVeces } from './patrones.mjs';
+import { definidasDosVeces, TIPOS_DE_ITEM } from './patrones.mjs';
+// PT-117 · deuda que PT-116 declaro: las clases de la parada tambien se comparan con LEXICON.
+import { MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA } from './patrones.mjs';
 // PT-087 · el sujeto de una comprobacion: que hecho establece, y cual NO.
 import { SUJETOS, sujetosIncompletos, limitesQueNoLleganAlMensaje } from './patrones.mjs';
 import { execFileSync } from 'node:child_process';
@@ -84,6 +86,96 @@ if (existsSync(PKG)) {
     }
   } catch {
     fail('SUITE-R40', 'package.json', 0, 'No se puede leer: sin él no se comprueba que el paquete y el CHANGELOG digan lo mismo.');
+  }
+}
+
+// ── PT-124 · SUITE-R38 · la constante de tipos coincide con lo que LEXICON declara ──
+//
+// tracker.mjs tenia ['BUG','FEATURE','CHANGE','TAREA'] escrito a mano y su mensaje de error los
+// ATRIBUIA a LEXICON. LEXICON nunca declaro eso: era la lista de las cuatro PLANTILLAS de intake
+// —BUG-REPORT, FEATURE-REQUEST, CHANGE-REQUEST, TAREA— etiquetada como los cinco tipos.
+//
+// Mover la lista a patrones.mjs no basta: seria una copia, solo que UNA. Lo que cierra la clase
+// es que ALGO LAS COMPARE. Es PT-080 en miniatura: tres copias de una regla, las tres
+// divergiendo, y ninguna comparandose con la otra.
+//
+// QUE ESTABLECE: que la constante y LEXICON §8.1 enumeran lo mismo.
+// QUE NO ESTABLECE: que esa enumeracion sea la correcta. Si LEXICON se equivoca, esto pasa.
+{
+  const lex = readFileSync(resolve(BASE, 'LEXICON.md'), 'utf8');
+  // La linea de §8.1 es la unica que enumera los tipos entre comillas invertidas y separados
+  // por «·». Se ancla al encabezado para no casar cualquier lista parecida de otro sitio.
+  const seccion = lex.split(/^### 8\.1 /m)[1] ?? '';
+  const enLexicon = [...(seccion.split('\n').find((l) => /^`[A-Z]+`( · `[A-Z]+`)+/.test(l.trim())) ?? '')
+    .matchAll(/`([A-Z]+)`/g)].map((m) => m[1]);
+  if (!enLexicon.length) {
+    fail('SUITE-R38', 'LEXICON.md', 0,
+      'No se pudo leer la enumeracion de tipos de §8.1, asi que NO se compara con TIPOS_DE_ITEM. '
+      + 'No saber no es permiso (RULE-06): si la seccion cambio de forma, esta comprobacion hay que arreglarla.');
+  } else {
+    const a = [...TIPOS_DE_ITEM].sort().join(' · ');
+    const b = [...enLexicon].sort().join(' · ');
+    if (a !== b) {
+      fail('SUITE-R38', 'tools/patrones.mjs', 0,
+        `TIPOS_DE_ITEM y LEXICON §8.1 no enumeran lo mismo. La constante dice «${a}» y LEXICON «${b}». `
+        + 'Manda LEXICON (LEX-R21): la constante se corrige, no el documento. Asi nacio PT-124 — la lista '
+        + 'estaba escrita a mano y era la de las PLANTILLAS, no la de los tipos.');
+    }
+  }
+}
+
+// ── PT-117 · las clases de la PARADA y LEXICON §8.5 enumeran lo mismo ────────
+//
+// Deuda declarada por PT-116 y trasladada aqui: alli se escribieron MOTIVOS_DE_PARADA y
+// DESENLACES_DE_PARADA en patrones.mjs y LEXICON §8.5 los declaro, PERO NADA LAS COMPARABA.
+// Es PT-080 en miniatura, y es literalmente la enfermedad que motivo la v4: el mismo hecho
+// escrito en dos sitios, sin nada que los contraste, divergiendo en silencio.
+//
+// Mover la lista a patrones.mjs no bastaba —seria una copia, solo que UNA—. Lo que cierra la
+// clase es que ALGO LAS COMPARE, exactamente como PT-124 hizo con TIPOS_DE_ITEM.
+//
+// QUE ESTABLECE: que las constantes y LEXICON §8.5 enumeran lo mismo.
+// QUE NO ESTABLECE: que esa enumeracion sea la correcta. Si LEXICON se equivoca, esto pasa.
+{
+  const lex = readFileSync(resolve(BASE, 'LEXICON.md'), 'utf8');
+  const seccion = lex.split(/^### 8\.5 /m)[1] ?? '';
+  // Se corta en el siguiente encabezado para no arrastrar tablas de otra seccion.
+  const hasta = seccion.split(/^#{2,3} /m)[0] ?? '';
+  // Las dos tablas van precedidas de «**Clases de `motivo`**» y «**Clases de `desenlace`**», en
+  // ese orden. Cada clase es la primera celda de una fila DE CUERPO, entre comillas invertidas.
+  //
+  // El cuerpo empieza DESPUES del separador «|:---|»: sin ese corte la cabecera —«| `motivo` |»,
+  // «| `desenlace` |»— entra como si fuera una clase mas, y la comparacion falla siempre
+  // enumerando una clase que no existe. Lo delimita el separador, no la posicion de la fila.
+  const tablas = hasta.split(/^\*\*Clases de /m).slice(1);
+  const clasesDe = (bloqueTabla) => {
+    const NL_LEX = String.fromCharCode(10);
+    const lineas = String(bloqueTabla ?? '').split(NL_LEX);
+    const sep = lineas.findIndex((l) => /^\|\s*:?-{3,}/.test(l.trim()));
+    if (sep < 0) return [];
+    return [...lineas.slice(sep + 1).join(NL_LEX)
+      .matchAll(/^\|\s*`([a-z-]+)`\s*\|/gm)].map((m) => m[1]);
+  };
+
+  const pares = [
+    ['MOTIVOS_DE_PARADA', MOTIVOS_DE_PARADA, clasesDe(tablas[0])],
+    ['DESENLACES_DE_PARADA', DESENLACES_DE_PARADA, clasesDe(tablas[1])],
+  ];
+  for (const [nombre, constante, enLexicon] of pares) {
+    if (!enLexicon.length) {
+      fail('SUITE-R38', 'LEXICON.md', 0,
+        `No se pudo leer la enumeracion de §8.5 para ${nombre}, asi que NO se compara con la constante. `
+        + 'No saber no es permiso (RULE-06): si la seccion cambio de forma, esta comprobacion hay que arreglarla.');
+      continue;
+    }
+    const a = [...constante].sort().join(' · ');
+    const b = [...enLexicon].sort().join(' · ');
+    if (a !== b) {
+      fail('SUITE-R38', 'tools/patrones.mjs', 0,
+        `${nombre} y LEXICON §8.5 no enumeran lo mismo. La constante dice «${a}» y LEXICON «${b}». `
+        + 'Manda LEXICON (LEX-R21): la constante se corrige, no el documento. Es la deuda que PT-116 '
+        + 'declaro al escribir las dos listas sin nada que las contrastara.');
+    }
   }
 }
 
@@ -249,6 +341,53 @@ if (!existsSync(rulesPath)) {
     const outside = uses.filter((u) => !u.startsWith('RULES.md') && !u.startsWith('LEXICON.md') && !u.startsWith('EXECUTION-MODES.md'));
     if (outside.length === 0) {
       warn('LEX-R22', 'RULES.md', 0, `${id} está definida pero ningún documento operativo la cita. ¿Regla muerta?`);
+    }
+  }
+}
+
+// ── LEX-R32 · un CE-NNN citado existe en LEXICON §4.4   PT-118 ───────────────
+//
+// La tercera clase de identificador NO se asigna desde REGISTRY.json (LEX-R31), asi que el
+// asignador no puede protegerla: si nadie comprueba lo que se cita, dentro de dos versiones
+// habra un CE-018 escrito de memoria y otro escrito contando filas. Es exactamente la averia
+// que LEX-R04 existe para impedir en los identificadores de trabajo.
+//
+// FALLA, no avisa: citar una clase que no existe es afirmar que un tropiezo pertenece a una
+// familia que nadie declaro — y toda la matriz de eventos se apoya en que la familia exista.
+{
+  const RE_CE = /\bCE-(\d{3})\b/g;
+  const lexPath = files.find((f) => relOf(f) === 'LEXICON.md');
+  const lex = lexPath ? readFileSync(lexPath, 'utf8') : null;
+
+  if (lex === null) {
+    // Sin LEXICON no se sabe que clases existen. No saber no es permiso (RULE-06): se dice,
+    // y no se da por bueno lo que no se pudo comprobar.
+    warn('LEX-R32', 'LEXICON.md', 0,
+      'no se pudo leer LEXICON.md: SIN EVALUAR si los CE-NNN citados existen.');
+  } else {
+    // Declaradas = las que aparecen como PRIMERA celda de una fila de tabla. Citar es cualquier
+    // otra posicion, igual que en SUITE-R14: la severidad alli, la posicion de definicion aqui.
+    const declaradas = new Set(
+      [...lex.matchAll(/^\|\s*`CE-(\d{3})`\s*\|/gm)].map((m) => `CE-${m[1]}`));
+
+    if (declaradas.size === 0) {
+      warn('LEX-R32', 'LEXICON.md', 0,
+        'LEXICON no declara ninguna clase de evento: SIN EVALUAR (RULE-06).');
+    } else {
+      for (const f of files) {
+        const rf = relOf(f);
+        if (rf === 'LEXICON.md' || rf === 'CORE.md') continue;   // la fuente y su compilado
+        readFileSync(f, 'utf8').split(/\r?\n/).forEach((line, i) => {
+          for (const m of line.matchAll(RE_CE)) {
+            const id = `CE-${m[1]}`;
+            if (declaradas.has(id)) continue;
+            fail('LEX-R32', rf, i + 1,
+              `cita «${id}», que LEXICON §4.4 no declara. Las clases de evento son una lista `
+              + `cerrada por version (LEX-R32): ampliarla es modificar docs/methodology/, que `
+              + `no se automatiza (SUITE-R06e). Declaradas hoy: ${declaradas.size}.`);
+          }
+        });
+      }
     }
   }
 }

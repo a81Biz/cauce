@@ -84,6 +84,18 @@ function between(txt, startRe, endRe) {
 
 const rules = read('RULES.md');
 const lexicon = read('LEXICON.md');
+
+// PT-118 · las clases de evento se DERIVAN de LEXICON §4.4. Transcribirlas aqui seria la copia
+// que diverge —CE-008, «un hecho, varios nombres»— dentro del generador que existe para que el
+// nucleo no sea una copia. Si la tabla no esta, se DICE: un nucleo que calla una seccion vacia
+// haria creer que no hay clases (RULE-06).
+const clasesDeEvento = (() => {
+  const filas = [...lexicon.matchAll(/^\|\s*`(CE-\d{3})`\s*\|([^|]*)\|/gm)]
+    .map((m) => `${m[1]}  ${m[2].trim()}`);
+  return filas.length
+    ? filas.join('\n')
+    : 'SIN EVALUAR: LEXICON §4.4 no declara ninguna clase de evento.';
+})();
 const exec = read('EXECUTION-MODES.md');
 // PHASES.md es el procedimiento canónico denso; los *-Prompts.md son su expansión legible.
 // Se inserta íntegro (menos su cabecera) para que CORE.md sustituya a los prompts en runtime.
@@ -403,6 +415,16 @@ Phase      NOT_STARTED IN_PROGRESS BLOCKED COMPLETE NEEDS_REVIEW
 
 \`\`\`
 PT EP QA QR QD H E P R INC · AC-nn TS-nn RC-nn por PT · RULE-nn en 11-Conventions
+CE-nnn NO sale del registro: es la tercera clase, y se declara en LEXICON §4.4 (LEX-R31)
+\`\`\`
+
+## Clases de evento — \`CE-nnn\`   \`LEX-R31\` · \`LEX-R32\`
+
+Nombran una forma de fallar que se repite. No se abren ni se cierran: se **citan**.
+Citar una que LEXICON no declara es un defecto que bloquea (\`LEX-R32\`).
+
+\`\`\`
+${clasesDeEvento}
 \`\`\`
 
 ## Triggers

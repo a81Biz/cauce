@@ -1,0 +1,14 @@
+lecturas de alcance amplio ENUMERADAS: 11
+(se enumeran, NO se arreglan aqui — RULE-06: se declara lo medido)
+
+audit.mjs:210  sobre «txt»
+audit.mjs:506  sobre «texto»
+eventos.mjs:182  sobre «RE_RECURRE»
+patrones.mjs:1987  sobre «cuerpos»
+verify-fdge.mjs:1202  sobre «RE_SIGN_BLOCK»
+verify-fdge.mjs:1225  sobre «RE_CIERRE_LOTE»
+verify-fdge.mjs:1283  sobre «RE_CIERRE_LOTE»
+verify-fdge.mjs:1840  sobre «texto»
+verify-qa.mjs:145  sobre «RE_AC»
+verify-qa.mjs:176  sobre «RE_TIPO_CASO»
+verify-qa.mjs:207  sobre «RE_HUMANO»

@@ -1,0 +1,7 @@
+   sin la marca en el cierre de lote                  cae: marca  OK
+   sin la rama del tag ausente: se afirmaria que existe cae: sinTag  OK
+   sin distinguir «no resuelve»                       cae: noResuelve  OK
+   sin declarar que no se editan los anteriores       cae: noEdita  OK
+   sin el desenlace SIN EVALUAR de la marca           cae: sinEvaluar  OK
+
+5 de 5 supresiones tumban el escenario esperado.

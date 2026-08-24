@@ -1,0 +1,19 @@
+# PT-117 · los diez casos, tal como los imprime selftest.sh. Derivado de la salida real.
+#
+# El par que decide es «una alcanzada sin origen_parada falla» / «…y lo anterior a la regla, ni
+# se mira». El primero exige que la regla EXIJA; el segundo, que NO retrofeche. Sin el segundo,
+# el primero pasaria igual si la comprobacion juzgara todo el trabajo ya integrado — y eso
+# pondria en rojo a cualquier proyecto destino que actualizara.
+
+  ✓ la allocation nace con su suite_version
+  ✓ …y sin version legible, SIN EVALUAR
+  ✓ «abre» deja el enlace en la que nace
+  ✓ …y el enlace queda ESCRITO en el registro
+  ✓ una parada que no puede publicarse no escribe
+  ✓ una alcanzada sin origen_parada falla
+  ✓ …y lo anterior a la regla, ni se mira
+  ✓ la clase divergente de LEXICON falla
+  ✓ …y sin divergencia, silencio
+  ✓ la cabecera de la tabla no es una clase
+
+selftest: OK · 1436 casos

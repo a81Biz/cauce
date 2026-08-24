@@ -1,0 +1,20 @@
+── A · casos límite (deben pasar en verde) ──
+  [32m✓[0m sellar mide la matriz
+  [32m✓[0m …y nombra la clase que llega al umbral
+  [32m✓[0m …y NO la que no llega
+  [32m✓[0m …y una regla que no puede fallar se nombra
+  [32m✓[0m …y no se promueve nada
+  [32m✓[0m el umbral sale del registro
+  [32m✓[0m …y declara su motivo
+  [32m✓[0m …y sellar lo publica
+  [32m✓[0m sin MATRIZ.md dice SIN EVALUAR
+  [32m✓[0m …y no lo confunde con «no hay nada»
+  [32m✓[0m una entrada que declara su clase, en verde
+  [32m✓[0m …y una que no la declara, AVISA
+  [32m✓[0m …y no la hace fallar
+  [32m✓[0m …y el aviso dice que es opcional
+  [32m✓[0m FPGE recolecta desde MATRIZ.md
+  [32m✓[0m …citando la clase por su CE-nnn
+  [32m✓[0m …y no repite el numero del umbral
+
+== 17 casos, 0 fallos ==

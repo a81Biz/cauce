@@ -10,5 +10,17 @@
       "Read(//**/.env)",
       "Edit(//**/.env)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node docs/methodology/tools/tracker.mjs parada --pendientes 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
   }
 }

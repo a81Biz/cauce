@@ -52,7 +52,7 @@ import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
 // PT-095 · el criterio de «esto anuncia una autorizacion» y la frontera desde la que una regla
 // alcanza. Los dos viven en patrones.mjs porque los usan dos bucles de este archivo, y un
 // criterio escrito dos veces diverge (SUITE-R38).
-import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE } from './patrones.mjs';
+import { anunciaAutorizacion, alcanzadaPor, corregidaDespues, RIGE_DESDE, MOTIVOS_DE_PARADA } from './patrones.mjs';
 // PT-098 · la decision de si el arbol sostiene un INTEGRATED es pura y vive en tracker.mjs,
 // junto al mecanismo que la calcula. Aqui solo se consume: una fuente, no dos (SUITE-R38).
 import { estadoContrastado, FASES } from './tracker.mjs';
@@ -67,8 +67,9 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde } from './patrones.mjs';
+import { commitSinAllocation, clasificaRodeo } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
-import { contradiceElRegistro, sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
+import { contradiceElRegistro, sinSellar, selladoEnTag, topologiaDeRamas, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
          rutaRelativaDelManifiesto } from './patrones.mjs';
 // PT-091 · las cifras del inventario se derivan, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
@@ -76,6 +77,8 @@ import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patron
 const ROOT = process.cwd();
 const IMPL = join(ROOT, 'docs', 'implementation');
 const CHANGES = join(ROOT, 'changes');
+let TOPOLOGIA_REPORTADA = false;   // PT-129 · la topologia es del REPOSITORIO, no de cada PT
+let BACKLOG_REPORTADO = false;     // PT-123 · el indice es del REPOSITORIO, no de cada PT
 const EVIDENCE = join(IMPL, 'evidence');
 const ED = join(ROOT, 'docs', 'enterprise-documentation');
 
@@ -717,7 +720,11 @@ function checkEstado() {
     fail('SUITE-R34', `El bloque ESTADO contradice al registro: ${c}. El estado retomable que miente es peor que el que falta — se actúa sobre él.`);
   }
   if (!contra.length && tEstado) {
-    ok('SUITE-R34', 'El bloque ESTADO no contradice al registro.');
+    // PT-130 · el LIMITE va en el mensaje y no en un comentario: un limite que solo vive en
+    // el codigo protege a quien ya esta leyendo el codigo, no a quien lee el rojo.
+    ok('SUITE-R34', 'El bloque ESTADO no contradice al registro. Se lee el SUJETO de cada '
+      + 'linea —el primer identificador—: NO evalua los demas identificadores que la linea '
+      + 'mencione, porque nombrar una tarea cerrada PARA DECIR que lo esta es correcto.');
   }
   // Lo NO derivable se declara, no se finge verificado (AC-03).
   if (!/^\s*decisiones:/im.test(cuerpo) || !/^\s*no hacer:/im.test(cuerpo)) {
@@ -883,6 +890,83 @@ const rigeGlobal = (id) => rigeDesde(id, reg?.suite_version ?? '0.0.0');
 // comando que lo arregla: «tracker inventario --aplicar».
 const F_SERV = join(ED, 'inventory', 'services.md');
 const DIR_T = join(ROOT, 'docs', 'methodology', 'tools');
+
+// ── PT-127 · FDGE-R19 · el trabajo sin allocation, detectado ────────────────
+//
+// Lo pidio el firmante: «si no te lo digo, no lo harias». Lo que solo ocurre cuando una persona
+// lo dice, no ocurre.
+//
+// Se recorren los commits DESDE la version en que la comprobacion empieza a regir —RIGE_DESDE—
+// y no la historia entera: SUITE-R09 no retrofecha, y los 200+ commits anteriores se escribieron
+// cuando esto no se exigia.
+function checkTrabajoSinAllocation() {
+  if (!rigeGlobal('FDGE-R19')) return;
+  const crudo = (() => {
+    try {
+      return execFileSync('git',
+        // El separador va AL PRINCIPIO: con «--name-only» los archivos se escriben DESPUES del
+        // formato, asi que un separador final deja la cabecera del commit siguiente pegada al
+        // bloque anterior — y el parseo veia UN solo commit de sesenta.
+        // «%P» son los padres: un merge tiene mas de uno, y asi se reconoce por su FORMA en vez
+        // de por un tipo de commit que FDGE-R19 no declara.
+        ['log', '--format=%x1e%H%x1f%P%x1f%s', '--name-only', '-n', '60'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' });
+    } catch { return null; }
+  })();
+  if (crudo === null) {
+    warn('FDGE-R19', 'no se pudo leer la historia de git: no se sabe si hay trabajo sin '
+      + 'allocation. No saber no es permiso (RULE-06).');
+    return;
+  }
+  const commits = crudo.split(CAR.SEPARADOR).map((bloque) => {
+    const [cab, ...resto] = bloque.split(CAR.SALTO);
+    const [sha, padres, sujeto] = String(cab ?? '').split(CAR.UNIDAD);
+    return {
+      sha: String(sha ?? '').trim(),
+      padres: String(padres ?? '').trim().split(new RegExp(CLASE.espacio + '+')).filter(Boolean).length,
+      sujeto: sujeto ?? '',
+      rutas: resto.map((r) => r.trim()).filter(Boolean),
+    };
+  }).filter((c) => c.sha);
+
+  // «Vivo en ese commit» se decide con lo que el registro sabe HOY: la allocation existe o no.
+  // Reconstruir el estado exacto de entonces exigiria leer el REGISTRY de cada commit, y eso
+  // convierte una comprobacion en una arqueologia. El limite se DECLARA, no se disimula: un PT
+  // que se abrio DESPUES del commit que lo cita sale verde aqui, y lo cazan FDGE-R52 y SUITE-R08.
+  const vivoEn = (id) => Boolean((reg?.allocations ?? []).find((x) => x?.id === id));
+
+  const ledger = read(join(IMPL, 'SESSION_LOG.md')) ?? '';
+  const hallazgos = commits
+    .map((c) => commitSinAllocation(c, vivoEn))
+    .filter(Boolean)
+    .map((h) => clasificaRodeo(h, ledger));
+
+  if (!hallazgos.length) {
+    ok('FDGE-R19', `${commits.length} commit(s) recientes: todos los que tocan rutas gobernadas `
+      + 'citan un PT vivo.');
+    return;
+  }
+
+  // Se AGRUPA por lo que dice, no por commit: treinta y cuatro lineas identicas no enumeran nada,
+  // solo tapan las demas. Cada grupo nombra sus commits uno a uno — el dato que hace falta para
+  // ir a mirarlos— en UNA linea.
+  const grupos = new Map();
+  for (const h of hallazgos) {
+    const clave = `${h.clase}|${h.id ?? ''}|${h.motivo}`;
+    if (!grupos.has(clave)) grupos.set(clave, { ...h, shas: [] });
+    grupos.get(clave).shas.push(String(h.sha).slice(0, 8));
+  }
+  for (const g of grupos.values()) {
+    const cola = g.clase === 'SIN_EVALUAR' ? ''
+      : g.motivo === 'FORZADO'
+        ? ' · SESSION_LOG.md declara una excepcion a FDGE-R19 que nombra este identificador: el '
+          + 'marco obligo a rodearlo, y lo que se arregla es la herramienta.'
+        : ' · sin excepcion declarada en SESSION_LOG.md.';
+    warn('FDGE-R19', `${g.shas.length} commit(s): ${g.dice}${cola} · ${g.shas.join(' ')}`);
+  }
+}
+
+
 function checkInventario() {
   if (!existsSync(F_SERV) || !existsSync(DIR_T)) return;
   const transcritas = cifrasTranscritas(read(F_SERV) ?? '');
@@ -1358,6 +1442,45 @@ function checkPT(pt, { gate } = {}) {
   const suiteDelPT = intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? '0.0.0';
   const rige = (id) => rigeDesde(id, suiteDelPT);
 
+  // ── FDGE-R55 · toda allocation nueva cita la parada que la produjo ───────
+  //
+  // PT-116 construyo «tracker parada» y la dejo SIN EXIGIR. Un comando que existe y nadie
+  // invoca no cambia nada: las ocho tareas cerradas de EP-020 lo demuestran, porque LA
+  // HERRAMIENTA EXISTIA EN LAS OCHO. SUITE-R26 llama a eso «una recomendacion».
+  //
+  // ALCANCE: solo la parte que FDGE-R55 declara mecanizable. La regla lleva su propio limite
+  // escrito — una parada de desenlace «continua» no deja rastro contra el que contrastar, y
+  // ningun script puede probar la ausencia de algo que no se escribe. Eso va como HUECO MEDIDO
+  // (SUITE-R26), no como comprobacion verde.
+  //
+  // CONTRA EL REGISTRO, no contra los comentarios del issue: un verificador que necesitara red
+  // para decidir si una tarea cumple no podria correr en un repositorio sin plataforma, y
+  // SUITE-R22 declara ese caso soportado.
+  //
+  // NO SE RETROFECHA: rige() lo decide con la suite_version del PT, y RIGE_DESDE la fija en
+  // 13.0.0. Las 20 allocations de EP-020 declaran 12.0.0 y ni se miran — criterio de FDGE-R19
+  // y FDGE-R52. Obligar a rehacer trabajo valido es la forma mas rapida de que se abandone el
+  // marco.
+  if (enRegistroPT && rige('FDGE-R55')) {
+    // Un lote SIN PADRE esta exento: no hay tarea anterior desde la que parar. Sin esta puerta,
+    // instalar cauce y abrir el primer EP empezaria en rojo — y una compuerta que falla sobre
+    // el caso inicial no se cumple: se rodea.
+    const esRaiz = !enRegistroPT.epic && String(enRegistroPT.id ?? '').startsWith('EP-');
+    const o = enRegistroPT.origen_parada;
+    if (esRaiz) {
+      ok('FDGE-R55', `${pt}: lote raiz — exento: no hay tarea anterior desde la que parar.`);
+    } else if (!o?.de) {
+      fail('FDGE-R55', `${pt}: sin «origen_parada». Abrir trabajo cita la parada que lo produjo — `
+        + `y la escribe el comando en el mismo acto que la publica: `
+        + `tracker parada <PT que paro> --motivo <clase> --texto <ruta> --desenlace abre --abre ${pt}`);
+    } else if (!MOTIVOS_DE_PARADA.includes(String(o.motivo ?? ''))) {
+      fail('FDGE-R55', `${pt}: «origen_parada.motivo» dice «${o.motivo}», que no es una clase de `
+        + `LEXICON §8.5. Un valor libre convierte la clase en prosa y la matriz no puede contar nada.`);
+    } else {
+      ok('FDGE-R55', `${pt}: nace de la parada de ${o.de} · motivo ${o.motivo}.`);
+    }
+  }
+
   // ── SUITE-R58 · el registro solo lo escribe el comando ────────────────────
   //
   // PT-103 · esto no existia, y es lo que el firmante señalo: las compuertas miran los
@@ -1703,6 +1826,88 @@ function checkPT(pt, { gate } = {}) {
     }
   }
 
+  // PT-123 · BACKLOG.md declara una implementacion que el registro no tiene abierta.
+  //
+  // El generador existe desde esta tarea. Sin algo que lo eche de menos, el archivo vuelve a
+  // quedarse atras — llevaba CUATRO lotes declarando EP-015, y su cabecera registra que la vez
+  // anterior fueron OCHO. Es la clase entera de este lote: no faltaba la herramienta, faltaba
+  // que algo la echara de menos.
+  //
+  // AVISA fuera de G4 y FALLA dentro, con el mismo criterio que el resto de FDGE-R19: un fail
+  // inmediato pondria en rojo un repositorio cuyo unico defecto es no haber corrido un comando.
+  if (!BACKLOG_REPORTADO) {
+    BACKLOG_REPORTADO = true;
+    const rutaB = join(IMPL, 'BACKLOG.md');
+    const texto = read(rutaB);
+    if (texto === null) {
+      warn('FDGE-R31', 'BACKLOG.md no se puede leer: la implementacion abierta que declara queda SIN EVALUAR (RULE-06).');
+    } else if (!texto.includes('<!-- BACKLOG:DERIVADO -->')) {
+      warn('FDGE-R31', 'BACKLOG.md no lleva las marcas del bloque derivado, asi que nadie lo regenera: '
+        + 'node tools/tracker.mjs indices --aplicar  (PT-123).');
+    } else {
+      const declarados = [...texto.matchAll(/^## Implementación abierta — `(EP-\d+)`/gm)].map((m) => m[1]);
+      const abiertos = (REGISTRO?.allocations ?? [])
+        .filter((a) => /^EP-/.test(String(a?.id)) && !ESTADOS_TERMINALES.has(String(a?.status)))
+        .map((a) => a.id);
+      const sobran = declarados.filter((x) => !abiertos.includes(x));
+      const faltan = abiertos.filter((x) => !declarados.includes(x));
+      if (!sobran.length && !faltan.length) {
+        ok('FDGE-R31', `BACKLOG.md declara la misma implementacion abierta que el registro${abiertos.length ? `: ${abiertos.join(', ')}` : ' (ninguna)'}.`);
+      } else {
+        const m = 'BACKLOG.md y el registro no dicen lo mismo sobre que hay abierto'
+          + (sobran.length ? ` · declara ${sobran.join(', ')} y el registro no lo tiene abierto` : '')
+          + (faltan.length ? ` · el registro abre ${faltan.join(', ')} y el archivo no lo declara` : '')
+          + '. Se regenera:  node tools/tracker.mjs indices --aplicar';
+        if (gate === 'G4') fail('FDGE-R31', m); else warn('FDGE-R31', m);
+      }
+    }
+  }
+
+  // PT-129 · FDGE-R19 · las ramas que EXISTEN, contra la topologia declarada. Se comprobaba el
+  // CAMPO «branch» de la allocation y nunca el arbol: una efimera podia sobrevivir a su tarea
+  // integrada —o existir sin tarea— sin que nada lo dijera.
+  //
+  // AVISA fuera de G4 y FALLA dentro, con el mismo criterio que esta regla ya usa para el usuario
+  // en la rama: un fail inmediato pondria en rojo un repositorio sano por dos ramas historicas.
+  //
+  // NUNCA BORRA (SUITE-R06f): describe el comando.
+  if (!TOPOLOGIA_REPORTADA) {
+    TOPOLOGIA_REPORTADA = true;
+    // `git` vive dentro del bloque de G2: aqui hace falta el suyo. verify-fdge llama a
+    // execFileSync directo en todo el archivo, y esto lo hace igual en vez de inventar otra forma.
+    const gitTopo = (args) => {
+      try { return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }); }
+      catch { return null; }
+    };
+    const ramas = (() => {
+      const l = gitTopo(['for-each-ref', '--format=%(refname:short)', 'refs/heads']);
+      const r = gitTopo(['for-each-ref', '--format=%(refname:short)', 'refs/remotes/origin']);
+      if (l == null && r == null) return null;
+      return [...new Set([...(l ?? '').trim().split(/\r?\n/), ...(r ?? '').trim().split(/\r?\n/)]
+        .filter(Boolean).map((x) => x.replace(/^origin\//, ''))
+        // «refs/remotes/origin/HEAD» se abrevia a «origin» a secas: es el PUNTERO a la rama por
+        // defecto, no una rama. Salio como sobrante en la primera corrida, y es la clase de
+        // falso positivo que solo aparece EJECUTANDO.
+        .filter((x) => x !== 'HEAD' && x !== 'origin'))];
+    })();
+    // La rama por defecto se DERIVA de origin/HEAD, como el resto del archivo (:1482).
+    const principal = (gitTopo(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']) ?? '')
+      .trim().split('/').pop() || 'main';
+    const topo = topologiaDeRamas(ramas, REGISTRO?.allocations ?? [], principal);
+    if (topo === null) {
+      warn('FDGE-R19', 'topologia de ramas SIN EVALUAR: no se pudo enumerar las ramas. No se '
+        + 'aprueba por omision (RULE-06).');
+    } else if (!topo.sobrantes.length && !topo.huerfanas.length) {
+      ok('FDGE-R19', `topologia: ${(ramas ?? []).length} rama(s), todas encajan en los cuatro tipos.`);
+    } else {
+      const partes = [];
+      for (const r of topo.sobrantes) partes.push(`«${r}» no encaja en ninguno de los cuatro tipos`);
+      for (const h of topo.huerfanas) partes.push(`«${h.rama}» sigue viva y ${h.id} esta ${h.estado}: FDGE-R19 dice que la efimera se borra al fusionarse`);
+      const m = `topologia de ramas: ${partes.length} · ${partes.join(' · ')}. Borrarlas es SUITE-R06f y no se automatiza:  git push origin --delete <rama>`;
+      if (gate === 'G4') fail('FDGE-R19', m); else warn('FDGE-R19', m);
+    }
+  }
+
   // PT-044 · y deja de exigirse a lo YA TERMINADO. El reanclaje se escribe MIENTRAS se trabaja;
   // pedirselo a un PT que ya paso G4 es pedir que se FABRIQUE, y un rastro fabricado es peor que
   // ninguno. Donde muerde sigue siendo G4, que corre con estado DONE — antes de integrar, no
@@ -1802,11 +2007,20 @@ function checkPT(pt, { gate } = {}) {
       // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
       // exista, sea o no el de la version en curso.
       .trim().split(/\s+/).filter(Boolean)[0];
-    const idsTag = (() => {
-      if (!tag) return null;
-      const j = git(['show', `${tag}:docs/implementation/REGISTRY.json`]);
-      try { return JSON.parse(j).allocations.filter((a) => ESTADOS_TERMINALES.has(a?.status)).map((a) => a.id); } catch { return null; }
-    })();
+    // PT-131 · el observable es el ARBOL del tag, no lo que su registro declaraba. La lectura
+    // vive UNA vez, en patrones.mjs: estaba duplicada aqui y en tracker.mjs con este mismo
+    // comentario copiado, y esa duplicacion es como el defecto sobrevivio a PT-087 (SUITE-R38).
+    const idsTag = selladoEnTag(
+      () => {
+        if (!tag) return null;
+        const s = git(['ls-tree', '--name-only', tag, 'changes/']);
+        if (s == null) return null;
+        return s.trim().split(/\r?\n/).filter(Boolean)
+          .map((x) => x.replace(/^changes\//, '').replace(/\/$/, ''));
+      },
+      (a) => existsSync(join(CHANGES, `${a?.id}-${a?.slug}`)),
+      REGISTRO?.allocations ?? [],
+    );
     const debe = sinSellar(REGISTRO?.allocations ?? [], idsTag);
     const umbral = Number(REGISTRO?.tracker?.umbral_sellado ?? 3);
     if (debe === null) {
@@ -1966,6 +2180,28 @@ function checkHistory(pt, rel, type, { gate }) {
   // solo arregla el «Estado:» no hace desaparecer el «Estructural:» de la original — corregir la
   // mitad y dejar la otra leyendose de la entrada vieja seria peor que no corregir.
   const campo = (re) => (cuerpoCorrige?.match(re)?.[1]) ?? cuerpoOriginal.match(re)?.[1];
+
+  // PT-126 · LEX-R31 · la clase de evento de una entrada nueva.
+  //
+  // AVISA, NO FALLA, y la frontera es la version: RIGE_DESDE acota LEX-R31 a la 13.0.0, asi que
+  // las entradas anteriores no pasan a estar incompletas por no declarar clase (SUITE-R09). Es
+  // CE-014 evitado a proposito en la comprobacion que nace para contar CE-014.
+  //
+  // Y declararla es OPCIONAL: PHASE 8 la pide «si el trabajo cae en una de LEXICON §4.4». No todo
+  // trabajo repite un tropiezo, y exigirla siempre haria que se inventara una clase para callar
+  // el aviso — que es peor que no tener el aviso.
+  // `rigeGlobal` y no `rige`: aqui no hay una version del PT en ambito, y usar la del proyecto
+  // es lo correcto — la clase de evento la exige la SUITE desde la 13.0.0, no cada tarea.
+  if (rigeGlobal('LEX-R31')) {
+    const clase = campo(/^Clase de evento:\s*(CE-\d{3})\s*$/im);
+    if (clase === undefined) {
+      warn('LEX-R31', `${pt}: su entrada de HISTORY.log no declara «Clase de evento: CE-NNN». `
+        + 'Es opcional —no todo trabajo repite un tropiezo— pero sin ella la matriz de eventos '
+        + 'no puede contar esta tarea, y lo que no se cuenta no se corrige.');
+    } else {
+      ok('LEX-R31', `${pt}: declara «Clase de evento: ${clase}».`);
+    }
+  }
 
   // FDGE-R44 · marcado estructural — es lo que hace computable FDGE-R43
   const estructural = campo(/^Estructural:\s*(sí|si|no)\s*$/im);
@@ -2251,6 +2487,7 @@ checkIrreversibles(reg?.execution_mode ?? 'SUPERVISED');
 checkLedgers();
 checkG4ConConstancia();
 checkInventario();
+checkTrabajoSinAllocation();
 checkImplementacion(reg);
 checkEstado();
 checkCheckpoint();
@@ -2291,6 +2528,27 @@ if (errors.length) {
   console.log('');
   console.log(`${errors.length} error(es).${gate ? ` La compuerta ${gate} queda bloqueada.` : ''}`);
   process.exit(1);
+}
+// PT-120 · las reglas que NO se llegaron a mirar salen en el resumen, siempre.
+//
+// «Sin errores» era lo ultimo que se leia aunque 108 avisos dijeran SIN EVALUAR — y ese verde
+// es el que FDGE-R34 llama precondicion de G4. No se convierte en error: SIN EVALUAR no aprueba
+// ni bloquea, y hacerlo fallar dejaria sin salida al proyecto sin plataforma que SUITE-R22
+// declara soportado. Lo que se arregla es que el resumen NO PUEDA CALLARLO (RULE-06).
+//
+// Se DERIVA de los avisos emitidos, no se cuenta a mano: atar el resumen a una cifra escrita
+// es la leccion de PT-115, y en esta misma sesion volvio a repetirse.
+const sinEvaluar = warnings.filter((w) => /SIN EVALUAR/.test(String(w.msg ?? '')));
+if (sinEvaluar.length) {
+  const porRegla = new Map();
+  for (const w of sinEvaluar) porRegla.set(w.rule, (porRegla.get(w.rule) ?? 0) + 1);
+  const detalle = [...porRegla.entries()].sort((a, b) => b[1] - a[1])
+    .map(([r, n]) => `${r} (${n})`).join(' · ');
+  console.log(`Sin errores, PERO ${sinEvaluar.length} comprobacion(es) quedaron SIN EVALUAR: ${detalle}.`);
+  console.log('SIN EVALUAR no aprueba ni bloquea (RULE-06): son reglas que NO se llegaron a mirar,');
+  console.log('no reglas que pasaron. Si esto autoriza una compuerta, la autoriza a medias.');
+  console.log(`PTs verificados: ${pts.length}.`);
+  process.exit(0);
 }
 console.log(`Sin errores. PTs verificados: ${pts.length}.`);
 process.exit(0);

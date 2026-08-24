@@ -84,3 +84,9 @@ jobs:
       # necesita la misma comprobación que exige a los demás.
       - name: Cumplimiento de los artefactos propios
         run: node docs/methodology/tools/verify-fdge.mjs --all
+        env:
+          # PT-120 · sin credencial, verify-fdge no puede mirar SUITE-R43 —los comentarios
+          # humanos pendientes— y emite SIN EVALUAR por cada PT. En la corrida 32600060157
+          # fueron 108 avisos y el paso cerro «Sin errores»: el verde que FDGE-R34 llama
+          # precondicion de G4 se dio sobre una regla que NUNCA se ha evaluado en CI.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

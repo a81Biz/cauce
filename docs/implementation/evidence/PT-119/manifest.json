@@ -1,0 +1,109 @@
+{
+  "pt": "PT-119",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "tools/matriz.mjs escribe MATRIZ.md con clase, veces, primera y ultima aparicion, tareas, regla duena y si esa regla tiene verificador",
+      "tests": [
+        "selftest.sh:la fila lleva clase, veces y fechas",
+        "selftest.sh:…y las tareas donde ocurrio",
+        "selftest.sh:tener regla no es tener verificador"
+      ],
+      "evidence": [
+        "salidas/casos-119.txt",
+        "salidas/MATRIZ-al-cerrar.md"
+      ],
+      "verified": true,
+      "nota": "«Tiene verificador» NO es «la regla existe»: es que alguna herramienta EMITA por ella. Esa distincion es la que produjo el hallazgo de la primera corrida."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Todas las cifras se DERIVAN: ninguna se transcribe",
+      "tests": [
+        "selftest.sh:alterar el jsonl cambia la cifra",
+        "selftest.sh:una MENCION no suma como instancia"
+      ],
+      "evidence": [
+        "salidas/casos-119.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La unica cifra que no se calcula aqui —«entradas recorridas»— se LEE de la cabecera de EVENTOS.jsonl, y si no viene se dice SIN EVALUAR. Recontarla daba 142 identificadores donde hay 164 entradas: una segunda fuente del mismo hecho (CE-008) con un numero distinto (CE-010), publicada bajo la etiqueta equivocada."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Lo que no puede leerse sale SIN EVALUAR y es distinguible de «cero»",
+      "tests": [
+        "selftest.sh:un jsonl ilegible NO es un jsonl vacio",
+        "selftest.sh:…y un jsonl vacio SI produce matriz, con ceros",
+        "selftest.sh:sin fuentes NO escribe una matriz vacia",
+        "selftest.sh:…y lo DICE en vez de callar"
+      ],
+      "evidence": [
+        "salidas/casos-119.txt"
+      ],
+      "verified": true,
+      "nota": "Los dos casos van EN PAR: con solo el primero, una implementacion que devolviera SIN EVALUAR siempre tambien pasaria. Y una linea rota invalida el archivo entero: saltarla daria cifras mas bajas que pareceran ciertas."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "«Regla duena» y «tiene verificador» se derivan de RULES.md y de los fail() reales, no de una tabla escrita a mano",
+      "tests": [
+        "selftest.sh:la regla dueña sale de que la regla cite la clase",
+        "selftest.sh:…tambien en la forma suelta, que ocupa varias lineas",
+        "selftest.sh:…y sin cita, la clase sale SIN DUEÑO",
+        "selftest.sh:tener regla no es tener verificador"
+      ],
+      "evidence": [
+        "salidas/casos-119.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La pertenencia la AFIRMA la regla en su propio texto: una tabla clase→regla seria la copia que diverge, que es CE-008, la clase que la matriz existe para contar. Se leen las DOS formas de definir una regla y los DOS documentos propietarios (LEX-R23). Limite declarado: 11-Conventions.md no se lee, asi que CE-005 sale sin dueño."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "npm run matriz existe y verify-suite comprueba que MATRIZ.md esta al dia respecto de su fuente",
+      "tests": [
+        "selftest.sh:npm run matriz existe",
+        "selftest.sh:…y la frescura entra en verify",
+        "selftest.sh:la matriz publicada esta al dia",
+        "selftest.sh:la matriz no estampa la fecha de hoy",
+        "selftest.sh:…lleva el rango de los datos"
+      ],
+      "evidence": [
+        "salidas/casos-119.txt",
+        "salidas/matriz.txt"
+      ],
+      "verified": true,
+      "nota": "SIN fecha de generacion, y es deliberado: la haria irreproducible y «--check» fallaria SIEMPRE, que es la forma en que una comprobacion de frescura se apaga sola. Lleva el RANGO de los datos, derivado."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 4,
+    "distinct_reds": 4,
+    "evidence": "salidas/inversa.txt",
+    "nota": "La primera version daba CUATRO ROJOS FALSOS: las copias mutadas se escribian en un directorio temporal y matriz.mjs importa ./regla.mjs, que ahi no existe, asi que las cuatro decian «no compila» y se contaban como aciertos. CE-005 dentro de la prueba que existe para detectarlo. Ahora van al lado del original y se borran al empezar Y al terminar: dejar un _mut119-*.mjs en tools/ seria una herramienta fantasma que audit contaria como hueco."
+  },
+  "hallazgo_de_la_primera_corrida": {
+    "que": "SUITE-R59 existe desde la 12.0.0, gobierna la clase medida 27 veces, y NINGUNA herramienta emite por ella.",
+    "como_se_vio": "buscar emisiones de SUITE-R59 en docs/methodology/tools/*.mjs (fail, warn o gap) devuelve VACIO",
+    "por_que_importa": "Es P-003 de la Declaracion de Valor: «cada regla HARD que declara comprobacion tiene un script que puede fallar». audit detecta construcciones fragiles, pero bajo su propio recuento de huecos, no bajo la regla.",
+    "donde_va": "PT-126"
+  },
+  "measured": {
+    "clases": 17,
+    "sin_regla_duena": 9,
+    "con_regla_y_sin_verificador": 1,
+    "reglas_que_ahora_citan_su_clase": 10,
+    "casos": "18 de 18",
+    "las_tres_mas_repetidas_sin_dueno": {
+      "CE-004": "7 instancias · ordinal declarado 9",
+      "CE-001": "6 instancias · ordinal declarado 12",
+      "CE-003": "6 instancias · ordinal declarado 7"
+    },
+    "bateria_completa": "selftest OK · 1519 casos · codigo 0 · salidas/selftest-completo.txt",
+    "audit": "sin huecos: matriz.mjs declarada en LEXICON §6.6, MATRIZ.md y EVENTOS.jsonl en §6.2, y los dos derivados declarados en INSTALL.md como NO sembrados"
+  }
+}

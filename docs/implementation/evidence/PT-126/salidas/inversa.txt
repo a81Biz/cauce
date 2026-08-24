@@ -1,0 +1,4 @@
+   sin el umbral: entra la que ocurrio UNA vez        OK
+   sin el desenlace: la matriz ausente pasa por vacia OK
+   sin separarlo: la regla que no puede fallar desaparece OK
+   sin el aviso: la entrada sin clase pasa callando   OK

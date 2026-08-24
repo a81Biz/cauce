@@ -1,0 +1,6 @@
+  [32m✓[0m lo sellado sale del arbol del tag
+  [32m✓[0m …y el trabajo FUERA del tag NO sale
+  [32m✓[0m sin trabajo no hay nada que sellar
+  [32m✓[0m sin poder leer el arbol ⇒ null
+  [32m✓[0m el estado posterior al tag no lo desella
+selftest: HAY FALLOS · 1377 casos

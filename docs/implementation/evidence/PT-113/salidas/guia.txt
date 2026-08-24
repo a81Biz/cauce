@@ -1,0 +1,10 @@
+# PT-113 · AC-01 y AC-02 · derivado del CHANGELOG, no transcrito.
+
+  SUITE-R59 nombrada en la entrada 13.0.0   SI
+  LEX-R08 nombrada en la entrada 13.0.0     SI
+  tareas de EP-019 segun el registro        17
+  la cabecera de la 12.0.0 dice             Diecisiete
+
+# La cifra se corrige, pero NO se deriva: una entrada en prosa no se genera. Lo que puede
+# existir es algo que la CONTRASTE, y eso es PT-120. Decirlo es AC-02 cumplido y su limite
+# declarado (SUITE-R26), no AC-02 cumplido y el hueco callado.

@@ -1,0 +1,6 @@
+   sin la exclusion por numero de padres            cae: TS-06 OK
+   sin RUTAS_GOBERNADAS: se marca todo              cae: TS-02 OK
+   sin el troceo por encabezado del ledger          cae: TS-10 OK
+   con «merge» de vuelta en los tipos de commit     cae: TS-07 OK
+
+4 de 4 supresiones dan un rojo distinto y unico.

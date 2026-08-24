@@ -94,11 +94,33 @@ jobs:
       # merge que trajo el codigo.
       - name: Cumplimiento FDGE de todos los PT
         run: node docs/methodology/tools/verify-fdge.mjs --all
+        env:
+          # PT-120 · sin credencial, verify-fdge no puede mirar SUITE-R43 —los comentarios
+          # humanos pendientes— y emite SIN EVALUAR por cada PT. En la corrida 32600060157
+          # fueron 108 avisos y el paso cerro «Sin errores»: el verde que FDGE-R34 llama
+          # precondicion de G4 se dio sobre una regla que NUNCA se ha evaluado en CI.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # SUITE-R35 · el registro asigna y la plataforma espeja. Una divergencia aqui significa
       # que lo publicado no coincide con lo que el tablero dice que existe.
       - name: El espejo con la plataforma cuadra
         run: node docs/methodology/tools/tracker.mjs espejo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # SUITE-R19 · PT-120 · LA COMPUERTA QUE FALTABA.
+      #
+      # La 12.0.0 se publico con DOS reglas fuera de su guia de migracion —SUITE-R59 y
+      # LEX-R08— y este workflow corrio ocho comprobaciones sin llamar a la unica que lo
+      # habria visto. Llamarla no habria servido: «sellar» salia con codigo 0 SIEMPRE, asi que
+      # informaba y no impedia nada. «--gate» es lo que lo convierte en compuerta.
+      #
+      # BLOQUEA solo lo MECANICO y solo lo evaluable aqui: la guia de migracion, los documentos
+      # de entrada de SELLO.md y las cifras del inventario. El grafo NO entra —graphify-out/
+      # esta en .gitignore y en CI sale MISSING—: bloquear por algo NO EVALUABLE es lo
+      # contrario de lo que RULE-06 pide. Los pasos humanos tampoco (SUITE-R06a).
+      - name: El sello esta resuelto
+        run: node docs/methodology/tools/tracker.mjs sellar --gate
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

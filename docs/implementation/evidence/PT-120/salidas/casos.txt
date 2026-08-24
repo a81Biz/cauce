@@ -1,0 +1,21 @@
+# PT-120 · los ocho casos, tal como los imprime selftest.sh. Derivado de la salida real.
+#
+# EL PAR QUE DECIDE es «bloquea con el sello roto» / «…y sale con codigo distinto de cero».
+# El primero HABRIA PASADO CON LA VERSION ROTA: mi implementacion imprimia ese texto exacto y
+# salia con 0, autorizando la publicacion. Un caso que solo mira el texto de una compuerta no
+# comprueba la compuerta: comprueba el cartel. Lo que un workflow mira es el CODIGO.
+#
+# Y «…y NO bloquea por el grafo» comprueba que algo NO ocurre: graphify-out/ esta en .gitignore
+# y en CI sale MISSING. Convertir «no lo se» en «no pasas» es tan falso como convertirlo en
+# verde (RULE-06), y una compuerta que falla por motivos ajenos se acaba desactivando.
+
+  ✓ sellar --gate bloquea con el sello roto
+  ✓ …y sale con codigo distinto de cero
+  ✓ …y sin deuda mecanica, deja pasar
+  ✓ …y NO bloquea por el grafo, que no evalua
+  ✓ el resumen no calla lo SIN EVALUAR
+  ✓ …y sigue sin bloquear: codigo cero
+  ✓ publicar.yml da GH_TOKEN a verify-fdge
+  ✓ verificacion.yml tambien
+
+selftest: OK · 1448 casos

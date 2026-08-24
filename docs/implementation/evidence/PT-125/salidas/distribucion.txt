@@ -1,0 +1,20 @@
+CLASE    instancias  menciones  mayor ordinal DECLARADO
+CE-001         6          0   12  PT-131 · instancia doce
+CE-002         7          4   7  PT-104 · septima
+CE-003         6          0   7  PT-064 · séptima
+CE-004         7          0   9  PT-082 · novena
+CE-005         5          1   2  PT-047 · segunda
+CE-006         4          1   —
+CE-007         3          0   7  PT-114 · septima
+CE-008         3          0   5  PT-022 · cinco veces
+CE-009         1          0   —
+CE-010         1          1   —
+CE-011         1          0   4  PT-036 · cuatro veces
+CE-012         2          0   3  PT-092 · tercera
+CE-013         5          0   —
+CE-014         2          5   —
+CE-015         4          0   6  EP-018 · sexta
+CE-016         4          2   3  PT-099 · tres veces
+CE-017         2          0   —
+
+clases sin instancia: ninguna

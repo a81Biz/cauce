@@ -205,23 +205,49 @@ lint_aserciones() {
 # paso DOS veces en este lote: TRR en PT-076 y RG2 en PT-066.
 lint_helpers() {
   local f="$SUITE/tools/selftest.sh" malos=0 out=""
-  # La lista va por variable para que la linea NO contenga los nombres: con ellos escritos
-  # aqui, el lint se señalaba a si mismo —su propio bucle era «el primer uso»—. Segunda
-  # autorreferencia al escribir esta guarda, tras la de los comentarios.
-  local HELPERS="TR TRR RG2 V PL PLNO trlib trlibno inversa"
+  # PT-135 · LA LISTA SE DERIVA DEL ARCHIVO, no se escribe a mano.
+  #
+  # La version anterior llevaba NUEVE nombres escritos aqui, y por eso no vio que «git_fixture» y
+  # «con_phase» se usaban en la 2402 y se definian en la 4803 y la 6397: no estaban en la lista.
+  # Una lista escrita a mano de lo que hay que vigilar es la copia que diverge (CE-008) dentro del
+  # lint que existe para vigilar.
+  #
+  # Y SE MIRA LA POSICION DEL COMANDO, NO LA LINEA ENTERA. Al derivar la lista salieron tres
+  # falsos positivos con la misma raiz que PT-130: «A» casaba dentro del PATRON de un caso
+  # («EDITADO A MANO»), «OTRO» dentro del NOMBRE de otro, y «M» dentro de un HEREDOC. Leer la
+  # linea entera es CE-017 otra vez — acusar al texto por describir algo.
+  local sin_heredoc
+  sin_heredoc="$WORK/lint-helpers-lineas.txt"
+  # Se numeran las lineas y se marcan las que caen dentro de un heredoc, para descartarlas: su
+  # contenido es un FIXTURE, no codigo del arnes.
+  awk '{
+    n = NR
+    if (dentro) { if ($0 == fin) dentro = 0; print n ":"; next }
+    if (match($0, /<<-?.?[A-Za-z_][A-Za-z0-9_]*.?$/)) {
+      fin = $0; sub(/^.*<<-?.?/, "", fin); sub(/.$/, "", fin)
+      gsub(/[^A-Za-z0-9_]/, "", fin)
+      dentro = 1; print n ":" $0; next
+    }
+    print n ":" $0
+  }' "$f" > "$sin_heredoc" 2>/dev/null || cp "$f" "$sin_heredoc"
+
+  local HELPERS
+  HELPERS=$(grep -oE "^[a-zA-Z_][a-zA-Z0-9_]*\(\) \{" "$f" | sed 's/() {//' | grep -v "^lint_")
   for h in $HELPERS; do
-    local def uso
-    def=$(grep -nE "^$h\\(\\) \\{" "$f" | head -1 | cut -d: -f1)
+    local def uso uso_caso uso_montaje
+    def=$(grep -nE "^$h\(\) \{" "$f" | head -1 | cut -d: -f1)
     [ -z "$def" ] && continue
-    # Una mencion en un COMENTARIO no es un uso. Sin esta guarda el lint se acusaba A SI MISMO:
-    # sus propios comentarios nombran TR, TRR y RG2 para explicar el defecto. Es la familia de
-    # PT-051 —un patron literal en un comentario contado como emision real— cometida al
-    # escribir la guarda que la detecta.
-    # Un USO es una INVOCACION DE CASO, no cualquier linea que nombre el helper. Buscar la
-    # mencion suelta hizo que el lint se acusara A SI MISMO dos veces: primero por sus propios
-    # comentarios, y luego por la linea que declara la lista. Anclar en «chk|chkno» resuelve
-    # las dos por construccion, en vez de ir tapando cada autorreferencia una a una.
-    uso=$(grep -nE "^(chk|chkno)[[:space:]].*[[:space:]]$h([[:space:]]|\$)" "$f" | head -1 | cut -d: -f1)
+    # DOS FORMAS DE USAR UN HELPER, y la version anterior solo reconocia la primera:
+    #
+    #   COMO COMANDO DE UN CASO      chk "nombre" "patron" mihelper arg
+    #   COMO LINEA DE MONTAJE        mihelper        ·        build_fixture; mihelper
+    #
+    # La segunda es la que fallaba. El caso que iba detras salia VERDE con su fixture sin git y
+    # su allocation sin phase — CE-005, con un lint escrito justo para esto.
+    uso_caso=$(grep -E "^[0-9]+:(chk|chkno)[[:space:]]+\"[^\"]*\"[[:space:]]+\"[^\"]*\"[[:space:]]+$h([[:space:]]|\$)" "$sin_heredoc" | head -1 | cut -d: -f1)
+    uso_montaje=$(grep -E "^[0-9]+:[[:space:]]*($h|.*[;&][[:space:]]+$h)([[:space:]]*;|[[:space:]]+[^(]|[[:space:]]*\$)" "$sin_heredoc" \
+      | grep -vE "^[0-9]+:[[:space:]]*#" | head -1 | cut -d: -f1)
+    uso=$(printf '%s\n%s\n' "$uso_caso" "$uso_montaje" | grep -E '^[0-9]+$' | sort -n | head -1)
     [ -z "$uso" ] && continue
     if [ "$uso" -lt "$def" ]; then malos=$((malos+1)); out="$out $h(linea $uso antes de $def)"; fi
   done
@@ -388,6 +414,22 @@ M
   printf '| PT-003 | CHORE | S4 | DONE | typo | changes/PT-003-typo/ | 2026-08-05 |\n' > docs/implementation/REFACTOR_SCOPE.md
   printf '| PT-004 | FEATURE | S3 | IN_PROGRESS | pdf | changes/PT-004-pdf/ | 2026-08-06 |\n' > docs/implementation/ENRICHMENT.md
 }
+
+# PT-135 · Estos dos VIVIAN 2400 lineas mas abajo que su primer uso, asi que la linea
+# «build_fixture; git_fixture» no montaba nada: el caso de PT-109 que va detras salia VERDE
+# con su fixture sin git y su allocation sin phase. El lint no lo veia porque solo reconocia
+# el helper cuando era el COMANDO de un caso, y estos se invocan como lineas de montaje.
+# Viven aqui, con el resto del montaje compartido, que es donde se buscan.
+# E3/E4/E5 · AC-03 · sesion se prueba en el FIXTURE, y comprueba lo mismo que antes.
+git_fixture() {  # git inicializado, para que «sesion abrir» tenga un HEAD que marcar
+  ( cd "$WORK"
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm "base del fixture" >/dev/null 2>&1 ) >/dev/null 2>&1
+}
+# Anade «phase: N» al intake del fixture, para los casos que exigen una fase declarada.
+con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.md"; }
 
 # node en vez de python: en MSYS/Git-Bash, python no resuelve rutas /tmp/...
 reg_set() {
@@ -1996,6 +2038,884 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 # CARACTERES (PT-085, PT-090) — y ademas, al fallar, dice QUE regla aparecio en vez de «no caso».
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
+
+# ── PT-136 · EP-020 · la validacion humana y el cierre de lote, por comando ───────────────────
+#
+# Lo pidio el firmante: «que cerrar un BUG y cerrar un lote no exijan escribir el registro a mano».
+#
+# Aparecio CERRANDO EP-020. FDGE-R26 dice que un BUG «se detiene» en VALIDATION_PENDING y que solo
+# un humano lo lleva a DONE, pero no dice COMO SE ESCRIBE ESO: las tres unicas veces anteriores
+# —PT-096, PT-097, PT-098— se escribio a mano declarando la excepcion cada vez.
+TK136="$SUITE/tools/tracker.mjs"
+
+# Proyecto de mentira: un BUG esperando validacion, un no-BUG, y un lote con una tarea.
+proj136() {
+  local d="$WORK/p136"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes/EP-001-lote"
+  printf '%s\n' '---' 'id: EP-001' 'status: READY' '---' > "$d/changes/EP-001-lote/intake.md"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:3,EP:1},
+      allocations:[
+        {id:'PT-001',slug:'a',type:'BUG',status:'VALIDATION_PENDING',epic:'EP-001'},
+        {id:'PT-002',slug:'b',type:'FEATURE',status:'VALIDATION_PENDING',epic:'EP-001'},
+        {id:'PT-003',slug:'c',type:'BUG',status:process.argv[2],epic:'EP-001'},
+        {id:'EP-001',slug:'lote',type:'CHORE',status:'READY'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json" "${1:-DONE}"
+  echo "$d"
+}
+val136() { (cd "$1" && shift; node "$TK136" validar "$@" 2>&1); }
+
+# AC-01 · existe el comando, y registra QUIEN y CUANDO.
+chk   "validar lleva un BUG de VALIDATION_PENDING a DONE"  "VALIDATION_PENDING -> DONE" \
+  val136 "$(proj136)" PT-001 --firmante "Alberto Martínez"
+val136_aplica() {
+  local d; d=$(proj136)
+  (cd "$d" && node "$TK136" validar PT-001 --firmante "Alberto Martínez" --fecha 2020-03-04 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='PT-001');
+           console.log(a.status+' '+(a.compuertas?.G3?.firmante??'?')+' '+(a.compuertas?.G3?.fecha??'?'));" "$d"
+}
+chk   "…y deja quien y cuando en el registro"  "DONE Alberto Martínez 2020-03-04"  val136_aplica
+
+# AC-02 · NO DECIDE: rechaza lo que no le toca. La decision sigue siendo humana.
+chk   "un no-BUG no pasa por esta validacion"  "FDGE-R26"  val136 "$(proj136)" PT-002 --firmante "Alberto Martínez"
+chk   "…ni un BUG que ya esta en DONE"         "LEX-R08"   val136 "$(proj136)" PT-003 --firmante "Alberto Martínez"
+# LA FIRMA SE CONTRASTA: es la unica defensa mecanica contra una firma inventada.
+chk   "un firmante que no esta en la lista falla"  "SUITE-R27"  val136 "$(proj136)" PT-001 --firmante "Quien Sea"
+# Y NINGUNO se aplica si UNO falla: cinco validaciones a medias serian peores que ninguna.
+val136_nada() {
+  local d; d=$(proj136)
+  (cd "$d" && node "$TK136" validar PT-001 PT-002 --firmante "Alberto Martínez" --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').status);" "$d"
+}
+chk   "si una del lote falla, NINGUNA se escribe"  "VALIDATION_PENDING"  val136_nada
+
+# AC-03 · la fecha se puede DECIR: una validacion se registra a veces despues de ocurrir. Es la
+# leccion de PT-121, encontrada usando «firmar» sobre una G1 de dos dias antes.
+chk   "la fecha de la validacion se puede DECIR"  "2020-03-04"  val136_aplica
+
+# AC-04 y AC-05 · «integrar» cierra tambien un LOTE, y solo si ninguna tarea sigue viva. La
+# condicion se DERIVA de las tareas, no se pregunta.
+int136() { (cd "$1" && node "$TK136" integrar EP-001 2>&1); }
+chk   "un lote con tareas vivas NO se cierra"   "no estan terminales"  int136 "$(proj136)"
+chk   "…y las nombra, no solo las cuenta"       "PT-001"               int136 "$(proj136)"
+proj136_cerrable() {
+  local d; d=$(proj136)
+  node -e "
+    const fs=require('fs'); const p=process.argv[1]+'/docs/implementation/REGISTRY.json';
+    const r=JSON.parse(fs.readFileSync(p,'utf8'));
+    r.allocations.forEach(a=>{ if(a.epic==='EP-001') a.status='INTEGRATED'; });
+    fs.writeFileSync(p, JSON.stringify(r,null,2));" "$d"
+  echo "$d"
+}
+chk   "…y con todas terminales, READY -> CLOSED"  "READY -> CLOSED"  int136 "$(proj136_cerrable)"
+
+# ── PT-122 · EP-020 · el cierre de un lote pasa por el comando ────────────────────────────────
+#
+# Lo pidio el firmante: «que publicar el cierre de un lote no dependa de que alguien escriba un
+# comentario a mano».
+#
+# Medido el 2026-08-22: el comentario «Integrado en main · suite 12.0.0 · tag v12.0.0» se escribio
+# con «gh issue comment» en DIECISIETE issues, salio SIN MARCA, y SUITE-R43 los conto como
+# humanos. Es CE-006 —el acto hecho fuera del comando— repetido diecisiete veces.
+TK122="$SUITE/tools/tracker.mjs"
+
+# AC-01 · el comentario lo publica el comando, y lleva MARCA_AGENTE por construccion.
+mlib "el cierre de lote lleva la marca del agente" "cauce:agente" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"9.9.9",tag:"v9.9.9",
+     commit:"abc12345",tareas:[{id:"PT-1",status:"INTEGRATED",terminal:true}]}));'
+# «tracker xxx» sin plataforma sale ANTES de listar las acciones, asi que preguntarselo
+# medía el arnes y no el hecho. Se mira el despachador, que es donde vive la respuesta.
+chk   "…y la accion existe en el despachador"  "firmar, cierre"  cat "$TK122"
+
+# AC-02 · el comentario DERIVA lo que afirma. El texto de EP-019 acerto version, tag y commit
+# escritos a mano: acertar no es lo mismo que no poder equivocarse.
+# Se comprueba que los TRES valores aparezcan, no la forma exacta del rotulo: contar los
+# caracteres entre «Version de la suite» y el numero —dos asteriscos y un acento grave— es
+# fragil y no es lo que el criterio pide. Lo que importa es que salen de FUERA del texto.
+mlib "la version, el tag y el commit salen de fuera del texto" "LOS TRES" "$TK122" \
+  'const c=m.comentarioDeCierreDeLote({lote:"EP-001",version:"9.9.9",tag:"v9.9.9",
+     commit:"abc12345",tareas:[]});
+   const hay=(s)=>c.includes(s);
+   console.log(hay("9.9.9")&&hay("v9.9.9")&&hay("abc12345")?"LOS TRES":"FALTA ALGUNO");'
+# Y CUENTA las tareas terminales, no las transcribe.
+mlib "…y el recuento de tareas se cuenta" "1 de 3" "$TK122" \
+  'const c=m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,
+     tareas:[{id:"A",status:"INTEGRATED",terminal:true},{id:"B",status:"DONE",terminal:false},
+             {id:"C",status:"DONE",terminal:false}]});
+   console.log((/Tareas.. (\d+ de \d+)/.exec(c)||[])[1]);'
+mlib "…y nombra las que siguen vivas" "B" "$TK122" \
+  'const c=m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,
+     tareas:[{id:"A",status:"INTEGRATED",terminal:true},{id:"B",status:"DONE",terminal:false}]});
+   console.log(/Siguen vivas/.test(c)?"B":"NO LAS NOMBRA");'
+
+# EL NEGATIVO que impide la afirmacion falsa: si el tag NO existe, el comentario NO dice que
+# existe. Un comentario que anuncia un tag inexistente es la clase de afirmacion que este marco
+# existe para impedir.
+mlib "sin tag, NO se afirma que exista" "todavia no existe" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,tareas:[]}));'
+mlib "…y dice de quien es el paso"      "paso 8" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,tareas:[]}));'
+# Y un tag que figura pero no resuelve tampoco se da por bueno.
+mlib "un tag que no resuelve se dice"   "SIN EVALUAR" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:"v1.0.0",
+     commit:null,tareas:[]}));'
+
+# AC-03 · SUITE-R09 · los comentarios ya escritos NO se editan, y el propio texto lo dice.
+mlib "el comentario declara que no edita los anteriores" "no se editan" "$TK122" \
+  'console.log(m.comentarioDeCierreDeLote({lote:"EP-001",version:"1.0.0",tag:null,commit:null,tareas:[]}));'
+chkno "…y el comando no tiene forma de editar"  "editarComentario\|actualizarComentario"  cat "$TK122"
+
+# AC-04 · SUITE-R43 declara su limite, y lo declara DONDE PROTEGE: en el mensaje, no solo en un
+# comentario del codigo. La marca solo garantiza lo que la herramienta escribe.
+mlib "SUITE-R43 declara que establece"  "ultima nota MARCADA" "$SUITE/tools/patrones.mjs" \
+  'console.log(m.SUJETOS["SUITE-R43"].establece);'
+mlib "…y que NO establece"              "por contenido son indistinguibles" "$SUITE/tools/patrones.mjs" \
+  'console.log(m.SUJETOS["SUITE-R43"].noEstablece);'
+chk   "…y el limite llega al mensaje"   "por contenido son indistinguibles"  cat "$TK122"
+# Y el desenlace que ya existia y hay que conservar: sin ningun comentario marcado, SIN EVALUAR.
+mlib "sin ningun comentario marcado dice null, no «limpio»" "null" "$TK122" \
+  'console.log(String(m.comentarioSinResponder(["uno","otro"])));'
+mlib "…y con uno marcado y otro despues, pendiente" "true" "$TK122" \
+  'console.log(String(m.comentarioSinResponder(["a <!-- cauce:agente -->","una persona"])));'
+mlib "…y con el marcado al final, limpio" "false" "$TK122" \
+  'console.log(String(m.comentarioSinResponder(["una persona","a <!-- cauce:agente -->"])));'
+
+# ── PT-121 · EP-020 · el viaje de vuelta tras el merge ────────────────────────────────────────
+#
+# Lo pidio el firmante: «que el estado terminal de un lote llegue a la rama por defecto sin que
+# nadie tenga que inventar como».
+#
+# PHASE 9 mandaba «tras el merge: PT→INTEGRATED · intake.md CLOSED» y NINGUN COMANDO lo hacia. Se
+# escribia a mano en DOS sitios —registro y YAML— y por eso divergian: cerrando EP-019 el estado
+# terminal se quedo en la rama de tarea y la principal declaro el lote DRAFT con sus diecisiete
+# tareas en DONE durante todo el ciclo de publicacion.
+TK121="$SUITE/tools/tracker.mjs"
+
+# Un proyecto de mentira con una tarea en DONE y su intake, para no tocar el real.
+proj121() {
+  local d="$WORK/p121"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes/PT-001-login"
+  printf '%s\n' '---' 'id: PT-001' 'type: BUG' 'status: READY' 'phase: 8' '---' > "$d/changes/PT-001-login/intake.md"
+  node -e "
+    const fs=require('fs');
+    fs.writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:1,EP:1},
+      allocations:[{id:'PT-001',slug:'login',status:'$1',type:'BUG'},
+                   {id:'EP-001',slug:'lote',status:'$2',type:'CHORE'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+int121() { (cd "$1" && node "$TK121" integrar "$2" ${3:-} 2>&1); }
+
+# AC-01 · UN SOLO ACTO: registro Y YAML del intake.
+chk   "integrar propone DONE -> INTEGRATED"   "DONE -> INTEGRATED"  int121 "$(proj121 DONE DRAFT)" PT-001
+chk   "…nombrando las DOS fuentes"            "intake"              int121 "$(proj121 DONE DRAFT)" PT-001
+int121_aplica() {
+  local d; d=$(proj121 DONE DRAFT)
+  (cd "$d" && node "$TK121" integrar PT-001 --aplicar >/dev/null 2>&1)
+  node -e "
+    const fs=require('fs');
+    const r=JSON.parse(fs.readFileSync(process.argv[1]+'/docs/implementation/REGISTRY.json','utf8'));
+    const y=fs.readFileSync(process.argv[1]+'/changes/PT-001-login/intake.md','utf8');
+    console.log('REG='+r.allocations[0].status+' YAML='+(/^status:\s*(\S+)/m.exec(y)||[])[1]);
+  " "$d"
+}
+chk   "…y al aplicar escribe las dos"  "REG=INTEGRATED YAML=INTEGRATED"  int121_aplica
+
+# EL NEGATIVO que impide que «escribir el estado» pase por bueno: solo DONE entra. FDGE-R34 exige
+# DONE para G4, asi que otro estado significa que G4 no ha pasado — o que ya se integro, y no se
+# adivina cual (RULE-06).
+chk   "un estado que no es DONE no se integra"  "solo escribe DONE"  int121 "$(proj121 VALIDATION_PENDING DRAFT)" PT-001
+# Y sin intake NO se toca el registro: escribir solo una mitad deja las dos fuentes divergiendo,
+# que es el defecto que este comando cierra.
+int121_sin_intake() {
+  local d; d=$(proj121 DONE DRAFT); rm -rf "$d/changes/PT-001-login"
+  (cd "$d" && node "$TK121" integrar PT-001 --aplicar 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log('REG='+r.allocations[0].status);" "$d"
+}
+chk   "sin intake, el comando falla"      "no existe"        int121_sin_intake
+chk   "…y el registro NO se toca"         "REG=DONE"         int121_sin_intake
+
+# AC-05 · el gemelo por el otro extremo: el estado que produce G1 tambien lo escribe un comando.
+fir121() { (cd "$1" && shift; node "$TK121" firmar "$@" 2>&1); }
+chk   "firmar propone DRAFT -> READY"  "DRAFT -> READY" \
+  fir121 "$(proj121 DONE DRAFT)" EP-001 --compuerta G1 --firmante "Alberto Martínez"
+# LA FIRMA SE CONTRASTA (SUITE-R27): un nombre que no esta en la lista falla. Es la unica defensa
+# mecanica que existe contra una firma inventada.
+chk   "un firmante que no esta en la lista falla"  "SUITE-R27" \
+  fir121 "$(proj121 DONE DRAFT)" EP-001 --firmante "Quien Sea"
+chk   "…y G1 solo produce READY desde DRAFT"  "G1 produce READY desde DRAFT" \
+  fir121 "$(proj121 DONE READY)" EP-001 --firmante "Alberto Martínez"
+# LA FECHA ES LA DE LA COMPUERTA, NO LA DE EJECUTAR EL COMANDO. Lo encontro usar «firmar» sobre
+# EP-020: su G1 paso el 2026-08-22 y el comando escribio el 23, porque derivaba la fecha del
+# ultimo commit. Una cifra plausible y falsa en el campo que dice cuando se firmo (RULE-06).
+fir121_fecha() {
+  local d; d=$(proj121 DONE DRAFT)
+  (cd "$d" && node "$TK121" firmar EP-001 --firmante "Alberto Martínez" --fecha 2020-01-02 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='EP-001');
+           console.log(a.compuertas?.G1?.fecha ?? 'SIN FECHA');" "$d"
+}
+chk   "la fecha de la compuerta se puede DECIR"  "2020-01-02"  fir121_fecha
+
+# AC-02 · FDGE-R19 declara la forma de rama para el trabajo DE LOTE, y dice por que.
+chk   "FDGE-R19 declara la rama del trabajo de lote"  "El trabajo DE LOTE usa la forma de tarea"  cat "$SUITE/RULES.md"
+# EL NUCLEO CONDENSA cada regla a ~210 caracteres (SUITE-R15), asi que una declaracion al
+# final de una regla de 5387 NO llega al agente por defecto. Es el diseño, no un defecto: el
+# documento completo se abre cuando CORE lo remite. Lo que si tiene que llegar es la REGLA.
+chk   "…y FDGE-R19 llega al nucleo"                   "FDGE-R19"  cat "$SUITE/CORE.md"
+
+# AC-03 · PHASES declara DONDE ocurre el viaje de vuelta, con su artefacto y su salida.
+chk   "PHASES declara el viaje de vuelta"   "EL VIAJE DE VUELTA"  cat "$SUITE/PHASES.md"
+chk   "…con su comando"                     "tracker.mjs integrar"  cat "$SUITE/PHASES.md"
+chk   "…y su salida"                        "SALIDA: allocations"   cat "$SUITE/PHASES.md"
+chk   "…y el texto copiable lo lleva"       "integrar PT-XXX"       cat "$SUITE/FDGE-Prompts.md"
+
+# AC-06 · sellar comprueba los DOS tags: que el anterior RESUELVE, y que el de esta version
+# todavia no existe — que es lo normal, porque crearlo es humano y va DESPUES del merge.
+# AC-06 · sellar comprueba los DOS tags: que el anterior RESUELVE, y que el de esta version
+# todavia no existe — que es lo normal, porque crearlo es humano y va DESPUES del merge.
+#
+# SOBRE UN FIXTURE CON SUS PROPIOS TAGS, no sobre el repositorio real: sellar termina consultando
+# la plataforma, y un arnes que depende de la red no es un arnes (PT-126). Aqui ademas hace falta
+# controlar QUE tags hay, que es justo lo que se mide.
+sel121() {
+  local d="$WORK/s121"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', counters:{PT:1,EP:1}, allocations:[]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d"
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm base >/dev/null 2>&1
+    # El orden IMPORTA: v10 y v12 van DESPUES de v4 por version y ANTES por alfabeto. Con el
+    # orden de por defecto, el final de la lista da «v9.0.0» — el error de medicion real que
+    # este intake tuvo que corregir.
+    for v in v4.13.0 v9.0.0 v10.0.0 v12.0.0; do git tag -a "$v" -m "$v" >/dev/null 2>&1; done
+  ) >/dev/null 2>&1
+  (cd "$d" && node "$TK121" sellar 2>&1 | sed -n '/sellar · version/,/paso 8/p')
+}
+chk   "sellar nombra el tag anterior por VERSION, no por alfabeto"  "tag anterior v12.0.0"  sel121
+chk   "…y dice que resuelve"                      "v12.0.0 resuelve"   sel121
+chk   "…y que el de esta version todavia no existe"  "v13.0.0 todavia NO existe"  sel121
+chk   "…y que crearlo es humano y va despues del merge"  "paso 8"      sel121
+# El orden se DERIVA con «--sort=v:refname». Con el de por defecto, v10 y v12 van ANTES de
+# v4.13.0 y el final de la lista da «v9.0.0».
+chk   "el tag anterior se deriva por version, no por alfabeto"  "sort=-v:refname"  cat "$TK121"
+
+# ── PT-135 · EP-020 · el lint de helpers ve tambien los de montaje ────────────────────────────
+#
+# Lo pidio el firmante: «que un caso no pueda pasar en verde porque su montaje NUNCA llego a
+# correr».
+#
+# Aparecio en la corrida completa de PT-118: «git_fixture: command not found» y «con_phase:
+# command not found» entre 1483 verdes, y el caso de PT-109 que va detras pasando con su fixture
+# sin git y su allocation sin phase. CE-005, con un lint escrito exactamente para esto.
+L135="$SUITE/tools/selftest.sh"
+
+# AC-01 · el lint detecta un helper usado como LINEA DE MONTAJE, no solo como comando de un caso.
+chk   "el lint mira los usos de MONTAJE"      "uso_montaje"   cat "$L135"
+chk   "…y tambien tras un «;» o un «&&»"      '\[;&\]'        cat "$L135"
+# AC-02 · la lista se DERIVA del archivo. Escrita a mano, no vio los dos que fallaban: una lista
+# de lo que hay que vigilar, escrita a mano, es la copia que diverge DENTRO del que vigila.
+chkno "la lista de helpers NO esta escrita a mano"  "local HELPERS=\"TR TRR"  cat "$L135"
+chk   "…se deriva de las definiciones del archivo" 'HELPERS=$(grep -oE "\^\[a-zA-Z_\]' cat "$L135"
+# Y el lint no se recorre a si mismo: la autorreferencia que ya mordio dos veces.
+chk   "…y el lint se excluye a si mismo"       'grep -v "\^lint_"'  cat "$L135"
+
+# LA POSICION DEL COMANDO SE ANCLA. Al derivar la lista salieron tres falsos positivos con la
+# misma raiz que PT-130: «A» casaba dentro del PATRON de un caso («EDITADO A MANO»), «OTRO»
+# dentro del NOMBRE de otro, y «M» dentro de un HEREDOC.
+chk   "la posicion del comando se ancla con las comillas"  '\\"\[\^\\"\]\*\\"'  cat "$L135"
+chk   "…y las lineas de heredoc se descartan"              "dentro"            cat "$L135"
+
+# AC-03 · los usos anteriores a la definicion que existian se ARREGLAN, no se documentan.
+gf135() {
+  # No se comprueban NUMEROS de linea: caducan al insertar un caso, que es CE-010. Se comprueba la
+  # PROPIEDAD, que es lo que importa: los tres viven en el mismo tramo de montaje compartido.
+  local b g c
+  b=$(grep -n "^build_fixture() {" "$L135" | cut -d: -f1)
+  g=$(grep -n "^git_fixture() {"   "$L135" | cut -d: -f1)
+  c=$(grep -n "^con_phase() {"     "$L135" | cut -d: -f1)
+  if [ "$g" -gt "$b" ] && [ "$c" -gt "$b" ] && [ $((g - b)) -lt 300 ] && [ $((c - b)) -lt 300 ]
+  then echo "JUNTOS"; else echo "SEPARADOS b=$b g=$g c=$c"; fi
+}
+chk   "git_fixture y con_phase viven junto a build_fixture"  "JUNTOS"  gf135
+# Y el CUERPO viaja con la cabecera: moverla sola dejo el cuerpo huerfano y la bateria murio en
+# silencio. Se comprueba que git_fixture sigue haciendo lo que hacia.
+chk   "…y git_fixture conserva su cuerpo"  "git init -q"  sh -c 'sed -n "/^git_fixture() {/,/^}/p" "$1"' _ "$L135"
+
+# AC-04 · un «command not found» no convive con un OK: el caso que lo vigila PUEDE FALLAR.
+# AUTORREFERENCIA, la tercera de esta familia: el comentario de arriba NOMBRA el patron viejo
+# para explicarlo, y buscarlo en TODO el archivo lo encontraba ahi. Es lo que le paso a
+# lint_helpers dos veces y a PT-051. Se mira la LINEA DEL CASO, no el archivo — el mismo
+# anclaje que PT-130 acaba de aplicar a contradiceElRegistro.
+# «chkno?» en ERE es «chkn» con una «o» opcional, NO «chk» con «no» opcional: no casaba nada,
+# y un patron que no casa nada convierte el chkno en un verde por vacio (PT-023).
+lint135_patron() { grep -E '^chk(no)?[[:space:]].*lint_helpers$' "$L135"; }
+chkno "el caso del lint ya no casa las dos respuestas"  "ninguno"  lint135_patron
+chk   "…exige «ningun helper», que es una sola"          "ningun helper"    cat "$L135"
+chk   "el lint sale limpio sobre el arbol real"          "ningun helper usado antes"  lint_helpers
+
+# AC-05 · el caso de PT-109 afectado se comprueba CON su montaje corriendo. No se da por bueno lo
+# que llevaba un lote entero pasando sin fixture: se ejecuta y se mira.
+pt109_con_fixture() {
+  build_fixture; git_fixture
+  reg_set "r.allocations.find(a=>a.id==='PT-001').phase=8"
+  con_phase 8
+  V PT-001
+}
+chk   "el caso de PT-109 corre con su fixture montado"  "AVISO AHORA, ERROR EN G4" \
+  pt109_con_fixture
+# Y SE RESTAURA EL DIRECTORIO, que es un defecto que SOLO SE VE EN LINUX.
+#
+# «chk» ejecuta su comando en una SUSTITUCION —un subshell—, y «build_fixture» empieza con
+# «rm -rf "$WORK"». El subshell se recoloca con su «cd» final, pero el shell PADRE se queda
+# apuntando al inodo BORRADO: el mkdir crea uno nuevo con el mismo nombre.
+#
+# En Windows borrar un directorio en uso falla, asi que el padre sobrevive y no se nota. En Linux
+# el padre queda huerfano y el siguiente «node» muere con «ENOENT: uv_cwd» — lejos de aqui, en los
+# casos de PT-111, que no tienen nada que ver.
+#
+# Es CE-004 en su forma mas cara: verde en local, rojo donde se decide, y el sintoma apuntando a
+# otro sitio. Lo cazo CI, no la corrida de esta maquina.
+cd "$WORK" 2>/dev/null || cd "$RAIZ"
+# Y un caso que lo vigila: si el directorio no existe, esto lo dice EN SU SITIO en vez de dejar
+# que reviente cien casos mas adelante.
+cwd135() { [ -d "$PWD" ] && echo "DIRECTORIO VIVO" || echo "DIRECTORIO BORRADO"; }
+chk   "…y el directorio de trabajo sobrevive al fixture"  "DIRECTORIO VIVO"  cwd135
+
+# ── PT-130 · EP-020 · la comprobacion deja de acusar a quien la documenta ─────────────────────
+#
+# Lo pidio el firmante: «que describir un hecho en un artefacto no haga fallar la comprobacion
+# que vigila ese hecho».
+#
+# Es CE-017, y es la unica clase que se hace MAS probable cuanto mejor se escribe el ledger:
+# escribir «los diez commits del cierre citaban EP-019 estando CLOSED» —para REGISTRAR el defecto
+# que PT-127 arreglaba— hacia fallar SUITE-R34.
+P130="$SUITE/tools/patrones.mjs"
+vf130() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" "$@" 2>&1); }
+A130='[{"id":"PT-126","status":"DONE"},{"id":"EP-019","status":"CLOSED"},{"id":"PT-096","status":"INTEGRATED"}]'
+
+# AC-01 · la lectura se ancla al SUJETO —el primer identificador—, que es lo que la linea afirma
+# en curso. El checkpoint es UNO (LEX-R26), asi que la linea afirma UNA tarea.
+mlib "el sujeto de «tarea:» es el primer identificador" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-126 en PHASE 8 — los commits citaban EP-019 estando CLOSED", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# AC-02 · citar una allocation cerrada PARA DECIR que esta cerrada no es un error.
+mlib "citar una cerrada para decir que lo esta, no falla" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-126 sigue · EP-019 quedo CLOSED y PT-096 INTEGRATED", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# EL CASO QUE SOLO SALVA EL ANCLAJE: se menciona una cerrada SIN decir que lo esta. Con la
+# lectura vieja —todos los identificadores de la linea— esto fallaba, y es prosa correcta.
+mlib "…y mencionarla sin decir su estado, tampoco" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-126 en PHASE 8 — el cierre de EP-019 dejo esto pendiente", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# Y NO se pierde lo que la comprobacion existe para cazar: un sujeto terminal presentado en curso.
+mlib "un sujeto TERMINAL presentado en curso SIGUE fallando" "PT-096" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-096 sigue en curso y falta poco", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+mlib "…y si la linea LO DECLARA terminal, no falla" "SIN FALLO" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("tarea:  PT-096 INTEGRATED, cerrada el martes", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+# La linea «implementacion:» conserva su lectura, que ya estaba anclada por adyacencia.
+mlib "un lote declarado ABIERTA y cerrado en el registro falla" "EP-019" "$P130" \
+  'const a='"$A130"';
+   const r=m.contradiceElRegistro("implementación:  EP-019 ABIERTA con doce tareas", a);
+   console.log(r.length?r.join(" | "):"SIN FALLO");'
+
+# AC-03 · la comprobacion DECLARA que hecho establece y cual NO, en el registro de sujetos que
+# construyo PT-087. Un rojo sin alcance declarado se lee como «el bloque entero contradice».
+mlib "SUITE-R34 declara que establece" "primer identificador" "$P130" \
+  'console.log(m.SUJETOS["SUITE-R34"].establece);'
+mlib "…y que NO establece" "NO evalua los demas" "$P130" \
+  'console.log(m.SUJETOS["SUITE-R34"].noEstablece);'
+# Y EL LIMITE VIVE EN EL MENSAJE, no solo en el registro: uno que solo vive en el codigo
+# protege a quien ya esta leyendo el codigo, no a quien lee el rojo (SUITE-R38).
+chk   "…y el limite llega al mensaje"  "NO evalua los demas identificadores"  vf130 PT-130
+
+# AC-04 · las OTRAS lecturas de alcance amplio se ENUMERAN, aunque no se arreglen aqui. RULE-06:
+# se declara lo medido y no se promete lo no medido.
+mlib "las lecturas de alcance amplio se enumeran" "SON VARIAS" "$P130" \
+  'const f=[{archivo:"x.mjs",texto:"if (txt.includes(algo)) fallo();"},
+             {archivo:"y.mjs",texto:"if (RE_X.test(cuerpo)) fallo();"}];
+   const r=m.lecturasDeAlcanceAmplio(f);
+   console.log(r.length>=2?"SON VARIAS "+r.length:"SOLO "+r.length);'
+mlib "…y dicen SOBRE QUE leen y en que linea" "x.mjs 1 txt" "$P130" \
+  'const r=m.lecturasDeAlcanceAmplio([{archivo:"x.mjs",texto:"if (txt.includes(a)) f();"}]);
+   console.log(r[0].archivo, r[0].linea, r[0].sobre);'
+# Un COMENTARIO que nombra el patron no es una lectura: es la autorreferencia que ya mordio en
+# PT-051 y en el lint de helpers, y aqui se evita por construccion.
+mlib "…y un comentario que lo nombra NO cuenta" "0" "$P130" \
+  'console.log(m.lecturasDeAlcanceAmplio([{archivo:"c.mjs",texto:"// ojo con txt.includes(algo)"}]).length);'
+# Sin fuentes NO devuelve una lista vacia: devuelve null. Cero lecturas y «no se pudo mirar» no
+# son lo mismo (RULE-06) — y un cero fue exactamente el sintoma del primer intento roto.
+mlib "…y sin fuentes dice null, no cero" "null" "$P130" \
+  'console.log(String(m.lecturasDeAlcanceAmplio(null)));'
+
+# AC-05 · EL ARREGLO NO ES ESQUIVAR LA PALABRA. El texto que hoy fallaba sigue escrito igual y
+# ahora pasa: lo que cambio es el ALCANCE DE LA LECTURA, no la prosa.
+chk   "el HANDOFF sigue nombrando identificadores en prosa"  "PT-127"  cat "$RAIZ/docs/implementation/HANDOFF.md"
+chkno "…y SUITE-R34 no lo acusa por nombrarlos"  "afirma que .* sigue en curso"  vf130 PT-130
+
+# ── PT-126 · EP-020 · sellar mide la matriz y FPGE la lee ─────────────────────────────────────
+#
+# Lo pidio el firmante: «teniendo las explicaciones y la matriz tendremos una nutrida base de
+# conocimiento y estas reglas se pueden aplicar a cualquier trabajo».
+#
+# Es el cierre del bucle: PT-118 nombro las clases, PT-125 las aplico, PT-119 las conto, y aqui
+# la cuenta se convierte en algo que alguien VE sin ir a buscarlo.
+#
+# SE MIDE SOBRE EL PROYECTO DE MENTIRA, como el resto de la bateria. La primera version llamaba
+# a «sellar» sobre el repositorio real: sellar termina consultando la plataforma, asi que los
+# casos colgaban contra la red — un arnes que depende de GitHub no es un arnes.
+sel126() {
+  local d="$WORK/sel126"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  cp "$RAIZ/docs/implementation/REGISTRY.json" "$d/docs/implementation/" 2>/dev/null
+  [ -n "${1:-}" ] && cp "$1" "$d/docs/implementation/MATRIZ.md"
+  (cd "$d" && node "$SUITE/tools/tracker.mjs" sellar 2>&1 | sed -n '/matriz de eventos/,/^$/p')
+}
+# Una matriz de mentira con las tres situaciones que importan, escrita aqui para que el caso no
+# dependa de cuantas clases tenga el repositorio hoy.
+mat126() {
+  cat > "$WORK/mat126.md" <<'MAT'
+| Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
+|:---|:---|--:|--:|:---|:---|:---|:---|
+| `CE-901` | Se repite y nadie la reclama | 5 | 5 | 2026-01-01 | 2026-02-02 | **—** | **sin dueño** |
+| `CE-902` | Se repite poco y nadie la reclama | 1 | — | 2026-01-01 | 2026-01-01 | **—** | **sin dueño** |
+| `CE-903` | Tiene regla que no puede fallar | 4 | — | 2026-01-01 | 2026-01-01 | `X-R01` | **NO**: la regla existe y nada emite por ella |
+MAT
+  echo "$WORK/mat126.md"
+}
+
+# AC-01 · se mide DONDE YA SE MIRA. El patron de PT-110: una medicion en un comando nuevo es una
+# medicion que nadie ejecuta — CE-007, «existe la herramienta y nada la echa en falta», 7 veces.
+chk   "sellar mide la matriz"                    "matriz de eventos"  sel126 "$(mat126)"
+chk   "…y nombra la clase que llega al umbral"   "CE-901"             sel126 "$(mat126)"
+chkno "…y NO la que no llega"                    "CE-902"             sel126 "$(mat126)"
+# El caso PEOR que no tener regla: hay obligacion y NO PUEDE FALLAR (P-003).
+chk   "…y una regla que no puede fallar se nombra"  "NADA EMITE POR ELLA"  sel126 "$(mat126)"
+chk   "…y no se promueve nada"                     "decide una persona"    sel126 "$(mat126)"
+
+# AC-04 · el umbral es un PARAMETRO DECLARADO, no un numero escondido en el codigo (SUITE-R38).
+chk   "el umbral sale del registro"   "umbral_clase_sin_dueno"  cat "$RAIZ/docs/implementation/REGISTRY.json"
+chk   "…y declara su motivo"          "menor de esas cuentas fue tres"  cat "$RAIZ/docs/implementation/REGISTRY.json"
+chk   "…y sellar lo publica"          "para ser candidata"      sel126 "$(mat126)"
+
+# AC-03 · RULE-06 · TRES desenlaces. Una MATRIZ.md ausente NO es una matriz sin candidatos: la
+# primera dice «no se pudo mirar» y la segunda «no hay nada que corregir».
+chk   "sin MATRIZ.md dice SIN EVALUAR"       "SIN EVALUAR"  sel126
+chk   "…y no lo confunde con «no hay nada»"  "NO es una"    sel126
+
+# AC-02 · toda entrada nueva declara su clase, y verify-fdge AVISA cuando falta. Avisa y NO
+# falla: RIGE_DESDE acota LEX-R31 a la 13.0.0, asi que las 163 anteriores no pasan a estar
+# incompletas (SUITE-R09). Es CE-014 evitado a proposito en la comprobacion que cuenta CE-014.
+vf126() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" "$@" 2>&1); }
+chk   "una entrada que declara su clase, en verde"  "declara «Clase de evento"     vf126 PT-119
+chk   "…y una que no la declara, AVISA"             "no declara «Clase de evento"  vf126 PT-129
+chkno "…y no la hace fallar"                        "✗ LEX-R31"                    vf126 PT-129
+# Declararla es OPCIONAL a proposito: exigirla siempre haria que se inventara una clase para
+# callar el aviso, que es peor que no tener aviso.
+chk   "…y el aviso dice que es opcional"            "Es opcional"                  vf126 PT-129
+
+# AC-03 · FPGE lee la matriz SIN QUE NADIE LA TRANSCRIBA.
+chk   "FPGE recolecta desde MATRIZ.md"   "MATRIZ.md"  cat "$SUITE/FPGE-Implementation.md"
+chk   "…citando la clase por su CE-nnn"  "CE-nnn"     cat "$SUITE/FPGE-Implementation.md"
+# Y el umbral NO se repite alli: dos numeros que puedan divergir es CE-008.
+chkno "…y no repite el numero del umbral"  "umbral_clase_sin_dueno.*3\|≥ 3"  cat "$SUITE/FPGE-Implementation.md"
+
+# ── PT-119 · EP-020 · MATRIZ.md se deriva, no se escribe ──────────────────────────────────────
+#
+# Lo pidio el firmante: «quiero la matriz para saber que falta por corregir, que errores se
+# repiten y como los vamos a solventar».
+#
+# Es H-007 otra vez aplicado a una tabla nueva: PT-091 demostro que una cifra transcrita caduca
+# en un dia. Una matriz escrita a mano seria la instancia siguiente de CE-010.
+MZ119="$SUITE/tools/matriz.mjs"
+
+# AC-01 · la fila lleva clase, veces, primera y ultima aparicion, tareas, regla dueña y si esa
+# regla tiene verificador.
+mlib "la fila lleva clase, veces y fechas" "CE-001 2 2026-01-01 2026-02-02" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-001",nombre:"x",enunciado:"y"}],
+     [{clase:"CE-001",fecha:"2026-01-01",tarea:"PT-1",polaridad:"INSTANCIA"},
+      {clase:"CE-001",fecha:"2026-02-02",tarea:"PT-2",polaridad:"INSTANCIA"}],
+     new Map(), new Map())[0];
+   console.log(f.id, f.veces, f.primera, f.ultima);'
+mlib "…y las tareas donde ocurrio" "PT-1 PT-2" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-001",nombre:"x",enunciado:"y"}],
+     [{clase:"CE-001",fecha:"a",tarea:"PT-1",polaridad:"INSTANCIA"},
+      {clase:"CE-001",fecha:"b",tarea:"PT-2",polaridad:"INSTANCIA"}],
+     new Map(), new Map())[0];
+   console.log(f.tareas.join(" "));'
+
+# AC-02 · TODAS las cifras se DERIVAN. La inversa: alterar el jsonl cambia la cifra.
+mlib "alterar el jsonl cambia la cifra" "1 luego 3" "$MZ119" \
+  'const uno=m.filasDe([{id:"CE-001"}],[{clase:"CE-001",polaridad:"INSTANCIA"}],new Map(),new Map())[0].veces;
+   const tres=m.filasDe([{id:"CE-001"}],[1,2,3].map(()=>({clase:"CE-001",polaridad:"INSTANCIA"})),new Map(),new Map())[0].veces;
+   console.log(uno+" luego "+tres);'
+# Y una MENCION no suma: contarla inflaria la matriz con una recurrencia que no ocurrio (PT-125).
+mlib "una MENCION no suma como instancia" "1 instancia 1 mencion" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-001"}],
+     [{clase:"CE-001",polaridad:"INSTANCIA"},{clase:"CE-001",polaridad:"MENCION"}],
+     new Map(), new Map())[0];
+   console.log(f.veces+" instancia "+f.menciones+" mencion");'
+
+# AC-04 · la regla dueña se DERIVA de que la regla CITE la clase, en su propio texto. Una tabla
+# clase→regla escrita a mano seria justo la copia que diverge (SUITE-R38, LEX-R23).
+mlib "la regla dueña sale de que la regla cite la clase" "X-R01" "$MZ119" \
+  'const d=m.duenasPorClase(["| `X-R01` | HARD | gobierna CE-002 |"]);
+   console.log(d.get("CE-002")[0].id);'
+# LAS DOS FORMAS de definir una regla. Mirar solo la fila de tabla dejaba fuera a SUITE-R14
+# —definida suelta— y con ella a CE-008: una clase habria salido «sin dueño» TENIENDO dueño.
+mlib "…tambien en la forma suelta, que ocupa varias lineas" "Y-R02" "$MZ119" \
+  'const L=String.fromCharCode(10);
+   const d=m.duenasPorClase(["`Y-R02` · **(CHECK)** algo"+L+"  que gobierna CE-008 aqui"+L]);
+   console.log(d.get("CE-008")[0].id);'
+mlib "…y sin cita, la clase sale SIN DUEÑO" "SIN DUENO" "$MZ119" \
+  'const f=m.filasDe([{id:"CE-099"}],[],new Map(),new Map())[0];
+   console.log(f.duenas.length?"CON DUENO":"SIN DUENO");'
+# «Tiene verificador» NO es «la regla existe»: es que alguna herramienta EMITA por ella. La
+# primera corrida encontro que SUITE-R59 existe y NADA emite por ella.
+mlib "tener regla no es tener verificador" "CON REGLA SIN VERIFICADOR" "$MZ119" \
+  'const d=new Map([["CE-002",[{id:"S-R59",severidad:"HARD"}]]]);
+   const f=m.filasDe([{id:"CE-002"}],[],d,new Map())[0];
+   console.log(f.duenas.length&&!f.verificadores.length?"CON REGLA SIN VERIFICADOR":"otra cosa");'
+
+# AC-03 · RULE-06 · lo que no puede leerse sale SIN EVALUAR y es DISTINGUIBLE de «cero». Sin este
+# desenlace, un EVENTOS.jsonl ilegible produciria el mismo informe que uno perfecto — la leccion
+# de PT-110, y el tercer desenlace que el propio intake declaro como lo que importa.
+mlib "un jsonl ilegible NO es un jsonl vacio" "SIN EVALUAR" "$MZ119" \
+  'const r=m.construye({lexicon:"| `CE-001` | x | y |",rules:["| `A-R1` | HARD | z |"],
+     jsonl:"{esto no es json}",verificadores:new Map()});
+   console.log(r.sinEvaluar?"SIN EVALUAR "+r.sinEvaluar.join(","):"ESCRIBIO IGUAL");'
+mlib "…y un jsonl vacio SI produce matriz, con ceros" "0" "$MZ119" \
+  'const r=m.construye({lexicon:"| `CE-001` | x | y |",rules:["| `A-R1` | HARD | z |"],
+     jsonl:"",verificadores:new Map()});
+   console.log(r.sinEvaluar?"SIN EVALUAR":String(r.filas[0].veces));'
+mz119_sin_fuente() {
+  local d="$WORK/mz119"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/docs/methodology/tools"
+  (cd "$d" && node "$MZ119" --raiz="$d" 2>&1); echo "codigo $?"
+  [ -f "$d/docs/implementation/MATRIZ.md" ] && echo "ESCRIBIO IGUAL" || echo "NO ESCRIBIO"
+}
+chk   "sin fuentes NO escribe una matriz vacia"  "NO ESCRIBIO"  mz119_sin_fuente
+chk   "…y lo DICE en vez de callar"              "no es lo mismo"  mz119_sin_fuente
+
+# AC-05 · «npm run matriz» existe y la frescura se comprueba: un .md derivado desincronizado falla.
+chk   "npm run matriz existe"        "matriz.mjs"   cat "$RAIZ/package.json"
+chk   "…y la frescura entra en verify"  "matriz:check"  cat "$RAIZ/package.json"
+mz119_check() { (cd "$RAIZ" && node "$MZ119" --check 2>&1); }
+chk   "la matriz publicada esta al dia"  "al dia"  mz119_check
+# EL ARCHIVO NO LLEVA FECHA DE GENERACION, y es deliberado: la haria irreproducible y «--check»
+# fallaria SIEMPRE, que es la forma de que una comprobacion de frescura se apague sola. Lleva el
+# RANGO de los datos, que se deriva.
+chkno "la matriz no estampa la fecha de hoy"  "Derivada el"  cat "$RAIZ/docs/implementation/MATRIZ.md"
+chk   "…lleva el rango de los datos"          "datos de"     cat "$RAIZ/docs/implementation/MATRIZ.md"
+
+# Y NO PRIORIZA NI ABRE NADA: enumera. Puntuar es FPGE, y abrir lo decide una persona (FPGE-R04).
+chk   "la matriz dice que no prioriza"  "no prioriza ni abre"  cat "$RAIZ/docs/implementation/MATRIZ.md"
+
+# ── PT-125 · EP-020 · clasificar las entradas cerradas ────────────────────────────────────────
+#
+# Lo pidio el firmante: «quiero que releas las tareas ya cerradas y realices una matriz de
+# eventos, quiero saber que ocurrio, que se mejoro, QUE SE REPITE».
+#
+# La clase es un JUICIO y todo registro sale DECLARADO. Lo que se automatiza —y lo que estos
+# casos ejercen— es el MATERIAL: la frase con que el ledger se autodescribe y la cita literal.
+EV125="$SUITE/tools/eventos.mjs"
+
+# AC-01 · un registro lleva tarea, fecha, clase, CITA TEXTUAL y naturaleza.
+mlib "un registro lleva clase, cita y naturaleza" "CE-001" "$EV125" \
+  'const r=m.clasifica("PT-131","2026-08-22","## PT-131 — x\nFecha: 2026-08-22\nEs el proxy en lugar del hecho, instancia doce.","HISTORY.log");
+   console.log(r[0].clase, r[0].naturaleza, r[0].cita ? "CON CITA" : "SIN CITA");'
+mlib "…y la cita es LITERAL, no parafraseada" "instancia doce" "$EV125" \
+  'const r=m.clasifica("PT-131","2026-08-22","## PT-131 — x\nEs el proxy en lugar del hecho, instancia doce.","HISTORY.log");
+   console.log(r[0].cita);'
+
+# AC-02 · toda clasificacion va marcada DECLARADO: la clase es un juicio, no una derivacion.
+mlib "toda clasificacion va DECLARADO" "DECLARADO" "$EV125" \
+  'const r=m.clasifica("PT-X","2026-01-01","## PT-X — y\nrotura de escapado otra vez.","HISTORY.log");
+   console.log(r[0].naturaleza);'
+mlib "…y ninguna se presenta como MEDIDO" "NINGUNA MEDIDO" "$EV125" \
+  'const t=["## A — a\nel proxy en lugar del hecho","## B — b\nnada de nada"];
+   const r=t.flatMap((x,i)=>m.clasifica("T"+i,null,x,"HISTORY.log"));
+   console.log(r.some(x=>x.naturaleza==="MEDIDO")?"HAY MEDIDO":"NINGUNA MEDIDO");'
+
+# EL JUICIO QUE LA MAQUINA NO PUEDE HACER · nombrar una clase no es ser una instancia de ella.
+# PT-127 dice literalmente «NO es el acto fuera del comando» y el matcher la marcaba como tal.
+# Contarla habria inflado la matriz con una recurrencia que no ocurrio — CE-001 cometido en la
+# herramienta que existe para contar instancias de CE-001.
+mlib "una MENCION no se cuenta como instancia" "MENCION" "$EV125" \
+  'const r=m.clasifica("PT-127",null,"## PT-127 — z\nNo es «el acto fuera del comando» —alli existe una herramienta que no se uso—:","HISTORY.log");
+   console.log(r.find(x=>x.clase==="CE-006").polaridad);'
+mlib "…y NO se borra: se marca con su motivo" "explicitamente" "$EV125" \
+  'const r=m.clasifica("PT-127",null,"## PT-127 — z\nNo es «el acto fuera del comando»:","HISTORY.log");
+   console.log(r.find(x=>x.clase==="CE-006").como);'
+mlib "…y la misma clase en otra tarea SI es instancia" "INSTANCIA" "$EV125" \
+  'const r=m.clasifica("PT-999",null,"## PT-999 — w\nel registro solo lo escribe el comando y nada lo comprobaba.","HISTORY.log");
+   console.log(r.find(x=>x.clase==="CE-006").polaridad);'
+
+# AC-03 · TODAS las entradas quedan recorridas, y las que no encajan se DECLARAN en vez de
+# forzarse. Son TRES estados y no dos: sin el de en medio se perderia que 40 entradas dicen que
+# algo se repite sin decir QUE — que es un hueco medido, no ausencia de dato.
+mlib "una entrada sin clase queda RECORRIDA igual" "recorrida" "$EV125" \
+  'const r=m.clasifica("PT-Y",null,"## PT-Y — y\nse cambio una coma.","HISTORY.log");
+   console.log(r[0].clase===null?r[0].como:"CLASIFICADA");'
+mlib "…y afirmar recurrencia sin nombrar la forma es OTRO estado" "NO nombra la forma" "$EV125" \
+  'const r=m.clasifica("PT-Z",null,"## PT-Z — z\nEs la tercera vez que pasa lo mismo.","HISTORY.log");
+   console.log(r[0].clase===null?r[0].como:"CLASIFICADA");'
+mlib "…y ese estado conserva su cita" "tercera vez" "$EV125" \
+  'const r=m.clasifica("PT-Z",null,"## PT-Z — z\nEs la tercera vez que pasa lo mismo.","HISTORY.log");
+   console.log(r[0].cita);'
+
+# El ordinal se DERIVA de la cita, no se cuenta: entradas y ocurrencias son denominadores
+# distintos —EP-020 §2.1 conto 27 roturas y aqui hay 6 entradas que las nombran—.
+mlib "el ordinal sale de lo que la cita declara" "12" "$EV125" \
+  'console.log(m.ordinalDe("Es el proxy en lugar del hecho, instancia doce.").valor);'
+mlib "…tambien en forma cardinal" "27" "$EV125" \
+  'console.log(m.ordinalDe("se rompio veintisiete veces").valor);'
+mlib "…y sin numero declarado dice null, no cero" "null" "$EV125" \
+  'console.log(String(m.ordinalDe("se rompio otra vez")));'
+# EL ORDINAL NO CRUZA DE LINEA. Una entrada con TABLA —como la de PT-125, que lista cada clase
+# con su recuento— hacia que «instancia doce», escrito en la fila de CE-001, se le atribuyera
+# tambien a CE-003, CE-004, CE-007 y CE-015: cuatro cifras plausibles y FALSAS. Es CE-001
+# cometido dentro de la herramienta que cuenta instancias de CE-001. Una ventana de 140
+# caracteres tampoco bastaba: en una tabla densa alcanza la fila de arriba.
+mlib "el ordinal no se toma de la fila de al lado" "null" "$EV125" \
+  'const L = String.fromCharCode(10);
+   const t = "CE-001 el proxy en lugar del hecho 12 instancia doce" + L
+           + "CE-012 filtrar antes de mirar, sin numero";
+   console.log(String(m.ordinalDe(t, /filtrar antes de mirar/i)));'
+mlib "…y si SI esta en su linea, se toma" "3" "$EV125" \
+  'const L = String.fromCharCode(10);
+   const t = "CE-001 el proxy 12 instancia doce" + L
+           + "TERCERA vez que filtrar antes de mirar esconde un fallo";
+   console.log(m.ordinalDe(t, /filtrar antes de mirar/i).valor);'
+
+# AC-04 · SUITE-R36 · ninguna tarea cerrada se rejuzga ni se reabre: la herramienta solo LEE.
+ev125_no_escribe() {
+  local a="$WORK/reg125.antes" b="$WORK/reg125.despues"
+  local h="$RAIZ/docs/implementation/HISTORY.log"
+  [ -f "$h" ] || { echo "SIN EVALUAR"; return; }
+  cp "$h" "$a"; (cd "$RAIZ" && node "$EV125" >/dev/null 2>&1); cp "$h" "$b"
+  cmp -s "$a" "$b" && echo "NO TOCA EL LEDGER" || echo "TOCO EL LEDGER"
+}
+chk   "clasificar no toca HISTORY.log"  "NO TOCA EL LEDGER"  ev125_no_escribe
+
+# EL NEGATIVO · sin ledger legible NO se escribe un archivo vacio. Un EVENTOS.jsonl sin registros
+# diria «ningun evento», que no es lo mismo que «no se pudo mirar» (RULE-06).
+ev125_sin_ledger() {
+  local d="$WORK/ev125"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/docs/methodology"
+  (cd "$d" && node "$EV125" --raiz="$d" 2>&1); echo "codigo $?"
+  [ -f "$d/docs/implementation/EVENTOS.jsonl" ] && echo "ESCRIBIO IGUAL" || echo "NO ESCRIBIO"
+}
+chk   "sin ledger legible NO escribe un archivo vacio"  "NO ESCRIBIO"  ev125_sin_ledger
+chk   "…y lo DICE en vez de callar"                     "no es lo mismo"  ev125_sin_ledger
+
+# ── PT-118 · EP-020 · la taxonomia de clases de evento ────────────────────────────────────────
+#
+# Lo pidio el firmante: «quiero saber que ocurrio, que se mejoro, que se repite». Eso no se puede
+# saber mientras el mismo tropiezo se llame de quince maneras. La clase es lo que convierte
+# quince descripciones en una cosa contable.
+LEX118="$RAIZ/docs/methodology/LEXICON.md"
+
+# AC-01 · LEXICON declara una TERCERA clase de identificador y dice que NO sale del asignador.
+chk   "LEXICON declara la clase de evento"          "CE-NNN"        cat "$LEX118"
+chk   "…y dice que NO se asigna desde REGISTRY"     "no se asigna desde .REGISTRY.json"  cat "$LEX118"
+chk   "…con su regla propia, LEX-R31"               "LEX-R31"       cat "$LEX118"
+# Y la excepcion se ENUNCIA: LEX-R04 dice «exclusivamente via REGISTRY.json», asi que una tercera
+# clase que no pasa por ahi tiene que declararse excepcion o es una contradiccion silenciosa.
+chk   "…declarandose excepcion a LEX-R04"           "nica excepci"  cat "$LEX118"
+
+# AC-02 · el prefijo no colisiona. El caso ENUMERA los prefijos vivos y comprueba la ausencia,
+# en vez de afirmarla: afirmar que algo no colisiona sin mirar es la forma de que colisione.
+ce118_prefijos() {
+  # Los prefijos de trabajo y de regla que LEXICON declara, y si «CE» esta entre ellos.
+  grep -oE '\| `[A-Z]+-(N+|R)' "$LEX118" | sed 's/.*`//;s/-.*//' | sort -u | grep -x "CE" \
+    && echo "COLISIONA" || echo "PREFIJO LIBRE"
+}
+chk   "el prefijo CE no colisiona con ningun otro"  "PREFIJO LIBRE"  ce118_prefijos
+# Y el otro riesgo, que no es el prefijo sino la SUBCADENA: «CE-001» contiene «E-001». Solo es
+# seguro porque toda expresion que busca E-NNN, P-NNN, H-NNN o U-NNN va anclada.
+ce118_subcadena() {
+  # Se busca lo CONTRARIO de lo que se quiere: una expresion que busque «E-NNN» suelto, o sea con
+  # una «E» que no venga precedida de otra letra. Si existiera, cazaria dentro de «CE-001».
+  if grep -hoE "[^A-Za-z]E-.?d" "$SUITE"/tools/*.mjs 2>/dev/null | grep -q .; then
+    echo "HAY UNA E SUELTA"
+  else
+    echo "NINGUNA E SUELTA"
+  fi
+}
+chk   "…y ninguna expresion busca «E-NNN» suelto"  "NINGUNA E SUELTA"  ce118_subcadena
+# Y lo que la medicion SI encontro se declara, en vez de callarse (RULE-06).
+chk   "…con el riesgo latente que si existe, declarado"  "verify-ptsa.mjs:203"  cat "$LEX118"
+
+# AC-03 · las diecisiete clases medidas entran como semilla, cada una con su enunciado.
+ce118_cuantas() { grep -cE '^\| `CE-[0-9]{3}`' "$LEX118"; }
+chk   "las diecisiete clases estan declaradas"      "17"            ce118_cuantas
+chk   "…y la ultima es la que faltaba en la matriz" "CE-017"        cat "$LEX118"
+# Cada una con enunciado: una fila con la celda de enunciado vacia seria un nombre sin contenido.
+ce118_sin_enunciado() {
+  awk -F'|' '/^\| `CE-[0-9]{3}`/ { gsub(/ /,"",$4); if ($4=="") print "VACIA: " $2 }' "$LEX118"
+  echo "TODAS CON ENUNCIADO"
+}
+chk   "…y ninguna se queda sin enunciado"           "TODAS CON ENUNCIADO"  ce118_sin_enunciado
+# Y NO se promete completa: PT-125 puede encontrar mas, y encontrarlas es la tarea funcionando.
+chk   "…y la lista no se promete completa"          "no se promete completa"  cat "$LEX118"
+
+# AC-04 · CORE.md la lleva: si no llega al nucleo, el agente no la ve en ninguna sesion.
+chk   "la taxonomia llega al nucleo"                "CE-016"        cat "$SUITE/CORE.md"
+
+# LEX-R32 · EL NEGATIVO, y es el que hace util a todo lo anterior: citar una clase que LEXICON
+# no declara FALLA. Sin esto, la lista es una sugerencia y en dos versiones habra un CE-018
+# escrito de memoria — la averia que LEX-R04 impide en los identificadores de trabajo.
+ce118_inventada() {
+  local d="$WORK/ce118"; rm -rf "$d"; mkdir -p "$d"
+  cp "$LEX118" "$d/LEXICON.md"
+  cp "$SUITE/RULES.md" "$SUITE/EXECUTION-MODES.md" "$SUITE/PHASES.md" "$d/" 2>/dev/null
+  cp "$SUITE/CHANGELOG.md" "$SUITE/CORE.md" "$d/" 2>/dev/null
+  printf '\n`CE-099` es una clase que nadie declaro.\n' >> "$d/PHASES.md"
+  node "$SUITE/tools/verify-suite.mjs" "$d" 2>&1
+}
+chk   "citar un CE que LEXICON no declara FALLA"    "CE-099"        ce118_inventada
+chk   "…y es error, no aviso"                       "ERRORES"       ce118_inventada
+
+# ── PT-127 · EP-020 · nada detecta el trabajo sin allocation ──────────────────────────────────
+#
+# Lo pidio el firmante con una frase que se describe a si misma:
+#
+#   «lo empezaras a arreglar, ese arreglo te vas a saltar el marco de trabajo, entonces debes
+#    abrir el pt con el bug para poder hacer la correccion necesaria (SI NO TE LO DIGO, NO LO
+#    HARIAS) y esto es algo que se debe evitar»
+#
+# El parentesis es el defecto entero: lo que solo ocurre cuando una persona lo dice, no ocurre.
+# La funcion es PURA — recibe los commits ya leidos y quien decide si un ID esta vivo—, y por eso
+# estos casos la ejercen sin git y sin disco.
+P127="$SUITE/tools/patrones.mjs"
+
+# AC-01 · lo correcto sale limpio. Un commit bien formado que cita un PT vivo no es un hallazgo.
+mlib "un commit con «feat: PT-NNN» y allocation viva no es hallazgo" "SIN HALLAZGO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a1",padres:1,sujeto:"feat: PT-127 el detector",
+     rutas:["docs/methodology/tools/patrones.mjs"]},()=>true);
+   console.log(r===null?"SIN HALLAZGO":"HALLAZGO "+r.clase);'
+
+# AC-02 · EL NEGATIVO. Un commit que no toca ninguna ruta gobernada NO necesita allocation, y
+# exigirsela convertiria la comprobacion en ruido. Sin este caso, una comprobacion que marcase
+# TODO tambien pasaria los demas.
+mlib "un commit que no toca ruta gobernada no necesita allocation" "SIN HALLAZGO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a2",padres:1,sujeto:"lo que sea, sin formato",
+     rutas:["README.md","package.json"]},()=>false);
+   console.log(r===null?"SIN HALLAZGO":"HALLAZGO "+r.clase);'
+
+# AC-03 · el hallazgo que dio origen a la tarea: diez commits del cierre de EP-019 citaban el
+# LOTE. FDGE-R19 pide un PT, y ningun verificador miraba el prefijo.
+mlib "citar un LOTE no es citar una allocation" "NO_ES_PT" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a3",padres:1,sujeto:"docs: EP-020 las seis paradas",
+     rutas:["changes/x/intake.md"]},()=>true);
+   console.log(r?r.clase:"SIN HALLAZGO");'
+
+# AC-04 · un PT que no existe en el registro es trabajo sin allocation abierta.
+mlib "citar un PT que no existe es trabajo sin allocation" "NO_VIVO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a4",padres:1,sujeto:"fix: PT-999 algo",
+     rutas:["bin/cauce.mjs"]},()=>false);
+   console.log(r?r.clase:"SIN HALLAZGO");'
+
+# AC-05 · RULE-06 · no poder decidir NO es lo mismo que estar bien, y se dice distinto.
+mlib "no poder decidir si esta vivo no es permiso" "SIN_EVALUAR" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a5",padres:1,sujeto:"fix: PT-127 algo",
+     rutas:["bin/cauce.mjs"]},()=>null);
+   console.log(r?r.clase:"SIN HALLAZGO");'
+
+# AC-06 · un merge NO es trabajo: es integracion, y su asunto lo escribe git. Se reconoce por su
+# FORMA —dos padres— y no por un tipo de commit que FDGE-R19 no declara. La primera version
+# metia «merge» en la lista de tipos: legislar desde una herramienta lo que la regla no dice.
+mlib "un merge no es trabajo: se reconoce por sus dos padres" "SIN HALLAZGO" "$P127" \
+  'const r=m.commitSinAllocation({sha:"a6",padres:2,sujeto:"Merge pull request #215",
+     rutas:["docs/methodology/RULES.md"]},()=>false);
+   console.log(r===null?"SIN HALLAZGO":"HALLAZGO "+r.clase);'
+mlib "…y los tipos de commit son los SEIS que declara FDGE-R19" "SEIS feat fix refactor test docs chore" "$P127" \
+  'console.log("SEIS "+m.TIPOS_DE_COMMIT.join(" "));'
+
+# AC-07 · ELEGIDO vs FORZADO. La diferencia no se infiere: se DECLARA, y la declaracion nombra
+# el identificador Y la regla que exceptua, DENTRO DE UNA MISMA entrada del ledger.
+mlib "sin excepcion declarada, el rodeo es ELEGIDO" "ELEGIDO" "$P127" \
+  'const l="\n## una entrada\ntexto sin nada\n\n## otra\nhabla de EP-020 y ya esta.";
+   console.log(m.clasificaRodeo({id:"EP-020",clase:"NO_ES_PT"},l).motivo);'
+mlib "…con la excepcion en la MISMA entrada, es FORZADO" "FORZADO" "$P127" \
+  'const l="\n## excepcion declarada a FDGE-R19 para EP-020\nla herramienta no podia cumplirlo.";
+   console.log(m.clasificaRodeo({id:"EP-020",clase:"NO_ES_PT"},l).motivo);'
+# AC-07b · LA REGRESION QUE CASI SE PUBLICA. La primera version troceaba por «\b(?=## )», que no
+# trocea nada —un limite de palabra no cae entre un salto y una almohadilla—, y «la misma
+# entrada» volvia a ser el DOCUMENTO ENTERO: la palabra en una entrada y el ID en otra bastaban.
+mlib "la excepcion en OTRA entrada no vale: el troceo trocea" "ELEGIDO" "$P127" \
+  'const l="\n## aqui se declara una excepcion a FDGE-R19\npero de otra cosa.\n\n## y aqui EP-020";
+   console.log(m.clasificaRodeo({id:"EP-020",clase:"NO_ES_PT"},l).motivo);'
+
+# AC-08 · y la comprobacion CORRE dentro del verificador, agrupando por lo que dice — treinta y
+# cuatro lineas identicas no enumeran nada, solo tapan las demas.
+# Se ancla al repositorio por lo mismo que los de PT-128. Y el observable es «commit(s)» sin
+# los dos puntos A PROPOSITO: aparece tanto cuando hay hallazgos —«15 commit(s): cita…»—
+# como cuando no los hay —«60 commit(s) recientes: todos citan un PT vivo»—. Con los dos
+# puntos, el caso se pondria rojo el dia que los 34 commits salgan de la ventana, que es
+# justo el dia en que la comprobacion estaria funcionando mejor.
+vf127() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" "$@"); }
+chk "verify-fdge ejecuta la comprobacion y agrupa los commits" "commit(s)" vf127 PT-127
+
+# ── PT-128 · EP-020 · el cursor del recorrido ─────────────────────────────────────────────────
+#
+# Lo pidio el firmante: «no podemos [asegurar que las cosas ocurren] si no tenemos un cursor que
+# nos indique en donde estamos parados, de donde venimos y a donde vamos... para no perderse
+# ninguna puerta ningun comportamiento».
+#
+# La ultima frase es la tarea entera: NO PERDERSE NINGUNO. Eso no se consigue consultando —una
+# consulta responde lo que se le pregunta— sino ENUMERANDO. Es PTSA-R79 aplicado a la navegacion:
+# «la auditoria cierra cuando la matriz esta completa, no cuando el auditor deja de encontrar».
+# EL CASO SE ANCLA AL REPOSITORIO, no al directorio que haya activo. Sin «cd "$RAIZ"» estos
+# casos corrian sobre el fixture vigente en ese punto de la bateria —que no contiene PT-128
+# ni EP-019— y salian «no esta en el registro». Pasaban al ejecutarlos sueltos y fallaban
+# dentro de la bateria: es la clase «probar donde trabajo, no donde se decide», decima
+# instancia medida, y la que hizo que PT-128 declarase verificados unos casos rojos.
+cur128() { (cd "$RAIZ" && node "$SUITE/tools/tracker.mjs" cursor "$@"); }
+chk   "el cursor dice DONDE ESTAS"        "ESTAS EN"      cur128 PT-128
+chk   "…de DONDE VIENES"                  "VIENES DE"     cur128 PT-128
+chk   "…y a DONDE PUEDES IR"              "PUEDES IR A"   cur128 PT-128
+# El DATO del nodo, que es lo que lo hace una «cajita» y no un puntero suelto.
+chk   "…con el DATO del nodo"             "PHASE"         cur128 PT-128
+# AC-04 · la garantia es por ENUMERACION. Un lote enumera su SUBARBOL —cada tarea y cada fase—,
+# no cuenta. Contar es lo contrario: un recuento correcto convive con cualquier hueco porque no
+# dice CUAL. La primera version contaba «17 cerradas, 0 vivas» y no nombraba ni un nodo.
+chk   "un lote enumera su SUBARBOL, no lo cuenta"  "ENUMERADO, no consultado" cur128 EP-019
+chk   "…nombrando cada nodo con su tarea y su fase"  "PT-096 PHASE" cur128 EP-019
+# AC-05 · RULE-06 · lo que no se sabe evaluar NO es lo mismo que visitado, y se dice distinto.
+chk   "…y distingue SIN EVALUAR de visitado"  "SIN EVALUAR" cur128 EP-019
+# AC-02 · los nodos se DERIVAN. Si PHASES.md cambia de forma, el cursor NO adivina: falla y lo
+# dice. Un recorrido inventado es peor que ninguno.
+chk   "las fases se derivan de PHASES.md"  "fasesDeFDGE" cat "$SUITE/tools/tracker.mjs"
+# AC-06 · EL NEGATIVO que sostiene todo lo demas: el cursor LEE. Si escribiera, consultar donde
+# estas cambiaria donde estas — y entonces no seria un cursor, seria un avance encubierto.
+cur128_escribe() {
+  local a="$WORK/reg.antes"; local b="$WORK/reg.despues"
+  local r="$RAIZ/docs/implementation/REGISTRY.json"
+  # Si el registro no se puede leer, el caso NO puede decir «no escribe»: diria que no cambio algo
+  # que nunca miro, que es un verde por no haber mirado (RULE-06).
+  [ -f "$r" ] || { echo "SIN EVALUAR: no se pudo leer $r"; return; }
+  cp "$r" "$a"
+  (cd "$RAIZ" && node "$SUITE/tools/tracker.mjs" cursor EP-019 >/dev/null 2>&1)
+  cp "$r" "$b"
+  if cmp -s "$a" "$b"; then echo "NO ESCRIBE"; else echo "ESCRIBIO"; fi
+}
+chk   "el cursor NO escribe en el registro"  "NO ESCRIBE" cur128_escribe
+chk   "…y lo DICE en su propia salida"       "El cursor NO escribe" cur128 PT-128
 # ── PT-100 · C-2 · un hecho, un nombre ────────────────────────────────────────────────────────
 #
 # CINCO hechos con nombre doble, y los cinco decidian si algo se verifica.
@@ -2321,10 +3241,24 @@ rige106 "la que discrepa conserva su valor real"        "11.0.0" EXEC-R04
 rige106 "…y la otra tambien"                            "11.0.0" SUITE-R09
 # Ninguna fila puede quedar por encima de la version vigente: una regla no puede regir desde un
 # futuro que todavia no se ha publicado, salvo las que entran CON esta version.
+# PT-115 · la version SE DERIVA del CHANGELOG en cada corrida. Estaba quemada —«v[0] > 12»— y
+# este caso fallo en cuanto el proyecto llego a la 13, SIN QUE ESO SIGNIFICARA NADA: es lo que
+# el bloque «no hacer» advierte, «atar una asercion a una cifra que CRECE», y ya paso en PT-088
+# con «PENDIENTE 122». Una asercion que caduca sola ensena a ignorar el rojo.
+#
+# Lo deriva BASH y el JS solo compara: el cuerpo de mlib corre dentro de un .then() —sin await
+# de nivel superior— y un regex con barras no sobrevive a la cadena. Se quita la necesidad de
+# escapar en vez de escapar mejor (PT-087, decima instancia).
+MAYOR_VIGENTE="$(grep -m1 -oE '^## [0-9]+' "$SUITE/CHANGELOG.md" | grep -oE '[0-9]+')"
+if [ -z "$MAYOR_VIGENTE" ]; then
+  bad "ninguna fila mira mas alla de la version que entra  (SIN EVALUAR: no se pudo leer la version vigente del CHANGELOG)"
+else
 mlib "ninguna fila mira mas alla de la version que entra" "COHERENTE" \
   "$SUITE/tools/patrones.mjs" \
-  "const R=m.RIGE_DESDE; const malas=Object.entries(R).filter(([,v])=>v[0]>12);
+  "const M=$MAYOR_VIGENTE; const R=m.RIGE_DESDE;
+   const malas=Object.entries(R).filter(([,v])=>v[0]>M);
    console.log(malas.length?'FUTURO '+malas.map(x=>x[0]).join(','):'COHERENTE');"
+fi
 # ── PT-105 · el estado que una compuerta exige lo escribe un COMANDO ──────────────────────────
 #
 # Salio de APLICAR PT-103, no de leer codigo: PT-104 fue la primera tarea creada entera desde el
@@ -3538,6 +4472,455 @@ patlib "sin poder leer el tag ⇒ null"              '^null$' \
 patlib "el lote se reconoce por su ID, no por type" '^\["PT-011"\]$' \
   "console.log(JSON.stringify(m.sinSellar($DEUDA,[])))"
 
+# PT-120 · la compuerta que autoriza lo unico irreversible del marco no comprobaba lo que decia.
+#
+# publicar.yml corria OCHO comprobaciones y ninguna era «sellar». Pero llamarlo no habria servido:
+# «sellar» salia con codigo 0 SIEMPRE. Era un informe con forma de compuerta, y la 12.0.0 salio a
+# npm con DOS reglas fuera de su guia de migracion.
+#
+# AC-01 · «--gate» BLOQUEA. El caso rompe una cifra del inventario EN EL FIXTURE y exige el codigo
+# de salida 1. Se mide el CODIGO, no el texto: la primera version de este bloque imprimia «No se
+# publica» y salia con 0, porque la ultima linea del despachador hace process.exit(0) incondicional
+# y pisaba el process.exitCode. Leyendo el bloque no se ve — esta a 190 lineas y en otra funcion.
+build_fixture
+perl -0pi -e 's/\| `selftest\.sh` \| \d+ \|/| `selftest.sh` | 1 |/' "$WORK/docs/enterprise-documentation/inventory/services.md" 2>/dev/null || true
+chk   "sellar --gate bloquea con el sello roto"   "EL SELLO NO ESTA RESUELTO" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate 2>&1' _ "$WORK"
+# Y EL CODIGO DE SALIDA, que es lo que un workflow mira. Un caso que solo comprobara el texto
+# habria pasado con la version rota: decia exactamente lo mismo y autorizaba la publicacion.
+chk   "…y sale con codigo distinto de cero"       "^1$" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate >/dev/null 2>&1; echo $?' _ "$WORK"
+# INVERSA · sin deuda mecanica, pasa. Sin ella, el caso de arriba pasaria igual si «--gate»
+# bloqueara SIEMPRE — y una compuerta que nunca deja pasar se desactiva, no se cumple.
+build_fixture
+# El fixture no trae SELLO.md, asi que sin esto los CINCO documentos de entrada salen sin
+# resolver y la compuerta bloquea con razon: el caso estaria midiendo su propio montaje, no la
+# compuerta. Se le da lo que pide, y entonces la inversa mide lo que dice medir.
+mkdir -p "$WORK/docs/implementation"
+{ echo "| Documento | Estado | Motivo |"
+  echo "|:---|:---|:---|"
+  echo "| MANUAL.md | ACTUALIZADO | |"
+  echo "| CASOS-DE-USO.md | ACTUALIZADO | |"
+  echo "| README.md | ACTUALIZADO | |"
+  echo "| Suite-CLAUDE-Template.md | ACTUALIZADO | |"
+  echo "| graphify-out/ | NO PROCEDE | esta en .gitignore y no se evalua aqui |"
+} > "$WORK/docs/implementation/SELLO.md"
+chk   "…y sin deuda mecanica, deja pasar"         "^0$" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate >/dev/null 2>&1; echo $?' _ "$WORK"
+# LO QUE --gate NO BLOQUEA, y es deliberado: el grafo. graphify-out/ esta en .gitignore y en CI
+# sale MISSING. Bloquear una publicacion por algo QUE NO ES EVALUABLE ahi es convertir «no lo se»
+# en «no pasas», tan falso como convertirlo en verde (RULE-06). Los pasos humanos tampoco
+# (SUITE-R06a): una compuerta no puede exigir lo que solo una persona puede hacer.
+chkno "…y NO bloquea por el grafo, que no evalua" "grafo" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs sellar --gate 2>&1 | grep "✗" || true' _ "$WORK"
+# AC-03 · «Sin errores» no puede ser lo ultimo que se lee cuando hay reglas que NO SE LLEGARON A
+# MIRAR. En la corrida 32600060157 hubo 108 avisos SIN EVALUAR sobre 108 PT y el paso cerro con
+# «Sin errores. PTs verificados: 108» — el verde que FDGE-R34 llama precondicion de G4.
+#
+# NO se convierte en error: SIN EVALUAR no aprueba NI bloquea, y hacerlo fallar dejaria sin salida
+# al proyecto sin plataforma que SUITE-R22 declara soportado. Lo que se arregla es que el resumen
+# NO PUEDA CALLARLO.
+build_fixture
+chk   "el resumen no calla lo SIN EVALUAR"        "SIN EVALUAR" \
+  sh -c 'cd "$1" && GH_TOKEN= node docs/methodology/tools/verify-fdge.mjs --all 2>&1 | tail -5' _ "$WORK"
+# Y sigue siendo un PASE: SIN EVALUAR no bloquea. Si esto saliera 1, todo proyecto sin plataforma
+# quedaria fuera del marco.
+chk   "…y sigue sin bloquear: codigo cero"        "^0$" \
+  sh -c 'cd "$1" && GH_TOKEN= node docs/methodology/tools/verify-fdge.mjs --all >/dev/null 2>&1; echo $?' _ "$WORK"
+# AC-02 · el token llega al paso que lo necesita, en LOS DOS workflows. Se mide sobre el YAML
+# porque es donde vive el hecho: el paso de verify-fdge declara su env.
+chk   "publicar.yml da GH_TOKEN a verify-fdge"    "PT-120" \
+  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/publicar.yml"' _ "$RAIZ"
+chk   "verificacion.yml tambien"                  "PT-120" \
+  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/verificacion.yml"' _ "$RAIZ"
+build_fixture
+
+# PT-117 · AC-03 · «--pendientes» es la consulta que el hook Stop invoca.
+#
+# CASI SE REPITE PT-133 AQUI MISMO: el hook iba a llamar a «pendiente --parada», UNA BANDERA QUE
+# NO EXISTE. Un hook que invoca algo inexistente es una segunda red que no puede ejecutarse —
+# exactamente el defecto que PT-133 acaba de arreglar, en otro archivo. Lo paro probar el comando
+# ANTES de escribirlo en la configuracion.
+#
+# La lista se DERIVA del registro y de RIGE_DESDE. No hay estado nuevo: un segundo sitio donde
+# apuntar que algo esta pendiente seria un hecho con dos nombres (LEX-R22).
+build_fixture
+reg_set "r.allocations.push({id:'PT-777',slug:'sin-citar',status:'DRAFT',phase:1,suite_version:'13.0.0'})"
+chk   "--pendientes ve la que no cita su parada"  "PT-777" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+# INVERSA · con el enlace escrito NO aparece. Sin ella, el caso pasaria igual si «--pendientes»
+# enumerara TODAS las allocations, que es el motivo contrario al que dice medir.
+build_fixture
+reg_set "r.allocations.push({id:'PT-777',slug:'ya-cita',status:'DRAFT',phase:1,suite_version:'13.0.0',origen_parada:{de:'PT-001',motivo:'hallazgo'}})"
+chkno "…y la que si la cita, no"                  "PT-777" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+# Y lo anterior a la regla tampoco: --pendientes usa el MISMO alcance que el verificador. Si
+# usaran alcances distintos, el hook avisaria de trabajo que la compuerta no exige — y un aviso
+# que no corresponde a nada ensena a ignorar el aviso.
+build_fixture
+reg_set "r.allocations.push({id:'PT-777',slug:'vieja',status:'DRAFT',phase:1,suite_version:'12.0.0'})"
+chkno "…ni lo anterior a la regla"                "PT-777" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+# El hook vive en .claude/settings.json, FUERA del paquete: un proyecto destino que instale cauce
+# NO LO RECIBE. Se comprueba que la bandera que invoca EXISTE — que es lo unico comprobable desde
+# aqui, y decir el limite es el punto de AC-03 (SUITE-R26).
+build_fixture
+chk   "el hook invoca una bandera que existe"     "ninguna allocation alcanzada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada --pendientes 2>&1' _ "$WORK"
+build_fixture
+
+# PT-133 · «parada» exigia plataforma para escribir en un archivo local.
+#
+# La accion no estaba en SIN_PLATAFORMA, asi que la herramienta salia ANTES de llegar a su propio
+# codigo. La rama que escribe en TRANSICIONES.log ESTA ESCRITA —es el «else» de la publicacion—
+# pero era INALCANZABLE: codigo correcto detras de una puerta cerrada.
+#
+# PT-116 lo declaro cumplido con verified: true, y su evidencia fue «la rama sin
+# adaptador.comentar»: se comprobo que la rama EXISTE, no que se EJECUTA. Es la clase que PT-124
+# nombro —buscar el texto en el fuente no comprueba el hecho— y la TERCERA instancia en dos
+# tareas seguidas.
+#
+# Y PT-084 habia medido este defecto EXACTO en «avanzar»: exigia plataforma y un proyecto sin ella
+# no podia avanzar ni una fase. PT-116 CITO ese precedente en su propio AC-03 y volvio a
+# cometerlo en el archivo de al lado, en la misma sesion. SUITE-R22 declara soportado el equipo
+# de una sola persona: sin este arreglo, ese proyecto no puede registrar una sola parada.
+#
+# El caso EJECUTA la rama sobre el fixture, que no declara plataforma. Que la ejecute es el punto:
+# es justo lo que no se hizo la primera vez.
+build_fixture
+printf 'una parada en un proyecto sin tablero\n' > "$WORK/nota.txt"
+chk   "parada corre sin plataforma declarada"     "TRANSICIONES.log" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace continua 2>&1' _ "$WORK"
+# Y lo escribe DE VERDAD: que el comando no falle no prueba que el ledger tenga la parada.
+chk   "…y la parada queda en el ledger"           "PARADA" \
+  cat "$WORK/docs/implementation/TRANSICIONES.log"
+# INVERSA · con plataforma sigue publicando en el issue. El arreglo NO cambia la ruta que ya
+# funcionaba: sin esta inversa, «meter la accion en SIN_PLATAFORMA» podria haber apagado el
+# espejado sin que nada lo dijera (SUITE-R35).
+build_fixture
+reg_set "r.tracker={plataforma:'github'}"
+printf 'x\n' > "$WORK/nota.txt"
+chk   "…y con plataforma toma la otra rama"       "debe espejarse" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace continua 2>&1' _ "$WORK"
+build_fixture
+
+# PT-117 · FDGE-R55 deja de ser una recomendacion.
+#
+# PT-116 construyo «tracker parada» y lo dejo SIN EXIGIR. Un comando que existe y nadie invoca no
+# cambia nada, y las OCHO tareas cerradas de EP-020 lo demuestran: LA HERRAMIENTA EXISTIA EN LAS
+# OCHO. SUITE-R26 llama a eso «una recomendacion».
+#
+# T-01 · la allocation nace declarando bajo que version se abre. NO es un campo mas: `checkPT`
+# deriva el alcance de intake -> registro -> '0.0.0', y una allocation RECIEN CREADA no tiene
+# intake. Sin este campo cae a '0.0.0', ninguna regla nueva la alcanza, y la recien creada es
+# JUSTO la que FDGE-R55 tiene que cazar: la comprobacion habria salido VERDE POR CONSTRUCCION
+# sobre su propio caso de uso.
+build_fixture
+reg_set "r.suite_version='13.0.0'"
+chk   "la allocation nace con su suite_version"   "suite_version: 13.0.0" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs asignar PT --slug x --ver 2>&1' _ "$WORK"
+# INVERSA · si la version NO se puede leer no se inventa (RULE-06). Un '0.0.0' escrito a proposito
+# afirmaria que la allocation nacio antes de todo, y eso apagaria comprobaciones EN SILENCIO.
+# Ausente se distingue de falso; un valor inventado, no.
+build_fixture
+reg_set "delete r.suite_version"
+chk   "…y sin version legible, SIN EVALUAR"       "SIN EVALUAR" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs asignar PT --slug x --ver 2>&1' _ "$WORK"
+# T-02 · el enlace es un HECHO DEL REGISTRO, no una nota que haya que leer. Se comprueba contra el
+# registro y no contra los comentarios del issue: un verificador que necesitara red para decidir
+# si una tarea cumple no podria correr en un repositorio sin plataforma, y SUITE-R22 declara ese
+# caso soportado. El registro asigna (SUITE-R08); el tablero espeja (SUITE-R35).
+build_fixture
+printf 'un hallazgo que abre trabajo\n' > "$WORK/nota.txt"
+chk   "«abre» deja el enlace en la que nace"      "origen_parada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace abre --abre PT-002 2>&1' _ "$WORK"
+chk   "…y el enlace queda ESCRITO en el registro" '"de": "PT-001"' \
+  cat "$WORK/docs/implementation/REGISTRY.json"
+# TS-05 · las precondiciones de plataforma van ANTES de escribir. Estaban DENTRO del if que
+# publica, o sea DESPUES del guardado: una parada que no pudiera publicarse habria dejado un
+# origen_parada apuntando a una nota que NO EXISTE. El orden es validar todo -> escribir lo
+# reversible -> publicar lo irreversible, y es el contrato que PT-132 arreglo en «abrir».
+build_fixture
+printf 'x\n' > "$WORK/nota.txt"
+chkno "una parada que no puede publicarse no escribe" "origen_parada" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs parada PT-001 --motivo hallazgo --texto nota.txt --desenlace abre --abre PT-999 2>&1; cat docs/implementation/REGISTRY.json' _ "$WORK"
+# T-03 · lo que hace que la regla EXIJA. Una allocation alcanzada y sin origen_parada FALLA.
+build_fixture
+reg_set "r.allocations.find((a)=>a.id==='PT-001').suite_version='13.0.0'"
+chk   "una alcanzada sin origen_parada falla"     "sin «origen_parada»" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-fdge.mjs PT-001 2>&1' _ "$WORK"
+# INVERSA · lo anterior a la regla NI SE MIRA. Sin esta puerta, adoptar FDGE-R55 pondria en rojo
+# todo el trabajo en vuelo de cualquier proyecto destino que actualizara — y obligar a rehacer
+# trabajo valido es la forma mas rapida de que se abandone el marco (FDGE-R19, FDGE-R52).
+build_fixture
+chkno "…y lo anterior a la regla, ni se mira"     "sin «origen_parada»" \
+  sh -c 'cd "$1" && node docs/methodology/tools/verify-fdge.mjs PT-001 2>&1' _ "$WORK"
+# El lote RAIZ esta exento: no hay tarea anterior desde la que parar. Sin esta puerta, instalar
+# cauce y abrir el primer EP empezaria EN ROJO — y una compuerta que falla sobre el caso inicial
+# no se cumple: se rodea.
+patlib "los motivos siguen siendo seis"           '^6$' \
+  "console.log(m.MOTIVOS_DE_PARADA.length)"
+# T-04 · la deuda que PT-116 declaro: NADA comparaba las dos listas con LEXICON §8.5. Es PT-080 en
+# miniatura y es la enfermedad que motivo la v4 — el mismo hecho en dos sitios, sin nada que los
+# contraste. Se rompe la constante EN EL FIXTURE para que el fallo ocurra DE VERDAD: buscar el
+# texto en el fuente no comprueba nada (PT-124, y lo que PT-116 tuvo que rehacer).
+build_fixture
+perl -0pi -e "s/'hallazgo', 'condicion-bloqueante'/'hallazgo', 'INVENTADO'/" "$WORK/docs/methodology/tools/patrones.mjs"
+chk   "la clase divergente de LEXICON falla"      "MOTIVOS_DE_PARADA y LEXICON" \
+  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+# INVERSA · sin romper nada, silencio. Sin ella el caso de arriba pasaria igual si la comparacion
+# fallara SIEMPRE, que es el motivo contrario al que dice medir.
+build_fixture
+chkno "…y sin divergencia, silencio"              "MOTIVOS_DE_PARADA y LEXICON" \
+  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+# La cabecera de la tabla NO es una clase. Sin cortar por el separador «|:---|», «| `motivo` |»
+# entra como si lo fuera y la comparacion falla SIEMPRE, enumerando una clase que no existe. Lo
+# delimita el separador, no la posicion de la fila.
+build_fixture
+chkno "la cabecera de la tabla no es una clase"   "LEXICON «abre-trabajo · compuerta · condicion-bloqueante · desafio-al-intake · hallazgo · limite-alcanzado · motivo»" \
+  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+build_fixture
+
+# PT-116 · «tracker parada» · el comando que escribe lo que hasta ahora se publicaba a mano.
+#
+# El medio YA EXISTIA —«avanzar» publica en el issue, o en TRANSICIONES.log si no hay plataforma
+# (PT-084)— y faltaba el comando para la parada QUE NO ES UNA TRANSICION. Por eso las
+# explicaciones vivian en la conversacion: la unica forma de publicarlas era a mano, y en EP-020
+# hubo que hacerlo SIETE veces antes de que el firmante lo senalara.
+#
+# El cuerpo es una funcion PURA por lo que PT-009 dejo escrito: «para que un caso pueda
+# comprobarlo SIN HABLAR CON LA PLATAFORMA — el defecto existia justo porque nadie comprobaba lo
+# que se escribia».
+trlib "la parada lleva la marca de procedencia"     'cauce:agente' \
+  "console.log(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'continua'}))"
+trlib "…y declara su motivo y su desenlace"         'motivo' \
+  "console.log(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'continua'}))"
+# LEX-R30 · una parada que NO es transicion no puede casar RE_NOTA: «contarNotas» cuenta los
+# reanclajes con ese patron, y la tarea pareceria tener transiciones que no tuvo. FDGE-R52 daria
+# por escrito lo que nadie escribio.
+trlib "la parada NO se confunde con un reanclaje"   '^false$' \
+  "console.log(m.RE_NOTA.test(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'continua'})))"
+trlib "…y una nota de reanclaje si casa"            '^true$' \
+  "console.log(m.RE_NOTA.test('PHASE 3 → 4'))"
+# El desenlace «abre» nombra la allocation que nace: es el enlace que PT-117 necesita para exigir
+# que toda allocation nueva cite la parada que la produjo.
+trlib "«abre» nombra la allocation que nace"        'PT-132' \
+  "console.log(m.cuerpoDeParada({id:'PT-9',motivo:'hallazgo',texto:'x',desenlace:'abre',abre:'PT-132'}))"
+# Las dos listas son CERRADAS y las declara LEXICON §8.5. Un valor fuera de ellas convierte la
+# clase en prosa, y entonces la matriz de PT-119 no puede contar nada.
+patlib "los motivos de la parada son seis"          '^6$' \
+  "console.log(m.MOTIVOS_DE_PARADA.length)"
+patlib "…y son los que EP-020 midio"                '^true$' \
+  "console.log(['hallazgo','condicion-bloqueante','compuerta','abre-trabajo','limite-alcanzado','desafio-al-intake'].every(x=>m.MOTIVOS_DE_PARADA.includes(x)))"
+patlib "los desenlaces son cinco"                   '^5$' \
+  "console.log(m.DESENLACES_DE_PARADA.length)"
+# PT-116 · LA REGLA DE FORMA. Van OCHO veces que un argumento nuevo se cuela por la deteccion de
+# ROOT —-q, --solo, --a, las etiquetas, --de, los subcomandos, --slug, y los cuatro de la parada—
+# y las ocho se arreglaron anadiendo el flag a una lista escrita a mano. El comentario de PT-057
+# ya decia HACE CUATRO INSTANCIAS que «se arreglan con una regla de FORMA, no con un caso mas».
+#
+# Ahora si: el valor de un flag NUNCA es la raiz, derivado de la POSICION. Este caso pasa un valor
+# que ES un nombre de directorio plausible detras de un flag: antes se tomaba por ROOT y el
+# comando respondia «No hay REGISTRY.json legible» en vez de lo suyo.
+# (el caso del valor de un flag vive arriba, con su inversa)
+# PT-115 · la PARADA entra al vocabulario y a las reglas.
+#
+# El principio YA ESTABA escrito —SUITE-R04: «una decision que solo existe en el chat no existe»—
+# y le faltaba GRANULARIDAD y DESTINO: la unidad de registro era la fase, nueve por tarea, y la
+# unidad de interaccion es la parada, decenas.
+#
+# Se midio: SEIS tareas de EP-020 se cerraron con todos sus hallazgos explicados solo en la
+# conversacion, y sus issues llevaban unicamente las notas de FDGE-R52. Lo senalo el firmante, no
+# un verificador, y las seis explicaciones hubo que publicarlas A MANO.
+chk   "LEXICON declara la parada"            "8.5 Parada"    cat docs/methodology/LEXICON.md
+chk   "…con sus seis motivos"                "desafio-al-intake"  cat docs/methodology/LEXICON.md
+chk   "…y sus cinco desenlaces"              "cambia-fase"   cat docs/methodology/LEXICON.md
+chk   "FDGE-R55 existe en RULES"             "FDGE-R55"      cat docs/methodology/RULES.md
+# LEX-R30 · una transicion ES una parada. La relacion es RECIPROCA o cada regla dice una cosa
+# distinta del mismo hecho, que es la enfermedad que la v4 elimino.
+chk   "FDGE-R52 cita que es su caso particular" "caso particular de \`FDGE-R55\`" cat docs/methodology/RULES.md
+# SUITE-R16 · la regla no vale si no llega a CORE.md: es lo unico que el agente carga.
+chk   "la parada llega a CORE.md"            "FDGE-R55"      cat docs/methodology/CORE.md
+# PT-081 · PT-095 · PT-106 · una regla HARD nueva que no declara desde cuando rige juzga trabajo
+# escrito antes de existir. Sin esta fila, FDGE-R55 alcanzaria a las 131 tareas ya cerradas.
+patlib "FDGE-R55 declara desde cuando rige"  '^true$' \
+  "console.log(Boolean(m.RIGE_DESDE['FDGE-R55']))"
+patlib "…y las dos de LEXICON tambien"       '^true$' \
+  "console.log(Boolean(m.RIGE_DESDE['LEX-R29'] && m.RIGE_DESDE['LEX-R30']))"
+# PT-123 · BACKLOG.md decia de si mismo «regenerable desde REGISTRY.json», el bloque «no hacer»
+# prohibia editarlo a mano, y NINGUN comando lo escribia. Las tres cosas a la vez dejaban una
+# sola salida practicable —saltarse la regla—, que es FDGE-R51 aplicado al reves.
+#
+# La consecuencia esta en su propia cabecera: OCHO lotes de retraso la primera vez, CUATRO cuando
+# esto se escribio. Y dejaba DoR-E7 incumplible: exige declarar el solapamiento en un archivo que
+# no se puede editar a mano ni generar.
+#
+# NO SE GENERA ENTERO: el PORQUE del orden no sale de ningun campo y es lo mas valioso que tiene.
+# Se reescribe solo lo de dentro de las marcas, como HANDOFF.md hace con ESTADO (LEX-R26).
+ALLOCB="[{id:'EP-9',status:'IN_PROGRESS',title:'t'},{id:'PT-1',epic:'EP-9',type:'BUG',severity:'S1',status:'DONE',phase:8},{id:'PT-2',status:'DEFERRED',type:'CHORE',origin:'x · porque si'}]"
+patlib "el bloque declara la implementacion abierta" 'Implementación abierta' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
+patlib "…con sus tareas y su estado"                'PT-1' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
+patlib "…y los aplazados con su motivo"             'porque si' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
+# INVERSA · un lote CERRADO no es una implementacion abierta. Si saliera, el archivo volveria a
+# declarar lo de hace cuatro lotes.
+patlib "un lote cerrado NO sale como abierto"       '^false$' \
+  "console.log(m.bloqueDeBacklog([{id:'EP-8',status:'CLOSED',title:'t'}]).includes('EP-8'))"
+# Sin ningun lote vivo se DICE, en vez de dejar el bloque vacio: un hueco es indistinguible de
+# una seccion que nadie escribio (FND-R22).
+patlib "sin lote abierto lo dice"                   'Ninguna implementación abierta' \
+  "console.log(m.bloqueDeBacklog([]))"
+# Las cifras SE DERIVAN, no se transcriben (PT-091, H-007).
+patlib "las cifras del bloque se derivan"           '1 de 1 cerradas' \
+  "console.log(m.bloqueDeBacklog($ALLOCB))"
+# PT-124 · la lista de tipos de tracker.mjs era la de las PLANTILLAS, no la de los tipos.
+#
+# Decia ['BUG','FEATURE','CHANGE','TAREA'] y su mensaje de error los ATRIBUIA a LEXICON.
+# LEXICON §8.1 declara BUG · FEATURE · REFACTOR · INVESTIGATION · CHORE, y el registro le da
+# la razon: 30 CHORE y 2 INVESTIGATION escritos, CERO CHANGE y CERO TAREA.
+#
+# «CHANGE» y «TAREA» no existen en ningun otro sitio del codigo: son nombres de PLANTILLA
+# —BUG-REPORT, FEATURE-REQUEST, CHANGE-REQUEST, TAREA—. Alguien derivo la lista de las CUATRO
+# plantillas y la etiqueto como los CINCO tipos. Por eso se solapa en BUG y FEATURE, donde
+# plantilla y tipo se llaman igual, y falla justo en los tres donde no.
+patlib "los cinco tipos son los de LEXICON 8.1"     '^BUG FEATURE REFACTOR INVESTIGATION CHORE$' \
+  "console.log(m.TIPOS_DE_ITEM.join(' '))"
+# INVERSA · los dos que solo existian en la herramienta NO estan. Si volvieran, la lista habria
+# vuelto a ser la de las plantillas.
+patlib "…y los dos de las plantillas ya no"         '^false$' \
+  "console.log(m.TIPOS_DE_ITEM.includes('CHANGE')||m.TIPOS_DE_ITEM.includes('TAREA'))"
+# SUITE-R38 · la constante NO basta: verify-suite la compara con LEXICON 8.1 y falla si divergen.
+# Sin eso seria una copia, solo que UNA — y PT-080 midio que tres copias de una regla divergen
+# las tres sin que nada las compare.
+build_fixture
+# Se rompe la constante EN EL FIXTURE para que el fallo ocurra DE VERDAD. Buscar el texto en el
+# fuente no prueba nada: un mensaje que nunca se imprime no comprueba nada — es la leccion que
+# este mismo archivo escribio para verify-patrones treinta lineas mas arriba.
+perl -0pi -e "s/'BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'/'BUG', 'FEATURE', 'CHANGE', 'TAREA'/" "$WORK/docs/methodology/tools/patrones.mjs"
+chk   "la constante divergente de LEXICON falla"  "TIPOS_DE_ITEM y LEXICON"  node "$WORK/docs/methodology/tools/verify-suite.mjs" "$WORK/docs/methodology"
+build_fixture
+
+# PT-114 · el cuerpo del issue publica la ruta SIN ENLACE y nada lo republica despues.
+#
+# PT-096 decidio BIEN: sin ref durable no se inventa una URL (RULE-06). Lo que faltaba es la
+# otra mitad — que algo lo eche de menos DESPUES. El cuerpo se publica al crear el issue, la
+# rama se empuja despues, y «una vez que un cuerpo esta bien, NADA vuelve a mirarlo» (PT-096).
+#
+# La consecuencia la encontro una PERSONA abriendo EP-020, no un verificador: «no puedo leer
+# el intake por lo que no puedo firmar nada». Sin intake no hay firma, y sin firma no hay G1.
+patlib "cuerpo mudo CON ref durable ⇒ divergencia"  '^true$' \
+  "console.log(m.cuerpoSinEnlaceConRef('sin enlace: no hay ref durable que lo contenga',true))"
+# INVERSA · sin ref durable el cuerpo mudo es CORRECTO: es la decision de PT-096 y no se toca.
+# Marcarlo seria acusar a un acierto, y el ruido ensena a ignorar la comprobacion.
+patlib "…y SIN ref durable es correcto"             '^false$' \
+  "console.log(m.cuerpoSinEnlaceConRef('sin enlace: no hay ref durable que lo contenga',false))"
+# Un cuerpo CON enlace no se marca nunca.
+patlib "…y un cuerpo con enlace tampoco"            '^false$' \
+  "console.log(m.cuerpoSinEnlaceConRef('[changes/x](https://h/r/tree/abc/changes/x)',true))"
+# RULE-06 · sin poder leer el cuerpo NO se dice «todo bien». Devolver false seria el verde
+# por omision, que es lo que publicar.yml hace hoy con SUITE-R43: 108 de 108 SIN EVALUAR.
+patlib "sin poder leer el cuerpo ⇒ null"            '^null$' \
+  "console.log(JSON.stringify(m.cuerpoSinEnlaceConRef(null,true)))"
+patlib "…y sin saber si hay ref, tambien"           '^null$' \
+  "console.log(JSON.stringify(m.cuerpoSinEnlaceConRef('lo que sea',null)))"
+# El literal que se BUSCA es el mismo que cuerpoDeIssue ESCRIBE: una sola constante. Dos
+# copias del mismo literal divergen, y este caso lo caza.
+trlib "el literal buscado es el que se escribe"     'sin enlace: no hay ref durable' \
+  "console.log(m.cuerpoDeIssue({id:'PT-9',slug:'x',status:'READY'},{url:null,rama:'main'}))"
+
+# PT-132 · «abrir» creaba el issue —IRREVERSIBLE— y guardaba el registro al FINAL del bucle.
+# Una interrupcion dejaba los issues creados y el registro sin conocerlos, y la pasada
+# siguiente los volvia a crear: DIECISEIS duplicados medidos el 2026-08-22, PT-129 por TRES.
+#
+# Es el contrato que «avanzar» declara tres funciones mas abajo, CONTRADICHO aqui: dos
+# comandos del mismo archivo con reglas opuestas sobre lo mismo (SUITE-R38).
+ABIERTOS="[{number:9,title:'PT-1 · a'},{number:10,title:'PT-2 · b'}]"
+patlib "un issue huerfano con el titulo se adopta"  '^9$' \
+  "console.log(m.issueAAdoptar('PT-1 · a',$ABIERTOS))"
+# INVERSA · si no hay ninguno con ese titulo se CREA. Adoptar de mas seria peor que duplicar.
+patlib "…y si no lo hay, no se adopta nada"         '^null$' \
+  "console.log(JSON.stringify(m.issueAAdoptar('PT-3 · c',$ABIERTOS)))"
+# RULE-06 · sin poder consultar la plataforma NO se decide. «abrir» ademas no crea a ciegas:
+# crear sin poder comprobar es exactamente como se duplicaron los dieciseis.
+patlib "sin saber que hay abierto, no se decide"    '^null$' \
+  "console.log(JSON.stringify(m.issueAAdoptar('PT-1 · a',null)))"
+# Un titulo vacio no adopta: sin slug no hay titulo que derivar (PT-096).
+patlib "sin titulo derivable no se adopta"          '^null$' \
+  "console.log(JSON.stringify(m.issueAAdoptar('',$ABIERTOS)))"
+
+# PT-129 · la topologia de ramas se ENUMERA, no se recuerda.
+#
+# verify-fdge comprobaba «allocations[].branch» —EL CAMPO QUE LA ALLOCATION DECLARA— y jamas
+# preguntaba al arbol que ramas hay. Con eso una efimera puede sobrevivir a su tarea
+# integrada, o existir una rama sin tarea, sin que nada lo note: es donde se esconde el
+# trabajo sin allocation que persigue PT-127. Medido: origin/fix/.../PT-081 seguia viva con
+# PT-081 en INTEGRATED, y origin/desarrollo lleva declarada sobrante desde Foundation D8.
+#
+# CUATRO TIPOS, no tres: la regla enumeraba tres y «tracker proyectar» lleva creando
+# cauce/<usuario> desde PT-054, declarada en LEXICON.
+ALLOC="[{id:'PT-1',status:'INTEGRATED'},{id:'PT-2',status:'IN_PROGRESS'}]"
+patlib "las cuatro de la topologia encajan"        '^0$' \
+  "console.log(m.topologiaDeRamas(['main','trabajo','cauce/ada','bug/ada/PT-2-x'],$ALLOC).sobrantes.length)"
+# La efimera SE BORRA AL FUSIONARSE y nada lo comprobaba. Este caso es el que lo dice.
+patlib "efimera sobre tarea terminal ⇒ se nombra"  '"PT-1"' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(['main','fix/ada/PT-1-x'],$ALLOC).huerfanas))"
+# INVERSA · una efimera sobre tarea VIVA no se toca: es trabajo en curso, no una sobrante.
+patlib "…y sobre tarea viva NO se nombra"          '^0$' \
+  "console.log(m.topologiaDeRamas(['main','bug/ada/PT-2-x'],$ALLOC).huerfanas.length)"
+# Una rama que no encaja en ningun tipo SE NOMBRA. No se borra: SUITE-R06f.
+patlib "rama fuera de la topologia ⇒ se nombra"    'desarrollo' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(['main','desarrollo'],$ALLOC).sobrantes))"
+# Una rama que cita un ID que el registro no tiene tampoco encaja: el registro asigna.
+patlib "…y una que cita un ID inexistente tambien" 'PT-999' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(['main','bug/ada/PT-999-x'],$ALLOC).sobrantes))"
+# RULE-06 · sin poder enumerar NO se aprueba por omision. Devolver {} vacio diria «todo
+# encaja» sin haber mirado, que es el verde por omision dentro de la compuerta.
+patlib "sin poder enumerar ⇒ null"                 '^null$' \
+  "console.log(JSON.stringify(m.topologiaDeRamas(null,$ALLOC)))"
+
+# PT-129 · el <type> de una RAMA es el del ITEM, no el del commit. La regla decia «fix/» y
+# la herramienta escribia «bug/» desde que existe: dos vocabularios para el mismo hecho, y
+# ninguna de las dos ramas de tarea del repositorio salia de la herramienta.
+patlib "ramaDeTarea deriva del type del item"      '^bug/ada/PT-9-x$' \
+  "console.log(m.ramaDeTarea('BUG','PT-9','x','ada'))"
+# Sin «type» NO hay nombre: antes devolvia «chore/...» con la misma cara que un tipo real,
+# un dato INVENTADO donde RULE-06 pide un «no lo se». Tiene caso hoy: PT-125 y PT-126.
+patlib "sin type no hay nombre de rama"            '^null$' \
+  "console.log(JSON.stringify(m.ramaDeTarea(null,'PT-125','x','ada')))"
+
+# PT-131 · «lo ya sellado» se deriva del ARBOL del tag, no de lo que su REGISTRY declaraba.
+#
+# PT-087 cambio QUE TAG mirar y siguio mirando su registro. Mientras el estado terminal se
+# escribe en el mismo commit que se etiqueta las dos cosas coinciden y el proxy sale gratis.
+# Con EP-019 dejaron de coincidir: v12.0.0 CONTIENE los changes/ de las diecisiete y su
+# REGISTRY las declaraba en DONE, que no es terminal. Resultado: 17 de deuda contra un umbral
+# de 3, y G2 bloqueada para TODAS las tareas — incluida la que produciria el tag que las
+# limpiaria. El candado con la llave dentro, por segunda vez en este archivo.
+#
+# DOS CONDICIONES, no una. Sin la primera —tiene trabajo AHORA— salian PT-025 (DEFERRED,
+# nunca trabajada) y PT-032 (cerrada sin artefactos): una tarea sin trabajo no tiene nada
+# que sellar.
+SELLADO="[{id:'PT-010',slug:'a'},{id:'PT-011',slug:'b'},{id:'PT-025',slug:'z'}]"
+patlib "lo sellado sale del arbol del tag"          '^\["PT-010"\]$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>['PT-010-a'],()=>true,$SELLADO)))"
+# LA INVERSA QUE DECIDE SI EL ARREGLO VALE. Si esto no puede ponerse en rojo, la compuerta
+# dejo de proteger y el arreglo es PEOR que el defecto: se equivocaria HACIA EL VERDE.
+patlib "…y el trabajo FUERA del tag NO sale"        '^false$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>['PT-010-a'],()=>true,$SELLADO)).includes('PT-011'))"
+# Una tarea SIN trabajo no tiene nada que sellar: cuenta como sellada, no como deuda.
+patlib "sin trabajo no hay nada que sellar"         '^true$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>[],(a)=>a.id!=='PT-025',$SELLADO)).includes('PT-025'))"
+# RULE-06 · sin tag o sin git NO se aprueba por omision. Devolver [] haria que TODO pareciera
+# sellado: el verde por omision, en la comprobacion que autoriza G2.
+patlib "sin poder leer el arbol ⇒ null"             '^null$' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>null,()=>true,$SELLADO)))"
+# El observable es «el trabajo viajo», no «el estado lo decia»: una tarea cuyo changes/ esta
+# en el tag cuenta como sellada AUNQUE su estado terminal se escribiera despues.
+patlib "el estado posterior al tag no lo desella"   '"PT-011"' \
+  "console.log(JSON.stringify(m.selladoEnTag(()=>['PT-010-a','PT-011-b'],(a)=>a.id!=='PT-025',$SELLADO)))"
+
 # D · los documentos de entrada se RESUELVEN, no se actualizan. Exigir que cambien produciria
 # retoques cosmeticos para acallar la comprobacion — fabricar un verde, en documentacion.
 patlib "un acta vacia deja los cinco sin resolver" "MANUAL.md" \
@@ -3945,7 +5328,10 @@ chk   "…y una que casa, aplica"             "APLICA"   probar_inversa "linea d
 # B-2 y B-3 AVISAN, no bloquean: hay aserciones legitimas sobre identificadores, y un
 # arnes que nace rojo se apaga. Se enumeran con su linea y la cifra queda medida.
 chk   "las aserciones sospechosas se enumeran"  "sospechosa\|ninguna"  lint_aserciones
-chk   "los helpers usados antes se enumeran"    "helper\|ninguno"      lint_helpers
+# PT-135 · EL PATRON ERA «helper|ninguno», que casa con LAS DOS respuestas posibles: el caso
+# no podia fallar. Un caso que no puede fallar ocupa el sitio del que haria falta —lo midio
+# PT-023— y aqui ademas tapo dos helpers mal colocados durante todo un lote.
+chk   "ningun helper se usa antes de definirse"  "ningun helper"  lint_helpers
 
 # FAMILIA C · los cinco sitios. Sin esto, A y B son dos mecanismos correctos que nadie
 # invoca — el septimo caso del lote con esa forma.
@@ -4141,14 +5527,6 @@ done
 pass_si_vacio() { [ -z "$1" ] && echo "SIN ESCRITURAS POR TRR" || echo "ESCRIBEN POR TRR:$1"; }
 chk   "ninguna accion que escriba va por TRR"   "SIN ESCRITURAS POR TRR"   pass_si_vacio "$malos"
 
-# E3/E4/E5 · AC-03 · sesion se prueba en el FIXTURE, y comprueba lo mismo que antes.
-git_fixture() {  # git inicializado, para que «sesion abrir» tenga un HEAD que marcar
-  ( cd "$WORK"
-    git init -q . 2>/dev/null
-    git config user.email t@t; git config user.name T
-    git add -A >/dev/null 2>&1
-    git commit -qm "base del fixture" >/dev/null 2>&1 ) >/dev/null 2>&1
-}
 build_fixture; git_fixture
 chk   "sesion abrir escribe la marca del FIXTURE"  "sesion abierta desde"  TR sesion abrir
 build_fixture; git_fixture
@@ -5054,8 +6432,29 @@ chk   "y restauracion si algo falla"           "restaurar();" \
 # Restaurar un archivo que NO EXISTIA lo BORRA. Dejarlo vacio seria un estado que no existia.
 chk   "restaurar lo que no existia lo BORRA"   "antes === null" \
   sh -c 'sed -n "/const restaurar/,/^  };/p" "$1"' _ "$_tr"
-# El VALOR de una bandera no es una ruta. Tercera vez en el lote: -q, --solo, --a.
-chk   "el valor de una bandera no es ROOT"     "CON_VALOR.has" \
+# PT-116 · este caso assertaba sobre el FUENTE —«CON_VALOR.has»— y por eso se puso rojo cuando
+# la guarda paso a ser una REGLA DE FORMA, aunque el comportamiento habia MEJORADO. Un caso
+# atado a la implementacion bloquea la mejora que deberia proteger: es la clase que PT-124
+# nombro, «buscar el texto en el fuente no comprueba nada», del otro lado.
+#
+# Ahora asserta el COMPORTAMIENTO: se pasa un valor de flag que ES un nombre de directorio
+# plausible y se comprueba que la herramienta NO lo toma por la raiz. Van OCHO instancias de
+# esta clase —-q, --solo, --a, las etiquetas, --de, los subcomandos, --slug, y los cuatro de la
+# parada— y las ocho se arreglaron anadiendo el flag a una lista. El comentario de PT-057 ya
+# decia hace cuatro que «se arreglan con una regla de FORMA, no con un caso mas».
+build_fixture
+chkno "el valor de una bandera no es ROOT"       "REGISTRY.json legible" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs estado --nota docs 2>&1' _ "$WORK"
+# INVERSA · un posicional que NO es valor de flag SI se consume como raiz. Se corre DESDE el
+# fixture —que si tiene registro— pasando una ruta que no existe: si la guarda ignorara todos
+# los posicionales, caeria en cwd y el registro se leeria sin queja. Que se queje es la prueba.
+# Sin esta inversa, el caso de arriba pasaria igual por el motivo CONTRARIO al que dice medir.
+# La asercion es POSITIVA a proposito: un chkno pasaria tambien si el comando reventara por otra
+# causa cualquiera, y eso no comprueba nada — es la clase que PT-124 nombro.
+chk   "…y una ruta de verdad SI es la raiz"      "REGISTRY.json legible" \
+  sh -c 'cd "$1" && node docs/methodology/tools/tracker.mjs estado no-existe 2>&1' _ "$WORK"
+# El caso que este reemplaza:
+chk   "el valor de una bandera no es ROOT (fuente)"     "startsWith('--')" \
   sh -c 'sed -n "/^const ROOT/,/process.cwd/p" "$1"' _ "$_tr"
 chk   "…y las banderas con valor van en UN sitio" "CON_VALOR = new Set" cat "$_tr"
 # LEX-R21 · el nombre vive en LEXICON.
@@ -5714,8 +7113,6 @@ chkno "…ni dos terminales distintos"                  "es un archivo que se qu
 # El intake del fixture NO declara «phase» —lo comprobe leyendo el generador, DESPUES de
 # que el caso fallara— asi que hay que anadirsela: sin ella no hay nada que comparar.
 # «sed s///» con un salto real no es portable: se usa el comando «i», que INSERTA una linea
-# antes de la que casa y no necesita escapar nada.
-con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.md"; }
 
 build_fixture
 reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"

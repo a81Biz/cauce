@@ -1,0 +1,8 @@
+tracker · github · acción espejo
+
+
+  ✗ SUITE-R51    PT-132: su issue #253 publica la ruta SIN enlace y el contenido ya esta en un ref durable. El cuerpo del issue enlaza donde el contenido esta (SUITE-R51); cuando se abrio todavia no habia ref durable y nadie volvio a preguntar. Se corrige republicando:  tracker abrir --aplicar
+  ✗ SUITE-R47    el espejo BLOQUEA aquí y no solo informa: «chore/alberto-martinez/PT-113-apertura» no es la rama por defecto («main»), así que es donde el registro asigna.
+  ✗ SUITE-R35    1 cuerpo(s) publican la ruta SIN ENLACE y YA existe ref durable que la contiene: PT-132 #253. Quien abra el issue no puede llegar al intake, y sin leerlo no se puede firmar (INTAKE-R06). Se republica:  tracker abrir --aplicar
+
+3 divergencia(s) entre el registro y la plataforma.

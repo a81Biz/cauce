@@ -1,0 +1,4 @@
+   sin §4.4: no queda ninguna clase declarada            OK
+   …y el nucleo lo DICE en vez de callar                OK
+   sin la comprobacion: el CE inventado pasa sin ruido    OK
+   sin la derivacion: la taxonomia NO llega al nucleo     OK

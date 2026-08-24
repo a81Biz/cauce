@@ -1,0 +1,7 @@
+# PT-113 · AC-05 · CORE regenerado y la suite coherente. Salida real de verify-suite.
+
+AVISOS (1)
+  SUITE-R38    tools/patrones.mjs
+      5 de 115 reglas que emiten declaran su sujeto. La tabla crece por adopción declarada, como RIGE_DESDE: lo que la hace útil no es cuántas cubre hoy, sino que ninguna pueda quedarse fuera en silencio.
+
+Sin errores de coherencia.

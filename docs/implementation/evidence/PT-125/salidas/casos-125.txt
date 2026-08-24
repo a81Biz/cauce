@@ -1,0 +1,21 @@
+── A · casos límite (deben pasar en verde) ──
+  [32m✓[0m un registro lleva clase, cita y naturaleza
+  [32m✓[0m …y la cita es LITERAL, no parafraseada
+  [32m✓[0m toda clasificacion va DECLARADO
+  [32m✓[0m …y ninguna se presenta como MEDIDO
+  [32m✓[0m una MENCION no se cuenta como instancia
+  [32m✓[0m …y NO se borra: se marca con su motivo
+  [32m✓[0m …y la misma clase en otra tarea SI es instancia
+  [32m✓[0m una entrada sin clase queda RECORRIDA igual
+  [32m✓[0m …y afirmar recurrencia sin nombrar la forma es OTRO estado
+  [32m✓[0m …y ese estado conserva su cita
+  [32m✓[0m el ordinal sale de lo que la cita declara
+  [32m✓[0m …tambien en forma cardinal
+  [32m✓[0m …y sin numero declarado dice null, no cero
+  [32m✓[0m el ordinal no se toma de la fila de al lado
+  [32m✓[0m …y si SI esta en su linea, se toma
+  [32m✓[0m clasificar no toca HISTORY.log
+  [32m✓[0m sin ledger legible NO escribe un archivo vacio
+  [32m✓[0m …y lo DICE en vez de callar
+
+== 18 casos, 0 fallos ==

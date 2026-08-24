@@ -1,0 +1,82 @@
+{
+  "pt": "PT-115",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "LEXICON define PARADA: que es, sus clases CERRADAS de motivo y desenlace, y donde vive",
+      "tests": [
+        "selftest.sh:LEXICON declara la parada",
+        "selftest.sh:…con sus seis motivos",
+        "selftest.sh:…y sus cinco desenlaces"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "LEXICON §8.5. Las seis clases de motivo NO se inventaron: cada una nacio de una instancia medida en EP-020 —los 16 duplicados, SUITE-R57 bloqueando G2, la G3 de PT-131, PT-132 naciendo de los duplicados, el AC-06 declarado de PT-124, y el desafio O-1—."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "RULES define FDGE-R55, con su severidad y su fila en RIGE_DESDE",
+      "tests": [
+        "selftest.sh:FDGE-R55 existe en RULES",
+        "selftest.sh:FDGE-R55 declara desde cuando rige"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Sin RIGE_DESDE juzgaria las 131 tareas cerradas antes de existir — el defecto que PT-081, PT-095 y PT-106 documentaron. Lo dijo verify-suite al primer intento."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "FDGE-R52 queda declarada COMO CASO PARTICULAR sin perder ninguna obligacion",
+      "tests": [
+        "selftest.sh:FDGE-R52 cita que es su caso particular"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "La cita es RECIPROCA: FDGE-R55 dice que R52 es su caso particular y R52 lo dice de si misma. Sin las dos, cada regla diria una cosa distinta del mismo hecho — la enfermedad que la v4 elimino."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La parada vive en el MISMO destino que la nota de reanclaje",
+      "tests": [
+        "selftest.sh:LEXICON declara la parada"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Issue si hay plataforma, TRANSICIONES.log si no. Inventar un archivo nuevo seria un hecho con dos nombres (LEX-R22, INC-008)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "CORE.md regenerado la lleva",
+      "tests": [
+        "selftest.sh:la parada llega a CORE.md",
+        "core:check"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R16: una regla que no llega a CORE no la carga el agente, y contaria como existente sin estarlo — el defecto que PT-087 encontro con los sub-IDs de LEX-R24."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "PHASES nombra la parada y los prompts la explican",
+      "tests": [
+        "verify-suite"
+      ],
+      "evidence": [
+        "salidas/suite.txt"
+      ],
+      "verified": true,
+      "nota": "SALIO DE UNA COMPROBACION: «PHASES.md cita 3 reglas que FDGE-Prompts.md no menciona. El humano en modo MANUAL no las veria». No lo vi yo."
+    }
+  ]
+}

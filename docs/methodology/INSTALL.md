@@ -140,6 +140,12 @@ una tarea (`LEX-R26`), así que sin tarea no hay nada que derivar y un archivo c
 blanco sería una afirmación falsa con forma de dato. Aparece con la primera —
 `tracker checkpoint PT-NNN`— y desde ahí se sobrescribe.
 
+`EVENTOS.jsonl` y `MATRIZ.md` **tampoco se siembran**, y es la misma razón llevada al extremo:
+los dos se **derivan** del ledger. Un `EVENTOS.jsonl` vacío diría «ningún evento» en una
+instalación donde lo cierto es «todavía no hay ledger que clasificar», y una `MATRIZ.md` de ceros
+diría que ninguna clase se repite. Aparecen cuando hay algo que leer, con `npm run eventos` y
+`npm run matriz`, y desde ahí `npm run verify` comprueba que la matriz siga al día.
+
 `SESSION.json` **tampoco**, y por la misma razón con un matiz: su único campo capturado es
 `desde`, el commit donde empezó la sesión, y una sesión que no ha empezado no tiene inicio que
 marcar. Aparece con `tracker sesion abrir` y desde ahí se sobrescribe — una sesión a la vez.

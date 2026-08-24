@@ -1,0 +1,21 @@
+Con la lista ESCRITA A MANO (nueve nombres) y mirando solo el helper como COMANDO de un caso:
+
+  ningun helper usado antes de definirse
+
+...mientras la bateria imprimia, entre 1483 verdes:
+
+  selftest.sh: line 2402: git_fixture: command not found
+  selftest.sh: line 2404: con_phase: command not found
+
+Con la lista DERIVADA pero sin anclar la posicion del comando ni descartar heredocs:
+
+  helper mal colocado: M(linea 320 antes de 697) A(linea 1155 antes de 4614)
+                       OTRO(linea 2293 antes de 5387) con_phase(linea 2748 antes de 6741)
+
+  M     casaba dentro de un HEREDOC (contenido de fixture, no codigo)
+  A     casaba dentro del PATRON de un caso: "EDITADO A MANO"
+  OTRO  casaba dentro del NOMBRE de otro caso
+
+Con la lista derivada, la posicion anclada y los heredocs descartados — los DOS reales y nada mas:
+
+  helper mal colocado: git_fixture(linea 2759 antes de 5160) con_phase(linea 2761 antes de 6754)

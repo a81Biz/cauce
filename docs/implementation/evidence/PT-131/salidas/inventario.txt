@@ -1,0 +1,5 @@
+tracker · github · acción inventario
+
+  · las 16 cifras de services.md coinciden con el arbol (9181926).
+
+Sin divergencias.
