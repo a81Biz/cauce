@@ -212,6 +212,22 @@ cualquier otro destino     debe ser una allocation en DEFERRED cuyo campo «orig
 
 En `G4` bloquea; antes solo avisa, porque aplazar durante el trabajo es legítimo y frecuente.
 
+**`LEX-R34`: y la puerta de IDA también es un comando.**   `PT-138`
+
+```bash
+node docs/methodology/tools/tracker.mjs aplazar PT-NNN      --reentrada "qué tiene que pasar" --revision AAAA-MM-DD      --dueno "Nombre" [--de PT-NNN] --aplicar
+```
+
+Es la **única** vía sancionada para escribir `DEFERRED`, y exige los tres datos que faltaban.
+Se piden **al escribir**, no en la compuerta: un dato que sólo se pide al final se rellena al
+final, y entonces es una fecha inventada.
+
+```
+revision   debe ser FUTURA — una ya pasada nace caducada
+dueno      se contrasta contra firmantes/personas (SUITE-R27)
+reentrada  se exige que DIGA algo; que diga algo UTIL no es mecanizable (SUITE-R26)
+```
+
 **`LEX-R33`: un aplazado TIENE vuelta, y es por comando.**   `PT-137`
 
 ```bash

@@ -8599,3 +8599,65 @@ LO QUE NO ESTABLECE: que un aplazado deba declarar cuando se retoma (PT-138) ni 
 este completo: se escribio con la PRIMERA version del comando, antes de que el destino fuese
 derivado, asi que declara «por», «fecha» y «de» pero no «destino» ni «conIntake». No se reescribe
 —SUITE-R09 es append-only— porque lo que afirma es cierto.
+
+## PT-138 — la puerta de IDA tampoco tenia comando
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-138-el-aplazado-declara-cuando-se-revisa
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-006
+
+LA CARENCIA ERA SIMETRICA. PT-137 encontro que DEFERRED no tenia SALIDA. Midiendo esta tarea
+resulta que tampoco tenia ENTRADA: ningun comando escribia el estado. Las unicas apariciones del
+literal en tracker.mjs eran la lista de estados, el filtro de `integrar` y el `retomar` recien
+escrito.
+
+Los dos aplazados que existian —PT-025 y PT-134— se teclearon a mano, y por eso ninguno declaraba
+condicion de reentrada, ni fecha de revision, ni dueno. Uno del 2026-08-23 y otro de meses antes
+eran INDISTINGUIBLES en el tablero, y tambien indistinguibles de un abandono. Es lo que el
+firmante pregunto: «de que sirve? cuando se retoma?».
+
+POR QUE AL ESCRIBIR Y NO EN LA COMPUERTA. Un dato que solo se pide al final se rellena al final, y
+entonces es una fecha inventada. Al ser `aplazar` la unica via de escribir DEFERRED, la obligacion
+NO SE PUEDE RODEAR: no hay que comprobar que se cumplio, porque no hay camino en que no se cumpla.
+
+EL DEFECTO QUE APARECIO CONSTRUYENDOLO, y lo cazo un caso. «hoy» salia solo de
+gitDe(['log','-1','--format=%cs']), y en un repositorio SIN GIT eso es null: la condicion era
+«hoy && revision <= hoy», asi que LA CADUCIDAD NO SE MIRABA. Verde por no haber mirado —CE-005—
+dentro del comando que existe para impedir exactamente eso, y en la mitad del codigo que declara
+que un aplazado que nace caducado no se distingue del que no declara nada.
+
+Lo cazo el caso sobre fixture, que no tiene git. El arreglo lee el reloj del sistema cuando git no
+esta; se prefiere la fecha de git cuando la hay, porque es la que usa el resto del marco.
+
+Y LA INVERSA DECLARABA UN ESCENARIO Y TUMBABA OTRO. «Sin exigir los tres, se aplaza sin ellos» no
+era cierto: cada campo ausente lo caza otra comprobacion mas abajo, asi que la supresion producia
+un error DISTINTO, no una escritura. Salia en rojo POR EL MOTIVO EQUIVOCADO — el defecto que
+PT-122 y PT-130 encontraron en las suyas. Rehecha para medir lo que la comprobacion aporta de
+verdad: que el fallo NOMBRE los tres de una vez, en vez de obligar a ejecutar tres veces para
+descubrir que hacian falta tres.
+
+Y una tercera vez la leccion del ANCLAJE: la inversa de la fecha casaba el TEXTO EXACTO del `if`,
+asi que al arreglar el defecto de arriba dejo de casar y salio verde por vacio. Reanclada a la
+LINEA.
+
+AC-07 · LOS APLAZADOS EXISTENTES. PT-134 no aplica: PT-137 la retomo. PT-025 NO SE COMPLETA Y SE
+DICE POR QUE: su condicion de reentrada SI se sabe —esta en su propio «origin»— pero la FECHA DE
+REVISION la decide su dueno, y elegirla seria inventar un dato (RULE-06). La ruta existe y esta
+probada —`aplazar` sobre algo ya DEFERRED ACTUALIZA sus terminos, que es como se migran los
+escritos a mano— y la salida en seco esta en la evidencia. El acto es del firmante.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · LEXICON.md · RULES.md · PHASES.md ·
+  FDGE-Prompts.md · CORE.md (generado) · MATRIZ.md (derivado) · inventory/services.md (derivado)
+
+Evidencia: evidence/PT-138/ — selftest OK · 1655 casos, 0 rojos · verify-suite sin errores ·
+  auditoria sin huecos, cobertura mecanica 129/236 · y la salida en seco sobre PT-025.
+
+LO QUE NO ESTABLECE: que una condicion de reentrada sea BUENA —se exige que diga algo, no que diga
+algo util (SUITE-R26)—; que la fecha elegida sea la correcta —se exige futura, no oportuna—; ni
+que un aplazado caducado bloquee, que es PT-139.

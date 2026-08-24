@@ -330,6 +330,14 @@ APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de
           RECIPROCA — hermano del lote vale siempre; el propio lote solo si
           esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
           «origin» mencionando el PT. En G4 bloquea.
+APLAZAR2  y la puerta de IDA tambien es un comando:                         [LEX-R34]
+          node tools/tracker.mjs aplazar PT-NNN --reentrada "..."           [SUITE-R44]
+                 --revision AAAA-MM-DD --dueno "..." [--de PT-NNN] --aplicar
+          Es la UNICA via sancionada para escribir DEFERRED. Los tres datos
+          se exigen AL ESCRIBIR, no en la compuerta: uno que solo se pide al
+          final se rellena al final. La revision debe ser FUTURA; una ya
+          pasada nace caducada. El dueno se contrasta (SUITE-R27). Que la
+          condicion DIGA algo se comprueba; que diga algo UTIL, no (SUITE-R26).
 RETOMAR   un aplazado TIENE VUELTA, y es por comando:                      [LEX-R33]
           node tools/tracker.mjs retomar PT-NNN --firmante "..."           [SUITE-R44]
                  [--fecha AAAA-MM-DD] [--epica EP-NNN] --aplicar

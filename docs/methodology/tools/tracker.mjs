@@ -869,7 +869,7 @@ const APLICAR = ARGS.includes('--aplicar');
 //
 // CON_VALOR se conserva porque hay un caso que la nombra y porque documenta cuales llevan valor,
 // pero YA NO ES LA GUARDA: la guarda es la forma.
-const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de', '--epica',
+const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de', '--epica', '--reentrada', '--revision', '--dueno',
   '--tipo', '--severidad', '--epica', '--titulo',
   '--motivo', '--texto', '--desenlace', '--abre',
   // PT-121 · CE-003, la clase con SIETE instancias declaradas: una bandera con valor que no
@@ -1521,7 +1521,7 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   // al proyecto que no declara tablero — el caso que SUITE-R22 declara soportado.
   'integrar', 'firmar', 'validar',
   // PT-137 · «retomar» escribe el registro; publica si hay tablero y si no, al ledger.
-  'retomar',
+  'retomar', 'aplazar',
   // PT-122 · «cierre» sin --aplicar solo DERIVA y enumera el texto: no habla con nadie.
   'cierre', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
@@ -4315,6 +4315,141 @@ function validar() {
   guardarRegistro(reg, ACCION);
 }
 
+// ── aplazar · la puerta de ida, con lo que debio pedir siempre   PT-138 ────
+//
+// PT-137 encontro que DEFERRED no tenia salida. Midiendo esta tarea resulta que TAMPOCO TENIA
+// ENTRADA: ningun comando escribia el estado. Los dos aplazados que existian —PT-025 y PT-134—
+// se teclearon a mano, y por eso ninguno declara cuando se revisa ni quien responde.
+//
+// SUITE-R44 garantiza que el aplazado quede VIVO en el espejo y EXENTO de artefactos, y ahi
+// terminaba. Un aplazado de ayer y uno de hace meses eran indistinguibles en el tablero — y
+// tambien indistinguibles de un abandono.
+//
+// Los tres campos se exigen AQUI, no en la compuerta: un dato que solo se pide al final se
+// rellena al final, y entonces es una fecha inventada. Al no haber otra forma de escribir el
+// estado, la obligacion no se puede rodear.
+function aplazar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const de = flag('--de');
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a) && a !== de);
+  const reentrada = flag('--reentrada');
+  const revision = flag('--revision');
+  const dueno = flag('--dueno');
+  if (!id) {
+    console.error('aplazar necesita una allocation:  '
+      + 'tracker aplazar PT-NNN --reentrada "que tiene que pasar" --revision AAAA-MM-DD '
+      + '--dueno "Nombre" [--de PT-NNN] [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+  // PT-138 · un aplazado que YA lo esta se puede ACTUALIZAR: es como se le ponen sus terminos a
+  // los que se escribieron a mano antes de que existiera este comando. Cualquier otro terminal se
+  // niega — escribir DEFERRED sobre algo cerrado lo reabriria sin que nadie lo decidiera.
+  const yaAplazada = a.status === 'DEFERRED';
+  if (!yaAplazada && ESTADOS_TERMINALES.has(String(a.status))) {
+    fail('SUITE-R44', `${id} esta en «${a.status}», que es terminal. Aplazar es aparcar trabajo `
+      + 'VIVO: escribir DEFERRED sobre algo ya cerrado lo reabriria sin que nadie lo decidiera.');
+    return;
+  }
+
+  // LOS TRES SE PIDEN JUNTOS Y SE NOMBRAN LOS QUE FALTAN. Pedirlos de uno en uno obliga a
+  // ejecutar tres veces para descubrir que hacian falta tres.
+  const faltan = [!reentrada && '--reentrada', !revision && '--revision', !dueno && '--dueno'].filter(Boolean);
+  if (faltan.length) {
+    fail('SUITE-R44', `${id}: falta ${faltan.join(' · ')}. Un aplazado sin condicion de reentrada, `
+      + 'sin fecha de revision y sin dueno no se distingue de un abandono: es lo que hacia que '
+      + 'PT-134 y PT-025 fueran identicos en el tablero.');
+    return;
+  }
+
+  // «Que tiene que pasar» no es mecanizable, pero SI se puede exigir que no sea una celda
+  // rellenada para callar la comprobacion. Se mide lo unico medible —que diga algo— y el resto
+  // se DECLARA en design.md como no mecanizable (SUITE-R26).
+  const texto = String(reentrada).trim();
+  if (texto.length < 12 || texto.split(/\s+/).length < 3) {
+    fail('SUITE-R26', `${id}: «${texto}» no es una condicion de reentrada. Se exige que DIGA algo; `
+      + 'que diga algo UTIL no es mecanizable y lo sabe quien conoce el trabajo.');
+    return;
+  }
+
+  // Una revision ya pasada nace caducada, y un aplazado que nace caducado es indistinguible del
+  // que no declara nada: el defecto de esta tarea, reintroducido por la puerta de al lado.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(revision)) || Number.isNaN(Date.parse(String(revision)))) {
+    fail('SUITE-R44', `${id}: «${revision}» no es una fecha AAAA-MM-DD.`);
+    return;
+  }
+  // PT-138 · SIN GIT NO SE SALTA LA COMPROBACION. La primera version usaba solo la fecha del
+  // ultimo commit, asi que en un repositorio sin git «hoy» era null y la caducidad NO SE MIRABA:
+  // verde por no haber mirado (CE-005) dentro del comando que existe para impedirlo, y lo cazo
+  // un caso sobre fixture. El reloj del sistema SI se puede leer siempre; se prefiere la fecha de
+  // git cuando la hay porque es la que usa el resto del marco.
+  const hoy = gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10);
+  if (String(revision) <= hoy) {
+    fail('SUITE-R44', `${id}: la revision «${revision}» no es futura (hoy es ${hoy}). Un aplazado `
+      + 'que nace caducado no se distingue del que no declara nada.');
+    return;
+  }
+
+  const conocidas = [...(reg?.firmantes ?? []), ...((reg?.personas ?? []).map((p) => p?.nombre))]
+    .filter(Boolean);
+  if (conocidas.length && !conocidas.includes(dueno)) {
+    fail('SUITE-R27', `«${dueno}» no esta declarado (${conocidas.join(' · ')}). Un dueno inventado `
+      + 'es un aplazado sin dueno con mejor letra.');
+    return;
+  }
+
+  const fecha = flag('--fecha') ?? hoy ?? null;
+  if (!APLICAR) {
+    di(yaAplazada
+      ? `  ${id}: YA esta DEFERRED · se ACTUALIZAN sus terminos   (dueno ${dueno} · revision ${revision})`
+      : `  ${id}: ${a.status} -> DEFERRED   (dueno ${dueno} · revision ${revision})`);
+    di(`    reentrada         ${texto}`);
+    if (de) di(`    de                ${de}`);
+    di('');
+    di('  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.');
+    return;
+  }
+
+  a.status = 'DEFERRED';
+  a.aplazamiento = { reentrada: texto, revision: String(revision), dueno, ...(de ? { de } : {}), fecha };
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: ${yaAplazada ? 'terminos ACTUALIZADOS' : '-> DEFERRED'} · revision ${revision} · dueno ${dueno}`);
+
+  // SUITE-R59 · se compone con SALTO, no con secuencias escapadas.
+  const L = [];
+  L.push(MARCA_AGENTE);
+  L.push(yaAplazada
+    ? `**APLAZAMIENTO ACTUALIZADO** · \`${id}\` sigue en \`DEFERRED\``
+    : `**APLAZADA** · \`${id}\` pasa a \`DEFERRED\``);
+  L.push('');
+  L.push('| | |');
+  L.push('|:--|:--|');
+  L.push(`| Se retoma cuando | ${texto} |`);
+  L.push(`| Se revisa el | ${revision} |`);
+  L.push(`| Responde | ${dueno} |`);
+  if (de) L.push(`| Sale de | ${de} |`);
+  L.push('');
+  L.push('Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve');
+  L.push('con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.');
+  const cuerpo = L.join(SALTO);
+
+  if (adaptador?.comentar && a.issue) {
+    try {
+      adaptador.comentar(a.issue, cuerpo);
+      notas.push(`${id}: aplazamiento publicado en #${a.issue}`);
+    } catch (e) {
+      fail('SUITE-R35', `${id}: el registro ya dice DEFERRED y la nota no se pudo publicar en `
+        + `#${a.issue} (${String(e.message ?? e).split(SALTO)[0]}).`);
+    }
+  } else {
+    const rutaLog = join(IMPL, 'TRANSICIONES.log');
+    const previo = (() => { try { return readFileSync(rutaLog, 'utf8'); } catch { return ''; } })();
+    writeFileSync(rutaLog, `${previo}${SALTO}## ${fecha} · ${id} · APLAZADA${SALTO}${SALTO}${cuerpo}${SALTO}`, 'utf8');
+    notas.push(`${id}: aplazamiento escrito en TRANSICIONES.log (sin plataforma)`);
+  }
+}
+
 // ── retomar · la puerta de vuelta de un aplazado   PT-137 ──────────────────
 //
 // SUITE-R44 pone la tarea aplazada en el tablero y declara que queda EXENTA de artefactos: no
@@ -4497,7 +4632,7 @@ function cierre() {
   }
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

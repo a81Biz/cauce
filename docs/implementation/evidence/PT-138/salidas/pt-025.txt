@@ -1,0 +1,19 @@
+# AC-07 · los aplazados existentes, uno a uno
+
+## PT-134 — NO APLICA
+Ya no esta aplazada: PT-137 la retomo el 2026-08-24 por comando.
+
+## PT-025 — la ruta EXISTE y NO se aplica, y se dice por que
+
+$ tracker aplazar PT-025 --reentrada '...' --revision 2099-01-01 --dueno 'Alberto Martinez'
+  PT-025: YA esta DEFERRED · se ACTUALIZAN sus terminos   (dueno Alberto Martínez · revision 2099-01-01)
+    reentrada         cuando exista un proyecto que use el adaptador de Azure
+  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.
+
+NO SE APLICA. La condicion de reentrada se deriva de su propio 'origin' —«no hay proyecto
+que lo use»— y eso SI se sabe. La FECHA DE REVISION no: elegirla seria inventar un dato que
+decide su dueno, y RULE-06 lo prohibe. La ruta de actualizacion existe y esta probada; el
+acto es del firmante.
+
+El aplazado queda SIN bloque, y PT-139 no lo juzgara hacia atras: su suite_version es
+anterior a esta version y RIGE_DESDE lo excluye (CE-014).
