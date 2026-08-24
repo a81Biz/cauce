@@ -2112,6 +2112,113 @@ proj136_cerrable() {
 }
 chk   "…y con todas terminales, READY -> CLOSED"  "READY -> CLOSED"  int136 "$(proj136_cerrable)"
 
+# ── PT-138 · EP-021 · el aplazado no decia cuando se revisa ni quien responde ─────────────────
+#
+# PT-137 encontro que DEFERRED no tenia SALIDA. Midiendo esta tarea resulta que tampoco tenia
+# ENTRADA: ningun comando escribia el estado, y por eso los dos aplazados que existian no
+# declaraban condicion de reentrada, ni fecha de revision, ni dueno. Eran indistinguibles entre
+# si y de un abandono.
+TK138="$SUITE/tools/tracker.mjs"
+
+proj138() {
+  local d="$WORK/p138"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:2,EP:1},
+      allocations:[
+        {id:'PT-001',slug:'viva',type:'BUG',status:'READY',epic:'EP-001'},
+        {id:'PT-002',slug:'hecha',type:'BUG',status:'INTEGRATED',epic:'EP-001'},
+        {id:'EP-001',slug:'lote',status:'READY'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+apl138() { (cd "$1" && shift; node "$TK138" aplazar "$@" 2>&1); }
+
+# AC-01 · aplazar es la unica via sancionada, y escribe el bloque entero.
+apl138_ok() {
+  local d; d=$(proj138)
+  (cd "$d" && node "$TK138" aplazar PT-001 --reentrada "cuando exista un proyecto Azure real" \
+      --revision 2099-11-01 --dueno "Alberto Martínez" --de PT-002 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='PT-001'); const p=a.aplazamiento||{};
+           console.log(a.status+' '+p.revision+' '+p.dueno+' '+p.de+' '+(p.reentrada?'CON-REENTRADA':'sin'));" "$d"
+}
+chk   "aplazar escribe DEFERRED con su bloque"  "DEFERRED 2099-11-01 Alberto Martínez PT-002 CON-REENTRADA"  apl138_ok
+apl138_seco() {
+  local d; d=$(proj138)
+  (cd "$d" && node "$TK138" aplazar PT-001 --reentrada "cuando exista un proyecto Azure real" \
+      --revision 2099-11-01 --dueno "Alberto Martínez" >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').status);" "$d"
+}
+chk   "sin --aplicar no escribe nada"                "READY"      apl138_seco
+chk   "sobre algo ya terminal se niega"              "terminal"   apl138 "$(proj138)" PT-002 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Alberto Martínez"
+# …pero uno que YA esta DEFERRED se ACTUALIZA: es como se le ponen sus terminos a los que se
+# escribieron a mano antes de que existiera este comando.
+proj138_aplazada() {
+  local d; d=$(proj138)
+  node -e "
+    const fs=require('fs'); const p=process.argv[1]+'/docs/implementation/REGISTRY.json';
+    const r=JSON.parse(fs.readFileSync(p,'utf8'));
+    r.allocations.find(a=>a.id==='PT-001').status='DEFERRED';
+    fs.writeFileSync(p, JSON.stringify(r,null,2));" "$d"
+  echo "$d"
+}
+chk   "un aplazado que YA lo esta se ACTUALIZA"  "se ACTUALIZAN sus terminos"   apl138 "$(proj138_aplazada)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Alberto Martínez"
+
+# AC-02 · los tres se piden JUNTOS y se nombran los que faltan: pedirlos de uno en uno obliga a
+# ejecutar tres veces para descubrir que hacian falta tres.
+chk   "sin --reentrada falla"                        "--reentrada"  apl138 "$(proj138)" PT-001 --revision 2099-11-01 --dueno "Alberto Martínez"
+chk   "sin --revision falla"                         "--revision"   apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --dueno "Alberto Martínez"
+chk   "sin --dueno falla"                            "--dueno"      apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01
+chk   "…y los nombra los TRES de una vez"            "--reentrada · --revision · --dueno"  apl138 "$(proj138)" PT-001
+
+# AC-03 · una celda rellenada para callar la comprobacion no es una condicion.
+chk   "una reentrada trivial no vale"                "SUITE-R26"  apl138 "$(proj138)" PT-001 --reentrada "luego" --revision 2099-11-01 --dueno "Alberto Martínez"
+chk   "…y se dice que lo UTIL no es mecanizable"     "no es mecanizable"  apl138 "$(proj138)" PT-001 --reentrada "luego" --revision 2099-11-01 --dueno "Alberto Martínez"
+
+# AC-04 · una revision ya pasada nace caducada. LA FECHA DE HOY SE DERIVA: un literal aqui
+# convertiria este caso en CE-010 —cifra transcrita que caduca— dentro del arnes que lo persigue.
+chk   "una revision en el pasado nace caducada"      "no es futura"  apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2020-01-01 --dueno "Alberto Martínez"
+chk   "…y lo que no es una fecha, tampoco pasa"      "AAAA-MM-DD"    apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision "manana" --dueno "Alberto Martínez"
+
+# AC-05 · un dueno inventado es un aplazado sin dueno con mejor letra.
+chk   "un dueno que no esta en la lista falla"       "SUITE-R27"  apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Quien Sea"
+
+# AC-01 · sin plataforma escribe igual. Leccion de PT-133, que costo un PT entero.
+apl138_sin_tablero() {
+  local d; d=$(proj138)
+  (cd "$d" && node "$TK138" aplazar PT-001 --reentrada "cuando exista un proyecto Azure real" \
+      --revision 2099-11-01 --dueno "Alberto Martínez" --aplicar 2>&1) | tail -4
+}
+chkno "sin plataforma declarada NO exige tablero"    "plataforma de trabajo"  apl138_sin_tablero
+chk   "…y deja el aplazamiento en TRANSICIONES.log"  "TRANSICIONES.log"       apl138_sin_tablero
+
+# ── PT-138 · prueba inversa · cuatro supresiones, cuatro escenarios distintos ──────────────────
+inv138() { # $1 supresion sed · $2.. argumentos de aplazar
+  local supresion="$1"; shift
+  local d; d=$(proj138)
+  mkdir -p "$d/tools"
+  cp "$SUITE/tools/tracker.mjs" "$d/tools/tracker.mjs"
+  cp "$SUITE/tools/patrones.mjs" "$d/tools/patrones.mjs"
+  sed -i "$supresion" "$d/tools/tracker.mjs"
+  node --check "$d/tools/tracker.mjs" >/dev/null 2>&1 || { echo "no compila"; return; }
+  (cd "$d" && node ./tools/tracker.mjs aplazar "$@" 2>&1)
+}
+# La supresion de «faltan» NO produce una escritura: cada campo ausente lo caza otra comprobacion
+# mas abajo. Lo que se pierde es que el fallo NOMBRE los tres de una vez, y eso es lo que se mide.
+# Una inversa que declarase «se aplaza sin ellos» tumbaria un escenario distinto del que dice
+# —el defecto que PT-122 y PT-130 encontraron en las suyas—.
+chkno "inversa: sin la comprobacion, el fallo ya no nombra lo que falta"  "falta --reentrada" \
+  inv138 "s/  if (faltan.length) {/  if (false) {/" PT-001
+chk   "inversa: sin mirar el contenido, «luego» pasa"      "-> DEFERRED" \
+  inv138 "s/  if (texto.length < 12 || texto.split(\/\\\\s+\/).length < 3) {/  if (false) {/" PT-001 --reentrada "luego" --revision 2099-11-01 --dueno "Alberto Martínez"
+chk   "inversa: sin exigir fecha futura, nace caducada"    "-> DEFERRED" \
+  inv138 "/^  if (String(revision) <= hoy) {$/,+4d" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2020-01-01 --dueno "Alberto Martínez"
+chk   "inversa: sin contrastar el dueno, uno inventado pasa"  "-> DEFERRED" \
+  inv138 "s/  if (conocidas.length \&\& !conocidas.includes(dueno)) {/  if (false) {/" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Quien Sea"
+
 # ── PT-137 · EP-021 · DEFERRED no tenia transicion de vuelta ──────────────────────────────────
 #
 # Lo pregunto el firmante sobre PT-134: «como aplazado, de que sirve? cuando se retoma?». Medida

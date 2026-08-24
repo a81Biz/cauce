@@ -266,6 +266,27 @@ el mismo defecto con el signo cambiado.
 `DEFERRED` es el **único** estado terminal con vuelta. `REJECTED` no la tiene y no debe tenerla:
 aplazar no es rechazar.
 
+`LEX-R34` · **`aplazamiento` — un aplazado dice cuándo se revisa y quién responde.**   `PT-138`
+
+```json
+"aplazamiento": {
+  "reentrada": "cuando exista un proyecto Azure real contra el que probar",
+  "revision": "2026-11-01",
+  "dueno": "Alberto Martínez",
+  "de": "PT-113",
+  "fecha": "2026-08-24"
+}
+```
+
+Lo escribe **`tracker aplazar`** y nadie más, y **no hay otra forma de escribir `DEFERRED`**: la
+obligación no se comprueba después, se impone al escribir. `revision` es una fecha **futura** —una
+revisión ya pasada nace caducada— y `dueno` se contrasta contra `firmantes`/`personas`
+(`SUITE-R27`).
+
+Existe porque los dos únicos aplazados del repositorio se escribieron a mano y ninguno declaraba
+nada: uno de 2026-08-23 y otro de meses antes eran **indistinguibles** en el tablero, y también
+indistinguibles de un abandono.
+
 
 ### 4.4 Identificadores de **clase de evento** — `CE-NNN`   `PT-118`
 

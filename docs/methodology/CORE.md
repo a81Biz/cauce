@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 8ff6397d16d8 -->
-<!-- fuentes: RULES.md:34556406f949 LEXICON.md:10fdfd242954 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:dd2bdf4375ed -->
+<!-- cuerpo: f574bd9a8683 -->
+<!-- fuentes: RULES.md:f9d857ab4945 LEXICON.md:84baf7a2dc12 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:176683bb7e6a -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -263,6 +263,7 @@ verifica un script y bloquea la integración.
 `LEX-R31` **H** Hay una tercera clase de identificador, y no se asigna desde REGISTRY.json.
 `LEX-R32` **H** La lista es cerrada por versión y ampliable por cambio de metodología.
 `LEX-R33` **H** retomada — el rastro de un aplazado que vuelve.
+`LEX-R34` **H** aplazamiento — un aplazado dice cuándo se revisa y quién responde.
 
 ### EXEC — Compuertas y modos
 
@@ -774,6 +775,14 @@ APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de
           RECIPROCA — hermano del lote vale siempre; el propio lote solo si
           esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
           «origin» mencionando el PT. En G4 bloquea.
+APLAZAR2  y la puerta de IDA tambien es un comando:                         [LEX-R34]
+          node tools/tracker.mjs aplazar PT-NNN --reentrada "..."           [SUITE-R44]
+                 --revision AAAA-MM-DD --dueno "..." [--de PT-NNN] --aplicar
+          Es la UNICA via sancionada para escribir DEFERRED. Los tres datos
+          se exigen AL ESCRIBIR, no en la compuerta: uno que solo se pide al
+          final se rellena al final. La revision debe ser FUTURA; una ya
+          pasada nace caducada. El dueno se contrasta (SUITE-R27). Que la
+          condicion DIGA algo se comprueba; que diga algo UTIL, no (SUITE-R26).
 RETOMAR   un aplazado TIENE VUELTA, y es por comando:                      [LEX-R33]
           node tools/tracker.mjs retomar PT-NNN --firmante "..."           [SUITE-R44]
                  [--fecha AAAA-MM-DD] [--epica EP-NNN] --aplicar
