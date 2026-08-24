@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: ef07d8eb9d00 -->
-<!-- fuentes: RULES.md:babeed197c7f LEXICON.md:bcfd6e03b5b6 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:0bb4967225d5 -->
+<!-- cuerpo: 8ff6397d16d8 -->
+<!-- fuentes: RULES.md:34556406f949 LEXICON.md:10fdfd242954 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:dd2bdf4375ed -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -262,6 +262,7 @@ verifica un script y bloquea la integración.
 `LEX-R30` **H** Una transición de fase es una parada cuyo desenlace es cambia-fase.
 `LEX-R31` **H** Hay una tercera clase de identificador, y no se asigna desde REGISTRY.json.
 `LEX-R32` **H** La lista es cerrada por versión y ampliable por cambio de metodología.
+`LEX-R33` **H** retomada — el rastro de un aplazado que vuelve.
 
 ### EXEC — Compuertas y modos
 
@@ -773,6 +774,15 @@ APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de
           RECIPROCA — hermano del lote vale siempre; el propio lote solo si
           esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
           «origin» mencionando el PT. En G4 bloquea.
+RETOMAR   un aplazado TIENE VUELTA, y es por comando:                      [LEX-R33]
+          node tools/tracker.mjs retomar PT-NNN --firmante "..."           [SUITE-R44]
+                 [--fecha AAAA-MM-DD] [--epica EP-NNN] --aplicar
+          EL DESTINO SE DERIVA DEL ARBOL, no se elige: el aplazado que
+          conserva su intake vuelve a READY —lo que LEXICON 5.1 declara—;
+          el que nacio aplazado, sin intake, vuelve a DRAFT y PHASE 1.
+          Escribe «retomada» con quien, cuando y de que estado: sin ese
+          campo una retomada es indistinguible de algo que nunca se aplazo.
+          DEFERRED es el UNICO terminal con vuelta. REJECTED no la tiene.
 CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [SUITE-R45]
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos

@@ -330,6 +330,15 @@ APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de
           RECIPROCA — hermano del lote vale siempre; el propio lote solo si
           esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
           «origin» mencionando el PT. En G4 bloquea.
+RETOMAR   un aplazado TIENE VUELTA, y es por comando:                      [LEX-R33]
+          node tools/tracker.mjs retomar PT-NNN --firmante "..."           [SUITE-R44]
+                 [--fecha AAAA-MM-DD] [--epica EP-NNN] --aplicar
+          EL DESTINO SE DERIVA DEL ARBOL, no se elige: el aplazado que
+          conserva su intake vuelve a READY —lo que LEXICON 5.1 declara—;
+          el que nacio aplazado, sin intake, vuelve a DRAFT y PHASE 1.
+          Escribe «retomada» con quien, cuando y de que estado: sin ese
+          campo una retomada es indistinguible de algo que nunca se aplazo.
+          DEFERRED es el UNICO terminal con vuelta. REJECTED no la tiene.
 CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [SUITE-R45]
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos

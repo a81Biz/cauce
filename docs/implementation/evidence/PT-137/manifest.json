@@ -1,0 +1,103 @@
+{
+  "pt": "PT-137",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "tracker retomar lleva un DEFERRED a un estado vivo SIN exigir intake, y el destino se DERIVA de si el intake existe",
+      "tests": [
+        "selftest.sh:retomar lleva un DEFERRED a DRAFT",
+        "selftest.sh:…sin exigir intake, que un aplazado no tiene",
+        "selftest.sh:el aplazado que conserva intake vuelve a READY",
+        "selftest.sh:el que nacio aplazado vuelve a DRAFT",
+        "selftest.sh:sin --aplicar no escribe nada",
+        "selftest.sh:sin plataforma declarada NO exige tablero"
+      ],
+      "evidence": ["salidas/selftest-completo.txt", "salidas/pt-134-retomada.txt"],
+      "verified": true,
+      "nota": "El fixture NO TIENE changes/ en absoluto: si el comando exigiera intake, ese caso no podria pasar. El destino derivado aparecio a mitad, leyendo LEXICON 5.1, que ya declaraba «DEFERRED --> READY» sin que ningun comando pudiera ejecutarla."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Retomar es una DECISION: exige firmante contrastado contra CLAUDE.md y acepta la fecha real",
+      "tests": [
+        "selftest.sh:un firmante que no esta en la lista falla",
+        "selftest.sh:…y la fecha se puede DECIR, no es la de correr el comando"
+      ],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "La fecha se DICE porque retomar puede registrarse despues de decidirse. Es la leccion de PT-121, encontrada usando «firmar» sobre una G1 de dos dias antes."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Se niega sobre lo que no esta DEFERRED, y lo dice con el estado que encontro",
+      "tests": [
+        "selftest.sh:sobre un INTEGRATED se niega",
+        "selftest.sh:…y dice el estado que encontro",
+        "selftest.sh:sobre un DRAFT vivo se niega igual"
+      ],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "Decir CUAL se encontro importa: «no se puede» sin el dato obliga a ir a mirar el registro a mano, que es justo lo que este comando existe para evitar."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Puede reasignar la epica al retomar, y solo a un lote vivo",
+      "tests": [
+        "selftest.sh:--epica a un lote vivo reasigna",
+        "selftest.sh:--epica a un lote CERRADO se niega",
+        "selftest.sh:…y --epica a algo que no es lote, tambien",
+        "selftest.sh:sin --epica conserva la que tenia, y lo dice"
+      ],
+      "evidence": ["salidas/selftest-completo.txt", "salidas/pt-134-retomada.txt"],
+      "verified": true,
+      "nota": "PT-134 estaba aplazada bajo EP-020, que esta CLOSED. Retomarla sin moverla la habria dejado viva bajo un lote que ya no responde de nada: el limbo por otra puerta, y en su propio caso de uso."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Deja rastro contrastable: quien, cuando, y de que aplazamiento venia",
+      "tests": [
+        "selftest.sh:el registro declara quien, cuando y de que estado",
+        "selftest.sh:inversa: sin el campo, la retomada no deja rastro"
+      ],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "Sin el campo, una retomada es indistinguible de una que nunca se aplazo. SUITE-R44 existe porque algo aplazado se perdio; perder el rastro de lo DESaplazado seria el mismo defecto con el signo cambiado."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "PT-134 se retoma CON EL COMANDO, y ese acto es la prueba",
+      "tests": [],
+      "evidence": ["salidas/pt-134-retomada.txt"],
+      "verified": true,
+      "nota": "SIN TS A PROPOSITO: su verificacion ES ejecutar el comando sobre el registro real. Un fixture no puede establecer que el caso que motivo la tarea quedo resuelto. Salida real: «PT-134: DEFERRED -> DRAFT · PHASE 1 · retomada por Alberto Martinez el 2026-08-24 · epica EP-021» y publicada en #255."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 4,
+    "distinct_reds": 4,
+    "evidence": "salidas/selftest-completo.txt",
+    "nota": "Cada supresion se aplica sobre una COPIA del modulo real. La cuarta se reanclo a la LINEA y no a su texto exacto: al anadir dos campos al objeto dejo de casar y salio verde POR NO ENCONTRAR NADA QUE SUPRIMIR, que es el falso verde por vacio de PT-023."
+  },
+  "defectos_al_construirlo": [
+    {
+      "que": "Rotura de escapado al componer el cuerpo del comentario dentro de una plantilla.",
+      "clase": "CE-002",
+      "nota": "La clase que TIENE regla (SUITE-R59) y de la que nada emitia. La respuesta fue la de la regla: componer con SALTO y L.push, no escapar."
+    },
+    {
+      "que": "Una sustitucion con ancla NO UNICA borro 902 lineas de tracker.mjs.",
+      "nota": "Se busco el PRIMER «if (adaptador?.comentar && a.issue) {» del archivo, no el propio. Lo delato «git diff --stat» y se restauro desde git. El segundo intento escribio el fragmento aparte y lo inserto contra un ancla comprobada unica: 119 insertions, 1 deletion."
+    },
+    {
+      "que": "Editar selftest.sh MIENTRAS corria.",
+      "nota": "bash lee el script por desplazamiento de bytes: insertar lineas a mitad partio un heredoc y produjo un error de sintaxis en una linea sin relacion. El error NO era real."
+    }
+  ],
+  "measured": {
+    "bateria": "1636 casos",
+    "casos_de_PT-137": 21,
+    "auditoria": "sin huecos · cobertura mecanica 128/235",
+    "verify_suite": "sin errores de coherencia"
+  }
+}

@@ -250,6 +250,22 @@ El bloque `graph` hace computable la frescura del grafo (`FDGE-R43`): un grafo g
 valor **y** añadir la entrada a `allocations` en la misma operación. Si el agente no puede
 escribir en `REGISTRY.json`, no puede asignar el identificador: se detiene y reporta.
 
+`LEX-R33` · **`retomada` — el rastro de un aplazado que vuelve.**   `PT-137`
+
+Una `allocation` que sale de `DEFERRED` declara **de dónde viene**:
+
+```json
+"retomada": { "por": "Alberto Martínez", "fecha": "2026-08-24", "de": "DEFERRED" }
+```
+
+Lo escribe **`tracker retomar`** y nadie más. Sin este campo, una tarea retomada es
+**indistinguible** de una que nunca se aplazó: el estado `DRAFT` no recuerda de dónde viene.
+`SUITE-R44` existe porque algo aplazado se perdió; perder el rastro de lo **des**aplazado sería
+el mismo defecto con el signo cambiado.
+
+`DEFERRED` es el **único** estado terminal con vuelta. `REJECTED` no la tiene y no debe tenerla:
+aplazar no es rechazar.
+
 
 ### 4.4 Identificadores de **clase de evento** — `CE-NNN`   `PT-118`
 

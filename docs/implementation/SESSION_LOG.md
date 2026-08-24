@@ -3645,3 +3645,100 @@ Así que se escribió `tracker validar`, que **no decide**: registra una decisi�
 el firmante contra la lista (`SUITE-R27`) y acepta la fecha real, porque una validación puede
 registrarse después de ocurrir — la lección que `PT-121` aprendió usando `firmar` sobre una `G1` de
 dos días antes.
+
+---
+
+## 2026-08-24 · Borrado de tres ramas remotas   `SUITE-R06f`
+
+**Autorización del firmante, literal:** *«debes borrar, tú es tu responsabilidad tú abriste mal y
+saliéndote del marco de trabajo, las ramas `chore/alberto-martinez/EP-020-viaje-de-vuelta`
+`chore/alberto-martinez/PT-113-apertura` y
+`fix/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras` revisa que no falte nada y que no
+se pierda nada»* — Alberto Martínez (`EXEC-R04a`).
+
+`SUITE-R06f` reserva el borrado de ramas remotas a una persona, y `FDGE-R19` lo repite para las
+efímeras que sobreviven a su tarea: **se describe el comando**. Esta autorización lo convierte en
+un acto registrado, no en un efecto colateral.
+
+**Lo que se comprobó ANTES de borrar** — que es lo que hace que «no se pierda nada» sea
+contrastable y no una promesa:
+
+```
+chore/alberto-martinez/PT-113-apertura        7276c00   ancestro de main: SI   0 commits propios
+chore/alberto-martinez/EP-020-viaje-de-vuelta ec8090a   ancestro de main: SI   0 commits propios
+fix/alberto-martinez/PT-081-…-hacia-atras     80ad0df   ancestro de main: SI   0 commits propios
+```
+
+Ser **ancestro** de la rama por defecto es la garantía fuerte: borrar la referencia no deja
+huérfano ningún objeto, porque `main` alcanza cada commit. Comprobado otra vez **después** del
+borrado, sobre los tres `sha`.
+
+### Y lo que estaba mal de verdad, dicho con la herramienta que lo dice
+
+No fue crear ramas —`FDGE-R19` **exige** una por tarea—: fue **nombrarlas sin derivarlas**.
+`patrones.mjs · ramaDeTarea` existe justo para eso, y contrastado contra el registro:
+
+| Allocation | Lo que deriva la herramienta | Lo que existía |
+|:---|:---|:---|
+| `PT-113` (`BUG`) | `bug/alberto-martinez/PT-113-la-guia-que-se-publico-incompleta` | `chore/alberto-martinez/PT-113-apertura` |
+| `PT-081` (`BUG`) | `bug/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras` | `fix/alberto-martinez/PT-081-…` |
+| `EP-020` (sin `type`) | **`null`** — «sin `type` no hay nombre de rama: se dice, no se adivina» | `chore/alberto-martinez/EP-020-viaje-de-vuelta` |
+
+La tercera fila es la peor de las tres. La herramienta **se niega** a nombrarla y devuelve `null`
+precisamente para que nadie invente el nombre; yo lo inventé igual. Es `CE-006` —el acto fuera del
+comando— cometido sobre la regla del lote que acababa de cerrarse por esa misma clase.
+
+Las dos primeras llevaban además el `type` del **commit** en lugar del `type` del **ítem**, que es
+la divergencia que `FDGE-R19` ya tenía documentada («la regla decía `fix/` y la herramienta
+escribía `bug/`») y que sigue sin verificador que la cace al crear la rama.
+
+---
+
+## 2026-08-24 · `EP-021` · autorización de firma delegada   `EXEC-R04a` · `SUITE-R27`
+
+**Autorización del firmante, literal:** *«bien, tienes mi VoBo, fírmalas en mi nombre ésta y todos
+los avances. Comienza ahora y no pares hasta terminar la épica. Sigue el marco de trabajo
+establecido al pie de la letra»* — Alberto Martínez.
+
+**Qué autoriza, enumerado:**
+
+1. **`G1` de `EP-021`**, sobre el alcance escrito en su intake §1, §3 y §4 — que él eligió
+   explícitamente al pedir «las seis + cerrar el agujero de raíz».
+2. **`G2` y `G3`** de las ocho tareas del lote, firmadas en su nombre.
+3. **La validación humana de los `BUG`** (`FDGE-R26`): siete de las ocho tareas son `BUG` y se
+   detendrían en `VALIDATION_PENDING`. Esta autorización las libera, y `tracker validar`
+   registra la decisión con su nombre y su fecha.
+4. **`G4`**: el merge del lote a `main`.
+5. **Modificar `docs/methodology/`** (`SUITE-R06e`), que es donde vive casi todo este lote.
+
+**Qué NO autoriza, y sigue reservado:**
+
+- **`npm publish`.** Reservado desde el 2026-08-24 y no revocado. El agente no la ejecuta.
+- **Reescribir historia o `push --force`** (`SUITE-R06f`).
+- **Regenerar el grafo** (`FDGE-R32`). Sigue `SUSPECT`.
+
+**Lo que esta autorización no cambia.** `SUITE-R27` dice que una firma **no prueba** que firmara
+una persona: el agente escribe el archivo. Lo que hace es convertirla en una afirmación
+contrastable, y esta entrada es el contraste. **La excepción no se hereda**: el siguiente lote
+vuelve a necesitar autorización.
+
+### Excepción declarada a `FDGE-R19` para el trabajo de lote de `EP-021`
+
+`FDGE-R19` pide que el asunto de cada commit cite un `PT`. El trabajo **de lote** —abrir `EP-021`,
+firmar su `G1`, publicar su cierre— no pertenece a ninguna tarea: citar un `PT` sería atribuirle a
+esa tarea un acto que no es suyo. Esos commits citan **`EP-021`** y esto es la **excepción**
+declarada que la propia regla contempla, con el mismo criterio que la de `EP-019` y `EP-020`.
+
+Sigue siendo un rodeo **forzado**, no elegido, y la pregunta de fondo —si el trabajo de lote puede
+citar el `EP`— continúa abierta sobre `FDGE-R19`.
+
+### Y un segundo defecto de `FDGE-R19`, encontrado al nombrar la rama del lote
+
+`FDGE-R19` manda que la rama de lote sea `<type>/<usuario>/EP-NNN-slug` **«con el `type` del
+propio lote»**. `LEX-R27` dice que **un lote NO lleva `type`** —`tracker tipo` lo rechaza con esa
+regla en la mano— y `ramaDeTarea` devuelve `null` para un `EP`.
+
+Las dos reglas se contradicen, y `LEXICON` manda sobre `RULES` (`LEX-R21`). **Por eso `EP-021` no
+tiene nombre de rama derivable**, y su commit de apertura viaja en la rama de `PT-137`. Es
+también la causa de que el 2026-08-24 se inventara `chore/alberto-martinez/EP-020-viaje-de-vuelta`:
+la regla pedía un dato que otra regla prohíbe que exista. Va a `PT-142`.
