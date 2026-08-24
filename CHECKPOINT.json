@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-021",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4",
   "sha": "db80c42cd4ec3b740715e4805a908553245924ad",
   "sha_corto": "db80c42",
@@ -58,7 +58,10 @@
     "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-24"
 }
