@@ -1,0 +1,13 @@
+── A · casos límite (deben pasar en verde) ──
+  [32m✓[0m validar lleva un BUG de VALIDATION_PENDING a DONE
+  [32m✓[0m …y deja quien y cuando en el registro
+  [32m✓[0m un no-BUG no pasa por esta validacion
+  [32m✓[0m …ni un BUG que ya esta en DONE
+  [32m✓[0m un firmante que no esta en la lista falla
+  [32m✓[0m si una del lote falla, NINGUNA se escribe
+  [32m✓[0m la fecha de la validacion se puede DECIR
+  [32m✓[0m un lote con tareas vivas NO se cierra
+  [32m✓[0m …y las nombra, no solo las cuenta
+  [32m✓[0m …y con todas terminales, READY -> CLOSED
+
+== 10 casos, 0 fallos ==

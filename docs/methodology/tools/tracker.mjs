@@ -1511,7 +1511,7 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   // locales. Exigirles plataforma repetiria lo que PT-133 acabo de arreglar en «parada»:
   // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
   // al proyecto que no declara tablero — el caso que SUITE-R22 declara soportado.
-  'integrar', 'firmar',
+  'integrar', 'firmar', 'validar',
   // PT-122 · «cierre» sin --aplicar solo DERIVA y enumera el texto: no habla con nadie.
   'cierre', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
@@ -4098,9 +4098,35 @@ function integrar() {
   const a = all.find((x) => x?.id === id);
   if (!a) { fail('SUITE-R08', `${id} no esta en el registro. El registro asigna (SUITE-R08).`); return; }
 
-  // DONE es la unica entrada legitima: FDGE-R34 la exige para G4, y G4 es lo que acaba de pasar.
-  // Un BUG en VALIDATION_PENDING no entra — lo cierra una persona (FDGE-R26, SUITE-R06b).
-  if (a.status !== 'DONE') {
+  // PT-121 · UN LOTE CIERRA DISTINTO QUE UNA TAREA, y por eso tiene su propia rama.
+  //
+  // Una tarea va DONE -> INTEGRATED. Un lote va READY -> CLOSED, y solo cuando NINGUNA de sus
+  // tareas sigue viva: cerrar un lote con trabajo dentro seria declarar terminado lo que no lo
+  // esta. La condicion se DERIVA de las tareas, no se pregunta.
+  //
+  // Esto se escribio cerrando EP-020, despues de escribir su estado A MANO con un «node -e» —
+  // CE-006 cometido dentro del cierre del lote que existe para impedirlo. Se deshizo y se
+  // rehizo con el comando, que es lo que el lote entero defiende.
+  const esLote = /^EP-/.test(id);
+  const destino = esLote ? 'CLOSED' : 'INTEGRATED';
+  if (esLote) {
+    if (a.status !== 'READY') {
+      fail('SUITE-R46', `${id} esta en «${a.status}»: un lote cierra desde READY. Escribir CLOSED `
+        + 'sobre otro estado borraria uno que alguien puso por algo.');
+      return;
+    }
+    const vivas = all.filter((x) => x?.epic === id && !ESTADOS_TERMINALES.has(x?.status)
+      && x?.status !== 'DEFERRED');
+    if (vivas.length) {
+      fail('SUITE-R45', `${id} tiene ${vivas.length} tarea(s) que no estan terminales: `
+        + `${vivas.map((x) => `${x.id} (${x.status})`).join(' · ')}. Cerrar un lote con trabajo `
+        + 'dentro seria declarar terminado lo que no lo esta.');
+      return;
+    }
+  } else if (a.status !== 'DONE') {
+    // DONE es la unica entrada legitima para una TAREA: FDGE-R34 la exige para G4, y G4 es lo que
+    // acaba de pasar. Un BUG en VALIDATION_PENDING no entra — lo cierra una persona por
+    // «tracker validar» (FDGE-R26, SUITE-R06b).
     fail('SUITE-R46', `${id} esta en «${a.status}» y integrar solo escribe DONE -> INTEGRATED. `
       + `FDGE-R34 exige DONE para G4, asi que un estado distinto significa que G4 no ha pasado `
       + `— o que ya se integro. No se adivina cual (RULE-06).`);
@@ -4126,19 +4152,19 @@ function integrar() {
   }
 
   if (!APLICAR) {
-    di(`  ${id}: ${a.status} -> INTEGRATED`);
+    di(`  ${id}: ${a.status} -> ${destino}`);
     di(`    registro          allocations[].status`);
-    di(`    intake            ${intake.replace(ROOT, '.')} · status: ${m[1]} -> INTEGRATED`);
+    di(`    intake            ${intake.replace(ROOT, '.')} · status: ${m[1]} -> ${destino}`);
     di('');
     di('  --aplicar   escribe las dos, en un solo acto.');
     return;
   }
 
   // Lo reversible primero: el YAML. Si falla, el registro se queda como estaba.
-  writeFileSync(intake, antes.replace(RE_ESTADO, 'status: INTEGRATED'), 'utf8');
-  a.status = 'INTEGRATED';
+  writeFileSync(intake, antes.replace(RE_ESTADO, `status: ${destino}`), 'utf8');
+  a.status = destino;
   guardarRegistro(reg, ACCION);
-  notas.push(`${id}: ${m[1]} -> INTEGRATED en el intake y en el registro, en un solo acto`);
+  notas.push(`${id}: ${m[1]} -> ${destino} en el intake y en el registro, en un solo acto`);
 }
 
 // ── firmar · el estado que produce una compuerta   PT-121 · AC-05 ───────────
@@ -4201,6 +4227,67 @@ function firmar() {
   notas.push(`${id}: DRAFT -> READY · ${compuerta} firmada por ${quien}`);
 }
 
+// ── validar · la validacion humana de un BUG, escrita por el comando   PT-136 ──
+//
+// FDGE-R26 dice que un BUG «transita a VALIDATION_PENDING y ahi SE DETIENE: solo un humano lo
+// lleva a DONE». Lo que NO decia nadie es COMO se escribe eso, y por eso las tres unicas veces
+// que ocurrio —PT-096, PT-097 y PT-098— se escribio A MANO declarando la excepcion cada vez.
+//
+// Es la clase de EP-020 en su forma mas pura: el acto es humano y legitimo, no hay comando, y por
+// tanto la unica via es rodear el registro. Este comando NO decide: registra una decision que ya
+// se tomo, y la deja contrastable — el firmante se comprueba contra la lista (SUITE-R27) y la
+// fecha se DICE, porque una validacion puede registrarse despues de ocurrir (la leccion de
+// PT-121, encontrada usando «firmar» sobre una G1 de dos dias antes).
+//
+// Lo que sigue siendo humano es la DECISION. Esto solo la escribe.
+function validar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const ids = ARGS.slice(1).filter((a) => /^(PT|EP)-\d+$/.test(a));
+  const quien = flag('--firmante');
+  if (!ids.length || !quien) {
+    console.error('validar necesita allocation(es) y firmante:  '
+      + 'tracker validar PT-121 PT-122 --firmante "Nombre" [--fecha AAAA-MM-DD] [--aplicar]');
+    process.exit(2);
+  }
+  const firmantes = reg?.firmantes ?? reg?.personas?.map((p) => p?.nombre) ?? [];
+  if (firmantes.length && !firmantes.includes(quien)) {
+    fail('SUITE-R27', `«${quien}» no esta en la lista de firmantes (${firmantes.join(' · ')}). `
+      + 'Es la unica defensa mecanica que existe contra una firma inventada.');
+    return;
+  }
+  const fecha = flag('--fecha') ?? gitDe(['log', '-1', '--format=%cs']) ?? null;
+
+  const aplicables = [];
+  for (const id of ids) {
+    const a = all.find((x) => x?.id === id);
+    if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+    if (a.type !== 'BUG') {
+      fail('FDGE-R26', `${id} es ${a.type}, no BUG. Esta validacion es la que FDGE-R26 reserva a `
+        + 'una persona para los BUG; usarla en otra cosa seria inventar una transicion.');
+      return;
+    }
+    if (a.status !== 'VALIDATION_PENDING') {
+      fail('LEX-R08', `${id} esta en «${a.status}»: la validacion humana va de VALIDATION_PENDING `
+        + 'a DONE. Escribir DONE sobre otro estado borraria uno que alguien puso por algo.');
+      return;
+    }
+    aplicables.push(a);
+  }
+
+  if (!APLICAR) {
+    for (const a of aplicables) di(`  ${a.id}: VALIDATION_PENDING -> DONE   (G3 · ${quien} · ${fecha})`);
+    di('');
+    di('  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.');
+    return;
+  }
+  for (const a of aplicables) {
+    a.status = 'DONE';
+    a.compuertas = { ...(a.compuertas ?? {}), G3: { firmante: quien, fecha } };
+    notas.push(`${a.id}: VALIDATION_PENDING -> DONE · G3 ${quien} ${fecha}`);
+  }
+  guardarRegistro(reg, ACCION);
+}
+
 // ── cierre · el comentario de cierre de un lote, por comando   PT-122 ───────
 //
 // AC-01 · es la UNICA forma sancionada: lleva MARCA_AGENTE por construccion, y un comentario sin
@@ -4248,7 +4335,7 @@ function cierre() {
   }
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

@@ -8339,3 +8339,154 @@ con el comando y la fecha correcta. Corregir a mano lo que un comando escribe ma
 la tarea que existe para que el comando lo escriba.
 
 Caso que lo fija: «la fecha de la compuerta se puede DECIR».
+
+## EP-020 — CERRADO: el acto fuera del comando
+Fecha: 2026-08-24
+Estado: CLOSED
+Lote: EP-020 · VEINTITRES tareas, PT-113 a PT-135
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: si
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-22 Alberto Martinez · G2 y G3 delegadas por lote, constancia en
+            SESSION_LOG.md del 2026-08-22 · G4 2026-08-24 Alberto Martinez, con la autorizacion
+            enumerada en SESSION_LOG.md del 2026-08-24
+Clase de evento: CE-006
+
+LO QUE EL LOTE PERSEGUIA. «El acto fuera del comando»: la clase de defecto en que existe una
+herramienta que sabe hacer algo, el acto se hace por fuera, y por tanto no deja el rastro que la
+herramienta habria dejado. El intake midio DIECISIETE clases, y ocho SIN DUEÑO.
+
+  tareas             23 · 22 DONE · 1 DEFERRED (PT-134)
+  nacieron           20 · las otras TRES las abrio el propio trabajo: PT-133, PT-134, PT-135
+  reglas nuevas      LEX-R31 · LEX-R32
+  herramientas       16 -> 18 · eventos.mjs y matriz.mjs
+  bateria            1601 casos, 1601 verdes, 0 rojos
+  verify-fdge --all  130 PTs, 0 errores
+
+LO QUE SE CONSTRUYO, y por que encadenado:
+
+  PT-118  CE-NNN, la TERCERA clase de identificador. Ni item de trabajo ni regla, y la unica
+          excepcion a LEX-R04 — enunciada, no supuesta.
+  PT-125  EVENTOS.jsonl: 163 entradas recorridas, 56 instancias, 14 MENCIONES separadas a mano y
+          40 que afirman recurrencia sin nombrar la forma. Nombrar una clase no es incurrir en
+          ella, y ningun matcher lo separa.
+  PT-119  MATRIZ.md, derivada. La regla dueña sale de que la REGLA CITE la clase, no de una tabla
+          aparte que pueda divergir.
+  PT-126  sellar la mide y FPGE la lee. Se mide DONDE YA SE MIRA — un comando nuevo habria sido
+          la octava instancia de CE-007 dentro del lote que las cuenta.
+  PT-121  el viaje de vuelta: «integrar» y «firmar», los dos estados que se escribian a mano.
+  PT-122  el cierre de un lote, con marca y derivado.
+  PT-127  el detector de trabajo sin allocation. FDGE-R19 lo exigia desde la 7.7.0 y NADA lo
+          comprobaba.
+  PT-130  la comprobacion deja de acusar a quien documenta el hecho que vigila.
+  PT-135  el lint de helpers ve tambien los de montaje.
+
+Y AL CERRAR HIZO FALTA UN COMANDO MAS. FDGE-R26 dice que un BUG «se detiene» en
+VALIDATION_PENDING y que «solo un humano lo lleva a DONE», pero no decia COMO SE ESCRIBE ESO: las
+tres unicas veces anteriores se escribio A MANO declarando la excepcion cada vez. Escribir cinco
+estados a mano dentro del lote que existe para impedirlo habria sido indefendible, asi que se
+escribio «tracker validar» — que NO decide: registra una decision ya tomada, contrasta el firmante
+(SUITE-R27) y acepta la fecha real.
+
+LA MATRIZ, AL CERRAR, y es el producto que sobrevive al lote:
+
+  CE-004  probar donde trabajo, no donde se decide   8 instancias · ordinal declarado  9  SIN DUEÑO
+  CE-001  el proxy en lugar del hecho                7 instancias · ordinal declarado 12  SIN DUEÑO
+  CE-003  un argumento se cuela por la deteccion de ROOT  7 · ordinal  7                  SIN DUEÑO
+  CE-005  verde por no haber mirado                  5                                    SIN DUEÑO
+  CE-015  el cierre destapa mas que el reparto       4                                    SIN DUEÑO
+  CE-007  existe la herramienta y nada la echa en falta  3                                SIN DUEÑO
+  CE-002  rotura de escapado                         tiene SUITE-R59 y NADA EMITE POR ELLA
+
+Las seis primeras las publica «sellar» como candidatas en cada corrida, con el umbral declarado en
+el registro. La septima es peor que las seis: parece cubierta.
+
+LO QUE NO SE CIERRA, y se declara con su numero:
+
+· PT-134 sigue DEFERRED, con su issue abierto.
+· 21 allocations sin «suite_version». NO SE RELLENAN: se abrieron bajo versiones distintas —PT-115
+  subio el lote a 13.0.0 a mitad— y estamparlas hoy seria inventar bajo cual nacio cada una
+  (RULE-06). Queda como aviso de SUITE-R18, medido.
+· Once lecturas de alcance amplio, enumeradas con archivo y linea por PT-130.
+· El grafo sigue SUSPECT: regenerarlo esta reservado (FDGE-R32) y la autorizacion del 2026-08-20
+  NO se hereda.
+· Si el trabajo DE LOTE puede citar el EP en un commit. La midio PT-127 —15 commits—, PT-130 la
+  dejo declarada y PT-121 le dio una rama declarada. Es sobre FDGE-R19 y merece su propia
+  propuesta.
+· LA PUBLICACION A npm. El firmante la reservo para si, explicitamente, en la misma autorizacion
+  que abrio este cierre. El agente NO la ejecuta.
+
+LO QUE EL LOTE ENSEÑO SOBRE SI MISMO. Catorce roturas de escapado, cuatro corridas de bateria
+pisandose sobre el mismo archivo, tres arneses inversos con el defecto que perseguian, y un caso
+que llevaba un lote entero pasando sin su fixture. Ninguna de esas las encontro una regla: las
+encontro EJECUTAR. Y la mas cara —un escenario de prueba inversa que fallaba sobre el modulo
+INTACTO y hacia parecer correctas las cinco mutaciones— es exactamente la forma que el lote
+nombro como CE-005.
+
+Escribir la advertencia no impide nada: esta en el HANDOFF desde PT-118 y volvio a ocurrir tres
+veces. Lo que impide es que exista un comando que no haga falta rodear — que es la tesis entera de
+EP-020, y la razon de que su cierre haya necesitado escribir uno mas.
+
+## PT-136 — Cerrar un BUG y cerrar un lote no tenian comando
+Fecha: 2026-08-24
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — la abrio el propio cierre del lote
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · G3 2026-08-24 Alberto Martinez, con la autorizacion enumerada en
+            SESSION_LOG.md del 2026-08-24
+Clase de evento: CE-006
+
+Lo pidio el firmante al autorizar el cierre: «que cerrar un BUG y cerrar un lote no exijan escribir
+el registro a mano».
+
+EL HUECO, Y ESTABA MEDIDO DESDE ANTES. El comentario del propio tracker.mjs ya lo decia: «51 BUG en
+este registro y CERO han pasado por ahi. Los tres en DONE son PT-096, PT-097 y PT-098 —las tareas
+de este mismo lote— y los tres se escribieron A MANO, declarando la excepcion cada vez, porque el
+comando no lo hacia».
+
+FDGE-R26 decia QUE hay que hacer y QUIEN. No decia COMO SE ESCRIBE, y eso convertia la unica via
+en rodear el registro. No es indisciplina: es un hueco de herramienta.
+
+QUE SE CONSTRUYO:
+
+  tracker validar   VALIDATION_PENDING -> DONE para un BUG, con quien y cuando. Contrasta el
+                    firmante (SUITE-R27), rechaza lo que no sea un BUG (FDGE-R26) y lo que ya
+                    este en DONE (LEX-R08), acepta la fecha REAL, y es TODAS O NINGUNA: cinco
+                    validaciones a medias dejarian el registro en un estado que nadie decidio.
+  integrar (lote)   READY -> CLOSED, y SOLO si ninguna tarea sigue viva. La condicion se DERIVA
+                    de las tareas, y al bloquear las NOMBRA.
+
+Y LO COMETI AL CERRAR. Escribi el estado de EP-020 con un «node -e»: CE-006 DENTRO DEL CIERRE DEL
+LOTE QUE EXISTE PARA IMPEDIR CE-006. Lo vi al instante, se deshizo y se rehizo con el comando —
+corregir a mano lo que un comando debe escribir habria sido la instancia siguiente, no el arreglo.
+
+Y EL COMANDO ME CORRIGIO A MI. «integrar EP-020» rechazo el cierre NOMBRANDO las 23 tareas que
+seguian en DONE. Tenia razon: DONE espera G4, asi que el orden es merge -> INTEGRATED -> lote
+CLOSED. PHASE 9 lo describe en prosa DESDE SIEMPRE; lo que no existia era algo que lo IMPIDIERA al
+reves, y por eso lo intente al reves. Es la tesis del lote aplicada a mi mismo en su ultimo acto.
+
+Y NOMBRA EN VEZ DE CONTAR: lo util no fue el numero 23, fue leer «PT-113 (DONE)» y entender por
+que. Un recuento correcto convive con cualquier hueco porque no dice cual.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Evidencia: docs/implementation/evidence/PT-136/ · manifest.json · self-review.md ·
+  salidas/casos-136.txt · salidas/integrar-rechaza.txt
+
+Criterios AC-01..AC-05 ✓, los cinco. Diez escenarios de diez.
+
+  BUG que habian pasado por validacion humana antes   3, y los TRES a mano
+  actos del cierre sin comando                        2 -> 0
+
+LO QUE NO ESTABLECE:
+
+· Que el comando valide. La decision es humana y sigue siendolo: esto la ESCRIBE. SUITE-R27 dice
+  que prueba una firma y que no.
+· Que las tres validaciones historicas queden regularizadas. No se tocan (SUITE-R09).
+· Que las 21 allocations sin «suite_version» se rellenen. Seria inventar bajo que version nacio
+  cada una: PT-115 subio el lote a 13.0.0 a mitad.
+· Que un lote no pueda cerrarse mal. Establece que no puede cerrarse CON TRABAJO DENTRO.

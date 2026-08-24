@@ -3589,3 +3589,59 @@ marco entero existe para que una afirmación tenga evidencia en disco (`FDGE-R23
 **Lo que esta corrección NO hace.** No reabre `PT-128` ni lo rejuzga (`SUITE-R36`): el cursor
 funciona, y su hallazgo —que para un lote contaba en vez de enumerar— sigue siendo cierto y está
 medido en `cursor.txt`. Lo que era falso es el alcance de su verificación, no su resultado.
+
+## 2026-08-24 · VoBo para cerrar `EP-020` e integrar hasta `main` — **excepción declarada**
+
+Autoriza: **Alberto Martínez**, el 2026-08-24. Su nombre está en `REGISTRY.firmantes`, que es
+lo único que hace esta autorización contrastable (`SUITE-R27`, `EXEC-R04a`).
+
+`SUITE-R06` reserva tres de los actos que siguen: **(b)** cerrar un ítem de tipo `BUG`, **(a)**
+merge o push a la rama principal, y —por `EXEC-R04`— resolver `G4`, que es humana en los tres
+modos **sin excepción**. La «Regla de cumplimiento» de `CLAUDE.md` admite la excepción *«hasta que
+un humano autorice la excepción **dejando registro de esa autorización**»*. **Esta entrada es ese
+registro.**
+
+**Lo que el firmante dijo, literal:**
+
+> «revisa lo que falta y cierra. Tienes mi VoBo para todo lo necesario. Quiero una sola rama local
+> trabajo y que hagas el pr hasta main, únicamente debe estar pendiente la publicación a npm que
+> es manual. Revisa lo que falta y termina todo»
+
+**Qué autoriza, enumerado — porque una autorización que no dice qué cubre no se puede contrastar:**
+
+1. **Cerrar los cinco `BUG`** en `VALIDATION_PENDING`: `PT-121`, `PT-122`, `PT-127`, `PT-130` y
+   `PT-135`. La decisión es suya; el agente sólo la **escribe**.
+2. **Cerrar `EP-020`** y publicar su cierre.
+3. **Abrir el pull request a `trabajo`, fusionarlo, abrir el de `main` y fusionarlo** — el segundo
+   **es** `G4` (`FDGE-R19`, `EXEC-R03`).
+4. **Etiquetar `v13.0.0`** después del merge, que es el paso 8.
+5. **Dejar una sola rama local**, `trabajo`.
+
+**Qué NO autoriza, y sigue reservado:**
+
+- **`npm publish`.** Lo dice él mismo: *«únicamente debe estar pendiente la publicación a npm que
+  es manual»*. El agente **no la ejecuta en ninguna circunstancia**.
+- **Reescribir historia o hacer `push --force`** (`SUITE-R06f`). No hace falta y no se hace.
+- **Regenerar el grafo** (`FDGE-R32`). Sigue `SUSPECT` y sigue siendo un paso suyo; la
+  autorización del 2026-08-20 **no se hereda**, y esta no la nombra.
+
+**Y la excepción no se hereda.** La siguiente `G4` vuelve a necesitar autorización: una excepción
+que se hereda deja de serlo — está escrito así desde la del 2026-08-19 y se mantiene.
+
+---
+
+### Lo que esta autorización hizo aparecer, y es un hallazgo del propio marco
+
+Al ir a cerrar los cinco `BUG` resultó que **ningún comando sabe hacerlo**. `FDGE-R26` dice que un
+`BUG` «se detiene» ahí y que «sólo un humano lo lleva a `DONE`», pero no dice **cómo se escribe
+eso** — y las tres únicas veces que había ocurrido antes (`PT-096`, `PT-097`, `PT-098`) se escribió
+**a mano, declarando la excepción cada vez**.
+
+Es `CE-006` en su forma más pura: el acto es humano y legítimo, no hay comando, y por tanto la
+única vía es rodear el registro. Escribir cinco estados a mano **dentro del lote que existe para
+impedir exactamente eso** habría sido indefendible.
+
+Así que se escribió `tracker validar`, que **no decide**: registra una decisión ya tomada, contrasta
+el firmante contra la lista (`SUITE-R27`) y acepta la fecha real, porque una validación puede
+registrarse después de ocurrir — la lección que `PT-121` aprendió usando `firmar` sobre una `G1` de
+dos días antes.

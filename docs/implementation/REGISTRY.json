@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 135,
+    "PT": 136,
     "EP": 20,
     "QA": 0,
     "QR": 0,
@@ -3284,7 +3284,7 @@
       "id": "PT-121",
       "slug": "el-viaje-de-vuelta-tras-el-merge",
       "created": "2026-08-22",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "type": "BUG",
       "severity": "S1",
@@ -3308,13 +3308,19 @@
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-23"
       },
-      "branch": "chore/alberto-martinez/PT-113-apertura"
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
     },
     {
       "id": "PT-122",
       "slug": "el-cierre-de-un-lote-pasa-por-el-comando",
       "created": "2026-08-22",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "type": "BUG",
       "severity": "S2",
@@ -3338,7 +3344,13 @@
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-23"
       },
-      "branch": "chore/alberto-martinez/PT-113-apertura"
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
     },
     {
       "id": "PT-123",
@@ -3462,7 +3474,7 @@
       "id": "PT-127",
       "slug": "nada-detecta-el-trabajo-sin-allocation",
       "created": "2026-08-22",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "type": "BUG",
       "severity": "S1",
@@ -3486,7 +3498,13 @@
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-23"
       },
-      "branch": "chore/alberto-martinez/PT-113-apertura"
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
     },
     {
       "id": "PT-128",
@@ -3551,7 +3569,7 @@
       "id": "PT-130",
       "slug": "la-comprobacion-acusa-a-quien-la-documenta",
       "created": "2026-08-22",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "type": "BUG",
       "severity": "S2",
@@ -3575,7 +3593,13 @@
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-23"
       },
-      "branch": "chore/alberto-martinez/PT-113-apertura"
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
     },
     {
       "id": "PT-131",
@@ -3694,7 +3718,7 @@
       "id": "PT-135",
       "slug": "el-lint-de-helpers-no-ve-los-de-montaje",
       "created": "2026-08-23",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
@@ -3724,6 +3748,54 @@
         "de": "PT-118",
         "motivo": "hallazgo",
         "fecha": "2026-08-23"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
+    },
+    {
+      "id": "PT-136",
+      "slug": "la-validacion-humana-y-el-cierre-de-lote-por-comando",
+      "created": "2026-08-24",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "Cerrar un BUG y cerrar un lote no tenian comando: la unica via era escribir el registro a mano",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-24"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "origen_parada": {
+        "de": "PT-122",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-24"
+      },
+      "issue": 257,
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
       }
     }
   ]

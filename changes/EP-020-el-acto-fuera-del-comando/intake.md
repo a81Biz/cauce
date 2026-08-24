@@ -421,12 +421,33 @@ explícitamente, con entrada propia en `HISTORY.log` enumerándolos.
 
 | Fila | Qué la resuelve | Estado |
 |:---|:---|:---|
-| La `12.0.1` publicada en npm | `L-0` + acto del firmante | |
-| `publicar.yml` ejecuta `sellar` y ve `SUITE-R43` | `L-8` | |
-| Una parada con decisión se publica en su tarea | `L-1` `L-2` `L-3` | |
-| `MATRIZ.md` derivado y alimentando el `ROADMAP` | `L-4` `L-5` `L-6` `L-7` | |
-| El viaje de vuelta tras el merge tiene dueño | `L-9` | |
-| El cierre de un lote pasa por el comando | `L-10` | |
+| La `12.0.1` publicada en npm | `L-0` + acto del firmante |  **`PT-113`** · la guía se rehízo en la `13.0.0`, que es la vía que existe: npm no se despublica. **Publicar no es fila de esta sección** (`SUITE-R45`) y queda pendiente del firmante |
+| `publicar.yml` ejecuta `sellar` y ve `SUITE-R43` | `L-8` |  **HECHO** · `PT-120` |
+| Una parada con decisión se publica en su tarea | `L-1` `L-2` `L-3` |  **HECHO** · `PT-115` `PT-116` `PT-117` `PT-133` |
+| `MATRIZ.md` derivado y alimentando el `ROADMAP` | `L-4` `L-5` `L-6` `L-7` |  **HECHO** · `PT-118` `PT-125` `PT-119` `PT-126` |
+| El viaje de vuelta tras el merge tiene dueño | `L-9` |  **HECHO** · `PT-121` |
+| El cierre de un lote pasa por el comando | `L-10` |  **HECHO** · `PT-122` |
+| Nada detecta el trabajo sin allocation | la clase dieciséis, que faltaba en la matriz | **HECHO** · `PT-127` |
+| Una comprobación acusa a quien documenta el hecho | la clase diecisiete | **HECHO** · `PT-130` |
+| Un caso pasa en verde porque su montaje nunca corrió | lo encontró la corrida completa de `PT-118` | **HECHO** · `PT-135` |
+
+Las tres últimas no estaban al abrir el lote: **las abrió el propio trabajo**.
+
+**Lo que NO se cierra queda declarado con su número**, que es lo que `§3(c)` pide —o con
+dueño, o declarada—:
+
+- **`PT-134`** sigue `DEFERRED`, con su issue abierto: declarar un `AC` caído sin fingir verde
+  ni bloquear.
+- **Seis clases de evento sin regla que las reclame**: `CE-004` (ordinal declarado **9**),
+  `CE-001` (**12**), `CE-003` (**7**), `CE-005`, `CE-015` y `CE-007`. `sellar` las publica como
+  candidatas en cada corrida; promoverlas es del firmante (`FPGE-R04`).
+- **`CE-002` tiene regla y nada emite por ella.** `SUITE-R59` existe desde la `12.0.0` y
+  ninguna herramienta la `fail()`. Es **peor** que no tener regla: parece cubierta.
+- **Once lecturas de alcance amplio**, enumeradas con archivo y línea por `PT-130`. No se
+  arreglan: hacerlo sin un caso por cada una sería cambiar once comportamientos a ciegas.
+- **Si el trabajo de lote puede citar el `EP` en un commit.** La midió `PT-127` —15 commits—,
+  `PT-130` la dejó declarada y `PT-121` le dio una rama declarada sobre la que discutirla. Es
+  sobre `FDGE-R19` y merece su propia propuesta, no un arreglo de paso.
 
 ---
 

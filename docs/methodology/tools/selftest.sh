@@ -2039,6 +2039,79 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-136 · EP-020 · la validacion humana y el cierre de lote, por comando ───────────────────
+#
+# Lo pidio el firmante: «que cerrar un BUG y cerrar un lote no exijan escribir el registro a mano».
+#
+# Aparecio CERRANDO EP-020. FDGE-R26 dice que un BUG «se detiene» en VALIDATION_PENDING y que solo
+# un humano lo lleva a DONE, pero no dice COMO SE ESCRIBE ESO: las tres unicas veces anteriores
+# —PT-096, PT-097, PT-098— se escribio a mano declarando la excepcion cada vez.
+TK136="$SUITE/tools/tracker.mjs"
+
+# Proyecto de mentira: un BUG esperando validacion, un no-BUG, y un lote con una tarea.
+proj136() {
+  local d="$WORK/p136"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes/EP-001-lote"
+  printf '%s\n' '---' 'id: EP-001' 'status: READY' '---' > "$d/changes/EP-001-lote/intake.md"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:3,EP:1},
+      allocations:[
+        {id:'PT-001',slug:'a',type:'BUG',status:'VALIDATION_PENDING',epic:'EP-001'},
+        {id:'PT-002',slug:'b',type:'FEATURE',status:'VALIDATION_PENDING',epic:'EP-001'},
+        {id:'PT-003',slug:'c',type:'BUG',status:process.argv[2],epic:'EP-001'},
+        {id:'EP-001',slug:'lote',type:'CHORE',status:'READY'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json" "${1:-DONE}"
+  echo "$d"
+}
+val136() { (cd "$1" && shift; node "$TK136" validar "$@" 2>&1); }
+
+# AC-01 · existe el comando, y registra QUIEN y CUANDO.
+chk   "validar lleva un BUG de VALIDATION_PENDING a DONE"  "VALIDATION_PENDING -> DONE" \
+  val136 "$(proj136)" PT-001 --firmante "Alberto Martínez"
+val136_aplica() {
+  local d; d=$(proj136)
+  (cd "$d" && node "$TK136" validar PT-001 --firmante "Alberto Martínez" --fecha 2020-03-04 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='PT-001');
+           console.log(a.status+' '+(a.compuertas?.G3?.firmante??'?')+' '+(a.compuertas?.G3?.fecha??'?'));" "$d"
+}
+chk   "…y deja quien y cuando en el registro"  "DONE Alberto Martínez 2020-03-04"  val136_aplica
+
+# AC-02 · NO DECIDE: rechaza lo que no le toca. La decision sigue siendo humana.
+chk   "un no-BUG no pasa por esta validacion"  "FDGE-R26"  val136 "$(proj136)" PT-002 --firmante "Alberto Martínez"
+chk   "…ni un BUG que ya esta en DONE"         "LEX-R08"   val136 "$(proj136)" PT-003 --firmante "Alberto Martínez"
+# LA FIRMA SE CONTRASTA: es la unica defensa mecanica contra una firma inventada.
+chk   "un firmante que no esta en la lista falla"  "SUITE-R27"  val136 "$(proj136)" PT-001 --firmante "Quien Sea"
+# Y NINGUNO se aplica si UNO falla: cinco validaciones a medias serian peores que ninguna.
+val136_nada() {
+  local d; d=$(proj136)
+  (cd "$d" && node "$TK136" validar PT-001 PT-002 --firmante "Alberto Martínez" --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').status);" "$d"
+}
+chk   "si una del lote falla, NINGUNA se escribe"  "VALIDATION_PENDING"  val136_nada
+
+# AC-03 · la fecha se puede DECIR: una validacion se registra a veces despues de ocurrir. Es la
+# leccion de PT-121, encontrada usando «firmar» sobre una G1 de dos dias antes.
+chk   "la fecha de la validacion se puede DECIR"  "2020-03-04"  val136_aplica
+
+# AC-04 y AC-05 · «integrar» cierra tambien un LOTE, y solo si ninguna tarea sigue viva. La
+# condicion se DERIVA de las tareas, no se pregunta.
+int136() { (cd "$1" && node "$TK136" integrar EP-001 2>&1); }
+chk   "un lote con tareas vivas NO se cierra"   "no estan terminales"  int136 "$(proj136)"
+chk   "…y las nombra, no solo las cuenta"       "PT-001"               int136 "$(proj136)"
+proj136_cerrable() {
+  local d; d=$(proj136)
+  node -e "
+    const fs=require('fs'); const p=process.argv[1]+'/docs/implementation/REGISTRY.json';
+    const r=JSON.parse(fs.readFileSync(p,'utf8'));
+    r.allocations.forEach(a=>{ if(a.epic==='EP-001') a.status='INTEGRATED'; });
+    fs.writeFileSync(p, JSON.stringify(r,null,2));" "$d"
+  echo "$d"
+}
+chk   "…y con todas terminales, READY -> CLOSED"  "READY -> CLOSED"  int136 "$(proj136_cerrable)"
+
 # ── PT-122 · EP-020 · el cierre de un lote pasa por el comando ────────────────────────────────
 #
 # Lo pidio el firmante: «que publicar el cierre de un lote no dependa de que alguien escriba un

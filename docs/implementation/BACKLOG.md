@@ -16,7 +16,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 ## Implementación abierta — `EP-020`
 
-`EP-020` · **El acto fuera del comando: lo que ocurre en la conversacion no llega a ningun registro que se pueda contar** · `DRAFT` · issue [#218](https://github.com/a81Biz/cauce/issues/218).
+`EP-020` · **El acto fuera del comando: lo que ocurre en la conversacion no llega a ningun registro que se pueda contar** · `READY` · issue [#218](https://github.com/a81Biz/cauce/issues/218).
 
 | PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -28,23 +28,24 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-118 | FEATURE | S1 | DONE | 8 | [#236](https://github.com/a81Biz/cauce/issues/236) | La taxonomia de clases de evento, cerrada, en LEXICON |
 | PT-119 | FEATURE | S1 | DONE | 8 | [#237](https://github.com/a81Biz/cauce/issues/237) | tools/matriz.mjs deriva MATRIZ.md |
 | PT-120 | BUG | S1 | DONE | 8 | [#238](https://github.com/a81Biz/cauce/issues/238) | publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN |
-| PT-121 | BUG | S1 | DRAFT | 1 | [#239](https://github.com/a81Biz/cauce/issues/239) | El viaje de vuelta tras el merge no lo cubre ninguna fase |
-| PT-122 | BUG | S2 | DRAFT | 1 | [#240](https://github.com/a81Biz/cauce/issues/240) | El cierre de un lote pasa por el comando, no por la mano |
+| PT-121 | BUG | S1 | DONE | 8 | [#239](https://github.com/a81Biz/cauce/issues/239) | El viaje de vuelta tras el merge no lo cubre ninguna fase |
+| PT-122 | BUG | S2 | DONE | 8 | [#240](https://github.com/a81Biz/cauce/issues/240) | El cierre de un lote pasa por el comando, no por la mano |
 | PT-123 | BUG | S1 | DONE | 8 | [#241](https://github.com/a81Biz/cauce/issues/241) | BACKLOG.md dice que se deriva del registro y nada lo deriva |
 | PT-124 | BUG | S1 | DONE | 8 | [#242](https://github.com/a81Biz/cauce/issues/242) | tracker asignar rechaza tres de los cinco tipos que LEXICON declara |
 | PT-125 | INVESTIGATION | S1 | DONE | 8 | [#243](https://github.com/a81Biz/cauce/issues/243) | Clasificar las 131 entradas cerradas en EVENTOS.jsonl |
 | PT-126 | CHORE | S2 | DONE | 8 | [#244](https://github.com/a81Biz/cauce/issues/244) | sellar mide la matriz y FPGE la lee |
-| PT-127 | BUG | S1 | VALIDATION_PENDING | 8 | [#245](https://github.com/a81Biz/cauce/issues/245) | Nada detecta el trabajo sin allocation: solo lo corta una persona |
+| PT-127 | BUG | S1 | DONE | 8 | [#245](https://github.com/a81Biz/cauce/issues/245) | Nada detecta el trabajo sin allocation: solo lo corta una persona |
 | PT-128 | FEATURE | S1 | DONE | 8 | [#246](https://github.com/a81Biz/cauce/issues/246) | El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar |
 | PT-129 | BUG | S2 | DONE | 8 | [#249](https://github.com/a81Biz/cauce/issues/249) | FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales |
-| PT-130 | BUG | S2 | VALIDATION_PENDING | 8 | [#250](https://github.com/a81Biz/cauce/issues/250) | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
+| PT-130 | BUG | S2 | DONE | 8 | [#250](https://github.com/a81Biz/cauce/issues/250) | Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho |
 | PT-131 | BUG | S1 | DONE | 8 | [#252](https://github.com/a81Biz/cauce/issues/252) | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
 | PT-132 | BUG | S1 | DONE | 8 | [#253](https://github.com/a81Biz/cauce/issues/253) | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
 | PT-133 | BUG | S2 | DONE | 8 | [#254](https://github.com/a81Biz/cauce/issues/254) | parada exige plataforma para escribir en TRANSICIONES.log |
 | PT-134 | CHORE | S3 | DEFERRED | 1 | [#255](https://github.com/a81Biz/cauce/issues/255) | No hay forma de declarar un AC caido: o se finge verde o bloquea |
-| PT-135 | BUG | S2 | VALIDATION_PENDING | 8 | [#256](https://github.com/a81Biz/cauce/issues/256) | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |
+| PT-135 | BUG | S2 | DONE | 8 | [#256](https://github.com/a81Biz/cauce/issues/256) | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |
+| PT-136 | BUG | S2 | DRAFT | 1 | — | Cerrar un BUG y cerrar un lote no tenian comando: la unica via era escribir el registro a mano |
 
-**18 de 23 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**23 de 24 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Aplazado — 2 allocation(s) `DEFERRED`
 
