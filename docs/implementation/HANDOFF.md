@@ -2,14 +2,14 @@
 
 <!-- ESTADO -->
 implementación: EP-020 (#218) READY · el acto fuera del comando. VEINTITRÉS tareas, PT-113 a PT-135. G1 PASS el 2026-08-22. El lote cierra cuando las diecisiete clases de evento tengan dueño o número declarado.
-tarea:          PT-135 (#256) en PHASE 8, VALIDATION_PENDING — es BUG y ahí se detiene (FDGE-R26, SUITE-R06b). Cerradas 21 de 23. Tres esperan validación humana: PT-127, PT-130 y PT-135.
+tarea:          PT-121 (#239) en PHASE 8, VALIDATION_PENDING — es BUG y ahí se detiene (FDGE-R26, SUITE-R06b). Cerradas 22 de 23. Cuatro esperan validación humana: PT-121, PT-127, PT-130 y PT-135.
 compuerta:      G1 de EP-020 PASS. G2 y G3 delegadas por lote, constancia en SESSION_LOG.md del 2026-08-22. G4 pendiente: ninguna tarea de este lote está integrada.
-siguiente:      Quedan dos vivas: PT-121 (el viaje de vuelta tras el merge) y PT-122 (el cierre de un lote pasa por el comando). PT-134 sigue DEFERRED.
+siguiente:      Queda UNA viva: PT-122, el cierre de un lote pasa por el comando. PT-134 sigue DEFERRED. Después, el cierre del lote: PR a trabajo, PR a main, tag, y la publicación a npm que es del firmante.
 decisiones:     El firmante autorizó dejar trabajo y main limpias y reservó la publicación a npm PARA ÉL: npm publish no lo ejecuta el agente, en ninguna circunstancia. G2 y G3 delegadas por lote. La regeneración del grafo sigue reservada (FDGE-R32) y la autorización del 2026-08-20 NO se hereda.
-no hacer:       1) npm publish. 2) DOS baterías a la vez sobre el mismo archivo de salida — escrito aquí desde PT-118 y ha vuelto a ocurrir TRES veces. La pista: las cifras no cuadran entre sí (OK con un rojo dentro, o «HAY FALLOS» sin ninguno). Escribir la advertencia no impide nada, que es la tesis del lote. 3) casos que llamen a «sellar» sobre el repositorio real: consulta la plataforma y cuelga el arnés contra la red. 4) declarar verified sin abrir la salida. 5) dar por buena una inversa cuyas mutaciones digan «no compila». 6) encadenar «tracker indices --aplicar» con un commit: tarda más de dos minutos y se lleva la cadena por delante.
+no hacer:       1) npm publish. 2) DOS baterías a la vez sobre el mismo archivo de salida — escrito aquí desde PT-118 y ha vuelto a ocurrir TRES veces. La pista: las cifras no cuadran entre sí. 3) casos que llamen a «sellar» sobre el repositorio real: consulta la plataforma y cuelga el arnés contra la red — pasó en PT-126 y OTRA VEZ en PT-121. 4) declarar verified sin abrir la salida. 5) dar por buena una inversa cuyas mutaciones digan «no compila». 6) encadenar «tracker indices --aplicar» con un commit: tarda más de dos minutos.
 lo que la matriz dice hoy: seis clases sin regla que las reclame —CE-004, CE-001, CE-003, CE-005, CE-015, CE-007— y una peor: CE-002 tiene regla (SUITE-R59) y nada emite por ella. Candidatos publicados en cada «sellar»; promoverlos es del firmante (FPGE-R04). Once lecturas de alcance amplio quedan enumeradas con archivo y línea.
-pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. La midió PT-127 —15 commits— y PT-130 la dejó declarada sin responder: es sobre FDGE-R19 y merece su propia propuesta.
-actualizado:    2026-08-23 · PT-135 en PHASE 8 · selftest OK 1564 casos
+pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. La midió PT-127 —15 commits—, PT-130 la dejó declarada y PT-121 le dio una rama declarada sobre la que discutirla. Es sobre FDGE-R19 y merece su propia propuesta.
+actualizado:    2026-08-23 · PT-121 en PHASE 8 · selftest OK 1584 casos
 <!-- /ESTADO -->
 
 ---
