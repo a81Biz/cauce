@@ -42,7 +42,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-132 | BUG | S1 | DONE | 8 | [#253](https://github.com/a81Biz/cauce/issues/253) | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
 | PT-133 | BUG | S2 | DONE | 8 | [#254](https://github.com/a81Biz/cauce/issues/254) | parada exige plataforma para escribir en TRANSICIONES.log |
 | PT-134 | CHORE | S3 | DEFERRED | 1 | [#255](https://github.com/a81Biz/cauce/issues/255) | No hay forma de declarar un AC caido: o se finge verde o bloquea |
-| PT-135 | BUG | S2 | DRAFT | 1 | [#256](https://github.com/a81Biz/cauce/issues/256) | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |
+| PT-135 | BUG | S2 | VALIDATION_PENDING | 8 | [#256](https://github.com/a81Biz/cauce/issues/256) | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |
 
 **18 de 23 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 

@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-167 entradas recorridas · 145 identificadores · 75 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-23
+168 entradas recorridas · 146 identificadores · 76 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-23
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
@@ -13,7 +13,7 @@
 | `CE-002` | Rotura de escapado | 10 | 7 | 2026-08-21 | 2026-08-23 | `SUITE-R59` | **NO**: la regla existe y nada emite por ella |
 | `CE-003` | Un argumento se cuela por la detección de `ROOT` | 8 | 7 | 2026-08-18 | 2026-08-23 | **—** | **sin dueño** |
 | `CE-004` | Probar donde trabajo, no donde se decide | 9 | 9 | 2026-08-18 | 2026-08-23 | **—** | **sin dueño** |
-| `CE-005` | Verde por no haber mirado | 6 | 2 | 2026-08-14 | 2026-08-23 | **—** | **sin dueño** |
+| `CE-005` | Verde por no haber mirado | 7 | 2 | 2026-08-14 | 2026-08-23 | **—** | **sin dueño** |
 | `CE-006` | El acto hecho fuera del comando | 4 | — | 2026-08-21 | 2026-08-23 | `SUITE-R58` · `FDGE-R52` | `SUITE-R58` avisa · `FDGE-R52` falla |
 | `CE-007` | Existe la herramienta y nada la echa en falta | 4 | 7 | 2026-08-19 | 2026-08-23 | **—** | **sin dueño** |
 | `CE-008` | Un hecho, varios nombres | 3 | 5 | 2026-08-13 | 2026-08-21 | `SUITE-R14` | `SUITE-R14` falla |
@@ -38,8 +38,8 @@ Ordenadas por cuántas veces han ocurrido:
   PTSA-2026-08-20 · PT-087 · EP-019 · PT-131 · PT-124 · PT-125 · PT-119 · PT-126
 - `CE-003` **Un argumento se cuela por la detección de `ROOT`** — 8 instancia(s) · la propia entrada llegó a declarar **7**
   PT-053 · PT-057 · PT-060 · PT-062 · PT-064 · PT-125 · PT-119 · PT-126
-- `CE-005` **Verde por no haber mirado** — 6 instancia(s) · la propia entrada llegó a declarar **2**
-  PT-044 · PT-047 · PT-016 · PT-057 · EP-019 · PT-126
+- `CE-005` **Verde por no haber mirado** — 7 instancia(s) · la propia entrada llegó a declarar **2**
+  PT-044 · PT-047 · PT-016 · PT-057 · EP-019 · PT-126 · PT-135
 - `CE-015` **El cierre destapa más que el reparto** — 5 instancia(s) · la propia entrada llegó a declarar **6**
   PTSA-2026-08-20 · EP-018 · EP-019 · PT-125 · PT-126
 - `CE-007` **Existe la herramienta y nada la echa en falta** — 4 instancia(s) · la propia entrada llegó a declarar **7**

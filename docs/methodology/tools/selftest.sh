@@ -205,23 +205,49 @@ lint_aserciones() {
 # paso DOS veces en este lote: TRR en PT-076 y RG2 en PT-066.
 lint_helpers() {
   local f="$SUITE/tools/selftest.sh" malos=0 out=""
-  # La lista va por variable para que la linea NO contenga los nombres: con ellos escritos
-  # aqui, el lint se señalaba a si mismo —su propio bucle era «el primer uso»—. Segunda
-  # autorreferencia al escribir esta guarda, tras la de los comentarios.
-  local HELPERS="TR TRR RG2 V PL PLNO trlib trlibno inversa"
+  # PT-135 · LA LISTA SE DERIVA DEL ARCHIVO, no se escribe a mano.
+  #
+  # La version anterior llevaba NUEVE nombres escritos aqui, y por eso no vio que «git_fixture» y
+  # «con_phase» se usaban en la 2402 y se definian en la 4803 y la 6397: no estaban en la lista.
+  # Una lista escrita a mano de lo que hay que vigilar es la copia que diverge (CE-008) dentro del
+  # lint que existe para vigilar.
+  #
+  # Y SE MIRA LA POSICION DEL COMANDO, NO LA LINEA ENTERA. Al derivar la lista salieron tres
+  # falsos positivos con la misma raiz que PT-130: «A» casaba dentro del PATRON de un caso
+  # («EDITADO A MANO»), «OTRO» dentro del NOMBRE de otro, y «M» dentro de un HEREDOC. Leer la
+  # linea entera es CE-017 otra vez — acusar al texto por describir algo.
+  local sin_heredoc
+  sin_heredoc="$WORK/lint-helpers-lineas.txt"
+  # Se numeran las lineas y se marcan las que caen dentro de un heredoc, para descartarlas: su
+  # contenido es un FIXTURE, no codigo del arnes.
+  awk '{
+    n = NR
+    if (dentro) { if ($0 == fin) dentro = 0; print n ":"; next }
+    if (match($0, /<<-?.?[A-Za-z_][A-Za-z0-9_]*.?$/)) {
+      fin = $0; sub(/^.*<<-?.?/, "", fin); sub(/.$/, "", fin)
+      gsub(/[^A-Za-z0-9_]/, "", fin)
+      dentro = 1; print n ":" $0; next
+    }
+    print n ":" $0
+  }' "$f" > "$sin_heredoc" 2>/dev/null || cp "$f" "$sin_heredoc"
+
+  local HELPERS
+  HELPERS=$(grep -oE "^[a-zA-Z_][a-zA-Z0-9_]*\(\) \{" "$f" | sed 's/() {//' | grep -v "^lint_")
   for h in $HELPERS; do
-    local def uso
-    def=$(grep -nE "^$h\\(\\) \\{" "$f" | head -1 | cut -d: -f1)
+    local def uso uso_caso uso_montaje
+    def=$(grep -nE "^$h\(\) \{" "$f" | head -1 | cut -d: -f1)
     [ -z "$def" ] && continue
-    # Una mencion en un COMENTARIO no es un uso. Sin esta guarda el lint se acusaba A SI MISMO:
-    # sus propios comentarios nombran TR, TRR y RG2 para explicar el defecto. Es la familia de
-    # PT-051 —un patron literal en un comentario contado como emision real— cometida al
-    # escribir la guarda que la detecta.
-    # Un USO es una INVOCACION DE CASO, no cualquier linea que nombre el helper. Buscar la
-    # mencion suelta hizo que el lint se acusara A SI MISMO dos veces: primero por sus propios
-    # comentarios, y luego por la linea que declara la lista. Anclar en «chk|chkno» resuelve
-    # las dos por construccion, en vez de ir tapando cada autorreferencia una a una.
-    uso=$(grep -nE "^(chk|chkno)[[:space:]].*[[:space:]]$h([[:space:]]|\$)" "$f" | head -1 | cut -d: -f1)
+    # DOS FORMAS DE USAR UN HELPER, y la version anterior solo reconocia la primera:
+    #
+    #   COMO COMANDO DE UN CASO      chk "nombre" "patron" mihelper arg
+    #   COMO LINEA DE MONTAJE        mihelper        ·        build_fixture; mihelper
+    #
+    # La segunda es la que fallaba. El caso que iba detras salia VERDE con su fixture sin git y
+    # su allocation sin phase — CE-005, con un lint escrito justo para esto.
+    uso_caso=$(grep -E "^[0-9]+:(chk|chkno)[[:space:]]+\"[^\"]*\"[[:space:]]+\"[^\"]*\"[[:space:]]+$h([[:space:]]|\$)" "$sin_heredoc" | head -1 | cut -d: -f1)
+    uso_montaje=$(grep -E "^[0-9]+:[[:space:]]*($h|.*[;&][[:space:]]+$h)([[:space:]]*;|[[:space:]]+[^(]|[[:space:]]*\$)" "$sin_heredoc" \
+      | grep -vE "^[0-9]+:[[:space:]]*#" | head -1 | cut -d: -f1)
+    uso=$(printf '%s\n%s\n' "$uso_caso" "$uso_montaje" | grep -E '^[0-9]+$' | sort -n | head -1)
     [ -z "$uso" ] && continue
     if [ "$uso" -lt "$def" ]; then malos=$((malos+1)); out="$out $h(linea $uso antes de $def)"; fi
   done
@@ -388,6 +414,22 @@ M
   printf '| PT-003 | CHORE | S4 | DONE | typo | changes/PT-003-typo/ | 2026-08-05 |\n' > docs/implementation/REFACTOR_SCOPE.md
   printf '| PT-004 | FEATURE | S3 | IN_PROGRESS | pdf | changes/PT-004-pdf/ | 2026-08-06 |\n' > docs/implementation/ENRICHMENT.md
 }
+
+# PT-135 · Estos dos VIVIAN 2400 lineas mas abajo que su primer uso, asi que la linea
+# «build_fixture; git_fixture» no montaba nada: el caso de PT-109 que va detras salia VERDE
+# con su fixture sin git y su allocation sin phase. El lint no lo veia porque solo reconocia
+# el helper cuando era el COMANDO de un caso, y estos se invocan como lineas de montaje.
+# Viven aqui, con el resto del montaje compartido, que es donde se buscan.
+# E3/E4/E5 · AC-03 · sesion se prueba en el FIXTURE, y comprueba lo mismo que antes.
+git_fixture() {  # git inicializado, para que «sesion abrir» tenga un HEAD que marcar
+  ( cd "$WORK"
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm "base del fixture" >/dev/null 2>&1 ) >/dev/null 2>&1
+}
+# Anade «phase: N» al intake del fixture, para los casos que exigen una fase declarada.
+con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.md"; }
 
 # node en vez de python: en MSYS/Git-Bash, python no resuelve rutas /tmp/...
 reg_set() {
@@ -1996,6 +2038,71 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 # CARACTERES (PT-085, PT-090) — y ademas, al fallar, dice QUE regla aparecio en vez de «no caso».
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
+
+# ── PT-135 · EP-020 · el lint de helpers ve tambien los de montaje ────────────────────────────
+#
+# Lo pidio el firmante: «que un caso no pueda pasar en verde porque su montaje NUNCA llego a
+# correr».
+#
+# Aparecio en la corrida completa de PT-118: «git_fixture: command not found» y «con_phase:
+# command not found» entre 1483 verdes, y el caso de PT-109 que va detras pasando con su fixture
+# sin git y su allocation sin phase. CE-005, con un lint escrito exactamente para esto.
+L135="$SUITE/tools/selftest.sh"
+
+# AC-01 · el lint detecta un helper usado como LINEA DE MONTAJE, no solo como comando de un caso.
+chk   "el lint mira los usos de MONTAJE"      "uso_montaje"   cat "$L135"
+chk   "…y tambien tras un «;» o un «&&»"      '\[;&\]'        cat "$L135"
+# AC-02 · la lista se DERIVA del archivo. Escrita a mano, no vio los dos que fallaban: una lista
+# de lo que hay que vigilar, escrita a mano, es la copia que diverge DENTRO del que vigila.
+chkno "la lista de helpers NO esta escrita a mano"  "local HELPERS=\"TR TRR"  cat "$L135"
+chk   "…se deriva de las definiciones del archivo" 'HELPERS=$(grep -oE "\^\[a-zA-Z_\]' cat "$L135"
+# Y el lint no se recorre a si mismo: la autorreferencia que ya mordio dos veces.
+chk   "…y el lint se excluye a si mismo"       'grep -v "\^lint_"'  cat "$L135"
+
+# LA POSICION DEL COMANDO SE ANCLA. Al derivar la lista salieron tres falsos positivos con la
+# misma raiz que PT-130: «A» casaba dentro del PATRON de un caso («EDITADO A MANO»), «OTRO»
+# dentro del NOMBRE de otro, y «M» dentro de un HEREDOC.
+chk   "la posicion del comando se ancla con las comillas"  '\\"\[\^\\"\]\*\\"'  cat "$L135"
+chk   "…y las lineas de heredoc se descartan"              "dentro"            cat "$L135"
+
+# AC-03 · los usos anteriores a la definicion que existian se ARREGLAN, no se documentan.
+gf135() {
+  # No se comprueban NUMEROS de linea: caducan al insertar un caso, que es CE-010. Se comprueba la
+  # PROPIEDAD, que es lo que importa: los tres viven en el mismo tramo de montaje compartido.
+  local b g c
+  b=$(grep -n "^build_fixture() {" "$L135" | cut -d: -f1)
+  g=$(grep -n "^git_fixture() {"   "$L135" | cut -d: -f1)
+  c=$(grep -n "^con_phase() {"     "$L135" | cut -d: -f1)
+  if [ "$g" -gt "$b" ] && [ "$c" -gt "$b" ] && [ $((g - b)) -lt 300 ] && [ $((c - b)) -lt 300 ]
+  then echo "JUNTOS"; else echo "SEPARADOS b=$b g=$g c=$c"; fi
+}
+chk   "git_fixture y con_phase viven junto a build_fixture"  "JUNTOS"  gf135
+# Y el CUERPO viaja con la cabecera: moverla sola dejo el cuerpo huerfano y la bateria murio en
+# silencio. Se comprueba que git_fixture sigue haciendo lo que hacia.
+chk   "…y git_fixture conserva su cuerpo"  "git init -q"  sh -c 'sed -n "/^git_fixture() {/,/^}/p" "$1"' _ "$L135"
+
+# AC-04 · un «command not found» no convive con un OK: el caso que lo vigila PUEDE FALLAR.
+# AUTORREFERENCIA, la tercera de esta familia: el comentario de arriba NOMBRA el patron viejo
+# para explicarlo, y buscarlo en TODO el archivo lo encontraba ahi. Es lo que le paso a
+# lint_helpers dos veces y a PT-051. Se mira la LINEA DEL CASO, no el archivo — el mismo
+# anclaje que PT-130 acaba de aplicar a contradiceElRegistro.
+# «chkno?» en ERE es «chkn» con una «o» opcional, NO «chk» con «no» opcional: no casaba nada,
+# y un patron que no casa nada convierte el chkno en un verde por vacio (PT-023).
+lint135_patron() { grep -E '^chk(no)?[[:space:]].*lint_helpers$' "$L135"; }
+chkno "el caso del lint ya no casa las dos respuestas"  "ninguno"  lint135_patron
+chk   "…exige «ningun helper», que es una sola"          "ningun helper"    cat "$L135"
+chk   "el lint sale limpio sobre el arbol real"          "ningun helper usado antes"  lint_helpers
+
+# AC-05 · el caso de PT-109 afectado se comprueba CON su montaje corriendo. No se da por bueno lo
+# que llevaba un lote entero pasando sin fixture: se ejecuta y se mira.
+pt109_con_fixture() {
+  build_fixture; git_fixture
+  reg_set "r.allocations.find(a=>a.id==='PT-001').phase=8"
+  con_phase 8
+  V PT-001
+}
+chk   "el caso de PT-109 corre con su fixture montado"  "AVISO AHORA, ERROR EN G4" \
+  pt109_con_fixture
 
 # ── PT-130 · EP-020 · la comprobacion deja de acusar a quien la documenta ─────────────────────
 #
@@ -4934,7 +5041,10 @@ chk   "…y una que casa, aplica"             "APLICA"   probar_inversa "linea d
 # B-2 y B-3 AVISAN, no bloquean: hay aserciones legitimas sobre identificadores, y un
 # arnes que nace rojo se apaga. Se enumeran con su linea y la cifra queda medida.
 chk   "las aserciones sospechosas se enumeran"  "sospechosa\|ninguna"  lint_aserciones
-chk   "los helpers usados antes se enumeran"    "helper\|ninguno"      lint_helpers
+# PT-135 · EL PATRON ERA «helper|ninguno», que casa con LAS DOS respuestas posibles: el caso
+# no podia fallar. Un caso que no puede fallar ocupa el sitio del que haria falta —lo midio
+# PT-023— y aqui ademas tapo dos helpers mal colocados durante todo un lote.
+chk   "ningun helper se usa antes de definirse"  "ningun helper"  lint_helpers
 
 # FAMILIA C · los cinco sitios. Sin esto, A y B son dos mecanismos correctos que nadie
 # invoca — el septimo caso del lote con esa forma.
@@ -5130,14 +5240,6 @@ done
 pass_si_vacio() { [ -z "$1" ] && echo "SIN ESCRITURAS POR TRR" || echo "ESCRIBEN POR TRR:$1"; }
 chk   "ninguna accion que escriba va por TRR"   "SIN ESCRITURAS POR TRR"   pass_si_vacio "$malos"
 
-# E3/E4/E5 · AC-03 · sesion se prueba en el FIXTURE, y comprueba lo mismo que antes.
-git_fixture() {  # git inicializado, para que «sesion abrir» tenga un HEAD que marcar
-  ( cd "$WORK"
-    git init -q . 2>/dev/null
-    git config user.email t@t; git config user.name T
-    git add -A >/dev/null 2>&1
-    git commit -qm "base del fixture" >/dev/null 2>&1 ) >/dev/null 2>&1
-}
 build_fixture; git_fixture
 chk   "sesion abrir escribe la marca del FIXTURE"  "sesion abierta desde"  TR sesion abrir
 build_fixture; git_fixture
@@ -6724,8 +6826,6 @@ chkno "…ni dos terminales distintos"                  "es un archivo que se qu
 # El intake del fixture NO declara «phase» —lo comprobe leyendo el generador, DESPUES de
 # que el caso fallara— asi que hay que anadirsela: sin ella no hay nada que comparar.
 # «sed s///» con un salto real no es portable: se usa el comando «i», que INSERTA una linea
-# antes de la que casa y no necesita escapar nada.
-con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.md"; }
 
 build_fixture
 reg_set "r.allocations.find(a=>a.id==='PT-001').phase=9"

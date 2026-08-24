@@ -3635,14 +3635,37 @@
       "id": "PT-135",
       "slug": "el-lint-de-helpers-no-ve-los-de-montaje",
       "created": "2026-08-23",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-020",
       "title": "El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve",
-      "issue": 256
+      "issue": 256,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "origen_parada": {
+        "de": "PT-118",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-23"
+      }
     }
   ]
 }

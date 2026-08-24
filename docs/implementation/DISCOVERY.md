@@ -89,4 +89,4 @@
 | PT-131 | BUG | S1 | DONE | EP-020 | SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene |
 | PT-132 | BUG | S1 | DONE | EP-020 | abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica |
 | PT-133 | BUG | S2 | DONE | EP-020 | parada exige plataforma para escribir en TRANSICIONES.log |
-| PT-135 | BUG | S2 | DRAFT | EP-020 | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |
+| PT-135 | BUG | S2 | VALIDATION_PENDING | EP-020 | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |

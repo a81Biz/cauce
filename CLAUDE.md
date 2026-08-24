@@ -56,7 +56,7 @@ docs/methodology/
 ├── PTSA/  PTSA-V3-Especificacion-Oficial.md · PTSA-Prompts.md · templates/COVERAGE.md
 ├── FIDE/  Framework-FIDE.md · FIDE-Implementation.md · FIDE-CLAUDE-Launcher.md
 │
-│   ── HERRAMIENTAS ─── 16, y ninguna es opcional ───────────────
+│   ── HERRAMIENTAS ─── 18, y ninguna es opcional ───────────────
 └── tools/
     │   verificadores      verify-suite · verify-fdge · verify-qa · verify-ptsa · verify-patrones
     │   generadores        build-core (CORE y overlay) · version (alinea los 21 documentos)
@@ -66,6 +66,8 @@ docs/methodology/
     │   consulta           regla — qué exige una regla y qué puede fallar, derivado
     │   compartido         patrones.mjs — los patrones críticos, con su contrato
     │   medición           audit (cobertura mecánica) · selftest.sh (la batería completa)
+    │   eventos            eventos (clasifica el ledger contra CE-nnn) · matriz (deriva
+    │                      MATRIZ.md: qué se repite y qué clase no tiene regla que la reclame)
 ```
 
 **Dónde vive el código.** No hay `src/`: el ejecutable está en `bin/` y en

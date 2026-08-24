@@ -8046,3 +8046,89 @@ LO QUE NO ESTABLECE:
 
 Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING. Llevarlo a DONE es un acto humano
 que deja constancia de quien y cuando (FDGE-R26, LEX-R08, SUITE-R06b).
+
+## PT-135 — El lint de helpers ve tambien los de montaje
+Fecha: 2026-08-23
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020 — la abrio la corrida completa de PT-118
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-004
+
+Lo pidio el firmante: «que un caso no pueda pasar en verde porque su montaje NUNCA llego a
+correr».
+
+COMO APARECIO. Corriendo la bateria completa de PT-118, dos lineas entre 1483 verdes:
+
+  selftest.sh: line 2402: git_fixture: command not found
+  selftest.sh: line 2404: con_phase: command not found
+
+El caso de PT-109 que va detras salia VERDE con su fixture sin «git init» y su allocation sin
+«phase: 8». CE-005, verde por no haber mirado, CON UN LINT ESCRITO EXACTAMENTE PARA ESTO.
+
+POR QUE EL LINT NO PODIA VERLO. Solo reconocia un helper cuando era el COMANDO de un caso; estos
+dos se invocan como LINEAS DE MONTAJE sueltas. La forma que reconocia y la forma en que fallaban
+eran distintas: no se le escapo, no podia verlo. Y su lista estaba ESCRITA A MANO —nueve nombres—
+sin ninguno de los dos: una lista escrita a mano de lo que hay que vigilar es la copia que
+diverge, DENTRO del que vigila.
+
+TRES FALSOS POSITIVOS AL DERIVAR LA LISTA, con la raiz que PT-130 acababa de arreglar:
+
+  A     casaba dentro del PATRON de un caso: «EDITADO A MANO»
+  OTRO  casaba dentro del NOMBRE de otro caso
+  M     casaba dentro de un HEREDOC: contenido de fixture, no codigo
+
+Leer la linea entera en vez de la posicion del comando es CE-017. Arreglado anclando las comillas
+en la expresion y descartando con awk las lineas de heredoc.
+
+EL DEFECTO QUE APARECIO ARREGLANDOLO, Y ES EL MISMO. La rutina que movia las definiciones decidia
+si una era de UNA linea mirando si la linea TERMINA en «{». La de git_fixture termina en un
+COMENTARIO, asi que se llevo la cabecera y DEJO EL CUERPO HUERFANO. La bateria murio EN SILENCIO
+—codigo 0, sin linea de resumen— en el caso siguiente; lo delato que la salida tuviera 1015
+lineas y ninguna dijera «selftest:». Leer el final de la linea en vez del hecho, cometido al
+arreglar precisamente eso.
+
+Y UNA AUTORREFERENCIA MAS, la tercera de la familia: el caso que comprueba que el patron viejo ya
+no esta lo buscaba en TODO el archivo, y lo encontraba en el COMENTARIO que lo explica. De paso
+salio otro: «chkno?» en ERE es «chkn» con una «o» opcional, no «chk» con «no» opcional — un
+patron que no casa nada convierte un chkno en un verde por vacio (PT-023).
+
+AC-05 SE EJECUTO, NO SE SUPUSO. El caso de PT-109 llevaba un lote entero pasando sin su fixture,
+asi que «sigue pasando» habia que comprobarlo. Pasa, con git init y con phase: 8.
+
+Y UNA CIFRA MAS: CLAUDE.md declaraba 16 herramientas con eventos.mjs y matriz.mjs ya publicadas.
+Son 18. Lo dijo FND-R14 en la misma corrida: CE-010.
+
+Archivos modificados: tools/selftest.sh · CLAUDE.md
+
+Evidencia: docs/implementation/evidence/PT-135/ · manifest.json · self-review.md ·
+  salidas/casos-135.txt · salidas/lint-antes.txt · salidas/lint-despues.txt ·
+  salidas/selftest-completo.txt
+
+Criterios AC-01..AC-05 ✓, los cinco. Trece escenarios de trece.
+
+  helpers mal colocados     ANTES 2      DESPUES 0
+  falsos positivos          ANTES 3      DESPUES 0
+  herramientas en CLAUDE.md ANTES 16     DESPUES 18, que es lo que hay
+  bateria                   selftest OK · 1564 casos · 1564 verdes, 0 rojos
+
+AC-04 SE CUMPLE POR LA VIA DEL CASO, y se dice cual: la implementacion no captura la salida de la
+bateria desde dentro —eso exigiria que el arnes se leyera a si mismo—. Lo que se hace es que el
+caso que vigila el orden PUEDA FALLAR: con «ningun helper» como patron, un helper mal colocado
+pone la corrida en rojo, y entonces OK no aparece.
+
+LO QUE NO ESTABLECE:
+
+· Que no queden helpers mal colocados en OTROS archivos. La bateria es el unico con este patron;
+  extenderlo sin medirlo seria prometer lo no medido (RULE-06).
+· Que la heuristica sea completa. Reconoce dos formas de invocar un helper; una tercera —dentro
+  de una sustitucion de comando— no entra.
+· Que CE-004 este cerrada. Es la clase MAS repetida del ledger —ordinal declarado 9— y sigue SIN
+  regla que la reclame. Esta tarea le quita UNA instancia y deja el mecanismo que impide la
+  siguiente; darle regla es una decision de diseño propia, y sellar la publica como candidata.
+
+Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING (FDGE-R26, LEX-R08, SUITE-R06b).
