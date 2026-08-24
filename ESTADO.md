@@ -10,7 +10,7 @@ Proyectado el 2026-08-24 · 10 allocation(es) viva(s).
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
-| PT-134 | CHORE | DRAFT | 2 | — | — | b4cb0ef |
+| PT-134 | CHORE | DRAFT | 3 | — | — | b4cb0ef |
 | EP-021 |  | READY | 1 | — | — | b4cb0ef |
 | PT-137 | BUG | DONE | 8 | — | — | b4cb0ef |
 | PT-138 | BUG | DONE | 8 | — | — | 51e5e7c |
