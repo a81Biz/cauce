@@ -1163,6 +1163,23 @@ Clase de evento: [CE-NNN]     (omitir si el trabajo no cae en ninguna)
 
 Append-only. NUNCA reescribas ni edites una entrada existente.               [SUITE-R09]
 
+## El viaje de vuelta, DESPUES del merge — lo escribe un comando          [PT-121]
+
+node tools/tracker.mjs integrar PT-XXX --aplicar
+  DONE -> INTEGRATED en el REGISTRO y en el YAML del intake, EN UN SOLO ACTO.
+  Lo reversible primero: si el YAML no se puede escribir, el registro no se toca.
+node tools/tracker.mjs cerrar --aplicar
+  cierra el issue DESPUES, nunca antes                                   [SUITE-R46]
+node tools/tracker.mjs proyectar --publicar                              [SUITE-R56]
+
+Y el otro extremo, el estado que produce G1:
+
+node tools/tracker.mjs firmar EP-XXX --compuerta G1 --firmante "Nombre" --aplicar
+  DRAFT -> READY. La firma se CONTRASTA con la lista «firmantes» del registro: un
+  nombre que no esta en ella falla. No prueba que firmara una persona —el agente
+  escribe el archivo— pero convierte la firma en una afirmacion contrastable, y
+  quien aparece en la lista responde de lo que lleva su nombre.        [SUITE-R27]
+
 ### Si una entrada YA ESCRITA salió mal                                      [FDGE-R29]
 No se edita: se **corrige** con una entrada nueva que la referencia, que es lo que
 `SUITE-R09` ya prescribe y lo que las entradas `REVERTIDO` ya hacen.

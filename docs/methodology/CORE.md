@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 36804a53a979 -->
-<!-- fuentes: RULES.md:9ef6a8184513 LEXICON.md:bcfd6e03b5b6 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:a477fd3ee691 -->
+<!-- cuerpo: ef07d8eb9d00 -->
+<!-- fuentes: RULES.md:babeed197c7f LEXICON.md:bcfd6e03b5b6 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:0bb4967225d5 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -909,6 +909,23 @@ HAZ  precondiciones, todas verificables [FDGE-R34]:
        DURABLE y la proyeccion guarda el SHA de cada tarea
 PARA G4 HUMANA EN LOS TRES MODOS, sin excepción [FDGE-R33, EXEC-R04]. Prepara el comando y
      descríbelo. Registra quién resolvió cada compuerta [SUITE-R22].
+EL VIAJE DE VUELTA · lo que ocurre DESPUES del merge, y lo escribe un comando  [PT-121]
+       node tools/tracker.mjs integrar PT-NNN --aplicar
+         escribe DONE -> INTEGRATED en el REGISTRO y en el YAML del intake, EN UN SOLO ACTO.
+         Lo reversible primero: si el YAML no se puede escribir, el registro NO se toca — al
+         reves quedarian las dos fuentes diciendo cosas distintas.
+         SALIDA: allocations[].status = INTEGRATED · intake.md status: INTEGRATED
+       node tools/tracker.mjs cerrar --aplicar
+         cierra el issue DESPUES, nunca antes: el estado terminal tiene que estar ya en la
+         rama por defecto o la principal queda diciendo «vivo» con el issue cerrado
+                                                                        [SUITE-R46]
+       node tools/tracker.mjs proyectar --publicar                       [SUITE-R56]
+     Sin ese comando el estado terminal se escribia A MANO en dos sitios, y divergian: cerrando
+     EP-019 se quedo en la rama de tarea y la principal declaro el lote DRAFT con sus diecisiete
+     tareas en DONE durante todo el ciclo de publicacion.
+Y EL OTRO EXTREMO · el estado que produce G1, tambien por comando           [PT-121]
+       node tools/tracker.mjs firmar EP-NNN --compuerta G1 --firmante "Nombre" --aplicar
+         DRAFT -> READY. La firma se contrasta con «firmantes» del registro  [SUITE-R27]
 ```
 
 ### PHASE 10 · Rollback

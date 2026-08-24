@@ -2039,6 +2039,121 @@ trlib "sin ref durable todavia, no acusa"    "VACIO"      "const d=m.compararEsp
 trlib "sin el resolvedor, se comporta como hoy"  "VACIO"  "const d=m.compararEspejo([$V96],[$I96],[$V96],()=>true); console.log(d.length?d.map((x)=>x.regla).join(' '):'VACIO')"
 
 
+# ── PT-121 · EP-020 · el viaje de vuelta tras el merge ────────────────────────────────────────
+#
+# Lo pidio el firmante: «que el estado terminal de un lote llegue a la rama por defecto sin que
+# nadie tenga que inventar como».
+#
+# PHASE 9 mandaba «tras el merge: PT→INTEGRATED · intake.md CLOSED» y NINGUN COMANDO lo hacia. Se
+# escribia a mano en DOS sitios —registro y YAML— y por eso divergian: cerrando EP-019 el estado
+# terminal se quedo en la rama de tarea y la principal declaro el lote DRAFT con sus diecisiete
+# tareas en DONE durante todo el ciclo de publicacion.
+TK121="$SUITE/tools/tracker.mjs"
+
+# Un proyecto de mentira con una tarea en DONE y su intake, para no tocar el real.
+proj121() {
+  local d="$WORK/p121"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes/PT-001-login"
+  printf '%s\n' '---' 'id: PT-001' 'type: BUG' 'status: READY' 'phase: 8' '---' > "$d/changes/PT-001-login/intake.md"
+  node -e "
+    const fs=require('fs');
+    fs.writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:1,EP:1},
+      allocations:[{id:'PT-001',slug:'login',status:'$1',type:'BUG'},
+                   {id:'EP-001',slug:'lote',status:'$2',type:'CHORE'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+int121() { (cd "$1" && node "$TK121" integrar "$2" ${3:-} 2>&1); }
+
+# AC-01 · UN SOLO ACTO: registro Y YAML del intake.
+chk   "integrar propone DONE -> INTEGRATED"   "DONE -> INTEGRATED"  int121 "$(proj121 DONE DRAFT)" PT-001
+chk   "…nombrando las DOS fuentes"            "intake"              int121 "$(proj121 DONE DRAFT)" PT-001
+int121_aplica() {
+  local d; d=$(proj121 DONE DRAFT)
+  (cd "$d" && node "$TK121" integrar PT-001 --aplicar >/dev/null 2>&1)
+  node -e "
+    const fs=require('fs');
+    const r=JSON.parse(fs.readFileSync(process.argv[1]+'/docs/implementation/REGISTRY.json','utf8'));
+    const y=fs.readFileSync(process.argv[1]+'/changes/PT-001-login/intake.md','utf8');
+    console.log('REG='+r.allocations[0].status+' YAML='+(/^status:\s*(\S+)/m.exec(y)||[])[1]);
+  " "$d"
+}
+chk   "…y al aplicar escribe las dos"  "REG=INTEGRATED YAML=INTEGRATED"  int121_aplica
+
+# EL NEGATIVO que impide que «escribir el estado» pase por bueno: solo DONE entra. FDGE-R34 exige
+# DONE para G4, asi que otro estado significa que G4 no ha pasado — o que ya se integro, y no se
+# adivina cual (RULE-06).
+chk   "un estado que no es DONE no se integra"  "solo escribe DONE"  int121 "$(proj121 VALIDATION_PENDING DRAFT)" PT-001
+# Y sin intake NO se toca el registro: escribir solo una mitad deja las dos fuentes divergiendo,
+# que es el defecto que este comando cierra.
+int121_sin_intake() {
+  local d; d=$(proj121 DONE DRAFT); rm -rf "$d/changes/PT-001-login"
+  (cd "$d" && node "$TK121" integrar PT-001 --aplicar 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log('REG='+r.allocations[0].status);" "$d"
+}
+chk   "sin intake, el comando falla"      "no existe"        int121_sin_intake
+chk   "…y el registro NO se toca"         "REG=DONE"         int121_sin_intake
+
+# AC-05 · el gemelo por el otro extremo: el estado que produce G1 tambien lo escribe un comando.
+fir121() { (cd "$1" && shift; node "$TK121" firmar "$@" 2>&1); }
+chk   "firmar propone DRAFT -> READY"  "DRAFT -> READY" \
+  fir121 "$(proj121 DONE DRAFT)" EP-001 --compuerta G1 --firmante "Alberto Martínez"
+# LA FIRMA SE CONTRASTA (SUITE-R27): un nombre que no esta en la lista falla. Es la unica defensa
+# mecanica que existe contra una firma inventada.
+chk   "un firmante que no esta en la lista falla"  "SUITE-R27" \
+  fir121 "$(proj121 DONE DRAFT)" EP-001 --firmante "Quien Sea"
+chk   "…y G1 solo produce READY desde DRAFT"  "G1 produce READY desde DRAFT" \
+  fir121 "$(proj121 DONE READY)" EP-001 --firmante "Alberto Martínez"
+
+# AC-02 · FDGE-R19 declara la forma de rama para el trabajo DE LOTE, y dice por que.
+chk   "FDGE-R19 declara la rama del trabajo de lote"  "El trabajo DE LOTE usa la forma de tarea"  cat "$SUITE/RULES.md"
+# EL NUCLEO CONDENSA cada regla a ~210 caracteres (SUITE-R15), asi que una declaracion al
+# final de una regla de 5387 NO llega al agente por defecto. Es el diseño, no un defecto: el
+# documento completo se abre cuando CORE lo remite. Lo que si tiene que llegar es la REGLA.
+chk   "…y FDGE-R19 llega al nucleo"                   "FDGE-R19"  cat "$SUITE/CORE.md"
+
+# AC-03 · PHASES declara DONDE ocurre el viaje de vuelta, con su artefacto y su salida.
+chk   "PHASES declara el viaje de vuelta"   "EL VIAJE DE VUELTA"  cat "$SUITE/PHASES.md"
+chk   "…con su comando"                     "tracker.mjs integrar"  cat "$SUITE/PHASES.md"
+chk   "…y su salida"                        "SALIDA: allocations"   cat "$SUITE/PHASES.md"
+chk   "…y el texto copiable lo lleva"       "integrar PT-XXX"       cat "$SUITE/FDGE-Prompts.md"
+
+# AC-06 · sellar comprueba los DOS tags: que el anterior RESUELVE, y que el de esta version
+# todavia no existe — que es lo normal, porque crearlo es humano y va DESPUES del merge.
+# AC-06 · sellar comprueba los DOS tags: que el anterior RESUELVE, y que el de esta version
+# todavia no existe — que es lo normal, porque crearlo es humano y va DESPUES del merge.
+#
+# SOBRE UN FIXTURE CON SUS PROPIOS TAGS, no sobre el repositorio real: sellar termina consultando
+# la plataforma, y un arnes que depende de la red no es un arnes (PT-126). Aqui ademas hace falta
+# controlar QUE tags hay, que es justo lo que se mide.
+sel121() {
+  local d="$WORK/s121"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', counters:{PT:1,EP:1}, allocations:[]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d"
+    git init -q . 2>/dev/null
+    git config user.email t@t; git config user.name T
+    git add -A >/dev/null 2>&1
+    git commit -qm base >/dev/null 2>&1
+    # El orden IMPORTA: v10 y v12 van DESPUES de v4 por version y ANTES por alfabeto. Con el
+    # orden de por defecto, el final de la lista da «v9.0.0» — el error de medicion real que
+    # este intake tuvo que corregir.
+    for v in v4.13.0 v9.0.0 v10.0.0 v12.0.0; do git tag -a "$v" -m "$v" >/dev/null 2>&1; done
+  ) >/dev/null 2>&1
+  (cd "$d" && node "$TK121" sellar 2>&1 | sed -n '/sellar · version/,/paso 8/p')
+}
+chk   "sellar nombra el tag anterior por VERSION, no por alfabeto"  "tag anterior v12.0.0"  sel121
+chk   "…y dice que resuelve"                      "v12.0.0 resuelve"   sel121
+chk   "…y que el de esta version todavia no existe"  "v13.0.0 todavia NO existe"  sel121
+chk   "…y que crearlo es humano y va despues del merge"  "paso 8"      sel121
+# El orden se DERIVA con «--sort=v:refname». Con el de por defecto, v10 y v12 van ANTES de
+# v4.13.0 y el final de la lista da «v9.0.0».
+chk   "el tag anterior se deriva por version, no por alfabeto"  "sort=-v:refname"  cat "$TK121"
+
 # ── PT-135 · EP-020 · el lint de helpers ve tambien los de montaje ────────────────────────────
 #
 # Lo pidio el firmante: «que un caso no pueda pasar en verde porque su montaje NUNCA llego a

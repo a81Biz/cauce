@@ -824,7 +824,10 @@ const APLICAR = ARGS.includes('--aplicar');
 // pero YA NO ES LA GUARDA: la guarda es la forma.
 const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de',
   '--tipo', '--severidad', '--epica', '--titulo',
-  '--motivo', '--texto', '--desenlace', '--abre']);
+  '--motivo', '--texto', '--desenlace', '--abre',
+  // PT-121 · CE-003, la clase con SIETE instancias declaradas: una bandera con valor que no
+  // esta aqui hace que su valor se tome por la raiz del proyecto. Van al entrar, no despues.
+  '--firmante', '--compuerta']);
 const ES_ETIQUETA = /^[A-Z][A-Z_]*$/;
 const SUBCOMANDOS = new Set(['abrir', 'cerrar', 'ver']);
 const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
@@ -1456,7 +1459,12 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'indices',
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar',
+  // PT-121 · «integrar» y «firmar» escriben el REGISTRO y el YAML del intake, los dos
+  // locales. Exigirles plataforma repetiria lo que PT-133 acabo de arreglar en «parada»:
+  // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
+  // al proyecto que no declara tablero — el caso que SUITE-R22 declara soportado.
+  'integrar', 'firmar', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
   // seria pedirle una credencial para leer «wc -l», y dejaria sin arreglo a un proyecto
   // que no declara tablero — el caso que SUITE-R22 declara soportado y PT-084 defendio.
@@ -3397,6 +3405,37 @@ function sellar() {
 
   di('');
   di(`  sellar · version vigente ${VERSION_DEL_PROYECTO} · tag anterior ${idsDelTag.tag ?? 'NINGUNO'}`);
+
+  // PT-121 · AC-06 · EL TAG SE COMPRUEBA, NO SE SUPONE.
+  //
+  // Dos cosas distintas y las dos importan:
+  //
+  //   el ANTERIOR      un nombre en la lista no prueba que resuelva: un tag roto da un nombre y
+  //                    ningun arbol, y «sellado en el tag» se calcula sobre ESE arbol.
+  //   el QUE VIENE     antes de sellar NO existe, y esta bien: crearlo es el paso 8, HUMANO y
+  //                    DESPUES del merge (SUITE-R06a). Decirlo evita la pregunta de siempre.
+  //
+  // Y el orden se deriva con «--sort=v:refname», no con el de por defecto: el alfabetico pone
+  // v10, v11 y v12 ANTES de v4.13.0, y leer el final de esa lista da «v9.0.0» como ultimo tag.
+  // Ese error de medicion es real y esta escrito en el propio intake de esta tarea.
+  const tagDeEstaVersion = `v${VERSION_DEL_PROYECTO}`;
+  const resuelve = (ref) => gitDe(['rev-parse', '--verify', `${ref}^{commit}`]) !== null;
+  di('');
+  if (idsDelTag.tag === null) {
+    di('  tag anterior       NINGUNO — no hay con que comparar lo ya sellado (RULE-06).');
+  } else if (!resuelve(idsDelTag.tag)) {
+    di(`  tag anterior       ${idsDelTag.tag} FIGURA EN LA LISTA Y NO RESUELVE a ningun commit.`);
+    di('                     Lo sellado se calcula sobre SU arbol, asi que sin arbol es SIN EVALUAR.');
+  } else {
+    di(`  tag anterior       ${idsDelTag.tag} resuelve.`);
+  }
+  if (resuelve(tagDeEstaVersion)) {
+    di(`  tag de esta version ${tagDeEstaVersion} YA EXISTE. Si aun no se ha mergeado, apunta a un`);
+    di('                     arbol sin lo que la version trae (PT-081).');
+  } else {
+    di(`  tag de esta version ${tagDeEstaVersion} todavia NO existe, y es lo normal: lo crea el`);
+    di('                     paso 8, humano y DESPUES del merge (SUITE-R06a).');
+  }
   di('');
   if (falta === null) {
     di('  deuda de sellado   SIN EVALUAR — no se pudo leer el registro del tag anterior.');
@@ -3988,7 +4027,123 @@ function cursor() {
   di('  El cursor NO escribe: avanzar es de «avanzar», con su nota (FDGE-R52).');
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+// ── integrar · el viaje de vuelta tras el merge   PT-121 · AC-01 ────────────
+//
+// PHASE 9 manda «tras el merge: PT→INTEGRATED · intake.md CLOSED», y NINGUN COMANDO lo hacia.
+// Se escribia a mano en dos sitios —registro y YAML— y por eso divergian: cerrando EP-019 el
+// estado terminal se quedo en la rama de tarea y «main» declaro el lote DRAFT con sus diecisiete
+// tareas en DONE durante todo el ciclo de publicacion.
+//
+// Es CE-006 —el acto hecho fuera del comando— por la unica razon que lo hace inevitable: no
+// habia comando. Y CE-009, porque el estado terminal acababa escrito a mano.
+//
+// UN SOLO ACTO, y en el orden que ya usan «avanzar» y «abrir»: lo reversible primero. Si el YAML
+// no se puede escribir, el registro NO se toca — al reves quedaria un registro diciendo
+// INTEGRATED sobre un intake que dice otra cosa, que es la divergencia que esto viene a cerrar.
+function integrar() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) {
+    console.error('integrar necesita una allocation:  tracker integrar PT-131 [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro. El registro asigna (SUITE-R08).`); return; }
+
+  // DONE es la unica entrada legitima: FDGE-R34 la exige para G4, y G4 es lo que acaba de pasar.
+  // Un BUG en VALIDATION_PENDING no entra — lo cierra una persona (FDGE-R26, SUITE-R06b).
+  if (a.status !== 'DONE') {
+    fail('SUITE-R46', `${id} esta en «${a.status}» y integrar solo escribe DONE -> INTEGRATED. `
+      + `FDGE-R34 exige DONE para G4, asi que un estado distinto significa que G4 no ha pasado `
+      + `— o que ya se integro. No se adivina cual (RULE-06).`);
+    return;
+  }
+
+  const dir = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id);
+  const intake = join(dir, 'intake.md');
+  if (!existsSync(intake)) {
+    fail('FDGE-R23', `${id}: no existe ${intake.replace(ROOT, '.')}. El YAML del intake es la `
+      + `mitad de esta transicion, y escribir solo la otra mitad deja las dos fuentes diciendo `
+      + `cosas distintas — que es el defecto que este comando cierra.`);
+    return;
+  }
+
+  const antes = readFileSync(intake, 'utf8');
+  const RE_ESTADO = /^status:[ 	]*(\S+)[ 	]*$/m;
+  const m = RE_ESTADO.exec(antes);
+  if (!m) {
+    fail('FDGE-R23', `${id}: su intake no declara «status:». Sin el, no hay transicion que `
+      + 'escribir y suponerla seria inventar un dato (SUITE-R08).');
+    return;
+  }
+
+  if (!APLICAR) {
+    di(`  ${id}: ${a.status} -> INTEGRATED`);
+    di(`    registro          allocations[].status`);
+    di(`    intake            ${intake.replace(ROOT, '.')} · status: ${m[1]} -> INTEGRATED`);
+    di('');
+    di('  --aplicar   escribe las dos, en un solo acto.');
+    return;
+  }
+
+  // Lo reversible primero: el YAML. Si falla, el registro se queda como estaba.
+  writeFileSync(intake, antes.replace(RE_ESTADO, 'status: INTEGRATED'), 'utf8');
+  a.status = 'INTEGRATED';
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: ${m[1]} -> INTEGRATED en el intake y en el registro, en un solo acto`);
+}
+
+// ── firmar · el estado que produce una compuerta   PT-121 · AC-05 ───────────
+//
+// El gemelo de «integrar», por el otro extremo del ciclo: al pasar G1 un lote debe quedar READY,
+// y eso tambien se escribia A MANO. Un lote que sigue DRAFT con su G1 resuelta es un registro que
+// contradice a su propia acta.
+//
+// LA FIRMA SE CONTRASTA (SUITE-R27): un nombre que no esta en «firmantes» falla. No prueba que
+// firmara una persona —el agente escribe el archivo— pero convierte la firma en una afirmacion
+// contrastable, y quien aparece en la lista responde de lo que lleva su nombre.
+function firmar() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const quien = flag('--firmante');
+  const compuerta = (flag('--compuerta') ?? 'G1').toUpperCase();
+  if (!id || !quien) {
+    console.error('firmar necesita allocation y firmante:  '
+      + 'tracker firmar EP-020 --compuerta G1 --firmante "Nombre" [--aplicar]');
+    process.exit(2);
+  }
+  if (compuerta !== 'G1') {
+    fail('EXEC-R03', `este comando solo escribe el estado que produce G1. «${compuerta}» produce `
+      + 'otro, y fingir que son el mismo seria inventar una transicion.');
+    return;
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+
+  const firmantes = reg?.firmantes ?? reg?.personas?.map((p) => p?.nombre) ?? [];
+  if (firmantes.length && !firmantes.includes(quien)) {
+    fail('SUITE-R27', `«${quien}» no esta en la lista de firmantes (${firmantes.join(' · ')}). `
+      + 'Es la unica defensa mecanica que existe contra una firma inventada.');
+    return;
+  }
+  if (a.status !== 'DRAFT') {
+    fail('SUITE-R46', `${id} esta en «${a.status}»: G1 produce READY desde DRAFT. Escribir READY `
+      + 'sobre otra cosa borraria un estado que alguien puso por algo.');
+    return;
+  }
+  if (!APLICAR) {
+    di(`  ${id}: DRAFT -> READY   (${compuerta} · ${quien})`);
+    di('');
+    di('  --aplicar   lo escribe.');
+    return;
+  }
+  a.status = 'READY';
+  a.compuertas = { ...(a.compuertas ?? {}), [compuerta]: { firmante: quien,
+    fecha: gitDe(['log', '-1', '--format=%cs']) ?? null } };
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: DRAFT -> READY · ${compuerta} firmada por ${quien}`);
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

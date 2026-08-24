@@ -8132,3 +8132,89 @@ LO QUE NO ESTABLECE:
   siguiente; darle regla es una decision de diseño propia, y sellar la publica como candidata.
 
 Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING (FDGE-R26, LEX-R08, SUITE-R06b).
+
+## PT-121 — El viaje de vuelta tras el merge, por comando
+Fecha: 2026-08-23
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-020
+Rama: chore/alberto-martinez/PT-113-apertura
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-22 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-006
+
+Lo pidio el firmante: «que el estado terminal de un lote llegue a la rama por defecto sin que
+nadie tenga que inventar como».
+
+EL HUECO, MEDIDO. PHASE 9 mandaba «tras el merge: PT→INTEGRATED · intake.md CLOSED» y NINGUN
+COMANDO LO HACIA. Se escribia a mano en DOS sitios —registro y YAML del intake— y por eso
+divergian: cerrando EP-019 el estado terminal se quedo en la rama de tarea y «main» declaro el
+lote DRAFT con sus DIECISIETE tareas en DONE durante todo el ciclo de publicacion. Es CE-006 por
+la unica razon que lo hace inevitable: no habia comando.
+
+Y EL GEMELO, por el otro extremo: «avanzar» se niega sobre un lote y HACE BIEN —SUITE-R08 exime a
+los EP de declarar phase—, pero eso dejaba el estado que produce G1 igual de huerfano.
+
+QUE SE CONSTRUYO:
+
+  tracker integrar   DONE -> INTEGRATED en el registro Y en el YAML, EN UN SOLO ACTO. El orden
+                     importa: el YAML primero —reversible— y el registro solo si aquel salio
+                     bien. Al reves quedaria un registro diciendo INTEGRATED sobre un intake que
+                     dice otra cosa, que es LA DIVERGENCIA QUE ESTO VIENE A CERRAR.
+  tracker firmar     el estado que produce G1, con la firma CONTRASTADA contra la lista de
+                     firmantes (SUITE-R27). No prueba que firmara una persona —el agente escribe
+                     el archivo— pero convierte la firma en una afirmacion contrastable.
+  FDGE-R19           declara que el trabajo DE LOTE usa la forma de TAREA, con el type del propio
+                     lote, y POR QUE: un cuarto nivel añadiria vocabulario que la forma existente
+                     ya cubre (LEX-R23). Lo que NO se hereda es la unidad del COMMIT.
+  PHASES · Prompts   el bloque EL VIAJE DE VUELTA, con los tres comandos, su ORDEN y su salida.
+                     cerrar va DESPUES de integrar: el estado terminal tiene que estar ya en la
+                     rama por defecto o la principal queda diciendo «vivo» (SUITE-R46).
+  sellar             comprueba los DOS tags. TRES desenlaces para el anterior: ninguno · figura y
+                     NO resuelve · resuelve. El de en medio importa: un nombre en la lista no
+                     prueba que haya arbol, y «lo sellado» se calcula sobre ese arbol.
+
+TRES DEFECTOS APARECIERON CONSTRUYENDOLO, y los tres son clases que el lote ya cuenta:
+
+  1  los dos comandos EXIGIAN PLATAFORMA escribiendo solo archivos locales. Es exactamente lo que
+     PT-133 acababa de arreglar en «parada»: pedir credencial para escribir un archivo del
+     repositorio, y dejar sin viaje de vuelta al proyecto que no declara tablero (SUITE-R22).
+  2  «--firmante» y «--compuerta» no estaban en CON_VALOR: su valor se habria tomado por la raiz
+     del proyecto. Es CE-003, la clase con SIETE instancias declaradas. Entraron al escribirlas.
+  3  los casos de sellar iban contra el REPOSITORIO REAL y salian a la red: el bloque no termino
+     dentro del tiempo. Es lo que PT-126 habia enseñado HORAS ANTES. Rehechos sobre un fixture
+     con sus propios tags —v4.13.0, v9.0.0, v10.0.0, v12.0.0—, que ademas es lo unico que permite
+     controlar QUE tags hay, que es justo lo que se mide.
+
+Y UNA EXPECTATIVA MIA QUE ERA FALSA: un caso esperaba que la frase de FDGE-R19 llegara a CORE.md.
+No llega, y esta bien — el nucleo condensa cada regla a ~210 caracteres (SUITE-R15) y el documento
+completo se abre cuando CORE lo remite. El caso exige ahora lo que si tiene que llegar: la regla.
+
+AC-04 ESTA RETIRADO, y no se cuenta como cumplido. Lo retiro el propio intake el 2026-08-22: nacio
+afirmando que faltaban tags, y era un error DE MEDICION — «git tag -l | tail -5» ordena
+lexicograficamente, asi que v10, v11 y v12 quedan ANTES de v4.13.0 y el final da v9.0.0. La
+evidencia muestra las dos ordenaciones una al lado de la otra.
+
+Archivos modificados: tools/tracker.mjs · RULES.md · PHASES.md · FDGE-Prompts.md ·
+  tools/selftest.sh · CORE.md (generado)
+
+Evidencia: docs/implementation/evidence/PT-121/ · manifest.json · self-review.md ·
+  salidas/casos-121.txt · salidas/inversa.txt · salidas/sellar-tags.txt
+
+Criterios AC-01, AC-02, AC-03, AC-05 y AC-06 ✓, los cinco vivos. Veinte escenarios de veinte.
+Inversa: cuatro supresiones, cuatro escenarios distintos.
+
+LO QUE NO ESTABLECE:
+
+· Que «integrar» haya corrido sobre una integracion REAL. Se ejerce sobre un proyecto de mentira;
+  la integracion real de este lote es G4, humana, y no ha ocurrido.
+· Que la lista de firmantes pruebe que firmo una persona. SUITE-R27 lo dice: la hace
+  CONTRASTABLE, no verificada.
+· Que el trabajo de lote pueda citar el EP en un commit. Es la unidad del COMMIT, no la rama.
+  La midio PT-127 —15 commits— y queda declarada.
+· Que existan los tags anteriores a la 8.2.0. No existen y se declaran ausentes: fecharlos hoy
+  seria inventar cuando se sello cada version.
+
+Y NO SE CIERRA AQUI. Es un BUG: termina en VALIDATION_PENDING (FDGE-R26, LEX-R08, SUITE-R06b).
