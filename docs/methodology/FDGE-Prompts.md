@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **12.0.0**
+> Suite version: **13.0.0**
 
 ---
 
@@ -309,6 +309,36 @@ se podía exigir ni comprobar. Una nota tiene fecha, es observable, y la siguien
 encuentra sin preguntar.
 
 Append-only. Una bitácora que se reescribe deja de ser un rastro.
+
+### La parada con decisión se escribe en su tarea   `FDGE-R55`
+
+**Cuando te detienes y devuelves el control con una decisión encima, eso se escribe en la tarea
+que lo motiva, antes de continuar.** No en la conversación: lo que sólo está en el chat **no
+existe** (`SUITE-R04`).
+
+Tres cosas, y las dos listas son **cerradas** — las declara `LEXICON` §8.5 (`LEX-R29`):
+
+```
+motivo     hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
+           limite-alcanzado · desafio-al-intake
+explicacion  qué encontraste, por qué importa, y qué casi sale mal
+desenlace  continua · abre · cambia-fase · detiene · declara
+```
+
+**Dónde va**: el issue de la tarea si el proyecto declara plataforma, y
+`docs/implementation/TRANSICIONES.log` si no. **El mismo sitio que la nota de reanclaje** — no uno
+nuevo, porque un hecho con dos nombres es la avería que la v4 nació para eliminar (`LEX-R22`).
+
+**Una transición de fase es una parada** cuyo desenlace es `cambia-fase` (`LEX-R30`). `FDGE-R52`
+sigue exigiendo sus tres líneas y su verificador: es el caso particular, no una excepción.
+
+**Y una parada que NO sea transición no lleva la forma `PHASE n → m`**, o inflaría el recuento de
+reanclajes y la tarea parecería tener transiciones que no tuvo.
+
+> **Lo que esta regla no promete** (`SUITE-R26`): una parada cuyo desenlace es `continua` no la
+> puede exigir ningún script desde el repositorio — no deja rastro contra el que contrastar. Lo
+> mecanizable es el desenlace que sí lo deja: **toda allocation nueva cita la parada que la
+> produjo**.
 
 ### Toda tarea declara cómo termina                                          `FDGE-R53`
 
@@ -1125,8 +1155,30 @@ Compuertas: G1 YYYY-MM-DD [nombre] · G2 YYYY-MM-DD [nombre|auto] · G3 YYYY-MM-
             Para un BUG, G3 DEBE llevar fecha y nombre humano: es la prueba de que no
             hubo auto-cierre, y la comprueba verify-fdge.                    [FDGE-R26]
 Trazabilidad externa: [QD-XXX] [H-XXX] [R-XXX]     (omitir las que no apliquen)
+Clase de evento: [CE-NNN]     (omitir si el trabajo no cae en ninguna)
+            Las clases estan en LEXICON §4.4 y NO se asignan desde REGISTRY.json: una
+            clase no es un item de trabajo.                              [LEX-R31]
+            Citar un CE-NNN que LEXICON no declara es un defecto que bloquea; ampliar
+            la lista es modificar docs/methodology/ y no se automatiza.  [LEX-R32]
 
 Append-only. NUNCA reescribas ni edites una entrada existente.               [SUITE-R09]
+
+## El viaje de vuelta, DESPUES del merge — lo escribe un comando          [PT-121]
+
+node tools/tracker.mjs integrar PT-XXX --aplicar
+  DONE -> INTEGRATED en el REGISTRO y en el YAML del intake, EN UN SOLO ACTO.
+  Lo reversible primero: si el YAML no se puede escribir, el registro no se toca.
+node tools/tracker.mjs cerrar --aplicar
+  cierra el issue DESPUES, nunca antes                                   [SUITE-R46]
+node tools/tracker.mjs proyectar --publicar                              [SUITE-R56]
+
+Y el otro extremo, el estado que produce G1:
+
+node tools/tracker.mjs firmar EP-XXX --compuerta G1 --firmante "Nombre" --aplicar
+  DRAFT -> READY. La firma se CONTRASTA con la lista «firmantes» del registro: un
+  nombre que no esta en ella falla. No prueba que firmara una persona —el agente
+  escribe el archivo— pero convierte la firma en una afirmacion contrastable, y
+  quien aparece en la lista responde de lo que lleva su nombre.        [SUITE-R27]
 
 ### Si una entrada YA ESCRITA salió mal                                      [FDGE-R29]
 No se edita: se **corrige** con una entrada nueva que la referencia, que es lo que

@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 81df553de149 -->
-<!-- fuentes: RULES.md:fc0c5cfea9a5 LEXICON.md:0d2845bde60d EXECUTION-MODES.md:c2dd967ff3d7 PHASES.md:e730d6b712c0 -->
+<!-- cuerpo: ef07d8eb9d00 -->
+<!-- fuentes: RULES.md:babeed197c7f LEXICON.md:bcfd6e03b5b6 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:0bb4967225d5 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -106,6 +106,32 @@ Phase      NOT_STARTED IN_PROGRESS BLOCKED COMPLETE NEEDS_REVIEW
 
 ```
 PT EP QA QR QD H E P R INC · AC-nn TS-nn RC-nn por PT · RULE-nn en 11-Conventions
+CE-nnn NO sale del registro: es la tercera clase, y se declara en LEXICON §4.4 (LEX-R31)
+```
+
+## Clases de evento — `CE-nnn`   `LEX-R31` · `LEX-R32`
+
+Nombran una forma de fallar que se repite. No se abren ni se cierran: se **citan**.
+Citar una que LEXICON no declara es un defecto que bloquea (`LEX-R32`).
+
+```
+CE-001  El proxy en lugar del hecho
+CE-002  Rotura de escapado
+CE-003  Un argumento se cuela por la detección de `ROOT`
+CE-004  Probar donde trabajo, no donde se decide
+CE-005  Verde por no haber mirado
+CE-006  El acto hecho fuera del comando
+CE-007  Existe la herramienta y nada la echa en falta
+CE-008  Un hecho, varios nombres
+CE-009  El estado terminal escrito a mano o adelantado
+CE-010  La cifra transcrita caduca
+CE-011  Un arreglo deja tests del estado anterior
+CE-012  Filtrar la salida antes de mirarla
+CE-013  Un encabezado mal formado bloquea la integración
+CE-014  Una regla nueva juzga hacia atrás
+CE-015  El cierre destapa más que el reparto
+CE-016  Trabajar sin allocation
+CE-017  La comprobación acusa a quien documenta el hecho
 ```
 
 ## Triggers
@@ -150,7 +176,7 @@ verifica un script y bloquea la integración.
 `SUITE-R06` **H** Lista cerrada de acciones irreversibles. Ningún modo de ejecución automatiza: (a) merge o push a la rama principal; (b) cierre de un ítem de tipo BUG; (c) migración, borrado o transformación destructiva de…
 `SUITE-R07` **H** No Foundation Skip. Ningún componente opera sobre un proyecto sin docs/enterprise-documentation/ generada y validada con [FOUNDATION VALIDATED]. Ver FND-R08 para la verificación real.
 `SUITE-R08` **C** Un solo asignador de identificadores. Todo ID se obtiene de docs/implementation/REGISTRY.json. Derivarlo contando entradas en un .md o .json está prohibido (LEX-R04, LEX-R06). Y toda allocation de tipo PT…
-`SUITE-R09` **H** Append-only es literal. Un artefacto declarado append-only nunca se reescribe, reordena ni compacta. Corregir un error pasado se hace con una entrada nueva que lo referencia, no editando la anterior.
+`SUITE-R09` **H** Append-only es literal. Un artefacto declarado append-only nunca se reescribe, reordena ni compacta. Corregir un error pasado se hace con una entrada nueva que lo referencia, no editando la anterior. Es la…
 `SUITE-R10` **H** Propiedad de artefactos. Cada artefacto tiene exactamente un componente dueño. Solo el dueño escribe en él. Ver la matriz de §Parte 9.
 `SUITE-R11` **S** Declared coverage. Ningún score (Health PTSA, QA Health, confianza de fase) es válido sin cobertura y freshness declaradas junto al número.
 `SUITE-R12` **H** Sin auto-activación. Ningún componente se activa sin su trigger explícito (LEX-R18).
@@ -232,6 +258,10 @@ verifica un script y bloquea la integración.
 `LEX-R26` **H** Un campo que solo pueda rellenar la memoria no entra en CHECKPOINT.json.
 `LEX-R27` **H** Un lote (EP-NNN) NO lleva type: se reconoce por su identificador, que el registro asigna (SUITE-R08) y que siempre está.
 `LEX-R28` **H** El tipo de un caso de QA es uno de esos cuatro.
+`LEX-R29` **H** Una parada es el punto en que el agente detiene el trabajo y devuelve el control.
+`LEX-R30` **H** Una transición de fase es una parada cuyo desenlace es cambia-fase.
+`LEX-R31` **H** Hay una tercera clase de identificador, y no se asigna desde REGISTRY.json.
+`LEX-R32` **H** La lista es cerrada por versión y ampliable por cambio de metodología.
 
 ### EXEC — Compuertas y modos
 
@@ -305,7 +335,7 @@ verifica un script y bloquea la integración.
 `FDGE-R16` **H** Toda tarea de tasks.md tiene objetivo único, input definido, output definido y método de validación.
 `FDGE-R17` **H** Tests first. Los tests derivados de test-scenarios.md existen y fallan antes de escribir la primera línea de implementación. Si no puedes escribir el test, no entendiste el requisito. En track HOTFIX, donde…
 `FDGE-R18` **S** Excepción de tests para cambios sin lógica.
-`FDGE-R19` **H** Commits atómicos, y una rama por tarea. Un commit = un cambio lógico. Formato obligatorio: <type>: PT-XXX <descripción específica> con type ∈ feat·fix·refactor·test·docs·chore. Prohibidos: WIP, fix,…
+`FDGE-R19` **H** Commits atómicos, y una rama por tarea. Un commit = un cambio lógico. Formato obligatorio: <type>: PT-XXX <descripción específica> con type ∈ feat·fix·refactor·test·docs·chore — el vocabulario de git, y…
 `FDGE-R20` **H** Scope lock. Está prohibido tocar archivos fuera de lo declarado en tasks.md, y prohibido implementar cualquier ítem de out-of-scope.md.
 `FDGE-R21` **H** Alerta de desvío. Si durante la implementación el trabajo resulta más complejo de lo planificado: detención inmediata y reporte con evidencia. Un desvío dentro del scope declarado continúa con ACK. Un…
 `FDGE-R22` **H** Carril HOTFIX. Solo para severity: S1. Permite recorrer PHASE 1 → 5 → 6 → 9 con G1 y G4 vivas y G2/G3 diferidas. Obliga a: rama hotfix/PT-XXX-slug, un INC-NNN abierto, y completar PHASE 2, 3, 4, 7 y 8 de…
@@ -317,7 +347,7 @@ verifica un script y bloquea la integración.
 `FDGE-R28` **S** Cierre asistido por QA. Si el PT se originó en un QD-nnn, la validación humana puede apoyarse en delta QA PT-XXX con resultado PASS del caso de origen. La ejecución QA es evidencia; la decisión de cerrar…
 `FDGE-R29` **C** HISTORY.log recibe exactamente una entrada por PT, en el formato canónico de FDGE-Implementation.md.
 `FDGE-R30` **H** HANDOFF.md se sobrescribe en modo merge: antes de escribir, se lee el existente y se preservan todas las validaciones pendientes e investigaciones activas ajenas al PT que se cierra.
-`FDGE-R31` **C** El índice de origen (DISCOVERY.md, ENRICHMENT.md o REFACTOR_SCOPE.md) actualiza el estado del PT al valor canónico correspondiente.
+`FDGE-R31` **C** El índice de origen actualiza el estado del PT al valor canónico correspondiente.
 `FDGE-R32` **H** Si el PT es Estructural: sí (FDGE-R44), el agente solicita explícitamente la regeneración del grafo antes de cerrar PHASE 8, y la anota como pendiente en HANDOFF.md.
 `FDGE-R33` **H** Integration Gate (G4). El merge a la línea principal es siempre una decisión humana, en todos los modos de ejecución, sin excepción (SUITE-R06a).
 `FDGE-R34` **C** Precondiciones de G4, todas verificables: CI en verde · verify-fdge sin errores · entrada en HISTORY.log · manifest.json válido · self-review.md presente · traceability.md sin AC huérfanos · estado del PT…
@@ -338,9 +368,10 @@ verifica un script y bloquea la integración.
 `FDGE-R49` **H** Mientras haya una implementación abierta, todo le pertenece.
 `FDGE-R50` **H** Nueva o parte de: el criterio está escrito.
 `FDGE-R51` **H** El intake pesado pertenece a la implementación, no a cada cambio dentro de ella.
-`FDGE-R52` **H** El reanclaje se escribe, no se relee. Cada transición de fase deja tres líneas en la tarea —comentario del issue si hay plataforma, docs/implementation/TRANSICIONES.log si no—: qué se cierra · dónde se está…
+`FDGE-R52` **H** El reanclaje se escribe, no se relee. Es el caso particular de FDGE-R55: una transición de fase es una parada cuyo desenlace es cambia-fase (LEX-R30). No se relaja y conserva su verificador — lo que cambia…
 `FDGE-R53` **H** Toda tarea declara cómo termina. Una línea, observable, en el intake: la condición que hace que la tarea esté hecha. La deriva ocurre en tareas sin forma: una tarea que declara su final lo tiene; una que…
 `FDGE-R54` **H** No se empieza lo que no se puede terminar, y consta.
+`FDGE-R55` **H** La parada con decisión se escribe en su tarea, antes de continuar.
 
 ### INTAKE — Admisión
 
@@ -813,6 +844,15 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           Si hay trabajo posterior, la sesión terminó sin dejar el estado
           retomable. Se comprueba contra git, el único reloj que no depende
           de nadie.
+PARADA con decisión, ESCRIBE en la TAREA antes de continuar:                  [FDGE-R55]
+          motivo · la explicación · desenlace.  Listas CERRADAS en LEXICON §8.5.
+          motivo   ∈ hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
+                     limite-alcanzado · desafio-al-intake
+          desenlace ∈ continua · abre · cambia-fase · detiene · declara
+          MISMO destino que el reanclaje: issue, o TRANSICIONES.log sin plataforma.
+          NO lleva la forma «PHASE n → m» salvo que SEA una transición  [LEX-R30].
+          Lo que sólo está en la conversación no está                   [SUITE-R04].
+
 REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
           qué cierras · dónde estás · qué sigue.
           issue si hay plataforma · docs/implementation/TRANSICIONES.log si no [INC-008].
@@ -830,6 +870,11 @@ HAZ  1 HISTORY (append, formato canónico único):
        Archivos modificados / Evidencia / Criterios AC-nn ✓ / Delta real vs planificado
        Compuertas: G1 fecha nombre · G2 … · G3 … · G4 …
        Trazabilidad externa: QD-XXX H-XXX R-XXX
+       Clase de evento: CE-NNN si el trabajo cae en una de LEXICON §4.4         [LEX-R31]
+         citar un CE-NNN que LEXICON no declara es defecto y bloquea            [LEX-R32]
+         «node tools/eventos.mjs» reclasifica el ledger entero y reescribe
+         EVENTOS.jsonl. La clase es un JUICIO: sale marcada DECLARADO, y separar
+         una instancia de una mencion lo decide una persona, no la herramienta.
      2 HANDOFF en MODO MERGE: leer el existente y PRESERVAR validaciones e investigaciones
        ajenas al PT [FDGE-R30]
      3 regenerar BACKLOG desde REGISTRY y changes/
@@ -864,6 +909,23 @@ HAZ  precondiciones, todas verificables [FDGE-R34]:
        DURABLE y la proyeccion guarda el SHA de cada tarea
 PARA G4 HUMANA EN LOS TRES MODOS, sin excepción [FDGE-R33, EXEC-R04]. Prepara el comando y
      descríbelo. Registra quién resolvió cada compuerta [SUITE-R22].
+EL VIAJE DE VUELTA · lo que ocurre DESPUES del merge, y lo escribe un comando  [PT-121]
+       node tools/tracker.mjs integrar PT-NNN --aplicar
+         escribe DONE -> INTEGRATED en el REGISTRO y en el YAML del intake, EN UN SOLO ACTO.
+         Lo reversible primero: si el YAML no se puede escribir, el registro NO se toca — al
+         reves quedarian las dos fuentes diciendo cosas distintas.
+         SALIDA: allocations[].status = INTEGRATED · intake.md status: INTEGRATED
+       node tools/tracker.mjs cerrar --aplicar
+         cierra el issue DESPUES, nunca antes: el estado terminal tiene que estar ya en la
+         rama por defecto o la principal queda diciendo «vivo» con el issue cerrado
+                                                                        [SUITE-R46]
+       node tools/tracker.mjs proyectar --publicar                       [SUITE-R56]
+     Sin ese comando el estado terminal se escribia A MANO en dos sitios, y divergian: cerrando
+     EP-019 se quedo en la rama de tarea y la principal declaro el lote DRAFT con sus diecisiete
+     tareas en DONE durante todo el ciclo de publicacion.
+Y EL OTRO EXTREMO · el estado que produce G1, tambien por comando           [PT-121]
+       node tools/tracker.mjs firmar EP-NNN --compuerta G1 --firmante "Nombre" --aplicar
+         DRAFT -> READY. La firma se contrasta con «firmantes» del registro  [SUITE-R27]
 ```
 
 ### PHASE 10 · Rollback

@@ -1,0 +1,89 @@
+{
+  "pt": "PT-136",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Existe un comando que lleva un BUG de VALIDATION_PENDING a DONE, registrando quien y cuando",
+      "tests": [
+        "selftest.sh:validar lleva un BUG de VALIDATION_PENDING a DONE",
+        "selftest.sh:…y deja quien y cuando en el registro"
+      ],
+      "evidence": [
+        "salidas/casos-136.txt"
+      ],
+      "verified": true,
+      "nota": "FDGE-R26 decia que un BUG «se detiene» ahi y que solo un humano lo lleva a DONE, pero NO decia como se escribe eso. El comentario del propio tracker.mjs ya lo tenia medido: 51 BUG en el registro y CERO habian pasado por ahi; los tres en DONE se escribieron A MANO declarando la excepcion cada vez."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "No decide: rechaza lo que no sea un BUG en VALIDATION_PENDING, y contrasta el firmante contra la lista",
+      "tests": [
+        "selftest.sh:un no-BUG no pasa por esta validacion",
+        "selftest.sh:…ni un BUG que ya esta en DONE",
+        "selftest.sh:un firmante que no esta en la lista falla",
+        "selftest.sh:si una del lote falla, NINGUNA se escribe"
+      ],
+      "evidence": [
+        "salidas/casos-136.txt"
+      ],
+      "verified": true,
+      "nota": "TODAS O NINGUNA: se recorren primero todas y solo se escribe si pasan todas. Cinco validaciones a medias dejarian el registro en un estado que nadie decidio. El fixture lleva a proposito un BUG valido, un no-BUG y un BUG ya cerrado."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La fecha se puede DECIR: una validacion se registra a veces despues de ocurrir",
+      "tests": [
+        "selftest.sh:la fecha de la validacion se puede DECIR"
+      ],
+      "evidence": [
+        "salidas/casos-136.txt"
+      ],
+      "verified": true,
+      "nota": "Es la leccion de PT-121, encontrada usando «firmar» sobre una G1 de DOS DIAS antes. Aqui se aplico ANTES de tropezar."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "integrar cierra tambien un lote: READY -> CLOSED, y solo si ninguna tarea sigue viva",
+      "tests": [
+        "selftest.sh:un lote con tareas vivas NO se cierra",
+        "selftest.sh:…y con todas terminales, READY -> CLOSED"
+      ],
+      "evidence": [
+        "salidas/casos-136.txt",
+        "salidas/integrar-rechaza.txt"
+      ],
+      "verified": true,
+      "nota": "«Viva» = no esta en ESTADOS_TERMINALES ni es DEFERRED. DONE NO es terminal: espera G4. Y no hay bandera que permita saltarlo: una compuerta que se salta con una bandera no es una compuerta (EXEC-R03)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La condicion se deriva de las tareas, no se pregunta ni se supone",
+      "tests": [
+        "selftest.sh:…y las nombra, no solo las cuenta"
+      ],
+      "evidence": [
+        "salidas/integrar-rechaza.txt"
+      ],
+      "verified": true,
+      "nota": "EVIDENCIA DE CAMPO, no de fixture: salidas/integrar-rechaza.txt es el rechazo REAL sobre EP-020, nombrando las 23 tareas que seguian en DONE. Es el comando corrigiendome mientras cerraba el lote. Y NOMBRA en vez de contar: lo util no fue el numero, fue leer «PT-113 (DONE)» y entender que DONE no es terminal."
+    }
+  ],
+  "el_defecto_que_cometi": {
+    "que": "Escribi el estado de EP-020 con un «node -e»: CLOSED y su G4, a mano.",
+    "clase": "CE-006",
+    "donde": "DENTRO del cierre del lote que existe para impedir CE-006.",
+    "arreglo": "Se deshizo y se rehizo con el comando. Corregir a mano lo que un comando debe escribir habria sido la instancia siguiente, no el arreglo.",
+    "y_el_comando_me_corrigio": "«integrar EP-020» rechazo el cierre nombrando las 23 tareas en DONE. Tenia razon: el orden es merge -> INTEGRATED -> lote CLOSED. PHASE 9 lo dice en prosa desde siempre; lo que no existia era algo que lo IMPIDIERA al reves, y por eso lo intente al reves."
+  },
+  "measured": {
+    "casos": "10 de 10",
+    "BUG_que_habian_pasado_por_validacion_humana_antes": 3,
+    "y_los_tres_escritos_a_mano": true,
+    "comandos": [
+      "validar",
+      "integrar (rama de lote)"
+    ],
+    "bateria_completa": "selftest OK · 1611 casos · codigo 0 · 1611 verdes y 0 rojos"
+  }
+}

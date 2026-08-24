@@ -1,0 +1,10 @@
+# PT-133 · los tres casos, tal como los imprime selftest.sh. Derivado de la salida real.
+#
+# El primero EJECUTA la rama del ledger sobre el fixture, que no declara plataforma. Que la
+# ejecute es el punto: PT-116 comprobo que la rama EXISTE, no que se EJECUTA.
+
+  ✓ parada corre sin plataforma declarada
+  ✓ …y la parada queda en el ledger
+  ✓ …y con plataforma toma la otra rama
+
+selftest: OK · 1436 casos

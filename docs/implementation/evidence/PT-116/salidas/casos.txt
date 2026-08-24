@@ -1,0 +1,17 @@
+# PT-116 · los casos de la bateria, tal como los imprime selftest.sh.
+# Derivado de la salida real; no transcrito. Ver manifest.json para que AC cubre cada uno.
+
+  ✓ la parada lleva la marca de procedencia
+  ✓ …y declara su motivo y su desenlace
+  ✓ la parada NO se confunde con un reanclaje
+  ✓ …y una nota de reanclaje si casa
+  ✓ «abre» nombra la allocation que nace
+  ✓ los motivos de la parada son seis
+  ✓ …y son los que EP-020 midio
+  ✓ los desenlaces son cinco
+  ✓ el valor de una bandera no es ROOT
+  ✓ …y una ruta de verdad SI es la raiz
+  ✓ el valor de una bandera no es ROOT (fuente)
+  ✓ …y las banderas con valor van en UN sitio
+
+selftest: OK · 1422 casos

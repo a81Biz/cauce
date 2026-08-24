@@ -1,0 +1,72 @@
+{
+  "pt": "PT-117",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Toda allocation alcanzada declara origen_parada, y el comando lo escribe",
+      "tests": [
+        "selftest.sh:una alcanzada sin origen_parada falla",
+        "selftest.sh:…y lo anterior a la regla, ni se mira",
+        "selftest.sh:la allocation nace con su suite_version"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "El par decide: el primero exige que la regla EXIJA; el segundo, que NO retrofeche. Las 20 allocations de EP-020 declaran 12.0.0 y ni se miran (FDGE-R19, FDGE-R52)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El caso que senalo el firmante esta cubierto: el hallazgo a mitad de trabajo abre su PT",
+      "tests": [
+        "selftest.sh:«abre» deja el enlace en la que nace",
+        "selftest.sh:…y el enlace queda ESCRITO en el registro"
+      ],
+      "evidence": [
+        "salidas/casos.txt",
+        "../../HISTORY.log"
+      ],
+      "verified": true,
+      "nota": "PROBADO SOBRE UN CASO REAL, no sobre el fixture: escribiendo esta tarea aparecio el defecto de PT-133 y el ciclo corrio entero sin que nadie lo pidiera — parada publicada por el comando en #235, PT-133 asignado, origen_parada escrito."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El hook Stop existe y su limite esta escrito",
+      "tests": [
+        "el hook y el documento que declara que no viaja en el paquete"
+      ],
+      "evidence": [
+        "salidas/hook.txt"
+      ],
+      "verified": true,
+      "nota": "Vive en .claude/settings.json, FUERA del paquete: un proyecto destino que instale cauce NO lo recibe. Se declara como segunda red, y no se le mide eficacia porque no la tiene fuera de esta maquina."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Lo que NO se puede exigir se declara con su numero, no se promete",
+      "tests": [
+        "salidas/hueco.txt, derivado de DESENLACES_DE_PARADA"
+      ],
+      "evidence": [
+        "salidas/hueco.txt"
+      ],
+      "verified": true,
+      "nota": "La cifra se DERIVA de la lista. PT-115 dejo escrito «no atar una asercion a una cifra que crece» y en esta misma sesion volvio a pasar: aqui se aplica."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "verify-suite compara las dos listas con LEXICON 8.5",
+      "tests": [
+        "selftest.sh:la clase divergente de LEXICON falla",
+        "selftest.sh:…y sin divergencia, silencio",
+        "selftest.sh:la cabecera de la tabla no es una clase"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Deuda que PT-116 declaro y traslado aqui. Se rompe la constante EN EL FIXTURE para que el fallo ocurra de verdad (PT-124)."
+    }
+  ]
+}

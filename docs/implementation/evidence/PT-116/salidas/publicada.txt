@@ -1,0 +1,12 @@
+<!-- cauce:agente -->
+**PARADA** · `PT-116` · motivo: `hallazgo` · desenlace: `continua`
+
+### Qué la motiva
+
+Esta nota **la publicó el comando**, no yo. Es la primera del repositorio que no se escribe a mano
+— las siete anteriores, incluidas las de `PT-131`, `PT-129` y `PT-115`, se publicaron con
+`gh issue comment` porque este comando no existía.
+
+### La explicación
+
+El medio ya existía y no había

@@ -1,0 +1,23 @@
+── A · casos límite (deben pasar en verde) ──
+  [32m✓[0m integrar propone DONE -> INTEGRATED
+  [32m✓[0m …nombrando las DOS fuentes
+  [32m✓[0m …y al aplicar escribe las dos
+  [32m✓[0m un estado que no es DONE no se integra
+  [32m✓[0m sin intake, el comando falla
+  [32m✓[0m …y el registro NO se toca
+  [32m✓[0m firmar propone DRAFT -> READY
+  [32m✓[0m un firmante que no esta en la lista falla
+  [32m✓[0m …y G1 solo produce READY desde DRAFT
+  [32m✓[0m FDGE-R19 declara la rama del trabajo de lote
+  [32m✓[0m …y FDGE-R19 llega al nucleo
+  [32m✓[0m PHASES declara el viaje de vuelta
+  [32m✓[0m …con su comando
+  [32m✓[0m …y su salida
+  [32m✓[0m …y el texto copiable lo lleva
+  [32m✓[0m sellar nombra el tag anterior por VERSION, no por alfabeto
+  [32m✓[0m …y dice que resuelve
+  [32m✓[0m …y que el de esta version todavia no existe
+  [32m✓[0m …y que crearlo es humano y va despues del merge
+  [32m✓[0m el tag anterior se deriva por version, no por alfabeto
+
+== 20 casos, 0 fallos ==

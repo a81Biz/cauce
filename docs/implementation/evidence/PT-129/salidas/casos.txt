@@ -1,0 +1,9 @@
+  [32m✓[0m las cuatro de la topologia encajan
+  [32m✓[0m efimera sobre tarea terminal ⇒ se nombra
+  [32m✓[0m …y sobre tarea viva NO se nombra
+  [32m✓[0m rama fuera de la topologia ⇒ se nombra
+  [32m✓[0m …y una que cita un ID inexistente tambien
+  [32m✓[0m sin poder enumerar ⇒ null
+  [32m✓[0m ramaDeTarea deriva del type del item
+  [32m✓[0m sin type no hay nombre de rama
+selftest: OK · 1385 casos

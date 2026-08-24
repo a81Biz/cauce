@@ -1,0 +1,13 @@
+# PT-117 · el hueco de FDGE-R55, DERIVADO. SUITE-R26: lo que una regla HARD no puede comprobar
+# se declara con su cifra, no se promete.
+#
+# La cifra sale de DESENLACES_DE_PARADA, no escrita a mano: es la leccion de PT-115 —«atar una
+# asercion a una cifra que crece»— que en esta misma sesion volvio a repetirse.
+
+  desenlaces declarados en LEXICON 8.5   5   continua · abre · cambia-fase · detiene · declara
+  con rastro en el repositorio           2   abre · cambia-fase
+  SIN rastro, y por tanto NO exigibles   3   continua · detiene · declara
+
+# Los tres sin rastro no dejan nada contra lo que contrastar: ningun script puede probar la
+# ausencia de algo que no se escribe. Para esos, el mecanismo es el hook Stop — que vive fuera
+# del paquete y NO llega a los proyectos destino, y por eso se declara y no se promete.

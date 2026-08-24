@@ -1,0 +1,81 @@
+{
+  "pt": "PT-132",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El registro se guarda DESPUES DE CADA issue creado, no al final del bucle",
+      "tests": [
+        "tracker abrir --aplicar sobre PT-132"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "Una interrupcion deja como mucho UNO sin registrar, no trece. Es el contrato que avanzar declara tres funciones mas abajo y que abrir contradecia: lo irreversible va el ULTIMO."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Antes de crear se busca un issue ABIERTO con el titulo derivado: si existe se ADOPTA",
+      "tests": [
+        "selftest.sh:un issue huerfano con el titulo se adopta",
+        "selftest.sh:…y si no lo hay, no se adopta nada"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "La decision vive como funcion PURA en patrones.mjs para que su inversa se pueda escribir sin fabricar un tablero. Adoptar de mas seria peor que duplicar."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Adoptar se DICE, no se hace en silencio",
+      "tests": [
+        "tracker abrir --aplicar"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "El mensaje distingue «creado» de «ADOPTADO», con el numero y con el motivo: «ya estaba abierto con este titulo y el registro no lo reclamaba»."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Si no se puede consultar la plataforma NO se crea a ciegas",
+      "tests": [
+        "selftest.sh:sin saber que hay abierto, no se decide"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "RULE-06. Crear sin poder comprobar es EXACTAMENTE como se duplicaron los dieciseis."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El contrato de reversibilidad queda escrito y los dos comandos lo cumplen",
+      "tests": [
+        "tracker abrir --aplicar",
+        "selftest.sh:sin titulo derivable no se adopta"
+      ],
+      "evidence": [
+        "salidas/espejo.txt",
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R38: avanzar lo declaraba y abrir lo contradecia, en el mismo archivo. Ahora los dos guardan el registro tras el acto irreversible, uno a uno."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La guarda de PT-107 deja de acusar al propio comando cuando escribe dos veces",
+      "tests": [
+        "tracker abrir --aplicar"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "SALIO IMPLEMENTANDO: HUELLA_AL_LEER era «const» y no se actualizaba nunca, asi que la guarda asumia UNA escritura por ejecucion. Se actualiza con lo escrito por nosotros; se conservan el cerrojo, la comparacion y el negarse a fusionar."
+    }
+  ]
+}

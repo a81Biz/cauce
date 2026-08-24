@@ -1,0 +1,131 @@
+{
+  "pt": "PT-121",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Existe un comando que escribe DONE -> INTEGRATED en el YAML del intake y en el registro, en un solo acto",
+      "tests": [
+        "selftest.sh:integrar propone DONE -> INTEGRATED",
+        "selftest.sh:…nombrando las DOS fuentes",
+        "selftest.sh:…y al aplicar escribe las dos",
+        "selftest.sh:un estado que no es DONE no se integra",
+        "selftest.sh:sin intake, el comando falla",
+        "selftest.sh:…y el registro NO se toca"
+      ],
+      "evidence": [
+        "salidas/casos-121.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "El orden importa: el YAML primero —reversible— y el registro solo si el primero salio bien. Al reves quedaria un registro diciendo INTEGRATED sobre un intake que dice otra cosa, que es LA DIVERGENCIA QUE ESTO VIENE A CERRAR. Los dos ultimos casos van en par: con solo el primero, una implementacion que fallara DESPUES de tocar el registro tambien pasaria."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "FDGE-R19 declara la forma de rama para cerrar un lote, o declara explicitamente que se usa la de tarea y por que",
+      "tests": [
+        "selftest.sh:FDGE-R19 declara la rama del trabajo de lote",
+        "selftest.sh:…y FDGE-R19 llega al nucleo"
+      ],
+      "evidence": [
+        "salidas/casos-121.txt"
+      ],
+      "verified": true,
+      "nota": "Se usa la forma de TAREA con el type del propio lote, y se dice por que: son actos que ocurren una vez por lote sobre la misma rama efimera, y un cuarto nivel añadiria vocabulario que la forma existente ya cubre (LEX-R23). LO QUE NO SE HEREDA es la unidad del COMMIT, y queda declarado como pregunta abierta. Mi primer caso esperaba que la frase concreta llegara a CORE.md: es FALSO, el nucleo condensa a ~210 caracteres por diseño (SUITE-R15)."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "PHASES.md declara donde ocurre el viaje de vuelta, con su artefacto y su salida",
+      "tests": [
+        "selftest.sh:PHASES declara el viaje de vuelta",
+        "selftest.sh:…con su comando",
+        "selftest.sh:…y su salida",
+        "selftest.sh:…y el texto copiable lo lleva"
+      ],
+      "evidence": [
+        "salidas/casos-121.txt"
+      ],
+      "verified": true,
+      "nota": "Y el ORDEN, que no es estetico: cerrar va DESPUES de integrar porque el estado terminal tiene que estar ya en la rama por defecto, o la principal queda diciendo «vivo» con el issue cerrado (SUITE-R46). FDGE-Prompts lo lleva copiable y cita SUITE-R27, que es lo que SUITE-R20 exige."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Ningun comando escribe el estado que G1 produce: al pasar G1 un lote debe quedar READY",
+      "tests": [
+        "selftest.sh:firmar propone DRAFT -> READY",
+        "selftest.sh:un firmante que no esta en la lista falla",
+        "selftest.sh:…y G1 solo produce READY desde DRAFT",
+        "selftest.sh:la fecha de la compuerta se puede DECIR"
+      ],
+      "evidence": [
+        "salidas/casos-121.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La firma SE CONTRASTA (SUITE-R27): un nombre que no esta en la lista falla. No prueba que firmara una persona —el agente escribe el archivo— pero convierte la firma en una afirmacion contrastable. Y solo G1: otra compuerta produce otro estado, y fingir que son el mismo seria inventar una transicion."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "sellar comprueba que la version que va a sellar TENDRA su tag, y que el anterior existe de verdad, derivandolo con --sort=v:refname",
+      "tests": [
+        "selftest.sh:sellar nombra el tag anterior por VERSION, no por alfabeto",
+        "selftest.sh:…y dice que resuelve",
+        "selftest.sh:…y que el de esta version todavia no existe",
+        "selftest.sh:…y que crearlo es humano y va despues del merge",
+        "selftest.sh:el tag anterior se deriva por version, no por alfabeto"
+      ],
+      "evidence": [
+        "salidas/casos-121.txt",
+        "salidas/sellar-tags.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "TRES desenlaces para el anterior: ninguno · figura y NO resuelve · resuelve. El de en medio importa: un nombre en la lista no prueba que haya arbol, y «lo sellado» se calcula sobre ese arbol. El fixture lleva cuatro tags elegidos a proposito —v4.13.0, v9.0.0, v10.0.0, v12.0.0— porque son los que hacen que el alfabeto y la version den respuestas DISTINTAS."
+    }
+  ],
+  "AC_04_retirado": {
+    "que": "Nacio afirmando que faltaban tags. Es FALSO y el error fue de medicion: «git tag -l | tail -5» ordena lexicograficamente, asi que v10, v11 y v12 quedan ANTES de v4.13.0 y el final de la lista da v9.0.0.",
+    "donde_consta": "la correccion del propio intake, 2026-08-22",
+    "evidencia": "salidas/sellar-tags.txt muestra las dos ordenaciones una al lado de la otra",
+    "por_que_se_deja_tachado": "Un criterio retirado por una medicion falsa es informacion; borrarlo dejaria un hueco en la numeracion que nadie sabria explicar."
+  },
+  "inverse_test": {
+    "suppressions": 4,
+    "distinct_reds": 4,
+    "evidence": "salidas/inversa.txt",
+    "nota": "Cada supresion sobre una copia del modulo real: la guarda de estado, la escritura del YAML, el contraste de la firma y el orden por version."
+  },
+  "defectos_al_construirlo": [
+    {
+      "que": "Los dos comandos exigian plataforma, escribiendo solo archivos locales.",
+      "por_que_importa": "Es EXACTAMENTE lo que PT-133 acababa de arreglar en «parada»: pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta al proyecto que no declara tablero — el caso que SUITE-R22 declara soportado.",
+      "arreglo": "integrar y firmar entran en SIN_PLATAFORMA."
+    },
+    {
+      "que": "«--firmante» y «--compuerta» no estaban en CON_VALOR.",
+      "por_que_importa": "Sin eso su valor se toma por la raiz del proyecto: es CE-003, la clase con SIETE instancias declaradas.",
+      "arreglo": "Declaradas al escribirlas, no despues de tropezar."
+    },
+    {
+      "que": "Los casos de sellar iban contra el repositorio REAL y salian a la red: el bloque no termino dentro del tiempo.",
+      "por_que_importa": "Es lo que PT-126 habia enseñado horas antes: un arnes que depende de la red no es un arnes.",
+      "arreglo": "Fixture con sus propios tags, que ademas es lo unico que permite controlar QUE tags hay — que es justo lo que se mide."
+    },
+    {
+      "que": "«firmar» grababa la fecha del ultimo commit en el campo que dice cuando se firmo la compuerta. Al usarlo sobre EP-020 —cuya G1 paso el 2026-08-22— escribio el 23.",
+      "como_se_vio": "USANDO EL COMANDO SOBRE DATOS REALES, no leyendolo.",
+      "por_que_importa": "Una compuerta se resuelve cuando se resuelve y el comando puede correr despues: grabar «cuando lo escribi» donde pone «cuando se firmo» es una cifra plausible y falsa (RULE-06).",
+      "arreglo": "«--fecha AAAA-MM-DD», declarada en CON_VALOR. Por defecto sigue siendo hoy —el caso normal es firmar y registrar en el mismo acto— pero se puede DECIR la real.",
+      "caso": "selftest.sh:la fecha de la compuerta se puede DECIR"
+    }
+  ],
+  "measured": {
+    "casos": "21 de 21",
+    "comandos_nuevos": [
+      "integrar",
+      "firmar"
+    ],
+    "tags_reales": "v12.0.0 por version · v9.0.0 por alfabeto — la diferencia que causo el AC retirado",
+    "bateria_completa": "selftest OK · 1601 casos · codigo 0 · 1601 verdes y 0 rojos"
+  }
+}

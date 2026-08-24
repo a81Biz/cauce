@@ -1,0 +1,13 @@
+  [32m✓[0m el caso de PT-109 corre con su fixture montado
+  [32m✓[0m el caso del lint ya no casa las dos respuestas
+  [32m✓[0m el lint mira los usos de MONTAJE
+  [32m✓[0m el lint sale limpio sobre el arbol real
+  [32m✓[0m git_fixture y con_phase viven junto a build_fixture
+  [32m✓[0m la lista de helpers NO esta escrita a mano
+  [32m✓[0m la posicion del comando se ancla con las comillas
+  [32m✓[0m …exige «ningun helper», que es una sola
+  [32m✓[0m …se deriva de las definiciones del archivo
+  [32m✓[0m …y el lint se excluye a si mismo
+  [32m✓[0m …y git_fixture conserva su cuerpo
+  [32m✓[0m …y las lineas de heredoc se descartan
+  [32m✓[0m …y tambien tras un «;» o un «&&»

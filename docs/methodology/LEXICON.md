@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **12.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **13.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -250,6 +250,60 @@ El bloque `graph` hace computable la frescura del grafo (`FDGE-R43`): un grafo g
 valor **y** añadir la entrada a `allocations` en la misma operación. Si el agente no puede
 escribir en `REGISTRY.json`, no puede asignar el identificador: se detiene y reporta.
 
+
+### 4.4 Identificadores de **clase de evento** — `CE-NNN`   `PT-118`
+
+`LEX-R31` · **Hay una tercera clase de identificador, y no se asigna desde `REGISTRY.json`.**
+Un `CE-NNN` no es un ítem de trabajo —no se abre, no se cierra, no tiene fases ni compuertas— ni
+una regla —no obliga a nada—. Nombra **una forma de fallar que se repite**, para que quince
+descripciones distintas del mismo tropiezo dejen de ser quince cosas.
+
+Es la **única excepción** a `LEX-R04`, y por eso se enuncia aquí en vez de darse por supuesta:
+`counters` cuenta trabajo, y meter una taxonomía en el asignador haría que el número de clases
+dependiera del orden en que alguien las escribió. Un `CE-NNN` se declara **en esta tabla** y su
+número no cambia nunca (`LEX-R04` sigue rigiendo lo demás: único, permanente, nunca reutilizado).
+
+`LEX-R32` · **La lista es cerrada por versión y ampliable por cambio de metodología.** Citar un
+`CE-NNN` que esta tabla no declara es un defecto que `verify-suite` bloquea. Ampliarla es
+modificar `docs/methodology/`, que no se automatiza (`SUITE-R06e`).
+
+**El prefijo `CE` se eligió midiendo, no por gusto.** Los prefijos vivos son `AC` `E` `EP` `H`
+`INC` `P` `PT` `QA` `QD` `QR` `R` `RC` `TS` `U` para trabajo y `EXEC` `FDGE` `FIDE` `FND` `FPGE`
+`INTAKE` `LEX` `PTSA` `QA` `SUITE` para reglas. `CE` no está en ninguna.
+
+El riesgo real no era el prefijo sino la **subcadena**: `CE-001` contiene `E-001`, así que una
+expresión que buscara `E-\d+` sin anclar lo cazaría. Se midió: **ninguna herramienta busca un
+`E-\d+` suelto** —los que hay son `EP-\d+`, precedidos de letra— y los únicos patrones de una
+sola letra son `P-\d+` y `H-\d+`, que no pueden casar dentro de `CE-NNN`.
+
+Lo que la medición **sí** encontró, y aquí se declara en vez de callarse (`RULE-06`):
+`tools/verify-ptsa.mjs:203` usa `/H-\d+/` **sin anclar**. No afecta a `CE`, pero es un riesgo
+latente para cualquier prefijo futuro acabado en `H`.
+
+| ID | Clase | Enunciado en una frase |
+|:---|:---|:---|
+| `CE-001` | El proxy en lugar del hecho | Se comprueba algo que acompaña al hecho —una palabra, un archivo, un recuento— en vez del hecho mismo |
+| `CE-002` | Rotura de escapado | Una barra invertida escrita en un literal llega al destino distinta de como se pensó, y la expresión deja de casar |
+| `CE-003` | Un argumento se cuela por la detección de `ROOT` | Una bandera con valor no está declarada, y su valor se toma por la raíz del proyecto |
+| `CE-004` | Probar donde trabajo, no donde se decide | El caso pasa en el entorno en que se escribió y falla en el que decide, porque no ancla lo que depende del entorno |
+| `CE-005` | Verde por no haber mirado | Una comprobación no encuentra nada porque no llegó a ejecutarse, y el cero se lee como conformidad |
+| `CE-006` | El acto hecho fuera del comando | Existe un comando que escribe ese estado y se escribe a mano, así que ninguna de sus comprobaciones corre |
+| `CE-007` | Existe la herramienta y nada la echa en falta | La herramienta correcta existe, nadie la invoca, y ningún verificador nota su ausencia |
+| `CE-008` | Un hecho, varios nombres | El mismo hecho se nombra de dos maneras en dos documentos, y las dos versiones divergen |
+| `CE-009` | El estado terminal escrito a mano o adelantado | Un estado que sólo debía escribirse al cumplirse una condición se escribe antes, o sin ella |
+| `CE-010` | La cifra transcrita caduca | Una cifra se copia a un documento y el árbol sigue cambiando; la copia describe un pasado |
+| `CE-011` | Un arreglo deja tests del estado anterior | El comportamiento cambia y los casos que describían el anterior siguen verdes describiendo lo que ya no ocurre |
+| `CE-012` | Filtrar la salida antes de mirarla | Se aplica un filtro a la salida de una herramienta y lo que el filtro descarta no se lee nunca |
+| `CE-013` | Un encabezado mal formado bloquea la integración | Un artefacto correcto en contenido no cumple la forma que una comprobación exige, y detiene una compuerta |
+| `CE-014` | Una regla nueva juzga hacia atrás | Una regla recién escrita marca como incumplimiento trabajo hecho cuando no existía |
+| `CE-015` | El cierre destapa más que el reparto | Cerrar un lote encuentra más defectos que repartirlo, porque el cierre es el primer momento en que todo se mira junto |
+| `CE-016` | Trabajar sin allocation | El trabajo se hace sin ítem abierto: sin intake, sin identificador y sin compuerta, y sólo lo corta una persona |
+| `CE-017` | La comprobación acusa a quien documenta el hecho | Una comprobación cuyo alcance es todo el texto falla porque el texto **describe** el hecho que vigila |
+
+**Diecisiete, y la lista no se promete completa.** Son las clases **medidas** en `EP-020` §2.1;
+clasificar las entradas cerradas puede encontrar más, y encontrarlas es la tarea funcionando, no
+un defecto de esta tabla (`RULE-06`: se declara lo medido).
+
 ---
 
 ## 5. Estados
@@ -448,6 +502,14 @@ SESSION.json           sobrescribible · el estado de la SESION, no de la tarea 
                        «desde» es lo unico capturado; el resto se deriva de «desde..HEAD»
                        sin el, lo que lleva la sesion es SIN EVALUAR — el dia NO es la sesion
 
+EVENTOS.jsonl          append-only   · un registro por evento Y por entrada RECORRIDA del
+                       ledger, con su CITA LITERAL. La clase va siempre DECLARADO: es un
+                       juicio (LEX-R31), y separar una instancia de una simple mención lo
+                       decide una persona. Lo escribe «tools/eventos.mjs»          [PT-125]
+MATRIZ.md              GENERADO · qué se repite y qué clase no tiene regla que la reclame.
+                       Toda cifra se deriva; ninguna se transcribe. «Tiene verificador» NO
+                       es «la regla existe»: es que alguna herramienta EMITA por ella.
+                       Lo escribe «tools/matriz.mjs»; su frescura entra en verify [PT-119]
 CHECKPOINT.json        sobrescribible · el estado de la tarea EN CURSO, legible por máquina
                        responde por la TAREA, y es UNO: escribirlo sobre otra la sustituye
                        STATE_MISMATCH · la CONDICION que se reporta cuando el arbol no
@@ -863,6 +925,17 @@ tools/
   verify-patrones.mjs ejecuta ese contrato: un patrón degradado falla su propio ejemplo
   version.mjs         propaga la versión del CHANGELOG a documentos y paquete · SUITE-R40
   regla.mjs           qué exige una regla y qué puede fallar, DERIVADO del código · SUITE-R53
+  eventos.mjs         clasifica las entradas cerradas contra las clases de evento · LEX-R31
+                      escribe EVENTOS.jsonl: un registro por evento Y por entrada RECORRIDA.
+                      Automatiza el MATERIAL —la frase con que el ledger se autodescribe y la
+                      cita literal—, NO el juicio: la clase va siempre DECLARADO, y separar
+                      una instancia de una simple mención lo decide una persona.
+  matriz.mjs          deriva la matriz de eventos: qué se repite y qué clase no tiene
+                      dueño · PT-119 · su salida se declara en §6.2
+                      cruza EVENTOS.jsonl con LEXICON §4.4, con la regla que CITA la clase
+                      y con los fail() REALES. «Tiene verificador» no es «la regla existe»:
+                      SUITE-R59 existe y nada emite por ella, y la matriz lo dice.
+                      Sin fuente legible NO escribe: SIN EVALUAR no es una matriz de ceros.
   plan-layout.mjs     enumera el terreno de la raíz y propone su reorganización · G0
   comparar-marco.mjs  divergencia entre la copia del proyecto y la de referencia · SUITE-R31
   tracker.mjs         espejo entre el registro y la plataforma de trabajo · SUITE-R35
@@ -999,6 +1072,49 @@ mismo camino con la misma urgencia. La severidad la declara el **humano** en el 
 `FDGE-R22`).
 
 ---
+
+### 8.5 Parada (`PARADA`)
+
+`LEX-R29` · Una **parada** es el punto en que el agente detiene el trabajo y devuelve el control.
+La que **lleva una decisión** se escribe en la tarea que la motiva, con tres cosas: su **motivo**,
+la **explicación**, y su **desenlace** (`FDGE-R55`).
+
+**Dónde vive**: el issue de la tarea si el proyecto declara plataforma, y
+`docs/implementation/TRANSICIONES.log` si no — **el mismo destino que la nota de reanclaje**, no
+uno nuevo. Un hecho con dos nombres es la avería que la v4 nació para eliminar (`LEX-R22`,
+`INC-008`).
+
+**Clases de `motivo`** — cerrada. Cada una nació de una instancia medida en `EP-020`, no de
+imaginar casos:
+
+| `motivo` | Qué es |
+|:---|:---|
+| `hallazgo` | Se encontró un defecto que no se buscaba |
+| `condicion-bloqueante` | Algo impide seguir y no depende del agente |
+| `compuerta` | Una compuerta pide decisión humana |
+| `abre-trabajo` | La parada produce una allocation nueva |
+| `limite-alcanzado` | Se llegó al borde de lo que se puede afirmar |
+| `desafio-al-intake` | El agente discrepa de lo firmado (`INTAKE-R07`) |
+
+**Clases de `desenlace`** — cerrada:
+
+| `desenlace` | Qué ocurre después |
+|:---|:---|
+| `continua` | Se sigue con la misma tarea |
+| `abre` | Nace una allocation: `PT-NNN` o `EP-NNN` |
+| `cambia-fase` | Es una transición — **el caso particular de `FDGE-R52`** |
+| `detiene` | El trabajo para y espera a una persona |
+| `declara` | Se registra un límite y no se hace nada más |
+
+`LEX-R30` · **Una transición de fase es una parada cuyo desenlace es `cambia-fase`.** `FDGE-R52`
+no se relaja ni desaparece: es el caso particular que ya está implementado y verificado. Una
+parada que **no** sea transición no lleva la forma `PHASE n → m`, o inflaría el recuento de
+reanclajes y una tarea parecería tener transiciones que no tuvo.
+
+**Ampliar cualquiera de las dos listas es un cambio de metodología**, no un parche. Una lista
+cerrada mal elegida **se rodea**: si un motivo real no encaja, quien trabaja se salta la
+herramienta —que es lo que `PT-103` midió cuando a `asignar` le faltaban campos—. Por eso `EP-020`
+publica cuántas paradas hubo **por clase**: una clase en cero o sobra, o la lista está mal.
 
 ## 9. Prohibiciones de vocabulario
 

@@ -1,0 +1,93 @@
+{
+  "pt": "PT-131",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La deuda se cuenta contra lo que el tag CONTIENE, no contra lo que su registro declaraba",
+      "tests": [
+        "selftest.sh:lo sellado sale del arbol del tag",
+        "selftest.sh:el estado posterior al tag no lo desella"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "El hecho lo nombraba el propio comentario de PT-087 —«lo que ya viajo en algun tag»— y el observable elegido no lo medía. selladoEnTag lee «git ls-tree <tag> changes/»: un solo comando para las 131 entradas."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "G2 deja de estar bloqueada para las 17 de EP-019",
+      "tests": [
+        "verify-fdge --gate G2 PT-131"
+      ],
+      "evidence": [
+        "salidas/gate-g2.txt"
+      ],
+      "verified": true,
+      "nota": "De «✗ 17 tarea(s) sin sellar, umbral 3» a «✓ 0 integrada(s) sin sellar». Bloqueaba G2 de las diecinueve tareas del lote y de cualquier tarea futura del repositorio."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La regla SIGUE bloqueando trabajo integrado que no esta en ningun tag",
+      "tests": [
+        "selftest.sh:…y el trabajo FUERA del tag NO sale"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "ES LA INVERSA QUE DECIDE SI LA TAREA VALE. El riesgo declarado en PHASE 3 era que un observable equivocado se equivocara HACIA EL VERDE. Este caso es el que lo pone en rojo si eso ocurre."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Sin poder leer el arbol o el tag sale SIN EVALUAR, no verde",
+      "tests": [
+        "selftest.sh:sin poder leer el arbol ⇒ null"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Devolver [] en vez de null haria que TODO pareciera sellado: el verde por omision que RULE-06 prohibe, dentro de la comprobacion que autoriza G2."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Se declara el limite: no arregla que el estado terminal llegue tarde a la rama por defecto",
+      "tests": [
+        "verify-fdge:SUITE-R44 sobre out-of-scope.md"
+      ],
+      "evidence": [
+        "salidas/gate-g2.txt"
+      ],
+      "verified": true,
+      "nota": "La causa de fondo es PT-121 y la cita es reciproca. PT-131 hace que esa demora deje de BLOQUEAR; no hace que deje de OCURRIR."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Una tarea sin trabajo no cuenta como deuda",
+      "tests": [
+        "selftest.sh:sin trabajo no hay nada que sellar"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Lo descubrio MEDIR, no planificar: con una sola condicion salian PT-025 —DEFERRED, nunca trabajada— y PT-032 —cerrada sin artefactos—. Ninguna de las dos tiene changes/ en ningun sitio."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Los dos llamadores derivan del MISMO sitio",
+      "tests": [
+        "tracker sellar --ver",
+        "verify-fdge --gate G2"
+      ],
+      "evidence": [
+        "salidas/sellar.txt",
+        "salidas/gate-g2.txt"
+      ],
+      "verified": true,
+      "nota": "Las dos dan «0 · umbral 3». Antes cada una tenia su copia de la lectura del tag, con el comentario de PT-087 duplicado palabra por palabra — y esa duplicacion es COMO el defecto sobrevivio a su propio arreglo (SUITE-R38)."
+    }
+  ]
+}

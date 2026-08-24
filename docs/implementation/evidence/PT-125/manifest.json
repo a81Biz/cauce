@@ -1,0 +1,114 @@
+{
+  "pt": "PT-125",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "EVENTOS.jsonl existe, es append-only, y lleva un registro por evento con tarea, fecha, clase, CITA TEXTUAL y naturaleza",
+      "tests": [
+        "selftest.sh:un registro lleva clase, cita y naturaleza",
+        "selftest.sh:…y la cita es LITERAL, no parafraseada"
+      ],
+      "evidence": [
+        "salidas/casos-125.txt",
+        "salidas/eventos.txt"
+      ],
+      "verified": true,
+      "nota": "El intake dijo 131 entradas y son 163: el ledger crecio 32 entradas con EP-020. Siete de ellas son «## G4 — …», registros de compuerta, y cuentan igual porque son entradas del ledger."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Toda clasificacion va marcada DECLARADO: la clase es un juicio, no una derivacion",
+      "tests": [
+        "selftest.sh:toda clasificacion va DECLARADO",
+        "selftest.sh:…y ninguna se presenta como MEDIDO",
+        "selftest.sh:una MENCION no se cuenta como instancia",
+        "selftest.sh:…y NO se borra: se marca con su motivo",
+        "selftest.sh:…y la misma clase en otra tarea SI es instancia"
+      ],
+      "evidence": [
+        "salidas/casos-125.txt"
+      ],
+      "verified": true,
+      "nota": "Lo que se automatiza es el MATERIAL, no el juicio: el matcher busca las frases con que el ledger se AUTODESCRIBE y devuelve la cita literal. Catorce de setenta señales resultaron ser MENCIONES —PT-127 dice «NO es el acto fuera del comando»— y ningun matcher las habria separado."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Las entradas de HISTORY.log mas INCIDENTS.log quedan recorridas, y las que no encajan se declaran en vez de forzarse",
+      "tests": [
+        "selftest.sh:una entrada sin clase queda RECORRIDA igual",
+        "selftest.sh:…y afirmar recurrencia sin nombrar la forma es OTRO estado",
+        "selftest.sh:…y ese estado conserva su cita",
+        "selftest.sh:sin ledger legible NO escribe un archivo vacio",
+        "selftest.sh:…y lo DICE en vez de callar"
+      ],
+      "evidence": [
+        "salidas/eventos.txt",
+        "salidas/distribucion.txt"
+      ],
+      "verified": true,
+      "nota": "TRES estados y no dos. Fundir «no afirma nada» con «afirma recurrencia sin nombrar la forma» haria desaparecer 40 entradas que dicen que algo se repite sin decir que — un hueco MEDIDO, no una ausencia."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Ninguna tarea cerrada se rejuzga ni se reabre",
+      "tests": [
+        "selftest.sh:clasificar no toca HISTORY.log"
+      ],
+      "evidence": [
+        "salidas/casos-125.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R36: lo cerrado es evidencia, no estado. El caso compara el ledger ANTES y DESPUES de correr el generador."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 4,
+    "distinct_reds": 4,
+    "evidence": "salidas/inversa.txt",
+    "nota": "El escenario de la cita estuvo MAL ESCRITO: comprobaba que la cita CONTUVIERA el texto, y con eso quitar fraseDe no tumbaba nada porque el recorte de respaldo tambien lo contiene. Un caso pasando por el motivo equivocado (CE-005) dentro de la prueba que existe para detectarlos. Y su fixture tambien: sin un punto antes, la «frase» era el texto entero y el escenario fallaba sobre el modulo INTACTO — se corrigio el fixture, no el comportamiento. Y una TERCERA: al atar el ordinal a su señal cambio la firma de ordinalDe y el ancla de la mutacion dejo de casar — la inversa dijo «ANCLA NO CASA» en vez de un falso OK, que es lo unico aceptable: una prueba inversa que no puede aplicar su supresion tiene que DECIRLO (RULE-06)."
+  },
+  "desviacion_del_intake": {
+    "que": "El intake declaro la tarea exenta de matriz de tests por no producir codigo (FDGE-R10). Se publica tools/eventos.mjs, asi que la exencion DECAE y la tarea lleva casos.",
+    "por_que": "Una clasificacion sin su generador no es reproducible: nadie podria rehacerla ni contradecirla, y el ledger crecio 32 entradas entre el intake y este trabajo.",
+    "donde_consta": "changes/PT-125-clasificar-las-tareas-cerradas/strategy.md"
+  },
+  "measured": {
+    "entradas_recorridas": 163,
+    "instancias": 56,
+    "menciones": 14,
+    "afirman_recurrencia_sin_nombrar_la_forma": 40,
+    "registros": 182,
+    "clases_sin_instancia": 0,
+    "mayor_ordinal_declarado": {
+      "CE-001": 12,
+      "CE-004": 9,
+      "CE-002": 7,
+      "CE-003": 7,
+      "CE-007": 7,
+      "CE-015": 6
+    },
+    "denominador": "entradas que nombran la clase, NO ocurrencias. EP-020 §2.1 conto ocurrencias (27 roturas de escapado) y aqui hay 6 entradas que las nombran. Sumarlos seria falso; la diferencia va en la cabecera del propio archivo.",
+    "momento": "163 entradas / 56 instancias es la medicion con la que se escribieron los documentos. DESPUES de anadir las entradas de PT-118 y PT-125 el generador cuenta 164 y 63: el ledger se clasifica A SI MISMO, asi que escribir la entrada cambia el recuento.",
+    "por_que_no_es_un_defecto": "Es la naturaleza de un marco autoalojado (SUITE-R41). La cifra VIVE en la cabecera de EVENTOS.jsonl, derivada; cualquier copia de ella —incluida la de este manifiesto y la de HISTORY.log, que es append-only— envejece en cuanto el ledger crece. Es CE-010, y por eso se declara el momento en vez de fingir que la cifra es estable.",
+    "al_cerrar": {
+      "entradas": 164,
+      "instancias": 63,
+      "menciones": 14,
+      "afirman_sin_nombrar": 40,
+      "sin_recurrencia": 72
+    },
+    "casos": "18 de 18",
+    "bateria_completa": "selftest OK · 1501 casos · codigo 0 · salidas/selftest-completo.txt"
+  },
+  "defecto_del_ordinal": {
+    "que": "El ordinal se tomaba del BLOQUE y no de la linea de su señal. La entrada de PT-125 lleva una TABLA con una clase por fila, y «instancia doce» —escrito en la fila de CE-001— se le atribuia tambien a CE-003, CE-004, CE-007 y CE-015.",
+    "por_que_importa": "Cuatro cifras plausibles y FALSAS sobre cuanto se repite cada clase, dentro de la herramienta que existe para medir cuanto se repite cada clase. Es CE-001.",
+    "dos_intentos_fallidos": "Una ventana de 140 caracteres no basto: en una tabla densa alcanza la fila de arriba. Y atarlo «a la misma linea» de la CITA tampoco, porque fraseDe APLANA los saltos: sobre una cita aplanada, «la misma linea» es todo el texto.",
+    "arreglo": "El ordinal se lee del TEXTO ORIGINAL, en la linea donde cae la señal. Un ordinal partido por el salto se pierde y devuelve null, que es «no lo declara»: perderlo es seguro, inventarlo no.",
+    "casos": [
+      "selftest.sh:el ordinal no se toma de la fila de al lado",
+      "selftest.sh:…y si SI esta en su linea, se toma"
+    ]
+  }
+}

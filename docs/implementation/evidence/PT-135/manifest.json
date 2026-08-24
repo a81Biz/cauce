@@ -1,0 +1,89 @@
+{
+  "pt": "PT-135",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El lint detecta un helper usado como LINEA DE MONTAJE, no solo como comando de un caso",
+      "tests": [
+        "selftest.sh:el lint mira los usos de MONTAJE",
+        "selftest.sh:…y tambien tras un «;» o un «&&»"
+      ],
+      "evidence": ["salidas/casos-135.txt", "salidas/lint-antes.txt", "salidas/lint-despues.txt"],
+      "verified": true,
+      "nota": "La forma que el lint reconocia y la forma en que fallaban eran distintas: NO SE LE ESCAPO, no podia verlo. git_fixture se invocaba tras un «;», que es la forma que ahora tambien entra."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La lista de helpers se DERIVA del archivo, no se escribe a mano",
+      "tests": [
+        "selftest.sh:la lista de helpers NO esta escrita a mano",
+        "selftest.sh:…se deriva de las definiciones del archivo",
+        "selftest.sh:…y el lint se excluye a si mismo"
+      ],
+      "evidence": ["salidas/casos-135.txt"],
+      "verified": true,
+      "nota": "Eran NUEVE nombres escritos a mano y ninguno de los dos rotos estaba en ella. Una lista escrita a mano de lo que hay que vigilar es la copia que diverge (CE-008) DENTRO del que vigila. El lint se excluye a si mismo: la autorreferencia ya mordio dos veces."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Los usos anteriores a la definicion que existian quedan enumerados, y arreglados o declarados uno a uno",
+      "tests": [
+        "selftest.sh:git_fixture y con_phase viven junto a build_fixture",
+        "selftest.sh:…y git_fixture conserva su cuerpo",
+        "selftest.sh:el lint sale limpio sobre el arbol real"
+      ],
+      "evidence": ["salidas/lint-antes.txt", "salidas/lint-despues.txt", "salidas/casos-135.txt"],
+      "verified": true,
+      "nota": "DOS, y los dos se arreglan: se mueven junto a build_fixture. Los tres falsos positivos que salieron al derivar la lista —M, A, OTRO— NO eran usos anteriores: eran texto dentro de comillas y dentro de un heredoc, con la misma raiz que PT-130. Por eso anclar la posicion es parte del arreglo y no un extra."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Un «command not found» en la salida de la bateria no convive con un OK",
+      "tests": [
+        "selftest.sh:el caso del lint ya no casa las dos respuestas",
+        "selftest.sh:…exige «ningun helper», que es una sola",
+        "selftest.sh:el lint sale limpio sobre el arbol real"
+      ],
+      "evidence": ["salidas/selftest-completo.txt", "salidas/casos-135.txt"],
+      "verified": true,
+      "nota": "SE CUMPLE POR LA VIA DEL CASO, y se dice cual: la implementacion no captura la salida de la bateria desde dentro —eso exigiria que el arnes se leyera a si mismo—. Lo que se hace es que el caso que vigila el orden PUEDA FALLAR: con «ningun helper» como patron, un helper mal colocado pone la corrida en rojo y entonces OK no aparece. El patron anterior, «helper|ninguno», casaba con las DOS respuestas."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El caso de PT-109 afectado se comprueba con su montaje CORRIENDO, y sigue pasando — o se dice que no",
+      "tests": ["selftest.sh:el caso de PT-109 corre con su fixture montado"],
+      "evidence": ["salidas/casos-135.txt", "salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "SE EJECUTO, no se supuso. Ese caso llevaba un lote entero pasando SIN su fixture, asi que «sigue pasando» habia que comprobarlo. Pasa con git init y con phase: 8."
+    }
+  ],
+  "defecto_al_arreglarlo": {
+    "que": "La primera rutina que movia las definiciones decidia si una era de UNA linea mirando si la linea TERMINA en «{». La de git_fixture termina en un COMENTARIO, asi que se llevo la cabecera y dejo el cuerpo huerfano.",
+    "sintoma": "La bateria murio EN SILENCIO —codigo 0, sin linea de resumen— en el caso siguiente. Lo delato que el archivo de salida tuviera 1015 lineas y ninguna dijera «selftest:».",
+    "por_que_importa": "Es EXACTAMENTE el defecto que esta tarea persigue —leer el final de la linea en vez del hecho—, cometido al arreglarlo.",
+    "arreglo": "Una definicion es de una linea solo si la propia linea LA CIERRA, es decir termina en «}»."
+  },
+  "tres_falsos_positivos": {
+    "que": "Al derivar la lista salieron M, A y OTRO.",
+    "donde_casaban": {
+      "A": "dentro del PATRON de un caso: «EDITADO A MANO»",
+      "OTRO": "dentro del NOMBRE de otro caso",
+      "M": "dentro de un HEREDOC: contenido de fixture, no codigo"
+    },
+    "raiz": "Leer la linea entera en vez de la posicion del comando. Es CE-017, y PT-130 acababa de arreglar la misma forma en contradiceElRegistro.",
+    "arreglo": "Las comillas van EN LA EXPRESION, y una pasada de awk descarta las lineas de heredoc."
+  },
+  "y_una_autorreferencia_mas": {
+    "que": "El caso «el caso del lint ya no casa las dos respuestas» buscaba el patron viejo en TODO el archivo, y lo encontraba en el COMENTARIO que lo explica.",
+    "arreglo": "Se mira la LINEA DEL CASO, no el archivo. Y el cuantificador estaba mal —«chkno?» en ERE es «chkn» con una «o» opcional, no «chk» con «no» opcional—, asi que no casaba nada: un patron que no casa nada convierte un chkno en un verde por vacio (PT-023)."
+  },
+  "measured": {
+    "helpers_mal_colocados_antes": 2,
+    "helpers_mal_colocados_despues": 0,
+    "falsos_positivos_eliminados": 3,
+    "herramientas_declaradas_en_CLAUDE": "de 16 a 18, que es lo que hay",
+    "casos": "13 de 13",
+    "bateria_completa": "selftest OK · 1564 casos · codigo 0 · 1564 verdes y 0 rojos, y las cifras cuadran entre si"
+  }
+}

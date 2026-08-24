@@ -1,0 +1,88 @@
+{
+  "pt": "PT-127",
+  "generated": "2026-08-23",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un commit que toca rutas gobernadas cita un identificador que existe en REGISTRY.json y estaba vivo",
+      "tests": [
+        "selftest.sh:un commit con «feat: PT-NNN» y allocation viva no es hallazgo",
+        "selftest.sh:citar un PT que no existe es trabajo sin allocation",
+        "selftest.sh:no poder decidir si esta vivo no es permiso"
+      ],
+      "evidence": [
+        "salidas/casos-127.txt",
+        "salidas/verify-fdge.txt"
+      ],
+      "verified": true,
+      "nota": "«Vivo» se decide con el registro de HOY. Un PT abierto DESPUES del commit que lo cita sale verde aqui: el limite se declara en design.md §5 y ese caso lo cazan FDGE-R52 y SUITE-R08."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El identificador cumple el formato de FDGE-R19: <type>: PT-XXX, un PT y no un lote",
+      "tests": [
+        "selftest.sh:citar un LOTE no es citar una allocation",
+        "selftest.sh:un merge no es trabajo: se reconoce por sus dos padres",
+        "selftest.sh:…y los tipos de commit son los SEIS que declara FDGE-R19"
+      ],
+      "evidence": [
+        "salidas/casos-127.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "La primera version metia «merge» en la lista de tipos, que es legislar desde una herramienta lo que la regla no dice. Se reconoce por su FORMA —mas de un padre—, dato que da git."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La comprobacion corre en verify-fdge y no juzga los commits anteriores",
+      "tests": [
+        "selftest.sh:verify-fdge ejecuta la comprobacion y agrupa los commits"
+      ],
+      "evidence": [
+        "salidas/verify-fdge.txt"
+      ],
+      "verified": true,
+      "nota": "CORREGIDO respecto al intake: la fila de FDGE-R19 en RIGE_DESDE es 7.7.0, asi que la obligacion YA regia sobre esos commits. Lo que acota la lectura es la ventana de 60, no la fila. Se dice en traceability.md en vez de dejar que el criterio afirme algo que la medicion contradice."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Distingue el rodeo ELEGIDO del FORZADO, y el segundo remite a arreglar la herramienta",
+      "tests": [
+        "selftest.sh:sin excepcion declarada, el rodeo es ELEGIDO",
+        "selftest.sh:…con la excepcion en la MISMA entrada, es FORZADO",
+        "selftest.sh:la excepcion en OTRA entrada no vale: el troceo trocea"
+      ],
+      "evidence": [
+        "salidas/casos-127.txt",
+        "salidas/inversa.txt"
+      ],
+      "verified": true,
+      "nota": "Observa co-ocurrencia DECLARADA —identificador + regla + la palabra, en una misma entrada del ledger—, no intencion. Inferir el motivo seria un motivo plausible y falso (RULE-06), y aqui repartiria culpa al reves: la primera version daba FORZADO a 34 de 34."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Lo que no es mecanizable se declara con su numero (SUITE-R26)",
+      "tests": [
+        "selftest.sh:un commit que no toca ruta gobernada no necesita allocation"
+      ],
+      "evidence": [
+        "salidas/casos-127.txt",
+        "../../../../changes/PT-127-nada-detecta-el-trabajo-sin-allocation/design.md"
+      ],
+      "verified": true,
+      "nota": "Dos limites declarados en design.md §5: «vivo» se decide con el registro de hoy, y FORZADO observa co-ocurrencia y no intencion. El negativo —un commit que no toca ruta gobernada— es lo que hace validos a los demas casos: sin el, una comprobacion que marcase TODO tambien los pasaria."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 4,
+    "distinct_reds": 4,
+    "evidence": "salidas/inversa.txt",
+    "nota": "Cada supresion se aplica sobre una COPIA del modulo real, no sobre una reimplementacion, y se comprueba que cae el escenario esperado y SOLO ese."
+  },
+  "measured": {
+    "commits_leidos": 60,
+    "hallazgos": 34,
+    "grupos_informados": 3,
+    "nota": "15 commits citan EP-020 sin excepcion declarada, 18 citan EP-019 con excepcion declarada, 1 no sigue el formato. Que el trabajo DE LOTE pueda citar el EP es una pregunta sobre la regla y va a PT-130."
+  }
+}

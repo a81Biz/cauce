@@ -131,7 +131,19 @@ export const RIGE_DESDE = {
   // —LEX-R08 severidad H, FDGE-R26 HARD— pero nadie la aplicaba: 51 BUG del registro y CERO
   // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
   // que no se paso no se puede retrofechar. Es EXEC-R04a de PT-095, otra vez.
+  // PT-115 · EP-020 · la parada entra al vocabulario y a las reglas. Anadir reglas vinculantes es
+  // MAJOR (CHANGELOG, cabecera): el lote cierra en 13.0.0.
+  //
+  // RIGE_DESDE no es una formalidad aqui. FDGE-R55 exige publicar la parada en su tarea, y sin
+  // esta fila juzgaria las 131 tareas cerradas antes de que la regla existiera — que es el defecto
+  // que PT-081 y PT-095 documentaron y PT-106 midio: dos de cada diez reglas discrepan entre
+  // cuando se REDACTARON y desde cuando JUZGAN.
+  'FDGE-R55': [13, 0, 0],
+  'LEX-R29':  [13, 0, 0],
+  'LEX-R30':  [13, 0, 0],
   'LEX-R08': [12, 0, 0],
+  'LEX-R31': [13, 0, 0],           // PT-118 · la tercera clase de identificador
+  'LEX-R32': [13, 0, 0],           // PT-118 · citar un CE que LEXICON no declara
   'SUITE-R58': [12, 0, 0],
   'SUITE-R59': [12, 0, 0],
 
@@ -554,8 +566,52 @@ export const normalizaRef = (nombre) => String(nombre ?? '')
  *
  * Sin usuario resuelto, DOS niveles como siempre: un proyecto de una persona no cambia nada.
  */
+/**
+ * PT-129 · Las ramas que EXISTEN, contrastadas con la topologia que FDGE-R19 declara.
+ *
+ * verify-fdge comprobaba `allocations[].branch` —EL CAMPO QUE LA ALLOCATION DECLARA— y jamas
+ * preguntaba al arbol que ramas hay. Con eso una rama puede sobrevivir a su tarea integrada, o
+ * existir sin ninguna, sin que nada lo note: es donde se esconde el trabajo sin allocation que
+ * persigue PT-127. El proxy en lugar del hecho, decima instancia.
+ *
+ * CUATRO TIPOS, no tres. La enumeracion de la regla decia tres y `tracker proyectar` lleva
+ * creando `cauce/<usuario>` desde PT-054, declarada en LEXICON §6.5.
+ *
+ * QUE ESTABLECE: que cada rama encaja en un tipo declarado, y que ninguna efimera sobrevive a su
+ *   tarea terminal.
+ * QUE NO ESTABLECE: que la topologia declarada sea la correcta. Si lo declarado esta mal, esto
+ *   sale verde.
+ *
+ * NUNCA BORRA (SUITE-R06f): nombra y describe el comando (EXEC-R07).
+ *
+ * @param ramas       string[]   las que existen, locales y remotas, sin prefijo
+ * @param allocations las del registro
+ * @param defecto     nombre de la rama por defecto · @param integracion la de integracion
+ */
+export function topologiaDeRamas(ramas, allocations, defecto = 'main', integracion = 'trabajo') {
+  if (ramas == null) return null;                    // sin acceso: SIN EVALUAR (RULE-06)
+  const porId = new Map((allocations ?? []).map((a) => [a?.id, a]));
+  const sobrantes = [];
+  const huerfanas = [];
+  for (const r of ramas) {
+    if (r === defecto || r === integracion) continue;            // por defecto · integracion
+    if (/^cauce\/[^/]+$/.test(r)) continue;                      // derivada · LEXICON §6.5
+    const id = r.match(/\/((?:PT|EP)-\d+)-/)?.[1] ?? r.match(/\/((?:PT|EP)-\d+)$/)?.[1];
+    if (!id) { sobrantes.push(r); continue; }                    // no encaja en ningun tipo
+    const a = porId.get(id);
+    if (!a) { sobrantes.push(r); continue; }                     // cita un ID que no existe
+    if (ESTADOS_TERMINALES.has(String(a.status))) huerfanas.push({ rama: r, id, estado: a.status });
+  }
+  return { sobrantes, huerfanas };
+}
+
 export function ramaDeTarea(tipo, id, slug, usuario = null) {
-  const t = String(tipo ?? 'chore').toLowerCase();
+  // PT-129 · sin «type» NO hay nombre de rama. Antes devolvia «chore/...» con la misma cara que
+  // devolveria un tipo real: un dato INVENTADO donde RULE-06 pide un «no lo se». Tiene caso hoy
+  // —PT-125 y PT-126 estan sin «type» por el defecto de PT-124— y la respuesta era un nombre que
+  // nadie habia decidido.
+  if (!tipo) return null;
+  const t = String(tipo).toLowerCase();
   const u = usuario ? normalizaRef(usuario) : null;
   const cola = `${id}-${slug}`;
   return u ? `${t}/${u}/${cola}` : `${t}/${cola}`;
@@ -719,6 +775,10 @@ export const CAR = {
   BARRA: String.fromCharCode(92),
   COMILLA: String.fromCharCode(39),
   BACKTICK: String.fromCharCode(96),
+  // Los dos separadores de registro de ASCII. Se usan para leer «git log»: no aparecen en
+  // ningun asunto ni en ninguna ruta, asi que separan sin poder confundirse con el contenido.
+  SEPARADOR: String.fromCharCode(30),
+  UNIDAD: String.fromCharCode(31),
 };
 
 /** Las clases de un regex, como texto, sin escribir la barra. */
@@ -766,6 +826,112 @@ export function porLineas(texto) {
 /** Une líneas con un salto real. */
 export function enLineas(lineas) {
   return (lineas ?? []).join(CAR.SALTO);
+}
+
+
+/**
+ * PT-127 · EP-020 · Nada detecta el trabajo sin allocation.
+ *
+ * Lo pidio el firmante con una frase que se describe a si misma:
+ *
+ *   «lo empezaras a arreglar, ese arreglo te vas a saltar el marco de trabajo, entonces debes
+ *    abrir el pt con el bug para poder hacer la correccion necesaria (SI NO TE LO DIGO, NO LO
+ *    HARIAS) y esto es algo que se debe evitar»
+ *
+ * El parentesis es el defecto entero: lo que solo ocurre cuando una persona lo dice, no ocurre.
+ *
+ * Y hay una medicion que lo prueba: los commits del cierre de EP-019 citan «EP-019», que para
+ * entonces estaba CLOSED, con formato «fix: EP-019» en vez de «fix: PT-NNN». FDGE-R19 exige un
+ * PT y ningun verificador miraba el prefijo. Diez commits, ningun rojo.
+ *
+ * PURA a proposito: recibe los commits ya leidos y el registro. Un caso puede ejercerla sin git
+ * y sin disco, que es lo que hace que el caso exista (PT-048, PT-097, PT-101).
+ */
+
+/** Las rutas que el marco gobierna: tocarlas es trabajo, y el trabajo necesita allocation. */
+export const RUTAS_GOBERNADAS = ['docs/methodology/', 'docs/implementation/', 'changes/', 'bin/'];
+
+/**
+ * Los SEIS tipos que FDGE-R19 declara para un commit. La regla es su propietaria; aqui viven una
+ * sola vez para que ningun verificador los reescriba (SUITE-R38).
+ *
+ * «merge» NO esta, y «revert» tampoco: anadirlos seria legislar desde una herramienta lo que la
+ * regla no dice. Un merge se reconoce por su FORMA —dos padres— y no por un tipo inventado.
+ */
+export const TIPOS_DE_COMMIT = ['feat', 'fix', 'refactor', 'test', 'docs', 'chore'];
+
+const RE_SUJETO = new RegExp(
+  '^(' + TIPOS_DE_COMMIT.join('|') + ')' + CLASE.espacio + '*:' + CLASE.espacio + '*'
+  + '(?:([A-Z]+)-(' + CLASE.digito + '+))?');
+
+/**
+ * Clasifica UN commit. Devuelve `null` si no toca ninguna ruta gobernada — un commit que no
+ * toca lo que el marco gobierna no necesita allocation, y exigirsela seria ruido.
+ *
+ * `vivoEn` decide si el ID estaba vivo: se inyecta para que el caso pueda decidirlo sin registro.
+ */
+export function commitSinAllocation(commit, vivoEn) {
+  // Un merge no es trabajo: es integracion, y su asunto lo escribe git. Se reconoce por tener mas
+  // de un padre — el dato lo da git, no lo adivina una lista de tipos.
+  if (Number(commit?.padres ?? 1) > 1) return null;
+
+  const rutas = commit?.rutas ?? [];
+  if (!rutas.some((r) => RUTAS_GOBERNADAS.some((g) => String(r).startsWith(g)))) return null;
+
+  const m = RE_SUJETO.exec(String(commit?.sujeto ?? ''));
+  if (!m) {
+    return { sha: commit?.sha, clase: 'SIN_FORMATO',
+      dice: 'el asunto no sigue «<type>: PT-NNN» con type en '
+        + `«${TIPOS_DE_COMMIT.join(' · ')}» (FDGE-R19), asi que no cita ninguna allocation` };
+  }
+  const pfx = m[2];
+  const id = pfx ? `${pfx}-${String(m[3]).padStart(3, '0')}` : null;
+
+  if (!id) {
+    return { sha: commit?.sha, clase: 'SIN_ID',
+      dice: 'el asunto tiene tipo pero no cita ningun identificador' };
+  }
+  if (pfx !== 'PT') {
+    return { sha: commit?.sha, clase: 'NO_ES_PT', id,
+      dice: `cita «${id}», que no es un PT. FDGE-R19 pide un PT: un lote no es la unidad de trabajo` };
+  }
+  const v = vivoEn ? vivoEn(id, commit) : null;
+  if (v === null || v === undefined) {
+    return { sha: commit?.sha, clase: 'SIN_EVALUAR', id,
+      dice: `no se pudo decidir si «${id}» estaba vivo. No saber no es permiso (RULE-06)` };
+  }
+  if (v === false) {
+    return { sha: commit?.sha, clase: 'NO_VIVO', id,
+      dice: `cita «${id}», que no estaba vivo en ese commit: el trabajo se hizo sin allocation abierta` };
+  }
+  return null;
+}
+
+/**
+ * Separa las dos cosas que el ledger distingue y que NO son lo mismo (AC-04):
+ *
+ *   ELEGIDO   el agente rodeo el marco pudiendo no hacerlo
+ *   FORZADO   el marco OBLIGO a rodearlo porque la herramienta no podia cumplirlo
+ *
+ * La diferencia no se infiere: se DECLARA, y una declaracion tiene DOS partes que van JUNTAS —
+ * el identificador rodeado y la REGLA que se exceptua— dentro de UNA MISMA entrada del ledger.
+ *
+ * La primera version buscaba el identificador y la palabra «excepcion» en el ledger ENTERO. Con
+ * eso, treinta y cuatro commits salian FORZADO porque el documento menciona «EP-019» en un sitio
+ * y «excepcion» en otro, sin ninguna relacion entre ambos. Un motivo plausible y falso es peor
+ * que no clasificar: RULE-06 lo prohibe, y aqui ademas repartia la culpa al reves.
+ */
+export function clasificaRodeo(hallazgo, textoDelLedger, regla = 'FDGE-R19') {
+  const id = hallazgo?.id;
+  if (!id) return { ...hallazgo, motivo: 'ELEGIDO' };
+  // Se trocea por el ENCABEZADO de entrada. La primera version troceaba por «\b(?=## )» y no
+  // troceaba nada —un limite de palabra no cae entre un salto y una almohadilla, que son las
+  // dos no-palabra—: 226 entradas salian como UNA, y «la misma entrada» volvia a ser el
+  // documento entero. La comprobacion de la comprobacion es lo que lo vio.
+  const entradas = String(textoDelLedger ?? '').split(CAR.SALTO + '## ');
+  const declarada = entradas.some((e) => e.includes(id) && e.includes(regla)
+    && /[Ee]xcepci[oó]n/.test(e));
+  return { ...hallazgo, motivo: declarada ? 'FORZADO' : 'ELEGIDO' };
 }
 
 export const PATRONES = {
@@ -987,15 +1153,31 @@ export function contradiceElRegistro(bloque, allocations) {
   const linea = (pref) => (texto.split(/\r?\n/).find((l) => l.trim().startsWith(pref)) ?? '');
   const fallos = [];
 
-  // «tarea:» — un identificador nombrado ahi se afirma EN CURSO, salvo que la propia linea lo
-  // liste como ya cerrado. Por eso se corta en la primera mencion a estados terminales: el
-  // bloque real enumera las INTEGRADAS despues, y contarlas seria acusar al texto correcto.
+  // «tarea:» — PT-130 · SE LEE EL SUJETO, NO LA LINEA ENTERA.
+  //
+  // La linea afirma UNA tarea en curso —el checkpoint es uno (LEX-R26)— y ese es su SUJETO: el
+  // PRIMER identificador. Todo lo que viene despues es contexto: la tarea anterior, el lote, una
+  // que se cerro, una que espera validacion.
+  //
+  // La version anterior cortaba en la primera palabra de estado terminal y juzgaba TODOS los
+  // identificadores del trozo de delante. Con eso, escribir «los diez commits del cierre citaban
+  // EP-019 estando CLOSED» —para REGISTRAR el defecto que PT-127 arreglaba— hacia fallar
+  // SUITE-R34. La comprobacion acusaba a quien documentaba el hecho que ella vigila, que es
+  // CE-017 y es la unica clase que se hace mas probable cuanto mejor se escribe el ledger.
+  //
+  // EL ARREGLO NO ES ESQUIVAR LA PALABRA. Anclar al sujeto quita el falso positivo sin pedirle
+  // a nadie que deje de nombrar identificadores en prosa — que seria documentar la limitacion
+  // en vez de quitarla.
   const lt = linea('tarea:');
-  const vivasAfirmadas = lt.split(/INTEGRAD|CERRAD|CLOSED|DEFERRED|READY:/i)[0];
-  for (const id of vivasAfirmadas.match(/\b(?:PT|EP)-\d{3}\b/g) ?? []) {
-    const st = estado.get(id);
-    if (ESTADOS_TERMINALES.has(st)) {
-      fallos.push(`«tarea:» afirma que ${id} sigue en curso y el registro dice ${st}`);
+  const sujeto = (lt.match(/\b(?:PT|EP)-\d{3}\b/) ?? [])[0] ?? null;
+  if (sujeto) {
+    const st = estado.get(sujeto);
+    // Se mira si la propia linea DICE que esta cerrada: decirlo es correcto, y acusar al texto
+    // que acierta seria el mismo defecto por el otro lado.
+    const loDeclara = new RegExp(sujeto + '[^.]{0,80}(INTEGRAD|CERRAD|CLOSED|DEFERRED)', 'i')
+      .test(lt);
+    if (ESTADOS_TERMINALES.has(st) && !loDeclara) {
+      fallos.push(`«tarea:» afirma que ${sujeto} sigue en curso y el registro dice ${st}`);
     }
   }
 
@@ -1050,7 +1232,206 @@ export function contradiceElRegistro(bloque, allocations) {
  * El hueco de LEXICON sigue abierto y es de otra tarea. Esto no lo cierra: lo rodea usando el
  * unico nombre que LEXICON SI declara.
  */
+/**
+ * PT-124 · Los tipos de trabajo que LEXICON §8.1 declara.
+ *
+ * tracker.mjs los tenia escritos a mano como ['BUG','FEATURE','CHANGE','TAREA'] y su mensaje de
+ * error los ATRIBUIA a LEXICON. LEXICON nunca declaro eso.
+ *
+ * NO ERA UNA LISTA DESACTUALIZADA: ERA UNA LISTA DE OTRA COSA. «CHANGE» y «TAREA» no existen en
+ * ningun otro sitio del codigo — son nombres de PLANTILLA de intake:
+ *
+ *   BUG · INVESTIGATION   ->  templates/BUG-REPORT.md
+ *   FEATURE               ->  templates/FEATURE-REQUEST.md
+ *   REFACTOR · CHORE      ->  templates/CHANGE-REQUEST.md
+ *   una tarea de un lote  ->  templates/TAREA.md
+ *
+ * Alguien derivo la lista de las CUATRO plantillas y la etiqueto como los CINCO tipos. Por eso
+ * se solapa en BUG y FEATURE —donde plantilla y tipo se llaman igual— y falla justo en los tres
+ * donde no. El registro le da la razon a la documentacion: 30 CHORE y 2 INVESTIGATION escritos,
+ * CERO CHANGE y CERO TAREA.
+ *
+ * Vivir aqui no basta: seria una copia, solo que UNA. verify-suite la compara con LEXICON §8.1
+ * y falla si divergen — sin eso, esto se repite el dia que LEXICON cambie (PT-080).
+ */
+/**
+ * PT-116 · FDGE-R55 · Las dos listas CERRADAS de la parada, que LEXICON §8.5 declara.
+ *
+ * Viven AQUI y no en tracker.mjs por lo que PT-124 acaba de medir: una lista escrita a mano en el
+ * consumidor diverge del documento que la declara, y su mensaje de error acaba ATRIBUYENDO al
+ * documento lo que el documento no dice. Paso con TIPOS_DE_ITEM, que era la lista de las
+ * PLANTILLAS etiquetada como la de los tipos.
+ *
+ * Y vivir aqui NO BASTA: seria una copia, solo que UNA. verify-suite las compara con LEXICON §8.5
+ * y falla si divergen — sin eso esto se repite el dia que LEXICON cambie (PT-080).
+ *
+ * Las seis de «motivo» no se inventaron: cada una nacio de una instancia medida en EP-020. Una
+ * lista cerrada mal elegida SE RODEA, que es lo que PT-103 midio cuando a «asignar» le faltaban
+ * campos: «cumplir el marco exigia saltarselo».
+ */
+export const MOTIVOS_DE_PARADA = [
+  'hallazgo', 'condicion-bloqueante', 'compuerta',
+  'abre-trabajo', 'limite-alcanzado', 'desafio-al-intake',
+];
+
+export const DESENLACES_DE_PARADA = [
+  'continua', 'abre', 'cambia-fase', 'detiene', 'declara',
+];
+
+export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'];
+
+// ── PT-123 · BACKLOG.md · el bloque DERIVADO, entre marcas ──────────────────
+//
+// El archivo dice de si mismo «regenerable desde REGISTRY.json» desde la primera version, el
+// bloque «no hacer» prohibe editarlo a mano, y NINGUN comando lo escribia: «tracker indices»
+// cubria DISCOVERY, ENRICHMENT y REFACTOR_SCOPE, y a el no.
+//
+// Las tres cosas a la vez dejaban una sola salida practicable —saltarse la regla—, que es
+// FDGE-R51 aplicado al reves. Y la consecuencia esta medida en su propia cabecera: ocho lotes de
+// retraso la primera vez, CUATRO cuando esto se escribio.
+//
+// NO SE GENERA ENTERO. El PORQUE del orden —«PT-088 va antes que PT-087 porque sus tres
+// comprobaciones son el banco de pruebas del mecanismo»— no sale de ningun campo, y es lo mas
+// valioso que tiene el archivo. Misma frontera que LEX-R26 traza en CHECKPOINT.json y HANDOFF.md
+// entre lo derivado y la prosa: se reescribe SOLO lo de dentro de las marcas.
+const MARCA_BACKLOG = ['<!-- BACKLOG:DERIVADO -->', '<!-- /BACKLOG:DERIVADO -->'];
+
+export function bloqueDeBacklog(allocations, urlRepo = null) {
+  const TERM = ESTADOS_TERMINALES;
+  const enlace = (n) => (urlRepo && n ? `[#${n}](${urlRepo}/issues/${n})` : (n ? `#${n}` : '—'));
+  const q = (s) => '`' + s + '`';
+  const L = [];
+  const lotes = (allocations ?? []).filter((a) => esLote(a) && !TERM.has(String(a?.status)));
+
+  if (!lotes.length) {
+    L.push('**Ninguna implementación abierta.** El registro no declara ningún lote vivo.');
+    L.push('');
+  }
+  for (const lote of lotes) {
+    const hijos = (allocations ?? []).filter((a) => a?.epic === lote.id);
+    const cerradas = hijos.filter((h) => TERM.has(String(h.status)) || String(h.status) === 'DONE').length;
+    L.push('## Implementación abierta — ' + q(lote.id));
+    L.push('');
+    L.push(q(lote.id) + ' · **' + (lote.title ?? '') + '** · ' + q(lote.status) + ' · issue ' + enlace(lote.issue) + '.');
+    L.push('');
+    L.push('| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |');
+    L.push('|:---|:---|:---|:---|:---|:---|:---|');
+    for (const h of hijos) {
+      L.push('| ' + h.id + ' | ' + (h.type ?? '—') + ' | ' + (h.severity ?? '—') + ' | ' + h.status
+        + ' | ' + (h.phase ?? '—') + ' | ' + enlace(h.issue) + ' | ' + (h.title ?? '') + ' |');
+    }
+    L.push('');
+    L.push('**' + cerradas + ' de ' + hijos.length + ' cerradas.** Las cifras salen del registro: '
+      + 'no se transcriben (' + q('PT-091') + ').');
+    L.push('');
+  }
+
+  const aplazadas = (allocations ?? []).filter((a) => String(a?.status) === 'DEFERRED');
+  L.push('## Aplazado — ' + aplazadas.length + ' allocation(s) ' + q('DEFERRED'));
+  L.push('');
+  L.push(q('SUITE-R44') + ' · aplazar algo lo **pone** en el tablero, no lo saca.');
+  L.push('');
+  if (!aplazadas.length) { L.push('Ninguna.'); } else {
+    L.push('| Id | Tipo | Issue | Por qué sigue fuera |');
+    L.push('|:---|:---|:---|:---|');
+    for (const a of aplazadas) {
+      const motivo = String(a.origin ?? '').split('·').pop().trim().slice(0, 120) || '—';
+      L.push('| ' + a.id + ' | ' + (a.type ?? '—') + ' | ' + enlace(a.issue) + ' | ' + motivo + ' |');
+    }
+  }
+  return L.join(String.fromCharCode(10));
+}
+
 export const esLote = (a) => /^EP-/.test(String(a?.id ?? ''));
+
+/**
+ * PT-131 · Lo que YA VIAJO en un tag, derivado del ARBOL y no de lo que el tag declaraba.
+ *
+ * PT-087 arreglo QUE TAG mirar —el mas alto— y siguio mirando su REGISTRY.json, que es una
+ * DECLARACION SOBRE el trabajo y no el trabajo. Mientras el estado terminal se escriba en el
+ * mismo commit que se etiqueta, las dos cosas coinciden y el proxy sale gratis. En cuanto el
+ * terminal llega DESPUES del tag dejan de coincidir:
+ *
+ *   v12.0.0 -> 5b184af   su REGISTRY declaraba  EP-019 DRAFT · las 17 en DONE
+ *   main    -> ee660db   su REGISTRY declara    EP-019 CLOSED · las 17 INTEGRATED
+ *
+ * DONE no esta en ESTADOS_TERMINALES —y hace bien, SUITE-R08 lo declara a proposito—, asi que
+ * las diecisiete no constaban selladas y bloqueaban G2 de TODAS las tareas, incluida la que
+ * produciria el tag que las limpiaria. El candado con la llave dentro, y es la segunda vez que
+ * esta forma aparece aqui.
+ *
+ * DOS CONDICIONES, no una. Con «esta el directorio dentro del tag» a secas salian PT-025
+ * —DEFERRED, nunca trabajada— y PT-032 —cerrada sin artefactos—: ninguna de las dos tiene
+ * changes/ en ningun sitio, y UNA TAREA SIN TRABAJO NO TIENE NADA QUE SELLAR.
+ *
+ * QUE ESTABLECE: que el trabajo de una tarea viajo dentro del tag mas alto.
+ * QUE NO ESTABLECE: que ese tag este publicado, ni que su contenido sea correcto. Solo que el
+ *   directorio existe ahi.
+ *
+ * `ls` y `existe` se INYECTAN: este archivo no ejecuta git ni toca el disco, y asi la funcion
+ * es pura y su inversa se puede escribir sin fabricar un repositorio.
+ *
+ * @param ls      () => string[] | null   los directorios de changes/ dentro del tag, o null
+ * @param existe  (alloc) => boolean      si la tarea tiene trabajo en el arbol de HOY
+ */
+/**
+ * PT-114 · ¿El cuerpo publicado se quedo SIN ENLACE con la ref durable ya existente?
+ *
+ * PT-096 decidio bien: sin ref durable se publica la ruta SIN enlace y se dice por que, en vez
+ * de inventar una URL (RULE-06). Lo que faltaba es la otra mitad — QUE ALGO LO ECHE DE MENOS
+ * DESPUES. El cuerpo se publica al abrir el issue, la rama se empuja despues, y nada vuelve a
+ * mirar: «una vez que un cuerpo esta bien, NADA vuelve a mirarlo» (PT-096).
+ *
+ * La consecuencia no es cosmetica: el firmante NO PUEDE LEER el intake que se le pide firmar, asi
+ * que G1 no puede pasar. Lo encontro una persona abriendo EP-020, no un verificador.
+ *
+ * Septima instancia de «existe la herramienta y nada la echa en falta»: el propio cuerpo dice
+ * «`tracker abrir --aplicar` lo republica» — le pide a un humano que ejecute un comando que nada
+ * exige.
+ *
+ * QUE ESTABLECE: que el cuerpo publica la ruta sin enlace TENIENDO ref durable.
+ * QUE NO ESTABLECE: que el enlace resuelva. Eso depende de la plataforma, no del texto.
+ *
+ * @param cuerpo    el cuerpo publicado, o null si no se pudo leer
+ * @param hayRef    true si existe ref durable, false si no, null si no se sabe
+ */
+export const RE_SIN_ENLACE = /sin enlace: no hay ref durable que lo contenga/;
+
+/**
+ * PT-132 · ¿Hay ya un issue ABIERTO con el titulo que esta allocation derivaria?
+ *
+ * Si lo hay, es lo que dejo una pasada interrumpida de `abrir`: el issue se creo —irreversible—
+ * y el registro no llego a guardarse. Adoptarlo es recuperar; crear otro es duplicar, y asi
+ * salieron DIECISEIS el 2026-08-22.
+ *
+ * QUE ESTABLECE: que existe un issue abierto con ese titulo exacto.
+ * QUE NO ESTABLECE: que ese issue sea el correcto. Un titulo repetido a mano en el tablero
+ *   tambien casa — y es preferible adoptar uno ajeno, que se ve en el espejo, a crear un
+ *   duplicado que nadie mira.
+ *
+ * @param titulo   el derivado del registro · @param abiertos [{number,title}] o null
+ */
+export function issueAAdoptar(titulo, abiertos) {
+  if (abiertos == null) return null;                       // sin saber, no se decide (RULE-06)
+  const t = String(titulo ?? '').trim();
+  if (!t) return null;
+  const m = abiertos.find((i) => String(i?.title ?? '').trim() === t);
+  return m ? m.number : null;
+}
+
+export function cuerpoSinEnlaceConRef(cuerpo, hayRef) {
+  if (cuerpo == null || hayRef == null) return null;      // SIN EVALUAR (RULE-06)
+  return hayRef === true && RE_SIN_ENLACE.test(String(cuerpo));
+}
+
+export function selladoEnTag(ls, existe, allocations) {
+  const dirs = ls();
+  if (dirs == null) return null;                 // sin tag o sin git: SIN EVALUAR (RULE-06)
+  const enTag = new Set(dirs);
+  return (allocations ?? [])
+    .filter((a) => !existe(a) || enTag.has(`${a?.id}-${a?.slug}`))
+    .map((a) => a?.id);
+}
 
 export function sinSellar(allocations, idsEnTag) {
   if (idsEnTag == null) return null;
@@ -1408,10 +1789,72 @@ export function mergesSinConstancia(merges, constancias, firmantes) {
  * a todas de golpe nace con cientos de fallos, y una comprobacion que nace roja se apaga
  * (PT-023). La tabla crece; lo que la hace util es que NADIE PUEDA QUEDARSE FUERA EN SILENCIO.
  */
+const BS_B = String.fromCharCode(92) + "b";
+const BS_S = String.fromCharCode(92) + "s";
+const BS_D = String.fromCharCode(92) + ".";
+const BS_P = String.fromCharCode(92) + "(";
+const BS_PC = String.fromCharCode(92) + ")";
+const RE_SALTO = new RegExp(String.fromCharCode(92) + "r?" + String.fromCharCode(92) + "n");
+
+/**
+ * PT-130 · AC-04 · las lecturas de ALCANCE AMPLIO, enumeradas.
+ *
+ * Una lectura de alcance amplio busca una marca en TODO un texto y concluye algo sobre un hecho
+ * concreto. Es barata y casi siempre acierta — hasta que el texto DESCRIBE el hecho que la marca
+ * senala, y entonces acusa a quien lo documenta (CE-017).
+ *
+ * NO SE ARREGLAN AQUI. Se ENUMERAN, que es lo que RULE-06 pide: se declara lo medido y no se
+ * promete lo no medido. Arreglar once lecturas de golpe, sin un caso que sostenga cada una,
+ * seria cambiar once comportamientos a ciegas.
+ *
+ * QUE CUENTA COMO ALCANCE AMPLIO, y por que asi: una variable cuyo nombre dice que es un archivo
+ * o un cuerpo entero —txt, texto, cuerpo, contenido, md, doc— sobre la que se pregunta
+ * «.includes(» o «.test(». Es una heuristica y se dice: no enumera intenciones, enumera FORMAS.
+ * Una lectura amplia legitima entra en la lista igual, y sacarla exige mirarla.
+ */
+export function lecturasDeAlcanceAmplio(fuentes) {
+  if (!fuentes) return null;
+  const RE = new RegExp(
+    '(' + BS_B + '(?:txt|texto|cuerpo|contenido|md|doc|fuente|bloque)[A-Za-z]*)'
+    + BS_S + '*' + BS_D + 'includes' + BS_P,
+    'g');
+  const RE2 = new RegExp(
+    '(' + BS_B + '[A-Za-z_]*(?:RE|Re|regex|patron)[A-Za-z_]*)' + BS_D + 'test' + BS_P
+    + BS_S + '*(?:txt|texto|cuerpo|contenido|md|doc|fuente|bloque)[A-Za-z]*' + BS_S + '*' + BS_PC,
+    'g');
+  const salida = [];
+  for (const { archivo, texto } of fuentes) {
+    String(texto).split(RE_SALTO).forEach((linea, i) => {
+      const l = linea.trim();
+      if (l.startsWith('//') || l.startsWith('*') || l.startsWith('/*')) return;
+      const m = RE.exec(linea) ?? RE2.exec(linea);
+      RE.lastIndex = 0; RE2.lastIndex = 0;
+      if (m) salida.push({ archivo, linea: i + 1, sobre: m[1], texto: l.slice(0, 120) });
+    });
+  }
+  return salida;
+}
+
 export const SUJETOS = {
   'SUITE-R09': {
     establece: 'ninguna linea anterior del ledger desaparecio ni cambio desde el tag',
     noEstablece: 'correccion legitima de una falsificacion',
+  },
+  // PT-130 · la lectura se ancla al SUJETO de cada linea. Decir aqui QUE evalua es lo que impide
+  // que alguien lea el rojo como «el bloque entero contradice al registro».
+  // PT-122 · la regla distingue por MARCA DE PROCEDENCIA, no por autor, y eso tiene un limite
+  // que hay que decir: la marca solo garantiza lo que la herramienta escribe.
+  'SUITE-R43': {
+    establece: 'todo comentario posterior a la ultima nota MARCADA del agente esta sin responder, '
+      + 'y si ninguno lleva marca lo dice SIN EVALUAR en vez de suponerlo',
+    noEstablece: 'un comentario sin marca se atribuye a una persona, asi que uno del agente '
+      + 'escrito FUERA del comando cuenta igual: por contenido son indistinguibles',
+  },
+  'SUITE-R34': {
+    establece: 'el SUJETO de «tarea:» —el primer identificador— no esta terminal en el registro '
+      + 'mientras la linea lo presenta en curso, y ningun lote declarado ABIERTA o CERRADA se '
+      + 'contradice con su estado',
+    noEstablece: 'NO evalua los demas identificadores que la linea mencione',
   },
   'EXEC-R04': {
     establece: 'existe constancia con un nombre de firmantes para cada merge a la principal',
@@ -1637,4 +2080,77 @@ export function recuentosDeClaude(texto) {
   const c = /El binario[^:\n]*:\s*([^\n]+)/.exec(String(texto ?? ''));
   if (c) out.comandos = c[1].split('·').map((s) => s.trim()).filter(Boolean).length;
   return out;
+}
+
+/**
+ * PT-128 · EL CURSOR · los nodos del recorrido se DERIVAN, no se enumeran a mano.
+ *
+ * «un cursor que nos indique en donde estamos parados, de donde venimos y a donde vamos, lo mas
+ * parecido a un cursor en un arbol binario donde cada nodo es una cajita que tiene el dato, el
+ * puntero de salida hacia la derecha y el de la izquierda, y va recorriendo los padres e hijos
+ * para no perderse ninguna puerta ningun comportamiento».
+ *
+ * LAS FASES Y SUS COMPUERTAS SALEN DE PHASES.md. Escribirlas aqui seria una segunda copia de una
+ * lista que ya existe, y PT-080 midio que tres copias de una regla divergen las tres sin que nada
+ * las compare. El encabezado de PHASES.md ya lleva las dos cosas:
+ *
+ *     ### PHASE 1 · Intake — **G1**
+ *     ### PHASE 2 · Analysis — `2-B` bug/investigacion · ...
+ *
+ * QUE ESTABLECE: que fase existe, como se llama, y que compuerta la cierra si la cierra alguna.
+ * QUE NO ESTABLECE: que la fase se haya hecho. Eso lo dice el registro, y son cosas distintas —
+ *   confundirlas es exactamente el defecto que este cursor existe para no repetir.
+ */
+export function fasesDeFDGE(textoDePhases) {
+  const t = String(textoDePhases ?? '');
+  // Solo el bloque de FDGE: Foundation y QA tienen sus propias PHASE con los mismos numeros, y
+  // mezclarlas daria dos nodos distintos con el mismo nombre.
+  const bloque = t.split(/^## FDGE\s*$/m)[1] ?? '';
+  const hasta = bloque.split(/^## /m)[0] ?? '';
+  const fases = [];
+  for (const m of hasta.matchAll(/^### PHASE (\d+) · ([^\n]*)$/gm)) {
+    const titulo = m[2];
+    // La compuerta va en el propio encabezado, en negrita: «— **G1**».
+    const g = titulo.match(/\*\*(G\d)\*\*/);
+    fases.push({
+      n: Number(m[1]),
+      nombre: titulo.split(/ — | · /)[0].trim(),
+      compuerta: g ? g[1] : null,
+    });
+  }
+  return fases;
+}
+
+/**
+ * PT-128 · AC-04 · LA GARANTIA ES POR ENUMERACION, NO POR CONSULTA.
+ *
+ * Es el mismo principio que PTSA-R79: se cierra cuando la enumeracion esta completa, no cuando el
+ * que busca deja de encontrar. Un nodo sin visitar SE NOMBRA; no se asume cumplido.
+ *
+ * Y no se inventa lo que no se puede saber: una fase por la que el registro no puede decir si se
+ * paso sale SIN EVALUAR, que es DISTINGUIBLE de «visitada» (RULE-06). Sin esa distincion el
+ * cursor prometeria cobertura donde solo tiene silencio — el defecto que EP-020 midio NUEVE veces
+ * en su propio lote.
+ *
+ * QUE ESTABLECE: que fases del recorrido tienen rastro, cuales no lo tienen, y cuales no se
+ *   pueden evaluar.
+ * QUE NO ESTABLECE: que lo hecho en una fase con rastro sea correcto. Que exista la nota de
+ *   PHASE 5 no dice nada sobre el codigo que se escribio en ella.
+ */
+export function nodosSinVisitar(fases, faseActual, rastro) {
+  const actual = Number(faseActual);
+  if (!Number.isFinite(actual)) {
+    return { visitados: [], sinVisitar: [], sinEvaluar: (fases ?? []).map((f) => f.n) };
+  }
+  const visitados = [];
+  const sinVisitar = [];
+  const sinEvaluar = [];
+  for (const f of fases ?? []) {
+    if (f.n > actual) continue;              // todavia no toca: no es «sin visitar», es futuro
+    const r = rastro?.(f.n);
+    if (r === null || r === undefined) sinEvaluar.push(f.n);
+    else if (r) visitados.push(f.n);
+    else sinVisitar.push(f.n);
+  }
+  return { visitados, sinVisitar, sinEvaluar };
 }

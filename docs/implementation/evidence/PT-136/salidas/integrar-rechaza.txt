@@ -1,0 +1,6 @@
+tracker · github · acción integrar
+
+
+  ✗ SUITE-R45    EP-020 tiene 23 tarea(s) que no estan terminales: PT-113 (DONE) · PT-114 (DONE) · PT-115 (DONE) · PT-116 (DONE) · PT-117 (DONE) · PT-118 (DONE) · PT-119 (DONE) · PT-120 (DONE) · PT-121 (DONE) · PT-122 (DONE) · PT-123 (DONE) · PT-124 (DONE) · PT-125 (DONE) · PT-126 (DONE) · PT-127 (DONE) · PT-128 (DONE) · PT-129 (DONE) · PT-130 (DONE) · PT-131 (DONE) · PT-132 (DONE) · PT-133 (DONE) · PT-135 (DONE) · PT-136 (DRAFT). Cerrar un lote con trabajo dentro seria declarar terminado lo que no lo esta.
+
+1 divergencia(s) entre el registro y la plataforma.

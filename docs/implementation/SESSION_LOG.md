@@ -3272,3 +3272,376 @@ comando habria dejado. Es la fila con la que abre `EP-020`.
 
 **Lo que queda y no es del agente:** `/graphify` (`FDGE-R32` · grafo `SUSPECT`), `SELLO.md` con los
 cinco resueltos, los dos merges y el tag (`SUITE-R06a`, `EXEC-R04`).
+
+---
+
+## 2026-08-22 · `G4` de `EP-019` autorizada y ejecutada
+
+**Autorizado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`).
+
+`EXEC-R04` · `EXEC-R04a` · La compuerta de integración de `EP-019` la resolvió el firmante
+ejecutando los dos merges, en el orden que `FDGE-R19` declara:
+
+```
+PR #215   chore/alberto-martinez/EP-019-cierre -> trabajo   revisión, NO es G4
+PR #216   trabajo -> main                                   G4
+main      ee660db
+```
+
+**Qué llevaba el merge:** el estado del cierre de `EP-019` y nada más — 24 archivos, **cero
+empaquetados**. `changes/*/intake.md` y `docs/implementation/`. El árbol y el paquete de npm
+siguen diciendo `12.0.0`.
+
+**Qué NO llevaba, y por decisión del firmante:** la `12.0.1`. Se había escrito en la misma rama
+**sin allocation viva** —sin `PT`, sin intake, sin issue y sin compuerta— y el firmante lo cortó.
+Revertida en `1837c22` y rehecha como `PT-113`, con intake y compuertas.
+
+**Lo que esta constancia no prueba**, y conviene decirlo cada vez: el agente escribe estos
+párrafos. Lo que `SUITE-R27` garantiza es que hay un nombre concreto asociado a la decisión y que
+estaba autorizado; no la voluntad detrás.
+
+**`PUBLICAR` no entra.** La `12.0.1` no está en npm y no se publica hasta que `PT-113` cierre.
+
+---
+
+## 2026-08-22 · `G1` de `EP-020` · VoBo del firmante y tres decisiones delegadas
+
+**Autorizado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`).
+
+Literal de la sesión: *«primero el pt que arregla las ramas, firma todo con mi vobo en el bloque
+completo de la ep y las tareas necesarias. A partir de esto toma las decisiones que mejor se
+adapten a la corrección y mejora del sistema»*.
+
+`INTAKE-R06` no permite al agente firmar, así que la firma de §5 del intake de `EP-020` la
+**transcribe** el agente y declara su base. `SUITE-R27` dice qué vale: hay un nombre concreto,
+está en `firmantes`, y la afirmación es contrastable contra esta entrada. **No prueba la voluntad**
+**detrás** — el agente escribe el archivo.
+
+`G1` de `EP-020`: **PASS**. Dieciocho tareas, `PT-113` a `PT-130`, cubiertas por la firma única
+(`INTAKE-R08`).
+
+### Las tres decisiones delegadas, resueltas por el agente y nombradas como tales
+
+**`O-1` — parada con decisión, no literal.** Se publica la parada cuyo motivo esté en una lista
+cerrada —hallazgo · condición bloqueante · compuerta · abrir trabajo nuevo · límite alcanzado ·
+desafío al Intake—. Se pierde el registro de las paradas sin decisión; se acepta porque 40
+comentarios por tarea entierran `SUITE-R43`, que es la regla que detecta al humano sin responder.
+Cambiar una invisibilidad por otra no es ganar. **Queda medido**: `PT-119` publicará cuántas
+paradas se registraron por tarea, y si la cifra deja la clase inútil la lista se amplía con
+evidencia.
+
+**`DoR-E7` — se elige (b), el generador, y se descarta la excepción.** El agente había
+recomendado (a) —escribir a mano el bloque de `EP-020` en `BACKLOG.md`—. Se cambia de opinión con
+motivo medido: este lote existe porque **una edición a mano declarada se olvida y una herramienta
+no**, y `BACKLOG.md` ya lleva **dos** episodios de quedarse atrás —ocho lotes la primera vez,
+cuatro ahora—, los dos empezados por editarlo «sólo esta vez». Autorizar la excepción en el intake
+del lote que persigue esa clase habría sido la instancia siguiente. `PT-123` sube al reparto.
+
+**El orden — `PT-129` primero por decisión del firmante; el resto por un solo criterio:** antes va
+lo que habría cazado los defectos de esta misma sesión.
+
+```
+1 PT-129  las ramas se enumeran          4 PT-123  BACKLOG tiene generador
+2 PT-114  el intake se puede leer        5 PT-127  trabajo sin allocation
+3 PT-124  el vocabulario canónico        6 PT-130  la comprobación no acusa
+   ── las seis primeras son las que hacen que las doce siguientes no repitan la sesión ──
+7 PT-113 · 8 PT-120 · 9 PT-115 · 10 PT-116 · 11 PT-128 · 12 PT-117
+13 PT-118 · 14 PT-125 · 15 PT-119 · 16 PT-126 · 17 PT-121 · 18 PT-122
+```
+
+**No es una promesa de que no se repetirán.** Una promesa no es un mecanismo, y este lote existe
+por eso. Es una apuesta ordenada y **medible**: al cerrar, `PT-119` publicará cuántas veces los
+detectores de las seis primeras cazaron algo **dentro del propio lote**. Si la cifra es cero, o el
+orden no sirvió o los detectores no valen — y las dos cosas se sabrán.
+
+### Lo que queda declarado y no resuelto
+
+`REGISTRY.allocations[EP-020].status` sigue diciendo `DRAFT` con el YAML del intake en `READY`.
+**Ningún comando escribe el estado que `G1` produce** — es el gemelo exacto de `DONE -> INTEGRATED`
+que `PT-121` persigue, y se le añade como `AC-05` en vez de escribir el registro a mano, que es lo
+que `PT-103` y `PT-107` existen para impedir. `SUITE-R35` lo reporta como aviso, no como error, y
+la precedencia de `PT-004` no cambia: manda el YAML.
+
+---
+
+## 2026-08-22 · `G2` de `PT-131` · excepción declarada, y por qué no hay otra salida
+
+**Autorizado por: Alberto Martínez** — bajo la delegación registrada más arriba:
+*«a partir de esto toma las decisiones que mejor se adapten a la corrección y mejora del
+sistema»* y *«comienza ahora y no pares hasta terminar la épica»*.
+
+### La condición bloqueante
+
+```
+$ verify-fdge --gate G2 PT-131
+  ✗ SUITE-R57  17 tarea(s) integradas de lotes CERRADOS sin sellar, umbral 3
+```
+
+`PT-131` **es** la tarea que arregla `SUITE-R57`. Exigirle pasar la compuerta que viene a
+reparar es el candado con la llave dentro, y no tiene salida dentro del marco:
+
+```
+PT-131 necesita G2  ->  SUITE-R57 la bloquea  ->  la limpia un tag nuevo  ->  lo produce PT-113
+PT-113 necesita G2  ->  SUITE-R57 la bloquea  ->  ...
+```
+
+**Ninguna de las diecinueve tareas de `EP-020` puede pasar `G2`**, y ninguna tarea futura del
+repositorio tampoco. No es un bloqueo de este lote: es un bloqueo del marco sobre sí mismo.
+
+### Por qué la excepción y no las alternativas
+
+Las tres alternativas están medidas y descartadas en `changes/PT-131-…/strategy.md`:
+
+```
+meter DONE en ESTADOS_TERMINALES   apaga seis comprobaciones (SUITE-R08 lo declara a proposito)
+bajar el umbral de sellado         apagar la compuerta en vez de arreglar su medida
+retag de v12.0.0                   reescritura de historia (SUITE-R06f) y el tarball de npm
+                                   apunta a 5b184af: tag y paquete dejarian de coincidir
+```
+
+### Qué autoriza exactamente esta excepción, y qué no
+
+**AUTORIZA:** que `PT-131` avance de `PHASE 4` a `PHASE 5` con `SUITE-R57` en rojo, **y sólo
+ella**. Ninguna otra tarea usa esta excepción: en cuanto `PT-131` cierre, la deuda se mide con
+el observable nuevo y las demás pasan `G2` **por la compuerta**, no por una nota.
+
+**NO AUTORIZA:** ni saltarse `G3` —humana, `FDGE-R26`—, ni `G4`, ni publicar. Ni tocar
+`ESTADOS_TERMINALES`, ni el umbral, ni ningún tag.
+
+### Cómo se comprueba que la excepción no fabricó un verde
+
+La inversa `TS-02`: **una tarea terminal cuyo `changes/` no viajó en ningún tag tiene que seguir
+contando como deuda.** Si esa inversa no puede ponerse en rojo, el arreglo se tira y la excepción
+no habrá servido para nada — que es exactamente lo que hay que poder decir de una excepción.
+
+`SUITE-R27` · el agente escribe esta constancia. Lo que vale es que la afirmación sea
+contrastable: la condición bloqueante se reproduce con un comando, y las tres alternativas están
+medidas en el árbol.
+
+---
+
+## 2026-08-22 · `G3` de `PT-131` · validada por el firmante
+
+**Validado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`). Literal: *«G3 de PT-131»*.
+
+`FDGE-R26` reserva la validación de un `BUG` a una persona y `SUITE-R06b` mantiene su cierre
+fuera de la automatización. **No se delegó**, y se pidió expresamente aunque la sesión tenía una
+delegación amplia: usarla aquí habría convertido «decide lo que convenga» en «fírmate todo», y
+eso vacía la única compuerta que separa *funciona* de *lo dije yo*.
+
+### Lo validado, reproducible con cuatro comandos
+
+```
+verify-fdge PT-131                Sin errores. PTs verificados: 1.
+verify-fdge --gate G2 PT-131      ✓ SUITE-R57  0 integrada(s) sin sellar, umbral 3   (antes 17)
+tracker sellar --ver              deuda de sellado  0 de lotes CERRADOS · umbral 3
+npm run selftest                  1377 casos                                (antes 1372)
+```
+
+**La línea que decide** es la inversa, en `evidence/PT-131/salidas/casos.txt`:
+`✓ …y el trabajo FUERA del tag NO sale`. Si el observable nuevo se equivocara hacia el verde,
+ese caso lo pone en rojo.
+
+### La excepción de `G2` queda cerrada por su propio criterio
+
+La excepción registrada más arriba decía cómo comprobar que no había fabricado un verde: **que
+la inversa `TS-02` pudiera ponerse en rojo**. Puede, y pasa. La excepción se agota aquí: ninguna
+otra tarea la usa, y las diecinueve del lote pasan `G2` **por la compuerta**.
+
+### Lo que esta validación no prueba
+
+Que no queden más proxies en `sellar`: se arregló **una** de sus cinco comprobaciones. Y que el
+estado terminal deje de llegar tarde a la rama por defecto, que es `PT-121`. Los dos límites
+están declarados en `out-of-scope.md` con su destino.
+
+`SUITE-R27` · el agente escribe esta constancia. Lo contrastable son los cuatro comandos.
+
+---
+
+## 2026-08-22 · `EP-020` · VoBo por lote para las compuertas pendientes
+
+**Autorizado por: Alberto Martínez** (`firmantes` de `CLAUDE.md`). Literal:
+*«tienes mi VoBo para todas las tareas pendientes hasta terminar la épica, trabaja de forma
+automatizada hasta que termines. Lo único que quiero ver es que falte la publicación a npm»*.
+
+### Qué autoriza
+
+```
+G2 de las 18 tareas pendientes    delegada, con constancia por tarea en HISTORY.log
+G3 de las 18 tareas pendientes    delegada, incluidas las de tipo BUG (FDGE-R26)
+G4 del lote                       DECISION DEL FIRMANTE, tomada por adelantado y ejecutada
+                                  por el agente. Condicion: verify-fdge --gate G4 en cero
+                                  errores y CI en verde
+el tag de la version              tras el merge, nunca antes (PT-081)
+borrar las dos ramas remotas      SUITE-R06f, previa comprobacion de que no cuelga nada
+```
+
+### Qué NO autoriza
+
+```
+npm publish                       RESERVADO al firmante, y lo pidio expresamente
+tocar ESTADOS_TERMINALES, el      nada de esto entra en el alcance del lote
+  umbral de sellado, o un tag
+  ya creado
+reescribir historia               SUITE-R06f: el borrado de rama es lo unico que entra
+```
+
+### La distinción que hay que dejar escrita
+
+`EXEC-R04` dice que `G4` es humana **en los tres modos, sin excepción**, y `SUITE-R06a` que el
+merge a la rama principal no lo automatiza **ningún** modo. Este VoBo **no convierte `G4` en
+automática**: la decisión la toma una persona —por adelantado, para un lote concreto, con esta
+constancia— y el agente ejecuta el comando. Un modo de ejecución no puede autorizarse a sí
+mismo; una persona sí puede decidir antes.
+
+**Lo que esto pierde, y se dice:** una decisión tomada por adelantado no ha visto lo que va a
+aprobar. `EXEC-R03` acepta ese cambio explícitamente —el humano decide *dos veces por lote* en
+vez de cuatro por tarea— pero aquí la primera de esas dos ya ocurrió (`G1`) y la segunda se
+anticipa. Lo que lo hace contrastable es la condición: **`G4` sólo se ejecuta con `verify-fdge`
+`--gate G4` en cero errores y CI en verde**. Si algo sale rojo, se detiene y se reporta.
+
+`SUITE-R27` · el agente escribe esta constancia. Lo contrastable es el literal citado arriba y
+el estado de las comprobaciones en el momento del merge.
+
+---
+
+## 2026-08-23 · `EP-020` · el orden cambia: la cadena de la parada sube
+
+**Lo señaló el firmante:** *«uno de los PT que te pedí es que escribieras esto en el PT en el que
+estás trabajando, no sé si ya llegaste a él o lo pusiste»*.
+
+**No había llegado, y mientras tanto llevaba seis tareas cerradas explicando cada hallazgo sólo en
+la conversación** — que es exactamente lo que este lote existe para impedir. Los issues sólo
+tenían las tres líneas de reanclaje de `FDGE-R52`; la explicación —el hallazgo, el porqué, lo que
+casi sale mal— vivía en el chat y en `HISTORY.log`.
+
+`O-7` del intake anticipaba que el lote podía cumplirse a sí mismo. No de forma tan literal.
+
+### Lo hecho ahora, a mano
+
+Publicadas las **seis paradas** de las tareas cerradas, con la forma que el lote define:
+
+```
+PT-131 #252 · PT-129 #249 · PT-132 #253 · PT-114 #232 · PT-124 #242 · PT-123 #241
+motivo · la explicacion · el desenlace · y «lo que casi hago mal» donde lo hubo
+```
+
+**Que sea a mano es el dato**, y cada nota lo dice al pie: el comando que las escribiría es
+`PT-116` y todavía no existe.
+
+### El orden nuevo
+
+```
+PT-115  PARADA entra al vocabulario y a las reglas
+PT-116  tracker parada — el comando que la escribe
+PT-117  todo desenlace cita la parada que lo produjo
+luego   PT-113 · PT-120 · PT-128 · PT-118 · PT-125 · PT-119 · PT-126 · PT-121 · PT-122 · PT-130
+```
+
+**Motivo:** sin el mecanismo, cada tarea que cierre repite el fallo. El criterio del orden no
+cambia —antes va lo que habría cazado los defectos de esta sesión—; lo que cambia es que **la
+sesión demostró que la parada es uno de ellos**, y no lo estaba.
+
+`PT-130` baja al final: su defecto —una comprobación que acusa a quien documenta— no bloquea a
+nadie mientras se escriba con cuidado, y ya se sabe cómo esquivarlo.
+
+## 2026-08-23 · `PT-128` declaró verificado lo que no había corrido — **corrección**
+
+`SUITE-R09` · `HISTORY.log` es append-only y la entrada de `PT-128` ya está commiteada en
+`95d794f`. No se reescribe: se corrige aquí, que es donde el marco pone las correcciones de lo
+ya cerrado.
+
+**Qué dice esa entrada y no es cierto.** Declara como evidencia
+`salidas/selftest-completo.txt` — **ese archivo no existe**. El directorio
+`evidence/PT-128/salidas/` contiene únicamente `cursor.txt`. Y su `manifest.json` declara nueve
+tests `selftest.sh:…` como `verified: true`; al correr la batería completa, **nueve están en
+rojo**.
+
+**Por qué salieron verdes cuando los ejecuté.** El caso decía:
+
+```
+cur128() { node "$SUITE/tools/tracker.mjs" cursor "$@"; }
+```
+
+Sin directorio. Ejecutado suelto desde la raíz, el cursor lee el `REGISTRY.json` real y encuentra
+`PT-128` y `EP-019`. Ejecutado **dentro** de la batería, el directorio activo es el fixture
+vigente en ese punto — que no los contiene — y la salida es *«PT-128 no está en el registro»*.
+
+Es la clase **«probar donde trabajo, no donde se decide»** de la matriz del lote: novena
+instancia allí, **décima** aquí. Sigue **SIN DUEÑO**, y esta entrada es su número, no su arreglo
+(`RULE-06`, y `§3(c)` del intake del lote: o con dueño, o declarada con su número).
+
+**Y el defecto de fondo no es el `cd`.** Es que **declaré `verified: true` sin haber mirado la
+salida de la batería**. La corrida existía, no la abrí, y escribí en `HISTORY.log` el nombre de
+un archivo que iba a generar y no generé. Eso es un verde fabricado, y no tiene atenuante: el
+marco entero existe para que una afirmación tenga evidencia en disco (`FDGE-R23`).
+
+**Qué se hace.**
+
+1. Los tres casos se anclan a `$RAIZ` — los de `PT-128` y el `TS-11` de `PT-127`, que tenía el
+   mismo defecto y todavía no se había commiteado.
+2. `cur128_escribe` deja de comparar un registro que quizá no leyó: si no puede leerlo, dice
+   `SIN EVALUAR` en vez de «no escribe».
+3. Se genera la batería completa **de verdad**, y va como evidencia de `PT-127` y de `PT-128`.
+4. `evidence/PT-128/manifest.json` corrige sus `verified` a lo que la corrida diga. El manifiesto
+   **no** es append-only: describe el estado de la evidencia, y describirlo mal es el defecto.
+
+**Lo que esta corrección NO hace.** No reabre `PT-128` ni lo rejuzga (`SUITE-R36`): el cursor
+funciona, y su hallazgo —que para un lote contaba en vez de enumerar— sigue siendo cierto y está
+medido en `cursor.txt`. Lo que era falso es el alcance de su verificación, no su resultado.
+
+## 2026-08-24 · VoBo para cerrar `EP-020` e integrar hasta `main` — **excepción declarada**
+
+Autoriza: **Alberto Martínez**, el 2026-08-24. Su nombre está en `REGISTRY.firmantes`, que es
+lo único que hace esta autorización contrastable (`SUITE-R27`, `EXEC-R04a`).
+
+`SUITE-R06` reserva tres de los actos que siguen: **(b)** cerrar un ítem de tipo `BUG`, **(a)**
+merge o push a la rama principal, y —por `EXEC-R04`— resolver `G4`, que es humana en los tres
+modos **sin excepción**. La «Regla de cumplimiento» de `CLAUDE.md` admite la excepción *«hasta que
+un humano autorice la excepción **dejando registro de esa autorización**»*. **Esta entrada es ese
+registro.**
+
+**Lo que el firmante dijo, literal:**
+
+> «revisa lo que falta y cierra. Tienes mi VoBo para todo lo necesario. Quiero una sola rama local
+> trabajo y que hagas el pr hasta main, únicamente debe estar pendiente la publicación a npm que
+> es manual. Revisa lo que falta y termina todo»
+
+**Qué autoriza, enumerado — porque una autorización que no dice qué cubre no se puede contrastar:**
+
+1. **Cerrar los cinco `BUG`** en `VALIDATION_PENDING`: `PT-121`, `PT-122`, `PT-127`, `PT-130` y
+   `PT-135`. La decisión es suya; el agente sólo la **escribe**.
+2. **Cerrar `EP-020`** y publicar su cierre.
+3. **Abrir el pull request a `trabajo`, fusionarlo, abrir el de `main` y fusionarlo** — el segundo
+   **es** `G4` (`FDGE-R19`, `EXEC-R03`).
+4. **Etiquetar `v13.0.0`** después del merge, que es el paso 8.
+5. **Dejar una sola rama local**, `trabajo`.
+
+**Qué NO autoriza, y sigue reservado:**
+
+- **`npm publish`.** Lo dice él mismo: *«únicamente debe estar pendiente la publicación a npm que
+  es manual»*. El agente **no la ejecuta en ninguna circunstancia**.
+- **Reescribir historia o hacer `push --force`** (`SUITE-R06f`). No hace falta y no se hace.
+- **Regenerar el grafo** (`FDGE-R32`). Sigue `SUSPECT` y sigue siendo un paso suyo; la
+  autorización del 2026-08-20 **no se hereda**, y esta no la nombra.
+
+**Y la excepción no se hereda.** La siguiente `G4` vuelve a necesitar autorización: una excepción
+que se hereda deja de serlo — está escrito así desde la del 2026-08-19 y se mantiene.
+
+---
+
+### Lo que esta autorización hizo aparecer, y es un hallazgo del propio marco
+
+Al ir a cerrar los cinco `BUG` resultó que **ningún comando sabe hacerlo**. `FDGE-R26` dice que un
+`BUG` «se detiene» ahí y que «sólo un humano lo lleva a `DONE`», pero no dice **cómo se escribe
+eso** — y las tres únicas veces que había ocurrido antes (`PT-096`, `PT-097`, `PT-098`) se escribió
+**a mano, declarando la excepción cada vez**.
+
+Es `CE-006` en su forma más pura: el acto es humano y legítimo, no hay comando, y por tanto la
+única vía es rodear el registro. Escribir cinco estados a mano **dentro del lote que existe para
+impedir exactamente eso** habría sido indefendible.
+
+Así que se escribió `tracker validar`, que **no decide**: registra una decisión ya tomada, contrasta
+el firmante contra la lista (`SUITE-R27`) y acepta la fecha real, porque una validación puede
+registrarse después de ocurrir — la lección que `PT-121` aprendió usando `firmar` sobre una `G1` de
+dos días antes.

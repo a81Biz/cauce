@@ -53,8 +53,11 @@ import {
   // PT-065 · la sesion es de alguien
   archivoSesion, sesionesAjenas, marcaDe, sesionesUnicas,
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
-  sinSellar, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
+  sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, bloqueDeBacklog,
+  MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
 } from './patrones.mjs';
+// PT-128 · las fases y sus compuertas salen de PHASES.md, no de una lista escrita aqui.
+import { fasesDeFDGE, nodosSinVisitar } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
 // PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
@@ -140,7 +143,12 @@ export function queSigue(alloc, opciones = {}) {
   // cambiar todo lo demás: preguntar qué sigue sin haber leído la respuesta anterior es el
   // defecto que esta acción existe para impedir.
   if (comentarioPendiente === true) {
-    bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43).`);
+    // PT-122 · EL LIMITE VA EN EL MENSAJE. Un comentario SIN marca se atribuye a una persona
+    // por defecto, y eso es lo correcto —una persona nunca pone la marca—, pero significa que
+    // un comentario del AGENTE escrito fuera del comando tambien cuenta como humano. Los
+    // diecisiete del cierre de EP-019 se contaron asi. Por contenido son indistinguibles: la
+    // unica garantia es que la herramienta SIEMPRE marca los suyos, y por eso «cierre» existe.
+    bloqueos.push(`hay un comentario sin responder en el issue #${alloc.issue}. Léelo y respóndelo antes de avanzar (SUITE-R43). El limite: un comentario sin marca se atribuye a una persona, asi que uno del agente escrito FUERA del comando cuenta igual: por contenido son indistinguibles.`);
   } else if (comentarioPendiente === null) {
     // PT-056 · RULE-06 · no es «no hay»: es que nadie pudo mirar. Callarlo convertiria SUITE-R43
     // en una garantia que se apaga sola cuando no hay credencial.
@@ -376,10 +384,83 @@ export function comentarioSinResponder(cuerpos) {
  * Es una función y no una plantilla en línea para que un caso pueda comprobarlo sin hablar
  * con la plataforma — el defecto existía justo porque nadie comprobaba lo que se escribía.
  */
+/**
+ * PT-116 · FDGE-R55 · El cuerpo de una PARADA. Puro y exportado.
+ *
+ * Es una funcion y no una plantilla en linea por el motivo que PT-009 dejo escrito tres funciones
+ * mas arriba: «para que un caso pueda comprobarlo SIN HABLAR CON LA PLATAFORMA — el defecto
+ * existia justo porque nadie comprobaba lo que se escribia».
+ *
+ * NO PUEDE CASAR RE_NOTA (LEX-R30). «contarNotas» cuenta los reanclajes buscando «PHASE n -> m», y
+ * una parada que no sea transicion inflaria ese recuento: la tarea pareceria tener transiciones que
+ * no tuvo, y FDGE-R52 daria por escrito lo que nadie escribio. Hay un caso que lo vigila.
+ *
+ * QUE ESTABLECE: que el cuerpo lleva la marca de procedencia, el motivo, la explicacion y el
+ *   desenlace, y que no se confunde con un reanclaje.
+ * QUE NO ESTABLECE: que la explicacion sea cierta ni util. No es mecanizable, y decirlo es mas
+ *   honesto que fingir que se comprueba (SUITE-R26).
+ */
+export function cuerpoDeParada({ id, motivo, texto, desenlace, abre = null }) {
+  const L = [];
+  L.push(MARCA_AGENTE);
+  L.push('**PARADA** · `' + id + '` · motivo: `' + motivo + '` · desenlace: `' + desenlace + '`'
+    + (abre ? ' · abre `' + abre + '`' : ''));
+  L.push('');
+  L.push(String(texto ?? '').trim());
+  L.push('');
+  L.push('---');
+  L.push('');
+  L.push('> `FDGE-R55` · Lo que solo esta en la conversacion no esta (`SUITE-R04`). Append-only:'
+    + ' una correccion se escribe como parada NUEVA que referencia a esta (`SUITE-R09`).');
+  return L.join(String.fromCharCode(10));
+}
+
 export const mensajeDeCierre = (a) =>
   `${a?.id} pasó a ${a?.status}. La evidencia está en el repositorio.
 
 ${MARCA_AGENTE}`;
+
+/**
+ * PT-122 · El comentario de cierre de un LOTE. Puro, exportado y DERIVADO.
+ *
+ * Los diecisiete comentarios del cierre de EP-019 se escribieron con `gh issue comment` a mano:
+ * salieron SIN MARCA, y `SUITE-R43` los conto como humanos. Es CE-006 —el acto hecho fuera del
+ * comando— con la agravante de que el acto se hizo diecisiete veces.
+ *
+ * TODO LO QUE AFIRMA SE DERIVA. El texto de EP-019 acerto version, tag y commit, pero escritos a
+ * mano: acertar no es lo mismo que no poder equivocarse. Aqui la version sale del registro, el
+ * tag de `git tag --sort=v:refname` y el commit de a donde apunta ese tag.
+ *
+ * Y SI EL TAG NO EXISTE, NO SE AFIRMA QUE EXISTE. Se dice que falta y de quien es el paso: el 8,
+ * humano y despues del merge (SUITE-R06a). Un comentario que anuncia un tag inexistente es
+ * exactamente la clase de afirmacion que este marco existe para impedir.
+ */
+export function comentarioDeCierreDeLote({ lote, version, tag, commit, tareas }) {
+  const S = String.fromCharCode(10);
+  const L = [];
+  L.push(`## ${lote} cerrado`);
+  L.push('');
+  L.push(`- **Version de la suite** \`${version ?? 'SIN EVALUAR'}\``);
+  if (tag) {
+    L.push(`- **Tag** \`${tag}\`${commit ? ` → \`${commit}\`` : ' → **SIN EVALUAR**: el tag no resuelve'}`);
+  } else {
+    L.push(`- **Tag** \`v${version}\` **todavia no existe**. Crearlo es el paso 8: humano y`);
+    L.push('  DESPUES del merge (`SUITE-R06a`). Este comentario no afirma que exista.');
+  }
+  const cerradas = (tareas ?? []).filter((x) => x?.terminal).length;
+  L.push(`- **Tareas** ${cerradas} de ${(tareas ?? []).length} en estado terminal`);
+  const vivas = (tareas ?? []).filter((x) => !x?.terminal);
+  if (vivas.length) {
+    L.push(`- **Siguen vivas** ${vivas.map((x) => `\`${x.id}\` (${x.status})`).join(' · ')}`);
+  }
+  L.push('');
+  L.push('> Publicado por `tracker cierre`. Toda cifra de aqui se DERIVA del arbol y del registro:');
+  L.push('> ninguna se escribe a mano (`FND-R14`). Los comentarios anteriores no se editan');
+  L.push('> (`SUITE-R09`).');
+  L.push('');
+  L.push(MARCA_AGENTE);
+  return L.join(S);
+}
 
 /**
  * PT-010 · El cuerpo de un issue. Puro y exportado.
@@ -772,24 +853,39 @@ const APLICAR = ARGS.includes('--aplicar');
 // CUARTA vez que un argumento nuevo se colaba por aqui; esta fue la QUINTA, y se noto en el acto
 // porque «--tipo BUG» hizo que se buscara el registro dentro de ./BUG. Un flag que se añade sin
 // declararse aqui convierte su VALOR en la raiz del proyecto.
+// PT-116 · LA REGLA DE FORMA, por fin. Van OCHO veces que un argumento nuevo se cuela por aqui
+// —-q (PT-049), --solo (PT-050), --a (PT-053), las etiquetas y --de (PT-057), los subcomandos
+// (PT-060), --slug (PT-062), --de otra vez (PT-064), y --motivo/--texto/--desenlace/--abre aqui—
+// y las ocho se arreglaron IGUAL: anadiendo el flag nuevo a una lista escrita a mano.
+//
+// El comentario de PT-057 ya decia, hace cuatro instancias, que «se arreglan con una regla de
+// FORMA, no con un caso mas». No se hizo, y por eso hay ocho. Esta es la regla de forma:
+//
+//   EL VALOR DE UN FLAG NUNCA ES LA RAIZ.
+//
+// Se deriva de la POSICION —lo que sigue a un «--algo»— en vez de enumerar cuales llevan valor.
+// Un flag booleano seguido de una ruta deja de poder pasar la ruta ahi, y eso es correcto: la
+// raiz es el PRIMER posicional, y ponerla detras de un booleano era ambiguo desde siempre.
+//
+// CON_VALOR se conserva porque hay un caso que la nombra y porque documenta cuales llevan valor,
+// pero YA NO ES LA GUARDA: la guarda es la forma.
 const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de',
-  '--tipo', '--severidad', '--epica', '--titulo']);
-// PT-057 · `coste` recibe TIPO y COMPLEJIDAD como posicionales, y sin esta guarda el primero se
-// tomaba por ROOT: «tracker coste CHORE STANDARD» buscaba el registro dentro de ./CHORE. Es la
-// CUARTA vez en dos lotes que un argumento nuevo se cuela por aqui —`-q`, `--solo`, `--a` y
-// ahora estos—, y las cuatro se arreglan con una regla de FORMA, no con un caso mas.
+  '--tipo', '--severidad', '--epica', '--titulo',
+  '--motivo', '--texto', '--desenlace', '--abre',
+  // PT-121 · CE-003, la clase con SIETE instancias declaradas: una bandera con valor que no
+  // esta aqui hace que su valor se tome por la raiz del proyecto. Van al entrar, no despues.
+  '--firmante', '--compuerta', '--fecha']);
 const ES_ETIQUETA = /^[A-Z][A-Z_]*$/;
-// PT-060 · y los SUBCOMANDOS tampoco son rutas. Quinta vez que un argumento nuevo se cuela por
-// aqui —-q, --solo, --a, las etiquetas y ahora estos—: «tracker sesion abrir» tomaba «abrir» por
-// ROOT, buscaba el registro en ./abrir y no hacia nada, EN SILENCIO.
 const SUBCOMANDOS = new Set(['abrir', 'cerrar', 'ver']);
 const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
   !a.startsWith('--')
   && !/^(?:PT|EP)-\d+$/.test(a)
   && !ES_ETIQUETA.test(a)
   && !SUBCOMANDOS.has(a)
-  && !CON_VALOR.has(xs[i - 1])) ?? process.cwd());
+  // La regla de FORMA: lo que sigue a un flag es su valor, sea cual sea el flag.
+  && !String(xs[i - 1] ?? '').startsWith('--')) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
+
 
 const errores = [];
 const notas = [];
@@ -1297,7 +1393,14 @@ if (!reg) { console.error('No hay docs/implementation/REGISTRY.json legible.'); 
 // Esto NO hace el registro concurrente —eso exigiria un bloqueo, y un bloqueo mal puesto deja
 // el proyecto colgado—. Hace que la perdida sea IMPOSIBLE DE NO VER: si el archivo cambio
 // desde que se leyo, no se escribe encima y se DICE que hay que repetir el comando.
-const HUELLA_AL_LEER = (() => {
+// PT-132 · la huella era `const` y no se actualizaba nunca, asi que la guarda asumia UNA
+// escritura por ejecucion. En cuanto un comando escribe dos veces —lo que «abrir» hace desde
+// PT-132, uno por issue— la segunda se acusa a si misma: «el registro cambio mientras corria».
+//
+// La guarda existe para cazar a OTRO proceso, no al propio. Tras una escritura nuestra, lo
+// escrito ES la nueva linea base. Se conserva todo lo demas: el cerrojo, la comparacion, y el
+// negarse a fusionar.
+let HUELLA_AL_LEER = (() => {
   try { return readFileSync(join(IMPL, 'REGISTRY.json'), 'utf8'); } catch { return null; }
 })();
 
@@ -1371,7 +1474,11 @@ function escribirRegistro(ruta, datos, quien) {
       + 'Otro comando lo modifico en paralelo — escribir encima habria borrado su trabajo '
       + 'en silencio (SUITE-R08). Espera a que termine y repite este comando.');
   }
-  writeFileSync(ruta, JSON.stringify(datos, null, 2) + SALTO);
+  const contenido = JSON.stringify(datos, null, 2) + SALTO;
+  writeFileSync(ruta, contenido);
+  // PT-132 · lo que acabamos de escribir es la nueva linea base. Sin esto, la segunda escritura
+  // de la misma ejecucion se denuncia a si misma.
+  HUELLA_AL_LEER = contenido;
 }
 
 const PLATAFORMA = reg.tracker?.plataforma ?? null;
@@ -1399,11 +1506,31 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'indices',
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar',
+  // PT-121 · «integrar» y «firmar» escriben el REGISTRO y el YAML del intake, los dos
+  // locales. Exigirles plataforma repetiria lo que PT-133 acabo de arreglar en «parada»:
+  // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
+  // al proyecto que no declara tablero — el caso que SUITE-R22 declara soportado.
+  'integrar', 'firmar', 'validar',
+  // PT-122 · «cierre» sin --aplicar solo DERIVA y enumera el texto: no habla con nadie.
+  'cierre', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
   // seria pedirle una credencial para leer «wc -l», y dejaria sin arreglo a un proyecto
   // que no declara tablero — el caso que SUITE-R22 declara soportado y PT-084 defendio.
-  'inventario']);
+  // PT-128 · el cursor LEE: registro, PHASES.md y disco. No espeja nada. Exigirle plataforma
+  // seria el defecto EXACTO de PT-133 dos comandos mas alla — y SUITE-R22 declara soportado el
+  // proyecto que no declara tablero.
+  'cursor',
+  'inventario',
+  // PT-133 · «parada» escribe en el issue SI hay plataforma y en TRANSICIONES.log si no — igual
+  // que «avanzar», que ya estaba aqui. Faltando de esta lista, la herramienta salia ANTES de
+  // llegar a su propio codigo y la rama del ledger, que ESTA ESCRITA, era INALCANZABLE.
+  //
+  // PT-116 lo declaro cumplido con verified: true. Su evidencia fue «la rama sin
+  // adaptador.comentar»: se comprobo que la rama EXISTE, no que se EJECUTA — la clase que PT-124
+  // nombro. Y PT-084 habia medido este defecto exacto en «avanzar»; PT-116 CITO ese precedente en
+  // su propio AC-03 y volvio a cometerlo en el archivo de al lado, en la misma sesion.
+  'parada']);
 const D = SIN_PLATAFORMA.has(ACCION) ? { codigo: 0 } : decidirSalida(reg, null);
 if (D.codigo !== 0) {
   (D.codigo === 2 ? di : console.error)(D.mensaje);
@@ -1464,6 +1591,33 @@ function espejo() {
   if (div.some((d) => !d.pendienteDeCierre)) {
     fail('SUITE-R47', `el espejo BLOQUEA aquí y no solo informa: «${RAMA_TRABAJO ?? '¿?'}» no es la rama por defecto («${REPO.rama ?? '¿?'}»), así que es donde el registro asigna.`);
   }
+  // PT-114 · el cuerpo que publica la ruta SIN ENLACE teniendo ya ref durable.
+  //
+  // PT-096 decidio bien —sin ref durable no se inventa una URL— y faltaba la otra mitad: que algo
+  // lo eche de menos DESPUES. El cuerpo se publica al abrir el issue, la rama se empuja despues,
+  // y «una vez que un cuerpo esta bien, NADA vuelve a mirarlo» (PT-096).
+  //
+  // La consecuencia la encontro una PERSONA abriendo EP-020, no un verificador: el firmante no
+  // podia leer el intake que se le pedia firmar, asi que G1 no podia pasar. Va en el espejo y no
+  // en verify-fdge porque el espejo es lo que corre CON credencial en los dos workflows.
+  //
+  // Se REPORTA, no se repara: repararlo aqui mezclaria informar con actuar, y «abrir --aplicar»
+  // ya lo hace. Lo que faltaba era que alguien lo exigiera.
+  if (adaptador.cuerpoRemoto) {
+    const mudos = [];
+    for (const a of vivas.filter((x) => x.issue)) {
+      let publicado = null;
+      try { publicado = adaptador.cuerpoRemoto(a.issue); } catch { /* sin acceso: no se afirma */ }
+      const veredicto = cuerpoSinEnlaceConRef(publicado, refDurableDe(a) ? true : false);
+      if (veredicto === true) mudos.push(`${a.id} #${a.issue}`);
+    }
+    if (mudos.length) {
+      fail('SUITE-R35', `${mudos.length} cuerpo(s) publican la ruta SIN ENLACE y YA existe ref durable que la `
+        + `contiene: ${mudos.join(', ')}. Quien abra el issue no puede llegar al intake, y sin leerlo no se `
+        + `puede firmar (INTAKE-R06). Se republica:  tracker abrir --aplicar`);
+    }
+  }
+
   if (!errores.length) {
     notas.push(`${vivas.length} allocation(s) viva(s) y ${issues.length} issue(s) abierto(s): el espejo cuadra.`);
   }
@@ -1770,13 +1924,50 @@ function abrir() {
   }
   // PT-014 · las tareas antes que su lote, para que el cuerpo del lote las enumere con numero
   // en esta misma pasada. Es un reordenamiento: ni una llamada mas a la plataforma.
+  // PT-132 · EL ORDEN LO DECIDE LA REVERSIBILIDAD, y aqui estaba al reves.
+  //
+  // Se creaban TODOS los issues —acto irreversible— y el registro se guardaba al FINAL del bucle.
+  // Una interrupcion a mitad —timeout, red, Ctrl+C— dejaba los issues creados y el registro sin
+  // conocerlos, y la pasada siguiente los volvia a crear. Medido el 2026-08-22: DIECISEIS
+  // duplicados en EP-020, PT-129 por TRES.
+  //
+  // Es el contrato que «avanzar» declara tres funciones mas abajo, contradicho aqui: dos comandos
+  // del mismo archivo con reglas opuestas sobre lo mismo (SUITE-R38).
+  //
+  // DOS defensas, y las dos hacen falta:
+  //   AC-01  guardar DESPUES DE CADA UNO: una interrupcion cuesta como mucho UNO, no trece.
+  //   AC-02  ADOPTAR el issue abierto que ya lleva el titulo derivado, en vez de crear otro: lo
+  //          que quedo huerfano de una pasada anterior se recupera solo.
+  //
+  // Y si no se puede consultar la plataforma NO SE CREA A CIEGAS (RULE-06): crear sin poder
+  // comprobar es exactamente como se duplico.
+  const yaAbiertos = (() => {
+    try { return adaptador.abiertos(); }
+    catch { return null; }
+  })();
+  if (yaAbiertos === null) {
+    fail('SUITE-R35', 'no se pudo consultar que issues hay abiertos, asi que NO se crea ninguno: '
+      + 'crear sin poder comprobar es como se duplicaron dieciseis (PT-132).');
+    cerrarPasada();
+    return;
+  }
   for (const a of ordenDeApertura(pendientes)) {
+    const titulo = `${a.id} · ${a.slug ?? a.type}`;
+    const huerfano = issueAAdoptar(titulo, yaAbiertos);
+    if (huerfano) {
+      a.issue = huerfano;
+      guardarRegistro(reg, ACCION);
+      notas.push(`${a.id} → issue #${huerfano} ADOPTADO: ya estaba abierto con este titulo y el `
+        + `registro no lo reclamaba. Es lo que deja una pasada interrumpida (PT-132).`);
+      continue;
+    }
     // El issue REFERENCIA el intake; no lo copia. Dos copias del mismo texto divergen — es la
     // causa raiz que la v4 nacio para eliminar, reintroducida por la puerta nueva.
     const cuerpo = cuerpoDeIssue(a, contextoCuerpo(a));
     const etiquetas = etiquetasDe(a);   // PT-007 · incluye fase y compuerta, derivadas
-    const n = adaptador.crear(`${a.id} · ${a.slug ?? a.type}`, cuerpo, etiquetas);
+    const n = adaptador.crear(titulo, cuerpo, etiquetas);
     a.issue = n;
+    guardarRegistro(reg, ACCION);       // PT-132 · uno a uno, no al final del bucle
     notas.push(`${a.id} → issue #${n}`);
   }
   // PT-035 · PT-036 · la pasada que CREA termina igual que la que no crea. Es la CUARTA vez en
@@ -2325,7 +2516,7 @@ const usadosDe = (prefijo) => all
 // PT-103 · los tipos que LEXICON declara. Se enumeran aqui —y no se acepta cualquier cadena—
 // porque un campo que admite lo que sea es un campo que no decide nada: es el mismo defecto que
 // PT-100 arreglo para los tipos de caso QA, un paso mas arriba.
-const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'CHANGE', 'TAREA'];
+// PT-124 · la lista vive en patrones.mjs y verify-suite la compara con LEXICON §8.1.
 const SEVERIDADES = ['S0', 'S1', 'S2', 'S3'];
 
 function asignar() {
@@ -2348,7 +2539,7 @@ function asignar() {
   const epica = flag('--epica');
   const titulo = flag('--titulo');
   if (tipo && !TIPOS_DE_ITEM.includes(tipo)) {
-    throw new Error(`«${tipo}» no es un tipo de item. LEXICON declara: ${TIPOS_DE_ITEM.join(' · ')}`);
+    throw new Error(`«${tipo}» no es un tipo de item. LEXICON §8.1 declara: ${TIPOS_DE_ITEM.join(' · ')}`);
   }
   if (sev && !SEVERIDADES.includes(sev)) {
     throw new Error(`«${sev}» no es una severidad. LEXICON declara: ${SEVERIDADES.join(' · ')}`);
@@ -2390,6 +2581,24 @@ function asignar() {
   di('  arranca en PHASE 1');
   const faltan = [!tipo && '--tipo', !sev && '--severidad'].filter(Boolean);
   if (faltan.length) di(`  sin declarar: ${faltan.join(' ')} — habra que declararlos antes de G1`);
+  // PT-117 · SUITE-R18 · la allocation nace declarando bajo que version se abre, y no es un
+  // campo mas: `checkPT` deriva el alcance de una regla de
+  //
+  //     intake.match(RE_SUITE_YAML)?.[1] ?? enRegistroPT?.suite_version ?? "0.0.0"
+  //
+  // y una allocation RECIEN CREADA no tiene intake todavia. Sin este campo cae a "0.0.0", asi
+  // que NINGUNA regla nueva la alcanza — y la recien creada es justo la que FDGE-R55 tiene que
+  // cazar. La comprobacion habria salido VERDE POR CONSTRUCCION sobre su propio caso de uso.
+  //
+  // Si la version no se puede leer NO SE INVENTA (RULE-06): un "0.0.0" escrito a proposito
+  // afirmaria que la allocation nacio antes de todo, y eso apagaria comprobaciones en silencio.
+  // Ausente se distingue de falso; un valor inventado, no.
+  //
+  // VA ANTES del return de --ver: esa bandera existe para DECIR con que nace la allocation sin
+  // escribirla, y una version que solo se dice cuando ya se ha escrito no sirve para eso.
+  const versionAlNacer = VERSION_DEL_PROYECTO !== '0.0.0' ? VERSION_DEL_PROYECTO : null;
+  if (versionAlNacer) di(`  suite_version: ${versionAlNacer}`);
+  else di(`  suite_version: SIN EVALUAR — el registro no la declara y no se inventa (RULE-06)`);
   if (soloVer) { di(''); di('  --ver: no se ha escrito nada.'); return; }
 
   reg.counters = reg.counters ?? {};
@@ -2397,8 +2606,10 @@ function asignar() {
   // PT-103 · «phase: 1» SIEMPRE. Sin el, Number(undefined) es NaN y avanzar no puede mover la
   // allocation nunca — que es como PT-096 descubrio esto: fue la primera creada con «asignar»
   // desde PT-062, y hubo que escribir el campo a mano.
+
   reg.allocations.push({
     id, slug, created: gitDe(['log', '-1', '--format=%cs']), status: 'DRAFT', phase: 1,
+    ...(versionAlNacer ? { suite_version: versionAlNacer } : {}),
     ...(tipo ? { type: tipo } : {}),
     ...(sev ? { severity: sev } : {}),
     ...(epica ? { epic: epica } : {}),
@@ -2406,6 +2617,193 @@ function asignar() {
   });
   guardarRegistro(reg, ACCION);
   notas.push(`${id} asignado y escrito en REGISTRY.json`);
+}
+
+// ── parada · FDGE-R55 · lo que se detiene se escribe en su tarea ────────────
+//
+// El medio ya existia: «avanzar» publica su nota en el issue, o en TRANSICIONES.log si no hay
+// plataforma (PT-084). Lo que faltaba era un comando para la parada QUE NO ES UNA TRANSICION —
+// el hallazgo, la condicion bloqueante, la compuerta, el limite—, y por eso las explicaciones
+// vivian en la conversacion: la unica forma de publicarlas era a mano.
+//
+// Medido en EP-020: SIETE tareas cerradas con todos sus hallazgos solo en el chat, y las siete
+// notas publicadas a mano despues de que lo senalara el firmante.
+//
+// EL TEXTO ENTRA POR ARCHIVO (SUITE-R59). Una explicacion son parrafos, y esta sesion acumulo
+// CINCO roturas de escapado por construir texto dentro del literal de otro lenguaje.
+function parada() {
+  // PT-117 · «--pendientes» es CONSULTA: enumera las allocations que la regla alcanza y todavia
+  // no citan la parada que las produjo. No escribe nada y no toca la plataforma.
+  //
+  // Existe porque el hook Stop necesita algo REAL que invocar. Sin esto, el hook habria llamado a
+  // una bandera inventada — y una segunda red que no puede ejecutarse es exactamente el defecto
+  // que PT-133 acaba de arreglar: codigo correcto detras de una puerta cerrada.
+  //
+  // La lista se DERIVA del registro. No hay estado nuevo: un segundo sitio donde apuntar que algo
+  // esta pendiente seria un hecho con dos nombres (LEX-R22).
+  if (ARGS.includes('--pendientes')) {
+    const desde = RIGE_DESDE['FDGE-R55'] ?? [13, 0, 0];
+    const alcanza = (v) => {
+      const p = String(v ?? '0.0.0').split('.').map(Number);
+      for (let i = 0; i < 3; i += 1) {
+        if ((p[i] ?? 0) !== (desde[i] ?? 0)) return (p[i] ?? 0) > (desde[i] ?? 0);
+      }
+      return true;
+    };
+    const sinCitar = all.filter((a) => a?.suite_version && alcanza(a.suite_version)
+      && !a.origen_parada?.de
+      && !(String(a.id ?? '').startsWith('EP-') && !a.epic));
+    di('');
+    if (!sinCitar.length) {
+      di('  FDGE-R55: ninguna allocation alcanzada sin citar su parada.');
+    } else {
+      di(`  FDGE-R55 · ${sinCitar.length} allocation(s) sin citar la parada que las produjo:`);
+      for (const a of sinCitar) di(`    ${a.id}${a.slug ? ` · ${a.slug}` : ''}`);
+      di('');
+      di('  tracker parada <PT que paro> --motivo <clase> --texto <ruta> --desenlace abre --abre <ID>');
+    }
+    return;
+  }
+
+  const id = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const motivo = flag('--motivo');
+  const ruta = flag('--texto');
+  const desenlace = flag('--desenlace');
+  const abre = flag('--abre');
+
+  if (!id) throw new Error('parada necesita una allocation:  tracker parada PT-131 --motivo hallazgo --texto nota.md --desenlace continua');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08): sin allocation no hay parada.`);
+
+  // Las dos listas son CERRADAS y las declara LEXICON §8.5. Un valor fuera de ellas se RECHAZA:
+  // aceptarlo convertiria la clase en prosa, y entonces la matriz de PT-119 no podria contar nada.
+  if (!motivo || !MOTIVOS_DE_PARADA.includes(motivo)) {
+    throw new Error(`--motivo es obligatorio y de la lista cerrada. LEXICON §8.5 declara: ${MOTIVOS_DE_PARADA.join(' · ')}`);
+  }
+  if (!desenlace || !DESENLACES_DE_PARADA.includes(desenlace)) {
+    throw new Error(`--desenlace es obligatorio y de la lista cerrada. LEXICON §8.5 declara: ${DESENLACES_DE_PARADA.join(' · ')}`);
+  }
+  if (!ruta) throw new Error('--texto es obligatorio y es una RUTA a un archivo, no el texto: una explicacion son parrafos (SUITE-R59).');
+  if (!existsSync(ruta)) throw new Error(`no existe «${ruta}». --texto es una RUTA (SUITE-R59): escribe la explicacion en un archivo.`);
+  const texto = readFileSync(ruta, 'utf8').trim();
+  if (!texto) throw new Error(`«${ruta}» esta vacio. Una parada sin explicacion es una nota que no explica nada.`);
+
+  // «abre» sin destino seria una afirmacion sin contraste, y es justo el enlace que PT-117
+  // necesita para exigir que toda allocation nueva cite la parada que la produjo.
+  if (desenlace === 'abre') {
+    if (!abre) throw new Error('--desenlace abre exige --abre con la allocation que nace.');
+    if (!all.some((x) => x?.id === abre)) {
+      throw new Error(`--abre cita «${abre}», que no esta en el registro. El registro asigna (SUITE-R08).`);
+    }
+  } else if (abre) {
+    throw new Error(`--abre solo tiene sentido con «--desenlace abre», y este dice «${desenlace}».`);
+  }
+
+  // Una transicion de fase NO se publica por aqui: es FDGE-R52 y la escribe «avanzar», que ademas
+  // mueve el registro en el mismo acto atomico. Publicarla suelta dejaria una nota sobre una
+  // transicion que no ocurrio (LEX-R30).
+  if (desenlace === 'cambia-fase') {
+    throw new Error('«cambia-fase» es el caso particular de FDGE-R52 y lo escribe «avanzar», que '
+      + 'ademas mueve el registro en el mismo acto. Publicarla aqui dejaria una nota sobre una '
+      + 'transicion que no ocurrio (LEX-R30):  tracker avanzar ' + id + ' --a <fase> --nota "..."');
+  }
+
+  const cuerpo = cuerpoDeParada({ id, motivo, texto, desenlace, abre });
+
+  // PT-117 · TS-05 · las precondiciones de plataforma suben AQUI, antes de escribir nada.
+  // Estaban dentro del if que publica, o sea DESPUES del guardado: una parada que no pudiera
+  // publicarse habria dejado un origen_parada apuntando a una nota que no existe. El orden es
+  // VALIDAR TODO -> escribir lo reversible -> publicar lo irreversible, y es el mismo contrato
+  // que PT-132 arreglo en «abrir».
+  if (adaptador?.comentar) {
+    if (!a.issue) throw new Error(`${id} no tiene issue y hay plataforma declarada: la parada debe espejarse (SUITE-R35).  tracker abrir --aplicar`);
+    if (adaptador.disponible && !adaptador.disponible()) {
+      throw new Error('hay plataforma declarada y no hay acceso: la parada no podria publicarse (FND-R30).  gh auth login');
+    }
+  }
+  // PT-117 · FDGE-R55 · EL ENLACE ES UN HECHO DEL REGISTRO, no una nota que haya que leer.
+  //
+  // La regla declara su propio limite: lo mecanizable es «toda allocation nueva cita la parada
+  // que la produjo». Se escribe AQUI, en el mismo acto que publica, porque la pregunta «que
+  // parada abrio esto» solo tiene respuesta fiable EN EL MOMENTO: a las dos horas se
+  // reconstruye de memoria, que es el defecto original.
+  //
+  // Contra el REGISTRO y no contra los comentarios del issue: un verificador que necesitara red
+  // para decidir si una tarea cumple no podria correr en un repositorio sin plataforma, y
+  // SUITE-R22 declara ese caso soportado. El registro asigna (SUITE-R08); el tablero espeja.
+  //
+  // ORDEN: el registro se guarda ANTES de publicar. Lo reversible primero, lo irreversible al
+  // final — contrato de avanzar (PT-053) y el que PT-132 acaba de arreglar en abrir. Si se
+  // publicara primero y fallara el guardado, quedaria una nota sin enlace; al reves solo queda
+  // un enlace que la siguiente ejecucion vuelve a intentar publicar.
+  if (desenlace === 'abre') {
+    const nacida = all.find((x) => x?.id === abre);
+    nacida.origen_parada = {
+      de: id,
+      motivo,
+      fecha: gitDe(['log', '-1', '--format=%cs']) ?? null,
+    };
+    guardarRegistro(reg, ACCION);
+    notas.push(`${abre}: origen_parada ← ${id} · motivo ${motivo}`);
+  }
+
+  if (adaptador?.comentar) {
+    adaptador.comentar(a.issue, cuerpo);
+    notas.push(`${id}: parada publicada en #${a.issue} · motivo ${motivo} · desenlace ${desenlace}`);
+  } else {
+    // PT-084 · sin tablero, al ledger. Append-only (SUITE-R09): una parada que se reescribe deja
+    // de ser un rastro, y SUITE-R22 declara soportado el proyecto que no espeja.
+    const rutaLog = join(IMPL, 'TRANSICIONES.log');
+    const previo = (() => { try { return readFileSync(rutaLog, 'utf8'); } catch { return ''; } })();
+    const cuando = gitDe(['log', '-1', '--format=%cs']) ?? 'sin-fecha';
+    writeFileSync(rutaLog, `${previo}${SALTO}## ${cuando} · ${id} · PARADA · ${motivo}${SALTO}${SALTO}${cuerpo}${SALTO}`, 'utf8');
+    notas.push(`${id}: parada en docs/implementation/TRANSICIONES.log — no hay plataforma declarada`);
+  }
+}
+
+// ── tipo · el «type» del registro sale del intake, que es quien manda ───────
+//
+// PT-124 · PT-125 y PT-126 quedaron SIN «type» en el registro porque «asignar» rechazaba
+// INVESTIGATION y CHORE. Sus intakes SI lo declaran, y PT-004 dice que manda el YAML: es lo que
+// el PT dice de si mismo.
+//
+// NO SE ESCRIBE A MANO en REGISTRY.json —el registro solo lo escribe el comando (PT-103,
+// PT-107)— y no se INVENTA: se DERIVA del intake, se valida contra LEXICON §8.1, y si el intake
+// no lo declara se dice en vez de adivinar (RULE-06).
+//
+// Lo general —sincronizar TODO lo que el YAML manda hacia el registro— es de PT-121. Esto es el
+// campo que PT-124 dejo pendiente, y nada mas.
+function tipo() {
+  const id = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+  if (!id) throw new Error('tipo necesita una allocation:  tracker tipo PT-125');
+  const a = all.find((x) => x?.id === id);
+  if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
+  if (esLote(a)) throw new Error(`${id} es un lote y un lote NO lleva «type» (LEX-R27).`);
+
+  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  if (!existsSync(fIntake)) throw new Error(`${id} no tiene intake en ${fIntake}: sin el no hay de donde derivar el tipo.`);
+  const enYaml = readFileSync(fIntake, 'utf8').match(/^type:[ \t]*([A-Z]+)[ \t]*$/m)?.[1];
+  if (!enYaml) {
+    throw new Error(`el intake de ${id} no declara «type». Se declara ahi primero: manda el YAML `
+      + '(PT-004), y el registro lo espeja.');
+  }
+  if (!TIPOS_DE_ITEM.includes(enYaml)) {
+    throw new Error(`el intake de ${id} declara «${enYaml}», que no es un tipo de item. `
+      + `LEXICON §8.1 declara: ${TIPOS_DE_ITEM.join(' · ')}`);
+  }
+  if (a.type === enYaml) { notas.push(`${id}: el registro ya declara «${enYaml}». Nada que hacer.`); return; }
+  if (a.type && a.type !== enYaml) {
+    // No se elige: se DICE. La precedencia de PT-004 no cambia, pero pisar en silencio un valor
+    // distinto es lo que SUITE-R35 existe para impedir.
+    di('');
+    di(`  ${id}: el registro dice «${a.type}» y su intake «${enYaml}».`);
+    di('  Se espeja el del intake, que es lo que el PT dice de si mismo (PT-004).');
+    di('');
+  }
+  a.type = enYaml;
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: «type: ${enYaml}» espejado desde el intake al registro (PT-004, SUITE-R35)`);
 }
 
 // ── rama · como debe llamarse la de una tarea ───────────────────────────────
@@ -2423,6 +2821,18 @@ function rama() {
   const propuesta = ramaDeTarea(a.type, a.id, a.slug, yo);
   const integracion = 'trabajo';
 
+  // PT-129 · sin «type» no se propone un nombre inventado: se dice que falta y de donde sale.
+  if (propuesta === null) {
+    di('');
+    di(`  ${id} no declara «type», asi que NO hay nombre de rama que proponer.`);
+    di('');
+    di('  El <type> de una rama es el «type» del item en minusculas, que declara LEXICON §4.1');
+    di('  y escribe el registro (FDGE-R19). Sin el, cualquier nombre seria inventado.');
+    di('');
+    di(`    node docs/methodology/tools/tracker.mjs asignar --tipo <TIPO>   # o declararlo en el intake`);
+    return;
+  }
+
   di('');
   di(`  ${propuesta}`);
   di('');
@@ -2431,11 +2841,38 @@ function rama() {
     di('  no tiene que declarar nada (LEXICON 6.5f).');
     di('');
   }
+  // PT-129 · FDGE-R19 exige que un PT vivo en PHASE 5+ declare su rama en
+  // REGISTRY.allocations[].branch, y NINGUN comando la escribia: 47 de 151 la llevan, todas a
+  // mano. Una regla que solo se puede cumplir escribiendo el registro a mano es la averia que
+  // PT-103 y PT-107 cierran — el registro solo lo escribe el comando.
+  //
+  // «--declarar» escribe la rama REAL, la que git dice que esta en curso, no la propuesta: son
+  // cosas distintas cuando un lote se trabaja sobre una sola rama, como hizo EP-019.
+  if (ARGS.includes('--declarar')) {
+    const actual = gitDe(['rev-parse', '--abbrev-ref', 'HEAD']);
+    if (!actual || actual === 'HEAD') {
+      throw new Error('no hay rama en curso que declarar: git esta en HEAD desacoplado.');
+    }
+    if (actual !== propuesta) {
+      di(`  La rama en curso es «${actual}» y la propuesta era «${propuesta}».`);
+      di('  Se declara LA REAL: el registro dice donde esta el trabajo, no donde deberia estar.');
+      di('');
+    }
+    a.branch = actual;
+    guardarRegistro(reg, ACCION);
+    notas.push(`${id}: rama «${actual}» declarada en REGISTRY.allocations[].branch (FDGE-R19)`);
+    return;
+  }
+
   di('  Asi debe llamarse. NO se crea: crear una rama toca el arbol de trabajo, y si falla');
   di('  a mitad deja a quien la usa en otro sitio. Lo que no se automatiza se describe:');
   di('');
   di(`    git switch ${integracion}`);
   di(`    git checkout -b ${propuesta}`);
+  di('');
+  di('  Y cuando exista, se DECLARA en el registro — FDGE-R19 la exige desde PHASE 5:');
+  di('');
+  di(`    node docs/methodology/tools/tracker.mjs rama ${id} --declarar`);
 }
 
 function personas() {
@@ -2992,23 +3429,24 @@ function avanzar() {
 const VERSION_DEL_PROYECTO = reg?.suite_version ?? '0.0.0';
 
 function sellar() {
+  // PT-131 · el observable vive UNA vez, en patrones.mjs · selladoEnTag. Aqui estaba duplicado
+  // con verify-fdge, comentario incluido, y esa duplicacion es como el defecto de PT-087
+  // sobrevivio a su propio arreglo (SUITE-R38): se corrigio en un lado y el otro siguio igual.
   const idsDelTag = (() => {
     const tag = (gitDe(['tag', '--list', 'v*', '--sort=-v:refname']) ?? '')
-      // PT-087 · «el tag anterior» era un PROXY de «lo ya sellado». Se escribio cuando la
-      // version en curso todavia NO estaba etiquetada, asi que saltarse su propio tag era
-      // inofensivo. En cuanto se sella de verdad deja de serlo: recien creado v10.0.0, las 21
-      // tareas de EP-017 —que ESTAN dentro de el— aparecian como deuda sin sellar, y con
-      // umbral 3 eso bloquea G2 justo despues de haber sellado.
-      //
-      // El hecho es «lo que ya viajo en algun tag», y su observable es el TAG MAS ALTO que
-      // exista, sea o no el de la version en curso.
       .trim().split(/\s+/).filter(Boolean)[0];
     if (!tag) return { tag: null, ids: null };
-    const j = gitDe(['show', `${tag}:docs/implementation/REGISTRY.json`], { crudo: true });
-    if (!j) return { tag, ids: null };
-    try {
-      return { tag, ids: JSON.parse(j).allocations.filter((a) => ESTADOS_TERMINALES.has(a?.status)).map((a) => a.id) };
-    } catch { return { tag, ids: null }; }
+    const ids = selladoEnTag(
+      () => {
+        const s = gitDe(['ls-tree', '--name-only', tag, 'changes/'], { crudo: true });
+        if (s == null) return null;
+        return s.trim().split(/\r?\n/).filter(Boolean)
+          .map((x) => x.replace(/^changes\//, '').replace(/\/$/, ''));
+      },
+      (a) => existsSync(join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`)),
+      reg.allocations ?? [],
+    );
+    return { tag, ids };
   })();
 
   const falta = sinSellar(reg.allocations ?? [], idsDelTag.ids);
@@ -3016,6 +3454,37 @@ function sellar() {
 
   di('');
   di(`  sellar · version vigente ${VERSION_DEL_PROYECTO} · tag anterior ${idsDelTag.tag ?? 'NINGUNO'}`);
+
+  // PT-121 · AC-06 · EL TAG SE COMPRUEBA, NO SE SUPONE.
+  //
+  // Dos cosas distintas y las dos importan:
+  //
+  //   el ANTERIOR      un nombre en la lista no prueba que resuelva: un tag roto da un nombre y
+  //                    ningun arbol, y «sellado en el tag» se calcula sobre ESE arbol.
+  //   el QUE VIENE     antes de sellar NO existe, y esta bien: crearlo es el paso 8, HUMANO y
+  //                    DESPUES del merge (SUITE-R06a). Decirlo evita la pregunta de siempre.
+  //
+  // Y el orden se deriva con «--sort=v:refname», no con el de por defecto: el alfabetico pone
+  // v10, v11 y v12 ANTES de v4.13.0, y leer el final de esa lista da «v9.0.0» como ultimo tag.
+  // Ese error de medicion es real y esta escrito en el propio intake de esta tarea.
+  const tagDeEstaVersion = `v${VERSION_DEL_PROYECTO}`;
+  const resuelve = (ref) => gitDe(['rev-parse', '--verify', `${ref}^{commit}`]) !== null;
+  di('');
+  if (idsDelTag.tag === null) {
+    di('  tag anterior       NINGUNO — no hay con que comparar lo ya sellado (RULE-06).');
+  } else if (!resuelve(idsDelTag.tag)) {
+    di(`  tag anterior       ${idsDelTag.tag} FIGURA EN LA LISTA Y NO RESUELVE a ningun commit.`);
+    di('                     Lo sellado se calcula sobre SU arbol, asi que sin arbol es SIN EVALUAR.');
+  } else {
+    di(`  tag anterior       ${idsDelTag.tag} resuelve.`);
+  }
+  if (resuelve(tagDeEstaVersion)) {
+    di(`  tag de esta version ${tagDeEstaVersion} YA EXISTE. Si aun no se ha mergeado, apunta a un`);
+    di('                     arbol sin lo que la version trae (PT-081).');
+  } else {
+    di(`  tag de esta version ${tagDeEstaVersion} todavia NO existe, y es lo normal: lo crea el`);
+    di('                     paso 8, humano y DESPUES del merge (SUITE-R06a).');
+  }
   di('');
   if (falta === null) {
     di('  deuda de sellado   SIN EVALUAR — no se pudo leer el registro del tag anterior.');
@@ -3080,6 +3549,58 @@ function sellar() {
     di('                     Se recalculan: node tools/tracker.mjs inventario --aplicar (FND-R14)');
   } else {
     di(`  inventario         las ${desviadas.total} cifras coinciden con el arbol.`);
+  }
+
+  // PT-126 · LA MATRIZ SE MIDE DONDE YA SE MIRA. Es el patron de PT-110: la deuda de sellado, el
+  // inventario y el grafo ya se recorren aqui, y una medicion en un comando nuevo es una medicion
+  // que nadie ejecuta — CE-007, «existe la herramienta y nada la echa en falta», siete instancias.
+  //
+  // TRES DESENLACES, no dos. Una MATRIZ.md ausente NO es una matriz sin candidatos: la primera
+  // dice «no se pudo mirar» y la segunda «no hay nada que corregir», y decirlas igual es lo que
+  // RULE-06 prohibe.
+  const matriz = (() => {
+    try {
+      const txt = readFileSync(join(IMPL, 'MATRIZ.md'), 'utf8');
+      // Se leen las filas de la tabla, que es lo que matriz.mjs deriva. La ultima columna dice
+      // si la regla dueña puede fallar; la penultima, quien es dueña.
+      const filas = [...txt.matchAll(/^\|\s*`(CE-\d{3})`\s*\|([^|]*)\|\s*(\d+)\s*\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\|/gm)]
+        .map((m) => ({
+          id: m[1], nombre: m[2].trim(), veces: Number(m[3]),
+          duena: m[7].trim(), verificador: m[8].trim(),
+        }));
+      if (!filas.length) return null;
+      return filas;
+    } catch { return null; }
+  })();
+
+  di('');
+  if (matriz === null) {
+    di('  matriz de eventos  SIN EVALUAR — no se pudo leer MATRIZ.md o no tiene filas (RULE-06).');
+    di('                     Se deriva: node tools/matriz.mjs. Una matriz ausente NO es una');
+    di('                     matriz sin candidatos.');
+  } else {
+    // EL UMBRAL ES UN PARAMETRO DECLARADO, no un numero escondido (SUITE-R38). Vive en el
+    // registro para que un proyecto pueda subirlo o bajarlo y que se vea que lo hizo.
+    const umbralClase = Number(reg?.tracker?.umbral_clase_sin_dueno ?? 3);
+    const huerfanas = matriz.filter((f) => f.veces >= umbralClase && f.duena === '**—**');
+    const sinVerificador = matriz.filter((f) => f.duena !== '**—**'
+      && f.verificador.startsWith('**NO**'));
+    di(`  matriz de eventos  ${matriz.length} clases · umbral ${umbralClase} para ser candidata`);
+    if (huerfanas.length) {
+      di(`                     ${huerfanas.length} sin regla que las reclame y con ${umbralClase}+ instancias:`);
+      for (const f of huerfanas.sort((a, b) => b.veces - a.veces)) {
+        di(`                       ${f.id}  ${f.veces}x  ${f.nombre}`);
+      }
+    } else {
+      di('                     ninguna clase sin dueño llega al umbral.');
+    }
+    // Este caso es PEOR que no tener regla: hay obligacion y no puede fallar (P-003).
+    for (const f of sinVerificador) {
+      di(`                     ${f.id}: tiene regla (${f.duena}) y NADA EMITE POR ELLA.`);
+    }
+    if (huerfanas.length || sinVerificador.length) {
+      di('                     No se promueve nada: son CANDIDATOS y decide una persona (FPGE-R04).');
+    }
   }
 
   if (deriva === null) di('  grafo              SIN MANIFIESTO — no hay con que comparar (FDGE-R43).');
@@ -3151,6 +3672,61 @@ function sellar() {
   di('  Los pasos 7 y 8 NO los ejecuta el agente (SUITE-R06a). El 8 va despues del 7:');
   di('  un tag antes del merge apunta a un arbol sin lo que la version trae, y la linea');
   di('  base de FDGE-R43 y de AC-08 quedaria mintiendo (PT-081).');
+
+  // ── PT-120 · --gate · «sellar» podia decirlo todo y no impedir nada ─────
+  //
+  // Salia con codigo 0 SIEMPRE, asi que ningun workflow podia usarlo de compuerta. La 12.0.0
+  // se publico con dos reglas fuera de su guia de migracion y publicar.yml corrio ocho
+  // comprobaciones sin llamar a la unica que lo habria visto — porque llamarla no habria
+  // servido de nada: informa, no bloquea.
+  //
+  // QUE BLOQUEA: solo lo MECANICO y solo lo que se puede evaluar aqui. Los pasos 7 y 8 son
+  // humanos (SUITE-R06a) y no entran; el grafo tampoco, porque graphify-out/ esta en
+  // .gitignore y en CI sale MISSING — hacerlo fallar dejaria la publicacion bloqueada por algo
+  // que NO ES EVALUABLE ahi, que es lo contrario de lo que RULE-06 pide.
+  //
+  // QUE NO ESTABLECE: que la guia SIRVA. Nombrar la regla es el minimo comprobable; que la
+  // instruccion sea util lo lee una persona.
+  // NO llama a cerrarPasada(): esa sincroniza con la plataforma, y una compuerta que necesita
+  // red BLOQUEA LA PUBLICACION CUANDO NO PUEDE HABLAR CON GITHUB — no porque el sello este mal.
+  // Convertir «no lo se» en «no pasas» es tan falso como convertirlo en verde (RULE-06), y una
+  // compuerta que falla por motivos ajenos se acaba desactivando. «--gate» juzga EL ARBOL;
+  // espejar es de «espejo», que tiene su propio paso en publicar.yml.
+  if (ARGS.includes('--gate')) {
+    const motivos = [];
+    if (entradaDeLaVersion === null) {
+      motivos.push(`SUITE-R19: no hay entrada para ${VERSION_DEL_PROYECTO} en CHANGELOG.md.`);
+    } else if (fueraDeLaGuia && fueraDeLaGuia.length) {
+      motivos.push(`SUITE-R19: ${fueraDeLaGuia.length} regla(s) nueva(s) fuera de la guia: ${fueraDeLaGuia.join(
+)}.`);
+    }
+    if (sinResolver.length) {
+      motivos.push(`FND-R22: ${sinResolver.length} documento(s) de entrada sin resolver en SELLO.md: ${sinResolver.join(
+)}.`);
+    }
+    if (desviadas && desviadas.mal && desviadas.mal.length) {
+      motivos.push(`FND-R14: ${desviadas.mal.length} cifra(s) de inventory/services.md ya no describen el arbol.`);
+    }
+    di('');
+    if (!motivos.length) {
+      di('  --gate: lo mecanico del sello esta resuelto.');
+      di('  NO dice que se pueda publicar: los pasos 7 y 8 son humanos, y el grafo no se');
+      di('  evalua aqui (FDGE-R32, .gitignore). SIN EVALUAR no es lo mismo que aprobado.');
+      return;
+    }
+    di('  --gate: EL SELLO NO ESTA RESUELTO. No se publica.');
+    di('');
+    for (const m of motivos) di(`    ✗ ${m}`);
+    di('');
+    di('  La 12.0.0 salio a npm con dos reglas fuera de su guia porque esto no bloqueaba nada.');
+    // LANZA, no pone process.exitCode: la ultima linea del despachador hace process.exit(0)
+    // incondicional y lo pisaria. Esa era la primera version de este bloque, y tenia el defecto
+    // EXACTO que PT-120 corrige: decir «no se publica» y salir en verde. Lo cazo comprobar el
+    // codigo de salida — leyendo el bloque no se ve, porque la linea que lo anula esta a 190
+    // lineas y en otra funcion.
+    throw new Error(`el sello no esta resuelto: ${motivos.length} condicion(es) sin cumplir. No se publica.`);
+  }
+
   cerrarPasada();
 }
 
@@ -3223,6 +3799,35 @@ function indices() {
     writeFileSync(ruta, cuerpo, 'utf8');
     notas.push(`${archivo}: ${filas.length} fila(s) escritas`);
   }
+  // PT-123 · BACKLOG.md · se reescribe SOLO lo de dentro de las marcas.
+  //
+  // No entra en INDICES porque no es la misma forma: los otros tres son «todos los PT de estos
+  // tipos» y este es «el lote abierto y sus tareas». Por eso quedo fuera del generador que habia,
+  // y por eso llevaba CUATRO lotes declarando EP-015 como implementacion abierta — su propia
+  // cabecera registra que la vez anterior fueron OCHO.
+  //
+  // El PORQUE del orden queda FUERA de las marcas y no se toca: no sale de ningun campo y es lo
+  // mas valioso que tiene el archivo (LEX-R26, y la misma frontera que HANDOFF.md).
+  {
+    const ruta = join(IMPL, 'BACKLOG.md');
+    const marca = ['<!-- BACKLOG:DERIVADO -->', '<!-- /BACKLOG:DERIVADO -->'];
+    const derivado = bloqueDeBacklog(reg.allocations ?? [], REPO.url ?? null);
+    const actual = existsSync(ruta) ? readFileSync(ruta, 'utf8') : null;
+    if (actual === null) {
+      notas.push('BACKLOG.md: no existe, no se crea desde aqui.');
+    } else if (!actual.includes(marca[0]) || !actual.includes(marca[1])) {
+      notas.push('BACKLOG.md: sin las marcas ' + marca[0] + ' … ' + marca[1] + ', asi que NO se toca. '
+        + 'Anadirlas es una decision: lo de dentro se reescribe entero y lo de fuera no (RULE-06).');
+    } else {
+      const i = actual.indexOf(marca[0]) + marca[0].length;
+      const j = actual.indexOf(marca[1]);
+      const nuevo = actual.slice(0, i) + SALTO + SALTO + derivado + SALTO + SALTO + actual.slice(j);
+      if (nuevo === actual) notas.push('BACKLOG.md: ya al dia');
+      else if (!escribir) notas.push('BACKLOG.md: se reescribiria el bloque derivado');
+      else { writeFileSync(ruta, nuevo); notas.push('BACKLOG.md: bloque derivado reescrito'); }
+    }
+  }
+
   if (!escribir) notas.push('--aplicar los escribe. Sin la marca, esto solo enumera.');
   cerrarPasada();
 }
@@ -3290,7 +3895,447 @@ function inventario() {
   notas.push(`${mal.filter((m) => m.real != null).length} cifra(s) reescritas en services.md.`);
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, sellar, indices };
+
+// ── cursor · PT-128 · donde estas, de donde vienes, a donde vas ─────────────
+//
+// «un cursor que nos indique en donde estamos parados, de donde venimos y a donde vamos, lo mas
+// parecido a un cursor en un arbol binario donde cada nodo es una cajita que tiene el dato, el
+// puntero de salida hacia la derecha y el de la izquierda, y va recorriendo los padres e hijos
+// para no perderse ninguna puerta ningun comportamiento».
+//
+// EL ARBOL:   lote  ->  tarea  ->  fase  ->  compuerta
+//
+// Todo se DERIVA: los lotes y tareas del registro (SUITE-R08), las fases y sus compuertas de
+// PHASES.md (LEX-R21: manda el documento), y el rastro de cada fase de lo que hay EN DISCO. Nada
+// se escribe a mano y nada se recuerda — recordar es justo lo que este comando existe para no
+// tener que hacer.
+//
+// NO ESCRIBE NADA. Avanzar es de «avanzar», con su nota (FDGE-R52). Un comando que informa y a la
+// vez mueve no se puede consultar sin consecuencias, y entonces no se consulta.
+//
+// LA GARANTIA ES POR ENUMERACION, NO POR CONSULTA (AC-04). Es PTSA-R79 aplicado al recorrido: se
+// cierra cuando la enumeracion esta completa, no cuando el que busca deja de encontrar. Un nodo
+// sin rastro SE NOMBRA; uno que no se puede evaluar sale SIN EVALUAR y es distinguible de
+// «visitado» (RULE-06). Sin esa distincion el cursor prometeria cobertura donde solo tiene
+// silencio, que es el defecto que este lote lleva NUEVE veces midiendo.
+function cursor() {
+  const foco = ARGS.slice(1).find((x) => /^(PT|EP)-\d+$/.test(x));
+
+  const fases = (() => {
+    const p = join(ROOT, 'docs', 'methodology', 'PHASES.md');
+    if (!existsSync(p)) return [];
+    return fasesDeFDGE(readFileSync(p, 'utf8'));
+  })();
+  if (!fases.length) {
+    throw new Error('no se pudo derivar las fases de PHASES.md. No saber no es permiso (RULE-06): '
+      + 'si la seccion cambio de forma, el cursor hay que arreglarlo, no adivinar el recorrido.');
+  }
+
+  // El foco por defecto: la implementacion abierta. FDGE-R48 garantiza que como mucho hay una.
+  const lote = all.find((a) => String(a?.id ?? '').startsWith('EP-') && a?.status === 'IN_PROGRESS')
+    ?? all.find((a) => String(a?.id ?? '').startsWith('EP-') && !ESTADOS_TERMINALES.has(String(a?.status ?? '')));
+  const nodo = foco ? all.find((a) => a?.id === foco) : null;
+  if (foco && !nodo) {
+    throw new Error(`${foco} no esta en el registro. El registro asigna (SUITE-R08).`);
+  }
+
+  const esLoteNodo = (a) => String(a?.id ?? '').startsWith('EP-');
+  const actual = nodo ?? lote;
+  if (!actual) {
+    di('');
+    di('  cursor: no hay implementacion abierta ni foco. Nada que recorrer.');
+    return;
+  }
+
+  // ── el NODO y su DATO ────────────────────────────────────────────────────
+  di('');
+  di(`  ESTAS EN   ${actual.id}${actual.slug ? ` · ${actual.slug}` : ''}`);
+  di(`             ${actual.type ?? 'sin tipo'} · ${actual.status ?? 'sin estado'}`
+    + (actual.phase != null ? ` · PHASE ${actual.phase}` : ''));
+
+  // ── DE DONDE VIENES ──────────────────────────────────────────────────────
+  di('');
+  di('  VIENES DE');
+  if (actual.origen_parada?.de) {
+    di(`    ${actual.origen_parada.de} · la parada que abrio esta (${actual.origen_parada.motivo})`);
+  }
+  if (actual.epic) {
+    const p = all.find((x) => x?.id === actual.epic);
+    di(`    ${actual.epic}${p?.slug ? ` · ${p.slug}` : ''} · el lote que la contiene`);
+  }
+  if (!actual.epic && !actual.origen_parada?.de) {
+    di('    nada la precede: es raiz del recorrido.');
+  }
+
+  // ── A DONDE VAS ──────────────────────────────────────────────────────────
+  di('');
+  di('  PUEDES IR A');
+  const hijos = all.filter((x) => x?.epic === actual.id);
+  if (esLoteNodo(actual)) {
+    const vivos = hijos.filter((x) => !ESTADOS_TERMINALES.has(String(x?.status ?? '')));
+    const cerrados = hijos.length - vivos.length;
+    di(`    ${hijos.length} tarea(s): ${cerrados} cerrada(s), ${vivos.length} viva(s)`);
+    for (const h of vivos.slice(0, 8)) {
+      di(`      ${h.id} · ${h.status ?? '?'}${h.phase != null ? ` · PHASE ${h.phase}` : ''}`);
+    }
+    if (vivos.length > 8) di(`      … y ${vivos.length - 8} mas`);
+  } else {
+    const sig = fases.find((f) => f.n === Number(actual.phase) + 1);
+    if (sig) {
+      di(`    PHASE ${sig.n} · ${sig.nombre}${sig.compuerta ? ` — cierra ${sig.compuerta}` : ''}`);
+      di(`      node docs/methodology/tools/tracker.mjs avanzar ${actual.id} --a ${sig.n} --nota "..."`);
+    } else di('    no hay fase siguiente declarada en PHASES.md.');
+  }
+
+  // ── LO QUE NO SE HA VISITADO ─────────────────────────────────────────────
+  //
+  // El rastro de una fase es lo que esa fase DEJA EN DISCO. Se comprueba el ARTEFACTO, no que la
+  // fase «se hiciera»: PT-133 midio la diferencia entre comprobar que una rama existe y
+  // ejecutarla, y aqui es la misma. Una fase cuyo artefacto no sabemos nombrar sale SIN EVALUAR.
+
+  // PT-128 · AC-04 · LA ENUMERACION TAMBIEN PARA UN LOTE, que es donde el propio intake puso la
+  // prueba: «recorrer EP-019 entero y comprobar si el cursor habria nombrado los nodos que su
+  // cierre se salto. Si no los nombra, el cursor no sirve».
+  //
+  // La primera version CONTABA las tareas —«17 cerradas, 0 vivas»— y no nombraba ninguna. Contar
+  // es lo contrario de enumerar: un recuento correcto convive con cualquier hueco, porque no dice
+  // CUAL. Es la forma que PTSA-R79 rechaza —«se cierra cuando la matriz esta completa, no cuando
+  // el que busca deja de encontrar»— y la que este lote entero persigue.
+  //
+  // Se recorre el SUBARBOL: cada tarea del lote, y de cada una sus fases. Un nodo sin rastro se
+  // NOMBRA con su tarea y su fase; uno que no se sabe evaluar sale SIN EVALUAR, que no es lo
+  // mismo (RULE-06).
+  if (esLoteNodo(actual)) {
+    const sinRastro = [];
+    const sinEvaluar = [];
+    for (const h of hijos) {
+      const dh = join(ROOT, 'changes', h.slug ? `${h.id}-${h.slug}` : String(h.id));
+      const eh = join(IMPL, 'evidence', String(h.id));
+      const hay = (p) => existsSync(p);
+      const RASTRO_H = {
+        1: () => hay(join(dh, 'intake.md')),
+        3: () => hay(join(dh, 'strategy.md')),
+        4: () => hay(join(dh, 'traceability.md')),
+        6: () => hay(join(eh, 'manifest.json')) && hay(join(eh, 'self-review.md')),
+        8: () => {
+          const f = join(IMPL, 'HISTORY.log');
+          if (!existsSync(f)) return null;
+          return readFileSync(f, 'utf8').includes(`## ${h.id} `);
+        },
+      };
+      const r = nodosSinVisitar(fases, h.phase, (n) => (RASTRO_H[n] ? RASTRO_H[n]() : null));
+      for (const n of r.sinVisitar) sinRastro.push(`${h.id} PHASE ${n}`);
+      for (const n of r.sinEvaluar) sinEvaluar.push(`${h.id} PHASE ${n}`);
+    }
+    di('');
+    di('  ENUMERADO, no consultado   (PTSA-R79 · el SUBARBOL entero, nodo a nodo)');
+    di(`    tareas recorridas   ${hijos.length}`);
+    if (sinRastro.length) {
+      di(`    SIN RASTRO    ${sinRastro.length} nodo(s):`);
+      for (const s of sinRastro.slice(0, 12)) di(`      ${s}`);
+      if (sinRastro.length > 12) di(`      … y ${sinRastro.length - 12} mas`);
+      di('                  la tarea dice haber pasado por ahi y no dejo el artefacto.');
+    } else di('    SIN RASTRO    ninguno: cada fase recorrida dejo su artefacto.');
+    if (sinEvaluar.length) {
+      di(`    SIN EVALUAR   ${sinEvaluar.length} nodo(s) · no se sabe nombrar su artefacto (RULE-06)`);
+      for (const s of sinEvaluar.slice(0, 6)) di(`      ${s}`);
+      if (sinEvaluar.length > 6) di(`      … y ${sinEvaluar.length - 6} mas`);
+    }
+  }
+
+  if (!esLoteNodo(actual)) {
+    const dir = join(ROOT, 'changes', actual.slug ? `${actual.id}-${actual.slug}` : String(actual.id));
+    const ev = join(IMPL, 'evidence', String(actual.id));
+    const hay = (p) => existsSync(p);
+    const RASTRO = {
+      1: () => hay(join(dir, 'intake.md')),
+      3: () => hay(join(dir, 'strategy.md')),
+      4: () => hay(join(dir, 'traceability.md')),
+      6: () => hay(join(ev, 'manifest.json')) && hay(join(ev, 'self-review.md')),
+      8: () => {
+        const h = join(IMPL, 'HISTORY.log');
+        if (!existsSync(h)) return null;
+        return readFileSync(h, 'utf8').includes(`## ${actual.id} `);
+      },
+    };
+    const r = nodosSinVisitar(fases, actual.phase, (n) => (RASTRO[n] ? RASTRO[n]() : null));
+    di('');
+    di('  ENUMERADO, no consultado   (PTSA-R79 · un nodo sin rastro SE NOMBRA)');
+    di(`    con rastro    ${r.visitados.length ? r.visitados.map((n) => `PHASE ${n}`).join(' · ') : 'ninguna'}`);
+    if (r.sinVisitar.length) {
+      di(`    SIN RASTRO    ${r.sinVisitar.map((n) => `PHASE ${n}`).join(' · ')}`);
+      di('                  la tarea dice haber pasado por ahi y no dejo el artefacto.');
+    }
+    if (r.sinEvaluar.length) {
+      di(`    SIN EVALUAR   ${r.sinEvaluar.map((n) => `PHASE ${n}`).join(' · ')}`);
+      di('                  no se sabe nombrar su artefacto. NO es lo mismo que visitada (RULE-06).');
+    }
+  }
+
+  di('');
+  di('  El cursor NO escribe: avanzar es de «avanzar», con su nota (FDGE-R52).');
+}
+
+// ── integrar · el viaje de vuelta tras el merge   PT-121 · AC-01 ────────────
+//
+// PHASE 9 manda «tras el merge: PT→INTEGRATED · intake.md CLOSED», y NINGUN COMANDO lo hacia.
+// Se escribia a mano en dos sitios —registro y YAML— y por eso divergian: cerrando EP-019 el
+// estado terminal se quedo en la rama de tarea y «main» declaro el lote DRAFT con sus diecisiete
+// tareas en DONE durante todo el ciclo de publicacion.
+//
+// Es CE-006 —el acto hecho fuera del comando— por la unica razon que lo hace inevitable: no
+// habia comando. Y CE-009, porque el estado terminal acababa escrito a mano.
+//
+// UN SOLO ACTO, y en el orden que ya usan «avanzar» y «abrir»: lo reversible primero. Si el YAML
+// no se puede escribir, el registro NO se toca — al reves quedaria un registro diciendo
+// INTEGRATED sobre un intake que dice otra cosa, que es la divergencia que esto viene a cerrar.
+function integrar() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) {
+    console.error('integrar necesita una allocation:  tracker integrar PT-131 [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro. El registro asigna (SUITE-R08).`); return; }
+
+  // PT-121 · UN LOTE CIERRA DISTINTO QUE UNA TAREA, y por eso tiene su propia rama.
+  //
+  // Una tarea va DONE -> INTEGRATED. Un lote va READY -> CLOSED, y solo cuando NINGUNA de sus
+  // tareas sigue viva: cerrar un lote con trabajo dentro seria declarar terminado lo que no lo
+  // esta. La condicion se DERIVA de las tareas, no se pregunta.
+  //
+  // Esto se escribio cerrando EP-020, despues de escribir su estado A MANO con un «node -e» —
+  // CE-006 cometido dentro del cierre del lote que existe para impedirlo. Se deshizo y se
+  // rehizo con el comando, que es lo que el lote entero defiende.
+  const esLote = /^EP-/.test(id);
+  const destino = esLote ? 'CLOSED' : 'INTEGRATED';
+  if (esLote) {
+    if (a.status !== 'READY') {
+      fail('SUITE-R46', `${id} esta en «${a.status}»: un lote cierra desde READY. Escribir CLOSED `
+        + 'sobre otro estado borraria uno que alguien puso por algo.');
+      return;
+    }
+    const vivas = all.filter((x) => x?.epic === id && !ESTADOS_TERMINALES.has(x?.status)
+      && x?.status !== 'DEFERRED');
+    if (vivas.length) {
+      fail('SUITE-R45', `${id} tiene ${vivas.length} tarea(s) que no estan terminales: `
+        + `${vivas.map((x) => `${x.id} (${x.status})`).join(' · ')}. Cerrar un lote con trabajo `
+        + 'dentro seria declarar terminado lo que no lo esta.');
+      return;
+    }
+  } else if (a.status !== 'DONE') {
+    // DONE es la unica entrada legitima para una TAREA: FDGE-R34 la exige para G4, y G4 es lo que
+    // acaba de pasar. Un BUG en VALIDATION_PENDING no entra — lo cierra una persona por
+    // «tracker validar» (FDGE-R26, SUITE-R06b).
+    fail('SUITE-R46', `${id} esta en «${a.status}» y integrar solo escribe DONE -> INTEGRATED. `
+      + `FDGE-R34 exige DONE para G4, asi que un estado distinto significa que G4 no ha pasado `
+      + `— o que ya se integro. No se adivina cual (RULE-06).`);
+    return;
+  }
+
+  const dir = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id);
+  const intake = join(dir, 'intake.md');
+  if (!existsSync(intake)) {
+    fail('FDGE-R23', `${id}: no existe ${intake.replace(ROOT, '.')}. El YAML del intake es la `
+      + `mitad de esta transicion, y escribir solo la otra mitad deja las dos fuentes diciendo `
+      + `cosas distintas — que es el defecto que este comando cierra.`);
+    return;
+  }
+
+  const antes = readFileSync(intake, 'utf8');
+  const RE_ESTADO = /^status:[ 	]*(\S+)[ 	]*$/m;
+  const m = RE_ESTADO.exec(antes);
+  if (!m) {
+    fail('FDGE-R23', `${id}: su intake no declara «status:». Sin el, no hay transicion que `
+      + 'escribir y suponerla seria inventar un dato (SUITE-R08).');
+    return;
+  }
+
+  if (!APLICAR) {
+    di(`  ${id}: ${a.status} -> ${destino}`);
+    di(`    registro          allocations[].status`);
+    di(`    intake            ${intake.replace(ROOT, '.')} · status: ${m[1]} -> ${destino}`);
+    di('');
+    di('  --aplicar   escribe las dos, en un solo acto.');
+    return;
+  }
+
+  // Lo reversible primero: el YAML. Si falla, el registro se queda como estaba.
+  writeFileSync(intake, antes.replace(RE_ESTADO, `status: ${destino}`), 'utf8');
+  a.status = destino;
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: ${m[1]} -> ${destino} en el intake y en el registro, en un solo acto`);
+}
+
+// ── firmar · el estado que produce una compuerta   PT-121 · AC-05 ───────────
+//
+// El gemelo de «integrar», por el otro extremo del ciclo: al pasar G1 un lote debe quedar READY,
+// y eso tambien se escribia A MANO. Un lote que sigue DRAFT con su G1 resuelta es un registro que
+// contradice a su propia acta.
+//
+// LA FIRMA SE CONTRASTA (SUITE-R27): un nombre que no esta en «firmantes» falla. No prueba que
+// firmara una persona —el agente escribe el archivo— pero convierte la firma en una afirmacion
+// contrastable, y quien aparece en la lista responde de lo que lleva su nombre.
+function firmar() {
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const quien = flag('--firmante');
+  const compuerta = (flag('--compuerta') ?? 'G1').toUpperCase();
+  if (!id || !quien) {
+    console.error('firmar necesita allocation y firmante:  '
+      + 'tracker firmar EP-020 --compuerta G1 --firmante "Nombre" [--fecha AAAA-MM-DD] [--aplicar]');
+    process.exit(2);
+  }
+  if (compuerta !== 'G1') {
+    fail('EXEC-R03', `este comando solo escribe el estado que produce G1. «${compuerta}» produce `
+      + 'otro, y fingir que son el mismo seria inventar una transicion.');
+    return;
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+
+  const firmantes = reg?.firmantes ?? reg?.personas?.map((p) => p?.nombre) ?? [];
+  if (firmantes.length && !firmantes.includes(quien)) {
+    fail('SUITE-R27', `«${quien}» no esta en la lista de firmantes (${firmantes.join(' · ')}). `
+      + 'Es la unica defensa mecanica que existe contra una firma inventada.');
+    return;
+  }
+  if (a.status !== 'DRAFT') {
+    fail('SUITE-R46', `${id} esta en «${a.status}»: G1 produce READY desde DRAFT. Escribir READY `
+      + 'sobre otra cosa borraria un estado que alguien puso por algo.');
+    return;
+  }
+  if (!APLICAR) {
+    di(`  ${id}: DRAFT -> READY   (${compuerta} · ${quien})`);
+    di('');
+    di('  --aplicar   lo escribe.');
+    return;
+  }
+  a.status = 'READY';
+  // PT-121 · LA FECHA ES LA DE LA COMPUERTA, NO LA DE EJECUTAR EL COMANDO.
+  //
+  // La primera version derivaba la fecha del ultimo commit, y al usarla sobre EP-020 —cuya G1
+  // paso el 2026-08-22— escribio el 23. Una compuerta se resuelve cuando se resuelve, y el
+  // comando puede correr despues: grabar «cuando lo escribi» en el campo que dice «cuando se
+  // firmo» es una cifra plausible y falsa, que es lo que RULE-06 prohibe.
+  //
+  // Por defecto sigue siendo hoy —el caso normal es firmar y registrar en el mismo acto— pero
+  // se puede DECIR la real. Lo encontro usar el comando sobre datos de verdad.
+  a.compuertas = { ...(a.compuertas ?? {}), [compuerta]: { firmante: quien,
+    fecha: flag('--fecha') ?? gitDe(['log', '-1', '--format=%cs']) ?? null } };
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: DRAFT -> READY · ${compuerta} firmada por ${quien}`);
+}
+
+// ── validar · la validacion humana de un BUG, escrita por el comando   PT-136 ──
+//
+// FDGE-R26 dice que un BUG «transita a VALIDATION_PENDING y ahi SE DETIENE: solo un humano lo
+// lleva a DONE». Lo que NO decia nadie es COMO se escribe eso, y por eso las tres unicas veces
+// que ocurrio —PT-096, PT-097 y PT-098— se escribio A MANO declarando la excepcion cada vez.
+//
+// Es la clase de EP-020 en su forma mas pura: el acto es humano y legitimo, no hay comando, y por
+// tanto la unica via es rodear el registro. Este comando NO decide: registra una decision que ya
+// se tomo, y la deja contrastable — el firmante se comprueba contra la lista (SUITE-R27) y la
+// fecha se DICE, porque una validacion puede registrarse despues de ocurrir (la leccion de
+// PT-121, encontrada usando «firmar» sobre una G1 de dos dias antes).
+//
+// Lo que sigue siendo humano es la DECISION. Esto solo la escribe.
+function validar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const ids = ARGS.slice(1).filter((a) => /^(PT|EP)-\d+$/.test(a));
+  const quien = flag('--firmante');
+  if (!ids.length || !quien) {
+    console.error('validar necesita allocation(es) y firmante:  '
+      + 'tracker validar PT-121 PT-122 --firmante "Nombre" [--fecha AAAA-MM-DD] [--aplicar]');
+    process.exit(2);
+  }
+  const firmantes = reg?.firmantes ?? reg?.personas?.map((p) => p?.nombre) ?? [];
+  if (firmantes.length && !firmantes.includes(quien)) {
+    fail('SUITE-R27', `«${quien}» no esta en la lista de firmantes (${firmantes.join(' · ')}). `
+      + 'Es la unica defensa mecanica que existe contra una firma inventada.');
+    return;
+  }
+  const fecha = flag('--fecha') ?? gitDe(['log', '-1', '--format=%cs']) ?? null;
+
+  const aplicables = [];
+  for (const id of ids) {
+    const a = all.find((x) => x?.id === id);
+    if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+    if (a.type !== 'BUG') {
+      fail('FDGE-R26', `${id} es ${a.type}, no BUG. Esta validacion es la que FDGE-R26 reserva a `
+        + 'una persona para los BUG; usarla en otra cosa seria inventar una transicion.');
+      return;
+    }
+    if (a.status !== 'VALIDATION_PENDING') {
+      fail('LEX-R08', `${id} esta en «${a.status}»: la validacion humana va de VALIDATION_PENDING `
+        + 'a DONE. Escribir DONE sobre otro estado borraria uno que alguien puso por algo.');
+      return;
+    }
+    aplicables.push(a);
+  }
+
+  if (!APLICAR) {
+    for (const a of aplicables) di(`  ${a.id}: VALIDATION_PENDING -> DONE   (G3 · ${quien} · ${fecha})`);
+    di('');
+    di('  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.');
+    return;
+  }
+  for (const a of aplicables) {
+    a.status = 'DONE';
+    a.compuertas = { ...(a.compuertas ?? {}), G3: { firmante: quien, fecha } };
+    notas.push(`${a.id}: VALIDATION_PENDING -> DONE · G3 ${quien} ${fecha}`);
+  }
+  guardarRegistro(reg, ACCION);
+}
+
+// ── cierre · el comentario de cierre de un lote, por comando   PT-122 ───────
+//
+// AC-01 · es la UNICA forma sancionada: lleva MARCA_AGENTE por construccion, y un comentario sin
+// marca no se puede producir con las herramientas del marco.
+function cierre() {
+  const id = ARGS.slice(1).find((a) => /^EP-\d+$/.test(a));
+  if (!id) {
+    console.error('cierre necesita un lote:  tracker cierre EP-020 [--aplicar]');
+    process.exit(2);
+  }
+  const lote = all.find((x) => x?.id === id);
+  if (!lote) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+
+  const tareas = all.filter((x) => x?.epic === id)
+    .map((x) => ({ id: x.id, status: x.status, issue: x.issue,
+      terminal: ESTADOS_TERMINALES.has(x.status) }));
+
+  // TODO SE DERIVA. El tag se busca por VERSION, no por alfabeto: el orden de por defecto pone
+  // v10 antes de v4.13.0 y da un tag equivocado (PT-121).
+  const version = VERSION_DEL_PROYECTO;
+  const tagEsperado = `v${version}`;
+  const existe = gitDe(['rev-parse', '--verify', `${tagEsperado}^{commit}`]);
+  const cuerpo = comentarioDeCierreDeLote({
+    lote: id, version, tag: existe ? tagEsperado : null,
+    commit: existe ? existe.trim().slice(0, 8) : null, tareas,
+  });
+
+  const destinos = [lote, ...tareas].filter((x) => x?.issue);
+  if (!APLICAR) {
+    di(`  ${id}: comentario de cierre para ${destinos.length} issue(s)`);
+    di('');
+    for (const linea of cuerpo.split(String.fromCharCode(10))) di(`    ${linea}`);
+    di('');
+    di('  --aplicar   lo publica, con la marca del agente.');
+    return;
+  }
+  if (!adaptador?.comentar) {
+    fail('SUITE-R35', 'la plataforma declarada no sabe comentar: no se publica nada. Sin eso el '
+      + 'cierre vive solo en el repositorio, que sigue siendo valido (SUITE-R22).');
+    return;
+  }
+  for (const d of destinos) {
+    adaptador.comentar(d.issue, cuerpo);
+    notas.push(`#${d.issue} · cierre de ${id} publicado con marca`);
+  }
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

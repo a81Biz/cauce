@@ -1,0 +1,79 @@
+{
+  "pt": "PT-124",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "TIPOS_DE_ITEM deriva del vocabulario canonico y no de una lista escrita a mano en tracker.mjs",
+      "tests": [
+        "selftest.sh:los cinco tipos son los de LEXICON 8.1"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Vive en patrones.mjs, junto a ESTADOS_TERMINALES y RIGE_DESDE, que es donde estan las constantes con contrato (SUITE-R38)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "tracker asignar --tipo INVESTIGATION y --tipo CHORE funcionan",
+      "tests": [
+        "tracker asignar --tipo INVESTIGATION --ver"
+      ],
+      "evidence": [
+        "salidas/tipos.txt"
+      ],
+      "verified": true,
+      "nota": "Antes respondian «no es un tipo de item». 32 allocations del registro usan esos dos."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El mensaje deja de ATRIBUIR a LEXICON una lista que LEXICON no contiene",
+      "tests": [
+        "tracker asignar --tipo CHANGE --ver"
+      ],
+      "evidence": [
+        "salidas/tipos.txt"
+      ],
+      "verified": true,
+      "nota": "Ahora cita «LEXICON §8.1» y enumera los cinco que ese documento declara de verdad."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "CHANGE y TAREA se resuelven: o entran en LEXICON o salen de la herramienta",
+      "tests": [
+        "selftest.sh:…y los dos de las plantillas ya no"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "SALEN, y la causa es el hallazgo de la tarea: eran nombres de PLANTILLA —BUG-REPORT, FEATURE-REQUEST, CHANGE-REQUEST, TAREA— etiquetados como tipos. No existen en ningun otro sitio del codigo."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "PT-125 y PT-126 reciben su type CON EL COMANDO, no a mano",
+      "tests": [
+        "tracker tipo PT-125",
+        "tracker tipo PT-126"
+      ],
+      "evidence": [
+        "salidas/tipos.txt"
+      ],
+      "verified": true,
+      "nota": "La accion «tipo» DERIVA el valor del intake —PT-004: manda el YAML— y lo valida contra LEXICON. Si el intake no lo declara, lo DICE en vez de adivinar. Con eso los dos FDGE-R31 que arrastraba se cerraron solos: PT-125 en DISCOVERY, PT-126 en REFACTOR_SCOPE."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La constante NO basta: verify-suite la compara con LEXICON 8.1 y falla si divergen",
+      "tests": [
+        "selftest.sh:la constante divergente de LEXICON falla"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "ES LA QUE CIERRA LA CLASE. Mover la lista sin compararla seria una copia, solo que UNA — y PT-080 midio que tres copias de una regla divergen las tres sin que nada las compare. La inversa ROMPE LA CONSTANTE EN EL FIXTURE: buscar el texto en el fuente no prueba nada."
+    }
+  ]
+}

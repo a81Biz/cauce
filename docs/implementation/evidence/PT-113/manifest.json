@@ -1,0 +1,77 @@
+{
+  "pt": "PT-113",
+  "generated": "2026-08-23",
+  "reanclaje": "la 12.0.1 se revirtio; la correccion viaja en la 13.0.0 (R-1 del intake)",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La entrada nombra SUITE-R59 y LEX-R08 y dice que hacer con cada una",
+      "tests": [
+        "grep sobre la entrada 13.0.0"
+      ],
+      "evidence": [
+        "salidas/guia.txt"
+      ],
+      "verified": true,
+      "nota": "LEX-R08 NO es nueva y no se presenta como tal: existe desde hace versiones y lo que empieza en la 12.0.0 es que SE COMPRUEBE. Es O-1 del intake."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La cifra de cabecera de la 12.0.0 coincide con el registro",
+      "tests": [
+        "registro: allocations con epic EP-019"
+      ],
+      "evidence": [
+        "salidas/guia.txt"
+      ],
+      "verified": true,
+      "nota": "Decia «Doce» y son DIECISIETE. H-007 otra vez (PT-091). Se corrige pero NO se deriva: una entrada en prosa no se genera. Lo contrastable va a PT-120."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "sellar deja de reportar reglas nuevas no nombradas",
+      "tests": [
+        "tracker sellar"
+      ],
+      "evidence": [
+        "salidas/guia.txt"
+      ],
+      "verified": true,
+      "nota": "CON UN LIMITE MEDIDO, y es O-2 del intake agravada: «sellar» solo contrasta las reglas cuya RIGE_DESDE IGUALA la version vigente. Con el arbol en 13.0.0 ya NO mira la entrada de la 12.0.0, asi que este AC estaria verde aunque no se hubiera hecho nada. Lo que lo sostiene de verdad es AC-01, que se deriva del documento. Se corrige en PT-120."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Las 25 declaraciones de version declaran la vigente",
+      "tests": [
+        "version.mjs sin --aplicar"
+      ],
+      "evidence": [
+        "salidas/version.txt"
+      ],
+      "verified": true,
+      "nota": "Declaran 13.0.0, no 12.0.1: el reanclaje R-1 lo registra."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "CORE.md y CORE-PTSA.md sincronizados con sus fuentes",
+      "tests": [
+        "build-core.mjs",
+        "verify-suite.mjs"
+      ],
+      "evidence": [
+        "salidas/coherencia.txt"
+      ],
+      "verified": true,
+      "nota": "256 reglas."
+    }
+  ],
+  "decaidos": [
+    {
+      "ac": "AC-06",
+      "statement": "El diff fuera del CHANGELOG y las versiones es vacio",
+      "motivo": "DECAE con el reanclaje, y se dice en vez de darlo por cumplido. Fue escrito para un PATCH; en un MAJOR que trae FDGE-R55 y cuatro herramientas tocadas, exigir diff vacio seria exigir lo contrario de lo que el lote hace. Un criterio que ya no puede evaluarse NO se marca cumplido (RULE-06).",
+      "consta_en": "changes/PT-113-la-guia-que-se-publico-incompleta/intake.md (R-1) y out-of-scope.md",
+      "aplazado_en": "PT-134"
+    }
+  ]
+}

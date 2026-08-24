@@ -1,0 +1,4 @@
+   sin la guarda de estado: integra un VALIDATION_PENDING OK
+   sin escribir el YAML: el intake se queda atras (status: READY) OK
+   sin contrastar la firma: «Quien Sea» pasa          OK
+   sin el orden por version: el tag anterior deja de ser v12.0.0 OK

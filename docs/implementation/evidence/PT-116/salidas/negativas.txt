@@ -1,0 +1,17 @@
+=== motivo fuera de la lista ===
+--motivo es obligatorio y de la lista cerrada. LEXICON §8.5 declara: hallazgo · condicion-bloqueante · compuerta · abre-trabajo · limite-alcanzado · desafio-al-intake
+
+=== texto que no es ruta ===
+no existe «esto es texto». --texto es una RUTA (SUITE-R59): escribe la explicacion en un archivo.
+
+=== abre sin destino ===
+--desenlace abre exige --abre con la allocation que nace.
+
+=== abre con ID inexistente ===
+--abre cita «PT-999», que no esta en el registro. El registro asigna (SUITE-R08).
+
+=== cambia-fase, que es de avanzar ===
+«cambia-fase» es el caso particular de FDGE-R52 y lo escribe «avanzar», que ademas mueve el registro en el mismo acto. Publicarla aqui dejaria una nota sobre una transicion que no ocurrio (LEX-R30):  tracker avanzar PT-116 --a <fase> --nota "..."
+
+=== desenlace fuera de la lista ===
+--desenlace es obligatorio y de la lista cerrada. LEXICON §8.5 declara: continua · abre · cambia-fase · detiene · declara

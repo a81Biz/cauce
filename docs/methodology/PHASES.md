@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **12.0.0**
+> Suite version: **13.0.0**
 
 ---
 
@@ -401,6 +401,15 @@ FRESCURA  tiene que ser MÁS RECIENTE que el último commit que tocó changes/. 
           Si hay trabajo posterior, la sesión terminó sin dejar el estado
           retomable. Se comprueba contra git, el único reloj que no depende
           de nadie.
+PARADA con decisión, ESCRIBE en la TAREA antes de continuar:                  [FDGE-R55]
+          motivo · la explicación · desenlace.  Listas CERRADAS en LEXICON §8.5.
+          motivo   ∈ hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
+                     limite-alcanzado · desafio-al-intake
+          desenlace ∈ continua · abre · cambia-fase · detiene · declara
+          MISMO destino que el reanclaje: issue, o TRANSICIONES.log sin plataforma.
+          NO lleva la forma «PHASE n → m» salvo que SEA una transición  [LEX-R30].
+          Lo que sólo está en la conversación no está                   [SUITE-R04].
+
 REANCLAJE en cada transición de fase, ESCRIBE tres líneas en la TAREA:        [FDGE-R52]
           qué cierras · dónde estás · qué sigue.
           issue si hay plataforma · docs/implementation/TRANSICIONES.log si no [INC-008].
@@ -418,6 +427,11 @@ HAZ  1 HISTORY (append, formato canónico único):
        Archivos modificados / Evidencia / Criterios AC-nn ✓ / Delta real vs planificado
        Compuertas: G1 fecha nombre · G2 … · G3 … · G4 …
        Trazabilidad externa: QD-XXX H-XXX R-XXX
+       Clase de evento: CE-NNN si el trabajo cae en una de LEXICON §4.4         [LEX-R31]
+         citar un CE-NNN que LEXICON no declara es defecto y bloquea            [LEX-R32]
+         «node tools/eventos.mjs» reclasifica el ledger entero y reescribe
+         EVENTOS.jsonl. La clase es un JUICIO: sale marcada DECLARADO, y separar
+         una instancia de una mencion lo decide una persona, no la herramienta.
      2 HANDOFF en MODO MERGE: leer el existente y PRESERVAR validaciones e investigaciones
        ajenas al PT [FDGE-R30]
      3 regenerar BACKLOG desde REGISTRY y changes/
@@ -452,6 +466,23 @@ HAZ  precondiciones, todas verificables [FDGE-R34]:
        DURABLE y la proyeccion guarda el SHA de cada tarea
 PARA G4 HUMANA EN LOS TRES MODOS, sin excepción [FDGE-R33, EXEC-R04]. Prepara el comando y
      descríbelo. Registra quién resolvió cada compuerta [SUITE-R22].
+EL VIAJE DE VUELTA · lo que ocurre DESPUES del merge, y lo escribe un comando  [PT-121]
+       node tools/tracker.mjs integrar PT-NNN --aplicar
+         escribe DONE -> INTEGRATED en el REGISTRO y en el YAML del intake, EN UN SOLO ACTO.
+         Lo reversible primero: si el YAML no se puede escribir, el registro NO se toca — al
+         reves quedarian las dos fuentes diciendo cosas distintas.
+         SALIDA: allocations[].status = INTEGRATED · intake.md status: INTEGRATED
+       node tools/tracker.mjs cerrar --aplicar
+         cierra el issue DESPUES, nunca antes: el estado terminal tiene que estar ya en la
+         rama por defecto o la principal queda diciendo «vivo» con el issue cerrado
+                                                                        [SUITE-R46]
+       node tools/tracker.mjs proyectar --publicar                       [SUITE-R56]
+     Sin ese comando el estado terminal se escribia A MANO en dos sitios, y divergian: cerrando
+     EP-019 se quedo en la rama de tarea y la principal declaro el lote DRAFT con sus diecisiete
+     tareas en DONE durante todo el ciclo de publicacion.
+Y EL OTRO EXTREMO · el estado que produce G1, tambien por comando           [PT-121]
+       node tools/tracker.mjs firmar EP-NNN --compuerta G1 --firmante "Nombre" --aplicar
+         DRAFT -> READY. La firma se contrasta con «firmantes» del registro  [SUITE-R27]
 ```
 
 ### PHASE 10 · Rollback

@@ -1,0 +1,21 @@
+  EP-020: comentario de cierre para 24 issue(s)
+
+    ## EP-020 cerrado
+    
+    - **Version de la suite** `13.0.0`
+    - **Tag** `v13.0.0` **todavia no existe**. Crearlo es el paso 8: humano y
+      DESPUES del merge (`SUITE-R06a`). Este comentario no afirma que exista.
+    - **Tareas** 1 de 23 en estado terminal
+    - **Siguen vivas** `PT-113` (DONE) · `PT-114` (DONE) · `PT-115` (DONE) · `PT-116` (DONE) · `PT-117` (DONE) · `PT-118` (DONE) · `PT-119` (DONE) · `PT-120` (DONE) · `PT-121` (VALIDATION_PENDING) · `PT-122` (DRAFT) · `PT-123` (DONE) · `PT-124` (DONE) · `PT-125` (DONE) · `PT-126` (DONE) · `PT-127` (VALIDATION_PENDING) · `PT-128` (DONE) · `PT-129` (DONE) · `PT-130` (VALIDATION_PENDING) · `PT-131` (DONE) · `PT-132` (DONE) · `PT-133` (DONE) · `PT-135` (VALIDATION_PENDING)
+    
+    > Publicado por `tracker cierre`. Toda cifra de aqui se DERIVA del arbol y del registro:
+    > ninguna se escribe a mano (`FND-R14`). Los comentarios anteriores no se editan
+    > (`SUITE-R09`).
+    
+    <!-- cauce:agente -->
+
+  --aplicar   lo publica, con la marca del agente.
+tracker · github · acción cierre
+
+
+Sin divergencias.

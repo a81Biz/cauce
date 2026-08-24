@@ -1,0 +1,80 @@
+{
+  "pt": "PT-114",
+  "generated": "2026-08-22",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un issue cuyo cuerpo publica una ruta SIN enlace se detecta en cuanto existe ref durable que la contenga",
+      "tests": [
+        "selftest.sh:cuerpo mudo CON ref durable ⇒ divergencia"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "El espejo lo echa de menos y BLOQUEA. Antes nada volvia a mirar: el cuerpo se publica al crear el issue y la rama se empuja despues."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La comprobacion distingue «sin ref durable todavia» de «ref durable existente y cuerpo sin actualizar»",
+      "tests": [
+        "selftest.sh:…y SIN ref durable es correcto",
+        "selftest.sh:…y un cuerpo con enlace tampoco"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "ES LA INVERSA QUE DECIDE. Marcar el caso sin ref durable seria acusar a PT-096 de un defecto que no tiene, y el ruido en cada corrida ensena a ignorar la comprobacion."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Ninguna compuerta puede quedar en verde con el intake de un lote ilegible desde su issue",
+      "tests": [
+        "tracker espejo"
+      ],
+      "evidence": [
+        "salidas/espejo.txt"
+      ],
+      "verified": true,
+      "nota": "Falla, no avisa: sin intake no hay firma y sin firma no hay G1. Va en el espejo porque es lo que corre CON credencial en los dos workflows; verify-fdge no la lleva (PT-120)."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El arreglo NO inventa un ref cuando de verdad no lo hay: PT-096 sigue en pie",
+      "tests": [
+        "selftest.sh:…y SIN ref durable es correcto"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "La decision de PT-096 se conserva entera: sin ref durable se publica la ruta sin enlace y se dice por que (RULE-06)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Sin poder leer el cuerpo o sin saber si hay ref, sale SIN EVALUAR y no verde",
+      "tests": [
+        "selftest.sh:sin poder leer el cuerpo ⇒ null",
+        "selftest.sh:…y sin saber si hay ref, tambien"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "Devolver false diria «todo bien» sin haber podido mirar. Es lo que publicar.yml hace hoy con SUITE-R43, medido en 108 de 108."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "El literal que se busca es el mismo que cuerpoDeIssue escribe",
+      "tests": [
+        "selftest.sh:el literal buscado es el que se escribe"
+      ],
+      "evidence": [
+        "salidas/casos.txt"
+      ],
+      "verified": true,
+      "nota": "RE_SIN_ENLACE se exporta y la usan los dos lados. Dos copias del mismo literal divergirian, y este caso es lo unico que lo impide."
+    }
+  ]
+}

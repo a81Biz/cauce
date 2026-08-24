@@ -1,5 +1,5 @@
 {
-  "suite_version": "12.0.0",
+  "suite_version": "13.0.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -31,11 +31,13 @@
     "pt_at_generation": 93
   },
   "tracker": {
-    "plataforma": "github"
+    "plataforma": "github",
+    "umbral_clase_sin_dueno": 3,
+    "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 112,
-    "EP": 19,
+    "PT": 136,
+    "EP": 20,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -3027,6 +3029,773 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "EP-020",
+      "slug": "el-acto-fuera-del-comando",
+      "created": "2026-08-22",
+      "status": "READY",
+      "phase": 1,
+      "title": "El acto fuera del comando: lo que ocurre en la conversacion no llega a ningun registro que se pueda contar",
+      "issue": 218,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-22"
+        }
+      }
+    },
+    {
+      "id": "PT-113",
+      "slug": "la-guia-que-se-publico-incompleta",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "La 12.0.1: la guia de migracion que se publico incompleta",
+      "issue": 217,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
+    },
+    {
+      "id": "PT-114",
+      "slug": "el-cuerpo-del-issue-no-se-republica",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "El cuerpo del issue no se republica cuando aparece la ref durable",
+      "issue": 232,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-115",
+      "slug": "la-parada-entra-al-vocabulario",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "PARADA entra al vocabulario y a las reglas",
+      "issue": 233,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
+    },
+    {
+      "id": "PT-116",
+      "slug": "tracker-parada",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "tracker parada: el comando que escribe la parada en su tarea",
+      "issue": 234,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
+    },
+    {
+      "id": "PT-117",
+      "slug": "la-parada-no-depende-de-la-memoria",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "Todo desenlace cita la parada que lo produjo",
+      "issue": 235,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
+    },
+    {
+      "id": "PT-118",
+      "slug": "la-taxonomia-de-clases-de-evento",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "La taxonomia de clases de evento, cerrada, en LEXICON",
+      "issue": 236,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
+    },
+    {
+      "id": "PT-119",
+      "slug": "la-matriz-se-deriva",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "tools/matriz.mjs deriva MATRIZ.md",
+      "issue": 237,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
+    },
+    {
+      "id": "PT-120",
+      "slug": "publicar-no-ejecuta-sellar",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "publicar.yml no ejecuta sellar, y verify-fdge corre sin GH_TOKEN",
+      "issue": 238,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
+    },
+    {
+      "id": "PT-121",
+      "slug": "el-viaje-de-vuelta-tras-el-merge",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "El viaje de vuelta tras el merge no lo cubre ninguna fase",
+      "issue": 239,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
+    },
+    {
+      "id": "PT-122",
+      "slug": "el-cierre-de-un-lote-pasa-por-el-comando",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "El cierre de un lote pasa por el comando, no por la mano",
+      "issue": 240,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
+    },
+    {
+      "id": "PT-123",
+      "slug": "backlog-no-tiene-generador",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "BACKLOG.md dice que se deriva del registro y nada lo deriva",
+      "issue": 241,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-124",
+      "slug": "la-herramienta-rechaza-el-vocabulario-canonico",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "tracker asignar rechaza tres de los cinco tipos que LEXICON declara",
+      "issue": 242,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-125",
+      "slug": "clasificar-las-tareas-cerradas",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "Clasificar las 131 entradas cerradas en EVENTOS.jsonl",
+      "issue": 243,
+      "type": "INVESTIGATION",
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
+    },
+    {
+      "id": "PT-126",
+      "slug": "la-matriz-no-envejece",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "sellar mide la matriz y FPGE la lee",
+      "issue": 244,
+      "type": "CHORE",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2009,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
+    },
+    {
+      "id": "PT-127",
+      "slug": "nada-detecta-el-trabajo-sin-allocation",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "Nada detecta el trabajo sin allocation: solo lo corta una persona",
+      "issue": 245,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
+    },
+    {
+      "id": "PT-128",
+      "slug": "el-cursor-del-recorrido",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "FEATURE",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar",
+      "issue": 246,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 689,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-24"
+      }
+    },
+    {
+      "id": "PT-129",
+      "slug": "la-topologia-de-ramas-no-se-enumera",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "FDGE-R19 enumera tres niveles, el arbol tiene cuatro tipos, y nada compara las ramas reales",
+      "issue": 249,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
+    },
+    {
+      "id": "PT-130",
+      "slug": "la-comprobacion-acusa-a-quien-la-documenta",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "Una comprobacion cuyo alcance es todo el texto acusa a quien describe el hecho",
+      "issue": 250,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
+    },
+    {
+      "id": "PT-131",
+      "slug": "el-candado-con-la-llave-dentro",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "SUITE-R57 cuenta el estado declarado en el tag, no el trabajo que el tag contiene",
+      "issue": 252,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura"
+    },
+    {
+      "id": "PT-132",
+      "slug": "abrir-no-es-atomico",
+      "created": "2026-08-22",
+      "status": "DONE",
+      "phase": 8,
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-020",
+      "title": "abrir crea el issue ANTES de guardar el registro, y una interrupcion duplica",
+      "issue": 253,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-22"
+      }
+    },
+    {
+      "id": "PT-133",
+      "slug": "parada-exige-plataforma-que-no-necesita",
+      "created": "2026-08-23",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "parada exige plataforma para escribir en TRANSICIONES.log",
+      "origen_parada": {
+        "de": "PT-117",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-23"
+      },
+      "issue": 254,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      }
+    },
+    {
+      "id": "PT-134",
+      "slug": "un-ac-firmado-que-deja-de-aplicar",
+      "created": "2026-08-23",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.0.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-020",
+      "title": "No hay forma de declarar un AC caido: o se finge verde o bloquea",
+      "origin": "Aplazado por PT-113: AC-06 decayo con el reanclaje a la 13.0.0 y el marco no tiene forma de declararlo. FDGE-R15 exige TS a todo AC y un criterio caido no puede tenerlo: o se finge verde o bloquea la tarea.",
+      "origen_parada": {
+        "de": "PT-113",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-23"
+      },
+      "issue": 255
+    },
+    {
+      "id": "PT-135",
+      "slug": "el-lint-de-helpers-no-ve-los-de-montaje",
+      "created": "2026-08-23",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve",
+      "issue": 256,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-23"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "origen_parada": {
+        "de": "PT-118",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-23"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      }
+    },
+    {
+      "id": "PT-136",
+      "slug": "la-validacion-humana-y-el-cierre-de-lote-por-comando",
+      "created": "2026-08-24",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.0.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-020",
+      "title": "Cerrar un BUG y cerrar un lote no tenian comando: la unica via era escribir el registro a mano",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1210,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-24"
+      },
+      "branch": "chore/alberto-martinez/PT-113-apertura",
+      "origen_parada": {
+        "de": "PT-122",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-24"
+      },
+      "issue": 257,
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
       }
     }
   ]

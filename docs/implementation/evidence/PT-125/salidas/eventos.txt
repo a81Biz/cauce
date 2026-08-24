@@ -1,0 +1,5 @@
+entradas recorridas       164
+INSTANCIAS clasificadas   63
+MENCIONES                 14
+afirman recurrencia y no nombran la forma   40
+registros                 189  →  C:\DevOps\Desarrollos\cauce\docs\implementation\EVENTOS.jsonl
