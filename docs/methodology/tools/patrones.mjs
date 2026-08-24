@@ -188,6 +188,8 @@ export const RIGE_DESDE = {
   'SUITE-R44': [6, 0, 1],         // c7ba859f
   'SUITE-R45': [7, 0, 0],         // 7fd7eb41
   'SUITE-R46': [7, 0, 0],         // f0de9489
+  'LEX-R33': [13, 1, 0],          // PT-137 · la puerta de vuelta de un aplazado
+  'LEX-R34': [13, 1, 0],          // PT-138 · un aplazado declara cuando se revisa
   'SUITE-R47': [7, 7, 0],         // 976b8bec
   'SUITE-R51': [7, 3, 0],         // 567eab2c
 };

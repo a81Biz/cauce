@@ -3742,3 +3742,28 @@ Las dos reglas se contradicen, y `LEXICON` manda sobre `RULES` (`LEX-R21`). **Po
 tiene nombre de rama derivable**, y su commit de apertura viaja en la rama de `PT-137`. Es
 también la causa de que el 2026-08-24 se inventara `chore/alberto-martinez/EP-020-viaje-de-vuelta`:
 la regla pedía un dato que otra regla prohíbe que exista. Va a `PT-142`.
+
+### Excepción declarada a `FDGE-R19` · agrupación de tareas por rama   `EP-021`
+
+**Autorización del firmante, literal:** *«termina todo, tienes mi Vo Bo para hacerlo, no pares
+hasta terminar. Agrupa varias PR»* — Alberto Martínez (`EXEC-R04a`).
+
+`FDGE-R19` pide **una rama efímera por tarea**. Las seis restantes de `EP-021` se agrupan en
+**dos** ramas de tres, y esto es la **excepción** declarada:
+
+```
+bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4    PT-139 · PT-134 · PT-140
+bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error   PT-141 · PT-142 · PT-143
+```
+
+El nombre de cada rama es el que `ramaDeTarea` deriva de **la primera** de su grupo; las otras dos
+viajan en ella y se dicen aquí, porque una rama que lleva tres tareas y sólo nombra una es
+exactamente la clase de dato tácito que este marco persigue.
+
+**Lo que se pierde, dicho:** la revisión deja de ser por tarea. Cada `PT` conserva su intake, su
+evidencia, su entrada de `HISTORY.log` y su fila de trazabilidad —eso **no** se agrupa—, pero el
+`PR` mezcla tres cambios lógicos y por tanto un `revert` limpio de uno solo deja de ser trivial.
+Es un coste real y lo asume quien lo autoriza.
+
+**El commit sigue siendo atómico.** `FDGE-R19` pide un commit por cambio lógico y eso **no** se
+relaja: cada tarea lleva el suyo, citando su `PT`.
