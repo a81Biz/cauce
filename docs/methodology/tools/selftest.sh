@@ -2216,7 +2216,7 @@ proj140() {
       suite_version:'13.1.0', personas:[{nombre:'Alberto Martínez'}], counters:{PT:1},
       allocations:[{id:'PT-001',slug:'viva',type:'BUG',status:'READY',phase:1}]}, null, 2));
   " "$d/docs/implementation/REGISTRY.json"
-  (cd "$d" && git init -q . && git add -A && git -c user.email=a@b -c user.name=c commit -qm base)
+  (cd "$d" && git init -q . && git config user.name "Alberto Martínez" && git config user.email "a@b" && git add -A && git commit -qm base)
   git init -q --bare "$r"
   (cd "$d" && git remote add origin "$r" && git push -q origin HEAD:refs/heads/main 2>/dev/null)
   echo "$d"

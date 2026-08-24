@@ -1131,7 +1131,103 @@ warning: in the working copy of 'docs/implementation/REGISTRY.json', LF will be 
   [32m✓[0m las aserciones sospechosas se enumeran
   [32m✓[0m ningun helper se usa antes de definirse
   [32m✓[0m SUITE-R56 existe en RULES
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          [32m✓[0m …y que solo CONSULTA
+  [32m✓[0m …y PHASE 9 la cita
+  [32m✓[0m …y el prompt de G4 tambien
+  [32m✓[0m …y CASOS-DE-USO tiene el caso
+  [32m✓[0m …y el MANUAL nombra proyectar
+── PT-066 · definir no es mencionar ──
+  [32m✓[0m cada regla devuelve SU definicion
+  [32m✓[0m una regla inexistente lo sigue siendo
+── PT-074 · el veredicto se ve en el tablero ──
+  [32m✓[0m el cuerpo lleva el veredicto
+  [32m✓[0m …y la naturaleza de la cifra
+  [32m✓[0m …y contra que se midio
+  [32m✓[0m MARGINAL dice que obliga
+  [32m✓[0m UNSAFE dice que detiene
+  [32m✓[0m sin viabilidad no inventa la linea
+── PT-068 · la marca es de quien la abre ──
+  [32m✓[0m marca ajena no se hereda
+  [32m✓[0m …tampoco preguntando por nombre
+  [32m✓[0m sin persona, la marca es mia
+  [32m✓[0m con mi nombre, es mia
+  [32m✓[0m la propia gana al respaldo
+  [32m✓[0m una persona, una sola sesion
+  [32m✓[0m …y gana el archivo propio
+  [32m✓[0m viabilidad no lee SESSION.json a pelo
+  [32m✓[0m las dos lecturas usan marcaDe
+  [32m✓[0m sesion abrir no dice SESSION.json
+  [32m✓[0m …ni cerrar afirma que se sobrescribe
+── PT-076 · el arnes no escribe donde se decide ──
+  [32m✓[0m ninguna accion que escriba va por TRR
+  [32m✓[0m sesion abrir escribe la marca del FIXTURE
+  [32m✓[0m …y abrir otra vez la sobrescribe
+  [32m✓[0m sesion cerrar da el handoff
+  [32m✓[0m …y dice que NO borra la marca
+  [32m✓[0m …y que HANDOFF.md queda INTACTO
+  [32m✓[0m coste sigue leyendo el historial real
+  [32m✓[0m las entradas del arnes estan declaradas
+  [32m✓[0m coste da una cifra para un grupo grande
+  [32m✓[0m …con su rango
+  [32m✓[0m …y de cuantas cerradas sale
+  [32m✓[0m …y avisa de las que no se pueden saber
+  [32m✓[0m …y que es referencia, no prediccion
+  [32m✓[0m un grupo pequeno se declara SIN REFERENCIA
+  [32m✓[0m …y no da mediana de una sola tarea
+  [32m✓[0m …pero ensena el caso que hay
+  [32m✓[0m sin filtro salen todos los grupos
+  [32m✓[0m un tipo no se confunde con el ROOT
+  [32m✓[0m coste funciona SIN credencial
+  [32m✓[0m la cifra no es la misma para todo grupo
+  [32m✓[0m «referencia de coste» esta en LEXICON
+  [32m✓[0m …con de donde sale
+  [32m✓[0m …y que NO mide
+  [32m✓[0m …y por que el asunto y no el cuerpo
+  [32m✓[0m …y que el umbral es un juicio
+── PT-059 · la compuerta de viabilidad ──
+  [32m✓[0m coste bajo el precedente ⇒ SAFE
+  [32m✓[0m …y el motivo lleva las dos cifras
+  [32m✓[0m …y tambien la del coste
+  [32m✓[0m …y habla de PRECEDENTE
+  [32m✓[0m …y NO promete que quepa
+  [32m✓[0m dentro de la holgura ⇒ MARGINAL
+  [32m✓[0m …y restringe a lo ATOMICO
+  [32m✓[0m muy por encima ⇒ UNSAFE
+  [32m✓[0m …y pide checkpoint, handoff y parada
+  [32m✓[0m …y dice que hay evidencia EN CONTRA
+  [32m✓[0m coste SIN EVALUAR ⇒ MARGINAL
+  [32m✓[0m …y NUNCA SAFE
+  [32m✓[0m precedente SIN EVALUAR ⇒ MARGINAL
+  [32m✓[0m …y dice CUAL de los dos falta
+  [32m✓[0m …o el otro, segun cual sea
+  [32m✓[0m …y que no se aprueba por omision
+  [32m✓[0m por encima del techo historico ⇒ UNSAFE
+  [32m✓[0m …y lo marca como NUNCA
+  [32m✓[0m …y pide PARTIR la tarea
+  [32m✓[0m …y dice que no se reintente
+  [32m✓[0m y se decide ANTES que el SIN EVALUAR
+  [32m✓[0m lo que cabe no se marca NUNCA
+  [32m✓[0m HOLGURA esta exportada
+  [32m✓[0m …y se puede cambiar sin tocar la funcion
+  [32m✓[0m …y se declara como JUICIO
+  [32m✓[0m VEREDICTOS son TRES
+  [32m✓[0m BLOCKED_BY_CONTEXT existe
+  [32m✓[0m …y NO es terminal
+  [32m✓[0m …y SI es vivo
+  [32m✓[0m esta en LEXICON
+  [32m✓[0m …y dice que NO es un fallo
+  [32m✓[0m …y que lo desbloquea otra sesion
+  [32m✓[0m verify-fdge lo cuenta como vivo
+  [32m✓[0m SAFE esta en LEXICON
+  [32m✓[0m MARGINAL esta en LEXICON
+  [32m✓[0m UNSAFE esta en LEXICON
+  [32m✓[0m …y que el disponible no existe
+  [32m✓[0m …y que no cabe ahora no es nunca
+  [32m✓[0m viabilidad da un veredicto
+  [32m✓[0m …con el coste y su naturaleza
+  [32m✓[0m …y el precedente con la suya
+  [32m✓[0m …y el techo historico
+  [32m✓[0m …y dice que mide PRECEDENTE
+  [32m✓[0m …y que solo CONSULTA
   [32m✓[0m funciona sin credencial
   [32m✓[0m un PT que no existe no se inventa
 ── PT-060 · la sesión como entidad ──
