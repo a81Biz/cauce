@@ -1,16 +1,16 @@
 # HANDOFF — estado retomable
 
 <!-- ESTADO -->
-implementación: EP-020 (#218) CERRADA · el acto fuera del comando. VEINTICUATRO tareas, PT-113 a PT-136 — nacieron veinte y CUATRO las abrió el propio trabajo. G1 PASS el 2026-08-22 y el cierre del lote escrito por «tracker cierre», no a mano.
-tarea:          NINGUNA en curso. PT-134 DEFERRED es la única que no se construyó; las otras 23 están INTEGRATED, escritas por «tracker integrar». Las cinco que eran BUG las validó el firmante el 2026-08-24 con «tracker validar».
-compuerta:      G4 RESUELTA: PR #259, de «trabajo» a «main», fusionado el 2026-08-24 sobre ceef338 — y su autorización está enumerada en SESSION_LOG.md. G1 resuelta y registrada. G2 y G3 delegadas por lote. El PR #260 y el que le siga NO son una segunda G4: son el viaje de vuelta del estado terminal (FDGE-R19, EXEC-R03).
-siguiente:      Fusionar #260 a «trabajo» · abrir y fusionar el PR de «trabajo» a «main» —viaje de vuelta, no compuerta— · «tracker cerrar --aplicar» SOLO cuando el estado terminal esté en main, que es lo que SUITE-R46 exige y hoy rechaza. Y «npm publish», QUE ES DEL FIRMANTE.
-decisiones:     El firmante autorizó el cierre completo y la integración hasta main, y reservó npm publish PARA ÉL. v13.0.0 etiquetada sobre ceef338 y empujada; el comentario de cierre publicado en 25 issues con marca de procedencia. La regeneración del grafo sigue reservada (FDGE-R32): esta autorización no la nombra, así que el grafo queda SUSPECT. Ninguna excepción se hereda: la siguiente G4 vuelve a necesitar autorización.
-no hacer:       1) npm publish. 2) escribir REGISTRY.json a mano: hay comando para todo, y el único que faltaba —validar un BUG y cerrar un lote— lo creó PT-136 después de que yo lo cometiera. 3) DOS baterías a la vez sobre el mismo archivo. 4) casos que llamen a «sellar» sobre el repositorio real. 5) declarar verified sin abrir la salida. 6) dar por buena una inversa cuyo escenario falle sobre el módulo intacto. 7) commitear el HANDOFF antes que el trabajo: SUITE-R34 lo cazó al cerrar este lote, y el orden es el arreglo.
-lo que la matriz dice hoy: seis clases sin regla que las reclame —CE-004 (ordinal 9), CE-001 (12), CE-003 (7), CE-005, CE-015, CE-007— y una peor: CE-002 tiene regla (SUITE-R59) y nada emite por ella. Candidatos publicados en cada «sellar»; promoverlos es del firmante (FPGE-R04).
-pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. La midió PT-127 —15 commits—, PT-130 la dejó declarada y PT-121 le dio una rama declarada. Es sobre FDGE-R19 y merece su propia propuesta.
-lo que sigue sin resolverse: PT-134 DEFERRED · 21 allocations sin suite_version, que NO se rellenan porque sería inventar bajo qué versión se abrió cada una · once lecturas de alcance amplio enumeradas por PT-130 y no juzgadas · el grafo SUSPECT.
-actualizado:    2026-08-24 · EP-020 CLOSED · G4 resuelta en #259 · v13.0.0 etiquetada · falta el viaje de vuelta y npm
+implementación: EP-021 (#270) ABIERTA · el aplazado sin puerta de vuelta. OCHO tareas: PT-137 a PT-143 y PT-134, que entró retomada. G1 firmada el 2026-08-24 POR DELEGACIÓN, con la autorización enumerada en SESSION_LOG.md.
+tarea:          PT-137 VALIDATION_PENDING · PHASE 8. Es un BUG y ahí se detiene (FDGE-R26). Las otras siete están en DRAFT con su intake escrito.
+compuerta:      G1 del lote resuelta y registrada. G2 y G3 delegadas por lote, con constancia en SESSION_LOG.md del 2026-08-24. G4 SIN ABRIR: el lote no está terminado.
+siguiente:      PR de PT-137 a «trabajo» · luego PT-138 (aplazar), PT-139 (caducidad en G4), PT-134 (el AC caído), PT-140 (proyectar), PT-141 (el manejador), PT-142 (la rama derivada), PT-143 (el prefijo). El orden está en el intake del lote §7 y no es preferencia.
+decisiones:     El firmante autorizó firmar en su nombre esta compuerta y las siguientes, y pidió que el único arrastre al cerrar sea PT-025 (#35). npm publish sigue reservado PARA ÉL. La regeneración del grafo sigue reservada (FDGE-R32) y esta autorización no la nombra: el grafo queda SUSPECT.
+no hacer:       1) npm publish. 2) escribir REGISTRY.json a mano — ahora hay comando también para retomar un aplazado. 3) editar selftest.sh MIENTRAS corre: bash lo lee por desplazamiento de bytes y parte los heredoc. 4) sustituir texto contra un ancla sin comprobar que es ÚNICA: costó 902 líneas de tracker.mjs. 5) commitear el HANDOFF antes que el trabajo (SUITE-R34).
+lo que este lote descubrió: DEFERRED tenía entrada y no tenía salida — ningún comando lo escribía ni lo retiraba, e integrar exigía el intake que SUITE-R44 declara exento. Y LEXICON §5.1 ya declaraba «DEFERRED --> READY» sin que nada pudiera ejecutarla.
+pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. Sigue sobre FDGE-R19 desde PT-127. Y una nueva: FDGE-R19 pide el «type» del lote para nombrar su rama y LEX-R27 dice que un lote no lleva type — va a PT-142.
+lo que sigue sin resolverse: PT-025 (#35) DEFERRED, el arrastre aceptado · 21 allocations sin suite_version, que NO se rellenan porque sería inventar · las clases CE sin regla que las reclame · el grafo SUSPECT.
+actualizado:    2026-08-24 · EP-021 abierta · PT-137 en PHASE 8 · selftest OK 1636 casos
 <!-- /ESTADO -->
 
 ---

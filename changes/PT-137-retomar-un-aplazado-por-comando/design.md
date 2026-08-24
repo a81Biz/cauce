@@ -18,11 +18,26 @@ tracker retomar PT-NNN --firmante "Nombre" [--fecha YYYY-MM-DD] [--epica EP-NNN]
 **Sin `--aplicar` no escribe nada** y enseña la transición, como el resto de acciones que tocan
 el registro.
 
-## Por qué `DRAFT` y `PHASE 1`, y no `READY`
+## El destino se **deriva**, y ahí estaba el segundo hallazgo
 
-Retomar devuelve la tarea **al principio**, no a donde estaba: un aplazado no tiene intake, y
-`READY` significa «`G1` resuelta sobre un alcance escrito». Devolverla a `READY` afirmaría una
-firma que nadie dio. `DRAFT`/`PHASE 1` es literalmente cierto: hay que escribir su intake.
+La primera versión de este diseño fijaba `DRAFT`/`PHASE 1`. Al ir a escribir `LEXICON` apareció
+que **§5.1 ya declara `DEFERRED --> READY`** — una transición escrita desde hace versiones que
+ningún comando podía ejecutar. Es `CE-007`: existe la ruta y nada la echa en falta.
+
+Pero `LEXICON` §5.1 declara además `READY --> DEFERRED`, y `SUITE-R44` dice que un aplazado **no
+tiene intake**. Las dos no pueden ser ciertas del mismo aplazado: volver a `READY` afirma una
+`G1` sobre un alcance escrito, y sin intake no hay alcance ni firma que afirmar.
+
+**Son dos aplazados distintos y el marco los llamaba igual:**
+
+| De dónde viene | Tiene intake | Vuelve a |
+|:---|:---|:---|
+| Aparcado **desde `READY`** | sí | `READY` — lo que `LEXICON` §5.1 declara |
+| **Nació aplazado** (`PT-134`) | no | `DRAFT` · `PHASE 1`, a escribirlo |
+
+Se decide **mirando si el archivo existe**, no preguntando ni suponiendo. Elegir un destino fijo
+habría derogado uno de los dos documentos desde una herramienta, que es lo que `SUITE-R00`
+prohíbe.
 
 ## El campo `retomada`, y por qué no basta con cambiar el estado
 

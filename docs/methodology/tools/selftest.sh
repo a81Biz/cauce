@@ -2112,6 +2112,141 @@ proj136_cerrable() {
 }
 chk   "…y con todas terminales, READY -> CLOSED"  "READY -> CLOSED"  int136 "$(proj136_cerrable)"
 
+# ── PT-137 · EP-021 · DEFERRED no tenia transicion de vuelta ──────────────────────────────────
+#
+# Lo pregunto el firmante sobre PT-134: «como aplazado, de que sirve? cuando se retoma?». Medida
+# contra el codigo, la respuesta era NUNCA: SUITE-R44 declara que un aplazado no tiene intake, e
+# `integrar` —el unico comando con destino de estado arbitrario— EXIGE que el intake declare
+# «status:». La regla que pone la tarea en el tablero es la misma que la deja inalcanzable.
+TK137="$SUITE/tools/tracker.mjs"
+
+# Proyecto de mentira: un aplazado SIN directorio en changes/ —que es el caso real—, un lote vivo,
+# un lote cerrado, un INTEGRATED y un DRAFT.
+proj137() {
+  local d="$WORK/p137"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:4,EP:2},
+      allocations:[
+        {id:'PT-001',slug:'aplazada',type:'CHORE',status:'DEFERRED',epic:'EP-002'},
+        {id:'PT-002',slug:'hecha',type:'BUG',status:'INTEGRATED',epic:'EP-001'},
+        {id:'PT-003',slug:'viva',type:'BUG',status:'DRAFT',epic:'EP-001'},
+        {id:'EP-001',slug:'vivo',status:'READY'},
+        {id:'EP-002',slug:'cerrado',status:'CLOSED'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+ret137() { (cd "$1" && shift; node "$TK137" retomar "$@" 2>&1); }
+
+# AC-01 · retoma SIN pedir intake. El fixture no tiene changes/ en absoluto: si el comando lo
+# exigiera, este caso no podria pasar — que es exactamente el lazo que la tarea abre.
+chk   "retomar lleva un DEFERRED a DRAFT"            "DEFERRED -> DRAFT"  ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+chk   "…y lo devuelve a PHASE 1, no a donde estaba"  "PHASE 1"            ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+chkno "…sin exigir intake, que un aplazado no tiene" "intake.md"          ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+ret137_seco() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').status);" "$d"
+}
+chk   "sin --aplicar no escribe nada"  "DEFERRED"  ret137_seco
+
+# AC-01 · EL DESTINO SE DERIVA DEL ARBOL. LEXICON 5.1 declara «DEFERRED --> READY» y SUITE-R44
+# dice que un aplazado NO tiene intake: son dos aplazados distintos con el mismo nombre. El que
+# conserva su intake vuelve a READY; el que nacio aplazado vuelve a DRAFT, a escribirlo.
+proj137_con_intake() {
+  local d; d=$(proj137)
+  mkdir -p "$d/changes/PT-001-aplazada"
+  printf '%s
+' '---' 'id: PT-001' 'status: DEFERRED' '---' > "$d/changes/PT-001-aplazada/intake.md"
+  echo "$d"
+}
+ret137_con_intake() {
+  local d; d=$(proj137_con_intake)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" 2>&1)
+}
+chk   "el aplazado que conserva intake vuelve a READY"  "DEFERRED -> READY"  ret137_con_intake
+chk   "…y lo dice citando LEXICON, no lo supone"        "LEXICON"            ret137_con_intake
+chk   "el que nacio aplazado vuelve a DRAFT"            "DEFERRED -> DRAFT"  ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+chk   "…y dice por que: no tiene intake"                "SUITE-R44"          ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+
+# AC-02 · retomar es una DECISION: firmante contrastado y fecha que se puede DECIR.
+chk   "un firmante que no esta en la lista falla"  "SUITE-R27"  ret137 "$(proj137)" PT-001 --firmante "Quien Sea"
+ret137_aplica() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" --fecha 2020-03-04 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='PT-001');
+           console.log(a.status+' '+a.phase+' '+(a.retomada?.por??'?')+' '+(a.retomada?.fecha??'?')+' '+(a.retomada?.de??'?'));" "$d"
+}
+chk   "…y la fecha se puede DECIR, no es la de correr el comando"  "2020-03-04"  ret137_aplica
+
+# AC-03 · se niega sobre lo que no es DEFERRED, y DICE el estado que encontro: «no se puede» sin
+# el dato obliga a ir a mirar el registro a mano, que es lo que este comando evita.
+chk   "sobre un INTEGRATED se niega"        "SUITE-R44"    ret137 "$(proj137)" PT-002 --firmante "Alberto Martínez"
+chk   "…y dice el estado que encontro"      "INTEGRATED"   ret137 "$(proj137)" PT-002 --firmante "Alberto Martínez"
+chk   "sobre un DRAFT vivo se niega igual"  "no DEFERRED"  ret137 "$(proj137)" PT-003 --firmante "Alberto Martínez"
+
+# AC-04 · reasignar la epica es PARTE de retomar: un aplazado que vuelve bajo un lote cerrado
+# vuelve al limbo por otra puerta. Es literalmente el caso de PT-134.
+ret137_epica() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" --epica EP-001 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').epic);" "$d"
+}
+chk   "--epica a un lote vivo reasigna"            "EP-001"     ret137_epica
+chk   "--epica a un lote CERRADO se niega"         "CLOSED"     ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez" --epica EP-002
+chk   "…y --epica a algo que no es lote, tambien"  "LEX-R27"    ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez" --epica PT-002
+chk   "sin --epica conserva la que tenia, y lo dice"  "sin cambio"  ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+
+# AC-05 · el rastro. Sin el campo, una retomada es indistinguible de una que nunca se aplazo:
+# SUITE-R44 existe porque algo aplazado se perdio, y perder lo DESaplazado seria lo mismo al reves.
+chk   "el registro declara quien, cuando y de que estado"  "Alberto Martínez 2020-03-04 DEFERRED"  ret137_aplica
+
+# AC-01 · sin plataforma escribe igual: es la leccion de PT-133, que costo un PT entero.
+ret137_sin_tablero() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" --aplicar 2>&1) | tail -4
+}
+chkno "sin plataforma declarada NO exige tablero"  "plataforma de trabajo"  ret137_sin_tablero
+chk   "…y deja la retomada en TRANSICIONES.log"    "TRANSICIONES.log"       ret137_sin_tablero
+
+# ── PT-137 · prueba inversa · cuatro supresiones, cuatro escenarios distintos ──────────────────
+#
+# Sobre una COPIA del modulo real, no sobre una reimplementacion. Y se comprueba que cae el
+# escenario esperado Y SOLO ESE: el defecto que PT-122 y PT-130 encontraron en sus propias
+# inversas fue una mutacion que tumbaba un escenario distinto del que declaraba.
+inv137() { # $1 supresion sed · $2.. argumentos de retomar
+  local supresion="$1"; shift
+  local d; d=$(proj137)
+  mkdir -p "$d/tools"
+  cp "$SUITE/tools/tracker.mjs" "$d/tools/tracker.mjs"
+  cp "$SUITE/tools/patrones.mjs" "$d/tools/patrones.mjs"
+  sed -i "$supresion" "$d/tools/tracker.mjs"
+  node --check "$d/tools/tracker.mjs" >/dev/null 2>&1 || { echo "no compila"; return; }
+  (cd "$d" && node ./tools/tracker.mjs retomar "$@" 2>&1)
+}
+chk   "inversa: sin comprobar DEFERRED, un INTEGRATED se retomaria"  "DEFERRED -> DRAFT" \
+  inv137 "s/if (a.status !== 'DEFERRED') {/if (false) {/" PT-002 --firmante "Alberto Martínez"
+chk   "inversa: sin contrastar el firmante, uno inventado pasa"  "DEFERRED -> DRAFT" \
+  inv137 "s/if (firmantes.length && !firmantes.includes(quien)) {/if (false) {/" PT-001 --firmante "Quien Sea"
+chk   "inversa: sin comprobar el lote vivo, se reasigna a uno cerrado"  "DEFERRED -> DRAFT" \
+  inv137 "s/if (ESTADOS_TERMINALES.has(String(lote.status))) {/if (false) {/" PT-001 --firmante "Alberto Martínez" --epica EP-002
+inv137_sin_rastro() {
+  local d; d=$(proj137)
+  mkdir -p "$d/tools"
+  cp "$SUITE/tools/tracker.mjs" "$d/tools/tracker.mjs"
+  cp "$SUITE/tools/patrones.mjs" "$d/tools/patrones.mjs"
+  sed -i "/^  a.retomada = {/d" "$d/tools/tracker.mjs"
+  node --check "$d/tools/tracker.mjs" >/dev/null 2>&1 || { echo "no compila"; return; }
+  (cd "$d" && node ./tools/tracker.mjs retomar PT-001 --firmante "Alberto Martínez" --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').retomada===undefined?'SIN RASTRO':'con rastro');" "$d"
+}
+chk   "inversa: sin el campo, la retomada no deja rastro"  "SIN RASTRO"  inv137_sin_rastro
+
 # ── PT-122 · EP-020 · el cierre de un lote pasa por el comando ────────────────────────────────
 #
 # Lo pidio el firmante: «que publicar el cierre de un lote no dependa de que alguien escriba un

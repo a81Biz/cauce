@@ -8525,3 +8525,77 @@ que alguien quita algun dia sin que nada lo diga.
 LO QUE NO ESTABLECE: que ningun otro caso pueda corromper el entorno. Se reviso el bloque entero
 de EP-020 y este era el unico que llama a build_fixture dentro de un subshell. Los demas lo llaman
 a nivel superior, donde el «cd» final de build_fixture SI recoloca al shell que importa.
+
+## PT-137 — DEFERRED tenia entrada y no tenia salida
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021 — la abrio una pregunta del firmante sobre PT-134
+Rama: bug/alberto-martinez/PT-137-retomar-un-aplazado-por-comando
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-006
+
+Lo pregunto el firmante: «PT-134 como aplazado, de que sirve? cuando se retoma? abierto para que?
+el mismo issue no indica cuando se tomara o que pasara con ese».
+
+LA RESPUESTA, MEDIDA, ERA «NUNCA». SUITE-R44 declara que un aplazado queda EXENTO de artefactos:
+no tiene intake. `integrar` es el unico comando con destino de estado arbitrario y EXIGE que el
+intake declare «status:» (tracker.mjs:4148); ademas filtra DEFERRED antes de llegar ahi (4119).
+Las otras asignaciones de estado del tracker —3279, 3285, 4214, 4284— escriben DONE,
+VALIDATION_PENDING y READY. NINGUNA toca DEFERRED.
+
+La regla que ponia la tarea en el tablero era la misma que la dejaba inalcanzable. Retomar PT-134
+exigia escribir REGISTRY.json a mano: CE-006, el acto fuera del comando, en su forma pura.
+
+LO ENCONTRO USAR EL MARCO, NO LEERLO. Al ir a mover PT-134 al lote nuevo, ningun comando podia. Es
+la misma ruta por la que EP-020 descubrio que cerrar un BUG tampoco tenia comando.
+
+EL SEGUNDO HALLAZGO, QUE CAMBIO EL DISEÑO A MITAD. La primera version fijaba DRAFT/PHASE 1.
+Escribiendo LEXICON aparecio que §5.1 YA DECLARA «DEFERRED --> READY»: una transicion escrita
+desde hace versiones que ningun comando podia ejecutar — CE-007. Pero §5.1 declara tambien
+«READY --> DEFERRED», y SUITE-R44 dice que un aplazado no tiene intake. Las dos no pueden ser
+ciertas del mismo aplazado.
+
+ERAN DOS APLAZADOS DISTINTOS CON EL MISMO NOMBRE:
+
+  aparcado desde READY, conserva intake -> vuelve a READY, como dice LEXICON §5.1
+  nacio aplazado, sin intake            -> vuelve a DRAFT y PHASE 1, a escribirlo
+
+El destino se DERIVA mirando si el archivo existe. Fijar uno habria derogado uno de los dos
+documentos desde una herramienta, que es lo que SUITE-R00 prohibe.
+
+TRES DEFECTOS AL CONSTRUIRLO, y los tres se declaran:
+
+1. ROTURA DE ESCAPADO al componer el cuerpo del comentario dentro de una plantilla: las secuencias
+   se volvieron saltos reales y el modulo no compilaba. Es CE-002 —la clase que TIENE regla
+   (SUITE-R59) y de la que nada emitia—. Se compone con SALTO y L.push, que es lo que la regla
+   dice.
+
+2. UNA SUSTITUCION CON ANCLA NO UNICA borro 902 lineas de tracker.mjs: se busco el PRIMER
+   «if (adaptador?.comentar && a.issue) {» del archivo, no el propio. Lo delato «git diff --stat»
+   antes de nada mas y se restauro desde git. El segundo intento escribio el fragmento aparte y lo
+   inserto contra un ancla COMPROBADA unica: 119 insertions, 1 deletion.
+
+3. EDITAR LA BATERIA MIENTRAS CORRIA. bash lee el script por desplazamiento de bytes: insertar
+   lineas a mitad partio un heredoc y produjo un error de sintaxis en una linea sin relacion. El
+   error NO era real, y perseguirlo habria costado horas.
+
+Y LA INVERSA SE REANCLO. La supresion del rastro casaba el TEXTO EXACTO de la linea «a.retomada =
+{…}». Al añadirle dos campos dejo de casar y salio verde POR NO ENCONTRAR NADA QUE SUPRIMIR: el
+falso verde por vacio de PT-023. Ahora se ancla a la LINEA, no a su contenido.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · LEXICON.md · RULES.md · PHASES.md ·
+  FDGE-Prompts.md · CORE.md (generado) · inventory/services.md (derivado)
+
+Evidencia: evidence/PT-137/ — selftest OK · 1636 casos, 0 rojos · verify-suite sin errores de
+  coherencia · auditoria sin huecos, cobertura mecanica 128/235 · y la salida REAL de retomar
+  sobre PT-134, que es AC-06.
+
+LO QUE NO ESTABLECE: que un aplazado deba declarar cuando se retoma (PT-138) ni que caduque
+(PT-139). Aqui esta la puerta, no el requisito de cruzarla. Tampoco que el «retomada» de PT-134
+este completo: se escribio con la PRIMERA version del comando, antes de que el destino fuese
+derivado, asi que declara «por», «fecha» y «de» pero no «destino» ni «conIntake». No se reescribe
+—SUITE-R09 es append-only— porque lo que afirma es cierto.

@@ -43,12 +43,13 @@ escribir `REGISTRY.json` a mano, que es lo que todo este marco existe para imped
 `SUITE-R44` no exige **condición de reentrada**, ni **fecha de revisión**, ni **dueño**.
 Contrastado contra los dos aplazados vivos:
 
-| | `PT-134` #255 | `PT-025` #35 |
-|:---|:---|:---|
-| Creado | 2026-08-23 | mucho antes |
-| Condición de reentrada | — | — |
-| Fecha de revisión | — | — |
-| Dueño | — | — |
+```
+                          PT-134 #255      PT-025 #35
+Creado                    2026-08-23       mucho antes
+Condicion de reentrada    —                —
+Fecha de revision         —                —
+Dueno                     —                —
+```
 
 **En el tablero son indistinguibles**, y también lo son de un abandono. La numeración pasó de
 `PT-134` a `PT-143` sin que nada lo notara.
@@ -77,7 +78,7 @@ que ninguna comprobación nombró.
 
 | Fuera | Dónde va |
 |:---|:---|
-| Desarrollar `PT-025` · la guarda de cierre en Azure | `PT-025` — sigue aplazado, y será el primer caso al que se le exija condición y fecha |
+| Desarrollar la guarda de cierre en Azure | Sigue aplazado — es el arrastre que el firmante acepta, y será el primer caso al que se le exija condición y fecha |
 | Si un lote `EP` debe declarar `type` | `PT-142` — lo decide ahí, porque es lo que hace derivable su rama |
 | Las seis clases `CE` sin regla que las reclame | — |
 | Regenerar el grafo | — reservado al firmante (`FDGE-R32`) |

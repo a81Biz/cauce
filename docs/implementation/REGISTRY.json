@@ -3699,12 +3699,12 @@
       "id": "PT-134",
       "slug": "un-ac-firmado-que-deja-de-aplicar",
       "created": "2026-08-23",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.0.0",
       "type": "CHORE",
       "severity": "S3",
-      "epic": "EP-020",
+      "epic": "EP-021",
       "title": "No hay forma de declarar un AC caido: o se finge verde o bloquea",
       "origin": "Aplazado por PT-113: AC-06 decayo con el reanclaje a la 13.0.0 y el marco no tiene forma de declararlo. FDGE-R15 exige TS a todo AC y un criterio caido no puede tenerlo: o se finge verde o bloquea la tarea.",
       "origen_parada": {
@@ -3712,7 +3712,29 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-23"
       },
-      "issue": 255
+      "issue": 255,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-24",
+        "de": "DEFERRED"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2015,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-24"
+      }
     },
     {
       "id": "PT-135",
@@ -3818,8 +3840,8 @@
       "id": "PT-137",
       "slug": "retomar-un-aplazado-por-comando",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
       "severity": "S1",
@@ -3865,6 +3887,23 @@
         "de": "EP-021",
         "motivo": "abre-trabajo",
         "fecha": "2026-08-24"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-24"
       }
     },
     {
@@ -3882,6 +3921,23 @@
       "origen_parada": {
         "de": "EP-021",
         "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-24"
       }
     },
@@ -3901,6 +3957,23 @@
         "de": "EP-021",
         "motivo": "abre-trabajo",
         "fecha": "2026-08-24"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-24"
       }
     },
     {
@@ -3918,6 +3991,23 @@
       "origen_parada": {
         "de": "EP-021",
         "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-24"
       }
     },
@@ -3937,6 +4027,23 @@
         "de": "EP-021",
         "motivo": "abre-trabajo",
         "fecha": "2026-08-24"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-24"
       }
     },
     {
@@ -3954,6 +4061,23 @@
       "origen_parada": {
         "de": "EP-021",
         "motivo": "abre-trabajo",
+        "fecha": "2026-08-24"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-24"
       }
     }

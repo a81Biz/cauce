@@ -20,7 +20,8 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 | PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
-| PT-137 | BUG | S1 | DRAFT | 1 | [#263](https://github.com/a81Biz/cauce/issues/263) | DEFERRED no tiene transicion de vuelta: ningun comando lo saca y todo comando de estado exige un intake que un aplazado no tiene |
+| PT-134 | CHORE | S3 | DRAFT | 1 | [#255](https://github.com/a81Biz/cauce/issues/255) | No hay forma de declarar un AC caido: o se finge verde o bloquea |
+| PT-137 | BUG | S1 | VALIDATION_PENDING | 8 | [#263](https://github.com/a81Biz/cauce/issues/263) | DEFERRED no tiene transicion de vuelta: ningun comando lo saca y todo comando de estado exige un intake que un aplazado no tiene |
 | PT-138 | BUG | S2 | DRAFT | 1 | [#264](https://github.com/a81Biz/cauce/issues/264) | SUITE-R44 pone el aplazado en el tablero y no exige condicion de reentrada, fecha de revision ni dueno |
 | PT-139 | BUG | S2 | DRAFT | 1 | [#265](https://github.com/a81Biz/cauce/issues/265) | Nada mide la edad de un aplazado: uno de ayer y uno de hace meses son indistinguibles en el tablero |
 | PT-140 | BUG | S2 | DRAFT | 1 | [#266](https://github.com/a81Biz/cauce/issues/266) | tracker proyectar arranca un linaje nuevo en silencio si falta refs/heads de la rama de proyeccion |
@@ -28,16 +29,15 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-142 | BUG | S3 | DRAFT | 1 | [#268](https://github.com/a81Biz/cauce/issues/268) | Nada compara el nombre de una rama con lo que ramaDeTarea deriva: type y slug inventados pasan la topologia |
 | PT-143 | BUG | S3 | DRAFT | 1 | [#269](https://github.com/a81Biz/cauce/issues/269) | asignar toma el primer argumento en mayusculas como prefijo, asi que --tipo BUG crea BUG-001 |
 
-**0 de 7 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**0 de 8 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
-## Aplazado — 2 allocation(s) `DEFERRED`
+## Aplazado — 1 allocation(s) `DEFERRED`
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
 | Id | Tipo | Issue | Por qué sigue fuera |
 |:---|:---|:---|:---|
 | PT-025 | CHORE | [#35](https://github.com/a81Biz/cauce/issues/35) | el adaptador de Azure existe pero no hay proyecto que lo use; escribir la guarda a ciegas seria codigo sin ejecucion |
-| PT-134 | CHORE | [#255](https://github.com/a81Biz/cauce/issues/255) | Aplazado por PT-113: AC-06 decayo con el reanclaje a la 13.0.0 y el marco no tiene forma de declararlo. FDGE-R15 exige T |
 
 <!-- /BACKLOG:DERIVADO -->
 

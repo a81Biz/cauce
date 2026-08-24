@@ -10,7 +10,7 @@ type: BUG
 epic: EP-021
 track: STANDARD
 status: DRAFT
-phase: 1
+phase: 8
 created: 2026-08-24
 structural: no
 suite_version: 13.0.0
@@ -39,7 +39,7 @@ inalcanzable**. Retomar `PT-134` hoy exige escribir `REGISTRY.json` a mano — e
 
 | AC | Criterio | Cómo se comprueba |
 |:---|:---|:---|
-| AC-01 | `tracker retomar PT-NNN` lleva un `DEFERRED` a un estado vivo **sin exigir intake** | un caso que lo ejecuta sobre una allocation aplazada y sin directorio en `changes/` |
+| AC-01 | `tracker retomar PT-NNN` lleva un `DEFERRED` a un estado vivo **sin exigir intake**, y el destino se **deriva** de si el intake existe | dos casos: aplazado sin intake → `DRAFT`/`PHASE 1`; aplazado con intake → `READY` |
 | AC-02 | Retomar es una **decisión**, no un efecto: exige firmante contrastado contra `CLAUDE.md` y acepta la fecha real | dos casos: firmante válido escribe; firmante inventado falla |
 | AC-03 | Se niega sobre lo que no está `DEFERRED`, y lo dice con el estado que encontró | un caso por cada estado terminal y uno vivo |
 | AC-04 | Puede reasignar la épica al retomar, porque un aplazado sin lote que responda vuelve al limbo | un caso con `--epica` y otro sin ella |
@@ -75,7 +75,11 @@ Firmado por lote: EP-021
 - **`SUITE-R44` no está equivocada en lo que dice**, sino en lo que calla. Que un aplazado esté
   exento de artefactos es correcto y deliberado. Lo que falta es que esa exención no lo deje
   fuera del alcance de todos los comandos a la vez.
-- **Hay un segundo hallazgo que no es de esta tarea y se declara:** `LEX-R27` dice que un lote
+- **`LEXICON` §5.1 ya declaraba `DEFERRED --> READY`**, y ningún comando podía ejecutarla: la
+  transición estaba escrita y nada la echaba en falta (`CE-007`). Pero §5.1 declara también
+  `READY --> DEFERRED`, mientras `SUITE-R44` dice que un aplazado no tiene intake: **eran dos
+  aplazados distintos con el mismo nombre**. Por eso el destino se deriva y no se elige.
+- **Hay un tercer hallazgo que no es de esta tarea y se declara:** `LEX-R27` dice que un lote
   **no lleva `type`**, y `FDGE-R19` manda nombrar la rama de lote «con el `type` del propio
   lote». Se contradicen, y `LEXICON` manda sobre `RULES` (`LEX-R21`). Por eso `EP-021` no tiene
   nombre de rama derivable y esta tarea carga el commit de apertura del lote. Va a `PT-142`.

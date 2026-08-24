@@ -40,4 +40,4 @@
 | PT-092 | CHORE | S2 | INTEGRATED | EP-018 | Ejecutar QA y FPGE, los dos componentes que nunca han corrido |
 | PT-093 | CHORE | S2 | INTEGRATED | EP-018 | El limite de las compuertas se declara como ya se declara el de las firmas |
 | PT-126 | CHORE | S2 | INTEGRATED | EP-020 | sellar mide la matriz y FPGE la lee |
-| PT-134 | CHORE | S3 | DEFERRED | EP-020 | No hay forma de declarar un AC caido: o se finge verde o bloquea |
+| PT-134 | CHORE | S3 | DRAFT | EP-021 | No hay forma de declarar un AC caido: o se finge verde o bloquea |
