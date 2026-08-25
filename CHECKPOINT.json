@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-021",
   "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error",
   "sha": "9304f985fef156245dfd5b60c706fe265811430b",
   "sha_corto": "9304f98",
@@ -53,8 +53,11 @@
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-24"
 }
