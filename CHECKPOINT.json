@@ -3,29 +3,18 @@
   "type": "BUG",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-144-el-contrato-de-componentes",
-  "sha": "c457e54e817237241c4afb0b304ff703a6153049",
-  "sha_corto": "c457e54",
+  "sha": "73b422e13674d9f9131f2f3d1ac73daa1ba6be4b",
+  "sha_corto": "73b422e",
   "sucio": true,
   "archivos": [
-    "changes/PT-150-la-escala-de-severidad-se-declara/discovery.md",
     "changes/PT-150-la-escala-de-severidad-se-declara/intake.md",
-    "changes/PT-150-la-escala-de-severidad-se-declara/strategy.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-25"
 }
