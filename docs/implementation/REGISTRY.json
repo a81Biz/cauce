@@ -4150,7 +4150,12 @@
       "severity": "S2",
       "epic": "EP-022",
       "title": "El contrato de componentes vive en patrones.mjs",
-      "issue": 279
+      "issue": 279,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
     },
     {
       "id": "PT-145",
@@ -4163,7 +4168,12 @@
       "severity": "S2",
       "epic": "EP-022",
       "title": "verify-suite y comparar-marco derivan los componentes del contrato",
-      "issue": 280
+      "issue": 280,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
     },
     {
       "id": "PT-146",
@@ -4176,7 +4186,12 @@
       "severity": "S2",
       "epic": "EP-022",
       "title": "build-core deriva familias, orden y triggers del contrato",
-      "issue": 281
+      "issue": 281,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
     },
     {
       "id": "PT-147",
@@ -4189,7 +4204,12 @@
       "severity": "S2",
       "epic": "EP-022",
       "title": "audit deriva fases, sigla y referencias por componente del contrato",
-      "issue": 282
+      "issue": 282,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
     },
     {
       "id": "PT-148",
@@ -4202,7 +4222,12 @@
       "severity": "S2",
       "epic": "EP-022",
       "title": "El alta y la baja de un componente quedan escritas y con regla",
-      "issue": 283
+      "issue": 283,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
     },
     {
       "id": "PT-149",
@@ -4215,7 +4240,12 @@
       "severity": "S2",
       "epic": "EP-022",
       "title": "La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta",
-      "issue": 284
+      "issue": 284,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
     },
     {
       "id": "PT-150",
@@ -4228,7 +4258,12 @@
       "severity": "S2",
       "epic": "EP-022",
       "title": "SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos",
-      "issue": 285
+      "issue": 285,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
     },
     {
       "id": "EP-023",

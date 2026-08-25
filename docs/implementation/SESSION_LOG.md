@@ -3918,3 +3918,65 @@ llega por merge, no por push. Es una buena noticia, y estaba sin registrar.
 
 **El PR de este trabajo a `trabajo` NO es `G4`**: es revisión (`FDGE-R19`, `EXEC-R03`). `G4` es el
 merge de `trabajo` a `main`, y sigue sin autorizar.
+
+### Ampliación 2 — autorización para ejecutar `EP-022` entero
+
+**Instrucción del firmante, literal:** *«en cuanto esté listo, mientras sigas el marco de trabajo
+tienes mi vobo para trabajar. Desde lo necesario para pasar de gates hasta la publicación a main
+y que no queden ramas sueltas o adicionales para que tengas la facilidad de ir pasando lo
+necesario. Así no paras hasta terminar la épica 22»* — Alberto Martínez.
+
+Y sobre el grafo, preguntado expresamente: *«lo del grafo, te lo autorizo desde ahora, de hecho,
+lo deberías de actualizar antes de comenzar y luego al final de cada tarea si sirve de algo, si
+no al final de la épica»* → resuelto en **dos regeneraciones**: ahora y al cerrar.
+
+**Qué autoriza, enumerado:**
+
+9.  **`G2` y `G3`** de las siete tareas, firmadas en su nombre.
+10. **`G4`**: el merge de `trabajo` a `main` (`SUITE-R06a`).
+11. **La validación humana de `PT-150`**, único `BUG` del lote (`SUITE-R06b`, `FDGE-R26`). Sin
+    esto se detendría en `VALIDATION_PENDING` y el lote no cerraría.
+12. **Modificar `docs/methodology/`** (`SUITE-R06e`), que es donde vive el lote entero.
+13. **Borrar ramas remotas** (`SUITE-R06f`) — *«que no queden ramas sueltas o adicionales»*.
+14. **Regenerar el grafo** (`FDGE-R32`), que llevaba `SUSPECT` desde el 2026-08-20.
+
+**Qué NO autoriza, y sigue reservado:**
+
+- **`npm publish`** (`SUITE-R06g`). «Publicación a `main`» es el merge, no el paquete. Reservado
+  a lo largo de seis lotes y **no revocado**. El agente no la ejecuta.
+- **Reescribir historia o `push --force`** (`SUITE-R06f` en su otra mitad). Lo autorizado es
+  borrar ramas ya fusionadas, no reescribir.
+
+### La cadencia del grafo, decidida con datos
+
+El agente propuso **tres** regeneraciones y el firmante eligió **dos**. Lo que se midió para
+proponerlo:
+
+```
+scope del grafo   bin, docs/methodology/tools   ← exactamente lo que EP-022 reescribe
+archivos          17: las 16 herramientas + bin/cauce.mjs
+generado          2026-08-20 · PT-93 · SUSPECT (6 de 17 cambiados)
+```
+
+- **Antes de empezar**: sí. No por `SUITE-R57`, sino porque `PHASE 2` de cada tarea lee el grafo
+  para el análisis de acoplamiento (`FDGE-R08`), y `PT-144` crea el contrato del que van a colgar
+  cuatro herramientas. Con el grafo `SUSPECT` ese análisis se hace a mano.
+- **Al final de cada tarea**: descartado. Serían siete regeneraciones de los mismos 17 archivos,
+  cada una invalidada por la siguiente, que toca el mismo directorio. El grafo se **consume** al
+  principio de `PHASE 2`, no al final de `PHASE 8`.
+- **Al cerrar**: sí, obligatorio — `sellar` lo exige al día (`SUITE-R57`).
+
+El agente señaló que `PT-144` es la única tarea que **mueve la topología** —crea aristas nuevas,
+no cambia de dónde sale un dato— y propuso una tercera regeneración ahí. El firmante decidió dos.
+**Si el análisis de `PT-145` la echa en falta, se dice y se pregunta; no se regenera por cuenta
+propia ni se calla.**
+
+### Línea base antes de tocar nada
+
+```
+npm run verify   EXIT=0   ·   selftest: OK · 1695 casos
+espejo           cuadra: 10 allocations vivas, 10 issues
+PR #288          abierto · chore/alberto-martinez/EP-022-apertura -> trabajo
+```
+
+Es la línea base contra la que se compara todo lo que venga (supuesto compartido de `EP-022` §7).
