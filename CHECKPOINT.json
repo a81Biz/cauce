@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-021",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error",
   "sha": "9304f985fef156245dfd5b60c706fe265811430b",
   "sha_corto": "9304f98",
@@ -53,15 +53,8 @@
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-24"
 }
