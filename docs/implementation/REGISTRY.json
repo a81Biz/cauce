@@ -26,9 +26,9 @@
     "pt_at_generation": 65
   },
   "graph": {
-    "generated": "2026-08-20",
+    "generated": "2026-08-25",
     "scope": "bin, docs/methodology/tools",
-    "pt_at_generation": 93
+    "pt_at_generation": 150
   },
   "tracker": {
     "plataforma": "github",
@@ -36,8 +36,8 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 143,
-    "EP": 21,
+    "PT": 150,
+    "EP": 23,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -4122,6 +4122,181 @@
           "fecha": "2026-08-24"
         }
       }
+    },
+    {
+      "id": "EP-022",
+      "slug": "los-componentes-se-declaran",
+      "created": "2026-08-24",
+      "status": "READY",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "title": "modularidad: los componentes se declaran, no se escriben a mano",
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      },
+      "issue": 286
+    },
+    {
+      "id": "PT-144",
+      "slug": "el-contrato-de-componentes",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 4,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-022",
+      "title": "El contrato de componentes vive en patrones.mjs",
+      "issue": 279,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2015,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-145",
+      "slug": "verify-suite-deja-de-escribirlos",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "REFACTOR",
+      "severity": "S2",
+      "epic": "EP-022",
+      "title": "verify-suite y comparar-marco derivan los componentes del contrato",
+      "issue": 280,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-146",
+      "slug": "build-core-deja-de-escribirlos",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "REFACTOR",
+      "severity": "S2",
+      "epic": "EP-022",
+      "title": "build-core deriva familias, orden y triggers del contrato",
+      "issue": 281,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-147",
+      "slug": "audit-deja-de-escribirlos",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "REFACTOR",
+      "severity": "S2",
+      "epic": "EP-022",
+      "title": "audit deriva fases, sigla y referencias por componente del contrato",
+      "issue": 282,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-148",
+      "slug": "el-alta-y-la-baja-se-escriben",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-022",
+      "title": "El alta y la baja de un componente quedan escritas y con regla",
+      "issue": 283,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-149",
+      "slug": "la-prueba-de-alta-y-baja",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-022",
+      "title": "La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta",
+      "issue": 284,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-150",
+      "slug": "la-escala-de-severidad-se-declara",
+      "created": "2026-08-24",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-022",
+      "title": "SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos",
+      "issue": 285,
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "EP-023",
+      "slug": "el-dictamen-al-dueno-del-dominio",
+      "created": "2026-08-24",
+      "status": "READY",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "title": "DICTAMEN: el septimo componente, y el entregable ejecutivo al dueno del dominio",
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
+      },
+      "issue": 287
     }
   ]
 }
