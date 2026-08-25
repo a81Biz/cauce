@@ -13,7 +13,7 @@ id: PT-134
 type: CHORE
 epic: EP-021
 track: STANDARD
-status: DRAFT
+status: INTEGRATED
 phase: 8
 created: 2026-08-23
 structural: no
