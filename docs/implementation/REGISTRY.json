@@ -26,9 +26,9 @@
     "pt_at_generation": 65
   },
   "graph": {
-    "generated": "2026-08-20",
+    "generated": "2026-08-25",
     "scope": "bin, docs/methodology/tools",
-    "pt_at_generation": 93
+    "pt_at_generation": 150
   },
   "tracker": {
     "plataforma": "github",
