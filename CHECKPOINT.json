@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-021",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error",
   "sha": "9304f985fef156245dfd5b60c706fe265811430b",
   "sha_corto": "9304f98",
@@ -56,7 +56,10 @@
     "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-24"
 }
