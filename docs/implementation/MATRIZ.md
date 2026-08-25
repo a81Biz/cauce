@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-179 entradas recorridas · 155 identificadores · 94 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-24
+182 entradas recorridas · 158 identificadores · 96 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-24
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
@@ -15,14 +15,14 @@
 | `CE-004` | Probar donde trabajo, no donde se decide | 10 | 9 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-005` | Verde por no haber mirado | 11 | 2 | 2026-08-14 | 2026-08-24 | `SUITE-R31` | `SUITE-R31` falla |
 | `CE-006` | El acto hecho fuera del comando | 6 | — | 2026-08-21 | 2026-08-24 | `SUITE-R58` · `FDGE-R52` | `SUITE-R58` avisa · `FDGE-R52` falla |
-| `CE-007` | Existe la herramienta y nada la echa en falta | 5 | 7 | 2026-08-19 | 2026-08-24 | `FDGE-R19` | `FDGE-R19` falla |
+| `CE-007` | Existe la herramienta y nada la echa en falta | 6 | 7 | 2026-08-19 | 2026-08-24 | `FDGE-R19` | `FDGE-R19` falla |
 | `CE-008` | Un hecho, varios nombres | 3 | 5 | 2026-08-13 | 2026-08-21 | `SUITE-R14` | `SUITE-R14` falla |
 | `CE-009` | El estado terminal escrito a mano o adelantado | 1 | — | 2026-08-21 | 2026-08-21 | `SUITE-R46` | `SUITE-R46` falla |
 | `CE-010` | La cifra transcrita caduca | 1 | — | 2026-08-20 | 2026-08-20 | `FND-R14` | `FND-R14` avisa |
 | `CE-011` | Un arreglo deja tests del estado anterior | 1 | 4 | 2026-08-13 | 2026-08-13 | **—** | **sin dueño** |
 | `CE-012` | Filtrar la salida antes de mirarla | 2 | 3 | 2026-08-20 | 2026-08-20 | **—** | **sin dueño** |
 | `CE-013` | Un encabezado mal formado bloquea la integración | 5 | — | 2026-08-14 | 2026-08-21 | `FDGE-R29` | `FDGE-R29` falla |
-| `CE-014` | Una regla nueva juzga hacia atrás | 4 | — | 2026-08-20 | 2026-08-24 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
+| `CE-014` | Una regla nueva juzga hacia atrás | 5 | — | 2026-08-20 | 2026-08-24 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
 | `CE-015` | El cierre destapa más que el reparto | 6 | 6 | 2026-08-20 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-016` | Trabajar sin allocation | 5 | 3 | 2026-08-21 | 2026-08-24 | `SUITE-R08` · `FDGE-R19` | `SUITE-R08` falla · `FDGE-R19` falla |
 | `CE-017` | La comprobación acusa a quien documenta el hecho | 2 | — | 2026-08-19 | 2026-08-20 | **—** | **sin dueño** |
