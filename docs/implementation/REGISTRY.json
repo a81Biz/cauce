@@ -4144,7 +4144,7 @@
       "slug": "el-contrato-de-componentes",
       "created": "2026-08-24",
       "status": "DRAFT",
-      "phase": 5,
+      "phase": 6,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S2",

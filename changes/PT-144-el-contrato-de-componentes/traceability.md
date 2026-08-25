@@ -8,7 +8,7 @@
 | AC-01 | `patrones.mjs` exporta los seis componentes y las diez familias, con todos sus campos | TS-01 | `verify-patrones.mjs` · bloque `PT-144` | `evidence/PT-144/verify-patrones.out` | n/a | `CUMPLIDO` |
 | AC-02 | Los valores coinciden con los **quince** sitios actuales, campo a campo | TS-02 · TS-03 · TS-04 · TS-05 · TS-06 · TS-07 | `rc03-comparacion.mjs` | `evidence/PT-144/rc03.out` — 20 comparaciones, 0 discrepancias | n/a | `CUMPLIDO` |
 | AC-03 | `verify-patrones` comprueba el contrato con aserciones propias y **falla** al romperlo | TS-08 | `ts08.sh` — 7 casos | `evidence/PT-144/ts08.out` | n/a | `CUMPLIDO` |
-| AC-04 | Ninguna herramienta cambia de comportamiento | TS-09 | `build-core --check` · `npm run verify` | `evidence/PT-144/core-check.out` · `verify.out` | n/a | `PARCIAL` |
+| AC-04 | Ninguna herramienta cambia de comportamiento | TS-09 | `build-core --check` · `npm run verify` | `evidence/PT-144/core-check.out` · `verify.out` | n/a | `EN VALIDACIÓN` |
 | AC-05 | Cada valor declara de dónde sale, y `LEXICON` sigue siendo su fuente | TS-10 | inspección del comentario de contrato | el propio `patrones.mjs` | n/a | `CUMPLIDO` |
 
 **`AC-02` dice quince y el intake decía catorce.** El sitio quince —`verify-suite.mjs:708`, la
@@ -16,9 +16,14 @@ alternancia **incompleta**— lo destapó `RC-03` al extraer los literales de lo
 copiarlos. Está declarado en la parada de [#279](https://github.com/a81Biz/cauce/issues/279) con
 su desenlace, y no detiene el lote: vive en el archivo que ya era de `PT-145`.
 
-**`AC-04` está `PARCIAL` a propósito:** `build-core --check` ya dio `CORE.md sincronizado` y
-`CORE-PTSA.md sincronizado`, pero la batería completa sigue corriendo. Marcarlo `CUMPLIDO` antes
-de tener su salida sería afirmar una prueba que no ha terminado.
+**`AC-04` no se marca `CUMPLIDO` hasta tener el exit code de la batería.** `build-core --check`
+ya dio `CORE.md sincronizado` y `CORE-PTSA.md sincronizado`, y la primera corrida completa dejó
+**un** rojo —`FND-R14`, las cifras de `inventory/services.md`— que era **correcto**: los tres
+archivos que esta tarea hizo crecer dejaron el inventario diciendo otra cosa. Recalculadas con
+`tracker inventario --aplicar`, que es quien las deriva (`RULE-01`).
+
+La corrida que las confirma está en curso. Marcar `CUMPLIDO` antes de su `EXIT` sería afirmar
+una prueba que no ha terminado — y hoy ya se leyó un `0` de un `grep` como si fuera de `verify`.
 
 **`Caso QA` es `n/a` en las cinco filas y no es un descuido.** `QA-R01` dice que `FQAGE` opera
 **solo desde el navegador** y este cambio no tiene interfaz: `CASOS-DE-USO.md` ya declara que

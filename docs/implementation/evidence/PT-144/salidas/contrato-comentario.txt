@@ -1,0 +1,49 @@
+// ── PT-144 · El contrato de componentes ─────────────────────────────────────
+//
+// POR QUE EXISTE
+//   `EP-022` midio la lista de componentes de la suite escrita A MANO en CATORCE sitios de
+//   cuatro herramientas, mientras este modulo —que existe para que un hecho tenga una sola
+//   definicion y su contrato (`SUITE-R38`)— declaraba estados, compuertas, vigencia, prefijos de
+//   identificador y tipos de item, pero NO los componentes.
+//
+//   Lo grave no era la duplicacion. `verify-suite.mjs:250` filtraba las reglas por una
+//   alternancia LITERAL de prefijos, asi que un componente con prefijo nuevo tendria todas sus
+//   reglas INVISIBLES al verificador — y no daria error: PASARIA EN VERDE. Es la forma de fallo
+//   que este repositorio declara peor, y la que dejo a `QA` en 0/19 y a `FPGE` en 0/10
+//   cumpliendose «solo por buena voluntad» (`verify-qa.mjs:7`).
+//
+// DE DONDE SALE CADA VALOR — y por que NO se parsea
+//   `LEXICON` manda sobre los nombres (`LEX-R21`), asi que la tentacion es derivar esta tabla
+//   leyendo `LEXICON.md` en tiempo de ejecucion. Se RECHAZO por `RULE-02`: un parseo degradado
+//   devuelve lista vacia y TODO pasa en verde. Seria cambiar catorce literales por un unico
+//   punto de fallo silencioso, dentro de las herramientas que verifican.
+//
+//   El contrato CITA su fuente en cada campo; no la lee. Cambiar `LEXICON` y no cambiar esto
+//   hace fallar `verify-patrones`, que es como tiene que enterarse.
+//
+// DOS TABLAS, PORQUE SON DOS HECHOS
+//   `build-core.mjs` afirmaba la lista dos veces con cifras distintas —7 en `:171`, 10 en `:183`—
+//   y el intake lo describio como dos literales que «coinciden por costumbre». No era costumbre:
+//   es LA MISMA TABLA filtrada por un campo que nadie habia escrito. `LEX`, `EXEC` y `PTSA` no
+//   tienen sus reglas en `RULES.md` —viven en `LEXICON`, `EXECUTION-MODES` y la especificacion de
+//   PTSA— asi que no se recogen de su prosa pero SI se ordenan al emitir.
+//
+//   De ahi que haya COMPONENTE (seis) y FAMILIA DE REGLAS (diez). `SUITE`, `LEX`, `EXEC` e
+//   `INTAKE` son familia y no componente.
+
+/**
+ * Los seis componentes de la suite.
+ *
+ * nombre       el normativo, en prosa                          LEXICON §3 · CLAUDE.md
+ * sigla        el que usan sus reglas, rutas y triggers        LEX-R03 para FQAGE→QA
+ *              SEPARADA de `nombre` A PROPOSITO: `audit.mjs:214` resolvia
+ *              `Foundation → FND` con un ternario, y una excepcion codificada como
+ *              condicional obliga a la siguiente a escribirse igual, al lado.
+ * prefijo      el de sus reglas                                RULES.md §Dónde vive cada familia
+ * directorio   su carpeta propia, o null si no tiene           LEXICON §6
+ * obligatorio  false solo para FIDE: el INSTALL no lo copia    FIDE-R01
+ * triggers     los que lo activan                              LEXICON §7
+ * fases        [desde, hasta], o SIN_EVALUAR si LEXICON no lo declara      LEXICON §3
+ * en_core      si sus reglas entran en CORE.md, o en overlay propio        SUITE-R25
+ */
+export const COMPONENTES = [

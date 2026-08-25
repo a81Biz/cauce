@@ -10,7 +10,7 @@ type: CHORE
 epic: EP-022
 track: STANDARD
 status: DRAFT
-phase: 5
+phase: 6
 created: 2026-08-24
 structural: no
 suite_version: 13.1.0
