@@ -3,20 +3,23 @@
   "type": "REFACTOR",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "trabajo",
   "sha": "e494fdd9bb688947fc91fe238b69fe3ce2b82b7d",
   "sha_corto": "e494fdd",
   "sucio": true,
   "archivos": [
     "changes/PT-146-build-core-deja-de-escribirlos/intake.md",
+    "changes/PT-146-build-core-deja-de-escribirlos/scope.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-25"
 }
