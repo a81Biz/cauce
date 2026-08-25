@@ -2,20 +2,25 @@
   "pt": "PT-144",
   "type": "CHORE",
   "epic": "EP-022",
-  "status": "DRAFT",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-144-el-contrato-de-componentes",
   "sha": "a2a57f4049c88466e32aeac49d0221294d8c19a3",
   "sha_corto": "a2a57f4",
   "sucio": true,
   "archivos": [
     "changes/PT-144-el-contrato-de-componentes/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-144/salidas/g3-verify-fdge.out"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-25"
 }
