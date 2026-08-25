@@ -3,8 +3,8 @@
   "type": "REFACTOR",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "trabajo",
   "sha": "fea482024c970753f27f9526444d5ffef5fd9f85",
   "sha_corto": "fea4820",
@@ -12,12 +12,20 @@
   "archivos": [
     "changes/PT-145-verify-suite-deja-de-escribirlos/intake.md",
     "changes/PT-145-verify-suite-deja-de-escribirlos/scope.md",
+    "changes/PT-145-verify-suite-deja-de-escribirlos/strategy.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-25"
 }
