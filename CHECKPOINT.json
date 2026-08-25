@@ -3,30 +3,19 @@
   "type": "CHORE",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-144-el-contrato-de-componentes",
-  "sha": "25cace2039a1861ebd895911af1659c34726564e",
-  "sha_corto": "25cace2",
+  "sha": "a2a57f4049c88466e32aeac49d0221294d8c19a3",
+  "sha_corto": "a2a57f4",
   "sucio": true,
   "archivos": [
     "changes/PT-144-el-contrato-de-componentes/intake.md",
-    "changes/PT-144-el-contrato-de-componentes/traceability.md",
     "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-144/core-check.out",
-    "docs/implementation/evidence/PT-144/manifest.json",
-    "docs/implementation/evidence/PT-144/rc03.out",
-    "docs/implementation/evidence/PT-144/salidas/",
-    "docs/implementation/evidence/PT-144/self-review.md",
-    "docs/implementation/evidence/PT-144/ts08.out",
-    "docs/implementation/evidence/PT-144/verify-patrones-base.out",
-    "docs/implementation/evidence/PT-144/verify-patrones.out"
+    "docs/implementation/evidence/PT-144/salidas/g3-verify-fdge.out"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-25"
 }
