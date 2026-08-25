@@ -3884,3 +3884,37 @@ con el mismo criterio que las de `EP-019`, `EP-020` y `EP-021`.
 
 Sigue siendo un rodeo **forzado**, no elegido. La pregunta de fondo —si el trabajo de lote puede
 citar el `EP`— continúa abierta sobre `FDGE-R19`, y ya lleva cuatro lotes abierta.
+
+### Y la rama del lote hubo que inventarla otra vez — cuarto lote seguido
+
+`tracker rama EP-022` **se niega a proponer un nombre**, y tiene razón:
+
+```
+EP-022 no declara «type», asi que NO hay nombre de rama que proponer.
+El <type> de una rama es el «type» del item en minusculas, que declara LEXICON §4.1
+y escribe el registro (FDGE-R19). Sin el, cualquier nombre seria inventado.
+```
+
+Es la contradicción que `PT-142` dejó documentada y sin cerrar: **`FDGE-R19` manda nombrar la
+rama con el `type` del lote y `LEX-R27` prohíbe que un lote tenga `type`**. `LEXICON` manda sobre
+`RULES` (`LEX-R21`), así que la rama de un lote **no tiene forma derivable**, y la herramienta
+devuelve `null` para que nadie la invente.
+
+Se inventó igual, con el nombre del precedente:
+
+```
+chore/alberto-martinez/EP-022-apertura
+```
+
+Mismo patrón que `EP-019`, `EP-020` y `EP-021`. **Es la cuarta vez que el marco obliga a
+rodearse**, y conviene que la cuenta esté escrita: `PT-142` cerró el caso de una rama que **no
+se contrasta**, no el de una rama que **no se puede nombrar**.
+
+Y hay un dato nuevo, del intento de hoy: **`trabajo` está protegido en GitHub** y exige el check
+`marco`, así que el push directo se rechaza —`protected branch hook declined`—. El commit se
+había hecho sobre `trabajo` local; se movió a su rama y `trabajo` volvió a `origin/trabajo` sin
+perder nada. La protección hace **mecánico** lo que `CLAUDE.md` ya decía en prosa: a `trabajo` se
+llega por merge, no por push. Es una buena noticia, y estaba sin registrar.
+
+**El PR de este trabajo a `trabajo` NO es `G4`**: es revisión (`FDGE-R19`, `EXEC-R03`). `G4` es el
+merge de `trabajo` a `main`, y sigue sin autorizar.
