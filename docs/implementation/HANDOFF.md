@@ -11,7 +11,7 @@ lo que esta admisión descubrió: audit.mjs tiene DOS mapas por componente y dis
 hallazgo sin tarea: «contradiceElRegistro» busca «INTEGRAD» —la forma castellana— y NO reconoce «INTEGRATED», que es el nombre canónico del estado en LEXICON §5.1. Sigue abierto desde EP-021. Y uno nuevo: tracker rama SE NIEGA a nombrar la rama de un lote porque FDGE-R19 pide un «type» que LEX-R27 prohíbe — CUARTO lote seguido inventándola a mano.
 pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. Sigue sobre FDGE-R19 desde PT-127, con excepción declarada en EP-019, EP-020, EP-021 y ahora EP-022.
 lo que sigue sin resolverse: PT-025 (#35) DEFERRED, el arrastre aceptado · 21 allocations sin suite_version, que NO se rellenan porque sería inventar · las clases CE sin regla que las reclame · el viaje de vuelta de EP-021 aún sin fusionar a main.
-actualizado:    2026-08-25 · EP-022 admitida, espejo publicado, PT-144 en PHASE 1
+actualizado:    2026-08-25 · PT-144 en PHASE 4 Propuesta
 <!-- /ESTADO -->
 
 ---
