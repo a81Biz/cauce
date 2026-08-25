@@ -4179,7 +4179,7 @@
       "slug": "verify-suite-deja-de-escribirlos",
       "created": "2026-08-24",
       "status": "DRAFT",
-      "phase": 1,
+      "phase": 2,
       "suite_version": "13.1.0",
       "type": "REFACTOR",
       "severity": "S2",

@@ -3980,3 +3980,33 @@ PR #288          abierto · chore/alberto-martinez/EP-022-apertura -> trabajo
 ```
 
 Es la línea base contra la que se compara todo lo que venga (supuesto compartido de `EP-022` §7).
+
+### Borrado de cuatro ramas remotas   `SUITE-R06f`
+
+Autorizado explícitamente: *«que no queden ramas sueltas o adicionales»*. `SUITE-R06f` no lo
+automatiza, así que se comprobó antes de cada borrado que **nada colgaba**:
+
+```
+git log origin/trabajo..origin/<rama>     0 commits en las tres de trabajo
+git log origin/main..origin/desarrollo    vacio
+```
+
+| Rama | Por qué se borra |
+|:---|:---|
+| `chore/…/EP-022-apertura` | fusionada en `#288` |
+| `chore/…/PT-144-el-contrato-de-componentes` | su PR `#289` se cerró como superado; el contenido entró por `#290` |
+| `bug/…/PT-150-la-escala-de-severidad-se-declara` | fusionada en `#290`, borrada por el propio merge |
+| **`desarrollo`** | **el arrastre que `CLAUDE.md` declaraba desde Foundation** |
+
+**`desarrollo` merece decirse.** El `CLAUDE.md` del repositorio lleva declarándola sobrante desde
+que Foundation la registró como divergencia `D8`: *«este documento describía `desarrollo` como la
+rama de trabajo mientras el trabajo ocurría en `trabajo`, así que la compuerta `G4` estaba escrita
+sobre una rama que nadie usaba»*. Quedaba como acción humana pendiente, con su comando escrito y
+la condición «cuando confirmes que no cuelga nada de ella».
+
+Se confirmó —`origin/main..origin/desarrollo` está vacío— y se borró. **El `CLAUDE.md` sigue
+describiéndola como pendiente**, así que su párrafo queda desactualizado: es trabajo de
+`docs/methodology`/`CLAUDE.md` y no de `EP-022`, y se declara aquí en vez de tocarlo de paso.
+
+Quedan tres ramas remotas: `main`, `trabajo` y `cauce/alberto-martinez` —la de proyección, que
+`SUITE-R56` necesita viva para que el rastro de una tarea sobreviva a su rama.
