@@ -1,0 +1,75 @@
+{
+  "pt": "PT-142",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La contradiccion FDGE-R19 / LEX-R27 se resuelve, y se dice cual cede",
+      "tests": [
+        "selftest.sh:un lote NO lleva type, y por eso da null"
+      ],
+      "evidence": [
+        "salidas/verify-suite.txt",
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "FDGE-R19 mandaba nombrar la rama de lote «con el type del propio lote» y LEX-R27 dice que UN LOTE NO LLEVA TYPE. Manda LEXICON (LEX-R21): un lote NO tiene nombre de rama derivable. LEX-R27 no se toca; cede la regla que contradecia al lexico. La regla pedia un dato que otra regla prohibe que exista, y eso PRODUJO que se inventara chore/…/EP-020-viaje-de-vuelta."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Una rama de tarea cuyo nombre no coincide con ramaDeTarea se nombra: aviso ahora, error en G4",
+      "tests": [
+        "selftest.sh:el nombre se DERIVA del type del item",
+        "selftest.sh:…y lleva el usuario cuando lo hay"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/verify-fdge.txt"
+      ],
+      "verified": true,
+      "nota": "ramaDeTarea se usaba UNA SOLA VEZ, como PROPUESTA. topologiaDeRamas solo miraba que la rama contuviera un id existente. Es CE-007: existe la herramienta y nada la echa en falta."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La comparacion no juzga hacia atras",
+      "tests": [],
+      "evidence": [
+        "salidas/rigedesde.txt"
+      ],
+      "verified": true,
+      "nota": "FDGE-R19b entra en RIGE_DESDE con 13.1.0. FDGE-R19 ya declara que una rama creada SE TERMINA COMO EMPEZO —renombrarla rompe su pull request—, asi que el arreglo es la rama SIGUIENTE. Juzgar las anteriores seria CE-014."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Sin type en el registro no hay nombre esperado, y se DICE en vez de adivinar",
+      "tests": [
+        "selftest.sh:sin type no hay nombre esperado: null"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "RULE-06. ramaDeTarea devuelve null y la comprobacion lo reporta como «no hay nombre que contrastar», no como desviacion."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El mensaje ensena el nombre DERIVADO, no solo que esta mal",
+      "tests": [],
+      "evidence": [
+        "salidas/verify-fdge.txt"
+      ],
+      "verified": true,
+      "nota": "«r» -> deberia ser «esperada». Decir «mal» sin decir «asi» obliga a ir a buscarlo."
+    }
+  ],
+  "las_tres_ramas_que_pasaron": {
+    "PT-113": "deriva bug/alberto-martinez/PT-113-la-guia-que-se-publico-incompleta · existia chore/alberto-martinez/PT-113-apertura",
+    "PT-081": "deriva bug/alberto-martinez/PT-081-una-regla-nueva-no-rige-hacia-atras · existia fix/alberto-martinez/PT-081-…",
+    "EP-020": "deriva null · existia chore/alberto-martinez/EP-020-viaje-de-vuelta — la herramienta se NIEGA a nombrarla y se invento igual"
+  },
+  "measured": {
+    "casos": 4,
+    "ramas_desviadas_encontradas": 3,
+    "usos_de_ramaDeTarea_antes": 1
+  }
+}

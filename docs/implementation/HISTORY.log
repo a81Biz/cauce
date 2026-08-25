@@ -8815,3 +8815,129 @@ LO QUE NO ESTABLECE: que ninguna otra accion asuma que una rama local existe —
 hallazgo aparte—; ni que AC-04 tenga caso: forzar el fallo de «git ls-remote» sin tocar la red
 exigiria un remoto que exista y falle a la vez, asi que se establece que el CODIGO distingue los
 tres estados y no que se haya provocado el tercero.
+
+## PT-141 — el manejador de error lanzaba otro error
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-005
+
+tracker.mjs:1849 interpolaba «origen», que no existe en ese ambito —la variable se llama «ref»—.
+EL CATCH QUE DEBIA REPORTAR EL FALLO LANZABA UN ReferenceError DISTINTO, tapaba el real y mataba
+el comando. Se vio ejecutando «abrir --aplicar»: revento con «origen is not defined» Y AUN ASI
+HABIA CREADO EL ISSUE #262.
+
+POR QUE HABIA SOBREVIVIDO. Un error dentro de un catch es INVISIBLE hasta que se ejecuta esa rama,
+y esa rama solo corre cuando algo ya ha ido mal. Es la ruta menos probada del codigo y la que mas
+importa: el dia que falla es el dia en que hace falta el mensaje.
+
+NO BASTABA ARREGLAR LA LINEA. Se enumera la forma, y afinar la heuristica fue parte del trabajo:
+
+  primera version   9 hallazgos, SEIS falsos — locales de la funcion que envuelve el catch
+  afinada           1 hallazgo: el real
+  arreglado         0
+
+Un detector que grita seis veces de nueve no se usa: SE APAGA. Los cuatro filtros salieron cada
+uno de un falso positivo REAL —declaraciones en cualquier sitio, acceso a propiedad, cadenas
+dentro de la interpolacion, y lineas de comentario— y cada uno tiene su caso.
+
+Y EL CUARTO FILTRO ES LA AUTORREFERENCIA otra vez: el comentario que EXPLICA el defecto lo
+contiene. Es la cuarta vez en este repositorio.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · tools/tracker.mjs ·
+  tools/selftest.sh · RULES.md · PHASES.md · CORE.md (generado)
+
+Evidencia: evidence/PT-141/ — ocho casos, incluido el del ARBOL REAL, y la salida del enumerador.
+
+LO QUE NO ESTABLECE: que no queden manejadores rotos en bin/ —el barrido cubre
+docs/methodology/tools/—, ni que la heuristica sea completa: reconoce LA FORMA que ya mordio y se
+declara como heuristica (SUITE-R26).
+
+
+## PT-142 — la rama no se contrastaba con la que la regla deriva
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-007
+
+«ramaDeTarea» deriva el nombre correcto desde el registro y se usaba UNA SOLA VEZ, en «tracker
+rama», como PROPUESTA. «topologiaDeRamas» solo comprobaba que la rama CONTUVIERA un id que existe:
+el type y el slug no se miraban. Con eso pasaron tres ramas:
+
+  PT-113 (BUG)   deriva bug/…/PT-113-la-guia-…    existia chore/…/PT-113-apertura
+  PT-081 (BUG)   deriva bug/…/PT-081-…            existia fix/…/PT-081-…
+  EP-020         deriva null                      existia chore/…/EP-020-viaje-de-vuelta
+
+Es CE-007: existe la herramienta y nada la echa en falta.
+
+Y LA TERCERA FILA TENIA UNA CONTRADICCION DE REGLAS DETRAS. FDGE-R19 mandaba nombrar la rama de
+lote «con el type del propio lote»; LEX-R27 dice que UN LOTE NO LLEVA TYPE —«tracker tipo» lo
+rechaza citando esa regla— y «ramaDeTarea» devuelve null para un EP. Manda LEXICON (LEX-R21).
+
+LA REGLA PEDIA UN DATO QUE OTRA REGLA PROHIBE QUE EXISTA, y eso PRODUJO el nombre inventado. Se
+resuelve en la direccion correcta: un lote NO tiene nombre de rama derivable, y su trabajo viaja
+en la rama de una de sus tareas, declarado en SESSION_LOG. LEX-R27 no se toca.
+
+EL ARREGLO ES LA RAMA SIGUIENTE, no esta: FDGE-R19 ya declara que una rama creada se termina como
+empezo, porque renombrarla rompe el pull request abierto sobre ella. La comprobacion NOMBRA lo
+desviado y ensena el nombre derivado — decir «mal» sin decir «asi» obliga a ir a buscarlo.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/patrones.mjs · tools/selftest.sh · RULES.md ·
+  PHASES.md · CORE.md (generado)
+
+Evidencia: evidence/PT-142/ — cuatro casos sobre ramaDeTarea y la comprobacion corriendo sobre el
+  arbol real.
+
+LO QUE NO ESTABLECE: cuantas ramas del historico se desvian. No se juzga hacia atras (CE-014).
+
+
+## PT-143 — asignar tomaba el prefijo del primer argumento en mayusculas
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-003
+
+El valor de «--tipo» tambien esta en mayusculas, asi que «--tipo BUG» sin un «PT» delante creaba
+BUG-001. Medido con --ver ANTES de escribir nada, que es para lo que esa bandera existe.
+
+BUG-001 NO ES UN ESPACIO DE NOMBRES DECLARADO: LEXICON 4.3 enumera los contadores y BUG no esta
+entre ellos. Un identificador con un prefijo que ningun contador reconoce es un identificador que
+nadie puede volver a encontrar.
+
+Y LA INFORMACION PARA NO COMETERLO ESTABA A DIEZ LINEAS. «CON_VALOR» es un conjunto que declara
+que banderas llevan valor; la lectura del prefijo no lo consultaba. Es CE-003 —argumento por
+deteccion—, una de las clases sin regla que la reclame, con siete instancias contadas.
+
+EL ARREGLO NO PERSIGUE EL SINTOMA. Excluir solo «--tipo» dejaria colarse cualquier bandera futura
+con valor en mayusculas. Se consulta CON_VALOR, que es donde ese hecho YA vive: una lista repetida
+de banderas a excluir seria la copia que diverge (SUITE-R38).
+
+Y lo que no esta declarado FALLA en vez de crearse. Los prefijos viven una sola vez, en
+patrones.mjs · PREFIJOS_DE_ID.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh · LEXICON.md ·
+  CORE.md (generado)
+
+Evidencia: evidence/PT-143/ — cinco casos, con el positivo que hace validos a los demas.
+
+LO QUE NO ESTABLECE: que ninguna otra accion lea posicionales con el mismo patron. Se enumera lo
+que se ve; prometer un barrido no hecho seria peor. AC-04 se cumple POR LA VIA DE LA FUENTE UNICA
+y se dice: la lectura consulta CON_VALOR en vez de llevar su propia lista.

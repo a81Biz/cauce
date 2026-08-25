@@ -1,0 +1,70 @@
+verify-fdge — cumplimiento mecánico de la Methodology Suite 13.0.0
+
+PASA
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+  ✓ FND-R05        11-Conventions.md declara 7 Hard Rules.
+  ✓ FND-R08        Foundation presente (archivos del núcleo verificados).
+  ✓ SUITE-R15      CORE.md presente y sincronizado.
+  ✓ SUITE-R06      Toda integración registrada lleva nombre humano.
+  ✓ SUITE-R09      6 ledger(s) sin líneas perdidas desde v13.0.0.
+  ✓ EXEC-R04       1 merge(s) a «main» desde v13.0.0, todos con constancia.
+  ✓ FND-R14        las 16 cifras de inventory/services.md coinciden con el árbol.
+  ✓ FDGE-R48       Sin implementación abierta.
+  ✓ SUITE-R33      Bloque ESTADO completo.
+  ✓ SUITE-R34      El estado es más reciente que el último trabajo.
+  ✓ SUITE-R34      El bloque ESTADO no contradice al registro. Se lee el SUJETO de cada linea —el primer identificador—: NO evalua los demas identificadores que la linea mencione, porque nombrar una tarea cerrada PARA DECIR que lo esta es correcto.
+  ✓ LEX-R26        CHECKPOINT.json: PT-140 en PHASE 8, sobre un commit alcanzable y con el arbol correspondiente.
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ FND-R22        Plan de terreno resuelto y firmado.
+  ✓ FND-R24        Declaración de Valor firmada por Alberto Martínez.
+  ✓ SUITE-R30      INSTALL.log con 28 acción(es) registrada(s), todas las decisiones con rastro.
+  ✓ FND-R13        Línea base de reconciliación completa.
+  ✓ FDGE-R39       ningún artefacto de PT vive en una ruta global.
+  ✓ INTAKE-R09     EP-001: intake del lote completo.
+  ✓ INTAKE-R09     EP-002: intake del lote completo.
+  ✓ INTAKE-R09     EP-003: intake del lote completo.
+  ✓ INTAKE-R09     EP-004: intake del lote completo.
+  ✓ INTAKE-R09     EP-005: intake del lote completo.
+  ✓ INTAKE-R09     EP-006: intake del lote completo.
+  ✓ INTAKE-R09     EP-007: intake del lote completo.
+  ✓ INTAKE-R09     EP-008: intake del lote completo.
+  ✓ INTAKE-R09     EP-009: intake del lote completo.
+  ✓ INTAKE-R09     EP-010: intake del lote completo.
+  ✓ INTAKE-R09     EP-011: intake del lote completo.
+  ✓ INTAKE-R09     EP-012: intake del lote completo.
+  ✓ INTAKE-R09     EP-013: intake del lote completo.
+  ✓ INTAKE-R09     EP-014: intake del lote completo.
+  ✓ INTAKE-R09     EP-015: intake del lote completo.
+  ✓ INTAKE-R09     EP-016: intake del lote completo.
+  ✓ INTAKE-R09     EP-017: intake del lote completo.
+  ✓ INTAKE-R09     EP-018: intake del lote completo.
+  ✓ INTAKE-R09     EP-019: intake del lote completo.
+  ✓ INTAKE-R09     EP-020: intake del lote completo.
+  ✓ INTAKE-R09     EP-021: intake del lote completo.
+  ✓ SUITE-R44      0 aplazado(s) con revision declarada y al dia.
+  ✓ SUITE-R56      17 herramienta(s): ningun manejador de error referencia un identificador fuera de ambito.
+  ✓ FDGE-R19       los nombres de rama coinciden con los que deriva el registro.
+  ✓ INTAKE-R08     PT-142: firmado por lote EP-021.
+  ✓ FDGE-R51       PT-142: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R55       PT-142: nace de la parada de EP-021 · motivo abre-trabajo.
+  ✓ FDGE-R54       PT-142: viabilidad SAFE · medida contra 982bcd3.
+  ✓ FDGE-R31       BACKLOG.md declara la misma implementacion abierta que el registro: EP-021.
+  ✓ SUITE-R43      PT-142: sin comentarios pendientes en el issue #268.
+  ✓ FDGE-R15       PT-142: 5 criterios con TS asignado (Test/Evidencia se exigen desde PHASE 6).
+  ✓ FDGE-R45       PT-142: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R31       PT-142: presente en DISCOVERY.md con estado canónico.
+  ✓ FDGE-R34       PT-142: sin errores de cumplimiento.
+
+AVISOS
+  ! SUITE-R18      21 allocation(s) sin suite_version. Sin ese sello, una migración no puede respetar el trabajo en vuelo: EP-020, PT-113, PT-114, PT-115, PT-116
+  ! FDGE-R19       2 commit(s): cita «EP-021», que no es un PT. FDGE-R19 pide un PT: un lote no es la unidad de trabajo · SESSION_LOG.md declara una excepcion a FDGE-R19 que nombra este identificador: el marco obligo a rodearlo, y lo que se arregla es la herramienta. · db80c42c 9588d5f0 · AVISO AHORA, ERROR EN G4.
+  ! FDGE-R19       6 commit(s): cita «EP-020», que no es un PT. FDGE-R19 pide un PT: un lote no es la unidad de trabajo · SESSION_LOG.md declara una excepcion a FDGE-R19 que nombra este identificador: el marco obligo a rodearlo, y lo que se arregla es la herramienta. · ec8090ae e1e9e194 1272e7e4 04674677 b79e75fb 2304bc80 · AVISO AHORA, ERROR EN G4.
+  ! SUITE-R45      EP-021: 3 fila(s) de cierre aún sin resolver. En G4 bloquean.
+  ! SUITE-R44      1 aplazado(s) anteriores a LEX-R34 no se juzgan hacia atras (PT-025): no pudieron declarar lo que nadie les pedia. Ponerles el bloque es una decision, no una deuda.
+  ! FDGE-R43       Grafo SUSPECT — 6 de 17 archivos que describe han cambiado desde 2026-08-20 — docs/methodology/tools/build-core.mjs, docs/methodology/tools/patrones.mjs, docs/methodology/tools/selftest.sh, docs/methodology/tools/tracker.mjs, docs/methodology/tools/verify-fdge.mjs, docs/methodology/tools/verify-suite.mjs. No bloquea; sellar sí lo exige al día (SUITE-R57).
+  ! FDGE-R19       topologia de ramas: 1 · «desarrollo» no encaja en ninguno de los cuatro tipos. Borrarlas es SUITE-R06f y no se automatiza:  git push origin --delete <rama> · AVISO AHORA, ERROR EN G4.
+  ! FDGE-R43       PT-142: grafo SUSPECT — 6 de 17 archivos que describe han cambiado desde 2026-08-20 — docs/methodology/tools/build-core.mjs, docs/methodology/tools/patrones.mjs, docs/methodology/tools/selftest.sh, docs/methodology/tools/tracker.mjs, docs/methodology/tools/verify-fdge.mjs, docs/methodology/tools/verify-suite.mjs. No bloquea; sellar sí lo exige al día (SUITE-R57).
+  ! FDGE-R23       PT-142: aún sin evidence/PT-142/manifest.json (normal antes de PHASE 6).
+  ! FDGE-R29       PT-142: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+
+Sin errores. PTs verificados: 1.

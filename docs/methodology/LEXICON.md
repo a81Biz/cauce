@@ -248,7 +248,7 @@ El bloque `graph` hace computable la frescura del grafo (`FDGE-R43`): un grafo g
 
 `LEX-R06` · Asignar un identificador es: leer `counters`, incrementar, escribir el nuevo
 valor **y** añadir la entrada a `allocations` en la misma operación. Si el agente no puede
-escribir en `REGISTRY.json`, no puede asignar el identificador: se detiene y reporta.
+escribir en `REGISTRY.json`, no puede asignar el identificador: se detiene y reporta. **El prefijo no se adivina** (`PT-143`): los declarados son los de `counters` —`PT` · `EP` · `QA` · `QR` · `QD` · `H` · `E` · `P` · `R` · `INC`— y viven **una sola vez** en `tools/patrones.mjs` · `PREFIJOS_DE_ID` (`SUITE-R38`). Uno que no esté en esa lista **falla** en vez de crearse: `tracker asignar` derivaba el prefijo del primer argumento en mayúsculas, y el valor de `--tipo` también lo es, así que `--tipo BUG` sin un `PT` delante creaba **`BUG-001`** — un espacio de nombres que ningún contador reconoce. Es `CE-003`, argumento por detección, y la información para no cometerlo estaba a diez líneas: `CON_VALOR` ya declara qué banderas llevan valor.
 
 `LEX-R33` · **`retomada` — el rastro de un aplazado que vuelve.**   `PT-137`
 

@@ -3922,7 +3922,7 @@
       "id": "PT-139",
       "slug": "un-aplazado-caducado-bloquea-en-g4",
       "created": "2026-08-24",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
@@ -3951,13 +3951,19 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-24"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
       }
     },
     {
       "id": "PT-140",
       "slug": "proyectar-sin-rama-local-no-empieza-de-cero",
       "created": "2026-08-24",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
@@ -3986,14 +3992,20 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-24"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-24"
+        }
       }
     },
     {
       "id": "PT-141",
       "slug": "el-manejador-de-error-que-lanza-otro-error",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
       "severity": "S2",
@@ -4027,8 +4039,8 @@
       "id": "PT-142",
       "slug": "la-rama-no-se-contrasta-con-la-derivada",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
       "severity": "S3",
@@ -4062,8 +4074,8 @@
       "id": "PT-143",
       "slug": "asignar-deriva-el-prefijo-de-un-argumento-suelto",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.0.0",
       "type": "BUG",
       "severity": "S3",

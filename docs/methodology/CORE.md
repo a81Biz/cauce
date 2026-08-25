@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 2174a68547bf -->
-<!-- fuentes: RULES.md:a7555502caaa LEXICON.md:84baf7a2dc12 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:34cd0609ad7a -->
+<!-- cuerpo: b7045703bb92 -->
+<!-- fuentes: RULES.md:1e7442e85d7f LEXICON.md:e0080dede766 EXECUTION-MODES.md:e764a20e0f99 PHASES.md:9d9e44b2ff93 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -775,6 +775,16 @@ APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de
           RECIPROCA — hermano del lote vale siempre; el propio lote solo si
           esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
           «origin» mencionando el PT. En G4 bloquea.
+MANEJADOR un catch que interpola un identificador que su archivo NO         [SUITE-R56]
+          declara se ENUMERA: el catch lanzaria otro error, taparia el
+          real y mataria el comando en la ruta menos probada del codigo.
+          Aviso durante el trabajo, ERROR EN G4. Es una heuristica y se
+          dice: reconoce la forma que ya mordio (SUITE-R26).
+RAMA      el nombre se CONTRASTA con lo que ramaDeTarea deriva del          [FDGE-R19]
+          registro: type del item y slug. Sin «type» no hay nombre
+          esperado y SE DICE (RULE-06). Un lote NO lleva type (LEX-R27),
+          asi que NO tiene nombre de rama derivable: su trabajo viaja en
+          la rama de una de sus tareas y se declara en SESSION_LOG.
 CADUCA    un aplazado sin bloque, o con la revision VENCIDA, se nombra:       [SUITE-R44]
           aviso durante el trabajo, ERROR EN G4. Dice cuantos dias lleva y
           de quien es. NO cierra nada por su cuenta: obliga a mirarlo. Lo

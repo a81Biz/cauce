@@ -1,0 +1,6 @@
+# AC-03 · RIGE_DESDE · no se juzga hacia atras
+
+191:  'LEX-R33': [13, 1, 0],          // PT-137 · la puerta de vuelta de un aplazado
+192:  'LEX-R34': [13, 1, 0],          // PT-138 · un aplazado declara cuando se revisa
+193:  'FDGE-R19b': [13, 1, 0],        // PT-142 · el nombre de rama se contrasta con el derivado
+194:  'SUITE-R56b': [13, 1, 0],       // PT-141 · los manejadores de error se enumeran

@@ -1,0 +1,13 @@
+# AC-04 · el manejador arreglado DICE que paso
+
+manejadores rotos en el arbol: 0
+    // PT-141 · el enlace se nombra con la variable QUE EXISTE. Antes decia `${origen}`, que no
+    // esta en este ambito —se llama `ref`—, asi que EL MANEJADOR DE ERROR LANZABA OTRO ERROR:
+    // tapaba el fallo real y mataba el comando. Se vio ejecutando «abrir --aplicar», que revento
+    // con «origen is not defined» Y AUN ASI HABIA CREADO EL ISSUE.
+    //
+    // Y se dice QUE PASO de verdad: un «no se pudo» mudo obliga a reproducirlo a mano.
+    catch (e) {
+      fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace `
+        + `${ref ?? 'sin enlace'} y no se pudo reescribir (${String(e?.message ?? e).split(SALTO)[0]}).`);
+    }
