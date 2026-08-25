@@ -1,27 +1,22 @@
 {
-  "pt": "PT-150",
-  "type": "BUG",
+  "pt": "PT-145",
+  "type": "REFACTOR",
   "epic": "EP-022",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "bug/alberto-martinez/PT-150-la-escala-de-severidad-se-declara",
-  "sha": "d235bab014d30f56e3f82136bc165c303ffaa36d",
-  "sha_corto": "d235bab",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "trabajo",
+  "sha": "319626a5a837d70c45646f466dea81354f396dee",
+  "sha_corto": "319626a",
   "sucio": true,
   "archivos": [
-    "changes/PT-150-la-escala-de-severidad-se-declara/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-150/salidas/verify-completo.txt"
+    "changes/PT-145-verify-suite-deja-de-escribirlos/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-25"
 }
