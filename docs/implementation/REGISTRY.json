@@ -4178,8 +4178,8 @@
       "id": "PT-145",
       "slug": "verify-suite-deja-de-escribirlos",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "REFACTOR",
       "severity": "S2",
@@ -4189,6 +4189,23 @@
       "origen_parada": {
         "de": "EP-022",
         "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-25"
       }
     },

@@ -11,7 +11,7 @@ lo que esta tarea descubrió: el SITIO QUINCE — verify-suite.mjs:708 lleva OCH
 hallazgo sin tarea: «contradiceElRegistro» busca «INTEGRAD» y no reconoce «INTEGRATED» (desde EP-021) · npm run verify NO es lo que corre CI · tracker rama se niega a nombrar la rama de un lote, CUARTO lote seguido · el grafo declaraba 19 archivos y contenía 17 · verify-patrones comprueba 2 de 7 contratos de patrones.mjs. Los cuatro últimos están en paradas de #286 con desenlace «declara»: candidatos a tarea propia FUERA de EP-022.
 pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. Sobre FDGE-R19 desde PT-127, con excepción declarada en EP-019, EP-020, EP-021 y EP-022.
 lo que sigue sin resolverse: PT-025 (#35) DEFERRED · 21 allocations sin suite_version · las clases CE sin regla que las reclame · el viaje de vuelta de EP-021 aún sin fusionar a main.
-actualizado:    2026-08-25 · PT-150 en PHASE 8 Persistencia
+actualizado:    2026-08-25 · PT-145 en PHASE 8 Persistencia
 <!-- /ESTADO -->
 
 ---

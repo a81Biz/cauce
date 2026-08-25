@@ -9125,3 +9125,85 @@ FDGE-R01 —no tienen changes/—, asi que uno pasaba en verde POR UNA RAZON AJE
 comprobar. Corregidos para afirmar sobre el mensaje de severidad. Es la misma clase que el caso
 de PT-144 que esperaba un SyntaxError: una comprobacion que pasa por el motivo equivocado no es
 una comprobacion.
+
+## PT-145 — verify-suite y comparar-marco dejan de escribir los componentes
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: refactor/alberto-martinez/PT-145-verify-suite-deja-de-escribirlos
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+OCHO SITIOS, NO LOS SIETE DEL INTAKE. PT-144 destapo la sexta alternancia de verify-suite
+—:716— al escribir su RC-03 extrayendo los literales DE LOS ARCHIVOS en vez de copiarlos al
+test. Si los hubiera copiado, habria comparado lo escrito contra lo escrito.
+
+Y EL OCTAVO NO ERA UNA COPIA MAS: ERA UN GUARDARRAIL CON DOS AGUJEROS.
+
+    :716   /\b(?:SUITE|FDGE|INTAKE|LEX|FND|QA|PTSA|EXEC)-R\d+\b/     OCHO prefijos
+    las otras cinco alternancias del mismo archivo                    DIEZ
+
+Guarda EXEC-R08 —la matriz de compuertas no puede citar una regla, porque un modo decide QUIEN
+resuelve y no QUE se exige—, asi que una celda que citara FPGE-R05 o FIDE-R03 PASABA EN VERDE.
+
+SE MIDIO QUE DESTAPABA ANTES DE CERRARLO: la matriz no cita hoy ninguna regla FPGE ni FIDE. El
+agujero era real y NO estaba siendo explotado. Se cierra igual — una comprobacion que solo
+funciona mientras nadie escriba lo que no debe no es una comprobacion.
+
+COMPARAR-MARCO NO IMPORTABA NADA DEL MARCO. Tres imports, los tres de node:. Era la unica de las
+nueve herramientas del lote sin una sola arista a patrones.mjs, y tenia su copia del mismo hecho
+CON OTRO NOMBRE —«OPCIONALES» frente a «COMPONENTES_OPCIONALES»—, que es exactamente como
+divergen dos nombres del mismo hecho. Aqui no bastaba con sustituir un literal: habia que anadir
+la arista. Lo dijo el grafo en PHASE 2 de PT-144, y por eso se regenero al empezar el lote.
+
+CUATRO PASOS ATOMICOS, Y NO FUE CEREMONIA. FDGE-R54 dio MARGINAL —no hay ningun REFACTOR cerrado
+con el que comparar el coste, asi que no aprueba por omision ni prohibe sin evidencia— y PHASES
+lo traduce a trabajo atomico con checkpoint. Sirvio en el paso 2: hacer comparar-marco solo, con
+un archivo tocado, dejo claro que el import funcionaba antes de tocar los otros siete sitios.
+
+SE RECHAZO UNA CONSTANTE COMPARTIDA, y el motivo ya estaba escrito en el repositorio. Los cinco
+usos mezclan /g con sin banderas, y verify-patrones.mjs:38 documenta que «un regex con /g
+conserva lastIndex entre llamadas: reutilizarlo daria resultados que dependen del orden». El
+contrato expone FUNCIONES que devuelven un patron nuevo. Y :289 recibe la alternancia como TEXTO,
+porque compone su propio patron alrededor: darle un RegExp le obligaria a deshacerlo.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-suite.mjs · tools/comparar-marco.mjs ·
+  tools/verify-patrones.mjs · tools/selftest.sh · inventory/services.md (cifras) ·
+  MATRIZ.md (derivada)
+
+Medido: cero literales en los dos archivos · el diff de verify-suite sobre el arbol real esta
+  VACIO · selftest 1711 -> 1715 casos · npm run verify EXIT=0.
+
+Evidencia: evidence/PT-145/ — manifest con 4 AC y 5 RC, self-review, y ocho salidas capturadas,
+  incluido el diff vacio que ES la barra de un REFACTOR.
+
+LO QUE NO ESTABLECE: que no queden otras formas de nombrar un componente en estas dos
+herramientas. El barrido cubrio las alternancias de prefijos y los Set de opcionales, que es lo
+que EP-022 enumero; una herramienta puede nombrar un componente de otras maneras —una ruta, un
+nombre de archivo— y eso no se ha barrido. Prometer un barrido no hecho seria peor.
+
+Y NO ESTABLECE QUE EXEC-R08 SE CUMPLA HOY EN TODA LA MATRIZ. Se comprobo que no hay citas de
+regla de NINGUN prefijo en la matriz de compuertas actual, pero la comprobacion mira solo esa
+seccion de EXECUTION-MODES.md.
+
+FALLOS DE METODO, y los dos de la misma familia:
+
+  1. El primer intento de sustituir los seis sitios uso un heredoc con los patrones literales
+     dentro, y las secuencias de escape SE DEGRADARON: la sustitucion no encontro nada. Es
+     EXACTAMENTE el fallo del que avisa SUITE-R59, medido ocho veces en este repositorio.
+     Rehecho con el script en un archivo y las barras construidas con chr(92). Y VOLVIO A
+     OCURRIR al escribir la evidencia con otro heredoc: dos veces en una tarea.
+
+  2. El fixture del caso de EXEC-R08 copiaba solo los *.md de la metodologia, sin subcarpetas:
+     verify-suite ahogaba la salida en enlaces rotos y TRES CASOS DABAN ROJO POR EL MOTIVO
+     EQUIVOCADO. Tercera instancia en tres tareas de la misma clase —PT-144 con el caso que
+     esperaba un SyntaxError, PT-150 afirmando sobre el identificador—. Una comprobacion que pasa
+     O FALLA por el motivo equivocado no es una comprobacion.
+
+Y una nota que PT-144 no podia establecer por si misma: el contrato lleva ya TRES consumidores
+—PT-150 y las dos herramientas de esta tarea— y NO ha hecho falta cambiarlo ni una vez.

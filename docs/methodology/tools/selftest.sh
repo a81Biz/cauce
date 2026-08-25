@@ -7935,6 +7935,50 @@ chkno "…ni un S4 integrado"                        "PT-002: severidad" \
 chk   "…pero un S0 VIVO si se caza"                "PT-003: severidad" \
   V150 "$(proj150b)" --all
 
+# ── PT-145 · EP-022 · el guardarrail de EXEC-R08 tenia dos agujeros ─────────────────────────────
+#
+# verify-suite.mjs afirmaba la lista de prefijos SEIS veces. Cinco llevaban diez; la sexta —la que
+# guarda EXEC-R08, «la matriz de compuertas no puede citar una regla»— llevaba OCHO: le faltaban
+# FPGE y FIDE. Una celda que citara FPGE-R05 o FIDE-R03 PASABA EN VERDE.
+#
+# Lo destapo RC-03 de PT-144, que compara el contrato contra los literales EXTRAIDOS DE LOS
+# ARCHIVOS. Copiarlos al test habria comparado lo escrito contra lo escrito.
+VS145="$SUITE/tools/verify-suite.mjs"
+# El arbol ENTERO, no solo los *.md: con las subcarpetas ausentes, verify-suite ahoga la salida
+# en enlaces rotos y el caso pasaria por una razon ajena — el mismo error que PT-150 cometio
+# afirmando sobre el identificador en vez de sobre el mensaje.
+proj145() {
+  local d="$WORK/p145"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE"/. "$d/" 2>/dev/null
+  echo "$d"
+}
+# Una matriz de compuertas con UNA celda que cita una regla del prefijo que se le pase.
+mat145() {
+  local d; d="$(proj145)"
+  node -e "
+    const fs=require('fs');const p=process.argv[1];const cita=process.argv[2];
+    let t=fs.readFileSync(p,'utf8');
+    const i=t.search(/^#+\s*\d*\.?\s*Matriz de compuertas/im);
+    const fin=t.indexOf('|', i);
+    t=t.slice(0,fin)+'| G9 | '+cita+' | humano | humano |'+String.fromCharCode(10)+t.slice(fin);
+    fs.writeFileSync(p,t);
+  " "$d/EXECUTION-MODES.md" "$1"
+  (cd "$d" && node "$VS145" . 2>&1)
+}
+
+# La cita que YA se cazaba: SUITE estaba en los ocho.
+chk   "una cita de SUITE-Rnn en la matriz se caza"   "cita una regla" \
+  mat145 "SUITE-R01"
+# Y las dos que NO. Este es el agujero.
+chk   "una cita de FPGE-Rnn tambien, ahora"          "cita una regla" \
+  mat145 "FPGE-R05"
+chk   "…y una de FIDE-Rnn"                           "cita una regla" \
+  mat145 "FIDE-R01"
+# Lo que NO debe cazarse: la matriz SI puede decir quien resuelve.
+chkno "…pero «humano» no es una cita de regla"       "cita una regla" \
+  mat145 "humano"
+
+
 
 
 echo

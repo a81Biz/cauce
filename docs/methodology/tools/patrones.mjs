@@ -1536,6 +1536,52 @@ export const fasesDe = (quien) => componenteDe(quien)?.fases ?? SIN_EVALUAR;
 /** La sigla de sus reglas. → audit.mjs:214, que era un ternario con Foundation dentro */
 export const siglaDe = (quien) => componenteDe(quien)?.sigla ?? null;
 
+// ── PT-145 · Los patrones de identificador de regla ─────────────────────────
+//
+// POR QUE SON FUNCIONES Y NO CONSTANTES
+//   Un regex con `/g` conserva `lastIndex` entre llamadas. `verify-patrones.mjs` ya lo documenta
+//   —«reutilizarlo entre ejemplos daria resultados que dependen del orden»— y aqui los cinco usos
+//   de `verify-suite` mezclan `/g` con sin banderas. Cada llamada devuelve un patron NUEVO.
+//
+// POR QUE NO LLEVAN UNA SOLA BARRA INVERTIDA ESCRITA
+//   `SUITE-R59`. Ocho veces en este repositorio un escape se perdio al editar —`\b` quedo como el
+//   byte 0x08, `\s` como la letra `s`— y el regex resultante era VALIDO Y NO CASABA NADA. En un
+//   verificador de reglas, casar de menos es dejar de ver reglas: es decir, PASAR EN VERDE.
+//
+//   Se construyen con `CLASE` y `comoLiteral`, que existen para esto. Lo que no se escribe no se
+//   pierde.
+//
+// DE DONDE SALEN LOS PREFIJOS
+//   De `prefijos()`, que los deriva de `FAMILIAS` (PT-144). Estaban escritos a mano SEIS veces en
+//   `verify-suite.mjs` — y la sexta, `:708`, llevaba OCHO en vez de diez: le faltaban `FPGE` y
+//   `FIDE`. Guarda `EXEC-R08` —la matriz de compuertas no puede citar una regla— asi que una cita
+//   de `FPGE-Rnn` o `FIDE-Rnn` pasaba en verde. No era una copia mas: era un guardarrail con dos
+//   agujeros.
+
+/** La alternancia de prefijos, como TEXTO. Para quien compone su propio patron alrededor. */
+export const PFX = () => '(' + prefijos().map(comoLiteral).join('|') + ')';
+
+/** `\b(PREFIJOS)-(R|P)\d+\b` — el identificador de una regla, suelto en el texto. */
+export const reglaRE = (banderas) => new RegExp(
+  CLASE.limite + PFX() + '-(R|P)' + CLASE.digito + '+' + CLASE.limite,
+  banderas ?? '',
+);
+
+/** `^| \`ID\`` — la primera celda de una fila de tabla, donde `RULES.md` define. */
+export const reglaEnTabla = () => new RegExp(
+  '^' + comoLiteral('|') + CLASE.espacio + '*' + comoLiteral(CAR.BACKTICK)
+    + '((?:' + prefijos().map(comoLiteral).join('|') + ')-R' + CLASE.digito + '+)'
+    + comoLiteral(CAR.BACKTICK),
+);
+
+/** ``^`ID` ·`` — la forma en que LEXICON y EXECUTION-MODES definen, fuera de tabla. */
+export const reglaEnLinea = () => new RegExp(
+  '^' + comoLiteral(CAR.BACKTICK)
+    + '((?:' + prefijos().map(comoLiteral).join('|') + ')-R' + CLASE.digito + '+)'
+    + comoLiteral(CAR.BACKTICK) + CLASE.espacio + '*' + comoLiteral('·'),
+);
+
+
 
 // ── PT-123 · BACKLOG.md · el bloque DERIVADO, entre marcas ──────────────────
 //
