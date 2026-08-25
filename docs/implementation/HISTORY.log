@@ -8941,3 +8941,94 @@ Evidencia: evidence/PT-143/ — cinco casos, con el positivo que hace validos a 
 LO QUE NO ESTABLECE: que ninguna otra accion lea posicionales con el mismo patron. Se enumera lo
 que se ve; prometer un barrido no hecho seria peor. AC-04 se cumple POR LA VIA DE LA FUENTE UNICA
 y se dice: la lectura consulta CON_VALOR en vez de llevar su propia lista.
+
+## PT-144 — el contrato de componentes vive en patrones.mjs
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: chore/alberto-martinez/PT-144-el-contrato-de-componentes
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+La lista de componentes de la suite estaba escrita A MANO en CATORCE sitios de cuatro
+herramientas, mientras patrones.mjs —que existe para que un hecho tenga una sola definicion y su
+contrato (SUITE-R38)— declaraba estados, compuertas, vigencia, prefijos de identificador y tipos
+de item, pero NO los componentes.
+
+LO GRAVE NO ERA LA DUPLICACION. verify-suite.mjs:250 filtra las reglas por una alternancia
+LITERAL de prefijos: un componente con prefijo nuevo tendria TODAS sus reglas invisibles al
+verificador, y no daria error — PASARIA EN VERDE. Es la forma de fallo que este repositorio
+declara peor, y la que dejo a QA en 0/19 y a FPGE en 0/10 cumpliendose «solo por buena voluntad».
+
+SON DOS TABLAS, NO UNA, Y ESO NO ESTABA EN EL INTAKE. build-core afirmaba la lista dos veces con
+cifras distintas —7 entradas en :171, 10 en :183— y el intake lo describio como dos literales que
+«coinciden por costumbre». No era costumbre: es LA MISMA TABLA filtrada por un campo que nadie
+habia escrito. LEX, EXEC y PTSA no tienen sus reglas en RULES.md, asi que no se recogen de su
+prosa pero SI se ordenan al emitir. De ahi COMPONENTE (seis) y FAMILIA DE REGLAS (diez), con
+SUITE, LEX, EXEC e INTAKE siendo familia y no componente. El campo que lo explica —el documento
+propietario— ya estaba publicado en RULES.md; solo faltaba usarlo.
+
+SE RECHAZO PARSEAR LEXICON.md EN RUNTIME, que era la alternativa mas tentadora: LEXICON manda
+sobre el dato (LEX-R21). Se descarto por RULE-02 — un parseo degradado devuelve lista vacia y
+TODO pasa en verde. Seria cambiar quince literales por un unico punto de fallo silencioso, dentro
+de las herramientas que verifican. El contrato CITA su fuente por campo y no la lee.
+
+FPGE Y FIDE NO SON EL MISMO CASO, y se fue a mirar antes de escribir el campo. LEXICON 3 tiene
+apartados 3.1 a 3.5 para SEIS componentes: FIDE si declara su rango (1-5) y audit no lo mira;
+para FPGE NO HAY APARTADO. El contrato lleva el rango de FIDE y SIN_EVALUAR para FPGE (RULE-06).
+Inventarle un rango para que la tabla quede simetrica seria apagar una comprobacion en silencio.
+
+APARECIO EL SITIO QUINCE, Y NO ES UNA COPIA MAS. RC-03 se escribio extrayendo los literales DE
+LOS ARCHIVOS en vez de copiarlos al test — si se hubieran copiado, habria comparado lo escrito
+contra lo escrito y habria salido verde. Salio una SEXTA alternancia:
+
+    verify-suite.mjs:708   (?:SUITE|FDGE|INTAKE|LEX|FND|QA|PTSA|EXEC)-R\d+
+                                                       faltan FPGE y FIDE
+
+Ocho prefijos donde las otras cinco llevan diez. Guarda EXEC-R08 —la matriz de compuertas no
+puede citar una regla— asi que una cita de FPGE-Rnn o FIDE-Rnn pasaria en verde. Es un
+guardarrail con dos agujeros. EP-022 §7 declaraba que un sitio quince disparaba FDGE-R41; NO se
+detuvo el lote, y esta dicho por que en la parada de #279: el sitio vive en verify-suite.mjs, que
+ya era el archivo de PT-145, asi que confirma la descomposicion en vez de invalidarla.
+
+ROMPER EL CONTRATO ENCONTRO UN AGUJERO EN LAS PROPIAS ASERCIONES. De siete casos de rotura, seis
+fallaron bien y UNO paso en verde: duplicar el «orden» de una familia. ordenDePrefijos() ordena de
+forma estable, asi que dos familias con el mismo numero conservan su posicion y la secuencia
+emitida no cambiaba. Estaba especificado en design.md 6 y no se habia escrito. Importa porque
+CORE.md se emite con ese campo. Sin RC-04 el agujero habria viajado hasta que alguien reordenara
+la tabla.
+
+Y EL ARNES RECHAZO UN CASO PROPIO. Se escribio uno cuyo resultado esperado era un SyntaxError;
+revento() lo invalido, porque «una herramienta rota tampoco imprime el patron buscado y el arnes
+certificaba verificadores muertos». Pedia certificar un verificador muerto. El mismo error estaba
+en la primera evidencia de FDGE-R17: aquel «rojo» era un crash, no una asercion.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-patrones.mjs · tools/selftest.sh ·
+  inventory/services.md (cifras derivadas, FND-R14)
+
+Medido: verify-patrones 58 -> 78 comprobaciones · selftest 1695 -> 1703 casos · npm run verify
+  EXIT=0 · build-core --check con CORE.md y CORE-PTSA.md sincronizados · RC-03 con 20
+  comparaciones y cero discrepancias.
+
+Evidencia: evidence/PT-144/ — manifest con 5 AC y 4 RC, self-review, y siete salidas capturadas.
+
+LO QUE NO ESTABLECE: que los quince sitios sean todos. El conteo subio de trece a catorce en
+PHASE 1 y de catorce a quince en PHASE 5, las dos veces por comprobar una afirmacion propia. El
+barrido de alternancias quedo cerrado con grep sobre bin/ y tools/ —son seis, todas en
+verify-suite— pero eso no cubre otras formas de nombrar un componente. Prometer un barrido
+exhaustivo no hecho seria peor que declarar el limite.
+
+Y NO ESTABLECE QUE EL CONTRATO SIRVA. Nadie lo consume todavia: ese es AC-04, y es lo que hace de
+esta tarea un no-cambio comprobable. Que sirva lo demuestran PT-145, PT-146 y PT-147; que se
+pueda dar de alta y de baja un componente sin tocar herramienta, PT-149.
+
+FALLOS DE METODO, declarados en las paradas de #279: se edito selftest.sh MIENTRAS la bateria
+corria —el «no hacer» numero 3 del HANDOFF, escrito desde EP-021, leido al abrir la sesion y
+citado en un commit del mismo dia— y la corrida se invalido entera. Y se leyo el exit code de una
+tuberia con grep como si fuera el de npm run verify, dos veces el mismo dia. Estar escrito no
+basto; queda contado para que la proxima vez la cuenta sea dos.
