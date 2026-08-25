@@ -1,0 +1,10 @@
+tracker · github · acción inventario
+
+  · selftest.sh: services.md dice 7892 y son 7969.
+  · tracker.mjs: services.md dice 4716 y son 4726.
+  · verify-fdge.mjs: services.md dice 2740 y son 2772.
+  · patrones.mjs: services.md dice 2467 y son 2522.
+  · verify-patrones.mjs: services.md dice 228 y son 264.
+  · 5 cifra(s) reescritas en services.md.
+
+Sin divergencias.

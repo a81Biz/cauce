@@ -24,7 +24,12 @@
  * Exit: 0 todos cumplen · 1 alguno no
  */
 
-import { PATRONES, selloDe } from './patrones.mjs';
+import {
+  PATRONES, selloDe,
+  COMPONENTES, FAMILIAS, SIN_EVALUAR,
+  prefijos, opcionales, familiasEnProsa, ordenDePrefijos, triggers, promptsDe, fasesDe, siglaDe,
+  SEVERIDADES, esSeveridad, RE_SEVERIDAD,
+} from './patrones.mjs';
 
 const errores = [];
 const c = { rojo: '\x1b[31m', verde: '\x1b[32m', dim: '\x1b[2m', neg: '\x1b[1m', fin: '\x1b[0m' };
@@ -65,6 +70,176 @@ if (selloDe('a\r\nb\r\n') !== selloDe('a\nb\n')) {
 }
 if (selloDe('a\nb') === selloDe('a\nc')) {
   errores.push('selloDe: dos contenidos distintos dan el mismo sello.');
+}
+
+// ── El contrato de componentes ──────────────────────────────────────────── PT-144
+//
+// Mismo trato que `selloDe`, y por el mismo motivo: es un contrato que NO es un patrón, así que
+// el mecanismo genérico de `PATRONES` —`casa` y `noCasa`— no lo alcanza. Lleva aserciones
+// propias escritas para SU propiedad concreta.
+//
+// POR QUÉ ESTÁ AQUÍ Y NO EN OTRO SITIO. `EP-022` midió la lista de componentes escrita a mano en
+// CATORCE sitios de cuatro herramientas. Lo grave no era la duplicación: `verify-suite.mjs:250`
+// filtraba las reglas por una alternancia LITERAL de prefijos, así que un componente con prefijo
+// nuevo tenía sus reglas INVISIBLES al verificador — y no daba error, PASABA EN VERDE. Un
+// contrato sin comprobación que pueda fallar repite ese defecto un nivel más arriba (`RULE-02`).
+//
+// Cada bloque nombra el componente y el campo que falla: quien lea el error no tiene que deducir
+// cuál de los seis está mal (`SUITE-R53`).
+const CAMPOS_COMPONENTE = ['nombre', 'sigla', 'prefijo', 'directorio', 'obligatorio', 'triggers', 'fases', 'en_core'];
+const CAMPOS_FAMILIA = ['prefijo', 'documento', 'orden'];
+
+const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? {}));
+
+{
+  const comps = listaDe(COMPONENTES);
+  const fams = listaDe(FAMILIAS);
+  total += 6;
+
+  if (comps.length !== 6) {
+    errores.push(`COMPONENTES: declara ${comps.length} componente(s) y la suite tiene 6 (FDGE · FQAGE · PTSA · Foundation · FPGE · FIDE).`);
+  }
+  if (fams.length !== 10) {
+    errores.push(`FAMILIAS: declara ${fams.length} familia(s) y hay 10 prefijos de regla. Seis coinciden con un componente; SUITE, LEX, EXEC e INTAKE no.`);
+  }
+
+  // Un campo ausente se distingue de uno en falso: `undefined` es «nadie lo escribió» y `null`
+  // es «no tiene», que para `directorio` es un valor legítimo (RULE-06).
+  for (const comp of comps) {
+    for (const campo of CAMPOS_COMPONENTE) {
+      if (comp?.[campo] === undefined) {
+        errores.push(`COMPONENTES: «${comp?.nombre ?? '?'}» no declara «${campo}». Un campo ausente es el que luego se escribe a mano en la herramienta.`);
+      }
+    }
+  }
+  for (const fam of fams) {
+    for (const campo of CAMPOS_FAMILIA) {
+      if (fam?.[campo] === undefined) {
+        errores.push(`FAMILIAS: «${fam?.prefijo ?? '?'}» no declara «${campo}».`);
+      }
+    }
+  }
+
+  // PT-144 · TS-08 lo destapo: sin esto, DUPLICAR un «orden» pasaba en verde. `ordenDePrefijos()`
+  // ordena de forma estable, asi que dos familias con el mismo numero conservan su posicion en el
+  // array y la secuencia emitida no cambia — la asercion de orden no lo veia.
+  //
+  // Es el caso que `design.md` §6 especificaba —«orden con huecos o repetido -> falla»— y que no
+  // se habia escrito. Lo encontro romper el contrato a proposito, no leerlo: RULE-02 en su forma
+  // ejecutable.
+  //
+  // Importa porque `orden` gobierna la emision de CORE.md: un empate hace que el nucleo dependa
+  // del orden de declaracion en vez del declarado, y eso es un dato que se pierde al reordenar.
+  total += 2;
+  const ordenes = fams.map((f) => f?.orden).filter((o) => o !== undefined);
+  const repetidos = ordenes.filter((o, i) => ordenes.indexOf(o) !== i);
+  if (repetidos.length) {
+    errores.push(`FAMILIAS: el «orden» ${JSON.stringify([...new Set(repetidos)])} esta repetido. CORE.md se emite con el, y un empate hace que el nucleo dependa del orden de declaracion en vez del declarado.`);
+  }
+  const esperado = [...Array(fams.length)].map((_, i) => i + 1);
+  if (ordenes.length && [...ordenes].sort((a, b) => a - b).join() !== esperado.join()) {
+    errores.push(`FAMILIAS: el «orden» no es 1..${fams.length} sin huecos. Hoy: ${JSON.stringify([...ordenes].sort((a, b) => a - b))}`);
+  }
+
+  // El caso irregular ES la prueba del diseño: si `sigla` no estuviera separada de `nombre`, el
+  // ternario de `audit.mjs:214` seguiría existiendo, escrito en otro sitio. Y `FQAGE` es el
+  // segundo caso, que aquel ternario no tenía (`LEX-R03`).
+  total += 3;
+  if (siglaDe('Foundation') !== 'FND') {
+    errores.push(`siglaDe('Foundation') devuelve ${JSON.stringify(siglaDe('Foundation'))} y LEXICON declara «FND». Es el caso que obliga a que «sigla» sea un campo y no el nombre.`);
+  }
+  if (siglaDe('FQAGE') !== 'QA') {
+    errores.push(`siglaDe('FQAGE') devuelve ${JSON.stringify(siglaDe('FQAGE'))} y LEX-R03 declara «QA» para triggers, rutas y nombres de archivo.`);
+  }
+  if (siglaDe('FDGE') !== 'FDGE') {
+    errores.push('siglaDe(\'FDGE\') no devuelve «FDGE»: el caso regular tiene que seguir siéndolo.');
+  }
+
+  // `SIN_EVALUAR` no es un adorno: LEXICON §3 declara el rango de CINCO componentes y no tiene
+  // apartado para FPGE. Un `[]` o un `null` aquí haría que `audit` auditara cero fases de FPGE y
+  // saliera en verde — apagar la comprobación en silencio, que es el defecto que EP-022 quita.
+  total += 3;
+  const fFIDE = fasesDe('FIDE');
+  if (!Array.isArray(fFIDE) || fFIDE[0] !== 1 || fFIDE[1] !== 5) {
+    errores.push(`fasesDe('FIDE') devuelve ${JSON.stringify(fFIDE)} y LEXICON §3.5 declara PHASE 1-5. El dato EXISTE: no puede salir como desconocido.`);
+  }
+  if (fasesDe('FPGE') !== SIN_EVALUAR) {
+    errores.push(`fasesDe('FPGE') devuelve ${JSON.stringify(fasesDe('FPGE'))} y LEXICON §3 NO tiene apartado para FPGE. Un rango inventado apaga la comprobación en silencio (RULE-06).`);
+  }
+  if (!Array.isArray(fasesDe('PTSA'))) {
+    errores.push('fasesDe(\'PTSA\') no devuelve un rango, y LEXICON §3.3 declara PHASE 0-14.');
+  }
+
+  // Las seis proyecciones tienen que reproducir EXACTAMENTE los literales que van a sustituir.
+  // Si divergen, PT-145..PT-147 dejan de ser refactors y pasan a ser cambios de comportamiento
+  // disfrazados — el riesgo que `scope.md` §4 declara como RC-03.
+  total += 6;
+  const mismos = (a, b) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
+
+  const PREFIJOS_HOY = ['SUITE', 'LEX', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FND', 'FIDE', 'EXEC'];
+  if (!mismos(prefijos(), PREFIJOS_HOY)) {
+    errores.push(`prefijos() no reproduce la alternancia de verify-suite.mjs (:250 · :254 · :256 · :289 · :403). Hoy: ${JSON.stringify(prefijos())}`);
+  }
+
+  const OPCIONALES_HOY = ['FIDE'];
+  if (!mismos([...opcionales()], OPCIONALES_HOY)) {
+    errores.push(`opcionales() no reproduce Set(['FIDE']) de verify-suite.mjs:425 y comparar-marco.mjs:39. Hoy: ${JSON.stringify([...opcionales()])}`);
+  }
+
+  const PROSA_HOY = ['SUITE', 'FND', 'FDGE', 'INTAKE', 'QA', 'FPGE', 'FIDE'];
+  if (!mismos(familiasEnProsa(), PROSA_HOY)) {
+    errores.push(`familiasEnProsa() no reproduce build-core.mjs:171. Son 7 y NO incluyen LEX, EXEC ni PTSA, porque sus reglas no viven en RULES.md. Hoy: ${JSON.stringify(familiasEnProsa())}`);
+  }
+
+  const ORDEN_HOY = ['SUITE', 'LEX', 'EXEC', 'FND', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FIDE'];
+  if (ordenDePrefijos().join() !== ORDEN_HOY.join()) {
+    errores.push(`ordenDePrefijos() no reproduce build-core.mjs:183 EN SU ORDEN. CORE.md se emite con él. Hoy: ${JSON.stringify(ordenDePrefijos())}`);
+  }
+
+  const t = triggers();
+  if (!Array.isArray(t) || !t.includes('[START PTSA]') || !t.includes('[START FIDE]')) {
+    errores.push('triggers() no reproduce la lista de build-core.mjs:433-437.');
+  }
+
+  const p = promptsDe('PTSA');
+  if (p !== 'PTSA/PTSA-Prompts.md') {
+    errores.push(`promptsDe('PTSA') devuelve ${JSON.stringify(p)} y audit.mjs:192-195 declara «PTSA/PTSA-Prompts.md».`);
+  }
+}
+
+// ── La escala de severidad ──────────────────────────────────────────────── PT-150
+//
+// Mismo trato que el contrato de componentes, sobre un hecho hermano. Estaba escrita dentro de
+// `tracker.mjs` con un valor —`S0`— que LEXICON no declara, y sin `S4`, que si declara. Y el
+// mensaje de error se la ATRIBUIA a LEXICON: no callaba, ensenaba el dato equivocado.
+//
+// `RE_SEVERIDAD` tiene su propio contrato porque es un patron CONSTRUIDO: la clase `[1-4]` que
+// habia antes codificaba la escala dentro del regex, y `SUITE-R59` avisa de que ahi es donde los
+// escapes se pierden al editar.
+{
+  total += 3;
+  if (SEVERIDADES.join() !== 'S1,S2,S3,S4') {
+    errores.push(`SEVERIDADES es ${JSON.stringify(SEVERIDADES)} y LEXICON §8.3 declara S1 · S2 · S3 · S4. Fue exactamente esta divergencia —S0 de mas, S4 de menos— la que hizo que el comando que abre lotes rechazara la severidad que LEXICON define como «se agrupa en lotes».`);
+  }
+  if (esSeveridad('S0')) {
+    errores.push('esSeveridad(\'S0\') devuelve true y LEXICON no declara S0 en ninguna parte.');
+  }
+  if (!esSeveridad('S4')) {
+    errores.push('esSeveridad(\'S4\') devuelve false y LEXICON §8.3 la declara: «cosmético, mejora, deuda sin impacto observable · se agrupa en lotes».');
+  }
+
+  // El patron tiene que tolerar el comentario que traen las plantillas del paquete y seguir
+  // rechazando lo invalido. Es el caso de PT-083: quien instala el paquete, copia la plantilla y
+  // la rellena, fallaba FDGE-R04 — y es el camino que el MANUAL describe, no un caso raro.
+  total += 4;
+  const casaSev = (t) => new RegExp(RE_SEVERIDAD.source, RE_SEVERIDAD.flags.replace('g', '')).test(t);
+  const CON_COMENTARIO = 'severity: S4               # [HUMANO] S1 | S2 | S3 | S4';
+  if (!casaSev(CON_COMENTARIO)) {
+    errores.push(`RE_SEVERIDAD no casa la forma que traen las plantillas del paquete: ${JSON.stringify(CON_COMENTARIO)}. Es el defecto de PT-083, que costo que quien instalara el paquete fallara FDGE-R04 siguiendo el MANUAL.`);
+  }
+  if (!casaSev('severity: S1')) errores.push('RE_SEVERIDAD no casa «severity: S1».');
+  if (casaSev('severity: S9')) errores.push('RE_SEVERIDAD casa «severity: S9», que no es una severidad. Un patron demasiado laxo pasa por bueno.');
+  if (casaSev('severity:')) errores.push('RE_SEVERIDAD casa «severity:» vacio. Un campo sin valor no es un valor.');
 }
 
 console.log(`verify-patrones — ${Object.keys(PATRONES).length} patrones · ${total} comprobaciones\n`);

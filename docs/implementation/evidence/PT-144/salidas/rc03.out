@@ -1,0 +1,23 @@
+  ok  verify-suite alternancia #1
+  ok  verify-suite alternancia #2
+  ok  verify-suite alternancia #3
+  ok  verify-suite alternancia #4
+  ok  verify-suite alternancia #5
+  ok  verify-suite alternancia #6 (:708) INCOMPLETA — le faltan ["FPGE","FIDE"] · lo completa PT-145
+  ok  verify-suite COMPONENTES_OPCIONALES
+  ok  comparar-marco OPCIONALES
+  ok  build-core:171 familias en prosa
+  ok  build-core:183 orden de prefijos
+  ok  audit PROMPTS FDGE
+  ok  audit PROMPTS Foundation
+  ok  audit PROMPTS QA
+  ok  audit PROMPTS PTSA
+  ok  audit PROMPTS FPGE
+  ok  audit esperadas FDGE
+  ok  audit esperadas Foundation
+  ok  audit esperadas QA
+  ok  audit esperadas PTSA
+  ok  audit ternario Foundation
+
+RC-03 — 20 comparaciones contra los literales REALES de los cuatro archivos
+CERO discrepancias: el contrato reproduce lo que hay.

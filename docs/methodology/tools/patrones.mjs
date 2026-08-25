@@ -1284,6 +1284,61 @@ export const DESENLACES_DE_PARADA = [
 
 export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'];
 
+// ── PT-150 · La escala de severidad ─────────────────────────────────────────
+//
+// POR QUE EXISTE
+//   CUATRO fuentes declaraban esta escala y una contradecia a las otras tres:
+//
+//     LEXICON 8.3            S1 S2 S3 S4    <- la fuente (LEX-R21)
+//     verify-fdge.mjs:166    S1 S2 S3 S4    correcta, pero escrita a mano dentro de un regex
+//     INTAKE/templates x3    S1|S2|S3|S4    correcta
+//     tracker.mjs:2556       S0 S1 S2 S3    <- y su mensaje CITABA a LEXICON
+//
+//   Las DOS herramientas se contradecian ENTRE SI: `severity: S4` la aceptaba verify-fdge y la
+//   rechazaba tracker; `S0` al reves. Habia un rango donde el marco se contradecia consigo mismo.
+//
+//   Y el registro ya tenia el rastro: cuatro allocations con S4 —escritas A MANO, porque son
+//   anteriores a que `asignar` escribiera el campo— y una con S0, que su propio intake declaraba.
+//   Las cinco INTEGRATED. Un valor que solo se puede escribir saltandose la herramienta es un
+//   valor que se escribe saltandose la herramienta (PT-103).
+//
+//   El agravante que este caso tiene y los quince sitios de componentes no: el mensaje de error
+//   NO CALLABA, ENSENABA EL DATO EQUIVOCADO. No decia «S4 no vale»; decia «LEXICON declara
+//   S0 · S1 · S2 · S3». Quien lo leyera corregia su severidad en vez de ir a LEXICON.
+//
+// DE DONDE SALE, y por que no se parsea
+//   LEXICON 8.3, citado y no leido. Un parseo degradado devuelve lista vacia y todo pasa en
+//   verde (RULE-02). Mismo criterio que el contrato de componentes de PT-144.
+//
+// LO QUE NO ESTABLECE
+//   Que una severidad invalida no pueda entrar «por ningun camino». REGISTRY.json es un archivo
+//   y se escribe a mano — asi entraron los cuatro S4. Lo que si se garantiza: el comando la
+//   rechaza, y el verificador la caza en trabajo VIVO. Lo terminal no se rejuzga (RIGE_DESDE).
+export const SEVERIDADES = ['S1', 'S2', 'S3', 'S4'];
+
+/** ¿Es una severidad que LEXICON declara? */
+export const esSeveridad = (v) => SEVERIDADES.includes(String(v ?? ''));
+
+/**
+ * El patron de la linea `severity:` de un intake.
+ *
+ * Se CONSTRUYE desde SEVERIDADES: la clase `[1-4]` que habia antes codificaba la escala DENTRO
+ * del regex, asi que anadir un nivel obligaba a editar un patron — que es exactamente donde
+ * SUITE-R59 avisa de que los escapes se pierden al editar. Aqui no hay una sola barra invertida
+ * escrita: lo que no se escribe no se pierde.
+ *
+ * Tiene que tolerar el comentario que traen las plantillas del paquete:
+ *     severity: S4               # [HUMANO] S1 | S2 | S3 | S4
+ * y seguir rechazando `severity: S9` y `severity:` vacio (verify-fdge:165).
+ */
+export const RE_SEVERIDAD = new RegExp(
+  '^' + CLASE.espacio + '*severity:' + CLASE.espacio + '*('
+    + SEVERIDADES.map(comoLiteral).join('|')
+    + ')' + CLASE.espacio + '*(?:#.*)?$',
+  'im',
+);
+
+
 /**
  * PT-143 · Los prefijos de identificador que LEXICON declara, una sola vez.
  *
@@ -1295,6 +1350,192 @@ export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CH
  * valor y la lectura del prefijo no lo consultaba: la informacion estaba a diez lineas.
  */
 export const PREFIJOS_DE_ID = ['PT', 'EP', 'QA', 'QR', 'QD', 'H', 'E', 'P', 'R', 'INC'];
+
+// ── PT-144 · El contrato de componentes ─────────────────────────────────────
+//
+// POR QUE EXISTE
+//   `EP-022` midio la lista de componentes de la suite escrita A MANO en CATORCE sitios de
+//   cuatro herramientas, mientras este modulo —que existe para que un hecho tenga una sola
+//   definicion y su contrato (`SUITE-R38`)— declaraba estados, compuertas, vigencia, prefijos de
+//   identificador y tipos de item, pero NO los componentes.
+//
+//   Lo grave no era la duplicacion. `verify-suite.mjs:250` filtraba las reglas por una
+//   alternancia LITERAL de prefijos, asi que un componente con prefijo nuevo tendria todas sus
+//   reglas INVISIBLES al verificador — y no daria error: PASARIA EN VERDE. Es la forma de fallo
+//   que este repositorio declara peor, y la que dejo a `QA` en 0/19 y a `FPGE` en 0/10
+//   cumpliendose «solo por buena voluntad» (`verify-qa.mjs:7`).
+//
+// DE DONDE SALE CADA VALOR — y por que NO se parsea
+//   `LEXICON` manda sobre los nombres (`LEX-R21`), asi que la tentacion es derivar esta tabla
+//   leyendo `LEXICON.md` en tiempo de ejecucion. Se RECHAZO por `RULE-02`: un parseo degradado
+//   devuelve lista vacia y TODO pasa en verde. Seria cambiar catorce literales por un unico
+//   punto de fallo silencioso, dentro de las herramientas que verifican.
+//
+//   El contrato CITA su fuente en cada campo; no la lee. Cambiar `LEXICON` y no cambiar esto
+//   hace fallar `verify-patrones`, que es como tiene que enterarse.
+//
+// DOS TABLAS, PORQUE SON DOS HECHOS
+//   `build-core.mjs` afirmaba la lista dos veces con cifras distintas —7 en `:171`, 10 en `:183`—
+//   y el intake lo describio como dos literales que «coinciden por costumbre». No era costumbre:
+//   es LA MISMA TABLA filtrada por un campo que nadie habia escrito. `LEX`, `EXEC` y `PTSA` no
+//   tienen sus reglas en `RULES.md` —viven en `LEXICON`, `EXECUTION-MODES` y la especificacion de
+//   PTSA— asi que no se recogen de su prosa pero SI se ordenan al emitir.
+//
+//   De ahi que haya COMPONENTE (seis) y FAMILIA DE REGLAS (diez). `SUITE`, `LEX`, `EXEC` e
+//   `INTAKE` son familia y no componente.
+
+/**
+ * Los seis componentes de la suite.
+ *
+ * nombre       el normativo, en prosa                          LEXICON §3 · CLAUDE.md
+ * sigla        el que usan sus reglas, rutas y triggers        LEX-R03 para FQAGE→QA
+ *              SEPARADA de `nombre` A PROPOSITO: `audit.mjs:214` resolvia
+ *              `Foundation → FND` con un ternario, y una excepcion codificada como
+ *              condicional obliga a la siguiente a escribirse igual, al lado.
+ * prefijo      el de sus reglas                                RULES.md §Dónde vive cada familia
+ * directorio   su carpeta propia, o null si no tiene           LEXICON §6
+ * obligatorio  false solo para FIDE: el INSTALL no lo copia    FIDE-R01
+ * triggers     los que lo activan                              LEXICON §7
+ * fases        [desde, hasta], o SIN_EVALUAR si LEXICON no lo declara      LEXICON §3
+ * en_core      si sus reglas entran en CORE.md, o en overlay propio        SUITE-R25
+ */
+export const COMPONENTES = [
+  {
+    nombre: 'FDGE',
+    sigla: 'FDGE',
+    prefijo: 'FDGE',
+    directorio: null,
+    obligatorio: true,
+    triggers: ['[START PT]', '[START EP]', '[CIERRA]', '[IMPLEMENTACIÓN]'],
+    fases: [0, 10],
+    en_core: true,
+  },
+  {
+    // LEX-R03 · se llama FQAGE en prosa normativa y QA en triggers, rutas y nombres de archivo.
+    // No se admite una tercera grafia. `audit.mjs` usa hoy la SIGLA como clave, no el nombre.
+    nombre: 'FQAGE',
+    sigla: 'QA',
+    prefijo: 'QA',
+    directorio: 'QA',
+    obligatorio: true,
+    triggers: ['[START QA]'],
+    fases: [1, 7],
+    en_core: true,
+  },
+  {
+    // SUITE-R25 · sus 82 reglas van a un overlay propio, CORE-PTSA.md, que solo se carga con
+    // [START PTSA]. Por eso `en_core` es false y no es un olvido.
+    nombre: 'PTSA',
+    sigla: 'PTSA',
+    prefijo: 'PTSA',
+    directorio: 'PTSA',
+    obligatorio: true,
+    triggers: ['[START PTSA]'],
+    fases: [0, 14],
+    en_core: false,
+  },
+  {
+    // EL CASO QUE PRUEBA EL DISENO: nombre y sigla no coinciden.
+    nombre: 'Foundation',
+    sigla: 'FND',
+    prefijo: 'FND',
+    directorio: null,
+    obligatorio: true,
+    triggers: ['[START FOUNDATION]', '[FOUNDATION VALIDATED]', '[START RECONCILE]'],
+    fases: [0, 6],
+    en_core: true,
+  },
+  {
+    // `fases` es SIN_EVALUAR porque LEXICON §3 tiene apartados 3.1 a 3.5 para SEIS componentes:
+    // no hay ninguno para FPGE. El dato NO EXISTE, y un rango inventado para que la tabla quede
+    // simetrica apagaria la comprobacion en silencio (RULE-06). Declarado en PT-144 out-of-scope:
+    // escribir ese apartado es trabajo de LEXICON, no de una herramienta (LEX-R21).
+    nombre: 'FPGE',
+    sigla: 'FPGE',
+    prefijo: 'FPGE',
+    directorio: null,
+    obligatorio: true,
+    triggers: ['[START FPGE]'],
+    fases: SIN_EVALUAR,
+    en_core: true,
+  },
+  {
+    // FIDE-R01 · el unico opcional: el INSTALL no lo copia al proyecto destino, porque se retira
+    // tras incubarlo. Es el hecho que `verify-suite.mjs:425` y `comparar-marco.mjs:39` escribian
+    // cada una por su cuenta, con dos nombres distintos, sin importar ninguna de la otra.
+    nombre: 'FIDE',
+    sigla: 'FIDE',
+    prefijo: 'FIDE',
+    directorio: 'FIDE',
+    obligatorio: false,
+    triggers: ['[START FIDE]'],
+    fases: [1, 5],
+    en_core: true,
+  },
+];
+
+/**
+ * Las diez familias de reglas, con el documento que las gobierna.
+ *
+ * La tabla NO se inventa aqui: `RULES.md` §«Dónde vive cada familia de reglas» ya la publica.
+ * `orden` es el de emision de `CORE.md`, y es parte del contrato porque el nucleo generado tiene
+ * que salir identico byte a byte.
+ *
+ * `documento` es el campo que explicaba la discrepancia 7-vs-10 de `build-core.mjs`.
+ */
+export const FAMILIAS = [
+  { prefijo: 'SUITE', documento: 'RULES.md', orden: 1 },
+  { prefijo: 'LEX', documento: 'LEXICON.md', orden: 2 },
+  { prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3 },
+  { prefijo: 'FND', documento: 'RULES.md', orden: 4 },
+  { prefijo: 'FDGE', documento: 'RULES.md', orden: 5 },
+  { prefijo: 'INTAKE', documento: 'RULES.md', orden: 6 },
+  { prefijo: 'QA', documento: 'RULES.md', orden: 7 },
+  { prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8 },
+  { prefijo: 'FPGE', documento: 'RULES.md', orden: 9 },
+  { prefijo: 'FIDE', documento: 'RULES.md', orden: 10 },
+];
+
+// ── Proyecciones ────────────────────────────────────────────────────────────
+//
+// Cada una DICE a que sitio sustituye. Es lo que evita que PT-145..PT-147 tengan que adivinar
+// cual usar, y lo que hace que anadir un componente sea tocar la tabla y nada mas.
+
+const componenteDe = (quien) => COMPONENTES.find((c) => c.nombre === quien || c.sigla === quien);
+
+/** Los diez prefijos de regla. → verify-suite.mjs :250 · :254 · :256 · :289 · :403 */
+export const prefijos = () => FAMILIAS.map((f) => f.prefijo);
+
+/** Los componentes que pueden no estar instalados. → verify-suite.mjs:425 · comparar-marco.mjs:39 */
+export const opcionales = () => new Set(COMPONENTES.filter((c) => !c.obligatorio).map((c) => c.sigla));
+
+/** Las familias cuyas reglas se recogen de la PROSA de RULES.md. → build-core.mjs:171 */
+export const familiasEnProsa = () => FAMILIAS.filter((f) => f.documento === 'RULES.md').map((f) => f.prefijo);
+
+/** El orden de emision de CORE.md. → build-core.mjs:183 */
+export const ordenDePrefijos = () => [...FAMILIAS].sort((a, b) => a.orden - b.orden).map((f) => f.prefijo);
+
+/** Los triggers de arranque de todos los componentes. → build-core.mjs:433-437 */
+export const triggers = () => COMPONENTES.flatMap((c) => c.triggers);
+
+/** El archivo de prompts de un componente. → audit.mjs:192-195 */
+export const promptsDe = (quien) => {
+  const c = componenteDe(quien);
+  if (!c) return null;
+  return c.directorio ? `${c.directorio}/${c.sigla}-Prompts.md` : `${c.nombre}-Prompts.md`;
+};
+
+/**
+ * El rango de fases, o SIN_EVALUAR. → audit.mjs:197-202
+ *
+ * Devuelve SIN_EVALUAR y no `[]` a proposito: un array vacio haria que quien lo recorra audite
+ * cero fases y salga en verde. No saber no es permiso (RULE-06).
+ */
+export const fasesDe = (quien) => componenteDe(quien)?.fases ?? SIN_EVALUAR;
+
+/** La sigla de sus reglas. → audit.mjs:214, que era un ternario con Foundation dentro */
+export const siglaDe = (quien) => componenteDe(quien)?.sigla ?? null;
+
 
 // ── PT-123 · BACKLOG.md · el bloque DERIVADO, entre marcas ──────────────────
 //

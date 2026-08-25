@@ -1,32 +1,27 @@
 {
-  "pt": "PT-144",
-  "type": "CHORE",
+  "pt": "PT-150",
+  "type": "BUG",
   "epic": "EP-022",
-  "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
-  "rama": "chore/alberto-martinez/EP-022-apertura",
-  "sha": "8f4d533842a16d5a7995db36afbd2309f0233e08",
-  "sha_corto": "8f4d533",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
+  "rama": "bug/alberto-martinez/PT-150-la-escala-de-severidad-se-declara",
+  "sha": "d235bab014d30f56e3f82136bc165c303ffaa36d",
+  "sha_corto": "d235bab",
   "sucio": true,
   "archivos": [
-    "changes/PT-144-el-contrato-de-componentes/context.md",
-    "changes/PT-144-el-contrato-de-componentes/intake.md",
-    "changes/PT-144-el-contrato-de-componentes/scope.md",
-    "changes/PT-144-el-contrato-de-componentes/strategy.md",
+    "changes/PT-150-la-escala-de-severidad-se-declara/intake.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-150/salidas/verify-completo.txt"
   ],
-  "compuerta": "G2",
+  "compuerta": null,
   "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
+    "HISTORY.log",
+    "índice"
   ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-25"
 }
