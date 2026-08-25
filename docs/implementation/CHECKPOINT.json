@@ -3,30 +3,18 @@
   "type": "CHORE",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/EP-022-apertura",
-  "sha": "8f4d533842a16d5a7995db36afbd2309f0233e08",
-  "sha_corto": "8f4d533",
+  "sha": "c08ba727b40279a99930c891d4c2423637473810",
+  "sha_corto": "c08ba72",
   "sucio": true,
   "archivos": [
-    "changes/PT-144-el-contrato-de-componentes/context.md",
     "changes/PT-144-el-contrato-de-componentes/intake.md",
-    "changes/PT-144-el-contrato-de-componentes/scope.md",
-    "changes/PT-144-el-contrato-de-componentes/strategy.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-25"
 }
