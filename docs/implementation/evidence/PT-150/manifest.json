@@ -1,0 +1,130 @@
+{
+  "pt": "PT-150",
+  "generated": "2026-08-25",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La escala se declara una sola vez en patrones.mjs y las herramientas la consumen",
+      "tests": [
+        "verify-patrones.mjs:bloque PT-150 · SEVERIDADES y RE_SEVERIDAD",
+        "grep de literales de escala en tracker.mjs y verify-fdge.mjs"
+      ],
+      "evidence": [
+        "salidas/verify-patrones.out"
+      ],
+      "verified": true,
+      "nota": "Dos consumidores, no uno. tracker.mjs tenia la lista literal y verify-fdge.mjs la codificaba DENTRO de un regex con la clase [1-4] — correcta, pero escrita a mano, asi que anadir un nivel obligaba a editar un patron: justo donde SUITE-R59 avisa de que los escapes se pierden al editar. RE_SEVERIDAD se CONSTRUYE desde SEVERIDADES con el normalizador de patrones.mjs, sin una sola barra invertida escrita."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La lista es la de LEXICON §8.3: S1 S2 S3 S4",
+      "tests": [
+        "verify-patrones.mjs:SEVERIDADES.join() === 'S1,S2,S3,S4'",
+        "verify-patrones.mjs:esSeveridad('S0') es false",
+        "verify-patrones.mjs:esSeveridad('S4') es true"
+      ],
+      "evidence": [
+        "salidas/verify-patrones.out"
+      ],
+      "verified": true,
+      "nota": "CUATRO fuentes declaraban la escala y tracker contradecia a las otras tres. Y las dos herramientas se contradecian ENTRE SI: S4 la aceptaba verify-fdge y la rechazaba tracker; S0 al reves. Habia un rango donde el marco se contradecia consigo mismo, y ninguna de las dos podia enterarse porque cada una tenia su copia."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "asignar --severidad S4 funciona, incluido el valor por defecto de la plantilla del paquete",
+      "tests": [
+        "selftest.sh:asignar acepta S4, que LEXICON declara",
+        "selftest.sh:el defecto de CHANGE-REQUEST.md lo acepta el comando"
+      ],
+      "evidence": [
+        "salidas/asignar-s4.out",
+        "salidas/selftest-plantilla.out"
+      ],
+      "verified": true,
+      "nota": "S4 es la severidad que LEXICON define como «deuda sin impacto observable, SE AGRUPA EN LOTES», y el comando que abre lotes la rechazaba. El segundo caso LEE el valor por defecto DEL ARCHIVO de la plantilla, no lo escribe: es la leccion de RC-03 en PT-144 — una comprobacion que compara contra una copia del dato no comprueba nada. Y ata el defecto al paquete: @a81biz/cauce instala esa plantilla en cada proyecto destino, asi que es la clase de PT-083."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "asignar --severidad S0 falla",
+      "tests": [
+        "selftest.sh:asignar RECHAZA S0, que LEXICON no declara"
+      ],
+      "evidence": [
+        "salidas/asignar-s0.out",
+        "salidas/selftest-s0.out"
+      ],
+      "verified": true,
+      "nota": "S0 no esta declarado en LEXICON en ninguna parte. Por ahi entro PT-107, que lo escribio en su propio intake."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El mensaje enumera lo que LEXICON declara de verdad, derivado y no escrito",
+      "tests": [
+        "selftest.sh:…y el mensaje ya no atribuye S0 a LEXICON",
+        "selftest.sh:…y enumera la escala que LEXICON SI declara"
+      ],
+      "evidence": [
+        "salidas/asignar-s0.out"
+      ],
+      "verified": true,
+      "nota": "ES EL AGRAVANTE QUE ESTE CASO TIENE Y LOS QUINCE SITIOS DE PT-144 NO: el mensaje no callaba, ENSENABA EL DATO EQUIVOCADO. No decia «S4 no vale»; decia «LEXICON declara S0 · S1 · S2 · S3», asi que quien lo leyera corregia su severidad en vez de ir a LEXICON, y la divergencia se heredaba al usuario. Ahora el texto SALE de la constante: no puede volver a divergir del dato."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Lo integrado no se rejuzga",
+      "tests": [
+        "selftest.sh:un S0 INTEGRADO no se rejuzga",
+        "selftest.sh:…ni un S4 integrado",
+        "git diff sobre REGISTRY.json"
+      ],
+      "evidence": [
+        "salidas/ac06-historicas.out",
+        "salidas/selftest-s0.out"
+      ],
+      "verified": true,
+      "nota": "Las cinco allocations historicas siguen exactamente como estaban: PT-015, PT-016, PT-017 y PT-051 con S4, PT-107 con S0, todas INTEGRATED, y git diff no toca ninguna. La tentacion al arreglar esto es «dejar el registro limpio»: esas cinco entradas SON la evidencia de que el defecto existio, y borrarlas para que cuadre una cifra seria perder el rastro. Mismo criterio de RIGE_DESDE y SUITE-R44."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Una severidad fuera de escala no entra por comando, y se caza en trabajo VIVO",
+      "tests": [
+        "selftest.sh:…pero un S0 VIVO si se caza"
+      ],
+      "evidence": [
+        "salidas/selftest-s0.out"
+      ],
+      "verified": true,
+      "nota": "SE PRECISO EN PHASE 3 y NO dice lo que decia el intake. «Por ningun camino» no es alcanzable: REGISTRY.json es un archivo y se escribe a mano — asi entraron los cuatro S4. Prometer la garantia completa habria sido SUITE-R26. Se cumple por comando + verificador, y el verificador nuevo mira EL REGISTRO, no solo el intake: FDGE-R04 lee «severity:» del intake y se salta los que heredan del lote (FDGE-R51), asi que una severidad invalida en el registro NO LA MIRABA NADIE."
+    }
+  ],
+  "regresion": [
+    {
+      "rc": "RC-01",
+      "statement": "verify-fdge sigue rechazando severity: S9 y vacio",
+      "verified": true,
+      "nota": "Aserciones propias en verify-patrones. El comentario de verify-fdge:165 ya lo declaraba —«sigue rechazando lo invalido»— y ahora hay una prueba que lo sostiene."
+    },
+    {
+      "rc": "RC-02",
+      "statement": "El patron tolera el comentario que traen las plantillas del paquete",
+      "verified": true,
+      "nota": "«severity: S4               # [HUMANO] S1 | S2 | S3 | S4». Es el caso de PT-083: quien instala el paquete, copia la plantilla y la rellena. El MANUAL describe ese camino."
+    },
+    {
+      "rc": "RC-03",
+      "statement": "Las cinco allocations historicas siguen intactas",
+      "verified": true,
+      "nota": "Comprobado con git diff sobre REGISTRY.json: ninguna de las cinco lineas cambia."
+    },
+    {
+      "rc": "RC-04",
+      "statement": "El recuento del selftest no baja",
+      "verified": true,
+      "nota": "1703 -> 1711 casos."
+    }
+  ],
+  "qa": "NO APLICA · QA-R01 exige navegador y este paquete no tiene interfaz.",
+  "fallos_de_metodo": [
+    "Tres casos afirmaban sobre el IDENTIFICADOR («PT-001») y el fixture nombra los tres por FDGE-R01, porque no tienen changes/. Uno pasaba en verde POR UNA RAZON AJENA a lo que decia comprobar. Corregidos para afirmar sobre el mensaje de severidad. Misma clase que el caso de PT-144 que esperaba un SyntaxError: una comprobacion que pasa por el motivo equivocado no es una comprobacion."
+  ]
+}

@@ -4269,7 +4269,7 @@
       "slug": "la-escala-de-severidad-se-declara",
       "created": "2026-08-24",
       "status": "DRAFT",
-      "phase": 4,
+      "phase": 6,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",

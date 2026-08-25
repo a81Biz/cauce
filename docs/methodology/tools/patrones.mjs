@@ -1284,6 +1284,61 @@ export const DESENLACES_DE_PARADA = [
 
 export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'];
 
+// ── PT-150 · La escala de severidad ─────────────────────────────────────────
+//
+// POR QUE EXISTE
+//   CUATRO fuentes declaraban esta escala y una contradecia a las otras tres:
+//
+//     LEXICON 8.3            S1 S2 S3 S4    <- la fuente (LEX-R21)
+//     verify-fdge.mjs:166    S1 S2 S3 S4    correcta, pero escrita a mano dentro de un regex
+//     INTAKE/templates x3    S1|S2|S3|S4    correcta
+//     tracker.mjs:2556       S0 S1 S2 S3    <- y su mensaje CITABA a LEXICON
+//
+//   Las DOS herramientas se contradecian ENTRE SI: `severity: S4` la aceptaba verify-fdge y la
+//   rechazaba tracker; `S0` al reves. Habia un rango donde el marco se contradecia consigo mismo.
+//
+//   Y el registro ya tenia el rastro: cuatro allocations con S4 —escritas A MANO, porque son
+//   anteriores a que `asignar` escribiera el campo— y una con S0, que su propio intake declaraba.
+//   Las cinco INTEGRATED. Un valor que solo se puede escribir saltandose la herramienta es un
+//   valor que se escribe saltandose la herramienta (PT-103).
+//
+//   El agravante que este caso tiene y los quince sitios de componentes no: el mensaje de error
+//   NO CALLABA, ENSENABA EL DATO EQUIVOCADO. No decia «S4 no vale»; decia «LEXICON declara
+//   S0 · S1 · S2 · S3». Quien lo leyera corregia su severidad en vez de ir a LEXICON.
+//
+// DE DONDE SALE, y por que no se parsea
+//   LEXICON 8.3, citado y no leido. Un parseo degradado devuelve lista vacia y todo pasa en
+//   verde (RULE-02). Mismo criterio que el contrato de componentes de PT-144.
+//
+// LO QUE NO ESTABLECE
+//   Que una severidad invalida no pueda entrar «por ningun camino». REGISTRY.json es un archivo
+//   y se escribe a mano — asi entraron los cuatro S4. Lo que si se garantiza: el comando la
+//   rechaza, y el verificador la caza en trabajo VIVO. Lo terminal no se rejuzga (RIGE_DESDE).
+export const SEVERIDADES = ['S1', 'S2', 'S3', 'S4'];
+
+/** ¿Es una severidad que LEXICON declara? */
+export const esSeveridad = (v) => SEVERIDADES.includes(String(v ?? ''));
+
+/**
+ * El patron de la linea `severity:` de un intake.
+ *
+ * Se CONSTRUYE desde SEVERIDADES: la clase `[1-4]` que habia antes codificaba la escala DENTRO
+ * del regex, asi que anadir un nivel obligaba a editar un patron — que es exactamente donde
+ * SUITE-R59 avisa de que los escapes se pierden al editar. Aqui no hay una sola barra invertida
+ * escrita: lo que no se escribe no se pierde.
+ *
+ * Tiene que tolerar el comentario que traen las plantillas del paquete:
+ *     severity: S4               # [HUMANO] S1 | S2 | S3 | S4
+ * y seguir rechazando `severity: S9` y `severity:` vacio (verify-fdge:165).
+ */
+export const RE_SEVERIDAD = new RegExp(
+  '^' + CLASE.espacio + '*severity:' + CLASE.espacio + '*('
+    + SEVERIDADES.map(comoLiteral).join('|')
+    + ')' + CLASE.espacio + '*(?:#.*)?$',
+  'im',
+);
+
+
 /**
  * PT-143 · Los prefijos de identificador que LEXICON declara, una sola vez.
  *

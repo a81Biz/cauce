@@ -28,6 +28,7 @@ import {
   PATRONES, selloDe,
   COMPONENTES, FAMILIAS, SIN_EVALUAR,
   prefijos, opcionales, familiasEnProsa, ordenDePrefijos, triggers, promptsDe, fasesDe, siglaDe,
+  SEVERIDADES, esSeveridad, RE_SEVERIDAD,
 } from './patrones.mjs';
 
 const errores = [];
@@ -204,6 +205,41 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   if (p !== 'PTSA/PTSA-Prompts.md') {
     errores.push(`promptsDe('PTSA') devuelve ${JSON.stringify(p)} y audit.mjs:192-195 declara «PTSA/PTSA-Prompts.md».`);
   }
+}
+
+// ── La escala de severidad ──────────────────────────────────────────────── PT-150
+//
+// Mismo trato que el contrato de componentes, sobre un hecho hermano. Estaba escrita dentro de
+// `tracker.mjs` con un valor —`S0`— que LEXICON no declara, y sin `S4`, que si declara. Y el
+// mensaje de error se la ATRIBUIA a LEXICON: no callaba, ensenaba el dato equivocado.
+//
+// `RE_SEVERIDAD` tiene su propio contrato porque es un patron CONSTRUIDO: la clase `[1-4]` que
+// habia antes codificaba la escala dentro del regex, y `SUITE-R59` avisa de que ahi es donde los
+// escapes se pierden al editar.
+{
+  total += 3;
+  if (SEVERIDADES.join() !== 'S1,S2,S3,S4') {
+    errores.push(`SEVERIDADES es ${JSON.stringify(SEVERIDADES)} y LEXICON §8.3 declara S1 · S2 · S3 · S4. Fue exactamente esta divergencia —S0 de mas, S4 de menos— la que hizo que el comando que abre lotes rechazara la severidad que LEXICON define como «se agrupa en lotes».`);
+  }
+  if (esSeveridad('S0')) {
+    errores.push('esSeveridad(\'S0\') devuelve true y LEXICON no declara S0 en ninguna parte.');
+  }
+  if (!esSeveridad('S4')) {
+    errores.push('esSeveridad(\'S4\') devuelve false y LEXICON §8.3 la declara: «cosmético, mejora, deuda sin impacto observable · se agrupa en lotes».');
+  }
+
+  // El patron tiene que tolerar el comentario que traen las plantillas del paquete y seguir
+  // rechazando lo invalido. Es el caso de PT-083: quien instala el paquete, copia la plantilla y
+  // la rellena, fallaba FDGE-R04 — y es el camino que el MANUAL describe, no un caso raro.
+  total += 4;
+  const casaSev = (t) => new RegExp(RE_SEVERIDAD.source, RE_SEVERIDAD.flags.replace('g', '')).test(t);
+  const CON_COMENTARIO = 'severity: S4               # [HUMANO] S1 | S2 | S3 | S4';
+  if (!casaSev(CON_COMENTARIO)) {
+    errores.push(`RE_SEVERIDAD no casa la forma que traen las plantillas del paquete: ${JSON.stringify(CON_COMENTARIO)}. Es el defecto de PT-083, que costo que quien instalara el paquete fallara FDGE-R04 siguiendo el MANUAL.`);
+  }
+  if (!casaSev('severity: S1')) errores.push('RE_SEVERIDAD no casa «severity: S1».');
+  if (casaSev('severity: S9')) errores.push('RE_SEVERIDAD casa «severity: S9», que no es una severidad. Un patron demasiado laxo pasa por bueno.');
+  if (casaSev('severity:')) errores.push('RE_SEVERIDAD casa «severity:» vacio. Un campo sin valor no es un valor.');
 }
 
 console.log(`verify-patrones — ${Object.keys(PATRONES).length} patrones · ${total} comprobaciones\n`);

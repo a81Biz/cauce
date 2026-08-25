@@ -64,6 +64,8 @@ import { RIGE_DESDE, reglasNuevasFueraDeLaGuia, PREFIJOS_DE_ID } from './patrone
 import { esLote } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
+// PT-150 · la escala de severidad la declara LEXICON §8.3, y vive una sola vez.
+import { SEVERIDADES } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
 // PT-064 · separador de campos para `git log`: no aparece en un nombre ni en un asunto.
@@ -2553,7 +2555,15 @@ const usadosDe = (prefijo) => all
 // porque un campo que admite lo que sea es un campo que no decide nada: es el mismo defecto que
 // PT-100 arreglo para los tipos de caso QA, un paso mas arriba.
 // PT-124 · la lista vive en patrones.mjs y verify-suite la compara con LEXICON §8.1.
-const SEVERIDADES = ['S0', 'S1', 'S2', 'S3'];
+//
+// PT-150 · y la de SEVERIDADES no vivia ahi. Estaba escrita aqui, decia ['S0','S1','S2','S3'] y
+// el mensaje de error la atribuia a LEXICON — que declara S1..S4 y no menciona S0 en ninguna
+// parte. Las dos mitades del mensaje eran falsas, y ese es su agravante: no callaba, ENSENABA EL
+// DATO EQUIVOCADO, asi que quien lo leyera corregia su severidad en vez de ir a LEXICON.
+//
+// Efecto medido: `asignar --severidad S4` rechazaba la severidad que LEXICON define como «deuda
+// sin impacto observable, SE AGRUPA EN LOTES» — en el comando que abre lotes. Y la plantilla que
+// el paquete instala, CHANGE-REQUEST.md, trae S4 por defecto.
 
 function asignar() {
   // PT-143 · EL PREFIJO NO SE ADIVINA. Antes se tomaba el primer argumento en mayusculas, y el

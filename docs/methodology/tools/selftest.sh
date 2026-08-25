@@ -7859,6 +7859,83 @@ chk   "…y cambiar el documento de PTSA tambien"       "no reproduce build-core
 chk   "sobre el arbol real, el contrato cumple"       "Todos los patrones cumplen" \
   node "$SUITE/tools/verify-patrones.mjs"
 
+# ── PT-150 · EP-022 · la escala de severidad vivia en tracker y contradecia a LEXICON ──────────
+#
+# CUATRO fuentes declaraban la escala y tracker contradecia a las otras tres:
+#
+#   LEXICON 8.3           S1 S2 S3 S4   <- la fuente (LEX-R21)
+#   verify-fdge.mjs:166   S1 S2 S3 S4   correcta
+#   INTAKE/templates x3   S1|S2|S3|S4   correcta
+#   tracker.mjs:2556      S0 S1 S2 S3   <- y su mensaje CITABA a LEXICON
+#
+# Las DOS herramientas se contradecian entre si: S4 la aceptaba verify-fdge y la rechazaba
+# tracker; S0 al reves. Habia un rango donde el marco se contradecia consigo mismo.
+TK150="$SUITE/tools/tracker.mjs"
+proj150() {
+  local d="$WORK/p150"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', counters:{PT:9}, allocations:[]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+asg150() { (cd "$1" && shift; node "$TK150" asignar "$@" --ver 2>&1); }
+
+# AC-03 · el escenario que REPRODUCE. S4 es la severidad que LEXICON define como «deuda sin
+# impacto observable, SE AGRUPA EN LOTES» — y el comando que abre lotes la rechazaba.
+chk   "asignar acepta S4, que LEXICON declara"     "PT-010" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S4 --titulo t
+# AC-04 · S0 no existe en LEXICON. Se acepta hoy, y por ahi entro PT-107.
+chk   "asignar RECHAZA S0, que LEXICON no declara" "no es una severidad" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S0 --titulo t
+# AC-05 · el mensaje MENTIA con autoridad: no decia «S4 no vale», decia «LEXICON declara
+# S0 · S1 · S2 · S3». Quien lo leyera corregia su severidad en vez de ir a LEXICON.
+chkno "…y el mensaje ya no atribuye S0 a LEXICON"  "S0" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S9 --titulo t
+chk   "…y enumera la escala que LEXICON SI declara" "S1 · S2 · S3 · S4" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S9 --titulo t
+
+# AC-03 · el valor por defecto de la plantilla QUE EL PAQUETE INSTALA tiene que ser aceptable.
+# Se LEE DEL ARCHIVO: escribir «S4» aqui compararia lo escrito contra lo escrito, que es la
+# leccion de RC-03 en PT-144. Es la clase de PT-083 — la plantilla que el paquete distribuye
+# fallando su propio verificador.
+sev_plantilla() {
+  sed -n 's/^severity:[[:space:]]*\(S[0-9]\).*/\1/p' "$SUITE/INTAKE/templates/CHANGE-REQUEST.md" | head -1
+}
+chk   "el defecto de CHANGE-REQUEST.md lo acepta el comando"  "PT-010" \
+  sh -c "cd '$(proj150)' && node '$TK150' asignar PT --slug x --tipo CHORE --severidad \"\$(sed -n 's/^severity:[[:space:]]*\(S[0-9]\).*/\1/p' '$SUITE/INTAKE/templates/CHANGE-REQUEST.md' | head -1)\" --titulo t --ver 2>&1"
+
+# AC-06 · lo INTEGRADO no se rejuzga. Cinco allocations historicas llevan severidades que hoy
+# no validan —cuatro S4 y un S0— y SON la evidencia de que el defecto existio. Ponerlas en rojo
+# para que cuadre una cifra seria perder el rastro.
+V150() { (cd "$1" && node "$SUITE/tools/verify-fdge.mjs" "${@:2}" 2>&1); }
+proj150b() {
+  local d="$WORK/p150b"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes" "$d/docs/methodology"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', firmantes:['Alberto Martínez'], counters:{PT:3},
+      allocations:[
+        {id:'PT-001',slug:'integrado-s0',type:'BUG',severity:'S0',status:'INTEGRATED',suite_version:'13.1.0'},
+        {id:'PT-002',slug:'integrado-s4',type:'CHORE',severity:'S4',status:'INTEGRATED',suite_version:'13.1.0'},
+        {id:'PT-003',slug:'vivo-s0',type:'BUG',severity:'S0',status:'DRAFT',phase:1,suite_version:'13.1.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+# El fixture nombra los tres por FDGE-R01 —no tienen changes/— asi que la asercion NO puede ser
+# el identificador a secas: seria verde por una razon ajena. Se mide EL MENSAJE DE SEVERIDAD.
+chkno "un S0 INTEGRADO no se rejuzga"              "PT-001: severidad" \
+  V150 "$(proj150b)" --all
+chkno "…ni un S4 integrado"                        "PT-002: severidad" \
+  V150 "$(proj150b)" --all
+# AC-07 · lo terminal se respeta, lo VIVO se exige. Es lo que hace que AC-07 signifique algo:
+# «por ningun camino» no es alcanzable —REGISTRY.json se escribe a mano y asi entraron los
+# cuatro S4— pero un verificador si puede cazarlo en la corrida siguiente.
+chk   "…pero un S0 VIVO si se caza"                "PT-003: severidad" \
+  V150 "$(proj150b)" --all
+
+
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
