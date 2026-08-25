@@ -11,7 +11,7 @@ Proyectado el 2026-08-25 · 10 allocation(es) viva(s).
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-022 |  | READY | 1 | — | — | da9c260 |
-| PT-144 | CHORE | DRAFT | 4 | — | — | da9c260 |
+| PT-144 | CHORE | DRAFT | 5 | — | — | c08ba72 |
 | PT-145 | REFACTOR | DRAFT | 1 | — | — | da9c260 |
 | PT-146 | REFACTOR | DRAFT | 1 | — | — | da9c260 |
 | PT-147 | REFACTOR | DRAFT | 1 | — | — | da9c260 |
