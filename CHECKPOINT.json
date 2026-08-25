@@ -1,10 +1,10 @@
 {
-  "pt": "PT-141",
+  "pt": "PT-142",
   "type": "BUG",
   "epic": "EP-021",
-  "status": "VALIDATION_PENDING",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error",
   "sha": "9304f985fef156245dfd5b60c706fe265811430b",
   "sha_corto": "9304f98",
@@ -21,6 +21,7 @@
     "changes/PT-141-el-manejador-de-error-que-lanza-otro-error/traceability.md",
     "changes/PT-142-la-rama-no-se-contrasta-con-la-derivada/design.md",
     "changes/PT-142-la-rama-no-se-contrasta-con-la-derivada/discovery.md",
+    "changes/PT-142-la-rama-no-se-contrasta-con-la-derivada/intake.md",
     "changes/PT-142-la-rama-no-se-contrasta-con-la-derivada/out-of-scope.md",
     "changes/PT-142-la-rama-no-se-contrasta-con-la-derivada/spec-changes.md",
     "changes/PT-142-la-rama-no-se-contrasta-con-la-derivada/strategy.md",
@@ -55,9 +56,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-24"
 }
