@@ -17,5 +17,5 @@ Proyectado el 2026-08-25 · 10 allocation(es) viva(s).
 | PT-147 | REFACTOR | DRAFT | 1 | — | — | da9c260 |
 | PT-148 | CHORE | DRAFT | 1 | — | — | da9c260 |
 | PT-149 | CHORE | DRAFT | 1 | — | — | da9c260 |
-| PT-150 | BUG | DRAFT | 2 | — | — | da9c260 |
+| PT-150 | BUG | DRAFT | 3 | — | — | da9c260 |
 | EP-023 |  | READY | 1 | — | — | da9c260 |
