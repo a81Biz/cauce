@@ -2,33 +2,20 @@
   "pt": "PT-150",
   "type": "BUG",
   "epic": "EP-022",
-  "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "bug/alberto-martinez/PT-150-la-escala-de-severidad-se-declara",
-  "sha": "73b422e13674d9f9131f2f3d1ac73daa1ba6be4b",
-  "sha_corto": "73b422e",
+  "sha": "d235bab014d30f56e3f82136bc165c303ffaa36d",
+  "sha_corto": "d235bab",
   "sucio": true,
   "archivos": [
     "changes/PT-150-la-escala-de-severidad-se-declara/intake.md",
-    "changes/PT-150-la-escala-de-severidad-se-declara/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/EVENTOS.jsonl",
-    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-150/",
-    "docs/methodology/tools/patrones.mjs",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/tracker.mjs",
-    "docs/methodology/tools/verify-fdge.mjs",
-    "docs/methodology/tools/verify-patrones.mjs"
+    "docs/implementation/evidence/PT-150/salidas/verify-completo.txt"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-25"
 }
