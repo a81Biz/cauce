@@ -119,6 +119,27 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
     }
   }
 
+  // PT-144 · TS-08 lo destapo: sin esto, DUPLICAR un «orden» pasaba en verde. `ordenDePrefijos()`
+  // ordena de forma estable, asi que dos familias con el mismo numero conservan su posicion en el
+  // array y la secuencia emitida no cambia — la asercion de orden no lo veia.
+  //
+  // Es el caso que `design.md` §6 especificaba —«orden con huecos o repetido -> falla»— y que no
+  // se habia escrito. Lo encontro romper el contrato a proposito, no leerlo: RULE-02 en su forma
+  // ejecutable.
+  //
+  // Importa porque `orden` gobierna la emision de CORE.md: un empate hace que el nucleo dependa
+  // del orden de declaracion en vez del declarado, y eso es un dato que se pierde al reordenar.
+  total += 2;
+  const ordenes = fams.map((f) => f?.orden).filter((o) => o !== undefined);
+  const repetidos = ordenes.filter((o, i) => ordenes.indexOf(o) !== i);
+  if (repetidos.length) {
+    errores.push(`FAMILIAS: el «orden» ${JSON.stringify([...new Set(repetidos)])} esta repetido. CORE.md se emite con el, y un empate hace que el nucleo dependa del orden de declaracion en vez del declarado.`);
+  }
+  const esperado = [...Array(fams.length)].map((_, i) => i + 1);
+  if (ordenes.length && [...ordenes].sort((a, b) => a - b).join() !== esperado.join()) {
+    errores.push(`FAMILIAS: el «orden» no es 1..${fams.length} sin huecos. Hoy: ${JSON.stringify([...ordenes].sort((a, b) => a - b))}`);
+  }
+
   // El caso irregular ES la prueba del diseño: si `sigla` no estuviera separada de `nombre`, el
   // ternario de `audit.mjs:214` seguiría existiendo, escrito en otro sitio. Y `FQAGE` es el
   // segundo caso, que aquel ternario no tenía (`LEX-R03`).

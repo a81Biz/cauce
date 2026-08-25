@@ -1,0 +1,19 @@
+TS-08 · romper el contrato hace fallar verify-patrones
+
+  ok sin la sigla de Foundation
+          [31m✗[0m SUITE-R38  COMPONENTES: «Foundation» no declara «sigla». Un campo ausente es el que luego se escribe a mano en la herramienta.
+  ok sigla de Foundation equivocada
+          [31m✗[0m SUITE-R38  siglaDe('Foundation') devuelve "FOUND" y LEXICON declara «FND». Es el caso que obliga a que «sigla» sea un campo y no el nombre.
+  ok un rango inventado para FPGE
+          [31m✗[0m SUITE-R38  fasesDe('FPGE') devuelve [1,9] y LEXICON §3 NO tiene apartado para FPGE. Un rango inventado apaga la comprobación en silencio (RULE-06).
+  ok FIDE pierde su rango
+          [31m✗[0m SUITE-R38  fasesDe('FIDE') devuelve "SIN EVALUAR" y LEXICON §3.5 declara PHASE 1-5. El dato EXISTE: no puede salir como desconocido.
+  ok FIDE deja de ser opcional
+          [31m✗[0m SUITE-R38  opcionales() no reproduce Set(['FIDE']) de verify-suite.mjs:425 y comparar-marco.mjs:39. Hoy: []
+  ok orden de familia repetido
+          [31m✗[0m SUITE-R38  FAMILIAS: el «orden» [2] esta repetido. CORE.md se emite con el, y un empate hace que el nucleo dependa del orden de declaracion en vez del declarado.
+  ok PTSA cambia de documento
+          [31m✗[0m SUITE-R38  familiasEnProsa() no reproduce build-core.mjs:171. Son 7 y NO incluyen LEX, EXEC ni PTSA, porque sus reglas no viven en RULES.md. Hoy: ["SUITE","FND","FDGE","INTAKE","QA","PTSA","FPGE","FIDE"]
+
+TS-08 OK — los 7 casos hacen fallar verify-patrones POR ASERCION, y cada uno nombra
+el componente o la familia que esta mal.

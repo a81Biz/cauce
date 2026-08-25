@@ -7808,6 +7808,58 @@ chk   "INC-001 registrado en el ledger"          "INC-001" \
 chk   "…y tiene candidato en el roadmap"         "INC-001" \
   cat "$RAIZ/docs/implementation/ROADMAP.md"
 
+# ── PT-144 · EP-022 · el contrato de componentes falla cuando se rompe ──────────────────────────
+#
+# EP-022 midio la lista de componentes escrita A MANO en QUINCE sitios de cuatro herramientas.
+# Lo grave no era la duplicacion: `verify-suite.mjs:250` filtraba las reglas por una alternancia
+# LITERAL, asi que un componente con prefijo nuevo tendria sus reglas INVISIBLES al verificador y
+# PASARIA EN VERDE.
+#
+# Un contrato sin comprobacion que pueda fallar repite ese defecto un nivel mas arriba. Estos
+# casos son RC-04: rompen UN campo cada uno y exigen que el verificador lo NOMBRE.
+#
+# Y no es teorico. En su primera ejecucion, seis de siete casos fallaron bien y UNO PASO EN VERDE
+# —duplicar el `orden` de una familia—: `ordenDePrefijos()` ordena de forma estable, asi que dos
+# familias con el mismo numero conservan su posicion y la secuencia emitida no cambiaba. Estaba
+# especificado en design.md y no se habia escrito. Lo encontro ROMPERLO, no leerlo.
+P144="$WORK/p144"
+proj144() {
+  rm -rf "$P144"; mkdir -p "$P144"
+  cp "$SUITE/tools/patrones.mjs" "$SUITE/tools/verify-patrones.mjs" "$P144/"
+  echo "$P144"
+}
+# Rompe un campo del contrato en la COPIA y ejecuta el verificador sobre ella. El arbol real no
+# se toca: si un caso dejara el modulo roto, los 1700 casos siguientes medirian otra cosa.
+rot144() {
+  local d; d="$(proj144)"
+  sed -i "$1" "$d/patrones.mjs"
+  node "$d/verify-patrones.mjs" 2>&1
+}
+
+chk   "un campo ausente NOMBRA componente y campo"    "no declara «sigla»" \
+  rot144 "s/    sigla: 'FND',/    sigla: undefined,/"
+chk   "una sigla equivocada se caza"                  "LEXICON declara «FND»" \
+  rot144 "s/    sigla: 'FND',/    sigla: 'FOUND',/"
+# RULE-06 · LEXICON 3 declara el rango de CINCO componentes y no tiene apartado para FPGE. Un
+# rango inventado para que la tabla quede simetrica apaga la comprobacion en silencio.
+chk   "un rango inventado para FPGE FALLA"            "apaga la comprobación en silencio" \
+  rot144 "s/    fases: SIN_EVALUAR,/    fases: [1, 9],/"
+chk   "…y perder el rango de FIDE tambien"            "El dato EXISTE" \
+  rot144 "s/    fases: \[1, 5\],/    fases: SIN_EVALUAR,/"
+chk   "FIDE dejando de ser opcional se caza"          "no reproduce Set" \
+  rot144 "s/    obligatorio: false,/    obligatorio: true,/"
+# El caso que se escapo la primera vez. CORE.md se emite con `orden`: un empate hace que el
+# nucleo dependa del orden de declaracion en vez del declarado.
+chk   "un «orden» de familia REPETIDO se caza"        "esta repetido" \
+  rot144 "s/{ prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3 }/{ prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 2 }/"
+chk   "…y cambiar el documento de PTSA tambien"       "no reproduce build-core" \
+  rot144 "s#{ prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8 }#{ prefijo: 'PTSA', documento: 'RULES.md', orden: 8 }#"
+
+# Y el arbol real sigue en verde: los casos de arriba no lo tocaron.
+chk   "sobre el arbol real, el contrato cumple"       "Todos los patrones cumplen" \
+  node "$SUITE/tools/verify-patrones.mjs"
+
+
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que
