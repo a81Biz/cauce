@@ -2,9 +2,9 @@
   "pt": "PT-145",
   "type": "REFACTOR",
   "epic": "EP-022",
-  "status": "DRAFT",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "refactor/alberto-martinez/PT-145-verify-suite-deja-de-escribirlos",
   "sha": "eb680f5c581eb743dbf7816ec397f9f2d10f457d",
   "sha_corto": "eb680f5",
@@ -24,8 +24,11 @@
     "docs/methodology/tools/verify-patrones.mjs",
     "docs/methodology/tools/verify-suite.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-25"
 }
