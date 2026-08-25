@@ -16,6 +16,6 @@ Proyectado el 2026-08-24 · 10 allocation(es) viva(s).
 | PT-138 | BUG | DONE | 8 | — | — | f0314bb |
 | PT-139 | BUG | DONE | 8 | — | — | f0314bb |
 | PT-140 | BUG | DONE | 8 | — | — | f0314bb |
-| PT-141 | BUG | DRAFT | 5 | — | — | b4cb0ef |
+| PT-141 | BUG | DRAFT | 6 | — | — | b4cb0ef |
 | PT-142 | BUG | DRAFT | 1 | — | — | b4cb0ef |
 | PT-143 | BUG | DRAFT | 1 | — | — | b4cb0ef |
