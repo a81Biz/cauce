@@ -14,22 +14,30 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 <!-- BACKLOG:DERIVADO -->
 
-## Implementación abierta — `EP-021`
+## Implementación abierta — `EP-022`
 
-`EP-021` · **Un aplazado entra al tablero y ningun comando puede sacarlo: DEFERRED no tiene transicion de vuelta** · `READY` · issue [#270](https://github.com/a81Biz/cauce/issues/270).
+`EP-022` · **modularidad: los componentes se declaran, no se escriben a mano** · `READY` · issue [#286](https://github.com/a81Biz/cauce/issues/286).
 
 | PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
-| PT-134 | CHORE | S3 | DRAFT | 1 | [#255](https://github.com/a81Biz/cauce/issues/255) | No hay forma de declarar un AC caido: o se finge verde o bloquea |
-| PT-137 | BUG | S1 | VALIDATION_PENDING | 8 | [#263](https://github.com/a81Biz/cauce/issues/263) | DEFERRED no tiene transicion de vuelta: ningun comando lo saca y todo comando de estado exige un intake que un aplazado no tiene |
-| PT-138 | BUG | S2 | DRAFT | 1 | [#264](https://github.com/a81Biz/cauce/issues/264) | SUITE-R44 pone el aplazado en el tablero y no exige condicion de reentrada, fecha de revision ni dueno |
-| PT-139 | BUG | S2 | DRAFT | 1 | [#265](https://github.com/a81Biz/cauce/issues/265) | Nada mide la edad de un aplazado: uno de ayer y uno de hace meses son indistinguibles en el tablero |
-| PT-140 | BUG | S2 | DRAFT | 1 | [#266](https://github.com/a81Biz/cauce/issues/266) | tracker proyectar arranca un linaje nuevo en silencio si falta refs/heads de la rama de proyeccion |
-| PT-141 | BUG | S2 | DRAFT | 1 | [#267](https://github.com/a81Biz/cauce/issues/267) | El catch de SUITE-R56 referencia una variable inexistente: el comando revienta, tapa el fallo real y deja efecto a medias |
-| PT-142 | BUG | S3 | DRAFT | 1 | [#268](https://github.com/a81Biz/cauce/issues/268) | Nada compara el nombre de una rama con lo que ramaDeTarea deriva: type y slug inventados pasan la topologia |
-| PT-143 | BUG | S3 | DRAFT | 1 | [#269](https://github.com/a81Biz/cauce/issues/269) | asignar toma el primer argumento en mayusculas como prefijo, asi que --tipo BUG crea BUG-001 |
+| PT-144 | CHORE | S2 | DRAFT | 1 | [#279](https://github.com/a81Biz/cauce/issues/279) | El contrato de componentes vive en patrones.mjs |
+| PT-145 | REFACTOR | S2 | DRAFT | 1 | [#280](https://github.com/a81Biz/cauce/issues/280) | verify-suite y comparar-marco derivan los componentes del contrato |
+| PT-146 | REFACTOR | S2 | DRAFT | 1 | [#281](https://github.com/a81Biz/cauce/issues/281) | build-core deriva familias, orden y triggers del contrato |
+| PT-147 | REFACTOR | S2 | DRAFT | 1 | [#282](https://github.com/a81Biz/cauce/issues/282) | audit deriva fases, sigla y referencias por componente del contrato |
+| PT-148 | CHORE | S2 | DRAFT | 1 | [#283](https://github.com/a81Biz/cauce/issues/283) | El alta y la baja de un componente quedan escritas y con regla |
+| PT-149 | CHORE | S2 | DRAFT | 1 | [#284](https://github.com/a81Biz/cauce/issues/284) | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |
+| PT-150 | BUG | S2 | DRAFT | 1 | [#285](https://github.com/a81Biz/cauce/issues/285) | SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos |
 
-**0 de 8 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**0 de 7 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+
+## Implementación abierta — `EP-023`
+
+`EP-023` · **DICTAMEN: el septimo componente, y el entregable ejecutivo al dueno del dominio** · `READY` · issue [#287](https://github.com/a81Biz/cauce/issues/287).
+
+| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
+|:---|:---|:---|:---|:---|:---|:---|
+
+**0 de 0 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Aplazado — 1 allocation(s) `DEFERRED`
 
@@ -45,18 +53,61 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 ## El porqué — lo que no se deriva
 
-`EP-015` · **La continuidad de sesión** · `IN_PROGRESS` ·
-issue [#90](https://github.com/a81Biz/cauce/issues/90).
+`EP-022` · **Los componentes se declaran, no se escriben a mano** · `READY` · `G1` firmada **por
+delegación** el 2026-08-24 (`SESSION_LOG.md`). **Ninguna tarea iniciada, por instrucción explícita
+del firmante.**
 
-**`PT-056` va primera y no es preferencia.** Es el único hueco que `EP-014` dejó **a medias** —el
-`sha` se comprueba alcanzable, no correspondiente— y todo lo que viene detrás confía en que el
-checkpoint diga la verdad.
+**Orden y solapamiento** (`FDGE-R40`): **un solo par**, `PT-144 ↔ PT-150` en `tools/patrones.mjs`
+→ **serializados**. Los cuatro del medio tocan cada uno un archivo que ningún otro toca, porque la
+descomposición es **por herramienta**. `PT-145` junta `verify-suite.mjs` y `comparar-marco.mjs`
+**a propósito** —los dos `Set(['FIDE'])` son el mismo hecho— porque partirlos habría dejado la
+mitad derivando y la mitad escribiendo durante una integración entera. Ejecución **secuencial**
+(`EXEC-R08`).
 
-**`PT-058` va antes que `PT-059`** porque una compuerta que decide sobre cifras sin saber de qué
-tipo son **es** el `estimated_used: 67` que `LEX-R26` dejó fuera.
+```
+1. PT-144   contrato    2. PT-150   BUG    3. PT-145 · 4. PT-146 · 5. PT-147   herramientas
+6. PT-148   documentación                  7. PT-149   la prueba
+```
 
-**Solapamiento** (`FDGE-R40`): `tools/tracker.mjs` lo tocan **cuatro** tareas y `LEXICON` tres.
-Ejecución **secuencial**; ningún par en paralelo.
+**`PT-144` va primera y no es preferencia**: nadie puede derivar de un contrato que todavía no
+existe.
+
+**`PT-150` va segunda y no al final.** Es el único `BUG` del lote, y estrena sobre un hecho
+pequeño y aislado —la escala de severidad— el mismo mecanismo que las cuatro herramientas van a
+usar después. Si el contrato de `PT-144` no sirve, se sabe aquí y no en la quinta tarea. Entró al
+lote **por decisión del firmante**: el borrador lo declaraba fuera de alcance.
+
+**`PT-148` va la sexta y no la primera.** Documentar el procedimiento antes de construirlo
+describiría el mecanismo **planeado**, y el planeado y el construido divergen — que es el defecto
+de origen de toda la v3.
+
+**`PT-149` es la única que puede cerrar el criterio de éxito del lote.** Las seis anteriores
+construyen el mecanismo; solo ella lo **ejecuta**: alta, las cuatro comprobaciones, baja, y el
+árbol byte a byte como estaba. Un lote que terminara en `PT-148` habría entregado una promesa.
+
+**Por qué existe este lote**: se derivó investigando un componente nuevo (`DICTAMEN`, `EP-023`) y
+el hallazgo fue que **el séptimo componente no se puede añadir hoy sin que su verificación nazca
+apagada** — `verify-suite.mjs:250` filtra las reglas por prefijos literales, así que un prefijo
+nuevo es invisible y **pasa en verde**.
+
+---
+
+`EP-023` · **`DICTAMEN`** · `READY` · **`G1` resuelta como `CHALLENGE`**, aceptado por el firmante
+el 2026-08-24. **No es un `PASS`, y la diferencia importa.**
+
+Su Intake recoge las **quince decisiones** del firmante sobre el séptimo componente y el diseño
+propuesto. Su tabla de `PT` está vacía porque el lote **no está descompuesto**: `DoR-E6` no se
+puede satisfacer sin tareas, y `DoR-E7` depende de él.
+
+El agente desafió la admisión por eso (`INTAKE-R07`); el firmante, informado, ordenó firmarla
+igualmente para no perder lo decidido. **El hueco no se borró: sigue en rojo en su §9**, con el
+nombre de quien decidió proceder con él delante. Es para lo que existe la línea
+`CHALLENGE aceptado por` de la plantilla.
+
+**Lo firmado es el alcance, no un plan.** Las tareas que se abran bajo `EP-023` llevarán su
+`Firmado por lote: EP-023` y esta firma las cubrirá desde que existan (`INTAKE-R08`). Qué cierra
+el hueco, sin volver a firmar: `EP-022` cerrado → las cuatro decisiones de diseño abiertas → la
+descomposición.
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
@@ -71,11 +122,21 @@ desde `af79c6b` (**7.6.0**).
 
 ## Lo siguiente
 
-`PT-056` · `PHASE 1` → `PHASE 2`. Desde `EP-014`, la transición se hace con **un comando**:
+**`PT-144` · `PHASE 1` → `PHASE 2`.** Es lo primero de `EP-022`, y arranca en cuanto el firmante
+lo diga: pidió aviso antes de empezar.
 
 ```bash
-node docs/methodology/tools/tracker.mjs avanzar PT-056 --a 2 --nota "..."
+node docs/methodology/tools/tracker.mjs avanzar PT-144 --a 2 --nota "..."
 ```
 
-Publicar sigue **pendiente por decisión humana explícita**, sostenida en cinco lotes.
-Es `SUITE-R06g` y no se automatiza.
+**El terreno ya está puesto**: `G1` de los dos lotes resuelta, espejo publicado —diez allocations
+vivas y diez issues, cuadra— y `npm run verify` en verde.
+
+**Pendientes que estos lotes no tocan**, arrastrados de antes:
+
+- Fusionar el viaje de vuelta de `EP-021` a `main` — `trabajo` va por delante.
+- `npm publish`, **reservado al firmante** (`SUITE-R06g`), sostenido a lo largo de seis lotes.
+- Regenerar el grafo (`FDGE-R32`). Sigue `SUSPECT`.
+- `PT-025` (`#35`), el arrastre aceptado.
+- La pregunta abierta sobre `FDGE-R19` —si el trabajo de lote puede citar el `EP`—, que ya lleva
+  cuatro lotes rodeándose con una excepción declarada.

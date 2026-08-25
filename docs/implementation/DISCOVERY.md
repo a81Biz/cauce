@@ -91,10 +91,11 @@
 | PT-133 | BUG | S2 | INTEGRATED | EP-020 | parada exige plataforma para escribir en TRANSICIONES.log |
 | PT-135 | BUG | S2 | INTEGRATED | EP-020 | El lint de helpers solo mira los usados como comando de un caso: los de montaje se usan antes de definirse y nadie lo ve |
 | PT-136 | BUG | S2 | INTEGRATED | EP-020 | Cerrar un BUG y cerrar un lote no tenian comando: la unica via era escribir el registro a mano |
-| PT-137 | BUG | S1 | VALIDATION_PENDING | EP-021 | DEFERRED no tiene transicion de vuelta: ningun comando lo saca y todo comando de estado exige un intake que un aplazado no tiene |
-| PT-138 | BUG | S2 | DRAFT | EP-021 | SUITE-R44 pone el aplazado en el tablero y no exige condicion de reentrada, fecha de revision ni dueno |
-| PT-139 | BUG | S2 | DRAFT | EP-021 | Nada mide la edad de un aplazado: uno de ayer y uno de hace meses son indistinguibles en el tablero |
-| PT-140 | BUG | S2 | DRAFT | EP-021 | tracker proyectar arranca un linaje nuevo en silencio si falta refs/heads de la rama de proyeccion |
-| PT-141 | BUG | S2 | DRAFT | EP-021 | El catch de SUITE-R56 referencia una variable inexistente: el comando revienta, tapa el fallo real y deja efecto a medias |
-| PT-142 | BUG | S3 | DRAFT | EP-021 | Nada compara el nombre de una rama con lo que ramaDeTarea deriva: type y slug inventados pasan la topologia |
-| PT-143 | BUG | S3 | DRAFT | EP-021 | asignar toma el primer argumento en mayusculas como prefijo, asi que --tipo BUG crea BUG-001 |
+| PT-137 | BUG | S1 | INTEGRATED | EP-021 | DEFERRED no tiene transicion de vuelta: ningun comando lo saca y todo comando de estado exige un intake que un aplazado no tiene |
+| PT-138 | BUG | S2 | INTEGRATED | EP-021 | SUITE-R44 pone el aplazado en el tablero y no exige condicion de reentrada, fecha de revision ni dueno |
+| PT-139 | BUG | S2 | INTEGRATED | EP-021 | Nada mide la edad de un aplazado: uno de ayer y uno de hace meses son indistinguibles en el tablero |
+| PT-140 | BUG | S2 | INTEGRATED | EP-021 | tracker proyectar arranca un linaje nuevo en silencio si falta refs/heads de la rama de proyeccion |
+| PT-141 | BUG | S2 | INTEGRATED | EP-021 | El catch de SUITE-R56 referencia una variable inexistente: el comando revienta, tapa el fallo real y deja efecto a medias |
+| PT-142 | BUG | S3 | INTEGRATED | EP-021 | Nada compara el nombre de una rama con lo que ramaDeTarea deriva: type y slug inventados pasan la topologia |
+| PT-143 | BUG | S3 | INTEGRATED | EP-021 | asignar toma el primer argumento en mayusculas como prefijo, asi que --tipo BUG crea BUG-001 |
+| PT-150 | BUG | S2 | DRAFT | EP-022 | SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos |

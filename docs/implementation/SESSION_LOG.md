@@ -3767,3 +3767,120 @@ Es un coste real y lo asume quien lo autoriza.
 
 **El commit sigue siendo atómico.** `FDGE-R19` pide un commit por cambio lógico y eso **no** se
 relaja: cada tarea lleva el suyo, citando su `PT`.
+
+---
+
+## 2026-08-24 · `EP-022` · autorización de firma delegada   `EXEC-R04a` · `SUITE-R27`
+
+**Autorización del firmante, literal:** *«tienes mi VoBo, firma todo en mi nombre me parece
+correcto. La divergencia de SEVERIDADES entra en el lote como BUG propio. Confirmo S2 y te doy el
+VoBo para todas las firmas. No comiences aún, crea la siguiente épica que no quiero que se me
+olvide ni pase nada»* — Alberto Martínez.
+
+`EP-021` dejó escrito que **la excepción no se hereda**: el siguiente lote vuelve a necesitar
+autorización. Esta es la de `EP-022`.
+
+**Qué autoriza, enumerado:**
+
+1. **`G1` de `EP-022`**, sobre el alcance escrito en su intake §1, §2 y §3 — con la modificación
+   de alcance que él mismo decidió: `PT-150` **entra** al lote como `BUG` propio, cuando el
+   borrador lo declaraba `OUT`.
+2. **La severidad `S2` del lote**, confirmada explícitamente. `INTAKE-R04` la reserva al humano y
+   `FDGE-R51` hace que las siete tareas la hereden.
+3. **La firma por lote de los siete Intakes** (`INTAKE-R08`): `PT-144` a `PT-150`.
+
+**Qué NO autoriza — y no por prudencia del agente, sino porque no se pidió:**
+
+- **Empezar el trabajo.** Lo dice literal: *«no comiences aún»*. `EP-022` queda `READY` con `G1`
+  resuelta y **ninguna** tarea iniciada.
+- **`G2`, `G3` y `G4`.** «Todas las firmas» se lee aquí como *las firmas de esta admisión*, no
+  como un cheque en blanco sobre compuertas que aún no existen. `G4` es además `SUITE-R06a`.
+- **El cierre de `PT-150`**, que es el único `BUG` del lote (`SUITE-R06b`, `FDGE-R26`). Se
+  detendrá en `VALIDATION_PENDING` y esperará.
+- **`npm publish`.** Reservado desde el 2026-08-24 y no revocado.
+- **Reescribir historia o `push --force`** (`SUITE-R06f`).
+- **Regenerar el grafo** (`FDGE-R32`). Sigue `SUSPECT`.
+
+Si quiere extenderla a `G2`/`G3` y a la validación de `PT-150` —como hizo en `EP-021`— basta con
+decirlo y se enumera aquí. **Interpretar «todas las firmas» como si ya las cubriera sería
+convertir una autorización amplia en una autorización universal**, y es exactamente la operación
+que `SUITE-R27` existe para hacer visible.
+
+**Lo que esta autorización no cambia.** `SUITE-R27` dice que una firma **no prueba** que firmara
+una persona: el agente escribe el archivo. Lo que hace es convertirla en una afirmación
+contrastable, y esta entrada es el contraste.
+
+### Lo que la admisión de `EP-022` encontró antes de empezar
+
+Dos hallazgos, ninguno de ellos por ejecutar el lote:
+
+1. **`audit.mjs` tiene dos mapas por componente y discrepan.** `FPGE` está en `PROMPTS` y no en
+   `esperadas`; `FIDE` no está en ninguno. **Dos de los seis componentes no tienen auditadas sus
+   fases.** Salió de verificar una frase que el propio agente había escrito mal en el intake de
+   `PT-147`, no de ejecutar nada. Subió el conteo del lote de trece sitios a catorce.
+
+2. **La escala de severidad diverge en los dos extremos, y ya dejó rastro en el registro.**
+   `tracker.mjs:2556` declara `['S0','S1','S2','S3']` y se lo atribuye a `LEXICON`, que declara
+   `S1 S2 S3 S4` y no menciona `S0`. En el registro hay **cuatro** allocations con `S4`
+   —severidad que la herramienta rechaza— y **una** con `S0` —que `LEXICON` no reconoce—, las
+   cinco `INTEGRATED`: se escribieron rodeando la herramienta. Es `PT-150`.
+
+### Estado al cerrar esta entrada
+
+| | |
+|:---|:---|
+| Modo de ejecución | `SUPERVISED` (`EXEC-R02`) |
+| suite_version | `13.1.0` |
+| Rama | `trabajo` · 3 commits por delante de `main` (el viaje de vuelta de `EP-021`, pendiente) |
+| Lotes abiertos | `EP-022` `READY` · `EP-023` `DRAFT` |
+| PTs vivos | `PT-144`..`PT-150` en `PHASE 1` · `PT-025` `DEFERRED` (arrastre aceptado) |
+| Trabajo iniciado | **ninguno** — por instrucción explícita del firmante |
+| Espejo | **pendiente**: siete allocations vivas sin issue (`SUITE-R35`), a la espera de autorización para publicar en GitHub |
+
+### Ampliación de la autorización — mismo día
+
+**Segunda instrucción del firmante, literal:** *«sí las dos. Firma la EP-023 y que esté todo en
+github antes de empezar. Avísame cuando esté todo para comenzar con la épica 22»* — Alberto
+Martínez.
+
+**Qué añade a lo autorizado arriba:**
+
+6. **Publicar el espejo en GitHub** (`SUITE-R35`): crear el issue de las nueve allocations vivas.
+   Es una acción **hacia afuera** sobre un repositorio público, y por eso no se hizo antes sin
+   pedirla.
+7. **Commit del trabajo de admisión** en `trabajo`.
+8. **`G1` de `EP-023`.**
+
+**Y `EP-023` se firmó sobre un `CHALLENGE`, no sobre un `PASS`.** El agente desafió la admisión
+(`INTAKE-R07`): `DoR-E6` exige que cada PT del lote tenga su Intake completo y `EP-023` **no tiene
+tareas**, así que el criterio no se puede satisfacer hoy. Se le dijo antes de firmar; ordenó
+firmar igualmente. La plantilla de lote contempla el caso —`VEREDICTO: CHALLENGE` con la línea
+`CHALLENGE aceptado por`—, de modo que el lote avanza **y el hueco sigue en rojo en su §9**. No se
+convirtió el desafío en un verde: se dejó escrito quién decidió proceder con él delante.
+
+Lo que firmó de `EP-023` es su **alcance** —las quince decisiones de §1, el criterio de éxito y el
+out-of-scope— y la decisión de abrirlo ya para no perderlas. **No** firmó un plan de tareas,
+porque no existe. Las tareas que se abran bajo `EP-023` llevarán su `Firmado por lote: EP-023` y
+esta firma las cubrirá desde que existan (`INTAKE-R08`).
+
+**Qué sigue SIN autorizar, y no ha cambiado:**
+
+- **`G2`, `G3` y `G4`** de cualquiera de los dos lotes. `G4` es `SUITE-R06a`.
+- **El cierre de `PT-150`**, único `BUG` (`SUITE-R06b`, `FDGE-R26`).
+- **`npm publish`** (`SUITE-R06g`). Reservado, sostenido a lo largo de seis lotes.
+- **Reescribir historia o `push --force`** (`SUITE-R06f`).
+- **Regenerar el grafo** (`FDGE-R32`). Sigue `SUSPECT`.
+- **Empezar `EP-022`.** Pidió aviso: *«avísame cuando esté todo para comenzar»*. El lote queda
+  admitido, publicado y **parado**.
+
+### Excepción declarada a `FDGE-R19` para el trabajo de lote de `EP-022` y `EP-023`
+
+`FDGE-R19` pide que el asunto de cada commit cite un `PT`. El trabajo **de lote** —abrir los dos
+lotes, firmar sus `G1`, publicar su espejo— no pertenece a ninguna tarea: citar un `PT` sería
+atribuirle a esa tarea un acto que no es suyo.
+
+Ese commit cita **`EP-022`**, y esta es la **excepción declarada** que la propia regla contempla,
+con el mismo criterio que las de `EP-019`, `EP-020` y `EP-021`.
+
+Sigue siendo un rodeo **forzado**, no elegido. La pregunta de fondo —si el trabajo de lote puede
+citar el `EP`— continúa abierta sobre `FDGE-R19`, y ya lleva cuatro lotes abierta.
