@@ -15,7 +15,7 @@
 | `CE-004` | Probar donde trabajo, no donde se decide | 10 | 9 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-005` | Verde por no haber mirado | 11 | 2 | 2026-08-14 | 2026-08-24 | `SUITE-R31` | `SUITE-R31` falla |
 | `CE-006` | El acto hecho fuera del comando | 6 | — | 2026-08-21 | 2026-08-24 | `SUITE-R58` · `FDGE-R52` | `SUITE-R58` avisa · `FDGE-R52` falla |
-| `CE-007` | Existe la herramienta y nada la echa en falta | 5 | 7 | 2026-08-19 | 2026-08-24 | **—** | **sin dueño** |
+| `CE-007` | Existe la herramienta y nada la echa en falta | 5 | 7 | 2026-08-19 | 2026-08-24 | `FDGE-R19` | `FDGE-R19` falla |
 | `CE-008` | Un hecho, varios nombres | 3 | 5 | 2026-08-13 | 2026-08-21 | `SUITE-R14` | `SUITE-R14` falla |
 | `CE-009` | El estado terminal escrito a mano o adelantado | 1 | — | 2026-08-21 | 2026-08-21 | `SUITE-R46` | `SUITE-R46` falla |
 | `CE-010` | La cifra transcrita caduca | 1 | — | 2026-08-20 | 2026-08-20 | `FND-R14` | `FND-R14` avisa |
@@ -29,7 +29,7 @@
 
 ## Qué falta por corregir
 
-**8 de 17 clases no tienen regla que las reclame.**
+**7 de 17 clases no tienen regla que las reclame.**
 Ordenadas por cuántas veces han ocurrido:
 
 - `CE-004` **Probar donde trabajo, no donde se decide** — 10 instancia(s) · la propia entrada llegó a declarar **9**
@@ -40,8 +40,6 @@ Ordenadas por cuántas veces han ocurrido:
   PT-053 · PT-057 · PT-060 · PT-062 · PT-064 · PT-125 · PT-119 · PT-126
 - `CE-015` **El cierre destapa más que el reparto** — 6 instancia(s) · la propia entrada llegó a declarar **6**
   PTSA-2026-08-20 · EP-018 · EP-019 · PT-125 · PT-126 · EP-020
-- `CE-007` **Existe la herramienta y nada la echa en falta** — 5 instancia(s) · la propia entrada llegó a declarar **7**
-  PT-079 · PT-114 · PT-125 · PT-126 · EP-020
 - `CE-012` **Filtrar la salida antes de mirarla** — 2 instancia(s) · la propia entrada llegó a declarar **3**
   PT-092 · INC-001
 - `CE-017` **La comprobación acusa a quien documenta el hecho** — 2 instancia(s)

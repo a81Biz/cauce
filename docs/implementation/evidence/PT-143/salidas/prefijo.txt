@@ -1,0 +1,12 @@
+# AC-04 y AC-05 · la fuente unica y el registro intacto
+
+CON_VALOR es donde ya vive que banderas llevan valor. La lectura del prefijo lo consulta en
+vez de llevar su propia lista: una lista repetida es la copia que diverge (SUITE-R38).
+
+2566:  const candidato = ARGS.slice(1).find((a, i) => /^[A-Z]+$/.test(a) && !CON_VALOR.has(ARGS[i]));
+
+PREFIJOS_DE_ID, una sola vez:
+1297:export const PREFIJOS_DE_ID = ['PT', 'EP', 'QA', 'QR', 'QD', 'H', 'E', 'P', 'R', 'INC'];
+
+SUITE-R09 append-only: ningun identificador ya asignado cambia. Contador PT antes y despues:
+143

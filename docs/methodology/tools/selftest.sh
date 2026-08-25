@@ -2112,6 +2112,77 @@ proj136_cerrable() {
 }
 chk   "…y con todas terminales, READY -> CLOSED"  "READY -> CLOSED"  int136 "$(proj136_cerrable)"
 
+# ── PT-141 · EP-021 · el manejador de error que lanza otro error ──────────────────────────────
+#
+# `tracker.mjs:1849` interpolaba `origen`, que no existe en ese ambito —la variable se llama
+# `ref`—: el catch que debia REPORTAR el fallo lanzaba un ReferenceError distinto, tapaba el real
+# y mataba el comando. Se vio ejecutando «abrir --aplicar», que revento Y AUN ASI HABIA CREADO EL
+# ISSUE. Un error dentro de un catch es INVISIBLE hasta que esa rama corre, y esa rama solo corre
+# cuando algo ya ha ido mal.
+# Se usa `mlib`, que importa el modulo por pathToFileURL: en Windows una ruta absoluta NO es un
+# especificador de modulo valido, y la primera version lo pasaba a pelo. El helper existe desde
+# hace versiones y no consultarlo es la misma forma que PT-143 arregla en «asignar».
+SRC_ROTO='function f(a) { try { g(); } catch { fail(`${a.id} enlace ${origen} roto`); } }'
+SRC_SANO='function f(a) { const ref = 1; try { g(); } catch { fail(`${a.id} enlace ${ref} roto`); } }'
+SRC_LOCAL='function f(a) { try { g(); } catch (e) { const x = 1; fail(`${x} ${e.message}`); } }'
+SRC_ENVOLV='function f(a) { const otro = 2; try { g(); } catch (e) { fail(`${otro} ${e.message}`); } }'
+SRC_CADENA='function f(a) { const ref = 1; try { g(); } catch (e) { fail(`${ref ?? "sin enlace"}`); } }'
+SRC_COMENT='function f(a) { /* catch { usa ${origen} } */ return a; }'
+CUERPO141='const h=m.manejadoresRotos([{nombre:"x.mjs",texto:process.env.SRC}]); console.log(h===null?"NULL":(h.length?h.map(x=>x.identificador).join(","):"VACIO"));'
+
+# AC-01 · el defecto que la tarea persigue, reconocido.
+SRC="$SRC_ROTO"   mlib "un catch que interpola algo fuera de ambito se nombra"  "origen"  "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+SRC="$SRC_SANO"   mlib "…y el mismo catch con la variable buena, no"            "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# AC-02 · lo declarado DENTRO del bloque y en la funcion que lo envuelve SI esta en ambito. La
+# primera version no miraba lo segundo y daba SEIS falsos de nueve: un detector que grita asi se
+# apaga, y entonces no detecta nada.
+SRC="$SRC_LOCAL"  mlib "lo declarado dentro del catch no es hallazgo"           "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+SRC="$SRC_ENVOLV" mlib "lo declarado en la funcion que envuelve, tampoco"       "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# Una CADENA dentro de la interpolacion no es un identificador: «${ref ?? 'sin enlace'}» daba
+# «sin» y «enlace», que es el texto que el mensaje ensena al humano.
+SRC="$SRC_CADENA" mlib "el texto de una cadena no es un identificador"          "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# Y un comentario que EXPLICA el defecto no es el defecto: la autorreferencia ya mordio tres veces.
+SRC="$SRC_COMENT" mlib "un comentario que explica el defecto no es el defecto"  "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# RULE-06 · sin fuentes no se afirma que no haya.
+mlib "sin fuentes devuelve null, no cero"  "NULL"  "$SUITE/tools/patrones.mjs"   'console.log(m.manejadoresRotos([])===null?"NULL":"AFIRMA");'
+# AC-03 · corre sobre el ARBOL REAL: no es un barrido de una vez.
+MTH_TOOLS="$SUITE/tools" mlib "el arbol real no tiene manejadores rotos"  "ARBOL LIMPIO"  "$SUITE/tools/patrones.mjs"   'const fs=require("fs"); const d=process.env.MTH_TOOLS; const f=fs.readdirSync(d).filter(x=>x.endsWith(".mjs")).map(n=>({nombre:n,texto:fs.readFileSync(d+"/"+n,"utf8")})); const h=m.manejadoresRotos(f); console.log(h.length===0?"ARBOL LIMPIO":"ROTOS: "+h.map(x=>x.archivo+":"+x.linea).join(" "));'
+
+# ── PT-142 · EP-021 · la rama no se contrastaba con la que la regla deriva ─────────────────────
+#
+# `ramaDeTarea` deriva el nombre correcto y se usaba UNA SOLA VEZ, como PROPUESTA. Tres ramas con
+# `type` y slug inventados pasaron sin que nada lo dijera. Es CE-007.
+CUERPO142='console.log(String(m.ramaDeTarea(process.env.T||null,"PT-001","un-slug",process.env.U||null)));'
+
+T=BUG                          mlib "el nombre se DERIVA del type del item"     "bug/PT-001-un-slug"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+T=BUG U="Alberto Martínez"     mlib "…y lleva el usuario cuando lo hay"         "bug/alberto-martinez/PT-001-un-slug"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+# RULE-06 · sin «type» NO hay nombre de rama: se dice, no se adivina. Es lo que devolvia null
+# cuando se pidio el de un lote, y se invento el nombre igual.
+mlib "sin type no hay nombre esperado: null"    "null"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+U="Alberto Martínez"           mlib "un lote NO lleva type, y por eso da null"  "null"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+
+# ── PT-143 · EP-021 · asignar tomaba el prefijo del primer argumento en mayusculas ─────────────
+#
+# El valor de `--tipo` tambien esta en mayusculas: «--tipo BUG» sin un «PT» delante creaba
+# BUG-001, un espacio de nombres que LEXICON no declara. Es CE-003, argumento por deteccion.
+TK143="$SUITE/tools/tracker.mjs"
+proj143() {
+  local d="$WORK/p143"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', counters:{PT:5,EP:1}, allocations:[]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+asg143() { (cd "$1" && shift; node "$TK143" asignar "$@" --ver 2>&1); }
+
+chk   "--tipo BUG sin prefijo ya NO crea BUG-001"   "PT-006"   asg143 "$(proj143)" --slug x --tipo BUG --severidad S2 --titulo t
+chkno "…y el identificador no lleva el tipo"        "BUG-0"    asg143 "$(proj143)" --slug x --tipo BUG --severidad S2 --titulo t
+chk   "un prefijo declarado sigue funcionando"      "EP-002"   asg143 "$(proj143)" EP --slug x --titulo t
+chk   "un prefijo que LEXICON no declara FALLA"     "LEX-R06"  asg143 "$(proj143)" XYZ --slug x --tipo BUG --severidad S2 --titulo t
+chk   "…y enumera los que si estan declarados"      "PT · EP"  asg143 "$(proj143)" XYZ --slug x --tipo BUG --severidad S2 --titulo t
+
 # ── PT-139 · EP-021 · nada media la edad de un aplazado ───────────────────────────────────────
 #
 # PT-137 construyo la puerta de vuelta y PT-138 escribe cuando cruzarla. Sin compuerta, los dos

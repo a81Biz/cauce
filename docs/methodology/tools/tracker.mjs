@@ -59,7 +59,7 @@ import {
 // PT-128 · las fases y sus compuertas salen de PHASES.md, no de una lista escrita aqui.
 import { fasesDeFDGE, nodosSinVisitar } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
-import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
+import { RIGE_DESDE, reglasNuevasFueraDeLaGuia, PREFIJOS_DE_ID } from './patrones.mjs';
 // PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
 import { esLote } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
@@ -1856,7 +1856,16 @@ function repararEnlacesMuertos() {
       : `${decision === 'REPARAR_MUDO' ? 'sin enlace' : `«${ref}»`} -> «${durable}»`;
     if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se republicaria: ${que}`); continue; }
     try { adaptador.editarCuerpo(a.issue, derivado); notas.push(`${a.id} #${a.issue}: republicado: ${que}`); }
-    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace ${origen} y no se pudo reescribir.`); }
+    // PT-141 · el enlace se nombra con la variable QUE EXISTE. Antes decia `${origen}`, que no
+    // esta en este ambito —se llama `ref`—, asi que EL MANEJADOR DE ERROR LANZABA OTRO ERROR:
+    // tapaba el fallo real y mataba el comando. Se vio ejecutando «abrir --aplicar», que revento
+    // con «origen is not defined» Y AUN ASI HABIA CREADO EL ISSUE.
+    //
+    // Y se dice QUE PASO de verdad: un «no se pudo» mudo obliga a reproducirlo a mano.
+    catch (e) {
+      fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace `
+        + `${ref ?? 'sin enlace'} y no se pudo reescribir (${String(e?.message ?? e).split(SALTO)[0]}).`);
+    }
   }
 }
 
@@ -2547,7 +2556,21 @@ const usadosDe = (prefijo) => all
 const SEVERIDADES = ['S0', 'S1', 'S2', 'S3'];
 
 function asignar() {
-  const prefijo = ARGS.slice(1).find((a) => /^[A-Z]+$/.test(a)) ?? 'PT';
+  // PT-143 · EL PREFIJO NO SE ADIVINA. Antes se tomaba el primer argumento en mayusculas, y el
+  // valor de `--tipo` lo es: «--tipo BUG» sin un «PT» delante creaba BUG-001, un espacio de
+  // nombres que LEXICON no declara. Es CE-003 —argumento por deteccion— y la informacion para no
+  // cometerlo estaba a diez lineas: `CON_VALOR` dice que banderas llevan valor.
+  //
+  // Ahora se lee POSICION y se contrasta contra lo declarado: lo que no es un prefijo conocido
+  // FALLA en vez de inventar un espacio de nombres.
+  const candidato = ARGS.slice(1).find((a, i) => /^[A-Z]+$/.test(a) && !CON_VALOR.has(ARGS[i]));
+  if (candidato && !PREFIJOS_DE_ID.includes(candidato)) {
+    fail('LEX-R06', `«${candidato}» no es un prefijo de identificador. LEXICON §4.3 declara: `
+      + `${PREFIJOS_DE_ID.join(' · ')}. Crear uno nuevo aqui inventaria un espacio de nombres `
+      + 'que ningun contador reconoce.');
+    return;
+  }
+  const prefijo = candidato ?? 'PT';
   const iSlug = ARGS.indexOf('--slug');
   const slug = iSlug >= 0 ? ARGS[iSlug + 1] : null;
   const soloVer = ARGS.includes('--ver');

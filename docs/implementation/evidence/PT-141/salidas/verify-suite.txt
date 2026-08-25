@@ -1,0 +1,8 @@
+verify-suite — coherencia de la metodología (13.0.0)
+Documentos analizados: 36
+
+AVISOS (1)
+  SUITE-R38    tools/patrones.mjs
+      7 de 120 reglas que emiten declaran su sujeto. La tabla crece por adopción declarada, como RIGE_DESDE: lo que la hace útil no es cuántas cubre hoy, sino que ninguna pueda quedarse fuera en silencio.
+
+Sin errores de coherencia.

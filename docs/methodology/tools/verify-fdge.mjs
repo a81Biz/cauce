@@ -66,7 +66,7 @@ import { estadoDelArbol } from './tracker.mjs';
 import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
-import { rigeDesde } from './patrones.mjs';
+import { rigeDesde, manejadoresRotos, ramaDeTarea } from './patrones.mjs';
 import { commitSinAllocation, clasificaRodeo } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
 import { contradiceElRegistro, sinSellar, selladoEnTag, topologiaDeRamas, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
@@ -1181,6 +1181,83 @@ function checkCore() {
     .join(' ');
   if (decl !== real) fail('SUITE-R16', 'CORE.md desincronizado con sus fuentes. → node docs/methodology/tools/build-core.mjs docs/methodology');
   else ok('SUITE-R15', 'CORE.md presente y sincronizado.');
+}
+
+// ─── SUITE-R56 · el manejador que lanza otro error   PT-141 ──────────────────
+//
+// `tracker.mjs:1849` interpolaba `origen`, que no existe en ese ambito: el catch que debia
+// REPORTAR el fallo lanzaba un ReferenceError distinto, tapaba el real y mataba el comando. Se vio
+// ejecutando «abrir --aplicar», que revento con «origen is not defined» Y AUN ASI HABIA CREADO EL
+// ISSUE — un comando que falla y deja efecto es lo contrario de lo que este marco promete.
+//
+// Un error dentro de un catch es INVISIBLE hasta que se ejecuta esa rama, y esa rama solo corre
+// cuando algo ya ha ido mal: es la ruta menos probada del codigo y la que mas importa. Por eso no
+// basta arreglar la linea — se ENUMERAN, y si son cero tambien es un dato.
+function checkManejadores() {
+  const dir = join(ROOT, 'docs', 'methodology', 'tools');
+  if (!existsSync(dir)) return;
+  const fuentes = readdirSync(dir).filter((f) => f.endsWith('.mjs'))
+    .map((f) => ({ nombre: f, texto: read(join(dir, f)) ?? '' }));
+  const rotos = manejadoresRotos(fuentes);
+  if (rotos === null) { warn('SUITE-R56', 'manejadores de error SIN EVALUAR: no se pudo leer tools/.'); return; }
+  if (!rotos.length) { ok('SUITE-R56', `${fuentes.length} herramienta(s): ningun manejador de error referencia un identificador fuera de ambito.`); return; }
+  const m = `${rotos.length} manejador(es) de error referencian un identificador que no se declara `
+    + `en su archivo: ${rotos.map((r) => `${r.archivo}:${r.linea} «${r.identificador}»`).join(' · ')}. `
+    + 'El catch lanzaria otro error, taparia el real y mataria el comando en la ruta menos probada.';
+  if (gate === 'G4') fail('SUITE-R56', m); else warn('SUITE-R56', m);
+}
+
+// ─── FDGE-R19 · la rama se contrasta con la que la regla deriva   PT-142 ─────
+//
+// `ramaDeTarea` deriva el nombre correcto desde el registro y se usaba UNA SOLA VEZ, en «tracker
+// rama», como PROPUESTA. `topologiaDeRamas` solo comprobaba que la rama CONTUVIERA un id que
+// existe, asi que tres ramas con `type` y slug inventados pasaron sin que nada lo dijera.
+//
+// Es CE-007: existe la herramienta y nada la echa en falta.
+const RE_LINEAS = new RegExp(String.fromCharCode(92) + 'r?' + String.fromCharCode(92) + 'n');
+const RE_REMOTO = new RegExp('^remotes/[^/]+/');
+
+function checkNombreDeRama() {
+  const ramas = (() => {
+    try {
+      return execFileSync('git', ['branch', '--format=%(refname:short)', '--all'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().split(RE_LINEAS)
+        .map((r) => r.replace(RE_REMOTO, '').trim()).filter(Boolean);
+    } catch { return null; }
+  })();
+  if (ramas === null) { warn('FDGE-R19', 'nombres de rama SIN EVALUAR: no se pudo listar git branch.'); return; }
+  const usuario = (() => {
+    try { return execFileSync('git', ['config', 'user.name'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
+    catch { return null; }
+  })();
+  const desviadas = [];
+  const sinTipo = [];
+  for (const r of new Set(ramas)) {
+    const id = r.match(/\/((?:PT|EP)-\d+)-/)?.[1];
+    if (!id) continue;
+    const a = (REGISTRO?.allocations ?? []).find((x) => x?.id === id);
+    if (!a) continue;
+    // CE-014 · lo anterior a esta version se termina como empezo. FDGE-R19 ya lo dice para el
+    // usuario en la rama, y aqui rige el mismo criterio: renombrar romperia el PR abierto.
+    if (!rigeDesde('FDGE-R19b', a.suite_version ?? '0.0.0')) continue;
+    if (!a.type) { sinTipo.push(`${r} (${id} no declara «type»)`); continue; }
+    const esperada = ramaDeTarea(a.type, a.id, a.slug, usuario);
+    if (esperada && r !== esperada) desviadas.push(`«${r}» → deberia ser «${esperada}»`);
+  }
+  if (sinTipo.length) {
+    // RULE-06 · sin «type» NO hay nombre esperado: se dice, no se adivina.
+    warn('FDGE-R19', `${sinTipo.length} rama(s) sin nombre esperado derivable: ${sinTipo.join(' · ')}. `
+      + 'Sin «type» en el registro no hay nombre que contrastar y no se inventa (RULE-06).');
+  }
+  if (desviadas.length) {
+    const m = `${desviadas.length} rama(s) no coinciden con lo que «ramaDeTarea» deriva del registro: `
+      + `${desviadas.join(' · ')}. El nombre se DERIVA del «type» del item y de su slug, no se `
+      + 'elige. Una rama ya creada se termina como empezo —renombrarla rompe su pull request—, '
+      + 'asi que esto se arregla en la SIGUIENTE.';
+    if (gate === 'G4') fail('FDGE-R19', m); else warn('FDGE-R19', m);
+  } else if (!sinTipo.length) {
+    ok('FDGE-R19', 'los nombres de rama coinciden con los que deriva el registro.');
+  }
 }
 
 // ─── SUITE-R44 · un aplazado que nadie mira   PT-139 ─────────────────────────
@@ -2606,6 +2683,8 @@ checkReconciliation();
 checkAislamiento();
 checkEpics();
 checkAplazados();
+checkManejadores();
+checkNombreDeRama();
 GRAPH = graphState(reg);
 if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);
 else if (GRAPH.state === 'SUSPECT') warn('FDGE-R43', `Grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);
