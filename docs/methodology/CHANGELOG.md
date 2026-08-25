@@ -8,6 +8,65 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 13.1.0 — 2026-08-24
+
+**El aplazado sin puerta de vuelta** (`EP-021`). Ocho tareas: `PT-134` y `PT-137` a `PT-143`.
+
+Nace de una pregunta del firmante sobre una tarea aplazada: *«¿de qué sirve? ¿cuándo se retoma?»*.
+Medida contra el código, la respuesta era **nunca**.
+
+### Reglas nuevas
+
+Dos, las dos en `LEXICON` y por eso `MINOR` y no `MAJOR` — **no cambian ninguna obligación
+existente**, declaran vocabulario nuevo: `LEX-R33` y `LEX-R34`.
+
+### Qué hacer al actualizar
+
+**Nada obligatorio.** `RIGE_DESDE` acota las dos a las allocations abiertas a partir de esta
+versión: tus aplazados anteriores **no empiezan a fallar** y se declaran exentos por su nombre.
+
+**Si quieres ponerles sus términos**, hay comando:
+
+```bash
+tracker aplazar PT-NNN --reentrada "qué tiene que pasar"                 --revision AAAA-MM-DD --dueno "Nombre" --aplicar
+tracker retomar PT-NNN --firmante "Nombre" [--epica EP-NNN] --aplicar
+```
+
+### Lo que este lote encontró, y es lo que importa
+
+**`DEFERRED` no tenía ni entrada ni salida.** `SUITE-R44` declara que un aplazado está **exento de
+artefactos** —no tiene intake— e `integrar`, el único comando con destino de estado arbitrario,
+**exige** que el intake declare `status:`. Ningún otro comando escribía ni retiraba el estado.
+**La regla que ponía la tarea en el tablero era la misma que la dejaba inalcanzable**, y retomarla
+obligaba a escribir `REGISTRY.json` a mano.
+
+**`LEXICON` §5.1 ya declaraba `DEFERRED --> READY`** sin que ningún comando pudiera ejecutarla. Y
+declaraba también `READY --> DEFERRED`, mientras `SUITE-R44` dice que un aplazado no tiene intake:
+**eran dos aplazados distintos con el mismo nombre**. El destino de `retomar` se **deriva** de si
+el intake existe, en vez de derogar uno de los dos documentos desde una herramienta.
+
+**Un `AC` que decae ya se puede declarar.** Antes quedaban dos salidas y las dos malas: fingir
+`verified: true` sobre algo que ya nadie comprueba, o un Orphan Criterion permanente.
+
+**`FDGE-R19` pedía un dato que `LEX-R27` prohíbe que exista** — el `type` de un lote — y eso
+**produjo** que se inventara un nombre de rama. Manda `LEXICON`: un lote **no** tiene nombre de
+rama derivable.
+
+**Y el manejador de error de `SUITE-R56` lanzaba otro error**, tapaba el real y mataba el comando
+en la ruta menos probada del código.
+
+### Cambios de comportamiento
+
+| Qué | Antes | Ahora |
+|:---|:---|:---|
+| `DEFERRED` | se escribía a mano, en los dos sentidos | `tracker aplazar` · `tracker retomar` |
+| Un aplazado | no decía cuándo se revisa ni quién responde | los declara, y `G4` lo comprueba |
+| Un `AC` caído | no existía el vocabulario | `CAÍDO` + motivo, y **no** cuenta como verificado |
+| El nombre de rama | nadie lo contrastaba | se deriva del registro y se comprueba |
+| El prefijo de un id | se adivinaba del primer argumento en mayúsculas | se lee y se contrasta |
+
+---
+
 ## 13.0.0 — 2026-08-23
 
 **El acto fuera del comando** (`EP-020`). En curso: esta entrada se completa al cerrar el lote.

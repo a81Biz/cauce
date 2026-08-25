@@ -152,8 +152,8 @@ sobre el mismo archivo fue el defecto que `EP-020` cometió con la batería y no
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | pendiente |
-| Número de versión | pendiente |
+| Entrada de `CHANGELOG.md` | **HECHO** — `13.1.0`, con lo que el lote encontró |
+| Número de versión | **HECHO** — `13.1.0`: `MINOR`, porque `LEX-R33` y `LEX-R34` declaran vocabulario y no cambian ninguna obligación existente |
 | `PT-134` fuera de `DEFERRED` | **HECHO** — la retomó `tracker retomar` el 2026-08-24, y ese acto es el `AC-06` de `PT-137` |
 
 ## Revisiones
