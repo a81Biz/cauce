@@ -1,26 +1,31 @@
 {
-  "pt": "PT-144",
-  "type": "CHORE",
+  "pt": "PT-150",
+  "type": "BUG",
   "epic": "EP-022",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-144-el-contrato-de-componentes",
-  "sha": "a2a57f4049c88466e32aeac49d0221294d8c19a3",
-  "sha_corto": "a2a57f4",
+  "sha": "c457e54e817237241c4afb0b304ff703a6153049",
+  "sha_corto": "c457e54",
   "sucio": true,
   "archivos": [
-    "changes/PT-144-el-contrato-de-componentes/intake.md",
+    "changes/PT-150-la-escala-de-severidad-se-declara/discovery.md",
+    "changes/PT-150-la-escala-de-severidad-se-declara/intake.md",
+    "changes/PT-150-la-escala-de-severidad-se-declara/strategy.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-144/salidas/g3-verify-fdge.out"
+    "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-25"
 }

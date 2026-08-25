@@ -4269,7 +4269,7 @@
       "slug": "la-escala-de-severidad-se-declara",
       "created": "2026-08-24",
       "status": "DRAFT",
-      "phase": 1,
+      "phase": 4,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -4279,6 +4279,23 @@
       "origen_parada": {
         "de": "EP-022",
         "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1487,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-25"
       }
     },
