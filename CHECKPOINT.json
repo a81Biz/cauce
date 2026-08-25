@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-021",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error",
   "sha": "9304f985fef156245dfd5b60c706fe265811430b",
   "sha_corto": "9304f98",
@@ -55,10 +55,15 @@
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-24"
 }
