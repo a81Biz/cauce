@@ -20,6 +20,17 @@ Medida contra el código, la respuesta era **nunca**.
 Dos, las dos en `LEXICON` y por eso `MINOR` y no `MAJOR` — **no cambian ninguna obligación
 existente**, declaran vocabulario nuevo: `LEX-R33` y `LEX-R34`.
 
+Y **dos cláusulas nuevas de reglas que ya existían** (`LEX-R24`), que es lo que acota `RIGE_DESDE`
+para que no juzguen hacia atrás:
+
+```
+FDGE-R19b   el NOMBRE de la rama se contrasta con el que ramaDeTarea deriva   PT-142
+SUITE-R56b  los manejadores de error de tools/ se ENUMERAN                    PT-141
+```
+
+Ninguna de las dos alcanza a lo abierto antes de esta versión: una rama ya creada **se termina
+como empezó** —renombrarla rompe su pull request— y por eso el arreglo es la **siguiente**.
+
 ### Qué hacer al actualizar
 
 **Nada obligatorio.** `RIGE_DESDE` acota las dos a las allocations abiertas a partir de esta
