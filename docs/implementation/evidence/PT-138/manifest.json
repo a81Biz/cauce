@@ -1,0 +1,92 @@
+{
+  "pt": "PT-138",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "tracker aplazar escribe DEFERRED por comando, y es la unica via sancionada",
+      "tests": [
+        "selftest.sh:aplazar escribe DEFERRED con su bloque",
+        "selftest.sh:sin --aplicar no escribe nada",
+        "selftest.sh:sobre algo ya terminal se niega",
+        "selftest.sh:un aplazado que YA lo esta se ACTUALIZA",
+        "selftest.sh:sin plataforma declarada NO exige tablero",
+        "selftest.sh:…y deja el aplazamiento en TRANSICIONES.log"
+      ],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "La carencia era SIMETRICA y no se vio hasta construir la otra mitad: PT-137 encontro que DEFERRED no tenia salida, y midiendo esta tarea resulta que tampoco tenia ENTRADA. Los dos aplazados que existian se teclearon a mano."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Exige condicion de reentrada, fecha de revision y dueno: sin los tres no escribe",
+      "tests": [
+        "selftest.sh:sin --reentrada falla",
+        "selftest.sh:sin --revision falla",
+        "selftest.sh:sin --dueno falla",
+        "selftest.sh:…y los nombra los TRES de una vez"
+      ],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "Se piden AL ESCRIBIR y no en la compuerta: un dato que solo se pide al final se rellena al final. Al no haber otra via, la obligacion no se puede rodear. Se nombran los tres de una vez porque pedirlos de uno en uno obliga a ejecutar tres veces para descubrir que hacian falta tres."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La condicion es un texto con contenido, no una celda que se rellena para callar",
+      "tests": [
+        "selftest.sh:una reentrada trivial no vale",
+        "selftest.sh:…y se dice que lo UTIL no es mecanizable"
+      ],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "Se mide lo unico medible —que diga algo— y el resto se DECLARA (SUITE-R26). Fingir que se detecta si una condicion es buena seria peor que no comprobarla."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La fecha de revision es futura: una revision ya pasada nace caducada",
+      "tests": [
+        "selftest.sh:una revision en el pasado nace caducada",
+        "selftest.sh:…y lo que no es una fecha, tampoco pasa"
+      ],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "AQUI APARECIO EL DEFECTO DE LA TAREA: «hoy» salia solo de git, asi que sin repositorio era null y la comprobacion SE SALTABA EN SILENCIO. CE-005 dentro del comando que existe para impedirlo. Lo cazo el caso sobre fixture, que no tiene git. Ahora lee el reloj del sistema cuando git no esta."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El dueno se contrasta contra firmantes/personas",
+      "tests": ["selftest.sh:un dueno que no esta en la lista falla"],
+      "evidence": ["salidas/selftest-completo.txt"],
+      "verified": true,
+      "nota": "Un dueno inventado es un aplazado sin dueno con mejor letra."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "SUITE-R44 declara los tres campos y LEXICON el vocabulario",
+      "tests": [],
+      "evidence": ["salidas/verify-suite.txt"],
+      "verified": true,
+      "nota": "LEX-R34 declara el bloque «aplazamiento»; SUITE-R44 gana la puerta de ida como gano la de vuelta en PT-137; PHASES y FDGE-Prompts lo citan, que es lo que SUITE-R20 exige. verify-suite sin errores de coherencia."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Los dos aplazados existentes se completan o se declara por que no",
+      "tests": [],
+      "evidence": ["salidas/pt-025.txt"],
+      "verified": true,
+      "nota": "PT-134 NO APLICA: PT-137 la retomo. PT-025 NO SE COMPLETA Y SE DICE POR QUE: su condicion de reentrada se sabe —esta en su propio «origin»— pero la FECHA DE REVISION la decide su dueno, y elegirla seria inventar (RULE-06). La ruta existe y esta probada: aplazar sobre algo ya DEFERRED ACTUALIZA sus terminos, que es como se migran los escritos a mano. El acto es del firmante."
+    }
+  ],
+  "inverse_test": {
+    "suppressions": 4,
+    "distinct_reds": 4,
+    "evidence": "salidas/selftest-completo.txt",
+    "nota": "La primera inversa declaraba «sin exigir los tres, se aplaza sin ellos» y NO era cierto: cada campo ausente lo caza otra comprobacion mas abajo, asi que la supresion producia un error distinto, no una escritura. Salia en rojo POR EL MOTIVO EQUIVOCADO — el defecto que PT-122 y PT-130 encontraron en las suyas. Rehecha para medir lo que la comprobacion realmente aporta: que el fallo NOMBRE los tres de una vez."
+  },
+  "measured": {
+    "aplazados_en_el_registro": 2,
+    "aplazados_que_declaraban_algo_antes": 0,
+    "comandos_que_escribian_DEFERRED_antes": 0,
+    "auditoria": "sin huecos · cobertura mecanica 129/236"
+  }
+}

@@ -59,7 +59,7 @@ import {
 // PT-128 · las fases y sus compuertas salen de PHASES.md, no de una lista escrita aqui.
 import { fasesDeFDGE, nodosSinVisitar } from './patrones.mjs';
 // PT-087 · la guia de migracion ENUMERA las reglas nuevas: el paso 1 no comprobaba nada.
-import { RIGE_DESDE, reglasNuevasFueraDeLaGuia } from './patrones.mjs';
+import { RIGE_DESDE, reglasNuevasFueraDeLaGuia, PREFIJOS_DE_ID } from './patrones.mjs';
 // PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
 import { esLote } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
@@ -869,7 +869,7 @@ const APLICAR = ARGS.includes('--aplicar');
 //
 // CON_VALOR se conserva porque hay un caso que la nombra y porque documenta cuales llevan valor,
 // pero YA NO ES LA GUARDA: la guarda es la forma.
-const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de',
+const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de', '--epica', '--reentrada', '--revision', '--dueno',
   '--tipo', '--severidad', '--epica', '--titulo',
   '--motivo', '--texto', '--desenlace', '--abre',
   // PT-121 · CE-003, la clase con SIETE instancias declaradas: una bandera con valor que no
@@ -936,6 +936,14 @@ const ADAPTADORES = {
     anidar(numeroPadre, numeroHijo) {
       const id = this.idDeIssue(numeroHijo);
       execFileSync('gh', ['api', '-X', 'POST', `repos/{owner}/{repo}/issues/${numeroPadre}/sub_issues`,
+        '-F', `sub_issue_id=${id}`], { cwd: ROOT, stdio: 'pipe' });
+    },
+    // PT-137 · un issue solo puede colgar de UN padre. Al reasignar la epica con «retomar
+    // --epica», el anidamiento seguia bajo el lote viejo y «anidar» fallaba sin decir por que:
+    // la reasignacion quedaba a medias entre el registro y el tablero (SUITE-R35).
+    desanidar(numeroPadre, numeroHijo) {
+      const id = this.idDeIssue(numeroHijo);
+      execFileSync('gh', ['api', '-X', 'DELETE', `repos/{owner}/{repo}/issues/${numeroPadre}/sub_issue`,
         '-F', `sub_issue_id=${id}`], { cwd: ROOT, stdio: 'pipe' });
     },
     cerrar(numero, motivo) {
@@ -1512,6 +1520,8 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
   // al proyecto que no declara tablero — el caso que SUITE-R22 declara soportado.
   'integrar', 'firmar', 'validar',
+  // PT-137 · «retomar» escribe el registro; publica si hay tablero y si no, al ledger.
+  'retomar', 'aplazar',
   // PT-122 · «cierre» sin --aplicar solo DERIVA y enumera el texto: no habla con nadie.
   'cierre', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
@@ -1846,7 +1856,16 @@ function repararEnlacesMuertos() {
       : `${decision === 'REPARAR_MUDO' ? 'sin enlace' : `«${ref}»`} -> «${durable}»`;
     if (!APLICAR) { notas.push(`${a.id} #${a.issue}: se republicaria: ${que}`); continue; }
     try { adaptador.editarCuerpo(a.issue, derivado); notas.push(`${a.id} #${a.issue}: republicado: ${que}`); }
-    catch { fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace ${origen} y no se pudo reescribir.`); }
+    // PT-141 · el enlace se nombra con la variable QUE EXISTE. Antes decia `${origen}`, que no
+    // esta en este ambito —se llama `ref`—, asi que EL MANEJADOR DE ERROR LANZABA OTRO ERROR:
+    // tapaba el fallo real y mataba el comando. Se vio ejecutando «abrir --aplicar», que revento
+    // con «origen is not defined» Y AUN ASI HABIA CREADO EL ISSUE.
+    //
+    // Y se dice QUE PASO de verdad: un «no se pudo» mudo obliga a reproducirlo a mano.
+    catch (e) {
+      fail('SUITE-R56', `${a.id}: su issue #${a.issue} tiene el enlace `
+        + `${ref ?? 'sin enlace'} y no se pudo reescribir (${String(e?.message ?? e).split(SALTO)[0]}).`);
+    }
   }
 }
 
@@ -1885,8 +1904,25 @@ function anidarSubIssues() {
   const faltan = anidamientosQueFaltan(all, yaAnidados);
   for (const f of faltan) {
     if (!APLICAR) { notas.push(`${f.id} #${f.hijo}: seria sub-issue de ${f.epic} #${f.padre}`); continue; }
+    // PT-137 · si el hijo cuelga de OTRO padre, se retira de ahi primero: un issue solo tiene
+    // uno. Sin esto, reasignar la epica dejaba el registro diciendo una cosa y el tablero otra.
+    const otro = Object.entries(yaAnidados)
+      .find(([padre, hijos]) => Number(padre) !== f.padre && Array.isArray(hijos) && hijos.includes(f.hijo));
+    if (otro && adaptador.desanidar) {
+      try { adaptador.desanidar(Number(otro[0]), f.hijo); notas.push(`${f.id} #${f.hijo}: retirado de #${otro[0]}`); }
+      catch (e) {
+        fail('SUITE-R51', `${f.id}: cuelga de #${otro[0]} y no se pudo retirar `
+          + `(${String(e.message ?? e).split(SALTO)[0]}). Mientras siga ahi, no puede colgar de #${f.padre}.`);
+        continue;
+      }
+    }
+    // El motivo del fallo se DICE. Un «no se pudo» mudo obliga a reproducirlo a mano para saber
+    // por que, y esta misma linea costo una diagnosis en la sesion que la escribio.
     try { adaptador.anidar(f.padre, f.hijo); notas.push(`${f.id} #${f.hijo} → sub-issue de ${f.epic} #${f.padre}`); }
-    catch { fail('SUITE-R51', `${f.id}: no se pudo anidar #${f.hijo} bajo #${f.padre}.`); }
+    catch (e) {
+      fail('SUITE-R51', `${f.id}: no se pudo anidar #${f.hijo} bajo #${f.padre} `
+        + `(${String(e.message ?? e).split(SALTO)[0]}).`);
+    }
   }
 }
 
@@ -2520,7 +2556,21 @@ const usadosDe = (prefijo) => all
 const SEVERIDADES = ['S0', 'S1', 'S2', 'S3'];
 
 function asignar() {
-  const prefijo = ARGS.slice(1).find((a) => /^[A-Z]+$/.test(a)) ?? 'PT';
+  // PT-143 · EL PREFIJO NO SE ADIVINA. Antes se tomaba el primer argumento en mayusculas, y el
+  // valor de `--tipo` lo es: «--tipo BUG» sin un «PT» delante creaba BUG-001, un espacio de
+  // nombres que LEXICON no declara. Es CE-003 —argumento por deteccion— y la informacion para no
+  // cometerlo estaba a diez lineas: `CON_VALOR` dice que banderas llevan valor.
+  //
+  // Ahora se lee POSICION y se contrasta contra lo declarado: lo que no es un prefijo conocido
+  // FALLA en vez de inventar un espacio de nombres.
+  const candidato = ARGS.slice(1).find((a, i) => /^[A-Z]+$/.test(a) && !CON_VALOR.has(ARGS[i]));
+  if (candidato && !PREFIJOS_DE_ID.includes(candidato)) {
+    fail('LEX-R06', `«${candidato}» no es un prefijo de identificador. LEXICON §4.3 declara: `
+      + `${PREFIJOS_DE_ID.join(' · ')}. Crear uno nuevo aqui inventaria un espacio de nombres `
+      + 'que ningun contador reconoce.');
+    return;
+  }
+  const prefijo = candidato ?? 'PT';
   const iSlug = ARGS.indexOf('--slug');
   const slug = iSlug >= 0 ? ARGS[iSlug + 1] : null;
   const soloVer = ARGS.includes('--ver');
@@ -3088,6 +3138,43 @@ function proyectar({ silencioso = false } = {}) {
   // Un commit sin la marca es HUMANO. Se REPORTA y no se borra: decidir que hacer con el trabajo
   // de alguien es humano (SUITE-R06), y borrarlo seria reescribirlo sin preguntar.
   const padre = gitDe(['rev-parse', '--verify', `refs/heads/${rama}`]);
+
+  // PT-140 · SI FALTA LA RAMA LOCAL PERO EL REMOTO LA TIENE, NO SE EMPIEZA DE CERO.
+  //
+  // Sin esto, «padre» quedaba null, el commit se creaba SIN «-p» y la rama arrancaba un linaje
+  // nuevo — con una salida IDENTICA a la del caso bueno. Ocurrio el 2026-08-24 al dejar una sola
+  // rama local. No se perdio nada porque el push normal habria sido rechazado por no ser
+  // fast-forward: PROTEGIDO POR ACCIDENTE, NO POR DISEÑO, y con el rechazo sin explicacion la
+  // lectura obvia —«la rama esta rara, la fuerzo»— si destruye.
+  //
+  // Es CE-005, verde por no haber mirado. SUITE-R31 ya tenia el criterio para el caso hermano —un
+  // commit sin la marca se REPORTA y no se borra— y faltaba la mitad simetrica.
+  //
+  // NO se trae la rama sola: un «fetch» implicito dentro de un comando que escribe es el efecto
+  // colateral que este marco evita. Se DESCRIBE el comando (EXEC-R07).
+  if (!padre) {
+    // `null` = no se pudo mirar el remoto. `false` = se miro y no esta. No saber NO es permiso.
+    let enRemoto = null;
+    try {
+      const o = execFileSync('git', ['ls-remote', '--heads', 'origin', rama],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+      enRemoto = o.length > 0;
+    } catch { enRemoto = null; }
+    if (enRemoto === true) {
+      fail('SUITE-R31', `«${rama}» no existe en local y SI en origin: proyectar empezaria un linaje `
+        + 'NUEVO y la publicacion seria rechazada sin decir por que. Traela primero:  '
+        + `git branch ${rama} origin/${rama}`);
+      return { rama: null, motivo: 'sin rama local y con rama remota' };
+    }
+    if (enRemoto === null) {
+      fail('SUITE-R31', `«${rama}» no existe en local y NO SE PUDO MIRAR el remoto. No saber no es `
+        + 'permiso (RULE-06): empezar de cero podria descartar una historia que existe. '
+        + `Comprueba con:  git ls-remote --heads origin ${rama}`);
+      return { rama: null, motivo: 'remoto no evaluable' };
+    }
+    // Se miro y no esta en ninguna parte: es la primera vez, y SE DICE.
+    if (!silencioso) notas.push(`${rama}: no existe ni en local ni en origin — se crea AHORA, es la primera proyeccion.`);
+  }
   let ajenos = 0;
   if (padre) {
     const msgs = gitDe(['log', '--format=%s%n%b', `refs/heads/${rama}`]) ?? '';
@@ -4288,6 +4375,276 @@ function validar() {
   guardarRegistro(reg, ACCION);
 }
 
+// ── aplazar · la puerta de ida, con lo que debio pedir siempre   PT-138 ────
+//
+// PT-137 encontro que DEFERRED no tenia salida. Midiendo esta tarea resulta que TAMPOCO TENIA
+// ENTRADA: ningun comando escribia el estado. Los dos aplazados que existian —PT-025 y PT-134—
+// se teclearon a mano, y por eso ninguno declara cuando se revisa ni quien responde.
+//
+// SUITE-R44 garantiza que el aplazado quede VIVO en el espejo y EXENTO de artefactos, y ahi
+// terminaba. Un aplazado de ayer y uno de hace meses eran indistinguibles en el tablero — y
+// tambien indistinguibles de un abandono.
+//
+// Los tres campos se exigen AQUI, no en la compuerta: un dato que solo se pide al final se
+// rellena al final, y entonces es una fecha inventada. Al no haber otra forma de escribir el
+// estado, la obligacion no se puede rodear.
+function aplazar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const de = flag('--de');
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a) && a !== de);
+  const reentrada = flag('--reentrada');
+  const revision = flag('--revision');
+  const dueno = flag('--dueno');
+  if (!id) {
+    console.error('aplazar necesita una allocation:  '
+      + 'tracker aplazar PT-NNN --reentrada "que tiene que pasar" --revision AAAA-MM-DD '
+      + '--dueno "Nombre" [--de PT-NNN] [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+  // PT-138 · un aplazado que YA lo esta se puede ACTUALIZAR: es como se le ponen sus terminos a
+  // los que se escribieron a mano antes de que existiera este comando. Cualquier otro terminal se
+  // niega — escribir DEFERRED sobre algo cerrado lo reabriria sin que nadie lo decidiera.
+  const yaAplazada = a.status === 'DEFERRED';
+  if (!yaAplazada && ESTADOS_TERMINALES.has(String(a.status))) {
+    fail('SUITE-R44', `${id} esta en «${a.status}», que es terminal. Aplazar es aparcar trabajo `
+      + 'VIVO: escribir DEFERRED sobre algo ya cerrado lo reabriria sin que nadie lo decidiera.');
+    return;
+  }
+
+  // LOS TRES SE PIDEN JUNTOS Y SE NOMBRAN LOS QUE FALTAN. Pedirlos de uno en uno obliga a
+  // ejecutar tres veces para descubrir que hacian falta tres.
+  const faltan = [!reentrada && '--reentrada', !revision && '--revision', !dueno && '--dueno'].filter(Boolean);
+  if (faltan.length) {
+    fail('SUITE-R44', `${id}: falta ${faltan.join(' · ')}. Un aplazado sin condicion de reentrada, `
+      + 'sin fecha de revision y sin dueno no se distingue de un abandono: es lo que hacia que '
+      + 'PT-134 y PT-025 fueran identicos en el tablero.');
+    return;
+  }
+
+  // «Que tiene que pasar» no es mecanizable, pero SI se puede exigir que no sea una celda
+  // rellenada para callar la comprobacion. Se mide lo unico medible —que diga algo— y el resto
+  // se DECLARA en design.md como no mecanizable (SUITE-R26).
+  const texto = String(reentrada).trim();
+  if (texto.length < 12 || texto.split(/\s+/).length < 3) {
+    fail('SUITE-R26', `${id}: «${texto}» no es una condicion de reentrada. Se exige que DIGA algo; `
+      + 'que diga algo UTIL no es mecanizable y lo sabe quien conoce el trabajo.');
+    return;
+  }
+
+  // Una revision ya pasada nace caducada, y un aplazado que nace caducado es indistinguible del
+  // que no declara nada: el defecto de esta tarea, reintroducido por la puerta de al lado.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(revision)) || Number.isNaN(Date.parse(String(revision)))) {
+    fail('SUITE-R44', `${id}: «${revision}» no es una fecha AAAA-MM-DD.`);
+    return;
+  }
+  // PT-138 · SIN GIT NO SE SALTA LA COMPROBACION. La primera version usaba solo la fecha del
+  // ultimo commit, asi que en un repositorio sin git «hoy» era null y la caducidad NO SE MIRABA:
+  // verde por no haber mirado (CE-005) dentro del comando que existe para impedirlo, y lo cazo
+  // un caso sobre fixture. El reloj del sistema SI se puede leer siempre; se prefiere la fecha de
+  // git cuando la hay porque es la que usa el resto del marco.
+  const hoy = gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10);
+  if (String(revision) <= hoy) {
+    fail('SUITE-R44', `${id}: la revision «${revision}» no es futura (hoy es ${hoy}). Un aplazado `
+      + 'que nace caducado no se distingue del que no declara nada.');
+    return;
+  }
+
+  const conocidas = [...(reg?.firmantes ?? []), ...((reg?.personas ?? []).map((p) => p?.nombre))]
+    .filter(Boolean);
+  if (conocidas.length && !conocidas.includes(dueno)) {
+    fail('SUITE-R27', `«${dueno}» no esta declarado (${conocidas.join(' · ')}). Un dueno inventado `
+      + 'es un aplazado sin dueno con mejor letra.');
+    return;
+  }
+
+  const fecha = flag('--fecha') ?? hoy ?? null;
+  if (!APLICAR) {
+    di(yaAplazada
+      ? `  ${id}: YA esta DEFERRED · se ACTUALIZAN sus terminos   (dueno ${dueno} · revision ${revision})`
+      : `  ${id}: ${a.status} -> DEFERRED   (dueno ${dueno} · revision ${revision})`);
+    di(`    reentrada         ${texto}`);
+    if (de) di(`    de                ${de}`);
+    di('');
+    di('  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.');
+    return;
+  }
+
+  a.status = 'DEFERRED';
+  a.aplazamiento = { reentrada: texto, revision: String(revision), dueno, ...(de ? { de } : {}), fecha };
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: ${yaAplazada ? 'terminos ACTUALIZADOS' : '-> DEFERRED'} · revision ${revision} · dueno ${dueno}`);
+
+  // SUITE-R59 · se compone con SALTO, no con secuencias escapadas.
+  const L = [];
+  L.push(MARCA_AGENTE);
+  L.push(yaAplazada
+    ? `**APLAZAMIENTO ACTUALIZADO** · \`${id}\` sigue en \`DEFERRED\``
+    : `**APLAZADA** · \`${id}\` pasa a \`DEFERRED\``);
+  L.push('');
+  L.push('| | |');
+  L.push('|:--|:--|');
+  L.push(`| Se retoma cuando | ${texto} |`);
+  L.push(`| Se revisa el | ${revision} |`);
+  L.push(`| Responde | ${dueno} |`);
+  if (de) L.push(`| Sale de | ${de} |`);
+  L.push('');
+  L.push('Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve');
+  L.push('con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.');
+  const cuerpo = L.join(SALTO);
+
+  if (adaptador?.comentar && a.issue) {
+    try {
+      adaptador.comentar(a.issue, cuerpo);
+      notas.push(`${id}: aplazamiento publicado en #${a.issue}`);
+    } catch (e) {
+      fail('SUITE-R35', `${id}: el registro ya dice DEFERRED y la nota no se pudo publicar en `
+        + `#${a.issue} (${String(e.message ?? e).split(SALTO)[0]}).`);
+    }
+  } else {
+    const rutaLog = join(IMPL, 'TRANSICIONES.log');
+    const previo = (() => { try { return readFileSync(rutaLog, 'utf8'); } catch { return ''; } })();
+    writeFileSync(rutaLog, `${previo}${SALTO}## ${fecha} · ${id} · APLAZADA${SALTO}${SALTO}${cuerpo}${SALTO}`, 'utf8');
+    notas.push(`${id}: aplazamiento escrito en TRANSICIONES.log (sin plataforma)`);
+  }
+}
+
+// ── retomar · la puerta de vuelta de un aplazado   PT-137 ──────────────────
+//
+// SUITE-R44 pone la tarea aplazada en el tablero y declara que queda EXENTA de artefactos: no
+// tiene intake. `integrar` es el unico comando con destino de estado arbitrario y EXIGE que el
+// intake declare «status:» (4148), ademas de filtrar DEFERRED antes (4119). Las otras cuatro
+// asignaciones de estado escriben DONE, VALIDATION_PENDING y READY, y ninguna toca DEFERRED.
+//
+// Es un lazo cerrado: LA REGLA QUE PONE LA TAREA EN EL TABLERO ES LA MISMA QUE LA DEJA
+// INALCANZABLE. Retomarla exigia escribir REGISTRY.json a mano — el acto que SUITE-R08 existe
+// para impedir, y CE-006 en su forma pura. Lo encontro USAR el marco: al ir a mover PT-134 a su
+// lote, ningun comando podia.
+//
+// NO decide nada. Registra una decision ya tomada, con firmante contrastado (SUITE-R27) y fecha
+// que se DICE, porque retomar puede registrarse despues de decidirse (la leccion de PT-121).
+function retomar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const epica = flag('--epica');
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a) && a !== epica);
+  const quien = flag('--firmante');
+  if (!id || !quien) {
+    console.error('retomar necesita allocation y firmante:  '
+      + 'tracker retomar PT-134 --firmante "Nombre" [--fecha AAAA-MM-DD] [--epica EP-021] [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+
+  // El estado se comprueba PRIMERO, y se DICE cual se encontro: «no se puede» sin el dato
+  // obliga a ir a mirar el registro a mano, que es lo que este comando existe para evitar.
+  if (a.status !== 'DEFERRED') {
+    fail('SUITE-R44', `${id} esta en «${a.status}», no DEFERRED. Este comando es la puerta de `
+      + 'vuelta de un APLAZADO: usarlo sobre otro estado escribiria DRAFT encima de uno que '
+      + 'alguien puso por algo. Aplazar no es rechazar, y REJECTED no tiene vuelta.');
+    return;
+  }
+
+  const firmantes = reg?.firmantes ?? reg?.personas?.map((p) => p?.nombre) ?? [];
+  if (firmantes.length && !firmantes.includes(quien)) {
+    fail('SUITE-R27', `«${quien}» no esta en la lista de firmantes (${firmantes.join(' · ')}). `
+      + 'Es la unica defensa mecanica que existe contra una firma inventada.');
+    return;
+  }
+
+  // AC-04 · reasignar a un lote CERRADO devuelve al limbo por otra puerta: la tarea queda viva
+  // bajo un lote que ya no responde de ella. Es EXACTAMENTE el estado del que PT-134 sale, asi
+  // que permitirlo haria inutil el comando en su propio caso de uso.
+  if (epica) {
+    const lote = all.find((x) => x?.id === epica);
+    if (!lote) { fail('SUITE-R08', `--epica cita «${epica}», que no esta en el registro (SUITE-R08).`); return; }
+    if (!esLote(lote)) { fail('LEX-R27', `--epica cita «${epica}», que no es un lote.`); return; }
+    if (ESTADOS_TERMINALES.has(String(lote.status))) {
+      fail('SUITE-R44', `${epica} esta en «${lote.status}»: reasignar a un lote cerrado deja la `
+        + 'tarea viva bajo algo que ya no responde de ella. Es el limbo del que este comando saca.');
+      return;
+    }
+  }
+
+  const fecha = flag('--fecha') ?? gitDe(['log', '-1', '--format=%cs']) ?? null;
+  const destinoEpica = epica ?? a.epic ?? null;
+
+  // PT-137 · EL DESTINO SE DERIVA DEL ARBOL, y no es un detalle: LEXICON §5.1 declara
+  // «DEFERRED --> READY» y SUITE-R44 declara que un aplazado NO TIENE INTAKE. Los dos no pueden
+  // ser ciertos del mismo aplazado: volver a READY afirma una G1 sobre un alcance escrito, y sin
+  // intake no hay alcance escrito ni firma que afirmar.
+  //
+  // Son DOS aplazados distintos y el marco los llamaba igual:
+  //   el que se aparco DESDE READY conserva su intake  -> vuelve a READY, como dice LEXICON
+  //   el que nacio aplazado no tuvo ninguno            -> vuelve a DRAFT/PHASE 1, a escribirlo
+  //
+  // Se decide MIRANDO si el intake existe, no preguntando ni suponiendo. Elegir un destino fijo
+  // habria derogado a uno de los dos documentos desde una herramienta (SUITE-R00).
+  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const conIntake = existsSync(fIntake);
+  const destino = conIntake ? 'READY' : 'DRAFT';
+  const faseDestino = conIntake ? (a.phase ?? 1) : 1;
+  const porque = conIntake
+    ? 'conserva su intake: vuelve a READY, como declara LEXICON §5.1'
+    : 'nacio aplazado y no tiene intake: vuelve a DRAFT · PHASE 1, a escribirlo (SUITE-R44)';
+
+  if (!APLICAR) {
+    di(`  ${id}: DEFERRED -> ${destino} · PHASE ${faseDestino}   (${quien} · ${fecha})`);
+    di(`    por que           ${porque}`);
+    di(`    epica             ${a.epic ?? 'ninguna'}${epica ? ` -> ${epica}` : ' (sin cambio)'}`);
+    di(`    retomada          por ${quien}, el ${fecha}, de DEFERRED`);
+    di('');
+    if (!conIntake) di('  Vuelve a PHASE 1: hay que ESCRIBIR su intake. Este comando no lo genera.');
+    di('  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.');
+    return;
+  }
+
+  // El campo importa tanto como el estado: sin el, una allocation retomada es indistinguible de
+  // una que nunca se aplazo. SUITE-R44 existe porque algo aplazado se perdio; perder el rastro
+  // de lo DESaplazado seria el mismo defecto con el signo cambiado.
+  a.status = destino;
+  a.phase = faseDestino;
+  a.retomada = { por: quien, fecha, de: 'DEFERRED', destino, conIntake };
+  if (epica) a.epic = epica;
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: DEFERRED -> ${destino} · PHASE ${faseDestino} · retomada por ${quien} el ${fecha}`
+    + (epica ? ` · epica ${epica}` : ''));
+
+  // SUITE-R59 · el texto se compone con SALTO, no con secuencias escapadas dentro de una
+  // plantilla. La primera version de este bloque se rompio justo ahi, que es CE-002.
+  const L = [];
+  L.push(MARCA_AGENTE);
+  L.push(`**RETOMADA** · \`${id}\` vuelve de \`DEFERRED\` a \`${destino}\` · \`PHASE ${faseDestino}\``);
+  L.push('');
+  L.push('| | |');
+  L.push('|:--|:--|');
+  L.push(`| Quien | ${quien} |`);
+  L.push(`| Fecha | ${fecha} |`);
+  L.push(`| Lote | ${destinoEpica ?? 'ninguno'} |`);
+  L.push('');
+  L.push(porque.charAt(0).toUpperCase() + porque.slice(1) + '.');
+  const cuerpo = L.join(SALTO);
+
+  // Lo reversible primero, lo irreversible al final: contrato de «avanzar» (PT-053) y el que
+  // PT-132 arreglo en «abrir». Si la publicacion falla, el registro ya esta escrito.
+  if (adaptador?.comentar && a.issue) {
+    try {
+      adaptador.comentar(a.issue, cuerpo);
+      notas.push(`${id}: retomada publicada en #${a.issue}`);
+    } catch (e) {
+      fail('SUITE-R35', `${id}: el registro ya dice DRAFT y la nota no se pudo publicar en `
+        + `#${a.issue} (${String(e.message ?? e).split(SALTO)[0]}).`);
+    }
+  } else {
+    // PT-084 · sin tablero, al ledger. Append-only (SUITE-R09).
+    const rutaLog = join(IMPL, 'TRANSICIONES.log');
+    const previo = (() => { try { return readFileSync(rutaLog, 'utf8'); } catch { return ''; } })();
+    writeFileSync(rutaLog, `${previo}${SALTO}## ${fecha} · ${id} · RETOMADA${SALTO}${SALTO}${cuerpo}${SALTO}`, 'utf8');
+    notas.push(`${id}: retomada escrita en TRANSICIONES.log (sin plataforma)`);
+  }
+}
+
 // ── cierre · el comentario de cierre de un lote, por comando   PT-122 ───────
 //
 // AC-01 · es la UNICA forma sancionada: lleva MARCA_AGENTE por construccion, y un comentario sin
@@ -4335,7 +4692,7 @@ function cierre() {
   }
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

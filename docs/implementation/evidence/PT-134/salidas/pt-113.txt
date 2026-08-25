@@ -1,0 +1,18 @@
+# AC-04 · PT-113 · el AC-06 declarado CAIDO
+
+## La fila que vuelve a la matriz
+| AC-06 | El `diff` de la guía queda vacío tras aplicar la versión | `CAÍDO` | — decayó con el reanclaje a la `13.0.0` | `../../../changes/PT-113-la-guia-que-se-publico-incompleta/intake.md` |
+## `AC-06` VUELVE a la matriz, declarado **caído**   `PT-134`
+
+## El motivo en el manifiesto
+verified: false
+caido: Decayo con el reanclaje a la 13.0.0. Fue escrito para un PATCH; en un MAJOR que trae FDGE-R55 y cuatro herramientas tocadas, exigir «diff vacio» seria exigir lo contrario de lo que el lote hace. NO se marca verificado: un criterio que ya no se comprueba no esta verificado. Declarado con el vocabulario que creo PT-134, que hasta el 2026-08-24 no existia — por eso la primera version lo saco de la matriz y lo explico en prosa.
+
+## Por que la prosa anterior se CONSERVA
+SUITE-R09 es append-only y FDGE-R29 dice que una correccion se ANADE. El texto que explicaba
+el caido en prosa sigue ahi; encima se escribe la correccion con su fecha.
+
+## Lo que esto NO establece
+PT-113 esta INTEGRATED, y verify-fdge no juzga lo terminal (SUITE-R36: lo cerrado es
+evidencia, no estado). La declaracion es DOCUMENTAL. El mecanismo se demuestra sobre fixture,
+en los seis casos de la bateria.

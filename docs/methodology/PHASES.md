@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **13.0.0**
+> Suite version: **13.1.0**
 
 ---
 
@@ -330,6 +330,42 @@ APLAZAR   la columna «Donde va» es VOCABULARIO CERRADO: o «—» o la cita de
           RECIPROCA — hermano del lote vale siempre; el propio lote solo si
           esta DONE o CLOSED; cualquier otro debe ser DEFERRED con su
           «origin» mencionando el PT. En G4 bloquea.
+MANEJADOR un catch que interpola un identificador que su archivo NO         [SUITE-R56]
+          declara se ENUMERA: el catch lanzaria otro error, taparia el
+          real y mataria el comando en la ruta menos probada del codigo.
+          Aviso durante el trabajo, ERROR EN G4. Es una heuristica y se
+          dice: reconoce la forma que ya mordio (SUITE-R26).
+RAMA      el nombre se CONTRASTA con lo que ramaDeTarea deriva del          [FDGE-R19]
+          registro: type del item y slug. Sin «type» no hay nombre
+          esperado y SE DICE (RULE-06). Un lote NO lleva type (LEX-R27),
+          asi que NO tiene nombre de rama derivable: su trabajo viaja en
+          la rama de una de sus tareas y se declara en SESSION_LOG.
+CADUCA    un aplazado sin bloque, o con la revision VENCIDA, se nombra:       [SUITE-R44]
+          aviso durante el trabajo, ERROR EN G4. Dice cuantos dias lleva y
+          de quien es. NO cierra nada por su cuenta: obliga a mirarlo. Lo
+          anterior a LEX-R34 no se juzga hacia atras (RIGE_DESDE, CE-014).
+AC CAIDO  un criterio que deja de aplicar se DECLARA, no se finge:            [FDGE-R15]
+          traceability.md   celda del escenario = CAIDO
+          manifest.json     criteria[].caido = por que decayo
+          LAS DOS COSAS. Y NO cuenta como verificado: CAIDO con
+          «verified: true» falla, que es el verde fingido que esto evita.
+APLAZAR2  y la puerta de IDA tambien es un comando:                         [LEX-R34]
+          node tools/tracker.mjs aplazar PT-NNN --reentrada "..."           [SUITE-R44]
+                 --revision AAAA-MM-DD --dueno "..." [--de PT-NNN] --aplicar
+          Es la UNICA via sancionada para escribir DEFERRED. Los tres datos
+          se exigen AL ESCRIBIR, no en la compuerta: uno que solo se pide al
+          final se rellena al final. La revision debe ser FUTURA; una ya
+          pasada nace caducada. El dueno se contrasta (SUITE-R27). Que la
+          condicion DIGA algo se comprueba; que diga algo UTIL, no (SUITE-R26).
+RETOMAR   un aplazado TIENE VUELTA, y es por comando:                      [LEX-R33]
+          node tools/tracker.mjs retomar PT-NNN --firmante "..."           [SUITE-R44]
+                 [--fecha AAAA-MM-DD] [--epica EP-NNN] --aplicar
+          EL DESTINO SE DERIVA DEL ARBOL, no se elige: el aplazado que
+          conserva su intake vuelve a READY —lo que LEXICON 5.1 declara—;
+          el que nacio aplazado, sin intake, vuelve a DRAFT y PHASE 1.
+          Escribe «retomada» con quien, cuando y de que estado: sin ese
+          campo una retomada es indistinguible de algo que nunca se aplazo.
+          DEFERRED es el UNICO terminal con vuelta. REJECTED no la tiene.
 CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [SUITE-R45]
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos

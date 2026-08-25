@@ -8525,3 +8525,419 @@ que alguien quita algun dia sin que nada lo diga.
 LO QUE NO ESTABLECE: que ningun otro caso pueda corromper el entorno. Se reviso el bloque entero
 de EP-020 y este era el unico que llama a build_fixture dentro de un subshell. Los demas lo llaman
 a nivel superior, donde el «cd» final de build_fixture SI recoloca al shell que importa.
+
+## PT-137 — DEFERRED tenia entrada y no tenia salida
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021 — la abrio una pregunta del firmante sobre PT-134
+Rama: bug/alberto-martinez/PT-137-retomar-un-aplazado-por-comando
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-006
+
+Lo pregunto el firmante: «PT-134 como aplazado, de que sirve? cuando se retoma? abierto para que?
+el mismo issue no indica cuando se tomara o que pasara con ese».
+
+LA RESPUESTA, MEDIDA, ERA «NUNCA». SUITE-R44 declara que un aplazado queda EXENTO de artefactos:
+no tiene intake. `integrar` es el unico comando con destino de estado arbitrario y EXIGE que el
+intake declare «status:» (tracker.mjs:4148); ademas filtra DEFERRED antes de llegar ahi (4119).
+Las otras asignaciones de estado del tracker —3279, 3285, 4214, 4284— escriben DONE,
+VALIDATION_PENDING y READY. NINGUNA toca DEFERRED.
+
+La regla que ponia la tarea en el tablero era la misma que la dejaba inalcanzable. Retomar PT-134
+exigia escribir REGISTRY.json a mano: CE-006, el acto fuera del comando, en su forma pura.
+
+LO ENCONTRO USAR EL MARCO, NO LEERLO. Al ir a mover PT-134 al lote nuevo, ningun comando podia. Es
+la misma ruta por la que EP-020 descubrio que cerrar un BUG tampoco tenia comando.
+
+EL SEGUNDO HALLAZGO, QUE CAMBIO EL DISEÑO A MITAD. La primera version fijaba DRAFT/PHASE 1.
+Escribiendo LEXICON aparecio que §5.1 YA DECLARA «DEFERRED --> READY»: una transicion escrita
+desde hace versiones que ningun comando podia ejecutar — CE-007. Pero §5.1 declara tambien
+«READY --> DEFERRED», y SUITE-R44 dice que un aplazado no tiene intake. Las dos no pueden ser
+ciertas del mismo aplazado.
+
+ERAN DOS APLAZADOS DISTINTOS CON EL MISMO NOMBRE:
+
+  aparcado desde READY, conserva intake -> vuelve a READY, como dice LEXICON §5.1
+  nacio aplazado, sin intake            -> vuelve a DRAFT y PHASE 1, a escribirlo
+
+El destino se DERIVA mirando si el archivo existe. Fijar uno habria derogado uno de los dos
+documentos desde una herramienta, que es lo que SUITE-R00 prohibe.
+
+TRES DEFECTOS AL CONSTRUIRLO, y los tres se declaran:
+
+1. ROTURA DE ESCAPADO al componer el cuerpo del comentario dentro de una plantilla: las secuencias
+   se volvieron saltos reales y el modulo no compilaba. Es CE-002 —la clase que TIENE regla
+   (SUITE-R59) y de la que nada emitia—. Se compone con SALTO y L.push, que es lo que la regla
+   dice.
+
+2. UNA SUSTITUCION CON ANCLA NO UNICA borro 902 lineas de tracker.mjs: se busco el PRIMER
+   «if (adaptador?.comentar && a.issue) {» del archivo, no el propio. Lo delato «git diff --stat»
+   antes de nada mas y se restauro desde git. El segundo intento escribio el fragmento aparte y lo
+   inserto contra un ancla COMPROBADA unica: 119 insertions, 1 deletion.
+
+3. EDITAR LA BATERIA MIENTRAS CORRIA. bash lee el script por desplazamiento de bytes: insertar
+   lineas a mitad partio un heredoc y produjo un error de sintaxis en una linea sin relacion. El
+   error NO era real, y perseguirlo habria costado horas.
+
+Y LA INVERSA SE REANCLO. La supresion del rastro casaba el TEXTO EXACTO de la linea «a.retomada =
+{…}». Al añadirle dos campos dejo de casar y salio verde POR NO ENCONTRAR NADA QUE SUPRIMIR: el
+falso verde por vacio de PT-023. Ahora se ancla a la LINEA, no a su contenido.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · LEXICON.md · RULES.md · PHASES.md ·
+  FDGE-Prompts.md · CORE.md (generado) · inventory/services.md (derivado)
+
+Evidencia: evidence/PT-137/ — selftest OK · 1636 casos, 0 rojos · verify-suite sin errores de
+  coherencia · auditoria sin huecos, cobertura mecanica 128/235 · y la salida REAL de retomar
+  sobre PT-134, que es AC-06.
+
+LO QUE NO ESTABLECE: que un aplazado deba declarar cuando se retoma (PT-138) ni que caduque
+(PT-139). Aqui esta la puerta, no el requisito de cruzarla. Tampoco que el «retomada» de PT-134
+este completo: se escribio con la PRIMERA version del comando, antes de que el destino fuese
+derivado, asi que declara «por», «fecha» y «de» pero no «destino» ni «conIntake». No se reescribe
+—SUITE-R09 es append-only— porque lo que afirma es cierto.
+
+## PT-138 — la puerta de IDA tampoco tenia comando
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-138-el-aplazado-declara-cuando-se-revisa
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-006
+
+LA CARENCIA ERA SIMETRICA. PT-137 encontro que DEFERRED no tenia SALIDA. Midiendo esta tarea
+resulta que tampoco tenia ENTRADA: ningun comando escribia el estado. Las unicas apariciones del
+literal en tracker.mjs eran la lista de estados, el filtro de `integrar` y el `retomar` recien
+escrito.
+
+Los dos aplazados que existian —PT-025 y PT-134— se teclearon a mano, y por eso ninguno declaraba
+condicion de reentrada, ni fecha de revision, ni dueno. Uno del 2026-08-23 y otro de meses antes
+eran INDISTINGUIBLES en el tablero, y tambien indistinguibles de un abandono. Es lo que el
+firmante pregunto: «de que sirve? cuando se retoma?».
+
+POR QUE AL ESCRIBIR Y NO EN LA COMPUERTA. Un dato que solo se pide al final se rellena al final, y
+entonces es una fecha inventada. Al ser `aplazar` la unica via de escribir DEFERRED, la obligacion
+NO SE PUEDE RODEAR: no hay que comprobar que se cumplio, porque no hay camino en que no se cumpla.
+
+EL DEFECTO QUE APARECIO CONSTRUYENDOLO, y lo cazo un caso. «hoy» salia solo de
+gitDe(['log','-1','--format=%cs']), y en un repositorio SIN GIT eso es null: la condicion era
+«hoy && revision <= hoy», asi que LA CADUCIDAD NO SE MIRABA. Verde por no haber mirado —CE-005—
+dentro del comando que existe para impedir exactamente eso, y en la mitad del codigo que declara
+que un aplazado que nace caducado no se distingue del que no declara nada.
+
+Lo cazo el caso sobre fixture, que no tiene git. El arreglo lee el reloj del sistema cuando git no
+esta; se prefiere la fecha de git cuando la hay, porque es la que usa el resto del marco.
+
+Y LA INVERSA DECLARABA UN ESCENARIO Y TUMBABA OTRO. «Sin exigir los tres, se aplaza sin ellos» no
+era cierto: cada campo ausente lo caza otra comprobacion mas abajo, asi que la supresion producia
+un error DISTINTO, no una escritura. Salia en rojo POR EL MOTIVO EQUIVOCADO — el defecto que
+PT-122 y PT-130 encontraron en las suyas. Rehecha para medir lo que la comprobacion aporta de
+verdad: que el fallo NOMBRE los tres de una vez, en vez de obligar a ejecutar tres veces para
+descubrir que hacian falta tres.
+
+Y una tercera vez la leccion del ANCLAJE: la inversa de la fecha casaba el TEXTO EXACTO del `if`,
+asi que al arreglar el defecto de arriba dejo de casar y salio verde por vacio. Reanclada a la
+LINEA.
+
+AC-07 · LOS APLAZADOS EXISTENTES. PT-134 no aplica: PT-137 la retomo. PT-025 NO SE COMPLETA Y SE
+DICE POR QUE: su condicion de reentrada SI se sabe —esta en su propio «origin»— pero la FECHA DE
+REVISION la decide su dueno, y elegirla seria inventar un dato (RULE-06). La ruta existe y esta
+probada —`aplazar` sobre algo ya DEFERRED ACTUALIZA sus terminos, que es como se migran los
+escritos a mano— y la salida en seco esta en la evidencia. El acto es del firmante.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · LEXICON.md · RULES.md · PHASES.md ·
+  FDGE-Prompts.md · CORE.md (generado) · MATRIZ.md (derivado) · inventory/services.md (derivado)
+
+Evidencia: evidence/PT-138/ — selftest OK · 1655 casos, 0 rojos · verify-suite sin errores ·
+  auditoria sin huecos, cobertura mecanica 129/236 · y la salida en seco sobre PT-025.
+
+LO QUE NO ESTABLECE: que una condicion de reentrada sea BUENA —se exige que diga algo, no que diga
+algo util (SUITE-R26)—; que la fecha elegida sea la correcta —se exige futura, no oportuna—; ni
+que un aplazado caducado bloquee, que es PT-139.
+
+## PT-139 — nada media la edad de un aplazado
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-007
+
+PT-137 construyo la puerta de vuelta y PT-138 escribe cuando cruzarla. SIN COMPUERTA, LOS DOS
+ERAN DOCUMENTACION: un campo que nadie mira es un campo que se rellena mal.
+
+EL MENSAJE DICE TRES COSAS, y cada una tiene su motivo. CUANTOS DIAS lleva vencido: «vencido» sin
+la cifra no distingue dos dias de dos anos, que es justo lo que hace falta para decidir. DE QUIEN
+ES: un aviso sin destinatario no es una decision pendiente de nadie. QUE COMANDO lo arregla: un
+aviso que obliga a ir a buscarlo es un aviso que se ignora.
+
+NO DECIDE NADA. El mensaje del caducado enumera los tres caminos —retomar, mover la fecha,
+cerrar— y declara que la compuerta obliga a MIRAR. Cerrar automaticamente un aplazado seria
+SUITE-R06 roto por comodidad.
+
+LOS DOS LIMITES, cada uno con su clase. CE-014: lo anterior a LEX-R34 no se juzga hacia atras —
+PT-025 no pudo declarar lo que nadie le pedia—. CE-010: la fecha de hoy SE DERIVA, del ultimo
+commit y del reloj del sistema cuando no hay git, y el fixture usa 2099 para que el caso no
+caduque solo.
+
+EL DEFECTO QUE APARECIO, Y NO ESTA EN EL CODIGO NUEVO. Siete casos antiguos afirmaban sobre el ID
+DE LA REGLA —«chkno … SUITE-R44»—, que significa «que esta regla no diga nada». Al anadirle una
+clausula, la regla empezo a hablar en corridas donde antes callaba y siete casos QUE MIDEN OTRA
+COSA se pusieron rojos.
+
+No es que el codigo este mal: EL PATRON ERA DEMASIADO GRUESO. Afirmar sobre un ID de regla acopla
+el caso a todo lo que esa regla pueda decir en el futuro. Afinados al hallazgo concreto. El
+septimo casaba el identificador a secas y la linea de exentos lo NOMBRA justamente para decir que
+NO es deuda: afinado a «PT-020:», que es la forma en que verify-fdge le EXIGE algo a un PT.
+Mencionar no es exigir.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/patrones.mjs · tools/selftest.sh · RULES.md ·
+  PHASES.md · CORE.md (generado) · MATRIZ.md (derivado) · inventory/services.md (derivado)
+
+Evidencia: evidence/PT-139/ — selftest OK · 1678 casos, 0 rojos · verify-suite sin errores ·
+  auditoria sin huecos, cobertura mecanica 130/236.
+
+LO QUE NO ESTABLECE: que el umbral deba ser «vencido» y no un margen de gracia —seria un juicio
+sin datos—; ni que alguien vaya a mirar el aviso: la compuerta obliga en G4 y fuera de ella avisa.
+
+
+## PT-134 — un AC que decae no tenia donde declararse
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021 — nacio aplazada en EP-020 y la RETOMO «tracker retomar» (PT-137, AC-06)
+Rama: bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-005
+
+ESTA TAREA ES LA PRUEBA DE PT-137. Estuvo DEFERRED bajo EP-020, que esta CLOSED, y ningun comando
+podia sacarla. Que exista su intake es el AC-06 de PT-137 cumplido.
+
+FDGE-R15 exigia un TS a TODO AC. Un criterio que DECAE no puede tenerlo, y quedaban dos salidas y
+las dos malas: «verified: true» sobre algo que ya nadie comprueba, o un Orphan Criterion
+permanente que nadie puede cerrar. La primera es PEOR, porque parece verde.
+
+PT-113 eligio una tercera —sacar el AC fuera de la tabla y explicarlo en prosa— que funciono como
+DECISION y falla como MECANISMO: un criterio que no esta en la matriz NO SE PUEDE CONTAR. Su
+propia trazabilidad lo decia: «no hay herramienta que pueda decir que este criterio dejo de
+aplicar — el marco no tiene ese vocabulario».
+
+SE PIDEN DOS COSAS. La palabra CAIDO en la celda del escenario Y el motivo en el manifiesto. La
+fila sola serian cinco letras que apagan una comprobacion sin que nadie responda; el motivo solo
+no se veria al leer la matriz, que es donde se mira la cobertura.
+
+Y UN AC CAIDO NO CUENTA COMO VERIFICADO: declararlo caido y «verified: true» a la vez FALLA. Es la
+tentacion entera de esta tarea.
+
+EL RIESGO, DE FRENTE: esto puede convertirse en la salida comoda para todo criterio incomodo. Lo
+frenan el motivo con contenido y la prohibicion del verde, LAS DOS JUNTAS. Si el motivo es honesto
+no es mecanizable y se declara (SUITE-R26).
+
+EL DEFECTO QUE APARECIO CONSTRUYENDOLO, y lo cazo el auditor. El «\b» del reconocedor se convirtio
+en un byte de control 0x08 al insertarlo: el regex COMPILABA Y NO CASABA NADA — un fallo
+silencioso, CE-002. Lo detecto audit.mjs, que tiene esa comprobacion exactamente para esto, y dio
+el comando. Rehecho sin secuencias escapadas, que es la respuesta de SUITE-R59.
+
+AC-04 · PT-113. Su AC-06 VUELVE a la matriz declarado CAIDO, con el motivo en su manifiesto. La
+prosa anterior SE CONSERVA y encima se escribe la correccion con su fecha (SUITE-R09 append-only,
+FDGE-R29). LIMITE DECLARADO: PT-113 esta INTEGRATED y verify-fdge no juzga lo terminal
+(SUITE-R36), asi que la declaracion es DOCUMENTAL y el mecanismo se demuestra sobre fixture.
+Afirmar que el verificador la aprueba seria falso, porque no la mira.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · RULES.md · PHASES.md ·
+  CORE.md (generado) · changes/PT-113-…/traceability.md · evidence/PT-113/manifest.json
+
+Evidencia: evidence/PT-134/ — selftest OK · 1678 casos · seis casos con su negativo.
+
+LO QUE NO ESTABLECE: que ningun AC del repositorio este caido sin declarar. Retrofechar es lo que
+FDGE-R52 y CE-014 desaconsejan.
+
+
+## PT-140 — proyectar arrancaba un linaje nuevo en silencio
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-139-un-aplazado-caducado-bloquea-en-g4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-005
+
+LO COMETI YO, el 2026-08-24, dejando una sola rama local a peticion del firmante. `proyectar`
+toma refs/heads/<rama> como padre; sin ella el commit se crea SIN «-p» y la rama arranca un
+linaje nuevo. La salida fue IDENTICA a la del caso bueno: «26 allocation(es), 2 archivo(s)».
+
+NO SE PERDIO NADA PORQUE EL PUSH HABRIA SIDO RECHAZADO por no ser fast-forward. Protegido POR
+ACCIDENTE, NO POR DISEÑO: con ese rechazo sin explicacion, la lectura obvia —«la rama esta rara,
+la fuerzo»— si destruye. Y «--publicar» lleva el push dentro.
+
+Es CE-005, verde por no haber mirado, y CE-005 es una de las seis clases SIN REGLA QUE LA RECLAME:
+esta es su primera instancia cerrada con mecanismo.
+
+LA MITAD QUE YA EXISTIA. SUITE-R31 tenia el criterio correcto para el caso hermano —un commit sin
+la marca «cauce:proyeccion» SE REPORTA Y NO SE BORRA, porque decidir que hacer con el trabajo de
+alguien es humano—. Faltaba la simetrica, y ahora la regla las tiene las dos: un commit sin marca
+se REPORTA y no se borra; una rama que falta se DICE y no se rehace.
+
+NULL NO ES FALSE, y es la mitad del diseno. «git ls-remote» puede fallar por red, por credenciales
+o porque no hay remoto. Tratar ese null como «no existe» convertiria un fallo de acceso en PERMISO
+PARA DESCARTAR HISTORIA (RULE-06).
+
+Y NO TRAE LA RAMA SOLA: un fetch implicito dentro de un comando que ESCRIBE es el efecto colateral
+que este marco evita. Se DESCRIBE el comando (EXEC-R07), que cabe en una linea.
+
+EL FIXTURE LLEVA SU PROPIO REMOTO, un --bare local. Un arnes que necesita la red no es un arnes:
+daria rojo el dia que GitHub este lento y ese rojo no diria nada del marco. PT-126 lo pago con la
+bateria colgada tres minutos.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · RULES.md · CORE.md (generado)
+
+Evidencia: evidence/PT-140/ — selftest OK · 1678 casos · seis casos, y el fixture REPITE
+  exactamente lo que ocurrio.
+
+LO QUE NO ESTABLECE: que ninguna otra accion asuma que una rama local existe —si las hay es un
+hallazgo aparte—; ni que AC-04 tenga caso: forzar el fallo de «git ls-remote» sin tocar la red
+exigiria un remoto que exista y falle a la vez, asi que se establece que el CODIGO distingue los
+tres estados y no que se haya provocado el tercero.
+
+## PT-141 — el manejador de error lanzaba otro error
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-005
+
+tracker.mjs:1849 interpolaba «origen», que no existe en ese ambito —la variable se llama «ref»—.
+EL CATCH QUE DEBIA REPORTAR EL FALLO LANZABA UN ReferenceError DISTINTO, tapaba el real y mataba
+el comando. Se vio ejecutando «abrir --aplicar»: revento con «origen is not defined» Y AUN ASI
+HABIA CREADO EL ISSUE #262.
+
+POR QUE HABIA SOBREVIVIDO. Un error dentro de un catch es INVISIBLE hasta que se ejecuta esa rama,
+y esa rama solo corre cuando algo ya ha ido mal. Es la ruta menos probada del codigo y la que mas
+importa: el dia que falla es el dia en que hace falta el mensaje.
+
+NO BASTABA ARREGLAR LA LINEA. Se enumera la forma, y afinar la heuristica fue parte del trabajo:
+
+  primera version   9 hallazgos, SEIS falsos — locales de la funcion que envuelve el catch
+  afinada           1 hallazgo: el real
+  arreglado         0
+
+Un detector que grita seis veces de nueve no se usa: SE APAGA. Los cuatro filtros salieron cada
+uno de un falso positivo REAL —declaraciones en cualquier sitio, acceso a propiedad, cadenas
+dentro de la interpolacion, y lineas de comentario— y cada uno tiene su caso.
+
+Y EL CUARTO FILTRO ES LA AUTORREFERENCIA otra vez: el comentario que EXPLICA el defecto lo
+contiene. Es la cuarta vez en este repositorio.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · tools/tracker.mjs ·
+  tools/selftest.sh · RULES.md · PHASES.md · CORE.md (generado)
+
+Evidencia: evidence/PT-141/ — ocho casos, incluido el del ARBOL REAL, y la salida del enumerador.
+
+LO QUE NO ESTABLECE: que no queden manejadores rotos en bin/ —el barrido cubre
+docs/methodology/tools/—, ni que la heuristica sea completa: reconoce LA FORMA que ya mordio y se
+declara como heuristica (SUITE-R26).
+
+
+## PT-142 — la rama no se contrastaba con la que la regla deriva
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-007
+
+«ramaDeTarea» deriva el nombre correcto desde el registro y se usaba UNA SOLA VEZ, en «tracker
+rama», como PROPUESTA. «topologiaDeRamas» solo comprobaba que la rama CONTUVIERA un id que existe:
+el type y el slug no se miraban. Con eso pasaron tres ramas:
+
+  PT-113 (BUG)   deriva bug/…/PT-113-la-guia-…    existia chore/…/PT-113-apertura
+  PT-081 (BUG)   deriva bug/…/PT-081-…            existia fix/…/PT-081-…
+  EP-020         deriva null                      existia chore/…/EP-020-viaje-de-vuelta
+
+Es CE-007: existe la herramienta y nada la echa en falta.
+
+Y LA TERCERA FILA TENIA UNA CONTRADICCION DE REGLAS DETRAS. FDGE-R19 mandaba nombrar la rama de
+lote «con el type del propio lote»; LEX-R27 dice que UN LOTE NO LLEVA TYPE —«tracker tipo» lo
+rechaza citando esa regla— y «ramaDeTarea» devuelve null para un EP. Manda LEXICON (LEX-R21).
+
+LA REGLA PEDIA UN DATO QUE OTRA REGLA PROHIBE QUE EXISTA, y eso PRODUJO el nombre inventado. Se
+resuelve en la direccion correcta: un lote NO tiene nombre de rama derivable, y su trabajo viaja
+en la rama de una de sus tareas, declarado en SESSION_LOG. LEX-R27 no se toca.
+
+EL ARREGLO ES LA RAMA SIGUIENTE, no esta: FDGE-R19 ya declara que una rama creada se termina como
+empezo, porque renombrarla rompe el pull request abierto sobre ella. La comprobacion NOMBRA lo
+desviado y ensena el nombre derivado — decir «mal» sin decir «asi» obliga a ir a buscarlo.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/patrones.mjs · tools/selftest.sh · RULES.md ·
+  PHASES.md · CORE.md (generado)
+
+Evidencia: evidence/PT-142/ — cuatro casos sobre ramaDeTarea y la comprobacion corriendo sobre el
+  arbol real.
+
+LO QUE NO ESTABLECE: cuantas ramas del historico se desvian. No se juzga hacia atras (CE-014).
+
+
+## PT-143 — asignar tomaba el prefijo del primer argumento en mayusculas
+Fecha: 2026-08-24
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-021
+Rama: bug/alberto-martinez/PT-141-el-manejador-de-error-que-lanza-otro-error
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 y G3 delegadas por lote, constancia en SESSION_LOG.md
+            del 2026-08-24 · BUG: NO se cierra aqui (FDGE-R26, LEX-R08, SUITE-R06b)
+Clase de evento: CE-003
+
+El valor de «--tipo» tambien esta en mayusculas, asi que «--tipo BUG» sin un «PT» delante creaba
+BUG-001. Medido con --ver ANTES de escribir nada, que es para lo que esa bandera existe.
+
+BUG-001 NO ES UN ESPACIO DE NOMBRES DECLARADO: LEXICON 4.3 enumera los contadores y BUG no esta
+entre ellos. Un identificador con un prefijo que ningun contador reconoce es un identificador que
+nadie puede volver a encontrar.
+
+Y LA INFORMACION PARA NO COMETERLO ESTABA A DIEZ LINEAS. «CON_VALOR» es un conjunto que declara
+que banderas llevan valor; la lectura del prefijo no lo consultaba. Es CE-003 —argumento por
+deteccion—, una de las clases sin regla que la reclame, con siete instancias contadas.
+
+EL ARREGLO NO PERSIGUE EL SINTOMA. Excluir solo «--tipo» dejaria colarse cualquier bandera futura
+con valor en mayusculas. Se consulta CON_VALOR, que es donde ese hecho YA vive: una lista repetida
+de banderas a excluir seria la copia que diverge (SUITE-R38).
+
+Y lo que no esta declarado FALLA en vez de crearse. Los prefijos viven una sola vez, en
+patrones.mjs · PREFIJOS_DE_ID.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh · LEXICON.md ·
+  CORE.md (generado)
+
+Evidencia: evidence/PT-143/ — cinco casos, con el positivo que hace validos a los demas.
+
+LO QUE NO ESTABLECE: que ninguna otra accion lea posicionales con el mismo patron. Se enumera lo
+que se ve; prometer un barrido no hecho seria peor. AC-04 se cumple POR LA VIA DE LA FUENTE UNICA
+y se dice: la lectura consulta CON_VALOR en vez de llevar su propia lista.

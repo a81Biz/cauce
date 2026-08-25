@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **13.0.0**
+> Suite version: **13.1.0**
 
 ---
 
@@ -211,6 +211,43 @@ cualquier otro destino     debe ser una allocation en DEFERRED cuyo campo «orig
 ```
 
 En `G4` bloquea; antes solo avisa, porque aplazar durante el trabajo es legítimo y frecuente.
+
+**`LEX-R34`: y la puerta de IDA también es un comando.**   `PT-138`
+
+```bash
+node docs/methodology/tools/tracker.mjs aplazar PT-NNN      --reentrada "qué tiene que pasar" --revision AAAA-MM-DD      --dueno "Nombre" [--de PT-NNN] --aplicar
+```
+
+Es la **única** vía sancionada para escribir `DEFERRED`, y exige los tres datos que faltaban.
+Se piden **al escribir**, no en la compuerta: un dato que sólo se pide al final se rellena al
+final, y entonces es una fecha inventada.
+
+```
+revision   debe ser FUTURA — una ya pasada nace caducada
+dueno      se contrasta contra firmantes/personas (SUITE-R27)
+reentrada  se exige que DIGA algo; que diga algo UTIL no es mecanizable (SUITE-R26)
+```
+
+**`LEX-R33`: un aplazado TIENE vuelta, y es por comando.**   `PT-137`
+
+```bash
+node docs/methodology/tools/tracker.mjs retomar PT-NNN      --firmante "Nombre" [--fecha AAAA-MM-DD] [--epica EP-NNN] --aplicar
+```
+
+**El destino se deriva del árbol, no se elige:**
+
+```
+conserva su intake.md    -> READY          la transición que LEXICON §5.1 ya declaraba
+nació aplazado, sin él   -> DRAFT PHASE 1  hay que escribirlo
+```
+
+Escribe `retomada` con **quién**, **cuándo** y **de qué estado**: sin ese campo, una tarea
+retomada es indistinguible de una que nunca se aplazó. `DEFERRED` es el **único** terminal con
+vuelta — `REJECTED` no la tiene y no debe tenerla, porque aplazar no es rechazar.
+
+Hasta la `13.1.0` esa vuelta **no existía**: ningún comando escribía ni retiraba `DEFERRED`, e
+`integrar` exigía el `intake.md` que `SUITE-R44` declara exento. La regla que ponía la tarea en el
+tablero era la misma que la dejaba inalcanzable.
 
 **`LEX-R26`: el checkpoint no lleva campos que solo puedas rellenar tú.** `CHECKPOINT.json` es el
 estado de la **tarea** en curso —`HANDOFF.md` responde por el **proyecto**— y todos sus campos se

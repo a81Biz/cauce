@@ -66,7 +66,7 @@ import { estadoDelArbol } from './tracker.mjs';
 import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
-import { rigeDesde } from './patrones.mjs';
+import { rigeDesde, manejadoresRotos, ramaDeTarea } from './patrones.mjs';
 import { commitSinAllocation, clasificaRodeo } from './patrones.mjs';
 // PT-085 · el estado retomable se contrasta con el registro, y la deuda de sellado se acota.
 import { contradiceElRegistro, sinSellar, selladoEnTag, topologiaDeRamas, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA,
@@ -1183,6 +1183,146 @@ function checkCore() {
   else ok('SUITE-R15', 'CORE.md presente y sincronizado.');
 }
 
+// ─── SUITE-R56 · el manejador que lanza otro error   PT-141 ──────────────────
+//
+// `tracker.mjs:1849` interpolaba `origen`, que no existe en ese ambito: el catch que debia
+// REPORTAR el fallo lanzaba un ReferenceError distinto, tapaba el real y mataba el comando. Se vio
+// ejecutando «abrir --aplicar», que revento con «origen is not defined» Y AUN ASI HABIA CREADO EL
+// ISSUE — un comando que falla y deja efecto es lo contrario de lo que este marco promete.
+//
+// Un error dentro de un catch es INVISIBLE hasta que se ejecuta esa rama, y esa rama solo corre
+// cuando algo ya ha ido mal: es la ruta menos probada del codigo y la que mas importa. Por eso no
+// basta arreglar la linea — se ENUMERAN, y si son cero tambien es un dato.
+function checkManejadores() {
+  const dir = join(ROOT, 'docs', 'methodology', 'tools');
+  if (!existsSync(dir)) return;
+  const fuentes = readdirSync(dir).filter((f) => f.endsWith('.mjs'))
+    .map((f) => ({ nombre: f, texto: read(join(dir, f)) ?? '' }));
+  const rotos = manejadoresRotos(fuentes);
+  if (rotos === null) { warn('SUITE-R56', 'manejadores de error SIN EVALUAR: no se pudo leer tools/.'); return; }
+  if (!rotos.length) { ok('SUITE-R56', `${fuentes.length} herramienta(s): ningun manejador de error referencia un identificador fuera de ambito.`); return; }
+  const m = `${rotos.length} manejador(es) de error referencian un identificador que no se declara `
+    + `en su archivo: ${rotos.map((r) => `${r.archivo}:${r.linea} «${r.identificador}»`).join(' · ')}. `
+    + 'El catch lanzaria otro error, taparia el real y mataria el comando en la ruta menos probada.';
+  if (gate === 'G4') fail('SUITE-R56', m); else warn('SUITE-R56', m);
+}
+
+// ─── FDGE-R19 · la rama se contrasta con la que la regla deriva   PT-142 ─────
+//
+// `ramaDeTarea` deriva el nombre correcto desde el registro y se usaba UNA SOLA VEZ, en «tracker
+// rama», como PROPUESTA. `topologiaDeRamas` solo comprobaba que la rama CONTUVIERA un id que
+// existe, asi que tres ramas con `type` y slug inventados pasaron sin que nada lo dijera.
+//
+// Es CE-007: existe la herramienta y nada la echa en falta.
+const RE_LINEAS = new RegExp(String.fromCharCode(92) + 'r?' + String.fromCharCode(92) + 'n');
+const RE_REMOTO = new RegExp('^remotes/[^/]+/');
+
+function checkNombreDeRama() {
+  const ramas = (() => {
+    try {
+      return execFileSync('git', ['branch', '--format=%(refname:short)', '--all'],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().split(RE_LINEAS)
+        .map((r) => r.replace(RE_REMOTO, '').trim()).filter(Boolean);
+    } catch { return null; }
+  })();
+  if (ramas === null) { warn('FDGE-R19', 'nombres de rama SIN EVALUAR: no se pudo listar git branch.'); return; }
+  const usuario = (() => {
+    try { return execFileSync('git', ['config', 'user.name'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim(); }
+    catch { return null; }
+  })();
+  const desviadas = [];
+  const sinTipo = [];
+  for (const r of new Set(ramas)) {
+    const id = r.match(/\/((?:PT|EP)-\d+)-/)?.[1];
+    if (!id) continue;
+    const a = (REGISTRO?.allocations ?? []).find((x) => x?.id === id);
+    if (!a) continue;
+    // CE-014 · lo anterior a esta version se termina como empezo. FDGE-R19 ya lo dice para el
+    // usuario en la rama, y aqui rige el mismo criterio: renombrar romperia el PR abierto.
+    if (!rigeDesde('FDGE-R19b', a.suite_version ?? '0.0.0')) continue;
+    if (!a.type) { sinTipo.push(`${r} (${id} no declara «type»)`); continue; }
+    const esperada = ramaDeTarea(a.type, a.id, a.slug, usuario);
+    if (esperada && r !== esperada) desviadas.push(`«${r}» → deberia ser «${esperada}»`);
+  }
+  if (sinTipo.length) {
+    // RULE-06 · sin «type» NO hay nombre esperado: se dice, no se adivina.
+    warn('FDGE-R19', `${sinTipo.length} rama(s) sin nombre esperado derivable: ${sinTipo.join(' · ')}. `
+      + 'Sin «type» en el registro no hay nombre que contrastar y no se inventa (RULE-06).');
+  }
+  if (desviadas.length) {
+    const m = `${desviadas.length} rama(s) no coinciden con lo que «ramaDeTarea» deriva del registro: `
+      + `${desviadas.join(' · ')}. El nombre se DERIVA del «type» del item y de su slug, no se `
+      + 'elige. Una rama ya creada se termina como empezo —renombrarla rompe su pull request—, '
+      + 'asi que esto se arregla en la SIGUIENTE.';
+    if (gate === 'G4') fail('FDGE-R19', m); else warn('FDGE-R19', m);
+  } else if (!sinTipo.length) {
+    ok('FDGE-R19', 'los nombres de rama coinciden con los que deriva el registro.');
+  }
+}
+
+// ─── SUITE-R44 · un aplazado que nadie mira   PT-139 ─────────────────────────
+//
+// PT-137 construyo la puerta de vuelta y PT-138 escribe cuando cruzarla. Sin compuerta, los dos
+// son documentacion: un campo que nadie mira es un campo que se rellena mal.
+//
+// Un aplazado de ayer y uno de hace meses eran IDENTICOS en el tablero, y tambien indistinguibles
+// de un abandono. La numeracion paso de PT-134 a PT-143 sin que nada lo notara.
+//
+// NO CIERRA NADA POR SU CUENTA: decidir que pasa con un aplazado caducado es humano (SUITE-R06).
+// La compuerta OBLIGA A MIRARLO, y ahi termina su trabajo.
+function checkAplazados() {
+  const aplazados = (reg?.allocations ?? []).filter((a) => a?.status === 'DEFERRED');
+  if (!aplazados.length) { ok('SUITE-R44', 'no hay aplazados vivos que revisar.'); return; }
+
+  // CE-010 · la fecha de HOY se deriva; un literal aqui caducaria solo. Se prefiere la del ultimo
+  // commit —la que usa el resto del marco— y el reloj del sistema cuando no hay git, que es la
+  // misma leccion que PT-138 aprendio dentro de «aplazar».
+  let hoy = null;
+  try {
+    hoy = execFileSync('git', ['log', '-1', '--format=%cs'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+  } catch { /* sin git */ }
+  if (!hoy) hoy = new Date().toISOString().slice(0, 10);
+
+  const sinBloque = [];
+  const caducados = [];
+  const exentos = [];
+  for (const a of aplazados) {
+    // CE-014 · una regla nueva NO juzga hacia atras. Un aplazado escrito antes de que existiera
+    // «tracker aplazar» no pudo declarar lo que nadie le pedia: convertirlo en deuda seria
+    // castigar trabajo correcto por haber ocurrido antes.
+    if (!rigeDesde('LEX-R34', a?.suite_version ?? '0.0.0')) { exentos.push(a.id); continue; }
+    const p = a.aplazamiento;
+    if (!p || !p.reentrada || !p.revision || !p.dueno) { sinBloque.push(a.id); continue; }
+    if (String(p.revision) <= hoy) {
+      const dias = Math.round((Date.parse(hoy) - Date.parse(String(p.revision))) / 86400000);
+      caducados.push(`${a.id} (${dias} dia(s), responde ${p.dueno})`);
+    }
+  }
+
+  // El mensaje DICE QUE HACER. Un aviso que no dice cual es el siguiente comando obliga a ir a
+  // buscarlo, y eso es lo que hace que se ignore.
+  if (sinBloque.length) {
+    const m = `${sinBloque.length} aplazado(s) sin declarar cuando se revisan ni quien responde: `
+      + `${sinBloque.join(' · ')}. Un aplazado asi no se distingue de un abandono. `
+      + 'Se les pone con:  tracker aplazar PT-NNN --reentrada "..." --revision AAAA-MM-DD --dueno "..." --aplicar';
+    if (gate === 'G4') fail('SUITE-R44', m); else warn('SUITE-R44', m);
+  }
+  if (caducados.length) {
+    const m = `${caducados.length} aplazado(s) con la revision VENCIDA: ${caducados.join(' · ')}. `
+      + 'La compuerta obliga a mirarlos, no decide por nadie (SUITE-R06): se retoman con '
+      + '«tracker retomar», se les mueve la fecha con «tracker aplazar», o se cierran.';
+    if (gate === 'G4') fail('SUITE-R44', m); else warn('SUITE-R44', m);
+  }
+  if (exentos.length) {
+    warn('SUITE-R44', `${exentos.length} aplazado(s) anteriores a LEX-R34 no se juzgan hacia atras `
+      + `(${exentos.join(' · ')}): no pudieron declarar lo que nadie les pedia. Ponerles el bloque `
+      + 'es una decision, no una deuda.');
+  }
+  if (!sinBloque.length && !caducados.length) {
+    ok('SUITE-R44', `${aplazados.length - exentos.length} aplazado(s) con revision declarada y al dia.`);
+  }
+}
+
 // ─── INTAKE-R09 · el Intake del lote ─────────────────────────────────────────
 // INTAKE-R08 exigía changes/EP-NNN-slug/intake.md sin decir qué contiene. Ahora hay
 // plantilla (EPIC-INTAKE.md) y esto comprueba que el lote la respeta.
@@ -2069,7 +2209,18 @@ function checkPT(pt, { gate } = {}) {
     if (!rows.length) fail('FDGE-R15', `${pt}: traceability.md no contiene ninguna fila AC-nn reconocible.`);
     acs = rows.map((r) => r.ac);
     const testExempt = type === 'CHORE' || track === 'EXPRESS';
+    // PT-134 · UN CRITERIO PUEDE DECAER, y hasta ahora no habia donde decirlo. FDGE-R15 exige un
+    // TS a TODO AC; cuando el mundo cambia debajo y el criterio deja de aplicar, no puede tenerlo,
+    // y quedaban dos salidas y las dos malas: fingir «verified: true» sobre algo que ya no se
+    // comprueba, o un Orphan Criterion permanente que nadie puede cerrar.
+    //
+    // Se declara escribiendo «CAIDO» en la celda del escenario Y un motivo en el manifiesto. LAS
+    // DOS COSAS: la fila sola seria una palabra que apaga una comprobacion, y el motivo solo no se
+    // veria al leer la matriz. Un AC caido NO cuenta como verificado (AC-02).
+    const esCaido = (r) => /^[ 	]*`?CA[IÍ]DO`?(?![A-ZÁ-Ú])/i.test(String(r.ts ?? '').trim());
+    const caidos = rows.filter(esCaido).map((r) => r.ac);
     for (const r of rows) {
+      if (esCaido(r)) continue;                 // se juzga abajo, contra el manifiesto
       // AC y TS se exigen desde PHASE 4.
       if (isEmptyCell(r.ts)) fail('FDGE-R15', `${pt}: ${r.ac} sin escenario de test (Orphan Criterion).`);
       // Test y Evidencia solo desde PHASE 6 — antes están legítimamente vacías.
@@ -2082,6 +2233,27 @@ function checkPT(pt, { gate } = {}) {
     }
     if (rows.length && !afterPhase6) {
       ok('FDGE-R15', `${pt}: ${rows.length} criterios con TS asignado (Test/Evidencia se exigen desde PHASE 6).`);
+    }
+    if (caidos.length) {
+      const conMotivo = (manifest?.criteria ?? [])
+        .filter((c) => caidos.includes(c.ac) && String(c.caido ?? '').trim().length >= 12)
+        .map((c) => c.ac);
+      const sinMotivo = caidos.filter((x) => !conMotivo.includes(x));
+      if (afterPhase6 && sinMotivo.length) {
+        fail('FDGE-R15', `${pt}: ${sinMotivo.join(', ')} se declara(n) CAIDO en traceability.md y el `
+          + 'manifiesto no dice POR QUE. Un criterio caido sin motivo es un Orphan Criterion con '
+          + 'otro nombre: la palabra apagaria la comprobacion sin que nadie respondiera de ello.');
+      }
+      const fingidos = (manifest?.criteria ?? [])
+        .filter((c) => caidos.includes(c.ac) && c.verified === true).map((c) => c.ac);
+      if (fingidos.length) {
+        fail('FDGE-R15', `${pt}: ${fingidos.join(', ')} se declara(n) CAIDO y a la vez `
+          + '«verified: true». Un criterio que ya no se comprueba NO esta verificado; decir las dos '
+          + 'cosas es exactamente el verde fingido que declararlo caido existe para evitar.');
+      }
+      if (!sinMotivo.length && !fingidos.length) {
+        ok('FDGE-R15', `${pt}: ${caidos.length} criterio(s) CAIDO con motivo, y ninguno cuenta como verificado.`);
+      }
     }
   }
 
@@ -2375,8 +2547,19 @@ function checkAplazado(pt, rel, { gate }) {
 
     // Si no, tiene que ser un aplazado que RECONOZCA de dónde viene. Citar no basta: sin
     // reciprocidad, apuntar a cualquier PT satisface la regla sin que nadie recoja nada.
-    if (dest.status !== 'DEFERRED') {
-      problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no está DEFERRED ni es hermano de este lote`);
+    // PT-134 · UN APLAZADO QUE SE RETOMA SIGUE SIENDO UN DESTINO VALIDO. Antes de que existiera
+    // «tracker retomar», salir de DEFERRED era imposible, asi que exigir ese estado no tenia
+    // coste. Ahora una retomada rompia la fila de quien la habia aplazado: el trabajo se recoge
+    // MEJOR que antes —esta vivo y con lote que responde— y la comprobacion lo llamaba defecto.
+    // Se reconoce por «retomada», el campo que LEX-R33 escribe, no por adivinar.
+    if (dest.status !== 'DEFERRED' && !dest.retomada) {
+      problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que no está DEFERRED ni retomada ni es hermano de este lote`);
+    } else if (dest.retomada && dest.status !== 'DEFERRED') {
+      // Retomada: el destino ya no aparca nada, lo esta haciendo. La reciprocidad sigue
+      // exigiendose sobre «origin», que es lo que no se pierde al retomar.
+      if (!String(dest.origin ?? '').includes(pt)) {
+        problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que fue retomada pero su «origin» no menciona ${pt}: la cita no es recíproca`);
+      }
     } else if (!String(dest.origin ?? '').includes(pt)) {
       problemas.push(`«${celdas[0].slice(0, 44)}» cita ${cita}, que está DEFERRED pero su «origin» no menciona ${pt}: la cita no es recíproca`);
     }
@@ -2499,6 +2682,9 @@ checkInstallLog();
 checkReconciliation();
 checkAislamiento();
 checkEpics();
+checkAplazados();
+checkManejadores();
+checkNombreDeRama();
 GRAPH = graphState(reg);
 if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);
 else if (GRAPH.state === 'SUSPECT') warn('FDGE-R43', `Grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);

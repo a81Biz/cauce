@@ -1,0 +1,24 @@
+# AC-04 · PT-140 · el codigo DISTINGUE los tres estados
+
+No hay caso que fuerce el tercero: exigiria un remoto que exista y falle a la vez sin tocar
+la red. Lo que se establece es que el codigo los distingue, y aqui esta la rama que lo hace.
+
+    let enRemoto = null;
+    try {
+      const o = execFileSync('git', ['ls-remote', '--heads', 'origin', rama],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+      enRemoto = o.length > 0;
+    } catch { enRemoto = null; }
+    if (enRemoto === true) {
+      fail('SUITE-R31', `«${rama}» no existe en local y SI en origin: proyectar empezaria un linaje `
+        + 'NUEVO y la publicacion seria rechazada sin decir por que. Traela primero:  '
+        + `git branch ${rama} origin/${rama}`);
+      return { rama: null, motivo: 'sin rama local y con rama remota' };
+    }
+    if (enRemoto === null) {
+      fail('SUITE-R31', `«${rama}» no existe en local y NO SE PUDO MIRAR el remoto. No saber no es `
+        + 'permiso (RULE-06): empezar de cero podria descartar una historia que existe. '
+        + `Comprueba con:  git ls-remote --heads origin ${rama}`);
+      return { rama: null, motivo: 'remoto no evaluable' };
+    }
+    // Se miro y no esta en ninguna parte: es la primera vez, y SE DICE.

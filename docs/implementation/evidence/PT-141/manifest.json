@@ -1,0 +1,90 @@
+{
+  "pt": "PT-141",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El catch reporta el fallo REAL en vez de lanzar uno nuevo",
+      "tests": [
+        "selftest.sh:un catch que interpola algo fuera de ambito se nombra",
+        "selftest.sh:…y el mismo catch con la variable buena, no"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/manejadores.txt"
+      ],
+      "verified": true,
+      "nota": "tracker.mjs:1849 interpolaba «origen», que no existe en ese ambito. Se vio ejecutando «abrir --aplicar»: revento con «origen is not defined» Y AUN ASI HABIA CREADO EL ISSUE #262."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Se enumeran todos los catch que referencian identificadores fuera de ambito, sin ahogar en falsos",
+      "tests": [
+        "selftest.sh:lo declarado dentro del catch no es hallazgo",
+        "selftest.sh:lo declarado en la funcion que envuelve, tampoco",
+        "selftest.sh:el texto de una cadena no es un identificador",
+        "selftest.sh:un comentario que explica el defecto no es el defecto"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "AFINAR LA HEURISTICA ES EL TRABAJO: 9 hallazgos con SEIS falsos -> 1 real -> 0. Un detector que grita seis veces de nueve se apaga, y entonces no detecta nada. Los cuatro filtros salieron cada uno de un falso positivo REAL y cada uno tiene su caso."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El enumerador se ejecuta en la bateria: no es un barrido de una vez",
+      "tests": [
+        "selftest.sh:el arbol real no tiene manejadores rotos"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Y ademas corre en verify-fdge en cada corrida: avisa durante el trabajo y falla en G4."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Un comando que falla a mitad DICE que llego a hacer",
+      "tests": [],
+      "evidence": [
+        "salidas/manejadores.txt"
+      ],
+      "verified": true,
+      "nota": "SIN TS Y SE DICE POR QUE: forzar el fallo de la republicacion exigiria una plataforma que acepte la llamada y falle al escribir. Lo que se establece es que el mensaje YA lo dice — interpola el error real — y esta en la evidencia."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Lo no mecanizable se declara con su numero",
+      "tests": [
+        "selftest.sh:sin fuentes devuelve null, no cero"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Es una HEURISTICA: reconoce la forma que ya mordio, no sustituye a un analizador (SUITE-R26). Y sin fuentes devuelve null, no cero: no se afirma que no haya."
+    }
+  ],
+  "defectos_al_construirlo": [
+    {
+      "que": "Los casos importaban el modulo con una ruta absoluta.",
+      "detalle": "En Windows eso no es un especificador de modulo valido y los ocho reventaron. `mlib` existe desde hace versiones y hace exactamente eso con pathToFileURL.",
+      "por_que_importa": "No consultarlo es LA MISMA FORMA que PT-143 arregla en asignar: la informacion estaba a diez lineas."
+    },
+    {
+      "que": "El «\\b» del reconocedor se convirtio en un byte de control 0x08.",
+      "detalle": "El regex COMPILABA Y NO CASABA NADA, y el barrido devolvio CERO — un cero que parecia una medicion.",
+      "clase": "CE-002",
+      "quien_lo_cazo": "audit.mjs, que tiene esa comprobacion exactamente para esto."
+    }
+  ],
+  "measured": {
+    "casos": 8,
+    "hallazgos_primera_version": 9,
+    "falsos_de_esos": 6,
+    "hallazgos_tras_afinar": 1,
+    "hallazgos_tras_arreglar": 0,
+    "herramientas_barridas": 17
+  }
+}

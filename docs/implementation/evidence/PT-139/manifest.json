@@ -1,0 +1,83 @@
+{
+  "pt": "PT-139",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un DEFERRED sin bloque avisa durante el trabajo y falla en G4",
+      "tests": [
+        "selftest.sh:un aplazado sin bloque se nombra",
+        "selftest.sh:…y en G4 deja de ser un aviso"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Sin compuerta, PT-137 y PT-138 eran documentacion: un campo que nadie mira es un campo que se rellena mal."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un DEFERRED con la revision vencida falla en G4, y dice cuantos dias lleva",
+      "tests": [
+        "selftest.sh:un aplazado con la revision vencida se nombra",
+        "selftest.sh:…y dice cuantos dias lleva",
+        "selftest.sh:…y de quien es"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "«Vencido» sin la cifra no distingue dos dias de dos anos, que es justo lo que hace falta para decidir. Y sin el dueno, el aviso no tiene destinatario."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La fecha de hoy se deriva, no se cablea",
+      "tests": [
+        "selftest.sh:el que esta al dia NO se nombra"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "CE-010. Se deriva del ultimo commit, y del reloj del sistema cuando no hay git. El fixture usa 2099 para que el caso NO CADUQUE SOLO: un literal cercano pasaria hoy y fallaria el mes que viene por una razon que no es la suya."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Lo anterior a la regla no se juzga hacia atras",
+      "tests": [
+        "selftest.sh:el anterior a la regla NO se juzga",
+        "selftest.sh:…y se dice cual es"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "CE-014. PT-025 esta aplazado desde antes de que existiera tracker aplazar: no pudo declarar lo que nadie le pedia. Se exime Y SE DICE — ponerle el bloque es una decision de su dueno, no una deuda."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El aviso dice que hacer, y no decide por nadie",
+      "tests": [
+        "selftest.sh:el aviso nombra el comando que lo arregla",
+        "selftest.sh:…y el del caducado nombra los tres caminos",
+        "selftest.sh:la compuerta obliga a mirar, no decide"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Cerrar automaticamente un aplazado caducado seria SUITE-R06 roto por comodidad. La compuerta obliga a MIRARLO y ahi acaba su trabajo."
+    }
+  ],
+  "defecto_al_construirlo": {
+    "que": "Siete casos antiguos afirmaban sobre el ID DE LA REGLA, no sobre el hallazgo.",
+    "detalle": "«chkno … SUITE-R44» significaba «que esta regla no diga nada». PT-139 le anadio una clausula, la regla empezo a hablar en corridas donde antes callaba, y siete casos que miden OTRA COSA se pusieron rojos.",
+    "por_que_importa": "No es que el codigo este mal: el patron era demasiado grueso. Afirmar sobre un ID de regla acopla el caso a todo lo que esa regla pueda decir en el futuro.",
+    "arreglo": "Afinados al hallazgo concreto —«no declaran su destino»— y el septimo a «PT-020:», que es la forma en que verify-fdge le EXIGE algo a un PT. Mencionar no es exigir."
+  },
+  "measured": {
+    "aplazados_del_fixture": 4,
+    "clases_cubiertas": "sin bloque · caducado · al dia · anterior a la regla",
+    "auditoria": "sin huecos · cobertura mecanica 130/236"
+  }
+}

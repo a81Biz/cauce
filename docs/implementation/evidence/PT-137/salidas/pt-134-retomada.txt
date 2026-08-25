@@ -1,0 +1,6 @@
+tracker · github · acción retomar
+
+  · PT-134: DEFERRED -> DRAFT · PHASE 1 · retomada por Alberto Martínez el 2026-08-24 · epica EP-021
+  · PT-134: retomada publicada en #255
+
+Sin divergencias.

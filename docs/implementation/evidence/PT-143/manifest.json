@@ -1,0 +1,71 @@
+{
+  "pt": "PT-143",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El prefijo no se toma del valor de una bandera",
+      "tests": [
+        "selftest.sh:--tipo BUG sin prefijo ya NO crea BUG-001",
+        "selftest.sh:…y el identificador no lleva el tipo"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt",
+        "salidas/prefijo.txt"
+      ],
+      "verified": true,
+      "nota": "Medido con --ver ANTES de escribir nada, que es para lo que esa bandera existe: «--tipo BUG» sin un PT delante creaba BUG-001."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un prefijo fuera de los declarados en LEXICON falla en vez de crearse",
+      "tests": [
+        "selftest.sh:un prefijo que LEXICON no declara FALLA",
+        "selftest.sh:…y enumera los que si estan declarados"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Un identificador con un prefijo que ningun contador reconoce es un identificador que nadie puede volver a encontrar."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Sin prefijo explicito, el defecto sigue siendo PT y se dice",
+      "tests": [
+        "selftest.sh:un prefijo declarado sigue funcionando",
+        "selftest.sh:--tipo BUG sin prefijo ya NO crea BUG-001"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "El caso del prefijo declarado es el que hace validos a los demas: sin el, una lectura que ignorase TODOS los prefijos tambien pasaria el primero."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El resto de acciones que leen argumentos posicionales se revisan por el mismo patron",
+      "tests": [],
+      "evidence": [
+        "salidas/prefijo.txt"
+      ],
+      "verified": true,
+      "nota": "SE CUMPLE POR LA VIA DE LA FUENTE UNICA, y se dice: en vez de barrer todas las acciones, la lectura del prefijo pasa a consultar CON_VALOR, que es donde YA vive que banderas llevan valor. Una lista repetida de banderas a excluir seria la copia que diverge (SUITE-R38). Excluir solo «--tipo» habria sido perseguir el sintoma."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Ningun identificador ya asignado cambia",
+      "tests": [],
+      "evidence": [
+        "salidas/prefijo.txt"
+      ],
+      "verified": true,
+      "nota": "SUITE-R09 es append-only. Esto solo cambia COMO NACE el siguiente."
+    }
+  ],
+  "measured": {
+    "casos": 5,
+    "prefijos_declarados": 10,
+    "clase": "CE-003 · argumento por deteccion, siete instancias contadas"
+  }
+}

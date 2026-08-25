@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **13.0.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **13.1.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -248,7 +248,44 @@ El bloque `graph` hace computable la frescura del grafo (`FDGE-R43`): un grafo g
 
 `LEX-R06` · Asignar un identificador es: leer `counters`, incrementar, escribir el nuevo
 valor **y** añadir la entrada a `allocations` en la misma operación. Si el agente no puede
-escribir en `REGISTRY.json`, no puede asignar el identificador: se detiene y reporta.
+escribir en `REGISTRY.json`, no puede asignar el identificador: se detiene y reporta. **El prefijo no se adivina** (`PT-143`): los declarados son los de `counters` —`PT` · `EP` · `QA` · `QR` · `QD` · `H` · `E` · `P` · `R` · `INC`— y viven **una sola vez** en `tools/patrones.mjs` · `PREFIJOS_DE_ID` (`SUITE-R38`). Uno que no esté en esa lista **falla** en vez de crearse: `tracker asignar` derivaba el prefijo del primer argumento en mayúsculas, y el valor de `--tipo` también lo es, así que `--tipo BUG` sin un `PT` delante creaba **`BUG-001`** — un espacio de nombres que ningún contador reconoce. Es `CE-003`, argumento por detección, y la información para no cometerlo estaba a diez líneas: `CON_VALOR` ya declara qué banderas llevan valor.
+
+`LEX-R33` · **`retomada` — el rastro de un aplazado que vuelve.**   `PT-137`
+
+Una `allocation` que sale de `DEFERRED` declara **de dónde viene**:
+
+```json
+"retomada": { "por": "Alberto Martínez", "fecha": "2026-08-24", "de": "DEFERRED" }
+```
+
+Lo escribe **`tracker retomar`** y nadie más. Sin este campo, una tarea retomada es
+**indistinguible** de una que nunca se aplazó: el estado `DRAFT` no recuerda de dónde viene.
+`SUITE-R44` existe porque algo aplazado se perdió; perder el rastro de lo **des**aplazado sería
+el mismo defecto con el signo cambiado.
+
+`DEFERRED` es el **único** estado terminal con vuelta. `REJECTED` no la tiene y no debe tenerla:
+aplazar no es rechazar.
+
+`LEX-R34` · **`aplazamiento` — un aplazado dice cuándo se revisa y quién responde.**   `PT-138`
+
+```json
+"aplazamiento": {
+  "reentrada": "cuando exista un proyecto Azure real contra el que probar",
+  "revision": "2026-11-01",
+  "dueno": "Alberto Martínez",
+  "de": "PT-113",
+  "fecha": "2026-08-24"
+}
+```
+
+Lo escribe **`tracker aplazar`** y nadie más, y **no hay otra forma de escribir `DEFERRED`**: la
+obligación no se comprueba después, se impone al escribir. `revision` es una fecha **futura** —una
+revisión ya pasada nace caducada— y `dueno` se contrasta contra `firmantes`/`personas`
+(`SUITE-R27`).
+
+Existe porque los dos únicos aplazados del repositorio se escribieron a mano y ninguno declaraba
+nada: uno de 2026-08-23 y otro de meses antes eran **indistinguibles** en el tablero, y también
+indistinguibles de un abandono.
 
 
 ### 4.4 Identificadores de **clase de evento** — `CE-NNN`   `PT-118`

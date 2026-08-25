@@ -188,6 +188,10 @@ export const RIGE_DESDE = {
   'SUITE-R44': [6, 0, 1],         // c7ba859f
   'SUITE-R45': [7, 0, 0],         // 7fd7eb41
   'SUITE-R46': [7, 0, 0],         // f0de9489
+  'LEX-R33': [13, 1, 0],          // PT-137 · la puerta de vuelta de un aplazado
+  'LEX-R34': [13, 1, 0],          // PT-138 · un aplazado declara cuando se revisa
+  'FDGE-R19b': [13, 1, 0],        // PT-142 · el nombre de rama se contrasta con el derivado
+  'SUITE-R56b': [13, 1, 0],       // PT-141 · los manejadores de error se enumeran
   'SUITE-R47': [7, 7, 0],         // 976b8bec
   'SUITE-R51': [7, 3, 0],         // 567eab2c
 };
@@ -1280,6 +1284,18 @@ export const DESENLACES_DE_PARADA = [
 
 export const TIPOS_DE_ITEM = ['BUG', 'FEATURE', 'REFACTOR', 'INVESTIGATION', 'CHORE'];
 
+/**
+ * PT-143 · Los prefijos de identificador que LEXICON declara, una sola vez.
+ *
+ * `asignar` derivaba el prefijo con `ARGS.find(a => /^[A-Z]+$/)`: el valor de `--tipo` es tambien
+ * un argumento en mayusculas, asi que `--tipo BUG` sin un `PT` delante creaba `BUG-001` — un
+ * espacio de nombres que LEXICON no reconoce, nacido de adivinar lo que era un argumento.
+ *
+ * Es CE-003, argumento por deteccion. `CON_VALOR` existe justo para saber que banderas llevan
+ * valor y la lectura del prefijo no lo consultaba: la informacion estaba a diez lineas.
+ */
+export const PREFIJOS_DE_ID = ['PT', 'EP', 'QA', 'QR', 'QD', 'H', 'E', 'P', 'R', 'INC'];
+
 // ── PT-123 · BACKLOG.md · el bloque DERIVADO, entre marcas ──────────────────
 //
 // El archivo dice de si mismo «regenerable desde REGISTRY.json» desde la primera version, el
@@ -2153,4 +2169,113 @@ export function nodosSinVisitar(fases, faseActual, rastro) {
     else sinVisitar.push(f.n);
   }
   return { visitados, sinVisitar, sinEvaluar };
+}
+
+/**
+ * PT-141 · Manejadores de error que referencian un identificador que no existe en su ambito.
+ *
+ * `tracker.mjs:1849` tenia esto:
+ *
+ *     catch { fail('SUITE-R56', `... tiene el enlace ${origen} y no se pudo reescribir.`); }
+ *
+ * `origen` no existe ahi —la variable se llama `ref`—, asi que EL MANEJADOR DE ERROR LANZA OTRO
+ * ERROR: tapa el fallo real, mata el comando, y lo hace en la ruta menos probada del codigo, la
+ * que solo corre cuando algo YA ha ido mal.
+ *
+ * Se vio ejecutando `tracker abrir --aplicar`: revento con «origen is not defined» Y AUN ASI
+ * HABIA CREADO EL ISSUE. Un comando que falla y deja efecto es lo contrario de lo que este marco
+ * promete.
+ *
+ * QUE MIDE, exactamente: un bloque `catch` cuyo cuerpo interpola un identificador que (a) no es
+ * el que el propio `catch` enlaza, (b) no es una funcion ni una constante del modulo, y (c) no se
+ * declara dentro del bloque. Es una heuristica y se declara como tal: no sustituye a un
+ * analizador, reconoce LA FORMA que ya mordio.
+ *
+ * `fuentes` es `[{ nombre, texto }]`. Devuelve `null` si no se le pasa nada —no se afirma que no
+ * haya— y si no, la lista de hallazgos con archivo, linea y el identificador.
+ */
+export function manejadoresRotos(fuentes) {
+  if (!Array.isArray(fuentes) || !fuentes.length) return null;   // sin fuentes: SIN EVALUAR
+  const hallazgos = [];
+  for (const { nombre, texto } of fuentes) {
+    // Los COMENTARIOS se quitan antes de mirar. El comentario que EXPLICA este defecto lo
+    // contiene —«catch { … ${origen} … }»— y la autorreferencia ya mordio cuatro veces en este
+    // repositorio: el lint de PT-135 se encontro a si mismo, y PT-130 tuvo el mismo problema.
+    //
+    // Se sustituyen por espacios en vez de borrarse, para que los numeros de linea no se muevan:
+    // un hallazgo que apunta a la linea equivocada es peor que no tenerlo.
+    const src = String(texto ?? '')
+      .replace(/\/\*[\s\S]*?\*\//g, (b) => b.replace(/[^\r\n]/g, ' '))
+      .replace(/(^|[^:])\/\/[^\r\n]*/g, (b, p) => p + ' '.repeat(b.length - p.length));
+    const lineas = src.split(/\r?\n/);
+    // TODO lo que el archivo declara EN CUALQUIER SITIO. No se distingue el ambito —eso exigiria
+    // un analizador— y por eso la heuristica solo afirma lo SEGURO: si un identificador no se
+    // declara NUNCA en el archivo, no puede estar en ambito dentro de un catch suyo.
+    //
+    // La primera version solo miraba el nivel superior y daba NUEVE hallazgos, seis de ellos
+    // locales de la funcion que envuelve al catch. Un detector que grita seis veces de nueve no
+    // se usa: se apaga.
+    const globales = new Set();
+    for (const m of src.matchAll(/(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/g)) globales.add(m[1]);
+    for (const m of src.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g)) globales.add(m[1]);
+    for (const m of src.matchAll(/(?:const|let|var)\s*\{([^}]+)\}/g)) {
+      for (const x of m[1].split(',')) globales.add(x.trim().split(/[:=]/)[0].trim());
+    }
+    for (const m of src.matchAll(/\(([^)]*)\)\s*=>/g)) {
+      for (const x of m[1].split(',')) {
+        const nom = x.trim().split(/[:=]/)[0].trim().replace(/^\.\.\./, '');
+        if (/^[A-Za-z_$][\w$]*$/.test(nom)) globales.add(nom);
+      }
+    }
+    for (const m of src.matchAll(/function[^(]*\(([^)]*)\)/g)) {
+      for (const x of m[1].split(',')) {
+        const nom = x.trim().split(/[:=]/)[0].trim().replace(/^\.\.\./, '');
+        if (/^[A-Za-z_$][\w$]*$/.test(nom)) globales.add(nom);
+      }
+    }
+    for (const m of src.matchAll(/import\s+\{([^}]+)\}/g)) {
+      for (const x of m[1].split(',')) globales.add(x.trim().split(/\s+as\s+/).pop().trim());
+    }
+    lineas.forEach((linea, i) => {
+      if (/^[ 	]*(?:\/\/|\*)/.test(linea)) return;   // un comentario que EXPLICA el defecto no es el defecto
+      const m = linea.match(/\bcatch\s*(?:\(\s*([A-Za-z_$][\w$]*)\s*\))?\s*\{/);
+      if (!m) return;
+      const enlazado = m[1] ?? null;
+      // El cuerpo: desde la llave hasta que se equilibra, con un techo de 8 lineas. Un catch mas
+      // largo que eso no es un manejador, es otra funcion.
+      let profundidad = 0;
+      let cuerpo = '';
+      for (let k = i; k < Math.min(lineas.length, i + 8); k += 1) {
+        const trozo = k === i ? lineas[k].slice(lineas[k].indexOf('{', m.index)) : lineas[k];
+        cuerpo += trozo + ' ';
+        for (const c of trozo) {
+          if (c === '{') profundidad += 1;
+          else if (c === '}') profundidad -= 1;
+        }
+        if (profundidad <= 0 && k > i - 1) break;
+      }
+      // Lo que se declara DENTRO del bloque tambien esta en ambito.
+      const locales = new Set();
+      for (const d of cuerpo.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g)) locales.add(d[1]);
+      // Solo se miran las INTERPOLACIONES: `${x}`. Es donde vivia el defecto y donde un
+      // identificador inexistente revienta en tiempo de ejecucion sin que nada lo avise antes.
+      for (const interp of cuerpo.matchAll(/\$\{([^}]*)\}/g)) {
+        // Las CADENAS de dentro no son identificadores. `${ref ?? 'sin enlace'}` daba «sin» y
+        // «enlace»: el detector leia el texto que el mensaje muestra al humano. Se quitan antes
+        // de mirar, igual que PT-135 tuvo que descartar heredocs en el lint de la bateria.
+        const expr = String(interp[1]).replace(/'[^']*'|"[^"]*"/g, "''");
+        for (const id of expr.matchAll(/(^|[^.\w$])([A-Za-z_$][\w$]*)/g)) {
+          const nom = id[2];                     // el grupo 1 descarta el acceso a propiedad
+          if (nom === enlazado || locales.has(nom) || globales.has(nom)) continue;
+          if (['String', 'Number', 'Object', 'JSON', 'Math', 'Array', 'Boolean', 'process',
+            'undefined', 'null', 'true', 'false', 'length', 'message', 'stack', 'name',
+            'join', 'slice', 'map', 'filter', 'split', 'trim', 'toUpperCase', 'toLowerCase',
+            'push', 'includes', 'replace', 'match', 'id', 'issue', 'status', 'rule', 'msg'].includes(nom)) continue;
+          if (/^[a-z]$/.test(nom)) continue;                    // parametros de una letra: ruido
+          hallazgos.push({ archivo: nombre, linea: i + 1, identificador: nom, enlazado });
+        }
+      }
+    });
+  }
+  return hallazgos;
 }

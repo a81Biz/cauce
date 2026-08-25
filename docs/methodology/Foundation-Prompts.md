@@ -4,7 +4,7 @@
 > Procedimiento: [Foundation-Implementation.md](Foundation-Implementation.md)
 > Reglas: [RULES.md](RULES.md) §Parte 2 · Vocabulario: [LEXICON.md](LEXICON.md)
 >
-> Suite version: **13.0.0**
+> Suite version: **13.1.0**
 
 ---
 

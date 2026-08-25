@@ -2112,6 +2112,452 @@ proj136_cerrable() {
 }
 chk   "…y con todas terminales, READY -> CLOSED"  "READY -> CLOSED"  int136 "$(proj136_cerrable)"
 
+# ── PT-141 · EP-021 · el manejador de error que lanza otro error ──────────────────────────────
+#
+# `tracker.mjs:1849` interpolaba `origen`, que no existe en ese ambito —la variable se llama
+# `ref`—: el catch que debia REPORTAR el fallo lanzaba un ReferenceError distinto, tapaba el real
+# y mataba el comando. Se vio ejecutando «abrir --aplicar», que revento Y AUN ASI HABIA CREADO EL
+# ISSUE. Un error dentro de un catch es INVISIBLE hasta que esa rama corre, y esa rama solo corre
+# cuando algo ya ha ido mal.
+# Se usa `mlib`, que importa el modulo por pathToFileURL: en Windows una ruta absoluta NO es un
+# especificador de modulo valido, y la primera version lo pasaba a pelo. El helper existe desde
+# hace versiones y no consultarlo es la misma forma que PT-143 arregla en «asignar».
+SRC_ROTO='function f(a) { try { g(); } catch { fail(`${a.id} enlace ${origen} roto`); } }'
+SRC_SANO='function f(a) { const ref = 1; try { g(); } catch { fail(`${a.id} enlace ${ref} roto`); } }'
+SRC_LOCAL='function f(a) { try { g(); } catch (e) { const x = 1; fail(`${x} ${e.message}`); } }'
+SRC_ENVOLV='function f(a) { const otro = 2; try { g(); } catch (e) { fail(`${otro} ${e.message}`); } }'
+SRC_CADENA='function f(a) { const ref = 1; try { g(); } catch (e) { fail(`${ref ?? "sin enlace"}`); } }'
+SRC_COMENT='function f(a) { /* catch { usa ${origen} } */ return a; }'
+CUERPO141='const h=m.manejadoresRotos([{nombre:"x.mjs",texto:process.env.SRC}]); console.log(h===null?"NULL":(h.length?h.map(x=>x.identificador).join(","):"VACIO"));'
+
+# AC-01 · el defecto que la tarea persigue, reconocido.
+SRC="$SRC_ROTO"   mlib "un catch que interpola algo fuera de ambito se nombra"  "origen"  "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+SRC="$SRC_SANO"   mlib "…y el mismo catch con la variable buena, no"            "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# AC-02 · lo declarado DENTRO del bloque y en la funcion que lo envuelve SI esta en ambito. La
+# primera version no miraba lo segundo y daba SEIS falsos de nueve: un detector que grita asi se
+# apaga, y entonces no detecta nada.
+SRC="$SRC_LOCAL"  mlib "lo declarado dentro del catch no es hallazgo"           "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+SRC="$SRC_ENVOLV" mlib "lo declarado en la funcion que envuelve, tampoco"       "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# Una CADENA dentro de la interpolacion no es un identificador: «${ref ?? 'sin enlace'}» daba
+# «sin» y «enlace», que es el texto que el mensaje ensena al humano.
+SRC="$SRC_CADENA" mlib "el texto de una cadena no es un identificador"          "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# Y un comentario que EXPLICA el defecto no es el defecto: la autorreferencia ya mordio tres veces.
+SRC="$SRC_COMENT" mlib "un comentario que explica el defecto no es el defecto"  "VACIO"   "$SUITE/tools/patrones.mjs"  "$CUERPO141"
+# RULE-06 · sin fuentes no se afirma que no haya.
+mlib "sin fuentes devuelve null, no cero"  "NULL"  "$SUITE/tools/patrones.mjs"   'console.log(m.manejadoresRotos([])===null?"NULL":"AFIRMA");'
+# AC-03 · corre sobre el ARBOL REAL: no es un barrido de una vez.
+MTH_TOOLS="$SUITE/tools" mlib "el arbol real no tiene manejadores rotos"  "ARBOL LIMPIO"  "$SUITE/tools/patrones.mjs"   'const fs=require("fs"); const d=process.env.MTH_TOOLS; const f=fs.readdirSync(d).filter(x=>x.endsWith(".mjs")).map(n=>({nombre:n,texto:fs.readFileSync(d+"/"+n,"utf8")})); const h=m.manejadoresRotos(f); console.log(h.length===0?"ARBOL LIMPIO":"ROTOS: "+h.map(x=>x.archivo+":"+x.linea).join(" "));'
+
+# ── PT-142 · EP-021 · la rama no se contrastaba con la que la regla deriva ─────────────────────
+#
+# `ramaDeTarea` deriva el nombre correcto y se usaba UNA SOLA VEZ, como PROPUESTA. Tres ramas con
+# `type` y slug inventados pasaron sin que nada lo dijera. Es CE-007.
+CUERPO142='console.log(String(m.ramaDeTarea(process.env.T||null,"PT-001","un-slug",process.env.U||null)));'
+
+T=BUG                          mlib "el nombre se DERIVA del type del item"     "bug/PT-001-un-slug"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+T=BUG U="Alberto Martínez"     mlib "…y lleva el usuario cuando lo hay"         "bug/alberto-martinez/PT-001-un-slug"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+# RULE-06 · sin «type» NO hay nombre de rama: se dice, no se adivina. Es lo que devolvia null
+# cuando se pidio el de un lote, y se invento el nombre igual.
+mlib "sin type no hay nombre esperado: null"    "null"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+U="Alberto Martínez"           mlib "un lote NO lleva type, y por eso da null"  "null"  "$SUITE/tools/patrones.mjs" "$CUERPO142"
+
+# ── PT-143 · EP-021 · asignar tomaba el prefijo del primer argumento en mayusculas ─────────────
+#
+# El valor de `--tipo` tambien esta en mayusculas: «--tipo BUG» sin un «PT» delante creaba
+# BUG-001, un espacio de nombres que LEXICON no declara. Es CE-003, argumento por deteccion.
+TK143="$SUITE/tools/tracker.mjs"
+proj143() {
+  local d="$WORK/p143"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', counters:{PT:5,EP:1}, allocations:[]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+asg143() { (cd "$1" && shift; node "$TK143" asignar "$@" --ver 2>&1); }
+
+chk   "--tipo BUG sin prefijo ya NO crea BUG-001"   "PT-006"   asg143 "$(proj143)" --slug x --tipo BUG --severidad S2 --titulo t
+chkno "…y el identificador no lleva el tipo"        "BUG-0"    asg143 "$(proj143)" --slug x --tipo BUG --severidad S2 --titulo t
+chk   "un prefijo declarado sigue funcionando"      "EP-002"   asg143 "$(proj143)" EP --slug x --titulo t
+chk   "un prefijo que LEXICON no declara FALLA"     "LEX-R06"  asg143 "$(proj143)" XYZ --slug x --tipo BUG --severidad S2 --titulo t
+chk   "…y enumera los que si estan declarados"      "PT · EP"  asg143 "$(proj143)" XYZ --slug x --tipo BUG --severidad S2 --titulo t
+
+# ── PT-139 · EP-021 · nada media la edad de un aplazado ───────────────────────────────────────
+#
+# PT-137 construyo la puerta de vuelta y PT-138 escribe cuando cruzarla. Sin compuerta, los dos
+# son documentacion: un campo que nadie mira es un campo que se rellena mal.
+V139() { (cd "$1" && node "$SUITE/tools/verify-fdge.mjs" "${@:2}" 2>&1); }
+
+# Proyecto de mentira: un aplazado SIN bloque, uno CADUCADO, uno al dia, y uno anterior a la regla.
+proj139() {
+  local d="$WORK/p139"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes" "$d/docs/methodology"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', firmantes:['Alberto Martínez'], counters:{PT:4},
+      allocations:[
+        {id:'PT-001',slug:'sin-bloque',type:'BUG',status:'DEFERRED',suite_version:'13.1.0'},
+        {id:'PT-002',slug:'caducado',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+         aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2020-01-01',dueno:'Alberto Martínez'}},
+        {id:'PT-003',slug:'al-dia',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+         aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2099-01-01',dueno:'Alberto Martínez'}},
+        {id:'PT-004',slug:'antiguo',type:'BUG',status:'DEFERRED',suite_version:'12.0.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+
+# AC-01 · sin bloque: avisa durante el trabajo y FALLA en G4.
+chk   "un aplazado sin bloque se nombra"          "sin declarar cuando se revisan"  V139 "$(proj139)" --all
+chk   "…y en G4 deja de ser un aviso"             "sin declarar cuando se revisan"  V139 "$(proj139)" --gate G4 PT-001
+# AC-02 · caducado: se nombra Y SE DICE CUANTOS DIAS. «Vencido» sin la cifra no dice si son dos
+# dias o dos anos, que es justo lo que hay que saber para decidir.
+chk   "un aplazado con la revision vencida se nombra"  "revision VENCIDA"  V139 "$(proj139)" --all
+chk   "…y dice cuantos dias lleva"                     "dia(s), responde"  V139 "$(proj139)" --all
+chk   "…y de quien es"                                 "Alberto Martínez"  V139 "$(proj139)" --all
+# AC-03 · LA FECHA DE HOY SE DERIVA. Un literal aqui convertiria el caso en CE-010 —cifra
+# transcrita que caduca— dentro del arnes que la persigue: 2099 no es «hoy», es «muy despues».
+chkno "el que esta al dia NO se nombra"                "PT-003"            V139 "$(proj139)" --all
+# AC-04 · CE-014 · una regla nueva no juzga hacia atras.
+chk   "el anterior a la regla NO se juzga"             "no se juzgan hacia atras"  V139 "$(proj139)" --all
+chk   "…y se dice cual es"                             "PT-004"                    V139 "$(proj139)" --all
+# AC-05 · el mensaje DICE QUE HACER. Un aviso que no nombra el comando obliga a ir a buscarlo.
+chk   "el aviso nombra el comando que lo arregla"      "tracker aplazar PT-NNN"    V139 "$(proj139)" --all
+chk   "…y el del caducado nombra los tres caminos"     "tracker retomar"           V139 "$(proj139)" --all
+# NO CIERRA NADA POR SU CUENTA: decidir que pasa con un caducado es humano.
+chk   "la compuerta obliga a mirar, no decide"         "no decide por nadie"       V139 "$(proj139)" --all
+
+# ── PT-134 · EP-021 · un AC que decae no tenia donde declararse ────────────────────────────────
+#
+# FDGE-R15 exige un TS a TODO AC. Un criterio caido no puede tenerlo, y quedaban dos salidas y las
+# dos malas: fingir verde sobre algo que ya no se comprueba, o un Orphan Criterion permanente.
+# Salio de PT-113, cuyo AC-06 decayo con el reanclaje a la 13.0.0.
+proj134() { # $1 celda del escenario · $2 motivo en el manifiesto · $3 verified
+  local d="$WORK/p134"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation/evidence/PT-001" "$d/changes/PT-001-tarea"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', counters:{PT:1},
+      allocations:[{id:'PT-001',slug:'tarea',type:'FEATURE',severity:'S2',status:'IN_PROGRESS',
+                    phase:6,structural:false,suite_version:'13.1.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  printf '%s\n' '---' 'id: PT-001' 'type: FEATURE' 'status: IN_PROGRESS' 'phase: 6' '---' \
+    '## 3. Como termina' '> Termina cuando: pasa.' > "$d/changes/PT-001-tarea/intake.md"
+  printf '%s\n' '| AC | Criterio | Escenario | Test | Evidencia |' '|:---|:---|:---|:---|:---|' \
+    "| AC-01 | El criterio que decayo | $1 | — | salidas/x.txt |" > "$d/changes/PT-001-tarea/traceability.md"
+  mkdir -p "$d/docs/implementation/evidence/PT-001/salidas"
+  echo "algo" > "$d/docs/implementation/evidence/PT-001/salidas/x.txt"
+  node -e "
+    const fs=require('fs');
+    const c={ac:'AC-01',statement:'x',tests:[],evidence:['salidas/x.txt'],verified:process.argv[3]==='true'};
+    if (process.argv[2]) c.caido=process.argv[2];
+    fs.writeFileSync(process.argv[1], JSON.stringify({pt:'PT-001',criteria:[c]},null,2));
+  " "$d/docs/implementation/evidence/PT-001/manifest.json" "$2" "$3"
+  echo "$d"
+}
+V134() { (cd "$1" && node "$SUITE/tools/verify-fdge.mjs" PT-001 2>&1); }
+
+# AC-01 · declarado CAIDO con motivo: NO es un Orphan Criterion.
+chk   "un AC declarado CAIDO con motivo no es Orphan"  "CAIDO con motivo" \
+  V134 "$(proj134 '`CAÍDO`' 'decayo con el reanclaje a la 13.0.0, que cambio lo que el criterio media' false)"
+chkno "…y no se le exige escenario de test"            "sin escenario de test" \
+  V134 "$(proj134 '`CAÍDO`' 'decayo con el reanclaje a la 13.0.0, que cambio lo que el criterio media' false)"
+# AC-03 · sin motivo, la palabra apagaria la comprobacion sin que nadie respondiera.
+chk   "CAIDO sin motivo en el manifiesto falla"        "no dice POR QUE" \
+  V134 "$(proj134 '`CAÍDO`' '' false)"
+chk   "…y un motivo de dos palabras tampoco vale"      "no dice POR QUE" \
+  V134 "$(proj134 '`CAÍDO`' 'porque si' false)"
+# AC-02 · un criterio caido NO cuenta como verificado. Decir las dos cosas es el verde fingido que
+# declararlo caido existe para EVITAR.
+chk   "CAIDO y verified:true a la vez falla"           "verde fingido" \
+  V134 "$(proj134 '`CAÍDO`' 'decayo con el reanclaje a la 13.0.0, que cambio lo que el criterio media' true)"
+# Y sin la palabra, un AC sin escenario sigue siendo Orphan: la puerta nueva no abre la vieja.
+chk   "sin la palabra, sigue siendo Orphan Criterion"  "Orphan Criterion" \
+  V134 "$(proj134 '' 'da igual el motivo si la fila no lo declara' false)"
+
+# ── PT-140 · EP-021 · proyectar arrancaba un linaje nuevo en silencio ──────────────────────────
+#
+# Ocurrio el 2026-08-24 al dejar una sola rama local. No se perdio nada porque el push habria sido
+# rechazado por no ser fast-forward: protegido POR ACCIDENTE, no por diseño.
+proj140() {
+  local d="$WORK/p140"; rm -rf "$d"; local r="$WORK/p140-remoto"; rm -rf "$r"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', personas:[{nombre:'Alberto Martínez'}], counters:{PT:1},
+      allocations:[{id:'PT-001',slug:'viva',type:'BUG',status:'READY',phase:1}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  (cd "$d" && git init -q . && git config user.name "Alberto Martínez" && git config user.email "a@b" && git add -A && git commit -qm base)
+  git init -q --bare "$r"
+  (cd "$d" && git remote add origin "$r" && git push -q origin HEAD:refs/heads/main 2>/dev/null)
+  echo "$d"
+}
+pro140() { (cd "$1" && node "$SUITE/tools/tracker.mjs" proyectar "${@:2}" 2>&1); }
+
+# AC-02 · si no existe en ninguna parte, la crea Y LO DICE: la primera vez no es un error.
+chk   "sin rama en ningun sitio, la crea y lo dice"  "es la primera proyeccion"  pro140 "$(proj140)"
+# AC-01 · si el remoto la tiene y el local no, SE NIEGA y dice como traerla.
+pro140_solo_remoto() {
+  local d; d=$(proj140)
+  (cd "$d" && node "$SUITE/tools/tracker.mjs" proyectar >/dev/null 2>&1 \
+     && git push -q origin "cauce/alberto-martinez" 2>/dev/null \
+     && git branch -D "cauce/alberto-martinez" >/dev/null 2>&1
+   node "$SUITE/tools/tracker.mjs" proyectar 2>&1)
+}
+chk   "con rama SOLO en el remoto, se niega"      "SUITE-R31"       pro140_solo_remoto
+chk   "…y dice el comando para traerla"           "git branch"      pro140_solo_remoto
+chkno "…y NO empieza un linaje nuevo"             "allocation(es)"  pro140_solo_remoto
+# AC-03 · con la rama local presente, se comporta igual que siempre.
+pro140_normal() {
+  local d; d=$(proj140)
+  (cd "$d" && node "$SUITE/tools/tracker.mjs" proyectar >/dev/null 2>&1
+   node "$SUITE/tools/tracker.mjs" proyectar 2>&1)
+}
+chk   "con la rama local, sigue proyectando igual"  "allocation(es)"  pro140_normal
+chkno "…y ya no dice que sea la primera vez"        "primera proyeccion"  pro140_normal
+
+# ── PT-138 · EP-021 · el aplazado no decia cuando se revisa ni quien responde ─────────────────
+#
+# PT-137 encontro que DEFERRED no tenia SALIDA. Midiendo esta tarea resulta que tampoco tenia
+# ENTRADA: ningun comando escribia el estado, y por eso los dos aplazados que existian no
+# declaraban condicion de reentrada, ni fecha de revision, ni dueno. Eran indistinguibles entre
+# si y de un abandono.
+TK138="$SUITE/tools/tracker.mjs"
+
+proj138() {
+  local d="$WORK/p138"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:2,EP:1},
+      allocations:[
+        {id:'PT-001',slug:'viva',type:'BUG',status:'READY',epic:'EP-001'},
+        {id:'PT-002',slug:'hecha',type:'BUG',status:'INTEGRATED',epic:'EP-001'},
+        {id:'EP-001',slug:'lote',status:'READY'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+apl138() { (cd "$1" && shift; node "$TK138" aplazar "$@" 2>&1); }
+
+# AC-01 · aplazar es la unica via sancionada, y escribe el bloque entero.
+apl138_ok() {
+  local d; d=$(proj138)
+  (cd "$d" && node "$TK138" aplazar PT-001 --reentrada "cuando exista un proyecto Azure real" \
+      --revision 2099-11-01 --dueno "Alberto Martínez" --de PT-002 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='PT-001'); const p=a.aplazamiento||{};
+           console.log(a.status+' '+p.revision+' '+p.dueno+' '+p.de+' '+(p.reentrada?'CON-REENTRADA':'sin'));" "$d"
+}
+chk   "aplazar escribe DEFERRED con su bloque"  "DEFERRED 2099-11-01 Alberto Martínez PT-002 CON-REENTRADA"  apl138_ok
+apl138_seco() {
+  local d; d=$(proj138)
+  (cd "$d" && node "$TK138" aplazar PT-001 --reentrada "cuando exista un proyecto Azure real" \
+      --revision 2099-11-01 --dueno "Alberto Martínez" >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').status);" "$d"
+}
+chk   "sin --aplicar no escribe nada"                "READY"      apl138_seco
+chk   "sobre algo ya terminal se niega"              "terminal"   apl138 "$(proj138)" PT-002 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Alberto Martínez"
+# …pero uno que YA esta DEFERRED se ACTUALIZA: es como se le ponen sus terminos a los que se
+# escribieron a mano antes de que existiera este comando.
+proj138_aplazada() {
+  local d; d=$(proj138)
+  node -e "
+    const fs=require('fs'); const p=process.argv[1]+'/docs/implementation/REGISTRY.json';
+    const r=JSON.parse(fs.readFileSync(p,'utf8'));
+    r.allocations.find(a=>a.id==='PT-001').status='DEFERRED';
+    fs.writeFileSync(p, JSON.stringify(r,null,2));" "$d"
+  echo "$d"
+}
+chk   "un aplazado que YA lo esta se ACTUALIZA"  "se ACTUALIZAN sus terminos"   apl138 "$(proj138_aplazada)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Alberto Martínez"
+
+# AC-02 · los tres se piden JUNTOS y se nombran los que faltan: pedirlos de uno en uno obliga a
+# ejecutar tres veces para descubrir que hacian falta tres.
+chk   "sin --reentrada falla"                        "--reentrada"  apl138 "$(proj138)" PT-001 --revision 2099-11-01 --dueno "Alberto Martínez"
+chk   "sin --revision falla"                         "--revision"   apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --dueno "Alberto Martínez"
+chk   "sin --dueno falla"                            "--dueno"      apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01
+chk   "…y los nombra los TRES de una vez"            "--reentrada · --revision · --dueno"  apl138 "$(proj138)" PT-001
+
+# AC-03 · una celda rellenada para callar la comprobacion no es una condicion.
+chk   "una reentrada trivial no vale"                "SUITE-R26"  apl138 "$(proj138)" PT-001 --reentrada "luego" --revision 2099-11-01 --dueno "Alberto Martínez"
+chk   "…y se dice que lo UTIL no es mecanizable"     "no es mecanizable"  apl138 "$(proj138)" PT-001 --reentrada "luego" --revision 2099-11-01 --dueno "Alberto Martínez"
+
+# AC-04 · una revision ya pasada nace caducada. LA FECHA DE HOY SE DERIVA: un literal aqui
+# convertiria este caso en CE-010 —cifra transcrita que caduca— dentro del arnes que lo persigue.
+chk   "una revision en el pasado nace caducada"      "no es futura"  apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2020-01-01 --dueno "Alberto Martínez"
+chk   "…y lo que no es una fecha, tampoco pasa"      "AAAA-MM-DD"    apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision "manana" --dueno "Alberto Martínez"
+
+# AC-05 · un dueno inventado es un aplazado sin dueno con mejor letra.
+chk   "un dueno que no esta en la lista falla"       "SUITE-R27"  apl138 "$(proj138)" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Quien Sea"
+
+# AC-01 · sin plataforma escribe igual. Leccion de PT-133, que costo un PT entero.
+apl138_sin_tablero() {
+  local d; d=$(proj138)
+  (cd "$d" && node "$TK138" aplazar PT-001 --reentrada "cuando exista un proyecto Azure real" \
+      --revision 2099-11-01 --dueno "Alberto Martínez" --aplicar 2>&1) | tail -4
+}
+chkno "sin plataforma declarada NO exige tablero"    "plataforma de trabajo"  apl138_sin_tablero
+chk   "…y deja el aplazamiento en TRANSICIONES.log"  "TRANSICIONES.log"       apl138_sin_tablero
+
+# ── PT-138 · prueba inversa · cuatro supresiones, cuatro escenarios distintos ──────────────────
+inv138() { # $1 supresion sed · $2.. argumentos de aplazar
+  local supresion="$1"; shift
+  local d; d=$(proj138)
+  mkdir -p "$d/tools"
+  cp "$SUITE/tools/tracker.mjs" "$d/tools/tracker.mjs"
+  cp "$SUITE/tools/patrones.mjs" "$d/tools/patrones.mjs"
+  sed -i "$supresion" "$d/tools/tracker.mjs"
+  node --check "$d/tools/tracker.mjs" >/dev/null 2>&1 || { echo "no compila"; return; }
+  (cd "$d" && node ./tools/tracker.mjs aplazar "$@" 2>&1)
+}
+# La supresion de «faltan» NO produce una escritura: cada campo ausente lo caza otra comprobacion
+# mas abajo. Lo que se pierde es que el fallo NOMBRE los tres de una vez, y eso es lo que se mide.
+# Una inversa que declarase «se aplaza sin ellos» tumbaria un escenario distinto del que dice
+# —el defecto que PT-122 y PT-130 encontraron en las suyas—.
+chkno "inversa: sin la comprobacion, el fallo ya no nombra lo que falta"  "falta --reentrada" \
+  inv138 "s/  if (faltan.length) {/  if (false) {/" PT-001
+chk   "inversa: sin mirar el contenido, «luego» pasa"      "-> DEFERRED" \
+  inv138 "s/  if (texto.length < 12 || texto.split(\/\\\\s+\/).length < 3) {/  if (false) {/" PT-001 --reentrada "luego" --revision 2099-11-01 --dueno "Alberto Martínez"
+chk   "inversa: sin exigir fecha futura, nace caducada"    "-> DEFERRED" \
+  inv138 "/^  if (String(revision) <= hoy) {$/,+4d" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2020-01-01 --dueno "Alberto Martínez"
+chk   "inversa: sin contrastar el dueno, uno inventado pasa"  "-> DEFERRED" \
+  inv138 "s/  if (conocidas.length \&\& !conocidas.includes(dueno)) {/  if (false) {/" PT-001 --reentrada "cuando exista un proyecto Azure real" --revision 2099-11-01 --dueno "Quien Sea"
+
+# ── PT-137 · EP-021 · DEFERRED no tenia transicion de vuelta ──────────────────────────────────
+#
+# Lo pregunto el firmante sobre PT-134: «como aplazado, de que sirve? cuando se retoma?». Medida
+# contra el codigo, la respuesta era NUNCA: SUITE-R44 declara que un aplazado no tiene intake, e
+# `integrar` —el unico comando con destino de estado arbitrario— EXIGE que el intake declare
+# «status:». La regla que pone la tarea en el tablero es la misma que la deja inalcanzable.
+TK137="$SUITE/tools/tracker.mjs"
+
+# Proyecto de mentira: un aplazado SIN directorio en changes/ —que es el caso real—, un lote vivo,
+# un lote cerrado, un INTEGRATED y un DRAFT.
+proj137() {
+  local d="$WORK/p137"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.0.0', firmantes:['Alberto Martínez'], counters:{PT:4,EP:2},
+      allocations:[
+        {id:'PT-001',slug:'aplazada',type:'CHORE',status:'DEFERRED',epic:'EP-002'},
+        {id:'PT-002',slug:'hecha',type:'BUG',status:'INTEGRATED',epic:'EP-001'},
+        {id:'PT-003',slug:'viva',type:'BUG',status:'DRAFT',epic:'EP-001'},
+        {id:'EP-001',slug:'vivo',status:'READY'},
+        {id:'EP-002',slug:'cerrado',status:'CLOSED'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+ret137() { (cd "$1" && shift; node "$TK137" retomar "$@" 2>&1); }
+
+# AC-01 · retoma SIN pedir intake. El fixture no tiene changes/ en absoluto: si el comando lo
+# exigiera, este caso no podria pasar — que es exactamente el lazo que la tarea abre.
+chk   "retomar lleva un DEFERRED a DRAFT"            "DEFERRED -> DRAFT"  ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+chk   "…y lo devuelve a PHASE 1, no a donde estaba"  "PHASE 1"            ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+chkno "…sin exigir intake, que un aplazado no tiene" "intake.md"          ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+ret137_seco() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').status);" "$d"
+}
+chk   "sin --aplicar no escribe nada"  "DEFERRED"  ret137_seco
+
+# AC-01 · EL DESTINO SE DERIVA DEL ARBOL. LEXICON 5.1 declara «DEFERRED --> READY» y SUITE-R44
+# dice que un aplazado NO tiene intake: son dos aplazados distintos con el mismo nombre. El que
+# conserva su intake vuelve a READY; el que nacio aplazado vuelve a DRAFT, a escribirlo.
+proj137_con_intake() {
+  local d; d=$(proj137)
+  mkdir -p "$d/changes/PT-001-aplazada"
+  printf '%s
+' '---' 'id: PT-001' 'status: DEFERRED' '---' > "$d/changes/PT-001-aplazada/intake.md"
+  echo "$d"
+}
+ret137_con_intake() {
+  local d; d=$(proj137_con_intake)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" 2>&1)
+}
+chk   "el aplazado que conserva intake vuelve a READY"  "DEFERRED -> READY"  ret137_con_intake
+chk   "…y lo dice citando LEXICON, no lo supone"        "LEXICON"            ret137_con_intake
+chk   "el que nacio aplazado vuelve a DRAFT"            "DEFERRED -> DRAFT"  ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+chk   "…y dice por que: no tiene intake"                "SUITE-R44"          ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+
+# AC-02 · retomar es una DECISION: firmante contrastado y fecha que se puede DECIR.
+chk   "un firmante que no esta en la lista falla"  "SUITE-R27"  ret137 "$(proj137)" PT-001 --firmante "Quien Sea"
+ret137_aplica() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" --fecha 2020-03-04 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           const a=r.allocations.find(x=>x.id==='PT-001');
+           console.log(a.status+' '+a.phase+' '+(a.retomada?.por??'?')+' '+(a.retomada?.fecha??'?')+' '+(a.retomada?.de??'?'));" "$d"
+}
+chk   "…y la fecha se puede DECIR, no es la de correr el comando"  "2020-03-04"  ret137_aplica
+
+# AC-03 · se niega sobre lo que no es DEFERRED, y DICE el estado que encontro: «no se puede» sin
+# el dato obliga a ir a mirar el registro a mano, que es lo que este comando evita.
+chk   "sobre un INTEGRATED se niega"        "SUITE-R44"    ret137 "$(proj137)" PT-002 --firmante "Alberto Martínez"
+chk   "…y dice el estado que encontro"      "INTEGRATED"   ret137 "$(proj137)" PT-002 --firmante "Alberto Martínez"
+chk   "sobre un DRAFT vivo se niega igual"  "no DEFERRED"  ret137 "$(proj137)" PT-003 --firmante "Alberto Martínez"
+
+# AC-04 · reasignar la epica es PARTE de retomar: un aplazado que vuelve bajo un lote cerrado
+# vuelve al limbo por otra puerta. Es literalmente el caso de PT-134.
+ret137_epica() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" --epica EP-001 --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').epic);" "$d"
+}
+chk   "--epica a un lote vivo reasigna"            "EP-001"     ret137_epica
+chk   "--epica a un lote CERRADO se niega"         "CLOSED"     ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez" --epica EP-002
+chk   "…y --epica a algo que no es lote, tambien"  "LEX-R27"    ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez" --epica PT-002
+chk   "sin --epica conserva la que tenia, y lo dice"  "sin cambio"  ret137 "$(proj137)" PT-001 --firmante "Alberto Martínez"
+
+# AC-05 · el rastro. Sin el campo, una retomada es indistinguible de una que nunca se aplazo:
+# SUITE-R44 existe porque algo aplazado se perdio, y perder lo DESaplazado seria lo mismo al reves.
+chk   "el registro declara quien, cuando y de que estado"  "Alberto Martínez 2020-03-04 DEFERRED"  ret137_aplica
+
+# AC-01 · sin plataforma escribe igual: es la leccion de PT-133, que costo un PT entero.
+ret137_sin_tablero() {
+  local d; d=$(proj137)
+  (cd "$d" && node "$TK137" retomar PT-001 --firmante "Alberto Martínez" --aplicar 2>&1) | tail -4
+}
+chkno "sin plataforma declarada NO exige tablero"  "plataforma de trabajo"  ret137_sin_tablero
+chk   "…y deja la retomada en TRANSICIONES.log"    "TRANSICIONES.log"       ret137_sin_tablero
+
+# ── PT-137 · prueba inversa · cuatro supresiones, cuatro escenarios distintos ──────────────────
+#
+# Sobre una COPIA del modulo real, no sobre una reimplementacion. Y se comprueba que cae el
+# escenario esperado Y SOLO ESE: el defecto que PT-122 y PT-130 encontraron en sus propias
+# inversas fue una mutacion que tumbaba un escenario distinto del que declaraba.
+inv137() { # $1 supresion sed · $2.. argumentos de retomar
+  local supresion="$1"; shift
+  local d; d=$(proj137)
+  mkdir -p "$d/tools"
+  cp "$SUITE/tools/tracker.mjs" "$d/tools/tracker.mjs"
+  cp "$SUITE/tools/patrones.mjs" "$d/tools/patrones.mjs"
+  sed -i "$supresion" "$d/tools/tracker.mjs"
+  node --check "$d/tools/tracker.mjs" >/dev/null 2>&1 || { echo "no compila"; return; }
+  (cd "$d" && node ./tools/tracker.mjs retomar "$@" 2>&1)
+}
+chk   "inversa: sin comprobar DEFERRED, un INTEGRATED se retomaria"  "DEFERRED -> DRAFT" \
+  inv137 "s/if (a.status !== 'DEFERRED') {/if (false) {/" PT-002 --firmante "Alberto Martínez"
+chk   "inversa: sin contrastar el firmante, uno inventado pasa"  "DEFERRED -> DRAFT" \
+  inv137 "s/if (firmantes.length && !firmantes.includes(quien)) {/if (false) {/" PT-001 --firmante "Quien Sea"
+chk   "inversa: sin comprobar el lote vivo, se reasigna a uno cerrado"  "DEFERRED -> DRAFT" \
+  inv137 "s/if (ESTADOS_TERMINALES.has(String(lote.status))) {/if (false) {/" PT-001 --firmante "Alberto Martínez" --epica EP-002
+inv137_sin_rastro() {
+  local d; d=$(proj137)
+  mkdir -p "$d/tools"
+  cp "$SUITE/tools/tracker.mjs" "$d/tools/tracker.mjs"
+  cp "$SUITE/tools/patrones.mjs" "$d/tools/patrones.mjs"
+  sed -i "/^  a.retomada = {/d" "$d/tools/tracker.mjs"
+  node --check "$d/tools/tracker.mjs" >/dev/null 2>&1 || { echo "no compila"; return; }
+  (cd "$d" && node ./tools/tracker.mjs retomar PT-001 --firmante "Alberto Martínez" --aplicar >/dev/null 2>&1)
+  node -e "const r=require(process.argv[1]+'/docs/implementation/REGISTRY.json');
+           console.log(r.allocations.find(x=>x.id==='PT-001').retomada===undefined?'SIN RASTRO':'con rastro');" "$d"
+}
+chk   "inversa: sin el campo, la retomada no deja rastro"  "SIN RASTRO"  inv137_sin_rastro
+
 # ── PT-122 · EP-020 · el cierre de un lote pasa por el comando ────────────────────────────────
 #
 # Lo pidio el firmante: «que publicar el cierre de un lote no dependa de que alguien escriba un
@@ -3860,12 +4306,12 @@ chk   "en G4 bloquea"                      "✗ SUITE-R44" V --gate G4 PT-001
 build_fixture; oos '`PT-004`'
 chk   "citar a cualquiera ya no basta"     "SUITE-R44"   V PT-001
 build_fixture; oos '—'
-chkno "un guion no aplaza nada"            "SUITE-R44"   V PT-001
+chkno "un guion no aplaza nada"            "no declaran su destino"   V PT-001
 
 # DEFERRED: exento para la verificacion, VIVO para el espejo. Las dos caras.
 build_fixture
 reg_set "r.allocations.push({id:'PT-020',type:'BUG',severity:'S3',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1'}); r.counters.PT=20"
-chkno "un DEFERRED no exige artefactos"    "PT-020"      V --all
+chkno "un DEFERRED no exige artefactos"    "PT-020:"     V --all
 trlib "un DEFERRED sí es vivo"             "^VIVO$"   "console.log(m.vivasDe([{id:\"PT-020\",status:\"DEFERRED\"}]).length?\"VIVO\":\"NO\")"
 
 
@@ -3882,13 +4328,13 @@ chk   "destino en prosa falla"             "SUITE-R44"   V PT-001
 build_fixture; oos 'ya veremos'
 chk   "otra prosa cualquiera, también"     "SUITE-R44"   V PT-001
 build_fixture; oos '—'
-chkno "un guion sigue siendo válido"       "SUITE-R44"   V PT-001
+chkno "un guion sigue siendo válido"       "no declaran su destino"   V PT-001
 
 # Reciprocidad: citar no basta. PT-012 citaba PT-013 —que no iba a hacer ese trabajo— y pasaba.
 build_fixture
 reg_set "r.allocations.push({id:'PT-030',type:'CHORE',severity:'S4',slug:'aplazado',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-001'}); r.counters.PT=30"
 oos '`PT-030`'
-chkno "un DEFERRED que reconoce su origen vale"  "SUITE-R44"  V PT-001
+chkno "un DEFERRED que reconoce su origen vale"  "no declaran su destino"  V PT-001
 build_fixture
 reg_set "r.allocations.push({id:'PT-031',type:'CHORE',severity:'S4',slug:'otro',created:'2026-08-13',status:'DEFERRED',suite_version:'6.0.1',origin:'Aplazado por PT-999'}); r.counters.PT=31"
 oos '`PT-031`'
@@ -3916,12 +4362,12 @@ build_fixture
 reg_set "r.allocations.push({id:'EP-030',type:'EP',slug:'lote',created:'2026-08-13',status:'DONE',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-030'; r.counters.EP=30"
 ep_cierre EP-030
 oos '`EP-030`'
-chkno "el propio lote en DONE vale"          "SUITE-R44"  V --gate G4 PT-001
+chkno "el propio lote en DONE vale"          "no declaran su destino"  V --gate G4 PT-001
 build_fixture
 reg_set "r.allocations.push({id:'EP-031',type:'EP',slug:'lote',created:'2026-08-13',status:'CLOSED',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-031'; r.counters.EP=31"
 ep_cierre EP-031
 oos '`EP-031`'
-chkno "y en CLOSED tambien"                  "SUITE-R44"  V --gate G4 PT-001
+chkno "y en CLOSED tambien"                  "no declaran su destino"  V --gate G4 PT-001
 # La intencion original, intacta: mientras el lote sigue abierto es una intencion, no una asignacion.
 build_fixture
 reg_set "r.allocations.push({id:'EP-032',type:'EP',slug:'lote',created:'2026-08-13',status:'IN_PROGRESS',suite_version:'6.0.1'}); r.allocations.find((a)=>a.id==='PT-001').epic='EP-032'; r.counters.EP=32"
@@ -3983,7 +4429,7 @@ build_fixture; ep_intake "## Cierre del lote
 |:---|:---|
 | Entrada de CHANGELOG | HECHO |"
 oos '`EP-040`'
-chkno "citarlo cuando si lo declara, vale"        "SUITE-R44"  V PT-001
+chkno "citarlo cuando si lo declara, vale"        "no declaran su destino"  V PT-001
 
 # PT-055 . SUITE-R45 — la compuerta del lote que CIERRA mira al lote que ABRE.
 #

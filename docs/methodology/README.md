@@ -687,7 +687,7 @@ después de sus secciones propias.
 
 **Lo único que se personaliza:**
 ```yaml
-suite_version: 13.0.0
+suite_version: 13.1.0
 execution_mode: SUPERVISED
 ```
 más el bloque **Declaración de Valor** (dominio, productos, reglas de validez), que es lo que

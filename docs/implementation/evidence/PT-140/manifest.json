@@ -1,0 +1,75 @@
+{
+  "pt": "PT-140",
+  "generated": "2026-08-24",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Si falta la rama local y el remoto la tiene, proyectar se niega y dice como traerla",
+      "tests": [
+        "selftest.sh:con rama SOLO en el remoto, se niega",
+        "selftest.sh:…y dice el comando para traerla",
+        "selftest.sh:…y NO empieza un linaje nuevo"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "El fixture lleva SU PROPIO REMOTO —un --bare local— para no depender de la red: un arnes que necesita GitHub no es un arnes, y PT-126 lo pago con la bateria colgada tres minutos."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Si no existe en ninguna parte, la crea diciendo que es la primera vez",
+      "tests": [
+        "selftest.sh:sin rama en ningun sitio, la crea y lo dice"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "Crear el linaje es correcto cuando de verdad no existe. Lo que no puede es ser INDISTINGUIBLE del caso malo: el mensaje es la unica diferencia observable, y por eso existe."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Con la rama local presente, sigue comportandose igual",
+      "tests": [
+        "selftest.sh:con la rama local, sigue proyectando igual",
+        "selftest.sh:…y ya no dice que sea la primera vez"
+      ],
+      "evidence": [
+        "salidas/selftest-completo.txt"
+      ],
+      "verified": true,
+      "nota": "La inversa del caso anterior: el arreglo no cambia la ruta que ya funcionaba."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Distingue no poder mirar el remoto de que no exista alli",
+      "tests": [],
+      "evidence": [
+        "salidas/reproduccion.txt"
+      ],
+      "verified": true,
+      "nota": "SIN CASO, Y SE DICE POR QUE: forzar el fallo de «git ls-remote» sin tocar la red exigiria un remoto que exista y falle a la vez. Lo que se establece es que el CODIGO distingue los tres estados —null no es false—, no que se haya provocado el tercero. La rama esta en la evidencia."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "SUITE-R31 lo cita: la simetria de «un commit sin marca se reporta y no se borra»",
+      "tests": [],
+      "evidence": [
+        "salidas/verify-suite.txt"
+      ],
+      "verified": true,
+      "nota": "La regla ya tenia el criterio correcto para el caso hermano y le faltaba la mitad simetrica: un commit sin marca se REPORTA y no se borra; una rama que falta se DICE y no se rehace."
+    }
+  ],
+  "como_aparecio": {
+    "cuando": "2026-08-24, dejando una sola rama local a peticion del firmante.",
+    "que_dijo": "«cauce/alberto-martinez ← <sha> · 26 allocation(es), 2 archivo(s)» — identico al caso bueno, habiendo empezado de cero.",
+    "por_que_no_se_perdio_nada": "El push normal habria sido rechazado por no ser fast-forward. PROTEGIDO POR ACCIDENTE, NO POR DISEÑO: con ese rechazo sin explicacion, la lectura obvia —forzar— si destruye.",
+    "clase": "CE-005"
+  },
+  "measured": {
+    "casos": 6,
+    "fixture": "con remoto --bare propio, sin red"
+  }
+}
