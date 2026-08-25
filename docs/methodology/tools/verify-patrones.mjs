@@ -29,6 +29,7 @@ import {
   COMPONENTES, FAMILIAS, SIN_EVALUAR,
   prefijos, opcionales, familiasEnProsa, ordenDePrefijos, triggers, promptsDe, fasesDe, siglaDe,
   SEVERIDADES, esSeveridad, RE_SEVERIDAD,
+  reglaRE, reglaEnTabla, reglaEnLinea, PFX,
 } from './patrones.mjs';
 
 const errores = [];
@@ -204,6 +205,40 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   const p = promptsDe('PTSA');
   if (p !== 'PTSA/PTSA-Prompts.md') {
     errores.push(`promptsDe('PTSA') devuelve ${JSON.stringify(p)} y audit.mjs:192-195 declara «PTSA/PTSA-Prompts.md».`);
+  }
+}
+
+// ── Los patrones de identificador de regla ──────────────────────────────── PT-145
+//
+// Se construyen desde `prefijos()` en vez de escribirse, y eso los pone bajo `SUITE-R59`: un
+// escape degradado NO revienta, CASA DE MENOS. En un verificador de reglas, casar de menos es
+// dejar de ver reglas — es decir, pasar en verde.
+//
+// Por eso no basta leer el codigo: hay que EJECUTARLOS contra los diez prefijos. Y contra lo que
+// no deben casar, porque un patron demasiado laxo tambien pasa por bueno.
+{
+  const DIEZ = prefijos();
+  total += DIEZ.length + 4;
+
+  const texto = DIEZ.map((p) => `${p}-R01`).join(' ');
+  const casan = [...texto.matchAll(reglaRE('g'))].map((m) => m[1]);
+  for (const p of DIEZ) {
+    if (!casan.includes(p)) {
+      errores.push(`reglaRE() no casa «${p}-R01». Si un escape se degradó al construirlo, es aquí: el patrón sigue siendo válido y deja de ver ese prefijo entero.`);
+    }
+  }
+
+  if (reglaRE().test('XYZ-R01')) {
+    errores.push('reglaRE() casa «XYZ-R01», que no es un prefijo declarado. Un patrón demasiado laxo pasa por bueno.');
+  }
+  if (reglaRE().test('SUITE-R ')) {
+    errores.push('reglaRE() casa «SUITE-R» sin número.');
+  }
+  if (!reglaEnTabla().test('| `FPGE-R05` | HARD |')) {
+    errores.push('reglaEnTabla() no casa una fila de RULES.md. Es como se recogen las reglas DEFINIDAS: si falla, verify-suite deja de ver definiciones y las da por inexistentes.');
+  }
+  if (!reglaEnLinea().test('`FIDE-R01` · el INSTALL no lo copia')) {
+    errores.push('reglaEnLinea() no casa la forma en que LEXICON y EXECUTION-MODES definen fuera de tabla.');
   }
 }
 

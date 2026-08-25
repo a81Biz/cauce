@@ -39,6 +39,8 @@ import { definidasDosVeces, TIPOS_DE_ITEM } from './patrones.mjs';
 import { MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA } from './patrones.mjs';
 // PT-087 · el sujeto de una comprobacion: que hecho establece, y cual NO.
 import { SUJETOS, sujetosIncompletos, limitesQueNoLleganAlMensaje } from './patrones.mjs';
+// PT-145 · los patrones de identificador de regla y los componentes opcionales, derivados.
+import { reglaRE, reglaEnTabla, reglaEnLinea, PFX as PREFIJOS_TXT, opcionales } from './patrones.mjs';
 import { execFileSync } from 'node:child_process';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
@@ -247,13 +249,16 @@ if (!existsSync(rulesPath)) {
   fail('LEX-R21', 'RULES.md', 0, 'Falta RULES.md — la fuente única de reglas.');
 } else {
   const rulesTxt = readFileSync(rulesPath, 'utf8');
-  const RULE_RE = /\b(SUITE|LEX|FDGE|INTAKE|QA|PTSA|FPGE|FND|FIDE|EXEC)-(R|P)\d+\b/g;
+  // PT-145 · los diez prefijos salen del contrato. Estaban escritos a mano SEIS veces en este
+  // archivo, y la sexta (:708) llevaba OCHO: un componente con prefijo nuevo tenia sus reglas
+  // INVISIBLES aqui, y no daba error — pasaba en verde.
+  const RULE_RE = reglaRE('g');
   // Definidas: las que aparecen entre backticks al inicio de fila de tabla o en `X` |
   const defined = new Set();
   for (const line of rulesTxt.split(/\r?\n/)) {
-    const m = line.match(/^\|\s*`((?:SUITE|LEX|FDGE|INTAKE|QA|PTSA|FPGE|FND|FIDE|EXEC)-R\d+)`/);
+    const m = line.match(reglaEnTabla());
     if (m) defined.add(m[1]);
-    const m2 = line.match(/^`((?:SUITE|LEX|FDGE|INTAKE|QA|PTSA|FPGE|FND|FIDE|EXEC)-R\d+)`\s*·/);
+    const m2 = line.match(reglaEnLinea());
     if (m2) defined.add(m2[1]);
   }
   // LEXICON y EXECUTION-MODES definen las suyas en su propio texto.
@@ -286,7 +291,8 @@ if (!existsSync(rulesPath)) {
     LEX: 'LEXICON.md', EXEC: 'EXECUTION-MODES.md',
     PTSA: 'PTSA/PTSA-V3-Especificacion-Oficial.md',
   };
-  const PFX = '(SUITE|LEX|FDGE|INTAKE|QA|PTSA|FPGE|FND|FIDE|EXEC)';
+  // PT-145 · como TEXTO, porque este sitio compone su propio patron alrededor.
+  const PFX = PREFIJOS_TXT();
   const RE_DEF_ROW = new RegExp(`^\\|\\s*\`${PFX}-[RP](\\d+)\`\\s*\\|\\s*(HARD|SOFT|CHECK)\\s*\\|`);
   const RE_DEF_LOOSE = new RegExp(`^\`${PFX}-[RP](\\d+)\`\\s*·\\s*\\*\\*\\((HARD|SOFT|CHECK)\\)`);
   const defsBy = new Map();
@@ -400,7 +406,7 @@ for (const f of files) {
   readFileSync(f, 'utf8').split(/\r?\n/).forEach((line, i) => {
     if (!IMPERATIVE.test(line)) return;
     // Exento si la línea cita un ID de regla: está citando, no legislando.
-    if (/\b(SUITE|LEX|FDGE|INTAKE|QA|PTSA|FPGE|FND|FIDE|EXEC)-(R|P)\d+\b/.test(line)) return;
+    if (reglaRE().test(line)) return;
     if (EXEMPT.test(line)) return;
     warn('LEX-R22', rf, i + 1,
       `Un Framework-*.md enuncia una obligación sin citar su regla. Debe citar el ID: «${line.trim().slice(0, 80)}»`);
@@ -422,7 +428,9 @@ for (const f of files) {
 // El criterio es deliberadamente estrecho: solo se perdona cuando el DIRECTORIO ENTERO del
 // componente no existe. Si FIDE/ está y le falta un archivo, eso sí es un enlace roto — que
 // es el caso que esta comprobación existe para cazar.
-const COMPONENTES_OPCIONALES = new Set(['FIDE']);
+// PT-145 · el mismo hecho que comparar-marco.mjs escribia con OTRO NOMBRE. Ahora los dos lo
+// derivan del contrato: dos nombres del mismo hecho es como divergen (CE-008, SUITE-R14).
+const COMPONENTES_OPCIONALES = opcionales();
 const componenteNoInstalado = (target) => {
   const seg = target.split('/')[0];
   return COMPONENTES_OPCIONALES.has(seg) && !existsSync(join(BASE, seg));
@@ -705,7 +713,21 @@ const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''
       const cuerpo = txt.slice(i).split(/^#+\s/m)[1] ?? txt.slice(i);
       const lineas = cuerpo.split(/\r?\n/);
       const RE_ARTEFACTO = /\b[a-z0-9-]+\.(?:md|json|mjs|sh)\b/i;
-      const RE_REGLA = /\b(?:SUITE|FDGE|INTAKE|LEX|FND|QA|PTSA|EXEC)-R\d+\b/;
+      // PT-145 · ESTE ERA EL SITIO QUINCE, y no era una copia más: llevaba OCHO prefijos donde
+      // las otras cinco alternancias de este archivo llevaban diez. Le faltaban FPGE y FIDE.
+      //
+      // Guarda `EXEC-R08`: la matriz de compuertas no puede citar una regla, porque un modo
+      // decide QUIEN resuelve y no QUE se exige. Con ocho prefijos, una celda que citara
+      // `FPGE-R05` o `FIDE-R03` PASABA EN VERDE — un guardarraíl con dos agujeros.
+      //
+      // Medido al cerrarlo: hoy la matriz no cita ninguna de las dos, así que el agujero era
+      // real y no estaba siendo explotado. Se cierra igual: una comprobación que solo funciona
+      // mientras nadie escriba lo que no debe no es una comprobación.
+      //
+      // Lo destapó `RC-03` de PT-144, que compara el contrato contra los literales EXTRAIDOS DE
+      // LOS ARCHIVOS. Si los hubiera copiado al test, habría comparado lo escrito contra lo
+      // escrito y esta línea seguiría con ocho.
+      const RE_REGLA = reglaRE();
       lineas.forEach((l, n) => {
         if (!/^\s*\|/.test(l)) return;
         if (/^\s*\|[\s:|-]*\|?\s*$/.test(l)) return;

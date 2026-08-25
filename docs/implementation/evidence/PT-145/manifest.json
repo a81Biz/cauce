@@ -1,0 +1,55 @@
+{
+  "pt": "PT-145",
+  "generated": "2026-08-25",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "No queda ningun literal de componente en verify-suite.mjs ni comparar-marco.mjs",
+      "tests": ["grep de los diez prefijos y de 'FIDE' sobre los dos archivos"],
+      "evidence": ["salidas/verify-suite-despues.out"],
+      "verified": true,
+      "nota": "Ocho sitios, no los siete del intake: PT-144 destapo la sexta alternancia (:716). Y comparar-marco era la UNICA de las nueve herramientas del lote sin una sola arista a patrones.mjs —tres imports, los tres de node:— asi que aqui no bastaba con sustituir un literal: habia que anadir la arista. Tenia ademas su copia del mismo hecho CON OTRO NOMBRE, «OPCIONALES» frente a «COMPONENTES_OPCIONALES», que es exactamente como divergen dos nombres del mismo hecho (CE-008)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Los patrones se construyen desde el contrato, sin barras invertidas escritas",
+      "tests": ["verify-patrones.mjs:bloque PT-145 · los diez prefijos, EJECUTADOS"],
+      "evidence": ["salidas/verify-patrones.out"],
+      "verified": true,
+      "nota": "SUITE-R59 es el riesgo real de esta tarea: un escape degradado NO revienta, CASA DE MENOS — y en un verificador de reglas, casar de menos es dejar de ver reglas, es decir PASAR EN VERDE. Por eso el contrato se EJECUTA contra los diez prefijos y contra lo que no debe casar, no se lee. Y se rechazo una constante compartida: los cinco usos mezclan /g con sin banderas, y verify-patrones.mjs:38 ya documenta que reutilizar un /g da resultados que dependen del orden. Son funciones que devuelven patron nuevo."
+    },
+    {
+      "ac": "AC-03",
+      "statement": ":716 ve los diez prefijos, y una cita FPGE-Rnn falla",
+      "tests": [
+        "selftest.sh:una cita de SUITE-Rnn en la matriz se caza",
+        "selftest.sh:una cita de FPGE-Rnn tambien, ahora",
+        "selftest.sh:...y una de FIDE-Rnn",
+        "selftest.sh:...pero «humano» no es una cita de regla"
+      ],
+      "evidence": ["salidas/selftest-exec-r08.out"],
+      "verified": true,
+      "nota": "ES EL UNICO CAMBIO DE COMPORTAMIENTO DE LA TAREA, y fue el cuarto paso, aislado, para que lo que destapara fuera inequivoco. Se midio ANTES de cerrarlo que la matriz de compuertas NO cita hoy ninguna regla FPGE ni FIDE: el agujero era real y no estaba siendo explotado. Se cierra igual — una comprobacion que solo funciona mientras nadie escriba lo que no debe no es una comprobacion. El cuarto caso, «humano», existe para que el patron no pase por laxo."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Comportamiento identico en los siete sitios que no cambian",
+      "tests": ["verify-suite sobre el arbol real, antes y despues", "comparar-marco, antes y despues"],
+      "evidence": ["salidas/diff-verify-suite.out", "salidas/comparar-marco-antes.out", "salidas/comparar-marco-despues.out"],
+      "verified": true,
+      "nota": "El diff de verify-suite esta VACIO. Es la barra de un REFACTOR: no «sin errores», sino identico."
+    }
+  ],
+  "regresion": [
+    {"rc": "RC-01", "statement": "Las cinco alternancias completas casan lo mismo", "verified": true, "nota": "diff vacio sobre el arbol real."},
+    {"rc": "RC-02", "statement": "Se construyen sin una barra invertida escrita", "verified": true, "nota": "CLASE y comoLiteral. Ejecutado contra los diez prefijos, no leido."},
+    {"rc": "RC-03", "statement": "El criterio deliberadamente estrecho de los opcionales se conserva", "verified": true, "nota": "Solo se perdona cuando falta el DIRECTORIO ENTERO. El comentario que lo documenta no se toco."},
+    {"rc": "RC-04", "statement": "comparar-marco da la misma salida", "verified": true, "nota": "Identica."},
+    {"rc": "RC-05", "statement": "Lo que :716 destape se DECLARA, no se corrige", "verified": true, "nota": "No destapo nada sobre el arbol real: la matriz no cita FPGE ni FIDE hoy. Medido antes de cerrar el agujero."}
+  ],
+  "qa": "NO APLICA · QA-R01 exige navegador y este paquete no tiene interfaz.",
+  "fallos_de_metodo": [
+    "El primer intento de sustituir los seis sitios uso un heredoc con los patrones literales dentro, y las secuencias de escape SE DEGRADARON: la sustitucion no encontro nada. Es EXACTAMENTE el fallo del que avisa SUITE-R59, medido ocho veces en este repositorio. Rehecho con el script en un archivo y las barras construidas con chr(92). Y volvio a ocurrir al escribir esta evidencia con otro heredoc: dos veces en una tarea.",
+    "El fixture del caso de EXEC-R08 copiaba solo los *.md de la metodologia, sin subcarpetas: verify-suite ahogaba la salida en enlaces rotos y TRES CASOS DABAN ROJO POR EL MOTIVO EQUIVOCADO. Tercera instancia en tres tareas de la misma clase — PT-144 con el caso que esperaba un SyntaxError, PT-150 afirmando sobre el identificador. Una comprobacion que pasa o falla por el motivo equivocado no es una comprobacion."
+  ]
+}
