@@ -2,7 +2,7 @@
 id: EP-021
 slug: el-aplazado-sin-puerta-de-vuelta
 type: EPIC
-status: DRAFT
+status: CLOSED
 phase: 1
 suite_version: 13.0.0
 ---
