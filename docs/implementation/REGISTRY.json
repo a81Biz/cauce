@@ -4682,7 +4682,8 @@
         "de": "PT-156",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 307
     },
     {
       "id": "PT-165",
@@ -4699,7 +4700,8 @@
         "de": "PT-149",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 308
     },
     {
       "id": "PT-166",
@@ -4716,7 +4718,8 @@
         "de": "PT-156",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 309
     },
     {
       "id": "PT-167",
@@ -4733,7 +4736,8 @@
         "de": "PT-156",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 310
     },
     {
       "id": "PT-168",
@@ -4758,7 +4762,8 @@
         "de": "PT-149",
         "fecha": "2026-08-25"
       },
-      "origin": "Aplazado desde PT-149 el 2026-08-25"
+      "origin": "Aplazado desde PT-149 el 2026-08-25",
+      "issue": 311
     }
   ]
 }
