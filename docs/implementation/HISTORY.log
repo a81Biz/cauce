@@ -9364,3 +9364,90 @@ rojo; corregirlo es PT-158, no esta tarea. Y no establece que no queden otras fo
 un componente en audit.mjs: el barrido del lote cubrio alternancias de prefijo y objetos con clave
 de prefijo, y la cuenta subiendo tres veces —13, 14, 15, 16— es la evidencia de que el metodo de
 enumeracion tiene un sesgo.
+
+## PT-148 — el alta y la baja de un componente quedan escritas, y con regla que puede fallar
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: chore/alberto-martinez/PT-148-el-alta-y-la-baja-se-escriben
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+Tras PT-144..PT-147 el mecanismo existia y estaba probado por cuatro consumidores. Lo que NO
+existia era la forma de usarlo sin leer el codigo: no habia procedimiento escrito para dar de
+alta ni de baja un componente, y una busqueda en toda la metodologia no daba una sola
+coincidencia.
+
+Lo escrito, y cada cosa donde E4 del propio catalogo manda:
+
+    LEXICON 3.6-3.7   el contrato como VOCABULARIO, y la distincion componente/familia
+    RULES.md          SUITE-R60, CHECK, con ID estable y propietario unico
+    CASOS-DE-USO      E5 y E6, que CITAN la regla por su ID sin enunciarla (LEX-R22)
+    CORE.md           regenerado (SUITE-R16)
+
+LA REGLA NACE CHECK, Y HUBO QUE GANARSELO. RULES.md dice que marcar CHECK lo que ningun script
+verifica es una promesa falsa. Media comprobacion ya existia —verify-patrones, con las aserciones
+de las cuatro tareas anteriores—; la otra media NO: que ninguna herramienta nombre un componente
+era cierto HOY porque PT-145..PT-147 lo dejaron asi, y nada lo impedia manana.
+
+EL CRITERIO DEL BARRIDO NO ES QUE CACE: ES QUE NO CACE COMENTARIOS. La primera version cazaba 33
+sitios y NUEVE eran legitimos:
+
+    17  verify-patrones.mjs   ES la prueba del contrato: siglaDe('Foundation') TIENE que
+                              nombrarlo. El contrato y su prueba son una unidad.
+     7  selftest.sh           el arnes: sus fixtures construyen estados rotos a proposito.
+     4  join(ROOT, 'PTSA')    una RUTA. LEX-R03 dice que QA se usa «en triggers, RUTAS y
+                              nombres de archivo».
+     1  QA: maxOf('QA', ...)  un PREFIJO DE IDENTIFICADOR: «QA» es sigla y espacio de nombres
+                              a la vez, POR DISENO. Un literal asi es ambiguo por construccion.
+     1  matriz.mjs            un span de codigo markdown en el texto que la herramienta GENERA.
+
+Cada exclusion sale de un falso positivo REAL, y hay CUATRO casos negativos permanentes para que
+nadie «mejore» el barrido hasta hacerlo insufrible: este mismo lote escribio decenas de
+comentarios que citan componentes, y un verificador desactivado es peor que ninguno.
+
+Archivos modificados: LEXICON.md · RULES.md · CASOS-DE-USO.md · tools/verify-suite.mjs ·
+  tools/selftest.sh · CORE.md (generado) · inventory/services.md (cifras)
+
+Medido: barrido 33 -> 0 aciertos sobre el arbol real · selftest 1720 -> 1727 casos ·
+  regla.mjs SUITE-R60 la resuelve · el diff de CORE lleva TRES reglas nuevas y nada mas.
+
+Evidencia: evidence/PT-148/ — manifest con 5 AC y 4 RC, self-review, y seis salidas.
+
+DOS ERRORES MIOS, Y LOS DOS SON DE LA CLASE QUE EL LOTE PERSIGUE:
+
+1. EL ESCAPE SE DEGRADO DENTRO DEL VERIFICADOR DE ESA CLASE. La exclusion de rutas quedo en disco
+   con un byte de control donde debia ir un limite de palabra: el regex COMPILABA Y NO CASABA
+   NADA, asi que los cuatro join(ROOT, 'PTSA') seguian saltando. Es SUITE-R59, medida OCHO veces
+   en este repositorio; esta es la NOVENA. No se encontro leyendo —en pantalla el «if» se veia
+   correcto— sino mirando los BYTES con cat -A. Y no se arreglo reescribiendo el escape sino
+   QUITANDO EL REGEX: includes() no tiene escapes que perder, y el patron mas seguro es el que no
+   se escribe. Las ocho anteriores las cazo verify-patrones, porque los patrones de PATRONES
+   viajan con sus ejemplos; esta NO LA CAZO NADA — era un regex suelto dentro de un if, sin
+   contrato. Es un argumento a favor de que los patrones vivan en patrones.mjs aunque parezcan
+   triviales.
+
+2. ESCRIBI DOS REGLAS CON IDS OCUPADOS, Y verify-suite NO LO CAZO. LEX-R33 y LEX-R34 existian
+   desde PT-137 y PT-138 —«retomada» y «aplazamiento»— y al regenerar, LAS DOS REGLAS VIEJAS
+   DESAPARECIERON DE CORE.md. Dos reglas vigentes fuera del nucleo que el agente carga, sin que
+   nada avisara: es el dano que build-core.mjs:194 documenta —[START PTSA] con el 29% de su
+   ruleset— por otra via. SUITE-R14 dice que verify-suite «rechaza cualquier definicion
+   duplicada» y no la rechazo: definidasDosVeces() compara ENTRE documentos, porque la regla dice
+   «en dos documentos», y las dos definiciones estaban en el MISMO archivo. Corregido a LEX-R35 y
+   LEX-R36. El hueco es PT-163.
+
+   LO ENCONTRO LEER EL DIFF, que es lo que RC-01 exigia: «el diff se lee, no se supone». Con
+   build-core --check en EXIT=0 habria pasado.
+
+LO QUE NO ESTABLECE: que el alta y la baja FUNCIONEN. Esta tarea escribe el procedimiento y la
+regla que lo exige; que la operacion se EJECUTE —alta, las cuatro comprobaciones, baja, y el
+arbol byte a byte como estaba— es PT-149, y es el criterio de exito del lote entero.
+
+Y no establece que CASOS-DE-USO cumpla su propio contrato de cobertura. Su encabezado afirma que
+«un caso que no este aqui es un hueco declarado, no un silencio» y nada lo comprueba — ha fallado
+dos veces en este trabajo, con DICTAMEN y con esta misma alta/baja. Es PT-161.

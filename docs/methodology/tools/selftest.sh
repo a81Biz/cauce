@@ -8006,6 +8006,50 @@ chkno "el ternario de la sigla ya no existe"       "=== 'Foundation' ?" \
 chk   "Foundation sigue auditandose por su sigla"  "Foundation PHASE" \
   sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
 
+# ── PT-148 · EP-022 · SUITE-R60 · ninguna herramienta nombra un componente ──────────────────────
+#
+# EP-022 midio la lista de componentes escrita a mano en DIECISEIS sitios de cuatro herramientas.
+# PT-145..PT-147 los quitaron. Que hoy no quede ninguno es cierto PORQUE ellas lo dejaron asi, y
+# NADA LO IMPEDIA MANANA — asi que la regla habria sido CHECK sobre una promesa.
+#
+# Y el criterio que decide si el barrido sirve NO es que cace: es que NO CACE COMENTARIOS. Este
+# mismo lote escribio decenas que citan componentes al explicar por que existe algo; un barrido
+# que los cace se desactiva en la primera corrida, y un verificador desactivado es peor que
+# ninguno. La primera version cazaba 33 sitios y NUEVE eran legitimos.
+VS148="$SUITE/tools/verify-suite.mjs"
+proj148() {
+  local d="$WORK/p148"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE"/. "$d/" 2>/dev/null
+  echo "$d"
+}
+# Mete una linea al final de una herramienta y ejecuta el verificador sobre la COPIA.
+mete148() {
+  local d; d="$(proj148)"
+  printf '%s\n' "$2" >> "$d/tools/$1"
+  (cd "$d" && node "$VS148" . 2>&1)
+}
+
+# Un literal de componente en codigo ejecutable: se caza, y NOMBRA archivo y componente.
+chk   "un literal de componente en una herramienta se caza"  "SUITE-R60" \
+  mete148 "regla.mjs" "const x = 'FIDE';"
+chk   "…y dice cual es"                                      "«FIDE»" \
+  mete148 "regla.mjs" "const x = 'FIDE';"
+# LO QUE NO DEBE CAZAR. Cada uno salio de un falso positivo REAL de la primera version.
+chkno "un comentario que cita un componente NO se caza"      "SUITE-R60" \
+  mete148 "regla.mjs" "// FIDE se retira tras instalar la suite, y 'FIDE' aqui es prosa."
+chkno "…ni una ruta con join()"                              "SUITE-R60" \
+  mete148 "regla.mjs" "const p = join(BASE, 'PTSA');"
+chkno "…ni una ruta con barra dentro de las comillas"        "SUITE-R60" \
+  mete148 "regla.mjs" "const p = leer('PTSA/RESUMEN.md');"
+# «QA» es a la vez sigla de componente y prefijo de identificador (LEX-R03, PREFIJOS_DE_ID): un
+# literal asi es AMBIGUO POR CONSTRUCCION, y el barrido lo DICE en vez de fingir que distingue.
+chkno "…ni una sigla que tambien es prefijo de identificador" "SUITE-R60" \
+  mete148 "regla.mjs" "const c = maxOf('QA', txt);"
+# Y sobre el arbol real, cero: PT-145..PT-147 los quitaron los dieciseis.
+chk   "sobre el arbol real no queda ningun literal"          "Sin errores de coherencia" \
+  sh -c "cd '$RAIZ' && node '$VS148' docs/methodology 2>&1"
+
+
 
 
 

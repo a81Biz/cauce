@@ -11,7 +11,7 @@ lo que este lote descubrio: DIECISEIS sitios, no trece — el conteo subio TRES 
 hallazgo sin tarea: NINGUNO. Los doce estan en EP-024, cada uno enlazado a su parada con «--desenlace abre». Es la primera vez que la lista queda vacia.
 pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. Sobre FDGE-R19 desde PT-127, con excepcion declarada en cuatro lotes — y ahora con tarea: PT-153.
 lo que sigue sin resolverse: PT-025 (#35) DEFERRED · 21 allocations sin suite_version · el viaje de vuelta de EP-021 aun sin fusionar a main.
-actualizado:    2026-08-25 · PT-148 en PHASE 4 Propuesta
+actualizado:    2026-08-25 · PT-148 en PHASE 8 Persistencia
 <!-- /ESTADO -->
 
 ---

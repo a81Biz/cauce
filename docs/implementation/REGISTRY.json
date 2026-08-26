@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 162,
+    "PT": 163,
     "EP": 24,
     "QA": 0,
     "QR": 0,
@@ -4283,8 +4283,8 @@
       "id": "PT-148",
       "slug": "el-alta-y-la-baja-se-escriben",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 4,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S2",
@@ -4599,6 +4599,23 @@
       "origen_parada": {
         "de": "EP-022",
         "motivo": "condicion-bloqueante",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-163",
+      "slug": "un-id-definido-dos-veces-en-el-mismo-documento",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "SUITE-R14 no caza un ID definido dos veces dentro del mismo documento",
+      "origen_parada": {
+        "de": "PT-148",
+        "motivo": "hallazgo",
         "fecha": "2026-08-25"
       }
     }
