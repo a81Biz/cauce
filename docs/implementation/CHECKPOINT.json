@@ -3,20 +3,28 @@
   "type": "CHORE",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "refactor/alberto-martinez/PT-147-audit-deja-de-escribirlos",
-  "sha": "10cef2f59d909182bdfdb8bd98889594defd4f6d",
-  "sha_corto": "10cef2f",
+  "sha": "2f5e99e4f6e8e7af7c163ffcc3324a7d7c588874",
+  "sha_corto": "2f5e99e",
   "sucio": true,
   "archivos": [
     "changes/PT-148-el-alta-y-la-baja-se-escriben/intake.md",
+    "changes/PT-148-el-alta-y-la-baja-se-escriben/strategy.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "discovery.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-25"
 }

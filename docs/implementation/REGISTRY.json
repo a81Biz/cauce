@@ -4284,7 +4284,7 @@
       "slug": "el-alta-y-la-baja-se-escriben",
       "created": "2026-08-24",
       "status": "DRAFT",
-      "phase": 2,
+      "phase": 4,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S2",
