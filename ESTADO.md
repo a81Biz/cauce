@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-25 · 26 allocation(es) viva(s).
+Proyectado el 2026-08-25 · 28 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -25,7 +25,7 @@ Proyectado el 2026-08-25 · 26 allocation(es) viva(s).
 | PT-153 | BUG | DRAFT | 1 | — | — | — |
 | PT-154 | INVESTIGATION | DRAFT | 1 | — | — | — |
 | PT-155 | CHORE | DRAFT | 1 | — | — | — |
-| PT-156 | CHORE | DRAFT | 5 | — | — | — |
+| PT-156 | CHORE | DRAFT | 6 | — | — | — |
 | PT-157 | BUG | DRAFT | 1 | — | — | — |
 | PT-158 | BUG | DRAFT | 1 | — | — | — |
 | PT-159 | BUG | DRAFT | 1 | — | — | e7b4eb1 |
@@ -35,3 +35,5 @@ Proyectado el 2026-08-25 · 26 allocation(es) viva(s).
 | PT-163 | BUG | DRAFT | 1 | — | — | — |
 | PT-164 | CHORE | DRAFT | 1 | — | — | — |
 | PT-165 | BUG | DRAFT | 1 | — | — | — |
+| PT-166 | CHORE | DRAFT | 1 | — | — | — |
+| PT-167 | BUG | DRAFT | 1 | — | — | — |
