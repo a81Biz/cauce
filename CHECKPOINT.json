@@ -3,18 +3,33 @@
   "type": "REFACTOR",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos",
   "sha": "1429918e6c70ba769ac547abbf0089446afac3f9",
   "sha_corto": "1429918",
   "sucio": true,
   "archivos": [
     "changes/PT-146-build-core-deja-de-escribirlos/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "changes/PT-146-build-core-deja-de-escribirlos/rc-etiquetas.mjs",
+    "changes/PT-146-build-core-deja-de-escribirlos/tasks.md",
+    "changes/PT-146-build-core-deja-de-escribirlos/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/EVENTOS.jsonl",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-146/",
+    "docs/methodology/tools/build-core.mjs",
+    "docs/methodology/tools/patrones.mjs",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/verify-patrones.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-25"
 }
