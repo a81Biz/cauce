@@ -1,34 +1,23 @@
 {
-  "pt": "PT-148",
+  "pt": "PT-156",
   "type": "CHORE",
-  "epic": "EP-022",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "epic": "EP-024",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-148-el-alta-y-la-baja-se-escriben",
-  "sha": "aae6e46a6a702ad6c7481d05b62792825273e8be",
-  "sha_corto": "aae6e46",
+  "sha": "f365d2bff48bf4a6326cbe4c2f408eb8ff32cc31",
+  "sha_corto": "f365d2b",
   "sucio": true,
   "archivos": [
-    "changes/PT-148-el-alta-y-la-baja-se-escriben/intake.md",
-    "changes/PT-148-el-alta-y-la-baja-se-escriben/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
+    "changes/PT-156-lexicon-sin-apartado-para-fpge/",
     "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-148/",
-    "docs/methodology/CASOS-DE-USO.md",
-    "docs/methodology/CORE.md",
-    "docs/methodology/LEXICON.md",
-    "docs/methodology/RULES.md",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/verify-suite.mjs"
+    "docs/methodology/CASOS-DE-USO.md"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-25"
 }
