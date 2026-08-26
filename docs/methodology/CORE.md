@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: c7177da8f5ec -->
-<!-- fuentes: RULES.md:cd8550d9a941 LEXICON.md:c79c64c3b7cd EXECUTION-MODES.md:9e8a0518d3ef PHASES.md:dbca6fc558f3 -->
+<!-- cuerpo: c0cbcb348e36 -->
+<!-- fuentes: RULES.md:05155e06b9c0 LEXICON.md:d694f33771ff EXECUTION-MODES.md:2ea30769365c PHASES.md:dc2c50325db5 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -62,6 +62,7 @@ PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 
       9 D4 · 10 D3 · 11-12 Consolidation+Score · 13-14 Certification
 FPGE  1 Compuertas · 2 Evidencia · 3 Candidatos · 4 Priority · 5 Orden · 6 Emisión
       7 Stop◆ — ordena y se DETIENE: promover es humano (FPGE-R04)
+FIDE  1-5  — declarado en el contrato; su recorrido, en LEXICON §3
 ```
 
 ## Compuertas × modo

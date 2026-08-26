@@ -1,5 +1,5 @@
 {
-  "suite_version": "13.1.0",
+  "suite_version": "13.2.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -26,9 +26,9 @@
     "pt_at_generation": 65
   },
   "graph": {
-    "generated": "2026-08-25",
+    "generated": "2026-08-26",
     "scope": "bin, docs/methodology/tools",
-    "pt_at_generation": 150
+    "pt_at_generation": 156
   },
   "tracker": {
     "plataforma": "github",
@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 167,
+    "PT": 168,
     "EP": 24,
     "QA": 0,
     "QR": 0,
@@ -4318,8 +4318,8 @@
       "id": "PT-149",
       "slug": "la-prueba-de-alta-y-baja",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S2",
@@ -4329,6 +4329,23 @@
       "origen_parada": {
         "de": "EP-022",
         "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2015,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-25"
       }
     },
@@ -4679,7 +4696,7 @@
       "epic": "EP-024",
       "title": "El mapa de fases de CORE lo escribe build-core a mano, y contradecia FPGE-R04",
       "origen_parada": {
-        "de": "PT-156",
+        "de": "PT-149",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
       }
@@ -4717,6 +4734,31 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
       }
+    },
+    {
+      "id": "PT-168",
+      "slug": "audit-da-por-cubierta-una-fase-que-no-esta",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-024",
+      "title": "audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier sitio del documento",
+      "origen_parada": {
+        "de": "PT-149",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga: es su tarea de mayor severidad (S1) y la unica que afecta a lo que el marco AFIRMA estar verificando, asi que abre el lote.",
+        "revision": "2026-09-02",
+        "dueno": "Alberto Martínez",
+        "de": "PT-149",
+        "fecha": "2026-08-25"
+      },
+      "origin": "Aplazado desde PT-149 el 2026-08-25"
     }
   ]
 }

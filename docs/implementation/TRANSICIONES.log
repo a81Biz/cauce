@@ -1,0 +1,30 @@
+
+## 2026-08-25 · PT-168 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-168` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Cuando EP-024 se descomponga: es su tarea de mayor severidad (S1) y la unica que afecta a lo que el marco AFIRMA estar verificando, asi que abre el lote. |
+| Se revisa el | 2026-09-02 |
+| Responde | Alberto Martínez |
+| Sale de | PT-149 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-25 · PT-168 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZAMIENTO ACTUALIZADO** · `PT-168` sigue en `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Cuando EP-024 se descomponga: es su tarea de mayor severidad (S1) y la unica que afecta a lo que el marco AFIRMA estar verificando, asi que abre el lote. |
+| Se revisa el | 2026-09-02 |
+| Responde | Alberto Martínez |
+| Sale de | PT-149 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.

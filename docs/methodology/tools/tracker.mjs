@@ -4483,6 +4483,18 @@ function aplazar() {
 
   a.status = 'DEFERRED';
   a.aplazamiento = { reentrada: texto, revision: String(revision), dueno, ...(de ? { de } : {}), fecha };
+  // PT-149 · `--de` SE ESCRIBIA SOLO EN `aplazamiento.de`, Y NADIE LO LEE AHI. SUITE-R44 exige que
+  // la cita sea RECIPROCA y la comprueba sobre `origin` (verify-fdge.mjs:2592 · :2595), asi que un
+  // aplazado creado con el comando SANCIONADO —LEX-R34 dice que es la unica via— no podia
+  // satisfacer la regla: habia que escribir REGISTRY.json A MANO. Es lo que tracker.mjs:2590
+  // condena con todas las letras —«una regla que solo se puede cumplir saltandose la herramienta
+  // no se cumple: se rodea»— y es CE-008: un hecho con dos nombres. Se escribe en los DOS, porque
+  // `aplazamiento.de` es parte del bloque que LEX-R34 exige completo y `origin` es la procedencia
+  // que sobrevive a la retomada. Se ANADE a lo que hubiera: el origen anterior no se pierde.
+  if (de) {
+    const yaDicho = String(a.origin ?? '').includes(de);
+    a.origin = yaDicho ? a.origin : [a.origin, `Aplazado desde ${de} el ${fecha}`].filter(Boolean).join(' · ');
+  }
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${yaAplazada ? 'terminos ACTUALIZADOS' : '-> DEFERRED'} · revision ${revision} · dueno ${dueno}`);
 

@@ -302,13 +302,22 @@ Ningún otro documento enuncia obligaciones: las **cita** por ID (`LEX-R22`).
 
 | | |
 |:---|:---|
-| **Entrada** | Añadir su entrada a `COMPONENTES` en `tools/patrones.mjs`, con los nueve campos que `LEX-R35` declara |
-| **Recorrido** | `verify-patrones` comprueba el contrato → `build-core` lo emite a `CORE.md` con sus reglas y sus triggers → `audit` lo audita → `verify-suite` ve sus reglas |
+| **Entrada** | Cinco pasos, **ninguno opcional** — `PT-149` los midió ejecutando este caso: (1) su entrada en `COMPONENTES`, con los nueve campos de `LEX-R35`; (2) su tabla de fases en `LEXICON` §3, sin la cual el rango es **inventado**; (3) su archivo de prompts declarado en `LEXICON` §6.6; (4) ese archivo, con sus fases; (5) `build-core` |
+| **Recorrido** | `verify-patrones` comprueba el contrato → `build-core` lo cuela en `CORE.md` con sus fases y sus triggers → `audit` lo audita → `verify-suite` ve sus reglas |
 | **Fin** | `npm run verify` en verde **con el componente dentro** |
 | **Humano** | Decidir que el componente existe. Y si toca `docs/methodology/`, `SUITE-R06e` |
 
 **Ninguna herramienta se toca** (`SUITE-R60`). Si hace falta editar una para que el componente
 aparezca, ese sitio es un literal que quedó sin derivar — y es un defecto, no un paso.
+
+**Esta frase era falsa hasta `PT-149`, y lo dijo ejecutarla.** Dar de alta un componente de
+prueba obligaba a editar **dos** herramientas: `verify-patrones` fijaba que hubiera *exactamente*
+seis componentes y que el único opcional fuera `FIDE`, y `build-core` llevaba los bloques de
+fases y de triggers **escritos a mano**, así que el componente nuevo no llegaba a `CORE.md` —
+y `CORE.md` es lo único que el agente carga. Las dos aserciones de `verify-patrones` se
+convirtieron en lo que sí es un contrato —**ninguno de los seis puede desaparecer**, en vez de
+«no puede haber un séptimo»—, y los dos bloques de `build-core` se **completan** con lo que falte:
+el texto redactado sigue mandando, y nada puede quedar ausente en silencio.
 
 **Y antes de dar de alta nada, decide qué estás dando de alta** (`LEX-R36`): un **componente**
 tiene fases, triggers y directorio; una **familia de reglas** es sólo un prefijo con un documento

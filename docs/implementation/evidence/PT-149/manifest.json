@@ -1,0 +1,69 @@
+{
+  "pt": "PT-149",
+  "generated": "2026-08-26",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El alta no toca ninguna herramienta: de tools/ solo cambia el contrato",
+      "tests": ["selftest: diff -rq de tools/ contra la copia pristina devuelve 1"],
+      "evidence": ["salidas/bateria.out"],
+      "verified": true,
+      "nota": "REFORMULADO respecto al intake, y queda MAS FUERTE. Decia «el alta toca UNICAMENTE el contrato», que es lo que E5 afirmaba y es FALSO: toca el contrato y DOS documentos, porque sin LEXICON §3 el rango es inventado y sin el archivo de prompts audit reporta el hueco. Lo que SUITE-R60 promete de verdad es que no se toque ninguna HERRAMIENTA."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Las cuatro herramientas lo reconocen, cada una con su comprobacion propia",
+      "tests": ["build-core: ^ZT en CORE.md", "build-core: [START ZETA]", "verify-suite: ZTA en prefijos()", "audit: Zeta 1-3", "audit: (7 de 7)", "verify-patrones: en verde con el septimo"],
+      "evidence": ["salidas/bateria.out", "salidas/verify-patrones.out"],
+      "verified": true,
+      "nota": "build-core NO lo emitia: «Zeta», «ZTA» y «[START ZETA]» aparecian CERO veces en el CORE.md regenerado, mientras E5 declaraba que «lo emite con sus reglas y sus triggers». Los bloques de fases y triggers estaban TECLEADOS. Se COMPLETAN, no se reescriben: llevan la sintaxis de cada comando, que no sale de ningun contrato. Al aplicarlo aparecio que FIDE FALTABA del mapa de fases teniendo rango declarado desde PT-144."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Las reglas del componente no quedan invisibles al verificador",
+      "tests": ["prefijos() incluye ZTA", "perder un componente sigue rojo", "perder una familia sigue rojo", "alterar el orden sigue rojo"],
+      "evidence": ["salidas/bateria.out", "salidas/verify-patrones.out"],
+      "verified": true,
+      "nota": "Aqui aparecio el paso que NO DECIA NADIE: prefijos() sale de FAMILIAS, no de COMPONENTES. Un componente con reglas propias necesita entrada en LAS DOS listas — es LEX-R36 hecho operacion. Sin ella sus reglas son invisibles y todo pasa en verde POR NO MIRARLAS, el defecto exacto que abrio EP-022."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La baja deja el arbol identico al de partida, byte a byte",
+      "tests": ["diff -rq de la copia contra la copia pristina devuelve 0"],
+      "evidence": ["salidas/bateria.out"],
+      "verified": true,
+      "nota": "Es lo que convierte la demostracion en prueba: «restable» sin esto significaria solo que el componente DEJA DE FUNCIONAR, no que se PUEDA QUITAR. La cuenta de diferencias tiene que ser CERO, no «pocas»."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "El caso corre dentro de npm run verify, no aparte",
+      "tests": ["selftest.sh · 1747 casos, cero rojos"],
+      "evidence": ["salidas/bateria.out"],
+      "verified": true,
+      "nota": "Y correrlo destapo SEIS fijaciones que impedian el alta, no una. Ninguna se veia leyendo: las seis salieron de intentarlo. Cuatro estaban en FAMILIAS —«exactamente diez», «estos prefijos», «estas siete en prosa», «este orden»— y ninguna se habia mirado en todo el lote."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "El componente de prueba no queda declarado, ni aunque el caso falle a mitad",
+      "tests": ["grep de Zeta/ZETA/ZTA en patrones.mjs y CORE.md tras la bateria: 0 y 0"],
+      "evidence": ["salidas/git-status.out"],
+      "verified": true,
+      "nota": "Sin TS porque no lo necesita: todo ocurre sobre copias en $WORK y el arbol real no se toca NUNCA, asi que incumplirlo es estructuralmente imposible en vez de depender de un trap que hay que acordarse de escribir y que tambien puede fallar. Medido despues de 1747 casos: cero rastros."
+    }
+  ],
+  "regression": [
+    {"rc": "RC-01", "statement": "El contrato no puede encoger: perder un componente, una familia o el orden siguen siendo rojo", "verified": true},
+    {"rc": "RC-02", "statement": "FIDE sigue siendo el opcional que verify-suite:425 y comparar-marco:39 leen", "verified": true},
+    {"rc": "RC-03", "statement": "Los bloques redactados de CORE no se pierden: se completan, no se reescriben", "verified": true},
+    {"rc": "RC-04", "statement": "Ninguna regla cambia; CORE sigue en 263", "verified": true}
+  ],
+  "hallazgos": ["PT-168", "PT-165 (absorbida)"],
+  "medido": {
+    "fijaciones_que_impedian_el_alta": 6,
+    "pasos_reales_del_alta": 6,
+    "herramientas_que_lo_veian_sin_tocarlas": "1 de 4",
+    "casos_selftest": "1736 → 1747",
+    "rastros_de_Zeta_en_el_arbol_real": 0,
+    "reglas_de_CORE": "263 → 263"
+  }
+}

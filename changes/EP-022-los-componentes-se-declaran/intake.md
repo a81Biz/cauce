@@ -246,12 +246,12 @@ en cada tarea.
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | PENDIENTE — los catorce sitios de componentes, el de severidades, y lo que `PT-147` destape sobre `FPGE` y `FIDE` |
-| Número de versión | PENDIENTE — **`MINOR` esperado**: el lote es aditivo por restricción declarada en §3. Si algo obliga a modificar una obligación existente, deja de ser `MINOR` y exige guía de migración |
-| Regla nueva de `PT-148` | PENDIENTE — su ID y su severidad se fijan al escribirla; si su chequeo no llega, sale `HARD`, no `CHECK` |
-| Validación humana de `PT-150` | PENDIENTE — es el único `BUG` del lote: la delegación **no** cubre su cierre (`SUITE-R06b`) |
-| Lo que `PT-147` destape en `FPGE` y `FIDE` | PENDIENTE — se declara al cerrar; corregirlo es trabajo aparte, no de este lote |
-| Las cinco allocations con severidad fuera de escala | PENDIENTE DE DECISIÓN — se dejan como están (`PT-150` `AC-06`). Normalizarlas sería rejuzgar trabajo integrado, y es otra decisión |
+| Entrada de `CHANGELOG.md` | **HECHO** — `13.2.0`, con los dieciséis sitios, el de severidades, lo que `PT-147` destapó, y lo que el lote **no** establece (`SUITE-R26`) |
+| Número de versión | **HECHO** — `13.2.0`, `MINOR`. Se confirmó, no se supuso: las **tres** reglas nuevas —`SUITE-R60`, `LEX-R35`, `LEX-R36`— son aditivas, y **ninguna obligación existente cambia de enunciado ni de severidad**. `CORE` sigue en 263 reglas. Un proyecto instalado que regenere `CORE.md` verá líneas **de más** y ninguna de menos, así que no hay guía de migración que escribir |
+| Regla nueva de `PT-148` | **HECHO** — `SUITE-R60`, y nace `CHECK`, no `HARD`: el chequeo llegó. Media comprobación ya existía en `verify-patrones`; la otra media es el barrido nuevo, con **cuatro casos negativos permanentes** porque su criterio no es que cace, sino que **no cace comentarios** |
+| Validación humana de `PT-150` | **HECHO — 2026-08-25.** Único `BUG` del lote. Transitó `VALIDATION_PENDING → DONE` con la validación firmada por delegación y su constancia en `SESSION_LOG.md`, y su entrada de `HISTORY.log` lo dice con todas las letras: *«`FDGE-R26` y `SUITE-R06b` exigen que la firme una persona: la firma un agente EN SU NOMBRE, y eso se dice»*. Esta fila estuvo declarando lo contrario durante el cierre porque se escribió sin abrir `HISTORY` — el error que el propio lote persigue, cometido en su acta de cierre |
+| Lo que `PT-147` destape en `FPGE` y `FIDE` | **HECHO, y fue más de lo previsto.** `FPGE` tenía prompts declarados y **nadie auditaba sus fases**; `FIDE` no estaba en ninguno de los dos mapas. La causa de `FPGE` estaba tres documentos más arriba —numeraba sus pasos `[1]`..`[7]`, y `LEXICON` §2 prohíbe las grafías **por su nombre** sin incluir el corchete— y se corrigió en `PT-156`. La de `FIDE` salió en `PT-149`: **faltaba en el mapa de fases de `CORE`** teniendo rango declarado. Lo que queda abierto se declara y no se arrastra: `PT-164` · `PT-166` · `PT-167` · `PT-168` |
+| Las cinco allocations con severidad fuera de escala | **HECHO — se dejan como están** (`PT-150` `AC-06`). Normalizarlas sería rejuzgar trabajo ya integrado, y ésa es otra decisión |
 
 ---
 

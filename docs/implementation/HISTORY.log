@@ -9540,3 +9540,126 @@ CUATRO HALLAZGOS, LOS CUATRO CON TAREA:
 
 LO QUE NO ESTABLECE: que las siete filas de LEXICON 3.6 COINCIDAN con las de los documentos
 operativos. Se verifico a mano; nada mecanico lo sostiene (SUITE-R26).
+
+## PT-149 — la prueba: un componente se da de alta y de baja sin tocar una herramienta
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022 — es su CRITERIO DE EXITO
+Rama: chore/alberto-martinez/PT-149-la-prueba-de-alta-y-baja
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md
+            G3 2026-08-26 — auto-resuelta por las SIETE condiciones de EXEC 5.2, comprobadas
+            mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+EL CRITERIO DE EXITO DEL LOTE NO SE CUMPLIA, Y SOLO LO DIJO EJECUTARLO. PT-144..PT-148
+construyeron el contrato y ESCRIBIERON el procedimiento de alta y baja. Esta tarea empieza
+EJECUTANDOLO sobre una copia del arbol, con un componente de prueba —«Zeta», sigla «ZT», prefijo
+«ZTA», fases 1-3, los tres DISTINTOS ENTRE SI para que ninguna asercion pueda pasar por parecido.
+
+E5 declaraba que el alta es «anadir su entrada a COMPONENTES» y que el fin es «npm run verify en
+verde con el componente dentro». LAS DOS MITADES ERAN FALSAS:
+
+    verify-suite      SI lo ve — deriva la alternancia de prefijos. Es lo que PT-145 construyo
+    audit             APARENTEMENTE — dice «Zeta 1-3 (7 de 7)», pero da por cubiertas sus fases
+                      en dos documentos donde no aparece NI UNA VEZ  → PT-168
+    build-core        NO — «Zeta», «ZTA» y «[START ZETA]» aparecian CERO veces en el CORE.md
+                      regenerado, mientras E5 decia que «lo emite con sus reglas y sus triggers»
+    verify-patrones   NO — SEIS fijaciones, y solo dos se veian venir. Cuatro estaban en
+                      FAMILIAS —«exactamente diez», «estos prefijos», «estas siete en prosa»,
+                      «este orden»— y NINGUNA se habia mirado en todo el lote
+
+Y EL ALTA REAL SON SEIS PASOS, NO UNO. Se midio DOS VECES, porque la primera correccion tampoco
+estaba completa: el fixture escrito solo con el contrato puso en rojo TRES de mis propias
+comprobaciones —incluida, palabra por palabra, la que escribi el dia anterior en PT-156: «un rango
+sin documento del que salir es un rango INVENTADO». El sexto paso NO LO DECIA NADIE: prefijos()
+sale de FAMILIAS, no de COMPONENTES, asi que un componente con reglas propias necesita entrada en
+LAS DOS listas. Es LEX-R36 hecho operacion, y sin ella sus reglas son INVISIBLES al verificador y
+todo pasa en verde POR NO MIRARLAS — el defecto exacto que abrio EP-022, reproducido dando de alta
+un componente segun el manual.
+
+    1. patrones.mjs · COMPONENTES     la entrada, nueve campos
+    2. patrones.mjs · FAMILIAS        su prefijo de reglas          <- nadie lo decia
+    3. LEXICON 3                      su tabla de fases
+    4. LEXICON 6.6                    su archivo de prompts, declarado
+    5. <COMP>-Prompts.md              el archivo, con sus fases
+    6. build-core                     regenerar CORE.md
+
+LA CORRECCION TIENE DIRECCION, Y ESO ES LO QUE LA DISTINGUE DE APAGAR LA COMPROBACION. Las SEIS
+aserciones eran correctas como RETRATO de hoy y falsas como CONTRATO: convertian
+el alta de un septimo componente en una edicion de herramienta, que es literalmente lo que E5
+declara defecto y no paso, y lo contrario de lo que SUITE-R60 promete. Lo salvable se conserva
+entero: EL CONTRATO PUEDE CRECER Y NO PUEDE ENCOGER. Perder uno de los seis SIGUE siendo rojo, y
+hay TRES casos permanentes que lo fijan: perder un componente, perder una familia y alterar el
+orden SIGUEN siendo rojo. Sin ellos, la correccion seria indistinguible de un apagado. Y cada una
+necesito preguntarse QUE PROTEGIA DE VERDAD, porque no era lo mismo en las cuatro de FAMILIAS: la
+de familiasEnProsa() guarda POR QUE son siete y no diez —LEX, EXEC y PTSA fuera, porque sus reglas
+no viven en RULES.md— y la de ordenDePrefijos() guarda el ORDEN RELATIVO, no la igualdad. Esa
+ultima era la mas facil de estropear: cambiar «igual a la lista» por «contiene la lista» habria
+dejado de comprobar el orden, y CORE.md se emite con el. Se comprueba la SUBSECUENCIA.
+
+Y LOS BLOQUES DE CORE SE COMPLETAN, NO SE REESCRIBEN. Llevan la sintaxis de cada comando —«delta QA
+PT-XXX», «promote FPGE R-NNN»— que no sale de ningun contrato: derivarlos enteros la habria
+perdido, y CORE.md es lo unico que el agente carga para saber invocarlos. Tres lineas de colador:
+lo redactado manda, y lo que falte se anade. AL APLICARLO APARECIO ALGO QUE NADIE BUSCABA: FIDE NO
+ESTABA EN EL MAPA DE FASES, teniendo fases: [1, 5] declaradas desde PT-144. Cinco de seis
+tecleados, y el ausente no daba error.
+
+TODO OCURRE SOBRE COPIAS, Y NO POR COMODIDAD. AC-06 pide que el componente de prueba no quede
+declarado NI AUNQUE EL CASO FALLE A MITAD. Con un trap eso depende de acordarse de escribirlo y de
+que el trap no falle; sobre copias es ESTRUCTURALMENTE IMPOSIBLE incumplirlo. El HANDOFF ya avisaba
+del filo vecino: no editar selftest.sh mientras corre, porque bash lo lee por desplazamiento de
+bytes.
+
+LOS TRECE CASOS, Y POR QUE DOS DE ELLOS NO ASERTAN SOBRE LO NATURAL. Lo natural seria buscar «Zeta
+PHASE 1» en la salida de audit. NO VALE: esa linea solo se emite como HUECO, y audit da por
+cubierta una fase si el NUMERO aparece en cualquier sitio del documento. Un caso apoyado ahi
+pasaria POR EL FALSO POSITIVO — que es exactamente el defecto que PT-156 saco de los tres casos
+invertidos de PT-147, aplicado aqui ANTES de escribir el caso en vez de despues de verlo en rojo.
+
+Archivos modificados: tools/verify-patrones.mjs · tools/build-core.mjs · tools/selftest.sh ·
+  CASOS-DE-USO.md · CORE.md (generado)
+
+Medido: de tools/ el alta toca UN archivo, el contrato · un septimo componente entra solo en CORE con sus fases y su
+  trigger · FIDE aparece en el mapa de fases por primera vez · la baja deja el arbol con CERO
+  diferencias · CERO rastros de Zeta en el arbol real tras la bateria · selftest 1736 -> 1749
+  casos · las 263 reglas siguen siendo 263.
+
+Evidencia: evidence/PT-149/ — manifest con 6 AC y 4 RC, self-review, y sus salidas.
+
+Y DOS ERRORES MIOS, LOS DOS CAZADOS POR LA BATERIA:
+
+1. ESCRIBI EL FIXTURE TOCANDO SOLO EL CONTRATO, que es lo que AC-01 pedia y lo que yo mismo habia
+   medido como falso horas antes. Tres de los seis rojos de la primera pasada son mis propias
+   comprobaciones cazandolo. AC-01 y AC-03 se REFORMULAN a lo medido, y quedan MAS FUERTES: lo que
+   SUITE-R60 promete no es «un solo archivo» sino que NO SE TOQUE NINGUNA HERRAMIENTA.
+
+2. DI POR ROJA LA BATERIA FINAL POR EL CODIGO DE SALIDA. El comando terminaba en grep -c, que
+   devuelve 1 cuando la cuenta es CERO: el arnes reporto fallo sobre una bateria EN VERDE. Misma
+   familia que el error ya medido en este repositorio —leer el exit de una tuberia como si fuera
+   el del verificador— por el otro extremo, y se resolvio igual: MIRANDO EL ARCHIVO.
+
+3. AC-06 SE ESCRIBIO SIN ESCENARIO, declarandolo «estructural: todo ocurre sobre copias».
+   verify-fdge lo rechazo como Orphan Criterion (FDGE-R15) y tenia razon: «es imposible por
+   diseno» es justo la clase de afirmacion que este lote existe para no aceptar sin medir. Ahora
+   TS-12 lo comprueba donde una fuga existiria — despues de once altas y once bajas.
+
+Y UNO ENCONTRADO EN LA COMPUERTA: tracker aplazar --de escribia «aplazamiento.de» y SUITE-R44
+comprueba la reciprocidad sobre «origin». Un hecho con dos nombres (CE-008) en la herramienta que
+gobierna los aplazados — y como LEX-R34 declara ese comando la UNICA via sancionada, un aplazado
+creado como manda el marco NO PODIA satisfacer la regla del marco: habia que editar REGISTRY.json
+a mano, que es lo que tracker.mjs:2590 condena. Corregido en la HERRAMIENTA, no en el registro.
+
+DOS HALLAZGOS:
+  PT-168 (S1)  audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier
+               sitio del documento, sin mirar de quien es. De las TRES dimensiones que exige por
+               fase, SOLO UNA discrimina. La cifra que publica cuenta como verificado lo que
+               ninguna maquina distingue de su ausencia. No se arregla aqui: ponerlo en rojo es
+               trabajo con su propia medicion, no un paso de la tarea que lo encontro.
+  PT-165       ABSORBIDA. Se abrio en PT-156 por el mapa de fases tecleado, y es exactamente lo
+               que AC-02 necesitaba derivar.
+
+LO QUE NO ESTABLECE: que el componente de prueba FUNCIONE. No tiene fases reales, ni prompts, ni
+especificacion. Se prueba el alta y la baja, no el componente.

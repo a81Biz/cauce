@@ -102,11 +102,25 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   const fams = listaDe(FAMILIAS);
   total += 6;
 
-  if (comps.length !== 6) {
-    errores.push(`COMPONENTES: declara ${comps.length} componente(s) y la suite tiene 6 (FDGE · FQAGE · PTSA · Foundation · FPGE · FIDE).`);
+  // PT-149 · ESTO FIJABA «EXACTAMENTE SEIS», Y ESO NO ES UN CONTRATO: ES UN RETRATO. Dar de alta
+  // un septimo componente ponia en rojo la prueba del contrato, asi que el alta EXIGIA EDITAR UNA
+  // HERRAMIENTA — literalmente lo que E5 declara defecto y no paso, y lo contrario de lo que
+  // SUITE-R60 promete («un septimo componente entra solo»). Lo salvable de la asercion se
+  // conserva entero: que NINGUNO DE LOS SEIS DESAPAREZCA. Perder uno sigue siendo rojo; anadir
+  // uno, no. La direccion importa: el contrato tiene que poder CRECER y no puede ENCOGER.
+  const LOS_SEIS = ['FDGE', 'FQAGE', 'PTSA', 'Foundation', 'FPGE', 'FIDE'];
+  const nombres = comps.map((c) => c.nombre);
+  const perdidos = LOS_SEIS.filter((x) => !nombres.includes(x));
+  if (perdidos.length) {
+    errores.push(`COMPONENTES: falta(n) ${perdidos.join(' · ')}. La suite tiene estos seis y el contrato no puede perder ninguno.`);
   }
-  if (fams.length !== 10) {
-    errores.push(`FAMILIAS: declara ${fams.length} familia(s) y hay 10 prefijos de regla. Seis coinciden con un componente; SUITE, LEX, EXEC e INTAKE no.`);
+  // PT-149 · MISMA CORRECCION Y MISMO MOTIVO QUE ARRIBA. Fijar «exactamente diez» impedia dar de
+  // alta una FAMILIA de reglas, que LEX-R36 declara un acto legitimo y DISTINTO del alta de un
+  // componente. Se conserva entero lo que protegia: que no falte ninguna de las diez.
+  const LAS_DIEZ = ['SUITE', 'LEX', 'EXEC', 'FND', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FIDE'];
+  const sinFamilia = LAS_DIEZ.filter((x) => !fams.some((f) => f.prefijo === x));
+  if (sinFamilia.length) {
+    errores.push(`FAMILIAS: falta(n) ${sinFamilia.join(' · ')}. Seis coinciden con un componente; SUITE, LEX, EXEC e INTAKE no, y ninguna puede desaparecer.`);
   }
 
   // Un campo ausente se distingue de uno en falso: `undefined` es «nadie lo escribió» y `null`
@@ -219,23 +233,41 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   const mismos = (a, b) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
 
   const PREFIJOS_HOY = ['SUITE', 'LEX', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FND', 'FIDE', 'EXEC'];
-  if (!mismos(prefijos(), PREFIJOS_HOY)) {
-    errores.push(`prefijos() no reproduce la alternancia de verify-suite.mjs (:250 · :254 · :256 · :289 · :403). Hoy: ${JSON.stringify(prefijos())}`);
+  // PT-149 · CONTIENE, no IGUALA: la alternancia de verify-suite se DERIVA de aqui, asi que un
+  // prefijo nuevo entra sin tocarla — que es el punto entero de PT-145. Lo que no puede pasar es
+  // que uno de los diez deje de estar: sus reglas se volverian invisibles al verificador y todo
+  // pasaria en verde POR NO MIRARLAS, que es el defecto que abrio EP-022.
+  const sinPrefijo = PREFIJOS_HOY.filter((x) => !prefijos().includes(x));
+  if (sinPrefijo.length) {
+    errores.push(`prefijos() ya no incluye ${sinPrefijo.join(' · ')}, y de aqui sale la alternancia de verify-suite.mjs (:250 · :254 · :256 · :289 · :403). Hoy: ${JSON.stringify(prefijos())}`);
   }
 
-  const OPCIONALES_HOY = ['FIDE'];
-  if (!mismos([...opcionales()], OPCIONALES_HOY)) {
-    errores.push(`opcionales() no reproduce Set(['FIDE']) de verify-suite.mjs:425 y comparar-marco.mjs:39. Hoy: ${JSON.stringify([...opcionales()])}`);
+  // PT-149 · misma correccion y mismo motivo: fijar el conjunto EXACTO de opcionales impedia dar
+  // de alta un componente opcional sin editar esta herramienta. Lo que hay que preservar es que
+  // FIDE lo siga siendo —es el hecho que verify-suite.mjs:425 y comparar-marco.mjs:39 escribian
+  // cada una por su cuenta, con dos nombres distintos (FIDE-R01)—, no que sea el unico.
+  if (![...opcionales()].includes('FIDE')) {
+    errores.push(`opcionales() ya no contiene FIDE, que FIDE-R01 declara el opcional de la suite y verify-suite.mjs:425 y comparar-marco.mjs:39 leen de aqui. Hoy: ${JSON.stringify([...opcionales()])}`);
   }
 
+  // PT-149 · CONTIENE, no IGUALA. Lo que hay que preservar es POR QUE son siete y no diez: LEX,
+  // EXEC y PTSA quedan fuera porque sus reglas NO VIVEN EN RULES.md, y esa es la distincion que
+  // LEX-R36 escribio. Una familia nueva cuyas reglas si vivan ahi entra sin tocar nada.
   const PROSA_HOY = ['SUITE', 'FND', 'FDGE', 'INTAKE', 'QA', 'FPGE', 'FIDE'];
-  if (!mismos(familiasEnProsa(), PROSA_HOY)) {
-    errores.push(`familiasEnProsa() no reproduce build-core.mjs:171. Son 7 y NO incluyen LEX, EXEC ni PTSA, porque sus reglas no viven en RULES.md. Hoy: ${JSON.stringify(familiasEnProsa())}`);
+  const sinProsa = PROSA_HOY.filter((x) => !familiasEnProsa().includes(x));
+  const coladas = ['LEX', 'EXEC', 'PTSA'].filter((x) => familiasEnProsa().includes(x));
+  if (sinProsa.length || coladas.length) {
+    errores.push(`familiasEnProsa() no reproduce build-core.mjs:171: falta(n) ${sinProsa.join(' · ') || 'ninguna'} y sobra(n) ${coladas.join(' · ') || 'ninguna'}. LEX, EXEC y PTSA NO van, porque sus reglas no viven en RULES.md. Hoy: ${JSON.stringify(familiasEnProsa())}`);
   }
 
+  // PT-149 · LA PROPIEDAD ES EL ORDEN RELATIVO, NO LA IGUALDAD. CORE.md se emite con esta
+  // secuencia, asi que las diez tienen que seguir apareciendo EN ESTE ORDEN — pero una familia
+  // nueva intercalada o al final no rompe nada, y exigir igualdad la prohibia. Se comprueba
+  // filtrando: la subsecuencia de las diez conocidas debe ser exactamente ORDEN_HOY.
   const ORDEN_HOY = ['SUITE', 'LEX', 'EXEC', 'FND', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FIDE'];
-  if (ordenDePrefijos().join() !== ORDEN_HOY.join()) {
-    errores.push(`ordenDePrefijos() no reproduce build-core.mjs:183 EN SU ORDEN. CORE.md se emite con él. Hoy: ${JSON.stringify(ordenDePrefijos())}`);
+  const subsecuencia = ordenDePrefijos().filter((x) => ORDEN_HOY.includes(x));
+  if (subsecuencia.join() !== ORDEN_HOY.join()) {
+    errores.push(`ordenDePrefijos() no reproduce build-core.mjs:183 EN SU ORDEN. CORE.md se emite con él, y las diez conocidas tienen que seguir en esta secuencia. Hoy: ${JSON.stringify(ordenDePrefijos())}`);
   }
 
   const t = triggers();
