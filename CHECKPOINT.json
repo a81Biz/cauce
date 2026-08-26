@@ -1,32 +1,22 @@
 {
-  "pt": "PT-147",
-  "type": "REFACTOR",
+  "pt": "PT-148",
+  "type": "CHORE",
   "epic": "EP-022",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "refactor/alberto-martinez/PT-147-audit-deja-de-escribirlos",
-  "sha": "3f9f87d7616ce5e91a225413da43faa95bd17c27",
-  "sha_corto": "3f9f87d",
+  "sha": "10cef2f59d909182bdfdb8bd98889594defd4f6d",
+  "sha_corto": "10cef2f",
   "sucio": true,
   "archivos": [
-    "changes/PT-147-audit-deja-de-escribirlos/intake.md",
-    "changes/PT-147-audit-deja-de-escribirlos/traceability.md",
-    "changes/PT-151-verify-no-es-lo-que-corre-ci/",
-    "changes/PT-159-un-declara-abre-o-declara-su-vuelta/",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-147/",
-    "docs/methodology/tools/audit.mjs",
-    "docs/methodology/tools/selftest.sh"
+    "changes/PT-148-el-alta-y-la-baja-se-escriben/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-25"
 }
