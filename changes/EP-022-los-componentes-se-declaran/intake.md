@@ -258,3 +258,44 @@ en cada tarea.
 ## Revisiones
 
 > Append-only una vez firmado (`SUITE-R09`).
+
+## Revisión 1 — 2026-08-25 · `PT-156` entra en el alcance del lote
+
+**Qué cambia.** El apartado de `LEXICON` §3 que declara el rango de fases de `FPGE` —hoy
+registrado como `PT-156` en `EP-024`— **se ejecuta antes de cerrar `EP-022`**.
+
+**Motivo.** `PT-147` hizo entrar a `FPGE` y `FIDE` en la auditoría de fases, que es su `AC-03`.
+Al hacerlo, `audit` pasó de `EXIT=0` a `EXIT=1` con un único hueco:
+
+```
+✗ FPGE fases   LEXICON §3 no declara su rango — SIN EVALUAR, no se inventa (RULE-06)
+```
+
+**Antes salía verde porque no miraba.** Convertir un falso verde en un rojo verdadero es
+exactamente lo que este lote existe para hacer — pero `audit` sale `1` con cualquier hueco, así
+que **`npm run verify` no puede quedar en verde mientras `LEXICON` §3 no declare ese rango**, y
+`§2` de este intake exige que la operación «se ejecute y `npm run verify` la vea».
+
+Sin esta revisión, el lote no podría cumplir su propio criterio de éxito.
+
+**Quién lo decidió.** El firmante, el 2026-08-25, ante las tres salidas que `PT-147` declaró en su
+parada de `#282`: (`A`) `PT-156` entra, (`B`) cerrar con la batería roja y excepción en `G4`,
+(`C`) sacar `FPGE` del recorrido —que restauraría el falso verde—. Eligió **`A`**.
+
+**Precedente.** `PT-150` entró en este mismo lote por una decisión suya, cuando el borrador de
+`§3` lo declaraba `OUT`.
+
+**Lo que esta revisión NO cambia.** El `OUT` de `§3` sigue vigente para todo lo demás: el lote
+sigue siendo aditivo y sigue yendo de **componentes**. `LEXICON` §3 es el *mapa de fases por
+componente*, así que cae dentro de esa frontera y no la mueve.
+
+**Una limitación de herramienta, declarada en vez de rodeada.** `PT-156` **sigue registrada bajo
+`EP-024`**: sólo `asignar` escribe `epic` al crear y `retomar` sólo lo cambia desde `DEFERRED`, así
+que **no hay comando** para mover una tarea `DRAFT` entre lotes. Escribir `REGISTRY.json` a mano
+es el `no hacer` número 2 del `HANDOFF`.
+
+`PHASES` `PHASE 1` es explícita sobre qué hacer entonces: *«si el comando no admite lo que
+necesitas, eso es un defecto del comando: decláralo, no lo rodees en silencio»*. El defecto es
+`PT-162`, y el registro sigue diciendo la verdad sobre lo que la herramienta puede escribir.
+
+Firmado por: Alberto Martínez — por delegación, autorización en `SESSION_LOG.md`
