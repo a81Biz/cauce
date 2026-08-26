@@ -43,3 +43,18 @@ con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
 
 Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
 con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-170 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-170` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Cuando EP-024 se descomponga. La decision no es anadir «autorizacion» a la lista de palabras —eso es perseguir el idioma— sino si la constancia se reconoce por su FORMA, como el bloque de aplazamiento tras LEX-R34, en vez de por las palabras de su titulo. |
+| Se revisa el | 2026-09-09 |
+| Responde | Alberto Martínez |
+| Sale de | PT-149 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.

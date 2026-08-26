@@ -9,7 +9,7 @@ id: PT-145
 type: REFACTOR
 epic: EP-022
 track: STANDARD
-status: DRAFT
+status: INTEGRATED
 phase: 8
 created: 2026-08-24
 structural: no
