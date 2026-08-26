@@ -1,0 +1,68 @@
+{
+  "pt": "PT-156",
+  "generated": "2026-08-25",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Los siete pasos de FPGE se escriben PHASE <n> — <Nombre> en los DOS documentos operativos",
+      "tests": ["selftest: PHASE 7 — Stop en FPGE-Implementation", "selftest: ## PHASE 7 — Stop en FPGE-Prompts", "selftest: no queda ningun paso en corchetes"],
+      "evidence": ["salidas/bateria.out"],
+      "verified": true,
+      "nota": "Los dos van juntos y no por simetria: cambiar solo uno deja la suite con DOS numeraciones vivas sobre el mismo recorrido, que es lo que LEX-R01 existe para impedir. Ninguna linea del cuerpo cambia: se renombra la grafia del paso, no el proceso."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "LEXICON §3 tiene apartado propio para FPGE, con las mismas siete fases y los mismos nombres",
+      "tests": ["selftest: ### 3.6 FPGE en LEXICON.md", "lectura fila a fila contra FPGE-Implementation"],
+      "evidence": ["salidas/bateria.out"],
+      "verified": true,
+      "nota": "AC-02 decidio el orden de todo lo demas. Escribir el apartado PRIMERO habria sido una afirmacion sin respaldo: no habria fases que estuviera declarando. Y los siete nombres salen literalmente del documento operativo — no se inventa, no se funde, no se anade ninguno. Lo que NO sostiene nada mecanico: que las siete filas coincidan. Se verifico a mano y se declara (SUITE-R26)."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "patrones.mjs declara FPGE.fases y ya no SIN_EVALUAR",
+      "tests": ["verify-patrones: fasesDe('FPGE') === [1,7]", "fixture: devolver SIN_EVALUAR con el apartado escrito se caza"],
+      "evidence": ["salidas/verify-patrones.out", "salidas/bateria.out"],
+      "verified": true,
+      "nota": "La asercion NACIO al reves —exigia SIN_EVALUAR— y estaba bien mientras el dato no existia: defendia la declaracion de ignorancia (RULE-06). Al voltearla quedo un hueco NUEVO que se cerro en el acto: nadie comprobaba que LEXICON TUVIERA el apartado del que el rango sale. El contraste va ahora contra el DOCUMENTO, en los DOS sentidos, derivado de COMPONENTES."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "audit no reporta ningun hueco de clase fase, y publica la anchura de lo que audito",
+      "tests": ["npm run audit: EXIT=0, cero huecos", "selftest: (6 de 6) · FIDE 1-5 · FPGE 1-7 · Foundation 0-6"],
+      "evidence": ["salidas/audit.out", "salidas/bateria.out"],
+      "verified": true,
+      "nota": "La anchura se publica PORQUE los tres casos de PT-147 que afirmaban cobertura la buscaban en la linea del HUECO: pasaban mientras el componente FALLABA. audit dice ahora «Fases auditadas: … (6 de 6)», derivado de COMPONENTES."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "CORE.md regenerado, y su diff se LEE",
+      "tests": ["build-core", "lectura del diff completo"],
+      "evidence": ["salidas/core-diff.out"],
+      "verified": true,
+      "nota": "El diff son SEIS lineas: dos sellos y la linea de FPGE. Y leerlo es lo que destapo que CORE publicaba «FPGE … → promote» con SEIS pasos, contra FPGE-R04 —que dice que PHASE 7 es STOP y promover es humano— en el unico archivo que el agente carga. AC-05 no era «sin errores»: era leer."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "verify-suite, verify-patrones y verify-fdge en verde, y la bateria completa",
+      "tests": ["los tres verificadores", "selftest.sh · 1736 casos"],
+      "evidence": ["salidas/bateria.out", "salidas/verify-patrones.out"],
+      "verified": true,
+      "nota": "La PRIMERA bateria devolvio SIETE rojos y ninguno era casualidad: cuatro eran casos que solo podian pasar mientras existia el defecto que vigilaban, uno era mi comprobacion muriendo en fixtures que solo copian tools/, uno la premisa perdida de un fixture de PT-144, y uno las cifras del inventario. verify-patrones pasa de 99 a 106 comprobaciones."
+    }
+  ],
+  "regression": [
+    {"rc": "RC-01", "statement": "Ninguna regla cambia de enunciado ni de severidad; CORE sigue en 263", "verified": true},
+    {"rc": "RC-02", "statement": "El proceso de FPGE no cambia: solo la grafia de sus pasos", "verified": true},
+    {"rc": "RC-03", "statement": "Los otros cinco componentes conservan su rango", "verified": true},
+    {"rc": "RC-04", "statement": "Lo que protegian los casos retirados de PT-147 sigue protegido, por el contraste en los dos sentidos", "verified": true}
+  ],
+  "hallazgos": ["PT-164", "PT-165", "PT-166", "PT-167"],
+  "medido": {
+    "casos_selftest": "1727 → 1736",
+    "comprobaciones_verify_patrones": "99 → 106",
+    "huecos_de_audit": "1 → 0",
+    "rojos_de_la_bateria": "7 → 0",
+    "roturas_de_escapado": "27 → 29"
+  }
+}

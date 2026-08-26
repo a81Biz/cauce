@@ -1,0 +1,24 @@
+audit — cobertura de la Methodology Suite
+Base: C:\DevOps\Desarrollos\cauce\docs\methodology
+
+Cubiertos: 654  (regla:241 · regla-ptsa:82 · fase:52 · fase-diagrama:11 · compuerta:5 · trigger:25 · artefacto:34 · archivo:54 · plantilla:6 · estado:14 · tipo:5 · track:3 · severidad:4 · modo:3 · herramienta:72 · documento:36 · cobertura-mecanica:7)
+Fases auditadas: FDGE 0-10 · FQAGE 1-7 · PTSA 0-14 · Foundation 0-6 · FPGE 1-7 · FIDE 1-5  (6 de 6)
+
+Cobertura mecánica de las reglas   (SUITE-R26 · aspira, no exige)
+  universo                       239     (RULES.md 188 · LEXICON.md 36 · EXECUTION-MODES.md 15)
+  ejecutadas por una compuerta   134 / 239     · HARD 109 / 205
+  citadas sin compuerta que las corra   11        → --sin-compuerta las enumera
+  sin verificador                94        → --sin-verificar las enumera  (HARD 85)
+
+  Clasificación exhaustiva (PT-078) — ninguna queda fuera:
+    VERIFICADA       109   una herramienta la EMITE
+    NO_VERIFICABLE   6   declarada con motivo y firma
+    PENDIENTE        124   deuda, no límite
+    suma             239 de 239
+
+  Qué cambió respecto de la medida anterior:
+    +51  reglas que el denominador no miraba: LEXICON.md y EXECUTION-MODES.md
+    -23  dejaron de contar por una MENCIÓN: su ID sólo aparecía en comentarios
+         de ellas 4 sólo en selftest.sh — el arnés no lo ejecuta ninguna compuerta
+
+Auditoría sin huecos en los elementos auditados. Cobertura mecánica de reglas: 134/239.

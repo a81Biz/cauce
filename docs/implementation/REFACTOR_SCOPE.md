@@ -46,4 +46,5 @@
 | PT-146 | REFACTOR | S2 | DRAFT | EP-022 | build-core deriva familias, orden y triggers del contrato |
 | PT-147 | REFACTOR | S2 | DRAFT | EP-022 | audit deriva fases, sigla y referencias por componente del contrato |
 | PT-148 | CHORE | S2 | DRAFT | EP-022 | El alta y la baja de un componente quedan escritas y con regla |
+| PT-156 | CHORE | S3 | DRAFT | EP-024 | LEXICON §3 declaraba el rango de cinco componentes y hay seis |
 | PT-149 | CHORE | S2 | DRAFT | EP-022 | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |

@@ -1,5 +1,5 @@
 {
-  "suite_version": "13.1.0",
+  "suite_version": "13.2.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -26,9 +26,9 @@
     "pt_at_generation": 65
   },
   "graph": {
-    "generated": "2026-08-25",
+    "generated": "2026-08-26",
     "scope": "bin, docs/methodology/tools",
-    "pt_at_generation": 150
+    "pt_at_generation": 156
   },
   "tracker": {
     "plataforma": "github",
@@ -36,8 +36,8 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 150,
-    "EP": 23,
+    "PT": 169,
+    "EP": 24,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -4213,8 +4213,8 @@
       "id": "PT-146",
       "slug": "build-core-deja-de-escribirlos",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "REFACTOR",
       "severity": "S2",
@@ -4225,14 +4225,31 @@
         "de": "EP-022",
         "motivo": "abre-trabajo",
         "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-25"
       }
     },
     {
       "id": "PT-147",
       "slug": "audit-deja-de-escribirlos",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "REFACTOR",
       "severity": "S2",
@@ -4243,14 +4260,31 @@
         "de": "EP-022",
         "motivo": "abre-trabajo",
         "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-25"
       }
     },
     {
       "id": "PT-148",
       "slug": "el-alta-y-la-baja-se-escriben",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S2",
@@ -4261,14 +4295,31 @@
         "de": "EP-022",
         "motivo": "abre-trabajo",
         "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2015,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-25"
       }
     },
     {
       "id": "PT-149",
       "slug": "la-prueba-de-alta-y-baja",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S2",
@@ -4278,6 +4329,23 @@
       "origen_parada": {
         "de": "EP-022",
         "motivo": "abre-trabajo",
+        "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2015,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-25"
       }
     },
@@ -4337,6 +4405,519 @@
         }
       },
       "issue": 287
+    },
+    {
+      "id": "EP-024",
+      "slug": "lo-que-ep-022-encontro",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "title": "lo que EP-022 encontro",
+      "issue": 306
+    },
+    {
+      "id": "PT-151",
+      "slug": "verify-no-es-lo-que-corre-ci",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "npm run verify no es lo que corre CI, y el CLAUDE.md dice que si",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 293,
+      "aplazamiento": {
+        "reentrada": "Cuando se decida si npm run verify debe ejecutar lo mismo que CI. Hoy no lo hace, y por eso este mismo lote llego a G4 con dieciseis errores que en local salian cero.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "EP-022",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde EP-022 el 2026-08-26"
+    },
+    {
+      "id": "PT-152",
+      "slug": "el-nucleo-publica-ocho-de-trece",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "CORE.md publica ocho triggers y LEXICON declara trece",
+      "origen_parada": {
+        "de": "PT-146",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 294,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. Es CE-008 sobre los triggers: CORE publica ocho y LEXICON declara trece, asi que el agente no puede invocar cinco que existen.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-146",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-146 el 2026-08-26"
+    },
+    {
+      "id": "PT-153",
+      "slug": "la-rama-de-lote-no-se-deriva",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "La rama de un lote no tiene forma derivable, y se inventa",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "limite-alcanzado",
+        "fecha": "2026-08-25"
+      },
+      "issue": 295,
+      "aplazamiento": {
+        "reentrada": "Cuando un lote vuelva a necesitar rama propia. Hoy ramaDeTarea no deriva la de un lote, y por eso EP-022 trabajo sobre la rama de un PT.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "EP-022",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde EP-022 el 2026-08-26"
+    },
+    {
+      "id": "PT-154",
+      "slug": "espejo-global-registro-por-rama",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "INVESTIGATION",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "El espejo es global y el registro es por rama",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "limite-alcanzado",
+        "fecha": "2026-08-25"
+      },
+      "issue": 296,
+      "aplazamiento": {
+        "reentrada": "Cuando dos ramas vuelvan a tener tareas vivas a la vez. El espejo es global y el registro por rama, y eso puso un PR en rojo sin que nada cambiara.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "EP-022",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde EP-022 el 2026-08-26"
+    },
+    {
+      "id": "PT-155",
+      "slug": "los-contratos-sin-asercion",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "verify-patrones comprueba dos de siete contratos de patrones.mjs",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 297,
+      "aplazamiento": {
+        "reentrada": "Cuando se anada el proximo patron a patrones.mjs. Comprobar dos de siete contratos es una cobertura que nadie ha declarado suficiente.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "EP-022",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde EP-022 el 2026-08-26"
+    },
+    {
+      "id": "PT-156",
+      "slug": "lexicon-sin-apartado-para-fpge",
+      "created": "2026-08-25",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "LEXICON 3 declara el rango de cinco componentes y hay seis",
+      "origen_parada": {
+        "de": "PT-144",
+        "motivo": "limite-alcanzado",
+        "fecha": "2026-08-25"
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2015,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-25"
+      },
+      "issue": 298
+    },
+    {
+      "id": "PT-157",
+      "slug": "el-estado-por-su-nombre-canonico",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "contradiceElRegistro no reconoce el nombre canonico del estado",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 299,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. contradiceElRegistro no reconoce el nombre canonico del estado, asi que avisa de una divergencia que no existe.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "EP-022",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde EP-022 el 2026-08-26"
+    },
+    {
+      "id": "PT-158",
+      "slug": "fide-no-tiene-archivo-de-prompts",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "FIDE no tiene archivo de prompts, y LEX-R15 dice que todo componente tiene uno",
+      "origen_parada": {
+        "de": "PT-147",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 300,
+      "aplazamiento": {
+        "reentrada": "Cuando se decida si FIDE es excepcion o LEX-R15 esta mal enunciada. Hoy la regla dice que todo componente tiene prompts y FIDE no los tiene por diseno.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-147",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-147 el 2026-08-26"
+    },
+    {
+      "id": "PT-159",
+      "slug": "un-declara-abre-o-declara-su-vuelta",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "Una parada que declara un hallazgo no esta obligada a abrir trabajo ni a decir cuando se revisa",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 301,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. Una parada que declara un hallazgo no obliga a abrir trabajo ni a decir cuando se revisa: es la puerta por la que un hallazgo se pierde.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "EP-022",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde EP-022 el 2026-08-26"
+    },
+    {
+      "id": "PT-160",
+      "slug": "los-ac-de-la-trazabilidad-son-los-del-intake",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "Nada comprueba que los AC de traceability.md sean los del intake",
+      "origen_parada": {
+        "de": "PT-147",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 302,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. Nada compara los AC de traceability con los del intake, y en este lote ya hubo una tarea con cuatro donde el intake declaraba siete.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-147",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-147 el 2026-08-26"
+    },
+    {
+      "id": "PT-161",
+      "slug": "el-catalogo-comprueba-su-cobertura",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "CASOS-DE-USO declara un contrato de cobertura que nada comprueba",
+      "origen_parada": {
+        "de": "PT-148",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 303,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. CASOS-DE-USO afirma ser contrato de cobertura y nada lo comprueba: fallo dos veces en EP-022, con DICTAMEN y con el alta de componente.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-148",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-148 el 2026-08-26"
+    },
+    {
+      "id": "PT-162",
+      "slug": "mover-una-tarea-de-lote",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "Una tarea DRAFT no puede cambiar de lote ni rechazarse por comando",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "condicion-bloqueante",
+        "fecha": "2026-08-25"
+      },
+      "issue": 304,
+      "aplazamiento": {
+        "reentrada": "Cuando haga falta mover una tarea viva de lote. Ocurrio en EP-022 con PT-156 y hubo que dejarlo escrito en una revision porque ningun comando lo hace.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "EP-022",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde EP-022 el 2026-08-26"
+    },
+    {
+      "id": "PT-163",
+      "slug": "un-id-definido-dos-veces-en-el-mismo-documento",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "SUITE-R14 no caza un ID definido dos veces dentro del mismo documento",
+      "origen_parada": {
+        "de": "PT-148",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 305,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. SUITE-R14 dice que rechaza cualquier definicion duplicada y no caza dos IDs definidos dentro del MISMO documento: en PT-148 borro dos reglas vigentes de CORE sin avisar.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-148",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-148 el 2026-08-26"
+    },
+    {
+      "id": "PT-164",
+      "slug": "cita-al-id-equivocado-pasa-en-verde",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "Renumerar una regla no es una operacion, y una cita al ID equivocado pasa en verde",
+      "origen_parada": {
+        "de": "PT-156",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 307,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. Una cita a un ID de regla equivocado PERO REAL pasa todos los verificadores, y CORE la publica.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-156",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-156 el 2026-08-26"
+    },
+    {
+      "id": "PT-165",
+      "slug": "core-contradecia-fpge-r04",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "El mapa de fases de CORE lo escribe build-core a mano, y contradecia FPGE-R04",
+      "origen_parada": {
+        "de": "PT-149",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 308,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. El mapa de fases de CORE sigue redactado a mano: PT-149 le puso un colador para que nada falte, pero las cinco lineas siguen tecleadas.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-149",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-149 el 2026-08-26"
+    },
+    {
+      "id": "PT-166",
+      "slug": "lexicon-2-no-prohibe-la-grafia-en-corchetes",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "LEXICON 2 prohibe los pasos por su nombre, y la grafia en corchetes no esta en la lista",
+      "origen_parada": {
+        "de": "PT-156",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 309,
+      "aplazamiento": {
+        "reentrada": "Cuando entre el proximo componente. LEXICON 2 prohibe las grafias de paso por su nombre y la lista es incompleta por construccion: por ahi estuvo FPGE siete versiones sin fases.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-156",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-156 el 2026-08-26"
+    },
+    {
+      "id": "PT-167",
+      "slug": "casos-que-solo-pasan-mientras-hay-defecto",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto",
+      "origen_parada": {
+        "de": "PT-156",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 310,
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga. Nada busca mas casos invertidos entre los 1749: los cuatro que aparecieron salieron de un cambio de conducta ajeno, no de buscarlos.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-156",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-156 el 2026-08-26"
+    },
+    {
+      "id": "PT-168",
+      "slug": "audit-da-por-cubierta-una-fase-que-no-esta",
+      "created": "2026-08-25",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-024",
+      "title": "audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier sitio del documento",
+      "origen_parada": {
+        "de": "PT-149",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga: es su tarea de mayor severidad (S1) y la unica que afecta a lo que el marco AFIRMA estar verificando, asi que abre el lote.",
+        "revision": "2026-09-02",
+        "dueno": "Alberto Martínez",
+        "de": "PT-149",
+        "fecha": "2026-08-25"
+      },
+      "origin": "Aplazado desde PT-149 el 2026-08-25",
+      "issue": 311
+    },
+    {
+      "id": "PT-169",
+      "slug": "la-bateria-crece-y-nadie-la-poda",
+      "created": "2026-08-26",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "La bateria solo crece: nada retira un caso superado ni caza dos que prueban lo mismo",
+      "origen_parada": {
+        "de": "PT-149",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      },
+      "aplazamiento": {
+        "reentrada": "En la epica que el firmante situo para esto. La bateria paso de 1699 a 1749 casos en EP-022 y nada la poda: el patron peligroso es el caso HUECO —un fixture cuya mutacion ya no muta nada sigue diciendo OK— porque los otros dos se delatan poniendose en rojo.",
+        "revision": "2026-09-16",
+        "dueno": "Alberto Martínez",
+        "de": "PT-149",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-149 el 2026-08-26",
+      "issue": 313
     }
   ]
 }

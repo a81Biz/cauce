@@ -1,0 +1,75 @@
+verify-suite — coherencia de la metodología (13.1.0)
+Documentos analizados: 36
+
+AVISOS (1)
+  SUITE-R38    tools/patrones.mjs
+      7 de 122 reglas que emiten declaran su sujeto. La tabla crece por adopción declarada, como RIGE_DESDE: lo que la hace útil no es cuántas cubre hoy, sino que ninguna pueda quedarse fuera en silencio.
+
+ERRORES (33)
+  SUITE-R60    tools/matriz.mjs:179
+      nombra el componente «FPGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/migrate.mjs:127
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/selftest.sh:295
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/selftest.sh:720
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/selftest.sh:762
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/selftest.sh:780
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/selftest.sh:7840
+      nombra el componente «FND» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/selftest.sh:7842
+      nombra el componente «FND» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/selftest.sh:8003
+      nombra el componente «Foundation» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:149
+      nombra el componente «Foundation» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:150
+      nombra el componente «Foundation» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:152
+      nombra el componente «FQAGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:153
+      nombra el componente «FQAGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:155
+      nombra el componente «FDGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:163
+      nombra el componente «FIDE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:165
+      nombra el componente «FIDE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:167
+      nombra el componente «FPGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:168
+      nombra el componente «FPGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:170
+      nombra el componente «PTSA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:180
+      nombra el componente «FDGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:185
+      nombra el componente «FIDE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:187
+      nombra el componente «FIDE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:190
+      nombra el componente «FDGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:195
+      nombra el componente «FDGE» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:205
+      nombra el componente «PTSA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-patrones.mjs:207
+      nombra el componente «PTSA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-ptsa.mjs:84
+      nombra el componente «PTSA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-qa.mjs:47
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-qa.mjs:48
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-qa.mjs:50
+      nombra el componente «QA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-qa.mjs:289
+      nombra el componente «PTSA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-qa.mjs:290
+      nombra el componente «PTSA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+  SUITE-R60    tools/verify-suite.mjs:276
+      nombra el componente «PTSA» como literal. Los componentes se declaran en patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente invisibles al verificador sin dar error.
+

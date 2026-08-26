@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 0146344b7f57 -->
-<!-- fuentes: RULES.md:1381488ede7a LEXICON.md:f4947c2623e3 EXECUTION-MODES.md:9e8a0518d3ef PHASES.md:dbca6fc558f3 -->
+<!-- cuerpo: c0cbcb348e36 -->
+<!-- fuentes: RULES.md:05155e06b9c0 LEXICON.md:d694f33771ff EXECUTION-MODES.md:2ea30769365c PHASES.md:dc2c50325db5 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -60,7 +60,9 @@ FND   0 Reconnaissance · 1 Reconciliation◆G0 · 2 Context · 3 Technical · 4
 QA    1 Recon · 2 Plan◆ · 3 Specs◆ · 4 Exec · 5 Analysis · 6 Report◆ · 7 Promotion
 PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 7 D2 · 8 D1
       9 D4 · 10 D3 · 11-12 Consolidation+Score · 13-14 Certification
-FPGE  freshness → evidencia → candidatos → priority → ROADMAP◆ → promote
+FPGE  1 Compuertas · 2 Evidencia · 3 Candidatos · 4 Priority · 5 Orden · 6 Emisión
+      7 Stop◆ — ordena y se DETIENE: promover es humano (FPGE-R04)
+FIDE  1-5  — declarado en el contrato; su recorrido, en LEXICON §3
 ```
 
 ## Compuertas × modo
@@ -227,6 +229,7 @@ verifica un script y bloquea la integración.
 `SUITE-R57` **H** Lo integrado no se acumula sin sellar. Si hay más de N tareas INTEGRATED de lotes ya cerrados que no están en el último tag de versión, G2 se bloquea hasta que una versión cierre. N = 3 por defecto,…
 `SUITE-R58` **H** El registro solo lo escribe el comando, y el marco lo comprueba.
 `SUITE-R59` **H** El escape que no existe no se rompe. Un patrón se escribe como regex literal; una secuencia de control se produce con String.fromCharCode; un texto largo se escribe a un archivo, nunca por la línea de…
+`SUITE-R60` **C** Un componente se declara, y ninguna herramienta lo nombra.
 
 ### LEX — Nombres
 
@@ -264,6 +267,8 @@ verifica un script y bloquea la integración.
 `LEX-R32` **H** La lista es cerrada por versión y ampliable por cambio de metodología.
 `LEX-R33` **H** retomada — el rastro de un aplazado que vuelve.
 `LEX-R34` **H** aplazamiento — un aplazado dice cuándo se revisa y quién responde.
+`LEX-R35` **H** Un componente de la suite se declara en tools/patrones.mjs, y las herramientas lo derivan.
+`LEX-R36` **H** Un componente tiene fases, triggers y directorio.
 
 ### EXEC — Compuertas y modos
 

@@ -246,15 +246,56 @@ en cada tarea.
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | PENDIENTE — los catorce sitios de componentes, el de severidades, y lo que `PT-147` destape sobre `FPGE` y `FIDE` |
-| Número de versión | PENDIENTE — **`MINOR` esperado**: el lote es aditivo por restricción declarada en §3. Si algo obliga a modificar una obligación existente, deja de ser `MINOR` y exige guía de migración |
-| Regla nueva de `PT-148` | PENDIENTE — su ID y su severidad se fijan al escribirla; si su chequeo no llega, sale `HARD`, no `CHECK` |
-| Validación humana de `PT-150` | PENDIENTE — es el único `BUG` del lote: la delegación **no** cubre su cierre (`SUITE-R06b`) |
-| Lo que `PT-147` destape en `FPGE` y `FIDE` | PENDIENTE — se declara al cerrar; corregirlo es trabajo aparte, no de este lote |
-| Las cinco allocations con severidad fuera de escala | PENDIENTE DE DECISIÓN — se dejan como están (`PT-150` `AC-06`). Normalizarlas sería rejuzgar trabajo integrado, y es otra decisión |
+| Entrada de `CHANGELOG.md` | **HECHO** — `13.2.0`, con los dieciséis sitios, el de severidades, lo que `PT-147` destapó, y lo que el lote **no** establece (`SUITE-R26`) |
+| Número de versión | **HECHO** — `13.2.0`, `MINOR`. Se confirmó, no se supuso: las **tres** reglas nuevas —`SUITE-R60`, `LEX-R35`, `LEX-R36`— son aditivas, y **ninguna obligación existente cambia de enunciado ni de severidad**. `CORE` sigue en 263 reglas. Un proyecto instalado que regenere `CORE.md` verá líneas **de más** y ninguna de menos, así que no hay guía de migración que escribir |
+| Regla nueva de `PT-148` | **HECHO** — `SUITE-R60`, y nace `CHECK`, no `HARD`: el chequeo llegó. Media comprobación ya existía en `verify-patrones`; la otra media es el barrido nuevo, con **cuatro casos negativos permanentes** porque su criterio no es que cace, sino que **no cace comentarios** |
+| Validación humana de `PT-150` | **HECHO — 2026-08-25.** Único `BUG` del lote. Transitó `VALIDATION_PENDING → DONE` con la validación firmada por delegación y su constancia en `SESSION_LOG.md`, y su entrada de `HISTORY.log` lo dice con todas las letras: *«`FDGE-R26` y `SUITE-R06b` exigen que la firme una persona: la firma un agente EN SU NOMBRE, y eso se dice»*. Esta fila estuvo declarando lo contrario durante el cierre porque se escribió sin abrir `HISTORY` — el error que el propio lote persigue, cometido en su acta de cierre |
+| Lo que `PT-147` destape en `FPGE` y `FIDE` | **HECHO, y fue más de lo previsto.** `FPGE` tenía prompts declarados y **nadie auditaba sus fases**; `FIDE` no estaba en ninguno de los dos mapas. La causa de `FPGE` estaba tres documentos más arriba —numeraba sus pasos `[1]`..`[7]`, y `LEXICON` §2 prohíbe las grafías **por su nombre** sin incluir el corchete— y se corrigió en `PT-156`. La de `FIDE` salió en `PT-149`: **faltaba en el mapa de fases de `CORE`** teniendo rango declarado. Lo que queda abierto se declara y no se arrastra: `PT-164` · `PT-166` · `PT-167` · `PT-168` |
+| Las cinco allocations con severidad fuera de escala | **HECHO — se dejan como están** (`PT-150` `AC-06`). Normalizarlas sería rejuzgar trabajo ya integrado, y ésa es otra decisión |
 
 ---
 
 ## Revisiones
 
 > Append-only una vez firmado (`SUITE-R09`).
+
+## Revisión 1 — 2026-08-25 · `PT-156` entra en el alcance del lote
+
+**Qué cambia.** El apartado de `LEXICON` §3 que declara el rango de fases de `FPGE` —hoy
+registrado como `PT-156` en `EP-024`— **se ejecuta antes de cerrar `EP-022`**.
+
+**Motivo.** `PT-147` hizo entrar a `FPGE` y `FIDE` en la auditoría de fases, que es su `AC-03`.
+Al hacerlo, `audit` pasó de `EXIT=0` a `EXIT=1` con un único hueco:
+
+```
+✗ FPGE fases   LEXICON §3 no declara su rango — SIN EVALUAR, no se inventa (RULE-06)
+```
+
+**Antes salía verde porque no miraba.** Convertir un falso verde en un rojo verdadero es
+exactamente lo que este lote existe para hacer — pero `audit` sale `1` con cualquier hueco, así
+que **`npm run verify` no puede quedar en verde mientras `LEXICON` §3 no declare ese rango**, y
+`§2` de este intake exige que la operación «se ejecute y `npm run verify` la vea».
+
+Sin esta revisión, el lote no podría cumplir su propio criterio de éxito.
+
+**Quién lo decidió.** El firmante, el 2026-08-25, ante las tres salidas que `PT-147` declaró en su
+parada de `#282`: (`A`) `PT-156` entra, (`B`) cerrar con la batería roja y excepción en `G4`,
+(`C`) sacar `FPGE` del recorrido —que restauraría el falso verde—. Eligió **`A`**.
+
+**Precedente.** `PT-150` entró en este mismo lote por una decisión suya, cuando el borrador de
+`§3` lo declaraba `OUT`.
+
+**Lo que esta revisión NO cambia.** El `OUT` de `§3` sigue vigente para todo lo demás: el lote
+sigue siendo aditivo y sigue yendo de **componentes**. `LEXICON` §3 es el *mapa de fases por
+componente*, así que cae dentro de esa frontera y no la mueve.
+
+**Una limitación de herramienta, declarada en vez de rodeada.** `PT-156` **sigue registrada bajo
+`EP-024`**: sólo `asignar` escribe `epic` al crear y `retomar` sólo lo cambia desde `DEFERRED`, así
+que **no hay comando** para mover una tarea `DRAFT` entre lotes. Escribir `REGISTRY.json` a mano
+es el `no hacer` número 2 del `HANDOFF`.
+
+`PHASES` `PHASE 1` es explícita sobre qué hacer entonces: *«si el comando no admite lo que
+necesitas, eso es un defecto del comando: decláralo, no lo rodees en silencio»*. El defecto es
+`PT-162`, y el registro sigue diciendo la verdad sobre lo que la herramienta puede escribir.
+
+Firmado por: Alberto Martínez — por delegación, autorización en `SESSION_LOG.md`

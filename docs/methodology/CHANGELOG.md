@@ -8,6 +8,96 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 13.2.0 — 2026-08-26
+
+**Los componentes se declaran, no se escriben a mano** (`EP-022`). Ocho tareas: `PT-144` a
+`PT-150` y `PT-156`.
+
+Nace de una pregunta sobre modularidad: *si mañana entra un componente nuevo, ¿qué hay que tocar?*
+Medida contra el código, la respuesta era **dieciséis sitios de cuatro herramientas** — y el
+conteo subió **tres veces durante el propio lote**, de 13 a 16, siempre leyendo con una pregunta
+concreta delante y **nunca** ejecutando.
+
+Lo grave no era la duplicación. `verify-suite` filtraba las reglas por una alternancia **literal**
+de prefijos, así que un componente con prefijo nuevo tenía **todas sus reglas invisibles al
+verificador** — y no daba error: **pasaba en verde**. Es el mismo fallo que dejó a `QA` en `0/19`
+y a `FPGE` en `0/10` «cumpliéndose sólo por buena voluntad».
+
+### Reglas nuevas
+
+Tres, y por eso `MINOR` y no `MAJOR` — **no cambian ninguna obligación existente**:
+
+- `SUITE-R60` (`CHECK`) — un componente se declara, y ninguna herramienta lo nombra. Nace `CHECK`
+  y hubo que ganárselo: media comprobación ya existía en `verify-patrones`; la otra media —que
+  ninguna herramienta escriba un nombre de componente— es un barrido nuevo, y **su criterio no es
+  que cace: es que no cace comentarios**. La primera versión cazaba 33 sitios y **nueve eran
+  legítimos**. Hay cuatro casos negativos permanentes para que nadie «mejore» el barrido hasta
+  hacerlo insufrible: un verificador desactivado es peor que ninguno.
+- `LEX-R35` — el contrato de componente y sus nueve campos, como **vocabulario**.
+- `LEX-R36` — componente y familia de reglas no son lo mismo. Son **seis** y **diez**, y
+  confundirlos hacía que `build-core` afirmara la lista dos veces con cifras distintas.
+
+### Qué cambia para un proyecto ya instalado
+
+**Nada que haya que migrar.** Al regenerar `CORE.md` aparecerán líneas nuevas y ninguna menos: el
+mapa de fases gana la de `FIDE` —que faltaba teniendo rango declarado desde `PT-144`— y la de
+`FPGE` deja de decir que termina promoviendo, contra `FPGE-R04`.
+
+### Lo que el lote midió, y no se ve leyendo
+
+**`E5` era falso, y sólo lo dijo ejecutarlo.** El catálogo declaraba que dar de alta un componente
+es añadir su entrada al contrato y que `npm run verify` queda en verde. Al hacerlo con un
+componente de prueba: hacían falta **cinco** pasos, y **dos herramientas había que editarlas** —
+literalmente lo que `E5` declara defecto y no paso. `verify-patrones` fijaba que hubiera
+*exactamente* seis componentes, y `build-core` llevaba los bloques de fases y triggers escritos a
+mano, así que el componente nuevo **no llegaba a `CORE.md`**, que es lo único que el agente carga.
+
+Fueron **seis** fijaciones, no una: «exactamente seis componentes», «exactamente diez familias»,
+«exactamente estos prefijos», «exactamente estas siete en prosa», «exactamente este orden» y «el
+único opcional es `FIDE`». Ninguna se veía leyendo — las seis salieron de **intentar el alta**.
+
+Corregidas todas con la misma dirección —el contrato puede **crecer** y no puede **encoger**— pero
+cada una preguntándose *qué protegía de verdad*, porque no era lo mismo en las cuatro de
+`FAMILIAS`. La más fácil de estropear era el **orden**: `CORE.md` se emite con él, así que cambiar
+«igual a la lista» por «contiene la lista» habría dejado de comprobarlo. Se comprueba la
+**subsecuencia** de las diez conocidas, que admite una familia nueva y no admite un reordenamiento.
+
+Y hay tres casos permanentes que fijan la otra mitad — perder un componente, perder una familia,
+alterar el orden **siguen siendo rojo**. Sin ellos, la corrección sería indistinguible de haber
+apagado la comprobación.
+
+**El alta real son seis pasos**, y uno no lo decía nadie: `prefijos()` sale de `FAMILIAS`, no de
+`COMPONENTES`, así que un componente con reglas propias necesita entrada en **las dos** listas. Es
+`LEX-R36` hecho operación, y `E5` no lo mencionaba ni siquiera después de la primera corrección.
+
+**Un caso puede pasar porque el defecto existe.** Tres casos de `PT-147` afirmaban que los seis
+componentes entran en la auditoría de fases buscando la línea `<comp> PHASE <n>` — que `audit`
+**sólo emite como hueco**. Pasaban porque tres componentes fallaban, y se pusieron en rojo el día
+en que dejaron de fallar. Es `RULE-02` por el reverso: el éxito del caso **era** el fallo del
+sistema.
+
+**Décima rotura de escapado**, y la segunda del lote (`SUITE-R59`). Las dos ocurrieron
+**escribiendo verificadores**, y se arreglaron igual: **quitando el regex**.
+
+### Herramientas
+
+- `patrones.mjs` — `COMPONENTES` y `FAMILIAS`, con sus proyecciones. `SEVERIDADES` deja de vivir
+  en `tracker` contradiciendo a `LEXICON`.
+- `verify-suite` · `build-core` · `audit` · `verify-patrones` — dejan de escribir la lista.
+- `build-core` — **completa** los bloques de `CORE.md` con lo que falte, sin reescribir lo
+  redactado: la sintaxis de cada comando no sale de ningún contrato, y nada puede faltar en
+  silencio.
+- `audit` — publica la **anchura** de la auditoría de fases: `(6 de 6)`, derivada del contrato.
+
+### Lo que NO establece   `SUITE-R26`
+
+`audit` da por cubierta la fase de un componente si el **número** aparece en cualquier sitio del
+documento, sin mirar de quién es. De las tres dimensiones que exige por fase, **sólo una
+discrimina**. La cifra de cobertura que publica cuenta como verificado lo que ninguna máquina
+distingue de su ausencia. Está medido, declarado y abierto como `PT-168`.
+
+---
+
 ## 13.1.0 — 2026-08-24
 
 **El aplazado sin puerta de vuelta** (`EP-021`). Ocho tareas: `PT-134` y `PT-137` a `PT-143`.

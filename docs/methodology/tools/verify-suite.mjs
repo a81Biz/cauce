@@ -41,6 +41,8 @@ import { MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA } from './patrones.mjs';
 import { SUJETOS, sujetosIncompletos, limitesQueNoLleganAlMensaje } from './patrones.mjs';
 // PT-145 · los patrones de identificador de regla y los componentes opcionales, derivados.
 import { reglaRE, reglaEnTabla, reglaEnLinea, PFX as PREFIJOS_TXT, opcionales } from './patrones.mjs';
+// PT-148 · SUITE-R60 · el barrido de literales deriva los nombres del contrato.
+import { COMPONENTES, comoLiteral, lineas, CAR, PREFIJOS_DE_ID } from './patrones.mjs';
 import { execFileSync } from 'node:child_process';
 
 const BASE = resolve(process.argv[2] ?? join(process.cwd(), 'docs', 'methodology'));
@@ -863,6 +865,95 @@ const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''
       + 'cubre hoy, sino que ninguna pueda quedarse fuera en silencio.');
   }
 })();
+
+
+// ── SUITE-R60 · ninguna herramienta nombra un componente ───────────────── PT-148
+//
+// POR QUE EXISTE
+//   `EP-022` midio la lista de componentes escrita a mano en DIECISEIS sitios de cuatro
+//   herramientas. Lo grave no era la duplicacion: `verify-suite.mjs:250` filtraba las reglas por
+//   una alternancia LITERAL de prefijos, asi que un componente con prefijo nuevo tenia todas sus
+//   reglas INVISIBLES al verificador — y no daba error, PASABA EN VERDE.
+//
+//   PT-145..PT-147 los quitaron los dieciseis. Que hoy no quede ninguno es cierto PORQUE ellas lo
+//   dejaron asi, y NADA LO IMPIDE MANANA. Sin esta comprobacion, la regla seria CHECK sobre una
+//   promesa — y `RULES.md` dice que marcar CHECK lo que ningun script verifica es una promesa
+//   falsa.
+//
+// QUE NO CAZA, Y ES LO QUE DECIDE SI SIRVE
+//   Comentarios. Este mismo lote escribio decenas que citan componentes al explicar por que
+//   existe algo: un barrido que los cace se desactiva en la primera corrida, y un verificador
+//   desactivado es peor que ninguno.
+//
+//   Tampoco rutas de archivo —'QA/QA-Prompts.md' no es el nombre del componente— ni el propio
+//   `patrones.mjs`, que es donde los nombres VIVEN.
+//
+// LOS NOMBRES SE DERIVAN, NO SE ESCRIBEN
+//   Salen de COMPONENTES. Escribir la lista de palabras prohibidas seria perseguir el idioma, y
+//   el septimo componente entra solo.
+(() => {
+  const dirTools = join(BASE, 'tools');
+  if (!existsSync(dirTools)) return;
+
+  // QUE SE EXCLUYE, Y POR QUE — medido, no supuesto. La primera version cazaba 33 sitios y
+  // NUEVE eran legitimos:
+  //
+  //   join(ROOT, 'PTSA')        una RUTA. LEX-R03 dice que QA se usa «en triggers, RUTAS y
+  //                             nombres de archivo»: un segmento de ruta no es una lista.
+  //   QA: maxOf('QA', qah)      un PREFIJO DE IDENTIFICADOR. «QA» es a la vez sigla de
+  //                             componente y espacio de nombres del registro, por diseno.
+  //   'PTSA/RESUMEN.md'         una ruta con mas texto dentro de las comillas.
+  //
+  // Un componente cuya sigla coincide con un prefijo de ID es AMBIGUO POR CONSTRUCCION, y se
+  // dice en vez de fingir que se distingue: para esos, este barrido NO establece nada.
+  const ambiguos = new Set(PREFIJOS_DE_ID);
+  const nombres = new Set();
+  for (const c of COMPONENTES) {
+    for (const n of [c.nombre, c.sigla, c.prefijo]) if (!ambiguos.has(n)) nombres.add(n);
+  }
+
+  // Un literal de cadena: 'FIDE' o "FIDE". NO casa FIDE suelto en un comentario ni
+  // 'QA/QA-Prompts.md', que lleva mas texto dentro de las comillas.
+  // SOLO comillas de cadena, NO backtick: un backtick en prosa es un span de codigo markdown, y
+  // aceptarlo cazaba el texto que matriz.mjs GENERA — que cita componentes legitimamente.
+  const literalDe = (n) => new RegExp(
+    '(' + comoLiteral(CAR.COMILLA) + '|"' + ')'
+      + comoLiteral(n)
+      + '(' + comoLiteral(CAR.COMILLA) + '|"' + ')',
+  );
+
+  for (const f of readdirSync(dirTools)) {
+    // patrones.mjs es el contrato: ahi VIVEN los nombres. verify-patrones.mjs es SU PRUEBA
+    // —siglaDe('Foundation') === 'FND' tiene que nombrarlos para comprobarlos— y el contrato y su
+    // prueba son una unidad. selftest.sh es el arnes: sus fixtures CONSTRUYEN estados rotos a
+    // proposito, que es como se comprueba que algo falla.
+    //
+    // El marco ya distingue «herramientas sin el arnes»: clasificarReglas() recibe toolsSinArnes
+    // por el mismo motivo.
+    if (!/\.(mjs|sh)$/.test(f)) continue;
+    if (f === 'patrones.mjs' || f === 'verify-patrones.mjs' || f === 'selftest.sh') continue;
+    const txt = readFileSync(join(dirTools, f), 'utf8');
+    lineas(txt).forEach((linea, i) => {
+      // Fuera los comentarios: citar un componente al explicar algo es legitimo.
+      const codigo = linea.replace(/^\s*(\/\/|#|\*).*$/, '').split('//')[0];
+      // Una ruta no es una lista: join(x, 'PTSA') y 'PTSA/RESUMEN.md' nombran un directorio.
+      if (codigo.includes("join(")) return;
+      if (!codigo.trim()) return;
+      for (const n of nombres) {
+        if (literalDe(n).test(codigo)) {
+          fail('SUITE-R60', `tools/${f}`, i + 1,
+            `nombra el componente «${n}» como literal. Los componentes se declaran en `
+            + `patrones.mjs y las herramientas los DERIVAN: COMPONENTES, prefijos(), opcionales(), `
+            + `siglaDe(), fasesDe(), promptsDe(). Una lista escrita a mano diverge — EP-022 la `
+            + `encontro en dieciseis sitios, y uno de ellos dejaba las reglas de un componente `
+            + `invisibles al verificador sin dar error.`);
+          return;
+        }
+      }
+    });
+  }
+})();
+
 
 if (warnings.length) {
   console.log(`AVISOS (${warnings.length})`);

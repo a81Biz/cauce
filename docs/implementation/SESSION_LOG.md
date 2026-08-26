@@ -4010,3 +4010,62 @@ describiéndola como pendiente**, así que su párrafo queda desactualizado: es 
 
 Quedan tres ramas remotas: `main`, `trabajo` y `cauce/alberto-martinez` —la de proyección, que
 `SUITE-R56` necesita viva para que el rastro de una tarea sobreviva a su rama.
+
+---
+
+## 2026-08-26 · Autorización expresa de excepción a `SUITE-R06`   `EXEC-R07`
+
+`SUITE-R06` declara siete acciones que **no se automatizan en ningún modo**. La regla de
+cumplimiento del `CLAUDE.md` prevé la única salida: *«hasta que un humano autorice la excepción
+**dejando registro de esa autorización**»*. Esto es ese registro, escrito **antes** de usarla.
+
+**Quién.** Alberto Martínez, firmante declarado en `CLAUDE.md` (`SUITE-R27`).
+
+**Qué autoriza, literalmente**, en la sesión del cierre de `EP-022`:
+
+> *«para el bug te doy el vobo y sí puedes hacer el merge, quiero que veas que corre bien y sin
+> errores»*
+
+**Alcance, y sólo éste:**
+
+| Acción | Cláusula | Qué queda cubierto |
+|:---|:---|:---|
+| Cerrar `PT-150` | `SUITE-R06b` | `tracker validar PT-150`, el único `BUG` de `EP-022`. Su trabajo y su evidencia están completos desde `PHASE 8`: lo que faltaba era la firma |
+| Merge a `main` | `SUITE-R06a` | La compuerta `G4` de `EP-022`. El motivo declarado por el firmante es **verlo correr sin errores**, así que la condición es que `verify-fdge --gate G4` pase **antes**, no que el merge ocurra |
+
+**Qué NO cubre, y sigue sin cubrir:**
+
+- `npm publish` — excluido por el firmante en la misma sesión: *«Excepto publicar»*. `SUITE-R06`
+  no lo lista, pero el firmante lo reserva, y una reserva del firmante manda sobre la delegación.
+- `push --force` ni reescritura de historia (`SUITE-R06f`).
+- Cualquier otro lote. Esta autorización es de `EP-022` y muere con él.
+
+**Lo que esta autorización no convierte en cierto.** No prueba que firmara una persona —el agente
+escribe el archivo—, exactamente como `SUITE-R27` dice de cualquier firma. Lo que hace es dejar la
+afirmación **contrastable**: el nombre está en `firmantes`, la frase es literal, y quien aparece
+en esa lista responde de lo que lleva su nombre.
+
+### Ampliación — misma sesión, 2026-08-26
+
+Preguntado por la rama remota `refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos`,
+que `G4` marca como error y cuyo borrado es `SUITE-R06f`, el firmante amplía:
+
+> *«también autorizo la rama y lo necesario para todo y cualquier cosa que necesites para terminar
+> ésta épica y quede limpio»*
+
+**Qué añade.** `SUITE-R06f` para el **borrado de esa rama remota**, y lo que haga falta para cerrar
+`EP-022` dejando el árbol limpio.
+
+**Qué sigue sin cubrir, y no lo cubre una autorización amplia:**
+
+- **`npm publish`.** El firmante lo reservó expresamente en esta misma sesión —*«Excepto
+  publicar»*— y una reserva explícita no la deroga una autorización general posterior que no la
+  menciona. Ante la duda, manda la reserva.
+- **Reescribir historia** (`push --force`, `rebase` sobre lo publicado). No hace falta para cerrar
+  el lote, así que no entra: *«lo necesario»* es un límite, no un cheque en blanco. Si apareciera
+  la necesidad, se pregunta.
+- **Cualquier trabajo fuera de `EP-022`.** `EP-023` y `EP-024` siguen intactos y sin autorización.
+
+`EXEC-R07` pide detenerse en el punto exacto y **describir el comando**. Con autorización, lo que
+se conserva es la otra mitad: **cada acción irreversible queda escrita con lo que se ejecutó y por
+qué**, aquí y en `HISTORY.log`. La delegación cambia quién aprieta el botón, no si queda rastro.

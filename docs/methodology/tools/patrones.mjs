@@ -750,12 +750,17 @@ export function sesionesUnicas(marcas) {
  * Y `audit` caza el byte 0x08 CUANDO YA ESTA ESCRITO: util, y POSTERIOR al daño.
  */
 export const ROTURAS_DE_ESCAPADO = {
-  contadas: 27,
+  contadas: 29,
   donde: ['build-core.mjs', 'revisar-secretos.mjs', 'verify-ptsa.mjs', 'verify-qa.mjs',
-          'verify-suite.mjs'],
+          'verify-suite.mjs', 'verify-patrones.mjs'],
   nota: 'La suma de las cinco cuentas dispersas (5+7+5+6+4), mas las OCHO de la sesion de EP-019 '
       + 'que ninguna cazo: rompieron en la VIA —heredocs, replace de python, plantillas de texto '
-      + 'transformadas— y no en el destino. El marco protegia el archivo y no el camino.',
+      + 'transformadas— y no en el destino. El marco protegia el archivo y no el camino. '
+      + 'EP-022 anadio DOS mas, las dos escribiendo verificadores: PT-148 dejo un \b degradado a '
+      + 'byte 0x08 dentro del barrido de SUITE-R60 —COMPILABA Y NO CAZABA NADA, en verde, y solo '
+      + 'salio mirando los bytes— y PT-156 partio verify-patrones.mjs con un /\r?\n/ que perdio '
+      + 'sus escapes al escribirse. La segunda es MEJOR que la primera: reventar el arranque se ve, '
+      + 'y un regex que compila sin casar nada no. Las dos se arreglaron IGUAL, quitando el regex.',
 };
 
 
@@ -1402,6 +1407,7 @@ export const PREFIJOS_DE_ID = ['PT', 'EP', 'QA', 'QR', 'QD', 'H', 'E', 'P', 'R',
 export const COMPONENTES = [
   {
     nombre: 'FDGE',
+    prompts: 'FDGE-Prompts.md',
     sigla: 'FDGE',
     prefijo: 'FDGE',
     directorio: null,
@@ -1414,6 +1420,7 @@ export const COMPONENTES = [
     // LEX-R03 · se llama FQAGE en prosa normativa y QA en triggers, rutas y nombres de archivo.
     // No se admite una tercera grafia. `audit.mjs` usa hoy la SIGLA como clave, no el nombre.
     nombre: 'FQAGE',
+    prompts: 'QA/QA-Prompts.md',
     sigla: 'QA',
     prefijo: 'QA',
     directorio: 'QA',
@@ -1426,6 +1433,7 @@ export const COMPONENTES = [
     // SUITE-R25 · sus 82 reglas van a un overlay propio, CORE-PTSA.md, que solo se carga con
     // [START PTSA]. Por eso `en_core` es false y no es un olvido.
     nombre: 'PTSA',
+    prompts: 'PTSA/PTSA-Prompts.md',
     sigla: 'PTSA',
     prefijo: 'PTSA',
     directorio: 'PTSA',
@@ -1437,6 +1445,7 @@ export const COMPONENTES = [
   {
     // EL CASO QUE PRUEBA EL DISENO: nombre y sigla no coinciden.
     nombre: 'Foundation',
+    prompts: 'Foundation-Prompts.md',
     sigla: 'FND',
     prefijo: 'FND',
     directorio: null,
@@ -1446,17 +1455,19 @@ export const COMPONENTES = [
     en_core: true,
   },
   {
-    // `fases` es SIN_EVALUAR porque LEXICON §3 tiene apartados 3.1 a 3.5 para SEIS componentes:
-    // no hay ninguno para FPGE. El dato NO EXISTE, y un rango inventado para que la tabla quede
-    // simetrica apagaria la comprobacion en silencio (RULE-06). Declarado en PT-144 out-of-scope:
-    // escribir ese apartado es trabajo de LEXICON, no de una herramienta (LEX-R21).
+    // PT-156 · `fases` estuvo SIN_EVALUAR desde PT-144 porque LEXICON §3 no tenia apartado para
+    // FPGE, y NO era olvido de redaccion: su recorrido numeraba los siete pasos como [1]..[7].
+    // §2 prohibe «Step n» y «Etapa n» POR SU NOMBRE, y un corchete no esta en esa lista — la
+    // misma cosa con una grafia que la prohibicion no alcanzo. No habia fases que declarar, asi
+    // que el rango no se invento: se REPORTO el hueco (RULE-06) hasta que hubo de donde sacarlo.
     nombre: 'FPGE',
+    prompts: 'FPGE-Prompts.md',
     sigla: 'FPGE',
     prefijo: 'FPGE',
     directorio: null,
     obligatorio: true,
     triggers: ['[START FPGE]'],
-    fases: SIN_EVALUAR,
+    fases: [1, 7],
     en_core: true,
   },
   {
@@ -1464,6 +1475,7 @@ export const COMPONENTES = [
     // tras incubarlo. Es el hecho que `verify-suite.mjs:425` y `comparar-marco.mjs:39` escribian
     // cada una por su cuenta, con dos nombres distintos, sin importar ninguna de la otra.
     nombre: 'FIDE',
+    prompts: SIN_EVALUAR,
     sigla: 'FIDE',
     prefijo: 'FIDE',
     directorio: 'FIDE',
@@ -1484,16 +1496,16 @@ export const COMPONENTES = [
  * `documento` es el campo que explicaba la discrepancia 7-vs-10 de `build-core.mjs`.
  */
 export const FAMILIAS = [
-  { prefijo: 'SUITE', documento: 'RULES.md', orden: 1 },
-  { prefijo: 'LEX', documento: 'LEXICON.md', orden: 2 },
-  { prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3 },
-  { prefijo: 'FND', documento: 'RULES.md', orden: 4 },
-  { prefijo: 'FDGE', documento: 'RULES.md', orden: 5 },
-  { prefijo: 'INTAKE', documento: 'RULES.md', orden: 6 },
-  { prefijo: 'QA', documento: 'RULES.md', orden: 7 },
-  { prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8 },
-  { prefijo: 'FPGE', documento: 'RULES.md', orden: 9 },
-  { prefijo: 'FIDE', documento: 'RULES.md', orden: 10 },
+  { prefijo: 'SUITE', documento: 'RULES.md', orden: 1, etiqueta: 'Transversales' },
+  { prefijo: 'LEX', documento: 'LEXICON.md', orden: 2, etiqueta: 'Nombres' },
+  { prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3, etiqueta: 'Compuertas y modos' },
+  { prefijo: 'FND', documento: 'RULES.md', orden: 4, etiqueta: 'Foundation' },
+  { prefijo: 'FDGE', documento: 'RULES.md', orden: 5, etiqueta: 'Desarrollo' },
+  { prefijo: 'INTAKE', documento: 'RULES.md', orden: 6, etiqueta: 'Admisión' },
+  { prefijo: 'QA', documento: 'RULES.md', orden: 7, etiqueta: 'Verificación de UX' },
+  { prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8, etiqueta: 'Auditoría — definidas en la especificación oficial' },
+  { prefijo: 'FPGE', documento: 'RULES.md', orden: 9, etiqueta: 'Priorización' },
+  { prefijo: 'FIDE', documento: 'RULES.md', orden: 10, etiqueta: 'Incubación' },
 ];
 
 // ── Proyecciones ────────────────────────────────────────────────────────────
@@ -1518,12 +1530,23 @@ export const ordenDePrefijos = () => [...FAMILIAS].sort((a, b) => a.orden - b.or
 /** Los triggers de arranque de todos los componentes. → build-core.mjs:433-437 */
 export const triggers = () => COMPONENTES.flatMap((c) => c.triggers);
 
-/** El archivo de prompts de un componente. → audit.mjs:192-195 */
-export const promptsDe = (quien) => {
-  const c = componenteDe(quien);
-  if (!c) return null;
-  return c.directorio ? `${c.directorio}/${c.sigla}-Prompts.md` : `${c.nombre}-Prompts.md`;
-};
+/**
+ * El archivo de prompts de un componente, o SIN_EVALUAR si no tiene. → audit.mjs:192-195
+ *
+ * PT-147 · NO se deriva por regla. Se derivaba —directorio + sigla + «-Prompts.md»— y para FIDE
+ * daba «FIDE/FIDE-Prompts.md», que NO EXISTE: LEXICON §6.6 declara sus tres archivos y ninguno es
+ * de prompts. FIDE es el unico componente que opera ANTES de que la suite exista, asi que su
+ * texto de activacion es un CLAUDE.md anfitrion —FIDE-CLAUDE-Launcher.md—, no un *-Prompts.md
+ * dentro de una metodologia instalada.
+ *
+ * Es la misma leccion que «sigla» frente a «nombre»: una regla con una excepcion obliga a la
+ * siguiente excepcion a escribirse al lado. El dato se DECLARA.
+ *
+ * Y deja al descubierto una contradiccion que NO es de esta funcion: LEX-R15 dice que «todo
+ * componente tiene exactamente un archivo de prompts» y enumera CINCO, mientras LEXICON §6.6
+ * declara los de FIDE sin ninguno. Es PT-158.
+ */
+export const promptsDe = (quien) => componenteDe(quien)?.prompts ?? SIN_EVALUAR;
 
 /**
  * El rango de fases, o SIN_EVALUAR. → audit.mjs:197-202

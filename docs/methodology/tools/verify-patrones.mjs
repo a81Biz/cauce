@@ -24,6 +24,10 @@
  * Exit: 0 todos cumplen · 1 alguno no
  */
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import {
   PATRONES, selloDe,
   COMPONENTES, FAMILIAS, SIN_EVALUAR,
@@ -33,6 +37,7 @@ import {
 } from './patrones.mjs';
 
 const errores = [];
+const avisos = [];
 const c = { rojo: '\x1b[31m', verde: '\x1b[32m', dim: '\x1b[2m', neg: '\x1b[1m', fin: '\x1b[0m' };
 
 // Un regex con /g conserva lastIndex entre llamadas: reutilizarlo entre ejemplos daría
@@ -88,7 +93,7 @@ if (selloDe('a\nb') === selloDe('a\nc')) {
 // Cada bloque nombra el componente y el campo que falla: quien lea el error no tiene que deducir
 // cuál de los seis está mal (`SUITE-R53`).
 const CAMPOS_COMPONENTE = ['nombre', 'sigla', 'prefijo', 'directorio', 'obligatorio', 'triggers', 'fases', 'en_core'];
-const CAMPOS_FAMILIA = ['prefijo', 'documento', 'orden'];
+const CAMPOS_FAMILIA = ['prefijo', 'documento', 'orden', 'etiqueta'];
 
 const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? {}));
 
@@ -97,11 +102,25 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   const fams = listaDe(FAMILIAS);
   total += 6;
 
-  if (comps.length !== 6) {
-    errores.push(`COMPONENTES: declara ${comps.length} componente(s) y la suite tiene 6 (FDGE · FQAGE · PTSA · Foundation · FPGE · FIDE).`);
+  // PT-149 · ESTO FIJABA «EXACTAMENTE SEIS», Y ESO NO ES UN CONTRATO: ES UN RETRATO. Dar de alta
+  // un septimo componente ponia en rojo la prueba del contrato, asi que el alta EXIGIA EDITAR UNA
+  // HERRAMIENTA — literalmente lo que E5 declara defecto y no paso, y lo contrario de lo que
+  // SUITE-R60 promete («un septimo componente entra solo»). Lo salvable de la asercion se
+  // conserva entero: que NINGUNO DE LOS SEIS DESAPAREZCA. Perder uno sigue siendo rojo; anadir
+  // uno, no. La direccion importa: el contrato tiene que poder CRECER y no puede ENCOGER.
+  const LOS_SEIS = ['FDGE', 'FQAGE', 'PTSA', 'Foundation', 'FPGE', 'FIDE'];
+  const nombres = comps.map((c) => c.nombre);
+  const perdidos = LOS_SEIS.filter((x) => !nombres.includes(x));
+  if (perdidos.length) {
+    errores.push(`COMPONENTES: falta(n) ${perdidos.join(' · ')}. La suite tiene estos seis y el contrato no puede perder ninguno.`);
   }
-  if (fams.length !== 10) {
-    errores.push(`FAMILIAS: declara ${fams.length} familia(s) y hay 10 prefijos de regla. Seis coinciden con un componente; SUITE, LEX, EXEC e INTAKE no.`);
+  // PT-149 · MISMA CORRECCION Y MISMO MOTIVO QUE ARRIBA. Fijar «exactamente diez» impedia dar de
+  // alta una FAMILIA de reglas, que LEX-R36 declara un acto legitimo y DISTINTO del alta de un
+  // componente. Se conserva entero lo que protegia: que no falte ninguna de las diez.
+  const LAS_DIEZ = ['SUITE', 'LEX', 'EXEC', 'FND', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FIDE'];
+  const sinFamilia = LAS_DIEZ.filter((x) => !fams.some((f) => f.prefijo === x));
+  if (sinFamilia.length) {
+    errores.push(`FAMILIAS: falta(n) ${sinFamilia.join(' · ')}. Seis coinciden con un componente; SUITE, LEX, EXEC e INTAKE no, y ninguna puede desaparecer.`);
   }
 
   // Un campo ausente se distingue de uno en falso: `undefined` es «nadie lo escribió» y `null`
@@ -164,12 +183,48 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   if (!Array.isArray(fFIDE) || fFIDE[0] !== 1 || fFIDE[1] !== 5) {
     errores.push(`fasesDe('FIDE') devuelve ${JSON.stringify(fFIDE)} y LEXICON §3.5 declara PHASE 1-5. El dato EXISTE: no puede salir como desconocido.`);
   }
-  if (fasesDe('FPGE') !== SIN_EVALUAR) {
-    errores.push(`fasesDe('FPGE') devuelve ${JSON.stringify(fasesDe('FPGE'))} y LEXICON §3 NO tiene apartado para FPGE. Un rango inventado apaga la comprobación en silencio (RULE-06).`);
+  // PT-156 · esta asercion NACIO al reves: exigia SIN_EVALUAR porque LEXICON no tenia apartado
+  // para FPGE, y no lo tenia porque su recorrido numeraba los pasos [1]..[7] en vez de PHASE n.
+  // Escrito el apartado, el dato EXISTE y ya no puede salir como desconocido — que es justo lo
+  // que la version anterior de esta linea protegia, por el otro lado.
+  const fFPGE = fasesDe('FPGE');
+  if (!Array.isArray(fFPGE) || fFPGE[0] !== 1 || fFPGE[1] !== 7) {
+    errores.push(`fasesDe('FPGE') devuelve ${JSON.stringify(fFPGE)} y LEXICON §3.6 declara PHASE 1-7. El dato EXISTE: no puede salir como desconocido.`);
   }
   if (!Array.isArray(fasesDe('PTSA'))) {
     errores.push('fasesDe(\'PTSA\') no devuelve un rango, y LEXICON §3.3 declara PHASE 0-14.');
   }
+  // PT-156 · LAS TRES ASERCIONES DE ARRIBA CLAVAN CIFRAS, Y ESO NO BASTA. Mientras `FPGE` llevaba
+  // SIN_EVALUAR, la asercion defendia la declaracion de ignorancia; al voltearla quedo un hueco:
+  // nadie comprueba que LEXICON §3 TENGA el apartado del que el rango sale. Un `fases: [1, 7]`
+  // escrito sin apartado pasaria en verde, y es LITERALMENTE el «rango inventado» contra el que
+  // PT-144 escribio SIN_EVALUAR. El contraste se hace contra el documento, en los DOS sentidos,
+  // y DERIVADO de COMPONENTES: un septimo componente entra solo.
+  const AQUI = dirname(fileURLToPath(import.meta.url));
+  let lexicon = null;
+  try { lexicon = readFileSync(join(AQUI, '..', 'LEXICON.md'), 'utf8'); } catch { /* se dice abajo */ }
+  // Si LEXICON.md no esta al lado, el contraste NO SE PUEDE HACER — y eso no es un fallo del
+  // contrato: hay fixtures legitimos que copian solo tools/. Se DICE y no se cuenta como
+  // comprobado (RULE-06), que es distinguible tanto de «paso» como de «fallo» (RULE-02). Fallar
+  // aqui ponia en rojo tres casos de otras tareas por una razon ajena a lo que probaban — el
+  // mismo defecto que PT-145 midio cuando su fixture copio solo *.md.
+  if (lexicon === null) {
+    avisos.push('LEXICON.md no esta junto a tools/: el contraste del rango de fases contra su dueno (LEX-R21) NO SE EVALUA.');
+  } else {
+    const apartados = lexicon.split(String.fromCharCode(10)).map((l) => l.trim()).filter((l) => l.startsWith('### 3.'));
+    for (const comp of COMPONENTES) {
+      total += 1;
+      const tiene = apartados.some((l) => l.includes(comp.nombre));
+      const declara = fasesDe(comp.nombre) !== SIN_EVALUAR;
+      if (declara && !tiene) {
+        errores.push(`el contrato declara fases para «${comp.nombre}» y LEXICON §3 no tiene apartado suyo. Un rango sin documento del que salir es un rango INVENTADO (RULE-06).`);
+      }
+      if (!declara && tiene) {
+        errores.push(`LEXICON §3 tiene apartado para «${comp.nombre}» y el contrato lo da por SIN_EVALUAR. El dato EXISTE: declararlo desconocido apaga la comprobacion de audit en silencio.`);
+      }
+    }
+  }
+
 
   // Las seis proyecciones tienen que reproducir EXACTAMENTE los literales que van a sustituir.
   // Si divergen, PT-145..PT-147 dejan de ser refactors y pasan a ser cambios de comportamiento
@@ -178,23 +233,41 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   const mismos = (a, b) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
 
   const PREFIJOS_HOY = ['SUITE', 'LEX', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FND', 'FIDE', 'EXEC'];
-  if (!mismos(prefijos(), PREFIJOS_HOY)) {
-    errores.push(`prefijos() no reproduce la alternancia de verify-suite.mjs (:250 · :254 · :256 · :289 · :403). Hoy: ${JSON.stringify(prefijos())}`);
+  // PT-149 · CONTIENE, no IGUALA: la alternancia de verify-suite se DERIVA de aqui, asi que un
+  // prefijo nuevo entra sin tocarla — que es el punto entero de PT-145. Lo que no puede pasar es
+  // que uno de los diez deje de estar: sus reglas se volverian invisibles al verificador y todo
+  // pasaria en verde POR NO MIRARLAS, que es el defecto que abrio EP-022.
+  const sinPrefijo = PREFIJOS_HOY.filter((x) => !prefijos().includes(x));
+  if (sinPrefijo.length) {
+    errores.push(`prefijos() ya no incluye ${sinPrefijo.join(' · ')}, y de aqui sale la alternancia de verify-suite.mjs (:250 · :254 · :256 · :289 · :403). Hoy: ${JSON.stringify(prefijos())}`);
   }
 
-  const OPCIONALES_HOY = ['FIDE'];
-  if (!mismos([...opcionales()], OPCIONALES_HOY)) {
-    errores.push(`opcionales() no reproduce Set(['FIDE']) de verify-suite.mjs:425 y comparar-marco.mjs:39. Hoy: ${JSON.stringify([...opcionales()])}`);
+  // PT-149 · misma correccion y mismo motivo: fijar el conjunto EXACTO de opcionales impedia dar
+  // de alta un componente opcional sin editar esta herramienta. Lo que hay que preservar es que
+  // FIDE lo siga siendo —es el hecho que verify-suite.mjs:425 y comparar-marco.mjs:39 escribian
+  // cada una por su cuenta, con dos nombres distintos (FIDE-R01)—, no que sea el unico.
+  if (![...opcionales()].includes('FIDE')) {
+    errores.push(`opcionales() ya no contiene FIDE, que FIDE-R01 declara el opcional de la suite y verify-suite.mjs:425 y comparar-marco.mjs:39 leen de aqui. Hoy: ${JSON.stringify([...opcionales()])}`);
   }
 
+  // PT-149 · CONTIENE, no IGUALA. Lo que hay que preservar es POR QUE son siete y no diez: LEX,
+  // EXEC y PTSA quedan fuera porque sus reglas NO VIVEN EN RULES.md, y esa es la distincion que
+  // LEX-R36 escribio. Una familia nueva cuyas reglas si vivan ahi entra sin tocar nada.
   const PROSA_HOY = ['SUITE', 'FND', 'FDGE', 'INTAKE', 'QA', 'FPGE', 'FIDE'];
-  if (!mismos(familiasEnProsa(), PROSA_HOY)) {
-    errores.push(`familiasEnProsa() no reproduce build-core.mjs:171. Son 7 y NO incluyen LEX, EXEC ni PTSA, porque sus reglas no viven en RULES.md. Hoy: ${JSON.stringify(familiasEnProsa())}`);
+  const sinProsa = PROSA_HOY.filter((x) => !familiasEnProsa().includes(x));
+  const coladas = ['LEX', 'EXEC', 'PTSA'].filter((x) => familiasEnProsa().includes(x));
+  if (sinProsa.length || coladas.length) {
+    errores.push(`familiasEnProsa() no reproduce build-core.mjs:171: falta(n) ${sinProsa.join(' · ') || 'ninguna'} y sobra(n) ${coladas.join(' · ') || 'ninguna'}. LEX, EXEC y PTSA NO van, porque sus reglas no viven en RULES.md. Hoy: ${JSON.stringify(familiasEnProsa())}`);
   }
 
+  // PT-149 · LA PROPIEDAD ES EL ORDEN RELATIVO, NO LA IGUALDAD. CORE.md se emite con esta
+  // secuencia, asi que las diez tienen que seguir apareciendo EN ESTE ORDEN — pero una familia
+  // nueva intercalada o al final no rompe nada, y exigir igualdad la prohibia. Se comprueba
+  // filtrando: la subsecuencia de las diez conocidas debe ser exactamente ORDEN_HOY.
   const ORDEN_HOY = ['SUITE', 'LEX', 'EXEC', 'FND', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FIDE'];
-  if (ordenDePrefijos().join() !== ORDEN_HOY.join()) {
-    errores.push(`ordenDePrefijos() no reproduce build-core.mjs:183 EN SU ORDEN. CORE.md se emite con él. Hoy: ${JSON.stringify(ordenDePrefijos())}`);
+  const subsecuencia = ordenDePrefijos().filter((x) => ORDEN_HOY.includes(x));
+  if (subsecuencia.join() !== ORDEN_HOY.join()) {
+    errores.push(`ordenDePrefijos() no reproduce build-core.mjs:183 EN SU ORDEN. CORE.md se emite con él, y las diez conocidas tienen que seguir en esta secuencia. Hoy: ${JSON.stringify(ordenDePrefijos())}`);
   }
 
   const t = triggers();
@@ -278,6 +351,11 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
 }
 
 console.log(`verify-patrones — ${Object.keys(PATRONES).length} patrones · ${total} comprobaciones\n`);
+// PT-156 · lo NO EVALUADO se dice ANTES del veredicto, no despues ni en su lugar. «Todos los
+// patrones cumplen su contrato» sin decir CUALES NO SE PUDIERON MIRAR es exactamente la promesa
+// que SUITE-R26 prohibe: informar «sin errores» porque no se encontro nada, no porque no haya.
+for (const a of avisos) console.log(`  ${c.dim}·${c.fin} SIN EVALUAR  ${a}`);
+if (avisos.length) console.log('');
 if (!errores.length) {
   console.log(`${c.verde}Todos los patrones cumplen su contrato.${c.fin}`);
   process.exit(0);

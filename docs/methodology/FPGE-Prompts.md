@@ -3,7 +3,7 @@
 > Método: [Framework-FPGE.md](Framework-FPGE.md) · Procedimiento: [FPGE-Implementation.md](FPGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) §Parte 7 · Vocabulario: [LEXICON.md](LEXICON.md)
 >
-> Suite version: **13.1.0**
+> Suite version: **13.2.0**
 
 ---
 
@@ -44,7 +44,7 @@ NO escribes en PTSA/, ni en QA/, ni en ningún artefacto de FDGE. Sin excepcione
 Cuando un ítem se rechaza, EMITES UNA INSTRUCCIÓN para el componente dueño; no la
 ejecutas tú.
 
-## [1] Compuertas de freshness y confianza
+## PHASE 1 — Compuertas de freshness y confianza
 
 1a. PTSA/RESUMEN.md → score_freshness                                       [FPGE-R05]
     Si STALE o UNKNOWN: anótalo como advertencia en el encabezado de ROADMAP.md y
@@ -59,7 +59,7 @@ ejecutas tú.
 1c. docs/implementation/INCIDENTS.log
     Todo INC-NNN abierto sin PT de seguimiento → candidato con Urgency +1.0.
 
-## [2] Recolección de evidencia — SOLO LECTURA
+## PHASE 2 — Recolección de evidencia — SOLO LECTURA
 
 PTSA:  Findings/H-NNN.md en estado READY o REOPENED (dimensión, severidad, impacto,
        probabilidad) · Products/P-NNN.md en BLOCKED_DOMAIN o IN_REVIEW ·
@@ -70,7 +70,7 @@ FDGE:  HANDOFF.md · HISTORY.log · INCIDENTS.log · BACKLOG.md ·
        DISCOVERY.md / ENRICHMENT.md / REFACTOR_SCOPE.md (índices de trabajo
        especificado y no implementado) · changes/ (Proposal Packages)
 
-## [3] Síntesis de candidatos
+## PHASE 3 — Síntesis de candidatos
 
 Un R-NNN por unidad de trabajo accionable.
 Asigna cada R-NNN desde docs/implementation/REGISTRY.json.                  [SUITE-R08]
@@ -84,7 +84,7 @@ EXCLUYE:
   - PTs vivos en BACKLOG.md
   - Ítems con Proposal Package ya aprobado
 
-## [4] Cálculo de Priority
+## PHASE 4 — Cálculo de Priority
 
 Priority = (EvidenceWeight × ScoreImpact × Urgency × DomainMultiplier × Confidence) / Effort
 
@@ -97,17 +97,17 @@ Priority = (EvidenceWeight × ScoreImpact × Urgency × DomainMultiplier × Conf
   Effort           1/2/4   S / M / L — estima con el grafo si está disponible; si no,
                            DECLARA el supuesto
 
-## [5] Orden y desempates
+## PHASE 5 — Orden y desempates
 Mayor Priority → D1 antes que D2/D3/D4 → mayor riesgo de no hacerlo → menor id.
 
-## [6] Emisión
+## PHASE 6 — Emisión
 Sobrescribe ROADMAP.md con el schema de FPGE-Implementation.md.
 TODOS los ítems en estado DRAFT.
 Declara Top-3 impacto y Top-3 quick wins.
 Append a ROADMAP_HISTORY.log: fecha, evidencia leída con su versión y freshness,
 nº de candidatos, factores de confianza aplicados, top items.
 
-## [7] STOP                                                                 [FPGE-R04]
+## PHASE 7 — Stop                                                           [FPGE-R04]
 NO promuevas nada. NO abras ningún PT. Espera decisión humana.
 Recuerda al humano que debe marcar cada ítem READY / DEFERRED / REJECTED.
 ```

@@ -1,0 +1,25 @@
+diff --git a/docs/methodology/CORE.md b/docs/methodology/CORE.md
+index 3a5bb5e..a747618 100644
+--- a/docs/methodology/CORE.md
++++ b/docs/methodology/CORE.md
+@@ -1,8 +1,8 @@
+ # CORE — Núcleo operativo
+ 
+ <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
+-<!-- cuerpo: 7a19facb02c4 -->
+-<!-- fuentes: RULES.md:f484f285007e LEXICON.md:5f912a78cece EXECUTION-MODES.md:9e8a0518d3ef PHASES.md:dbca6fc558f3 -->
++<!-- cuerpo: c7177da8f5ec -->
++<!-- fuentes: RULES.md:cd8550d9a941 LEXICON.md:c79c64c3b7cd EXECUTION-MODES.md:9e8a0518d3ef PHASES.md:dbca6fc558f3 -->
+ 
+ Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
+ documentos completos solo se abren cuando una línea de aquí lo remite.
+@@ -60,7 +60,8 @@ FND   0 Reconnaissance · 1 Reconciliation◆G0 · 2 Context · 3 Technical · 4
+ QA    1 Recon · 2 Plan◆ · 3 Specs◆ · 4 Exec · 5 Analysis · 6 Report◆ · 7 Promotion
+ PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 7 D2 · 8 D1
+       9 D4 · 10 D3 · 11-12 Consolidation+Score · 13-14 Certification
+-FPGE  freshness → evidencia → candidatos → priority → ROADMAP◆ → promote
++FPGE  1 Compuertas · 2 Evidencia · 3 Candidatos · 4 Priority · 5 Orden · 6 Emisión
++      7 Stop◆ — ordena y se DETIENE: promover es humano (FPGE-R04)
+ ```
+ 
+ ## Compuertas × modo

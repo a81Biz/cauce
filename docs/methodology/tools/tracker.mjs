@@ -4483,6 +4483,35 @@ function aplazar() {
 
   a.status = 'DEFERRED';
   a.aplazamiento = { reentrada: texto, revision: String(revision), dueno, ...(de ? { de } : {}), fecha };
+  // PT-149 · `--de` SE ESCRIBIA SOLO EN `aplazamiento.de`, Y NADIE LO LEE AHI. SUITE-R44 exige que
+  // la cita sea RECIPROCA y la comprueba sobre `origin` (verify-fdge.mjs:2592 · :2595), asi que un
+  // aplazado creado con el comando SANCIONADO —LEX-R34 dice que es la unica via— no podia
+  // satisfacer la regla: habia que escribir REGISTRY.json A MANO. Es lo que tracker.mjs:2590
+  // condena con todas las letras —«una regla que solo se puede cumplir saltandose la herramienta
+  // no se cumple: se rodea»— y es CE-008: un hecho con dos nombres. Se escribe en los DOS, porque
+  // `aplazamiento.de` es parte del bloque que LEX-R34 exige completo y `origin` es la procedencia
+  // que sobrevive a la retomada. Se ANADE a lo que hubiera: el origen anterior no se pierde.
+  if (de) {
+    const yaDicho = String(a.origin ?? '').includes(de);
+    a.origin = yaDicho ? a.origin : [a.origin, `Aplazado desde ${de} el ${fecha}`].filter(Boolean).join(' · ');
+  }
+  // PT-149 · Y EL INTAKE, SI LO HAY. `avanzar` sincroniza el YAML del intake al llegar a un
+  // estado terminal (tracker.mjs:3406) y `aplazar` no lo hacia, asi que el registro decia
+  // DEFERRED y el intake seguia diciendo DRAFT: DOS MAPAS QUE DISCREPAN sobre el mismo hecho,
+  // que es el defecto que da nombre a EP-022. Lo cazo un caso del selftest —«el arbol real no
+  // tiene ninguna sin sincronizar»— en CI, no en local, y solo despues de aplazar dieciseis.
+  // La ruta se DERIVA como en el resto del archivo (tracker.mjs:2844), no se busca por prefijo:
+  // dos tareas cuyo id sea prefijo de otro darian con la carpeta equivocada.
+  const fi = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  if (existsSync(fi)) {
+    const antes = readFileSync(fi, 'utf8');
+    const despues = antes.replace(/^status:[ 	]*\S+[ 	]*$/m, 'status: DEFERRED');
+    if (despues === antes) {
+      throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
+    }
+    writeFileSync(fi, despues, 'utf8');
+    notas.push(`${id}: intake sincronizado a DEFERRED`);
+  }
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${yaAplazada ? 'terminos ACTUALIZADOS' : '-> DEFERRED'} · revision ${revision} · dueno ${dueno}`);
 
