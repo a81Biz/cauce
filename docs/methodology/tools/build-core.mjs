@@ -376,7 +376,8 @@ FND   0 Reconnaissance · 1 Reconciliation◆G0 · 2 Context · 3 Technical · 4
 QA    1 Recon · 2 Plan◆ · 3 Specs◆ · 4 Exec · 5 Analysis · 6 Report◆ · 7 Promotion
 PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 7 D2 · 8 D1
       9 D4 · 10 D3 · 11-12 Consolidation+Score · 13-14 Certification
-FPGE  freshness → evidencia → candidatos → priority → ROADMAP◆ → promote
+FPGE  1 Compuertas · 2 Evidencia · 3 Candidatos · 4 Priority · 5 Orden · 6 Emisión
+      7 Stop◆ — ordena y se DETIENE: promover es humano (FPGE-R04)
 \`\`\`
 
 ## Compuertas × modo

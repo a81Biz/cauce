@@ -7840,10 +7840,12 @@ chk   "un campo ausente NOMBRA componente y campo"    "no declara «sigla»" \
   rot144 "s/    sigla: 'FND',/    sigla: undefined,/"
 chk   "una sigla equivocada se caza"                  "LEXICON declara «FND»" \
   rot144 "s/    sigla: 'FND',/    sigla: 'FOUND',/"
-# RULE-06 · LEXICON 3 declara el rango de CINCO componentes y no tiene apartado para FPGE. Un
-# rango inventado para que la tabla quede simetrica apaga la comprobacion en silencio.
-chk   "un rango inventado para FPGE FALLA"            "apaga la comprobación en silencio" \
-  rot144 "s/    fases: SIN_EVALUAR,/    fases: [1, 9],/"
+# RULE-06 · un rango que no sale de LEXICON es un rango INVENTADO. El fixture decia
+# «s/fases: SIN_EVALUAR/[1, 9]/» y perdio su premisa cuando PT-156 escribio el apartado de FPGE:
+# ya no queda ningun SIN_EVALUAR que romper. Lo que defendia sigue defendido por el otro lado —
+# ahora se le da a FPGE un rango que su apartado NO declara.
+chk   "un rango que LEXICON no declara FALLA"         "LEXICON §3.6 declara PHASE 1-7" \
+  rot144 "/nombre: 'FPGE'/,/^  },/ s/    fases: \[1, 7\],/    fases: [1, 9],/"
 chk   "…y perder el rango de FIDE tambien"            "El dato EXISTE" \
   rot144 "s/    fases: \[1, 5\],/    fases: SIN_EVALUAR,/"
 chk   "FIDE dejando de ser opcional se caza"          "no reproduce Set" \
@@ -7989,21 +7991,25 @@ chkno "…pero «humano» no es una cita de regla"       "cita una regla" \
 # son RULE-02: la imposibilidad afirmada no es una comprobacion.
 AU147="$SUITE/tools/audit.mjs"
 
-# Los SEIS aparecen. Antes salian cuatro, y los otros dos no se distinguian de estar bien.
-chk   "FIDE entra en la auditoria de fases"       "FIDE PHASE" \
+# LOS SEIS APARECEN, Y AHORA SE PUEDE COMPROBAR. Hasta PT-156 estos casos afirmaban «FIDE entra en
+# la auditoria» buscando «FIDE PHASE» en la salida — pero esa linea SOLO se emite como HUECO, asi
+# que pasaban PORQUE FIDE FALLABA, y se pusieron en rojo el dia que dejo de fallar. Un caso que
+# solo puede pasar mientras hay un defecto no comprueba nada (RULE-02). audit publica ahora la
+# ANCHURA de la auditoria, que es lo que estos casos siempre quisieron decir.
+chk   "la auditoria de fases cubre los SEIS"      "(6 de 6)" \
   sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
-# RULE-06 · LEXICON 3 tiene cinco apartados para SEIS componentes: no hay ninguno para FPGE. Un
-# rango inventado para que la tabla quede simetrica apagaria la comprobacion en silencio.
-chk   "FPGE aparece como SIN EVALUAR, no omitido"  "FPGE fases" \
+chk   "FIDE entra, con su rango"                  "FIDE 1-5" \
   sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
-chk   "…y dice POR QUE no se puede evaluar"        "LEXICON §3 no declara su rango" \
+chk   "FPGE entra, con su rango"                  "FPGE 1-7" \
   sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
 # La sigla sale del contrato: «comp === 'Foundation' ? 'FND' : comp» era una EXCEPCION CODIFICADA
-# COMO CONDICIONAL, y la siguiente habria tenido que escribirse igual, al lado.
-chkno "el ternario de la sigla ya no existe"       "=== 'Foundation' ?" \
-  cat "$SUITE/tools/audit.mjs"
+# COMO CONDICIONAL, y la siguiente habria tenido que escribirse igual, al lado. El caso mira SOLO
+# codigo ejecutable: el comentario que explica el defecto CONTIENE el defecto, y la version
+# anterior se cazaba a si misma — es la misma leccion que SUITE-R60 aprendio en PT-148.
+chkno "el ternario de la sigla ya no existe"      "=== 'Foundation' ?" \
+  sh -c "grep -v '^\s*//' '$SUITE/tools/audit.mjs'"
 # Y el ternario no cubria a FQAGE, que se llama QA en rutas y triggers (LEX-R03).
-chk   "Foundation sigue auditandose por su sigla"  "Foundation PHASE" \
+chk   "Foundation se audita por su sigla"         "Foundation 0-6" \
   sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
 
 # ── PT-148 · EP-022 · SUITE-R60 · ninguna herramienta nombra un componente ──────────────────────
@@ -8048,6 +8054,66 @@ chkno "…ni una sigla que tambien es prefijo de identificador" "SUITE-R60" \
 # Y sobre el arbol real, cero: PT-145..PT-147 los quitaron los dieciseis.
 chk   "sobre el arbol real no queda ningun literal"          "Sin errores de coherencia" \
   sh -c "cd '$RAIZ' && node '$VS148' docs/methodology 2>&1"
+
+# ── PT-156 · EP-024 · LEXICON §3 declaraba el rango de CINCO componentes y hay SEIS ─────────────
+#
+# FPGE llevaba `fases: SIN_EVALUAR` desde PT-144, y NO por olvido de redaccion: su recorrido
+# numeraba los siete pasos como [1]..[7]. LEXICON §2 prohibe «Step n» y «Etapa n» POR SU NOMBRE, y
+# un corchete no esta en esa lista — la misma cosa con una grafia que la prohibicion no alcanzo.
+# No habia fases que declarar, asi que el rango no se invento: se REPORTO el hueco (RULE-06).
+#
+# Y al escribir el apartado quedo un hueco NUEVO: la asercion de verify-patrones defendia la
+# declaracion de ignorancia, y al voltearla nadie comprobaba que LEXICON TUVIERA el apartado del
+# que el rango sale. Un `fases: [1, 7]` escrito sin apartado habria pasado en verde, que es
+# LITERALMENTE el «rango inventado» contra el que PT-144 escribio SIN_EVALUAR. Por eso el
+# contraste va contra el DOCUMENTO, en los DOS sentidos, y derivado de COMPONENTES.
+VP156="$SUITE/tools/verify-patrones.mjs"
+proj156() {
+  local d="$WORK/p156"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE"/. "$d/" 2>/dev/null
+  echo "$d"
+}
+
+# Los siete pasos son PHASE en los DOS documentos operativos. Si solo cambiara uno, la suite
+# tendria dos numeraciones vivas sobre el mismo recorrido, que es lo que LEX-R01 impide.
+chk   "FPGE numera sus pasos como PHASE"            "PHASE 7 — Stop" \
+  cat "$SUITE/FPGE-Implementation.md"
+chk   "…y sus prompts tambien"                      "## PHASE 7 — Stop" \
+  cat "$SUITE/FPGE-Prompts.md"
+chkno "ya no queda ningun paso en corchetes"        "^\[7\] STOP" \
+  cat "$SUITE/FPGE-Implementation.md"
+
+# El apartado existe y CORE lo publica con la compuerta donde FPGE-R04 la pone.
+chk   "LEXICON §3 tiene apartado para FPGE"         "### 3.6 FPGE" \
+  cat "$SUITE/LEXICON.md"
+# CORE decia «→ promote» con SEIS pasos, contra una regla HARD que dice justo lo contrario, y
+# CORE.md es lo UNICO que el agente carga. El hueco de fondo —el mapa esta TECLEADO— es PT-165.
+chk   "CORE no dice que FPGE promueva"              "7 Stop◆" \
+  cat "$SUITE/CORE.md"
+chkno "…y ya no termina en «promote»"               "ROADMAP◆ → promote" \
+  cat "$SUITE/CORE.md"
+
+# LOS DOS SENTIDOS. Un rango sin apartado es un rango inventado; un apartado con el contrato
+# diciendo «no se» apaga la comprobacion de audit en silencio. Los dos son el mismo defecto.
+quita_apartado156() {
+  local d; d="$(proj156)"
+  sed -i 's/^### 3.6 FPGE .*/### 3.6 Un titulo que no lo nombra/' "$d/LEXICON.md"
+  node "$d/tools/verify-patrones.mjs" 2>&1
+}
+desconoce156() {
+  local d; d="$(proj156)"
+  perl -0pi -e 's/fases: \[1, 7\],\n    en_core: true,/fases: SIN_EVALUAR,\n    en_core: true,/' "$d/tools/patrones.mjs"
+  node "$d/tools/verify-patrones.mjs" 2>&1
+}
+chk   "un rango sin apartado en LEXICON se caza"    "rango INVENTADO" \
+  quita_apartado156
+chk   "…y un apartado que el contrato desconoce"    "el contrato lo da por SIN_EVALUAR" \
+  desconoce156
+
+# El barrido de SUITE-R60 NO alcanza a verify-patrones —es la prueba del contrato— pero el
+# contraste de arriba SI deriva de COMPONENTES: un septimo componente entra solo, sin tocar nada.
+chkno "el contraste no lleva una lista de componentes" "for (const comp of \['" \
+  cat "$SUITE/tools/verify-patrones.mjs"
 
 
 

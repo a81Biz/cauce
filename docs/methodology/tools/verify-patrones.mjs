@@ -24,6 +24,10 @@
  * Exit: 0 todos cumplen · 1 alguno no
  */
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import {
   PATRONES, selloDe,
   COMPONENTES, FAMILIAS, SIN_EVALUAR,
@@ -33,6 +37,7 @@ import {
 } from './patrones.mjs';
 
 const errores = [];
+const avisos = [];
 const c = { rojo: '\x1b[31m', verde: '\x1b[32m', dim: '\x1b[2m', neg: '\x1b[1m', fin: '\x1b[0m' };
 
 // Un regex con /g conserva lastIndex entre llamadas: reutilizarlo entre ejemplos daría
@@ -164,12 +169,48 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
   if (!Array.isArray(fFIDE) || fFIDE[0] !== 1 || fFIDE[1] !== 5) {
     errores.push(`fasesDe('FIDE') devuelve ${JSON.stringify(fFIDE)} y LEXICON §3.5 declara PHASE 1-5. El dato EXISTE: no puede salir como desconocido.`);
   }
-  if (fasesDe('FPGE') !== SIN_EVALUAR) {
-    errores.push(`fasesDe('FPGE') devuelve ${JSON.stringify(fasesDe('FPGE'))} y LEXICON §3 NO tiene apartado para FPGE. Un rango inventado apaga la comprobación en silencio (RULE-06).`);
+  // PT-156 · esta asercion NACIO al reves: exigia SIN_EVALUAR porque LEXICON no tenia apartado
+  // para FPGE, y no lo tenia porque su recorrido numeraba los pasos [1]..[7] en vez de PHASE n.
+  // Escrito el apartado, el dato EXISTE y ya no puede salir como desconocido — que es justo lo
+  // que la version anterior de esta linea protegia, por el otro lado.
+  const fFPGE = fasesDe('FPGE');
+  if (!Array.isArray(fFPGE) || fFPGE[0] !== 1 || fFPGE[1] !== 7) {
+    errores.push(`fasesDe('FPGE') devuelve ${JSON.stringify(fFPGE)} y LEXICON §3.6 declara PHASE 1-7. El dato EXISTE: no puede salir como desconocido.`);
   }
   if (!Array.isArray(fasesDe('PTSA'))) {
     errores.push('fasesDe(\'PTSA\') no devuelve un rango, y LEXICON §3.3 declara PHASE 0-14.');
   }
+  // PT-156 · LAS TRES ASERCIONES DE ARRIBA CLAVAN CIFRAS, Y ESO NO BASTA. Mientras `FPGE` llevaba
+  // SIN_EVALUAR, la asercion defendia la declaracion de ignorancia; al voltearla quedo un hueco:
+  // nadie comprueba que LEXICON §3 TENGA el apartado del que el rango sale. Un `fases: [1, 7]`
+  // escrito sin apartado pasaria en verde, y es LITERALMENTE el «rango inventado» contra el que
+  // PT-144 escribio SIN_EVALUAR. El contraste se hace contra el documento, en los DOS sentidos,
+  // y DERIVADO de COMPONENTES: un septimo componente entra solo.
+  const AQUI = dirname(fileURLToPath(import.meta.url));
+  let lexicon = null;
+  try { lexicon = readFileSync(join(AQUI, '..', 'LEXICON.md'), 'utf8'); } catch { /* se dice abajo */ }
+  // Si LEXICON.md no esta al lado, el contraste NO SE PUEDE HACER — y eso no es un fallo del
+  // contrato: hay fixtures legitimos que copian solo tools/. Se DICE y no se cuenta como
+  // comprobado (RULE-06), que es distinguible tanto de «paso» como de «fallo» (RULE-02). Fallar
+  // aqui ponia en rojo tres casos de otras tareas por una razon ajena a lo que probaban — el
+  // mismo defecto que PT-145 midio cuando su fixture copio solo *.md.
+  if (lexicon === null) {
+    avisos.push('LEXICON.md no esta junto a tools/: el contraste del rango de fases contra su dueno (LEX-R21) NO SE EVALUA.');
+  } else {
+    const apartados = lexicon.split(String.fromCharCode(10)).map((l) => l.trim()).filter((l) => l.startsWith('### 3.'));
+    for (const comp of COMPONENTES) {
+      total += 1;
+      const tiene = apartados.some((l) => l.includes(comp.nombre));
+      const declara = fasesDe(comp.nombre) !== SIN_EVALUAR;
+      if (declara && !tiene) {
+        errores.push(`el contrato declara fases para «${comp.nombre}» y LEXICON §3 no tiene apartado suyo. Un rango sin documento del que salir es un rango INVENTADO (RULE-06).`);
+      }
+      if (!declara && tiene) {
+        errores.push(`LEXICON §3 tiene apartado para «${comp.nombre}» y el contrato lo da por SIN_EVALUAR. El dato EXISTE: declararlo desconocido apaga la comprobacion de audit en silencio.`);
+      }
+    }
+  }
+
 
   // Las seis proyecciones tienen que reproducir EXACTAMENTE los literales que van a sustituir.
   // Si divergen, PT-145..PT-147 dejan de ser refactors y pasan a ser cambios de comportamiento
@@ -278,6 +319,11 @@ const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? 
 }
 
 console.log(`verify-patrones — ${Object.keys(PATRONES).length} patrones · ${total} comprobaciones\n`);
+// PT-156 · lo NO EVALUADO se dice ANTES del veredicto, no despues ni en su lugar. «Todos los
+// patrones cumplen su contrato» sin decir CUALES NO SE PUDIERON MIRAR es exactamente la promesa
+// que SUITE-R26 prohibe: informar «sin errores» porque no se encontro nada, no porque no haya.
+for (const a of avisos) console.log(`  ${c.dim}·${c.fin} SIN EVALUAR  ${a}`);
+if (avisos.length) console.log('');
 if (!errores.length) {
   console.log(`${c.verde}Todos los patrones cumplen su contrato.${c.fin}`);
   process.exit(0);

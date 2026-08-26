@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 163,
+    "PT": 167,
     "EP": 24,
     "QA": 0,
     "QR": 0,
@@ -4396,7 +4396,8 @@
       "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
-      "title": "lo que EP-022 encontro"
+      "title": "lo que EP-022 encontro",
+      "issue": 306
     },
     {
       "id": "PT-151",
@@ -4413,7 +4414,8 @@
         "de": "EP-022",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 293
     },
     {
       "id": "PT-152",
@@ -4430,7 +4432,8 @@
         "de": "PT-146",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 294
     },
     {
       "id": "PT-153",
@@ -4447,7 +4450,8 @@
         "de": "EP-022",
         "motivo": "limite-alcanzado",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 295
     },
     {
       "id": "PT-154",
@@ -4464,7 +4468,8 @@
         "de": "EP-022",
         "motivo": "limite-alcanzado",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 296
     },
     {
       "id": "PT-155",
@@ -4481,14 +4486,15 @@
         "de": "EP-022",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 297
     },
     {
       "id": "PT-156",
       "slug": "lexicon-sin-apartado-para-fpge",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S3",
@@ -4498,7 +4504,25 @@
         "de": "PT-144",
         "motivo": "limite-alcanzado",
         "fecha": "2026-08-25"
-      }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2015,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-25"
+      },
+      "issue": 298
     },
     {
       "id": "PT-157",
@@ -4515,7 +4539,8 @@
         "de": "EP-022",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 299
     },
     {
       "id": "PT-158",
@@ -4532,7 +4557,8 @@
         "de": "PT-147",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 300
     },
     {
       "id": "PT-159",
@@ -4549,7 +4575,8 @@
         "de": "EP-022",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 301
     },
     {
       "id": "PT-160",
@@ -4566,7 +4593,8 @@
         "de": "PT-147",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 302
     },
     {
       "id": "PT-161",
@@ -4583,7 +4611,8 @@
         "de": "PT-148",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 303
     },
     {
       "id": "PT-162",
@@ -4600,7 +4629,8 @@
         "de": "EP-022",
         "motivo": "condicion-bloqueante",
         "fecha": "2026-08-25"
-      }
+      },
+      "issue": 304
     },
     {
       "id": "PT-163",
@@ -4615,6 +4645,75 @@
       "title": "SUITE-R14 no caza un ID definido dos veces dentro del mismo documento",
       "origen_parada": {
         "de": "PT-148",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      },
+      "issue": 305
+    },
+    {
+      "id": "PT-164",
+      "slug": "cita-al-id-equivocado-pasa-en-verde",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "Renumerar una regla no es una operacion, y una cita al ID equivocado pasa en verde",
+      "origen_parada": {
+        "de": "PT-156",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-165",
+      "slug": "core-contradecia-fpge-r04",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "El mapa de fases de CORE lo escribe build-core a mano, y contradecia FPGE-R04",
+      "origen_parada": {
+        "de": "PT-156",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-166",
+      "slug": "lexicon-2-no-prohibe-la-grafia-en-corchetes",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "LEXICON 2 prohibe los pasos por su nombre, y la grafia en corchetes no esta en la lista",
+      "origen_parada": {
+        "de": "PT-156",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-167",
+      "slug": "casos-que-solo-pasan-mientras-hay-defecto",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto",
+      "origen_parada": {
+        "de": "PT-156",
         "motivo": "hallazgo",
         "fecha": "2026-08-25"
       }

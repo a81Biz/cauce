@@ -750,12 +750,17 @@ export function sesionesUnicas(marcas) {
  * Y `audit` caza el byte 0x08 CUANDO YA ESTA ESCRITO: util, y POSTERIOR al daño.
  */
 export const ROTURAS_DE_ESCAPADO = {
-  contadas: 27,
+  contadas: 29,
   donde: ['build-core.mjs', 'revisar-secretos.mjs', 'verify-ptsa.mjs', 'verify-qa.mjs',
-          'verify-suite.mjs'],
+          'verify-suite.mjs', 'verify-patrones.mjs'],
   nota: 'La suma de las cinco cuentas dispersas (5+7+5+6+4), mas las OCHO de la sesion de EP-019 '
       + 'que ninguna cazo: rompieron en la VIA —heredocs, replace de python, plantillas de texto '
-      + 'transformadas— y no en el destino. El marco protegia el archivo y no el camino.',
+      + 'transformadas— y no en el destino. El marco protegia el archivo y no el camino. '
+      + 'EP-022 anadio DOS mas, las dos escribiendo verificadores: PT-148 dejo un \b degradado a '
+      + 'byte 0x08 dentro del barrido de SUITE-R60 —COMPILABA Y NO CAZABA NADA, en verde, y solo '
+      + 'salio mirando los bytes— y PT-156 partio verify-patrones.mjs con un /\r?\n/ que perdio '
+      + 'sus escapes al escribirse. La segunda es MEJOR que la primera: reventar el arranque se ve, '
+      + 'y un regex que compila sin casar nada no. Las dos se arreglaron IGUAL, quitando el regex.',
 };
 
 
@@ -1450,10 +1455,11 @@ export const COMPONENTES = [
     en_core: true,
   },
   {
-    // `fases` es SIN_EVALUAR porque LEXICON §3 tiene apartados 3.1 a 3.5 para SEIS componentes:
-    // no hay ninguno para FPGE. El dato NO EXISTE, y un rango inventado para que la tabla quede
-    // simetrica apagaria la comprobacion en silencio (RULE-06). Declarado en PT-144 out-of-scope:
-    // escribir ese apartado es trabajo de LEXICON, no de una herramienta (LEX-R21).
+    // PT-156 · `fases` estuvo SIN_EVALUAR desde PT-144 porque LEXICON §3 no tenia apartado para
+    // FPGE, y NO era olvido de redaccion: su recorrido numeraba los siete pasos como [1]..[7].
+    // §2 prohibe «Step n» y «Etapa n» POR SU NOMBRE, y un corchete no esta en esa lista — la
+    // misma cosa con una grafia que la prohibicion no alcanzo. No habia fases que declarar, asi
+    // que el rango no se invento: se REPORTO el hueco (RULE-06) hasta que hubo de donde sacarlo.
     nombre: 'FPGE',
     prompts: 'FPGE-Prompts.md',
     sigla: 'FPGE',
@@ -1461,7 +1467,7 @@ export const COMPONENTES = [
     directorio: null,
     obligatorio: true,
     triggers: ['[START FPGE]'],
-    fases: SIN_EVALUAR,
+    fases: [1, 7],
     en_core: true,
   },
   {

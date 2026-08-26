@@ -38,6 +38,13 @@ import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
 // PT-147 · los componentes, sus fases, su archivo de prompts y su sigla — del contrato.
 import { COMPONENTES, fasesDe, promptsDe, siglaDe, SIN_EVALUAR } from './patrones.mjs';
 
+// PT-156 · QUE UN COMPONENTE ENTRE EN LA AUDITORIA SOLO SE VEIA CUANDO FALLABA. Las lineas
+// «<comp> PHASE <n>» solo se emiten como HUECO, asi que los tres casos de PT-147 que afirmaban
+// «FIDE entra en la auditoria de fases» pasaban PORQUE FIDE FALLABA, y se pusieron en rojo el dia
+// que dejo de fallar. Un caso que solo puede pasar mientras hay un defecto no comprueba nada
+// (RULE-02). Esto publica la ANCHURA de la auditoria, que es lo que aquellos casos querian decir.
+const fasesAuditadas = [];
+
 // ── PT-101 · la construccion FRAGIL, antes de que se rompa ────────────────────
 //
 // `audit` ya caza el byte de control CUANDO YA ESTA ESCRITO: util, y POSTERIOR al daño. Esto
@@ -210,9 +217,11 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
     // apartados para SEIS componentes: no hay ninguno para FPGE. Omitirlo lo haria
     // indistinguible de uno que pasa; declararlo SIN EVALUAR dice lo que se sabe y lo que no.
     if (rango === SIN_EVALUAR) {
+      fasesAuditadas.push(`${comp} SIN EVALUAR`);
       gap('fase', `${comp} fases`, 'LEXICON §3 no declara su rango — SIN EVALUAR, no se inventa (RULE-06)');
       continue;
     }
+    fasesAuditadas.push(`${comp} ${rango[0]}-${rango[1]}`);
 
     // PT-147 · FIDE no tiene archivo de prompts, y no es un olvido: LEXICON §6.6 declara sus
     // tres archivos y ninguno lo es. Es el unico componente que opera ANTES de que la suite
@@ -567,6 +576,7 @@ if (gaps.length) {
 const resumen = Object.entries(okCount).filter(([k]) => k !== 'total')
   .map(([k, v]) => `${k}:${v}`).join(' · ');
 console.log(`Cubiertos: ${okCount.total}  (${resumen})`);
+console.log(`Fases auditadas: ${fasesAuditadas.join(' · ')}  (${fasesAuditadas.length} de ${COMPONENTES.length})`);
 
 // ── Cobertura mecánica de las reglas ────────────────────────────────────────
 // Se publica el NUMERO con su denominador, no un adjetivo. Y no es un umbral: SUITE-R26 dice

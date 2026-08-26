@@ -310,6 +310,11 @@ Ningún otro documento enuncia obligaciones: las **cita** por ID (`LEX-R22`).
 **Ninguna herramienta se toca** (`SUITE-R60`). Si hace falta editar una para que el componente
 aparezca, ese sitio es un literal que quedó sin derivar — y es un defecto, no un paso.
 
+**Y antes de dar de alta nada, decide qué estás dando de alta** (`LEX-R36`): un **componente**
+tiene fases, triggers y directorio; una **familia de reglas** es sólo un prefijo con un documento
+propietario. `SUITE`, `LEX`, `EXEC` e `INTAKE` son familia y **no** componente, y confundirlos
+es lo que hacía que `build-core` afirmara la lista dos veces con cifras distintas.
+
 ### E6 · Dar de baja un componente
 
 | | |

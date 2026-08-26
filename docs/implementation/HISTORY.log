@@ -9451,3 +9451,92 @@ arbol byte a byte como estaba— es PT-149, y es el criterio de exito del lote e
 Y no establece que CASOS-DE-USO cumpla su propio contrato de cobertura. Su encabezado afirma que
 «un caso que no este aqui es un hueco declarado, no un silencio» y nada lo comprueba — ha fallado
 dos veces en este trabajo, con DICTAMEN y con esta misma alta/baja. Es PT-161.
+
+## PT-156 — LEXICON declaraba el rango de cinco componentes, y hay seis
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024 (ejecutada dentro del tramo de EP-022, por decision del firmante)
+Rama: chore/alberto-martinez/PT-156-lexicon-sin-apartado-para-fpge
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 PASS 2026-08-25 Alberto Martinez — firma PROPIA, no por lote: EP-024 no esta
+            firmado, e INTAKE-R08 ADMITE la firma por lote, no la impone
+            G3 2026-08-25 — auto-resuelta por las SIETE condiciones de EXEC 5.2, comprobadas
+            mecanicamente una a una (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+EL APARTADO NO FALTABA POR OLVIDO DE REDACCION. FPGE llevaba `fases: SIN_EVALUAR` desde PT-144, y
+audit lo reportaba como el UNICO hueco que le quedaba a la bateria. La causa estaba tres
+documentos mas arriba: FPGE numeraba sus siete pasos como [1]..[7]. LEXICON 2 dice que PHASE es la
+UNICA palabra admitida para un paso de cualquier flujo de la suite y prohibe POR SU NOMBRE «Step
+n» y «Etapa n» — el corchete NO esta en esa lista. La misma cosa con una grafia que la prohibicion
+no alcanzo, y por ahi se colo durante siete versiones.
+
+Sin fases, no habia rango que declarar. La cadena era correcta de arriba abajo, y PT-144 hizo bien
+en no inventarselo. Por eso el orden fue forzoso: PRIMERO PHASE n en los dos documentos
+operativos, DESPUES el apartado. Al reves, LEXICON habria declarado fases que no existian.
+
+    FPGE-Implementation + FPGE-Prompts   [1]..[7] -> PHASE n, en los DOS a la vez (LEX-R01)
+    LEXICON 3.6                          la tabla, con ESOS nombres · el contrato pasa a 3.7/3.8
+    patrones.mjs                         fases: [1, 7]
+    verify-patrones                      la asercion, volteada — y el hueco que abrio, cerrado
+    build-core + CORE.md                 regenerado, y el diff LEIDO
+
+AL VOLTEAR UNA ASERCION SE ABRE EL HUECO QUE ESA ASERCION TAPABA. La de verify-patrones NACIA al
+reves: exigia SIN_EVALUAR. Y estaba BIEN mientras el dato no existia — defendia la declaracion de
+ignorancia, que es lo que RULE-06 pide. Al voltearla, nadie comprobaba ya que LEXICON TUVIERA el
+apartado del que el rango sale: un `fases: [1, 7]` sin apartado habria pasado en verde, que es
+LITERALMENTE el «rango inventado» contra el que PT-144 escribio SIN_EVALUAR. Cerrado en el acto y
+en los DOS sentidos, porque una sola direccion no comprueba nada, y derivado de COMPONENTES: un
+septimo componente entra solo.
+
+LA PRIMERA BATERIA DEVOLVIO SIETE ROJOS Y NINGUNO ERA RUIDO. CUATRO son de una clase que merece
+nombre: UN CASO QUE SOLO PUEDE PASAR MIENTRAS EXISTE EL DEFECTO QUE DICE VIGILAR. PT-147 afirmaba
+«FIDE entra en la auditoria de fases» buscando «FIDE PHASE» en la salida de audit — pero audit
+SOLO emite esa linea cuando el componente tiene un HUECO. Los tres pasaban PORQUE FIDE, FPGE y
+Foundation FALLABAN, y se pusieron en rojo el dia en que dejaron de fallar: estuvieron en verde
+todo EP-022 afirmando lo contrario de lo que ocurria. Y YO REPETI LA INVERSION en esta misma
+tarea, copiando el patron sin mirar contra que asertaba. Es RULE-02 por el reverso — el exito del
+caso ERA el fallo del sistema—: no un verificador debil, sino un INDICADOR INVERTIDO, que avisa
+mientras el defecto se arregla. No se retiraron: se hizo VERIFICABLE lo que querian decir, y audit
+publica ahora la ANCHURA de lo que audito, derivada de COMPONENTES. El cuarto es hermano: un
+chkno buscaba «=== 'Foundation' ?» en audit.mjs y EL COMENTARIO QUE EXPLICA EL DEFECTO CONTIENE EL
+DEFECTO — el caso se cazaba a si mismo, que es la leccion de PT-148.
+
+Y uno era enteramente mio: mi contraste MATABA fixtures ajenos que copian solo tools/, poniendo en
+rojo casos de otras tareas por una razon ajena a lo que probaban — lo mismo que PT-145 midio
+cuando su fixture copio solo *.md. Corregido a SIN EVALUAR, publicado ANTES del veredicto: decir
+«todos cumplen» sin decir cuales no se pudieron mirar es la promesa que SUITE-R26 prohibe.
+
+DECIMA ROTURA DE ESCAPADO, Y ES LA BUENA. El regex /\r?\n/ del contraste perdio sus escapes al
+escribirse y verify-patrones dejo de arrancar con un SyntaxError. SUITE-R59, segunda en este lote.
+Esta es MEJOR que la novena: en PT-148 el mismo defecto produjo un regex que COMPILABA Y NO CASABA
+NADA, en verde, y solo salio mirando bytes con cat -A. Reventar el arranque SE VE. Las dos se
+arreglaron igual: QUITANDO EL REGEX.
+
+Archivos modificados: LEXICON.md · RULES.md · FPGE-Implementation.md · FPGE-Prompts.md ·
+  tools/patrones.mjs · tools/verify-patrones.mjs · tools/audit.mjs · tools/build-core.mjs ·
+  tools/selftest.sh · CORE.md (generado) · inventory/services.md (cifras) · REFACTOR_SCOPE.md
+
+Medido: huecos de audit 1 -> 0 · verify-patrones 99 -> 106 comprobaciones · selftest 1727 -> 1736
+  casos · rojos de la bateria 7 -> 0 · ROTURAS_DE_ESCAPADO 27 -> 29 · el diff de CORE son SEIS
+  lineas: dos sellos y la de FPGE, y las 263 reglas siguen siendo 263.
+
+Evidencia: evidence/PT-156/ — manifest con 6 AC y 4 RC, self-review, y cuatro salidas.
+
+CUATRO HALLAZGOS, LOS CUATRO CON TAREA:
+  PT-164  SUITE-R44 citaba «retomada» con DOS IDs distintos EN LA MISMA REGLA, secuela del
+          renumerado de PT-148. Una cita a un ID equivocado PERO REAL pasa todos los
+          verificadores —LEX-R35 existe, solo que es otra— y CORE.md la publica.
+  PT-165  El mapa de fases de CORE esta TECLEADO para los cinco componentes que lista, y FIDE no
+          aparece pese a tener fases: [1, 5]. Publicaba «FPGE … → promote» con SEIS pasos, contra
+          FPGE-R04, que dice que PHASE 7 es STOP y promover es humano. En el unico archivo que el
+          agente carga.
+  PT-166  LEXICON 2 prohibe las grafias de paso POR SU NOMBRE, y la lista es incompleta por
+          construccion: enumerar prohibiciones es perseguir el idioma.
+  PT-167  Nada busca mas casos invertidos entre los 1736. Este salio por un cambio de conducta
+          ajeno, no porque nadie lo buscara.
+
+LO QUE NO ESTABLECE: que las siete filas de LEXICON 3.6 COINCIDAN con las de los documentos
+operativos. Se verifico a mano; nada mecanico lo sostiene (SUITE-R26).

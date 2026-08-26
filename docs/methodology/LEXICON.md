@@ -145,9 +145,30 @@ correcta encima de documentación vieja contradictoria y nadie sabía cuál mand
 | 4 | Scaffolding |
 | 5 | Handoff |
 
+### 3.6 FPGE — Priorización Gobernada por Evidencia
+
+| PHASE | Nombre | Compuerta |
+|:--|:---|:---|
+| 1 | Compuertas de freshness y confianza | — |
+| 2 | Recolección de evidencia | — (solo lectura) |
+| 3 | Síntesis de candidatos | — |
+| 4 | Cálculo de Priority | — |
+| 5 | Orden y desempates | — |
+| 6 | Emisión | — |
+| 7 | **Stop — decisión humana** | **decisión humana** (`FPGE-R04`) |
+
+Este apartado faltó desde que existe `FPGE`, y no por olvido de redacción: su recorrido
+numeraba los siete pasos como `[1]`..`[7]`. §2 prohíbe `Step n` y `Etapa n` **por su nombre**, y
+un corchete no está en esa lista — es la misma cosa con una grafía que la prohibición no
+alcanzó. Sin fases, no había rango que declarar, así que `patrones.mjs` llevaba `SIN_EVALUAR` y
+`audit` reportaba el hueco en vez de inventarlo (`RULE-06`). Lo corrigió `PT-156`.
+
+`PHASE 7` es la única de la suite cuyo desenlace es **no hacer nada**: `FPGE` ordena y se
+detiene. Promover es de quien decide, no de quien mide (`FPGE-R04`).
+
 ---
 
-### 3.6 El contrato de componente   `SUITE-R60`
+### 3.7 El contrato de componente   `SUITE-R60`
 
 `LEX-R35` · Un componente de la suite se **declara** en `tools/patrones.mjs`, y las herramientas
 lo **derivan**. Ninguna lo nombra. Estos son sus campos y de dónde sale cada uno:
@@ -174,7 +195,7 @@ tres archivos y ninguno lo es, porque opera **antes de que la suite exista** y s
 los dos casos el valor es **no evaluable**, nunca un valor inventado (`RULE-06`): omitirlo lo
 haría indistinguible de uno que cumple.
 
-### 3.7 Componente y familia de reglas no son lo mismo
+### 3.8 Componente y familia de reglas no son lo mismo
 
 `LEX-R36` · Un **componente** tiene fases, triggers y directorio. Una **familia de reglas** es un
 prefijo con un documento propietario y un orden de emisión en `CORE.md`.

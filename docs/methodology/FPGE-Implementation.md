@@ -49,7 +49,7 @@ QA/                         LEE   QA-DEFECTS.md · qa-score-history.json
 ## El proceso paso a paso
 
 ```
-[1] COMPUERTAS DE FRESHNESS Y CONFIANZA
+PHASE 1 — Compuertas de freshness y confianza
 
     PTSA/RESUMEN.md → score_freshness
       STALE | UNKNOWN → anotar advertencia en el encabezado de ROADMAP.md y
@@ -64,7 +64,7 @@ QA/                         LEE   QA-DEFECTS.md · qa-score-history.json
     docs/implementation/INCIDENTS.log
       incidente abierto sin PT de seguimiento → candidato de máxima urgencia (+1.0)
 
-[2] RECOLECCIÓN DE EVIDENCIA — solo lectura
+PHASE 2 — Recolección de evidencia — solo lectura
 
     PTSA  hallazgos activos (READY, REOPENED) con dimensión, severidad, impacto, probabilidad
     PTSA  productos en BLOCKED_DOMAIN o IN_REVIEW
@@ -86,7 +86,7 @@ QA/                         LEE   QA-DEFECTS.md · qa-score-history.json
                       El umbral vive en `REGISTRY.tracker.umbral_clase_sin_dueno`; no se
                       escribe aquí, para que no haya dos números que puedan divergir.
 
-[3] SÍNTESIS DE CANDIDATOS
+PHASE 3 — Síntesis de candidatos
 
     Un R-NNN por unidad de trabajo accionable. Asignar el ID desde REGISTRY.json.  SUITE-R08
     Fusionar duplicados: varios hallazgos del mismo producto → un ítem con varias evidencias.
@@ -96,22 +96,22 @@ QA/                         LEE   QA-DEFECTS.md · qa-score-history.json
       - PTs vivos en BACKLOG.md
       - Ítems con Proposal Package ya aprobado
 
-[4] CÁLCULO DE PRIORITY
+PHASE 4 — Cálculo de Priority
 
     Priority = (EvidenceWeight × ScoreImpact × Urgency × DomainMultiplier × Confidence) / Effort
 
     Estimar Effort con el grafo de dependencias si está disponible; si no, DECLARAR el supuesto.
 
-[5] ORDEN Y DESEMPATES
+PHASE 5 — Orden y desempates
 
     Mayor Priority → D1 antes que D2/D3/D4 → mayor riesgo de no hacer → menor id.
 
-[6] EMISIÓN
+PHASE 6 — Emisión
 
     Sobrescribir ROADMAP.md. Todos los ítems en DRAFT. Declarar Top-3 impacto y Top-3 quick wins.
     Append a ROADMAP_HISTORY.log: fecha, evidencia leída con su versión, nº de candidatos, top.
 
-[7] STOP — esperar decisión humana. NO promover nada.                              FPGE-R04
+PHASE 7 — Stop — decisión humana. NO promover nada.                                FPGE-R04
 ```
 
 ---
