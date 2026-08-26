@@ -4013,7 +4013,7 @@ Quedan tres ramas remotas: `main`, `trabajo` y `cauce/alberto-martinez` —la de
 
 ---
 
-## 2026-08-26 · Autorización expresa de excepción a `SUITE-R06`   `EXEC-R07`
+## 2026-08-26 · G4 de `EP-022` autorizada por el firmante — excepción expresa a `SUITE-R06`
 
 `SUITE-R06` declara siete acciones que **no se automatizan en ningún modo**. La regla de
 cumplimiento del `CLAUDE.md` prevé la única salida: *«hasta que un humano autorice la excepción
@@ -4045,7 +4045,13 @@ escribe el archivo—, exactamente como `SUITE-R27` dice de cualquier firma. Lo 
 afirmación **contrastable**: el nombre está en `firmantes`, la frase es literal, y quien aparece
 en esa lista responde de lo que lleva su nombre.
 
-### Ampliación — misma sesión, 2026-08-26
+### Ampliación — misma sesión
+
+> **Nota sobre este encabezado.** El primero decía *«Autorización expresa de excepción a
+> `SUITE-R06`»* y `EXEC-R04` **no lo reconoció**: su criterio busca `G4`, `VoBo` o `autorizad`, y
+> «Autorización» no contiene ninguna de las tres. La constancia estaba escrita, con el nombre y la
+> frase literal, y aun así el merge a `main` salió como **no autorizado** en `CI`. Es `CE-008` por
+> la vía del vocabulario: el hecho estaba, con otro nombre. Corregido el encabezado, no el hecho.
 
 Preguntado por la rama remota `refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos`,
 que `G4` marca como error y cuyo borrado es `SUITE-R06f`, el firmante amplía:
