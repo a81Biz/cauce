@@ -7851,9 +7851,9 @@ chk   "FIDE dejando de ser opcional se caza"          "no reproduce Set" \
 # El caso que se escapo la primera vez. CORE.md se emite con `orden`: un empate hace que el
 # nucleo dependa del orden de declaracion en vez del declarado.
 chk   "un «orden» de familia REPETIDO se caza"        "esta repetido" \
-  rot144 "s/{ prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3 }/{ prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 2 }/"
+  rot144 "s/prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3/prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 2/"
 chk   "…y cambiar el documento de PTSA tambien"       "no reproduce build-core" \
-  rot144 "s#{ prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8 }#{ prefijo: 'PTSA', documento: 'RULES.md', orden: 8 }#"
+  rot144 "s#documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md'#documento: 'RULES.md'#"
 
 # Y el arbol real sigue en verde: los casos de arriba no lo tocaron.
 chk   "sobre el arbol real, el contrato cumple"       "Todos los patrones cumplen" \

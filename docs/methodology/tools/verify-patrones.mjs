@@ -88,7 +88,7 @@ if (selloDe('a\nb') === selloDe('a\nc')) {
 // Cada bloque nombra el componente y el campo que falla: quien lea el error no tiene que deducir
 // cuál de los seis está mal (`SUITE-R53`).
 const CAMPOS_COMPONENTE = ['nombre', 'sigla', 'prefijo', 'directorio', 'obligatorio', 'triggers', 'fases', 'en_core'];
-const CAMPOS_FAMILIA = ['prefijo', 'documento', 'orden'];
+const CAMPOS_FAMILIA = ['prefijo', 'documento', 'orden', 'etiqueta'];
 
 const listaDe = (x) => (x instanceof Map ? [...x.values()] : Object.values(x ?? {}));
 

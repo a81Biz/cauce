@@ -1,0 +1,48 @@
+── A · casos límite (deben pasar en verde) ──
+── B · defectos inyectados (deben detectarse) ──
+── D · migración ──
+── E · reconciliación y migración verificada ──
+── F · instalación ──
+── G · robustez y seguridad ──
+── H · lotes ──
+── I · PTSA por enumeración ──
+── K · integridad y firmas ──
+── J · QA y FPGE ──
+── L · falsificación ──
+── M · terreno ──
+── N · implementación abierta ──
+── O · continuidad ──
+── P · plataforma ──
+warning: in the working copy of 'docs/implementation/REGISTRY.json', LF will be replaced by CRLF the next time Git touches it
+── Q · secretos ──
+── PT-075 · viabilidad registrada y actos hacia la plataforma ──
+── R · bitácora y cierre ──
+── S · patrones ──
+── C · metodología ──
+── PT-083 · PT-084 · lo que la prueba de fuego encontro ──
+── PT-085 · el sello ──
+── PT-058 · la naturaleza de una cifra ──
+── PT-057 · la referencia de coste ──
+── PT-079 · lo que se aprende se hace mecanico ──
+── PT-066 · definir no es mencionar ──
+── PT-074 · el veredicto se ve en el tablero ──
+── PT-068 · la marca es de quien la abre ──
+── PT-076 · el arnes no escribe donde se decide ──
+── PT-059 · la compuerta de viabilidad ──
+── PT-060 · la sesión como entidad ──
+── PT-061 · quién es quién ──
+── PT-062 · rangos reservados ──
+── PT-063 · el usuario en la rama de tarea ──
+── PT-064 · de quién es cada commit ──
+── PT-065 · la sesión es de alguien ──
+── PT-056 · el arbol corresponde al checkpoint ──
+── PT-088 · las reglas del dominio se verifican o se declaran ──
+── PT-087 · la comprobacion declara que hecho establece ──
+── PT-095 · una regla nueva no juzga lo escrito antes ──
+── PT-089 · la divergencia no apaga comprobaciones ──
+── PT-090 · la frescura del grafo viaja con el repositorio ──
+── PT-091 · las cifras se derivan, no se transcriben ──
+── PT-093 · el limite de las compuertas se declara ──
+── PT-092 · ejecutar QA y FPGE ──
+
+selftest: NINGUN CASO CASA «se caza\|PTSA tambien» · 0 de 1715 casos

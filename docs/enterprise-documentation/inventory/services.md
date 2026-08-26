@@ -11,7 +11,7 @@
 | `verify-fdge.mjs` | 2772 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
 | `verify-suite.mjs` | 881 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
 | `patrones.mjs` | 2568 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
-| `build-core.mjs` | 564 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
+| `build-core.mjs` | 571 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
 | `audit.mjs` | 628 | Cobertura por enumeración: 597 elementos y lo que cada clase debe tener | no | `npm run audit` · CI |
 | `migrate.mjs` | 438 | Migración guiada entre versiones de la suite | **sí** con `--apply` | `selftest` · manual |
 | `plan-layout.mjs` | 371 | Plan de terreno: repos anidados, dónde vive el código, dependencias, alcance del grafo. **Propone, no mueve** | **sí** `LAYOUT.md` con `--write`, y se niega si ya está firmado | Foundation `PHASE 0` · `selftest` |

@@ -1484,16 +1484,16 @@ export const COMPONENTES = [
  * `documento` es el campo que explicaba la discrepancia 7-vs-10 de `build-core.mjs`.
  */
 export const FAMILIAS = [
-  { prefijo: 'SUITE', documento: 'RULES.md', orden: 1 },
-  { prefijo: 'LEX', documento: 'LEXICON.md', orden: 2 },
-  { prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3 },
-  { prefijo: 'FND', documento: 'RULES.md', orden: 4 },
-  { prefijo: 'FDGE', documento: 'RULES.md', orden: 5 },
-  { prefijo: 'INTAKE', documento: 'RULES.md', orden: 6 },
-  { prefijo: 'QA', documento: 'RULES.md', orden: 7 },
-  { prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8 },
-  { prefijo: 'FPGE', documento: 'RULES.md', orden: 9 },
-  { prefijo: 'FIDE', documento: 'RULES.md', orden: 10 },
+  { prefijo: 'SUITE', documento: 'RULES.md', orden: 1, etiqueta: 'Transversales' },
+  { prefijo: 'LEX', documento: 'LEXICON.md', orden: 2, etiqueta: 'Nombres' },
+  { prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3, etiqueta: 'Compuertas y modos' },
+  { prefijo: 'FND', documento: 'RULES.md', orden: 4, etiqueta: 'Foundation' },
+  { prefijo: 'FDGE', documento: 'RULES.md', orden: 5, etiqueta: 'Desarrollo' },
+  { prefijo: 'INTAKE', documento: 'RULES.md', orden: 6, etiqueta: 'Admisión' },
+  { prefijo: 'QA', documento: 'RULES.md', orden: 7, etiqueta: 'Verificación de UX' },
+  { prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8, etiqueta: 'Auditoría — definidas en la especificación oficial' },
+  { prefijo: 'FPGE', documento: 'RULES.md', orden: 9, etiqueta: 'Priorización' },
+  { prefijo: 'FIDE', documento: 'RULES.md', orden: 10, etiqueta: 'Incubación' },
 ];
 
 // ── Proyecciones ────────────────────────────────────────────────────────────

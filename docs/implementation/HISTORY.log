@@ -9207,3 +9207,86 @@ FALLOS DE METODO, y los dos de la misma familia:
 
 Y una nota que PT-144 no podia establecer por si misma: el contrato lleva ya TRES consumidores
 —PT-150 y las dos herramientas de esta tarea— y NO ha hecho falta cambiarlo ni una vez.
+
+## PT-146 — build-core deja de escribir las familias y los componentes
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+CUATRO SITIOS, NO LOS TRES DEL INTAKE. PHASE 2 encontro el mapa `label` de :184 —las diez
+familias por CUARTA vez en el mismo archivo— y no lo cazo la enumeracion de EP-022 porque el
+barrido se hizo con grep sobre patrones de PREFIJO, y label es un objeto: sus claves no casan
+ninguna alternancia. Es una de las «otras formas de nombrar un componente» que PT-144 declaro
+explicitamente que su barrido NO cubria.
+
+LA CUENTA DEL LOTE HA SUBIDO TRES VECES, Y NINGUNA POR EJECUTAR:
+
+    EP-022 §1 declaraba                            13 sitios
+    PHASE 1, verificando una frase propia    ->    14   audit tiene DOS mapas, no uno
+    PHASE 5 de PT-144, RC-03 extrayendo      ->    15   verify-suite:716, e INCOMPLETO
+    PHASE 2 de PT-146, leyendo para analizar ->    16   build-core:184, el mapa label
+
+Las tres salieron de LEER CON UNA PREGUNTA CONCRETA DELANTE.
+
+PRIMERA TAREA QUE AMPLIA EL CONTRATO, Y EL CONTRATO AGUANTO. PT-150 y PT-145 lo consumieron sin
+tocarlo; esta le anadio «etiqueta» a FAMILIAS y no hubo que reescribir nada — los tres
+consumidores anteriores no se enteraron. Era lo que PT-144 no podia establecer por si misma.
+
+Y el campo fue a FAMILIAS y no a COMPONENTES porque label tiene DIEZ entradas: incluye SUITE,
+LEX, EXEC e INTAKE, que son familia de reglas y no componente. El hecho fue a donde estaba.
+
+LA BARRA ERA BYTE A BYTE Y SE MIDIO EN CADA PASO. build-core genera lo unico que el agente carga
+(SUITE-R15), y su propio :194 recuerda que hubo un momento en que [START PTSA] auditaba con el
+29% de su propio ruleset porque las reglas no llegaban a runtime. `build-core --check` se ejecuto
+tras cada uno de los tres pasos, no al final: si la identidad se rompia, se sabria con UN sitio
+tocado.
+
+EL PASO 4 CAMBIO AL EJECUTARLO, y el cambio se declara. Se planifico como «derivar la mitad
+derivable» del bloque de triggers. Medido, no se puede derivar sin salirse del alcance: byte a
+byte exigiria meter en el contrato la MAQUETACION del bloque —agrupamiento por linea, marcadores
+<tipo>: <titulo>, separadores y las operaciones de LEX-R16—, un campo con UN SOLO CONSUMIDOR en
+el modulo cuya razon de ser es que un hecho tenga un dueno. Y derivar solo la mitad habria dejado
+el bloque partido en dos mecanismos sin ganar nada.
+
+Y AL INTENTARLO APARECIO ALGO MAYOR QUE LA DUPLICACION QUE VENIA A ARREGLAR:
+
+    el bloque de CORE.md publica    8 triggers
+    LEXICON §7 declara              13
+    faltan   [CIERRA] · [IMPLEMENTACIÓN] · [START RECONCILE] · [INSTALL SUITE] · [START MIGRATE]
+
+SUITE-R15 dice que CORE.md es lo unico que se carga; LEX-R18, que sin trigger no hay componente.
+Dos de los cinco gobiernan el bucle abierto de FDGE y la puerta del modo restringido de
+SUITE-R17. Que funcionen hoy depende de que alguien los recuerde, no de que el nucleo los publique.
+
+NO se arreglo aqui porque AC-02 exige CORE.md identico, y TIENE TAREA PROPIA enlazada desde la
+parada de #281 — no una nota al pie.
+
+Archivos modificados: tools/patrones.mjs · tools/build-core.mjs · tools/verify-patrones.mjs ·
+  tools/selftest.sh · inventory/services.md (cifras derivadas)
+
+Medido: cero literales en build-core.mjs · CORE.md y CORE-PTSA.md sincronizados en los TRES
+  pasos · verify-patrones 85 -> 99 comprobaciones · las diez etiquetas contrastadas contra el
+  mapa label REAL, leido del archivo.
+
+Evidencia: evidence/PT-146/ — manifest con 2 AC y 4 RC, self-review, y seis salidas capturadas.
+
+LO QUE NO ESTABLECE: que no queden otras formas de nombrar un componente en build-core. El
+barrido de este lote cubrio alternancias de prefijo y objetos con clave de prefijo; una
+herramienta puede nombrar un componente por una ruta, un nombre de archivo o una cadena suelta, y
+eso no se ha barrido. La cuenta subiendo tres veces es la evidencia de que el metodo de
+enumeracion tiene un sesgo, y esta contado.
+
+FALLO DE METODO: anadir «etiqueta» a FAMILIAS dejo sin casar los sed de DOS casos permanentes de
+PT-144, que casaban LA LINEA ENTERA Y LITERAL. El arnes lo cazo en alto —chk exige que el texto
+esperado aparezca— asi que no hubo verde falso, pero el fixture era fragil de la forma exacta que
+este lote persigue: una copia literal de otra cosa. Corregidos para casar SOLO el campo que
+rompen. Cuarta instancia en cuatro tareas de la misma familia — PT-144 con el caso que esperaba
+un SyntaxError, PT-150 afirmando sobre el identificador, PT-145 con el fixture incompleto, y esta.

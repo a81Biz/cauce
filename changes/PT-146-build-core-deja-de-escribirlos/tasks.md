@@ -43,15 +43,35 @@ cabecera distinta es un byte distinto: es el paso donde `--check` tiene más que
 | **Archivos** | `tools/build-core.mjs` |
 | **Cubre** | `AC-01`, `AC-02`, `RC-02`, `RC-03` |
 
-## `PT-146.4` — los triggers, la mitad derivable
+## `PT-146.4` — los triggers: **no se derivan, y se dice por qué**
+
+> **Este paso cambió al ejecutarlo, y el cambio se declara.** Se planificó como «derivar la mitad
+> derivable». Al medirlo resultó **imposible sin salirse del alcance**, y además destapó un
+> hallazgo mayor que la duplicación que venía a arreglar.
 
 | | |
 |:---|:---|
-| **Objetivo** | Los `[START …]` salen de `COMPONENTES[].triggers`; las operaciones de `LEX-R16` **se quedan como texto** |
-| **Validación** | `build-core --check` en verde · un caso que compare el bloque generado con `triggers()` |
-| **Archivos** | `tools/build-core.mjs` · `tools/selftest.sh` |
-| **Cubre** | `AC-01`, `RC-04` |
+| **Objetivo** | Declarar por qué el bloque se queda literal, y **contar** lo que se encontró |
+| **Validación** | `build-core --check` en verde: el bloque **no se toca** |
+| **Archivos** | ninguno |
+| **Cubre** | lo declarado en `HISTORY` |
 
-**Queda mitad derivado y mitad literal, y se declara.** Las operaciones —`resume PT-XXX`,
-`status FDGE`, `delta QA PT-XXX`…— no están en el contrato, y meterlas exigiría un campo con **un
-solo consumidor**. Está en la parada de `#281` con su razonamiento.
+**Por qué no se deriva.** Byte a byte exigiría meter en el contrato la maquetación del bloque —el
+agrupamiento por línea, los marcadores `<tipo>: <título>`, los separadores `·` y las operaciones
+de `LEX-R16`—: un campo con **un solo consumidor** en el módulo cuya razón de ser es que un hecho
+tenga un dueño. `scope.md` §8 lo declara `OUT`.
+
+**Y lo que se encontró al intentarlo:**
+
+```
+el bloque de CORE.md publica     8 triggers
+LEXICON §7 declara               13
+faltan                           [CIERRA] · [IMPLEMENTACIÓN] · [START RECONCILE]
+                                 [INSTALL SUITE] · [START MIGRATE]
+```
+
+`SUITE-R15` dice que `CORE.md` es **lo único que se carga**, y `LEX-R18` que sin trigger no hay
+componente. **Cinco triggers que `LEXICON` declara no aparecen en el núcleo que el agente lee.**
+
+Añadirlos cambiaría `CORE.md`, que es lo que `AC-02` prohíbe. Queda en la parada de
+[#281](https://github.com/a81Biz/cauce/issues/281) como **candidato a tarea propia**.

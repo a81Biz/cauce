@@ -32,6 +32,8 @@ import { createHash } from 'node:crypto';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe } from './patrones.mjs';
+// PT-146 · las familias de reglas, con su etiqueta, su documento propietario y su orden.
+import { FAMILIAS, familiasEnProsa, ordenDePrefijos, triggers } from './patrones.mjs';
 
 const args = process.argv.slice(2);
 const check = args.includes('--check');
@@ -168,7 +170,10 @@ function proseRules(txt, prefijos) {
 
 const allRules = rulesFrom(rules)
   .concat(ptsaCited(rules))
-  .concat(proseRules(rules, ['SUITE', 'FND', 'FDGE', 'INTAKE', 'QA', 'FPGE', 'FIDE']))
+  // PT-146 · las SIETE cuyas reglas viven en la PROSA de RULES.md. Las otras tres se tratan
+  // aparte en las lineas siguientes porque cada una vive en OTRO ARCHIVO — y ese campo,
+  // «documento», es el que explicaba por que esta lista tenia siete entradas y «order» diez.
+  .concat(proseRules(rules, familiasEnProsa()))
   .concat(proseRules(lexicon, ['LEX']))
   .concat(proseRules(exec, ['EXEC']));
 
@@ -180,12 +185,14 @@ for (const r of allRules) {
   const p = r.id.split('-')[0];
   (byPrefix[p] ??= []).push(r);
 }
-const order = ['SUITE', 'LEX', 'EXEC', 'FND', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FIDE'];
-const label = {
-  SUITE: 'Transversales', LEX: 'Nombres', EXEC: 'Compuertas y modos', FND: 'Foundation',
-  PTSA: 'Auditoría — definidas en la especificación oficial',
-  FDGE: 'Desarrollo', INTAKE: 'Admisión', QA: 'Verificación de UX', FPGE: 'Priorización', FIDE: 'Incubación',
-};
+// PT-146 · el orden de emision de CORE.md. PT-144 ya le puso asercion contra huecos y
+// repetidos: un empate haria que el nucleo dependiera del orden de declaracion.
+const order = ordenDePrefijos();
+// PT-146 · el nombre humano de cada seccion sale del contrato. Era el SITIO DIECISEIS del lote,
+// y no lo cazo la enumeracion de EP-022 porque el barrido se hizo con grep sobre patrones de
+// PREFIJO y esto es un objeto: sus claves no casan ninguna alternancia. Es una de las «otras
+// formas de nombrar un componente» que PT-144 declaro que su barrido NO cubria.
+const label = Object.fromEntries(FAMILIAS.map((f) => [f.prefijo, f.etiqueta]));
 
 const SPEC = read('PTSA/PTSA-V3-Especificacion-Oficial.md');
 
