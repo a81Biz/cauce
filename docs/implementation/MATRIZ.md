@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-185 entradas recorridas · 161 identificadores · 101 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-25
+186 entradas recorridas · 162 identificadores · 102 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-25
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
@@ -16,7 +16,7 @@
 | `CE-005` | Verde por no haber mirado | 11 | 2 | 2026-08-14 | 2026-08-24 | `SUITE-R31` | `SUITE-R31` falla |
 | `CE-006` | El acto hecho fuera del comando | 6 | — | 2026-08-21 | 2026-08-24 | `SUITE-R58` · `FDGE-R52` | `SUITE-R58` avisa · `FDGE-R52` falla |
 | `CE-007` | Existe la herramienta y nada la echa en falta | 6 | 7 | 2026-08-19 | 2026-08-24 | `FDGE-R19` | `FDGE-R19` falla |
-| `CE-008` | Un hecho, varios nombres | 6 | 5 | 2026-08-13 | 2026-08-25 | `SUITE-R14` | `SUITE-R14` falla |
+| `CE-008` | Un hecho, varios nombres | 7 | 5 | 2026-08-13 | 2026-08-25 | `SUITE-R14` | `SUITE-R14` falla |
 | `CE-009` | El estado terminal escrito a mano o adelantado | 1 | — | 2026-08-21 | 2026-08-21 | `SUITE-R46` | `SUITE-R46` falla |
 | `CE-010` | La cifra transcrita caduca | 1 | — | 2026-08-20 | 2026-08-20 | `FND-R14` | `FND-R14` avisa |
 | `CE-011` | Un arreglo deja tests del estado anterior | 1 | 4 | 2026-08-13 | 2026-08-13 | **—** | **sin dueño** |

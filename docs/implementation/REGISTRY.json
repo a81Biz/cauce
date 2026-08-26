@@ -36,8 +36,8 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 150,
-    "EP": 23,
+    "PT": 160,
+    "EP": 24,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -4248,8 +4248,8 @@
       "id": "PT-147",
       "slug": "audit-deja-de-escribirlos",
       "created": "2026-08-24",
-      "status": "DRAFT",
-      "phase": 4,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "REFACTOR",
       "severity": "S2",
@@ -4371,6 +4371,185 @@
         }
       },
       "issue": 287
+    },
+    {
+      "id": "EP-024",
+      "slug": "lo-que-ep-022-encontro",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "title": "lo que EP-022 encontro"
+    },
+    {
+      "id": "PT-151",
+      "slug": "verify-no-es-lo-que-corre-ci",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "npm run verify no es lo que corre CI, y el CLAUDE.md dice que si",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-152",
+      "slug": "el-nucleo-publica-ocho-de-trece",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "CORE.md publica ocho triggers y LEXICON declara trece",
+      "origen_parada": {
+        "de": "PT-146",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-153",
+      "slug": "la-rama-de-lote-no-se-deriva",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "La rama de un lote no tiene forma derivable, y se inventa",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "limite-alcanzado",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-154",
+      "slug": "espejo-global-registro-por-rama",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "INVESTIGATION",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "El espejo es global y el registro es por rama",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "limite-alcanzado",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-155",
+      "slug": "los-contratos-sin-asercion",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "verify-patrones comprueba dos de siete contratos de patrones.mjs",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-156",
+      "slug": "lexicon-sin-apartado-para-fpge",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "CHORE",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "LEXICON 3 declara el rango de cinco componentes y hay seis",
+      "origen_parada": {
+        "de": "PT-144",
+        "motivo": "limite-alcanzado",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-157",
+      "slug": "el-estado-por-su-nombre-canonico",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "contradiceElRegistro no reconoce el nombre canonico del estado",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-158",
+      "slug": "fide-no-tiene-archivo-de-prompts",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "FIDE no tiene archivo de prompts, y LEX-R15 dice que todo componente tiene uno",
+      "origen_parada": {
+        "de": "PT-147",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-159",
+      "slug": "un-declara-abre-o-declara-su-vuelta",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "Una parada que declara un hallazgo no esta obligada a abrir trabajo ni a decir cuando se revisa",
+      "origen_parada": {
+        "de": "EP-022",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
+    },
+    {
+      "id": "PT-160",
+      "slug": "los-ac-de-la-trazabilidad-son-los-del-intake",
+      "created": "2026-08-25",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.1.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "Nada comprueba que los AC de traceability.md sean los del intake",
+      "origen_parada": {
+        "de": "PT-147",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-25"
+      }
     }
   ]
 }

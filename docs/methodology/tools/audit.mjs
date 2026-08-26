@@ -35,6 +35,8 @@ import { execFileSync } from 'node:child_process';
 import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
+// PT-147 · los componentes, sus fases, su archivo de prompts y su sigla — del contrato.
+import { COMPONENTES, fasesDe, promptsDe, siglaDe, SIN_EVALUAR } from './patrones.mjs';
 
 // ── PT-101 · la construccion FRAGIL, antes de que se rompa ────────────────────
 //
@@ -190,19 +192,30 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
 
 // ── 2. FASES ────────────────────────────────────────────────────────────────
 {
-  const PROMPTS = {
-    FDGE: 'FDGE-Prompts.md', Foundation: 'Foundation-Prompts.md',
-    QA: 'QA/QA-Prompts.md', PTSA: 'PTSA/PTSA-Prompts.md', FPGE: 'FPGE-Prompts.md',
-  };
-  const esperadas = {
-    FDGE: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    Foundation: [0, 1, 2, 3, 4, 5, 6],
-    QA: [1, 2, 3, 4, 5, 6, 7],
-    PTSA: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-  };
-  for (const [comp, nums] of Object.entries(esperadas)) {
-    const prompt = rd(PROMPTS[comp]) ?? '';
-    for (const n of nums) {
+  // PT-147 · UN mapa, y sale del contrato.
+  //
+  // Habia DOS escritos a mano —PROMPTS con cinco componentes y «esperadas» con cuatro— y el bucle
+  // recorria «esperadas», asi que lo que no estuviera ahi NO APARECIA: ni en rojo ni en amarillo.
+  // Medido: FPGE tenia prompts declarados y NADIE auditaba sus fases; FIDE no estaba en ninguno
+  // de los dos. DOS DE LOS SEIS COMPONENTES sin auditar sus fases, y nunca lo dijeron.
+  //
+  // Es el mismo patron que verify-qa.mjs:7 registra para las reglas —«QA 0/19 y FPGE 0/10»—
+  // repetido sobre las FASES. Recorrer COMPONENTES hace el hueco estructuralmente imposible: si
+  // esta en la suite, esta en el bucle.
+  for (const c of COMPONENTES) {
+    const comp = c.nombre;
+    const rango = fasesDe(comp);
+
+    // RULE-06 · un componente sin rango declarado se DICE, no se salta. LEXICON §3 tiene cinco
+    // apartados para SEIS componentes: no hay ninguno para FPGE. Omitirlo lo haria
+    // indistinguible de uno que pasa; declararlo SIN EVALUAR dice lo que se sabe y lo que no.
+    if (rango === SIN_EVALUAR) {
+      gap('fase', `${comp} fases`, 'LEXICON §3 no declara su rango — SIN EVALUAR, no se inventa (RULE-06)');
+      continue;
+    }
+
+    const prompt = rd(promptsDe(comp)) ?? '';
+    for (let n = rango[0]; n <= rango[1]; n++) {
       const falta = [];
       // Un documento puede declarar un rango («PHASE 2-4», «PHASE 11-12») o una línea
       // compacta de componente («FND 0 Recon · 1 Reconciliation · …»). Ambas cuentan.
@@ -211,7 +224,10 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
         for (const m of txt.matchAll(/PHASE\s+(\d+)\s*[-–]\s*(\d+)/g)) {
           if (n >= Number(m[1]) && n <= Number(m[2])) return true;
         }
-        const sigla = comp === 'Foundation' ? 'FND' : comp;
+        // PT-147 · era «comp === 'Foundation' ? 'FND' : comp» — no una lista repetida, sino UNA
+        // EXCEPCION CODIFICADA COMO CONDICIONAL. PT-144 la uso como caso de prueba del contrato.
+        // Y cubre un caso que el ternario no tenia: FQAGE se llama QA en rutas (LEX-R03).
+        const sigla = siglaDe(comp);
         for (const m of txt.matchAll(new RegExp(`^${sigla}\\s+([^\\n]*(?:\\n\\s{6,}[^\\n]*)*)`, 'gm'))) {
           const nums = [...m[1].matchAll(/(?:^|[^\d])(\d{1,2})(?:-(\d{1,2}))?\s/g)];
           for (const x of nums) {
@@ -225,7 +241,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       const enCore = cubre(CORE);
       const enPrompt = cubre(prompt);
       if (!enPhases) falta.push('PHASES.md');
-      if (!enPrompt) falta.push(PROMPTS[comp]);
+      if (!enPrompt) falta.push(promptsDe(comp));
       if (!enCore) falta.push('CORE.md');
       if (falta.length) gap('fase', `${comp} PHASE ${n}`, `ausente en: ${falta.join(', ')}`); else tick('fase');
     }

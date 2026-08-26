@@ -9290,3 +9290,77 @@ esperado aparezca— asi que no hubo verde falso, pero el fixture era fragil de 
 este lote persigue: una copia literal de otra cosa. Corregidos para casar SOLO el campo que
 rompen. Cuarta instancia en cuatro tareas de la misma familia — PT-144 con el caso que esperaba
 un SyntaxError, PT-150 afirmando sobre el identificador, PT-145 con el fixture incompleto, y esta.
+
+## PT-147 — audit deja de escribir los componentes, y dos de los seis dejan de ser invisibles
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: refactor/alberto-martinez/PT-147-audit-deja-de-escribirlos
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+audit.mjs TENIA DOS MAPAS POR COMPONENTE Y EL BUCLE RECORRIA UNO:
+
+              PROMPTS   esperadas
+    FDGE         si        si
+    Foundation   si        si
+    QA           si        si
+    PTSA         si        si
+    FPGE         si        NO       tenia prompts declarados y NADIE auditaba sus fases
+    FIDE         NO        NO       invisible entera
+
+Lo que no estaba en «esperadas» NO APARECIA: ni en rojo ni en amarillo. DOS DE LOS SEIS
+COMPONENTES sin auditar sus fases, y nunca lo dijeron. Es el mismo patron que verify-qa.mjs:7
+registra para las reglas —«QA 0/19 y FPGE 0/10»— repetido sobre las FASES.
+
+Ahora el bucle recorre COMPONENTES: si esta en la suite, esta en el bucle. El hueco pasa a ser
+estructuralmente imposible — pero RULE-02 pide una comprobacion que pueda fallar, no una
+imposibilidad afirmada, y por eso hay casos permanentes que exigen que los SEIS aparezcan.
+
+LOS DOS ENTRAN DISTINTO, Y ESA DISTINCION ES DE PT-144:
+
+    FIDE   LEXICON 3.5 declara PHASE 1-5   ->  entra CON SU RANGO
+    FPGE   LEXICON 3 no tiene apartado     ->  entra como SIN EVALUAR, y lo DICE
+
+«No aparece» y «aparece como no evaluable» no son lo mismo: lo primero es indistinguible de estar
+bien. Meterle a FPGE un rango inventado para que la tabla quedara simetrica habria apagado la
+comprobacion en silencio (RULE-06) — el defecto que este lote entero existe para quitar.
+
+Y EL TERNARIO DESAPARECIO. «comp === 'Foundation' ? 'FND' : comp» no era una lista repetida: era
+UNA EXCEPCION CODIFICADA COMO CONDICIONAL, y la siguiente habria tenido que escribirse igual, al
+lado. PT-144 la uso como caso de prueba del diseno del contrato y aqui se cobra. Cubre ademas un
+caso que el ternario no tenia: FQAGE se llama QA en rutas y triggers (LEX-R03).
+
+Archivos modificados: tools/audit.mjs · tools/selftest.sh · inventory/services.md (cifras)
+
+Medido: cero literales en audit.mjs · «fase: 40» ANTES Y DESPUES para los cuatro ya auditados ·
+  selftest 1715 -> 1720 casos.
+
+Evidencia: evidence/PT-147/ — manifest con 7 AC y 4 RC, self-review, y cuatro salidas.
+
+LO QUE DESTAPO, Y TIENE TAREA. FIDE entro y salio ROJO —que es el objetivo cumplido, no un fallo:
+el intake lo declaro OUT antes de empezar—:
+
+    ✗ FIDE PHASE 1 … PHASE 5     ausente en: FIDE/FIDE-Prompts.md
+
+El archivo NO EXISTE, y LEX-R15 declara que «todo componente tiene exactamente un archivo de
+prompts» — enumerando CINCO cuando son seis. Es la TERCERA lista de componentes de este lote que
+se quedo corta, y las tres son independientes: los dos mapas de audit, LEXICON 3 sin FPGE, y
+LEX-R15 sin FIDE. Es PT-158, enlazada a la parada de #282.
+
+Y UN FALLO MIO, DE LA MISMA CLASE QUE EL LOTE PERSIGUE. El intake declara SIETE criterios y en
+PHASE 2 los reagrupe en CUATRO, con los que escribi traceability y manifest. FDGE-R15 dice que la
+lista canonica es la del intake y que se citan «estos AC-nn y ningun otro». Dos listas del mismo
+hecho, dentro del lote que existe para quitar eso. Corregido — y verify-fdge NO lo cazo, porque
+contrasta la trazabilidad consigo misma y no contra el intake. Ese hueco es PT-160.
+
+LO QUE NO ESTABLECE: que FIDE cubra sus cinco fases. Entra en la auditoria por primera vez y sale
+rojo; corregirlo es PT-158, no esta tarea. Y no establece que no queden otras formas de nombrar
+un componente en audit.mjs: el barrido del lote cubrio alternancias de prefijo y objetos con clave
+de prefijo, y la cuenta subiendo tres veces —13, 14, 15, 16— es la evidencia de que el metodo de
+enumeracion tiene un sesgo.

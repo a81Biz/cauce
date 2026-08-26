@@ -1,0 +1,127 @@
+{
+  "pt": "PT-147",
+  "generated": "2026-08-25",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "No queda ningun literal de componente en audit.mjs",
+      "tests": [
+        "grep de nombres y del ternario sobre audit.mjs",
+        "selftest.sh:el ternario de la sigla ya no existe"
+      ],
+      "evidence": [
+        "salidas/selftest-casos.out"
+      ],
+      "verified": true,
+      "nota": "El ternario era la evidencia mas limpia del lote: «comp === 'Foundation' ? 'FND' : comp» NO era una lista repetida, era UNA EXCEPCION CODIFICADA COMO CONDICIONAL. PT-144 la uso como caso de prueba del diseno del contrato —si «sigla» no fuera un campo, tendria que seguir existiendo en otro sitio— y aqui se cobra. Y cubre un caso que el ternario no tenia: FQAGE se llama QA en rutas y triggers (LEX-R03); audit no lo necesitaba porque usaba la sigla como clave, y al recorrer COMPONENTES la clave pasa a ser el nombre."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "PROMPTS y esperadas dejan de ser dos mapas: uno solo, derivado del contrato",
+      "tests": [
+        "lectura: el bucle recorre COMPONENTES, no un mapa a mano"
+      ],
+      "evidence": [
+        "salidas/audit-antes.out",
+        "salidas/audit-despues.out"
+      ],
+      "verified": true,
+      "nota": "Eran DOS mapas del mismo hecho y discrepaban: PROMPTS con cinco componentes, «esperadas» con cuatro. El bucle recorria «esperadas», asi que lo que no estuviera ahi NO APARECIA — ni en rojo ni en amarillo. Ahora la fuente es COMPONENTES: si esta en la suite, esta en el bucle."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "FIDE entra con su rango; FPGE entra como SIN_EVALUAR",
+      "tests": [
+        "selftest.sh:FIDE entra en la auditoria de fases",
+        "selftest.sh:FPGE aparece como SIN EVALUAR, no omitido",
+        "selftest.sh:…y dice POR QUE no se puede evaluar"
+      ],
+      "evidence": [
+        "salidas/selftest-casos.out",
+        "salidas/audit-despues.out"
+      ],
+      "verified": true,
+      "nota": "ES EL UNICO CAMBIO DE COMPORTAMIENTO, y es el objetivo. Habia DOS mapas por componente —PROMPTS con cinco y «esperadas» con cuatro— y el bucle recorria «esperadas»: lo que no estaba ahi NO APARECIA, ni en rojo ni en amarillo. FPGE tenia prompts declarados y nadie auditaba sus fases; FIDE no estaba en ninguno. Y entran DISTINTO porque PT-144 midio que no son el mismo caso: FIDE tiene rango en LEXICON 3.5 y FPGE no tiene apartado. «No aparece» y «aparece como no evaluable» no son lo mismo — lo primero es indistinguible de estar bien."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El ternario Foundation -> FND desaparece: la sigla es un campo",
+      "tests": [
+        "selftest.sh:el ternario de la sigla ya no existe",
+        "grep sobre audit.mjs"
+      ],
+      "evidence": [
+        "salidas/selftest-casos.out"
+      ],
+      "verified": true,
+      "nota": "Era la evidencia mas limpia del lote: NO una lista repetida, sino UNA EXCEPCION CODIFICADA COMO CONDICIONAL. PT-144 la uso como caso de prueba del diseno del contrato. Y cubre un caso que el ternario no tenia: FQAGE se llama QA en rutas y triggers (LEX-R03)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Las refs de PTSA salen del contrato",
+      "tests": [
+        "lectura de audit.mjs"
+      ],
+      "evidence": [
+        "salidas/audit-despues.out"
+      ],
+      "verified": true,
+      "nota": "Cuarto sitio del archivo. Sin novedad: el contrato ya lo tenia."
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Las cifras de los cuatro ya auditados no cambian",
+      "tests": [
+        "npm run audit antes y despues"
+      ],
+      "evidence": [
+        "salidas/audit-antes.out",
+        "salidas/audit-despues.out"
+      ],
+      "verified": true,
+      "nota": "fase: 40 antes y despues. El intake AVISABA de que si cambiaban seria un hallazgo y motivo de FDGE-R41. No cambiaron."
+    },
+    {
+      "ac": "AC-07",
+      "statement": "Un componente anadido al contrato aparece en el informe con sus fases",
+      "tests": [
+        "el bucle recorre COMPONENTES"
+      ],
+      "evidence": [
+        "salidas/selftest-casos.out"
+      ],
+      "verified": true,
+      "nota": "Estructuralmente imposible que falte: si esta en la suite, esta en el bucle. Los casos permanentes exigen que los SEIS aparezcan."
+    }
+  ],
+  "regresion": [
+    {
+      "rc": "RC-01",
+      "statement": "Las cifras de los cuatro ya auditados",
+      "verified": true,
+      "nota": "fase: 40 antes y despues."
+    },
+    {
+      "rc": "RC-02",
+      "statement": "«cubre» reconoce las tres formas de declarar una fase",
+      "verified": true,
+      "nota": "El mecanismo no se toco."
+    },
+    {
+      "rc": "RC-03",
+      "statement": "FIDE y FPGE aparecen, de forma distinta",
+      "verified": true,
+      "nota": "Uno con rango, otro SIN EVALUAR y diciendo por que."
+    },
+    {
+      "rc": "RC-04",
+      "statement": "El hueco no puede volver",
+      "verified": true,
+      "nota": "El bucle sale de COMPONENTES."
+    }
+  ],
+  "qa": "NO APLICA · QA-R01 exige navegador y este paquete no tiene interfaz.",
+  "hallazgos_con_tarea": [
+    "FIDE NO TIENE ARCHIVO DE PROMPTS, y LEX-R15 declara que «todo componente tiene exactamente un archivo de prompts» — enumerando CINCO cuando son seis. Salio al meter FIDE en la auditoria por primera vez: cinco lineas rojas, todas «ausente en: FIDE/FIDE-Prompts.md», y el archivo no existe. Es la TERCERA lista de componentes de este lote que se quedo corta, y las tres son independientes: los dos mapas de audit, LEXICON §3 sin FPGE, y LEX-R15 sin FIDE. TIENE TAREA: PT-158, enlazada a la parada de #282 con desenlace «abre». No es una nota."
+  ]
+}

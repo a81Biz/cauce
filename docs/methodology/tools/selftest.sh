@@ -7978,6 +7978,35 @@ chk   "…y una de FIDE-Rnn"                           "cita una regla" \
 chkno "…pero «humano» no es una cita de regla"       "cita una regla" \
   mat145 "humano"
 
+# ── PT-147 · EP-022 · dos de los seis componentes no tenian auditadas sus fases ─────────────────
+#
+# audit.mjs tenia DOS mapas por componente —PROMPTS con cinco y «esperadas» con cuatro— y el bucle
+# recorria «esperadas», asi que lo que no estuviera ahi NO APARECIA: ni en rojo ni en amarillo.
+# FPGE tenia prompts declarados y nadie auditaba sus fases; FIDE no estaba en ninguno de los dos.
+#
+# Es el mismo patron que verify-qa.mjs:7 registra para las reglas —«QA 0/19 y FPGE 0/10»—
+# repetido sobre las FASES. Recorrer COMPONENTES lo hace estructuralmente imposible; estos casos
+# son RULE-02: la imposibilidad afirmada no es una comprobacion.
+AU147="$SUITE/tools/audit.mjs"
+
+# Los SEIS aparecen. Antes salian cuatro, y los otros dos no se distinguian de estar bien.
+chk   "FIDE entra en la auditoria de fases"       "FIDE PHASE" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+# RULE-06 · LEXICON 3 tiene cinco apartados para SEIS componentes: no hay ninguno para FPGE. Un
+# rango inventado para que la tabla quede simetrica apagaria la comprobacion en silencio.
+chk   "FPGE aparece como SIN EVALUAR, no omitido"  "FPGE fases" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+chk   "…y dice POR QUE no se puede evaluar"        "LEXICON §3 no declara su rango" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+# La sigla sale del contrato: «comp === 'Foundation' ? 'FND' : comp» era una EXCEPCION CODIFICADA
+# COMO CONDICIONAL, y la siguiente habria tenido que escribirse igual, al lado.
+chkno "el ternario de la sigla ya no existe"       "=== 'Foundation' ?" \
+  cat "$SUITE/tools/audit.mjs"
+# Y el ternario no cubria a FQAGE, que se llama QA en rutas y triggers (LEX-R03).
+chk   "Foundation sigue auditandose por su sigla"  "Foundation PHASE" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+
+
 
 
 

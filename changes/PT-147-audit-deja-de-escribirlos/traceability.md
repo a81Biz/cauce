@@ -1,31 +1,52 @@
 # PT-147 · `traceability.md` — `FDGE-R15`
 
-| AC | Criterio | TS | Test | Evidencia | Caso QA | Estado |
-|:---|:---|:---|:---|:---|:---|:---|
-| AC-01 | No queda ningún literal de componente en `audit.mjs`, ni el ternario | TS-04 | — | — | n/a | `PENDIENTE` |
-| AC-02 | Las cifras de los **cuatro ya auditados** no cambian | TS-01 | — | — | n/a | `PENDIENTE` |
-| AC-03 | `FIDE` entra con su rango; `FPGE` entra como `SIN_EVALUAR` | TS-02 · TS-03 | — | — | n/a | `PENDIENTE` |
-| AC-04 | Un componente con rango al que `audit` no mire **se nombra** | TS-05 | — | — | n/a | `PENDIENTE` |
+> **Los `AC` son los del `intake.md`, no los de `scope.md`.** `FDGE-R15` dice que ésta es la lista
+> con la que trabaja el resto de la suite y que **se citan estos `AC-nn` y ningún otro**. `PHASE 2`
+> los había reagrupado en cuatro; eso eran dos listas del mismo hecho — la avería que este lote
+> persigue, cometida dentro del propio lote.
 
-**`AC-03` es el único que cambia comportamiento, y es el objetivo.** Dos de los seis componentes
-no tenían auditadas sus fases y **nunca lo dijeron**: el bucle recorría un mapa escrito a mano, y
-lo que no estaba en él no aparecía — ni en rojo ni en amarillo.
+| AC | Criterio | Test | Evidencia | Caso QA | Estado |
+|:---|:---|:---|:---|:---|:---|
+| AC-01 | No queda ningún literal de componente en `audit.mjs` | `grep` de nombres y prefijos | `salidas/selftest-casos.out` | n/a | `CUMPLIDO` |
+| AC-02 | `PROMPTS` y `esperadas` dejan de ser dos mapas: **uno solo**, derivado del contrato | lectura · el bucle recorre `COMPONENTES` | `salidas/audit-despues.out` | n/a | `CUMPLIDO` |
+| AC-03 | **`FPGE` y `FIDE` entran en la auditoría de fases** — con cifra o con `SIN EVALUAR`, nunca ausentes | `selftest.sh` ×3 | `salidas/selftest-casos.out` | n/a | `CUMPLIDO` |
+| AC-04 | El ternario `Foundation → FND` desaparece: la sigla es un campo | `selftest.sh` · `grep` | `salidas/selftest-casos.out` | n/a | `CUMPLIDO` |
+| AC-05 | Las `refs` de PTSA salen del contrato | lectura | `salidas/audit-despues.out` | n/a | `CUMPLIDO` |
+| AC-06 | Las cifras de los **cuatro ya auditados** no cambian | `npm run audit` antes/después | `salidas/audit-antes.out` · `audit-despues.out` | n/a | `CUMPLIDO` |
+| AC-07 | Un componente añadido al contrato aparece en el informe con sus fases | el bucle sale de `COMPONENTES` | `salidas/selftest-casos.out` | n/a | `CUMPLIDO` |
 
-**`AC-04` es el que separa la tarea de un parche.** Meter a `FIDE` y `FPGE` los arregla a ellos;
-la comprobación arregla la clase, y evita que el séptimo componente —`DICTAMEN`, `EP-023`— se
-quede fuera por el mismo mecanismo.
+**`AC-06` se midió por componente, no por total.** El total **sube** —entran dos— así que
+compararlo habría sido medir lo que no es. `fase: 40` antes y después.
+
+**`AC-03` es el único que cambia comportamiento, y es el objetivo.** Los dos entran **distinto**
+porque `PT-144` midió que no son el mismo caso: `FIDE` tiene rango en `LEXICON` §3.5, `FPGE` no
+tiene apartado. «No aparece» es indistinguible de «está bien»; `SIN_EVALUAR` dice lo que se sabe y
+lo que no (`RULE-06`).
+
+**El aviso de `AC-06` del intake no se cumplió, y conviene decirlo:** advertía que si las cifras
+de los cuatro cambiaban al derivar de `LEXICON`, sería un hallazgo y motivo de `FDGE-R41`. **No
+cambiaron.** `fase: 40` idéntico.
 
 ## Controles de regresión
 
 | RC | Qué preserva | Test | Estado |
 |:---|:---|:---|:---|
-| RC-01 | Las cifras de los cuatro ya auditados | TS-01 | `PENDIENTE` |
-| RC-02 | `cubre` reconoce las tres formas de declarar una fase | TS-06 | `PENDIENTE` |
-| RC-03 | `FIDE` y `FPGE` aparecen, **de forma distinta** | TS-02 · TS-03 | `PENDIENTE` |
-| RC-04 | El hueco no puede volver | TS-05 | `PENDIENTE` |
+| RC-01 | Las cifras de los cuatro ya auditados | `fase: 40` antes y después | `CUMPLIDO` |
+| RC-02 | `cubre` reconoce las tres formas de declarar una fase | el mecanismo no se tocó | `CUMPLIDO` |
+| RC-03 | `FIDE` y `FPGE` aparecen, de forma distinta | los tres casos permanentes | `CUMPLIDO` |
+| RC-04 | El hueco no puede volver | el bucle recorre `COMPONENTES` | `CUMPLIDO` |
 
-## Lo que esta tarea **no** establece
+## Lo que la tarea destapó, y **tiene tarea**
 
-**Que `FIDE` salga limpio.** Entra en la auditoría por primera vez y puede salir en rojo: sería un
-**hallazgo**, no un fallo de la tarea. Está declarado `OUT` en `scope.md` §8 — un `REFACTOR` que
-empieza a corregir lo que destapa deja de ser un `REFACTOR`.
+`FIDE` entró y salió **rojo** — el objetivo cumplido, no un fallo: `intake.md` §4 lo declaró `OUT`
+antes de empezar.
+
+```
+✗ FIDE PHASE 1 … PHASE 5     ausente en: FIDE/FIDE-Prompts.md
+```
+
+**El archivo no existe**, y `LEX-R15` dice que *«todo componente tiene exactamente un archivo de
+prompts»* — enumerando **cinco** cuando son seis.
+
+**`PT-158`**, enlazada a la parada de [#282](https://github.com/a81Biz/cauce/issues/282) con
+desenlace `abre`.
