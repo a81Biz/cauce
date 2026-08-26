@@ -1,10 +1,10 @@
 {
-  "pt": "PT-167",
+  "pt": "PT-168",
   "type": "BUG",
   "epic": "EP-024",
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DRAFT",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "6eb022bd5c30a9393cbe462c53f02f406eac39b2",
   "sha_corto": "6eb022b",
@@ -19,7 +19,15 @@
     "changes/PT-167-casos-que-solo-pasan-mientras-hay-defecto/tasks.md",
     "changes/PT-167-casos-que-solo-pasan-mientras-hay-defecto/test-scenarios.md",
     "changes/PT-167-casos-que-solo-pasan-mientras-hay-defecto/traceability.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/design.md",
     "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/intake.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/out-of-scope.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/scope.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/spec-changes.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/strategy.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/tasks.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/test-scenarios.md",
+    "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/traceability.md",
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
@@ -30,8 +38,11 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-26"
 }
