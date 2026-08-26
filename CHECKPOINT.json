@@ -3,8 +3,8 @@
   "type": "CHORE",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-148-el-alta-y-la-baja-se-escriben",
   "sha": "2871ea10fe52c401bf4f7bf229164a073e5d6c55",
   "sha_corto": "2871ea1",
@@ -13,12 +13,21 @@
     "changes/PT-149-la-prueba-de-alta-y-baja/intake.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/methodology/CASOS-DE-USO.md",
+    "docs/methodology/CORE.md",
+    "docs/methodology/tools/build-core.mjs",
+    "docs/methodology/tools/verify-patrones.mjs"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-25"
 }
