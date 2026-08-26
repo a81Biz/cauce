@@ -1,35 +1,22 @@
 {
-  "pt": "PT-146",
+  "pt": "PT-147",
   "type": "REFACTOR",
   "epic": "EP-022",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos",
-  "sha": "1429918e6c70ba769ac547abbf0089446afac3f9",
-  "sha_corto": "1429918",
+  "sha": "bd968fe092a3ce1045dfa00de99d979b8c99951a",
+  "sha_corto": "bd968fe",
   "sucio": true,
   "archivos": [
-    "changes/PT-146-build-core-deja-de-escribirlos/intake.md",
-    "changes/PT-146-build-core-deja-de-escribirlos/rc-etiquetas.mjs",
-    "changes/PT-146-build-core-deja-de-escribirlos/tasks.md",
-    "changes/PT-146-build-core-deja-de-escribirlos/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/EVENTOS.jsonl",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-146/",
-    "docs/methodology/tools/build-core.mjs",
-    "docs/methodology/tools/patrones.mjs",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/verify-patrones.mjs"
+    "changes/PT-147-audit-deja-de-escribirlos/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-25"
 }
