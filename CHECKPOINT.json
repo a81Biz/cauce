@@ -3,14 +3,16 @@
   "type": "BUG",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "6eb022bd5c30a9393cbe462c53f02f406eac39b2",
   "sha_corto": "6eb022b",
   "sucio": true,
   "archivos": [
     "changes/PT-167-casos-que-solo-pasan-mientras-hay-defecto/intake.md",
+    "changes/PT-167-casos-que-solo-pasan-mientras-hay-defecto/scope.md",
+    "changes/PT-167-casos-que-solo-pasan-mientras-hay-defecto/strategy.md",
     "changes/PT-168-audit-da-por-cubierta-una-fase-que-no-esta/intake.md",
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
@@ -21,15 +23,8 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-26"
 }
