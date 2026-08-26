@@ -1,34 +1,31 @@
 {
-  "pt": "PT-145",
+  "pt": "PT-146",
   "type": "REFACTOR",
   "epic": "EP-022",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "refactor/alberto-martinez/PT-145-verify-suite-deja-de-escribirlos",
-  "sha": "eb680f5c581eb743dbf7816ec397f9f2d10f457d",
-  "sha_corto": "eb680f5",
+  "status": "DRAFT",
+  "phase": 4,
+  "fase": "Propuesta",
+  "rama": "trabajo",
+  "sha": "e494fdd9bb688947fc91fe238b69fe3ce2b82b7d",
+  "sha_corto": "e494fdd",
   "sucio": true,
   "archivos": [
-    "changes/PT-145-verify-suite-deja-de-escribirlos/intake.md",
-    "changes/PT-145-verify-suite-deja-de-escribirlos/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
+    "changes/PT-146-build-core-deja-de-escribirlos/intake.md",
+    "changes/PT-146-build-core-deja-de-escribirlos/scope.md",
+    "changes/PT-146-build-core-deja-de-escribirlos/strategy.md",
     "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/EVENTOS.jsonl",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-145/",
-    "docs/methodology/tools/comparar-marco.mjs",
-    "docs/methodology/tools/patrones.mjs",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/verify-patrones.mjs",
-    "docs/methodology/tools/verify-suite.mjs"
+    "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-25"
 }
