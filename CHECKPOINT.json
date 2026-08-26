@@ -2,9 +2,9 @@
   "pt": "PT-149",
   "type": "CHORE",
   "epic": "EP-022",
-  "status": "DRAFT",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-148-el-alta-y-la-baja-se-escriben",
   "sha": "2871ea10fe52c401bf4f7bf229164a073e5d6c55",
   "sha_corto": "2871ea1",
@@ -24,8 +24,10 @@
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md",
+    "docs/implementation/TRANSICIONES.log",
     "docs/implementation/evidence/PT-149/",
     "docs/methodology/CASOS-DE-USO.md",
     "docs/methodology/CHANGELOG.md",
@@ -54,11 +56,15 @@
     "docs/methodology/Suite-CLAUDE-Template.md",
     "docs/methodology/tools/build-core.mjs",
     "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-patrones.mjs",
     "package.json"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-25"
 }
