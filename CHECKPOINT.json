@@ -1,10 +1,10 @@
 {
-  "pt": "PT-168",
+  "pt": "PT-167",
   "type": "BUG",
   "epic": "EP-024",
   "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "6eb022bd5c30a9393cbe462c53f02f406eac39b2",
   "sha_corto": "6eb022b",
@@ -31,6 +31,7 @@
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-167/",
     "docs/implementation/evidence/PT-168/",
@@ -38,8 +39,11 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-26"
 }
