@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-25 · 23 allocation(es) viva(s).
+Proyectado el 2026-08-25 · 24 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -15,7 +15,7 @@ Proyectado el 2026-08-25 · 23 allocation(es) viva(s).
 | PT-145 | REFACTOR | DONE | 8 | — | — | e609a75 |
 | PT-146 | REFACTOR | DONE | 8 | — | — | 12a0ee7 |
 | PT-147 | REFACTOR | DONE | 8 | — | — | e7b4eb1 |
-| PT-148 | CHORE | DRAFT | 5 | — | — | aae6e46 |
+| PT-148 | CHORE | DRAFT | 6 | — | — | aae6e46 |
 | PT-149 | CHORE | DRAFT | 1 | — | — | da9c260 |
 | PT-150 | BUG | DONE | 8 | — | — | 060b37a |
 | EP-023 |  | READY | 1 | — | — | da9c260 |
@@ -32,3 +32,4 @@ Proyectado el 2026-08-25 · 23 allocation(es) viva(s).
 | PT-160 | BUG | DRAFT | 1 | — | — | 10cef2f |
 | PT-161 | CHORE | DRAFT | 1 | — | — | — |
 | PT-162 | BUG | DRAFT | 1 | — | — | — |
+| PT-163 | BUG | DRAFT | 1 | — | — | — |
