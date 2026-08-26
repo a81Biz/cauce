@@ -3,8 +3,8 @@
   "type": "CHORE",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/PT-148-el-alta-y-la-baja-se-escriben",
   "sha": "2871ea10fe52c401bf4f7bf229164a073e5d6c55",
   "sha_corto": "2871ea1",
@@ -57,11 +57,8 @@
     "docs/methodology/tools/verify-patrones.mjs",
     "package.json"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-25"
 }
