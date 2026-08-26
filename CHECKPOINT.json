@@ -3,8 +3,8 @@
   "type": "REFACTOR",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos",
   "sha": "1429918e6c70ba769ac547abbf0089446afac3f9",
   "sha_corto": "1429918",
@@ -25,11 +25,8 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/verify-patrones.mjs"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-25"
 }
