@@ -10,7 +10,7 @@
 ---
 id: EP-022
 created: 2026-08-24
-status: DRAFT
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 ---
