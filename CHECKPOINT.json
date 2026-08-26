@@ -3,18 +3,30 @@
   "type": "REFACTOR",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "refactor/alberto-martinez/PT-147-audit-deja-de-escribirlos",
   "sha": "3f9f87d7616ce5e91a225413da43faa95bd17c27",
   "sha_corto": "3f9f87d",
   "sucio": true,
   "archivos": [
     "changes/PT-147-audit-deja-de-escribirlos/intake.md",
-    "docs/implementation/REGISTRY.json"
+    "changes/PT-147-audit-deja-de-escribirlos/traceability.md",
+    "changes/PT-151-verify-no-es-lo-que-corre-ci/",
+    "changes/PT-159-un-declara-abre-o-declara-su-vuelta/",
+    "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-147/",
+    "docs/methodology/tools/audit.mjs",
+    "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-25"
 }
