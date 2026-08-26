@@ -113,6 +113,15 @@ const gaps = [];
 const okCount = { total: 0 };
 const gap = (clase, elem, falta) => gaps.push({ clase, elem, falta });
 const tick = (clase) => { okCount[clase] = (okCount[clase] ?? 0) + 1; okCount.total++; };
+// PT-169 · audit solo sabia decir «hueco» o «cubierto». Una ADOPCION EN CURSO no es ninguna de las
+// dos: no es un hueco —hay mecanismo y funciona— ni esta cubierta —faltan sitios por convertir—.
+// Sin este tercer estado, la unica salida era mentir en alguna direccion: bloquear por algo que
+// crece a proposito, o callarlo y que nadie lo mire. Es RULE-06 con otra ropa.
+const avisos = [];
+// El nombre NO es libre: `regla.mjs` deriva quien comprueba una regla buscando `fail(` y
+// `warn(` con su ID. Llamarlo `avisa` dejaba la regla como «ningun verificador la emite» —cierto
+// para la derivacion y falso para el lector—, que es CE-008 por el lado del vocabulario.
+const warn = (regla, texto) => avisos.push({ regla, texto });
 
 const SALTO = String.fromCharCode(10);
 const rd = (f) => (existsSync(join(BASE, f)) ? readFileSync(join(BASE, f), 'utf8') : null);
@@ -423,6 +432,29 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
 // ── 7. HERRAMIENTAS ─────────────────────────────────────────────────────────
 {
   const selftest = rd('tools/selftest.sh') ?? '';
+
+  // PT-169 · SUITE-R61 · CUANTOS SITIOS QUE MUTAN UN FIXTURE COMPRUEBAN QUE LA MUTACION OCURRIO.
+  //
+  // Un caso cuya mutacion no muta nada SIGUE DICIENDO OK: de los tres patrones de caso muerto es
+  // el unico que no se delata solo. `muta` lo caza EN EJECUCION; esto publica LA ADOPCION, que es
+  // lo que una herramienta puede decir sin ejecutar la bateria.
+  //
+  // Se emite como AVISO y no como hueco, y no por indulgencia: hay 61 sitios y convertirlos de
+  // golpe seria un cambio grande y ciego. Lo que la regla impide es que el PROXIMO se escriba sin
+  // ella. Es la misma forma que la tabla de sujetos de SUITE-R09 —«crece por adopcion declarada»—
+  // y por eso la cifra se publica CON SU DENOMINADOR: un porcentaje esconde si el total crecio.
+  {
+    const lineas = selftest.split(String.fromCharCode(10));
+    const mutan = lineas.filter((l) => !l.trimStart().startsWith('#')
+      && (l.includes('sed -i') || l.includes('perl -0pi')));
+    const conMuta = lineas.filter((l) => l.includes('muta ')).length;
+    if (mutan.length) {
+      warn('SUITE-R61', `${conMuta} de ${mutan.length} sitio(s) que mutan un fixture comprueban que la mutacion ocurrio. `
+        + 'Un fixture cuya mutacion no cambia nada corre sobre un arbol INTACTO y el caso pasa sin probar nada. '
+        + 'La tabla crece por adopcion declarada: lo que la regla impide es que el proximo se escriba sin «muta».');
+    }
+  }
+
   for (const [f] of tools) {
     if (f.endsWith('selftest.sh')) { tick('herramienta'); continue; }
     const nombre = f.split('/').pop();
@@ -576,6 +608,7 @@ if (gaps.length) {
 const resumen = Object.entries(okCount).filter(([k]) => k !== 'total')
   .map(([k, v]) => `${k}:${v}`).join(' · ');
 console.log(`Cubiertos: ${okCount.total}  (${resumen})`);
+for (const a of avisos) console.log(`  · ${a.regla}  ${a.texto}`);
 console.log(`Fases auditadas: ${fasesAuditadas.join(' · ')}  (${fasesAuditadas.length} de ${COMPONENTES.length})`);
 
 // ── Cobertura mecánica de las reglas ────────────────────────────────────────

@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-190 entradas recorridas · 166 identificadores · 108 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-26
+191 entradas recorridas · 167 identificadores · 109 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-26
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
@@ -19,7 +19,7 @@
 | `CE-008` | Un hecho, varios nombres | 11 | 5 | 2026-08-13 | 2026-08-26 | `SUITE-R14` · `SUITE-R60` | `SUITE-R14` falla · `SUITE-R60` falla |
 | `CE-009` | El estado terminal escrito a mano o adelantado | 1 | — | 2026-08-21 | 2026-08-21 | `SUITE-R46` | `SUITE-R46` falla |
 | `CE-010` | La cifra transcrita caduca | 1 | — | 2026-08-20 | 2026-08-20 | `FND-R14` | `FND-R14` avisa |
-| `CE-011` | Un arreglo deja tests del estado anterior | 1 | 4 | 2026-08-13 | 2026-08-13 | **—** | **sin dueño** |
+| `CE-011` | Un arreglo deja tests del estado anterior | 2 | 4 | 2026-08-13 | 2026-08-26 | `SUITE-R61` | `SUITE-R61` avisa |
 | `CE-012` | Filtrar la salida antes de mirarla | 2 | 3 | 2026-08-20 | 2026-08-20 | **—** | **sin dueño** |
 | `CE-013` | Un encabezado mal formado bloquea la integración | 5 | — | 2026-08-14 | 2026-08-21 | `FDGE-R29` | `FDGE-R29` falla |
 | `CE-014` | Una regla nueva juzga hacia atrás | 5 | — | 2026-08-20 | 2026-08-24 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
@@ -29,7 +29,7 @@
 
 ## Qué falta por corregir
 
-**7 de 17 clases no tienen regla que las reclame.**
+**6 de 17 clases no tienen regla que las reclame.**
 Ordenadas por cuántas veces han ocurrido:
 
 - `CE-004` **Probar donde trabajo, no donde se decide** — 10 instancia(s) · la propia entrada llegó a declarar **9**
@@ -44,8 +44,6 @@ Ordenadas por cuántas veces han ocurrido:
   PT-092 · INC-001
 - `CE-017` **La comprobación acusa a quien documenta el hecho** — 2 instancia(s)
   PT-066 · EP-018
-- `CE-011` **Un arreglo deja tests del estado anterior** — 1 instancia(s) · la propia entrada llegó a declarar **4**
-  PT-036
 
 **Esta matriz no prioriza ni abre nada.** Enumera. Puntuar es `FPGE` y tiene su propia
 fórmula; abrir una tarea lo decide una persona (`FPGE-R04`).

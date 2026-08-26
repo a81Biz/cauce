@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 170,
+    "PT": 171,
     "EP": 24,
     "QA": 0,
     "QR": 0,
@@ -4845,7 +4845,7 @@
       "id": "PT-167",
       "slug": "casos-que-solo-pasan-mientras-hay-defecto",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4865,13 +4865,20 @@
         "de": "PT-156",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-156 el 2026-08-26"
+      "origin": "Aplazado desde PT-156 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-168",
       "slug": "audit-da-por-cubierta-una-fase-que-no-esta",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4891,14 +4898,21 @@
         "fecha": "2026-08-25"
       },
       "origin": "Aplazado desde PT-149 el 2026-08-25",
-      "issue": 311
+      "issue": 311,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-169",
       "slug": "la-bateria-crece-y-nadie-la-poda",
       "created": "2026-08-26",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "CHORE",
       "severity": "S2",
@@ -4917,7 +4931,31 @@
         "fecha": "2026-08-26"
       },
       "origin": "Aplazado desde PT-149 el 2026-08-26",
-      "issue": 313
+      "issue": 313,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2040,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-170",
@@ -4944,6 +4982,23 @@
       },
       "origin": "Aplazado desde PT-149 el 2026-08-26",
       "issue": 316
+    },
+    {
+      "id": "PT-171",
+      "slug": "ordenes-que-escapan-al-esqueleto",
+      "created": "2026-08-26",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto",
+      "origen_parada": {
+        "de": "PT-169",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      }
     }
   ]
 }

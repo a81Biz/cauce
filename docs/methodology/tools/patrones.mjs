@@ -2007,7 +2007,9 @@ export function seccionesDelArnes(texto) {
       // la comprobacion de construcciones fragiles que esta misma tarea añadio.
       if (new RegExp(`(^|\\s)${h}\\s`, 'm').test(cuerpo)) tools.add(t);
     }
-    return { titulo: s.titulo, herramientas: [...tools].sort() };
+    // PT-169 · el cuerpo se DEVUELVE: `seccionesConCaso` lo necesita, y recalcularlo en dos
+    // sitios seria el mismo hecho partido en dos (RULE-01).
+    return { titulo: s.titulo, cuerpo: s.cuerpo, herramientas: [...tools].sort() };
   });
 }
 
@@ -2018,6 +2020,35 @@ export function seccionesDelArnes(texto) {
  * saltarla seria decidir sin dato (RULE-06). El lado seguro del desconocimiento es correr de
  * mas, no de menos — lo contrario convertiria esto en una fabrica de falsos verdes.
  */
+/**
+ * PT-169 · QUE SECCIONES CONTIENEN UN CASO QUE CASA CON UN PATRON.
+ *
+ * PT-086 construyo el salto de secciones —«una seccion inactiva se salta ENTERA: sus casos y su
+ * andamiaje»— y lo cableo SOLO a `--afectados`. `--solo` siguio filtrando aserciones y pagando
+ * el andamiaje completo, que es lo que existe para evitar.
+ *
+ * MEDIDO en PT-169: `selftest.sh --solo "ZZZ_NO_EXISTE_NADA"` ejecuta CERO casos de 1749 y tarda
+ * 252 SEGUNDOS. Cuatro minutos y doce para no asertar nada. El flag que existe para iterar rapido
+ * no aceleraba nada, y por eso «tarda veinte minutos en mandar el error de uno solo».
+ *
+ * QUE ESTABLECE: que ninguna seccion cuyo cuerpo contenga el patron queda fuera.
+ * QUE NO ESTABLECE: que las que devuelve sean todas necesarias. Se compara contra el CUERPO
+ *   ENTERO de la seccion, no solo contra los nombres de caso, asi que un patron que aparezca en
+ *   un comentario activa la seccion. Es deliberado: PECA DE MAS, como seccionesAfectadas — lo
+ *   contrario convertiria esto en una fabrica de falsos verdes, que es peor que correr de mas.
+ *
+ * La comparacion es LITERAL, como el `case ... in *"$SOLO"*` del arnes: si aqui fuera regex y
+ * alli literal, un patron con un punto activaria secciones que luego no ejecutarian ningun caso.
+ */
+export function seccionesConCaso(texto, patron) {
+  const p = String(patron ?? '');
+  if (!p) return [];
+  return seccionesDelArnes(texto)
+    .filter((s) => s.titulo.includes(p) || (s.cuerpo ?? []).some((l) => l.includes(p)))
+    .map((s) => s.titulo);
+}
+
+
 export function seccionesAfectadas(texto, cambiadas) {
   const quiere = new Set((cambiadas ?? []).map((f) => f.split('/').pop()));
   return seccionesDelArnes(texto)

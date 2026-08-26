@@ -190,6 +190,18 @@ aplazado. En `G4` cada fila declara `HECHO` o el identificador al que se movió.
 detectable, y fingir que lo es sería peor. Lo que cambia es que omitir una fila deje de perder
 nada, porque la obligación ya no vive en ella.
 
+**`SUITE-R61`: cerrar el lote es también podar la batería.** En el mismo acto en que se resuelve
+`## Cierre del lote`, se publica **cuántos casos se retiraron y por cuál de los tres patrones** —
+`superado` (el hecho que el caso fijaba cambió por diseño), `invertido` (sólo pasaba mientras
+existía el defecto que vigilaba), `hueco` (perdió su premisa y no probaba nada)—. **Aunque sea
+cero**: decir «no se retiró ninguno» es un hecho, y callarlo es indistinguible de no haber mirado.
+
+El disparador es el **cierre** y no un plazo, porque una fecha en un documento no la mira nadie y
+el cierre de un lote es contrastable — y ocurre justo cuando los casos se han acumulado. De los
+tres patrones, los dos primeros **se delatan solos poniéndose en rojo**; el **hueco se queda en
+verde para siempre**, y por eso es el único con comprobación mecánica: `muta` en `selftest.sh`
+falla si la mutación de un fixture **no cambia el archivo**.
+
 **`SUITE-R44`: lo que el lote aplaza se asigna, no se narra.** La columna «Dónde va» de cada fila
 de `out-of-scope.md` es **vocabulario cerrado** — dos valores y ningún otro:
 

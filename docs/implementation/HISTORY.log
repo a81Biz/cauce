@@ -9663,3 +9663,98 @@ DOS HALLAZGOS:
 
 LO QUE NO ESTABLECE: que el componente de prueba FUNCIONE. No tiene fases reales, ni prompts, ni
 especificacion. Se prueba el alta y la baja, no el componente.
+
+## PT-169 — la bateria solo crece, y nadie la poda
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2, comprobada
+            mecanicamente (EXEC-R06)
+Clase de evento: CE-011 — un arreglo deja tests del estado anterior
+
+EL ENCARGO ERA PODAR Y MEDIR PRIMERO CAMBIO LA TAREA. El firmante lo nombro por su sintoma: «se
+tarda 20 minutos en mandar el error de uno solo». Medido, la poda NO era el cuello de botella:
+
+    bateria completa                    1 415 445 ms · 23,6 min
+    --solo con CUALQUIER patron           252 373 ms · y CERO casos ejecutados
+    los 208 casos trlib, entre todos          ~14 000 ms
+    cp -r del arbol · verify-suite               293 · 321 ms
+
+Cuatro minutos y doce segundos para no asertar nada. `--solo` existe exactamente para «correr una
+cosa rapido» y PAGABA EL ARNES ENTERO. Empezar podando —lo natural— habria retirado casos legitimos
+persiguiendo segundos que estaban en otro sitio.
+
+LA CORRECCION GRANDE YA ESTABA ESCRITA, SIN CABLEAR. PT-086 dejo el mecanismo y su diagnostico en
+un comentario: «una seccion inactiva se salta ENTERA: sus casos y su andamiaje. --solo filtraba
+solo aserciones». Y LO CABLEO SOLO A --afectados. El concepto que hacia falta —«las secciones estan
+filtradas»— estaba PEGADO A SU ORIGEN: AFECTADOS significaba a la vez QUE se filtra y POR QUE.
+Separarlo en ACOTADO fue todo lo que hizo falta. Es la forma que este marco lleva dos lotes
+persiguiendo: un hecho con dos nombres, o dos hechos con uno.
+
+    --solo   252 373 ms  →  47 466 ms
+
+LA REGLA: SUITE-R61, Y SU DISPARADOR ES CERRAR UN LOTE. No un plazo: una fecha en un documento no
+la mira nadie, y el cierre de un lote es CONTRASTABLE y ocurre justo cuando los casos se han
+acumulado. Obliga a publicar la cuenta por patron —superado, invertido, hueco— AUNQUE SEA CERO:
+decir «no se retiro ninguno» es un hecho, y callarlo es indistinguible de no haber mirado.
+
+DE LOS TRES PATRONES SOLO UNO NECESITABA MAQUINA. El SUPERADO —el hecho que el caso fijaba cambio
+por diseño— y el INVERTIDO —solo pasa mientras existe el defecto que vigila— SE DELATAN SOLOS
+poniendose en rojo. El HUECO —perdio su premisa y no prueba nada— SE QUEDA EN VERDE PARA SIEMPRE.
+Contra ese esta `muta`, que falla si la mutacion de un fixture no cambia el archivo, y distingue
+«no existe» de «no cambio» porque son defectos distintos con arreglos distintos (RULE-02).
+
+LA REGLA NACE CHECK Y HUBO QUE GANARSELO DOS VECES:
+  1. regla.mjs decia «ningun verificador la emite». verificadoresDe EXCLUYE selftest.sh A
+     PROPOSITO: una regla que solo comprueba el arnes no la comprueba NADA en un proyecto destino.
+     La comprobacion tuvo que ir a audit, que viaja dentro del paquete.
+  2. Llame `avisa()` a la primitiva nueva y la derivacion busca fail( y warn(. La regla seguia
+     saliendo como no comprobada —cierto para la derivacion y falso para el lector—. Un nombre
+     propio para un concepto que ya tenia nombre es CE-008 por el lado del vocabulario.
+
+Y audit gano un TERCER ESTADO. Sabia decir «hueco» o «cubierto»; una ADOPCION EN CURSO no es
+ninguna de las dos, y sin ese estado la unica salida era mentir en alguna direccion: bloquear por
+algo que crece a proposito, o callarlo. Publica «3 de 61» CON DENOMINADOR: un porcentaje esconde si
+el total crecio.
+
+TRES ERRORES MIOS:
+
+1. CITE LA CLASE DE EVENTO EQUIVOCADA. Escribi que la regla era dueña de CE-016 —«trabajar sin
+   allocation»—. La correcta es CE-011, «un arreglo deja tests del estado anterior», que es
+   literalmente esto. LEX-R32 comprueba que la clase EXISTA, y CE-016 existe: no lo cazo un
+   verificador, lo cazo mirar el catalogo antes de dar por buena la cita.
+
+2. LEI MAL MI PROPIA MEDICION. Registre «--solo PT-098 tarda 237 s» como si midiera 409 casos. NO
+   MEDIA NINGUNO: el patron casa NOMBRES DE CASO, y los de ese bloque no contienen «PT-098». Daba
+   cero antes tambien. La conclusion —el coste era fijo— no cambia; la cifra decia otra cosa.
+
+3. INTENTE BAJAR EL SUELO Y ROMPI EL UNIVERSO. Reutilizar el esqueleto en vez de reconstruirlo
+   bajaba de 47,4 a 41,6 s Y DEJABA EL UNIVERSO EN 1730: diecinueve casos dejaban de ejecutarse. Mi
+   razonamiento —«es seguro porque esta inerte»— era falso. REVERTIDO: seis segundos no valen
+   cambiar lo que la bateria mide, y AC-07 dice exactamente eso.
+
+Y FDGE-R15 ME CORRIGIO UNA FORMA DE FINGIR RIGOR. Escribi AC-03 como «no cumplido — declarado»,
+creyendo que declarar la ausencia bastaba, y lo rechazo como Orphan Criterion. Tenia razon: un
+criterio sin escenario ES UN CRITERIO QUE NADIE COMPRUEBA, y anotarlo como incumplido lo deja igual
+de huerfano MIENTRAS APARENTA RIGOR. Salio a out-of-scope con destino PT-167, por Revision — no
+borrandolo, que es lo que SUITE-R09 impide.
+
+Archivos modificados: RULES.md · PHASES.md · FDGE-Prompts.md · tools/patrones.mjs ·
+  tools/selftest.sh · tools/audit.mjs · CORE.md (generado) · inventory/services.md (cifras)
+
+Medido: --solo 252 373 → 47 466 ms · bateria completa 1 415 445 ms SIN CAMBIO · selftest
+  1749 → 1752 casos · sitios que mutan 61, con `muta` 3 · CORE 263 → 264 reglas.
+
+Evidencia: evidence/PT-169/ — manifest con 6 AC y 4 RC, self-review, y cuatro salidas.
+
+LO QUE NO ESTABLECE: que la bateria COMPLETA sea mas rapida. NO LO ES —23,6 min antes y despues— y
+decir lo contrario seria falso. Lo que se abarato es ITERAR. Ni que la adopcion de `muta` avance:
+la regla obliga a MIRAR la cifra, no a moverla. Ni que no haya casos duplicados: salio del alcance
+y es PT-167. Y el suelo de 47 s siguen siendo 211 reconstrucciones de un arbol inerte.
+
+UN HALLAZGO: PT-171 — con las secciones acotadas, ordenes de primer nivel escriben en stderr sobre
+el esqueleto. No altera veredictos; es ruido que puede tapar un mensaje real.

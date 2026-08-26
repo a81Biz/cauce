@@ -29,6 +29,11 @@ POS=""
 # todo, y la bandera diria que filtro cuando no filtro nada.
 SOLO=""
 AFECTADOS=""
+# PT-169 · ACOTADO significa «las secciones estan filtradas», sin decir POR QUE. Antes lo decia
+# AFECTADOS, y por eso --solo no podia saltar andamiaje: el concepto estaba pegado a su ORIGEN.
+# PT-086 construyo el salto y lo cableo solo a --afectados; medido en PT-169, «--solo» con un
+# patron que no casa nada ejecutaba CERO de 1749 casos y tardaba 252 SEGUNDOS.
+ACOTADO=""
 # Antes de la primera «sec» todo esta activo: lo que hay ahi es preambulo, no una seccion.
 SEC_ACTIVA=1
 SECCIONES_ACTIVAS=""
@@ -79,7 +84,7 @@ SEC=""; SEC_VISTA=""
 # `build_fixture` a nivel superior, fuera de los casos.
 sec() {
   SEC="$1"; SEC_VISTA=""
-  if [ -n "$AFECTADOS" ]; then
+  if [ -n "$ACOTADO" ]; then
     case "$SECCIONES_ACTIVAS" in
       *"|$1|"*) SEC_ACTIVA=1 ;;
       *) SEC_ACTIVA=""; SECCIONES_SALTADAS="$SECCIONES_SALTADAS  $1
@@ -90,6 +95,43 @@ sec() {
   fi
   [ -n "$QUIET" ] || [ -z "$SEC_ACTIVA" ] || echo "$1"
 }
+# ── PT-169 · SUITE-R61 · EL FIXTURE HUECO ───────────────────────────────────────────────────────
+#
+# UN CASO CUYA MUTACION NO MUTA NADA SIGUE DICIENDO OK. De los tres patrones de caso muerto que
+# EP-022 encontro, dos se delatan solos poniendose en rojo —el SUPERADO cuando el hecho cambia, el
+# INVERTIDO cuando el defecto se arregla— y el tercero NO: el HUECO se queda en verde.
+#
+# Medido en PT-149: un fixture de PT-144 hacia «s/SIN_EVALUAR/[1, 9]/» sobre un SIN_EVALUAR que ya
+# no existia. El sed no tocaba nada, la herramienta corria sobre un arbol INTACTO, y el caso
+# pasaba sin probar absolutamente nada. Nadie lo habria visto nunca.
+#
+# `muta` envuelve la mutacion y FALLA SI EL ARCHIVO NO CAMBIA. No adivina si la mutacion es UTIL
+# —eso no es mecanizable (SUITE-R26)— solo que OCURRIO, que es la mitad comprobable.
+#
+# La adopcion CRECE Y SE DECLARA, como la tabla de sujetos de SUITE-R09: hay 61 sitios que mutan
+# y convertirlos todos de golpe seria un cambio grande y ciego. Lo que la regla impide es que el
+# proximo se escriba sin ella, y `--auditar-fixtures` publica cuantos faltan.
+muta() {  # $1 archivo · $2... la orden que lo muta
+  local f="$1"; shift
+  local antes despues
+  # RULE-02 · «el archivo no existe» y «el archivo no cambio» son hechos DISTINTOS y se arreglan
+  # distinto: el primero es un fixture mal montado, el segundo un caso hueco. Fundirlos mandaria
+  # a quien lo lee a buscar cual de los dos era — el mismo motivo por el que PT-093 separo una
+  # constancia MALFORMADA de una AUSENTE.
+  if [ ! -f "$f" ]; then
+    echo "SUITE-R61 · FIXTURE_SIN_ARCHIVO: $f no existe — el fixture no se monto, y la mutacion no tenia sobre que correr"
+    return 1
+  fi
+  antes="$(cksum < "$f" 2>/dev/null)"
+  "$@"
+  despues="$(cksum < "$f" 2>/dev/null)"
+  if [ "$antes" = "$despues" ]; then
+    echo "SUITE-R61 · FIXTURE_HUECO: la mutacion no cambio $f — el caso corre sobre un arbol INTACTO y no prueba nada"
+    return 1
+  fi
+  return 0
+}
+
 bad()  {
   TOTAL=$((TOTAL + 1))
   if [ -n "$QUIET" ] && [ -z "$SEC_VISTA" ] && [ -n "$SEC" ]; then echo "$SEC"; SEC_VISTA=1; fi
@@ -130,7 +172,7 @@ salta() {
   UNIVERSO=$((UNIVERSO + 1))
   # PT-086 · seccion inactiva ⇒ el caso no corre. Se cuenta en UNIVERSO igual: la cifra de
   # cobertura no puede depender de lo que se filtro, o una corrida parcial pareceria completa.
-  [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ] && return 0
+  [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ] && return 0
   [ -z "$SOLO" ] && return 1
   case "$1" in *"$SOLO"*) return 1 ;; esac
   return 0
@@ -270,7 +312,7 @@ build_fixture() {
   # No se devuelve sin mas: el andamiaje que viene detras —perl, cp, printf— opera sobre rutas
   # de $WORK, y sin ellas llenaria la salida de errores sobre archivos que no existen. Con el
   # esqueleto, esas ordenes hacen su trabajo sobre archivos inertes y no dicen nada.
-  if [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ]; then
+  if [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ]; then
     rm -rf "$WORK"; mkdir -p "$WORK/docs/implementation" "$WORK/docs/methodology/tools" "$WORK/changes/PT-001-login"
     cd "$WORK"
     : > changes/PT-001-login/intake.md
@@ -434,7 +476,7 @@ con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.
 # node en vez de python: en MSYS/Git-Bash, python no resuelve rutas /tmp/...
 reg_set() {
   # PT-086 · es una llamada a node, y por tanto cara. Con la seccion inactiva no se hace.
-  [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ] && return 0
+  [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ] && return 0
   node -e "
 const fs=require('fs'); const p=process.argv[1];
 const r=JSON.parse(fs.readFileSync(p,'utf8'));
@@ -446,6 +488,24 @@ fs.writeFileSync(p, JSON.stringify(r,null,2));
 # PT-086 · qué secciones ejercitan lo que ha cambiado. Se deriva del PROPIO arnes —leyendo qué
 # herramientas nombra cada seccion— y de `git diff`. Nada de una tabla a mano: 37 entradas serian
 # un hecho copiado mas (RULE-01) y envejecerian con la primera seccion nueva.
+# PT-169 · `--solo` ACOTA IGUAL QUE `--afectados`, y por la misma via. PT-086 escribio el salto de
+# secciones —«sus casos y su andamiaje»— y lo cableo solo al segundo; el primero seguia filtrando
+# aserciones y pagando el arnes entero. Medido: `--solo` con un patron que no casa nada ejecutaba
+# CERO de 1749 casos en 252 SEGUNDOS, y `--solo PT-098` tardaba 237 — no por lo que mide, sino por
+# lo que hay debajo. La seleccion se DERIVA del propio arnes, como la otra, y PECA DE MAS: compara
+# contra el cuerpo entero de la seccion, asi que una mencion en un comentario la activa. Correr de
+# mas es recuperable; saltarse una seccion que tenia el caso es un falso verde.
+if [ -n "$SOLO" ] && [ -z "$AFECTADOS" ]; then
+  SECCIONES_ACTIVAS=$(MTH_PAT="$SUITE/tools/patrones.mjs" MTH_ST="$SUITE/tools/selftest.sh" MTH_SOLO="$SOLO" node -e "
+      const {pathToFileURL}=require('url'); const fs=require('fs');
+      import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+        const t=fs.readFileSync(process.env.MTH_ST,'utf8');
+        process.stdout.write('|'+m.seccionesConCaso(t,process.env.MTH_SOLO).join('|')+'|');
+      });")
+  ACOTADO=1
+  [ -n "$QUIET" ] || echo "--solo «$SOLO» · $(echo "$SECCIONES_ACTIVAS" | tr -cd '|' | wc -c | tr -d ' ') delimitador(es) de seccion activa"
+fi
+
 if [ -n "$AFECTADOS" ]; then
   # MTH_CAMBIADAS permite probar LA PROPIA SELECCION sin depender del estado de git. Sin ella
   # no se puede comprobar que --afectados acota de verdad: el dia que se escribio, cinco
@@ -466,6 +526,7 @@ if [ -n "$AFECTADOS" ]; then
     echo "  RULE-06 prohíbe. Para acotar, commitea o indexa lo que estés tocando."
     AFECTADOS=""
   else
+    ACOTADO=1
     echo "--afectados · cambiaron: $(echo "$_cambiadas" | tr '
 ' ' ')"
     echo ""
@@ -7830,9 +7891,12 @@ proj144() {
 }
 # Rompe un campo del contrato en la COPIA y ejecuta el verificador sobre ella. El arbol real no
 # se toca: si un caso dejara el modulo roto, los 1700 casos siguientes medirian otra cosa.
+# PT-169 · PRIMER ADOPTANTE DE `muta`, y no por casualidad: el caso hueco que SUITE-R61 nombra
+# salio de AQUI. Un fixture de este helper hacia «s/SIN_EVALUAR/[1, 9]/» sobre un SIN_EVALUAR que
+# PT-156 ya habia quitado: el sed no tocaba nada y el caso pasaba sobre un arbol intacto.
 rot144() {
   local d; d="$(proj144)"
-  sed -i "$1" "$d/patrones.mjs"
+  muta "$d/patrones.mjs" sed -i "$1" "$d/patrones.mjs" || return 0
   node "$d/verify-patrones.mjs" 2>&1
 }
 
@@ -7850,6 +7914,15 @@ chk   "…y perder el rango de FIDE tambien"            "El dato EXISTE" \
   rot144 "s/    fases: \[1, 5\],/    fases: SIN_EVALUAR,/"
 chk   "FIDE dejando de ser opcional se caza"          "ya no contiene FIDE" \
   rot144 "s/    obligatorio: false,/    obligatorio: true,/"
+
+# ── PT-169 · SUITE-R61 · un fixture que no muta nada FALLA ──────────────────────────────────────
+#
+# Es el unico de los tres patrones de caso muerto que NO se delata solo. Los casos de abajo son el
+# par: uno prueba que se caza, el otro que no molesta cuando la mutacion SI ocurre — sin el
+# segundo, «fallar siempre» pasaria el primero y seria peor que el defecto.
+chk   "un fixture cuya mutacion no cambia nada se caza"  "FIXTURE_HUECO"   rot144 "s/ESTO_NO_EXISTE_EN_EL_ARCHIVO/NADA/"
+chk   "…y dice QUE archivo quedo intacto"                "patrones.mjs"   rot144 "s/ESTO_NO_EXISTE_EN_EL_ARCHIVO/NADA/"
+chkno "una mutacion REAL no se marca como hueca"         "FIXTURE_HUECO"   rot144 "s/    sigla: 'FND',/    sigla: 'FOUND',/"
 # El caso que se escapo la primera vez. CORE.md se emite con `orden`: un empate hace que el
 # nucleo dependa del orden de declaracion en vez del declarado.
 chk   "un «orden» de familia REPETIDO se caza"        "esta repetido" \

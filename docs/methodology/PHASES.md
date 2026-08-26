@@ -370,6 +370,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+PODA      cerrar el lote es tambien podar la bateria: se publica la cuenta   [SUITE-R61]
+          por patron —superado, invertido, hueco— aunque sea CERO. Decir que
+          no se retiro ninguno es un hecho; callarlo es indistinguible de no
+          haber mirado. El disparador es el CIERRE y no un plazo: una fecha
+          en un documento no la mira nadie.
 ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUITE-R50]
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la

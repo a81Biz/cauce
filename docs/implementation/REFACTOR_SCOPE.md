@@ -47,4 +47,7 @@
 | PT-147 | REFACTOR | S2 | DRAFT | EP-022 | audit deriva fases, sigla y referencias por componente del contrato |
 | PT-148 | CHORE | S2 | DRAFT | EP-022 | El alta y la baja de un componente quedan escritas y con regla |
 | PT-156 | CHORE | S3 | DRAFT | EP-024 | LEXICON §3 declaraba el rango de cinco componentes y hay seis |
+| PT-169 | CHORE | S2 | DRAFT | EP-024 | La bateria solo crece y nadie la poda: se anade la regla que obliga a hacerlo |
+| PT-167 | CHORE | S2 | DRAFT | EP-024 | Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto |
+| PT-168 | BUG | S1 | DRAFT | EP-024 | audit da por cubierta la fase de un componente que no esta en el documento |
 | PT-149 | CHORE | S2 | DRAFT | EP-022 | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |

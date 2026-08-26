@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: c0cbcb348e36 -->
-<!-- fuentes: RULES.md:05155e06b9c0 LEXICON.md:d694f33771ff EXECUTION-MODES.md:2ea30769365c PHASES.md:dc2c50325db5 -->
+<!-- cuerpo: 9e69c4a81fe1 -->
+<!-- fuentes: RULES.md:6eab2e7ff9f1 LEXICON.md:d694f33771ff EXECUTION-MODES.md:2ea30769365c PHASES.md:d3688c324c3d -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -230,6 +230,7 @@ verifica un script y bloquea la integración.
 `SUITE-R58` **H** El registro solo lo escribe el comando, y el marco lo comprueba.
 `SUITE-R59` **H** El escape que no existe no se rompe. Un patrón se escribe como regex literal; una secuencia de control se produce con String.fromCharCode; un texto largo se escribe a un archivo, nunca por la línea de…
 `SUITE-R60` **C** Un componente se declara, y ninguna herramienta lo nombra.
+`SUITE-R61` **C** La batería se poda al cerrar un lote, y un fixture que no muta nada falla.
 
 ### LEX — Nombres
 
@@ -820,6 +821,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+PODA      cerrar el lote es tambien podar la bateria: se publica la cuenta   [SUITE-R61]
+          por patron —superado, invertido, hueco— aunque sea CERO. Decir que
+          no se retiro ninguno es un hecho; callarlo es indistinguible de no
+          haber mirado. El disparador es el CIERRE y no un plazo: una fecha
+          en un documento no la mira nadie.
 ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUITE-R50]
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
