@@ -3,29 +3,18 @@
   "type": "REFACTOR",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos",
-  "sha": "bd968fe092a3ce1045dfa00de99d979b8c99951a",
-  "sha_corto": "bd968fe",
+  "sha": "3f9f87d7616ce5e91a225413da43faa95bd17c27",
+  "sha_corto": "3f9f87d",
   "sucio": true,
   "archivos": [
     "changes/PT-147-audit-deja-de-escribirlos/intake.md",
-    "changes/PT-147-audit-deja-de-escribirlos/scope.md",
-    "changes/PT-147-audit-deja-de-escribirlos/strategy.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-25"
 }
