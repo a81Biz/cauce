@@ -32,6 +32,63 @@ import { createHash } from 'node:crypto';
 // El sello vive en tools/patrones.mjs, con su contrato. Estaba copiado en tres archivos y
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe } from './patrones.mjs';
+// PT-146 · las familias de reglas, con su etiqueta, su documento propietario y su orden.
+import { FAMILIAS, familiasEnProsa, ordenDePrefijos, triggers } from './patrones.mjs';
+// PT-149 · los componentes, para que NINGUNO PUEDA QUEDAR FUERA DE CORE.md EN SILENCIO.
+import { COMPONENTES, fasesDe, siglaDe, SIN_EVALUAR } from './patrones.mjs';
+
+/**
+ * PT-149 · SUITE-R60 · EL COLADOR DE CORE.md.
+ *
+ * Los bloques «Fases» y «Triggers» estan ESCRITOS A MANO, y con razon: llevan la sintaxis de cada
+ * comando —«delta QA PT-XXX», «promote FPGE R-NNN»— que no sale de ningun contrato. Derivarlos
+ * enteros perderia eso. Pero escritos a mano tienen el defecto que EP-022 existe para quitar: un
+ * componente nuevo NO ENTRA, y no da error — pasa en verde con el componente ausente.
+ *
+ * Medido en PT-149 dando de alta un componente de prueba: «Zeta», «ZT» y «[START ZETA]» aparecian
+ * CERO veces en el CORE.md regenerado, mientras E5 declaraba que build-core «lo emite a CORE.md
+ * con sus reglas y sus triggers». Y CORE.md es lo UNICO que el agente carga: un componente que se
+ * declara y no llega ahi no existe para quien trabaja.
+ *
+ * Esto no reescribe el bloque: lo COMPLETA. Lo que ya esta redactado se respeta; lo que falta se
+ * anade derivado del contrato. El texto escrito sigue mandando y nada puede faltar en silencio.
+ */
+const completa = (bloque, comps, linea) => {
+  const faltan = comps.filter((c) => !bloque.includes(c.marca));
+  return faltan.length ? bloque + String.fromCharCode(10) + faltan.map(linea).join(String.fromCharCode(10)) : bloque;
+};
+
+// El bloque REDACTADO de fases. Lo que lleva escrito manda; lo que falte se anade derivado.
+const mapaDeFases = completa(
+  `FDGE  0 Context · 1 Intake◆G1 · 2 Analysis(2-B bug|2-E feature|2-R refactor) · 3 Strategy
+      4 Proposal◆G2 · 5 Implementation · 6 Evidence · 7 Validation◆G3 · 8 Persistence
+      9 Integration◆G4 · 10 Rollback
+      tracks: STANDARD | EXPRESS(TRIVIAL) | HOTFIX(S1)
+FND   0 Reconnaissance · 1 Reconciliation◆G0 · 2 Context · 3 Technical · 4 Conventions
+      5 Inventory+Graph · 6 Validation
+QA    1 Recon · 2 Plan◆ · 3 Specs◆ · 4 Exec · 5 Analysis · 6 Report◆ · 7 Promotion
+PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 7 D2 · 8 D1
+      9 D4 · 10 D3 · 11-12 Consolidation+Score · 13-14 Certification
+FPGE  1 Compuertas · 2 Evidencia · 3 Candidatos · 4 Priority · 5 Orden · 6 Emisión
+      7 Stop◆ — ordena y se DETIENE: promover es humano (FPGE-R04)`,
+  COMPONENTES.filter((c) => fasesDe(c.nombre) !== SIN_EVALUAR)
+    .map((c) => ({ marca: siglaDe(c.nombre) + ' ', c })),
+  ({ c }) => {
+    const [a, b] = fasesDe(c.nombre);
+    return `${siglaDe(c.nombre).padEnd(5)} ${a}-${b}  — declarado en el contrato; su recorrido, en LEXICON §3`;
+  },
+);
+
+// Y el de triggers. Un componente sin trigger en CORE.md no se puede invocar: no existe.
+const mapaDeTriggers = completa(
+  `[START FIDE] [START FOUNDATION] [FOUNDATION VALIDATED]
+[START PT] <tipo>: <título> · [START EP] <título> · resume PT-XXX · status FDGE
+[START QA] · delta QA PT-XXX · status QA · promote QD-NNN to FDGE|PTSA · close QD-NNN
+[START PTSA] · resume PTSA · delta PTSA · status PTSA · audit PTSA close H-XXX
+[START FPGE] · promote FPGE R-NNN[..R-MMM as EP-XXX] · status FPGE`,
+  COMPONENTES.map((c) => ({ marca: c.triggers[0], c })),
+  ({ c }) => c.triggers.join(' · '),
+);
 
 const args = process.argv.slice(2);
 const check = args.includes('--check');
@@ -168,7 +225,10 @@ function proseRules(txt, prefijos) {
 
 const allRules = rulesFrom(rules)
   .concat(ptsaCited(rules))
-  .concat(proseRules(rules, ['SUITE', 'FND', 'FDGE', 'INTAKE', 'QA', 'FPGE', 'FIDE']))
+  // PT-146 · las SIETE cuyas reglas viven en la PROSA de RULES.md. Las otras tres se tratan
+  // aparte en las lineas siguientes porque cada una vive en OTRO ARCHIVO — y ese campo,
+  // «documento», es el que explicaba por que esta lista tenia siete entradas y «order» diez.
+  .concat(proseRules(rules, familiasEnProsa()))
   .concat(proseRules(lexicon, ['LEX']))
   .concat(proseRules(exec, ['EXEC']));
 
@@ -180,12 +240,14 @@ for (const r of allRules) {
   const p = r.id.split('-')[0];
   (byPrefix[p] ??= []).push(r);
 }
-const order = ['SUITE', 'LEX', 'EXEC', 'FND', 'FDGE', 'INTAKE', 'QA', 'PTSA', 'FPGE', 'FIDE'];
-const label = {
-  SUITE: 'Transversales', LEX: 'Nombres', EXEC: 'Compuertas y modos', FND: 'Foundation',
-  PTSA: 'Auditoría — definidas en la especificación oficial',
-  FDGE: 'Desarrollo', INTAKE: 'Admisión', QA: 'Verificación de UX', FPGE: 'Priorización', FIDE: 'Incubación',
-};
+// PT-146 · el orden de emision de CORE.md. PT-144 ya le puso asercion contra huecos y
+// repetidos: un empate haria que el nucleo dependiera del orden de declaracion.
+const order = ordenDePrefijos();
+// PT-146 · el nombre humano de cada seccion sale del contrato. Era el SITIO DIECISEIS del lote,
+// y no lo cazo la enumeracion de EP-022 porque el barrido se hizo con grep sobre patrones de
+// PREFIJO y esto es un objeto: sus claves no casan ninguna alternancia. Es una de las «otras
+// formas de nombrar un componente» que PT-144 declaro que su barrido NO cubria.
+const label = Object.fromEntries(FAMILIAS.map((f) => [f.prefijo, f.etiqueta]));
 
 const SPEC = read('PTSA/PTSA-V3-Especificacion-Oficial.md');
 
@@ -360,16 +422,7 @@ que nunca se hicieron. Ninguno fue por desconocer la regla. Todos por no pregunt
 ## Fases
 
 \`\`\`
-FDGE  0 Context · 1 Intake◆G1 · 2 Analysis(2-B bug|2-E feature|2-R refactor) · 3 Strategy
-      4 Proposal◆G2 · 5 Implementation · 6 Evidence · 7 Validation◆G3 · 8 Persistence
-      9 Integration◆G4 · 10 Rollback
-      tracks: STANDARD | EXPRESS(TRIVIAL) | HOTFIX(S1)
-FND   0 Reconnaissance · 1 Reconciliation◆G0 · 2 Context · 3 Technical · 4 Conventions
-      5 Inventory+Graph · 6 Validation
-QA    1 Recon · 2 Plan◆ · 3 Specs◆ · 4 Exec · 5 Analysis · 6 Report◆ · 7 Promotion
-PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 7 D2 · 8 D1
-      9 D4 · 10 D3 · 11-12 Consolidation+Score · 13-14 Certification
-FPGE  freshness → evidencia → candidatos → priority → ROADMAP◆ → promote
+${mapaDeFases}
 \`\`\`
 
 ## Compuertas × modo
@@ -430,11 +483,7 @@ ${clasesDeEvento}
 ## Triggers
 
 \`\`\`
-[START FIDE] [START FOUNDATION] [FOUNDATION VALIDATED]
-[START PT] <tipo>: <título> · [START EP] <título> · resume PT-XXX · status FDGE
-[START QA] · delta QA PT-XXX · status QA · promote QD-NNN to FDGE|PTSA · close QD-NNN
-[START PTSA] · resume PTSA · delta PTSA · status PTSA · audit PTSA close H-XXX
-[START FPGE] · promote FPGE R-NNN[..R-MMM as EP-XXX] · status FPGE
+${mapaDeTriggers}
 \`\`\`
 
 ## Rutas

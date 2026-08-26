@@ -35,6 +35,15 @@ import { execFileSync } from 'node:child_process';
 import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
+// PT-147 · los componentes, sus fases, su archivo de prompts y su sigla — del contrato.
+import { COMPONENTES, fasesDe, promptsDe, siglaDe, SIN_EVALUAR } from './patrones.mjs';
+
+// PT-156 · QUE UN COMPONENTE ENTRE EN LA AUDITORIA SOLO SE VEIA CUANDO FALLABA. Las lineas
+// «<comp> PHASE <n>» solo se emiten como HUECO, asi que los tres casos de PT-147 que afirmaban
+// «FIDE entra en la auditoria de fases» pasaban PORQUE FIDE FALLABA, y se pusieron en rojo el dia
+// que dejo de fallar. Un caso que solo puede pasar mientras hay un defecto no comprueba nada
+// (RULE-02). Esto publica la ANCHURA de la auditoria, que es lo que aquellos casos querian decir.
+const fasesAuditadas = [];
 
 // ── PT-101 · la construccion FRAGIL, antes de que se rompa ────────────────────
 //
@@ -190,19 +199,40 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
 
 // ── 2. FASES ────────────────────────────────────────────────────────────────
 {
-  const PROMPTS = {
-    FDGE: 'FDGE-Prompts.md', Foundation: 'Foundation-Prompts.md',
-    QA: 'QA/QA-Prompts.md', PTSA: 'PTSA/PTSA-Prompts.md', FPGE: 'FPGE-Prompts.md',
-  };
-  const esperadas = {
-    FDGE: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    Foundation: [0, 1, 2, 3, 4, 5, 6],
-    QA: [1, 2, 3, 4, 5, 6, 7],
-    PTSA: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
-  };
-  for (const [comp, nums] of Object.entries(esperadas)) {
-    const prompt = rd(PROMPTS[comp]) ?? '';
-    for (const n of nums) {
+  // PT-147 · UN mapa, y sale del contrato.
+  //
+  // Habia DOS escritos a mano —PROMPTS con cinco componentes y «esperadas» con cuatro— y el bucle
+  // recorria «esperadas», asi que lo que no estuviera ahi NO APARECIA: ni en rojo ni en amarillo.
+  // Medido: FPGE tenia prompts declarados y NADIE auditaba sus fases; FIDE no estaba en ninguno
+  // de los dos. DOS DE LOS SEIS COMPONENTES sin auditar sus fases, y nunca lo dijeron.
+  //
+  // Es el mismo patron que verify-qa.mjs:7 registra para las reglas —«QA 0/19 y FPGE 0/10»—
+  // repetido sobre las FASES. Recorrer COMPONENTES hace el hueco estructuralmente imposible: si
+  // esta en la suite, esta en el bucle.
+  for (const c of COMPONENTES) {
+    const comp = c.nombre;
+    const rango = fasesDe(comp);
+
+    // RULE-06 · un componente sin rango declarado se DICE, no se salta. LEXICON §3 tiene cinco
+    // apartados para SEIS componentes: no hay ninguno para FPGE. Omitirlo lo haria
+    // indistinguible de uno que pasa; declararlo SIN EVALUAR dice lo que se sabe y lo que no.
+    if (rango === SIN_EVALUAR) {
+      fasesAuditadas.push(`${comp} SIN EVALUAR`);
+      gap('fase', `${comp} fases`, 'LEXICON §3 no declara su rango — SIN EVALUAR, no se inventa (RULE-06)');
+      continue;
+    }
+    fasesAuditadas.push(`${comp} ${rango[0]}-${rango[1]}`);
+
+    // PT-147 · FIDE no tiene archivo de prompts, y no es un olvido: LEXICON §6.6 declara sus
+    // tres archivos y ninguno lo es. Es el unico componente que opera ANTES de que la suite
+    // exista, asi que su texto de activacion es un CLAUDE.md anfitrion.
+    //
+    // La dimension «prompts» no se evalua para el — y se DICE, no se da por buena. Un componente
+    // al que no se le puede exigir un archivo no es un componente que lo cumpla.
+    const rutaPrompt = promptsDe(comp);
+    const sinPrompts = rutaPrompt === SIN_EVALUAR;
+    const prompt = sinPrompts ? '' : (rd(rutaPrompt) ?? '');
+    for (let n = rango[0]; n <= rango[1]; n++) {
       const falta = [];
       // Un documento puede declarar un rango («PHASE 2-4», «PHASE 11-12») o una línea
       // compacta de componente («FND 0 Recon · 1 Reconciliation · …»). Ambas cuentan.
@@ -211,7 +241,10 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
         for (const m of txt.matchAll(/PHASE\s+(\d+)\s*[-–]\s*(\d+)/g)) {
           if (n >= Number(m[1]) && n <= Number(m[2])) return true;
         }
-        const sigla = comp === 'Foundation' ? 'FND' : comp;
+        // PT-147 · era «comp === 'Foundation' ? 'FND' : comp» — no una lista repetida, sino UNA
+        // EXCEPCION CODIFICADA COMO CONDICIONAL. PT-144 la uso como caso de prueba del contrato.
+        // Y cubre un caso que el ternario no tenia: FQAGE se llama QA en rutas (LEX-R03).
+        const sigla = siglaDe(comp);
         for (const m of txt.matchAll(new RegExp(`^${sigla}\\s+([^\\n]*(?:\\n\\s{6,}[^\\n]*)*)`, 'gm'))) {
           const nums = [...m[1].matchAll(/(?:^|[^\d])(\d{1,2})(?:-(\d{1,2}))?\s/g)];
           for (const x of nums) {
@@ -225,7 +258,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       const enCore = cubre(CORE);
       const enPrompt = cubre(prompt);
       if (!enPhases) falta.push('PHASES.md');
-      if (!enPrompt) falta.push(PROMPTS[comp]);
+      if (!enPrompt && !sinPrompts) falta.push(rutaPrompt);
       if (!enCore) falta.push('CORE.md');
       if (falta.length) gap('fase', `${comp} PHASE ${n}`, `ausente en: ${falta.join(', ')}`); else tick('fase');
     }
@@ -543,6 +576,7 @@ if (gaps.length) {
 const resumen = Object.entries(okCount).filter(([k]) => k !== 'total')
   .map(([k, v]) => `${k}:${v}`).join(' · ');
 console.log(`Cubiertos: ${okCount.total}  (${resumen})`);
+console.log(`Fases auditadas: ${fasesAuditadas.join(' · ')}  (${fasesAuditadas.length} de ${COMPONENTES.length})`);
 
 // ── Cobertura mecánica de las reglas ────────────────────────────────────────
 // Se publica el NUMERO con su denominador, no un adjetivo. Y no es un umbral: SUITE-R26 dice

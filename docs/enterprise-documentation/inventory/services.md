@@ -6,13 +6,13 @@
 
 | Herramienta | Líneas | Qué hace | Escribe | Ejercitada por |
 |:---|---:|:---|:---|:---|
-| `selftest.sh` | 7840 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
-| `tracker.mjs` | 4716 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
-| `verify-fdge.mjs` | 2740 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
-| `verify-suite.mjs` | 859 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
-| `patrones.mjs` | 2281 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
-| `build-core.mjs` | 564 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
-| `audit.mjs` | 628 | Cobertura por enumeración: 597 elementos y lo que cada clase debe tener | no | `npm run audit` · CI |
+| `selftest.sh` | 8250 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
+| `tracker.mjs` | 4755 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
+| `verify-fdge.mjs` | 2772 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
+| `verify-suite.mjs` | 972 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
+| `patrones.mjs` | 2591 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
+| `build-core.mjs` | 613 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
+| `audit.mjs` | 662 | Cobertura por enumeración: 597 elementos y lo que cada clase debe tener | no | `npm run audit` · CI |
 | `migrate.mjs` | 438 | Migración guiada entre versiones de la suite | **sí** con `--apply` | `selftest` · manual |
 | `plan-layout.mjs` | 371 | Plan de terreno: repos anidados, dónde vive el código, dependencias, alcance del grafo. **Propone, no mueve** | **sí** `LAYOUT.md` con `--write`, y se niega si ya está firmado | Foundation `PHASE 0` · `selftest` |
 | `verify-qa.mjs` | 318 | Cumplimiento de una campaña QA | no | `selftest` |
@@ -20,8 +20,8 @@
 | `regla.mjs` | 261 | Un ID de regla → qué exige y qué verificador puede fallar, derivado. **Defecto vivo `D20`: reporta mal 47 de 196** | no | manual |
 | `verify-ptsa.mjs` | 352 | Cumplimiento de una auditoría PTSA | no | `selftest` |
 | `version.mjs` | 165 | Alinea la versión en los 21 documentos y `package.json` desde el `CHANGELOG` | **sí** con `--aplicar` | manual · release |
-| `comparar-marco.mjs` | 102 | Compara el marco instalado con el del paquete | no | `cauce compare` · `selftest` |
-| `verify-patrones.mjs` | 89 | Contrato de `patrones.mjs`: cada patrón con lo que debe casar y lo que no | no | `npm run verify:patrones` · CI |
+| `comparar-marco.mjs` | 109 | Compara el marco instalado con el del paquete | no | `cauce compare` · `selftest` |
+| `verify-patrones.mjs` | 377 | Contrato de `patrones.mjs`: cada patrón con lo que debe casar y lo que no | no | `npm run verify:patrones` · CI |
 
 **Total: 11454 líneas** en 16 archivos (15 `.mjs` + `selftest.sh`).
 En la primera ejecución de Foundation eran **5 441**: el código se ha **duplicado**.

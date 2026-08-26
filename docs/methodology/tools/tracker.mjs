@@ -64,6 +64,8 @@ import { RIGE_DESDE, reglasNuevasFueraDeLaGuia, PREFIJOS_DE_ID } from './patrone
 import { esLote } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
+// PT-150 · la escala de severidad la declara LEXICON §8.3, y vive una sola vez.
+import { SEVERIDADES } from './patrones.mjs';
 
 const SALTO = String.fromCharCode(10);
 // PT-064 · separador de campos para `git log`: no aparece en un nombre ni en un asunto.
@@ -2553,7 +2555,15 @@ const usadosDe = (prefijo) => all
 // porque un campo que admite lo que sea es un campo que no decide nada: es el mismo defecto que
 // PT-100 arreglo para los tipos de caso QA, un paso mas arriba.
 // PT-124 · la lista vive en patrones.mjs y verify-suite la compara con LEXICON §8.1.
-const SEVERIDADES = ['S0', 'S1', 'S2', 'S3'];
+//
+// PT-150 · y la de SEVERIDADES no vivia ahi. Estaba escrita aqui, decia ['S0','S1','S2','S3'] y
+// el mensaje de error la atribuia a LEXICON — que declara S1..S4 y no menciona S0 en ninguna
+// parte. Las dos mitades del mensaje eran falsas, y ese es su agravante: no callaba, ENSENABA EL
+// DATO EQUIVOCADO, asi que quien lo leyera corregia su severidad en vez de ir a LEXICON.
+//
+// Efecto medido: `asignar --severidad S4` rechazaba la severidad que LEXICON define como «deuda
+// sin impacto observable, SE AGRUPA EN LOTES» — en el comando que abre lotes. Y la plantilla que
+// el paquete instala, CHANGE-REQUEST.md, trae S4 por defecto.
 
 function asignar() {
   // PT-143 · EL PREFIJO NO SE ADIVINA. Antes se tomaba el primer argumento en mayusculas, y el
@@ -4473,6 +4483,35 @@ function aplazar() {
 
   a.status = 'DEFERRED';
   a.aplazamiento = { reentrada: texto, revision: String(revision), dueno, ...(de ? { de } : {}), fecha };
+  // PT-149 · `--de` SE ESCRIBIA SOLO EN `aplazamiento.de`, Y NADIE LO LEE AHI. SUITE-R44 exige que
+  // la cita sea RECIPROCA y la comprueba sobre `origin` (verify-fdge.mjs:2592 · :2595), asi que un
+  // aplazado creado con el comando SANCIONADO —LEX-R34 dice que es la unica via— no podia
+  // satisfacer la regla: habia que escribir REGISTRY.json A MANO. Es lo que tracker.mjs:2590
+  // condena con todas las letras —«una regla que solo se puede cumplir saltandose la herramienta
+  // no se cumple: se rodea»— y es CE-008: un hecho con dos nombres. Se escribe en los DOS, porque
+  // `aplazamiento.de` es parte del bloque que LEX-R34 exige completo y `origin` es la procedencia
+  // que sobrevive a la retomada. Se ANADE a lo que hubiera: el origen anterior no se pierde.
+  if (de) {
+    const yaDicho = String(a.origin ?? '').includes(de);
+    a.origin = yaDicho ? a.origin : [a.origin, `Aplazado desde ${de} el ${fecha}`].filter(Boolean).join(' · ');
+  }
+  // PT-149 · Y EL INTAKE, SI LO HAY. `avanzar` sincroniza el YAML del intake al llegar a un
+  // estado terminal (tracker.mjs:3406) y `aplazar` no lo hacia, asi que el registro decia
+  // DEFERRED y el intake seguia diciendo DRAFT: DOS MAPAS QUE DISCREPAN sobre el mismo hecho,
+  // que es el defecto que da nombre a EP-022. Lo cazo un caso del selftest —«el arbol real no
+  // tiene ninguna sin sincronizar»— en CI, no en local, y solo despues de aplazar dieciseis.
+  // La ruta se DERIVA como en el resto del archivo (tracker.mjs:2844), no se busca por prefijo:
+  // dos tareas cuyo id sea prefijo de otro darian con la carpeta equivocada.
+  const fi = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  if (existsSync(fi)) {
+    const antes = readFileSync(fi, 'utf8');
+    const despues = antes.replace(/^status:[ 	]*\S+[ 	]*$/m, 'status: DEFERRED');
+    if (despues === antes) {
+      throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
+    }
+    writeFileSync(fi, despues, 'utf8');
+    notas.push(`${id}: intake sincronizado a DEFERRED`);
+  }
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${yaAplazada ? 'terminos ACTUALIZADOS' : '-> DEFERRED'} · revision ${revision} · dueno ${dueno}`);
 

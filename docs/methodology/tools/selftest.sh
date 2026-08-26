@@ -7808,6 +7808,416 @@ chk   "INC-001 registrado en el ledger"          "INC-001" \
 chk   "…y tiene candidato en el roadmap"         "INC-001" \
   cat "$RAIZ/docs/implementation/ROADMAP.md"
 
+# ── PT-144 · EP-022 · el contrato de componentes falla cuando se rompe ──────────────────────────
+#
+# EP-022 midio la lista de componentes escrita A MANO en QUINCE sitios de cuatro herramientas.
+# Lo grave no era la duplicacion: `verify-suite.mjs:250` filtraba las reglas por una alternancia
+# LITERAL, asi que un componente con prefijo nuevo tendria sus reglas INVISIBLES al verificador y
+# PASARIA EN VERDE.
+#
+# Un contrato sin comprobacion que pueda fallar repite ese defecto un nivel mas arriba. Estos
+# casos son RC-04: rompen UN campo cada uno y exigen que el verificador lo NOMBRE.
+#
+# Y no es teorico. En su primera ejecucion, seis de siete casos fallaron bien y UNO PASO EN VERDE
+# —duplicar el `orden` de una familia—: `ordenDePrefijos()` ordena de forma estable, asi que dos
+# familias con el mismo numero conservan su posicion y la secuencia emitida no cambiaba. Estaba
+# especificado en design.md y no se habia escrito. Lo encontro ROMPERLO, no leerlo.
+P144="$WORK/p144"
+proj144() {
+  rm -rf "$P144"; mkdir -p "$P144"
+  cp "$SUITE/tools/patrones.mjs" "$SUITE/tools/verify-patrones.mjs" "$P144/"
+  echo "$P144"
+}
+# Rompe un campo del contrato en la COPIA y ejecuta el verificador sobre ella. El arbol real no
+# se toca: si un caso dejara el modulo roto, los 1700 casos siguientes medirian otra cosa.
+rot144() {
+  local d; d="$(proj144)"
+  sed -i "$1" "$d/patrones.mjs"
+  node "$d/verify-patrones.mjs" 2>&1
+}
+
+chk   "un campo ausente NOMBRA componente y campo"    "no declara «sigla»" \
+  rot144 "s/    sigla: 'FND',/    sigla: undefined,/"
+chk   "una sigla equivocada se caza"                  "LEXICON declara «FND»" \
+  rot144 "s/    sigla: 'FND',/    sigla: 'FOUND',/"
+# RULE-06 · un rango que no sale de LEXICON es un rango INVENTADO. El fixture decia
+# «s/fases: SIN_EVALUAR/[1, 9]/» y perdio su premisa cuando PT-156 escribio el apartado de FPGE:
+# ya no queda ningun SIN_EVALUAR que romper. Lo que defendia sigue defendido por el otro lado —
+# ahora se le da a FPGE un rango que su apartado NO declara.
+chk   "un rango que LEXICON no declara FALLA"         "LEXICON §3.6 declara PHASE 1-7" \
+  rot144 "/nombre: 'FPGE'/,/^  },/ s/    fases: \[1, 7\],/    fases: [1, 9],/"
+chk   "…y perder el rango de FIDE tambien"            "El dato EXISTE" \
+  rot144 "s/    fases: \[1, 5\],/    fases: SIN_EVALUAR,/"
+chk   "FIDE dejando de ser opcional se caza"          "ya no contiene FIDE" \
+  rot144 "s/    obligatorio: false,/    obligatorio: true,/"
+# El caso que se escapo la primera vez. CORE.md se emite con `orden`: un empate hace que el
+# nucleo dependa del orden de declaracion en vez del declarado.
+chk   "un «orden» de familia REPETIDO se caza"        "esta repetido" \
+  rot144 "s/prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 3/prefijo: 'EXEC', documento: 'EXECUTION-MODES.md', orden: 2/"
+chk   "…y cambiar el documento de PTSA tambien"       "no reproduce build-core" \
+  rot144 "s#documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md'#documento: 'RULES.md'#"
+
+# Y el arbol real sigue en verde: los casos de arriba no lo tocaron.
+chk   "sobre el arbol real, el contrato cumple"       "Todos los patrones cumplen" \
+  node "$SUITE/tools/verify-patrones.mjs"
+
+# ── PT-150 · EP-022 · la escala de severidad vivia en tracker y contradecia a LEXICON ──────────
+#
+# CUATRO fuentes declaraban la escala y tracker contradecia a las otras tres:
+#
+#   LEXICON 8.3           S1 S2 S3 S4   <- la fuente (LEX-R21)
+#   verify-fdge.mjs:166   S1 S2 S3 S4   correcta
+#   INTAKE/templates x3   S1|S2|S3|S4   correcta
+#   tracker.mjs:2556      S0 S1 S2 S3   <- y su mensaje CITABA a LEXICON
+#
+# Las DOS herramientas se contradecian entre si: S4 la aceptaba verify-fdge y la rechazaba
+# tracker; S0 al reves. Habia un rango donde el marco se contradecia consigo mismo.
+TK150="$SUITE/tools/tracker.mjs"
+proj150() {
+  local d="$WORK/p150"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', counters:{PT:9}, allocations:[]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+asg150() { (cd "$1" && shift; node "$TK150" asignar "$@" --ver 2>&1); }
+
+# AC-03 · el escenario que REPRODUCE. S4 es la severidad que LEXICON define como «deuda sin
+# impacto observable, SE AGRUPA EN LOTES» — y el comando que abre lotes la rechazaba.
+chk   "asignar acepta S4, que LEXICON declara"     "PT-010" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S4 --titulo t
+# AC-04 · S0 no existe en LEXICON. Se acepta hoy, y por ahi entro PT-107.
+chk   "asignar RECHAZA S0, que LEXICON no declara" "no es una severidad" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S0 --titulo t
+# AC-05 · el mensaje MENTIA con autoridad: no decia «S4 no vale», decia «LEXICON declara
+# S0 · S1 · S2 · S3». Quien lo leyera corregia su severidad en vez de ir a LEXICON.
+chkno "…y el mensaje ya no atribuye S0 a LEXICON"  "S0" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S9 --titulo t
+chk   "…y enumera la escala que LEXICON SI declara" "S1 · S2 · S3 · S4" \
+  asg150 "$(proj150)" PT --slug x --tipo CHORE --severidad S9 --titulo t
+
+# AC-03 · el valor por defecto de la plantilla QUE EL PAQUETE INSTALA tiene que ser aceptable.
+# Se LEE DEL ARCHIVO: escribir «S4» aqui compararia lo escrito contra lo escrito, que es la
+# leccion de RC-03 en PT-144. Es la clase de PT-083 — la plantilla que el paquete distribuye
+# fallando su propio verificador.
+sev_plantilla() {
+  sed -n 's/^severity:[[:space:]]*\(S[0-9]\).*/\1/p' "$SUITE/INTAKE/templates/CHANGE-REQUEST.md" | head -1
+}
+chk   "el defecto de CHANGE-REQUEST.md lo acepta el comando"  "PT-010" \
+  sh -c "cd '$(proj150)' && node '$TK150' asignar PT --slug x --tipo CHORE --severidad \"\$(sed -n 's/^severity:[[:space:]]*\(S[0-9]\).*/\1/p' '$SUITE/INTAKE/templates/CHANGE-REQUEST.md' | head -1)\" --titulo t --ver 2>&1"
+
+# AC-06 · lo INTEGRADO no se rejuzga. Cinco allocations historicas llevan severidades que hoy
+# no validan —cuatro S4 y un S0— y SON la evidencia de que el defecto existio. Ponerlas en rojo
+# para que cuadre una cifra seria perder el rastro.
+V150() { (cd "$1" && node "$SUITE/tools/verify-fdge.mjs" "${@:2}" 2>&1); }
+proj150b() {
+  local d="$WORK/p150b"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes" "$d/docs/methodology"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.1.0', firmantes:['Alberto Martínez'], counters:{PT:3},
+      allocations:[
+        {id:'PT-001',slug:'integrado-s0',type:'BUG',severity:'S0',status:'INTEGRATED',suite_version:'13.1.0'},
+        {id:'PT-002',slug:'integrado-s4',type:'CHORE',severity:'S4',status:'INTEGRATED',suite_version:'13.1.0'},
+        {id:'PT-003',slug:'vivo-s0',type:'BUG',severity:'S0',status:'DRAFT',phase:1,suite_version:'13.1.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json"
+  echo "$d"
+}
+# El fixture nombra los tres por FDGE-R01 —no tienen changes/— asi que la asercion NO puede ser
+# el identificador a secas: seria verde por una razon ajena. Se mide EL MENSAJE DE SEVERIDAD.
+chkno "un S0 INTEGRADO no se rejuzga"              "PT-001: severidad" \
+  V150 "$(proj150b)" --all
+chkno "…ni un S4 integrado"                        "PT-002: severidad" \
+  V150 "$(proj150b)" --all
+# AC-07 · lo terminal se respeta, lo VIVO se exige. Es lo que hace que AC-07 signifique algo:
+# «por ningun camino» no es alcanzable —REGISTRY.json se escribe a mano y asi entraron los
+# cuatro S4— pero un verificador si puede cazarlo en la corrida siguiente.
+chk   "…pero un S0 VIVO si se caza"                "PT-003: severidad" \
+  V150 "$(proj150b)" --all
+
+# ── PT-145 · EP-022 · el guardarrail de EXEC-R08 tenia dos agujeros ─────────────────────────────
+#
+# verify-suite.mjs afirmaba la lista de prefijos SEIS veces. Cinco llevaban diez; la sexta —la que
+# guarda EXEC-R08, «la matriz de compuertas no puede citar una regla»— llevaba OCHO: le faltaban
+# FPGE y FIDE. Una celda que citara FPGE-R05 o FIDE-R03 PASABA EN VERDE.
+#
+# Lo destapo RC-03 de PT-144, que compara el contrato contra los literales EXTRAIDOS DE LOS
+# ARCHIVOS. Copiarlos al test habria comparado lo escrito contra lo escrito.
+VS145="$SUITE/tools/verify-suite.mjs"
+# El arbol ENTERO, no solo los *.md: con las subcarpetas ausentes, verify-suite ahoga la salida
+# en enlaces rotos y el caso pasaria por una razon ajena — el mismo error que PT-150 cometio
+# afirmando sobre el identificador en vez de sobre el mensaje.
+proj145() {
+  local d="$WORK/p145"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE"/. "$d/" 2>/dev/null
+  echo "$d"
+}
+# Una matriz de compuertas con UNA celda que cita una regla del prefijo que se le pase.
+mat145() {
+  local d; d="$(proj145)"
+  node -e "
+    const fs=require('fs');const p=process.argv[1];const cita=process.argv[2];
+    let t=fs.readFileSync(p,'utf8');
+    const i=t.search(/^#+\s*\d*\.?\s*Matriz de compuertas/im);
+    const fin=t.indexOf('|', i);
+    t=t.slice(0,fin)+'| G9 | '+cita+' | humano | humano |'+String.fromCharCode(10)+t.slice(fin);
+    fs.writeFileSync(p,t);
+  " "$d/EXECUTION-MODES.md" "$1"
+  (cd "$d" && node "$VS145" . 2>&1)
+}
+
+# La cita que YA se cazaba: SUITE estaba en los ocho.
+chk   "una cita de SUITE-Rnn en la matriz se caza"   "cita una regla" \
+  mat145 "SUITE-R01"
+# Y las dos que NO. Este es el agujero.
+chk   "una cita de FPGE-Rnn tambien, ahora"          "cita una regla" \
+  mat145 "FPGE-R05"
+chk   "…y una de FIDE-Rnn"                           "cita una regla" \
+  mat145 "FIDE-R01"
+# Lo que NO debe cazarse: la matriz SI puede decir quien resuelve.
+chkno "…pero «humano» no es una cita de regla"       "cita una regla" \
+  mat145 "humano"
+
+# ── PT-147 · EP-022 · dos de los seis componentes no tenian auditadas sus fases ─────────────────
+#
+# audit.mjs tenia DOS mapas por componente —PROMPTS con cinco y «esperadas» con cuatro— y el bucle
+# recorria «esperadas», asi que lo que no estuviera ahi NO APARECIA: ni en rojo ni en amarillo.
+# FPGE tenia prompts declarados y nadie auditaba sus fases; FIDE no estaba en ninguno de los dos.
+#
+# Es el mismo patron que verify-qa.mjs:7 registra para las reglas —«QA 0/19 y FPGE 0/10»—
+# repetido sobre las FASES. Recorrer COMPONENTES lo hace estructuralmente imposible; estos casos
+# son RULE-02: la imposibilidad afirmada no es una comprobacion.
+AU147="$SUITE/tools/audit.mjs"
+
+# LOS SEIS APARECEN, Y AHORA SE PUEDE COMPROBAR. Hasta PT-156 estos casos afirmaban «FIDE entra en
+# la auditoria» buscando «FIDE PHASE» en la salida — pero esa linea SOLO se emite como HUECO, asi
+# que pasaban PORQUE FIDE FALLABA, y se pusieron en rojo el dia que dejo de fallar. Un caso que
+# solo puede pasar mientras hay un defecto no comprueba nada (RULE-02). audit publica ahora la
+# ANCHURA de la auditoria, que es lo que estos casos siempre quisieron decir.
+chk   "la auditoria de fases cubre los SEIS"      "(6 de 6)" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+chk   "FIDE entra, con su rango"                  "FIDE 1-5" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+chk   "FPGE entra, con su rango"                  "FPGE 1-7" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+# La sigla sale del contrato: «comp === 'Foundation' ? 'FND' : comp» era una EXCEPCION CODIFICADA
+# COMO CONDICIONAL, y la siguiente habria tenido que escribirse igual, al lado. El caso mira SOLO
+# codigo ejecutable: el comentario que explica el defecto CONTIENE el defecto, y la version
+# anterior se cazaba a si misma — es la misma leccion que SUITE-R60 aprendio en PT-148.
+chkno "el ternario de la sigla ya no existe"      "=== 'Foundation' ?" \
+  sh -c "grep -v '^\s*//' '$SUITE/tools/audit.mjs'"
+# Y el ternario no cubria a FQAGE, que se llama QA en rutas y triggers (LEX-R03).
+chk   "Foundation se audita por su sigla"         "Foundation 0-6" \
+  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+
+# ── PT-148 · EP-022 · SUITE-R60 · ninguna herramienta nombra un componente ──────────────────────
+#
+# EP-022 midio la lista de componentes escrita a mano en DIECISEIS sitios de cuatro herramientas.
+# PT-145..PT-147 los quitaron. Que hoy no quede ninguno es cierto PORQUE ellas lo dejaron asi, y
+# NADA LO IMPEDIA MANANA — asi que la regla habria sido CHECK sobre una promesa.
+#
+# Y el criterio que decide si el barrido sirve NO es que cace: es que NO CACE COMENTARIOS. Este
+# mismo lote escribio decenas que citan componentes al explicar por que existe algo; un barrido
+# que los cace se desactiva en la primera corrida, y un verificador desactivado es peor que
+# ninguno. La primera version cazaba 33 sitios y NUEVE eran legitimos.
+VS148="$SUITE/tools/verify-suite.mjs"
+proj148() {
+  local d="$WORK/p148"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE"/. "$d/" 2>/dev/null
+  echo "$d"
+}
+# Mete una linea al final de una herramienta y ejecuta el verificador sobre la COPIA.
+mete148() {
+  local d; d="$(proj148)"
+  printf '%s\n' "$2" >> "$d/tools/$1"
+  (cd "$d" && node "$VS148" . 2>&1)
+}
+
+# Un literal de componente en codigo ejecutable: se caza, y NOMBRA archivo y componente.
+chk   "un literal de componente en una herramienta se caza"  "SUITE-R60" \
+  mete148 "regla.mjs" "const x = 'FIDE';"
+chk   "…y dice cual es"                                      "«FIDE»" \
+  mete148 "regla.mjs" "const x = 'FIDE';"
+# LO QUE NO DEBE CAZAR. Cada uno salio de un falso positivo REAL de la primera version.
+chkno "un comentario que cita un componente NO se caza"      "SUITE-R60" \
+  mete148 "regla.mjs" "// FIDE se retira tras instalar la suite, y 'FIDE' aqui es prosa."
+chkno "…ni una ruta con join()"                              "SUITE-R60" \
+  mete148 "regla.mjs" "const p = join(BASE, 'PTSA');"
+chkno "…ni una ruta con barra dentro de las comillas"        "SUITE-R60" \
+  mete148 "regla.mjs" "const p = leer('PTSA/RESUMEN.md');"
+# «QA» es a la vez sigla de componente y prefijo de identificador (LEX-R03, PREFIJOS_DE_ID): un
+# literal asi es AMBIGUO POR CONSTRUCCION, y el barrido lo DICE en vez de fingir que distingue.
+chkno "…ni una sigla que tambien es prefijo de identificador" "SUITE-R60" \
+  mete148 "regla.mjs" "const c = maxOf('QA', txt);"
+# Y sobre el arbol real, cero: PT-145..PT-147 los quitaron los dieciseis.
+chk   "sobre el arbol real no queda ningun literal"          "Sin errores de coherencia" \
+  sh -c "cd '$RAIZ' && node '$VS148' docs/methodology 2>&1"
+
+# ── PT-149 · EP-022 · LA PRUEBA: un componente se da de alta y de baja sin tocar herramienta ────
+#
+# ES EL CRITERIO DE EXITO DEL LOTE ENTERO, y hasta que se ejecuto NO SE CUMPLIA. PT-144..PT-148
+# construyeron el contrato y ESCRIBIERON el procedimiento; ejecutarlo destapo SEIS fijaciones que
+# impedian el alta —«exactamente seis componentes», «exactamente diez familias», «exactamente
+# estos prefijos», «exactamente estas siete en prosa», «exactamente este orden», «el unico opcional
+# es FIDE»— y que build-core llevaba los bloques de fases y triggers a mano, asi que el componente
+# nuevo NO LLEGABA A CORE.md, que es lo unico que el agente carga.
+#
+# TODAS se corrigieron con la MISMA DIRECCION: el contrato puede CRECER y no puede ENCOGER. Los
+# casos de abajo fijan las dos mitades, porque solo con la primera esto seria un apagado.
+#
+# El alta real son SEIS pasos, no uno: COMPONENTES, FAMILIAS —prefijos() sale de ahi, no de
+# COMPONENTES: es LEX-R36 hecho operacion—, LEXICON 3, LEXICON 6.6, el archivo de prompts, y
+# build-core. Los dos primeros estan en el CONTRATO, asi que la propiedad se enuncia bien: el alta
+# toca el contrato y documentos, y NINGUNA OTRA HERRAMIENTA.
+#
+# Todo ocurre sobre COPIAS. El arbol real no se toca nunca, asi que AC-06 —«el componente de prueba
+# no queda declarado ni aunque el caso falle a mitad»— es estructuralmente imposible de incumplir,
+# en vez de depender de un trap que hay que acordarse de escribir y que tambien puede fallar.
+#
+# El fixture tiene nombre, sigla y prefijo DISTINTOS ENTRE SI («Zeta» · «ZT» · «ZTA»): si
+# coincidieran, las aserciones podrian pasar por parecido en vez de por mecanismo. Es el caso
+# irregular de Foundation -> FND, que PT-147 convirtio en campo.
+Z149="$WORK/z149"
+
+alta149() {
+  [ -d "$Z149/alta" ] && return 0
+  rm -rf "$Z149"; mkdir -p "$Z149"
+  cp -r "$SUITE"/. "$Z149/base/" 2>/dev/null
+  cp -r "$SUITE"/. "$Z149/alta/" 2>/dev/null
+  # 1 y 2 · el CONTRATO: el componente y su familia de reglas
+  perl -0pi -e "s/(    fases: \[1, 5\],\n    en_core: true,\n  \},\n)/\$1  {\n    nombre: 'Zeta', prompts: 'ZETA-Prompts.md', sigla: 'ZT', prefijo: 'ZTA',\n    directorio: 'ZETA', obligatorio: false, triggers: ['[START ZETA]'],\n    fases: [1, 3], en_core: true,\n  },\n/" "$Z149/alta/tools/patrones.mjs"
+  perl -0pi -e "s/(\{ prefijo: 'FIDE'[^\n]*\},)/\$1\n  { prefijo: 'ZTA', documento: 'RULES.md', orden: 11, etiqueta: 'Zeta' },/" "$Z149/alta/tools/patrones.mjs"
+  # 3 · LEXICON 3 · su tabla de fases. Sin esto el rango es INVENTADO (RULE-06, PT-156).
+  perl -0pi -e "s/^### 3\.7 El contrato de componente/### 3.6b Zeta\n\n| PHASE | Nombre |\n|:--|:---|\n| 1 | Uno |\n| 2 | Dos |\n| 3 | Tres |\n\n---\n\n### 3.7 El contrato de componente/m" "$Z149/alta/LEXICON.md"
+  # 5 · el archivo de prompts, con sus fases
+  printf '# Zeta\n\n## PHASE 1 — Uno\n## PHASE 2 — Dos\n## PHASE 3 — Tres\n' > "$Z149/alta/ZETA-Prompts.md"
+  # 6 · build-core
+  (cd "$Z149/alta" && node tools/build-core.mjs . >/dev/null 2>&1)
+}
+en149() { alta149; (cd "$Z149/alta" && "$@" 2>&1); }
+
+# 1 · NINGUNA HERRAMIENTA SE TOCA. Es la propiedad de SUITE-R60, y «un solo archivo» era una
+# forma mas bonita de decirlo y era FALSA: el alta toca el contrato Y documentos.
+solo_contrato149() {
+  alta149
+  diff -rq "$Z149/base/tools" "$Z149/alta/tools" 2>&1 | grep -c "differ"
+}
+chk   "de tools/ solo cambia el contrato"             "^1$" solo_contrato149
+
+# 2 · LAS HERRAMIENTAS LO VEN. Cada una con su comprobacion propia, y ninguna por parecido.
+chk   "build-core lo cuela en CORE con sus fases"     "^ZT " en149 cat CORE.md
+chk   "…y con su trigger, o no se puede invocar"      "\[START ZETA\]" en149 cat CORE.md
+# prefijos() sale de FAMILIAS: sin su entrada, las reglas del componente serian INVISIBLES al
+# verificador y todo pasaria en verde POR NO MIRARLAS — el defecto que abrio EP-022.
+chk   "verify-suite recoge el prefijo nuevo"          "ZTA" \
+  en149 node -e "import('./tools/patrones.mjs').then(m=>console.log(m.prefijos().join(' ')))"
+# audit: la ANCHURA, que es lo que discrimina. Las lineas «<comp> PHASE <n>» NO valen: audit las
+# da por cubiertas si el NUMERO aparece en cualquier sitio del documento — es PT-168.
+chk   "audit lo audita, y son siete de siete"         "Zeta 1-3" en149 node tools/audit.mjs .
+chk   "…y lo dice contando, no de pasada"             "(7 de 7)"  en149 node tools/audit.mjs .
+chk   "verify-patrones admite un septimo componente"  "Todos los patrones cumplen" \
+  en149 node tools/verify-patrones.mjs
+
+# 3 · LO QUE NO SE PUEDE PERDER. Soltar «exactamente seis» no puede convertirse en «da igual
+# cuantos». La DIRECCION es la propiedad, y sin estos casos la correccion seria un apagado.
+rompe149() {
+  alta149; local d="$WORK/z149r"; rm -rf "$d"; cp -r "$Z149/alta" "$d"
+  perl -0pi -e "$1" "$d/tools/patrones.mjs"
+  (cd "$d" && node tools/verify-patrones.mjs 2>&1)
+}
+chk   "perder un COMPONENTE sigue siendo rojo"        "no puede perder ninguno" \
+  rompe149 "s/    nombre: 'FIDE',/    nombre: 'BORRADO',/"
+chk   "perder una FAMILIA sigue siendo rojo"          "ninguna puede desaparecer" \
+  rompe149 "s/\{ prefijo: 'QA',/{ prefijo: 'BORRADA',/"
+# Y el ORDEN: CORE.md se emite con el. Contiene-en-vez-de-igual habria dejado de comprobarlo.
+chk   "alterar el ORDEN de las familias sigue rojo"   "EN SU ORDEN" \
+  rompe149 "s/(\{ prefijo: 'SUITE'[^\n]*orden: )1(,)/\${1}9\${2}/"
+
+# 4 · LA BAJA NO DEJA RESIDUO. «Restable» sin esto significa solo que deja de funcionar.
+baja149() {
+  alta149
+  cp "$Z149/base/tools/patrones.mjs" "$Z149/alta/tools/patrones.mjs"
+  cp "$Z149/base/LEXICON.md" "$Z149/alta/LEXICON.md"
+  rm -f "$Z149/alta/ZETA-Prompts.md"
+  (cd "$Z149/alta" && node tools/build-core.mjs . >/dev/null 2>&1)
+  diff -rq "$Z149/base" "$Z149/alta" 2>&1 | wc -l
+}
+chk   "la baja deja el arbol BYTE A BYTE como estaba" "^0$" baja149
+
+# 5 · Y EL ARBOL REAL NO SE HA TOCADO. AC-06 se declaro «estructural» —todo ocurre sobre copias—
+# y verify-fdge lo rechazo con razon: un criterio sin escenario es un criterio que nadie comprueba
+# (FDGE-R15). Se comprueba AQUI, que es el momento en que una fuga existiria: justo despues de que
+# los once casos anteriores hayan dado de alta y de baja el componente once veces.
+chkno "el componente de prueba no toca el arbol real" "Zeta"   cat "$SUITE/tools/patrones.mjs"
+chkno "…ni llega a CORE.md, que es lo que se carga"   "START ZETA"   cat "$SUITE/CORE.md"
+
+# ── PT-156 · EP-024 · LEXICON §3 declaraba el rango de CINCO componentes y hay SEIS ─────────────
+#
+# FPGE llevaba `fases: SIN_EVALUAR` desde PT-144, y NO por olvido de redaccion: su recorrido
+# numeraba los siete pasos como [1]..[7]. LEXICON §2 prohibe «Step n» y «Etapa n» POR SU NOMBRE, y
+# un corchete no esta en esa lista — la misma cosa con una grafia que la prohibicion no alcanzo.
+# No habia fases que declarar, asi que el rango no se invento: se REPORTO el hueco (RULE-06).
+#
+# Y al escribir el apartado quedo un hueco NUEVO: la asercion de verify-patrones defendia la
+# declaracion de ignorancia, y al voltearla nadie comprobaba que LEXICON TUVIERA el apartado del
+# que el rango sale. Un `fases: [1, 7]` escrito sin apartado habria pasado en verde, que es
+# LITERALMENTE el «rango inventado» contra el que PT-144 escribio SIN_EVALUAR. Por eso el
+# contraste va contra el DOCUMENTO, en los DOS sentidos, y derivado de COMPONENTES.
+VP156="$SUITE/tools/verify-patrones.mjs"
+proj156() {
+  local d="$WORK/p156"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE"/. "$d/" 2>/dev/null
+  echo "$d"
+}
+
+# Los siete pasos son PHASE en los DOS documentos operativos. Si solo cambiara uno, la suite
+# tendria dos numeraciones vivas sobre el mismo recorrido, que es lo que LEX-R01 impide.
+chk   "FPGE numera sus pasos como PHASE"            "PHASE 7 — Stop" \
+  cat "$SUITE/FPGE-Implementation.md"
+chk   "…y sus prompts tambien"                      "## PHASE 7 — Stop" \
+  cat "$SUITE/FPGE-Prompts.md"
+chkno "ya no queda ningun paso en corchetes"        "^\[7\] STOP" \
+  cat "$SUITE/FPGE-Implementation.md"
+
+# El apartado existe y CORE lo publica con la compuerta donde FPGE-R04 la pone.
+chk   "LEXICON §3 tiene apartado para FPGE"         "### 3.6 FPGE" \
+  cat "$SUITE/LEXICON.md"
+# CORE decia «→ promote» con SEIS pasos, contra una regla HARD que dice justo lo contrario, y
+# CORE.md es lo UNICO que el agente carga. El hueco de fondo —el mapa esta TECLEADO— es PT-165.
+chk   "CORE no dice que FPGE promueva"              "7 Stop◆" \
+  cat "$SUITE/CORE.md"
+chkno "…y ya no termina en «promote»"               "ROADMAP◆ → promote" \
+  cat "$SUITE/CORE.md"
+
+# LOS DOS SENTIDOS. Un rango sin apartado es un rango inventado; un apartado con el contrato
+# diciendo «no se» apaga la comprobacion de audit en silencio. Los dos son el mismo defecto.
+quita_apartado156() {
+  local d; d="$(proj156)"
+  sed -i 's/^### 3.6 FPGE .*/### 3.6 Un titulo que no lo nombra/' "$d/LEXICON.md"
+  node "$d/tools/verify-patrones.mjs" 2>&1
+}
+desconoce156() {
+  local d; d="$(proj156)"
+  perl -0pi -e 's/fases: \[1, 7\],\n    en_core: true,/fases: SIN_EVALUAR,\n    en_core: true,/' "$d/tools/patrones.mjs"
+  node "$d/tools/verify-patrones.mjs" 2>&1
+}
+chk   "un rango sin apartado en LEXICON se caza"    "rango INVENTADO" \
+  quita_apartado156
+chk   "…y un apartado que el contrato desconoce"    "el contrato lo da por SIN_EVALUAR" \
+  desconoce156
+
+# El barrido de SUITE-R60 NO alcanza a verify-patrones —es la prueba del contrato— pero el
+# contraste de arriba SI deriva de COMPONENTES: un septimo componente entra solo, sin tocar nada.
+chkno "el contraste no lleva una lista de componentes" "for (const comp of \['" \
+  cat "$SUITE/tools/verify-patrones.mjs"
+
+
+
+
+
+
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que

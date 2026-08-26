@@ -1,0 +1,13 @@
+  ok  SUITE   Transversales
+  ok  LEX     Nombres
+  ok  EXEC    Compuertas y modos
+  ok  FND     Foundation
+  ok  PTSA    Auditoría — definidas en la especificación oficial
+  ok  FDGE    Desarrollo
+  ok  INTAKE  Admisión
+  ok  QA      Verificación de UX
+  ok  FPGE    Priorización
+  ok  FIDE    Incubación
+
+RC · 20 comparaciones contra el mapa label REAL de build-core.mjs
+CERO discrepancias: el contrato reproduce lo que hay.

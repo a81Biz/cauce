@@ -59,6 +59,8 @@ import { estadoContrastado, FASES } from './tracker.mjs';
 // PT-100 · LEX-R27 · un lote se reconoce por su ID. El helper vive en patrones.mjs desde PT-096
 // y aqui quedaban SEIS sitios preguntando por «type», que el registro escribe de tres formas.
 import { CLASE, CAR, esLote } from './patrones.mjs';
+// PT-150 · la escala de severidad y su patron, construidos desde LEXICON §8.3 y no escritos.
+import { SEVERIDADES, esSeveridad, RE_SEVERIDAD } from './patrones.mjs';
 // PT-056 · la correspondencia se define UNA vez y aqui se USA (SUITE-R38): dos copias del
 // criterio divergirian, y la que divergiera seria la que decide si el estado es de fiar.
 import { estadoDelArbol } from './tracker.mjs';
@@ -163,7 +165,16 @@ const RE_DOR_OVERRIDE = /CHALLENGE\s+aceptado\s+por:\s*(?!\[)(\S.*)$/im;
 // para acallar al verificador.
 //
 // Sigue rechazando lo invalido: `severity: S9` y `severity:` vacio no casan.
-const RE_SEVERITY = /^\s*severity:\s*(S[1-4])\s*(?:#.*)?$/im;
+//
+// PT-150 · y deja de escribirse a mano. La clase `[1-4]` codificaba la escala DENTRO del regex,
+// asi que anadir o quitar un nivel obligaba a editar un patron — justo donde SUITE-R59 avisa de
+// que los escapes se pierden al editar. Ahora se construye desde SEVERIDADES, que la declara una
+// sola vez citando LEXICON §8.3.
+//
+// Importa porque este archivo y `tracker` SE CONTRADECIAN: aqui se aceptaba S4 y alli se
+// rechazaba; alli se aceptaba S0 y aqui no se reconocia. Habia un rango donde el marco se
+// contradecia consigo mismo, y ninguna de las dos herramientas podia enterarse.
+const RE_SEVERITY = RE_SEVERIDAD;
 const RE_TYPE = /^\s*type:\s*(BUG|FEATURE|REFACTOR|INVESTIGATION|CHORE)\b/im;
 const RE_TRACK = /^\s*track:\s*(STANDARD|EXPRESS|HOTFIX)\b/im;
 const RE_COMPLEXITY = /^\s*complexity:\s*(TRIVIAL|STANDARD|MAJOR)/im;
@@ -240,6 +251,27 @@ function checkRegistry() {
     seen.add(a.id);
     if (a.status && !LIFECYCLE.includes(a.status)) {
       fail('LEX-R07', `${a.id}: status "${a.status}" no pertenece a la enumeración Lifecycle (LEXICON §5.1).`);
+      bad = true;
+    }
+    // PT-150 · la severidad del REGISTRO, con el mismo criterio que el status de dos lineas
+    // arriba: si LEXICON no lo declara, no vale.
+    //
+    // Existe porque el intake NO basta. `FDGE-R04` lee `severity:` del intake y se salta los que
+    // heredan del lote (`FDGE-R51`), asi que una severidad invalida en el registro no la miraba
+    // nadie. Y llego a haberlas: cuatro allocations con `S4` —escritas a mano, porque son
+    // anteriores a que `asignar` escribiera el campo— y una con `S0`, que su propio intake
+    // declaraba.
+    //
+    // SOLO LO VIVO. Las cinco de arriba estan INTEGRATED y NO se rejuzgan: son la evidencia de
+    // que el defecto existio, y ponerlas en rojo para que cuadre una cifra la borraria. Es el
+    // mismo criterio de `RIGE_DESDE` y `SUITE-R44` — lo que se exige, se exige a lo vivo.
+    //
+    // Y esto es lo que hace que `AC-07` signifique algo sin prometer de mas: «que no entre por
+    // ningun camino» NO es alcanzable —REGISTRY.json se escribe a mano— pero que se CACE en la
+    // corrida siguiente, si.
+    if (a.severity && !esSeveridad(a.severity) && !ESTADOS_TERMINALES.has(String(a.status))) {
+      fail('INTAKE-R04', `${a.id}: severidad "${a.severity}" no pertenece a la escala que declara LEXICON §8.3 (${SEVERIDADES.join(' · ')}). `
+        + 'Lo terminal no se rejuzga; esto está vivo.');
       bad = true;
     }
   }

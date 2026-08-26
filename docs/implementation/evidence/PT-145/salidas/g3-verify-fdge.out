@@ -1,0 +1,75 @@
+verify-fdge — cumplimiento mecánico de la Methodology Suite 13.1.0
+
+PASA
+  ✓ SUITE-R08      REGISTRY.json presente y coherente.
+  ✓ FND-R05        11-Conventions.md declara 7 Hard Rules.
+  ✓ FND-R08        Foundation presente (archivos del núcleo verificados).
+  ✓ SUITE-R15      CORE.md presente y sincronizado.
+  ✓ SUITE-R06      Toda integración registrada lleva nombre humano.
+  ✓ SUITE-R09      6 ledger(s) sin líneas perdidas desde v13.1.0.
+  ✓ EXEC-R04       1 merge(s) a «main» desde v13.1.0, todos con constancia.
+  ✓ FND-R14        las 16 cifras de inventory/services.md coinciden con el árbol.
+  ✓ FDGE-R48       Sin implementación abierta.
+  ✓ SUITE-R33      Bloque ESTADO completo.
+  ✓ SUITE-R34      El estado es más reciente que el último trabajo.
+  ✓ SUITE-R34      El bloque ESTADO no contradice al registro. Se lee el SUJETO de cada linea —el primer identificador—: NO evalua los demas identificadores que la linea mencione, porque nombrar una tarea cerrada PARA DECIR que lo esta es correcto.
+  ✓ LEX-R26        CHECKPOINT.json: PT-145 en PHASE 5, sobre un commit alcanzable y con el arbol correspondiente.
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ FND-R22        Plan de terreno resuelto y firmado.
+  ✓ FND-R24        Declaración de Valor firmada por Alberto Martínez.
+  ✓ SUITE-R30      INSTALL.log con 28 acción(es) registrada(s), todas las decisiones con rastro.
+  ✓ FND-R13        Línea base de reconciliación completa.
+  ✓ FDGE-R39       ningún artefacto de PT vive en una ruta global.
+  ✓ INTAKE-R09     EP-001: intake del lote completo.
+  ✓ INTAKE-R09     EP-002: intake del lote completo.
+  ✓ INTAKE-R09     EP-003: intake del lote completo.
+  ✓ INTAKE-R09     EP-004: intake del lote completo.
+  ✓ INTAKE-R09     EP-005: intake del lote completo.
+  ✓ INTAKE-R09     EP-006: intake del lote completo.
+  ✓ INTAKE-R09     EP-007: intake del lote completo.
+  ✓ INTAKE-R09     EP-008: intake del lote completo.
+  ✓ INTAKE-R09     EP-009: intake del lote completo.
+  ✓ INTAKE-R09     EP-010: intake del lote completo.
+  ✓ INTAKE-R09     EP-011: intake del lote completo.
+  ✓ INTAKE-R09     EP-012: intake del lote completo.
+  ✓ INTAKE-R09     EP-013: intake del lote completo.
+  ✓ INTAKE-R09     EP-014: intake del lote completo.
+  ✓ INTAKE-R09     EP-015: intake del lote completo.
+  ✓ INTAKE-R09     EP-016: intake del lote completo.
+  ✓ INTAKE-R09     EP-017: intake del lote completo.
+  ✓ INTAKE-R09     EP-018: intake del lote completo.
+  ✓ INTAKE-R09     EP-019: intake del lote completo.
+  ✓ INTAKE-R09     EP-020: intake del lote completo.
+  ✓ INTAKE-R09     EP-021: intake del lote completo.
+  ✓ INTAKE-R09     EP-022: intake del lote completo.
+  ✓ INTAKE-R09     EP-023: intake del lote completo.
+  ✓ SUITE-R44      0 aplazado(s) con revision declarada y al dia.
+  ✓ SUITE-R56      17 herramienta(s): ningun manejador de error referencia un identificador fuera de ambito.
+  ✓ FDGE-R19       los nombres de rama coinciden con los que deriva el registro.
+  ✓ INTAKE-R08     PT-145: firmado por lote EP-022.
+  ✓ FDGE-R51       PT-145: intake ligero · firma, veredicto y severidad heredados del lote.
+  ✓ FDGE-R55       PT-145: nace de la parada de EP-022 · motivo abre-trabajo.
+  ✓ FDGE-R54       PT-145: viabilidad MARGINAL · medida contra 982bcd3.
+  ✓ FDGE-R31       BACKLOG.md declara la misma implementacion abierta que el registro: EP-022, EP-023.
+  ✓ FDGE-R19       topologia: 4 rama(s), todas encajan en los cuatro tipos.
+  ✓ FDGE-R52       PT-145: 4 nota(s) de reanclaje en el issue #280 para PHASE 5.
+  ✓ SUITE-R43      PT-145: sin comentarios pendientes en el issue #280.
+  ✓ FDGE-R45       PT-145: evidencia e intake sin patrones de secreto conocidos.
+  ✓ FDGE-R25       PT-145: self-review completo.
+  ✓ FDGE-R31       PT-145: presente en REFACTOR_SCOPE.md con estado canónico.
+  ✓ FDGE-R34       PT-145: sin errores de cumplimiento.
+
+AVISOS
+  ! SUITE-R18      21 allocation(s) sin suite_version. Sin ese sello, una migración no puede respetar el trabajo en vuelo: EP-020, PT-113, PT-114, PT-115, PT-116
+  ! FDGE-R19       5 commit(s): cita «EP-022», que no es un PT. FDGE-R19 pide un PT: un lote no es la unidad de trabajo · SESSION_LOG.md declara una excepcion a FDGE-R19 que nombra este identificador: el marco obligo a rodearlo, y lo que se arregla es la herramienta. · fea48202 8f4d5338 3b951509 c80814f7 da9c260a · AVISO AHORA, ERROR EN G4.
+  ! FDGE-R19       6 commit(s): cita «EP-021», que no es un PT. FDGE-R19 pide un PT: un lote no es la unidad de trabajo · SESSION_LOG.md declara una excepcion a FDGE-R19 que nombra este identificador: el marco obligo a rodearlo, y lo que se arregla es la herramienta. · 862e60a7 a5c79469 03cab370 23901d37 db80c42c 9588d5f0 · AVISO AHORA, ERROR EN G4.
+  ! FDGE-R19       4 commit(s): cita «EP-020», que no es un PT. FDGE-R19 pide un PT: un lote no es la unidad de trabajo · SESSION_LOG.md declara una excepcion a FDGE-R19 que nombra este identificador: el marco obligo a rodearlo, y lo que se arregla es la herramienta. · ec8090ae e1e9e194 1272e7e4 04674677 · AVISO AHORA, ERROR EN G4.
+  ! SUITE-R45      EP-022: 4 fila(s) de cierre aún sin resolver. En G4 bloquean.
+  ! SUITE-R45      EP-023: 4 fila(s) de cierre aún sin resolver. En G4 bloquean.
+  ! SUITE-R44      1 aplazado(s) anteriores a LEX-R34 no se juzgan hacia atras (PT-025): no pudieron declarar lo que nadie les pedia. Ponerles el bloque es una decision, no una deuda.
+  ! FDGE-R43       Grafo SUSPECT — 7 de 19 archivos que describe han cambiado desde 2026-08-25 — docs/methodology/tools/comparar-marco.mjs, docs/methodology/tools/patrones.mjs, docs/methodology/tools/selftest.sh, docs/methodology/tools/tracker.mjs, docs/methodology/tools/verify-fdge.mjs, docs/methodology/tools/verify-patrones.mjs …. No bloquea; sellar sí lo exige al día (SUITE-R57).
+  ! FDGE-R19       PT-145: está en PHASE 5 y no declara rama. PHASE 5 crea «<type>/PT-NNN-slug» desde la rama de integración y la declara en REGISTRY.allocations[].branch (FDGE-R19). El PR de la tarea es revisión, no G4. · AVISO AHORA, ERROR EN G4.
+  ! FDGE-R43       PT-145: grafo SUSPECT — 7 de 19 archivos que describe han cambiado desde 2026-08-25 — docs/methodology/tools/comparar-marco.mjs, docs/methodology/tools/patrones.mjs, docs/methodology/tools/selftest.sh, docs/methodology/tools/tracker.mjs, docs/methodology/tools/verify-fdge.mjs, docs/methodology/tools/verify-patrones.mjs …. No bloquea; sellar sí lo exige al día (SUITE-R57).
+  ! FDGE-R29       PT-145: aún sin entrada en HISTORY.log (se escribe en PHASE 8).
+
+Sin errores. PTs verificados: 1.

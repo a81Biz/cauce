@@ -20,6 +20,7 @@
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
+import { opcionales } from './patrones.mjs';
 
 // Nacio en un proyecto, apuntando a una ruta absoluta de una maquina concreta. Dentro de la
 // suite eso no vale: la referencia es la version instalada, y solo se cae a una ruta local
@@ -36,7 +37,13 @@ if (!CANONICA) {
 }
 
 /** Componentes que el INSTALL manda no copiar en brownfield (`FIDE-R01`). */
-const OPCIONALES = new Set(['FIDE']);
+// PT-145 · los componentes opcionales se DERIVAN del contrato, no se escriben.
+//
+// Esta era la unica de las nueve herramientas del lote sin una sola arista a patrones.mjs: tres
+// imports, los tres de node:. Y tenia su propia copia del mismo hecho que verify-suite.mjs:425
+// CON OTRO NOMBRE —«OPCIONALES» frente a «COMPONENTES_OPCIONALES»—, que es exactamente la forma
+// en que dos nombres del mismo hecho divergen (CE-008, SUITE-R14).
+const OPCIONALES = opcionales();
 
 function archivos(base, dir = base) {
   if (!existsSync(dir)) return [];

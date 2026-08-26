@@ -1,0 +1,112 @@
+{
+  "pt": "PT-144",
+  "generated": "2026-08-25",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "patrones.mjs exporta los seis componentes y las diez familias, con todos sus campos",
+      "tests": [
+        "verify-patrones.mjs:bloque PT-144 · cuenta y campos obligatorios",
+        "selftest.sh:un campo ausente NOMBRA componente y campo"
+      ],
+      "evidence": [
+        "salidas/verify-patrones.out",
+        "salidas/verify-patrones-base.out"
+      ],
+      "verified": true,
+      "nota": "Son DOS tablas y no una. COMPONENTES tiene fases, triggers y directorio; FAMILIAS tiene prefijo, documento propietario y orden. SUITE, LEX, EXEC e INTAKE son familia y NO componente, y esa distincion es la que explicaba por que build-core afirmaba la lista dos veces con cifras distintas."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Los valores coinciden con los quince sitios actuales, campo a campo",
+      "tests": [
+        "rc03-comparacion.mjs:20 comparaciones contra los literales REALES",
+        "selftest.sh:una sigla equivocada se caza",
+        "selftest.sh:un rango inventado para FPGE FALLA",
+        "selftest.sh:FIDE dejando de ser opcional se caza"
+      ],
+      "evidence": [
+        "salidas/rc03.out"
+      ],
+      "verified": true,
+      "nota": "El intake decia CATORCE sitios. Son QUINCE, y el decimoquinto lo destapo esta comparacion por estar escrita extrayendo de los archivos en vez de copiando los literales al test: verify-suite.mjs:708 lleva OCHO prefijos donde las otras cinco alternancias llevan diez, y le faltan FPGE y FIDE. No es una copia mas: guarda EXEC-R08 y una cita de FPGE-Rnn en la matriz de compuertas pasaria en verde. Declarado en la parada de #279 con desenlace continua: el sitio vive en verify-suite.mjs, que ya era el archivo de PT-145, asi que confirma la descomposicion en vez de invalidarla."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "verify-patrones comprueba el contrato con aserciones propias y FALLA al romperlo",
+      "tests": [
+        "selftest.sh:un campo ausente NOMBRA componente y campo",
+        "selftest.sh:una sigla equivocada se caza",
+        "selftest.sh:un rango inventado para FPGE FALLA",
+        "selftest.sh:…y perder el rango de FIDE tambien",
+        "selftest.sh:FIDE dejando de ser opcional se caza",
+        "selftest.sh:un «orden» de familia REPETIDO se caza",
+        "selftest.sh:…y cambiar el documento de PTSA tambien",
+        "selftest.sh:sobre el arbol real, el contrato cumple"
+      ],
+      "evidence": [
+        "salidas/ts08.out"
+      ],
+      "verified": true,
+      "nota": "El precedente es selloDe, no PATRONES: verify-patrones comprueba genericamente los patrones —que tienen `casa` y `noCasa`— y con aserciones a medida los contratos que no son regex. Se preciso en PHASE 2 porque el intake decia «como comprueba los demas» y los demas no eran uno. En su primera ejecucion SEIS de siete casos fallaron bien y UNO paso en verde: duplicar el `orden` de una familia, porque el sort es estable y la secuencia emitida no cambiaba. Estaba especificado en design.md 6 y no se habia escrito. Lo encontro romperlo, no leerlo."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Ninguna herramienta cambia de comportamiento",
+      "tests": [
+        "build-core.mjs --check",
+        "npm run verify · bateria completa"
+      ],
+      "evidence": [
+        "salidas/core-check.out",
+        "salidas/verify-completo.txt",
+        "salidas/inventario.txt"
+      ],
+      "verified": true,
+      "nota": "CORE.md y CORE-PTSA.md salen SINCRONIZADOS: la barra aqui es identidad byte a byte, no ausencia de errores, porque el producto es un archivo generado y build-core --check ya existe para medirlo. El recuento de comprobaciones SUBE de 58 a 78 y el de casos del selftest de 1695 a 1703: ninguna comprobacion se apago. La bateria dejo UN rojo, FND-R14, y era correcto — los tres archivos que crecio la tarea dejaron las cifras de inventory/services.md diciendo otra cosa. Recalculadas con «tracker inventario --aplicar», que es quien las deriva (RULE-01)."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Cada valor declara de donde sale, y LEXICON sigue siendo su fuente",
+      "tests": [
+        "inspeccion del comentario de contrato en patrones.mjs"
+      ],
+      "evidence": [
+        "salidas/contrato-comentario.txt"
+      ],
+      "verified": true,
+      "nota": "El contrato CITA su fuente por campo y NO la parsea. Derivar la tabla leyendo LEXICON.md en runtime era la alternativa mas tentadora —LEXICON manda sobre el dato, LEX-R21— y se rechazo por RULE-02: un parseo degradado devuelve lista vacia y TODO pasa en verde. Seria cambiar quince literales por un unico punto de fallo silencioso, dentro de las herramientas que verifican."
+    }
+  ],
+  "regresion": [
+    {
+      "rc": "RC-01",
+      "statement": "patrones.mjs sigue exportando todo lo que exportaba",
+      "verified": true,
+      "nota": "Los ocho importadores que el grafo lista se ejecutan en la bateria completa."
+    },
+    {
+      "rc": "RC-02",
+      "statement": "verify-patrones sigue comprobando PATRONES y selloDe",
+      "verified": true,
+      "nota": "58 -> 78 comprobaciones. El recuento sube, no baja: medido ejecutando el verificador anterior desde 976b8be."
+    },
+    {
+      "rc": "RC-03",
+      "statement": "El contrato coincide con los sitios reales",
+      "verified": true,
+      "nota": "20 comparaciones, cero discrepancias. Y encontro el sitio quince."
+    },
+    {
+      "rc": "RC-04",
+      "statement": "Romper un campo hace fallar el verificador",
+      "verified": true,
+      "nota": "Ocho casos permanentes en selftest.sh, todos por ASERCION. Un noveno caso propio fue RECHAZADO por el arnes: esperaba un SyntaxError, y revento() invalida un caso cuando la herramienta lanza excepcion, porque una herramienta rota tampoco imprime el patron buscado. Pedia certificar un verificador muerto."
+    }
+  ],
+  "qa": "NO APLICA · QA-R01 exige navegador y este paquete no tiene interfaz. CASOS-DE-USO.md lo declara en vez de forzarlo.",
+  "fallos_de_metodo": [
+    "Se edito selftest.sh MIENTRAS la bateria corria — el «no hacer» numero 3 del HANDOFF, escrito desde EP-021 y citado en un commit del mismo dia. La corrida se invalido entera y se relanzo. Declarado en la parada de #279.",
+    "Se leyo el exit code de una tuberia con grep como si fuera el de npm run verify. Por poco se declara verde sobre nueve divergencias reales de SUITE-R51. Cometido dos veces el mismo dia; a la tercera se midio con redireccion a archivo."
+  ]
+}

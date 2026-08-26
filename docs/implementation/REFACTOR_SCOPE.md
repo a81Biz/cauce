@@ -40,4 +40,11 @@
 | PT-092 | CHORE | S2 | INTEGRATED | EP-018 | Ejecutar QA y FPGE, los dos componentes que nunca han corrido |
 | PT-093 | CHORE | S2 | INTEGRATED | EP-018 | El limite de las compuertas se declara como ya se declara el de las firmas |
 | PT-126 | CHORE | S2 | INTEGRATED | EP-020 | sellar mide la matriz y FPGE la lee |
-| PT-134 | CHORE | S3 | DRAFT | EP-021 | No hay forma de declarar un AC caido: o se finge verde o bloquea |
+| PT-134 | CHORE | S3 | INTEGRATED | EP-021 | No hay forma de declarar un AC caido: o se finge verde o bloquea |
+| PT-144 | CHORE | S2 | DRAFT | EP-022 | El contrato de componentes vive en patrones.mjs |
+| PT-145 | REFACTOR | S2 | DRAFT | EP-022 | verify-suite y comparar-marco derivan los componentes del contrato |
+| PT-146 | REFACTOR | S2 | DRAFT | EP-022 | build-core deriva familias, orden y triggers del contrato |
+| PT-147 | REFACTOR | S2 | DRAFT | EP-022 | audit deriva fases, sigla y referencias por componente del contrato |
+| PT-148 | CHORE | S2 | DRAFT | EP-022 | El alta y la baja de un componente quedan escritas y con regla |
+| PT-156 | CHORE | S3 | DRAFT | EP-024 | LEXICON §3 declaraba el rango de cinco componentes y hay seis |
+| PT-149 | CHORE | S2 | DRAFT | EP-022 | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |

@@ -1,0 +1,39 @@
+{
+  "pt": "PT-146",
+  "generated": "2026-08-25",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "No queda ningun literal de componente en build-core.mjs",
+      "tests": [
+        "grep de los prefijos y nombres sobre build-core.mjs",
+        "verify-patrones.mjs:las diez familias declaran «etiqueta»",
+        "rc-etiquetas.mjs:20 comparaciones contra el mapa label REAL"
+      ],
+      "evidence": ["salidas/rc-etiquetas.out", "salidas/verify-patrones.out"],
+      "verified": true,
+      "nota": "CUATRO sitios, no los tres del intake. El cuarto —el mapa `label` de :184— lo encontro PHASE 2 leyendo el archivo, y NO lo cazo la enumeracion de EP-022 porque el barrido se hizo con grep sobre patrones de PREFIJO y label es un objeto: sus claves no casan ninguna alternancia. Es una de las «otras formas de nombrar un componente» que PT-144 declaro que su barrido no cubria. La comparacion de etiquetas LEE el mapa del archivo, no lo copia: es la leccion de RC-03 en PT-144."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "CORE.md y CORE-PTSA.md byte a byte identicos",
+      "tests": ["build-core --check tras CADA uno de los pasos"],
+      "evidence": ["salidas/check-paso2.out", "salidas/check-paso3.out", "salidas/check-final.out"],
+      "verified": true,
+      "nota": "ES LA BARRA ENTERA DE LA TAREA, y se midio en cada paso, no al final: si la identidad se rompia, se sabria con UN sitio tocado. build-core genera lo unico que el agente carga (SUITE-R15), y su propio :194 recuerda que hubo un momento en que [START PTSA] auditaba con el 29% de su ruleset porque las reglas no llegaban a runtime. Un CORE.md degradado no falla: deja al agente operando con menos reglas de las que cree tener."
+    }
+  ],
+  "regresion": [
+    {"rc": "RC-01", "statement": "CORE.md y CORE-PTSA.md identicos", "verified": true, "nota": "Tres comprobaciones, una por paso."},
+    {"rc": "RC-02", "statement": "El orden de emision no cambia", "verified": true, "nota": "ordenDePrefijos() ya tenia asercion contra huecos y repetidos desde PT-144."},
+    {"rc": "RC-03", "statement": "LEX, EXEC y PTSA siguen tratandose aparte, cada una leyendo SU archivo", "verified": true, "nota": "Las cuatro llamadas se mantienen. Colapsarlas en un bucle habria sido reescribir el mecanismo, no derivar su dato — declarado OUT."},
+    {"rc": "RC-04", "statement": "El bloque de triggers no se toca", "verified": true, "nota": "El paso 4 cambio al ejecutarlo: NO se deriva, y se dice por que. Ver el hallazgo."}
+  ],
+  "qa": "NO APLICA · QA-R01 exige navegador y este paquete no tiene interfaz.",
+  "hallazgos_con_tarea": [
+    "CORE.md publica OCHO triggers y LEXICON §7 declara TRECE. Faltan [CIERRA], [IMPLEMENTACIÓN], [START RECONCILE], [INSTALL SUITE] y [START MIGRATE]. SUITE-R15 dice que CORE.md es lo unico que se carga y LEX-R18 que sin trigger no hay componente; dos de los cinco gobiernan el bucle abierto de FDGE y la puerta del modo restringido de SUITE-R17. NO se arreglo aqui porque AC-02 exige CORE.md identico. Tiene TAREA PROPIA, enlazada desde la parada de #281 — no es una nota."
+  ],
+  "fallos_de_metodo": [
+    "Anadir «etiqueta» a FAMILIAS dejo sin casar los sed de DOS casos permanentes de PT-144: casaban la LINEA ENTERA Y LITERAL, y la linea crecio. El arnes lo cazo en alto —chk exige que el texto esperado aparezca— asi que no hubo verde falso, pero el fixture era fragil de la forma exacta que este lote persigue: una copia literal de otra cosa. Corregidos para casar SOLO el campo que rompen. Cuarta instancia en cuatro tareas de la misma familia: PT-144 con el caso que esperaba un SyntaxError, PT-150 afirmando sobre el identificador, PT-145 con el fixture incompleto, y esta."
+  ]
+}

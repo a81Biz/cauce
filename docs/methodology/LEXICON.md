@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **13.1.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **13.2.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -145,7 +145,86 @@ correcta encima de documentación vieja contradictoria y nadie sabía cuál mand
 | 4 | Scaffolding |
 | 5 | Handoff |
 
+### 3.6 FPGE — Priorización Gobernada por Evidencia
+
+| PHASE | Nombre | Compuerta |
+|:--|:---|:---|
+| 1 | Compuertas de freshness y confianza | — |
+| 2 | Recolección de evidencia | — (solo lectura) |
+| 3 | Síntesis de candidatos | — |
+| 4 | Cálculo de Priority | — |
+| 5 | Orden y desempates | — |
+| 6 | Emisión | — |
+| 7 | **Stop — decisión humana** | **decisión humana** (`FPGE-R04`) |
+
+Este apartado faltó desde que existe `FPGE`, y no por olvido de redacción: su recorrido
+numeraba los siete pasos como `[1]`..`[7]`. §2 prohíbe `Step n` y `Etapa n` **por su nombre**, y
+un corchete no está en esa lista — es la misma cosa con una grafía que la prohibición no
+alcanzó. Sin fases, no había rango que declarar, así que `patrones.mjs` llevaba `SIN_EVALUAR` y
+`audit` reportaba el hueco en vez de inventarlo (`RULE-06`). Lo corrigió `PT-156`.
+
+`PHASE 7` es la única de la suite cuyo desenlace es **no hacer nada**: `FPGE` ordena y se
+detiene. Promover es de quien decide, no de quien mide (`FPGE-R04`).
+
 ---
+
+### 3.7 El contrato de componente   `SUITE-R60`
+
+`LEX-R35` · Un componente de la suite se **declara** en `tools/patrones.mjs`, y las herramientas
+lo **derivan**. Ninguna lo nombra. Estos son sus campos y de dónde sale cada uno:
+
+| Campo | Qué es | Fuente |
+|:---|:---|:---|
+| `nombre` | el normativo, en prosa | §3 de este documento |
+| `sigla` | el que usan sus reglas, rutas y triggers | `LEX-R03` para `FQAGE` → `QA` |
+| `prefijo` | el de sus reglas | `RULES.md` §Dónde vive cada familia |
+| `directorio` | su carpeta propia, o **nada** si no tiene | §6.6 |
+| `obligatorio` | si el `INSTALL` lo copia al proyecto destino | `FIDE-R01` |
+| `triggers` | los que lo activan | §7 |
+| `prompts` | su archivo de prompts, o **no evaluable** si no tiene | §6.6 |
+| `fases` | su rango, o **no evaluable** si este documento no lo declara | §3 |
+| `en_core` | si sus reglas van a `CORE.md` o a un overlay propio | `SUITE-R25` |
+
+**`sigla` está separada de `nombre` a propósito.** `Foundation` firma sus reglas como `FND` y
+`FQAGE` se llama `QA` en rutas y triggers: son **dos**, no uno. Una regla de derivación con una
+excepción obliga a la siguiente excepción a escribirse al lado, así que el dato se declara.
+
+**`prompts` y `fases` admiten no saber.** `FIDE` no tiene archivo de prompts —§6.6 declara sus
+tres archivos y ninguno lo es, porque opera **antes de que la suite exista** y su activación es un
+`CLAUDE.md` anfitrión—; y hay componentes cuyo rango de fases este documento aún no declara. En
+los dos casos el valor es **no evaluable**, nunca un valor inventado (`RULE-06`): omitirlo lo
+haría indistinguible de uno que cumple.
+
+### 3.8 Componente y familia de reglas no son lo mismo
+
+`LEX-R36` · Un **componente** tiene fases, triggers y directorio. Una **familia de reglas** es un
+prefijo con un documento propietario y un orden de emisión en `CORE.md`.
+
+**Los seis componentes son también familia. Cuatro familias no son componente:**
+
+```
+SUITE   INTAKE            reglas de RULES.md que no pertenecen a un componente
+LEX                       este documento
+EXEC                      EXECUTION-MODES.md
+```
+
+**Esta distinción no es teórica: explica una discrepancia real.** `build-core` recogía las
+familias de la prosa de `RULES.md` —siete— y emitía diez, y la diferencia no estaba escrita en
+ningún sitio: `LEX`, `EXEC` y `PTSA` no tienen sus reglas en `RULES.md`, así que no se recogen de
+su prosa pero sí se ordenan al emitir. El campo que lo explica es **`documento`**, y ya estaba
+publicado en `RULES.md`; sólo faltaba usarlo.
+
+Campos de una familia:
+
+| Campo | Qué es |
+|:---|:---|
+| `prefijo` | `SUITE` · `LEX` · `EXEC` · `FND` · `FDGE` · `INTAKE` · `QA` · `PTSA` · `FPGE` · `FIDE` |
+| `documento` | quién la gobierna — `RULES.md`, este documento, `EXECUTION-MODES.md` o la especificación de PTSA |
+| `orden` | su posición en `CORE.md`. Sin huecos y sin repetir: un empate haría que el núcleo dependiera del orden de declaración en vez del declarado |
+| `etiqueta` | el nombre humano de su sección en `CORE.md` |
+
+---
+
 
 ## 4. Identificadores
 

@@ -8941,3 +8941,725 @@ Evidencia: evidence/PT-143/ — cinco casos, con el positivo que hace validos a 
 LO QUE NO ESTABLECE: que ninguna otra accion lea posicionales con el mismo patron. Se enumera lo
 que se ve; prometer un barrido no hecho seria peor. AC-04 se cumple POR LA VIA DE LA FUENTE UNICA
 y se dice: la lectura consulta CON_VALOR en vez de llevar su propia lista.
+
+## PT-144 — el contrato de componentes vive en patrones.mjs
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: chore/alberto-martinez/PT-144-el-contrato-de-componentes
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+La lista de componentes de la suite estaba escrita A MANO en CATORCE sitios de cuatro
+herramientas, mientras patrones.mjs —que existe para que un hecho tenga una sola definicion y su
+contrato (SUITE-R38)— declaraba estados, compuertas, vigencia, prefijos de identificador y tipos
+de item, pero NO los componentes.
+
+LO GRAVE NO ERA LA DUPLICACION. verify-suite.mjs:250 filtra las reglas por una alternancia
+LITERAL de prefijos: un componente con prefijo nuevo tendria TODAS sus reglas invisibles al
+verificador, y no daria error — PASARIA EN VERDE. Es la forma de fallo que este repositorio
+declara peor, y la que dejo a QA en 0/19 y a FPGE en 0/10 cumpliendose «solo por buena voluntad».
+
+SON DOS TABLAS, NO UNA, Y ESO NO ESTABA EN EL INTAKE. build-core afirmaba la lista dos veces con
+cifras distintas —7 entradas en :171, 10 en :183— y el intake lo describio como dos literales que
+«coinciden por costumbre». No era costumbre: es LA MISMA TABLA filtrada por un campo que nadie
+habia escrito. LEX, EXEC y PTSA no tienen sus reglas en RULES.md, asi que no se recogen de su
+prosa pero SI se ordenan al emitir. De ahi COMPONENTE (seis) y FAMILIA DE REGLAS (diez), con
+SUITE, LEX, EXEC e INTAKE siendo familia y no componente. El campo que lo explica —el documento
+propietario— ya estaba publicado en RULES.md; solo faltaba usarlo.
+
+SE RECHAZO PARSEAR LEXICON.md EN RUNTIME, que era la alternativa mas tentadora: LEXICON manda
+sobre el dato (LEX-R21). Se descarto por RULE-02 — un parseo degradado devuelve lista vacia y
+TODO pasa en verde. Seria cambiar quince literales por un unico punto de fallo silencioso, dentro
+de las herramientas que verifican. El contrato CITA su fuente por campo y no la lee.
+
+FPGE Y FIDE NO SON EL MISMO CASO, y se fue a mirar antes de escribir el campo. LEXICON 3 tiene
+apartados 3.1 a 3.5 para SEIS componentes: FIDE si declara su rango (1-5) y audit no lo mira;
+para FPGE NO HAY APARTADO. El contrato lleva el rango de FIDE y SIN_EVALUAR para FPGE (RULE-06).
+Inventarle un rango para que la tabla quede simetrica seria apagar una comprobacion en silencio.
+
+APARECIO EL SITIO QUINCE, Y NO ES UNA COPIA MAS. RC-03 se escribio extrayendo los literales DE
+LOS ARCHIVOS en vez de copiarlos al test — si se hubieran copiado, habria comparado lo escrito
+contra lo escrito y habria salido verde. Salio una SEXTA alternancia:
+
+    verify-suite.mjs:708   (?:SUITE|FDGE|INTAKE|LEX|FND|QA|PTSA|EXEC)-R\d+
+                                                       faltan FPGE y FIDE
+
+Ocho prefijos donde las otras cinco llevan diez. Guarda EXEC-R08 —la matriz de compuertas no
+puede citar una regla— asi que una cita de FPGE-Rnn o FIDE-Rnn pasaria en verde. Es un
+guardarrail con dos agujeros. EP-022 §7 declaraba que un sitio quince disparaba FDGE-R41; NO se
+detuvo el lote, y esta dicho por que en la parada de #279: el sitio vive en verify-suite.mjs, que
+ya era el archivo de PT-145, asi que confirma la descomposicion en vez de invalidarla.
+
+ROMPER EL CONTRATO ENCONTRO UN AGUJERO EN LAS PROPIAS ASERCIONES. De siete casos de rotura, seis
+fallaron bien y UNO paso en verde: duplicar el «orden» de una familia. ordenDePrefijos() ordena de
+forma estable, asi que dos familias con el mismo numero conservan su posicion y la secuencia
+emitida no cambiaba. Estaba especificado en design.md 6 y no se habia escrito. Importa porque
+CORE.md se emite con ese campo. Sin RC-04 el agujero habria viajado hasta que alguien reordenara
+la tabla.
+
+Y EL ARNES RECHAZO UN CASO PROPIO. Se escribio uno cuyo resultado esperado era un SyntaxError;
+revento() lo invalido, porque «una herramienta rota tampoco imprime el patron buscado y el arnes
+certificaba verificadores muertos». Pedia certificar un verificador muerto. El mismo error estaba
+en la primera evidencia de FDGE-R17: aquel «rojo» era un crash, no una asercion.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-patrones.mjs · tools/selftest.sh ·
+  inventory/services.md (cifras derivadas, FND-R14)
+
+Medido: verify-patrones 58 -> 78 comprobaciones · selftest 1695 -> 1703 casos · npm run verify
+  EXIT=0 · build-core --check con CORE.md y CORE-PTSA.md sincronizados · RC-03 con 20
+  comparaciones y cero discrepancias.
+
+Evidencia: evidence/PT-144/ — manifest con 5 AC y 4 RC, self-review, y siete salidas capturadas.
+
+LO QUE NO ESTABLECE: que los quince sitios sean todos. El conteo subio de trece a catorce en
+PHASE 1 y de catorce a quince en PHASE 5, las dos veces por comprobar una afirmacion propia. El
+barrido de alternancias quedo cerrado con grep sobre bin/ y tools/ —son seis, todas en
+verify-suite— pero eso no cubre otras formas de nombrar un componente. Prometer un barrido
+exhaustivo no hecho seria peor que declarar el limite.
+
+Y NO ESTABLECE QUE EL CONTRATO SIRVA. Nadie lo consume todavia: ese es AC-04, y es lo que hace de
+esta tarea un no-cambio comprobable. Que sirva lo demuestran PT-145, PT-146 y PT-147; que se
+pueda dar de alta y de baja un componente sin tocar herramienta, PT-149.
+
+FALLOS DE METODO, declarados en las paradas de #279: se edito selftest.sh MIENTRAS la bateria
+corria —el «no hacer» numero 3 del HANDOFF, escrito desde EP-021, leido al abrir la sesion y
+citado en un commit del mismo dia— y la corrida se invalido entera. Y se leyo el exit code de una
+tuberia con grep como si fuera el de npm run verify, dos veces el mismo dia. Estar escrito no
+basto; queda contado para que la proxima vez la cuenta sea dos.
+
+## PT-150 — la escala de severidad vivia en tracker y contradecia a LEXICON
+Fecha: 2026-08-25
+Estado: VALIDATION_PENDING → DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: bug/alberto-martinez/PT-150-la-escala-de-severidad-se-declara
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — validacion humana POR DELEGACION, con la
+            autorizacion enumerada en SESSION_LOG.md (punto 11). FDGE-R26 y SUITE-R06b
+            exigen que la firme una persona: la firma un agente EN SU NOMBRE, y eso se dice.
+Clase de evento: CE-008 — un hecho, varios nombres
+
+CUATRO FUENTES DECLARABAN LA ESCALA Y UNA CONTRADECIA A LAS OTRAS TRES. El intake describia una
+herramienta con una lista equivocada; medido, era esto:
+
+    LEXICON 8.3            S1 S2 S3 S4    <- la fuente (LEX-R21)
+    verify-fdge.mjs:166    S1 S2 S3 S4    correcta, pero escrita a mano DENTRO de un regex
+    INTAKE/templates x3    S1|S2|S3|S4    correcta
+    tracker.mjs:2556       S0 S1 S2 S3    <- la que miente, y CITA a LEXICON
+
+Y LAS DOS HERRAMIENTAS SE CONTRADECIAN ENTRE SI, no solo con el documento: «severity: S4» la
+aceptaba verify-fdge y la rechazaba tracker; «severity: S0» al reves. Habia un rango donde el
+marco se contradecia consigo mismo, y ninguna de las dos podia enterarse porque cada una tenia su
+propia copia.
+
+SU AGRAVANTE, QUE LOS QUINCE SITIOS DE PT-144 NO TIENEN: el mensaje de error no callaba, ENSENABA
+EL DATO EQUIVOCADO. No decia «S4 no vale»; decia «LEXICON declara: S0 · S1 · S2 · S3». Quien lo
+leyera corregia su severidad en vez de ir a LEXICON, y la divergencia se heredaba al usuario. Por
+eso el arreglo no es solo la lista: el texto ahora se DERIVA de la constante y no puede volver a
+divergir del dato.
+
+Y SALE DEL PAQUETE. INTAKE/templates/CHANGE-REQUEST.md trae «severity: S4» por defecto, y el
+comando lo rechazaba. Es la clase de PT-083 —la plantilla que el paquete distribuye fallando su
+propio verificador— sobre otro campo, y afecta a TODO proyecto instalado. LA PLANTILLA NO SE
+TOCO, y fue una decision: S4 es el valor correcto para un CHANGE-REQUEST —LEXICON lo define como
+«deuda sin impacto observable, SE AGRUPA EN LOTES», que es lo que un CHORE de lote es— asi que
+cambiarla a S3 habria acomodado el documento al defecto. El que estaba mal era el comando. Y el
+caso que lo prueba LEE el valor del archivo, no lo escribe.
+
+COMO ENTRARON LAS CINCO DIVERGENCIAS DEL REGISTRO, contrastado con sus intakes, y son dos
+historias distintas: PT-107 declara «severity: S0» EN SU PROPIO INTAKE —el humano lo escribio, la
+herramienta lo acepto— y los cuatro S4 no declaran severity en su frontmatter, porque son
+anteriores a que «asignar» escribiera el campo (PT-103): su severidad se escribio A MANO en
+REGISTRY.json.
+
+ESO OBLIGO A COMPROBAR EL REGISTRO, NO SOLO EL INTAKE. FDGE-R04 lee «severity:» del intake y se
+salta los que heredan del lote (FDGE-R51), asi que una severidad invalida en el registro NO LA
+MIRABA NADIE. La comprobacion nueva va donde ya se comprueba el status contra LEXICON, con el
+mismo criterio.
+
+AC-07 SE PRECISO, Y NO DICE LO QUE DECIA EL INTAKE. Pedia que una severidad invalida no entrara
+«por ningun camino», y no es alcanzable: REGISTRY.json es un archivo y se escribe a mano — asi
+entraron los cuatro S4. Prometer la garantia completa habria sido SUITE-R26. Se cumple por
+comando + verificador, y se dice.
+
+LO INTEGRADO NO SE REJUZGA, y es un criterio, no una omision. Las cinco allocations historicas
+siguen exactamente como estaban y «git diff» sobre REGISTRY.json no toca ninguna. La tentacion al
+arreglar esto es «dejar el registro limpio»: esas cinco entradas SON la evidencia de que el
+defecto existio. Mismo criterio de RIGE_DESDE y SUITE-R44 — lo que se exige, se exige a lo vivo.
+
+EL PATRON SE CONSTRUYE, NO SE ESCRIBE. La clase [1-4] de verify-fdge codificaba la escala dentro
+del regex, asi que anadir un nivel obligaba a editar un patron — justo donde SUITE-R59 avisa de
+que los escapes se pierden al editar. RE_SEVERIDAD se construye desde SEVERIDADES con el
+normalizador de patrones.mjs, sin una sola barra invertida escrita, y tiene su propio contrato:
+tolera el comentario que traen las plantillas y sigue rechazando «S9» y el campo vacio.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/verify-fdge.mjs ·
+  tools/verify-patrones.mjs · tools/selftest.sh
+
+Medido: selftest 1703 -> 1711 casos · asignar acepta S4 y rechaza S0 · el mensaje enumera
+  S1 · S2 · S3 · S4 · las cinco historicas intactas.
+
+Evidencia: evidence/PT-150/ — manifest con 7 AC y 4 RC, self-review, y seis salidas capturadas.
+
+LO QUE NO ESTABLECE: que ninguna otra lista canonica siga escrita dentro de una herramienta.
+verify-patrones comprueba hoy DOS de siete contratos de patrones.mjs —ESTADOS_TERMINALES,
+ORDEN_COMPUERTAS, EXIGIBLE_DESDE, RIGE_DESDE y PREFIJOS_DE_ID no tienen asercion propia— y esta
+declarado en la parada de #286 con desenlace «declara»: candidato a tarea propia fuera de EP-022.
+
+Y NO ESTABLECE QUE S0 NO HAGA FALTA. LEXICON no lo declara, asi que la escala es S1..S4 y eso es
+lo que se ejecuta. Pero PT-107 lo escribio a proposito —era una perdida de datos, «mas grave que
+S1»— y LEXICON no ofrece ese peldano. Si el firmante decide que hace falta, la salida NO es esta
+tarea: es abrir trabajo sobre LEXICON. Cambiar la escala de severidad de la suite es metodologia,
+y hacerlo desde una herramienta es la direccion que LEX-R21 prohibe. Queda declarado.
+
+FALLO DE METODO: tres casos afirmaban sobre el IDENTIFICADOR y el fixture nombra los tres por
+FDGE-R01 —no tienen changes/—, asi que uno pasaba en verde POR UNA RAZON AJENA a lo que decia
+comprobar. Corregidos para afirmar sobre el mensaje de severidad. Es la misma clase que el caso
+de PT-144 que esperaba un SyntaxError: una comprobacion que pasa por el motivo equivocado no es
+una comprobacion.
+
+## PT-145 — verify-suite y comparar-marco dejan de escribir los componentes
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: refactor/alberto-martinez/PT-145-verify-suite-deja-de-escribirlos
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+OCHO SITIOS, NO LOS SIETE DEL INTAKE. PT-144 destapo la sexta alternancia de verify-suite
+—:716— al escribir su RC-03 extrayendo los literales DE LOS ARCHIVOS en vez de copiarlos al
+test. Si los hubiera copiado, habria comparado lo escrito contra lo escrito.
+
+Y EL OCTAVO NO ERA UNA COPIA MAS: ERA UN GUARDARRAIL CON DOS AGUJEROS.
+
+    :716   /\b(?:SUITE|FDGE|INTAKE|LEX|FND|QA|PTSA|EXEC)-R\d+\b/     OCHO prefijos
+    las otras cinco alternancias del mismo archivo                    DIEZ
+
+Guarda EXEC-R08 —la matriz de compuertas no puede citar una regla, porque un modo decide QUIEN
+resuelve y no QUE se exige—, asi que una celda que citara FPGE-R05 o FIDE-R03 PASABA EN VERDE.
+
+SE MIDIO QUE DESTAPABA ANTES DE CERRARLO: la matriz no cita hoy ninguna regla FPGE ni FIDE. El
+agujero era real y NO estaba siendo explotado. Se cierra igual — una comprobacion que solo
+funciona mientras nadie escriba lo que no debe no es una comprobacion.
+
+COMPARAR-MARCO NO IMPORTABA NADA DEL MARCO. Tres imports, los tres de node:. Era la unica de las
+nueve herramientas del lote sin una sola arista a patrones.mjs, y tenia su copia del mismo hecho
+CON OTRO NOMBRE —«OPCIONALES» frente a «COMPONENTES_OPCIONALES»—, que es exactamente como
+divergen dos nombres del mismo hecho. Aqui no bastaba con sustituir un literal: habia que anadir
+la arista. Lo dijo el grafo en PHASE 2 de PT-144, y por eso se regenero al empezar el lote.
+
+CUATRO PASOS ATOMICOS, Y NO FUE CEREMONIA. FDGE-R54 dio MARGINAL —no hay ningun REFACTOR cerrado
+con el que comparar el coste, asi que no aprueba por omision ni prohibe sin evidencia— y PHASES
+lo traduce a trabajo atomico con checkpoint. Sirvio en el paso 2: hacer comparar-marco solo, con
+un archivo tocado, dejo claro que el import funcionaba antes de tocar los otros siete sitios.
+
+SE RECHAZO UNA CONSTANTE COMPARTIDA, y el motivo ya estaba escrito en el repositorio. Los cinco
+usos mezclan /g con sin banderas, y verify-patrones.mjs:38 documenta que «un regex con /g
+conserva lastIndex entre llamadas: reutilizarlo daria resultados que dependen del orden». El
+contrato expone FUNCIONES que devuelven un patron nuevo. Y :289 recibe la alternancia como TEXTO,
+porque compone su propio patron alrededor: darle un RegExp le obligaria a deshacerlo.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-suite.mjs · tools/comparar-marco.mjs ·
+  tools/verify-patrones.mjs · tools/selftest.sh · inventory/services.md (cifras) ·
+  MATRIZ.md (derivada)
+
+Medido: cero literales en los dos archivos · el diff de verify-suite sobre el arbol real esta
+  VACIO · selftest 1711 -> 1715 casos · npm run verify EXIT=0.
+
+Evidencia: evidence/PT-145/ — manifest con 4 AC y 5 RC, self-review, y ocho salidas capturadas,
+  incluido el diff vacio que ES la barra de un REFACTOR.
+
+LO QUE NO ESTABLECE: que no queden otras formas de nombrar un componente en estas dos
+herramientas. El barrido cubrio las alternancias de prefijos y los Set de opcionales, que es lo
+que EP-022 enumero; una herramienta puede nombrar un componente de otras maneras —una ruta, un
+nombre de archivo— y eso no se ha barrido. Prometer un barrido no hecho seria peor.
+
+Y NO ESTABLECE QUE EXEC-R08 SE CUMPLA HOY EN TODA LA MATRIZ. Se comprobo que no hay citas de
+regla de NINGUN prefijo en la matriz de compuertas actual, pero la comprobacion mira solo esa
+seccion de EXECUTION-MODES.md.
+
+FALLOS DE METODO, y los dos de la misma familia:
+
+  1. El primer intento de sustituir los seis sitios uso un heredoc con los patrones literales
+     dentro, y las secuencias de escape SE DEGRADARON: la sustitucion no encontro nada. Es
+     EXACTAMENTE el fallo del que avisa SUITE-R59, medido ocho veces en este repositorio.
+     Rehecho con el script en un archivo y las barras construidas con chr(92). Y VOLVIO A
+     OCURRIR al escribir la evidencia con otro heredoc: dos veces en una tarea.
+
+  2. El fixture del caso de EXEC-R08 copiaba solo los *.md de la metodologia, sin subcarpetas:
+     verify-suite ahogaba la salida en enlaces rotos y TRES CASOS DABAN ROJO POR EL MOTIVO
+     EQUIVOCADO. Tercera instancia en tres tareas de la misma clase —PT-144 con el caso que
+     esperaba un SyntaxError, PT-150 afirmando sobre el identificador—. Una comprobacion que pasa
+     O FALLA por el motivo equivocado no es una comprobacion.
+
+Y una nota que PT-144 no podia establecer por si misma: el contrato lleva ya TRES consumidores
+—PT-150 y las dos herramientas de esta tarea— y NO ha hecho falta cambiarlo ni una vez.
+
+## PT-146 — build-core deja de escribir las familias y los componentes
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+CUATRO SITIOS, NO LOS TRES DEL INTAKE. PHASE 2 encontro el mapa `label` de :184 —las diez
+familias por CUARTA vez en el mismo archivo— y no lo cazo la enumeracion de EP-022 porque el
+barrido se hizo con grep sobre patrones de PREFIJO, y label es un objeto: sus claves no casan
+ninguna alternancia. Es una de las «otras formas de nombrar un componente» que PT-144 declaro
+explicitamente que su barrido NO cubria.
+
+LA CUENTA DEL LOTE HA SUBIDO TRES VECES, Y NINGUNA POR EJECUTAR:
+
+    EP-022 §1 declaraba                            13 sitios
+    PHASE 1, verificando una frase propia    ->    14   audit tiene DOS mapas, no uno
+    PHASE 5 de PT-144, RC-03 extrayendo      ->    15   verify-suite:716, e INCOMPLETO
+    PHASE 2 de PT-146, leyendo para analizar ->    16   build-core:184, el mapa label
+
+Las tres salieron de LEER CON UNA PREGUNTA CONCRETA DELANTE.
+
+PRIMERA TAREA QUE AMPLIA EL CONTRATO, Y EL CONTRATO AGUANTO. PT-150 y PT-145 lo consumieron sin
+tocarlo; esta le anadio «etiqueta» a FAMILIAS y no hubo que reescribir nada — los tres
+consumidores anteriores no se enteraron. Era lo que PT-144 no podia establecer por si misma.
+
+Y el campo fue a FAMILIAS y no a COMPONENTES porque label tiene DIEZ entradas: incluye SUITE,
+LEX, EXEC e INTAKE, que son familia de reglas y no componente. El hecho fue a donde estaba.
+
+LA BARRA ERA BYTE A BYTE Y SE MIDIO EN CADA PASO. build-core genera lo unico que el agente carga
+(SUITE-R15), y su propio :194 recuerda que hubo un momento en que [START PTSA] auditaba con el
+29% de su propio ruleset porque las reglas no llegaban a runtime. `build-core --check` se ejecuto
+tras cada uno de los tres pasos, no al final: si la identidad se rompia, se sabria con UN sitio
+tocado.
+
+EL PASO 4 CAMBIO AL EJECUTARLO, y el cambio se declara. Se planifico como «derivar la mitad
+derivable» del bloque de triggers. Medido, no se puede derivar sin salirse del alcance: byte a
+byte exigiria meter en el contrato la MAQUETACION del bloque —agrupamiento por linea, marcadores
+<tipo>: <titulo>, separadores y las operaciones de LEX-R16—, un campo con UN SOLO CONSUMIDOR en
+el modulo cuya razon de ser es que un hecho tenga un dueno. Y derivar solo la mitad habria dejado
+el bloque partido en dos mecanismos sin ganar nada.
+
+Y AL INTENTARLO APARECIO ALGO MAYOR QUE LA DUPLICACION QUE VENIA A ARREGLAR:
+
+    el bloque de CORE.md publica    8 triggers
+    LEXICON §7 declara              13
+    faltan   [CIERRA] · [IMPLEMENTACIÓN] · [START RECONCILE] · [INSTALL SUITE] · [START MIGRATE]
+
+SUITE-R15 dice que CORE.md es lo unico que se carga; LEX-R18, que sin trigger no hay componente.
+Dos de los cinco gobiernan el bucle abierto de FDGE y la puerta del modo restringido de
+SUITE-R17. Que funcionen hoy depende de que alguien los recuerde, no de que el nucleo los publique.
+
+NO se arreglo aqui porque AC-02 exige CORE.md identico, y TIENE TAREA PROPIA enlazada desde la
+parada de #281 — no una nota al pie.
+
+Archivos modificados: tools/patrones.mjs · tools/build-core.mjs · tools/verify-patrones.mjs ·
+  tools/selftest.sh · inventory/services.md (cifras derivadas)
+
+Medido: cero literales en build-core.mjs · CORE.md y CORE-PTSA.md sincronizados en los TRES
+  pasos · verify-patrones 85 -> 99 comprobaciones · las diez etiquetas contrastadas contra el
+  mapa label REAL, leido del archivo.
+
+Evidencia: evidence/PT-146/ — manifest con 2 AC y 4 RC, self-review, y seis salidas capturadas.
+
+LO QUE NO ESTABLECE: que no queden otras formas de nombrar un componente en build-core. El
+barrido de este lote cubrio alternancias de prefijo y objetos con clave de prefijo; una
+herramienta puede nombrar un componente por una ruta, un nombre de archivo o una cadena suelta, y
+eso no se ha barrido. La cuenta subiendo tres veces es la evidencia de que el metodo de
+enumeracion tiene un sesgo, y esta contado.
+
+FALLO DE METODO: anadir «etiqueta» a FAMILIAS dejo sin casar los sed de DOS casos permanentes de
+PT-144, que casaban LA LINEA ENTERA Y LITERAL. El arnes lo cazo en alto —chk exige que el texto
+esperado aparezca— asi que no hubo verde falso, pero el fixture era fragil de la forma exacta que
+este lote persigue: una copia literal de otra cosa. Corregidos para casar SOLO el campo que
+rompen. Cuarta instancia en cuatro tareas de la misma familia — PT-144 con el caso que esperaba
+un SyntaxError, PT-150 afirmando sobre el identificador, PT-145 con el fixture incompleto, y esta.
+
+## PT-147 — audit deja de escribir los componentes, y dos de los seis dejan de ser invisibles
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: refactor/alberto-martinez/PT-147-audit-deja-de-escribirlos
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+audit.mjs TENIA DOS MAPAS POR COMPONENTE Y EL BUCLE RECORRIA UNO:
+
+              PROMPTS   esperadas
+    FDGE         si        si
+    Foundation   si        si
+    QA           si        si
+    PTSA         si        si
+    FPGE         si        NO       tenia prompts declarados y NADIE auditaba sus fases
+    FIDE         NO        NO       invisible entera
+
+Lo que no estaba en «esperadas» NO APARECIA: ni en rojo ni en amarillo. DOS DE LOS SEIS
+COMPONENTES sin auditar sus fases, y nunca lo dijeron. Es el mismo patron que verify-qa.mjs:7
+registra para las reglas —«QA 0/19 y FPGE 0/10»— repetido sobre las FASES.
+
+Ahora el bucle recorre COMPONENTES: si esta en la suite, esta en el bucle. El hueco pasa a ser
+estructuralmente imposible — pero RULE-02 pide una comprobacion que pueda fallar, no una
+imposibilidad afirmada, y por eso hay casos permanentes que exigen que los SEIS aparezcan.
+
+LOS DOS ENTRAN DISTINTO, Y ESA DISTINCION ES DE PT-144:
+
+    FIDE   LEXICON 3.5 declara PHASE 1-5   ->  entra CON SU RANGO
+    FPGE   LEXICON 3 no tiene apartado     ->  entra como SIN EVALUAR, y lo DICE
+
+«No aparece» y «aparece como no evaluable» no son lo mismo: lo primero es indistinguible de estar
+bien. Meterle a FPGE un rango inventado para que la tabla quedara simetrica habria apagado la
+comprobacion en silencio (RULE-06) — el defecto que este lote entero existe para quitar.
+
+Y EL TERNARIO DESAPARECIO. «comp === 'Foundation' ? 'FND' : comp» no era una lista repetida: era
+UNA EXCEPCION CODIFICADA COMO CONDICIONAL, y la siguiente habria tenido que escribirse igual, al
+lado. PT-144 la uso como caso de prueba del diseno del contrato y aqui se cobra. Cubre ademas un
+caso que el ternario no tenia: FQAGE se llama QA en rutas y triggers (LEX-R03).
+
+Archivos modificados: tools/audit.mjs · tools/selftest.sh · inventory/services.md (cifras)
+
+Medido: cero literales en audit.mjs · «fase: 40» ANTES Y DESPUES para los cuatro ya auditados ·
+  selftest 1715 -> 1720 casos.
+
+Evidencia: evidence/PT-147/ — manifest con 7 AC y 4 RC, self-review, y cuatro salidas.
+
+LO QUE DESTAPO, Y TIENE TAREA. FIDE entro y salio ROJO —que es el objetivo cumplido, no un fallo:
+el intake lo declaro OUT antes de empezar—:
+
+    ✗ FIDE PHASE 1 … PHASE 5     ausente en: FIDE/FIDE-Prompts.md
+
+El archivo NO EXISTE, y LEX-R15 declara que «todo componente tiene exactamente un archivo de
+prompts» — enumerando CINCO cuando son seis. Es la TERCERA lista de componentes de este lote que
+se quedo corta, y las tres son independientes: los dos mapas de audit, LEXICON 3 sin FPGE, y
+LEX-R15 sin FIDE. Es PT-158, enlazada a la parada de #282.
+
+Y UN FALLO MIO, DE LA MISMA CLASE QUE EL LOTE PERSIGUE. El intake declara SIETE criterios y en
+PHASE 2 los reagrupe en CUATRO, con los que escribi traceability y manifest. FDGE-R15 dice que la
+lista canonica es la del intake y que se citan «estos AC-nn y ningun otro». Dos listas del mismo
+hecho, dentro del lote que existe para quitar eso. Corregido — y verify-fdge NO lo cazo, porque
+contrasta la trazabilidad consigo misma y no contra el intake. Ese hueco es PT-160.
+
+LO QUE NO ESTABLECE: que FIDE cubra sus cinco fases. Entra en la auditoria por primera vez y sale
+rojo; corregirlo es PT-158, no esta tarea. Y no establece que no queden otras formas de nombrar
+un componente en audit.mjs: el barrido del lote cubrio alternancias de prefijo y objetos con clave
+de prefijo, y la cuenta subiendo tres veces —13, 14, 15, 16— es la evidencia de que el metodo de
+enumeracion tiene un sesgo.
+
+## PT-148 — el alta y la baja de un componente quedan escritas, y con regla que puede fallar
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022
+Rama: chore/alberto-martinez/PT-148-el-alta-y-la-baja-se-escriben
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md del 2026-08-25
+            G3 2026-08-25 Alberto Martinez — auto-resuelta por las SIETE condiciones de
+            EXEC 5.2, comprobadas mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+Tras PT-144..PT-147 el mecanismo existia y estaba probado por cuatro consumidores. Lo que NO
+existia era la forma de usarlo sin leer el codigo: no habia procedimiento escrito para dar de
+alta ni de baja un componente, y una busqueda en toda la metodologia no daba una sola
+coincidencia.
+
+Lo escrito, y cada cosa donde E4 del propio catalogo manda:
+
+    LEXICON 3.6-3.7   el contrato como VOCABULARIO, y la distincion componente/familia
+    RULES.md          SUITE-R60, CHECK, con ID estable y propietario unico
+    CASOS-DE-USO      E5 y E6, que CITAN la regla por su ID sin enunciarla (LEX-R22)
+    CORE.md           regenerado (SUITE-R16)
+
+LA REGLA NACE CHECK, Y HUBO QUE GANARSELO. RULES.md dice que marcar CHECK lo que ningun script
+verifica es una promesa falsa. Media comprobacion ya existia —verify-patrones, con las aserciones
+de las cuatro tareas anteriores—; la otra media NO: que ninguna herramienta nombre un componente
+era cierto HOY porque PT-145..PT-147 lo dejaron asi, y nada lo impedia manana.
+
+EL CRITERIO DEL BARRIDO NO ES QUE CACE: ES QUE NO CACE COMENTARIOS. La primera version cazaba 33
+sitios y NUEVE eran legitimos:
+
+    17  verify-patrones.mjs   ES la prueba del contrato: siglaDe('Foundation') TIENE que
+                              nombrarlo. El contrato y su prueba son una unidad.
+     7  selftest.sh           el arnes: sus fixtures construyen estados rotos a proposito.
+     4  join(ROOT, 'PTSA')    una RUTA. LEX-R03 dice que QA se usa «en triggers, RUTAS y
+                              nombres de archivo».
+     1  QA: maxOf('QA', ...)  un PREFIJO DE IDENTIFICADOR: «QA» es sigla y espacio de nombres
+                              a la vez, POR DISENO. Un literal asi es ambiguo por construccion.
+     1  matriz.mjs            un span de codigo markdown en el texto que la herramienta GENERA.
+
+Cada exclusion sale de un falso positivo REAL, y hay CUATRO casos negativos permanentes para que
+nadie «mejore» el barrido hasta hacerlo insufrible: este mismo lote escribio decenas de
+comentarios que citan componentes, y un verificador desactivado es peor que ninguno.
+
+Archivos modificados: LEXICON.md · RULES.md · CASOS-DE-USO.md · tools/verify-suite.mjs ·
+  tools/selftest.sh · CORE.md (generado) · inventory/services.md (cifras)
+
+Medido: barrido 33 -> 0 aciertos sobre el arbol real · selftest 1720 -> 1727 casos ·
+  regla.mjs SUITE-R60 la resuelve · el diff de CORE lleva TRES reglas nuevas y nada mas.
+
+Evidencia: evidence/PT-148/ — manifest con 5 AC y 4 RC, self-review, y seis salidas.
+
+DOS ERRORES MIOS, Y LOS DOS SON DE LA CLASE QUE EL LOTE PERSIGUE:
+
+1. EL ESCAPE SE DEGRADO DENTRO DEL VERIFICADOR DE ESA CLASE. La exclusion de rutas quedo en disco
+   con un byte de control donde debia ir un limite de palabra: el regex COMPILABA Y NO CASABA
+   NADA, asi que los cuatro join(ROOT, 'PTSA') seguian saltando. Es SUITE-R59, medida OCHO veces
+   en este repositorio; esta es la NOVENA. No se encontro leyendo —en pantalla el «if» se veia
+   correcto— sino mirando los BYTES con cat -A. Y no se arreglo reescribiendo el escape sino
+   QUITANDO EL REGEX: includes() no tiene escapes que perder, y el patron mas seguro es el que no
+   se escribe. Las ocho anteriores las cazo verify-patrones, porque los patrones de PATRONES
+   viajan con sus ejemplos; esta NO LA CAZO NADA — era un regex suelto dentro de un if, sin
+   contrato. Es un argumento a favor de que los patrones vivan en patrones.mjs aunque parezcan
+   triviales.
+
+2. ESCRIBI DOS REGLAS CON IDS OCUPADOS, Y verify-suite NO LO CAZO. LEX-R33 y LEX-R34 existian
+   desde PT-137 y PT-138 —«retomada» y «aplazamiento»— y al regenerar, LAS DOS REGLAS VIEJAS
+   DESAPARECIERON DE CORE.md. Dos reglas vigentes fuera del nucleo que el agente carga, sin que
+   nada avisara: es el dano que build-core.mjs:194 documenta —[START PTSA] con el 29% de su
+   ruleset— por otra via. SUITE-R14 dice que verify-suite «rechaza cualquier definicion
+   duplicada» y no la rechazo: definidasDosVeces() compara ENTRE documentos, porque la regla dice
+   «en dos documentos», y las dos definiciones estaban en el MISMO archivo. Corregido a LEX-R35 y
+   LEX-R36. El hueco es PT-163.
+
+   LO ENCONTRO LEER EL DIFF, que es lo que RC-01 exigia: «el diff se lee, no se supone». Con
+   build-core --check en EXIT=0 habria pasado.
+
+LO QUE NO ESTABLECE: que el alta y la baja FUNCIONEN. Esta tarea escribe el procedimiento y la
+regla que lo exige; que la operacion se EJECUTE —alta, las cuatro comprobaciones, baja, y el
+arbol byte a byte como estaba— es PT-149, y es el criterio de exito del lote entero.
+
+Y no establece que CASOS-DE-USO cumpla su propio contrato de cobertura. Su encabezado afirma que
+«un caso que no este aqui es un hueco declarado, no un silencio» y nada lo comprueba — ha fallado
+dos veces en este trabajo, con DICTAMEN y con esta misma alta/baja. Es PT-161.
+
+## PT-156 — LEXICON declaraba el rango de cinco componentes, y hay seis
+Fecha: 2026-08-25
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024 (ejecutada dentro del tramo de EP-022, por decision del firmante)
+Rama: chore/alberto-martinez/PT-156-lexicon-sin-apartado-para-fpge
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 PASS 2026-08-25 Alberto Martinez — firma PROPIA, no por lote: EP-024 no esta
+            firmado, e INTAKE-R08 ADMITE la firma por lote, no la impone
+            G3 2026-08-25 — auto-resuelta por las SIETE condiciones de EXEC 5.2, comprobadas
+            mecanicamente una a una (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+EL APARTADO NO FALTABA POR OLVIDO DE REDACCION. FPGE llevaba `fases: SIN_EVALUAR` desde PT-144, y
+audit lo reportaba como el UNICO hueco que le quedaba a la bateria. La causa estaba tres
+documentos mas arriba: FPGE numeraba sus siete pasos como [1]..[7]. LEXICON 2 dice que PHASE es la
+UNICA palabra admitida para un paso de cualquier flujo de la suite y prohibe POR SU NOMBRE «Step
+n» y «Etapa n» — el corchete NO esta en esa lista. La misma cosa con una grafia que la prohibicion
+no alcanzo, y por ahi se colo durante siete versiones.
+
+Sin fases, no habia rango que declarar. La cadena era correcta de arriba abajo, y PT-144 hizo bien
+en no inventarselo. Por eso el orden fue forzoso: PRIMERO PHASE n en los dos documentos
+operativos, DESPUES el apartado. Al reves, LEXICON habria declarado fases que no existian.
+
+    FPGE-Implementation + FPGE-Prompts   [1]..[7] -> PHASE n, en los DOS a la vez (LEX-R01)
+    LEXICON 3.6                          la tabla, con ESOS nombres · el contrato pasa a 3.7/3.8
+    patrones.mjs                         fases: [1, 7]
+    verify-patrones                      la asercion, volteada — y el hueco que abrio, cerrado
+    build-core + CORE.md                 regenerado, y el diff LEIDO
+
+AL VOLTEAR UNA ASERCION SE ABRE EL HUECO QUE ESA ASERCION TAPABA. La de verify-patrones NACIA al
+reves: exigia SIN_EVALUAR. Y estaba BIEN mientras el dato no existia — defendia la declaracion de
+ignorancia, que es lo que RULE-06 pide. Al voltearla, nadie comprobaba ya que LEXICON TUVIERA el
+apartado del que el rango sale: un `fases: [1, 7]` sin apartado habria pasado en verde, que es
+LITERALMENTE el «rango inventado» contra el que PT-144 escribio SIN_EVALUAR. Cerrado en el acto y
+en los DOS sentidos, porque una sola direccion no comprueba nada, y derivado de COMPONENTES: un
+septimo componente entra solo.
+
+LA PRIMERA BATERIA DEVOLVIO SIETE ROJOS Y NINGUNO ERA RUIDO. CUATRO son de una clase que merece
+nombre: UN CASO QUE SOLO PUEDE PASAR MIENTRAS EXISTE EL DEFECTO QUE DICE VIGILAR. PT-147 afirmaba
+«FIDE entra en la auditoria de fases» buscando «FIDE PHASE» en la salida de audit — pero audit
+SOLO emite esa linea cuando el componente tiene un HUECO. Los tres pasaban PORQUE FIDE, FPGE y
+Foundation FALLABAN, y se pusieron en rojo el dia en que dejaron de fallar: estuvieron en verde
+todo EP-022 afirmando lo contrario de lo que ocurria. Y YO REPETI LA INVERSION en esta misma
+tarea, copiando el patron sin mirar contra que asertaba. Es RULE-02 por el reverso — el exito del
+caso ERA el fallo del sistema—: no un verificador debil, sino un INDICADOR INVERTIDO, que avisa
+mientras el defecto se arregla. No se retiraron: se hizo VERIFICABLE lo que querian decir, y audit
+publica ahora la ANCHURA de lo que audito, derivada de COMPONENTES. El cuarto es hermano: un
+chkno buscaba «=== 'Foundation' ?» en audit.mjs y EL COMENTARIO QUE EXPLICA EL DEFECTO CONTIENE EL
+DEFECTO — el caso se cazaba a si mismo, que es la leccion de PT-148.
+
+Y uno era enteramente mio: mi contraste MATABA fixtures ajenos que copian solo tools/, poniendo en
+rojo casos de otras tareas por una razon ajena a lo que probaban — lo mismo que PT-145 midio
+cuando su fixture copio solo *.md. Corregido a SIN EVALUAR, publicado ANTES del veredicto: decir
+«todos cumplen» sin decir cuales no se pudieron mirar es la promesa que SUITE-R26 prohibe.
+
+DECIMA ROTURA DE ESCAPADO, Y ES LA BUENA. El regex /\r?\n/ del contraste perdio sus escapes al
+escribirse y verify-patrones dejo de arrancar con un SyntaxError. SUITE-R59, segunda en este lote.
+Esta es MEJOR que la novena: en PT-148 el mismo defecto produjo un regex que COMPILABA Y NO CASABA
+NADA, en verde, y solo salio mirando bytes con cat -A. Reventar el arranque SE VE. Las dos se
+arreglaron igual: QUITANDO EL REGEX.
+
+Archivos modificados: LEXICON.md · RULES.md · FPGE-Implementation.md · FPGE-Prompts.md ·
+  tools/patrones.mjs · tools/verify-patrones.mjs · tools/audit.mjs · tools/build-core.mjs ·
+  tools/selftest.sh · CORE.md (generado) · inventory/services.md (cifras) · REFACTOR_SCOPE.md
+
+Medido: huecos de audit 1 -> 0 · verify-patrones 99 -> 106 comprobaciones · selftest 1727 -> 1736
+  casos · rojos de la bateria 7 -> 0 · ROTURAS_DE_ESCAPADO 27 -> 29 · el diff de CORE son SEIS
+  lineas: dos sellos y la de FPGE, y las 263 reglas siguen siendo 263.
+
+Evidencia: evidence/PT-156/ — manifest con 6 AC y 4 RC, self-review, y cuatro salidas.
+
+CUATRO HALLAZGOS, LOS CUATRO CON TAREA:
+  PT-164  SUITE-R44 citaba «retomada» con DOS IDs distintos EN LA MISMA REGLA, secuela del
+          renumerado de PT-148. Una cita a un ID equivocado PERO REAL pasa todos los
+          verificadores —LEX-R35 existe, solo que es otra— y CORE.md la publica.
+  PT-165  El mapa de fases de CORE esta TECLEADO para los cinco componentes que lista, y FIDE no
+          aparece pese a tener fases: [1, 5]. Publicaba «FPGE … → promote» con SEIS pasos, contra
+          FPGE-R04, que dice que PHASE 7 es STOP y promover es humano. En el unico archivo que el
+          agente carga.
+  PT-166  LEXICON 2 prohibe las grafias de paso POR SU NOMBRE, y la lista es incompleta por
+          construccion: enumerar prohibiciones es perseguir el idioma.
+  PT-167  Nada busca mas casos invertidos entre los 1736. Este salio por un cambio de conducta
+          ajeno, no porque nadie lo buscara.
+
+LO QUE NO ESTABLECE: que las siete filas de LEXICON 3.6 COINCIDAN con las de los documentos
+operativos. Se verifico a mano; nada mecanico lo sostiene (SUITE-R26).
+
+## PT-149 — la prueba: un componente se da de alta y de baja sin tocar una herramienta
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-022 — es su CRITERIO DE EXITO
+Rama: chore/alberto-martinez/PT-149-la-prueba-de-alta-y-baja
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada, constancia en SESSION_LOG.md
+            G3 2026-08-26 — auto-resuelta por las SIETE condiciones de EXEC 5.2, comprobadas
+            mecanicamente (EXEC-R06), no afirmadas
+Clase de evento: CE-008 — un hecho, varios nombres
+
+EL CRITERIO DE EXITO DEL LOTE NO SE CUMPLIA, Y SOLO LO DIJO EJECUTARLO. PT-144..PT-148
+construyeron el contrato y ESCRIBIERON el procedimiento de alta y baja. Esta tarea empieza
+EJECUTANDOLO sobre una copia del arbol, con un componente de prueba —«Zeta», sigla «ZT», prefijo
+«ZTA», fases 1-3, los tres DISTINTOS ENTRE SI para que ninguna asercion pueda pasar por parecido.
+
+E5 declaraba que el alta es «anadir su entrada a COMPONENTES» y que el fin es «npm run verify en
+verde con el componente dentro». LAS DOS MITADES ERAN FALSAS:
+
+    verify-suite      SI lo ve — deriva la alternancia de prefijos. Es lo que PT-145 construyo
+    audit             APARENTEMENTE — dice «Zeta 1-3 (7 de 7)», pero da por cubiertas sus fases
+                      en dos documentos donde no aparece NI UNA VEZ  → PT-168
+    build-core        NO — «Zeta», «ZTA» y «[START ZETA]» aparecian CERO veces en el CORE.md
+                      regenerado, mientras E5 decia que «lo emite con sus reglas y sus triggers»
+    verify-patrones   NO — SEIS fijaciones, y solo dos se veian venir. Cuatro estaban en
+                      FAMILIAS —«exactamente diez», «estos prefijos», «estas siete en prosa»,
+                      «este orden»— y NINGUNA se habia mirado en todo el lote
+
+Y EL ALTA REAL SON SEIS PASOS, NO UNO. Se midio DOS VECES, porque la primera correccion tampoco
+estaba completa: el fixture escrito solo con el contrato puso en rojo TRES de mis propias
+comprobaciones —incluida, palabra por palabra, la que escribi el dia anterior en PT-156: «un rango
+sin documento del que salir es un rango INVENTADO». El sexto paso NO LO DECIA NADIE: prefijos()
+sale de FAMILIAS, no de COMPONENTES, asi que un componente con reglas propias necesita entrada en
+LAS DOS listas. Es LEX-R36 hecho operacion, y sin ella sus reglas son INVISIBLES al verificador y
+todo pasa en verde POR NO MIRARLAS — el defecto exacto que abrio EP-022, reproducido dando de alta
+un componente segun el manual.
+
+    1. patrones.mjs · COMPONENTES     la entrada, nueve campos
+    2. patrones.mjs · FAMILIAS        su prefijo de reglas          <- nadie lo decia
+    3. LEXICON 3                      su tabla de fases
+    4. LEXICON 6.6                    su archivo de prompts, declarado
+    5. <COMP>-Prompts.md              el archivo, con sus fases
+    6. build-core                     regenerar CORE.md
+
+LA CORRECCION TIENE DIRECCION, Y ESO ES LO QUE LA DISTINGUE DE APAGAR LA COMPROBACION. Las SEIS
+aserciones eran correctas como RETRATO de hoy y falsas como CONTRATO: convertian
+el alta de un septimo componente en una edicion de herramienta, que es literalmente lo que E5
+declara defecto y no paso, y lo contrario de lo que SUITE-R60 promete. Lo salvable se conserva
+entero: EL CONTRATO PUEDE CRECER Y NO PUEDE ENCOGER. Perder uno de los seis SIGUE siendo rojo, y
+hay TRES casos permanentes que lo fijan: perder un componente, perder una familia y alterar el
+orden SIGUEN siendo rojo. Sin ellos, la correccion seria indistinguible de un apagado. Y cada una
+necesito preguntarse QUE PROTEGIA DE VERDAD, porque no era lo mismo en las cuatro de FAMILIAS: la
+de familiasEnProsa() guarda POR QUE son siete y no diez —LEX, EXEC y PTSA fuera, porque sus reglas
+no viven en RULES.md— y la de ordenDePrefijos() guarda el ORDEN RELATIVO, no la igualdad. Esa
+ultima era la mas facil de estropear: cambiar «igual a la lista» por «contiene la lista» habria
+dejado de comprobar el orden, y CORE.md se emite con el. Se comprueba la SUBSECUENCIA.
+
+Y LOS BLOQUES DE CORE SE COMPLETAN, NO SE REESCRIBEN. Llevan la sintaxis de cada comando —«delta QA
+PT-XXX», «promote FPGE R-NNN»— que no sale de ningun contrato: derivarlos enteros la habria
+perdido, y CORE.md es lo unico que el agente carga para saber invocarlos. Tres lineas de colador:
+lo redactado manda, y lo que falte se anade. AL APLICARLO APARECIO ALGO QUE NADIE BUSCABA: FIDE NO
+ESTABA EN EL MAPA DE FASES, teniendo fases: [1, 5] declaradas desde PT-144. Cinco de seis
+tecleados, y el ausente no daba error.
+
+TODO OCURRE SOBRE COPIAS, Y NO POR COMODIDAD. AC-06 pide que el componente de prueba no quede
+declarado NI AUNQUE EL CASO FALLE A MITAD. Con un trap eso depende de acordarse de escribirlo y de
+que el trap no falle; sobre copias es ESTRUCTURALMENTE IMPOSIBLE incumplirlo. El HANDOFF ya avisaba
+del filo vecino: no editar selftest.sh mientras corre, porque bash lo lee por desplazamiento de
+bytes.
+
+LOS TRECE CASOS, Y POR QUE DOS DE ELLOS NO ASERTAN SOBRE LO NATURAL. Lo natural seria buscar «Zeta
+PHASE 1» en la salida de audit. NO VALE: esa linea solo se emite como HUECO, y audit da por
+cubierta una fase si el NUMERO aparece en cualquier sitio del documento. Un caso apoyado ahi
+pasaria POR EL FALSO POSITIVO — que es exactamente el defecto que PT-156 saco de los tres casos
+invertidos de PT-147, aplicado aqui ANTES de escribir el caso en vez de despues de verlo en rojo.
+
+Archivos modificados: tools/verify-patrones.mjs · tools/build-core.mjs · tools/selftest.sh ·
+  CASOS-DE-USO.md · CORE.md (generado)
+
+Medido: de tools/ el alta toca UN archivo, el contrato · un septimo componente entra solo en CORE con sus fases y su
+  trigger · FIDE aparece en el mapa de fases por primera vez · la baja deja el arbol con CERO
+  diferencias · CERO rastros de Zeta en el arbol real tras la bateria · selftest 1736 -> 1749
+  casos · las 263 reglas siguen siendo 263.
+
+Evidencia: evidence/PT-149/ — manifest con 6 AC y 4 RC, self-review, y sus salidas.
+
+Y DOS ERRORES MIOS, LOS DOS CAZADOS POR LA BATERIA:
+
+1. ESCRIBI EL FIXTURE TOCANDO SOLO EL CONTRATO, que es lo que AC-01 pedia y lo que yo mismo habia
+   medido como falso horas antes. Tres de los seis rojos de la primera pasada son mis propias
+   comprobaciones cazandolo. AC-01 y AC-03 se REFORMULAN a lo medido, y quedan MAS FUERTES: lo que
+   SUITE-R60 promete no es «un solo archivo» sino que NO SE TOQUE NINGUNA HERRAMIENTA.
+
+2. DI POR ROJA LA BATERIA FINAL POR EL CODIGO DE SALIDA. El comando terminaba en grep -c, que
+   devuelve 1 cuando la cuenta es CERO: el arnes reporto fallo sobre una bateria EN VERDE. Misma
+   familia que el error ya medido en este repositorio —leer el exit de una tuberia como si fuera
+   el del verificador— por el otro extremo, y se resolvio igual: MIRANDO EL ARCHIVO.
+
+3. AC-06 SE ESCRIBIO SIN ESCENARIO, declarandolo «estructural: todo ocurre sobre copias».
+   verify-fdge lo rechazo como Orphan Criterion (FDGE-R15) y tenia razon: «es imposible por
+   diseno» es justo la clase de afirmacion que este lote existe para no aceptar sin medir. Ahora
+   TS-12 lo comprueba donde una fuga existiria — despues de once altas y once bajas.
+
+Y UNO ENCONTRADO EN LA COMPUERTA: tracker aplazar --de escribia «aplazamiento.de» y SUITE-R44
+comprueba la reciprocidad sobre «origin». Un hecho con dos nombres (CE-008) en la herramienta que
+gobierna los aplazados — y como LEX-R34 declara ese comando la UNICA via sancionada, un aplazado
+creado como manda el marco NO PODIA satisfacer la regla del marco: habia que editar REGISTRY.json
+a mano, que es lo que tracker.mjs:2590 condena. Corregido en la HERRAMIENTA, no en el registro.
+
+DOS HALLAZGOS:
+  PT-168 (S1)  audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier
+               sitio del documento, sin mirar de quien es. De las TRES dimensiones que exige por
+               fase, SOLO UNA discrimina. La cifra que publica cuenta como verificado lo que
+               ninguna maquina distingue de su ausencia. No se arregla aqui: ponerlo en rojo es
+               trabajo con su propia medicion, no un paso de la tarea que lo encontro.
+  PT-165       ABSORBIDA. Se abrio en PT-156 por el mapa de fases tecleado, y es exactamente lo
+               que AC-02 necesitaba derivar.
+
+LO QUE NO ESTABLECE: que el componente de prueba FUNCIONE. No tiene fases reales, ni prompts, ni
+especificacion. Se prueba el alta y la baja, no el componente.

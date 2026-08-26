@@ -3767,3 +3767,305 @@ Es un coste real y lo asume quien lo autoriza.
 
 **El commit sigue siendo atómico.** `FDGE-R19` pide un commit por cambio lógico y eso **no** se
 relaja: cada tarea lleva el suyo, citando su `PT`.
+
+---
+
+## 2026-08-24 · `EP-022` · autorización de firma delegada   `EXEC-R04a` · `SUITE-R27`
+
+**Autorización del firmante, literal:** *«tienes mi VoBo, firma todo en mi nombre me parece
+correcto. La divergencia de SEVERIDADES entra en el lote como BUG propio. Confirmo S2 y te doy el
+VoBo para todas las firmas. No comiences aún, crea la siguiente épica que no quiero que se me
+olvide ni pase nada»* — Alberto Martínez.
+
+`EP-021` dejó escrito que **la excepción no se hereda**: el siguiente lote vuelve a necesitar
+autorización. Esta es la de `EP-022`.
+
+**Qué autoriza, enumerado:**
+
+1. **`G1` de `EP-022`**, sobre el alcance escrito en su intake §1, §2 y §3 — con la modificación
+   de alcance que él mismo decidió: `PT-150` **entra** al lote como `BUG` propio, cuando el
+   borrador lo declaraba `OUT`.
+2. **La severidad `S2` del lote**, confirmada explícitamente. `INTAKE-R04` la reserva al humano y
+   `FDGE-R51` hace que las siete tareas la hereden.
+3. **La firma por lote de los siete Intakes** (`INTAKE-R08`): `PT-144` a `PT-150`.
+
+**Qué NO autoriza — y no por prudencia del agente, sino porque no se pidió:**
+
+- **Empezar el trabajo.** Lo dice literal: *«no comiences aún»*. `EP-022` queda `READY` con `G1`
+  resuelta y **ninguna** tarea iniciada.
+- **`G2`, `G3` y `G4`.** «Todas las firmas» se lee aquí como *las firmas de esta admisión*, no
+  como un cheque en blanco sobre compuertas que aún no existen. `G4` es además `SUITE-R06a`.
+- **El cierre de `PT-150`**, que es el único `BUG` del lote (`SUITE-R06b`, `FDGE-R26`). Se
+  detendrá en `VALIDATION_PENDING` y esperará.
+- **`npm publish`.** Reservado desde el 2026-08-24 y no revocado.
+- **Reescribir historia o `push --force`** (`SUITE-R06f`).
+- **Regenerar el grafo** (`FDGE-R32`). Sigue `SUSPECT`.
+
+Si quiere extenderla a `G2`/`G3` y a la validación de `PT-150` —como hizo en `EP-021`— basta con
+decirlo y se enumera aquí. **Interpretar «todas las firmas» como si ya las cubriera sería
+convertir una autorización amplia en una autorización universal**, y es exactamente la operación
+que `SUITE-R27` existe para hacer visible.
+
+**Lo que esta autorización no cambia.** `SUITE-R27` dice que una firma **no prueba** que firmara
+una persona: el agente escribe el archivo. Lo que hace es convertirla en una afirmación
+contrastable, y esta entrada es el contraste.
+
+### Lo que la admisión de `EP-022` encontró antes de empezar
+
+Dos hallazgos, ninguno de ellos por ejecutar el lote:
+
+1. **`audit.mjs` tiene dos mapas por componente y discrepan.** `FPGE` está en `PROMPTS` y no en
+   `esperadas`; `FIDE` no está en ninguno. **Dos de los seis componentes no tienen auditadas sus
+   fases.** Salió de verificar una frase que el propio agente había escrito mal en el intake de
+   `PT-147`, no de ejecutar nada. Subió el conteo del lote de trece sitios a catorce.
+
+2. **La escala de severidad diverge en los dos extremos, y ya dejó rastro en el registro.**
+   `tracker.mjs:2556` declara `['S0','S1','S2','S3']` y se lo atribuye a `LEXICON`, que declara
+   `S1 S2 S3 S4` y no menciona `S0`. En el registro hay **cuatro** allocations con `S4`
+   —severidad que la herramienta rechaza— y **una** con `S0` —que `LEXICON` no reconoce—, las
+   cinco `INTEGRATED`: se escribieron rodeando la herramienta. Es `PT-150`.
+
+### Estado al cerrar esta entrada
+
+| | |
+|:---|:---|
+| Modo de ejecución | `SUPERVISED` (`EXEC-R02`) |
+| suite_version | `13.1.0` |
+| Rama | `trabajo` · 3 commits por delante de `main` (el viaje de vuelta de `EP-021`, pendiente) |
+| Lotes abiertos | `EP-022` `READY` · `EP-023` `DRAFT` |
+| PTs vivos | `PT-144`..`PT-150` en `PHASE 1` · `PT-025` `DEFERRED` (arrastre aceptado) |
+| Trabajo iniciado | **ninguno** — por instrucción explícita del firmante |
+| Espejo | **pendiente**: siete allocations vivas sin issue (`SUITE-R35`), a la espera de autorización para publicar en GitHub |
+
+### Ampliación de la autorización — mismo día
+
+**Segunda instrucción del firmante, literal:** *«sí las dos. Firma la EP-023 y que esté todo en
+github antes de empezar. Avísame cuando esté todo para comenzar con la épica 22»* — Alberto
+Martínez.
+
+**Qué añade a lo autorizado arriba:**
+
+6. **Publicar el espejo en GitHub** (`SUITE-R35`): crear el issue de las nueve allocations vivas.
+   Es una acción **hacia afuera** sobre un repositorio público, y por eso no se hizo antes sin
+   pedirla.
+7. **Commit del trabajo de admisión** en `trabajo`.
+8. **`G1` de `EP-023`.**
+
+**Y `EP-023` se firmó sobre un `CHALLENGE`, no sobre un `PASS`.** El agente desafió la admisión
+(`INTAKE-R07`): `DoR-E6` exige que cada PT del lote tenga su Intake completo y `EP-023` **no tiene
+tareas**, así que el criterio no se puede satisfacer hoy. Se le dijo antes de firmar; ordenó
+firmar igualmente. La plantilla de lote contempla el caso —`VEREDICTO: CHALLENGE` con la línea
+`CHALLENGE aceptado por`—, de modo que el lote avanza **y el hueco sigue en rojo en su §9**. No se
+convirtió el desafío en un verde: se dejó escrito quién decidió proceder con él delante.
+
+Lo que firmó de `EP-023` es su **alcance** —las quince decisiones de §1, el criterio de éxito y el
+out-of-scope— y la decisión de abrirlo ya para no perderlas. **No** firmó un plan de tareas,
+porque no existe. Las tareas que se abran bajo `EP-023` llevarán su `Firmado por lote: EP-023` y
+esta firma las cubrirá desde que existan (`INTAKE-R08`).
+
+**Qué sigue SIN autorizar, y no ha cambiado:**
+
+- **`G2`, `G3` y `G4`** de cualquiera de los dos lotes. `G4` es `SUITE-R06a`.
+- **El cierre de `PT-150`**, único `BUG` (`SUITE-R06b`, `FDGE-R26`).
+- **`npm publish`** (`SUITE-R06g`). Reservado, sostenido a lo largo de seis lotes.
+- **Reescribir historia o `push --force`** (`SUITE-R06f`).
+- **Regenerar el grafo** (`FDGE-R32`). Sigue `SUSPECT`.
+- **Empezar `EP-022`.** Pidió aviso: *«avísame cuando esté todo para comenzar»*. El lote queda
+  admitido, publicado y **parado**.
+
+### Excepción declarada a `FDGE-R19` para el trabajo de lote de `EP-022` y `EP-023`
+
+`FDGE-R19` pide que el asunto de cada commit cite un `PT`. El trabajo **de lote** —abrir los dos
+lotes, firmar sus `G1`, publicar su espejo— no pertenece a ninguna tarea: citar un `PT` sería
+atribuirle a esa tarea un acto que no es suyo.
+
+Ese commit cita **`EP-022`**, y esta es la **excepción declarada** que la propia regla contempla,
+con el mismo criterio que las de `EP-019`, `EP-020` y `EP-021`.
+
+Sigue siendo un rodeo **forzado**, no elegido. La pregunta de fondo —si el trabajo de lote puede
+citar el `EP`— continúa abierta sobre `FDGE-R19`, y ya lleva cuatro lotes abierta.
+
+### Y la rama del lote hubo que inventarla otra vez — cuarto lote seguido
+
+`tracker rama EP-022` **se niega a proponer un nombre**, y tiene razón:
+
+```
+EP-022 no declara «type», asi que NO hay nombre de rama que proponer.
+El <type> de una rama es el «type» del item en minusculas, que declara LEXICON §4.1
+y escribe el registro (FDGE-R19). Sin el, cualquier nombre seria inventado.
+```
+
+Es la contradicción que `PT-142` dejó documentada y sin cerrar: **`FDGE-R19` manda nombrar la
+rama con el `type` del lote y `LEX-R27` prohíbe que un lote tenga `type`**. `LEXICON` manda sobre
+`RULES` (`LEX-R21`), así que la rama de un lote **no tiene forma derivable**, y la herramienta
+devuelve `null` para que nadie la invente.
+
+Se inventó igual, con el nombre del precedente:
+
+```
+chore/alberto-martinez/EP-022-apertura
+```
+
+Mismo patrón que `EP-019`, `EP-020` y `EP-021`. **Es la cuarta vez que el marco obliga a
+rodearse**, y conviene que la cuenta esté escrita: `PT-142` cerró el caso de una rama que **no
+se contrasta**, no el de una rama que **no se puede nombrar**.
+
+Y hay un dato nuevo, del intento de hoy: **`trabajo` está protegido en GitHub** y exige el check
+`marco`, así que el push directo se rechaza —`protected branch hook declined`—. El commit se
+había hecho sobre `trabajo` local; se movió a su rama y `trabajo` volvió a `origin/trabajo` sin
+perder nada. La protección hace **mecánico** lo que `CLAUDE.md` ya decía en prosa: a `trabajo` se
+llega por merge, no por push. Es una buena noticia, y estaba sin registrar.
+
+**El PR de este trabajo a `trabajo` NO es `G4`**: es revisión (`FDGE-R19`, `EXEC-R03`). `G4` es el
+merge de `trabajo` a `main`, y sigue sin autorizar.
+
+### Ampliación 2 — autorización para ejecutar `EP-022` entero
+
+**Instrucción del firmante, literal:** *«en cuanto esté listo, mientras sigas el marco de trabajo
+tienes mi vobo para trabajar. Desde lo necesario para pasar de gates hasta la publicación a main
+y que no queden ramas sueltas o adicionales para que tengas la facilidad de ir pasando lo
+necesario. Así no paras hasta terminar la épica 22»* — Alberto Martínez.
+
+Y sobre el grafo, preguntado expresamente: *«lo del grafo, te lo autorizo desde ahora, de hecho,
+lo deberías de actualizar antes de comenzar y luego al final de cada tarea si sirve de algo, si
+no al final de la épica»* → resuelto en **dos regeneraciones**: ahora y al cerrar.
+
+**Qué autoriza, enumerado:**
+
+9.  **`G2` y `G3`** de las siete tareas, firmadas en su nombre.
+10. **`G4`**: el merge de `trabajo` a `main` (`SUITE-R06a`).
+11. **La validación humana de `PT-150`**, único `BUG` del lote (`SUITE-R06b`, `FDGE-R26`). Sin
+    esto se detendría en `VALIDATION_PENDING` y el lote no cerraría.
+12. **Modificar `docs/methodology/`** (`SUITE-R06e`), que es donde vive el lote entero.
+13. **Borrar ramas remotas** (`SUITE-R06f`) — *«que no queden ramas sueltas o adicionales»*.
+14. **Regenerar el grafo** (`FDGE-R32`), que llevaba `SUSPECT` desde el 2026-08-20.
+
+**Qué NO autoriza, y sigue reservado:**
+
+- **`npm publish`** (`SUITE-R06g`). «Publicación a `main`» es el merge, no el paquete. Reservado
+  a lo largo de seis lotes y **no revocado**. El agente no la ejecuta.
+- **Reescribir historia o `push --force`** (`SUITE-R06f` en su otra mitad). Lo autorizado es
+  borrar ramas ya fusionadas, no reescribir.
+
+### La cadencia del grafo, decidida con datos
+
+El agente propuso **tres** regeneraciones y el firmante eligió **dos**. Lo que se midió para
+proponerlo:
+
+```
+scope del grafo   bin, docs/methodology/tools   ← exactamente lo que EP-022 reescribe
+archivos          17: las 16 herramientas + bin/cauce.mjs
+generado          2026-08-20 · PT-93 · SUSPECT (6 de 17 cambiados)
+```
+
+- **Antes de empezar**: sí. No por `SUITE-R57`, sino porque `PHASE 2` de cada tarea lee el grafo
+  para el análisis de acoplamiento (`FDGE-R08`), y `PT-144` crea el contrato del que van a colgar
+  cuatro herramientas. Con el grafo `SUSPECT` ese análisis se hace a mano.
+- **Al final de cada tarea**: descartado. Serían siete regeneraciones de los mismos 17 archivos,
+  cada una invalidada por la siguiente, que toca el mismo directorio. El grafo se **consume** al
+  principio de `PHASE 2`, no al final de `PHASE 8`.
+- **Al cerrar**: sí, obligatorio — `sellar` lo exige al día (`SUITE-R57`).
+
+El agente señaló que `PT-144` es la única tarea que **mueve la topología** —crea aristas nuevas,
+no cambia de dónde sale un dato— y propuso una tercera regeneración ahí. El firmante decidió dos.
+**Si el análisis de `PT-145` la echa en falta, se dice y se pregunta; no se regenera por cuenta
+propia ni se calla.**
+
+### Línea base antes de tocar nada
+
+```
+npm run verify   EXIT=0   ·   selftest: OK · 1695 casos
+espejo           cuadra: 10 allocations vivas, 10 issues
+PR #288          abierto · chore/alberto-martinez/EP-022-apertura -> trabajo
+```
+
+Es la línea base contra la que se compara todo lo que venga (supuesto compartido de `EP-022` §7).
+
+### Borrado de cuatro ramas remotas   `SUITE-R06f`
+
+Autorizado explícitamente: *«que no queden ramas sueltas o adicionales»*. `SUITE-R06f` no lo
+automatiza, así que se comprobó antes de cada borrado que **nada colgaba**:
+
+```
+git log origin/trabajo..origin/<rama>     0 commits en las tres de trabajo
+git log origin/main..origin/desarrollo    vacio
+```
+
+| Rama | Por qué se borra |
+|:---|:---|
+| `chore/…/EP-022-apertura` | fusionada en `#288` |
+| `chore/…/PT-144-el-contrato-de-componentes` | su PR `#289` se cerró como superado; el contenido entró por `#290` |
+| `bug/…/PT-150-la-escala-de-severidad-se-declara` | fusionada en `#290`, borrada por el propio merge |
+| **`desarrollo`** | **el arrastre que `CLAUDE.md` declaraba desde Foundation** |
+
+**`desarrollo` merece decirse.** El `CLAUDE.md` del repositorio lleva declarándola sobrante desde
+que Foundation la registró como divergencia `D8`: *«este documento describía `desarrollo` como la
+rama de trabajo mientras el trabajo ocurría en `trabajo`, así que la compuerta `G4` estaba escrita
+sobre una rama que nadie usaba»*. Quedaba como acción humana pendiente, con su comando escrito y
+la condición «cuando confirmes que no cuelga nada de ella».
+
+Se confirmó —`origin/main..origin/desarrollo` está vacío— y se borró. **El `CLAUDE.md` sigue
+describiéndola como pendiente**, así que su párrafo queda desactualizado: es trabajo de
+`docs/methodology`/`CLAUDE.md` y no de `EP-022`, y se declara aquí en vez de tocarlo de paso.
+
+Quedan tres ramas remotas: `main`, `trabajo` y `cauce/alberto-martinez` —la de proyección, que
+`SUITE-R56` necesita viva para que el rastro de una tarea sobreviva a su rama.
+
+---
+
+## 2026-08-26 · Autorización expresa de excepción a `SUITE-R06`   `EXEC-R07`
+
+`SUITE-R06` declara siete acciones que **no se automatizan en ningún modo**. La regla de
+cumplimiento del `CLAUDE.md` prevé la única salida: *«hasta que un humano autorice la excepción
+**dejando registro de esa autorización**»*. Esto es ese registro, escrito **antes** de usarla.
+
+**Quién.** Alberto Martínez, firmante declarado en `CLAUDE.md` (`SUITE-R27`).
+
+**Qué autoriza, literalmente**, en la sesión del cierre de `EP-022`:
+
+> *«para el bug te doy el vobo y sí puedes hacer el merge, quiero que veas que corre bien y sin
+> errores»*
+
+**Alcance, y sólo éste:**
+
+| Acción | Cláusula | Qué queda cubierto |
+|:---|:---|:---|
+| Cerrar `PT-150` | `SUITE-R06b` | `tracker validar PT-150`, el único `BUG` de `EP-022`. Su trabajo y su evidencia están completos desde `PHASE 8`: lo que faltaba era la firma |
+| Merge a `main` | `SUITE-R06a` | La compuerta `G4` de `EP-022`. El motivo declarado por el firmante es **verlo correr sin errores**, así que la condición es que `verify-fdge --gate G4` pase **antes**, no que el merge ocurra |
+
+**Qué NO cubre, y sigue sin cubrir:**
+
+- `npm publish` — excluido por el firmante en la misma sesión: *«Excepto publicar»*. `SUITE-R06`
+  no lo lista, pero el firmante lo reserva, y una reserva del firmante manda sobre la delegación.
+- `push --force` ni reescritura de historia (`SUITE-R06f`).
+- Cualquier otro lote. Esta autorización es de `EP-022` y muere con él.
+
+**Lo que esta autorización no convierte en cierto.** No prueba que firmara una persona —el agente
+escribe el archivo—, exactamente como `SUITE-R27` dice de cualquier firma. Lo que hace es dejar la
+afirmación **contrastable**: el nombre está en `firmantes`, la frase es literal, y quien aparece
+en esa lista responde de lo que lleva su nombre.
+
+### Ampliación — misma sesión, 2026-08-26
+
+Preguntado por la rama remota `refactor/alberto-martinez/PT-146-build-core-deja-de-escribirlos`,
+que `G4` marca como error y cuyo borrado es `SUITE-R06f`, el firmante amplía:
+
+> *«también autorizo la rama y lo necesario para todo y cualquier cosa que necesites para terminar
+> ésta épica y quede limpio»*
+
+**Qué añade.** `SUITE-R06f` para el **borrado de esa rama remota**, y lo que haga falta para cerrar
+`EP-022` dejando el árbol limpio.
+
+**Qué sigue sin cubrir, y no lo cubre una autorización amplia:**
+
+- **`npm publish`.** El firmante lo reservó expresamente en esta misma sesión —*«Excepto
+  publicar»*— y una reserva explícita no la deroga una autorización general posterior que no la
+  menciona. Ante la duda, manda la reserva.
+- **Reescribir historia** (`push --force`, `rebase` sobre lo publicado). No hace falta para cerrar
+  el lote, así que no entra: *«lo necesario»* es un límite, no un cheque en blanco. Si apareciera
+  la necesidad, se pregunta.
+- **Cualquier trabajo fuera de `EP-022`.** `EP-023` y `EP-024` siguen intactos y sin autorización.
+
+`EXEC-R07` pide detenerse en el punto exacto y **describir el comando**. Con autorización, lo que
+se conserva es la otra mitad: **cada acción irreversible queda escrita con lo que se ejecutó y por
+qué**, aquí y en `HISTORY.log`. La delegación cambia quién aprieta el botón, no si queda rastro.

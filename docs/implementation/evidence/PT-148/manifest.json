@@ -1,0 +1,68 @@
+{
+  "pt": "PT-148",
+  "generated": "2026-08-25",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "LEXICON declara el contrato de componente y sus campos, y es su documento propietario",
+      "tests": ["verify-suite: sin vocabulario derogado ni nombres duplicados"],
+      "evidence": ["salidas/core-diff.out"],
+      "verified": true,
+      "nota": "LEXICON §3.6 declara los NUEVE campos del componente y §3.7 la distincion componente/familia de reglas. Esa distincion no es teorica: explica por que build-core recogia SIETE familias de la prosa de RULES.md y emitia DIEZ — LEX, EXEC y PTSA no tienen sus reglas ahi. El campo que lo explica, «documento», ya estaba publicado en RULES.md; solo faltaba usarlo."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "RULES.md tiene la regla nueva con ID estable, severidad y propietario unico",
+      "tests": ["regla.mjs SUITE-R60 la resuelve", "verify-suite no la ve duplicada (SUITE-R14)"],
+      "evidence": ["salidas/core-diff.out"],
+      "verified": true,
+      "nota": "SUITE-R60. Y su enunciado declara lo que NO establece (SUITE-R26): no alcanza a patrones.mjs —donde los nombres viven—, ni a verify-patrones.mjs —que es su prueba—, ni al arnes, ni a una sigla que tambien es prefijo de identificador, que es ambigua POR DISENO (LEX-R03)."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "CASOS-DE-USO tiene la fila de alta y la de baja, con Entrada · Recorrido · Fin · Humano",
+      "tests": ["lectura contra el formato del catalogo", "verify-suite: sin obligaciones fuera de RULES.md"],
+      "evidence": ["salidas/core-diff.out"],
+      "verified": true,
+      "nota": "E5 y E6 CITAN la regla por su ID y no la enuncian (LEX-R22, y E4 del propio catalogo). E6 no es simetrico de E5 por casualidad: su «Fin» es que el arbol quede BYTE A BYTE como estaba, porque que la baja no deje residuo es la mitad de la propiedad — y es lo que PT-149 ejecuta."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Si la regla se marca CHECK, EXISTE el script que puede fallar (SUITE-R38)",
+      "tests": [
+        "selftest.sh:un literal de componente en una herramienta se caza",
+        "selftest.sh:…y dice cual es",
+        "selftest.sh:un comentario que cita un componente NO se caza",
+        "selftest.sh:…ni una ruta con join()",
+        "selftest.sh:…ni una ruta con barra dentro de las comillas",
+        "selftest.sh:…ni una sigla que tambien es prefijo de identificador",
+        "selftest.sh:sobre el arbol real no queda ningun literal"
+      ],
+      "evidence": ["salidas/barrido-primera-version.out", "salidas/barrido-final.out", "salidas/selftest-caza.out", "salidas/selftest-rutas.out"],
+      "verified": true,
+      "nota": "EL CRITERIO NO ES QUE CACE, ES QUE NO CACE COMENTARIOS. La primera version cazaba 33 sitios y NUEVE eran legitimos: 17 del test del contrato, 7 del arnes, 4 rutas con join(), 1 prefijo de identificador y 1 span de codigo markdown en prosa generada. Cada exclusion sale de un falso positivo REAL, y los CUATRO casos negativos existen para que nadie «mejore» el barrido hasta hacerlo insufrible — un verificador desactivado es peor que ninguno."
+    },
+    {
+      "ac": "AC-05",
+      "statement": "CORE.md y CORE-PTSA.md regenerados con build-core, no editados",
+      "tests": ["build-core --check", "lectura del diff"],
+      "evidence": ["salidas/build-core.out", "salidas/core-diff.out"],
+      "verified": true,
+      "nota": "El diff se LEYO, y por eso se encontro el error de IDs: LEX-R33 y LEX-R34 ya existian desde PT-137 y PT-138, y al regenerar las dos reglas VIEJAS DESAPARECIERON del nucleo. RC-01 no era «sin errores»: era que lo que cambiara fuera lo que se quiso cambiar."
+    }
+  ],
+  "regresion": [
+    {"rc": "RC-01", "statement": "CORE cambia solo por la regla y el vocabulario nuevos", "verified": true, "nota": "Y leerlo fue lo que destapo el duplicado de IDs."},
+    {"rc": "RC-02", "statement": "Ninguna regla existente cambia de enunciado ni de severidad", "verified": true, "nota": "Tras renumerar a LEX-R35 y LEX-R36, CORE vuelve a llevar las cuatro."},
+    {"rc": "RC-03", "statement": "El vocabulario nuevo no colisiona", "verified": true, "nota": "verify-suite sin errores de coherencia."},
+    {"rc": "RC-04", "statement": "La regla nueva PUEDE fallar", "verified": true, "nota": "Siete casos permanentes, y cuatro de ellos fijan lo que NO debe cazar."}
+  ],
+  "qa": "NO APLICA · QA-R01 exige navegador y este paquete no tiene interfaz.",
+  "hallazgos_con_tarea": [
+    "PT-163 · SUITE-R14 dice que verify-suite «rechaza cualquier definicion duplicada» y NO cazo dos reglas definidas dos veces DENTRO DEL MISMO DOCUMENTO: definidasDosVeces() compara ENTRE documentos, porque la regla dice «en dos documentos». Dos reglas vigentes desaparecieron de CORE.md sin que nada avisara.",
+    "PT-161 · CASOS-DE-USO afirma ser un «contrato de cobertura» —«un caso que no este aqui es un hueco declarado, no un silencio»— y nada lo comprueba. Ha fallado dos veces en este trabajo: DICTAMEN y esta misma alta/baja."
+  ],
+  "fallos_de_metodo": [
+    "El escape se degrado DENTRO del verificador que persigue esa clase: la exclusion de rutas quedo como un patron con el escape de limite de palabra DEGRADADO al byte 0x08 —un byte de control donde debia ir un limite de palabra— y el regex compilaba SIN CASAR NADA. Novena instancia medida de SUITE-R59 en este repositorio. No se encontro leyendo: salio mirando los BYTES con cat -A. Y no se arreglo reescribiendo el escape sino QUITANDO EL REGEX. Las ocho anteriores las cazo verify-patrones, porque los patrones de PATRONES viajan con sus ejemplos; esta NO LA CAZO NADA — era un regex suelto dentro de un if, sin contrato."
+  ]
+}
