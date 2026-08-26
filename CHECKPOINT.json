@@ -2,9 +2,9 @@
   "pt": "PT-147",
   "type": "REFACTOR",
   "epic": "EP-022",
-  "status": "DRAFT",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "refactor/alberto-martinez/PT-147-audit-deja-de-escribirlos",
   "sha": "3f9f87d7616ce5e91a225413da43faa95bd17c27",
   "sha_corto": "3f9f87d",
@@ -22,8 +22,11 @@
     "docs/methodology/tools/audit.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-25"
 }
