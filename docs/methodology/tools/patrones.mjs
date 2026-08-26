@@ -1402,6 +1402,7 @@ export const PREFIJOS_DE_ID = ['PT', 'EP', 'QA', 'QR', 'QD', 'H', 'E', 'P', 'R',
 export const COMPONENTES = [
   {
     nombre: 'FDGE',
+    prompts: 'FDGE-Prompts.md',
     sigla: 'FDGE',
     prefijo: 'FDGE',
     directorio: null,
@@ -1414,6 +1415,7 @@ export const COMPONENTES = [
     // LEX-R03 · se llama FQAGE en prosa normativa y QA en triggers, rutas y nombres de archivo.
     // No se admite una tercera grafia. `audit.mjs` usa hoy la SIGLA como clave, no el nombre.
     nombre: 'FQAGE',
+    prompts: 'QA/QA-Prompts.md',
     sigla: 'QA',
     prefijo: 'QA',
     directorio: 'QA',
@@ -1426,6 +1428,7 @@ export const COMPONENTES = [
     // SUITE-R25 · sus 82 reglas van a un overlay propio, CORE-PTSA.md, que solo se carga con
     // [START PTSA]. Por eso `en_core` es false y no es un olvido.
     nombre: 'PTSA',
+    prompts: 'PTSA/PTSA-Prompts.md',
     sigla: 'PTSA',
     prefijo: 'PTSA',
     directorio: 'PTSA',
@@ -1437,6 +1440,7 @@ export const COMPONENTES = [
   {
     // EL CASO QUE PRUEBA EL DISENO: nombre y sigla no coinciden.
     nombre: 'Foundation',
+    prompts: 'Foundation-Prompts.md',
     sigla: 'FND',
     prefijo: 'FND',
     directorio: null,
@@ -1451,6 +1455,7 @@ export const COMPONENTES = [
     // simetrica apagaria la comprobacion en silencio (RULE-06). Declarado en PT-144 out-of-scope:
     // escribir ese apartado es trabajo de LEXICON, no de una herramienta (LEX-R21).
     nombre: 'FPGE',
+    prompts: 'FPGE-Prompts.md',
     sigla: 'FPGE',
     prefijo: 'FPGE',
     directorio: null,
@@ -1464,6 +1469,7 @@ export const COMPONENTES = [
     // tras incubarlo. Es el hecho que `verify-suite.mjs:425` y `comparar-marco.mjs:39` escribian
     // cada una por su cuenta, con dos nombres distintos, sin importar ninguna de la otra.
     nombre: 'FIDE',
+    prompts: SIN_EVALUAR,
     sigla: 'FIDE',
     prefijo: 'FIDE',
     directorio: 'FIDE',
@@ -1518,12 +1524,23 @@ export const ordenDePrefijos = () => [...FAMILIAS].sort((a, b) => a.orden - b.or
 /** Los triggers de arranque de todos los componentes. → build-core.mjs:433-437 */
 export const triggers = () => COMPONENTES.flatMap((c) => c.triggers);
 
-/** El archivo de prompts de un componente. → audit.mjs:192-195 */
-export const promptsDe = (quien) => {
-  const c = componenteDe(quien);
-  if (!c) return null;
-  return c.directorio ? `${c.directorio}/${c.sigla}-Prompts.md` : `${c.nombre}-Prompts.md`;
-};
+/**
+ * El archivo de prompts de un componente, o SIN_EVALUAR si no tiene. → audit.mjs:192-195
+ *
+ * PT-147 · NO se deriva por regla. Se derivaba —directorio + sigla + «-Prompts.md»— y para FIDE
+ * daba «FIDE/FIDE-Prompts.md», que NO EXISTE: LEXICON §6.6 declara sus tres archivos y ninguno es
+ * de prompts. FIDE es el unico componente que opera ANTES de que la suite exista, asi que su
+ * texto de activacion es un CLAUDE.md anfitrion —FIDE-CLAUDE-Launcher.md—, no un *-Prompts.md
+ * dentro de una metodologia instalada.
+ *
+ * Es la misma leccion que «sigla» frente a «nombre»: una regla con una excepcion obliga a la
+ * siguiente excepcion a escribirse al lado. El dato se DECLARA.
+ *
+ * Y deja al descubierto una contradiccion que NO es de esta funcion: LEX-R15 dice que «todo
+ * componente tiene exactamente un archivo de prompts» y enumera CINCO, mientras LEXICON §6.6
+ * declara los de FIDE sin ninguno. Es PT-158.
+ */
+export const promptsDe = (quien) => componenteDe(quien)?.prompts ?? SIN_EVALUAR;
 
 /**
  * El rango de fases, o SIN_EVALUAR. → audit.mjs:197-202

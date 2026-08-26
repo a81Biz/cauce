@@ -214,7 +214,15 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       continue;
     }
 
-    const prompt = rd(promptsDe(comp)) ?? '';
+    // PT-147 · FIDE no tiene archivo de prompts, y no es un olvido: LEXICON §6.6 declara sus
+    // tres archivos y ninguno lo es. Es el unico componente que opera ANTES de que la suite
+    // exista, asi que su texto de activacion es un CLAUDE.md anfitrion.
+    //
+    // La dimension «prompts» no se evalua para el — y se DICE, no se da por buena. Un componente
+    // al que no se le puede exigir un archivo no es un componente que lo cumpla.
+    const rutaPrompt = promptsDe(comp);
+    const sinPrompts = rutaPrompt === SIN_EVALUAR;
+    const prompt = sinPrompts ? '' : (rd(rutaPrompt) ?? '');
     for (let n = rango[0]; n <= rango[1]; n++) {
       const falta = [];
       // Un documento puede declarar un rango («PHASE 2-4», «PHASE 11-12») o una línea
@@ -241,7 +249,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       const enCore = cubre(CORE);
       const enPrompt = cubre(prompt);
       if (!enPhases) falta.push('PHASES.md');
-      if (!enPrompt) falta.push(promptsDe(comp));
+      if (!enPrompt && !sinPrompts) falta.push(rutaPrompt);
       if (!enCore) falta.push('CORE.md');
       if (falta.length) gap('fase', `${comp} PHASE ${n}`, `ausente en: ${falta.join(', ')}`); else tick('fase');
     }
