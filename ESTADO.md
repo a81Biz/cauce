@@ -29,5 +29,5 @@ Proyectado el 2026-08-26 · 22 allocation(es) viva(s).
 | PT-166 | CHORE | DEFERRED | 1 | — | — | — |
 | PT-167 | BUG | DRAFT | 1 | — | — | — |
 | PT-168 | BUG | DRAFT | 1 | — | — | — |
-| PT-169 | CHORE | DRAFT | 2 | — | — | — |
+| PT-169 | CHORE | DRAFT | 3 | — | — | — |
 | PT-170 | BUG | DEFERRED | 1 | — | — | — |
