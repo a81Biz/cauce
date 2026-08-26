@@ -37,6 +37,8 @@ import { fileURLToPath } from 'node:url';
 import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
 // PT-147 · los componentes, sus fases, su archivo de prompts y su sigla — del contrato.
 import { COMPONENTES, fasesDe, promptsDe, siglaDe, SIN_EVALUAR } from './patrones.mjs';
+// PT-167 · los casos invertidos: los que solo pasan mientras existe el defecto que vigilan.
+import { identificadoresDeHueco, casosInvertidos } from './patrones.mjs';
 
 // PT-156 · QUE UN COMPONENTE ENTRE EN LA AUDITORIA SOLO SE VEIA CUANDO FALLABA. Las lineas
 // «<comp> PHASE <n>» solo se emiten como HUECO, asi que los tres casos de PT-147 que afirmaban
@@ -245,9 +247,56 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       const falta = [];
       // Un documento puede declarar un rango («PHASE 2-4», «PHASE 11-12») o una línea
       // compacta de componente («FND 0 Recon · 1 Reconciliation · …»). Ambas cuentan.
-      const cubre = (txt) => {
-        if (txt.includes(`PHASE ${n} `) || txt.includes(`PHASE ${n}·`) || txt.includes(`PHASE ${n}\n`)) return true;
-        for (const m of txt.matchAll(/PHASE\s+(\d+)\s*[-–]\s*(\d+)/g)) {
+      // PT-168 · LA BUSQUEDA GENERICA SE ACOTA A LA SECCION DEL COMPONENTE.
+      //
+      // Antes miraba el documento ENTERO: si contenia «PHASE 3 » daba cierto, y PHASES.md y
+      // CORE.md documentan las once fases de FDGE — asi que CUALQUIER fase de CUALQUIER
+      // componente entre 0 y 10 estaba «cubierta» en los dos, SIEMPRE.
+      //
+      // Lo grave no era que se equivocara: es que NO PODIA equivocarse. Acertaba para los seis
+      // componentes reales POR CASUALIDAD —PHASES.md tiene seccion para todos— y fallo la
+      // septima vez: PT-149 dio de alta un componente cuyo nombre y sigla aparecen CERO veces en
+      // esos documentos, y audit declaro sus tres fases cubiertas. La septima es justo el caso
+      // para el que sirve una comprobacion.
+      //
+      // No hay que inventar el dato: hay que DEJAR DE MIRAR DONDE NO TOCA. PHASES.md tiene
+      // encabezado por componente y CORE.md linea compacta por sigla.
+      const seccionDe = (txt) => {
+        const L = String(txt).split(SALTO);
+        const marcas = [comp, siglaDe(comp)];
+        let ini = -1;
+        for (let i = 0; i < L.length; i++) {
+          if (!L[i].startsWith('## ')) continue;
+          const t = L[i].slice(3).trim();
+          if (marcas.some((x) => t === x || t.startsWith(x + ' ') || t.startsWith(x + ' '))) { ini = i + 1; break; }
+        }
+        if (ini < 0) return null;
+        let fin = L.length;
+        for (let j = ini; j < L.length; j++) if (L[j].startsWith('## ')) { fin = j; break; }
+        return L.slice(ini, fin).join(SALTO);
+      };
+      const cubre = (txt, propio) => {
+        // RULE-06 · si el documento NO tiene seccion para este componente, la busqueda generica
+        // NO SE HACE: no saber donde mirar no es permiso para mirar en todas partes. La linea
+        // compacta por sigla, que si discrimina, se sigue intentando abajo sobre el texto entero.
+        // Y el archivo PROPIO del componente NO se acota: FDGE-Prompts.md es entero de FDGE, no
+        // tiene un «## FDGE» dentro. Acotarlo puso 46 huecos falsos en la primera corrida — el
+        // mismo error que se esta arreglando, cometido al arreglarlo: mirar donde no toca y
+        // mirar de menos son el mismo defecto con el signo cambiado.
+        const ambito = propio ? String(txt) : (seccionDe(txt) ?? '');
+        // Y dentro de la seccion, el formato COMPACTO cuenta: PHASES.md escribe PHASE 0 en PTSA
+        // y «1 FRESHNESS» en FPGE — las dos son la misma cosa, una fase con su nombre, y la
+        // segunda es la convencion de estos bloques densos; CORE hace igual con su linea por
+        // sigla. Leer solo una de las dos formas dejaba SEIS fases de FPGE como huecos falsos.
+        for (const l of ambito.split(SALTO)) {
+          const t = l.trim();
+          const m = /^(\d{1,2})(?:-(\d{1,2}))?[ \t]+[A-Za-z]/.exec(t);
+          if (!m) continue;
+          const a = Number(m[1]); const b = m[2] ? Number(m[2]) : a;
+          if (n >= a && n <= b) return true;
+        }
+        if (ambito.includes(`PHASE ${n} `) || ambito.includes(`PHASE ${n}·`) || ambito.includes(`PHASE ${n}\n`)) return true;
+        for (const m of ambito.matchAll(/PHASE\s+(\d+)\s*[-–]\s*(\d+)/g)) {
           if (n >= Number(m[1]) && n <= Number(m[2])) return true;
         }
         // PT-147 · era «comp === 'Foundation' ? 'FND' : comp» — no una lista repetida, sino UNA
@@ -265,7 +314,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       };
       const enPhases = cubre(PHASES);
       const enCore = cubre(CORE);
-      const enPrompt = cubre(prompt);
+      const enPrompt = cubre(prompt, true);
       if (!enPhases) falta.push('PHASES.md');
       if (!enPrompt && !sinPrompts) falta.push(rutaPrompt);
       if (!enCore) falta.push('CORE.md');
@@ -443,6 +492,30 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
   // golpe seria un cambio grande y ciego. Lo que la regla impide es que el PROXIMO se escriba sin
   // ella. Es la misma forma que la tabla de sujetos de SUITE-R09 —«crece por adopcion declarada»—
   // y por eso la cifra se publica CON SU DENOMINADOR: un porcentaje esconde si el total crecio.
+  // PT-167 · SUITE-R61 · CASOS QUE AFIRMAN COBERTURA BUSCANDO LA LINEA DEL HUECO.
+  //
+  // PT-147 escribio tres que buscaban «FIDE PHASE» en la salida de audit — una linea que SOLO se
+  // emite como HUECO. Pasaban PORQUE el componente FALLABA, y se pusieron en rojo el dia en que
+  // dejo de fallar: estuvieron en verde todo EP-022 afirmando lo contrario de lo que ocurria.
+  //
+  // Sale como CANDIDATO y no como hueco, y no por indulgencia: un caso que prueba que una regla
+  // PUEDE FALLAR asierta exactamente eso y es lo CONTRARIO de un defecto —PT-149 tiene tres—. La
+  // diferencia es de INTENCION y la intencion no esta en el texto (SUITE-R26). Un barrido que los
+  // matara se desactivaria en la primera corrida, y un verificador desactivado es peor que ninguno.
+  {
+    const fuentes = tools.filter(([f]) => f.endsWith('.mjs'))
+      .map(([f]) => rd(f) ?? '').filter(Boolean);
+    const valores = COMPONENTES.flatMap((c) => [c.nombre, siglaDe(c.nombre)]);
+    const ids = identificadoresDeHueco(fuentes, valores);
+    const inv = casosInvertidos(selftest, ids);
+    if (inv.length) {
+      warn('SUITE-R61', `${inv.length} caso(s) asertan sobre el IDENTIFICADOR de un hueco: `
+        + inv.map((x) => `:${x.linea} «${x.caso}» → «${x.hueco}»`).join(' · ')
+        + '. Un caso asi pasa MIENTRAS el hueco existe y se pone en rojo cuando se arregla. '
+        + 'Es CANDIDATO, no defecto: un caso que prueba que una regla puede fallar asierta lo mismo.');
+    }
+  }
+
   {
     const lineas = selftest.split(String.fromCharCode(10));
     const mutan = lineas.filter((l) => !l.trimStart().startsWith('#')

@@ -9758,3 +9758,132 @@ y es PT-167. Y el suelo de 47 s siguen siendo 211 reconstrucciones de un arbol i
 
 UN HALLAZGO: PT-171 — con las secciones acotadas, ordenes de primer nivel escriben en stderr sobre
 el esqueleto. No altera veredictos; es ruido que puede tapar un mensaje real.
+
+## PT-167 — un caso que afirma cobertura buscando la linea del hueco
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-011 — un arreglo deja tests del estado anterior
+
+PT-147 escribio tres casos para afirmar que los seis componentes entran en la auditoria de fases,
+buscando la cadena FIDE PHASE en la salida de audit. ESA LINEA SOLO SE EMITE COMO HUECO: los tres
+pasaban PORQUE FIDE, FPGE y Foundation FALLABAN, y se pusieron en rojo el dia en que dejaron de
+fallar. Estuvieron en verde TODO EP-022 afirmando lo contrario de lo que ocurria. Es RULE-02 por el
+reverso: EL EXITO DEL CASO ERA EL FALLO DEL SISTEMA.
+
+SE DESCARTARON DOS CRITERIOS ANTES DE DAR CON EL BUENO, Y LAS CIFRAS LO DICEN:
+
+    comparar con la EXPLICACION del hueco                       30 falsos positivos
+    comparar con el ESQUELETO del identificador                  9 falsos positivos
+    el IDENTIFICADOR INSTANCIADO con los valores del contrato     0
+
+La palabra PHASE aparece en media metodologia; FIDE PHASE no aparece en NINGUN documento — solo lo
+emite audit, y solo cuando algo falta. La diferencia entre los tres criterios no es de estilo: es
+la que decide si el barrido sobrevive a su segunda semana. Uno con 30 falsos positivos no es peor:
+SE DESACTIVA EN LA PRIMERA CORRIDA, y un verificador desactivado es peor que ninguno (SUITE-R60).
+
+SALE COMO CANDIDATO, NO COMO FALLO. Un caso que prueba que UNA REGLA PUEDE FALLAR asierta
+exactamente lo mismo que uno invertido, y es lo CONTRARIO de un defecto: PT-149 tiene tres, y son
+lo que impide que su correccion fuera un apagado disfrazado. La diferencia es de INTENCION y la
+intencion no esta en el texto (SUITE-R26). Por eso hay TRES casos que fijan que NO los mate.
+
+Y LOS CUATRO CONOCIDOS ENTRAN COMO FIXTURE. PT-156 los reescribio, asi que el arbol da CERO. Un
+barrido que no caza nada ES INDISTINGUIBLE DE UNO ROTO — la trampa que PT-095 documento con su
+inversa en cero.
+
+DOS ERRORES MIOS:
+
+1. UN CASO QUE NO PODIA PASAR. Escribi un chk que esperaba la cadena SUITE-R61 de la salida de un
+   grep contador, que devuelve UN NUMERO. Salio en rojo en su primera corrida — que es lo que un
+   caso mal escrito debe hacer. Es el patron HUECO por el otro lado: no finge probar, ES QUE NO
+   PUEDE, y la diferencia entre los dos es que el hueco sale VERDE.
+
+2. EDITE audit.mjs CON LA BATERIA CORRIENDO. Dos rojos que eran una FOTO MOVIDA: la corrida midio
+   audit en un estado intermedio. Comprobado despues: auditoria sin huecos, EXIT=0. La linea 3 del
+   «no hacer» decia «no editar selftest.sh mientras corre» y se AMPLIO: no es selftest.sh, es
+   CUALQUIER HERRAMIENTA QUE LOS CASOS INVOQUEN — audit la ejecutan cincuenta.
+
+Archivos modificados: tools/patrones.mjs · tools/audit.mjs · tools/selftest.sh · HANDOFF.md
+
+Medido: falsos positivos 30, 9 y 0 segun el criterio · 32 identificadores derivados · casos
+  invertidos en el arbol hoy: 0 · selftest 1752 a 1765 casos.
+
+Evidencia: evidence/PT-167/ — manifest con 4 AC y 3 RC, self-review, y dos salidas.
+
+LO QUE NO ESTABLECE: que no exista un caso invertido con OTRA FORMA. El barrido conoce lo que la
+emision de huecos produce hoy; una comprobacion que reporte de otra manera queda fuera, y se dice.
+
+## PT-168 — audit daba por cubierta una fase que NO ESTA en el documento
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-001 — el proxy en lugar del hecho
+
+La comprobacion devolvia cierto en cuanto la cadena PHASE seguida del numero aparecia EN EL
+DOCUMENTO ENTERO, sin mirar de quien era. Y PHASES.md y CORE.md documentan las once fases de FDGE,
+asi que CUALQUIER fase de CUALQUIER componente entre 0 y 10 estaba cubierta en los dos, SIEMPRE.
+
+LO GRAVE NO ERA QUE SE EQUIVOCARA: ES QUE NO PODIA EQUIVOCARSE. Acertaba para los seis componentes
+reales POR CASUALIDAD —PHASES.md tiene seccion para todos— y fallo la septima vez: PT-149 dio de
+alta un componente cuyo nombre y sigla aparecen CERO veces en esos documentos y audit declaro sus
+tres fases cubiertas. La septima es justo el caso para el que sirve una comprobacion, y como solo
+habia SEIS componentes, nadie podia verlo sin dar de alta un septimo.
+
+LA CIFRA NO BAJO, Y HAY QUE DECIRLO IGUAL. AC-03 pedia «si baja, baja y se dice»:
+
+    cobertura de clase fase        52  a  52
+    componente sin documentar      cubierto  a  HUECO
+
+Las 52 son las mismas y YA NO SIGNIFICAN LO MISMO: antes salian de que el NUMERO apareciera, ahora
+de la SECCION del componente. Los seis reales estaban bien documentados, asi que aciertan igual. La
+cifra publicada era CORRECTA POR CASUALIDAD, y lo que cambio no es cuanto se cubre sino que la
+cobertura PUEDA FALLAR.
+
+NO HABIA QUE INVENTAR EL DATO: HABIA QUE DEJAR DE MIRAR DONDE NO TOCA. PHASES.md tiene encabezado
+por componente y CORE.md linea compacta por sigla. La correccion RESTA alcance, no anade nada.
+
+TRES ERRORES MIOS, Y LOS TRES SON CREER UN INSTRUMENTO ANTES DE COMPROBARLO:
+
+1. «96 DE 96 SON FALSO POSITIVO» — y era MENTIRA. El regex de mi propio script de medicion se habia
+   degradado y el contraste por sigla daba 0 para todos. Fallo TRES VECES EN TRES CAPAS: heredoc de
+   bash, python con comillas, y python con raw string. Cada arreglo movia el problema a la capa
+   siguiente. Es SUITE-R59, duodecima medida en este repositorio. Lo cazo IMPRIMIR LA FUENTE DEL
+   REGEX COMPILADO, no leer el codigo — en pantalla se veia bien las tres veces. Se arreglo
+   QUITANDO EL REGEX. Estuve a punto de escribir en la evidencia que la cobertura de fases era
+   0 %: lo impidio que la cifra fuera DEMASIADO REDONDA. 96 de 96 es la clase de resultado que
+   obliga a comprobar el instrumento antes que el hallazgo.
+
+2. ACOTE TAMBIEN EL ARCHIVO PROPIO DEL COMPONENTE, y produjo 46 HUECOS FALSOS. FDGE-Prompts.md es
+   entero de FDGE: no tiene un encabezado de seccion suyo dentro. EL MISMO ERROR QUE ESTABA
+   ARREGLANDO, COMETIDO AL ARREGLARLO — mirar donde no toca y mirar de menos son el mismo defecto
+   con el signo cambiado.
+
+3. LEI SOLO UN FORMATO, y produjo otros 6. PHASES.md escribe PHASE 0 CARGA en PTSA y 1 FRESHNESS en
+   FPGE; las dos son una fase con su nombre, y la compacta es la convencion de estos bloques densos
+   — CORE hace igual con su linea por sigla.
+
+Y EL DEFECTO ORIGINAL APARECIO EN MINIATURA DENTRO DE LA SECCION CORRECTA: FPGE PHASE 1 pasaba
+incluso con el ambito acotado, porque su seccion cita «Entrega a FDGE PHASE 1 (Intake)» — la fase
+de OTRO componente. Seis de siete salian huecas y la septima acertaba por accidente.
+
+Archivos modificados: tools/audit.mjs · tools/selftest.sh
+
+Medido: cobertura fase 52 a 52 · componente sin documentar de cubierto a HUECO · huecos falsos de
+  la primera version 46, de la segunda 6, reales 0 · selftest 1760 a 1765 casos.
+
+Evidencia: evidence/PT-168/ — manifest con 5 AC y 4 RC, self-review, y dos salidas.
+
+LO QUE NO ESTABLECE: que las OTRAS dimensiones de audit —reglas, triggers, artefactos— no tengan el
+mismo patron. NO ESTA MEDIDO, y suponerlo seria el mismo error. Ni que un proyecto destino no vea
+huecos nuevos: los vera si su documentacion no tiene seccion por componente, y ese es el resultado
+correcto — estaban ahi y no se veian.

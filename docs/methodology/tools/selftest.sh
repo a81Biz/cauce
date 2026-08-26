@@ -8128,6 +8128,91 @@ chkno "…ni una sigla que tambien es prefijo de identificador" "SUITE-R60" \
 chk   "sobre el arbol real no queda ningun literal"          "Sin errores de coherencia" \
   sh -c "cd '$RAIZ' && node '$VS148' docs/methodology 2>&1"
 
+# ── PT-168 · EP-024 · audit daba por cubierta una fase que NO ESTA en el documento ──────────────
+#
+# `cubre()` devolvia cierto en cuanto la cadena «PHASE 3 » aparecia EN EL DOCUMENTO ENTERO, sin
+# mirar de quien era. Y PHASES.md y CORE.md documentan las once fases de FDGE, asi que CUALQUIER
+# fase de CUALQUIER componente entre 0 y 10 estaba «cubierta» en los dos, SIEMPRE.
+#
+# LO GRAVE NO ERA QUE SE EQUIVOCARA: ES QUE NO PODIA EQUIVOCARSE. Acertaba para los seis reales
+# POR CASUALIDAD —PHASES.md tiene seccion para todos— y fallo la septima vez: PT-149 dio de alta un
+# componente cuyo nombre y sigla aparecen CERO veces en esos documentos y audit lo declaro cubierto.
+# La septima es justo el caso para el que sirve una comprobacion.
+#
+# De las TRES dimensiones que audit exige por fase, solo UNA discriminaba: el archivo de prompts,
+# porque se lee por su ruta. Las otras dos eran decoracion.
+P168="$WORK/p168"
+alta168() {
+  rm -rf "$P168"; cp -r "$SUITE" "$P168" 2>/dev/null
+  perl -0pi -e "s/(    fases: \[1, 5\],\n    en_core: true,\n  \},\n)/\$1  {\n    nombre: 'Zeta', prompts: 'ZETA-Prompts.md', sigla: 'ZT', prefijo: 'ZTA',\n    directorio: 'ZETA', obligatorio: false, triggers: ['[START ZETA]'],\n    fases: [1, 3], en_core: true,\n  },\n/" "$P168/tools/patrones.mjs"
+  perl -0pi -e "s/^### 3\.7 El contrato de componente/### 3.6b Zeta\n\n| PHASE | Nombre |\n|:--|:---|\n| 1 | Uno |\n| 2 | Dos |\n| 3 | Tres |\n\n---\n\n### 3.7 El contrato de componente/m" "$P168/LEXICON.md"
+  printf '# Zeta\n\n## PHASE 1 — Uno\n## PHASE 2 — Dos\n## PHASE 3 — Tres\n' > "$P168/ZETA-Prompts.md"
+  ( cd "$P168" && node tools/build-core.mjs . >/dev/null 2>&1; node tools/audit.mjs . 2>&1 )
+}
+
+# UN COMPONENTE CUYAS FASES NO ESTAN EN NINGUN DOCUMENTO SALE COMO HUECO. Antes salia cubierto:
+# es el caso que PT-149 midio y el unico que distingue una comprobacion de un adorno.
+chk   "una fase que no esta en el documento es HUECO" "Zeta PHASE 1" alta168
+chk   "…y dice en cual falta"                         "ausente en" alta168
+# EL FRENO. Sin esto, «fallar siempre» pasaria el caso de arriba y seria PEOR que el defecto: los
+# seis componentes reales se volverian rojos y alguien quitaria la comprobacion entera.
+chkno "los seis reales NO se vuelven huecos"          "FDGE PHASE" alta168
+chk   "…y el arnes lo dice contando"                  "(7 de 7)"   alta168
+# Y sobre el arbol real: sin huecos. La cifra NO bajo —52 antes y despues— porque los seis estaban
+# bien documentados. Lo que cambio no es cuanto se cubre: es que la cobertura PUEDA FALLAR.
+chk   "el arbol real sigue sin huecos"                "sin huecos" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/audit.mjs' docs/methodology 2>&1"
+
+# ── PT-167 · EP-024 · el caso INVERTIDO: solo pasa mientras existe el defecto que vigila ────────
+#
+# PT-147 escribio tres casos para afirmar que los seis componentes entran en la auditoria de fases,
+# buscando «FIDE PHASE» en la salida de audit. ESA LINEA SOLO SE EMITE COMO HUECO: los tres pasaban
+# PORQUE FIDE, FPGE y Foundation FALLABAN, y se pusieron en rojo el dia en que dejaron de fallar.
+# Estuvieron en verde TODO EP-022 afirmando lo contrario de lo que ocurria.
+#
+# Es RULE-02 por el reverso: el EXITO DEL CASO ERA EL FALLO DEL SISTEMA.
+#
+# EL DISCRIMINADOR NO ES LA PROSA. Se probaron dos criterios mas amplios: comparar contra la
+# EXPLICACION del hueco daba 30 falsos positivos, y contra el ESQUELETO literal del identificador
+# daba 9 —«PHASE» aparece en media metodologia—. Lo que discrimina es el IDENTIFICADOR INSTANCIADO
+# con los valores que COMPONENTES declara: «FIDE PHASE» no aparece en ningun documento.
+PAT167() {  # $1 cadena a probar contra los identificadores derivados
+  MTH_Q="$1" node -e "
+    const {pathToFileURL}=require('url'); const fs=require('fs');
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      const dir=process.env.MTH_TOOLS;
+      const txts=fs.readdirSync(dir).filter((f)=>f.endsWith('.mjs')).map((f)=>fs.readFileSync(dir+'/'+f,'utf8'));
+      const vals=m.COMPONENTES.flatMap((c)=>[c.nombre,m.siglaDe(c.nombre)]);
+      const ids=m.identificadoresDeHueco(txts,vals);
+      console.log(ids.some((s)=>process.env.MTH_Q.includes(s))?'CAZA':'NO_CAZA');
+    });" 2>&1
+}
+export MTH_PAT="$SUITE/tools/patrones.mjs" MTH_TOOLS="$SUITE/tools"
+
+# LOS CUATRO CONOCIDOS. Ya no estan en el arnes —PT-156 los reescribio— asi que se reintroducen
+# como fixture: sin ellos, el barrido podria no cazar nada y parecer que funciona.
+chk   "caza el invertido de FIDE"                  "^CAZA$"    PAT167 "FIDE PHASE"
+chk   "…el de FPGE"                                "^CAZA$"    PAT167 "FPGE PHASE"
+chk   "…el de Foundation"                          "^CAZA$"    PAT167 "Foundation PHASE"
+chk   "…y el del rango sin declarar"               "^CAZA$"    PAT167 "FPGE fases"
+
+# LOS TRES LEGITIMOS DE PT-149. Prueban que una regla PUEDE FALLAR, que es lo CONTRARIO de un
+# defecto: son lo que impide que la correccion de PT-149 sea un apagado disfrazado. Si el barrido
+# los cazara, mataria justo los casos que hacen que la bateria no sea decoracion.
+chk   "NO caza «perder un componente sigue rojo»"  "^NO_CAZA$" PAT167 "no puede perder ninguno"
+chk   "…ni «perder una familia»"                   "^NO_CAZA$" PAT167 "ninguna puede desaparecer"
+chk   "…ni «alterar el orden»"                     "^NO_CAZA$" PAT167 "EN SU ORDEN"
+
+# Y sobre el arnes real: hoy CERO, porque PT-156 los reescribio. Es la cifra que la regla vigila.
+#
+# La primera version de este caso esperaba «SUITE-R61» de la salida de un `grep -c`, que devuelve
+# un NUMERO. Nunca podia pasar, y salio en rojo en su primera corrida — que es lo que un caso mal
+# escrito debe hacer. Es el patron HUECO por el otro lado: no finge probar, es que no puede.
+cuenta167() {
+  ( cd "$RAIZ" && node "$SUITE/tools/audit.mjs" docs/methodology 2>&1 ) | grep -c "asertan sobre el IDENTIFICADOR"
+}
+chk   "el arnes real no tiene casos invertidos"    "^0$" cuenta167
+
 # ── PT-149 · EP-022 · LA PRUEBA: un componente se da de alta y de baja sin tocar herramienta ────
 #
 # ES EL CRITERIO DE EXITO DEL LOTE ENTERO, y hasta que se ejecuto NO SE CUMPLIA. PT-144..PT-148

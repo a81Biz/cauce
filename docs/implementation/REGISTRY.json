@@ -4845,8 +4845,8 @@
       "id": "PT-167",
       "slug": "casos-que-solo-pasan-mientras-hay-defecto",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -4872,14 +4872,31 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
       }
     },
     {
       "id": "PT-168",
       "slug": "audit-da-por-cubierta-una-fase-que-no-esta",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S1",
@@ -4905,6 +4922,23 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
       }
     },
     {

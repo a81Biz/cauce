@@ -2040,6 +2040,70 @@ export function seccionesDelArnes(texto) {
  * La comparacion es LITERAL, como el `case ... in *"$SOLO"*` del arnes: si aqui fuera regex y
  * alli literal, un patron con un punto activaria secciones que luego no ejecutarian ningun caso.
  */
+/**
+ * PT-167 · CASOS INVERTIDOS: LOS QUE SOLO PASAN MIENTRAS EXISTE EL DEFECTO QUE VIGILAN.
+ *
+ * PT-147 escribio tres casos para afirmar que los seis componentes entran en la auditoria de
+ * fases, buscando «FIDE PHASE» en la salida de audit. Esa linea SOLO SE EMITE COMO HUECO: los tres
+ * pasaban PORQUE FIDE, FPGE y Foundation FALLABAN, y se pusieron en rojo el dia en que dejaron de
+ * fallar. Estuvieron en verde todo EP-022 afirmando LO CONTRARIO de lo que ocurria.
+ *
+ * Es RULE-02 por el reverso: el EXITO DEL CASO ERA EL FALLO DEL SISTEMA. No es un verificador
+ * debil — es un INDICADOR INVERTIDO, que avisa mientras el defecto se arregla.
+ *
+ * EL DISCRIMINADOR NO ES LA PROSA DEL HUECO. Se probaron dos criterios mas amplios y los dos
+ * producian ruido: comparar contra el TERCER argumento de gap() —la explicacion— daba 30 falsos
+ * positivos, y comparar contra el ESQUELETO literal del segundo daba 9, porque «PHASE» aparece en
+ * media metodologia. Un barrido asi se desactiva en la primera corrida, y un verificador
+ * desactivado es peor que ninguno (SUITE-R60).
+ *
+ * Lo que discrimina es el IDENTIFICADOR del hueco INSTANCIADO: `${comp} PHASE ${n}` con los
+ * nombres y siglas que COMPONENTES declara produce «FIDE PHASE», «FPGE fases» — cadenas que la
+ * herramienta emite SOLO cuando algo falta y que no aparecen en ningun documento.
+ *
+ * QUE ESTABLECE: que un `chk` cuyo patron contiene una de esas cadenas esta afirmando un HUECO.
+ * QUE NO ESTABLECE: que sea un defecto. Un caso que prueba que una regla PUEDE FALLAR asierta
+ *   exactamente eso, y es lo contrario de un defecto — PT-149 tiene tres. Por eso la salida es una
+ *   LISTA DE CANDIDATOS y no un fallo: la diferencia entre «afirma un hueco» y «prueba que el
+ *   hueco se caza» es de INTENCION, y la intencion no esta en el texto (SUITE-R26).
+ *
+ * Medido: caza los CUATRO conocidos —FIDE PHASE, FPGE PHASE, Foundation PHASE, FPGE fases— y
+ * NINGUNO de los tres legitimos de PT-149.
+ */
+export function identificadoresDeHueco(textos, valores) {
+  const RE = /gap\(\s*'[^']*'\s*,\s*`([^`]{4,60})`/g;
+  const fuera = new Set();
+  for (const txt of textos ?? []) {
+    for (const m of String(txt).matchAll(RE)) {
+      const p = m[1];
+      if (!p.includes('${')) { if (p.trim().length >= 6) fuera.add(p.trim()); continue; }
+      for (const v of valores ?? []) {
+        const s = p.replace(/\$\{[^}]*\}/, v).split('${')[0].trim();
+        if (s.length >= 6) fuera.add(s);
+      }
+    }
+  }
+  return [...fuera].sort();
+}
+
+
+export function casosInvertidos(arnes, identificadores) {
+  const RE = /^chk\s+"([^"]+)"\s+"([^"]+)"/;
+  const fuera = [];
+  // SUITE-R59 · sin regex: el escape se degrado aqui al escribirlo, por undecima vez en este
+  // SUITE-R59 · sin regex: el escape se degrado aqui al escribirlo, por undecima vez en este
+  // repositorio. Partir por codigo de caracter y recortar no tiene escapes que perder.
+  String(arnes ?? '').split(String.fromCharCode(10)).forEach((l, i) => {
+    const m = RE.exec(l);
+    if (!m) return;
+    for (const s of identificadores ?? []) {
+      if (m[2].includes(s)) { fuera.push({ linea: i + 1, caso: m[1], patron: m[2], hueco: s }); break; }
+    }
+  });
+  return fuera;
+}
+
+
 export function seccionesConCaso(texto, patron) {
   const p = String(patron ?? '');
   if (!p) return [];
