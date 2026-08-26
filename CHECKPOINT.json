@@ -3,29 +3,18 @@
   "type": "REFACTOR",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "trabajo",
-  "sha": "e494fdd9bb688947fc91fe238b69fe3ce2b82b7d",
-  "sha_corto": "e494fdd",
+  "sha": "1429918e6c70ba769ac547abbf0089446afac3f9",
+  "sha_corto": "1429918",
   "sucio": true,
   "archivos": [
     "changes/PT-146-build-core-deja-de-escribirlos/intake.md",
-    "changes/PT-146-build-core-deja-de-escribirlos/scope.md",
-    "changes/PT-146-build-core-deja-de-escribirlos/strategy.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-25"
 }
