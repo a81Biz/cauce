@@ -3,8 +3,8 @@
   "type": "CHORE",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/PT-148-el-alta-y-la-baja-se-escriben",
   "sha": "f365d2bff48bf4a6326cbe4c2f408eb8ff32cc31",
   "sha_corto": "f365d2b",
@@ -24,10 +24,15 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/verify-patrones.mjs"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-25"
 }
