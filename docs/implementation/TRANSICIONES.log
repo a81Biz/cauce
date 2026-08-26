@@ -28,3 +28,18 @@ con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
 
 Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
 con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-169 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-169` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | En la epica que el firmante situo para esto. La bateria paso de 1699 a 1749 casos en EP-022 y nada la poda: el patron peligroso es el caso HUECO —un fixture cuya mutacion ya no muta nada sigue diciendo OK— porque los otros dos se delatan poniendose en rojo. |
+| Se revisa el | 2026-09-16 |
+| Responde | Alberto Martínez |
+| Sale de | PT-149 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.

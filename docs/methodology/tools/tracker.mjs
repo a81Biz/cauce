@@ -4495,6 +4495,23 @@ function aplazar() {
     const yaDicho = String(a.origin ?? '').includes(de);
     a.origin = yaDicho ? a.origin : [a.origin, `Aplazado desde ${de} el ${fecha}`].filter(Boolean).join(' · ');
   }
+  // PT-149 · Y EL INTAKE, SI LO HAY. `avanzar` sincroniza el YAML del intake al llegar a un
+  // estado terminal (tracker.mjs:3406) y `aplazar` no lo hacia, asi que el registro decia
+  // DEFERRED y el intake seguia diciendo DRAFT: DOS MAPAS QUE DISCREPAN sobre el mismo hecho,
+  // que es el defecto que da nombre a EP-022. Lo cazo un caso del selftest —«el arbol real no
+  // tiene ninguna sin sincronizar»— en CI, no en local, y solo despues de aplazar dieciseis.
+  // La ruta se DERIVA como en el resto del archivo (tracker.mjs:2844), no se busca por prefijo:
+  // dos tareas cuyo id sea prefijo de otro darian con la carpeta equivocada.
+  const fi = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  if (existsSync(fi)) {
+    const antes = readFileSync(fi, 'utf8');
+    const despues = antes.replace(/^status:[ 	]*\S+[ 	]*$/m, 'status: DEFERRED');
+    if (despues === antes) {
+      throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
+    }
+    writeFileSync(fi, despues, 'utf8');
+    notas.push(`${id}: intake sincronizado a DEFERRED`);
+  }
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${yaAplazada ? 'terminos ACTUALIZADOS' : '-> DEFERRED'} · revision ${revision} · dueno ${dueno}`);
 
