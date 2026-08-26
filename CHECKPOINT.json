@@ -3,28 +3,18 @@
   "type": "CHORE",
   "epic": "EP-022",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "refactor/alberto-martinez/PT-147-audit-deja-de-escribirlos",
-  "sha": "2f5e99e4f6e8e7af7c163ffcc3324a7d7c588874",
-  "sha_corto": "2f5e99e",
+  "sha": "aae6e46a6a702ad6c7481d05b62792825273e8be",
+  "sha_corto": "aae6e46",
   "sucio": true,
   "archivos": [
     "changes/PT-148-el-alta-y-la-baja-se-escriben/intake.md",
-    "changes/PT-148-el-alta-y-la-baja-se-escriben/strategy.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-25"
 }
