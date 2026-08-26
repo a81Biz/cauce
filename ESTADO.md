@@ -16,7 +16,7 @@ Proyectado el 2026-08-25 · 28 allocation(es) viva(s).
 | PT-146 | REFACTOR | DONE | 8 | — | — | 12a0ee7 |
 | PT-147 | REFACTOR | DONE | 8 | — | — | e7b4eb1 |
 | PT-148 | CHORE | DONE | 8 | — | — | f365d2b |
-| PT-149 | CHORE | DRAFT | 1 | — | — | da9c260 |
+| PT-149 | CHORE | DRAFT | 2 | — | — | da9c260 |
 | PT-150 | BUG | DONE | 8 | — | — | 060b37a |
 | EP-023 |  | READY | 1 | — | — | da9c260 |
 | EP-024 |  | DRAFT | 1 | — | — | — |
@@ -25,7 +25,7 @@ Proyectado el 2026-08-25 · 28 allocation(es) viva(s).
 | PT-153 | BUG | DRAFT | 1 | — | — | — |
 | PT-154 | INVESTIGATION | DRAFT | 1 | — | — | — |
 | PT-155 | CHORE | DRAFT | 1 | — | — | — |
-| PT-156 | CHORE | DONE | 8 | — | — | — |
+| PT-156 | CHORE | DONE | 8 | — | — | 2871ea1 |
 | PT-157 | BUG | DRAFT | 1 | — | — | — |
 | PT-158 | BUG | DRAFT | 1 | — | — | — |
 | PT-159 | BUG | DRAFT | 1 | — | — | e7b4eb1 |
