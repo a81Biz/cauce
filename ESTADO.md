@@ -45,4 +45,4 @@ Proyectado el 2026-08-27 · 37 allocation(es) viva(s).
 | PT-180 | BUG | DRAFT | 1 | — | — | — |
 | PT-181 | BUG | DRAFT | 1 | — | — | — |
 | PT-182 | BUG | DRAFT | 1 | — | — | — |
-| PT-183 | BUG | DRAFT | 5 | — | — | — |
+| PT-183 | BUG | DRAFT | 6 | — | — | — |
