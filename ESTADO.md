@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-26 · 23 allocation(es) viva(s).
+Proyectado el 2026-08-26 · 29 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -16,14 +16,14 @@ Proyectado el 2026-08-26 · 23 allocation(es) viva(s).
 | PT-152 | BUG | DEFERRED | 1 | — | — | — |
 | PT-153 | BUG | DEFERRED | 1 | — | — | — |
 | PT-154 | INVESTIGATION | DEFERRED | 1 | — | — | — |
-| PT-155 | CHORE | DRAFT | 4 | — | — | — |
+| PT-155 | CHORE | DRAFT | 5 | — | — | — |
 | PT-157 | BUG | DEFERRED | 1 | — | — | — |
 | PT-158 | BUG | DEFERRED | 1 | — | — | — |
 | PT-159 | BUG | DEFERRED | 1 | — | — | 3a7cb3f |
 | PT-160 | BUG | READY | 5 | — | — | 3a7cb3f |
 | PT-161 | CHORE | DRAFT | 5 | — | — | — |
 | PT-162 | BUG | DEFERRED | 1 | — | — | — |
-| PT-163 | BUG | DRAFT | 2 | — | — | — |
+| PT-163 | BUG | DRAFT | 3 | — | — | — |
 | PT-164 | CHORE | DRAFT | 5 | — | — | — |
 | PT-165 | BUG | DEFERRED | 1 | — | — | — |
 | PT-166 | CHORE | DEFERRED | 1 | — | — | — |
@@ -32,3 +32,9 @@ Proyectado el 2026-08-26 · 23 allocation(es) viva(s).
 | PT-169 | CHORE | DONE | 8 | — | — | 6eb022b |
 | PT-170 | BUG | DEFERRED | 1 | — | — | — |
 | PT-171 | BUG | DRAFT | 1 | — | — | — |
+| PT-172 | CHORE | DEFERRED | 1 | — | — | — |
+| EP-025 |  | DRAFT | 1 | — | — | — |
+| PT-173 | CHORE | DEFERRED | 1 | — | — | — |
+| PT-174 | CHORE | DEFERRED | 1 | — | — | — |
+| PT-175 | CHORE | DEFERRED | 1 | — | — | — |
+| PT-176 | CHORE | DEFERRED | 1 | — | — | — |
