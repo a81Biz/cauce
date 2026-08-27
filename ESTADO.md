@@ -13,7 +13,7 @@ Proyectado el 2026-08-26 · 31 allocation(es) viva(s).
 | EP-023 |  | READY | 1 | — | — | da9c260 |
 | EP-024 |  | DRAFT | 1 | — | — | 6eb022b |
 | PT-151 | BUG | DONE | 8 | — | — | fae98a6 |
-| PT-152 | BUG | DRAFT | 5 | — | — | — |
+| PT-152 | BUG | DRAFT | 6 | — | — | — |
 | PT-153 | BUG | DRAFT | 5 | — | — | — |
 | PT-154 | INVESTIGATION | DRAFT | 5 | — | — | — |
 | PT-155 | CHORE | DONE | 8 | — | — | — |
@@ -31,7 +31,7 @@ Proyectado el 2026-08-26 · 31 allocation(es) viva(s).
 | PT-168 | BUG | DONE | 8 | — | — | 72f5422 |
 | PT-169 | CHORE | DONE | 8 | — | — | 6eb022b |
 | PT-170 | BUG | DRAFT | 5 | — | — | — |
-| PT-171 | BUG | DRAFT | 1 | — | — | — |
+| PT-171 | BUG | DEFERRED | 1 | — | — | — |
 | PT-172 | CHORE | DEFERRED | 1 | — | — | abd0678 |
 | EP-025 |  | DRAFT | 1 | — | — | abd0678 |
 | PT-173 | CHORE | DEFERRED | 1 | — | — | — |
