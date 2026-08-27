@@ -9088,6 +9088,35 @@ chk   "…y remite a quien SI lo impide"             "PT-178"               _pro
 chk   "desde PHASE 2 sigue siendo ERROR"           "✗ FDGE-R01"           _proj186 2
 chkno "…y ahi NO se dice que no sea exigible"      "aun no es exigible"   _proj186 2
 
+
+# ── PT-180 · la carpeta de un PT se busca, no se supone   CE-008 ───────────
+#
+# Doce sitios componian `changes/<id>-<slug>` con el slug DEL REGISTRO. Cuando diverge del disco,
+# los doce apuntan a una ruta que no existe y cada uno reacciona distinto: integrar revienta, cursor
+# cuenta la fase como «sin rastro», avanzar no sincroniza el YAML y NO LO DICE.
+#
+# UNA allocation de 211 —PT-155— basto para BLOQUEAR el cierre de EP-024 despues de G4.
+_proj180() { # $1 = el slug que declara el REGISTRO · la carpeta en disco es siempre «-en-disco»
+  local d="$WORK/p180"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes/PT-900-en-disco"
+  printf -- '---\nstatus: DONE\nphase: 8\nepic: EP-900\n---\n' > "$d/changes/PT-900-en-disco/intake.md"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      firmantes:['Alberto Martínez'],
+      allocations:[{id:'PT-900',slug:process.argv[2],type:'CHORE',epic:'EP-900',status:'DONE',
+                    phase:8,suite_version:'13.3.0'},
+                   {id:'EP-900',slug:'lote',status:'READY',suite_version:'13.3.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json" "$1"
+  # `integrar` en SECO: solo mira el registro y la carpeta. `cursor` necesitaria PHASES.md, y
+  # copiar la suite entera al fixture para comprobar una ruta seria pagar mucho por poco.
+  ( cd "$d" && node "$SUITE/tools/tracker.mjs" integrar PT-900 2>&1 )
+}
+chk   "la carpeta se encuentra aunque el slug difiera"  "en disco esta"   _proj180 "otro-slug"
+chk   "…y se nombran LOS DOS nombres"                   "PT-900-otro-slug" _proj180 "otro-slug"
+# EL PAR. Sin el, «avisar siempre» pasaria los dos de arriba: cuando NO hay divergencia no se dice
+# nada, porque un aviso permanente es indistinguible de no mirar.
+chkno "…y sin divergencia NO se dice nada"              "en disco esta"   _proj180 "en-disco"
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

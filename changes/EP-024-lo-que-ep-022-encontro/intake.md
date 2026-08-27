@@ -4,7 +4,7 @@
 ---
 id: EP-024
 type: EPIC
-status: DRAFT
+status: CLOSED
 created: 2026-08-25
 suite_version: 13.2.0
 origin: hallazgos de EP-022, cada uno enlazado a la parada que lo encontró
