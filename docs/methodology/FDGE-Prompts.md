@@ -4,7 +4,7 @@
 > Método: [Framework-FDGE.md](Framework-FDGE.md) · Procedimiento: [FDGE-Implementation.md](FDGE-Implementation.md)
 > Reglas: [RULES.md](RULES.md) · Vocabulario: [LEXICON.md](LEXICON.md) · Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md)
 >
-> Suite version: **13.2.0**
+> Suite version: **13.3.0**
 
 ---
 
@@ -190,6 +190,35 @@ aplazado. En `G4` cada fila declara `HECHO` o el identificador al que se movió.
 detectable, y fingir que lo es sería peor. Lo que cambia es que omitir una fila deje de perder
 nada, porque la obligación ya no vive en ella.
 
+**`EXEC-R15`: un lote se ejecuta en secuencia.** Una tarea detrás de otra. La ejecución
+concurrente en worktrees separados es una **extensión opcional** y exige, además, una política
+declarada de resolución de conflictos: no forma parte del comportamiento base.
+
+Llevaba el ID `EXEC-R08`, que **ya tenía dueño** —*«los tres modos exigen lo mismo»*—, y `PT-163`
+la renumeró al cazar el ID reutilizado: hasta entonces `verify-suite` contaba **documentos** y dos
+definiciones en el mismo archivo colapsaban en una.
+
+**`SUITE-R62`: lo que ejecutas en local es lo que ejecuta CI.** El comando que el proyecto publica
+como su verificación y los pasos de su workflow son **el mismo conjunto**, y se comprueba en **los
+dos sentidos**: lo que falta en local **bloquea** —deja pasar errores al PR— y lo que sobra
+**avisa** —deja una comprobación cuyo rojo nadie ve—.
+
+Se comparan **nombres de script**, no lo que el paso hace: si el workflow invoca la herramienta
+directamente con otras banderas, la diferencia vuelve a ser invisible. Por eso los dos lados
+invocan `npm run <script>`. Sin workflow o sin `package.json`, **SIN EVALUAR**.
+
+**`SUITE-R61`: cerrar el lote es también podar la batería.** En el mismo acto en que se resuelve
+`## Cierre del lote`, se publica **cuántos casos se retiraron y por cuál de los tres patrones** —
+`superado` (el hecho que el caso fijaba cambió por diseño), `invertido` (sólo pasaba mientras
+existía el defecto que vigilaba), `hueco` (perdió su premisa y no probaba nada)—. **Aunque sea
+cero**: decir «no se retiró ninguno» es un hecho, y callarlo es indistinguible de no haber mirado.
+
+El disparador es el **cierre** y no un plazo, porque una fecha en un documento no la mira nadie y
+el cierre de un lote es contrastable — y ocurre justo cuando los casos se han acumulado. De los
+tres patrones, los dos primeros **se delatan solos poniéndose en rojo**; el **hueco se queda en
+verde para siempre**, y por eso es el único con comprobación mecánica: `muta` en `selftest.sh`
+falla si la mutación de un fixture **no cambia el archivo**.
+
 **`SUITE-R44`: lo que el lote aplaza se asigna, no se narra.** La columna «Dónde va» de cada fila
 de `out-of-scope.md` es **vocabulario cerrado** — dos valores y ningún otro:
 
@@ -365,6 +394,15 @@ desenlace  continua · abre · cambia-fase · detiene · declara
 **Dónde va**: el issue de la tarea si el proyecto declara plataforma, y
 `docs/implementation/TRANSICIONES.log` si no. **El mismo sitio que la nota de reanclaje** — no uno
 nuevo, porque un hecho con dos nombres es la avería que la v4 nació para eliminar (`LEX-R22`).
+
+**Un hallazgo declarado no se queda suelto** (`LEX-R37`). Si el desenlace es `declara`, el comando
+exige `--revision` (una fecha **futura**) y `--dueno` (de las personas declaradas): o **abre
+trabajo** —y entonces el desenlace es `abre`, con `--abre`— o dice **cuándo se revisa y quién
+responde**. La declaración se escribe también en la allocation, para que se pueda barrer sin red.
+
+```bash
+tracker parada PT-NNN --motivo hallazgo --texto ruta.md --desenlace declara         --revision AAAA-MM-DD --dueno "Nombre"
+```
 
 **Una transición de fase es una parada** cuyo desenlace es `cambia-fase` (`LEX-R30`). `FDGE-R52`
 sigue exigiendo sus tres líneas y su verificador: es el caso particular, no una excepción.

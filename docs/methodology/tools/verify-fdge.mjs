@@ -49,6 +49,8 @@ import { execFileSync, spawnSync } from 'node:child_process';
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
          lineasPerdidas, mergesSinConstancia } from './patrones.mjs';
+// PT-151 · lo que corre `npm run verify` y lo que corre CI, derivado de sus dos fuentes.
+import { pasosDeCI, pasosDeVerify } from './patrones.mjs';
 // PT-095 · el criterio de «esto anuncia una autorizacion» y la frontera desde la que una regla
 // alcanza. Los dos viven en patrones.mjs porque los usan dos bucles de este archivo, y un
 // criterio escrito dos veces diverge (SUITE-R38).
@@ -1134,7 +1136,9 @@ function checkG4ConConstancia() {
     const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
     // PT-095 · «a la espera de G4» NO es una autorizacion: anuncia lo contrario. El criterio
     // vive en patrones.mjs porque lo usan los DOS bucles de aqui, y escrito dos veces divergiria.
-    if (!m || !anunciaAutorizacion(m[2])) continue;
+    // PT-170 · se pasa TAMBIEN el cuerpo: una constancia se reconoce por su FORMA —el campo
+    // «Autoriza:»— y no solo por las palabras de su titulo, que fallaban por una «d».
+    if (!m || !anunciaAutorizacion(m[2], b)) continue;
     const quien = lista.find((n) => b.includes(n));
     if (quien) constancias.push({ nombre: quien, fecha: m[1] });
   }
@@ -1164,7 +1168,7 @@ function checkG4ConConstancia() {
   } else if (rigeGlobal('EXEC-R04a')) {
     for (const b of bloques) {
       const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
-      if (!m || !anunciaAutorizacion(m[2])) continue;
+      if (!m || !anunciaAutorizacion(m[2], b)) continue;
       if (!alcanzadaPor(m[1], fronteraR04a)) continue;
       if (lista.some((n) => b.includes(n))) continue;
       // PT-095 · en un ledger append-only lo malformado se corrige ANADIENDO. Sin esto la
@@ -1247,14 +1251,45 @@ function checkManejadores() {
 //
 // Es CE-007: existe la herramienta y nada la echa en falta.
 const RE_LINEAS = new RegExp(String.fromCharCode(92) + 'r?' + String.fromCharCode(92) + 'n');
-const RE_REMOTO = new RegExp('^remotes/[^/]+/');
+// PT-184 · EL RECORTE ESTABA ESCRITO PARA LA FORMA LARGA Y NUNCA CASABA.
+//
+// «git branch --format=%(refname:short) --all» devuelve «origin/chore/x», NO «remotes/origin/x»:
+// el patron pedia «^remotes/...» y no casaba jamas. Codigo muerto que aparentaba hacer su trabajo,
+// asi que TODA rama publicada salia «desviada» — y en G4 eso FALLA. Como G4 exige un PR (SUITE-R42)
+// y un PR exige publicar la rama, LA COMPUERTA SE BLOQUEABA A SI MISMA POR CONSTRUCCION.
+//
+// Y no es que nadie supiera hacerlo: el otro barrido de este mismo archivo lo hace bien cuarenta
+// lineas mas abajo, con `.replace(/^origin\//, '')`. Dos sitios para la misma pregunta, uno
+// correcto y otro no — RULE-01 dentro del verificador que existe para cazar eso.
+//
+// Se cubren LAS DOS formas: la corta que devuelve «--format» y la larga por si alguien lista
+// «refs/remotes/». Cubrir solo la que hoy se usa dejaria el mismo defecto esperando al siguiente
+// que cambie la invocacion.
+// QUE ES UN PREFIJO REMOTO LO DICE «git remote», NO UN PATRON. El primer intento fue
+// `^(?:remotes/)?[^/]+/(?=.*/)` y se comia el primer nivel de una rama LOCAL de tres:
+// «chore/alberto-martinez/PT-169-x» → «alberto-martinez/PT-169-x». Adivinar por la forma no
+// distingue «origin/a/b» de «chore/a/b»; preguntar por los remotos declarados, si.
+const REMOTOS = (() => {
+  try {
+    return execFileSync('git', ['remote'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' })
+      .trim().split(RE_LINEAS).filter(Boolean);
+  } catch { return []; }
+})();
+const sinRemoto = (r) => {
+  const s = String(r ?? '').replace(new RegExp('^refs/'), '');
+  for (const m of REMOTOS) {
+    if (s.startsWith(`remotes/${m}/`)) return s.slice(`remotes/${m}/`.length);
+    if (s.startsWith(`${m}/`)) return s.slice(`${m}/`.length);
+  }
+  return s.replace(new RegExp('^remotes/[^/]+/'), '');
+};
 
 function checkNombreDeRama() {
   const ramas = (() => {
     try {
       return execFileSync('git', ['branch', '--format=%(refname:short)', '--all'],
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().split(RE_LINEAS)
-        .map((r) => r.replace(RE_REMOTO, '').trim()).filter(Boolean);
+        .map((r) => sinRemoto(r).trim()).filter(Boolean);
     } catch { return null; }
   })();
   if (ramas === null) { warn('FDGE-R19', 'nombres de rama SIN EVALUAR: no se pudo listar git branch.'); return; }
@@ -1302,6 +1337,94 @@ function checkNombreDeRama() {
 //
 // NO CIERRA NADA POR SU CUENTA: decidir que pasa con un aplazado caducado es humano (SUITE-R06).
 // La compuerta OBLIGA A MIRARLO, y ahi termina su trabajo.
+  // PT-159 · FDGE-R55 · UN «declara» NO SE QUEDA SUELTO.
+  //
+  // FDGE-R55 cubria `abre` —toda allocation nueva cita la parada que la produjo— y admitia
+  // `continua`, que por construccion no deja rastro contra el que contrastar. `declara` quedaba
+  // en medio, SIN GOBERNAR. Y `declara` SI deja rastro: se publica con fecha y explicacion, asi
+  // que la pregunta «¿este hallazgo abrio trabajo?» es contestable — que es el criterio que la
+  // propia regla usa para decidir que es mecanizable.
+  //
+  // MEDIDO:
+  //   PT-157   declarado en EP-021, con «merece tarea propia» escrito en el HANDOFF.
+  //            UN LOTE ENTERO despues, seguia sin tarea.
+  //   EP-022   SIETE paradas publicadas con `declara` diciendo «candidato a tarea propia».
+  //            Las siete huerfanas hasta que lo senalo el firmante.
+  //
+  // Lo senalo una PERSONA, no un verificador — la misma frase con la que nacio FDGE-R55, sobre el
+  // mismo objeto, un lote despues.
+  //
+  // La forma la da SUITE-R44, que cerro este mismo problema para el trabajo apartado, y por el
+  // mismo motivo se mira CONTRA EL REGISTRO: un verificador que necesitara red no podria correr
+  // en un repositorio sin plataforma (SUITE-R22).
+  //
+  // CE-014 · NO SE RETROFECHA. Las declaraciones publicadas antes de que el comando exigiera la
+  // vuelta no pudieron declarar lo que nadie les pedia, y no dejaron bloque en el registro: sin
+  // esta puerta, cada una de ellas seria deuda nueva por haber ocurrido antes.
+function checkSinLote() {
+  // PT-183 · UN PT SIN LOTE NO ESTA BAJO NINGUNA COMPUERTA DE LOTE.
+  //
+  // EXEC-R03 hace G4 una por lote; SUITE-R45 hace que un lote resuelva sus filas al cerrar. Las dos
+  // gobiernan EL LOTE. Una tarea sin lote no esta bajo ninguna: se integra sin que ninguna compuerta
+  // de lote la mire. No es una etiqueta que falta — es trabajo fuera del alcance de lo que existe
+  // para mirarlo.
+  //
+  // Se descubrio cerrando EP-024: PT-178 estaba DONE, validado en G3 y escrito en HISTORY con
+  // «Lote: undefined», y verify-fdge le daba CERO errores. Medido entonces: nueve PT sin lote de
+  // 182, y CINCO de las dos ultimas sesiones, todos por «--epic» en vez de «--epica».
+  //
+  // CE-014 · NO SE RETROFECHA. Los cuatro anteriores —PT-025, PT-027, PT-094, PT-095— nacieron
+  // antes de que nada lo exigiera, y dos estan INTEGRATED: convertirlos en deuda seria castigar
+  // trabajo correcto por haber ocurrido antes. Se CUENTAN y se DECLARAN, que es lo que RULE-06 pide
+  // de lo que no se va a corregir.
+  const pts = (REGISTRO?.allocations ?? []).filter((a) => /^PT-/.test(String(a?.id ?? '')));
+  const sinLote = pts.filter((a) => !a?.epic);
+  if (!sinLote.length) { ok('EXEC-R03', `los ${pts.length} PT del registro declaran su lote.`); return; }
+  const nuevos = sinLote.filter((a) => rigeDesde('EXEC-R03', a?.suite_version ?? '0.0.0'));
+  if (nuevos.length) {
+    fail('EXEC-R03', `${nuevos.length} PT sin lote habiendo nacido con la comprobacion vigente: `
+      + `${nuevos.map((a) => a.id).join(' · ')}. G4 es una por lote (EXEC-R03) y un lote resuelve `
+      + `sus filas al cerrar (SUITE-R45): sin lote, ninguna de las dos lo mira. Se le pone con:  `
+      + `tracker mover ${nuevos[0].id} --epica EP-NNN --aplicar`);
+  }
+  const historicos = sinLote.length - nuevos.length;
+  if (historicos) {
+    warn('EXEC-R03', `${historicos} PT anteriores a la comprobacion no declaran lote y NO se `
+      + `retrofechan (CE-014): ${sinLote.filter((a) => !nuevos.includes(a)).map((a) => a.id).join(' · ')}. `
+      + 'Se declara la cifra.');
+  }
+}
+
+function checkDeclarados() {
+  let HOY = null;
+  try {
+    HOY = execFileSync('git', ['log', '-1', '--format=%cs'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+  } catch { /* sin git */ }
+  if (!HOY) HOY = new Date().toISOString().slice(0, 10);
+
+  const conDeclaracion = (reg?.allocations ?? []).filter((a) => Array.isArray(a?.declaraciones) && a.declaraciones.length);
+  const vencidas = [];
+  for (const a of conDeclaracion) {
+    if (!rigeDesde('FDGE-R55', a?.suite_version ?? '0.0.0')) continue;
+    for (const d of a.declaraciones) {
+      if (!d?.revision || !d?.dueno) continue;
+      if (String(d.revision) <= HOY) {
+        const dias = Math.round((Date.parse(HOY) - Date.parse(String(d.revision))) / 86400000);
+        vencidas.push(`${a.id} (${dias} dia(s), responde ${d.dueno})`);
+      }
+    }
+  }
+  if (vencidas.length) {
+    const m = `${vencidas.length} hallazgo(s) declarado(s) con la revision VENCIDA: ${vencidas.join(' · ')}. `
+      + 'Un declara con la vuelta pasada es otra vez un hallazgo suelto. La compuerta obliga a '
+      + 'mirarlos, no decide por nadie (SUITE-R06): se abre la tarea, se mueve la fecha con otra '
+      + 'parada, o se cierra el asunto por escrito.';
+    if (gate === 'G4') fail('FDGE-R55', m); else warn('FDGE-R55', m);
+  } else if (conDeclaracion.length) {
+    ok('FDGE-R55', `${conDeclaracion.length} hallazgo(s) declarado(s) con revision al dia.`);
+  }
+}
+
 function checkAplazados() {
   const aplazados = (reg?.allocations ?? []).filter((a) => a?.status === 'DEFERRED');
   if (!aplazados.length) { ok('SUITE-R44', 'no hay aplazados vivos que revisar.'); return; }
@@ -1358,6 +1481,53 @@ function checkAplazados() {
 // ─── INTAKE-R09 · el Intake del lote ─────────────────────────────────────────
 // INTAKE-R08 exigía changes/EP-NNN-slug/intake.md sin decir qué contiene. Ahora hay
 // plantilla (EPIC-INTAKE.md) y esto comprueba que el lote la respeta.
+/**
+ * PT-151 · `SUITE-R01` · LO QUE SE EJECUTA EN LOCAL ES LO QUE EJECUTA CI.
+ *
+ * El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y no era cierto. Medido
+ * en EP-022: verify en VERDE y el check `marco` en ROJO con ocho errores bloqueantes. Sobre esa
+ * base se declaro «todo verde», y el primer PR lo desmintio.
+ *
+ * SE COMPARA EN LOS DOS SENTIDOS. Que verify compruebe de MENOS deja pasar errores al PR; que
+ * compruebe de MAS deja una comprobacion cuyo rojo NADIE VE EN EL PR — es lo que pasaba con
+ * `matriz:check`, y no se veia porque nadie habia mirado la direccion contraria.
+ *
+ * RULE-06 · sin `verificacion.yml` o sin `package.json` no hay contra que contrastar: SIN EVALUAR,
+ * y se dice. Un proyecto destino que no use GitHub Actions no incumple nada.
+ */
+function checkVerifyEsCI() {
+  const yml = read(join(ROOT, '.github', 'workflows', 'verificacion.yml'));
+  const pkg = read(join(ROOT, 'package.json'));
+  if (yml === null || pkg === null) {
+    warn('SUITE-R62', 'sin .github/workflows/verificacion.yml o sin package.json: no se puede contrastar que «npm run verify» sea lo que corre CI. SIN EVALUAR.');
+    return;
+  }
+  let scripts = null;
+  try { scripts = JSON.parse(pkg).scripts ?? {}; } catch { scripts = null; }
+  if (scripts === null) {
+    warn('SUITE-R62', 'package.json no se puede leer como JSON: la equivalencia con CI NO SE EVALUA.');
+    return;
+  }
+  const ci = pasosDeCI(yml);
+  const local = pasosDeVerify(scripts);
+  if (!ci.length) {
+    warn('SUITE-R62', 'el workflow no invoca ningun «npm run <script>»: la equivalencia con «npm run verify» no es comparable. SIN EVALUAR.');
+    return;
+  }
+  const falta = ci.filter((x) => !local.includes(x));
+  const sobra = local.filter((x) => !ci.includes(x));
+  if (falta.length) {
+    fail('SUITE-R62', `«npm run verify» NO corre ${falta.join(' · ')}, y CI si. Un comando que promete equivaler a CI y no equivale hace creer que se verifico lo que no se verifico.`);
+  }
+  if (sobra.length) {
+    warn('SUITE-R62', `«npm run verify» corre ${sobra.join(' · ')} y CI no: su rojo no lo ve nadie en el PR. La divergencia en este sentido no deja pasar errores, pero deja una comprobacion sin compuerta.`);
+  }
+  if (!falta.length && !sobra.length) {
+    ok('SUITE-R62', `«npm run verify» y CI corren los mismos ${ci.length} pasos.`);
+  }
+}
+
+
 function checkEpics() {
   if (!existsSync(CHANGES)) return;
   const eps = readdirSync(CHANGES).filter((d) => /^EP-\d+/.test(d) && statSync(join(CHANGES, d)).isDirectory());
@@ -1548,6 +1718,11 @@ function notasDelIssue(pt) {
   return Number.isFinite(n) ? n : null;
 }
 
+// PT-160 · los AC que el intake DECLARA. Su lista es canonica (FDGE-R15), y hasta hoy nadie la
+// contrastaba con la matriz. Se reconocen las dos formas en que un intake los escribe: fila de
+// tabla —«| AC-01 | …»— y prosa —«`AC-01` · …»—, con o sin comillas invertidas.
+const RE_AC_INTAKE = /(?:^|\|)\s*`?(AC-\d{2})`?\s*(?:\||·)/gm;
+
 function parseTraceability(md) {
   const rows = [];
   for (const line of md.split(/\r?\n/)) {
@@ -1564,7 +1739,23 @@ function parseTraceability(md) {
 function checkPT(pt, { gate } = {}) {
   const dir = ptDir(pt);
   if (!dir) {
-    fail('FDGE-R01', `${pt}: no existe changes/${pt}-slug/. Todo trabajo entra por un Intake.`);
+    // PT-186 · EN PHASE 1 TODAVIA NO PUEDE HABERLO: es la fase que lo PRODUCE. Exigirlo ahi es
+    // exigir el resultado de la fase para poder empezarla — el mismo razonamiento con el que
+    // PT-178 bloqueo solo la SALIDA de PHASE 1, hecho unas horas antes en este mismo lote.
+    //
+    // Y no era solo ruido: abrir una tarea dejaba la CI EN ROJO. FDGE-R55 pide abrir el trabajo en
+    // cuanto se encuentra —«un hallazgo no se queda suelto»— y esto castigaba por obedecerla. Dos
+    // reglas del mismo marco empujando en direcciones opuestas, con una salida practicable —no
+    // abrir la tarea hasta tener tiempo de escribir su intake— que es justo lo que PT-159 cerro.
+    //
+    // A partir de PHASE 2 sigue siendo ERROR, y PT-178 impide salir de PHASE 1 sin el: el hueco no
+    // se ensancha, se mueve al unico punto donde no puede estar cerrado todavia.
+    const enIntake = (REGISTRO?.allocations ?? []).find((a) => a?.id === pt);
+    const m = `${pt}: no existe changes/${pt}-slug/. Todo trabajo entra por un Intake.`;
+    if (Number(enIntake?.phase) === 1) {
+      warn('FDGE-R01', `${m} Esta en PHASE 1, que es la fase que lo produce: aun no es exigible, `
+        + 'y «tracker avanzar» no la dejara salir sin el (PT-178).');
+    } else fail('FDGE-R01', m);
     return;
   }
   const rel = relative(ROOT, dir).replace(/\\/g, '/');
@@ -1746,6 +1937,36 @@ function checkPT(pt, { gate } = {}) {
   // eso se ocupan los ocho sitios de tracker.mjs (PT-096) y los seis de aqui.
   if (esLote(enRegistroPT) && enRegistroPT?.type !== undefined) {
     warn('LEX-R27', `${pt}: es un lote y declara «type: ${enRegistroPT.type}». LEX-R27 declara que un lote NO lleva «type»: se reconoce por su identificador, que el registro asigna y siempre esta. El campo no decide nada desde PT-096 y PT-100, y no se retrofecha (SUITE-R09).`);
+  }
+
+  // PT-153 · EL BARRIDO, y no solo el lote que se este verificando.
+  //
+  // El aviso de arriba solo se dispara cuando se verifica UN lote por su nombre. Nadie barria el
+  // registro, asi que un lote nuevo escrito a mano con «type» podia entrar sin que nada lo dijera
+  // hasta que alguien lo verificara suelto — que no es lo que hace la CI.
+  //
+  // NO SE RETROFECHA. Los diecisiete lotes historicos —«EP» en dieciseis, «EPIC» en uno— lo llevan
+  // escrito, y SUITE-R09 dice que el registro es append-only en los hechos: reescribirlos seria
+  // borrar como estaba puesto para que la cifra cuadre. Se CUENTAN y se declaran, que es lo que
+  // RULE-06 pide de lo que no se va a corregir. Lo que se cierra es la puerta hacia adelante:
+  // desde 13.2.0, un lote con «type» FALLA.
+  //
+  // El analisis de PT-153 llego aqui pidiendo quitar los diecisiete. Lo que lo corrigio fue leer
+  // el comentario de arriba, que ya habia decidido lo contrario y decia por que.
+  {
+    const lotesConType = (REGISTRO?.allocations ?? []).filter((a) => esLote(a) && a?.type !== undefined);
+    const nuevos = lotesConType.filter((a) => rigeDesde('LEX-R27', a?.suite_version ?? '0.0.0'));
+    if (nuevos.length) {
+      fail('LEX-R27', `${nuevos.length} lote(s) declaran «type» habiendo nacido con el barrido vigente: `
+        + `${nuevos.map((a) => `${a.id}=${a.type}`).join(' · ')}. Un lote se reconoce por su ID.`);
+    }
+    const historicos = lotesConType.length - nuevos.length;
+    if (historicos) {
+      warn('LEX-R27', `${historicos} lote(s) anteriores al barrido declaran «type» y NO se retrofechan `
+        + `(SUITE-R09, append-only). Se declara la cifra: ninguna herramienta depende de ese campo.`);
+    } else if (!nuevos.length) {
+      ok('LEX-R27', 'ningun lote del registro declara «type».');
+    }
   }
 
   // PT-098 · SUITE-R08 · un INTEGRATED que el arbol no sostiene.
@@ -2240,6 +2461,32 @@ function checkPT(pt, { gate } = {}) {
     const rows = parseTraceability(trace);
     if (!rows.length) fail('FDGE-R15', `${pt}: traceability.md no contiene ninguna fila AC-nn reconocible.`);
     acs = rows.map((r) => r.ac);
+    // PT-160 · LOS AC DE LA TRAZABILIDAD SON LOS DEL INTAKE, Y NADIE LO COMPROBABA.
+    //
+    // FDGE-R15 dice que la lista del intake es CANONICA, y verify-fdge solo miraba que cada fila
+    // de traceability tuviera TS, test y evidencia. Que las filas fueran LAS MISMAS no lo
+    // comprobaba nadie: se podia escribir una matriz con CUATRO criterios cuando el intake
+    // declaraba SIETE, y salia en verde con tres criterios sin rastro.
+    //
+    // Paso en EP-022 y lo encontro leer los dos archivos, no una herramienta. Aqui se contrastan
+    // los identificadores en los DOS sentidos: un AC del intake que falte en la matriz es un
+    // criterio SIN COMPROBAR —lo grave—, y uno de la matriz que no este en el intake es un
+    // criterio que nadie firmo. RULE-02: son hechos distintos y se dicen distinto.
+    const enIntake = [...new Set([...String(intake ?? '').matchAll(RE_AC_INTAKE)].map((m) => m[1]))];
+    if (enIntake.length && rige('FDGE-R15a')) {
+      const enMatriz = rows.map((r) => r.ac);
+      const sinComprobar = enIntake.filter((x) => !enMatriz.includes(x));
+      const sinFirmar = enMatriz.filter((x) => !enIntake.includes(x));
+      if (sinComprobar.length) {
+        fail('FDGE-R15a', `${pt}: el intake declara ${sinComprobar.join(' · ')} y traceability.md no lo(s) recoge. `
+          + 'La lista del intake es CANONICA: un criterio que no llega a la matriz no lo comprueba nadie, '
+          + 'y la matriz sale en verde sin el.');
+      }
+      if (sinFirmar.length) {
+        warn('FDGE-R15a', `${pt}: traceability.md recoge ${sinFirmar.join(' · ')} y el intake no lo(s) declara. `
+          + 'Es un criterio que nadie firmo: puede ser trabajo de mas, o un AC anadido sin revisar el intake.');
+      }
+    }
     const testExempt = type === 'CHORE' || track === 'EXPRESS';
     // PT-134 · UN CRITERIO PUEDE DECAER, y hasta ahora no habia donde decirlo. FDGE-R15 exige un
     // TS a TODO AC; cuando el mundo cambia debajo y el criterio deja de aplicar, no puede tenerlo,
@@ -2624,7 +2871,25 @@ function checkIndex(pt, alloc, { gate } = {}) {
     // PT-044 · canónico no es lo mismo que CIERTO. Esto daba verde sobre una línea que decía
     // «READY» con el registro en «INTEGRATED»: comprobaba la FORMA del estado, no su verdad, y
     // el índice es lo que FPGE lee para decidir qué construir a continuación.
-    const declarado = LIFECYCLE.find((st) => new RegExp(`\\b${st}\\b`).test(line));
+    // PT-185 · EL ESTADO SE LEE DE SU COLUMNA, NO DE TODA LA LINEA.
+    //
+    // «LIFECYCLE.find(...test(line))» devuelve el primer estado de LA LISTA que aparezca en
+    // CUALQUIER punto de la fila — incluido el TITULO. PT-162 se titula «Una tarea DRAFT no
+    // puede cambiar de lote…» y su linea de indice dice, en su columna, DONE:
+    //
+    //   | PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote… |
+    //                          ^^^^ lo cierto        ^^^^^ lo que leia
+    //
+    // Salio «divergente: el registro dice DONE y el indice dice DRAFT» sobre un indice
+    // CORRECTO. Es CE-017 —la comprobacion acusa a quien documenta el hecho— y bloqueaba G4.
+    //
+    // Se lee la CELDA, como hace parseTraceability. Si la fila no es una tabla se cae al
+    // barrido anterior: no evaluar nada seria peor, y esa forma existe en los indices viejos.
+    const celdas = line.trim().startsWith('|')
+      ? line.trim().split('|').slice(1, -1).map((c) => c.trim())
+      : [];
+    const enCelda = celdas.find((c) => LIFECYCLE.includes(c));
+    const declarado = enCelda ?? LIFECYCLE.find((st) => new RegExp(`\\b${st}\\b`).test(line));
     if (alloc?.status && declarado && declarado !== alloc.status) {
       const m = `${pt}: «estado» divergente — el registro dice «${alloc.status}» y su línea de índice en ${idxHit} dice «${declarado}». El índice ESPEJA el registro (SUITE-R35); el registro asigna.`;
       if (gate === 'G4') fail('SUITE-R35', m); else warn('SUITE-R35', m);
@@ -2713,8 +2978,11 @@ checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md'
 checkInstallLog();
 checkReconciliation();
 checkAislamiento();
+checkVerifyEsCI();
 checkEpics();
 checkAplazados();
+checkDeclarados();
+checkSinLote();
 checkManejadores();
 checkNombreDeRama();
 GRAPH = graphState(reg);

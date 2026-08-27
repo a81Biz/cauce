@@ -1,0 +1,32 @@
+
+  [1mSUITE-R61[0m
+
+  [2mdefinida en[0m  RULES.md
+
+  La batería se poda al cerrar un lote, y un fixture que no muta nada falla. Un caso que deja 
+  de probar lo que decía no se retira solo: la batería sólo crece. `EP-022` la llevó de 1699 a 
+  1749 casos y nada la podó, y los tres casos muertos que aparecieron salieron de tropezar con 
+  ellos, no de buscarlos. El disparador es cerrar un lote y no un plazo: una fecha en un 
+  documento no la mira nadie, y el cierre de un lote es contrastable y ocurre justo cuando los 
+  casos se han acumulado. Lo que obliga es publicar la cuenta por patrón —`superado`, 
+  `invertido`, `hueco`— en el `CHANGELOG` del lote, aunque sea cero: decir «no se retiró 
+  ninguno» es un hecho, y callarlo es indistinguible de no haber mirado. Los tres patrones no 
+  cuestan lo mismo. El superado —el hecho que el caso fijaba cambió por diseño— y el invertido 
+  —sólo pasa mientras existe el defecto que vigila— se delatan solos poniéndose en rojo; el 
+  hueco —perdió su premisa y no prueba nada— se queda en verde para siempre. Por eso la 
+  comprobación mecánica ataca el tercero: `muta` en `selftest.sh` envuelve la mutación de un 
+  fixture y falla si el archivo no cambia, distinguiendo además «no existe» de «no cambió», 
+  que son defectos distintos con arreglos distintos (`RULE-02`). Existe porque `PT-149` 
+  encontró uno real: un fixture de `PT-144` hacía `s/SIN_EVALUAR/[1, 9]/` sobre un 
+  `SIN_EVALUAR` que `PT-156` ya había quitado — el `sed` no tocaba nada, la herramienta corría 
+  sobre un árbol intacto, y el caso decía `✓`. Lo que NO establece, y se dice en vez de 
+  fingirlo (`SUITE-R26`): que un caso sea útil, que dos casos no prueben lo mismo por caminos 
+  distintos, ni que la cuenta publicada sea completa — quien poda decide qué retira, y esta 
+  regla sólo impide que lo haga en silencio. La adopción de `muta` crece y se declara, como la 
+  tabla de sujetos de `SUITE-R09`: hay 61 sitios que mutan un fixture y convertirlos de golpe 
+  sería un cambio grande y ciego; lo que la regla impide es que el próximo se escriba sin 
+  ella. Es la regla dueña de `CE-011` —«un arreglo deja tests del estado anterior»—, que hasta 
+  ahora se citaba sin que nada obligara a recogerlos. 
+
+  [2mla comprueba[0m  audit.mjs   (solo avisa)
+

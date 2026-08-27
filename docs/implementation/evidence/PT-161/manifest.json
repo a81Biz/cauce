@@ -1,0 +1,60 @@
+{
+  "pt": "PT-161",
+  "generated": "2026-08-26",
+  "titulo": "CASOS-DE-USO se declara contrato de cobertura y nada lo comprobaba",
+  "bateria": "1795 casos, cero rojos",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un trigger sin caso se caza, y se dice cuál",
+      "tests": [
+        "TS-01 · TS-02"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El catálogo real no tiene ninguno",
+      "tests": [
+        "TS-03..TS-06"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Lo que no es comprobable se declara",
+      "tests": [
+        "—"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "audit sigue en verde sobre el árbol real",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Los triggers se derivan del contrato, no de una lista",
+      "verified": true
+    }
+  ],
+  "medido": {
+    "triggers_declarados": 11,
+    "sin_caso": 4,
+    "casos_escritos": "E7 E8 E9"
+  },
+  "nota": "DOS de los cuatro eran el bucle por el que pasa todo el trabajo de FDGE: abrir y cerrar una implementacion. La puerta mas transitada del marco no estaba en el catalogo.",
+  "donde_esta_el_detalle": "traceability.md de la tarea y su parada. Aqui no se repite: RULE-01, un hecho tiene un solo sitio."
+}

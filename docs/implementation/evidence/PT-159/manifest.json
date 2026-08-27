@@ -1,0 +1,105 @@
+{
+  "pt": "PT-159",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una parada con desenlace `declara` **o cita un identificador del registro, o declara `revision` y `dueno`** | vocabulario cerrado, como `SUITE-R44`: una frase **falla, no se interpreta**",
+      "scenarios": [
+        "TS-01",
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un `declara` sin ninguna de las dos **se nombra** | caso con una parada huérfana",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un `declara` con la revisión **vencida** se nombra, y **dice cuántos días** | caso con fecha pasada · el precedente de `PT-139`",
+      "scenarios": [
+        "TS-06"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Fuera de `G4` **avisa**; en `G4` **bloquea** | los dos casos",
+      "scenarios": [
+        "TS-02",
+        "TS-04",
+        "TS-06"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "**Lo anterior no se retrofecha** (`RIGE_DESDE`): las paradas ya publicadas con `declara` no ponen nada en rojo | caso con `suite_version` previa",
+      "scenarios": [
+        "TS-07"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-06",
+      "statement": "La regla nueva tiene **ID, severidad y propietario único**, y `regla.mjs` la resuelve | `verify-suite` sin duplicados",
+      "scenarios": [
+        "TS-08"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1841 casos · 1840 en verde",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

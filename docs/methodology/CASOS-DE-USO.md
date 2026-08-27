@@ -341,6 +341,56 @@ sin ella, «restable» significa sólo que el componente deja de funcionar, no q
 
 ---
 
+### E7 · Abrir y cerrar una implementación
+
+| | |
+|:---|:---|
+| **Entrada** | `[IMPLEMENTACIÓN]` para abrirla · `[CIERRA]` para cerrarla |
+| **Recorrido** | Una implementación es una **unidad abierta**, no un plan: se abre, se construye —con las mejoras y arreglos que hagan falta, que **son** la construcción— y se cierra. Si es nueva o parte de la abierta lo decide un criterio **escrito** (`FDGE-R50`), no el juicio del día |
+| **Fin** | El lote cierra con sus filas de `## Cierre del lote` resueltas (`SUITE-R45`) y su poda publicada (`SUITE-R61`) |
+| **Humano** | Decidir que la implementación termina. `G4` sigue siendo humana (`EXEC-R04`) |
+
+**Estos dos triggers no tenían caso hasta `PT-161`**, y son el bucle por el que pasa **todo** el
+trabajo de `FDGE`. El catálogo se declara «contrato de cobertura» desde su encabezado, y la puerta
+más transitada no estaba en él.
+
+### E8 · Reconciliar la documentación sin regenerar el paquete
+
+| | |
+|:---|:---|
+| **Entrada** | `[START RECONCILE]` |
+| **Recorrido** | `PHASE 1 — Reconciliation` de Foundation, **aislada**: actualiza `00-Baseline.md` y `RECONCILIATION.log`, y **no** regenera el paquete (`FND-R15`) |
+| **Fin** | `G0` resuelta con `ACK` humano. Nada se mueve sin él |
+| **Humano** | El `ACK` de `G0`. La compuerta sigue viva aunque la fase corra suelta |
+
+**Cuándo hace falta**, y `FND-R15` lo enumera: proyectos que instalaron `4.0.x` —donde la fase no
+existía—, proyectos migrados desde `v3`, y proyectos donde la documentación **ha vuelto a
+divergir**.
+
+### E9 · Dar por validada la documentación de Foundation
+
+| | |
+|:---|:---|
+| **Entrada** | `[FOUNDATION VALIDATED]` |
+| **Recorrido** | `PHASE 6` de Foundation. Es su **compuerta final**: hasta que se dice, la documentación generada no es la base de nada |
+| **Fin** | El paquete queda validado y `FDGE` puede apoyarse en él |
+| **Humano** | **Todo el caso.** El trigger *es* el acto humano: nadie más puede afirmar que la documentación describe el sistema |
+
+
+### E10 · Migrar el proyecto a la versión vigente
+
+| | |
+|:---|:---|
+| **Entrada** | `[START MIGRATE]` |
+| **Recorrido** | `SUITE-R17` · si `REGISTRY.suite_version` no coincide con la versión vigente de `CHANGELOG.md`, el proyecto entra en **modo restringido**: sólo se permiten `[START MIGRATE]`, los `status *` y **terminar los PT ya en vuelo**. No se abre trabajo nuevo |
+| **Fin** | Las versiones coinciden y la restricción se levanta |
+| **Humano** | Decidir migrar. **La restricción se levanta migrando, nunca ignorándola** |
+
+**Este trigger no pertenece a ningún componente: es de la suite**, y por eso no estaba en el
+contrato — no tenía sitio. `PT-152` le dio uno, y **la comprobación que `PT-161` acababa de
+escribir lo cazó en la primera corrida**: una puerta del marco que quedaba fuera del contrato de
+cobertura **y fuera de quien lo vigila**.
+
 ## F · Configuración
 
 ### F1 · Sin plataforma declarada

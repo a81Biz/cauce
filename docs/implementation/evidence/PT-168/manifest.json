@@ -1,0 +1,31 @@
+{
+  "pt": "PT-168",
+  "generated": "2026-08-26",
+  "criteria": [
+    {"ac":"AC-01","statement":"Una fase se da por cubierta solo para el componente que se audita","tests":["fixture Zeta: sale HUECO","dice en cual documento falta"],"evidence":["salidas/bateria.out"],"verified":true,
+     "nota":"Es el caso que PT-149 midio: un componente con fases 1-3 y CERO menciones en PHASES.md y CORE.md era declarado cubierto. Ahora sale hueco en las tres."},
+    {"ac":"AC-02","statement":"Un componente cuyas fases SI estan documentadas sigue en verde","tests":["los seis reales no se vuelven huecos","el arbol real sin huecos"],"evidence":["salidas/audit.out"],"verified":true,
+     "nota":"ES EL FRENO, y por poco no existe: un acotado que fallara siempre pasaria AC-01 y seria PEOR que el defecto. Y CASI PASA — la primera version acoto tambien el archivo PROPIO del componente (FDGE-Prompts.md es entero de FDGE y no tiene un ## FDGE dentro) y produjo 46 HUECOS FALSOS. Mirar donde no toca y mirar de menos son el mismo defecto con el signo cambiado."},
+    {"ac":"AC-03","statement":"La cobertura de clase fase se recalcula, y si baja, baja y se dice","tests":["la cifra publicada, antes y despues"],"evidence":["salidas/audit.out"],"verified":true,
+     "nota":"NO BAJO: 52 antes y 52 despues. Y decirlo es igual de obligatorio. Las 52 son las mismas y YA NO SIGNIFICAN LO MISMO: antes salian de que el NUMERO apareciera, ahora de la SECCION del componente. La cifra publicada era CORRECTA POR CASUALIDAD, y lo que cambio es que la cobertura PUEDA FALLAR."},
+    {"ac":"AC-04","statement":"Los huecos que aparezcan se declaran; arreglarlos no es parte de esta tarea","tests":["audit sobre el arbol real"],"evidence":["salidas/audit.out"],"verified":true,
+     "nota":"NO TUVO QUE EJERCERSE: no aparecieron huecos. Los SEIS de la primera version —FPGE PHASE 2-7— no eran huecos: era el lector sin reconocer el formato compacto de PHASES.md, que escribe «1 FRESHNESS» donde PTSA escribe «PHASE 0». Y ahi estaba el defecto original en miniatura: FPGE PHASE 1 pasaba porque su seccion cita «Entrega a FDGE PHASE 1», la fase de OTRO componente."},
+    {"ac":"AC-05","statement":"audit sigue distinguiendo SIN EVALUAR de cubierto y de hueco","tests":["los tres estados en la salida"],"evidence":["salidas/audit.out"],"verified":true,
+     "nota":"El tercer estado —adopcion en curso— lo anadio PT-169 y sigue vivo: audit publica «3 de 61» sitios con muta ademas de los huecos y los cubiertos."}
+  ],
+  "regression": [
+    {"rc":"RC-01","statement":"Los seis componentes reales siguen cubiertos","verified":true},
+    {"rc":"RC-02","statement":"La anchura (N de N) sigue derivandose de COMPONENTES","verified":true},
+    {"rc":"RC-03","statement":"El archivo propio del componente no se acota","verified":true},
+    {"rc":"RC-04","statement":"SIN EVALUAR sigue distinguible de cubierto y de hueco","verified":true}
+  ],
+  "hallazgos": [],
+  "medido": {
+    "cobertura_fase": "52 → 52",
+    "componente_sin_fases_documentadas": "cubierto → HUECO",
+    "huecos_falsos_de_la_primera_version": 46,
+    "huecos_falsos_de_la_segunda": 6,
+    "huecos_reales": 0,
+    "casos_selftest": "1760 → 1765"
+  }
+}

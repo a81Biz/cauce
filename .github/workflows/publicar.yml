@@ -93,7 +93,7 @@ jobs:
       # G4: llegar aqui sin haberlo corrido es publicar sin la comprobacion que autoriza el
       # merge que trajo el codigo.
       - name: Cumplimiento FDGE de todos los PT
-        run: node docs/methodology/tools/verify-fdge.mjs --all
+        run: npm run verify:fdge
         env:
           # PT-120 · sin credencial, verify-fdge no puede mirar SUITE-R43 —los comentarios
           # humanos pendientes— y emite SIN EVALUAR por cada PT. En la corrida 32600060157

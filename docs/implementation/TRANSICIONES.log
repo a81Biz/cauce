@@ -58,3 +58,106 @@ con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
 
 Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
 con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-172 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-172` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Cuando se decida construirlo. ANTES hay que cerrar el hueco del cierre transitivo: cambiar patrones.mjs activa hoy 15 de 45 secciones y deberia activar 43, asi que sellar sobre la seleccion actual certificaria en verde 28 secciones que nadie volvio a mirar. |
+| Se revisa el | 2026-09-09 |
+| Responde | Alberto Martínez |
+| Sale de | PT-155 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-172 · RETOMADA
+
+<!-- cauce:agente -->
+**RETOMADA** · `PT-172` vuelve de `DEFERRED` a `DRAFT` · `PHASE 1`
+
+| | |
+|:--|:--|
+| Quien | Alberto Martínez |
+| Fecha | 2026-08-26 |
+| Lote | EP-024 |
+
+Nacio aplazado y no tiene intake: vuelve a DRAFT · PHASE 1, a escribirlo (SUITE-R44).
+
+## 2026-08-26 · PT-173 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-173` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Al abrir EP-025, y es la PRIMERA: 338 casos corren sobre el WORK que dejo otra seccion y ocho secciones tienen el 100% de los suyos asi. Sin fixture propio, un paquete sellado afirmaria una propiedad de la SECUENCIA, no suya. |
+| Se revisa el | 2026-09-16 |
+| Responde | Alberto Martínez |
+| Sale de | PT-172 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-174 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-174` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Despues de PT-173. Cambiar patrones.mjs activa 15 de 45 secciones y deberia activar 43: sellar sobre esta seleccion certificaria en verde 28 secciones que nadie volvio a mirar. |
+| Se revisa el | 2026-09-16 |
+| Responde | Alberto Martínez |
+| Sale de | PT-172 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-175 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-175` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Despues de PT-173 y PT-174. Con independencia y cierre transitivo el sello es lo facil: selloDe ya existe y ya hashea el cuerpo de CORE.md. |
+| Se revisa el | 2026-09-16 |
+| Responde | Alberto Martínez |
+| Sale de | PT-172 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-176 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-176` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | El ULTIMO del lote. Cambiar lo que CI ejecuta antes de demostrar el sello en local seria apagar la unica compuerta que hoy mira todo. |
+| Se revisa el | 2026-09-16 |
+| Responde | Alberto Martínez |
+| Sale de | PT-172 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.
+
+## 2026-08-26 · PT-177 · APLAZADA
+
+<!-- cauce:agente -->
+**APLAZADA** · `PT-177` pasa a `DEFERRED`
+
+| | |
+|:--|:--|
+| Se retoma cuando | Cuando EP-024 se descomponga o cuando vuelva a perderse una nota. FDGE-R52 cuenta las notas de reanclaje del issue y exige fase-1; si una no se publica o no casa RE_NOTA, el deficit NO SE PUEDE REPARAR: avanzar publica una nota Y sube la fase, asi que el hueco se conserva. No hay comando que publique una nota sin avanzar. |
+| Se revisa el | 2026-09-09 |
+| Responde | Alberto Martínez |
+| Sale de | PT-161 |
+
+Un aplazado queda **vivo** en el tablero y exento de artefactos (`SUITE-R44`). Vuelve
+con `tracker retomar` (`LEX-R33`), y no antes de que su condicion se cumpla.

@@ -8,6 +8,80 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 13.3.0 — 2026-08-27
+
+**Lo que `EP-022` encontró y no podía arreglar** (`EP-024`). Veinticuatro tareas: veintiuna
+cerradas, dos aplazadas con su condición de reentrada, y una integrada por delante para poder
+cerrar `EP-022`.
+
+**Por qué `13.3.0` y no más `13.2.0`.** La `13.2.0` **ya está en `main`**, y declara **tres**
+reglas: `SUITE-R60`, `LEX-R35` y `LEX-R36`. Todo lo de este lote se había escrito colgando de ese
+mismo número, en esta rama y sólo aquí: **dos `13.2.0` con contenido distinto**, que es
+exactamente la avería que este marco existe para eliminar. Se separó al escribir la fila de cierre,
+comparando `origin/main` con la rama — no leyendo el documento.
+
+**Y es `MINOR`, no `MAJOR`.** Ninguna obligación existente cambia. Las que ganan comprobación ya
+obligaban con su texto intacto; lo único que se relaja es `LEX-R15`, y relajar no rompe a nadie. Un
+proyecto instalado puede ver **rojo donde antes había silencio** — es el objeto de esta versión — y
+`RIGE_DESDE` fija la entrada en `13.3.0` para que **nada se juzgue hacia atrás** (`CE-014`).
+
+### Reglas nuevas
+
+- `SUITE-R61` (`CHECK`) — **la batería se poda al cerrar un lote, y un fixture que no muta nada
+  falla.** El disparador es el cierre y no un plazo: una fecha en un documento no la mira nadie.
+  Obliga a publicar la cuenta por patrón —`superado`, `invertido`, `hueco`— **aunque sea cero**,
+  porque callarlo es indistinguible de no haber mirado. De los tres patrones sólo el `hueco` se
+  queda en verde para siempre, y por eso es el único con comprobación mecánica.
+- `SUITE-R62` (`CHECK`) — **lo que se ejecuta en local es lo que ejecuta CI.** El `CLAUDE.md`
+  publicaba *«todo lo anterior, como en CI»* y era falso en **tres** puntos, uno de ellos en
+  sentido contrario: `matriz:check` corría en local y **no** en CI, una comprobación cuyo rojo
+  nadie veía en el PR. Se compara en los dos sentidos.
+- `FDGE-R15a` (`HARD`) — **los criterios de la matriz son los del Intake.** `FDGE-R15` decía que
+  la lista del Intake es canónica y nadie comprobaba que las filas fueran las mismas: se podía
+  escribir una matriz con cuatro criterios cuando el Intake declaraba siete. `RIGE_DESDE 13.2.0`:
+  lo integrado antes **no se juzga** (`CE-014`), porque su matriz ya está cerrada.
+- `EXEC-R15` — **la ejecución de un lote es secuencial por defecto.** No es una regla nueva: es la
+  que llevaba el ID `EXEC-R08`, **ya ocupado** por *«los tres modos exigen lo mismo»*. `PT-163` lo
+  destapó al corregir `definidasDosVeces`, que contaba **documentos** y no definiciones — dos IDs
+  iguales en el mismo archivo colapsaban en uno.
+- `LEX-R37` — **un `declara` lleva su vuelta escrita** (`PT-159`). Una parada cuyo desenlace es
+  `declara` exige `--revision` **futura** y `--dueno` de las personas conocidas: o **abre trabajo**
+  —y entonces su desenlace es `abre`— o dice **cuándo se revisa y quién responde**, con el mismo
+  listón que `SUITE-R44` pone al aplazado. `FDGE-R55` cubría `abre`, admitía `continua` —que no
+  deja rastro— y dejaba `declara` **sin gobernar**, aunque `declara` sí lo deja. Se midió:
+  `PT-157` se declaró en `EP-021` y seguía sin tarea **un lote entero después**, y `EP-022`
+  publicó **siete** paradas huérfanas. `RIGE_DESDE 13.2.0`.
+
+### Reglas que ganan comprobación, sin cambiar lo que exigen
+
+Estas **no son nuevas**: existían con su texto intacto y **nadie las hacía cumplir**. Un proyecto
+ya instalado no tiene que cambiar nada de lo que hace; sí puede ver rojo donde antes había
+silencio, que es el objeto de esta versión.
+
+- `LEX-R27` — *un lote no lleva `type`*. Se comprobaba **sólo** al verificar un lote por su nombre,
+  y la CI verifica tareas: un lote nuevo escrito a mano entraba sin que nada lo dijera. Ahora se
+  barre el registro entero. Los lotes anteriores **no se retrofechan** (`SUITE-R09`): se cuentan y
+  se declaran. `RIGE_DESDE 13.2.0` — sólo falla lo nacido desde aquí (`PT-153`).
+- `FDGE-R01` — *todo trabajo entra por un Intake*. Su única comprobación vivía en `G4`, y
+  `tracker avanzar` —la única forma sancionada de cambiar de fase— **no miraba** si el intake
+  existía. Ahora se niega a salir de `PHASE 1` sin él. Se midió: **nueve** tareas de `EP-024`
+  llegaron a `PHASE 5` sin intake (`PT-178`).
+- `EXEC-R03` — *`G4` es una por lote*. Nadie comprobaba que un `PT` **tuviera** lote. Se midió al
+  escribir la fila de cierre: **nueve `PT` de 182 sin ninguno**, y cinco de ellos de dos sesiones,
+  todos porque `asignar` recibió `--epic` donde la bandera es `--epica` y **el flag desconocido se
+  ignoró en silencio**. El `undefined` viajó al registro, al `intake` y a `HISTORY`, y `verify-fdge`
+  daba cero errores. Ahora `tracker` **rechaza** una bandera que no conoce —derivando la lista del
+  propio archivo, no de una tabla a mano—, `mover` distingue *ponerle el lote que le falta* de
+  *cambiarlo de lote*, y `verify-fdge` barre el registro. Los cuatro anteriores no se retrofechan
+  (`PT-183`).
+- `FDGE-R55` — gana el barrido de los `declara` con la revisión vencida, contra el **registro** y
+  no contra los comentarios del issue: un verificador que necesitara red no podría correr donde no
+  hay plataforma (`SUITE-R22`).
+- `LEX-R15` — deja de afirmar un universal que el repositorio desmentía. Admite la excepción
+  **declarada**: *«o declara por qué no puede tenerlo»*. `FIDE` incuba desde una idea de negocio,
+  antes de que exista repositorio, y su forma **es** distinta (`PT-158`).
+
+
 ## 13.2.0 — 2026-08-26
 
 **Los componentes se declaran, no se escriben a mano** (`EP-022`). Ocho tareas: `PT-144` a

@@ -37,6 +37,10 @@ import { fileURLToPath } from 'node:url';
 import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
 // PT-147 · los componentes, sus fases, su archivo de prompts y su sigla — del contrato.
 import { COMPONENTES, fasesDe, promptsDe, siglaDe, SIN_EVALUAR } from './patrones.mjs';
+// PT-167 · los casos invertidos: los que solo pasan mientras existe el defecto que vigilan.
+import { identificadoresDeHueco, casosInvertidos } from './patrones.mjs';
+// PT-161 · los puntos de entrada del catalogo, derivados del contrato.
+import { triggers } from './patrones.mjs';
 
 // PT-156 · QUE UN COMPONENTE ENTRE EN LA AUDITORIA SOLO SE VEIA CUANDO FALLABA. Las lineas
 // «<comp> PHASE <n>» solo se emiten como HUECO, asi que los tres casos de PT-147 que afirmaban
@@ -113,6 +117,15 @@ const gaps = [];
 const okCount = { total: 0 };
 const gap = (clase, elem, falta) => gaps.push({ clase, elem, falta });
 const tick = (clase) => { okCount[clase] = (okCount[clase] ?? 0) + 1; okCount.total++; };
+// PT-169 · audit solo sabia decir «hueco» o «cubierto». Una ADOPCION EN CURSO no es ninguna de las
+// dos: no es un hueco —hay mecanismo y funciona— ni esta cubierta —faltan sitios por convertir—.
+// Sin este tercer estado, la unica salida era mentir en alguna direccion: bloquear por algo que
+// crece a proposito, o callarlo y que nadie lo mire. Es RULE-06 con otra ropa.
+const avisos = [];
+// El nombre NO es libre: `regla.mjs` deriva quien comprueba una regla buscando `fail(` y
+// `warn(` con su ID. Llamarlo `avisa` dejaba la regla como «ningun verificador la emite» —cierto
+// para la derivacion y falso para el lector—, que es CE-008 por el lado del vocabulario.
+const warn = (regla, texto) => avisos.push({ regla, texto });
 
 const SALTO = String.fromCharCode(10);
 const rd = (f) => (existsSync(join(BASE, f)) ? readFileSync(join(BASE, f), 'utf8') : null);
@@ -236,9 +249,56 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       const falta = [];
       // Un documento puede declarar un rango («PHASE 2-4», «PHASE 11-12») o una línea
       // compacta de componente («FND 0 Recon · 1 Reconciliation · …»). Ambas cuentan.
-      const cubre = (txt) => {
-        if (txt.includes(`PHASE ${n} `) || txt.includes(`PHASE ${n}·`) || txt.includes(`PHASE ${n}\n`)) return true;
-        for (const m of txt.matchAll(/PHASE\s+(\d+)\s*[-–]\s*(\d+)/g)) {
+      // PT-168 · LA BUSQUEDA GENERICA SE ACOTA A LA SECCION DEL COMPONENTE.
+      //
+      // Antes miraba el documento ENTERO: si contenia «PHASE 3 » daba cierto, y PHASES.md y
+      // CORE.md documentan las once fases de FDGE — asi que CUALQUIER fase de CUALQUIER
+      // componente entre 0 y 10 estaba «cubierta» en los dos, SIEMPRE.
+      //
+      // Lo grave no era que se equivocara: es que NO PODIA equivocarse. Acertaba para los seis
+      // componentes reales POR CASUALIDAD —PHASES.md tiene seccion para todos— y fallo la
+      // septima vez: PT-149 dio de alta un componente cuyo nombre y sigla aparecen CERO veces en
+      // esos documentos, y audit declaro sus tres fases cubiertas. La septima es justo el caso
+      // para el que sirve una comprobacion.
+      //
+      // No hay que inventar el dato: hay que DEJAR DE MIRAR DONDE NO TOCA. PHASES.md tiene
+      // encabezado por componente y CORE.md linea compacta por sigla.
+      const seccionDe = (txt) => {
+        const L = String(txt).split(SALTO);
+        const marcas = [comp, siglaDe(comp)];
+        let ini = -1;
+        for (let i = 0; i < L.length; i++) {
+          if (!L[i].startsWith('## ')) continue;
+          const t = L[i].slice(3).trim();
+          if (marcas.some((x) => t === x || t.startsWith(x + ' ') || t.startsWith(x + ' '))) { ini = i + 1; break; }
+        }
+        if (ini < 0) return null;
+        let fin = L.length;
+        for (let j = ini; j < L.length; j++) if (L[j].startsWith('## ')) { fin = j; break; }
+        return L.slice(ini, fin).join(SALTO);
+      };
+      const cubre = (txt, propio) => {
+        // RULE-06 · si el documento NO tiene seccion para este componente, la busqueda generica
+        // NO SE HACE: no saber donde mirar no es permiso para mirar en todas partes. La linea
+        // compacta por sigla, que si discrimina, se sigue intentando abajo sobre el texto entero.
+        // Y el archivo PROPIO del componente NO se acota: FDGE-Prompts.md es entero de FDGE, no
+        // tiene un «## FDGE» dentro. Acotarlo puso 46 huecos falsos en la primera corrida — el
+        // mismo error que se esta arreglando, cometido al arreglarlo: mirar donde no toca y
+        // mirar de menos son el mismo defecto con el signo cambiado.
+        const ambito = propio ? String(txt) : (seccionDe(txt) ?? '');
+        // Y dentro de la seccion, el formato COMPACTO cuenta: PHASES.md escribe PHASE 0 en PTSA
+        // y «1 FRESHNESS» en FPGE — las dos son la misma cosa, una fase con su nombre, y la
+        // segunda es la convencion de estos bloques densos; CORE hace igual con su linea por
+        // sigla. Leer solo una de las dos formas dejaba SEIS fases de FPGE como huecos falsos.
+        for (const l of ambito.split(SALTO)) {
+          const t = l.trim();
+          const m = /^(\d{1,2})(?:-(\d{1,2}))?[ \t]+[A-Za-z]/.exec(t);
+          if (!m) continue;
+          const a = Number(m[1]); const b = m[2] ? Number(m[2]) : a;
+          if (n >= a && n <= b) return true;
+        }
+        if (ambito.includes(`PHASE ${n} `) || ambito.includes(`PHASE ${n}·`) || ambito.includes(`PHASE ${n}\n`)) return true;
+        for (const m of ambito.matchAll(/PHASE\s+(\d+)\s*[-–]\s*(\d+)/g)) {
           if (n >= Number(m[1]) && n <= Number(m[2])) return true;
         }
         // PT-147 · era «comp === 'Foundation' ? 'FND' : comp» — no una lista repetida, sino UNA
@@ -256,7 +316,7 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
       };
       const enPhases = cubre(PHASES);
       const enCore = cubre(CORE);
-      const enPrompt = cubre(prompt);
+      const enPrompt = cubre(prompt, true);
       if (!enPhases) falta.push('PHASES.md');
       if (!enPrompt && !sinPrompts) falta.push(rutaPrompt);
       if (!enCore) falta.push('CORE.md');
@@ -423,6 +483,112 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
 // ── 7. HERRAMIENTAS ─────────────────────────────────────────────────────────
 {
   const selftest = rd('tools/selftest.sh') ?? '';
+
+  // PT-169 · SUITE-R61 · CUANTOS SITIOS QUE MUTAN UN FIXTURE COMPRUEBAN QUE LA MUTACION OCURRIO.
+  //
+  // Un caso cuya mutacion no muta nada SIGUE DICIENDO OK: de los tres patrones de caso muerto es
+  // el unico que no se delata solo. `muta` lo caza EN EJECUCION; esto publica LA ADOPCION, que es
+  // lo que una herramienta puede decir sin ejecutar la bateria.
+  //
+  // Se emite como AVISO y no como hueco, y no por indulgencia: hay 61 sitios y convertirlos de
+  // golpe seria un cambio grande y ciego. Lo que la regla impide es que el PROXIMO se escriba sin
+  // ella. Es la misma forma que la tabla de sujetos de SUITE-R09 —«crece por adopcion declarada»—
+  // y por eso la cifra se publica CON SU DENOMINADOR: un porcentaje esconde si el total crecio.
+  // PT-165 · EL MAPA DE FASES DE CORE ESTA TECLEADO, Y NO PUEDE CONTRADECIR AL CONTRATO.
+  //
+  // PT-149 le puso un COLADOR: un componente que falte se anade derivado, asi que el mapa ya no
+  // puede OMITIR a nadie —FIDE llevaba fases declaradas y no aparecia—. Lo que el colador no
+  // impide es que una linea REDACTADA diga un rango distinto del que el contrato declara.
+  //
+  // Las cinco lineas siguen escritas a mano A PROPOSITO: llevan la sintaxis de cada comando
+  // —«delta QA PT-XXX», «promote FPGE R-NNN»— que no sale de ningun contrato, y derivarlas
+  // enteras la perderia. Lo que se comprueba es que el RANGO coincida: lo redactado manda en la
+  // prosa, el contrato manda en los numeros.
+  {
+    const lineasCore = (CORE ?? '').split(SALTO);
+    for (const c of COMPONENTES) {
+      const r = fasesDe(c.nombre);
+      if (r === SIN_EVALUAR) continue;
+      const s = siglaDe(c.nombre);
+      const i = lineasCore.findIndex((l) => l.startsWith(s + ' '));
+      if (i < 0) continue;   // el colador lo anade; la ausencia la caza el bloque de fases
+      let bloque = lineasCore[i];
+      for (let j = i + 1; j < lineasCore.length && lineasCore[j].startsWith('      '); j++) bloque += ' ' + lineasCore[j];
+      const nums = [...bloque.matchAll(/(?:^|[^0-9])([0-9]{1,2})(?:-([0-9]{1,2}))?/g)]
+        .flatMap((x) => [Number(x[1]), x[2] ? Number(x[2]) : Number(x[1])])
+        .filter((n) => !Number.isNaN(n));
+      if (!nums.length) continue;
+      const min = Math.min(...nums); const max = Math.max(...nums);
+      if (min !== r[0] || max !== r[1]) {
+        gap('fase', `${c.nombre} en el mapa de CORE`, `la linea dice ${min}-${max} y el contrato declara ${r[0]}-${r[1]}. `
+          + 'El mapa esta redactado a mano para conservar la sintaxis de cada comando, pero sus NUMEROS '
+          + 'salen del contrato: lo redactado manda en la prosa, el contrato manda en el rango.');
+      } else tick('fase');
+    }
+  }
+
+  // PT-161 · CASOS-DE-USO SE DECLARA «CONTRATO DE COBERTURA» Y NADA LO COMPROBABA.
+  //
+  // Su encabezado dice: «un caso que no este aqui es un hueco DECLARADO, no un silencio». Una
+  // promesa asi no se puede comprobar entera —nadie sabe que casos EXISTEN— pero si su parte
+  // derivable: el catalogo dice DONDE ENTRAR, y los puntos de entrada son los TRIGGERS, que el
+  // contrato ya declara. Un trigger sin caso es una puerta que el catalogo no menciona.
+  //
+  // Fallo DOS VECES en EP-022 sin que nada dijera nada: con DICTAMEN y con el alta/baja de un
+  // componente, que no tenian caso hasta que alguien los echo en falta leyendo.
+  //
+  // QUE NO ESTABLECE (SUITE-R26): que el catalogo este COMPLETO. Un caso que no entre por un
+  // trigger —una operacion de mantenimiento, una decision— no es detectable, y eso se dice.
+  {
+    const cat = rd('CASOS-DE-USO.md');
+    if (cat === null) {
+      warn('SUITE-R21', 'no hay CASOS-DE-USO.md: su contrato de cobertura NO SE EVALUA.');
+    } else {
+      const sinCaso = triggers().filter((t) => !cat.includes(t));
+      if (sinCaso.length) {
+        gap('caso', 'CASOS-DE-USO.md', `${sinCaso.length} trigger(s) sin caso en el catalogo: ${sinCaso.join(' · ')}. `
+          + 'El catalogo dice DONDE ENTRAR y se declara contrato de cobertura: una puerta que no menciona '
+          + 'es un hueco que nadie declaro.');
+      } else tick('caso');
+    }
+  }
+
+  // PT-167 · SUITE-R61 · CASOS QUE AFIRMAN COBERTURA BUSCANDO LA LINEA DEL HUECO.
+  //
+  // PT-147 escribio tres que buscaban «FIDE PHASE» en la salida de audit — una linea que SOLO se
+  // emite como HUECO. Pasaban PORQUE el componente FALLABA, y se pusieron en rojo el dia en que
+  // dejo de fallar: estuvieron en verde todo EP-022 afirmando lo contrario de lo que ocurria.
+  //
+  // Sale como CANDIDATO y no como hueco, y no por indulgencia: un caso que prueba que una regla
+  // PUEDE FALLAR asierta exactamente eso y es lo CONTRARIO de un defecto —PT-149 tiene tres—. La
+  // diferencia es de INTENCION y la intencion no esta en el texto (SUITE-R26). Un barrido que los
+  // matara se desactivaria en la primera corrida, y un verificador desactivado es peor que ninguno.
+  {
+    const fuentes = tools.filter(([f]) => f.endsWith('.mjs'))
+      .map(([f]) => rd(f) ?? '').filter(Boolean);
+    const valores = COMPONENTES.flatMap((c) => [c.nombre, siglaDe(c.nombre)]);
+    const ids = identificadoresDeHueco(fuentes, valores);
+    const inv = casosInvertidos(selftest, ids);
+    if (inv.length) {
+      warn('SUITE-R61', `${inv.length} caso(s) asertan sobre el IDENTIFICADOR de un hueco: `
+        + inv.map((x) => `:${x.linea} «${x.caso}» → «${x.hueco}»`).join(' · ')
+        + '. Un caso asi pasa MIENTRAS el hueco existe y se pone en rojo cuando se arregla. '
+        + 'Es CANDIDATO, no defecto: un caso que prueba que una regla puede fallar asierta lo mismo.');
+    }
+  }
+
+  {
+    const lineas = selftest.split(String.fromCharCode(10));
+    const mutan = lineas.filter((l) => !l.trimStart().startsWith('#')
+      && (l.includes('sed -i') || l.includes('perl -0pi')));
+    const conMuta = lineas.filter((l) => l.includes('muta ')).length;
+    if (mutan.length) {
+      warn('SUITE-R61', `${conMuta} de ${mutan.length} sitio(s) que mutan un fixture comprueban que la mutacion ocurrio. `
+        + 'Un fixture cuya mutacion no cambia nada corre sobre un arbol INTACTO y el caso pasa sin probar nada. '
+        + 'La tabla crece por adopcion declarada: lo que la regla impide es que el proximo se escriba sin «muta».');
+    }
+  }
+
   for (const [f] of tools) {
     if (f.endsWith('selftest.sh')) { tick('herramienta'); continue; }
     const nombre = f.split('/').pop();
@@ -576,6 +742,7 @@ if (gaps.length) {
 const resumen = Object.entries(okCount).filter(([k]) => k !== 'total')
   .map(([k, v]) => `${k}:${v}`).join(' · ');
 console.log(`Cubiertos: ${okCount.total}  (${resumen})`);
+for (const a of avisos) console.log(`  · ${a.regla}  ${a.texto}`);
 console.log(`Fases auditadas: ${fasesAuditadas.join(' · ')}  (${fasesAuditadas.length} de ${COMPONENTES.length})`);
 
 // ── Cobertura mecánica de las reglas ────────────────────────────────────────

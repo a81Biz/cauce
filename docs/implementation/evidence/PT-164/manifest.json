@@ -1,0 +1,87 @@
+{
+  "pt": "PT-164",
+  "generated": "2026-08-26",
+  "titulo": "renumerar una regla es un comando, no una busqueda y reemplazo a ojo",
+  "bateria": "1795 casos, cero rojos",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un comando renumera y mueve todas sus citas",
+      "tests": [
+        "TS-01 · TS-06"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Se niega si el ID destino ya existe",
+      "tests": [
+        "TS-03"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Dice qué va a tocar y sólo escribe con --aplicar",
+      "tests": [
+        "TS-01 · TS-02"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Renumerar no cambia el número de reglas de CORE.md",
+      "tests": [
+        "TS-06"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Lo que no se puede detectar se declara",
+      "tests": [
+        "—"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "No arrastra las subreglas: EXEC-R04a es otra regla",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Se niega a cambiar de familia",
+      "verified": true
+    },
+    {
+      "rc": "RC-03",
+      "statement": "Se niega a mover una regla que no existe",
+      "verified": true
+    }
+  ],
+  "medido": {
+    "defectos_que_cazaron_los_casos": 3,
+    "citas_atras_al_final": 0,
+    "subreglas_intactas": 32
+  },
+  "nota": "Al arreglar uno de los defectos borre la recursion y el comando paso de 21 archivos a 8, anunciando «15 citas en 8 archivos» con normalidad. Un comando que renombra la mitad es PEOR que uno que no renombra.",
+  "donde_esta_el_detalle": "traceability.md de la tarea y su parada. Aqui no se repite: RULE-01, un hecho tiene un solo sitio."
+}

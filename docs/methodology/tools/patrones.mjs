@@ -127,6 +127,17 @@ export const RIGE_DESDE = {
   'SUITE-R09': [11, 0, 0],  // el ledger no pierde lineas · el verificador nace con EP-018
   'EXEC-R04':  [11, 0, 0],  // la G4 deja constancia · 18 merges historicos sin ella
   'EXEC-R04a': [11, 0, 0],  // la constancia tiene forma fija · nace con EP-018
+  // PT-160 · EP-024 · que los AC de la matriz sean LOS DEL INTAKE nadie lo comprobaba. La primera
+  // corrida encontro SEIS reales —PT-077 declara AC-06 y su matriz no lo recoge— y trece avisos,
+  // todos sobre trabajo YA INTEGRADO. Juzgarlo hacia atras es CE-014: aquellas tareas no pudieron
+  // cumplir lo que nadie les pedia, y el rojo no tendria salida porque su matriz ya se cerro.
+  'FDGE-R15a': [13, 3, 0],
+  'LEX-R27': [13, 3, 0],
+  'LEX-R37': [13, 3, 0],
+  'EXEC-R03': [13, 3, 0],          // PT-183 · un PT sin lote no esta bajo ninguna compuerta de lote
+  'EXEC-R15': [13, 3, 0],          // la ejecucion de un lote es secuencial por defecto
+  'LEX-R35': [13, 2, 0],
+  'LEX-R36': [13, 2, 0],           // las diez familias de reglas no son los seis componentes           // PT-159 · un «declara» lleva su vuelta escrita           // PT-153 · el barrido del registro, no solo el lote verificado  // los AC de la matriz son los del intake · nace con EP-024
   // PT-099 · la entrada a VALIDATION_PENDING se vigila desde 12.0.0. La REGLA es vieja
   // —LEX-R08 severidad H, FDGE-R26 HARD— pero nadie la aplicaba: 51 BUG del registro y CERO
   // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
@@ -621,6 +632,29 @@ export function ramaDeTarea(tipo, id, slug, usuario = null) {
   return u ? `${t}/${u}/${cola}` : `${t}/${cola}`;
 }
 
+/**
+ * PT-153 · LA RAMA DE UN LOTE, DERIVADA.
+ *
+ * `ramaDeTarea` empieza por `type`, y LEX-R27 dice que un lote NO lleva `type`: se reconoce por su
+ * identificador. Las dos cosas son correctas por separado y juntas daban `null` — no habia forma
+ * derivable para la rama de un lote, asi que se inventaba una:
+ *
+ *   chore/alberto-martinez/EP-022-cierre
+ *           tipo inventado         slug inventado — el suyo es «los-componentes-se-declaran»
+ *
+ * El prefijo es SIEMPRE `chore`: en esa rama se cierra el lote, no se construye el producto. El
+ * resto sale del registro, que es el unico que asigna (SUITE-R08). Declarada en LEXICON 6.
+ *
+ * Devuelve `null` para lo que no es un lote: fuera de su objeto no inventa nada (RULE-06).
+ */
+export function ramaDeLote(id, slug, usuario = null) {
+  if (!/^EP-\d+$/.test(String(id ?? ''))) return null;
+  if (!slug) return null;
+  const u = usuario ? normalizaRef(usuario) : null;
+  const cola = `${id}-${slug}`;
+  return u ? `chore/${u}/${cola}` : `chore/${cola}`;
+}
+
 /** ¿Lleva usuario esta rama? Tres niveles, con el identificador al final. */
 export const ramaLlevaUsuario = (rama) => {
   const p = String(rama ?? '').split('/');
@@ -943,6 +977,18 @@ export function clasificaRodeo(hallazgo, textoDelLedger, regla = 'FDGE-R19') {
   return { ...hallazgo, motivo: declarada ? 'FORZADO' : 'ELEGIDO' };
 }
 
+// PT-155 · LOS SIETE PATRONES QUE VIVIAN FUERA DEL CONTRATO, AHORA ANTES DE EL.
+// SUITE-R38 pide que un patron critico viaje CON SU CONTRATO, y estos siete estaban sueltos: sin
+// `para`, sin `casa`, sin `noCasa`, y por tanto sin nada que cazara un escape degradado. Se
+// declaran aqui arriba porque PATRONES los referencia, y se prueban abajo como los demas.
+const RE_FILA_SELLO = /^\|\s*`?([\w.\-/]+)`?\s*\|\s*(ACTUALIZADO|NO PROCEDE)\s*\|\s*(.*?)\s*\|/gim;
+const RE_LINEAS = /\r?\n/;
+const RE_DEF_TABLA = /^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(?:HARD|SOFT|CHECK)\s*\|/;
+const RE_DEF_PROSA = /^`([A-Z]+-R\d+[a-z]?)`\s*·/;
+const RE_NO_VERIFICABLE = /^\|\s*`?([A-Z]+-R\d+[a-z]?)`?\s*\|\s*(.+?)\s*\|/gim;
+const RE_ANUNCIA = /G4|VoBo|autorizad/i;
+const RE_ESPERA = /a la espera de|pendiente de|esperando|queda para|sin resolver/i;
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
@@ -1067,6 +1113,64 @@ export const PATRONES = {
     casa: ['<!-- ESTADO -->\nsiguiente: cerrar G3\n<!-- /ESTADO -->'],
     noCasa: ['<!-- ESTADO -->\nsiguiente: cerrar G3'],   // sin cerrar: no es un bloque
   },
+
+  // PT-155 · LOS SIETE QUE VIVIAN FUERA DEL CONTRATO.
+  //
+  // SUITE-R38 dice que un patron critico vive en UN SOLO SITIO y VIAJA CON SU CONTRATO. Habia
+  // SIETE regex de primer nivel en este mismo archivo, sin `para`, sin `casa` y sin `noCasa`: la
+  // prueba no los tocaba, y un escape que se degradara en ellos NO LO CAZABA NADIE.
+  //
+  // No es teorico. SUITE-R59 lleva DOCE roturas medidas en este repositorio, y las que se
+  // encontraron fueron las que estaban EN PATRONES —viajan con sus ejemplos—; las de fuera
+  // salieron por casualidad, mirando bytes con cat -A o viendo reventar el arranque.
+  //
+  // Los siete no eran «menos criticos»: eran menos visibles. Tres los escribi HOY, en PT-163 y
+  // PT-149, y de haber degradado habrian dado verde sin casar nada.
+  DEF_EN_TABLA: {
+    re: RE_DEF_TABLA,
+    para: 'una regla DEFINIDA como fila de RULES.md (PT-163)',
+    casa: ['| `SUITE-R60` | CHECK | Un componente se declara.'],
+    noCasa: ['| `SUITE-R60` | lo cita sin severidad |', 'Menciona `SUITE-R60` en prosa'],
+  },
+  DEF_EN_PROSA: {
+    re: RE_DEF_PROSA,
+    para: 'una regla DEFINIDA en prosa, como LEXICON y EXECUTION-MODES (PT-163)',
+    casa: ['`LEX-R35` · Un componente se declara en el contrato.'],
+    noCasa: ['Lo dice `LEX-R35` mas arriba', '| `LEX-R35` | H | tabla |'],
+  },
+  FILA_DE_SELLO: {
+    re: RE_FILA_SELLO,
+    para: 'una fila de SELLO.md: que se actualizo y que no procede',
+    casa: ['| `CORE.md` | ACTUALIZADO | regenerado |', '| inventory | NO PROCEDE | sin cambios |'],
+    noCasa: ['| `CORE.md` | PENDIENTE | a medias |'],
+  },
+  FILA_NO_VERIFICABLE: {
+    re: RE_NO_VERIFICABLE,
+    para: 'una regla declarada NO VERIFICABLE, con su motivo (SUITE-R26)',
+    casa: ['| `SUITE-R01` | ninguna maquina lo comprueba |'],
+    noCasa: ['| SUITE-R01 sin comillas ni motivo'],
+  },
+  ANUNCIA_AUTORIZACION: {
+    re: RE_ANUNCIA,
+    para: 'un encabezado de SESSION_LOG que anuncia una autorizacion (EXEC-R04)',
+    casa: ['G4 de EP-022 autorizada', 'VoBo del firmante', 'Merge autorizado'],
+    // PT-170 · «Autorizacion» NO casa: le falta la «d». Un encabezado real fue rechazado por eso
+    // y el merge salio como NO autorizado teniendolo todo escrito. Queda como caso negativo
+    // hasta que PT-170 decida si la constancia se reconoce por su FORMA en vez de su titulo.
+    noCasa: ['Autorizacion expresa de excepcion', 'Nota sobre el cierre'],
+  },
+  ESPERA_NO_AUTORIZA: {
+    re: RE_ESPERA,
+    para: 'un encabezado que ANUNCIA LO CONTRARIO de una autorizacion (PT-095)',
+    casa: ['a la espera de G4', 'pendiente de firma', 'queda para el cierre'],
+    noCasa: ['G4 resuelta', 'autorizado por el firmante'],
+  },
+  SALTO_DE_LINEA: {
+    re: RE_LINEAS,
+    para: 'partir un texto en lineas sin depender de Windows o Unix',
+    casa: ['a\nb', 'a\r\nb'],
+    noCasa: ['ab'],
+  },
 };
 
 /**
@@ -1183,8 +1287,16 @@ export function contradiceElRegistro(bloque, allocations) {
     const st = estado.get(sujeto);
     // Se mira si la propia linea DICE que esta cerrada: decirlo es correcto, y acusar al texto
     // que acierta seria el mismo defecto por el otro lado.
-    const loDeclara = new RegExp(sujeto + '[^.]{0,80}(INTEGRAD|CERRAD|CLOSED|DEFERRED)', 'i')
-      .test(lt);
+    // PT-157 · LA LISTA ESTABA ESCRITA A MANO y no era la de LEXICON: reconocia «INTEGRAD»,
+    // «CERRAD», «CLOSED» y «DEFERRED», y NO «DONE», «REVERTED» ni «REJECTED». Escribir «PT-155
+    // esta DONE» —el nombre canonico del estado— salia como CONTRADICCION: el bloque decia la
+    // verdad y la comprobacion lo acusaba. Es CE-017, la comprobacion que acusa a quien documenta
+    // el hecho, y ademas CE-008: dos listas de estados terminales con nombres distintos.
+    //
+    // Se deriva de ESTADOS_TERMINALES, que es la de LEXICON 5.1, y se conservan las formas en
+    // prosa —«CERRAD», «INTEGRAD»— porque el bloque ESTADO se escribe para leerse, no en mayusculas.
+    const terminales = [...ESTADOS_TERMINALES, 'INTEGRAD', 'CERRAD'].join('|');
+    const loDeclara = new RegExp(sujeto + '[^.]{0,80}(' + terminales + ')', 'i').test(lt);
     if (ESTADOS_TERMINALES.has(st) && !loDeclara) {
       fallos.push(`«tarea:» afirma que ${sujeto} sigue en curso y el registro dice ${st}`);
     }
@@ -1527,8 +1639,32 @@ export const familiasEnProsa = () => FAMILIAS.filter((f) => f.documento === 'RUL
 /** El orden de emision de CORE.md. → build-core.mjs:183 */
 export const ordenDePrefijos = () => [...FAMILIAS].sort((a, b) => a.orden - b.orden).map((f) => f.prefijo);
 
-/** Los triggers de arranque de todos los componentes. → build-core.mjs:433-437 */
-export const triggers = () => COMPONENTES.flatMap((c) => c.triggers);
+/**
+ * PT-152 · LOS TRIGGERS DE LA SUITE, QUE NO SON DE NINGUN COMPONENTE.
+ *
+ * `triggers()` derivaba de COMPONENTES y devolvia ONCE. LEXICON declara DOCE: falta
+ * `[START MIGRATE]`, y no es un olvido — es que NO TENIA SITIO. LEXICON lo dice en su propia
+ * columna: «[START MIGRATE] · SUITE · migrar el proyecto a la version vigente». Pertenece a la
+ * suite, no a un componente, y el contrato solo tenia casa para los de componente.
+ *
+ * Lo que eso rompia, y no se veia: PT-161 escribio la comprobacion de que TODO TRIGGER TIENE CASO
+ * en CASOS-DE-USO derivandola de `triggers()`. Como [START MIGRATE] no estaba ahi, esa
+ * comprobacion NO LO MIRABA — una puerta del marco fuera del contrato de cobertura Y fuera de
+ * quien lo vigila. Es la forma que EP-022 persiguio dieciseis veces: un hecho que existe y
+ * ninguna herramienta deriva.
+ *
+ * Cada uno declara SU REGLA, porque un trigger sin dueno es lo que se acaba de arreglar.
+ */
+export const TRIGGERS_DE_SUITE = [
+  { trigger: '[START MIGRATE]', regla: 'SUITE-R17', para: 'migrar el proyecto a la version vigente' },
+];
+
+
+/** Los triggers de arranque: los de cada componente MAS los de la suite. → build-core.mjs */
+export const triggers = () => [
+  ...COMPONENTES.flatMap((c) => c.triggers),
+  ...TRIGGERS_DE_SUITE.map((t) => t.trigger),
+];
 
 /**
  * El archivo de prompts de un componente, o SIN_EVALUAR si no tiene. → audit.mjs:192-195
@@ -1790,7 +1926,6 @@ export const DOCUMENTOS_DE_ENTRADA = [
   'graphify-out/',
 ];
 
-const RE_FILA_SELLO = /^\|\s*`?([\w.\-/]+)`?\s*\|\s*(ACTUALIZADO|NO PROCEDE)\s*\|\s*(.*?)\s*\|/gim;
 
 export function selloSinResolver(actaDelSello) {
   const texto = String(actaDelSello ?? '');
@@ -1881,24 +2016,44 @@ export function rutaRelativaDelManifiesto(ruta, raiz) {
  * `docs` es un mapa {nombre: texto}. Devuelve una fila por ID duplicado con DONDE esta cada
  * copia: decir «hay conflicto» sin nombrar los dos sitios obliga a buscarlos a mano.
  */
+// PT-163 · los tres patrones, LITERALES y una sola vez. Montarlos desde strings es SUITE-R59, y
+// este archivo lleva la cuenta: doce roturas medidas, dos de ellas escribiendo verificadores.
+
 export function definidasDosVeces(docs) {
+  // PT-163 · CONTABA DOCUMENTOS, NO DEFINICIONES. `donde` era un Set de documentos, asi que dos
+  // definiciones del MISMO id en el MISMO archivo COLAPSABAN EN UNA y la comprobacion salia verde.
+  //
+  // No es teorico: PT-148 escribio LEX-R33 y LEX-R34 sobre dos IDs que ya existian desde PT-137 y
+  // PT-138. Al regenerar, LAS DOS REGLAS VIEJAS DESAPARECIERON DE CORE.md —el unico archivo que el
+  // agente carga— y esto no dijo nada. SUITE-R14 promete que verify-suite «rechaza cualquier
+  // definicion duplicada»: cumplia la mitad, y la mitad que fallaba era la mas facil de cometer.
+  //
+  // Ahora cuenta POR DOCUMENTO, y los dos hechos se distinguen (RULE-02): «en dos documentos» y
+  // «dos veces en el mismo» tienen arreglos distintos —elegir propietario contra renumerar— y
+  // fundirlos mandaba a quien lo lee a averiguar cual de los dos era.
   const donde = new Map();
   const anota = (id, doc) => {
-    if (!donde.has(id)) donde.set(id, new Set());
-    donde.get(id).add(doc);
+    if (!donde.has(id)) donde.set(id, new Map());
+    const m = donde.get(id);
+    m.set(doc, (m.get(doc) ?? 0) + 1);
   };
   for (const [doc, txt] of Object.entries(docs ?? {})) {
-    for (const l of String(txt ?? '').split(/\r?\n/)) {
+    for (const l of String(txt ?? '').split(RE_LINEAS)) {
       // Las dos formas de PT-066: RULES.md usa filas de tabla, los otros usan prosa.
-      const t = /^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(?:HARD|SOFT|CHECK)\s*\|/.exec(l);
-      const q = /^`([A-Z]+-R\d+[a-z]?)`\s*·/.exec(l);
+      const t = RE_DEF_TABLA.exec(l);
+      const q = RE_DEF_PROSA.exec(l);
       if (t) anota(t[1], doc);
       else if (q) anota(q[1], doc);
     }
   }
-  return [...donde.entries()]
-    .filter(([, ds]) => ds.size > 1)
-    .map(([id, ds]) => ({ id, docs: [...ds].sort() }));
+  const fuera = [];
+  for (const [id, m] of donde.entries()) {
+    const ds = [...m.keys()].sort();
+    const repetido = ds.filter((d) => m.get(d) > 1);
+    if (repetido.length) fuera.push({ id, docs: ds, dentroDe: repetido, veces: m.get(repetido[0]) });
+    else if (ds.length > 1) fuera.push({ id, docs: ds, dentroDe: [], veces: 1 });
+  }
+  return fuera;
 }
 
 /**
@@ -1950,7 +2105,6 @@ export function clasificarReglas(reglas, textoHerramientas, declaradas) {
  * Formato: una fila por regla, con motivo. Sin motivo no cuenta — igual que en el sello y en el
  * LAYOUT: una celda vacia es indistinguible de una que nadie miro (FND-R22).
  */
-const RE_NO_VERIFICABLE = /^\|\s*`?([A-Z]+-R\d+[a-z]?)`?\s*\|\s*(.+?)\s*\|/gim;
 
 export function noVerificablesDeclaradas(texto) {
   const m = {};
@@ -2007,7 +2161,9 @@ export function seccionesDelArnes(texto) {
       // la comprobacion de construcciones fragiles que esta misma tarea añadio.
       if (new RegExp(`(^|\\s)${h}\\s`, 'm').test(cuerpo)) tools.add(t);
     }
-    return { titulo: s.titulo, herramientas: [...tools].sort() };
+    // PT-169 · el cuerpo se DEVUELVE: `seccionesConCaso` lo necesita, y recalcularlo en dos
+    // sitios seria el mismo hecho partido en dos (RULE-01).
+    return { titulo: s.titulo, cuerpo: s.cuerpo, herramientas: [...tools].sort() };
   });
 }
 
@@ -2018,6 +2174,145 @@ export function seccionesDelArnes(texto) {
  * saltarla seria decidir sin dato (RULE-06). El lado seguro del desconocimiento es correr de
  * mas, no de menos — lo contrario convertiria esto en una fabrica de falsos verdes.
  */
+/**
+ * PT-169 · QUE SECCIONES CONTIENEN UN CASO QUE CASA CON UN PATRON.
+ *
+ * PT-086 construyo el salto de secciones —«una seccion inactiva se salta ENTERA: sus casos y su
+ * andamiaje»— y lo cableo SOLO a `--afectados`. `--solo` siguio filtrando aserciones y pagando
+ * el andamiaje completo, que es lo que existe para evitar.
+ *
+ * MEDIDO en PT-169: `selftest.sh --solo "ZZZ_NO_EXISTE_NADA"` ejecuta CERO casos de 1749 y tarda
+ * 252 SEGUNDOS. Cuatro minutos y doce para no asertar nada. El flag que existe para iterar rapido
+ * no aceleraba nada, y por eso «tarda veinte minutos en mandar el error de uno solo».
+ *
+ * QUE ESTABLECE: que ninguna seccion cuyo cuerpo contenga el patron queda fuera.
+ * QUE NO ESTABLECE: que las que devuelve sean todas necesarias. Se compara contra el CUERPO
+ *   ENTERO de la seccion, no solo contra los nombres de caso, asi que un patron que aparezca en
+ *   un comentario activa la seccion. Es deliberado: PECA DE MAS, como seccionesAfectadas — lo
+ *   contrario convertiria esto en una fabrica de falsos verdes, que es peor que correr de mas.
+ *
+ * La comparacion es LITERAL, como el `case ... in *"$SOLO"*` del arnes: si aqui fuera regex y
+ * alli literal, un patron con un punto activaria secciones que luego no ejecutarian ningun caso.
+ */
+/**
+ * PT-167 · CASOS INVERTIDOS: LOS QUE SOLO PASAN MIENTRAS EXISTE EL DEFECTO QUE VIGILAN.
+ *
+ * PT-147 escribio tres casos para afirmar que los seis componentes entran en la auditoria de
+ * fases, buscando «FIDE PHASE» en la salida de audit. Esa linea SOLO SE EMITE COMO HUECO: los tres
+ * pasaban PORQUE FIDE, FPGE y Foundation FALLABAN, y se pusieron en rojo el dia en que dejaron de
+ * fallar. Estuvieron en verde todo EP-022 afirmando LO CONTRARIO de lo que ocurria.
+ *
+ * Es RULE-02 por el reverso: el EXITO DEL CASO ERA EL FALLO DEL SISTEMA. No es un verificador
+ * debil — es un INDICADOR INVERTIDO, que avisa mientras el defecto se arregla.
+ *
+ * EL DISCRIMINADOR NO ES LA PROSA DEL HUECO. Se probaron dos criterios mas amplios y los dos
+ * producian ruido: comparar contra el TERCER argumento de gap() —la explicacion— daba 30 falsos
+ * positivos, y comparar contra el ESQUELETO literal del segundo daba 9, porque «PHASE» aparece en
+ * media metodologia. Un barrido asi se desactiva en la primera corrida, y un verificador
+ * desactivado es peor que ninguno (SUITE-R60).
+ *
+ * Lo que discrimina es el IDENTIFICADOR del hueco INSTANCIADO: `${comp} PHASE ${n}` con los
+ * nombres y siglas que COMPONENTES declara produce «FIDE PHASE», «FPGE fases» — cadenas que la
+ * herramienta emite SOLO cuando algo falta y que no aparecen en ningun documento.
+ *
+ * QUE ESTABLECE: que un `chk` cuyo patron contiene una de esas cadenas esta afirmando un HUECO.
+ * QUE NO ESTABLECE: que sea un defecto. Un caso que prueba que una regla PUEDE FALLAR asierta
+ *   exactamente eso, y es lo contrario de un defecto — PT-149 tiene tres. Por eso la salida es una
+ *   LISTA DE CANDIDATOS y no un fallo: la diferencia entre «afirma un hueco» y «prueba que el
+ *   hueco se caza» es de INTENCION, y la intencion no esta en el texto (SUITE-R26).
+ *
+ * Medido: caza los CUATRO conocidos —FIDE PHASE, FPGE PHASE, Foundation PHASE, FPGE fases— y
+ * NINGUNO de los tres legitimos de PT-149.
+ */
+/**
+ * PT-151 · LO QUE CORRE `npm run verify` Y LO QUE CORRE CI, DERIVADO DE SUS DOS FUENTES.
+ *
+ * El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y NO era cierto. Medido
+ * en EP-022: verify en verde y el check `marco` en rojo con OCHO errores bloqueantes, porque
+ * `verify-fdge --all` no estaba en verify. Un comando que promete equivaler a CI y no equivale
+ * produce el fallo que este marco persigue: CREER QUE SE VERIFICO LO QUE NO SE VERIFICO.
+ *
+ * Y las divergencias eran TRES, no una — la tercera EN SENTIDO CONTRARIO:
+ *   - `verify-fdge --all`   en CI y no en verify   (la conocida)
+ *   - `revisar-secretos`    con --historial en CI y SIN el en verify: un secreto commiteado y
+ *                           borrado despues pasa en local y falla en CI
+ *   - `matriz:check`        en verify y NO en CI: una comprobacion cuyo rojo NADIE VE EN EL PR
+ *
+ * Por eso la comparacion se hace en LOS DOS SENTIDOS. Que verify compruebe de MENOS es peor que
+ * de mas, pero las dos son la misma promesa rota.
+ *
+ * QUE ESTABLECE: que los dos conjuntos de scripts coincidan.
+ * QUE NO ESTABLECE: que el paso HAGA lo mismo en los dos sitios. Se comparan NOMBRES DE SCRIPT,
+ *   que es lo que se puede comparar: si CI invocara la herramienta directamente con otras
+ *   banderas —como hacia hasta hoy— la diferencia volveria a ser invisible. Igualarlos a `npm run
+ *   <script>` en los dos lados es lo que hace la comparacion posible, y esta declarado.
+ */
+export function pasosDeCI(yaml) {
+  const fuera = [];
+  for (const l of String(yaml ?? '').split(String.fromCharCode(10))) {
+    const t = l.trim();
+    if (!t.startsWith('run: npm run ')) continue;
+    fuera.push(t.slice('run: npm run '.length).trim());
+  }
+  return [...new Set(fuera)].sort();
+}
+
+
+export function pasosDeVerify(scripts) {
+  const cadena = String((scripts ?? {}).verify ?? '');
+  const fuera = [];
+  for (const trozo of cadena.split('&&')) {
+    const t = trozo.trim();
+    if (!t.startsWith('npm run ')) continue;
+    fuera.push(t.slice('npm run '.length).trim());
+  }
+  return [...new Set(fuera)].sort();
+}
+
+
+export function identificadoresDeHueco(textos, valores) {
+  const RE = /gap\(\s*'[^']*'\s*,\s*`([^`]{4,60})`/g;
+  const fuera = new Set();
+  for (const txt of textos ?? []) {
+    for (const m of String(txt).matchAll(RE)) {
+      const p = m[1];
+      if (!p.includes('${')) { if (p.trim().length >= 6) fuera.add(p.trim()); continue; }
+      for (const v of valores ?? []) {
+        const s = p.replace(/\$\{[^}]*\}/, v).split('${')[0].trim();
+        if (s.length >= 6) fuera.add(s);
+      }
+    }
+  }
+  return [...fuera].sort();
+}
+
+
+export function casosInvertidos(arnes, identificadores) {
+  const RE = /^chk\s+"([^"]+)"\s+"([^"]+)"/;
+  const fuera = [];
+  // SUITE-R59 · sin regex: el escape se degrado aqui al escribirlo, por undecima vez en este
+  // SUITE-R59 · sin regex: el escape se degrado aqui al escribirlo, por undecima vez en este
+  // repositorio. Partir por codigo de caracter y recortar no tiene escapes que perder.
+  String(arnes ?? '').split(String.fromCharCode(10)).forEach((l, i) => {
+    const m = RE.exec(l);
+    if (!m) return;
+    for (const s of identificadores ?? []) {
+      if (m[2].includes(s)) { fuera.push({ linea: i + 1, caso: m[1], patron: m[2], hueco: s }); break; }
+    }
+  });
+  return fuera;
+}
+
+
+export function seccionesConCaso(texto, patron) {
+  const p = String(patron ?? '');
+  if (!p) return [];
+  return seccionesDelArnes(texto)
+    .filter((s) => s.titulo.includes(p) || (s.cuerpo ?? []).some((l) => l.includes(p)))
+    .map((s) => s.titulo);
+}
+
+
 export function seccionesAfectadas(texto, cambiadas) {
   const quiere = new Set((cambiadas ?? []).map((f) => f.split('/').pop()));
   return seccionesDelArnes(texto)
@@ -2222,10 +2517,30 @@ export const SUJETOS = {
  * QUE ESTABLECE: que el encabezado nombre una autorizacion y no una espera.
  * QUE NO ESTABLECE: que el cuerpo diga lo que el encabezado anuncia. Eso lo mira quien lo lee.
  */
-const RE_ANUNCIA = /G4|VoBo|autorizad/i;
-const RE_ESPERA = /a la espera de|pendiente de|esperando|queda para|sin resolver/i;
-export const anunciaAutorizacion = (encabezado) => {
+/**
+ * PT-170 · UNA CONSTANCIA SE RECONOCE POR SU FORMA, NO POR LAS PALABRAS DE SU TITULO.
+ *
+ * Reconocia el encabezado buscando «G4», «VoBo» o «autorizad». Una constancia REAL —con la frase
+ * literal del firmante, su nombre en `firmantes` y sus limites declarados— salio como NO
+ * AUTORIZADA porque su titulo decia «Autorizacion», que NO CONTIENE «autorizad»: FALLA POR UNA
+ * «d». Y el mensaje mandaba a quien lo leia al sitio equivocado —«sin constancia»— cuando lo que
+ * habia era una constancia QUE NO SE RECONOCE.
+ *
+ * Ampliar la lista de palabras seria perseguir el idioma, y ademas la haria mas ANCHA: un
+ * encabezado que hable de autorizaciones sin serlo pasaria, que es contra lo que PT-095 escribio
+ * `RE_ESPERA`. Lo que no se puede escribir «con otras palabras» es un DATO ESTRUCTURADO.
+ *
+ * Asi que se admiten LAS DOS VIAS y se dice cual es cual:
+ *   - el ENCABEZADO anuncia —compatible con lo escrito hasta hoy—, o
+ *   - el CUERPO lleva el campo `Autoriza:` con un nombre, que es la forma.
+ * La segunda no depende de como se titule el bloque; la primera se conserva porque hay
+ * constancias escritas asi y CE-014 dice que una regla nueva no juzga hacia atras.
+ */
+export const RE_CAMPO_AUTORIZA = /^\s*Autoriza:\s*(?!\[)(\S.*)$/im;
+
+export const anunciaAutorizacion = (encabezado, cuerpo) => {
   const h = String(encabezado ?? '');
+  if (RE_CAMPO_AUTORIZA.test(String(cuerpo ?? ''))) return true;
   return RE_ANUNCIA.test(h) && !RE_ESPERA.test(h);
 };
 

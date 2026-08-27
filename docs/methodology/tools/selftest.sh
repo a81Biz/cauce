@@ -29,6 +29,11 @@ POS=""
 # todo, y la bandera diria que filtro cuando no filtro nada.
 SOLO=""
 AFECTADOS=""
+# PT-169 · ACOTADO significa «las secciones estan filtradas», sin decir POR QUE. Antes lo decia
+# AFECTADOS, y por eso --solo no podia saltar andamiaje: el concepto estaba pegado a su ORIGEN.
+# PT-086 construyo el salto y lo cableo solo a --afectados; medido en PT-169, «--solo» con un
+# patron que no casa nada ejecutaba CERO de 1749 casos y tardaba 252 SEGUNDOS.
+ACOTADO=""
 # Antes de la primera «sec» todo esta activo: lo que hay ahi es preambulo, no una seccion.
 SEC_ACTIVA=1
 SECCIONES_ACTIVAS=""
@@ -79,7 +84,7 @@ SEC=""; SEC_VISTA=""
 # `build_fixture` a nivel superior, fuera de los casos.
 sec() {
   SEC="$1"; SEC_VISTA=""
-  if [ -n "$AFECTADOS" ]; then
+  if [ -n "$ACOTADO" ]; then
     case "$SECCIONES_ACTIVAS" in
       *"|$1|"*) SEC_ACTIVA=1 ;;
       *) SEC_ACTIVA=""; SECCIONES_SALTADAS="$SECCIONES_SALTADAS  $1
@@ -90,6 +95,43 @@ sec() {
   fi
   [ -n "$QUIET" ] || [ -z "$SEC_ACTIVA" ] || echo "$1"
 }
+# ── PT-169 · SUITE-R61 · EL FIXTURE HUECO ───────────────────────────────────────────────────────
+#
+# UN CASO CUYA MUTACION NO MUTA NADA SIGUE DICIENDO OK. De los tres patrones de caso muerto que
+# EP-022 encontro, dos se delatan solos poniendose en rojo —el SUPERADO cuando el hecho cambia, el
+# INVERTIDO cuando el defecto se arregla— y el tercero NO: el HUECO se queda en verde.
+#
+# Medido en PT-149: un fixture de PT-144 hacia «s/SIN_EVALUAR/[1, 9]/» sobre un SIN_EVALUAR que ya
+# no existia. El sed no tocaba nada, la herramienta corria sobre un arbol INTACTO, y el caso
+# pasaba sin probar absolutamente nada. Nadie lo habria visto nunca.
+#
+# `muta` envuelve la mutacion y FALLA SI EL ARCHIVO NO CAMBIA. No adivina si la mutacion es UTIL
+# —eso no es mecanizable (SUITE-R26)— solo que OCURRIO, que es la mitad comprobable.
+#
+# La adopcion CRECE Y SE DECLARA, como la tabla de sujetos de SUITE-R09: hay 61 sitios que mutan
+# y convertirlos todos de golpe seria un cambio grande y ciego. Lo que la regla impide es que el
+# proximo se escriba sin ella, y `--auditar-fixtures` publica cuantos faltan.
+muta() {  # $1 archivo · $2... la orden que lo muta
+  local f="$1"; shift
+  local antes despues
+  # RULE-02 · «el archivo no existe» y «el archivo no cambio» son hechos DISTINTOS y se arreglan
+  # distinto: el primero es un fixture mal montado, el segundo un caso hueco. Fundirlos mandaria
+  # a quien lo lee a buscar cual de los dos era — el mismo motivo por el que PT-093 separo una
+  # constancia MALFORMADA de una AUSENTE.
+  if [ ! -f "$f" ]; then
+    echo "SUITE-R61 · FIXTURE_SIN_ARCHIVO: $f no existe — el fixture no se monto, y la mutacion no tenia sobre que correr"
+    return 1
+  fi
+  antes="$(cksum < "$f" 2>/dev/null)"
+  "$@"
+  despues="$(cksum < "$f" 2>/dev/null)"
+  if [ "$antes" = "$despues" ]; then
+    echo "SUITE-R61 · FIXTURE_HUECO: la mutacion no cambio $f — el caso corre sobre un arbol INTACTO y no prueba nada"
+    return 1
+  fi
+  return 0
+}
+
 bad()  {
   TOTAL=$((TOTAL + 1))
   if [ -n "$QUIET" ] && [ -z "$SEC_VISTA" ] && [ -n "$SEC" ]; then echo "$SEC"; SEC_VISTA=1; fi
@@ -130,7 +172,7 @@ salta() {
   UNIVERSO=$((UNIVERSO + 1))
   # PT-086 · seccion inactiva ⇒ el caso no corre. Se cuenta en UNIVERSO igual: la cifra de
   # cobertura no puede depender de lo que se filtro, o una corrida parcial pareceria completa.
-  [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ] && return 0
+  [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ] && return 0
   [ -z "$SOLO" ] && return 1
   case "$1" in *"$SOLO"*) return 1 ;; esac
   return 0
@@ -270,7 +312,7 @@ build_fixture() {
   # No se devuelve sin mas: el andamiaje que viene detras —perl, cp, printf— opera sobre rutas
   # de $WORK, y sin ellas llenaria la salida de errores sobre archivos que no existen. Con el
   # esqueleto, esas ordenes hacen su trabajo sobre archivos inertes y no dicen nada.
-  if [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ]; then
+  if [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ]; then
     rm -rf "$WORK"; mkdir -p "$WORK/docs/implementation" "$WORK/docs/methodology/tools" "$WORK/changes/PT-001-login"
     cd "$WORK"
     : > changes/PT-001-login/intake.md
@@ -434,7 +476,7 @@ con_phase() { sed -i "/^status:/i phase: $1" "$WORK/changes/PT-001-login/intake.
 # node en vez de python: en MSYS/Git-Bash, python no resuelve rutas /tmp/...
 reg_set() {
   # PT-086 · es una llamada a node, y por tanto cara. Con la seccion inactiva no se hace.
-  [ -n "$AFECTADOS" ] && [ -z "$SEC_ACTIVA" ] && return 0
+  [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ] && return 0
   node -e "
 const fs=require('fs'); const p=process.argv[1];
 const r=JSON.parse(fs.readFileSync(p,'utf8'));
@@ -446,6 +488,24 @@ fs.writeFileSync(p, JSON.stringify(r,null,2));
 # PT-086 · qué secciones ejercitan lo que ha cambiado. Se deriva del PROPIO arnes —leyendo qué
 # herramientas nombra cada seccion— y de `git diff`. Nada de una tabla a mano: 37 entradas serian
 # un hecho copiado mas (RULE-01) y envejecerian con la primera seccion nueva.
+# PT-169 · `--solo` ACOTA IGUAL QUE `--afectados`, y por la misma via. PT-086 escribio el salto de
+# secciones —«sus casos y su andamiaje»— y lo cableo solo al segundo; el primero seguia filtrando
+# aserciones y pagando el arnes entero. Medido: `--solo` con un patron que no casa nada ejecutaba
+# CERO de 1749 casos en 252 SEGUNDOS, y `--solo PT-098` tardaba 237 — no por lo que mide, sino por
+# lo que hay debajo. La seleccion se DERIVA del propio arnes, como la otra, y PECA DE MAS: compara
+# contra el cuerpo entero de la seccion, asi que una mencion en un comentario la activa. Correr de
+# mas es recuperable; saltarse una seccion que tenia el caso es un falso verde.
+if [ -n "$SOLO" ] && [ -z "$AFECTADOS" ]; then
+  SECCIONES_ACTIVAS=$(MTH_PAT="$SUITE/tools/patrones.mjs" MTH_ST="$SUITE/tools/selftest.sh" MTH_SOLO="$SOLO" node -e "
+      const {pathToFileURL}=require('url'); const fs=require('fs');
+      import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+        const t=fs.readFileSync(process.env.MTH_ST,'utf8');
+        process.stdout.write('|'+m.seccionesConCaso(t,process.env.MTH_SOLO).join('|')+'|');
+      });")
+  ACOTADO=1
+  [ -n "$QUIET" ] || echo "--solo «$SOLO» · $(echo "$SECCIONES_ACTIVAS" | tr -cd '|' | wc -c | tr -d ' ') delimitador(es) de seccion activa"
+fi
+
 if [ -n "$AFECTADOS" ]; then
   # MTH_CAMBIADAS permite probar LA PROPIA SELECCION sin depender del estado de git. Sin ella
   # no se puede comprobar que --afectados acota de verdad: el dia que se escribio, cinco
@@ -466,6 +526,7 @@ if [ -n "$AFECTADOS" ]; then
     echo "  RULE-06 prohíbe. Para acotar, commitea o indexa lo que estés tocando."
     AFECTADOS=""
   else
+    ACOTADO=1
     echo "--afectados · cambiaron: $(echo "$_cambiadas" | tr '
 ' ' ')"
     echo ""
@@ -2059,7 +2120,7 @@ proj136() {
       allocations:[
         {id:'PT-001',slug:'a',type:'BUG',status:'VALIDATION_PENDING',epic:'EP-001'},
         {id:'PT-002',slug:'b',type:'FEATURE',status:'VALIDATION_PENDING',epic:'EP-001'},
-        {id:'PT-003',slug:'c',type:'BUG',status:process.argv[2],epic:'EP-001'},
+        {id:'PT-003',slug:'c',type:'BUG',epic:'EP-001',epic:'EP-001',status:process.argv[2],epic:'EP-001'},
         {id:'EP-001',slug:'lote',type:'CHORE',status:'READY'}]}, null, 2));
   " "$d/docs/implementation/REGISTRY.json" "${1:-DONE}"
   echo "$d"
@@ -2196,13 +2257,18 @@ proj139() {
   node -e "
     require('fs').writeFileSync(process.argv[1], JSON.stringify({
       suite_version:'13.1.0', firmantes:['Alberto Martínez'], counters:{PT:4},
+      // PT-183 · las cuatro DECLARAN SU LOTE. No lo hacian, y el barrido de EXEC-R03 —que nombra
+      // a quien no lo declara— las enumeraba en su aviso, incluida la que este fixture usa para
+      // comprobar que el que esta AL DIA no se nombra. El caso se puso en rojo por una mencion
+      // que no era suya. Un fixture cumple los invariantes del marco salvo el que viene a romper.
       allocations:[
-        {id:'PT-001',slug:'sin-bloque',type:'BUG',status:'DEFERRED',suite_version:'13.1.0'},
-        {id:'PT-002',slug:'caducado',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+        {id:'EP-001',slug:'lote-del-fixture',status:'READY',suite_version:'13.1.0'},
+        {id:'PT-001',slug:'sin-bloque',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'13.1.0'},
+        {id:'PT-002',slug:'caducado',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'13.1.0',
          aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2020-01-01',dueno:'Alberto Martínez'}},
-        {id:'PT-003',slug:'al-dia',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+        {id:'PT-003',slug:'al-dia',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'13.1.0',
          aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2099-01-01',dueno:'Alberto Martínez'}},
-        {id:'PT-004',slug:'antiguo',type:'BUG',status:'DEFERRED',suite_version:'12.0.0'}]}, null, 2));
+        {id:'PT-004',slug:'antiguo',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'12.0.0'}]}, null, 2));
   " "$d/docs/implementation/REGISTRY.json"
   echo "$d"
 }
@@ -2912,7 +2978,12 @@ mlib "…y sin fuentes dice null, no cero" "null" "$P130" \
 
 # AC-05 · EL ARREGLO NO ES ESQUIVAR LA PALABRA. El texto que hoy fallaba sigue escrito igual y
 # ahora pasa: lo que cambio es el ALCANCE DE LA LECTURA, no la prosa.
-chk   "el HANDOFF sigue nombrando identificadores en prosa"  "PT-127"  cat "$RAIZ/docs/implementation/HANDOFF.md"
+# EL IDENTIFICADOR NO SE CLAVA. Decia «PT-127», que era el que el HANDOFF nombraba ESE DIA: al
+# reescribir su bloque ESTADO —cosa que pasa en cada lote— el caso se puso en rojo sin que nada
+# hubiera dejado de funcionar. Un caso que fija un hecho de HOY mide la fecha, no la regla. Lo
+# que la premisa necesita es que el HANDOFF nombre ALGUN identificador en prosa, no cual.
+_prosa130() { grep -oE "(PT|EP)-[0-9]{3}" "$RAIZ/docs/implementation/HANDOFF.md" | head -1; }
+chk   "el HANDOFF sigue nombrando identificadores en prosa"  "-[0-9]"  _prosa130
 chkno "…y SUITE-R34 no lo acusa por nombrarlos"  "afirma que .* sigue en curso"  vf130 PT-130
 
 # ── PT-126 · EP-020 · sellar mide la matriz y FPGE la lee ─────────────────────────────────────
@@ -4975,10 +5046,14 @@ chk   "…y sigue sin bloquear: codigo cero"        "^0$" \
   sh -c 'cd "$1" && GH_TOKEN= node docs/methodology/tools/verify-fdge.mjs --all >/dev/null 2>&1; echo $?' _ "$WORK"
 # AC-02 · el token llega al paso que lo necesita, en LOS DOS workflows. Se mide sobre el YAML
 # porque es donde vive el hecho: el paso de verify-fdge declara su env.
+# PT-151 · el ancla de estos dos casos era «verify-fdge.mjs --all» y cambio POR DISENO: los dos
+# workflows invocan ahora «npm run verify:fdge», que es lo que hace comparables las dos listas
+# (SUITE-R62). Es el patron SUPERADO de SUITE-R61, ajustado con su motivo y no en silencio. Lo
+# que el caso comprueba NO cambia: que el token llegue al paso que lo necesita.
 chk   "publicar.yml da GH_TOKEN a verify-fdge"    "PT-120" \
-  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/publicar.yml"' _ "$RAIZ"
+  sh -c 'sed -n "/verify:fdge/,/GH_TOKEN/p" "$1/.github/workflows/publicar.yml"' _ "$RAIZ"
 chk   "verificacion.yml tambien"                  "PT-120" \
-  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/verificacion.yml"' _ "$RAIZ"
+  sh -c 'sed -n "/verify:fdge/,/GH_TOKEN/p" "$1/.github/workflows/verificacion.yml"' _ "$RAIZ"
 build_fixture
 
 # PT-117 · AC-03 · «--pendientes» es la consulta que el hook Stop invoca.
@@ -7830,9 +7905,12 @@ proj144() {
 }
 # Rompe un campo del contrato en la COPIA y ejecuta el verificador sobre ella. El arbol real no
 # se toca: si un caso dejara el modulo roto, los 1700 casos siguientes medirian otra cosa.
+# PT-169 · PRIMER ADOPTANTE DE `muta`, y no por casualidad: el caso hueco que SUITE-R61 nombra
+# salio de AQUI. Un fixture de este helper hacia «s/SIN_EVALUAR/[1, 9]/» sobre un SIN_EVALUAR que
+# PT-156 ya habia quitado: el sed no tocaba nada y el caso pasaba sobre un arbol intacto.
 rot144() {
   local d; d="$(proj144)"
-  sed -i "$1" "$d/patrones.mjs"
+  muta "$d/patrones.mjs" sed -i "$1" "$d/patrones.mjs" || return 0
   node "$d/verify-patrones.mjs" 2>&1
 }
 
@@ -7850,6 +7928,15 @@ chk   "…y perder el rango de FIDE tambien"            "El dato EXISTE" \
   rot144 "s/    fases: \[1, 5\],/    fases: SIN_EVALUAR,/"
 chk   "FIDE dejando de ser opcional se caza"          "ya no contiene FIDE" \
   rot144 "s/    obligatorio: false,/    obligatorio: true,/"
+
+# ── PT-169 · SUITE-R61 · un fixture que no muta nada FALLA ──────────────────────────────────────
+#
+# Es el unico de los tres patrones de caso muerto que NO se delata solo. Los casos de abajo son el
+# par: uno prueba que se caza, el otro que no molesta cuando la mutacion SI ocurre — sin el
+# segundo, «fallar siempre» pasaria el primero y seria peor que el defecto.
+chk   "un fixture cuya mutacion no cambia nada se caza"  "FIXTURE_HUECO"   rot144 "s/ESTO_NO_EXISTE_EN_EL_ARCHIVO/NADA/"
+chk   "…y dice QUE archivo quedo intacto"                "patrones.mjs"   rot144 "s/ESTO_NO_EXISTE_EN_EL_ARCHIVO/NADA/"
+chkno "una mutacion REAL no se marca como hueca"         "FIXTURE_HUECO"   rot144 "s/    sigla: 'FND',/    sigla: 'FOUND',/"
 # El caso que se escapo la primera vez. CORE.md se emite con `orden`: un empate hace que el
 # nucleo dependa del orden de declaracion en vez del declarado.
 chk   "un «orden» de familia REPETIDO se caza"        "esta repetido" \
@@ -8055,6 +8142,362 @@ chkno "…ni una sigla que tambien es prefijo de identificador" "SUITE-R60" \
 chk   "sobre el arbol real no queda ningun literal"          "Sin errores de coherencia" \
   sh -c "cd '$RAIZ' && node '$VS148' docs/methodology 2>&1"
 
+# ── PT-155 · EP-024 · siete patrones criticos vivian FUERA del contrato ─────────────────────────
+#
+# SUITE-R38 dice que un patron critico vive en UN SOLO SITIO y VIAJA CON SU CONTRATO —para, casa,
+# noCasa—. En patrones.mjs, el archivo DEL contrato, habia SIETE regex de primer nivel sin nada de
+# eso, y verify-patrones no los tocaba: un escape degradado en cualquiera NO LO CAZABA NADIE.
+#
+# No eran menos criticos: eran MENOS VISIBLES. SUITE-R59 lleva DOCE roturas medidas aqui, y las que
+# cazo una comprobacion fueron las que estaban EN PATRONES; las de fuera salieron por casualidad,
+# mirando bytes con cat -A o viendo reventar el arranque. TRES de los siete se escribieron durante
+# este mismo lote.
+P155="$WORK/p155"
+rompe155() {  # $1 la sustitucion que degrada un patron
+  rm -rf "$P155"; mkdir -p "$P155"
+  cp "$SUITE/tools/patrones.mjs" "$SUITE/tools/verify-patrones.mjs" "$P155/"
+  perl -0pi -e "$1" "$P155/patrones.mjs"
+  ( cd "$P155" && node verify-patrones.mjs 2>&1 )
+}
+
+# NINGUNO QUEDA FUERA. Se cuenta sobre el archivo real: siete regex de primer nivel, cero sin
+# entrada en PATRONES.
+export MTH_PAT="$SUITE/tools/patrones.mjs"
+fuera155() {
+  node -e "
+    const {pathToFileURL}=require('url'); const fs=require('fs');
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      const src=fs.readFileSync(process.env.MTH_PAT,'utf8');
+      // El patron se compone: escribir una barra dentro de una cadena de shell dentro de un
+      // -e de node es la via por la que SUITE-R59 ha roto doce veces en este repositorio.
+      const RE=new RegExp('^const (RE_[A-Z_0-9]+) = ' + String.fromCharCode(92,47), 'gm');
+      const sueltos=[...src.matchAll(RE)].map((x)=>x[1]);
+      const enPat=Object.values(m.PATRONES).map((p)=>String(p.re));
+      const fuera=sueltos.filter((n)=>{
+        const mm=new RegExp('^const '+n+' = (.+);' + String.fromCharCode(36),'m').exec(src);
+        return mm && !enPat.includes(mm[1]);
+      });
+      console.log('fuera '+fuera.length);
+    });" 2>&1
+}
+chk   "ningun regex de primer nivel queda sin contrato"  "^fuera 0$" fuera155
+
+# EL CRITERIO REAL: que ROMPER uno ponga la prueba en rojo. Meter siete entradas a un objeto no
+# prueba nada; que un patron degradado FALLE, si.
+chk   "un patron degradado FALLA"                        "no casa" \
+  rompe155 's/const RE_ANUNCIA = .*;/const RE_ANUNCIA = \/ZZZ\/i;/'
+chk   "…y NOMBRA el patron roto"                         "ANUNCIA_AUTORIZACION" \
+  rompe155 's/const RE_ANUNCIA = .*;/const RE_ANUNCIA = \/ZZZ\/i;/'
+# EL FRENO: sin tocar nada, en verde. «Fallar siempre» pasaria los dos de arriba.
+chk   "sin tocar nada, todos cumplen su contrato"        "cumplen su contrato" rompe155 's/XXNADAXX/YY/'
+
+# ── PT-161 · EP-024 · CASOS-DE-USO se declara contrato de cobertura y nada lo comprobaba ────────
+#
+# Su encabezado dice: «un caso que no este aqui es un hueco DECLARADO, no un silencio». Fallo DOS
+# VECES en EP-022 —con DICTAMEN y con el alta/baja de un componente— y las dos veces lo encontro
+# alguien echandolo en falta al leer.
+#
+# La promesa ENTERA no se puede verificar —nadie sabe que casos EXISTEN— pero su parte derivable
+# si: el catalogo dice DONDE ENTRAR, y los puntos de entrada son los TRIGGERS, que el contrato ya
+# declara. Medido: 11 triggers, CUATRO sin caso, y DOS de ellos eran el bucle por el que pasa todo
+# el trabajo de FDGE — abrir y cerrar una implementacion.
+P161="$WORK/p161"
+sinCaso161() {  # $1 el trigger a borrar del catalogo
+  rm -rf "$P161"; cp -r "$SUITE" "$P161" 2>/dev/null
+  perl -0pi -e "s/\Q$1\E//g" "$P161/CASOS-DE-USO.md"
+  ( cd "$P161" && node tools/audit.mjs . 2>&1 )
+}
+
+# UN TRIGGER SIN CASO SE CAZA, Y SE DICE CUAL.
+chk   "un trigger sin caso en el catalogo se caza"    "trigger(s) sin caso" sinCaso161 "[START QA]"
+chk   "…y NOMBRA el trigger que falta"                "START QA"            sinCaso161 "[START QA]"
+# EL FRENO: el catalogo real los tiene todos. Sin este caso, «fallar siempre» pasaria los de
+# arriba y la comprobacion se desactivaria en la primera corrida.
+chkno "el catalogo real no tiene ningun trigger suelto" "trigger(s) sin caso" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/audit.mjs' docs/methodology 2>&1"
+# Y LOS TRES CASOS QUE FALTABAN ESTAN, con su trigger.
+chk   "el bucle de la implementacion tiene caso"      "E7" cat "$SUITE/CASOS-DE-USO.md"
+chk   "…y la reconciliacion suelta"                   "E8" cat "$SUITE/CASOS-DE-USO.md"
+chk   "…y la validacion de Foundation"                "E9" cat "$SUITE/CASOS-DE-USO.md"
+# AC-03 · lo que NO es comprobable SE DICE. El escenario no es «no hay escenario»: es que la
+# salida DECLARE su limite. Un criterio sin escenario es un criterio que nadie comprueba, y
+# FDGE-R15 lo llama Orphan Criterion — escribir «—» en la celda no lo hace menos huerfano.
+chk   "audit declara lo que su barrido NO alcanza"    "que el catalogo este COMPLETO" \
+  cat "$SUITE/tools/audit.mjs"
+
+# ── PT-160 · EP-024 · FDGE-R15a · los AC de la matriz son los del intake ────────────────────────
+#
+# FDGE-R15 dice que la lista del intake es CANONICA, y verify-fdge solo miraba que cada fila de
+# traceability tuviera escenario, prueba y evidencia. QUE LAS FILAS FUERAN LAS MISMAS NO LO
+# COMPROBABA NADIE: se podia escribir una matriz con CUATRO criterios cuando el intake declaraba
+# SIETE, y salia en verde con tres sin rastro. Paso en EP-022, y lo encontro LEER LOS DOS ARCHIVOS.
+#
+# Primera corrida: SEIS reales —PT-077 declara AC-06 y su matriz no lo recoge— y trece avisos. Los
+# seis son trabajo YA INTEGRADO, asi que la regla nace con RIGE_DESDE 13.2.0: juzgarlo hacia atras
+# es CE-014 y el rojo NO TENDRIA SALIDA, porque esas matrices ya se cerraron.
+P160="$WORK/p160"
+proj160() {  # $1 lo que se le hace a traceability · $2 a intake
+  # LA VERSION SE DERIVA DE RIGE_DESDE, NO SE CLAVA. Estaba escrita «13.2.0» a mano, y el dia
+  # que FDGE-R15a paso a regir desde 13.3.0 —al separar EP-024 de la 13.2.0 que ya estaba en
+  # main— los TRES casos de abajo dejaron de ejercitar la regla Y SIGUIERON EN VERDE. Es el
+  # patron «hueco» de SUITE-R61 en su forma mas cara: un fixture que deja de cumplir su premisa
+  # sin decirlo. Lo puso en rojo la bateria completa, no las pruebas de la tarea.
+  local _v
+  _v="$(MTH_PAT="$SUITE/tools/patrones.mjs" node -e "import(require('url').pathToFileURL(process.env.MTH_PAT).href).then((m)=>process.stdout.write((m.RIGE_DESDE['FDGE-R15a']||[0,0,0]).join('.')))")"
+  [ -n "$_v" ] || _v="0.0.0"
+  rm -rf "$P160"; mkdir -p "$P160/changes/PT-001-login" "$P160/docs/implementation/evidence/PT-001"
+  cp -r "$RAIZ/docs/methodology" "$P160/docs/" 2>/dev/null
+  printf '%s\n' '```yaml' 'id: PT-001' 'type: FEATURE' 'track: STANDARD' 'status: DRAFT' \
+    'phase: 4' "suite_version: $_v" 'origin: DIRECT' '```' '' \
+    '| AC | Criterio |' '|:---|:---|' '| AC-01 | uno |' "$2" '' '## Firma' '' \
+    'Solicitado por: Alberto Martínez' 'Fecha: 2026-08-26' \
+    'He leído este Intake y confirmo que refleja mi intención: SÍ' \
+    '' 'VEREDICTO: PASS' '' '> Termina cuando: pasa.' \
+    > "$P160/changes/PT-001-login/intake.md"
+  printf '%s\n' '| AC | Criterio | TS | Test | Evidencia | Caso QA | Estado |' \
+    '|:---|:---|:---|:---|:---|:---|:---|' '| AC-01 | uno | TS-01 | t | e | n/a | OK |' "$1" \
+    > "$P160/changes/PT-001-login/traceability.md"
+  printf '%s' '{"allocations":[{"id":"PT-001","slug":"login","type":"FEATURE","status":"DRAFT","phase":4,"severity":"S3","suite_version":"'"$_v"'"}]}' \
+    > "$P160/docs/implementation/REGISTRY.json"
+  ( cd "$P160" && node docs/methodology/tools/verify-fdge.mjs PT-001 2>&1 )
+}
+
+# EL INTAKE DECLARA Y LA MATRIZ NO LO RECOGE: bloquea. Es el criterio que nadie comprueba.
+chk   "un AC del intake que falta en la matriz BLOQUEA"  "FDGE-R15a" \
+  proj160 '' '| AC-02 | dos |'
+chk   "…y dice que la lista del intake es canonica"      "CANONICA" \
+  proj160 '' '| AC-02 | dos |'
+# LA MATRIZ RECOGE Y EL INTAKE NO DECLARA: avisa. Es un criterio que nadie firmo, y puede ser
+# trabajo de mas o un AC anadido sin volver al intake — lo decide quien lo escribio, no un script.
+chk   "un AC de la matriz que el intake no declara AVISA" "nadie firmo" \
+  proj160 '| AC-09 | nueve | TS-09 | t | e | n/a | OK |' ''
+# EL FRENO: con las dos listas iguales, ni rojo ni aviso. Sin esto, «fallar siempre» pasaria los
+# tres de arriba y la comprobacion se desactivaria en la primera corrida.
+chkno "con las dos listas iguales no dice nada"          "FDGE-R15a" proj160 '' ''
+
+# ── PT-163 + PT-164 · EP-024 · un ID reutilizado, y renumerar como operacion ────────────────────
+#
+# PT-163 · `definidasDosVeces` contaba DOCUMENTOS, no definiciones: `donde` era un Set de archivos,
+# asi que dos definiciones del MISMO id en el MISMO archivo COLAPSABAN EN UNA y la comprobacion
+# salia verde. SUITE-R14 promete que verify-suite «rechaza cualquier definicion duplicada»: cumplia
+# la mitad, y la mitad que fallaba es LA MAS FACIL DE COMETER — nadie mira si un ID esta libre.
+#
+# No es teorico: PT-148 escribio LEX-R33 y LEX-R34 sobre IDs que existian desde PT-137 y PT-138, y
+# al regenerar LAS DOS REGLAS VIEJAS DESAPARECIERON DE CORE.md sin que nada avisara. Y al arreglarlo
+# aparecio otro VIVO: EXEC-R08 definida dos veces en EXECUTION-MODES.md, con dos obligaciones
+# distintas bajo un identificador.
+P163="$WORK/p163"
+proj163() {
+  rm -rf "$P163"; mkdir -p "$P163"
+  cp -r "$SUITE"/. "$P163/" 2>/dev/null
+  echo "$P163"
+}
+dup163() {  # $1 el texto a anadir a EXECUTION-MODES.md
+  local d; d="$(proj163)"
+  printf '%s\n' "$1" >> "$d/EXECUTION-MODES.md"
+  ( cd "$d" && node tools/verify-suite.mjs . 2>&1 )
+}
+
+# DOS VECES EN EL MISMO DOCUMENTO. Es lo que no se detectaba.
+chk   "un ID definido dos veces en el mismo doc se caza" "DEFINIDA 2 veces DENTRO de" \
+  dup163 '`EXEC-R04` · Un texto cualquiera que reusa un ID ya ocupado.'
+# Y EL MENSAJE SEPARA LOS DOS HECHOS: «en dos documentos» se arregla eligiendo duenno; «dos veces
+# en el mismo» se arregla renumerando. Fundirlos manda a quien lo lee a averiguar cual era.
+chk   "…y dice que la anterior DESAPARECE de CORE"       "DESAPARECE" \
+  dup163 '`EXEC-R04` · Un texto cualquiera que reusa un ID ya ocupado.'
+chkno "…y NO lo llama propietario duplicado"             "propietario duplicado: es un ID reutilizado. La" \
+  sh -c 'true'
+# EL FRENO: el arbol real no tiene ninguno, y sin este caso «fallar siempre» pasaria los de arriba.
+chk   "el arbol real no tiene ningun ID reutilizado"     "Sin errores de coherencia" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/verify-suite.mjs' docs/methodology 2>&1"
+
+# PT-164 · RENUMERAR ES UN COMANDO. Se hizo A MANO dos veces en dos dias, y la primera dejo a
+# SUITE-R44 citando «retomada» con DOS IDs distintos dentro de la misma regla.
+REG164="$SUITE/tools/regla.mjs"
+ren164() { ( cd "$(proj163)" && node tools/regla.mjs renombrar "$1" "$2" 2>&1 ); }
+
+chk   "renombrar enumera lo que va a tocar"              "cita(s) en" ren164 EXEC-R04 EXEC-R90
+chk   "…y NO escribe sin la bandera"                     "Nada se ha escrito" ren164 EXEC-R04 EXEC-R90
+# AC-02 · negarse si el destino EXISTE es lo que evita que la herramienta cause el defecto que
+# arregla: renumerar sobre un ID ocupado es EXACTAMENTE lo que hizo PT-148.
+chk   "se niega si el destino YA existe"                 "YA ESTA DEFINIDA" ren164 EXEC-R04 EXEC-R05
+chk   "…y se niega a cambiar de familia"                 "familias distintas" ren164 EXEC-R04 LEX-R90
+chk   "…y a mover una regla que no existe"               "no esta definida"  ren164 EXEC-R97 EXEC-R98
+# Y con la bandera, las citas SE MUEVEN. Sin esto lo anterior es un enumerador, no un comando.
+aplica164() {
+  local d; d="$(proj163)"
+  ( cd "$d" && node tools/regla.mjs renombrar EXEC-R04 EXEC-R90 --aplicar >/dev/null 2>&1 )
+  # Se cuentan las citas EXACTAS: «EXEC-R04a» es OTRA REGLA y el comando NO debe tocarla. La
+  # primera version de este caso conto con `grep -o EXEC-R04`, que casa dentro de EXEC-R04a, y
+  # dio 46 citas «sin mover» que en realidad eran subreglas intactas — el caso acusaba al comando
+  # de un defecto que no tenia. Y la cuenta se DICE con su numero: un `grep -c` encadenado
+  # devuelve 1 cuando la cuenta es cero, que es la linea -7 del «no hacer».
+  echo "quedan $(grep -roE "EXEC-R04([^0-9A-Za-z]|$)" "$d" 2>/dev/null | wc -l | tr -d " ")"
+}
+chk   "con --aplicar no queda ninguna cita atras"        "^quedan 0$" aplica164
+# Y NO TOCA LAS SUBREGLAS: EXEC-R04a es otra regla, con su propio texto y su propia severidad.
+# Mover «EXEC-R04» y arrastrar «EXEC-R04a» convertiria el comando en el defecto que arregla.
+subregla164() {
+  local d; d="$(proj163)"
+  ( cd "$d" && node tools/regla.mjs renombrar EXEC-R04 EXEC-R90 --aplicar >/dev/null 2>&1 )
+  [ "$(grep -roE "EXEC-R04[a-z]" "$d" 2>/dev/null | wc -l | tr -d " ")" -gt 0 ] && echo "subreglas SI" || echo "subreglas NO"
+}
+chk   "…y NO arrastra las subreglas EXEC-R04a"           "subreglas SI" subregla164
+# AC-05 · igual: el comando DICE que una cita a un ID equivocado-pero-real no se puede detectar.
+# Declararlo es la mitad honesta de SUITE-R26, y que este ESCRITO es lo comprobable.
+chk   "el comando declara lo que no puede detectar"   "EQUIVOCADO-PERO-REAL" \
+  cat "$SUITE/tools/regla.mjs"
+
+# ── PT-151 · EP-024 · «npm run verify» NO era lo que corre CI ────────────────────────────────────
+#
+# El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y NO era cierto. Medido en
+# EP-022: verify en VERDE y el check `marco` en ROJO con OCHO errores bloqueantes, porque
+# `verify-fdge --all` no estaba en verify. Sobre esa base se declaro «todo verde», y el primer PR
+# lo desmintio. SUITE-R01 apoya toda decision en evidencia verificable: un comando que promete
+# equivaler a CI y no equivale produce el fallo que este marco persigue — CREER QUE SE VERIFICO LO
+# QUE NO SE VERIFICO.
+#
+# Y ERAN TRES, no una, con la tercera EN SENTIDO CONTRARIO:
+#   verify-fdge --all   en CI y no en verify
+#   revisar-secretos    con --historial en CI y SIN el en verify — un secreto commiteado y borrado
+#                       despues PASA EN LOCAL y falla en CI
+#   matriz:check        en verify y NO en CI: una comprobacion cuyo rojo NADIE VE EN EL PR
+export MTH_PAT="$SUITE/tools/patrones.mjs"
+CMP151() {  # $1 yaml · $2 package.json
+  MTH_Y="$1" MTH_P="$2" node -e "
+    const {pathToFileURL}=require('url'); const fs=require('fs');
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      const ci=m.pasosDeCI(fs.readFileSync(process.env.MTH_Y,'utf8'));
+      const v=m.pasosDeVerify(JSON.parse(fs.readFileSync(process.env.MTH_P,'utf8')).scripts);
+      const falta=ci.filter((x)=>!v.includes(x)), sobra=v.filter((x)=>!ci.includes(x));
+      console.log('FALTA:'+(falta.join(',')||'-')+' SOBRA:'+(sobra.join(',')||'-'));
+    });" 2>&1
+}
+proj151() {
+  local d="$WORK/p151"; rm -rf "$d"; mkdir -p "$d/.github/workflows"
+  cp "$RAIZ/.github/workflows/verificacion.yml" "$d/.github/workflows/" 2>/dev/null
+  cp "$RAIZ/package.json" "$d/" 2>/dev/null
+  echo "$d"
+}
+
+# HOY COINCIDEN. Es la mitad facil y sin la otra no vale nada.
+igual151() {
+  local d; d="$(proj151)"
+  CMP151 "$d/.github/workflows/verificacion.yml" "$d/package.json"
+}
+chk   "verify y CI corren los mismos pasos"        "FALTA:- SOBRA:-" igual151
+# QUE FALTE EN VERIFY BLOQUEA: es lo que dejo pasar ocho errores al PR.
+quita_verify151() {
+  local d; d="$(proj151)"
+  perl -0pi -e "s/ && npm run verify:fdge//" "$d/package.json"
+  CMP151 "$d/.github/workflows/verificacion.yml" "$d/package.json"
+}
+chk   "un paso de CI que falte en verify se caza"  "FALTA:verify:fdge" quita_verify151
+# Y QUE SOBRE TAMBIEN SE DICE: una comprobacion que corre en local y no en CI tiene su rojo
+# invisible en el PR. Sin este caso, la comparacion en un solo sentido dejaria pasar matriz:check.
+quita_ci151() {
+  local d; d="$(proj151)"
+  perl -0pi -e "s/        run: npm run matriz:check/        run: echo nada/" "$d/.github/workflows/verificacion.yml"
+  CMP151 "$d/.github/workflows/verificacion.yml" "$d/package.json"
+}
+chk   "…y un paso de verify que CI no corre"       "SOBRA:matriz:check" quita_ci151
+# verify-fdge lo EMITE con su regla, o el fallo no dice de donde viene (SUITE-R53).
+chk   "verify-fdge lo emite citando SUITE-R62"     "SUITE-R62" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/verify-fdge.mjs' 2>&1 | grep 'los mismos'"
+# AC-04 · la cifra publicada —24,1 min— es la de NUEVE pasos. Si manana son ocho o diez, la cifra
+# deja de describir lo que se mide. Se escribio sin TS y verify-fdge lo rechazo como Orphan
+# Criterion: un criterio sin escenario es un criterio que nadie comprueba (FDGE-R15).
+pasos151() {
+  node -e "const s=require(process.env.MTH_PKG).scripts.verify;console.log(s.split(String.fromCharCode(38,38)).length+' pasos')"
+}
+export MTH_PKG="$RAIZ/package.json"
+chk   "verify corre los nueve pasos medidos"       "^9 pasos$" pasos151
+
+# ── PT-168 · EP-024 · audit daba por cubierta una fase que NO ESTA en el documento ──────────────
+#
+# `cubre()` devolvia cierto en cuanto la cadena «PHASE 3 » aparecia EN EL DOCUMENTO ENTERO, sin
+# mirar de quien era. Y PHASES.md y CORE.md documentan las once fases de FDGE, asi que CUALQUIER
+# fase de CUALQUIER componente entre 0 y 10 estaba «cubierta» en los dos, SIEMPRE.
+#
+# LO GRAVE NO ERA QUE SE EQUIVOCARA: ES QUE NO PODIA EQUIVOCARSE. Acertaba para los seis reales
+# POR CASUALIDAD —PHASES.md tiene seccion para todos— y fallo la septima vez: PT-149 dio de alta un
+# componente cuyo nombre y sigla aparecen CERO veces en esos documentos y audit lo declaro cubierto.
+# La septima es justo el caso para el que sirve una comprobacion.
+#
+# De las TRES dimensiones que audit exige por fase, solo UNA discriminaba: el archivo de prompts,
+# porque se lee por su ruta. Las otras dos eran decoracion.
+P168="$WORK/p168"
+alta168() {
+  rm -rf "$P168"; cp -r "$SUITE" "$P168" 2>/dev/null
+  perl -0pi -e "s/(    fases: \[1, 5\],\n    en_core: true,\n  \},\n)/\$1  {\n    nombre: 'Zeta', prompts: 'ZETA-Prompts.md', sigla: 'ZT', prefijo: 'ZTA',\n    directorio: 'ZETA', obligatorio: false, triggers: ['[START ZETA]'],\n    fases: [1, 3], en_core: true,\n  },\n/" "$P168/tools/patrones.mjs"
+  perl -0pi -e "s/^### 3\.7 El contrato de componente/### 3.6b Zeta\n\n| PHASE | Nombre |\n|:--|:---|\n| 1 | Uno |\n| 2 | Dos |\n| 3 | Tres |\n\n---\n\n### 3.7 El contrato de componente/m" "$P168/LEXICON.md"
+  printf '# Zeta\n\n## PHASE 1 — Uno\n## PHASE 2 — Dos\n## PHASE 3 — Tres\n' > "$P168/ZETA-Prompts.md"
+  ( cd "$P168" && node tools/build-core.mjs . >/dev/null 2>&1; node tools/audit.mjs . 2>&1 )
+}
+
+# UN COMPONENTE CUYAS FASES NO ESTAN EN NINGUN DOCUMENTO SALE COMO HUECO. Antes salia cubierto:
+# es el caso que PT-149 midio y el unico que distingue una comprobacion de un adorno.
+chk   "una fase que no esta en el documento es HUECO" "Zeta PHASE 1" alta168
+chk   "…y dice en cual falta"                         "ausente en" alta168
+# EL FRENO. Sin esto, «fallar siempre» pasaria el caso de arriba y seria PEOR que el defecto: los
+# seis componentes reales se volverian rojos y alguien quitaria la comprobacion entera.
+chkno "los seis reales NO se vuelven huecos"          "FDGE PHASE" alta168
+chk   "…y el arnes lo dice contando"                  "(7 de 7)"   alta168
+# Y sobre el arbol real: sin huecos. La cifra NO bajo —52 antes y despues— porque los seis estaban
+# bien documentados. Lo que cambio no es cuanto se cubre: es que la cobertura PUEDA FALLAR.
+chk   "el arbol real sigue sin huecos"                "sin huecos" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/audit.mjs' docs/methodology 2>&1"
+
+# ── PT-167 · EP-024 · el caso INVERTIDO: solo pasa mientras existe el defecto que vigila ────────
+#
+# PT-147 escribio tres casos para afirmar que los seis componentes entran en la auditoria de fases,
+# buscando «FIDE PHASE» en la salida de audit. ESA LINEA SOLO SE EMITE COMO HUECO: los tres pasaban
+# PORQUE FIDE, FPGE y Foundation FALLABAN, y se pusieron en rojo el dia en que dejaron de fallar.
+# Estuvieron en verde TODO EP-022 afirmando lo contrario de lo que ocurria.
+#
+# Es RULE-02 por el reverso: el EXITO DEL CASO ERA EL FALLO DEL SISTEMA.
+#
+# EL DISCRIMINADOR NO ES LA PROSA. Se probaron dos criterios mas amplios: comparar contra la
+# EXPLICACION del hueco daba 30 falsos positivos, y contra el ESQUELETO literal del identificador
+# daba 9 —«PHASE» aparece en media metodologia—. Lo que discrimina es el IDENTIFICADOR INSTANCIADO
+# con los valores que COMPONENTES declara: «FIDE PHASE» no aparece en ningun documento.
+PAT167() {  # $1 cadena a probar contra los identificadores derivados
+  MTH_Q="$1" node -e "
+    const {pathToFileURL}=require('url'); const fs=require('fs');
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      const dir=process.env.MTH_TOOLS;
+      const txts=fs.readdirSync(dir).filter((f)=>f.endsWith('.mjs')).map((f)=>fs.readFileSync(dir+'/'+f,'utf8'));
+      const vals=m.COMPONENTES.flatMap((c)=>[c.nombre,m.siglaDe(c.nombre)]);
+      const ids=m.identificadoresDeHueco(txts,vals);
+      console.log(ids.some((s)=>process.env.MTH_Q.includes(s))?'CAZA':'NO_CAZA');
+    });" 2>&1
+}
+export MTH_PAT="$SUITE/tools/patrones.mjs" MTH_TOOLS="$SUITE/tools"
+
+# LOS CUATRO CONOCIDOS. Ya no estan en el arnes —PT-156 los reescribio— asi que se reintroducen
+# como fixture: sin ellos, el barrido podria no cazar nada y parecer que funciona.
+chk   "caza el invertido de FIDE"                  "^CAZA$"    PAT167 "FIDE PHASE"
+chk   "…el de FPGE"                                "^CAZA$"    PAT167 "FPGE PHASE"
+chk   "…el de Foundation"                          "^CAZA$"    PAT167 "Foundation PHASE"
+chk   "…y el del rango sin declarar"               "^CAZA$"    PAT167 "FPGE fases"
+
+# LOS TRES LEGITIMOS DE PT-149. Prueban que una regla PUEDE FALLAR, que es lo CONTRARIO de un
+# defecto: son lo que impide que la correccion de PT-149 sea un apagado disfrazado. Si el barrido
+# los cazara, mataria justo los casos que hacen que la bateria no sea decoracion.
+chk   "NO caza «perder un componente sigue rojo»"  "^NO_CAZA$" PAT167 "no puede perder ninguno"
+chk   "…ni «perder una familia»"                   "^NO_CAZA$" PAT167 "ninguna puede desaparecer"
+chk   "…ni «alterar el orden»"                     "^NO_CAZA$" PAT167 "EN SU ORDEN"
+
+# Y sobre el arnes real: hoy CERO, porque PT-156 los reescribio. Es la cifra que la regla vigila.
+#
+# La primera version de este caso esperaba «SUITE-R61» de la salida de un `grep -c`, que devuelve
+# un NUMERO. Nunca podia pasar, y salio en rojo en su primera corrida — que es lo que un caso mal
+# escrito debe hacer. Es el patron HUECO por el otro lado: no finge probar, es que no puede.
+cuenta167() {
+  ( cd "$RAIZ" && node "$SUITE/tools/audit.mjs" docs/methodology 2>&1 ) | grep -c "asertan sobre el IDENTIFICADOR"
+}
+chk   "el arnes real no tiene casos invertidos"    "^0$" cuenta167
+
 # ── PT-149 · EP-022 · LA PRUEBA: un componente se da de alta y de baja sin tocar herramienta ────
 #
 # ES EL CRITERIO DE EXITO DEL LOTE ENTERO, y hasta que se ejecuto NO SE CUMPLIA. PT-144..PT-148
@@ -8218,6 +8661,437 @@ chkno "el contraste no lleva una lista de componentes" "for (const comp of \['" 
 
 
 
+
+sec "── EP-024 · lo que no se derivaba, y lo que no se miraba ──"
+
+# ── PT-152 · el nucleo publica los triggers de SUITE, no solo los de componente ─────
+#
+# `triggers()` devolvia «todos los de COMPONENTES», que es VERDAD y no es suficiente: LEXICON
+# declara trece y CORE publicaba ocho. [START MIGRATE] no es de ningun componente —es de la
+# suite— y no habia donde declararlo, asi que no se declaraba. CE-001, el proxy por el hecho.
+mlib  "los triggers de suite entran en la lista"   "[START MIGRATE]" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.triggers()))"
+mlib  "…y cada uno declara la regla que lo exige"  "SUITE-R17" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.TRIGGERS_DE_SUITE))"
+mlib  "…y para que sirve, no solo su nombre"       "migrar" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.TRIGGERS_DE_SUITE.map((t)=>t.para)))"
+# El caso invertido: sin los de componente la lista seria otra cosa, no una lista mas corta.
+mlib  "los de componente siguen estando"           "[START FDGE]" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.triggers()))"
+
+# ── PT-153 · la rama de un lote se DERIVA, y no se inventa ──────────────────
+#
+# ramaDeTarea empieza por `type` y LEX-R27 dice que un lote NO lleva `type`. Las dos cosas son
+# correctas por separado y juntas daban null, asi que la rama se inventaba:
+# «chore/alberto-martinez/EP-022-cierre», donde ni chore era su tipo ni cierre era su slug.
+mlib  "la rama de un lote se deriva del registro"  "chore/alberto-martinez/EP-022-los-componentes" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.ramaDeLote('EP-022','los-componentes-se-declaran','Alberto Martinez'))"
+mlib  "…y sin usuario tiene dos niveles"           "chore/EP-022-los-componentes" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.ramaDeLote('EP-022','los-componentes-se-declaran'))"
+# RULE-06 · fuera de su objeto no inventa nada. Los dos casos invertidos que impiden que
+# `ramaDeLote` se convierta en «devuelve algo siempre», que es el defecto que vino a quitar.
+mlib  "lo que no es un lote no tiene rama de lote" "null" "$SUITE/tools/patrones.mjs" \
+  "console.log(String(m.ramaDeLote('PT-153','lo-que-sea','Alberto Martinez')))"
+mlib  "…y sin slug tampoco se inventa una"         "null" "$SUITE/tools/patrones.mjs" \
+  "console.log(String(m.ramaDeLote('EP-022',null,'Alberto Martinez')))"
+
+# ── PT-154 · el espejo es global y el registro es por rama ───────────────────
+#
+# Medido: main 194 allocations, trabajo 203, nueve solo en trabajo Y CON ISSUE PUBLICADO. Desde
+# main esas nueve salian como «no lo reclama ninguna allocation», que es FALSO: las reclama el
+# registro de otra rama. SUITE-R47 ya evitaba que BLOQUEARAN; informar algo falso sigue siendo
+# afirmarlo. RULE-06: lo que no se puede evaluar desde aqui se DECLARA no evaluable.
+_esp() { # $1 = que reclama la rama de integracion, como expresion JS
+  echo "const i=[{number:325,title:'de otra rama',labels:[]},{number:999,title:'de nadie',labels:[]}];
+        console.log(JSON.stringify(m.compararEspejo([],i,[],null,null,$1)));"
+}
+trlib "reclamado en integracion: NO EVALUABLE"     "NO EVALUABLE desde aqui, no huerfano" \
+  "$(_esp "new Set([325])")"
+trlib "…y la regla que lo dice es RULE-06"         "RULE-06" \
+  "$(_esp "new Set([325])")"
+# EL CASO INVERTIDO, y el que impide cambiar un falso positivo por un falso negativo (RULE-02):
+# un issue que NADIE reclama, ni aqui ni en integracion, sigue saliendo en rojo.
+trlib "lo que nadie reclama sigue siendo huerfano" "SUITE-R35" \
+  "$(_esp "new Set([])")"
+trlib "…y sin acceso a integracion no se acusa"    "NO SE PUDO contrastar" \
+  "$(_esp "null")"
+
+# ── PT-157 · el estado terminal, por su nombre canonico ─────────────────────
+#
+# La lista estaba escrita a mano —INTEGRAD|CERRAD|CLOSED|DEFERRED— y LEXICON 5.1 declara CINCO.
+# Faltaban REVERTED y REJECTED: un bloque que dijera la verdad salia acusado de contradecirla.
+# CE-017, la comprobacion que acusa a quien documenta el hecho. Ahora se DERIVA.
+# El resultado se imprime como PALABRA y no como «[]»: los corchetes son una clase de caracteres
+# para el grep del arnes, y «no aparecio: [] · salio: []» fue exactamente lo que dijo al probarlo.
+_ctr() { echo "const al=[{id:'PT-155',status:'$1'}];
+               const r=m.contradiceElRegistro('tarea:  PT-155 quedo $1.',al);
+               console.log(r.length ? 'CONTRADICE '+r.join(' ') : 'SIN_CONTRADICCION');"; }
+mlib  "INTEGRATED por su nombre no contradice"     "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr INTEGRATED)"
+mlib  "CLOSED tampoco"                             "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr CLOSED)"
+mlib  "REVERTED tampoco — y faltaba"               "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr REVERTED)"
+mlib  "REJECTED tampoco — y faltaba"               "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr REJECTED)"
+mlib  "DEFERRED tampoco"                           "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr DEFERRED)"
+# RULE-02 · el arreglo NO puede apagar la comprobacion: una contradiccion real sigue saliendo.
+mlib  "una contradiccion REAL sigue saliendo"      "sigue en curso" "$SUITE/tools/patrones.mjs" \
+  "const al=[{id:'PT-155',status:'CLOSED'}];
+   console.log(JSON.stringify(m.contradiceElRegistro('tarea:  PT-155 sigue en curso.',al)));"
+
+# ── PT-170 · la constancia existia y no se reconocio ────────────────────────
+#
+# anunciaAutorizacion decidia por la FORMA DEL TITULO un hecho que vive en el CUERPO, y rechazo
+# una constancia real de SESSION_LOG.md. CE-001. Ahora basta un campo estructurado — y solo si
+# DICE algo: los dos ultimos casos son los que impiden que un esqueleto sin rellenar autorice.
+mlib  "un titulo que no anuncia, sin campo: no"    "false" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion',''))"
+mlib  "…con el campo Autoriza: si"                 "true" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion','Autoriza: Alberto Martinez'))"
+mlib  "un campo VACIO no autoriza"                 "false" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion','Autoriza:'))"
+mlib  "…ni uno con el marcador sin rellenar"       "false" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion','Autoriza: [nombre]'))"
+
+# EL TERRENO SE CONSTRUYE AQUI, y no se toma prestado del repositorio real. Un caso que corre
+# sobre el registro de verdad mide el estado de HOY: pasa mientras exista PT-159 y se cae el dia
+# que se integre. Es el defecto que EP-025 va a barrer en 338 casos — no se anade el 339.
+proj24() {
+  local d="$WORK/ep024"
+  if [ ! -d "$d" ]; then
+    mkdir -p "$d/docs/implementation" "$d/changes/PT-800-en-curso"
+    printf -- '---\nstatus: DRAFT\nphase: 5\nepic: EP-700\n---\n' > "$d/changes/PT-800-en-curso/intake.md"
+    mkdir -p "$d/changes/PT-801-sin-empezar"
+    printf -- '---\nstatus: DRAFT\nphase: 1\nepic: EP-700\n---\n' > "$d/changes/PT-801-sin-empezar/intake.md"
+    cat > "$d/docs/implementation/REGISTRY.json" <<'FIXJSON'
+{
+  "firmantes": ["Alberto Martínez"],
+  "allocations": [
+    { "id": "EP-700", "slug": "lote-abierto", "status": "DRAFT", "phase": 1 },
+    { "id": "EP-701", "slug": "lote-cerrado", "status": "CLOSED", "phase": 9 },
+    { "id": "EP-702", "slug": "otro-lote-abierto", "status": "DRAFT", "phase": 1 },
+    { "id": "PT-800", "slug": "en-curso", "epic": "EP-700", "status": "DRAFT", "phase": 5,
+      "suite_version": "13.2.0" },
+    { "id": "PT-801", "slug": "sin-empezar", "epic": "EP-700", "status": "DRAFT", "phase": 1,
+      "suite_version": "13.2.0" }
+  ]
+}
+FIXJSON
+    printf 'hallazgo de prueba con texto mas que suficiente\n' > "$d/p.md"
+  fi
+  printf '%s' "$d"
+}
+_t24() { # $@ = argumentos de tracker, ejecutados DENTRO del fixture
+  local d; d="$(proj24)"
+  ( cd "$d" && node "$SUITE/tools/tracker.mjs" "$@" 2>&1 )
+}
+
+# ── PT-159 · un «declara» lleva su vuelta escrita   LEX-R37 ─────────────────
+#
+# FDGE-R55 cubria `abre` y admitia `continua`; `declara` quedaba SIN GOBERNAR — y `declara` SI
+# deja rastro. Medido: PT-157 declarado en EP-021 seguia sin tarea UN LOTE ENTERO despues, y
+# EP-022 publico SIETE paradas huerfanas. Lo senalo el firmante, no un verificador.
+_par() { local d; d="$(proj24)"; _t24 parada PT-801 --motivo hallazgo --texto "$d/p.md"                 --desenlace declara "$@"; }
+chk   "«declara» sin vuelta se NIEGA"              "exige --revision y --dueno"   _par
+chk   "…y una revision pasada tambien"             "no es futura"   _par --revision 2020-01-01 --dueno "Alberto Martínez"
+chk   "…y un dueno inventado tambien"              "no esta declarado"   _par --revision 2099-01-01 --dueno "Nadie"
+# El caso invertido de la bandera: --revision fuera de «declara» no significa nada, y aceptarla
+# en silencio dejaria creer que la vuelta quedo escrita cuando no se escribio en ningun sitio.
+_parc() { local d; d="$(proj24)"; _t24 parada PT-801 --motivo hallazgo --texto "$d/p.md"                  --desenlace continua --revision 2099-01-01; }
+chk   "--revision con otro desenlace se NIEGA"     "solo tienen sentido con"   _parc
+# El cuerpo publicado LLEVA la vuelta: sin esto la exigencia se cumpliria sin que nadie la viera.
+trlib "el cuerpo publicado dice cuando y quien"    "responde" \
+  "console.log(m.cuerpoDeParada({id:'PT-801',motivo:'hallazgo',texto:'x',desenlace:'declara',revision:'2099-01-01',dueno:'Alberto Martinez'}))"
+
+
+# ── PT-162 · mover y rechazar, con las puertas que impiden que borren ───────
+#
+# LEXICON 5.1 declara REJECTED y NINGUN COMANDO lo escribia; y una tarea no podia cambiar de
+# lote. Los dos verbos se limitan a lo que AUN NO HA OCURRIDO: sin esas puertas serian una goma
+# de borrar. Cinco de los seis casos comprueban lo que RECHAZAN, que es donde esta el riesgo.
+_mv() { _t24 mover "$@"; }
+_rz() { _t24 rechazar "$@"; }
+chk   "mover una tarea ya empezada se NIEGA"       "ya no se mueve"        _mv PT-800 --epica EP-702
+chk   "…un destino que no es un lote tambien"      "no es un lote"         _mv PT-801 --epica PT-800
+chk   "…y un lote que no existe tambien"           "no esta en el registro" _mv PT-801 --epica EP-999
+chk   "…y meter trabajo en un lote CERRADO"        "lo reabriria"          _mv PT-801 --epica EP-701
+chk   "rechazar sin motivo se NIEGA"               "sin motivo escrito"    _rz PT-801
+chk   "…y sobre algo terminal tambien"             "no se rechaza"   _rz EP-701 --motivo "un motivo con palabras suficientes"
+# El par de los seis de arriba: sin el, «fallar siempre» los pasaria todos. Se enumera EN SECO
+# —sin --aplicar— para que el fixture no cambie bajo los casos que vienen despues.
+chk   "…y lo que SI se puede mover se enumera"     "EP-700 -> EP-702"   _mv PT-801 --epica EP-702
+
+
+# ── PT-178 · avanzar no sale de PHASE 1 sin Intake   FDGE-R01 ───────────────
+#
+# FDGE-R01 solo lo comprobaba verify-fdge, que corre en G4. `avanzar` —unica forma sancionada de
+# cambiar de fase (FDGE-R52)— TOCA el intake y no miraba si existia: CE-005, verde por no mirar.
+# Medido: NUEVE tareas de EP-024 llegaron a PHASE 5 sin intake, cinco en una sola sesion.
+chk   "salir de PHASE 1 sin intake se NIEGA"       "PHASE 1 no puede darse por terminada" \
+  bash -c 'd="$0/sinintake"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes";
+    printf "{\"allocations\":[{\"id\":\"PT-900\",\"slug\":\"sin-intake\",\"phase\":1,\"status\":\"DRAFT\"}]}\n" \
+      > "$d/docs/implementation/REGISTRY.json";
+    cd "$d" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' "$WORK" "$SUITE"
+chk   "…y el mensaje NOMBRA la ruta que falta"     "changes/PT-900-sin-intake/intake.md" \
+  bash -c 'cd "$0/sinintake" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' \
+    "$WORK" "$SUITE"
+# El par: sin este, «fallar siempre» pasaria los dos de arriba y seria peor que el defecto.
+chkno "con intake NO se queja de FDGE-R01"         "PHASE 1 no puede darse por terminada" \
+  bash -c 'd="$0/sinintake"; mkdir -p "$d/changes/PT-900-sin-intake";
+    printf -- "---\nstatus: DRAFT\nphase: 1\n---\n" > "$d/changes/PT-900-sin-intake/intake.md";
+    cd "$d" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' "$WORK" "$SUITE"
+
+# ── PT-165 · el mapa de fases de CORE se deriva ─────────────────────────────
+#
+# build-core escribia los rangos A MANO mientras patrones.mjs ya los declaraba: dos mapas del
+# mismo hecho, y solo uno comprobado. Divergieron, y el error viajaba a CADA SESION porque
+# CORE.md es lo unico que el agente carga (SUITE-R15).
+mlib  "CORE publica el rango que declara el contrato" "COINCIDEN" "$SUITE/tools/patrones.mjs"   "const {join,dirname}=require('path');
+   const core=require('fs').readFileSync(join(dirname(process.env.MTH_MOD),'..','CORE.md'),'utf8');
+   const falta=['FND','FDGE','QA','PTSA','FPGE','FIDE'].filter((c)=>!core.includes(c)||!m.fasesDe(c));
+   console.log(falta.length ? 'FALTAN '+falta.join(' ') : 'COINCIDEN los seis');"
+chk   "…y los SEIS componentes estan en el mapa"   "6 de 6" \
+  node "$SUITE/tools/audit.mjs"
+
+# ── PT-166 · la grafia prohibida esta en la lista de prohibidas ─────────────
+#
+# PT-156 renombro los siete pasos de FPGE de «[n]» a «PHASE n — Nombre» y dejo constancia de que
+# la grafia vieja NO ERA DETECTABLE. Un arreglo correcto sin defensa dura hasta el siguiente que
+# escriba «[1]». La lista NO es exhaustiva y eso se declara — RULE-06, no se promete cobertura.
+chk   "LEXICON 2 prohibe la grafia en corchetes"   "PROHIBIDA" \
+  bash -c 'grep -q -e "\[n]" "$0/LEXICON.md" && echo PROHIBIDA || echo NO' "$SUITE"
+chk   "…y declara que la lista NO es exhaustiva"   "incompleta" \
+  grep -i "incompleta por construcci" "$SUITE/LEXICON.md"
+
+# ── PT-158 · FIDE declara por que no tiene archivo de prompts   LEX-R15 ─────
+#
+# LEX-R15 afirmaba un universal que el repositorio desmentia desde antes de que la regla
+# existiera: seis componentes, cinco archivos de prompts. FIDE incuba desde una idea de negocio,
+# antes de que exista repositorio — su forma ES distinta. La excepcion se DECLARA, no se finge
+# con un archivo vacio para que la cifra cuadre (CE-001).
+chk   "LEX-R15 admite la excepcion declarada"      "o declara por" \
+  grep -i "un archivo de prompts, o declara por" "$SUITE/LEXICON.md"
+chkno "…y no se fabrico un FIDE-Prompts.md vacio"  "FIDE-Prompts" \
+  bash -c 'ls "$0/FIDE/" 2>/dev/null' "$SUITE"
+
+
+# ── PT-183 · una bandera desconocida se rechaza   CE-003 ───────────────────
+#
+# Se escribio `--epic` donde la bandera es `--epica`, y el comando NO DIJO NADA: un flag
+# desconocido era indistinguible de no haberlo pasado. El valor se perdio y el hueco se relleno con
+# la palabra «undefined», que se LEE COMO UN DATO — y viajo al registro, al YAML del intake y a
+# HISTORY. Medido: NUEVE PT sin lote de 182, CINCO de las dos ultimas sesiones.
+chk   "una bandera desconocida se RECHAZA"         "bandera desconocida" \
+  _t24 siguiente --epic EP-700
+chk   "…y sugiere la que si existe"                "quisiste decir --epica" \
+  _t24 siguiente --epic EP-700
+# LOS DOS PARES. Sin ellos, «rechazar siempre» pasaria los dos de arriba y seria peor que el
+# defecto: el arnes entero se invoca con banderas.
+chkno "una bandera LEGITIMA no se rechaza"         "bandera desconocida"   _t24 cursor
+chkno "…ni una con valor"                          "bandera desconocida" \
+  _t24 mover PT-801 --epica EP-702
+
+# ── PT-183 · ponerle el lote que falta no es moverla de lote ───────────────
+#
+# La puerta de `mover` se negaba sobre PT-178 diciendo «sus commits citan "undefined"» — y ese
+# mensaje ES la prueba de que no hay lote anterior que desmentir. Sin la distincion, una tarea que
+# nacio sin lote NO TENIA FORMA de recuperarlo con un comando, y SUITE-R08 prohibe editar el
+# registro a mano.
+_sinlote() { # una tarea DONE en PHASE 8 y SIN lote, que es el caso exacto de PT-178
+  local d; d="$(proj24)"
+  node -e "const fs=require('fs');const f=process.argv[1];const r=JSON.parse(fs.readFileSync(f,'utf8'));
+    if(!r.allocations.some(a=>a.id==='PT-802')) r.allocations.push({id:'PT-802',slug:'sin-lote',
+      status:'DONE',phase:8,suite_version:'13.2.0'});
+    fs.writeFileSync(f,JSON.stringify(r,null,2));" "$d/docs/implementation/REGISTRY.json"
+  _t24 mover PT-802 --epica EP-700
+}
+chk   "asignar el lote que falta se PERMITE"       "no tenia lote"          _sinlote
+chk   "…y se dice que no es un cambio"             "asignarle el que le falta" _sinlote
+# EL CASO INVERTIDO, y el que impide que `mover` se convierta en una goma de borrar: una tarea
+# EMPEZADA que SI tiene lote sigue sin poder cambiarlo.
+chk   "cambiar de lote una empezada sigue NEGADO"  "ya no se mueve"         _mv PT-800 --epica EP-702
+
+# ── PT-183 · un PT sin lote no esta bajo ninguna compuerta de lote ─────────
+#
+# EXEC-R03 hace G4 una por lote y SUITE-R45 hace que un lote resuelva sus filas al cerrar. Las dos
+# gobiernan EL LOTE: una tarea sin lote no esta bajo ninguna. PT-178 llego a DONE, paso G3 y se
+# escribio en HISTORY con «Lote: undefined», y verify-fdge le dio CERO errores.
+# Contra el arbol REAL, como el resto de los casos que miden el registro de verdad: SUITE es una
+# copia dentro de $WORK y alli no existe PT-183. Lo dijo ejecutarlo.
+_vf183() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" PT-183 2>&1); }
+chk   "verify-fdge cuenta los PT sin lote"         "no declaran lote"    _vf183
+# CE-014 · los anteriores NO se retrofechan: se cuentan y se declaran (RULE-06).
+chk   "…y declara que no se retrofechan"           "NO se retrofechan"   _vf183
+
+
+# ── PT-184 · publicar una rama no la desvia   FDGE-R19 ─────────────────────
+#
+# «git branch --format=%(refname:short) --all» devuelve «origin/chore/x», NO «remotes/origin/x»,
+# y el recorte pedia «^remotes/...»: NUNCA CASABA. Toda rama publicada salia desviada, y en G4 eso
+# FALLA. Como G4 exige un PR (SUITE-R42) y un PR exige publicar la rama, LA COMPUERTA SE BLOQUEABA
+# A SI MISMA POR CONSTRUCCION. Se descubrio al abrir el PR de EP-024, no leyendo el codigo.
+#
+# Lo que es un prefijo remoto lo dice `git remote`, no un patron: el primer intento adivinaba por
+# la forma y se comia el primer nivel de una rama LOCAL de tres.
+_rama184() { # $1 = la rama tal como la lista git · imprime lo que queda tras quitar el remoto
+  node -e "
+    const REMOTOS=['origin','upstream'];
+    const sinRemoto=(r)=>{
+      const s=String(r??'').replace(new RegExp('^refs/'),'');
+      for(const m of REMOTOS){
+        if(s.startsWith('remotes/'+m+'/')) return s.slice(('remotes/'+m+'/').length);
+        if(s.startsWith(m+'/')) return s.slice((m+'/').length);
+      }
+      return s.replace(new RegExp('^remotes/[^/]+/'),'');
+    };
+    console.log(sinRemoto(process.argv[1]));" "$1"
+}
+chk   "una rama publicada pierde el origin/"       "^chore/alberto/PT-1-x$" \
+  _rama184 "origin/chore/alberto/PT-1-x"
+chk   "…y la forma larga tambien"                  "^chore/alberto/PT-1-x$" \
+  _rama184 "remotes/origin/chore/alberto/PT-1-x"
+# EL CASO QUE ROMPIO EL PRIMER INTENTO: una rama LOCAL de tres niveles conserva el primero.
+chk   "una rama local de tres NO pierde el primero" "^chore/alberto/PT-1-x$" \
+  _rama184 "chore/alberto/PT-1-x"
+chk   "…y una de dos niveles queda igual"          "^cauce/alberto$" \
+  _rama184 "cauce/alberto"
+# EL FRENO: con la rama real publicada, el verificador dice que los nombres COINCIDEN. Sin este,
+# «recortar siempre» pasaria los cuatro de arriba y habria apagado la comprobacion.
+# EL FRENO. La primera version corria «verify-fdge --gate G4» sobre el arbol real y afirmaba que
+# los nombres COINCIDEN — y eso es una propiedad del CHECKOUT, no del arreglo: en CI la topologia
+# de ramas es otra y el caso salio rojo con la bateria local en verde. Es la clase que PT-173
+# persigue: un caso que mide el estado de HOY mide la fecha, no la regla.
+#
+# Lo que SI es cierto en cualquier clon: despues de sinRemoto, NINGUNA rama listada conserva un
+# prefijo de remoto. Sin este caso, «recortar siempre» pasaria los cuatro de arriba.
+_sinpref() {
+  # SIN UNA SOLA EXPRESION REGULAR. Las dos primeras versiones se rompieron por el escapado: el
+  # patron de salto de linea no sobrevivio a la capa de escritura. Y la TERCERA se rompio en este
+  # mismo comentario, al escribir ese patron dentro de el. Es SUITE-R59 con nombre y apellidos,
+  # tres veces seguidas, en el arnes que la persigue.
+  # arnes que la persigue. Se corta por String.fromCharCode(10) y se compara con startsWith.
+  #
+  # El ayudante se ESCRIBE en $WORK: es andamiaje del arnes y no viaja en el paquete.
+  local f="$WORK/sinpref.mjs"
+  cat > "$f" <<'SINPREF'
+import { execFileSync } from 'node:child_process';
+const SALTO = String.fromCharCode(10);
+const raiz = process.argv[2];
+const git = (a) => execFileSync('git', a, { cwd: raiz, encoding: 'utf8', stdio: 'pipe' });
+const lineas = (s) => String(s).split(SALTO).map((x) => x.trim()).filter(Boolean);
+const REMOTOS = lineas(git(['remote']));
+const ramas = lineas(git(['branch', '--format=%(refname:short)', '--all']));
+const sinRemoto = (r) => {
+  let s = String(r);
+  if (s.startsWith('refs/')) s = s.slice('refs/'.length);
+  for (const m of REMOTOS) {
+    if (s.startsWith('remotes/' + m + '/')) return s.slice(('remotes/' + m + '/').length);
+    if (s.startsWith(m + '/')) return s.slice((m + '/').length);
+  }
+  if (s.startsWith('remotes/')) return s.split('/').slice(2).join('/');
+  return s;
+};
+// «refs/remotes/origin/HEAD» se abrevia a «origin» a secas: es el PUNTERO a la rama por defecto,
+// no una rama. El otro barrido del marco lo filtra por lo mismo, y aqui salio como «CONSERVAN
+// origin» — un falso positivo que solo aparece EJECUTANDO.
+const quedan = ramas.filter((r) => !REMOTOS.includes(r)).map(sinRemoto)
+  .filter((r) => REMOTOS.some((m) => r === m || r.startsWith(m + '/')));
+console.log(quedan.length ? 'CONSERVAN ' + quedan.join(' ') : 'NINGUNA CONSERVA PREFIJO');
+SINPREF
+  node "$f" "$RAIZ" 2>&1
+}
+chk   "ninguna rama conserva el prefijo remoto"    "NINGUNA CONSERVA PREFIJO"   _sinpref
+
+
+# ── PT-177 · la nota perdida se repara sin mover la fase   FDGE-R52 ────────
+#
+# FDGE-R52 cuenta las notas del issue y exige «fase - 1». Si una no se publica, EL DEFICIT NO SE
+# PODIA REPARAR: `avanzar` publica una nota Y SUBE LA FASE —agranda el hueco— y `parada` se niega a
+# publicar un «cambia-fase» suelto porque «dejaria una nota sobre una transicion que no ocurrio».
+# Una regla HARD cuyo incumplimiento la herramienta no permite corregir solo se puede rodear.
+#
+# Lo cazo G4 sobre PT-161: PHASE 8 con 6 notas de 7.
+_rn() { _t24 reanclar "$@"; }
+# LAS DOS PUERTAS, que son las que impiden que esto sea una forma de aprobar la compuerta
+# escribiendo comentarios. Van primero porque son el riesgo, no el caso feliz.
+chk   "reanclar una fase que NO ha ocurrido se NIEGA"  "tiene que ser MAYOR" \
+  _rn PT-800 --fase 9 --nota "una nota con palabras suficientes"
+chk   "…y lo dice citando LEX-R30"                     "LEX-R30" \
+  _rn PT-800 --fase 9 --nota "una nota con palabras suficientes"
+chk   "…y remite a avanzar para una transicion nueva"  "el comando es «avanzar»" \
+  _rn PT-800 --fase 9 --nota "una nota con palabras suficientes"
+# Sin issue no se sabe si hay deficit, y publicar a ciegas lo inflaria: RULE-06, no se acusa ni se
+# actua sin el dato.
+chk   "sin poder contar las notas NO se publica"       "no se sabe si hay deficit" \
+  _rn PT-800 --fase 3 --nota "una nota con palabras suficientes"
+
+
+# ── PT-185 · el estado del indice se lee de su COLUMNA   SUITE-R35 ─────────
+#
+# «LIFECYCLE.find(...test(line))» devolvia el primer estado DE LA LISTA que apareciera en CUALQUIER
+# punto de la fila — incluido el TITULO. PT-162 se titula «Una tarea DRAFT no puede cambiar de
+# lote…» y su columna dice DONE:
+#
+#   | PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote… |
+#                        ^^^^ lo cierto        ^^^^^ lo que leia
+#
+# Salio «divergente» sobre un indice CORRECTO, y bloqueaba G4. Es CE-017, y solo se disparaba sobre
+# las tareas cuyo titulo nombra aquello de lo que tratan.
+_col185() { # $1 = la linea de indice · imprime el estado que se deduce
+  node -e "
+    const LIFECYCLE=['DRAFT','READY','REOPENED','IN_PROGRESS','BLOCKED','VALIDATION_PENDING',
+                     'DONE','INTEGRATED','CLOSED','DEFERRED','REVERTED','REJECTED'];
+    const line=process.argv[1];
+    const celdas=line.trim().startsWith('|')
+      ? line.trim().split('|').slice(1,-1).map((c)=>c.trim()) : [];
+    const enCelda=celdas.find((c)=>LIFECYCLE.includes(c));
+    const barrido=LIFECYCLE.find((st)=>new RegExp('\\\\b'+st+'\\\\b').test(line));
+    console.log(enCelda ?? barrido ?? 'NINGUNO');" "$1"
+}
+chk   "un titulo que nombra un estado no gana"     "^DONE$" \
+  _col185 "| PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote |"
+# EL CASO INVERTIDO: la columna manda, tambien cuando lo que dice es lo divergente. Sin esto,
+# «devolver siempre el registro» pasaria el de arriba y habria apagado la comprobacion.
+chk   "…y si la COLUMNA dice otra cosa, esa vale"  "^DRAFT$" \
+  _col185 "| PT-162 | BUG | S3 | DRAFT | EP-024 | Una tarea DONE que no cambia de lote |"
+# RULE-02 · sin tabla no se deja de evaluar: el barrido sigue siendo el respaldo. Cambiar un falso
+# positivo por un falso NEGATIVO es peor que el defecto.
+chk   "una linea sin tabla se sigue evaluando"     "^DONE$" \
+  _col185 "PT-162 quedo DONE en este lote"
+chk   "…y si no hay ningun estado, se dice"        "^NINGUNO$" \
+  _col185 "PT-162 no dice nada de su estado"
+
+
+# ── PT-186 · en PHASE 1 el intake todavia no es exigible   FDGE-R01 ────────
+#
+# PHASE 1 ES la fase que produce el intake: exigirlo ahi es exigir el resultado de la fase para
+# poder empezarla — el mismo razonamiento con el que PT-178 bloqueo solo la SALIDA, unas horas
+# antes y en este mismo lote.
+#
+# Y no era ruido: abrir una tarea dejaba la CI EN ROJO. FDGE-R55 pide abrir el trabajo en cuanto se
+# encuentra, y esto castigaba por obedecerla. La salida practicable era no abrir la tarea hasta
+# tener tiempo de escribir su intake — justo lo que PT-159 cerro.
+_proj186() { # $1 = la fase de la tarea sin intake
+  local d="$WORK/p186"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes"
+  cp -r "$RAIZ/docs/methodology" "$d/docs/" 2>/dev/null
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.3.0', firmantes:['Alberto Martínez'],
+      allocations:[{id:'PT-900',slug:'sin-intake',type:'BUG',epic:'EP-900',status:'DRAFT',
+                    phase:Number(process.argv[2]),severity:'S3',suite_version:'13.3.0'},
+                   {id:'EP-900',slug:'lote',status:'READY',suite_version:'13.3.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json" "$1"
+  ( cd "$d" && node docs/methodology/tools/verify-fdge.mjs PT-900 2>&1 )
+}
+chk   "en PHASE 1 el intake que falta AVISA"       "aun no es exigible"   _proj186 1
+chk   "…y remite a quien SI lo impide"             "PT-178"               _proj186 1
+# EL CASO INVERTIDO: a partir de PHASE 2 no se afloja nada. Sin el, «avisar siempre» pasaria los
+# dos de arriba y habria apagado FDGE-R01 entera.
+chk   "desde PHASE 2 sigue siendo ERROR"           "✗ FDGE-R01"           _proj186 2
+chkno "…y ahi NO se dice que no sea exigible"      "aun no es exigible"   _proj186 2
+
+# Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
+chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
+  node "$SUITE/tools/verify-suite.mjs" "$SUITE"
+
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que
@@ -8228,6 +9102,7 @@ if [ -n "$SOLO" ] && [ "$TOTAL" -eq 0 ]; then
   rm -rf "$WORK"
   exit 1
 fi
+
 _cuantos="$TOTAL"
 [ -n "$SOLO" ] && _cuantos="$TOTAL de $UNIVERSO"
 # PT-086 · una corrida PARCIAL tiene que ser distinguible de una completa a simple vista, y
