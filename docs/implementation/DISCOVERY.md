@@ -123,3 +123,4 @@
 | PT-183 | BUG | S1 | DONE | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
 | PT-184 | BUG | S1 | DONE | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
 | PT-185 | BUG | S2 | DONE | EP-024 | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
+| PT-186 | BUG | S2 | DONE | EP-024 | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |

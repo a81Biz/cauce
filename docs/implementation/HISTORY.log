@@ -11006,3 +11006,45 @@ Medido: PT-162 pasa G4 sin tocar su titulo · 4 casos nuevos, incluidos los dos 
 Evidencia: docs/implementation/evidence/PT-185/ — manifest, self-review y la salida de la corrida.
 Trazabilidad: changes/PT-185-el-estado-se-lee-de-su-columna/traceability.md — sin AC huerfano.
 Corrida de la bateria: 1863 casos.
+
+## PT-186 — FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-27 Alberto Martinez
+Clase de evento: CE-016 — dos reglas del mismo marco empujando en direcciones opuestas
+
+ABRIR UNA TAREA DEJABA LA CI EN ROJO. npm run verify, el mismo que corre CI:
+
+    FDGE-R01  PT-179: no existe changes/PT-179-slug/. Todo trabajo entra por un Intake.
+    FDGE-R01  PT-180 · PT-181 · PT-182: lo mismo.
+
+Las cuatro en PHASE 1 DRAFT, en EP-026, SIN EMPEZAR. Y PHASE 1 ES LA FASE QUE PRODUCE EL INTAKE:
+exigirlo ahi es exigir el resultado de la fase para poder empezarla.
+
+PT-178 razono EXACTAMENTE ESTO unas horas antes y en este mismo lote, y por eso bloqueo solo la
+SALIDA de PHASE 1. `checkPT` no hacia la distincion: sin carpeta, error, sea cual sea la fase. El
+razonamiento estaba escrito y no se aplico donde tambien valia.
+
+Y NO ERA RUIDO. FDGE-R55 pide abrir el trabajo en cuanto se encuentra —«un hallazgo no se queda
+suelto»— y esto CASTIGABA POR OBEDECERLA. Dos reglas del mismo marco empujando en direcciones
+opuestas, con una salida practicable: no abrir la tarea hasta tener tiempo de escribir su intake.
+Que es justo el comportamiento que PT-159 acaba de cerrar. Una regla que empuja a rodear otra no se
+cumple: se rodea.
+
+LO QUE CONTIENE EL AFLOJE. Degradar un error a aviso ES aflojar, y lo unico que lo hace aceptable
+es que PT-178 YA IMPIDE salir de PHASE 1 sin intake: la exigencia no desaparece, se traslada al
+unico punto donde puede cumplirse. Desde PHASE 2 sigue siendo error, y su caso invertido lo
+comprueba.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · changes/PT-186-…/
+
+Medido: 4 errores de FDGE-R01 sobre tareas sin empezar -> 4 avisos · PHASE 2 sigue en rojo.
+
+Evidencia: docs/implementation/evidence/PT-186/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-186-phase-1-no-tiene-todavia-su-intake/traceability.md — sin AC huerfano.
+Corrida de la bateria: 1867 casos.

@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 185,
+    "PT": 186,
     "EP": 26,
     "QA": 0,
     "QR": 0,
@@ -5693,7 +5693,14 @@
         "fecha": "2026-08-26"
       },
       "origin": "Aplazado desde PT-172 el 2026-08-26",
-      "issue": 323
+      "issue": 323,
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      ]
     },
     {
       "id": "PT-177",
@@ -6003,6 +6010,48 @@
           "fecha": "2026-08-27"
         }
       ]
+    },
+    {
+      "id": "PT-186",
+      "slug": "phase-1-no-tiene-todavia-su-intake",
+      "created": "2026-08-27",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.3.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake",
+      "origen_parada": {
+        "de": "PT-185",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-27"
+      },
+      "issue": 336,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      }
     }
   ]
 }

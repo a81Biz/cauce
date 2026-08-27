@@ -1,0 +1,75 @@
+{
+  "pt": "PT-186",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una tarea en `PHASE 1` sin intake sale como **aviso**, no como error",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El aviso **dice por qué** aún no es exigible y cita a `PT-178`",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una tarea en `PHASE 2` o más sin intake **sigue siendo error**",
+      "scenarios": [
+        "TS-03",
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "`npm run verify` deja de fallar por las cuatro de `EP-026`",
+      "scenarios": [
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1867 casos",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

@@ -55,8 +55,9 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-183 | BUG | S1 | DONE | 8 | [#332](https://github.com/a81Biz/cauce/issues/332) | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
 | PT-184 | BUG | S1 | DONE | 8 | [#334](https://github.com/a81Biz/cauce/issues/334) | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
 | PT-185 | BUG | S2 | DONE | 8 | [#335](https://github.com/a81Biz/cauce/issues/335) | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
+| PT-186 | BUG | S2 | DONE | 8 | [#336](https://github.com/a81Biz/cauce/issues/336) | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |
 
-**26 de 26 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**27 de 27 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-025`
 

@@ -9058,6 +9058,36 @@ chk   "una linea sin tabla se sigue evaluando"     "^DONE$" \
 chk   "…y si no hay ningun estado, se dice"        "^NINGUNO$" \
   _col185 "PT-162 no dice nada de su estado"
 
+
+# ── PT-186 · en PHASE 1 el intake todavia no es exigible   FDGE-R01 ────────
+#
+# PHASE 1 ES la fase que produce el intake: exigirlo ahi es exigir el resultado de la fase para
+# poder empezarla — el mismo razonamiento con el que PT-178 bloqueo solo la SALIDA, unas horas
+# antes y en este mismo lote.
+#
+# Y no era ruido: abrir una tarea dejaba la CI EN ROJO. FDGE-R55 pide abrir el trabajo en cuanto se
+# encuentra, y esto castigaba por obedecerla. La salida practicable era no abrir la tarea hasta
+# tener tiempo de escribir su intake — justo lo que PT-159 cerro.
+_proj186() { # $1 = la fase de la tarea sin intake
+  local d="$WORK/p186"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes"
+  cp -r "$RAIZ/docs/methodology" "$d/docs/" 2>/dev/null
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      suite_version:'13.3.0', firmantes:['Alberto Martínez'],
+      allocations:[{id:'PT-900',slug:'sin-intake',type:'BUG',epic:'EP-900',status:'DRAFT',
+                    phase:Number(process.argv[2]),severity:'S3',suite_version:'13.3.0'},
+                   {id:'EP-900',slug:'lote',status:'READY',suite_version:'13.3.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json" "$1"
+  ( cd "$d" && node docs/methodology/tools/verify-fdge.mjs PT-900 2>&1 )
+}
+chk   "en PHASE 1 el intake que falta AVISA"       "aun no es exigible"   _proj186 1
+chk   "…y remite a quien SI lo impide"             "PT-178"               _proj186 1
+# EL CASO INVERTIDO: a partir de PHASE 2 no se afloja nada. Sin el, «avisar siempre» pasaria los
+# dos de arriba y habria apagado FDGE-R01 entera.
+chk   "desde PHASE 2 sigue siendo ERROR"           "✗ FDGE-R01"           _proj186 2
+chkno "…y ahi NO se dice que no sea exigible"      "aun no es exigible"   _proj186 2
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

@@ -1,7 +1,7 @@
 # HANDOFF — estado retomable
 
 <!-- ESTADO -->
-implementación: EP-024 (#306) READY · 26 tareas · 24 DONE, 1 INTEGRATED (PT-156), 2 DEFERRED con reentrada (PT-171, PT-177). Fila de cierre resuelta con sus ocho filas. Version 13.3.0 alineada. PR de revision #333 abierto a «trabajo». EP-025 y EP-026 abiertas y sin empezar.
+implementación: EP-024 (#306) READY · 27 tareas · 25 DONE, 1 INTEGRATED (PT-156), 2 DEFERRED con reentrada (PT-171, PT-177). Fila de cierre resuelta con sus ocho filas. Version 13.3.0 alineada. PR de revision #333 abierto a «trabajo». EP-025 y EP-026 abiertas y sin empezar.
 tarea:          NINGUNA en curso. Lo que queda es G4, que es humana (SUITE-R06a).
 compuerta:      G1 y G2 delegadas con VoBo en SESSION_LOG · G3 aplicada con «tracker validar --aplicar» a los DOCE BUG, firmante Alberto Martinez · G4 PENDIENTE. Nada fusionado.
 siguiente:      1) mergear #333 a «trabajo» · 2) PR de «trabajo» a «main» — ESO es G4 · 3) tras el merge: «tracker integrar» y «tracker cierre EP-024 --aplicar» · 4) tag v13.3.0, paso 8, humano y DESPUES del merge. NPM PUBLISH RESERVADO: «Excepto publicar».
@@ -11,7 +11,7 @@ lo que este lote descubrio: NUEVE tareas llegaron a PHASE 5 sin intake (PT-178) 
 hallazgo sin tarea: NINGUNO. EP-026 recoge cuatro: PT-179 (S1) PT-180 PT-181 PT-182. Tres declarados con vuelta al 2026-09-30: si una INVESTIGATION que produce codigo sigue exenta (PT-154), la severidad de PT-179 a PT-182 (PT-183), y la forma de los bloques de la bateria dictada por el firmante (PT-172, publicada en #319).
 pregunta abierta: si PT-178 cerro un peldano de una escalera de cinco. «avanzar» ya no sale de PHASE 1 sin intake, y SIGUE saliendo de PHASE 3, 4, 6 y 8 sin los suyos. El mecanismo ya esta en el cursor (RASTRO_H) y nadie lo cablea. Es PT-182.
 lo que sigue sin resolverse: PT-025 (#35) DEFERRED · 21 allocations sin suite_version · 4 PT historicos sin lote, declarados y no retrofechados · los nodos «sin rastro» del cursor, muchos falsos por PT-180.
-actualizado:    2026-08-27 · PT-185 en PHASE 8 Persistencia
+actualizado:    2026-08-27 · EP-024 con 27 tareas, PR #333 abierto, pendiente G4
 <!-- /ESTADO -->
 
 ---

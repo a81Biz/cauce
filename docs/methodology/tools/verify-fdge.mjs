@@ -1739,7 +1739,23 @@ function parseTraceability(md) {
 function checkPT(pt, { gate } = {}) {
   const dir = ptDir(pt);
   if (!dir) {
-    fail('FDGE-R01', `${pt}: no existe changes/${pt}-slug/. Todo trabajo entra por un Intake.`);
+    // PT-186 · EN PHASE 1 TODAVIA NO PUEDE HABERLO: es la fase que lo PRODUCE. Exigirlo ahi es
+    // exigir el resultado de la fase para poder empezarla — el mismo razonamiento con el que
+    // PT-178 bloqueo solo la SALIDA de PHASE 1, hecho unas horas antes en este mismo lote.
+    //
+    // Y no era solo ruido: abrir una tarea dejaba la CI EN ROJO. FDGE-R55 pide abrir el trabajo en
+    // cuanto se encuentra —«un hallazgo no se queda suelto»— y esto castigaba por obedecerla. Dos
+    // reglas del mismo marco empujando en direcciones opuestas, con una salida practicable —no
+    // abrir la tarea hasta tener tiempo de escribir su intake— que es justo lo que PT-159 cerro.
+    //
+    // A partir de PHASE 2 sigue siendo ERROR, y PT-178 impide salir de PHASE 1 sin el: el hueco no
+    // se ensancha, se mueve al unico punto donde no puede estar cerrado todavia.
+    const enIntake = (REGISTRO?.allocations ?? []).find((a) => a?.id === pt);
+    const m = `${pt}: no existe changes/${pt}-slug/. Todo trabajo entra por un Intake.`;
+    if (Number(enIntake?.phase) === 1) {
+      warn('FDGE-R01', `${m} Esta en PHASE 1, que es la fase que lo produce: aun no es exigible, `
+        + 'y «tracker avanzar» no la dejara salir sin el (PT-178).');
+    } else fail('FDGE-R01', m);
     return;
   }
   const rel = relative(ROOT, dir).replace(/\\/g, '/');
