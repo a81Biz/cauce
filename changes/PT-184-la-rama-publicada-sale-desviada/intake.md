@@ -71,12 +71,17 @@ escribir por qué eso es lo peor que le puede pasar a una regla: se rodea.
 | AC-02 | La forma larga `remotes/<remoto>/<rama>` tampoco |
 | AC-03 | Una rama **local** de tres niveles conserva su primer nivel — no se le come `chore/` |
 | AC-04 | Una rama que **de verdad** se desvía del nombre derivado **sigue** reportándose |
-| AC-05 | `verify-fdge --gate G4` deja de fallar por este motivo con el PR abierto |
+| AC-05 | **Ninguna** rama que `git` liste conserva su prefijo de remoto tras el recorte |
 
 ## Cómo termina   `FDGE-R53`
 
-> Termina cuando: con la rama publicada y el PR abierto, `verify-fdge --gate G4` dice «los nombres
-> de rama coinciden con los que deriva el registro», y una rama realmente desviada sigue saliendo.
+> Termina cuando: ninguna rama que `git` liste conserva su prefijo de remoto tras el recorte —en
+> **cualquier** clon, no sólo en éste—, y una rama realmente desviada sigue saliendo.
+
+**`AC-05` se reescribió después de escribirlo.** Decía *«`verify-fdge --gate G4` deja de fallar»*, y
+eso es una propiedad **del checkout**: en CI la topología de ramas es otra y el caso salió rojo con
+la batería local en verde. Un criterio que fija el estado de hoy mide la fecha, no la regla — la
+misma avería que `PT-173` recoge, encontrada aquí por tercera vez.
 
 ## 6. Riesgo
 

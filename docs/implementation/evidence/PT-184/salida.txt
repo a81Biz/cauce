@@ -1,6 +1,6 @@
 PT-184 · evidencia de la corrida
 
-selftest: 1855 casos
+selftest: 1863 casos
 
 La batería es la evidencia de esta tarea: sus casos viven en la sección «EP-024» del arnés
 y corren en la misma pasada que los 1800 anteriores, que es lo que comprueba que el cambio

@@ -6,7 +6,7 @@
 | TS-02 | forma larga | `remotes/origin/chore/alberto/PT-1-x` | queda igual |
 | TS-03 | rama local de tres | `chore/alberto/PT-1-x` | **conserva** el primer nivel |
 | TS-04 | rama de dos niveles | `cauce/alberto` | queda igual |
-| TS-05 | el árbol real con el PR abierto | `verify-fdge --gate G4` | «los nombres coinciden» |
+| TS-05 | ninguna rama conserva prefijo | sobre las ramas que `git` lista aquí | «NINGUNA CONSERVA PREFIJO», en cualquier clon |
 | TS-06 | una desviación real | una rama que no casa la derivada | sigue reportándose |
 
 **Dónde viven**: selftest §EP-024 · 5 casos.

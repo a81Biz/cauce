@@ -8954,8 +8954,50 @@ chk   "…y una de dos niveles queda igual"          "^cauce/alberto$" \
   _rama184 "cauce/alberto"
 # EL FRENO: con la rama real publicada, el verificador dice que los nombres COINCIDEN. Sin este,
 # «recortar siempre» pasaria los cuatro de arriba y habria apagado la comprobacion.
-chk   "sobre el arbol real, los nombres coinciden" "coinciden con los que deriva el registro" \
-  bash -c 'cd "$0" && node "$1/tools/verify-fdge.mjs" --gate G4 PT-183 2>&1' "$RAIZ" "$SUITE"
+# EL FRENO. La primera version corria «verify-fdge --gate G4» sobre el arbol real y afirmaba que
+# los nombres COINCIDEN — y eso es una propiedad del CHECKOUT, no del arreglo: en CI la topologia
+# de ramas es otra y el caso salio rojo con la bateria local en verde. Es la clase que PT-173
+# persigue: un caso que mide el estado de HOY mide la fecha, no la regla.
+#
+# Lo que SI es cierto en cualquier clon: despues de sinRemoto, NINGUNA rama listada conserva un
+# prefijo de remoto. Sin este caso, «recortar siempre» pasaria los cuatro de arriba.
+_sinpref() {
+  # SIN UNA SOLA EXPRESION REGULAR. Las dos primeras versiones se rompieron por el escapado: el
+  # patron de salto de linea no sobrevivio a la capa de escritura. Y la TERCERA se rompio en este
+  # mismo comentario, al escribir ese patron dentro de el. Es SUITE-R59 con nombre y apellidos,
+  # tres veces seguidas, en el arnes que la persigue.
+  # arnes que la persigue. Se corta por String.fromCharCode(10) y se compara con startsWith.
+  #
+  # El ayudante se ESCRIBE en $WORK: es andamiaje del arnes y no viaja en el paquete.
+  local f="$WORK/sinpref.mjs"
+  cat > "$f" <<'SINPREF'
+import { execFileSync } from 'node:child_process';
+const SALTO = String.fromCharCode(10);
+const raiz = process.argv[2];
+const git = (a) => execFileSync('git', a, { cwd: raiz, encoding: 'utf8', stdio: 'pipe' });
+const lineas = (s) => String(s).split(SALTO).map((x) => x.trim()).filter(Boolean);
+const REMOTOS = lineas(git(['remote']));
+const ramas = lineas(git(['branch', '--format=%(refname:short)', '--all']));
+const sinRemoto = (r) => {
+  let s = String(r);
+  if (s.startsWith('refs/')) s = s.slice('refs/'.length);
+  for (const m of REMOTOS) {
+    if (s.startsWith('remotes/' + m + '/')) return s.slice(('remotes/' + m + '/').length);
+    if (s.startsWith(m + '/')) return s.slice((m + '/').length);
+  }
+  if (s.startsWith('remotes/')) return s.split('/').slice(2).join('/');
+  return s;
+};
+// «refs/remotes/origin/HEAD» se abrevia a «origin» a secas: es el PUNTERO a la rama por defecto,
+// no una rama. El otro barrido del marco lo filtra por lo mismo, y aqui salio como «CONSERVAN
+// origin» — un falso positivo que solo aparece EJECUTANDO.
+const quedan = ramas.filter((r) => !REMOTOS.includes(r)).map(sinRemoto)
+  .filter((r) => REMOTOS.some((m) => r === m || r.startsWith(m + '/')));
+console.log(quedan.length ? 'CONSERVAN ' + quedan.join(' ') : 'NINGUNA CONSERVA PREFIJO');
+SINPREF
+  node "$f" "$RAIZ" 2>&1
+}
+chk   "ninguna rama conserva el prefijo remoto"    "NINGUNA CONSERVA PREFIJO"   _sinpref
 
 
 # ── PT-177 · la nota perdida se repara sin mover la fase   FDGE-R52 ────────

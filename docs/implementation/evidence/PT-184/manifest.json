@@ -61,7 +61,7 @@
     },
     {
       "ac": "AC-05",
-      "statement": "`verify-fdge --gate G4` deja de fallar por este motivo con el PR abierto",
+      "statement": "**Ninguna** rama que `git` liste conserva su prefijo de remoto tras el recorte",
       "scenarios": [
         "TS-05"
       ],
@@ -77,7 +77,7 @@
   "regression": [
     {
       "rc": "RC-01",
-      "statement": "La bateria completa corre entera: selftest: 1855 casos",
+      "statement": "La bateria completa corre entera: selftest: 1863 casos",
       "verified": true
     },
     {
