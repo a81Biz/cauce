@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "trabajo",
   "sha": "a6cf011f4e65d0bdd06489d83e5e8ec7eb4cec17",
   "sha_corto": "a6cf011",
@@ -43,15 +43,8 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/tracker.mjs"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-27"
 }
