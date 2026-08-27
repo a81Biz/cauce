@@ -1,10 +1,10 @@
 {
-  "pt": "PT-160",
-  "type": "BUG",
+  "pt": "PT-161",
+  "type": "CHORE",
   "epic": "EP-024",
-  "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "5593966cfe960934d3f0bffaa0ae9b8891537208",
   "sha_corto": "5593966",
@@ -15,9 +15,13 @@
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
+    "docs/methodology/CASOS-DE-USO.md",
     "docs/methodology/CORE.md",
     "docs/methodology/EXECUTION-MODES.md",
+    "docs/methodology/FDGE-Prompts.md",
+    "docs/methodology/PHASES.md",
     "docs/methodology/RULES.md",
+    "docs/methodology/tools/audit.mjs",
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/regla.mjs",
     "docs/methodology/tools/selftest.sh",
@@ -25,7 +29,9 @@
     "docs/methodology/tools/verify-suite.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "discovery.md"
+  ],
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-26"
 }
