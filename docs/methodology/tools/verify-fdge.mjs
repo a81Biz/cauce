@@ -49,6 +49,8 @@ import { execFileSync, spawnSync } from 'node:child_process';
 // normalizar dos dejo al tercero contradiciendo a los otros: cinco casos del selftest en rojo.
 import { selloDe, PATRONES, ESTADOS_TERMINALES, exigibleEn,
          lineasPerdidas, mergesSinConstancia } from './patrones.mjs';
+// PT-151 · lo que corre `npm run verify` y lo que corre CI, derivado de sus dos fuentes.
+import { pasosDeCI, pasosDeVerify } from './patrones.mjs';
 // PT-095 · el criterio de «esto anuncia una autorizacion» y la frontera desde la que una regla
 // alcanza. Los dos viven en patrones.mjs porque los usan dos bucles de este archivo, y un
 // criterio escrito dos veces diverge (SUITE-R38).
@@ -1358,6 +1360,53 @@ function checkAplazados() {
 // ─── INTAKE-R09 · el Intake del lote ─────────────────────────────────────────
 // INTAKE-R08 exigía changes/EP-NNN-slug/intake.md sin decir qué contiene. Ahora hay
 // plantilla (EPIC-INTAKE.md) y esto comprueba que el lote la respeta.
+/**
+ * PT-151 · `SUITE-R01` · LO QUE SE EJECUTA EN LOCAL ES LO QUE EJECUTA CI.
+ *
+ * El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y no era cierto. Medido
+ * en EP-022: verify en VERDE y el check `marco` en ROJO con ocho errores bloqueantes. Sobre esa
+ * base se declaro «todo verde», y el primer PR lo desmintio.
+ *
+ * SE COMPARA EN LOS DOS SENTIDOS. Que verify compruebe de MENOS deja pasar errores al PR; que
+ * compruebe de MAS deja una comprobacion cuyo rojo NADIE VE EN EL PR — es lo que pasaba con
+ * `matriz:check`, y no se veia porque nadie habia mirado la direccion contraria.
+ *
+ * RULE-06 · sin `verificacion.yml` o sin `package.json` no hay contra que contrastar: SIN EVALUAR,
+ * y se dice. Un proyecto destino que no use GitHub Actions no incumple nada.
+ */
+function checkVerifyEsCI() {
+  const yml = read(join(ROOT, '.github', 'workflows', 'verificacion.yml'));
+  const pkg = read(join(ROOT, 'package.json'));
+  if (yml === null || pkg === null) {
+    warn('SUITE-R62', 'sin .github/workflows/verificacion.yml o sin package.json: no se puede contrastar que «npm run verify» sea lo que corre CI. SIN EVALUAR.');
+    return;
+  }
+  let scripts = null;
+  try { scripts = JSON.parse(pkg).scripts ?? {}; } catch { scripts = null; }
+  if (scripts === null) {
+    warn('SUITE-R62', 'package.json no se puede leer como JSON: la equivalencia con CI NO SE EVALUA.');
+    return;
+  }
+  const ci = pasosDeCI(yml);
+  const local = pasosDeVerify(scripts);
+  if (!ci.length) {
+    warn('SUITE-R62', 'el workflow no invoca ningun «npm run <script>»: la equivalencia con «npm run verify» no es comparable. SIN EVALUAR.');
+    return;
+  }
+  const falta = ci.filter((x) => !local.includes(x));
+  const sobra = local.filter((x) => !ci.includes(x));
+  if (falta.length) {
+    fail('SUITE-R62', `«npm run verify» NO corre ${falta.join(' · ')}, y CI si. Un comando que promete equivaler a CI y no equivale hace creer que se verifico lo que no se verifico.`);
+  }
+  if (sobra.length) {
+    warn('SUITE-R62', `«npm run verify» corre ${sobra.join(' · ')} y CI no: su rojo no lo ve nadie en el PR. La divergencia en este sentido no deja pasar errores, pero deja una comprobacion sin compuerta.`);
+  }
+  if (!falta.length && !sobra.length) {
+    ok('SUITE-R62', `«npm run verify» y CI corren los mismos ${ci.length} pasos.`);
+  }
+}
+
+
 function checkEpics() {
   if (!existsSync(CHANGES)) return;
   const eps = readdirSync(CHANGES).filter((d) => /^EP-\d+/.test(d) && statSync(join(CHANGES, d)).isDirectory());
@@ -2713,6 +2762,7 @@ checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md'
 checkInstallLog();
 checkReconciliation();
 checkAislamiento();
+checkVerifyEsCI();
 checkEpics();
 checkAplazados();
 checkManejadores();

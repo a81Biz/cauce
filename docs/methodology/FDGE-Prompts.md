@@ -190,6 +190,15 @@ aplazado. En `G4` cada fila declara `HECHO` o el identificador al que se movió.
 detectable, y fingir que lo es sería peor. Lo que cambia es que omitir una fila deje de perder
 nada, porque la obligación ya no vive en ella.
 
+**`SUITE-R62`: lo que ejecutas en local es lo que ejecuta CI.** El comando que el proyecto publica
+como su verificación y los pasos de su workflow son **el mismo conjunto**, y se comprueba en **los
+dos sentidos**: lo que falta en local **bloquea** —deja pasar errores al PR— y lo que sobra
+**avisa** —deja una comprobación cuyo rojo nadie ve—.
+
+Se comparan **nombres de script**, no lo que el paso hace: si el workflow invoca la herramienta
+directamente con otras banderas, la diferencia vuelve a ser invisible. Por eso los dos lados
+invocan `npm run <script>`. Sin workflow o sin `package.json`, **SIN EVALUAR**.
+
 **`SUITE-R61`: cerrar el lote es también podar la batería.** En el mismo acto en que se resuelve
 `## Cierre del lote`, se publica **cuántos casos se retiraron y por cuál de los tres patrones** —
 `superado` (el hecho que el caso fijaba cambió por diseño), `invertido` (sólo pasaba mientras

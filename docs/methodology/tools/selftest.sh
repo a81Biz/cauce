@@ -5036,10 +5036,14 @@ chk   "…y sigue sin bloquear: codigo cero"        "^0$" \
   sh -c 'cd "$1" && GH_TOKEN= node docs/methodology/tools/verify-fdge.mjs --all >/dev/null 2>&1; echo $?' _ "$WORK"
 # AC-02 · el token llega al paso que lo necesita, en LOS DOS workflows. Se mide sobre el YAML
 # porque es donde vive el hecho: el paso de verify-fdge declara su env.
+# PT-151 · el ancla de estos dos casos era «verify-fdge.mjs --all» y cambio POR DISENO: los dos
+# workflows invocan ahora «npm run verify:fdge», que es lo que hace comparables las dos listas
+# (SUITE-R62). Es el patron SUPERADO de SUITE-R61, ajustado con su motivo y no en silencio. Lo
+# que el caso comprueba NO cambia: que el token llegue al paso que lo necesita.
 chk   "publicar.yml da GH_TOKEN a verify-fdge"    "PT-120" \
-  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/publicar.yml"' _ "$RAIZ"
+  sh -c 'sed -n "/verify:fdge/,/GH_TOKEN/p" "$1/.github/workflows/publicar.yml"' _ "$RAIZ"
 chk   "verificacion.yml tambien"                  "PT-120" \
-  sh -c 'sed -n "/verify-fdge.mjs --all/,/GH_TOKEN/p" "$1/.github/workflows/verificacion.yml"' _ "$RAIZ"
+  sh -c 'sed -n "/verify:fdge/,/GH_TOKEN/p" "$1/.github/workflows/verificacion.yml"' _ "$RAIZ"
 build_fixture
 
 # PT-117 · AC-03 · «--pendientes» es la consulta que el hook Stop invoca.
@@ -8127,6 +8131,71 @@ chkno "…ni una sigla que tambien es prefijo de identificador" "SUITE-R60" \
 # Y sobre el arbol real, cero: PT-145..PT-147 los quitaron los dieciseis.
 chk   "sobre el arbol real no queda ningun literal"          "Sin errores de coherencia" \
   sh -c "cd '$RAIZ' && node '$VS148' docs/methodology 2>&1"
+
+# ── PT-151 · EP-024 · «npm run verify» NO era lo que corre CI ────────────────────────────────────
+#
+# El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y NO era cierto. Medido en
+# EP-022: verify en VERDE y el check `marco` en ROJO con OCHO errores bloqueantes, porque
+# `verify-fdge --all` no estaba en verify. Sobre esa base se declaro «todo verde», y el primer PR
+# lo desmintio. SUITE-R01 apoya toda decision en evidencia verificable: un comando que promete
+# equivaler a CI y no equivale produce el fallo que este marco persigue — CREER QUE SE VERIFICO LO
+# QUE NO SE VERIFICO.
+#
+# Y ERAN TRES, no una, con la tercera EN SENTIDO CONTRARIO:
+#   verify-fdge --all   en CI y no en verify
+#   revisar-secretos    con --historial en CI y SIN el en verify — un secreto commiteado y borrado
+#                       despues PASA EN LOCAL y falla en CI
+#   matriz:check        en verify y NO en CI: una comprobacion cuyo rojo NADIE VE EN EL PR
+export MTH_PAT="$SUITE/tools/patrones.mjs"
+CMP151() {  # $1 yaml · $2 package.json
+  MTH_Y="$1" MTH_P="$2" node -e "
+    const {pathToFileURL}=require('url'); const fs=require('fs');
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      const ci=m.pasosDeCI(fs.readFileSync(process.env.MTH_Y,'utf8'));
+      const v=m.pasosDeVerify(JSON.parse(fs.readFileSync(process.env.MTH_P,'utf8')).scripts);
+      const falta=ci.filter((x)=>!v.includes(x)), sobra=v.filter((x)=>!ci.includes(x));
+      console.log('FALTA:'+(falta.join(',')||'-')+' SOBRA:'+(sobra.join(',')||'-'));
+    });" 2>&1
+}
+proj151() {
+  local d="$WORK/p151"; rm -rf "$d"; mkdir -p "$d/.github/workflows"
+  cp "$RAIZ/.github/workflows/verificacion.yml" "$d/.github/workflows/" 2>/dev/null
+  cp "$RAIZ/package.json" "$d/" 2>/dev/null
+  echo "$d"
+}
+
+# HOY COINCIDEN. Es la mitad facil y sin la otra no vale nada.
+igual151() {
+  local d; d="$(proj151)"
+  CMP151 "$d/.github/workflows/verificacion.yml" "$d/package.json"
+}
+chk   "verify y CI corren los mismos pasos"        "FALTA:- SOBRA:-" igual151
+# QUE FALTE EN VERIFY BLOQUEA: es lo que dejo pasar ocho errores al PR.
+quita_verify151() {
+  local d; d="$(proj151)"
+  perl -0pi -e "s/ && npm run verify:fdge//" "$d/package.json"
+  CMP151 "$d/.github/workflows/verificacion.yml" "$d/package.json"
+}
+chk   "un paso de CI que falte en verify se caza"  "FALTA:verify:fdge" quita_verify151
+# Y QUE SOBRE TAMBIEN SE DICE: una comprobacion que corre en local y no en CI tiene su rojo
+# invisible en el PR. Sin este caso, la comparacion en un solo sentido dejaria pasar matriz:check.
+quita_ci151() {
+  local d; d="$(proj151)"
+  perl -0pi -e "s/        run: npm run matriz:check/        run: echo nada/" "$d/.github/workflows/verificacion.yml"
+  CMP151 "$d/.github/workflows/verificacion.yml" "$d/package.json"
+}
+chk   "…y un paso de verify que CI no corre"       "SOBRA:matriz:check" quita_ci151
+# verify-fdge lo EMITE con su regla, o el fallo no dice de donde viene (SUITE-R53).
+chk   "verify-fdge lo emite citando SUITE-R62"     "SUITE-R62" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/verify-fdge.mjs' 2>&1 | grep 'los mismos'"
+# AC-04 · la cifra publicada —24,1 min— es la de NUEVE pasos. Si manana son ocho o diez, la cifra
+# deja de describir lo que se mide. Se escribio sin TS y verify-fdge lo rechazo como Orphan
+# Criterion: un criterio sin escenario es un criterio que nadie comprueba (FDGE-R15).
+pasos151() {
+  node -e "const s=require(process.env.MTH_PKG).scripts.verify;console.log(s.split(String.fromCharCode(38,38)).length+' pasos')"
+}
+export MTH_PKG="$RAIZ/package.json"
+chk   "verify corre los nueve pasos medidos"       "^9 pasos$" pasos151
 
 # ── PT-168 · EP-024 · audit daba por cubierta una fase que NO ESTA en el documento ──────────────
 #

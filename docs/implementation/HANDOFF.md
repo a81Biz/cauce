@@ -11,7 +11,7 @@ lo que este lote descubrio: DIECISEIS sitios, no trece · E5 era FALSO en sus do
 hallazgo sin tarea: NINGUNO. Los veinte estan en EP-024, cada uno enlazado a su parada y APLAZADO con sus tres datos.
 pregunta abierta: si el trabajo DE LOTE puede citar el EP en un commit. Sobre FDGE-R19 desde PT-127, con tarea: PT-153.
 lo que sigue sin resolverse: PT-025 (#35) DEFERRED · 21 allocations sin suite_version.
-actualizado:    2026-08-26 · PT-168 en PHASE 8 Persistencia
+actualizado:    2026-08-26 · PT-151 en PHASE 8 Persistencia
 <!-- /ESTADO -->
 
 ---

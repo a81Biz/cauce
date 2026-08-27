@@ -9887,3 +9887,77 @@ LO QUE NO ESTABLECE: que las OTRAS dimensiones de audit —reglas, triggers, art
 mismo patron. NO ESTA MEDIDO, y suponerlo seria el mismo error. Ni que un proyecto destino no vea
 huecos nuevos: los vera si su documentacion no tiene seccion por componente, y ese es el resultado
 correcto — estaban ahi y no se veian.
+
+## PT-151 — «npm run verify» no era lo que corre CI, y el CLAUDE.md decia que si
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-005 — verde por no haber mirado
+
+El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y NO era cierto. Medido en
+EP-022: verify en VERDE y el check `marco` en ROJO con OCHO errores bloqueantes. Sobre esa base se
+declaro «todo verde», y el primer PR lo desmintio.
+
+ERAN TRES DIVERGENCIAS, NO UNA, Y LA TERCERA EN SENTIDO CONTRARIO:
+
+    verify-fdge --all   en CI y no en verify        la conocida: dejo pasar 8 errores al PR
+    revisar-secretos    con --historial solo en CI  un secreto commiteado y borrado despues
+                                                    PASA EN LOCAL y falla en CI
+    matriz:check        en verify y NO en CI        una comprobacion cuyo rojo NADIE VE en el PR
+
+El intake suponia UNA direccion. Por eso la comprobacion contrasta EN LOS DOS SENTIDOS: lo que
+falta en local BLOQUEA —deja pasar errores al PR— y lo que sobra AVISA —deja una comprobacion sin
+compuerta—. Una equivalencia comprobada en un solo sentido habria dejado pasar matriz:check.
+
+LA COMPARACION ES POSIBLE PORQUE SE IGUALO LA FORMA. revisar-secretos corria con --historial en CI
+y sin el en local: comparar COMANDOS exigiria entender banderas, comparar NOMBRES DE SCRIPT es
+trivial — a cambio de que los dos lados invoquen «npm run <script>». El limite se declara: si el
+workflow volviera a invocar la herramienta directamente, la diferencia seria otra vez invisible.
+
+LA BATERIA CAZO UNA SOBREDECLARACION MIA. La primera version emitia SUITE-R01 y NO_VERIFICABLE bajo
+de 6 a 5. Esa regla esta declarada no verificable CON MOTIVO Y FIRMA, y mi comprobacion cubre UN
+ASPECTO, no la regla: dar por cubierta la regla entera es CE-001 —el proxy en lugar del hecho— y en
+una herramienta que PUBLICA COBERTURA mueve una cifra que alguien usa para decidir. La obligacion
+comprobable tiene ID propio: SUITE-R62. Es la SEGUNDA VEZ EN ESTE LOTE que una cifra de cobertura
+miente por sobredeclarar, y las dos veces la cazo una comprobacion escrita antes, no yo mirando.
+
+DOS CASOS DEL PATRON SUPERADO. Su ancla era «verify-fdge.mjs --all» y cambio POR DISENO a «npm run
+verify:fdge». Ajustados con su motivo escrito — que es lo que SUITE-R61, escrita en este mismo
+lote, exige.
+
+Y ROMPI DOS LINEAS DEL «NO HACER», LAS DOS ESCRITAS POR MI:
+
+    #3  editar selftest.sh MIENTRAS corre   — verify-fdge pidio un escenario para AC-04 y anadi
+                                              TS-05 al arnes con la bateria viva
+    #0  DOS baterias a la vez               — lance la siguiente sin comprobar que la primera
+                                              hubiera terminado; las dos escriben el mismo archivo
+
+El resultado fue UN VERDE QUE NO VALIA: «OK · 1770» en una corrida que arranco con 1769 casos, es
+decir que leyo el arnes a mitad de edicion. Descartado y repetido limpio. Por que cai ahi, sin
+excusa: mi propia regla —«mientras la bateria corre, avanza documentos»— TIENE UN FILO, porque
+verify-fdge puede pedir un cambio en el ARNES en mitad de esa escritura y la frontera «documento vs
+herramienta» se cruza sin notarlo. Escribir TS-05 no se sintio como tocar una herramienta: se
+sintio como terminar la trazabilidad.
+
+Y FDGE-R15 ME CORRIGIO LA MISMA FORMA DE FINGIR RIGOR POR SEGUNDA VEZ EN EL LOTE: escribi AC-04 sin
+TS, dando por hecho que la medicion era evidencia suficiente, y lo rechazo como Orphan Criterion. Lo
+que ata la cifra a algo verificable no es la cifra sino DE CUANTOS PASOS es: si manana verify corre
+ocho o diez, los 26 minutos publicados dejan de describir lo que se mide.
+
+Archivos modificados: package.json · .github/workflows/verificacion.yml · publicar.yml ·
+  RULES.md · PHASES.md · FDGE-Prompts.md · CLAUDE.md · tools/patrones.mjs · tools/verify-fdge.mjs ·
+  tools/selftest.sh · CORE.md (generado) · inventory/services.md (cifras)
+
+Medido: 3 divergencias, 1 en sentido contrario · pasos de verify 8 a 9 · bateria 23,6 a 26,0 min ·
+  selftest 1765 a 1770 casos · corridas invalidadas por error propio: 2.
+
+Evidencia: evidence/PT-151/ — manifest con 4 AC y 4 RC, self-review, y cuatro salidas.
+
+LO QUE NO ESTABLECE: que el paso HAGA lo mismo en los dos sitios — se comparan nombres. Ni que la
+bateria sea sostenible: es DOS MINUTOS Y MEDIO MAS CARA de lo que ya costaba, y eso empuja en la
+direccion equivocada. PT-169 abarato «--solo»; la corrida completa sigue igual.

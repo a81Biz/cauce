@@ -370,6 +370,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+VERIFICA  «npm run verify» corre lo MISMO que el workflow, y se comprueba   [SUITE-R62]
+          en los dos sentidos: lo que falta en local BLOQUEA —deja pasar
+          errores al PR— y lo que sobra AVISA —deja una comprobacion cuyo
+          rojo nadie ve—. Se comparan NOMBRES DE SCRIPT, no lo que el paso
+          hace: por eso los dos lados invocan «npm run <script>».
 PODA      cerrar el lote es tambien podar la bateria: se publica la cuenta   [SUITE-R61]
           por patron —superado, invertido, hueco— aunque sea CERO. Decir que
           no se retiro ninguno es un hecho; callarlo es indistinguible de no

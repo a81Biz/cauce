@@ -4420,8 +4420,8 @@
       "id": "PT-151",
       "slug": "verify-no-es-lo-que-corre-ci",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -4440,7 +4440,31 @@
         "de": "EP-022",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde EP-022 el 2026-08-26"
+      "origin": "Aplazado desde EP-022 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "READY",
+        "conIntake": true
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-152",

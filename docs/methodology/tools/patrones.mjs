@@ -2070,6 +2070,52 @@ export function seccionesDelArnes(texto) {
  * Medido: caza los CUATRO conocidos —FIDE PHASE, FPGE PHASE, Foundation PHASE, FPGE fases— y
  * NINGUNO de los tres legitimos de PT-149.
  */
+/**
+ * PT-151 · LO QUE CORRE `npm run verify` Y LO QUE CORRE CI, DERIVADO DE SUS DOS FUENTES.
+ *
+ * El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y NO era cierto. Medido
+ * en EP-022: verify en verde y el check `marco` en rojo con OCHO errores bloqueantes, porque
+ * `verify-fdge --all` no estaba en verify. Un comando que promete equivaler a CI y no equivale
+ * produce el fallo que este marco persigue: CREER QUE SE VERIFICO LO QUE NO SE VERIFICO.
+ *
+ * Y las divergencias eran TRES, no una — la tercera EN SENTIDO CONTRARIO:
+ *   - `verify-fdge --all`   en CI y no en verify   (la conocida)
+ *   - `revisar-secretos`    con --historial en CI y SIN el en verify: un secreto commiteado y
+ *                           borrado despues pasa en local y falla en CI
+ *   - `matriz:check`        en verify y NO en CI: una comprobacion cuyo rojo NADIE VE EN EL PR
+ *
+ * Por eso la comparacion se hace en LOS DOS SENTIDOS. Que verify compruebe de MENOS es peor que
+ * de mas, pero las dos son la misma promesa rota.
+ *
+ * QUE ESTABLECE: que los dos conjuntos de scripts coincidan.
+ * QUE NO ESTABLECE: que el paso HAGA lo mismo en los dos sitios. Se comparan NOMBRES DE SCRIPT,
+ *   que es lo que se puede comparar: si CI invocara la herramienta directamente con otras
+ *   banderas —como hacia hasta hoy— la diferencia volveria a ser invisible. Igualarlos a `npm run
+ *   <script>` en los dos lados es lo que hace la comparacion posible, y esta declarado.
+ */
+export function pasosDeCI(yaml) {
+  const fuera = [];
+  for (const l of String(yaml ?? '').split(String.fromCharCode(10))) {
+    const t = l.trim();
+    if (!t.startsWith('run: npm run ')) continue;
+    fuera.push(t.slice('run: npm run '.length).trim());
+  }
+  return [...new Set(fuera)].sort();
+}
+
+
+export function pasosDeVerify(scripts) {
+  const cadena = String((scripts ?? {}).verify ?? '');
+  const fuera = [];
+  for (const trozo of cadena.split('&&')) {
+    const t = trozo.trim();
+    if (!t.startsWith('npm run ')) continue;
+    fuera.push(t.slice('npm run '.length).trim());
+  }
+  return [...new Set(fuera)].sort();
+}
+
+
 export function identificadoresDeHueco(textos, valores) {
   const RE = /gap\(\s*'[^']*'\s*,\s*`([^`]{4,60})`/g;
   const fuera = new Set();

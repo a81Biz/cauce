@@ -50,4 +50,5 @@
 | PT-169 | CHORE | S2 | DRAFT | EP-024 | La bateria solo crece y nadie la poda: se anade la regla que obliga a hacerlo |
 | PT-167 | CHORE | S2 | DRAFT | EP-024 | Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto |
 | PT-168 | BUG | S1 | DRAFT | EP-024 | audit da por cubierta la fase de un componente que no esta en el documento |
+| PT-151 | CHORE | S2 | DRAFT | EP-024 | npm run verify no era lo que corre CI, y el CLAUDE.md decia que si |
 | PT-149 | CHORE | S2 | DRAFT | EP-022 | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |
