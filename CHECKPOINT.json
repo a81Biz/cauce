@@ -1,10 +1,10 @@
 {
-  "pt": "PT-178",
+  "pt": "PT-152",
   "type": "BUG",
-  "epic": null,
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "epic": "EP-024",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "abd067859d77f4f9c5de2566c669af9aef45f202",
   "sha_corto": "abd0678",
@@ -33,6 +33,16 @@
     "docs/implementation/REFACTOR_SCOPE.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md",
+    "docs/implementation/evidence/PT-152/",
+    "docs/implementation/evidence/PT-153/",
+    "docs/implementation/evidence/PT-157/",
+    "docs/implementation/evidence/PT-158/",
+    "docs/implementation/evidence/PT-159/",
+    "docs/implementation/evidence/PT-162/",
+    "docs/implementation/evidence/PT-165/",
+    "docs/implementation/evidence/PT-166/",
+    "docs/implementation/evidence/PT-170/",
+    "docs/implementation/evidence/PT-178/",
     "docs/methodology/CASOS-DE-USO.md",
     "docs/methodology/CHANGELOG.md",
     "docs/methodology/CORE.md",
@@ -45,11 +55,13 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs",
-    "docs/methodology/tools/verify-suite.mjs",
-    "evidence/"
+    "docs/methodology/tools/verify-suite.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-26"
 }
