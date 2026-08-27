@@ -117,10 +117,11 @@
 | PT-177 | BUG | S3 | INTEGRATED | EP-024 | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
 | PT-178 | BUG | S2 | INTEGRATED | EP-024 | avanzar deja salir de PHASE 1 sin que exista el Intake |
 | PT-179 | BUG | — | DRAFT | EP-026 | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
-| PT-180 | BUG | — | DONE | EP-024 | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
+| PT-180 | BUG | — | INTEGRATED | EP-024 | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
 | PT-181 | BUG | — | DRAFT | EP-026 | La expectativa de un caso se compara como regex y no hay forma de decir literal |
 | PT-182 | BUG | — | DRAFT | EP-026 | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
 | PT-183 | BUG | S1 | INTEGRATED | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
 | PT-184 | BUG | S1 | INTEGRATED | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
 | PT-185 | BUG | S2 | INTEGRATED | EP-024 | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
 | PT-186 | BUG | S2 | INTEGRATED | EP-024 | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |
+| PT-187 | BUG | S2 | DRAFT | EP-026 | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
