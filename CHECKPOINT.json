@@ -2,9 +2,9 @@
   "pt": "PT-183",
   "type": "BUG",
   "epic": "EP-024",
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "2ee9a9b77153804ac407d41068e9e36d45a1b0bb",
   "sha_corto": "2ee9a9b",
@@ -12,9 +12,12 @@
   "archivos": [
     "changes/PT-178-avanzar-sale-de-phase-1-sin-intake/intake.md",
     "changes/PT-183-una-bandera-desconocida-se-ignora/",
+    "docs/implementation/BACKLOG.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
+    "docs/implementation/REFACTOR_SCOPE.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-183/",
     "docs/methodology/tools/patrones.mjs",
@@ -22,8 +25,11 @@
     "docs/methodology/tools/tracker.mjs",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-27"
 }
