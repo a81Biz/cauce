@@ -3,8 +3,8 @@
   "type": "INVESTIGATION",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "abd067859d77f4f9c5de2566c669af9aef45f202",
   "sha_corto": "abd0678",
@@ -34,15 +34,8 @@
     "docs/methodology/tools/verify-fdge.mjs",
     "docs/methodology/tools/verify-suite.mjs"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-26"
 }
