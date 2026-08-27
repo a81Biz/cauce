@@ -39,7 +39,7 @@ Proyectado el 2026-08-26 · 36 allocation(es) viva(s).
 | PT-175 | CHORE | DEFERRED | 1 | — | — | — |
 | PT-176 | CHORE | DEFERRED | 1 | — | — | — |
 | PT-177 | BUG | DEFERRED | 1 | — | — | — |
-| PT-178 | BUG | DONE | 7 | — | — | — |
+| PT-178 | BUG | DONE | 8 | — | — | — |
 | EP-026 |  | DRAFT | 1 | — | — | — |
 | PT-179 | BUG | DRAFT | 1 | — | — | — |
 | PT-180 | BUG | DRAFT | 1 | — | — | — |

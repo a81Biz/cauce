@@ -1,7 +1,7 @@
 {
-  "pt": "PT-170",
+  "pt": "PT-178",
   "type": "BUG",
-  "epic": "EP-024",
+  "epic": null,
   "status": "DONE",
   "phase": 8,
   "fase": "Persistencia",
