@@ -52,6 +52,32 @@ herramienta debería correr **14 de 45** secciones en vez de 45.
 Un paquete que no monta su propio estado **no se puede sellar**: su resultado no es una propiedad
 suya sino de **la secuencia**.
 
+## 3b. La forma del bloque, dictada por el firmante   `[HUMANO]`
+
+> *«la forma en la que se hagan los bloques que sea por versión mayor, todos los cambios menores y
+> parches en el mismo bloque de pruebas, que la versión esté en el intake así si hay algo que
+> reparar o revisar poder ir a la prueba exacta. Cuando esté certificada la versión ese bloque ya
+> no se vuelve a correr en la batería de pruebas»*
+
+| | |
+|:---|:---|
+| **Unidad del bloque** | La **versión MAYOR**. `13.x.y` entero es **un** bloque: los `MINOR` y los `PATCH` caen dentro. |
+| **Dónde se declara** | En el **intake**. La tarea dice a qué versión pertenece, y de ahí sale a qué bloque van sus casos. |
+| **Para qué sirve** | Para **ir a la prueba exacta** al reparar o revisar. Es un índice de vuelta, no una etiqueta. |
+| **Al certificar** | El bloque **deja de correr**. No es «corre y se ignora»: no se ejecuta. |
+
+**Esto es lo que abarata la batería, y `PT-169` midió por qué no bastaba podar:** la completa
+tardaba `23,6 min` antes y después de la poda. Aquí no se corre más rápido — **se corre menos**.
+
+**Reabrir un bloque sellado no es volver a correrlo.** Un bloque que se toca **pierde su
+certificación y vuelve a la batería entera**, y eso tiene que estar escrito donde una compuerta lo
+pueda exigir. Es lo que `PT-175` tiene que hacer imposible de olvidar.
+
+**La precondición no se puede saltar.** `338 de 1439` casos corren sobre estado que dejó otra
+sección, y **ocho secciones tienen el 100 %** de sus casos sobre estado ambiental. Un bloque que no
+monta su propio estado **no se puede sellar**: su resultado es una propiedad de la *secuencia*, no
+del bloque. Sellarlo certificaría algo que no se midió — por eso `PT-173` va antes.
+
 ## 4. Orden, y no es negociable   `[AGENTE]`
 
 1. **`PT-173` · las secciones montan lo que necesitan.** **338 casos por revisar.** Sin esto,

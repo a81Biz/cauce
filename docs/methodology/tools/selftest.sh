@@ -2120,7 +2120,7 @@ proj136() {
       allocations:[
         {id:'PT-001',slug:'a',type:'BUG',status:'VALIDATION_PENDING',epic:'EP-001'},
         {id:'PT-002',slug:'b',type:'FEATURE',status:'VALIDATION_PENDING',epic:'EP-001'},
-        {id:'PT-003',slug:'c',type:'BUG',status:process.argv[2],epic:'EP-001'},
+        {id:'PT-003',slug:'c',type:'BUG',epic:'EP-001',epic:'EP-001',status:process.argv[2],epic:'EP-001'},
         {id:'EP-001',slug:'lote',type:'CHORE',status:'READY'}]}, null, 2));
   " "$d/docs/implementation/REGISTRY.json" "${1:-DONE}"
   echo "$d"
@@ -2257,13 +2257,18 @@ proj139() {
   node -e "
     require('fs').writeFileSync(process.argv[1], JSON.stringify({
       suite_version:'13.1.0', firmantes:['Alberto Martínez'], counters:{PT:4},
+      // PT-183 · las cuatro DECLARAN SU LOTE. No lo hacian, y el barrido de EXEC-R03 —que nombra
+      // a quien no lo declara— las enumeraba en su aviso, incluida la que este fixture usa para
+      // comprobar que el que esta AL DIA no se nombra. El caso se puso en rojo por una mencion
+      // que no era suya. Un fixture cumple los invariantes del marco salvo el que viene a romper.
       allocations:[
-        {id:'PT-001',slug:'sin-bloque',type:'BUG',status:'DEFERRED',suite_version:'13.1.0'},
-        {id:'PT-002',slug:'caducado',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+        {id:'EP-001',slug:'lote-del-fixture',status:'READY',suite_version:'13.1.0'},
+        {id:'PT-001',slug:'sin-bloque',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'13.1.0'},
+        {id:'PT-002',slug:'caducado',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'13.1.0',
          aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2020-01-01',dueno:'Alberto Martínez'}},
-        {id:'PT-003',slug:'al-dia',type:'BUG',status:'DEFERRED',suite_version:'13.1.0',
+        {id:'PT-003',slug:'al-dia',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'13.1.0',
          aplazamiento:{reentrada:'cuando exista el proyecto destino',revision:'2099-01-01',dueno:'Alberto Martínez'}},
-        {id:'PT-004',slug:'antiguo',type:'BUG',status:'DEFERRED',suite_version:'12.0.0'}]}, null, 2));
+        {id:'PT-004',slug:'antiguo',type:'BUG',epic:'EP-001',status:'DEFERRED',suite_version:'12.0.0'}]}, null, 2));
   " "$d/docs/implementation/REGISTRY.json"
   echo "$d"
 }
@@ -2973,7 +2978,12 @@ mlib "…y sin fuentes dice null, no cero" "null" "$P130" \
 
 # AC-05 · EL ARREGLO NO ES ESQUIVAR LA PALABRA. El texto que hoy fallaba sigue escrito igual y
 # ahora pasa: lo que cambio es el ALCANCE DE LA LECTURA, no la prosa.
-chk   "el HANDOFF sigue nombrando identificadores en prosa"  "PT-127"  cat "$RAIZ/docs/implementation/HANDOFF.md"
+# EL IDENTIFICADOR NO SE CLAVA. Decia «PT-127», que era el que el HANDOFF nombraba ESE DIA: al
+# reescribir su bloque ESTADO —cosa que pasa en cada lote— el caso se puso en rojo sin que nada
+# hubiera dejado de funcionar. Un caso que fija un hecho de HOY mide la fecha, no la regla. Lo
+# que la premisa necesita es que el HANDOFF nombre ALGUN identificador en prosa, no cual.
+_prosa130() { grep -oE "(PT|EP)-[0-9]{3}" "$RAIZ/docs/implementation/HANDOFF.md" | head -1; }
+chk   "el HANDOFF sigue nombrando identificadores en prosa"  "-[0-9]"  _prosa130
 chkno "…y SUITE-R34 no lo acusa por nombrarlos"  "afirma que .* sigue en curso"  vf130 PT-130
 
 # ── PT-126 · EP-020 · sellar mide la matriz y FPGE la lee ─────────────────────────────────────
@@ -8227,10 +8237,18 @@ chk   "audit declara lo que su barrido NO alcanza"    "que el catalogo este COMP
 # es CE-014 y el rojo NO TENDRIA SALIDA, porque esas matrices ya se cerraron.
 P160="$WORK/p160"
 proj160() {  # $1 lo que se le hace a traceability · $2 a intake
+  # LA VERSION SE DERIVA DE RIGE_DESDE, NO SE CLAVA. Estaba escrita «13.2.0» a mano, y el dia
+  # que FDGE-R15a paso a regir desde 13.3.0 —al separar EP-024 de la 13.2.0 que ya estaba en
+  # main— los TRES casos de abajo dejaron de ejercitar la regla Y SIGUIERON EN VERDE. Es el
+  # patron «hueco» de SUITE-R61 en su forma mas cara: un fixture que deja de cumplir su premisa
+  # sin decirlo. Lo puso en rojo la bateria completa, no las pruebas de la tarea.
+  local _v
+  _v="$(MTH_PAT="$SUITE/tools/patrones.mjs" node -e "import(require('url').pathToFileURL(process.env.MTH_PAT).href).then((m)=>process.stdout.write((m.RIGE_DESDE['FDGE-R15a']||[0,0,0]).join('.')))")"
+  [ -n "$_v" ] || _v="0.0.0"
   rm -rf "$P160"; mkdir -p "$P160/changes/PT-001-login" "$P160/docs/implementation/evidence/PT-001"
   cp -r "$RAIZ/docs/methodology" "$P160/docs/" 2>/dev/null
   printf '%s\n' '```yaml' 'id: PT-001' 'type: FEATURE' 'track: STANDARD' 'status: DRAFT' \
-    'phase: 4' 'suite_version: 13.2.0' 'origin: DIRECT' '```' '' \
+    'phase: 4' "suite_version: $_v" 'origin: DIRECT' '```' '' \
     '| AC | Criterio |' '|:---|:---|' '| AC-01 | uno |' "$2" '' '## Firma' '' \
     'Solicitado por: Alberto Martínez' 'Fecha: 2026-08-26' \
     'He leído este Intake y confirmo que refleja mi intención: SÍ' \
@@ -8239,7 +8257,7 @@ proj160() {  # $1 lo que se le hace a traceability · $2 a intake
   printf '%s\n' '| AC | Criterio | TS | Test | Evidencia | Caso QA | Estado |' \
     '|:---|:---|:---|:---|:---|:---|:---|' '| AC-01 | uno | TS-01 | t | e | n/a | OK |' "$1" \
     > "$P160/changes/PT-001-login/traceability.md"
-  printf '%s' '{"allocations":[{"id":"PT-001","slug":"login","type":"FEATURE","status":"DRAFT","phase":4,"severity":"S3","suite_version":"13.2.0"}]}' \
+  printf '%s' '{"allocations":[{"id":"PT-001","slug":"login","type":"FEATURE","status":"DRAFT","phase":4,"severity":"S3","suite_version":"'"$_v"'"}]}' \
     > "$P160/docs/implementation/REGISTRY.json"
   ( cd "$P160" && node docs/methodology/tools/verify-fdge.mjs PT-001 2>&1 )
 }

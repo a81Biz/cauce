@@ -5573,7 +5573,14 @@
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
       },
-      "issue": 319
+      "issue": 319,
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      ]
     },
     {
       "id": "EP-025",
