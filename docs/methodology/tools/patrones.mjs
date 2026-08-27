@@ -131,10 +131,11 @@ export const RIGE_DESDE = {
   // corrida encontro SEIS reales —PT-077 declara AC-06 y su matriz no lo recoge— y trece avisos,
   // todos sobre trabajo YA INTEGRADO. Juzgarlo hacia atras es CE-014: aquellas tareas no pudieron
   // cumplir lo que nadie les pedia, y el rojo no tendria salida porque su matriz ya se cerro.
-  'FDGE-R15a': [13, 2, 0],
-  'LEX-R27': [13, 2, 0],
-  'LEX-R37': [13, 2, 0],
-  'EXEC-R15': [13, 2, 0],          // la ejecucion de un lote es secuencial por defecto
+  'FDGE-R15a': [13, 3, 0],
+  'LEX-R27': [13, 3, 0],
+  'LEX-R37': [13, 3, 0],
+  'EXEC-R03': [13, 3, 0],          // PT-183 · un PT sin lote no esta bajo ninguna compuerta de lote
+  'EXEC-R15': [13, 3, 0],          // la ejecucion de un lote es secuencial por defecto
   'LEX-R35': [13, 2, 0],
   'LEX-R36': [13, 2, 0],           // las diez familias de reglas no son los seis componentes           // PT-159 · un «declara» lleva su vuelta escrita           // PT-153 · el barrido del registro, no solo el lote verificado  // los AC de la matriz son los del intake · nace con EP-024
   // PT-099 · la entrada a VALIDATION_PENDING se vigila desde 12.0.0. La REGLA es vieja

@@ -51,7 +51,7 @@
 | PT-156 | CHORE | S3 | INTEGRATED | EP-024 | LEXICON 3 declara el rango de cinco componentes y hay seis |
 | PT-161 | CHORE | S3 | DONE | EP-024 | CASOS-DE-USO declara un contrato de cobertura que nada comprueba |
 | PT-164 | CHORE | S3 | DONE | EP-024 | Renumerar una regla no es una operacion, y una cita al ID equivocado pasa en verde |
-| PT-166 | CHORE | S3 | DRAFT | EP-024 | LEXICON 2 prohibe los pasos por su nombre, y la grafia en corchetes no esta en la lista |
+| PT-166 | CHORE | S3 | DONE | EP-024 | LEXICON 2 prohibe los pasos por su nombre, y la grafia en corchetes no esta en la lista |
 | PT-169 | CHORE | S2 | DONE | EP-024 | La bateria solo crece: nada retira un caso superado ni caza dos que prueban lo mismo |
 | PT-172 | CHORE | S2 | DEFERRED | EP-025 | La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado |
 | PT-173 | CHORE | S2 | DEFERRED | EP-025 | las secciones montan lo que necesitan |

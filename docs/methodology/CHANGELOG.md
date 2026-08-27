@@ -8,36 +8,24 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
-## 13.2.0 — 2026-08-26
+## 13.3.0 — 2026-08-27
 
-**Los componentes se declaran, no se escriben a mano** (`EP-022`). Ocho tareas: `PT-144` a
-`PT-150` y `PT-156`.
+**Lo que `EP-022` encontró y no podía arreglar** (`EP-024`). Veinticuatro tareas: veintiuna
+cerradas, dos aplazadas con su condición de reentrada, y una integrada por delante para poder
+cerrar `EP-022`.
 
-Nace de una pregunta sobre modularidad: *si mañana entra un componente nuevo, ¿qué hay que tocar?*
-Medida contra el código, la respuesta era **dieciséis sitios de cuatro herramientas** — y el
-conteo subió **tres veces durante el propio lote**, de 13 a 16, siempre leyendo con una pregunta
-concreta delante y **nunca** ejecutando.
+**Por qué `13.3.0` y no más `13.2.0`.** La `13.2.0` **ya está en `main`**, y declara **tres**
+reglas: `SUITE-R60`, `LEX-R35` y `LEX-R36`. Todo lo de este lote se había escrito colgando de ese
+mismo número, en esta rama y sólo aquí: **dos `13.2.0` con contenido distinto**, que es
+exactamente la avería que este marco existe para eliminar. Se separó al escribir la fila de cierre,
+comparando `origin/main` con la rama — no leyendo el documento.
 
-Lo grave no era la duplicación. `verify-suite` filtraba las reglas por una alternancia **literal**
-de prefijos, así que un componente con prefijo nuevo tenía **todas sus reglas invisibles al
-verificador** — y no daba error: **pasaba en verde**. Es el mismo fallo que dejó a `QA` en `0/19`
-y a `FPGE` en `0/10` «cumpliéndose sólo por buena voluntad».
+**Y es `MINOR`, no `MAJOR`.** Ninguna obligación existente cambia. Las que ganan comprobación ya
+obligaban con su texto intacto; lo único que se relaja es `LEX-R15`, y relajar no rompe a nadie. Un
+proyecto instalado puede ver **rojo donde antes había silencio** — es el objeto de esta versión — y
+`RIGE_DESDE` fija la entrada en `13.3.0` para que **nada se juzgue hacia atrás** (`CE-014`).
 
 ### Reglas nuevas
-
-Tres, y por eso `MINOR` y no `MAJOR` — **no cambian ninguna obligación existente**:
-
-- `SUITE-R60` (`CHECK`) — un componente se declara, y ninguna herramienta lo nombra. Nace `CHECK`
-  y hubo que ganárselo: media comprobación ya existía en `verify-patrones`; la otra media —que
-  ninguna herramienta escriba un nombre de componente— es un barrido nuevo, y **su criterio no es
-  que cace: es que no cace comentarios**. La primera versión cazaba 33 sitios y **nueve eran
-  legítimos**. Hay cuatro casos negativos permanentes para que nadie «mejore» el barrido hasta
-  hacerlo insufrible: un verificador desactivado es peor que ninguno.
-- `LEX-R35` — el contrato de componente y sus nueve campos, como **vocabulario**.
-- `LEX-R36` — componente y familia de reglas no son lo mismo. Son **seis** y **diez**, y
-  confundirlos hacía que `build-core` afirmara la lista dos veces con cifras distintas.
-
-**Y cuatro más de `EP-024`**, el lote que recoge lo que `EP-022` encontró y no podía arreglar:
 
 - `SUITE-R61` (`CHECK`) — **la batería se poda al cerrar un lote, y un fixture que no muta nada
   falla.** El disparador es el cierre y no un plazo: una fecha en un documento no la mira nadie.
@@ -78,12 +66,50 @@ silencio, que es el objeto de esta versión.
   `tracker avanzar` —la única forma sancionada de cambiar de fase— **no miraba** si el intake
   existía. Ahora se niega a salir de `PHASE 1` sin él. Se midió: **nueve** tareas de `EP-024`
   llegaron a `PHASE 5` sin intake (`PT-178`).
+- `EXEC-R03` — *`G4` es una por lote*. Nadie comprobaba que un `PT` **tuviera** lote. Se midió al
+  escribir la fila de cierre: **nueve `PT` de 182 sin ninguno**, y cinco de ellos de dos sesiones,
+  todos porque `asignar` recibió `--epic` donde la bandera es `--epica` y **el flag desconocido se
+  ignoró en silencio**. El `undefined` viajó al registro, al `intake` y a `HISTORY`, y `verify-fdge`
+  daba cero errores. Ahora `tracker` **rechaza** una bandera que no conoce —derivando la lista del
+  propio archivo, no de una tabla a mano—, `mover` distingue *ponerle el lote que le falta* de
+  *cambiarlo de lote*, y `verify-fdge` barre el registro. Los cuatro anteriores no se retrofechan
+  (`PT-183`).
 - `FDGE-R55` — gana el barrido de los `declara` con la revisión vencida, contra el **registro** y
   no contra los comentarios del issue: un verificador que necesitara red no podría correr donde no
   hay plataforma (`SUITE-R22`).
 - `LEX-R15` — deja de afirmar un universal que el repositorio desmentía. Admite la excepción
   **declarada**: *«o declara por qué no puede tenerlo»*. `FIDE` incuba desde una idea de negocio,
   antes de que exista repositorio, y su forma **es** distinta (`PT-158`).
+
+
+## 13.2.0 — 2026-08-26
+
+**Los componentes se declaran, no se escriben a mano** (`EP-022`). Ocho tareas: `PT-144` a
+`PT-150` y `PT-156`.
+
+Nace de una pregunta sobre modularidad: *si mañana entra un componente nuevo, ¿qué hay que tocar?*
+Medida contra el código, la respuesta era **dieciséis sitios de cuatro herramientas** — y el
+conteo subió **tres veces durante el propio lote**, de 13 a 16, siempre leyendo con una pregunta
+concreta delante y **nunca** ejecutando.
+
+Lo grave no era la duplicación. `verify-suite` filtraba las reglas por una alternancia **literal**
+de prefijos, así que un componente con prefijo nuevo tenía **todas sus reglas invisibles al
+verificador** — y no daba error: **pasaba en verde**. Es el mismo fallo que dejó a `QA` en `0/19`
+y a `FPGE` en `0/10` «cumpliéndose sólo por buena voluntad».
+
+### Reglas nuevas
+
+Tres, y por eso `MINOR` y no `MAJOR` — **no cambian ninguna obligación existente**:
+
+- `SUITE-R60` (`CHECK`) — un componente se declara, y ninguna herramienta lo nombra. Nace `CHECK`
+  y hubo que ganárselo: media comprobación ya existía en `verify-patrones`; la otra media —que
+  ninguna herramienta escriba un nombre de componente— es un barrido nuevo, y **su criterio no es
+  que cace: es que no cace comentarios**. La primera versión cazaba 33 sitios y **nueve eran
+  legítimos**. Hay cuatro casos negativos permanentes para que nadie «mejore» el barrido hasta
+  hacerlo insufrible: un verificador desactivado es peor que ninguno.
+- `LEX-R35` — el contrato de componente y sus nueve campos, como **vocabulario**.
+- `LEX-R36` — componente y familia de reglas no son lo mismo. Son **seis** y **diez**, y
+  confundirlos hacía que `build-core` afirmara la lista dos veces con cifras distintas.
 
 ### Qué cambia para un proyecto ya instalado
 

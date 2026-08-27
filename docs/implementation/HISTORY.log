@@ -10577,3 +10577,80 @@ Medido: 9 tareas sin intake -> 0 · verify-fdge no reporta FDGE-R01 en ninguna
 Evidencia: evidence/PT-178/ — manifest, self-review y la salida de la corrida.
 Trazabilidad: changes/PT-178-avanzar-sale-de-phase-1-sin-intake/traceability.md — sin AC huerfano (FDGE-R15).
 Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-178 — CORRIGE: el lote de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: decia «Lote: undefined». No era una omision de la bitacora: el registro, el YAML del
+  intake y esta entrada decian los tres «undefined», porque «asignar» recibio «--epic» donde la
+  bandera es «--epica» y el flag desconocido SE IGNORO EN SILENCIO. El defecto, su alcance —nueve
+  PT sin lote de 182, cinco de ellos de estas dos sesiones— y los tres arreglos estan en PT-183.
+Lote: EP-024
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para el
+campo «Lote» y la original para todos los demas, que siguen siendo validos.
+
+El lote se asigno con «tracker mover PT-178 --epica EP-024 --aplicar», no editando el registro:
+SUITE-R08 dice que el registro asigna, y editarlo a mano es lo que la regla existe para impedir.
+
+## PT-183 — Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA,
+            pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-003 — un argumento se cuela sin que la deteccion lo vea
+
+SE ESCRIBIO --epic DONDE LA BANDERA ES --epica, Y EL COMANDO NO DIJO NADA. Un flag desconocido era
+indistinguible de no haberlo pasado: el valor se perdio, y el hueco se relleno con la palabra
+«undefined», QUE SE LEE COMO UN DATO. Viajo a los tres artefactos de gobernanza:
+
+    registro                          epic: undefined
+    changes/PT-178-.../intake.md      epic: undefined
+    docs/implementation/HISTORY.log   Lote: undefined
+
+Una tarea terminada, validada en G3 y escrita en la bitacora, perteneciendo a un lote llamado
+«undefined». Y verify-fdge le daba CERO errores.
+
+ALCANCE MEDIDO: 182 PT en el registro, NUEVE sin lote — y CINCO de las dos ultimas sesiones, todos
+por el mismo error de una letra. EP-026 existia, tenia issue y ESTABA VACIO: sus cuatro tareas no
+lo citaban.
+
+POR QUE ES S1. EXEC-R03 hace G4 una por lote y SUITE-R45 hace que un lote resuelva sus filas al
+cerrar. Las dos gobiernan EL LOTE. Una tarea sin lote no esta bajo ninguna: se integra sin que
+ninguna compuerta de lote la mire. No es una etiqueta que falta — es trabajo fuera del alcance de
+las compuertas que existen para mirarlo.
+
+TRES ARREGLOS, Y EL PRIMERO SE VALIDO A SI MISMO COMO CORRECTO ANTES DE SERLO. La lista de banderas
+conocidas SE DERIVA del propio archivo —PT-057 ya condeno anadir un caso a una lista a mano, y este
+archivo ya lo habia resuelto para el VALOR de un flag derivandolo de la posicion—. La primera
+version recogia cualquier «--algo» del texto y SE TRAGABA LAS QUE APARECEN EN PROSA, incluida la
+«--epic» del comentario que explica el defecto: la guarda se declaraba a si misma correcta. Se
+restringio a las entrecomilladas, que son las que el codigo LEE. Lo dijo ejecutarla, no leerla.
+
+El segundo: `mover` se negaba sobre PT-178 diciendo «sus commits citan "undefined"», y ESE MENSAJE
+ES LA PRUEBA de que no hay lote anterior que desmentir. Ponerle el lote que le falta no es moverla
+de lote. Sin la distincion, una tarea nacida sin lote NO TENIA FORMA de recuperarlo con un comando,
+y SUITE-R08 prohibe editar el registro a mano.
+
+El tercero: verify-fdge barre el registro. Los cuatro historicos —PT-025, PT-027, PT-094, PT-095—
+NO se retrofechan (CE-014): se cuentan y se declaran (RULE-06).
+
+Y LA SEGUNDA INSTANCIA APARECIO MIENTRAS SE ARREGLABA LA PRIMERA. PT-179 a PT-182 salieron con
+severidad ausente: se escribio «--severity» donde la bandera es «--severidad», en el mismo comando
+y en la misma sesion. Con la guarda puesta, se caza. Las cuatro severidades NO se ponen aqui:
+FDGE-R04 e INTAKE-R04 las reservan al humano en el intake, y las cuatro estan en PHASE 1 sin
+intake — queda declarado con vuelta al 2026-09-30.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/patrones.mjs ·
+  tools/selftest.sh · changes/PT-183-.../ · los cinco PT reparados
+
+Medido: 182 PT · 9 sin lote -> 4 (historicos, declarados) · 5 reparados · 2 banderas mal escritas
+  en una sesion, las dos del mismo comando
+
+Evidencia: docs/implementation/evidence/PT-183/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-183-una-bandera-desconocida-se-ignora/traceability.md — sin AC huerfano.
+Corrida de la bateria: 1850 casos, los nueve nuevos en verde.

@@ -6,11 +6,11 @@
 
 | Herramienta | Líneas | Qué hace | Escribe | Ejercitada por |
 |:---|---:|:---|:---|:---|
-| `selftest.sh` | 8890 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
-| `tracker.mjs` | 5076 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
-| `verify-fdge.mjs` | 2940 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
+| `selftest.sh` | 8939 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
+| `tracker.mjs` | 5145 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
+| `verify-fdge.mjs` | 2975 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
 | `verify-suite.mjs` | 991 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |
-| `patrones.mjs` | 2905 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
+| `patrones.mjs` | 2906 | Biblioteca compartida: los patrones críticos con su contrato `casa`/`noCasa`. La única que se importa | no | importada por el resto · `verify-patrones` |
 | `build-core.mjs` | 613 | Compila `CORE.md` y `CORE-PTSA.md` desde las fuentes normativas | **sí** · `--check` no | `npm run core` · `core:check` · CI |
 | `audit.mjs` | 829 | Cobertura por enumeración: 597 elementos y lo que cada clase debe tener | no | `npm run audit` · CI |
 | `migrate.mjs` | 438 | Migración guiada entre versiones de la suite | **sí** con `--apply` | `selftest` · manual |

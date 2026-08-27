@@ -1,5 +1,5 @@
 {
-  "suite_version": "13.2.0",
+  "suite_version": "13.3.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 182,
+    "PT": 183,
     "EP": 26,
     "QA": 0,
     "QR": 0,
@@ -4410,11 +4410,17 @@
       "id": "EP-024",
       "slug": "lo-que-ep-022-encontro",
       "created": "2026-08-25",
-      "status": "DRAFT",
+      "status": "READY",
       "phase": 1,
       "suite_version": "13.1.0",
       "title": "lo que EP-022 encontro",
-      "issue": 306
+      "issue": 306,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      }
     },
     {
       "id": "PT-151",
@@ -5722,7 +5728,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "epic": "EP-024"
     },
     {
       "id": "EP-026",
@@ -5748,7 +5755,8 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-26"
       },
-      "issue": 327
+      "issue": 327,
+      "epic": "EP-026"
     },
     {
       "id": "PT-180",
@@ -5759,7 +5767,8 @@
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "El slug del registro y el de la carpeta divergen, y cada herramienta usa uno",
-      "issue": 328
+      "issue": 328,
+      "epic": "EP-026"
     },
     {
       "id": "PT-181",
@@ -5770,7 +5779,8 @@
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "La expectativa de un caso se compara como regex y no hay forma de decir literal",
-      "issue": 329
+      "issue": 329,
+      "epic": "EP-026"
     },
     {
       "id": "PT-182",
@@ -5781,7 +5791,56 @@
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor",
-      "issue": 330
+      "issue": 330,
+      "epic": "EP-026"
+    },
+    {
+      "id": "PT-183",
+      "slug": "una-bandera-desconocida-se-ignora",
+      "created": "2026-08-27",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-024",
+      "title": "Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote",
+      "origen_parada": {
+        "de": "PT-178",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-27"
+      },
+      "issue": 332,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-27"
+      },
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      ],
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      }
     }
   ]
 }

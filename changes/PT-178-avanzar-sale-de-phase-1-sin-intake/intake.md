@@ -5,7 +5,7 @@
 id: PT-178
 type: BUG
 severity: S2
-epic: undefined
+epic: EP-024
 track: STANDARD
 status: DRAFT
 phase: 8

@@ -932,6 +932,62 @@ const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
   && !String(xs[i - 1] ?? '').startsWith('--')) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
 
+// ── PT-183 · UNA BANDERA QUE NADIE CONOCE SE RECHAZA ───────────────────────
+//
+// Se escribio `--epic` donde la bandera es `--epica`. El comando NO DIJO NADA: un flag desconocido
+// era indistinguible de no haberlo pasado. El valor se perdio, y el hueco se relleno con la palabra
+// «undefined», que se LEE COMO UN DATO — y viajo a los tres artefactos de gobernanza:
+//
+//   registro                          epic: undefined
+//   changes/PT-178-…/intake.md        epic: undefined
+//   docs/implementation/HISTORY.log   Lote: undefined
+//
+// Medido: NUEVE PT sin lote de 182, y CINCO de ellos de las ultimas dos sesiones, todos por el
+// mismo error de una letra. EP-026 existe, tiene issue y esta VACIO.
+//
+// Es CE-003 —un argumento se cuela sin que la deteccion lo vea— con el agravante de que aqui no se
+// colo un valor equivocado: se perdio entero.
+//
+// LA LISTA SE DERIVA, NO SE ESCRIBE. PT-057 ya condeno el arreglo de anadir un caso mas a una lista
+// a mano, y este archivo YA lo resolvio para el VALOR de un flag derivandolo de la posicion. Aqui
+// se deriva el NOMBRE: se recogen los `flag('--…')` y los `ARGS.includes('--…')` que el propio
+// archivo contiene. Una bandera nueva se declara escribiendo el codigo que la lee, que es el unico
+// sitio donde no se puede olvidar.
+const BANDERAS_CONOCIDAS = (() => {
+  try {
+    const yo = readFileSync(fileURLToPath(import.meta.url), 'utf8');
+    const vistas = new Set();
+    // SOLO las entrecomilladas: son las que el codigo LEE. La primera version recogia cualquier
+    // «--algo» del archivo y se tragaba las que aparecen en PROSA — incluida la «--epic» del
+    // comentario de aqui arriba, que es la que este bloque existe para rechazar. La guarda se
+    // validaba a si misma como correcta. Lo dijo ejecutarla, no leerla.
+    for (const m of yo.matchAll(/'(--[a-z][a-z-]*)'/g)) vistas.add(m[1]);
+    return vistas;
+  } catch {
+    // Sin poder leerse a si mismo no se inventa una lista: se declara que no se puede comprobar
+    // (RULE-06). Un `null` aqui apaga la comprobacion, y eso es preferible a rechazar lo legitimo.
+    return null;
+  }
+})();
+{
+  const desconocidas = ARGS.filter((a) => /^--[^=]+$/.test(a))
+    .filter((a) => BANDERAS_CONOCIDAS && !BANDERAS_CONOCIDAS.has(a));
+  if (desconocidas.length) {
+    const cerca = (mala) => [...BANDERAS_CONOCIDAS]
+      .filter((b) => b.startsWith(mala) || mala.startsWith(b)).slice(0, 3);
+    const detalle = desconocidas.map((d) => {
+      const c = cerca(d);
+      return c.length ? `${d}  (¿quisiste decir ${c.join(' o ')}?)` : d;
+    });
+    console.error(`bandera desconocida: ${detalle.join(' · ')}${SALTO}${SALTO}`
+      + `Un flag que el comando no conoce se IGNORABA en silencio, y su valor se perdia sin que `
+      + `nada lo dijera: asi nueve PT quedaron sin lote (PT-183).${SALTO}${SALTO}`
+      + `Conocidas: ${[...BANDERAS_CONOCIDAS].sort().join(' ')}`);
+    process.exit(2);
+  }
+}
+
+
 
 const errores = [];
 const notas = [];
@@ -4948,7 +5004,20 @@ function mover() {
   // mover justo lo que mas sentido tiene mover: trabajo que nadie ha empezado y cuyo lote se
   // decidio antes de saber a que lote pertenecia. Es la misma excepcion que `aplazar` ya hace.
   const cerrada = ESTADOS_TERMINALES.has(String(a.status)) && a.status !== 'DEFERRED';
-  if (Number(a.phase) > 1 || cerrada) {
+  // PT-183 · PONERLE EL LOTE QUE LE FALTA NO ES MOVERLA DE LOTE.
+  //
+  // La puerta se negaba sobre PT-178 diciendo «su evidencia, su rama y sus commits citan
+  // "undefined"» — y ese mensaje es la prueba de que no hay lote anterior que desmentir. Sin esta
+  // distincion, una tarea que nacio sin lote por un flag mal escrito NO TENIA FORMA de recuperarlo
+  // con un comando, y SUITE-R08 dice que el registro no se edita a mano.
+  //
+  // Se permite en cualquier fase PORQUE NO HAY NADA QUE CONTRADECIR: los artefactos no citan otro
+  // lote, citan la ausencia. Lo que sigue prohibido —y es AC-04— es cambiar de lote a una tarea
+  // empezada que SI tiene uno: ahi el desmentido seria real.
+  const sinLote = !a.epic;
+  if (sinLote) {
+    notas.push(`${id} no tenia lote: esto no es un cambio, es asignarle el que le falta (PT-183).`);
+  } else if (Number(a.phase) > 1 || cerrada) {
     fail('FDGE-R52', `${id} esta en PHASE ${a.phase} / «${a.status}» y ya no se mueve: su evidencia, `
       + `su rama y sus commits citan «${a.epic}». Moverla dejaria esos artefactos apuntando a un `
       + 'lote que no es el suyo. Lo que ya empezo se cierra donde nacio.');

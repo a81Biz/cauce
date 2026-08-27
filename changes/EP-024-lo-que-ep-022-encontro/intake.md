@@ -97,16 +97,18 @@ puede cumplir saltándose la herramienta no se cumple: se rodea»*.
 `audit`) suenan a lo mismo y no lo son. El primero es **qué comprobaciones se corren**; el segundo,
 **qué establece una de ellas**. Arreglar uno no toca al otro.
 
-## 6. Cierre del lote   `SUITE-R45`
+## Cierre del lote   `SUITE-R45`
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | PENDIENTE |
-| Número de versión | PENDIENTE — `MINOR` esperado si sólo se añaden reglas y comprobaciones; **`MAJOR` si `PT-168` obliga a cambiar lo que `audit` declara cubierto**, porque eso cambia una cifra que los proyectos destino ya usan |
-| La regla de mantenimiento de la batería que `PT-169` escriba | PENDIENTE — su ID y severidad se fijan al escribirla |
-| Cuánto bajó el tiempo de la batería | PENDIENTE — se mide antes y después, y se publica la cifra, no un adjetivo |
-| Cuántos casos se retiraron y por cuál de los tres patrones | PENDIENTE — `superado`, `invertido`, `hueco` |
-| Lo que `PT-168` destape sobre la cobertura real | PENDIENTE — se declara al cerrar; si la cifra baja, **baja**, y se dice |
+| Entrada de `CHANGELOG.md` | **HECHO** — `13.3.0`, con las cinco reglas nuevas, las cinco que ganan comprobación y lo que la versión **no** promete. |
+| Número de versión | **HECHO — `13.3.0`, `MINOR`, y el número se corrigió al escribir esta fila.** Todo el lote se había escrito colgando de `13.2.0`, que **ya está en `main`** declarando otras tres reglas: eran **dos `13.2.0` con contenido distinto**. Se vio comparando `origin/main` con la rama, no leyendo el documento. `MINOR` porque ninguna obligación existente cambia: lo único que se relaja es `LEX-R15`, y `RIGE_DESDE` fija la entrada en `13.3.0` para que nada se juzgue hacia atrás (`CE-014`). |
+| La regla de mantenimiento de la batería que `PT-169` escriba | **HECHO** — `SUITE-R61`, y nace `CHECK`, no `HARD`. Su disparador es **el cierre de un lote**, no un plazo: una fecha en un documento no la mira nadie. De los tres patrones de caso muerto sólo el `hueco` se queda verde para siempre, y por eso es el único con comprobación mecánica. |
+| Cuánto bajó el tiempo de la batería | **HECHO, y la respuesta es que NO bajó.** `1 415 445 ms` (23,6 min) antes y después. Lo que se abarató fue **iterar**: `--solo` pasó de `252 373 ms` —y **cero** casos ejecutados— a `47 466 ms`. El encargo hablaba de «veinte minutos para el error de uno solo», y medir primero mostró que la poda **no era** el cuello de botella. Decir que la batería es más rápida sería falso. |
+| Cuántos casos se retiraron y por cuál de los tres patrones | **HECHO — ninguno, y se dice la cifra aunque sea cero** (`SUITE-R61`). `superado 0 · invertido 0 · hueco 1`. El único encontrado —un `sed` sobre un `SIN_EVALUAR` que `PT-156` ya había quitado— **no se retiró: se arregló**, porque su premisa seguía valiendo por el otro lado. La batería creció de `1749` a `1850` casos. |
+| Lo que `PT-168` destape sobre la cobertura real | **HECHO, y la cifra BAJÓ al mirarla bien.** El denominador no miraba `LEXICON` ni `EXECUTION-MODES` (+53 reglas), y 23 reglas contaban por una **mención** en un comentario — cinco de ellas sólo en `selftest.sh`, que ninguna compuerta ejecuta. Real: **113 verificadas · 6 no evaluables declaradas · 125 pendientes**, de 244. La cifra anterior era más alta y **medía otra cosa**. |
+| Lo que este lote encontró de sí mismo | **HECHO — cuatro defectos y un lote nuevo.** `EP-026` recoge lo que da verde sin mirar: `PT-179` (`verify-fdge` avisa donde debe bloquear), `PT-180` (el slug del registro y el de la carpeta divergen), `PT-181` (la expectativa de un caso se compara como **regex**: 303 de 1476), `PT-182` (el mapa fase→artefacto, a mano en dos herramientas). Y `PT-183` entró **en este lote** porque bloqueaba su cierre: nueve `PT` sin lote por una bandera que se ignoraba en silencio. |
+| Los dos aplazados | **HECHO — declarados, no olvidados.** `PT-171` y `PT-177`, los dos con condición de reentrada, fecha de revisión (`2026-09-30`) y dueño, según `SUITE-R44`. |
 
 ## 7. Firma   `INTAKE-R06` · `SUITE-R27`
 

@@ -8853,6 +8853,55 @@ chk   "LEX-R15 admite la excepcion declarada"      "o declara por" \
 chkno "…y no se fabrico un FIDE-Prompts.md vacio"  "FIDE-Prompts" \
   bash -c 'ls "$0/FIDE/" 2>/dev/null' "$SUITE"
 
+
+# ── PT-183 · una bandera desconocida se rechaza   CE-003 ───────────────────
+#
+# Se escribio `--epic` donde la bandera es `--epica`, y el comando NO DIJO NADA: un flag
+# desconocido era indistinguible de no haberlo pasado. El valor se perdio y el hueco se relleno con
+# la palabra «undefined», que se LEE COMO UN DATO — y viajo al registro, al YAML del intake y a
+# HISTORY. Medido: NUEVE PT sin lote de 182, CINCO de las dos ultimas sesiones.
+chk   "una bandera desconocida se RECHAZA"         "bandera desconocida" \
+  _t24 siguiente --epic EP-700
+chk   "…y sugiere la que si existe"                "quisiste decir --epica" \
+  _t24 siguiente --epic EP-700
+# LOS DOS PARES. Sin ellos, «rechazar siempre» pasaria los dos de arriba y seria peor que el
+# defecto: el arnes entero se invoca con banderas.
+chkno "una bandera LEGITIMA no se rechaza"         "bandera desconocida"   _t24 cursor
+chkno "…ni una con valor"                          "bandera desconocida" \
+  _t24 mover PT-801 --epica EP-702
+
+# ── PT-183 · ponerle el lote que falta no es moverla de lote ───────────────
+#
+# La puerta de `mover` se negaba sobre PT-178 diciendo «sus commits citan "undefined"» — y ese
+# mensaje ES la prueba de que no hay lote anterior que desmentir. Sin la distincion, una tarea que
+# nacio sin lote NO TENIA FORMA de recuperarlo con un comando, y SUITE-R08 prohibe editar el
+# registro a mano.
+_sinlote() { # una tarea DONE en PHASE 8 y SIN lote, que es el caso exacto de PT-178
+  local d; d="$(proj24)"
+  node -e "const fs=require('fs');const f=process.argv[1];const r=JSON.parse(fs.readFileSync(f,'utf8'));
+    if(!r.allocations.some(a=>a.id==='PT-802')) r.allocations.push({id:'PT-802',slug:'sin-lote',
+      status:'DONE',phase:8,suite_version:'13.2.0'});
+    fs.writeFileSync(f,JSON.stringify(r,null,2));" "$d/docs/implementation/REGISTRY.json"
+  _t24 mover PT-802 --epica EP-700
+}
+chk   "asignar el lote que falta se PERMITE"       "no tenia lote"          _sinlote
+chk   "…y se dice que no es un cambio"             "asignarle el que le falta" _sinlote
+# EL CASO INVERTIDO, y el que impide que `mover` se convierta en una goma de borrar: una tarea
+# EMPEZADA que SI tiene lote sigue sin poder cambiarlo.
+chk   "cambiar de lote una empezada sigue NEGADO"  "ya no se mueve"         _mv PT-800 --epica EP-702
+
+# ── PT-183 · un PT sin lote no esta bajo ninguna compuerta de lote ─────────
+#
+# EXEC-R03 hace G4 una por lote y SUITE-R45 hace que un lote resuelva sus filas al cerrar. Las dos
+# gobiernan EL LOTE: una tarea sin lote no esta bajo ninguna. PT-178 llego a DONE, paso G3 y se
+# escribio en HISTORY con «Lote: undefined», y verify-fdge le dio CERO errores.
+# Contra el arbol REAL, como el resto de los casos que miden el registro de verdad: SUITE es una
+# copia dentro de $WORK y alli no existe PT-183. Lo dijo ejecutarlo.
+_vf183() { (cd "$RAIZ" && node "$SUITE/tools/verify-fdge.mjs" PT-183 2>&1); }
+chk   "verify-fdge cuenta los PT sin lote"         "no declaran lote"    _vf183
+# CE-014 · los anteriores NO se retrofechan: se cuentan y se declaran (RULE-06).
+chk   "…y declara que no se retrofechan"           "NO se retrofechan"   _vf183
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

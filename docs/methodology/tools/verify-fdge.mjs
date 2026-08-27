@@ -1330,6 +1330,40 @@ function checkNombreDeRama() {
   // CE-014 · NO SE RETROFECHA. Las declaraciones publicadas antes de que el comando exigiera la
   // vuelta no pudieron declarar lo que nadie les pedia, y no dejaron bloque en el registro: sin
   // esta puerta, cada una de ellas seria deuda nueva por haber ocurrido antes.
+function checkSinLote() {
+  // PT-183 · UN PT SIN LOTE NO ESTA BAJO NINGUNA COMPUERTA DE LOTE.
+  //
+  // EXEC-R03 hace G4 una por lote; SUITE-R45 hace que un lote resuelva sus filas al cerrar. Las dos
+  // gobiernan EL LOTE. Una tarea sin lote no esta bajo ninguna: se integra sin que ninguna compuerta
+  // de lote la mire. No es una etiqueta que falta — es trabajo fuera del alcance de lo que existe
+  // para mirarlo.
+  //
+  // Se descubrio cerrando EP-024: PT-178 estaba DONE, validado en G3 y escrito en HISTORY con
+  // «Lote: undefined», y verify-fdge le daba CERO errores. Medido entonces: nueve PT sin lote de
+  // 182, y CINCO de las dos ultimas sesiones, todos por «--epic» en vez de «--epica».
+  //
+  // CE-014 · NO SE RETROFECHA. Los cuatro anteriores —PT-025, PT-027, PT-094, PT-095— nacieron
+  // antes de que nada lo exigiera, y dos estan INTEGRATED: convertirlos en deuda seria castigar
+  // trabajo correcto por haber ocurrido antes. Se CUENTAN y se DECLARAN, que es lo que RULE-06 pide
+  // de lo que no se va a corregir.
+  const pts = (REGISTRO?.allocations ?? []).filter((a) => /^PT-/.test(String(a?.id ?? '')));
+  const sinLote = pts.filter((a) => !a?.epic);
+  if (!sinLote.length) { ok('EXEC-R03', `los ${pts.length} PT del registro declaran su lote.`); return; }
+  const nuevos = sinLote.filter((a) => rigeDesde('EXEC-R03', a?.suite_version ?? '0.0.0'));
+  if (nuevos.length) {
+    fail('EXEC-R03', `${nuevos.length} PT sin lote habiendo nacido con la comprobacion vigente: `
+      + `${nuevos.map((a) => a.id).join(' · ')}. G4 es una por lote (EXEC-R03) y un lote resuelve `
+      + `sus filas al cerrar (SUITE-R45): sin lote, ninguna de las dos lo mira. Se le pone con:  `
+      + `tracker mover ${nuevos[0].id} --epica EP-NNN --aplicar`);
+  }
+  const historicos = sinLote.length - nuevos.length;
+  if (historicos) {
+    warn('EXEC-R03', `${historicos} PT anteriores a la comprobacion no declaran lote y NO se `
+      + `retrofechan (CE-014): ${sinLote.filter((a) => !nuevos.includes(a)).map((a) => a.id).join(' · ')}. `
+      + 'Se declara la cifra.');
+  }
+}
+
 function checkDeclarados() {
   let HOY = null;
   try {
@@ -2883,6 +2917,7 @@ checkVerifyEsCI();
 checkEpics();
 checkAplazados();
 checkDeclarados();
+checkSinLote();
 checkManejadores();
 checkNombreDeRama();
 GRAPH = graphState(reg);
