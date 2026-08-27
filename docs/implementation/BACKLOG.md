@@ -25,7 +25,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 ## Implementación abierta — `EP-024`
 
-`EP-024` · **lo que EP-022 encontro** · `DRAFT` · issue [#306](https://github.com/a81Biz/cauce/issues/306).
+`EP-024` · **lo que EP-022 encontro** · `READY` · issue [#306](https://github.com/a81Biz/cauce/issues/306).
 
 | PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -52,9 +52,10 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-171 | BUG | S3 | DEFERRED | 1 | [#318](https://github.com/a81Biz/cauce/issues/318) | Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto |
 | PT-177 | BUG | S3 | DEFERRED | 1 | [#324](https://github.com/a81Biz/cauce/issues/324) | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
 | PT-178 | BUG | S2 | DONE | 8 | [#325](https://github.com/a81Biz/cauce/issues/325) | avanzar deja salir de PHASE 1 sin que exista el Intake |
-| PT-183 | BUG | S1 | VALIDATION_PENDING | 7 | [#332](https://github.com/a81Biz/cauce/issues/332) | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
+| PT-183 | BUG | S1 | DONE | 8 | [#332](https://github.com/a81Biz/cauce/issues/332) | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
+| PT-184 | BUG | S1 | DONE | 8 | [#334](https://github.com/a81Biz/cauce/issues/334) | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
 
-**23 de 24 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**25 de 25 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-025`
 

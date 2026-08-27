@@ -10654,3 +10654,192 @@ Medido: 182 PT · 9 sin lote -> 4 (historicos, declarados) · 5 reparados · 2 b
 Evidencia: docs/implementation/evidence/PT-183/ — manifest, self-review y la salida de la corrida.
 Trazabilidad: changes/PT-183-una-bandera-desconocida-se-ignora/traceability.md — sin AC huerfano.
 Corrida de la bateria: 1850 casos, los nueve nuevos en verde.
+
+## PT-184 — El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA,
+            pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-005 — verde por no mirar, en su reverso: ROJO por mirar mal
+
+G4 SE BLOQUEABA A SI MISMA. Al abrir el PR que SUITE-R42 exige para resolver G4:
+
+    FDGE-R19  1 rama(s) no coinciden con lo que «ramaDeTarea» deriva del registro:
+      «origin/chore/alberto-martinez/PT-169-…» → deberia ser «chore/alberto-martinez/PT-169-…»
+
+LA UNICA DIFERENCIA ES EL PREFIJO «origin/». La rama no se desvio: SE PUBLICO. Y G4 exige un PR,
+que exige publicarla. La compuerta cerraba la unica puerta que el marco declara para integrar.
+
+LA CAUSA, Y ES CODIGO MUERTO QUE APARENTA TRABAJAR:
+
+    const RE_REMOTO = new RegExp('^remotes/[^/]+/');
+    git branch --format=%(refname:short) --all   ->   origin/chore/…
+
+El patron esta escrito para la forma LARGA y «%(refname:short)» devuelve la CORTA. Nunca casaba.
+
+Y NO ES QUE NADIE SUPIERA HACERLO: el otro barrido de ESTE MISMO ARCHIVO lo hace bien cuarenta
+lineas mas abajo, con `.replace(/^origin\//, '')`. Dos sitios para la misma pregunta, uno correcto
+y otro no — RULE-01 dentro del verificador que existe para cazar eso.
+
+SU MENSAJE EMPUJABA A LO CONTRARIO DE LO QUE HABIA QUE HACER: «renombrarla rompe su pull request,
+asi que esto se arregla en la SIGUIENTE» — mientras BLOQUEA LA ACTUAL. PT-183 acaba de escribir por
+que eso es lo peor que le puede pasar a una regla: una que solo se puede cumplir saltandose la
+herramienta no se cumple, SE RODEA.
+
+EL PRIMER ARREGLO RECORTABA DE MAS. Fue `^(?:remotes/)?[^/]+/(?=.*/)` y se comia el primer nivel de
+una rama LOCAL de tres: «chore/alberto-martinez/PT-169-x» -> «alberto-martinez/PT-169-x». Adivinar
+por la FORMA no distingue «origin/a/b» de «chore/a/b». Lo que es un prefijo remoto LO DICE
+«git remote», y eso si lo distingue. El caso invertido de una rama local de tres niveles esta en la
+bateria para que nadie lo vuelva a intentar por patron.
+
+LO QUE ESTE DEFECTO TAPABA: mientras «origin/…» ensuciaba la lista no se veia el hecho de fondo —
+EL LOTE ENTERO SE TRABAJO EN UNA RAMA CON NOMBRE DE UNA DE SUS TAREAS (PT-169). PT-153 acaba de
+declarar la forma derivable de la rama de un lote y esta rama no la usa. No se arregla aqui: el
+propio verificador dice que una rama ya creada se termina como empezo. Se declara y se aplica en la
+siguiente.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · changes/PT-184-…/
+
+Medido: 22 tareas de EP-024 sin «branch» declarada -> 0, con «tracker rama --declarar», que
+  escribe LA REAL y no la propuesta — hecho para el caso de un lote sobre una sola rama.
+
+Evidencia: docs/implementation/evidence/PT-184/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-184-la-rama-publicada-sale-desviada/traceability.md — sin AC huerfano.
+Corrida de la bateria: 1855 casos, los cinco nuevos en verde.
+
+## PT-152 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-153 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-157 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-158 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-159 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-162 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-165 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-170 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-178 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-183 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-184 — CORRIGE: el estado de la entrada del 2026-08-27
+Corrige: la entrada de 2026-08-27
+Motivo: declaraba «Estado: VALIDATION_PENDING», que era VERDAD al escribirla — un BUG se detiene ahi y
+  solo una persona lo mueve (FDGE-R26). G3 lo movio despues, con «tracker validar --aplicar»
+  y firmante Alberto Martinez. El error no fue el valor: fue el ORDEN, escribir la bitacora
+  antes de resolver la compuerta que decide el campo que la bitacora declara.
+Estado: DONE
+Compuertas: G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
+«Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.

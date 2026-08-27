@@ -8,7 +8,7 @@ id: PT-164
 type: CHORE
 epic: EP-024
 track: STANDARD
-status: DRAFT
+status: DONE
 phase: 8
 created: 2026-08-26
 structural: no

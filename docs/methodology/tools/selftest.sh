@@ -8920,6 +8920,43 @@ chk   "verify-fdge cuenta los PT sin lote"         "no declaran lote"    _vf183
 # CE-014 · los anteriores NO se retrofechan: se cuentan y se declaran (RULE-06).
 chk   "…y declara que no se retrofechan"           "NO se retrofechan"   _vf183
 
+
+# ── PT-184 · publicar una rama no la desvia   FDGE-R19 ─────────────────────
+#
+# «git branch --format=%(refname:short) --all» devuelve «origin/chore/x», NO «remotes/origin/x»,
+# y el recorte pedia «^remotes/...»: NUNCA CASABA. Toda rama publicada salia desviada, y en G4 eso
+# FALLA. Como G4 exige un PR (SUITE-R42) y un PR exige publicar la rama, LA COMPUERTA SE BLOQUEABA
+# A SI MISMA POR CONSTRUCCION. Se descubrio al abrir el PR de EP-024, no leyendo el codigo.
+#
+# Lo que es un prefijo remoto lo dice `git remote`, no un patron: el primer intento adivinaba por
+# la forma y se comia el primer nivel de una rama LOCAL de tres.
+_rama184() { # $1 = la rama tal como la lista git · imprime lo que queda tras quitar el remoto
+  node -e "
+    const REMOTOS=['origin','upstream'];
+    const sinRemoto=(r)=>{
+      const s=String(r??'').replace(new RegExp('^refs/'),'');
+      for(const m of REMOTOS){
+        if(s.startsWith('remotes/'+m+'/')) return s.slice(('remotes/'+m+'/').length);
+        if(s.startsWith(m+'/')) return s.slice((m+'/').length);
+      }
+      return s.replace(new RegExp('^remotes/[^/]+/'),'');
+    };
+    console.log(sinRemoto(process.argv[1]));" "$1"
+}
+chk   "una rama publicada pierde el origin/"       "^chore/alberto/PT-1-x$" \
+  _rama184 "origin/chore/alberto/PT-1-x"
+chk   "…y la forma larga tambien"                  "^chore/alberto/PT-1-x$" \
+  _rama184 "remotes/origin/chore/alberto/PT-1-x"
+# EL CASO QUE ROMPIO EL PRIMER INTENTO: una rama LOCAL de tres niveles conserva el primero.
+chk   "una rama local de tres NO pierde el primero" "^chore/alberto/PT-1-x$" \
+  _rama184 "chore/alberto/PT-1-x"
+chk   "…y una de dos niveles queda igual"          "^cauce/alberto$" \
+  _rama184 "cauce/alberto"
+# EL FRENO: con la rama real publicada, el verificador dice que los nombres COINCIDEN. Sin este,
+# «recortar siempre» pasaria los cuatro de arriba y habria apagado la comprobacion.
+chk   "sobre el arbol real, los nombres coinciden" "coinciden con los que deriva el registro" \
+  bash -c 'cd "$0" && node "$1/tools/verify-fdge.mjs" --gate G4 PT-183 2>&1' "$RAIZ" "$SUITE"
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

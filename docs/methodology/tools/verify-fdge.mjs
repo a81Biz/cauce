@@ -1251,14 +1251,45 @@ function checkManejadores() {
 //
 // Es CE-007: existe la herramienta y nada la echa en falta.
 const RE_LINEAS = new RegExp(String.fromCharCode(92) + 'r?' + String.fromCharCode(92) + 'n');
-const RE_REMOTO = new RegExp('^remotes/[^/]+/');
+// PT-184 · EL RECORTE ESTABA ESCRITO PARA LA FORMA LARGA Y NUNCA CASABA.
+//
+// «git branch --format=%(refname:short) --all» devuelve «origin/chore/x», NO «remotes/origin/x»:
+// el patron pedia «^remotes/...» y no casaba jamas. Codigo muerto que aparentaba hacer su trabajo,
+// asi que TODA rama publicada salia «desviada» — y en G4 eso FALLA. Como G4 exige un PR (SUITE-R42)
+// y un PR exige publicar la rama, LA COMPUERTA SE BLOQUEABA A SI MISMA POR CONSTRUCCION.
+//
+// Y no es que nadie supiera hacerlo: el otro barrido de este mismo archivo lo hace bien cuarenta
+// lineas mas abajo, con `.replace(/^origin\//, '')`. Dos sitios para la misma pregunta, uno
+// correcto y otro no — RULE-01 dentro del verificador que existe para cazar eso.
+//
+// Se cubren LAS DOS formas: la corta que devuelve «--format» y la larga por si alguien lista
+// «refs/remotes/». Cubrir solo la que hoy se usa dejaria el mismo defecto esperando al siguiente
+// que cambie la invocacion.
+// QUE ES UN PREFIJO REMOTO LO DICE «git remote», NO UN PATRON. El primer intento fue
+// `^(?:remotes/)?[^/]+/(?=.*/)` y se comia el primer nivel de una rama LOCAL de tres:
+// «chore/alberto-martinez/PT-169-x» → «alberto-martinez/PT-169-x». Adivinar por la forma no
+// distingue «origin/a/b» de «chore/a/b»; preguntar por los remotos declarados, si.
+const REMOTOS = (() => {
+  try {
+    return execFileSync('git', ['remote'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' })
+      .trim().split(RE_LINEAS).filter(Boolean);
+  } catch { return []; }
+})();
+const sinRemoto = (r) => {
+  const s = String(r ?? '').replace(new RegExp('^refs/'), '');
+  for (const m of REMOTOS) {
+    if (s.startsWith(`remotes/${m}/`)) return s.slice(`remotes/${m}/`.length);
+    if (s.startsWith(`${m}/`)) return s.slice(`${m}/`.length);
+  }
+  return s.replace(new RegExp('^remotes/[^/]+/'), '');
+};
 
 function checkNombreDeRama() {
   const ramas = (() => {
     try {
       return execFileSync('git', ['branch', '--format=%(refname:short)', '--all'],
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().split(RE_LINEAS)
-        .map((r) => r.replace(RE_REMOTO, '').trim()).filter(Boolean);
+        .map((r) => sinRemoto(r).trim()).filter(Boolean);
     } catch { return null; }
   })();
   if (ramas === null) { warn('FDGE-R19', 'nombres de rama SIN EVALUAR: no se pudo listar git branch.'); return; }

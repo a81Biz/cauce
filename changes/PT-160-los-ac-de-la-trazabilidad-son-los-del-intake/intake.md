@@ -8,7 +8,7 @@ id: PT-160
 type: BUG
 epic: EP-024
 track: STANDARD
-status: DEFERRED
+status: DONE
 phase: 8
 created: 2026-08-25
 structural: no

@@ -1,0 +1,89 @@
+{
+  "pt": "PT-184",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una rama publicada `origin/<rama>` **no** se reporta como desviada",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "La forma larga `remotes/<remoto>/<rama>` tampoco",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una rama **local** de tres niveles conserva su primer nivel — no se le come `chore/`",
+      "scenarios": [
+        "TS-03",
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Una rama que **de verdad** se desvía del nombre derivado **sigue** reportándose",
+      "scenarios": [
+        "TS-06"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "`verify-fdge --gate G4` deja de fallar por este motivo con el PR abierto",
+      "scenarios": [
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1855 casos",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

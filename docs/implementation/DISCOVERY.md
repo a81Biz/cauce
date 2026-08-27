@@ -120,4 +120,5 @@
 | PT-180 | BUG | — | DRAFT | EP-026 | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
 | PT-181 | BUG | — | DRAFT | EP-026 | La expectativa de un caso se compara como regex y no hay forma de decir literal |
 | PT-182 | BUG | — | DRAFT | EP-026 | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
-| PT-183 | BUG | S1 | VALIDATION_PENDING | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
+| PT-183 | BUG | S1 | DONE | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
+| PT-184 | BUG | S1 | DONE | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |

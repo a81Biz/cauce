@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 183,
+    "PT": 184,
     "EP": 26,
     "QA": 0,
     "QR": 0,
@@ -4476,7 +4476,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-152",
@@ -4532,7 +4533,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-153",
@@ -4588,7 +4590,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-154",
@@ -4645,7 +4648,8 @@
           "dueno": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      ]
+      ],
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-155",
@@ -4695,7 +4699,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-156",
@@ -4786,7 +4791,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-158",
@@ -4842,7 +4848,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-159",
@@ -4905,7 +4912,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-160",
@@ -4961,7 +4969,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-161",
@@ -5011,7 +5020,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-162",
@@ -5067,7 +5077,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-163",
@@ -5123,7 +5134,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-164",
@@ -5173,7 +5185,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-165",
@@ -5229,7 +5242,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-166",
@@ -5279,7 +5293,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-167",
@@ -5335,7 +5350,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-168",
@@ -5391,7 +5407,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-169",
@@ -5441,7 +5458,8 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-170",
@@ -5497,7 +5515,8 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-26"
         }
-      }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "PT-171",
@@ -5736,7 +5755,8 @@
           "fecha": "2026-08-26"
         }
       },
-      "epic": "EP-024"
+      "epic": "EP-024",
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
     },
     {
       "id": "EP-026",
@@ -5842,6 +5862,49 @@
           "fecha": "2026-08-27"
         }
       ],
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda"
+    },
+    {
+      "id": "PT-184",
+      "slug": "la-rama-publicada-sale-desviada",
+      "created": "2026-08-27",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.3.0",
+      "type": "BUG",
+      "severity": "S1",
+      "epic": "EP-024",
+      "title": "El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4",
+      "origen_parada": {
+        "de": "PT-183",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-27"
+      },
+      "issue": 334,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
       "compuertas": {
         "G3": {
           "firmante": "Alberto Martínez",

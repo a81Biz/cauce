@@ -8,7 +8,7 @@ id: PT-161
 type: CHORE
 epic: EP-024
 track: EXPRESS
-status: DRAFT
+status: DONE
 phase: 8
 created: 2026-08-26
 structural: no
