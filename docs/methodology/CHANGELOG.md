@@ -52,6 +52,40 @@ proyecto instalado puede ver **rojo donde antes había silencio** — es el obje
   `PT-157` se declaró en `EP-021` y seguía sin tarea **un lote entero después**, y `EP-022`
   publicó **siete** paradas huérfanas. `RIGE_DESDE 13.2.0`.
 
+### Cinco defectos que sólo aparecieron **al cerrar el lote**
+
+Ninguno se habría encontrado leyendo: todos salieron al ejecutar el cierre, y cuatro **bloqueaban**.
+
+- **`PT-183`** (`S1`) — **una bandera desconocida se ignoraba en silencio.** Se escribió `--epic`
+  donde la bandera es `--epica`, el valor se perdió, y el hueco se rellenó con la palabra
+  `undefined`, que **se lee como un dato**: viajó al registro, al `intake` y a `HISTORY` con
+  `verify-fdge` en verde. Medido: **nueve `PT` de 182 sin lote**, cinco de ellos de dos sesiones.
+  Ahora `tracker` **rechaza** una bandera que no conoce, derivando la lista del propio archivo.
+- **`PT-184`** (`S1`) — **`G4` se bloqueaba a sí misma.** `RE_REMOTO` pedía `^remotes/…` y
+  `git branch --format=%(refname:short)` devuelve `origin/…`: el recorte **nunca casaba**. Toda rama
+  publicada salía «desviada», y como `G4` exige un PR y un PR exige publicar la rama, la compuerta
+  cerraba la única puerta que el marco declara para integrar.
+- **`PT-185`** — **el índice era correcto y la comprobación lo acusaba.** El estado se buscaba en
+  toda la fila, y `PT-162` se titula *«Una tarea `DRAFT` no puede cambiar de lote…»* con `DONE` en
+  su columna. Sólo se disparaba sobre las tareas cuyo título nombra aquello de lo que tratan.
+- **`PT-186`** — **abrir una tarea dejaba la CI en rojo.** `FDGE-R01` exigía el intake en `PHASE 1`,
+  que es la fase que lo **produce**. `FDGE-R55` pide abrir el trabajo en cuanto se encuentra, y esto
+  castigaba por obedecerla.
+- **`PT-180`** — **una allocation de 211 bloqueó el cierre después de `G4`.** El slug del registro no
+  era el de la carpeta, y **doce sitios** componían la ruta a mano. Es también el origen de los «30
+  nodos sin rastro» que el cursor reportaba: un informe lleno de falsos, y por eso nadie lo miraba.
+
+Y **`PT-177`**: una nota de reanclaje perdida dejaba una cuenta que **ningún comando podía reparar**
+—`avanzar` sube la fase y agranda el hueco; `parada` se niega al `cambia-fase` suelto—. Nace
+`tracker reanclar`, con dos puertas: la transición **tiene que haber ocurrido** y **tiene que haber
+déficit**.
+
+### Qué cambia en las herramientas
+
+`tracker` gana **cuatro** verbos: `mover`, `rechazar`, `reanclar` y el rechazo de banderas
+desconocidas. `verify-fdge` gana el barrido de `LEX-R27`, el de `EXEC-R03` y el de los `declara`
+vencidos. Y la carpeta de un `PT` **se busca**, no se compone del slug del registro.
+
 ### Reglas que ganan comprobación, sin cambiar lo que exigen
 
 Estas **no son nuevas**: existían con su texto intacto y **nadie las hacía cumplir**. Un proyecto
