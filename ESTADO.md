@@ -12,19 +12,19 @@ Proyectado el 2026-08-26 · 23 allocation(es) viva(s).
 | PT-025 | CHORE | DEFERRED | — | — | — | — |
 | EP-023 |  | READY | 1 | — | — | da9c260 |
 | EP-024 |  | DRAFT | 1 | — | — | 6eb022b |
-| PT-151 | BUG | VALIDATION_PENDING | 8 | — | — | 3a7cb3f |
+| PT-151 | BUG | VALIDATION_PENDING | 8 | — | — | fae98a6 |
 | PT-152 | BUG | DEFERRED | 1 | — | — | — |
 | PT-153 | BUG | DEFERRED | 1 | — | — | — |
 | PT-154 | INVESTIGATION | DEFERRED | 1 | — | — | — |
-| PT-155 | CHORE | DEFERRED | 1 | — | — | — |
+| PT-155 | CHORE | DRAFT | 1 | — | — | — |
 | PT-157 | BUG | DEFERRED | 1 | — | — | — |
 | PT-158 | BUG | DEFERRED | 1 | — | — | — |
 | PT-159 | BUG | DEFERRED | 1 | — | — | 3a7cb3f |
-| PT-160 | BUG | DEFERRED | 1 | — | — | 3a7cb3f |
-| PT-161 | CHORE | DEFERRED | 1 | — | — | — |
+| PT-160 | BUG | READY | 1 | — | — | 3a7cb3f |
+| PT-161 | CHORE | DRAFT | 1 | — | — | — |
 | PT-162 | BUG | DEFERRED | 1 | — | — | — |
-| PT-163 | BUG | DEFERRED | 1 | — | — | — |
-| PT-164 | CHORE | DEFERRED | 1 | — | — | — |
+| PT-163 | BUG | DRAFT | 2 | — | — | — |
+| PT-164 | CHORE | DRAFT | 1 | — | — | — |
 | PT-165 | BUG | DEFERRED | 1 | — | — | — |
 | PT-166 | CHORE | DEFERRED | 1 | — | — | — |
 | PT-167 | BUG | VALIDATION_PENDING | 8 | — | — | 72f5422 |
