@@ -4075,3 +4075,41 @@ que `G4` marca como error y cuyo borrado es `SUITE-R06f`, el firmante amplía:
 `EXEC-R07` pide detenerse en el punto exacto y **describir el comando**. Con autorización, lo que
 se conserva es la otra mitad: **cada acción irreversible queda escrita con lo que se ejecutó y por
 qué**, aquí y en `HISTORY.log`. La delegación cambia quién aprieta el botón, no si queda rastro.
+
+---
+
+## 2026-08-26 · G4 de `EP-024` autorizada por el firmante, y con ella el cierre de sus `BUG`
+
+`SUITE-R06` declara siete acciones que **no se automatizan en ningún modo**. La regla de
+cumplimiento del `CLAUDE.md` prevé la única salida: *«hasta que un humano autorice la excepción
+**dejando registro de esa autorización**»*. Esto es ese registro, escrito **antes** de usarla.
+
+**Quién.** Alberto Martínez, firmante declarado en `CLAUDE.md` (`SUITE-R27`).
+
+**Qué autoriza, literalmente:**
+
+> *«bien, tienes mi VoBo, comienza con la EP-024 y no pares hasta terminar. Tienes mi autorización
+> para dejar todo listo y hacer el merge y pt hasta main.»*
+
+**Alcance, y sólo éste:**
+
+| Acción | Cláusula | Qué queda cubierto |
+|:---|:---|:---|
+| Cerrar los `BUG` de `EP-024` | `SUITE-R06b` | `PT-151`, `PT-167` y `PT-168` — y los que el lote produzca. Su trabajo y su evidencia están completos; lo que falta es la firma |
+| Merge a `main` | `SUITE-R06a` | La compuerta `G4` del lote, vía PR |
+| Modificar `docs/methodology/` | `SUITE-R06e` | Es el objeto del lote: las tareas corrigen reglas y herramientas del marco |
+
+**Qué NO cubre:**
+
+- **`npm publish`.** El firmante lo reservó expresamente el 2026-08-26 —*«Excepto publicar»*— y una
+  autorización posterior que no lo menciona **no lo deroga**. Ante la duda, manda la reserva.
+- **Reescribir historia** (`push --force`, `rebase` sobre lo publicado). No hace falta.
+- **`EP-023`**, que sigue intacta y sin autorización.
+
+**Precedente que esta constancia respeta.** La autorización anterior —la de `EP-022`, del mismo
+día— declaraba expresamente que *«cualquier trabajo fuera de `EP-022`»* quedaba sin cubrir. Esta es
+una autorización **nueva y explícita** para `EP-024`, no una extensión de aquélla.
+
+`EXEC-R07` pide detenerse en el punto exacto y **describir el comando**. Con autorización, lo que
+se conserva es la otra mitad: **cada acción irreversible queda escrita con lo que se ejecutó y por
+qué**. La delegación cambia quién aprieta el botón, no si queda rastro.
