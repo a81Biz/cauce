@@ -1,0 +1,75 @@
+{
+  "pt": "PT-152",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "`patrones.mjs` declara `TRIGGERS_DE_SUITE`, y cada entrada nombra su regla y para qué sirve",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "`triggers()` devuelve los de `COMPONENTES` **y** los de suite, sin duplicar",
+      "scenarios": [
+        "TS-01",
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "`[START MIGRATE]` aparece en el bloque de triggers de `CORE.md`",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "`verify-suite`, `verify-patrones` y `audit` en verde tras regenerar `CORE`",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1841 casos · 1840 en verde",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

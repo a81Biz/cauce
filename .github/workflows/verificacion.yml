@@ -52,6 +52,12 @@ jobs:
       - name: Cobertura de la auditoría
         run: npm run audit
 
+      # PT-151 · `matriz:check` corria en LOCAL y NO en CI: una comprobacion cuyo rojo nadie
+      # veia en el PR. La divergencia iba en sentido CONTRARIO al que se buscaba —CI comprobaba
+      # de menos por un lado y de mas por otro— y ninguna de las dos se veia sin compararlas.
+      - name: La matriz publicada esta al dia
+        run: npm run matriz:check
+
       - name: Batería de casos
         run: npm run selftest
 
@@ -60,7 +66,7 @@ jobs:
       # historia. Los falsos positivos se firman en SECRETOS-EXCEPCIONES.md: firmar no silencia
       # —siguen apareciendo con quién los firmó— pero deja de bloquear.
       - name: Ningún secreto sin firmar
-        run: node docs/methodology/tools/revisar-secretos.mjs . --historial
+        run: npm run verify:secretos
 
       # `SUITE-R35` · el registro asigna, la plataforma espeja. La regla es HARD desde la 5.0.0,
       # tenía herramienta y ninguna compuerta la ejecutaba: se podía planificar un lote entero
@@ -75,7 +81,7 @@ jobs:
       # un fork habrá un caso real contra el que escribir, que es como se trata el adaptador de
       # Azure: se escribe contra un caso, no contra ninguno.
       - name: El espejo con la plataforma cuadra
-        run: node docs/methodology/tools/tracker.mjs espejo
+        run: npm run verify:espejo
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -83,7 +89,7 @@ jobs:
       # repositorio, no sobre los fixtures: desde que cauce se autoaloja, su propio merge a main
       # necesita la misma comprobación que exige a los demás.
       - name: Cumplimiento de los artefactos propios
-        run: node docs/methodology/tools/verify-fdge.mjs --all
+        run: npm run verify:fdge
         env:
           # PT-120 · sin credencial, verify-fdge no puede mirar SUITE-R43 —los comentarios
           # humanos pendientes— y emite SIN EVALUAR por cada PT. En la corrida 32600060157

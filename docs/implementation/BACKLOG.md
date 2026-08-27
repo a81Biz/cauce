@@ -14,22 +14,6 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 <!-- BACKLOG:DERIVADO -->
 
-## Implementación abierta — `EP-022`
-
-`EP-022` · **modularidad: los componentes se declaran, no se escriben a mano** · `READY` · issue [#286](https://github.com/a81Biz/cauce/issues/286).
-
-| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
-|:---|:---|:---|:---|:---|:---|:---|
-| PT-144 | CHORE | S2 | DRAFT | 1 | [#279](https://github.com/a81Biz/cauce/issues/279) | El contrato de componentes vive en patrones.mjs |
-| PT-145 | REFACTOR | S2 | DRAFT | 1 | [#280](https://github.com/a81Biz/cauce/issues/280) | verify-suite y comparar-marco derivan los componentes del contrato |
-| PT-146 | REFACTOR | S2 | DRAFT | 1 | [#281](https://github.com/a81Biz/cauce/issues/281) | build-core deriva familias, orden y triggers del contrato |
-| PT-147 | REFACTOR | S2 | DRAFT | 1 | [#282](https://github.com/a81Biz/cauce/issues/282) | audit deriva fases, sigla y referencias por componente del contrato |
-| PT-148 | CHORE | S2 | DRAFT | 1 | [#283](https://github.com/a81Biz/cauce/issues/283) | El alta y la baja de un componente quedan escritas y con regla |
-| PT-149 | CHORE | S2 | DRAFT | 1 | [#284](https://github.com/a81Biz/cauce/issues/284) | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |
-| PT-150 | BUG | S2 | DRAFT | 1 | [#285](https://github.com/a81Biz/cauce/issues/285) | SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos |
-
-**0 de 7 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
-
 ## Implementación abierta — `EP-023`
 
 `EP-023` · **DICTAMEN: el septimo componente, y el entregable ejecutivo al dueno del dominio** · `READY` · issue [#287](https://github.com/a81Biz/cauce/issues/287).
@@ -39,13 +23,82 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 **0 de 0 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
-## Aplazado — 1 allocation(s) `DEFERRED`
+## Implementación abierta — `EP-024`
+
+`EP-024` · **lo que EP-022 encontro** · `READY` · issue [#306](https://github.com/a81Biz/cauce/issues/306).
+
+| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
+|:---|:---|:---|:---|:---|:---|:---|
+| PT-151 | BUG | S2 | DONE | 8 | [#293](https://github.com/a81Biz/cauce/issues/293) | npm run verify no es lo que corre CI, y el CLAUDE.md dice que si |
+| PT-152 | BUG | S2 | DONE | 8 | [#294](https://github.com/a81Biz/cauce/issues/294) | CORE.md publica ocho triggers y LEXICON declara trece |
+| PT-153 | BUG | S3 | DONE | 8 | [#295](https://github.com/a81Biz/cauce/issues/295) | La rama de un lote no tiene forma derivable, y se inventa |
+| PT-154 | INVESTIGATION | S3 | DONE | 8 | [#296](https://github.com/a81Biz/cauce/issues/296) | El espejo es global y el registro es por rama |
+| PT-155 | CHORE | S3 | DONE | 8 | [#297](https://github.com/a81Biz/cauce/issues/297) | verify-patrones comprueba dos de siete contratos de patrones.mjs |
+| PT-156 | CHORE | S3 | INTEGRATED | 8 | [#298](https://github.com/a81Biz/cauce/issues/298) | LEXICON 3 declara el rango de cinco componentes y hay seis |
+| PT-157 | BUG | S3 | DONE | 8 | [#299](https://github.com/a81Biz/cauce/issues/299) | contradiceElRegistro no reconoce el nombre canonico del estado |
+| PT-158 | BUG | S3 | DONE | 8 | [#300](https://github.com/a81Biz/cauce/issues/300) | FIDE no tiene archivo de prompts, y LEX-R15 dice que todo componente tiene uno |
+| PT-159 | BUG | S2 | DONE | 8 | [#301](https://github.com/a81Biz/cauce/issues/301) | Una parada que declara un hallazgo no esta obligada a abrir trabajo ni a decir cuando se revisa |
+| PT-160 | BUG | S3 | DONE | 8 | [#302](https://github.com/a81Biz/cauce/issues/302) | Nada comprueba que los AC de traceability.md sean los del intake |
+| PT-161 | CHORE | S3 | DONE | 8 | [#303](https://github.com/a81Biz/cauce/issues/303) | CASOS-DE-USO declara un contrato de cobertura que nada comprueba |
+| PT-162 | BUG | S3 | DONE | 8 | [#304](https://github.com/a81Biz/cauce/issues/304) | Una tarea DRAFT no puede cambiar de lote ni rechazarse por comando |
+| PT-163 | BUG | S2 | DONE | 8 | [#305](https://github.com/a81Biz/cauce/issues/305) | SUITE-R14 no caza un ID definido dos veces dentro del mismo documento |
+| PT-164 | CHORE | S3 | DONE | 8 | [#307](https://github.com/a81Biz/cauce/issues/307) | Renumerar una regla no es una operacion, y una cita al ID equivocado pasa en verde |
+| PT-165 | BUG | S2 | DONE | 8 | [#308](https://github.com/a81Biz/cauce/issues/308) | El mapa de fases de CORE lo escribe build-core a mano, y contradecia FPGE-R04 |
+| PT-166 | CHORE | S3 | DONE | 8 | [#309](https://github.com/a81Biz/cauce/issues/309) | LEXICON 2 prohibe los pasos por su nombre, y la grafia en corchetes no esta en la lista |
+| PT-167 | BUG | S2 | DONE | 8 | [#310](https://github.com/a81Biz/cauce/issues/310) | Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto |
+| PT-168 | BUG | S1 | DONE | 8 | [#311](https://github.com/a81Biz/cauce/issues/311) | audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier sitio del documento |
+| PT-169 | CHORE | S2 | DONE | 8 | [#313](https://github.com/a81Biz/cauce/issues/313) | La bateria solo crece: nada retira un caso superado ni caza dos que prueban lo mismo |
+| PT-170 | BUG | S2 | DONE | 8 | [#316](https://github.com/a81Biz/cauce/issues/316) | EXEC-R04 no reconoce una constancia real porque su encabezado usa otra palabra |
+| PT-171 | BUG | S3 | DEFERRED | 1 | [#318](https://github.com/a81Biz/cauce/issues/318) | Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto |
+| PT-177 | BUG | S3 | DONE | 8 | [#324](https://github.com/a81Biz/cauce/issues/324) | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
+| PT-178 | BUG | S2 | DONE | 8 | [#325](https://github.com/a81Biz/cauce/issues/325) | avanzar deja salir de PHASE 1 sin que exista el Intake |
+| PT-183 | BUG | S1 | DONE | 8 | [#332](https://github.com/a81Biz/cauce/issues/332) | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
+| PT-184 | BUG | S1 | DONE | 8 | [#334](https://github.com/a81Biz/cauce/issues/334) | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
+| PT-185 | BUG | S2 | DONE | 8 | [#335](https://github.com/a81Biz/cauce/issues/335) | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
+| PT-186 | BUG | S2 | DONE | 8 | [#336](https://github.com/a81Biz/cauce/issues/336) | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |
+
+**27 de 27 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+
+## Implementación abierta — `EP-025`
+
+`EP-025` · **La bateria se puede certificar: independencia, cierre y sello** · `DRAFT` · issue [#326](https://github.com/a81Biz/cauce/issues/326).
+
+| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
+|:---|:---|:---|:---|:---|:---|:---|
+| PT-172 | CHORE | S2 | DEFERRED | 1 | [#319](https://github.com/a81Biz/cauce/issues/319) | La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado |
+| PT-173 | CHORE | S2 | DEFERRED | 1 | [#320](https://github.com/a81Biz/cauce/issues/320) | las secciones montan lo que necesitan |
+| PT-174 | CHORE | S2 | DEFERRED | 1 | [#321](https://github.com/a81Biz/cauce/issues/321) | la seleccion sigue el grafo de importacion |
+| PT-175 | CHORE | S2 | DEFERRED | 1 | [#322](https://github.com/a81Biz/cauce/issues/322) | el sello se deriva de las entradas |
+| PT-176 | CHORE | S2 | DEFERRED | 1 | [#323](https://github.com/a81Biz/cauce/issues/323) | CI corre solo los paquetes abiertos |
+
+**5 de 5 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+
+## Implementación abierta — `EP-026`
+
+`EP-026` · **Lo que da verde sin mirar: verificadores que avisan donde deberian bloquear** · `DRAFT` · issue [#331](https://github.com/a81Biz/cauce/issues/331).
+
+| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
+|:---|:---|:---|:---|:---|:---|:---|
+| PT-179 | BUG | — | DRAFT | 1 | [#327](https://github.com/a81Biz/cauce/issues/327) | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
+| PT-180 | BUG | — | DRAFT | 1 | [#328](https://github.com/a81Biz/cauce/issues/328) | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
+| PT-181 | BUG | — | DRAFT | 1 | [#329](https://github.com/a81Biz/cauce/issues/329) | La expectativa de un caso se compara como regex y no hay forma de decir literal |
+| PT-182 | BUG | — | DRAFT | 1 | [#330](https://github.com/a81Biz/cauce/issues/330) | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
+
+**0 de 4 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+
+## Aplazado — 7 allocation(s) `DEFERRED`
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
 | Id | Tipo | Issue | Por qué sigue fuera |
 |:---|:---|:---|:---|
 | PT-025 | CHORE | [#35](https://github.com/a81Biz/cauce/issues/35) | el adaptador de Azure existe pero no hay proyecto que lo use; escribir la guarda a ciegas seria codigo sin ejecucion |
+| PT-171 | BUG | [#318](https://github.com/a81Biz/cauce/issues/318) | Aplazado desde PT-159 el 2026-08-26 |
+| PT-172 | CHORE | [#319](https://github.com/a81Biz/cauce/issues/319) | Aplazado desde PT-155 el 2026-08-26 |
+| PT-173 | CHORE | [#320](https://github.com/a81Biz/cauce/issues/320) | Aplazado desde PT-172 el 2026-08-26 |
+| PT-174 | CHORE | [#321](https://github.com/a81Biz/cauce/issues/321) | Aplazado desde PT-172 el 2026-08-26 |
+| PT-175 | CHORE | [#322](https://github.com/a81Biz/cauce/issues/322) | Aplazado desde PT-172 el 2026-08-26 |
+| PT-176 | CHORE | [#323](https://github.com/a81Biz/cauce/issues/323) | Aplazado desde PT-172 el 2026-08-26 |
 
 <!-- /BACKLOG:DERIVADO -->
 

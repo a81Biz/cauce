@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **13.2.0**
+> Suite version: **13.3.0**
 
 ---
 
@@ -370,6 +370,21 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+LOTE      la ejecucion de un lote es SECUENCIAL por defecto: una tarea       [EXEC-R15]
+          detras de otra. La concurrente en worktrees separados es una
+          extension OPCIONAL y exige politica declarada de conflictos; no
+          forma parte del comportamiento base. Llevaba el ID EXEC-R08, que
+          ya tenia duenno, y PT-163 la renumero al cazar el ID reutilizado.
+VERIFICA  «npm run verify» corre lo MISMO que el workflow, y se comprueba   [SUITE-R62]
+          en los dos sentidos: lo que falta en local BLOQUEA —deja pasar
+          errores al PR— y lo que sobra AVISA —deja una comprobacion cuyo
+          rojo nadie ve—. Se comparan NOMBRES DE SCRIPT, no lo que el paso
+          hace: por eso los dos lados invocan «npm run <script>».
+PODA      cerrar el lote es tambien podar la bateria: se publica la cuenta   [SUITE-R61]
+          por patron —superado, invertido, hueco— aunque sea CERO. Decir que
+          no se retiro ninguno es un hecho; callarlo es indistinguible de no
+          haber mirado. El disparador es el CIERRE y no un plazo: una fecha
+          en un documento no la mira nadie.
 ARRANQUE  el punto de ENTRADA es el tablero, no una regla que recordar.     [SUITE-R50]
           cauce start   →  estado del tablero, y DESPUES el nucleo
           No hay forma de obtener lo segundo sin lo primero. Usa la
@@ -442,6 +457,9 @@ PARADA con decisión, ESCRIBE en la TAREA antes de continuar:                  [
           motivo   ∈ hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
                      limite-alcanzado · desafio-al-intake
           desenlace ∈ continua · abre · cambia-fase · detiene · declara
+          «abre» exige --abre con la allocation que nace                  [FDGE-R55].
+          «declara» exige --revision futura y --dueno conocido             [LEX-R37]:
+                     o abre trabajo, o dice cuándo se revisa y quién responde.
           MISMO destino que el reanclaje: issue, o TRANSICIONES.log sin plataforma.
           NO lleva la forma «PHASE n → m» salvo que SEA una transición  [LEX-R30].
           Lo que sólo está en la conversación no está                   [SUITE-R04].

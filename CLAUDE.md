@@ -207,7 +207,7 @@ Orden de autoridad ante conflicto (`LEX-R21`):
 **Única sección que se personaliza.** Todo lo demás son punteros.
 
 ```yaml
-suite_version: 13.2.0
+suite_version: 13.3.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:                        # quién puede firmar un Intake y resolver una compuerta
   - Alberto Martínez
@@ -284,10 +284,17 @@ node docs/methodology/tools/verify-fdge.mjs --gate G4 PT-XXX   # precondiciones 
 node docs/methodology/tools/verify-suite.mjs docs/methodology   # coherencia de la metodología
 node docs/methodology/tools/build-core.mjs                      # regenerar CORE tras tocar reglas
 node docs/methodology/tools/tracker.mjs espejo                  # registro ↔ issues de GitHub
-npm run verify                                                  # todo lo anterior, como en CI
+npm run verify                                                  # los NUEVE pasos que corre CI
 ```
 
 `FDGE-R34` · `verify-fdge` sin errores es precondición de **G4**.
+
+`SUITE-R01` · **«como en CI» dejó de ser una promesa y es una comprobación.** Lo era hasta
+`PT-151`, y era **falsa**: `verify` no corría `verify-fdge --all`, barría secretos sin mirar la
+historia, y corría `matriz:check` que CI **no** tenía. Ahora `verify-fdge` contrasta las dos listas
+**en los dos sentidos** —lo que falta en `verify` bloquea; lo que sobra avisa, porque su rojo no lo
+ve nadie en el PR— y las dos se invocan como `npm run <script>` en los dos lados, que es lo que
+hace la comparación posible.
 
 ---
 

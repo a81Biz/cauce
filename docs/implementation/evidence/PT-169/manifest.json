@@ -1,0 +1,35 @@
+{
+  "pt": "PT-169",
+  "generated": "2026-08-26",
+  "criteria": [
+    {"ac":"AC-01","statement":"Se mide el tiempo antes y despues, y se publica la cifra","tests":["dos corridas cronometradas"],"evidence":["salidas/duracion.out"],"verified":true,
+     "nota":"Y la cifra NO es la que se esperaba. La bateria completa sigue en 1 415 445 ms (23,6 min): NO se abarato. Lo que se abarato es ITERAR — «--solo» paso de 252 373 a 47 466 ms. Decir que «la bateria va mas rapida» seria falso; lo que el firmante describio fue «tarda veinte minutos en mandar el error de uno solo», y eso es lo que cambio."},
+    {"ac":"AC-02","statement":"Un fixture cuya mutacion no cambia el archivo se caza","tests":["FIXTURE_HUECO","nombra el archivo","una mutacion real no se marca"],"evidence":["salidas/bateria.out"],"verified":true,
+     "nota":"El tercer caso es el FRENO: un `muta` que fallara siempre pasaria los dos primeros y seria PEOR que el defecto — todos los casos que mutan algo se volverian rojos y alguien quitaria el mecanismo. Y `muta` distingue «no existe» de «no cambio» (RULE-02): son defectos distintos con arreglos distintos."},
+    {"ac":"AC-04","statement":"Los casos retirados se cuentan por patron y ninguno se borra sin decir por que","tests":["regla.mjs SUITE-R61","el bloque PODA de PHASES"],"evidence":["salidas/regla.out"],"verified":true,
+     "nota":"Estaba escrito como «cumplido por la regla» SIN TS, que es la misma trampa que FDGE-R15 rechazo en AC-03. Lo que lo sostiene es que la regla EXISTA y sea CITABLE, no que la mencione alguien."},
+    {"ac":"AC-05","statement":"Existe la regla, con ID, severidad y disparador declarado","tests":["regla.mjs SUITE-R61"],"evidence":["salidas/regla.out"],"verified":true,
+     "nota":"SUITE-R61. El disparador es CERRAR UN LOTE y no un plazo: una fecha en un documento no la mira nadie, y el cierre es contrastable y ocurre justo cuando los casos se acumularon. Obliga a publicar la cuenta por patron AUNQUE SEA CERO — callarlo es indistinguible de no haber mirado. Y cito CE-011 tras corregir CE-016, que es «trabajar sin allocation» y no tenia nada que ver."},
+    {"ac":"AC-06","statement":"La regla puede fallar: hay un script que la comprueba","tests":["audit.mjs emite SUITE-R61","selftest caza el fixture hueco"],"evidence":["salidas/audit.out","salidas/bateria.out"],"verified":true,
+     "nota":"Nacio incumplido y se vio con regla.mjs: «ningun verificador la emite». verificadoresDe EXCLUYE selftest.sh a proposito —una regla que solo comprueba el arnes no la comprueba nada en un proyecto destino— asi que la comprobacion tuvo que ir a audit, que viaja. Y la primitiva se llama `warn` y no `avisa`: la derivacion busca fail( y warn(, y un nombre propio la habria dejado invisible."},
+    {"ac":"AC-07","statement":"Ningun caso vivo cambia de veredicto por la poda","tests":["el universo: 1749 -> 1752, solo los tres nuevos"],"evidence":["salidas/bateria.out"],"verified":true,
+     "nota":"ES EL QUE HIZO REVERTIR UN CAMBIO. Reutilizar el esqueleto bajaba el suelo de 47,4 a 41,6 s y dejaba el universo en 1730: DIECINUEVE casos dejaban de ejecutarse. Seis segundos no valen cambiar lo que la bateria mide, y un caso que desaparece del universo ha cambiado de veredicto por la puerta de atras."}
+  ],
+  "regression": [
+    {"rc":"RC-01","statement":"El universo de casos no cambia por acotar: 1749 -> 1752, solo los tres nuevos","verified":true},
+    {"rc":"RC-02","statement":"--afectados sigue funcionando: sus guardas leen ACOTADO, que el marca","verified":true},
+    {"rc":"RC-03","statement":"seccionesDelArnes no cambia para quien ya la usa: el campo nuevo es aditivo","verified":true},
+    {"rc":"RC-04","statement":"Ninguna regla existente cambia; CORE pasa de 263 a 264 por la nueva","verified":true}
+  ],
+  "hallazgos": ["PT-171"],
+  "medido": {
+    "bateria_completa_ms": 1415445,
+    "solo_antes_ms": 252373,
+    "solo_despues_ms": 47466,
+    "casos": "1749 → 1752",
+    "sitios_que_mutan": 61,
+    "sitios_con_muta": 3,
+    "trlib_coste_total_ms": 14000,
+    "reglas_de_CORE": "263 → 264"
+  }
+}

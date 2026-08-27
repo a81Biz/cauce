@@ -1,0 +1,26 @@
+{
+  "pt": "PT-167",
+  "generated": "2026-08-26",
+  "criteria": [
+    {"ac":"AC-01","statement":"Existe un barrido que senala los casos sospechosos de estar invertidos","tests":["audit sobre el arbol real"],"evidence":["salidas/audit.out"],"verified":true,
+     "nota":"Hoy da CERO, porque PT-156 reescribio los cuatro conocidos. Por eso los cuatro entran como FIXTURE: un barrido que no caza nada es indistinguible de uno roto — la trampa que PT-095 documento con su inversa en cero."},
+    {"ac":"AC-02","statement":"Caza los cuatro que EP-022 encontro, reintroducidos como fixture","tests":["FIDE PHASE","FPGE PHASE","Foundation PHASE","FPGE fases"],"evidence":["salidas/bateria.out"],"verified":true,
+     "nota":"El discriminador es el IDENTIFICADOR del hueco INSTANCIADO con los valores que COMPONENTES declara. «FIDE PHASE» no aparece en ningun documento: solo lo emite audit, y solo cuando algo falta."},
+    {"ac":"AC-03","statement":"No caza un caso legitimo que asierta sobre un mensaje de error","tests":["no puede perder ninguno","ninguna puede desaparecer","EN SU ORDEN"],"evidence":["salidas/bateria.out"],"verified":true,
+     "nota":"ES EL QUE DECIDIO EL DISENO. Se probaron TRES criterios: la explicacion del hueco daba 30 falsos positivos, el esqueleto del identificador 9 —«PHASE» aparece en media metodologia— y el identificador instanciado CERO. Los dos primeros habrian cazado los cuatro conocidos Y los tres legitimos de PT-149, que son lo que impide que su correccion fuera un apagado disfrazado."},
+    {"ac":"AC-04","statement":"Lo que el barrido no puede decidir sale como candidato, no como fallo","tests":["audit emite warn, no gap"],"evidence":["salidas/audit.out"],"verified":true,
+     "nota":"La diferencia entre «afirma un hueco» y «prueba que el hueco se caza» es de INTENCION, y la intencion no esta en el texto (SUITE-R26). Un barrido que los matara se desactivaria en la primera corrida, y un verificador desactivado es peor que ninguno."}
+  ],
+  "regression": [
+    {"rc":"RC-01","statement":"audit sigue en verde sobre el arbol real","verified":true},
+    {"rc":"RC-02","statement":"El barrido no convierte candidatos en huecos: emite warn","verified":true},
+    {"rc":"RC-03","statement":"Ninguna regla nueva: se acoge a SUITE-R61, que ya cubre los tres patrones","verified":true}
+  ],
+  "hallazgos": [],
+  "medido": {
+    "falsos_positivos_por_criterio": {"explicacion_del_hueco": 30, "esqueleto_del_identificador": 9, "identificador_instanciado": 0},
+    "identificadores_derivados": 32,
+    "casos_invertidos_hoy": 0,
+    "casos_selftest": "1752 → 1765"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "pt": "PT-162",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "`mover` cambia el lote de una tarea `DRAFT` o `READY`, y lo registra",
+      "scenarios": [
+        "TS-01",
+        "TS-08"
+      ],
+      "tests": [
+        "selftest §EP-024 · 7 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "`mover` **rechaza** una tarea que ya pasó de `PHASE 1`, diciendo por qué",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 7 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "`mover` rechaza un destino que no es un lote (`LEX-R27`) o que no existe",
+      "scenarios": [
+        "TS-03",
+        "TS-04",
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 7 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "`rechazar` lleva a `REJECTED` y **exige** motivo",
+      "scenarios": [
+        "TS-06"
+      ],
+      "tests": [
+        "selftest §EP-024 · 7 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "`rechazar` **no** toca una allocation en estado terminal",
+      "scenarios": [
+        "TS-07"
+      ],
+      "tests": [
+        "selftest §EP-024 · 7 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1841 casos · 1840 en verde",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

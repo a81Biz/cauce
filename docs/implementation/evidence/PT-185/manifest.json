@@ -1,0 +1,75 @@
+{
+  "pt": "PT-185",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una fila cuyo **título** nombra un estado se lee por su **columna**",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Una fila cuya columna **sí** diverge del registro **sigue** saliendo",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una línea que no es fila de tabla se sigue evaluando con el barrido anterior",
+      "scenarios": [
+        "TS-03",
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "`verify-fdge --gate G4 PT-162` deja de fallar por este motivo",
+      "scenarios": [
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1863 casos",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

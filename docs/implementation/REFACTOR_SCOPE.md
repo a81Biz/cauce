@@ -41,10 +41,20 @@
 | PT-093 | CHORE | S2 | INTEGRATED | EP-018 | El limite de las compuertas se declara como ya se declara el de las firmas |
 | PT-126 | CHORE | S2 | INTEGRATED | EP-020 | sellar mide la matriz y FPGE la lee |
 | PT-134 | CHORE | S3 | INTEGRATED | EP-021 | No hay forma de declarar un AC caido: o se finge verde o bloquea |
-| PT-144 | CHORE | S2 | DRAFT | EP-022 | El contrato de componentes vive en patrones.mjs |
-| PT-145 | REFACTOR | S2 | DRAFT | EP-022 | verify-suite y comparar-marco derivan los componentes del contrato |
-| PT-146 | REFACTOR | S2 | DRAFT | EP-022 | build-core deriva familias, orden y triggers del contrato |
-| PT-147 | REFACTOR | S2 | DRAFT | EP-022 | audit deriva fases, sigla y referencias por componente del contrato |
-| PT-148 | CHORE | S2 | DRAFT | EP-022 | El alta y la baja de un componente quedan escritas y con regla |
-| PT-156 | CHORE | S3 | DRAFT | EP-024 | LEXICON §3 declaraba el rango de cinco componentes y hay seis |
-| PT-149 | CHORE | S2 | DRAFT | EP-022 | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |
+| PT-144 | CHORE | S2 | INTEGRATED | EP-022 | El contrato de componentes vive en patrones.mjs |
+| PT-145 | REFACTOR | S2 | INTEGRATED | EP-022 | verify-suite y comparar-marco derivan los componentes del contrato |
+| PT-146 | REFACTOR | S2 | INTEGRATED | EP-022 | build-core deriva familias, orden y triggers del contrato |
+| PT-147 | REFACTOR | S2 | INTEGRATED | EP-022 | audit deriva fases, sigla y referencias por componente del contrato |
+| PT-148 | CHORE | S2 | INTEGRATED | EP-022 | El alta y la baja de un componente quedan escritas y con regla |
+| PT-149 | CHORE | S2 | INTEGRATED | EP-022 | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |
+| PT-155 | CHORE | S3 | DONE | EP-024 | verify-patrones comprueba dos de siete contratos de patrones.mjs |
+| PT-156 | CHORE | S3 | INTEGRATED | EP-024 | LEXICON 3 declara el rango de cinco componentes y hay seis |
+| PT-161 | CHORE | S3 | DONE | EP-024 | CASOS-DE-USO declara un contrato de cobertura que nada comprueba |
+| PT-164 | CHORE | S3 | DONE | EP-024 | Renumerar una regla no es una operacion, y una cita al ID equivocado pasa en verde |
+| PT-166 | CHORE | S3 | DONE | EP-024 | LEXICON 2 prohibe los pasos por su nombre, y la grafia en corchetes no esta en la lista |
+| PT-169 | CHORE | S2 | DONE | EP-024 | La bateria solo crece: nada retira un caso superado ni caza dos que prueban lo mismo |
+| PT-172 | CHORE | S2 | DEFERRED | EP-025 | La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado |
+| PT-173 | CHORE | S2 | DEFERRED | EP-025 | las secciones montan lo que necesitan |
+| PT-174 | CHORE | S2 | DEFERRED | EP-025 | la seleccion sigue el grafo de importacion |
+| PT-175 | CHORE | S2 | DEFERRED | EP-025 | el sello se deriva de las entradas |
+| PT-176 | CHORE | S2 | DEFERRED | EP-025 | CI corre solo los paquetes abiertos |

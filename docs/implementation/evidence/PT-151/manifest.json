@@ -1,0 +1,29 @@
+{
+  "pt": "PT-151",
+  "generated": "2026-08-26",
+  "criteria": [
+    {"ac":"AC-01","statement":"npm run verify incluye todo lo que corre el check marco","tests":["comparacion derivada de las dos fuentes"],"evidence":["salidas/bateria.out"],"verified":true,
+     "nota":"RESULTO SER MAS GRANDE DE LO QUE DECIA. Pedia que verify incluyera lo de CI; medido, hacian falta LAS DOS DIRECCIONES: matriz:check corria en local y NO en CI. Una comprobacion cuyo rojo nadie ve en el PR no es menos grave por ir al reves."},
+    {"ac":"AC-02","statement":"La equivalencia se comprueba: un paso en un lado y no en el otro falla","tests":["fixture FALTA:verify:fdge","fixture SOBRA:matriz:check","verify-fdge cita SUITE-R62"],"evidence":["salidas/bateria.out"],"verified":true,
+     "nota":"Es el criterio real y siempre lo fue: igualar las listas hoy las deja iguales HOY, y sin contraste divergen a la primera adicion — que es literalmente lo que paso."},
+    {"ac":"AC-03","statement":"El CLAUDE.md puede decir «como en CI» porque es cierto","tests":["lectura, tras AC-02"],"evidence":["salidas/claude-md.out"],"verified":true,
+     "nota":"Decia «todo lo anterior, como en CI» siendo falso en TRES puntos. Ahora dice «los nueve pasos que corre CI» y hay una comprobacion que lo sostiene."},
+    {"ac":"AC-04","statement":"Se declara cuanto tarda la bateria ahora","tests":["medicion cronometrada","chk de nueve pasos"],"evidence":["salidas/duracion.out"],"verified":true,
+     "nota":"23,6 min -> 26,0 min, porque verify corre ahora verify-fdge --all, que no es gratis. Se escribio SIN TS —la medicion parecia evidencia suficiente— y verify-fdge lo rechazo como Orphan Criterion: SEGUNDA VEZ EN EL LOTE. Lo que ata la cifra a algo verificable no es la cifra sino DE CUANTOS PASOS es."}
+  ],
+  "regression": [
+    {"rc":"RC-01","statement":"SUITE-R01 sigue declarada no verificable: NO_VERIFICABLE vuelve a 6","verified":true},
+    {"rc":"RC-02","statement":"El token sigue llegando al paso que lo necesita, en los dos workflows","verified":true},
+    {"rc":"RC-03","statement":"Ninguna regla existente cambia de enunciado ni severidad","verified":true},
+    {"rc":"RC-04","statement":"Sin workflow o sin package.json: SIN EVALUAR, no fallo","verified":true}
+  ],
+  "hallazgos": [],
+  "medido": {
+    "divergencias_encontradas": 3,
+    "en_sentido_contrario": 1,
+    "pasos_de_verify": "8 → 9",
+    "bateria_ms": "1415445 → 1559325",
+    "casos_selftest": "1765 → 1770",
+    "corridas_invalidadas_por_error_propio": 2
+  }
+}

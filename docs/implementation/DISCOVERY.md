@@ -98,4 +98,29 @@
 | PT-141 | BUG | S2 | INTEGRATED | EP-021 | El catch de SUITE-R56 referencia una variable inexistente: el comando revienta, tapa el fallo real y deja efecto a medias |
 | PT-142 | BUG | S3 | INTEGRATED | EP-021 | Nada compara el nombre de una rama con lo que ramaDeTarea deriva: type y slug inventados pasan la topologia |
 | PT-143 | BUG | S3 | INTEGRATED | EP-021 | asignar toma el primer argumento en mayusculas como prefijo, asi que --tipo BUG crea BUG-001 |
-| PT-150 | BUG | S2 | DRAFT | EP-022 | SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos |
+| PT-150 | BUG | S2 | INTEGRATED | EP-022 | SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos |
+| PT-151 | BUG | S2 | DONE | EP-024 | npm run verify no es lo que corre CI, y el CLAUDE.md dice que si |
+| PT-152 | BUG | S2 | DONE | EP-024 | CORE.md publica ocho triggers y LEXICON declara trece |
+| PT-153 | BUG | S3 | DONE | EP-024 | La rama de un lote no tiene forma derivable, y se inventa |
+| PT-154 | INVESTIGATION | S3 | DONE | EP-024 | El espejo es global y el registro es por rama |
+| PT-157 | BUG | S3 | DONE | EP-024 | contradiceElRegistro no reconoce el nombre canonico del estado |
+| PT-158 | BUG | S3 | DONE | EP-024 | FIDE no tiene archivo de prompts, y LEX-R15 dice que todo componente tiene uno |
+| PT-159 | BUG | S2 | DONE | EP-024 | Una parada que declara un hallazgo no esta obligada a abrir trabajo ni a decir cuando se revisa |
+| PT-160 | BUG | S3 | DONE | EP-024 | Nada comprueba que los AC de traceability.md sean los del intake |
+| PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote ni rechazarse por comando |
+| PT-163 | BUG | S2 | DONE | EP-024 | SUITE-R14 no caza un ID definido dos veces dentro del mismo documento |
+| PT-165 | BUG | S2 | DONE | EP-024 | El mapa de fases de CORE lo escribe build-core a mano, y contradecia FPGE-R04 |
+| PT-167 | BUG | S2 | DONE | EP-024 | Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto |
+| PT-168 | BUG | S1 | DONE | EP-024 | audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier sitio del documento |
+| PT-170 | BUG | S2 | DONE | EP-024 | EXEC-R04 no reconoce una constancia real porque su encabezado usa otra palabra |
+| PT-171 | BUG | S3 | DEFERRED | EP-024 | Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto |
+| PT-177 | BUG | S3 | DONE | EP-024 | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
+| PT-178 | BUG | S2 | DONE | EP-024 | avanzar deja salir de PHASE 1 sin que exista el Intake |
+| PT-179 | BUG | — | DRAFT | EP-026 | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
+| PT-180 | BUG | — | DRAFT | EP-026 | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
+| PT-181 | BUG | — | DRAFT | EP-026 | La expectativa de un caso se compara como regex y no hay forma de decir literal |
+| PT-182 | BUG | — | DRAFT | EP-026 | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
+| PT-183 | BUG | S1 | DONE | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
+| PT-184 | BUG | S1 | DONE | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
+| PT-185 | BUG | S2 | DONE | EP-024 | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
+| PT-186 | BUG | S2 | DONE | EP-024 | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |

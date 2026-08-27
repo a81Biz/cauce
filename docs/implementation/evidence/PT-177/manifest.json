@@ -1,0 +1,89 @@
+{
+  "pt": "PT-177",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "`reanclar` publica la nota que falta y la cuenta pasa a cumplir `FDGE-R52`",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Reanclar una fase **que no ha ocurrido** se niega (`LEX-R30`)",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Reanclar donde **no hay déficit** no publica nada",
+      "scenarios": [
+        "TS-03",
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La nota publicada **declara** que repara una pérdida, y lleva la fecha de hoy",
+      "scenarios": [
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "La fase **no se mueve**: el registro dice lo mismo antes y después",
+      "scenarios": [
+        "TS-06"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1859 casos",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

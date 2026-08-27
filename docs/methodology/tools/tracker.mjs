@@ -196,7 +196,7 @@ export function etiquetasDe(alloc) {
 const RE_DERIVADA = /^(fase: \d+|G[1-4])$/;
 
 /** Compara registro y plataforma EN LAS DOS DIRECCIONES. Sin efectos y sin red. */
-export function compararEspejo(vivas, issues, todas, refExiste, refDurable) {
+export function compararEspejo(vivas, issues, todas, refExiste, refDurable, reclamadosFuera) {
   const div = [];
   const porNumero = new Map((issues ?? []).map((i) => [i.number, i]));
   for (const a of vivas ?? []) {
@@ -281,6 +281,44 @@ export function compararEspejo(vivas, issues, todas, refExiste, refDurable) {
     const duena = porIssue.get(i.number);
     if (duena) {
       div.push({ regla: 'SUITE-R35', mensaje: `El issue #${i.number} sigue abierto y ${duena.id} ya es ${duena.status}: es un cierre pendiente, no trabajo perdido. Ciérralo cuando el estado terminal esté en la rama por defecto (SUITE-R46):  tracker cerrar --aplicar`, pendienteDeCierre: true });
+      continue;
+    }
+    // PT-154 · EL ESPEJO ES GLOBAL Y EL REGISTRO ES POR RAMA.
+    //
+    // Los issues son del repositorio remoto; REGISTRY.json es un archivo VERSIONADO, y su
+    // contenido depende de la rama en la que se esta. Medido el 2026-08-26:
+    //
+    //   main 194 allocations · trabajo 203 · solo en trabajo, con issue publicado: 9
+    //
+    // Desde main, esas nueve salian una a una como «esta abierto y no lo reclama ninguna
+    // allocation». Es FALSO: las nueve existen, estan firmadas y tienen su issue. Lo que no
+    // existe es su REGISTRO EN ESA RAMA. SUITE-R47 ya evita que bloqueen ahi —informa y no
+    // corta—, pero informar una afirmacion falsa sigue siendo afirmarla.
+    //
+    // RULE-06 dice que hacer: lo que no se puede evaluar desde aqui se DECLARA no evaluable, no
+    // se supone huerfano. La referencia es la rama de integracion, porque es donde vive el
+    // trabajo en curso antes de G4; un issue que TAMPOCO ella reclama si es huerfano de verdad,
+    // y ese sigue saliendo — si no, se habria cambiado un falso positivo por un falso negativo,
+    // que es peor (RULE-02).
+    //
+    // `reclamadosFuera` se INYECTA, como `refExiste` desde PT-079: esta funcion tiene que seguir
+    // siendo comprobable sin git ni red. `null` significa «no se pudo mirar», y entonces tampoco
+    // se acusa — un undefined no es un «no hay».
+    // EL VALOR POR DEFECTO ERA null, Y null SIGNIFICA «NO SE PUDO MIRAR». Con eso, TODO llamador
+    // que no pasara el argumento —los tres casos que ya existian y cualquier otro— dejaba de ver
+    // huerfanos reales: un falso NEGATIVO, que es justo lo que AC-03 de PT-154 existe para
+    // impedir. Lo cazo la bateria completa, no las pruebas de la tarea: las mias pasaban null a
+    // proposito y nunca ejercitaron el DEFECTO.
+    //
+    // Ahora se distinguen las dos ausencias:  es «este llamador no participa» y deja
+    // el comportamiento anterior intacto;  es «lo intente y no pude», y solo eso declara no
+    // evaluable. Un undefined no es un «no hay» (RULE-06), y tampoco es un «no pude».
+    if (reclamadosFuera === null) {
+      div.push({ regla: 'RULE-06', evaluable: false, mensaje: `El issue #${i.number} «${String(i.title ?? '').slice(0, 50)}» no lo reclama ninguna allocation de este registro, y NO SE PUDO contrastar con la rama de integracion: NO EVALUABLE desde aqui.` });
+      continue;
+    }
+    if (reclamadosFuera && reclamadosFuera.has(i.number)) {
+      div.push({ regla: 'RULE-06', evaluable: false, mensaje: `El issue #${i.number} «${String(i.title ?? '').slice(0, 50)}» no esta en este registro pero SI lo reclama la rama de integracion: NO EVALUABLE desde aqui, no huerfano.` });
       continue;
     }
     div.push({ regla: 'SUITE-R35', mensaje: `El issue #${i.number} «${String(i.title ?? '').slice(0, 50)}» está abierto y ninguna allocation lo reclama. Se está trabajando en algo que el registro no conoce.` });
@@ -402,12 +440,18 @@ export function comentarioSinResponder(cuerpos) {
  * QUE NO ESTABLECE: que la explicacion sea cierta ni util. No es mecanizable, y decirlo es mas
  *   honesto que fingir que se comprueba (SUITE-R26).
  */
-export function cuerpoDeParada({ id, motivo, texto, desenlace, abre = null }) {
+export function cuerpoDeParada({ id, motivo, texto, desenlace, abre = null, revision = null, dueno = null }) {
   const L = [];
   L.push(MARCA_AGENTE);
   L.push('**PARADA** · `' + id + '` · motivo: `' + motivo + '` · desenlace: `' + desenlace + '`'
     + (abre ? ' · abre `' + abre + '`' : ''));
   L.push('');
+  // PT-159 · un «declara» lleva SU VUELTA ESCRITA: cuando se revisa y quien responde. Sin eso
+  // no se distingue de un abandono, y son las siete paradas huerfanas que EP-022 publico.
+  if (desenlace === 'declara' && (revision || dueno)) {
+    L.push(`Se revisa el **${revision}** · responde **${dueno}**`);
+    L.push('');
+  }
   L.push(String(texto ?? '').trim());
   L.push('');
   L.push('---');
@@ -873,7 +917,7 @@ const APLICAR = ARGS.includes('--aplicar');
 // pero YA NO ES LA GUARDA: la guarda es la forma.
 const CON_VALOR = new Set(['--a', '--nota', '--slug', '--de', '--epica', '--reentrada', '--revision', '--dueno',
   '--tipo', '--severidad', '--epica', '--titulo',
-  '--motivo', '--texto', '--desenlace', '--abre',
+  '--motivo', '--texto', '--desenlace', '--abre', '--revision', '--dueno',
   // PT-121 · CE-003, la clase con SIETE instancias declaradas: una bandera con valor que no
   // esta aqui hace que su valor se tome por la raiz del proyecto. Van al entrar, no despues.
   '--firmante', '--compuerta', '--fecha']);
@@ -887,6 +931,62 @@ const ROOT = resolve(ARGS.slice(1).find((a, i, xs) =>
   // La regla de FORMA: lo que sigue a un flag es su valor, sea cual sea el flag.
   && !String(xs[i - 1] ?? '').startsWith('--')) ?? process.cwd());
 const IMPL = join(ROOT, 'docs', 'implementation');
+
+// ── PT-183 · UNA BANDERA QUE NADIE CONOCE SE RECHAZA ───────────────────────
+//
+// Se escribio `--epic` donde la bandera es `--epica`. El comando NO DIJO NADA: un flag desconocido
+// era indistinguible de no haberlo pasado. El valor se perdio, y el hueco se relleno con la palabra
+// «undefined», que se LEE COMO UN DATO — y viajo a los tres artefactos de gobernanza:
+//
+//   registro                          epic: undefined
+//   changes/PT-178-…/intake.md        epic: undefined
+//   docs/implementation/HISTORY.log   Lote: undefined
+//
+// Medido: NUEVE PT sin lote de 182, y CINCO de ellos de las ultimas dos sesiones, todos por el
+// mismo error de una letra. EP-026 existe, tiene issue y esta VACIO.
+//
+// Es CE-003 —un argumento se cuela sin que la deteccion lo vea— con el agravante de que aqui no se
+// colo un valor equivocado: se perdio entero.
+//
+// LA LISTA SE DERIVA, NO SE ESCRIBE. PT-057 ya condeno el arreglo de anadir un caso mas a una lista
+// a mano, y este archivo YA lo resolvio para el VALOR de un flag derivandolo de la posicion. Aqui
+// se deriva el NOMBRE: se recogen los `flag('--…')` y los `ARGS.includes('--…')` que el propio
+// archivo contiene. Una bandera nueva se declara escribiendo el codigo que la lee, que es el unico
+// sitio donde no se puede olvidar.
+const BANDERAS_CONOCIDAS = (() => {
+  try {
+    const yo = readFileSync(fileURLToPath(import.meta.url), 'utf8');
+    const vistas = new Set();
+    // SOLO las entrecomilladas: son las que el codigo LEE. La primera version recogia cualquier
+    // «--algo» del archivo y se tragaba las que aparecen en PROSA — incluida la «--epic» del
+    // comentario de aqui arriba, que es la que este bloque existe para rechazar. La guarda se
+    // validaba a si misma como correcta. Lo dijo ejecutarla, no leerla.
+    for (const m of yo.matchAll(/'(--[a-z][a-z-]*)'/g)) vistas.add(m[1]);
+    return vistas;
+  } catch {
+    // Sin poder leerse a si mismo no se inventa una lista: se declara que no se puede comprobar
+    // (RULE-06). Un `null` aqui apaga la comprobacion, y eso es preferible a rechazar lo legitimo.
+    return null;
+  }
+})();
+{
+  const desconocidas = ARGS.filter((a) => /^--[^=]+$/.test(a))
+    .filter((a) => BANDERAS_CONOCIDAS && !BANDERAS_CONOCIDAS.has(a));
+  if (desconocidas.length) {
+    const cerca = (mala) => [...BANDERAS_CONOCIDAS]
+      .filter((b) => b.startsWith(mala) || mala.startsWith(b)).slice(0, 3);
+    const detalle = desconocidas.map((d) => {
+      const c = cerca(d);
+      return c.length ? `${d}  (¿quisiste decir ${c.join(' o ')}?)` : d;
+    });
+    console.error(`bandera desconocida: ${detalle.join(' · ')}${SALTO}${SALTO}`
+      + `Un flag que el comando no conoce se IGNORABA en silencio, y su valor se perdia sin que `
+      + `nada lo dijera: asi nueve PT quedaron sin lote (PT-183).${SALTO}${SALTO}`
+      + `Conocidas: ${[...BANDERAS_CONOCIDAS].sort().join(' ')}`);
+    process.exit(2);
+  }
+}
+
 
 
 const errores = [];
@@ -1524,6 +1624,17 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   'integrar', 'firmar', 'validar',
   // PT-137 · «retomar» escribe el registro; publica si hay tablero y si no, al ledger.
   'retomar', 'aplazar',
+  // PT-162 · «mover» y «rechazar» escriben el REGISTRO y el YAML del intake, los dos locales, y
+  // publican en el tablero SI LO HAY —como «retomar»—. Exigirles plataforma seria pedir una
+  // credencial para escribir un archivo del repositorio: el defecto EXACTO que PT-133 arreglo en
+  // «parada» y PT-084 en «avanzar», cometido dos comandos mas alla. Lo cazo el arnes, que corre
+  // sobre un fixture SIN plataforma declarada — que es el caso que SUITE-R22 declara soportado.
+  'mover', 'rechazar',
+  // PT-177 · «reanclar» PUBLICA en el tablero, asi que la plataforma es su objeto y no un
+  // requisito ajeno; pero sus validaciones —la fase, la nota vacia— no necesitan red y tienen que
+  // correr PRIMERO, por el mismo motivo que PT-053 metio aqui a «avanzar»: salir en la compuerta
+  // de acceso contesta con el diagnostico equivocado para el defecto real.
+  'reanclar',
   // PT-122 · «cierre» sin --aplicar solo DERIVA y enumera el texto: no habla con nadie.
   'cierre', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
@@ -1566,7 +1677,32 @@ const vivas = vivasDe(all);
 function espejo() {
   const issues = adaptador.abiertos();
   // PT-096 · «refDurableDe» se inyecta para que el espejo vea tambien el cuerpo que NO enlaza.
-  const div = compararEspejo(vivas, issues, all, refExiste, refDurableDe);
+  // PT-154 · DESDE DONDE SE MIRA, Y QUE NO SE PUEDE VER DESDE AQUI.
+  //
+  // El registro sale de la rama actual; los issues son del repositorio entero. Se lee el registro
+  // de la rama de integracion —donde vive el trabajo en curso antes de G4— para poder distinguir
+  // «nadie lo reclama» de «no lo reclama NADIE QUE YO PUEDA VER». Si no se puede leer, se dice:
+  // sin ese dato la comprobacion no se hace y no se acusa (RULE-06).
+  const INTEGRACION = reg?.tracker?.rama_integracion ?? 'trabajo';
+  const reclamadosFuera = (() => {
+    if ((RAMA_TRABAJO ?? REPO.rama) === INTEGRACION) return new Set(all.map((a) => a?.issue).filter(Boolean));
+    const crudo = gitDe(['show', `${INTEGRACION}:docs/implementation/REGISTRY.json`])
+      ?? gitDe(['show', `origin/${INTEGRACION}:docs/implementation/REGISTRY.json`]);
+    if (!crudo) return null;
+    try {
+      const otro = JSON.parse(crudo);
+      return new Set((otro?.allocations ?? []).map((a) => a?.issue).filter(Boolean));
+    } catch { return null; }
+  })();
+  const div = compararEspejo(vivas, issues, all, refExiste, refDurableDe, reclamadosFuera);
+  notas.push(`Registro leido de «${RAMA_TRABAJO ?? REPO.rama ?? '?'}» (${all.length} allocations). Los issues son del `
+    + `repositorio entero, asi que lo que esta rama no conoce se contrasta con «${INTEGRACION}»`
+    + `${reclamadosFuera === null ? ' — QUE NO SE PUDO LEER: lo desconocido queda NO EVALUABLE (RULE-06)' : ''}.`);
+  const noEvaluables = div.filter((d) => d.evaluable === false);
+  if (noEvaluables.length) {
+    notas.push(`${noEvaluables.length} issue(s) NO EVALUABLES desde «${RAMA_TRABAJO ?? REPO.rama ?? '?'}»: existen en el `
+      + `tablero y su allocation vive en otra rama. No son huerfanos (PT-154).`);
+  }
   // PT-026 · SUITE-R47 · el espejo BLOQUEA donde el registro asigna, e INFORMA donde es una foto.
   //
   // El registro que asigna vive en la rama de trabajo. El de la rama por defecto es el del
@@ -1592,15 +1728,19 @@ function espejo() {
   // PT-015 · `SUITE-R47` se citaba solo en la rama por defecto, donde el espejo INFORMA. Aquí,
   // que es donde BLOQUEA, no se nombraba: la regla que decide dónde muerde no aparecía en el
   // momento en que muerde. Se añade al mensaje sin cambiar cuándo bloquea (`SUITE-R53`).
+  // PT-154 · lo NO EVALUABLE tampoco bloquea, y por el mismo motivo que el cierre pendiente: no
+  // es un defecto, es un limite de lo que se ve desde aqui. Bloquear sobre ello seria exigir que
+  // la rama actual conociera trabajo que vive en otra — que es justo lo que no puede hacer.
   for (const d of div) {
-    if (d.pendienteDeCierre) notas.push(`PENDIENTE DE CIERRE · ${d.mensaje}`);
+    if (d.evaluable === false) notas.push(`NO EVALUABLE · ${d.mensaje}`);
+    else if (d.pendienteDeCierre) notas.push(`PENDIENTE DE CIERRE · ${d.mensaje}`);
     else fail(d.regla, d.mensaje);
   }
   // PT-015 · SUITE-R47 se emite UNA vez y con la rama CORRECTA. El primer intento uso REPO.rama
   // —que es la rama POR DEFECTO— para decir «no es la rama por defecto», y lo repetia por cada
   // divergencia. Las dos cosas las dijo ejecutarlo: leyendo, el nombre de la variable parecia
   // el bueno.
-  if (div.some((d) => !d.pendienteDeCierre)) {
+  if (div.some((d) => !d.pendienteDeCierre && d.evaluable !== false)) {
     fail('SUITE-R47', `el espejo BLOQUEA aquí y no solo informa: «${RAMA_TRABAJO ?? '¿?'}» no es la rama por defecto («${REPO.rama ?? '¿?'}»), así que es donde el registro asigna.`);
   }
   // PT-114 · el cuerpo que publica la ruta SIN ENLACE teniendo ya ref durable.
@@ -2731,6 +2871,8 @@ function parada() {
   const ruta = flag('--texto');
   const desenlace = flag('--desenlace');
   const abre = flag('--abre');
+  const revision = flag('--revision');
+  const dueno = flag('--dueno');
 
   if (!id) throw new Error('parada necesita una allocation:  tracker parada PT-131 --motivo hallazgo --texto nota.md --desenlace continua');
   const a = all.find((x) => x?.id === id);
@@ -2760,6 +2902,54 @@ function parada() {
     throw new Error(`--abre solo tiene sentido con «--desenlace abre», y este dice «${desenlace}».`);
   }
 
+  // PT-159 · «declara» NO SE QUEDA SUELTO.
+  //
+  // FDGE-R55 cubria `abre` —toda allocation nueva cita la parada que la produjo— y admitia
+  // `continua`, que por construccion no deja rastro. `declara` quedaba en medio, SIN GOBERNAR: y
+  // `declara` SI deja rastro, porque se publica con fecha y explicacion. La pregunta «¿este
+  // hallazgo abrio trabajo?» es contestable, que es el criterio que la propia regla usa para
+  // decidir que es mecanizable.
+  //
+  // MEDIDO:
+  //   PT-157   declarado en EP-021 con «merece tarea propia» escrito en el HANDOFF.
+  //            UN LOTE ENTERO despues, seguia sin tarea.
+  //   EP-022   SIETE paradas con `declara` diciendo «candidato a tarea propia».
+  //            Las siete huerfanas hasta que lo senalo el firmante.
+  //
+  // Lo senalo una PERSONA, no un verificador — literalmente la misma frase con la que nacio
+  // FDGE-R55, sobre el mismo objeto, un lote despues.
+  //
+  // El liston es el de SUITE-R44 sobre el aplazado, y por la misma razon: sin fecha de revision y
+  // sin dueno, un hallazgo declarado no se distingue de un abandono con mejor letra. Si lo que
+  // procede es abrir trabajo, el desenlace es `abre` y ya tiene su exigencia.
+  if (desenlace === 'declara') {
+    const faltan = [!revision && '--revision', !dueno && '--dueno'].filter(Boolean);
+    if (faltan.length) {
+      throw new Error(`«declara» exige ${faltan.join(' y ')}. Un hallazgo declarado o ABRE trabajo `
+        + `—y entonces su desenlace es «abre»— o dice cuando se revisa y quien responde (FDGE-R55). `
+        + `Sin eso queda suelto, y es lo que dejo siete paradas de EP-022 huerfanas:  `
+        + `tracker parada ${id} --motivo ${motivo} --texto <ruta> --desenlace declara `
+        + '--revision AAAA-MM-DD --dueno "Nombre"');
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(revision)) || Number.isNaN(Date.parse(String(revision)))) {
+      throw new Error(`«${revision}» no es una fecha AAAA-MM-DD.`);
+    }
+    const hoyR = gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10);
+    if (String(revision) <= hoyR) {
+      throw new Error(`la revision «${revision}» no es futura (hoy es ${hoyR}). Un hallazgo que nace `
+        + 'caducado no se distingue del que no declara nada (SUITE-R44).');
+    }
+    const conocidasR = [...(reg?.firmantes ?? []), ...((reg?.personas ?? []).map((pp) => pp?.nombre))]
+      .filter(Boolean);
+    if (conocidasR.length && !conocidasR.includes(dueno)) {
+      throw new Error(`«${dueno}» no esta declarado (${conocidasR.join(' · ')}). Un dueno inventado `
+        + 'es un hallazgo sin dueno con mejor letra (SUITE-R27).');
+    }
+  } else if (revision || dueno) {
+    throw new Error(`--revision y --dueno solo tienen sentido con «--desenlace declara», y este `
+      + `dice «${desenlace}».`);
+  }
+
   // Una transicion de fase NO se publica por aqui: es FDGE-R52 y la escribe «avanzar», que ademas
   // mueve el registro en el mismo acto atomico. Publicarla suelta dejaria una nota sobre una
   // transicion que no ocurrio (LEX-R30).
@@ -2769,7 +2959,27 @@ function parada() {
       + 'transicion que no ocurrio (LEX-R30):  tracker avanzar ' + id + ' --a <fase> --nota "..."');
   }
 
-  const cuerpo = cuerpoDeParada({ id, motivo, texto, desenlace, abre });
+  // PT-159 · LA DECLARACION DEJA RASTRO EN EL REGISTRO, no solo en el issue.
+  //
+  // FDGE-R55 decidio a proposito que su verificacion fuera CONTRA EL REGISTRO y no contra los
+  // comentarios del issue: un verificador que necesitara red para decidir si una tarea cumple no
+  // podria correr en un repositorio sin plataforma, y SUITE-R22 declara ese caso soportado.
+  //
+  // Asi que la vuelta se escribe donde se puede leer sin red. Es la forma que SUITE-R44 ya le dio
+  // al aplazado —el bloque «aplazamiento» de la allocation— y el intake de esta tarea la cita como
+  // precedente: sin esto, AC-02 y AC-03 pedirian barrer algo que desde el repositorio no se ve.
+  //
+  // SUITE-R09: se ANADE. Una declaracion anterior no se pisa, porque el historial de que se
+  // declaro y cuando es justamente lo que hace contestable la pregunta «¿esto abrio trabajo?».
+  if (desenlace === 'declara') {
+    a.declaraciones = [...(a.declaraciones ?? []), {
+      revision: String(revision), dueno,
+      fecha: gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10),
+    }];
+    guardarRegistro(reg, ACCION);
+    notas.push(`${id}: declaracion registrada · se revisa el ${revision} · responde ${dueno}`);
+  }
+  const cuerpo = cuerpoDeParada({ id, motivo, texto, desenlace, abre, revision, dueno });
 
   // PT-117 · TS-05 · las precondiciones de plataforma suben AQUI, antes de escribir nada.
   // Estaban dentro del if que publica, o sea DESPUES del guardado: una parada que no pudiera
@@ -3324,6 +3534,29 @@ function avanzar() {
     // El acceso tambien es una validacion: mejor no escribir nada que escribir y revertir.
     if (adaptador.disponible && !adaptador.disponible()) {
       throw new Error('hay plataforma declarada y no hay acceso: la nota no podria publicarse (FND-R30).  gh auth login');
+    }
+  }
+
+  // PT-178 · SALIR DE PHASE 1 SIN INTAKE
+  //
+  // FDGE-R01 dice que todo trabajo entra por un Intake. Lo comprobaba UNICAMENTE verify-fdge, que
+  // corre en G4 — y entre PHASE 1 y G4 no lo miraba nadie. Este comando SI toca el intake (estampa
+  // su YAML mas abajo, y ya calcula su ruta para el respaldo): sabia donde estaba, y cuando no
+  // estaba seguia adelante en silencio. CE-005, verde por no mirar.
+  //
+  // Medido: NUEVE tareas de EP-024 llegaron a PHASE 5 sin intake, cinco de ellas en una sola
+  // sesion, con trabajo real hecho. Descubrirlo en G4 es descubrirlo cuando ya cuesta deshacerlo.
+  //
+  // Se bloquea SOLO la salida de PHASE 1: es la fase que PRODUCE el intake, asi que exigirlo antes
+  // seria exigir el resultado de la fase para poder empezarla. A partir de PHASE 2 el archivo tiene
+  // que existir, y quien lo borre despues lo vera en el siguiente avanzar.
+  if (Number(actual) === 1 && Number(destino) > 1) {
+    const fIntakeR01 = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+    if (!existsSync(fIntakeR01)) {
+      const ruta = `changes/${a.slug ? `${a.id}-${a.slug}` : a.id}/intake.md`;
+      throw new Error(`${id}: no existe ${ruta} y PHASE 1 no `
+        + `puede darse por terminada sin el. Todo trabajo entra por un Intake (FDGE-R01).${SALTO}${SALTO}`
+        + `PHASE 1 es la fase que lo produce: escribelo, firmalo (INTAKE-R06) y vuelve a avanzar.`);
     }
   }
 
@@ -4731,7 +4964,254 @@ function cierre() {
   }
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+// ── mover y rechazar · lo que se puede hacer con lo que aun no ha empezado   PT-162 ────
+//
+// LEXICON 5.1 declara REJECTED y NINGUN COMANDO lo escribia. Y una tarea asignada a un lote no
+// tenia forma de cambiar de lote: el intake de PT-156 lo dejo escrito en su propio alcance —«mover
+// esta tarea de EP-024 a EP-022; la herramienta no puede, y eso es PT-162».
+//
+// FDGE-R52 hace de los comandos la forma sancionada de mover el estado. Un estado que el lexico
+// declara y ninguna herramienta escribe solo se alcanza editando REGISTRY.json a mano, que es lo
+// que SUITE-R08 existe para impedir — y lo que este archivo condena con todas las letras: una
+// regla que solo se puede cumplir saltandose la herramienta no se cumple, se rodea.
+//
+// LOS DOS SE LIMITAN A LO QUE AUN NO HA OCURRIDO. Mover una tarea con trabajo hecho desmentiria su
+// evidencia y sus commits, que citan un lote; rechazar algo integrado no es rechazar, es revertir,
+// y eso pasa por G4. Sin esas dos puertas, mover y rechazar serian una goma de borrar.
+
+function mover() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const destino = flag('--epica');
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a) && a !== destino);
+  if (!id || !destino) {
+    console.error('mover necesita la tarea y el lote destino:  tracker mover PT-NNN --epica EP-NNN [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+  if (esLote(a)) { fail('LEX-R27', `${id} es un lote: un lote no pertenece a otro lote.`); return; }
+  const lote = all.find((x) => x?.id === destino);
+  if (!lote) { fail('SUITE-R08', `${destino} no esta en el registro (SUITE-R08).`); return; }
+  if (!esLote(lote)) {
+    fail('LEX-R27', `--epica cita «${destino}», que no es un lote. Un lote se reconoce por su ID.`);
+    return;
+  }
+  if (ESTADOS_TERMINALES.has(String(lote.status))) {
+    fail('SUITE-R45', `${destino} esta en «${lote.status}»: meter trabajo en un lote cerrado lo `
+      + 'reabriria sin que nadie lo decidiera, y su fila de cierre ya esta resuelta.');
+    return;
+  }
+  // LA PUERTA. PHASE 1 es Intake: hasta que no se sale de ella no hay evidencia, ni rama, ni
+  // commits que citen el lote. A partir de ahi, moverla dejaria artefactos apuntando a un lote
+  // que ya no es el suyo — dos mapas que discrepan, que es el defecto que nombra a EP-022.
+  // DEFERRED NO CUENTA COMO CERRADO. SUITE-R44 lo declara VIVO —aparcado, exento de artefactos y
+  // con viaje de vuelta por `retomar`—, asi que tratarlo como terminal aqui habria dejado sin
+  // mover justo lo que mas sentido tiene mover: trabajo que nadie ha empezado y cuyo lote se
+  // decidio antes de saber a que lote pertenecia. Es la misma excepcion que `aplazar` ya hace.
+  const cerrada = ESTADOS_TERMINALES.has(String(a.status)) && a.status !== 'DEFERRED';
+  // PT-183 · PONERLE EL LOTE QUE LE FALTA NO ES MOVERLA DE LOTE.
+  //
+  // La puerta se negaba sobre PT-178 diciendo «su evidencia, su rama y sus commits citan
+  // "undefined"» — y ese mensaje es la prueba de que no hay lote anterior que desmentir. Sin esta
+  // distincion, una tarea que nacio sin lote por un flag mal escrito NO TENIA FORMA de recuperarlo
+  // con un comando, y SUITE-R08 dice que el registro no se edita a mano.
+  //
+  // Se permite en cualquier fase PORQUE NO HAY NADA QUE CONTRADECIR: los artefactos no citan otro
+  // lote, citan la ausencia. Lo que sigue prohibido —y es AC-04— es cambiar de lote a una tarea
+  // empezada que SI tiene uno: ahi el desmentido seria real.
+  const sinLote = !a.epic;
+  if (sinLote) {
+    notas.push(`${id} no tenia lote: esto no es un cambio, es asignarle el que le falta (PT-183).`);
+  } else if (Number(a.phase) > 1 || cerrada) {
+    fail('FDGE-R52', `${id} esta en PHASE ${a.phase} / «${a.status}» y ya no se mueve: su evidencia, `
+      + `su rama y sus commits citan «${a.epic}». Moverla dejaria esos artefactos apuntando a un `
+      + 'lote que no es el suyo. Lo que ya empezo se cierra donde nacio.');
+    return;
+  }
+  if (a.epic === destino) { di(`  ${id} ya esta en ${destino}. Nada que mover.`); return; }
+  const antes = a.epic;
+  if (!APLICAR) {
+    di(`  ${id}: ${antes ?? 'sin lote'} -> ${destino}   (PHASE ${a.phase} · ${a.status})`);
+    di('');
+    di('  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.');
+    return;
+  }
+  a.epic = destino;
+  sincronizaIntake(a, /^epic:[ \t]*\S+[ \t]*$/m, `epic: ${destino}`);
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: ${antes ?? 'sin lote'} -> ${destino}`);
+  publicaEnElTablero(a, [
+    MARCA_AGENTE,
+    `**MOVIDA DE LOTE** · \`${id}\` pasa de \`${antes ?? 'sin lote'}\` a \`${destino}\``,
+    '',
+    'Se mueve porque **aun no ha empezado**: sigue en `PHASE 1`, sin evidencia ni rama que citen',
+    'el lote anterior. Lo que ya empezo se cierra donde nacio (`FDGE-R52`).',
+  ].join(SALTO));
+}
+
+function rechazar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const motivo = flag('--motivo');
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  if (!id) {
+    console.error('rechazar necesita una allocation:  tracker rechazar PT-NNN --motivo "por que no" [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+  if (ESTADOS_TERMINALES.has(String(a.status))) {
+    fail('LEX-R08', `${id} esta en «${a.status}», que es terminal. Lo integrado se REVIERTE —y eso `
+      + 'pasa por G4—, no se rechaza; y rechazar lo ya cerrado solo cambiaria la etiqueta.');
+    return;
+  }
+  if (Number(a.phase) > 1) {
+    fail('FDGE-R52', `${id} esta en PHASE ${a.phase}: tiene trabajo hecho. Lo que ya empezo se `
+      + 'aplaza con su condicion de reentrada (tracker aplazar) o se lleva a su cierre. '
+      + 'Rechazarlo borraria el motivo por el que se hizo lo que ya esta hecho.');
+    return;
+  }
+  // EL MISMO LISTON QUE SUITE-R44 PONE A LA REENTRADA. Un motivo de una palabra no se distingue
+  // de una celda rellenada para callar la comprobacion, y esto es lo unico que queda escrito de
+  // por que NO se hizo algo: dentro de un ano es lo unico que habra.
+  const texto = String(motivo ?? '').trim();
+  if (texto.length < 12 || texto.split(/\s+/).length < 3) {
+    fail('SUITE-R26', `${id}: falta --motivo, o «${texto}» no dice nada. Un rechazo sin motivo `
+      + 'escrito es indistinguible de un olvido, y es lo unico que quedara de por que no se hizo.');
+    return;
+  }
+  if (!APLICAR) {
+    di(`  ${id}: ${a.status} -> REJECTED   (PHASE ${a.phase})`);
+    di(`    motivo            ${texto}`);
+    di('');
+    di('  --aplicar   lo escribe. La DECISION es humana; esto solo la registra.');
+    return;
+  }
+  a.status = 'REJECTED';
+  a.rechazo = { motivo: texto, fecha: gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10) };
+  sincronizaIntake(a, /^status:[ \t]*\S+[ \t]*$/m, 'status: REJECTED');
+  guardarRegistro(reg, ACCION);
+  notas.push(`${id}: -> REJECTED · ${texto}`);
+  publicaEnElTablero(a, [
+    MARCA_AGENTE,
+    `**RECHAZADA** · \`${id}\` pasa a \`REJECTED\``,
+    '',
+    '| | |',
+    '|:--|:--|',
+    `| No se hace porque | ${texto} |`,
+    '',
+    'Un rechazo es terminal y **no exime de artefactos**: lo que queda escrito es el motivo, que',
+    'es lo unico que habra dentro de un ano para saber por que no se hizo (`SUITE-R26`).',
+  ].join(SALTO));
+}
+
+/** El YAML del intake dice lo mismo que el registro, o no se toca nada (PT-149). */
+function sincronizaIntake(a, re, linea) {
+  const fi = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  if (!existsSync(fi)) return;
+  const antes = readFileSync(fi, 'utf8');
+  const despues = antes.replace(re, linea);
+  if (despues === antes) {
+    throw new Error(`el intake de ${a.id} no declara esa linea: no se puede sincronizar (SUITE-R08).`);
+  }
+  writeFileSync(fi, despues, 'utf8');
+  notas.push(`${a.id}: intake sincronizado · ${linea}`);
+}
+
+/** Publica en el tablero si lo hay; si no, al ledger — como retomar (PT-137). */
+function publicaEnElTablero(a, cuerpo) {
+  if (adaptador?.comentar && a.issue) {
+    try { adaptador.comentar(a.issue, cuerpo); notas.push(`${a.id}: publicado en #${a.issue}`); return; }
+    catch (e) { notas.push(`${a.id}: no se pudo publicar (${String(e.message ?? e)}) — va al ledger`); }
+  }
+  if (apilarEnLog(cuerpo)) notas.push(`${a.id}: publicado en SESSION_LOG.md (sin tablero alcanzable)`);
+}
+
+
+// ── reanclar · la nota que se perdio, sin mover la fase   PT-177 ───────────
+//
+// FDGE-R52 cuenta las notas de reanclaje del issue y exige `fase - 1`. Si una no se publica —red
+// caida, un fallo del adaptador, un cuerpo que no casa RE_NOTA— EL DEFICIT NO SE PODIA REPARAR:
+// `avanzar` publica una nota Y SUBE LA FASE, asi que el hueco se conserva y se agranda. No habia
+// ningun comando que publicara una nota sin avanzar.
+//
+// Lo cazo G4 sobre PT-161: PHASE 8 con 6 notas de 7. Y la condicion de reentrada de PT-177 decia
+// literalmente «cuando vuelva a perderse una nota» — ocurrio, y por eso se retomo.
+//
+// POR QUE ESTO NO ES LO QUE `parada` PROHIBE. `parada --desenlace cambia-fase` se niega porque
+// «publicarla suelta dejaria una nota sobre una transicion que no ocurrio» (LEX-R30). Aqui la
+// transicion SI OCURRIO y el registro lo prueba: se exige que la fase actual sea MAYOR que la que
+// se reancla. Lo que se repara no es el hecho, es su publicacion.
+//
+// Y NO SE FINGE LA FECHA. La nota dice que repara una perdida y lleva la fecha de HOY: escribir la
+// del dia de la transicion seria inventar cuando se publico, que es justo el dato que falta.
+function reanclar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  const fase = Number(flag('--fase'));
+  const nota = flag('--nota');
+  if (!id || !Number.isInteger(fase) || !nota) {
+    console.error('reanclar necesita la tarea, la fase que se reancla y la nota:  '
+      + 'tracker reanclar PT-NNN --fase <n> --nota "que cierra · donde estas · que sigue" [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+  // LA TRANSICION TIENE QUE HABER OCURRIDO. Sin esta puerta esto seria «publicar una nota sobre
+  // una transicion que no ocurrio», que es exactamente lo que `parada` se niega a hacer.
+  if (!(Number(a.phase) > fase)) {
+    fail('LEX-R30', `${id} esta en PHASE ${a.phase} y se pide reanclar la ${fase}. Solo se repara la `
+      + 'publicacion de una transicion YA OCURRIDA: la fase actual tiene que ser MAYOR. Para una '
+      + `transicion nueva el comando es «avanzar», que mueve el registro en el mismo acto (FDGE-R52).`);
+    return;
+  }
+  if (!String(nota).trim()) { fail('FDGE-R52', `${id}: la nota no dice nada.`); return; }
+  // Y TIENE QUE HABER UN DEFICIT QUE REPARAR. Publicar una nota sobre un issue que ya tiene las
+  // suyas no repara: infla la cuenta, y una cuenta inflada engana igual que una corta.
+  // La cuenta la da «notas», que es la que verify-fdge consulta: dos formas de contar lo mismo
+  // divergirian, y este comando existe para reparar una cuenta, no para inventar otra.
+  const cuantas = (() => {
+    if (!adaptador?.comentar || !a.issue) return null;
+    try { return contarNotas(adaptador.comentarios(a.issue)); } catch { return null; }
+  })();
+  if (cuantas === null) {
+    fail('FND-R30', `${id}: no se pudo leer las notas del issue. Sin ese dato no se sabe si hay `
+      + 'deficit, y publicar a ciegas podria inflar la cuenta (RULE-06).');
+    return;
+  }
+  const exigidas = Number(a.phase) - 1;
+  if (cuantas >= exigidas) {
+    di(`  ${id}: ${cuantas} nota(s) para PHASE ${a.phase}, y se exigen ${exigidas}. Nada que reparar.`);
+    return;
+  }
+  const hoy = gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10);
+  const cuerpo = [
+    MARCA_AGENTE,
+    `**REANCLAJE REPARADO** · \`${id}\` · PHASE ${fase} → PHASE ${fase + 1}`,
+    '',
+    String(nota).trim(),
+    '',
+    '---',
+    '',
+    `> Esta nota **repara una publicacion perdida**, no registra una transicion nueva: \`${id}\` ya`,
+    `> estaba en \`PHASE ${a.phase}\` cuando se escribio. La fecha es la de HOY (\`${hoy}\`) y no la de`,
+    '> la transicion — poner aquella seria inventar cuando se publico, que es el dato que falta.',
+    `> \`FDGE-R52\` contaba ${cuantas} de ${exigidas} (\`PT-177\`).`,
+  ].join(SALTO);
+  if (!APLICAR) {
+    di(`  ${id}: ${cuantas} nota(s) de ${exigidas} exigidas. Se publicaria una para PHASE ${fase} → ${fase + 1}.`);
+    di('');
+    di('  --aplicar   lo publica. La nota dice que repara una perdida; no finge la fecha.');
+    return;
+  }
+  if (adaptador?.comentar && a.issue) {
+    adaptador.comentar(a.issue, cuerpo);
+    notas.push(`${id}: reanclaje reparado publicado en #${a.issue} (${cuantas + 1} de ${exigidas})`);
+  } else if (apilarEnLog(cuerpo)) {
+    notas.push(`${id}: reanclaje reparado en SESSION_LOG.md (sin tablero alcanzable)`);
+  }
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);
