@@ -1,10 +1,10 @@
 {
-  "pt": "PT-158",
-  "type": "BUG",
+  "pt": "PT-155",
+  "type": "CHORE",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "5593966cfe960934d3f0bffaa0ae9b8891537208",
   "sha_corto": "5593966",
@@ -25,6 +25,10 @@
     "docs/implementation/REGISTRY.json",
     "docs/implementation/TRANSICIONES.log",
     "docs/implementation/evidence/PT-155/",
+    "docs/implementation/evidence/PT-160/",
+    "docs/implementation/evidence/PT-161/",
+    "docs/implementation/evidence/PT-163/",
+    "docs/implementation/evidence/PT-164/",
     "docs/methodology/CASOS-DE-USO.md",
     "docs/methodology/CHANGELOG.md",
     "docs/methodology/CORE.md",
@@ -41,8 +45,9 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "manifest.json",
+    "self-review.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-26"
 }
