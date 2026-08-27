@@ -39,6 +39,8 @@ import { reglasDelMarco, verificadoresDe } from './patrones.mjs';
 import { COMPONENTES, fasesDe, promptsDe, siglaDe, SIN_EVALUAR } from './patrones.mjs';
 // PT-167 · los casos invertidos: los que solo pasan mientras existe el defecto que vigilan.
 import { identificadoresDeHueco, casosInvertidos } from './patrones.mjs';
+// PT-161 · los puntos de entrada del catalogo, derivados del contrato.
+import { triggers } from './patrones.mjs';
 
 // PT-156 · QUE UN COMPONENTE ENTRE EN LA AUDITORIA SOLO SE VEIA CUANDO FALLABA. Las lineas
 // «<comp> PHASE <n>» solo se emiten como HUECO, asi que los tres casos de PT-147 que afirmaban
@@ -492,6 +494,32 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
   // golpe seria un cambio grande y ciego. Lo que la regla impide es que el PROXIMO se escriba sin
   // ella. Es la misma forma que la tabla de sujetos de SUITE-R09 —«crece por adopcion declarada»—
   // y por eso la cifra se publica CON SU DENOMINADOR: un porcentaje esconde si el total crecio.
+  // PT-161 · CASOS-DE-USO SE DECLARA «CONTRATO DE COBERTURA» Y NADA LO COMPROBABA.
+  //
+  // Su encabezado dice: «un caso que no este aqui es un hueco DECLARADO, no un silencio». Una
+  // promesa asi no se puede comprobar entera —nadie sabe que casos EXISTEN— pero si su parte
+  // derivable: el catalogo dice DONDE ENTRAR, y los puntos de entrada son los TRIGGERS, que el
+  // contrato ya declara. Un trigger sin caso es una puerta que el catalogo no menciona.
+  //
+  // Fallo DOS VECES en EP-022 sin que nada dijera nada: con DICTAMEN y con el alta/baja de un
+  // componente, que no tenian caso hasta que alguien los echo en falta leyendo.
+  //
+  // QUE NO ESTABLECE (SUITE-R26): que el catalogo este COMPLETO. Un caso que no entre por un
+  // trigger —una operacion de mantenimiento, una decision— no es detectable, y eso se dice.
+  {
+    const cat = rd('CASOS-DE-USO.md');
+    if (cat === null) {
+      warn('SUITE-R21', 'no hay CASOS-DE-USO.md: su contrato de cobertura NO SE EVALUA.');
+    } else {
+      const sinCaso = triggers().filter((t) => !cat.includes(t));
+      if (sinCaso.length) {
+        gap('caso', 'CASOS-DE-USO.md', `${sinCaso.length} trigger(s) sin caso en el catalogo: ${sinCaso.join(' · ')}. `
+          + 'El catalogo dice DONDE ENTRAR y se declara contrato de cobertura: una puerta que no menciona '
+          + 'es un hueco que nadie declaro.');
+      } else tick('caso');
+    }
+  }
+
   // PT-167 · SUITE-R61 · CASOS QUE AFIRMAN COBERTURA BUSCANDO LA LINEA DEL HUECO.
   //
   // PT-147 escribio tres que buscaban «FIDE PHASE» en la salida de audit — una linea que SOLO se

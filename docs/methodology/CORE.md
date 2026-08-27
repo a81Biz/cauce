@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 3ada75b7ced5 -->
-<!-- fuentes: RULES.md:6c1d0d108eb8 LEXICON.md:d694f33771ff EXECUTION-MODES.md:2ea30769365c PHASES.md:3c0ce482285b -->
+<!-- cuerpo: 75455e580491 -->
+<!-- fuentes: RULES.md:d71a1d1651ed LEXICON.md:d694f33771ff EXECUTION-MODES.md:199527454fb2 PHASES.md:5a38a5a37e3e -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -290,6 +290,7 @@ verifica un script y bloquea la integración.
 `EXEC-R12` **H** El modo se declara en el CLAUDE.md del proyecto y solo lo cambia un humano.
 `EXEC-R13` **H** Un cambio de modo se registra como una entrada en HISTORY.log, con fecha, modo anterior, modo nuevo y motivo.
 `EXEC-R14` **H** Restricción automática de compuertas. Cuando se cumple cualquiera de las condiciones de abajo, el agente opera como si el modo fuera MANUAL y lo declara al inicio de la sesión.
+`EXEC-R15` **H** La ejecución de un lote es secuencial por defecto.
 
 ### FND — Foundation
 
@@ -341,6 +342,7 @@ verifica un script y bloquea la integración.
 `FDGE-R13` **H** Proposal Gate (G2). No se crea rama, no se modifica una sola línea de código fuente y no comienza la implementación hasta que la compuerta G2 se resuelve conforme a EXECUTION-MODES.md. Antes de G2: 0 líneas…
 `FDGE-R14` **H** El Proposal Package es la fuente de verdad durante toda la implementación.
 `FDGE-R15` **C** Matriz de trazabilidad. traceability.md enlaza cada AC-nn con al menos un TS-nn, cada TS-nn con al menos un archivo de test, y cada AC-nn con al menos una entrada de evidencia. Un AC huérfano bloquea G3.…
+`FDGE-R15a` **H** Los criterios de la matriz son los del Intake.
 `FDGE-R16` **H** Toda tarea de tasks.md tiene objetivo único, input definido, output definido y método de validación.
 `FDGE-R17` **H** Tests first. Los tests derivados de test-scenarios.md existen y fallan antes de escribir la primera línea de implementación. Si no puedes escribir el test, no entendiste el requisito. En track HOTFIX, donde…
 `FDGE-R18` **S** Excepción de tests para cambios sin lógica.
@@ -822,6 +824,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+LOTE      la ejecucion de un lote es SECUENCIAL por defecto: una tarea       [EXEC-R15]
+          detras de otra. La concurrente en worktrees separados es una
+          extension OPCIONAL y exige politica declarada de conflictos; no
+          forma parte del comportamiento base. Llevaba el ID EXEC-R08, que
+          ya tenia duenno, y PT-163 la renumero al cazar el ID reutilizado.
 VERIFICA  «npm run verify» corre lo MISMO que el workflow, y se comprueba   [SUITE-R62]
           en los dos sentidos: lo que falta en local BLOQUEA —deja pasar
           errores al PR— y lo que sobra AVISA —deja una comprobacion cuyo

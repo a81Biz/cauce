@@ -370,6 +370,11 @@ CIERRE    el intake del LOTE lleva «## Cierre del lote»: una fila por cosa   [
           que se resuelve al cerrarlo, con su estado en G4. Sin ella G4
           bloquea. Existe porque la misma obligacion estaba copiada en dos
           out-of-scope y ausente en tres — copiar una regla la hace diverger.
+LOTE      la ejecucion de un lote es SECUENCIAL por defecto: una tarea       [EXEC-R15]
+          detras de otra. La concurrente en worktrees separados es una
+          extension OPCIONAL y exige politica declarada de conflictos; no
+          forma parte del comportamiento base. Llevaba el ID EXEC-R08, que
+          ya tenia duenno, y PT-163 la renumero al cazar el ID reutilizado.
 VERIFICA  «npm run verify» corre lo MISMO que el workflow, y se comprueba   [SUITE-R62]
           en los dos sentidos: lo que falta en local BLOQUEA —deja pasar
           errores al PR— y lo que sobra AVISA —deja una comprobacion cuyo

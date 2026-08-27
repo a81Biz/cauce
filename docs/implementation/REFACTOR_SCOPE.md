@@ -51,4 +51,9 @@
 | PT-167 | CHORE | S2 | DRAFT | EP-024 | Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto |
 | PT-168 | BUG | S1 | DRAFT | EP-024 | audit da por cubierta la fase de un componente que no esta en el documento |
 | PT-151 | CHORE | S2 | DRAFT | EP-024 | npm run verify no era lo que corre CI, y el CLAUDE.md decia que si |
+| PT-155 | CHORE | S2 | DRAFT | EP-024 | Siete patrones criticos vivian fuera del contrato, en el archivo del contrato |
+| PT-160 | CHORE | S3 | DRAFT | EP-024 | FDGE-R15a: los criterios de la matriz son los del intake |
+| PT-161 | CHORE | S3 | DRAFT | EP-024 | CASOS-DE-USO se declara contrato de cobertura y nada lo comprobaba |
+| PT-163 | CHORE | S2 | DRAFT | EP-024 | SUITE-R14 contaba documentos y no definiciones: un ID reutilizado pasaba |
+| PT-164 | CHORE | S3 | DRAFT | EP-024 | Renumerar una regla es un comando, no una busqueda y reemplazo a ojo |
 | PT-149 | CHORE | S2 | DRAFT | EP-022 | La prueba mecanica: un componente se da de alta y de baja sin tocar herramienta |

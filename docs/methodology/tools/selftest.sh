@@ -8132,6 +8132,204 @@ chkno "…ni una sigla que tambien es prefijo de identificador" "SUITE-R60" \
 chk   "sobre el arbol real no queda ningun literal"          "Sin errores de coherencia" \
   sh -c "cd '$RAIZ' && node '$VS148' docs/methodology 2>&1"
 
+# ── PT-155 · EP-024 · siete patrones criticos vivian FUERA del contrato ─────────────────────────
+#
+# SUITE-R38 dice que un patron critico vive en UN SOLO SITIO y VIAJA CON SU CONTRATO —para, casa,
+# noCasa—. En patrones.mjs, el archivo DEL contrato, habia SIETE regex de primer nivel sin nada de
+# eso, y verify-patrones no los tocaba: un escape degradado en cualquiera NO LO CAZABA NADIE.
+#
+# No eran menos criticos: eran MENOS VISIBLES. SUITE-R59 lleva DOCE roturas medidas aqui, y las que
+# cazo una comprobacion fueron las que estaban EN PATRONES; las de fuera salieron por casualidad,
+# mirando bytes con cat -A o viendo reventar el arranque. TRES de los siete se escribieron durante
+# este mismo lote.
+P155="$WORK/p155"
+rompe155() {  # $1 la sustitucion que degrada un patron
+  rm -rf "$P155"; mkdir -p "$P155"
+  cp "$SUITE/tools/patrones.mjs" "$SUITE/tools/verify-patrones.mjs" "$P155/"
+  perl -0pi -e "$1" "$P155/patrones.mjs"
+  ( cd "$P155" && node verify-patrones.mjs 2>&1 )
+}
+
+# NINGUNO QUEDA FUERA. Se cuenta sobre el archivo real: siete regex de primer nivel, cero sin
+# entrada en PATRONES.
+export MTH_PAT="$SUITE/tools/patrones.mjs"
+fuera155() {
+  node -e "
+    const {pathToFileURL}=require('url'); const fs=require('fs');
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      const src=fs.readFileSync(process.env.MTH_PAT,'utf8');
+      // El patron se compone: escribir una barra dentro de una cadena de shell dentro de un
+      // -e de node es la via por la que SUITE-R59 ha roto doce veces en este repositorio.
+      const RE=new RegExp('^const (RE_[A-Z_0-9]+) = ' + String.fromCharCode(92,47), 'gm');
+      const sueltos=[...src.matchAll(RE)].map((x)=>x[1]);
+      const enPat=Object.values(m.PATRONES).map((p)=>String(p.re));
+      const fuera=sueltos.filter((n)=>{
+        const mm=new RegExp('^const '+n+' = (.+);' + String.fromCharCode(36),'m').exec(src);
+        return mm && !enPat.includes(mm[1]);
+      });
+      console.log('fuera '+fuera.length);
+    });" 2>&1
+}
+chk   "ningun regex de primer nivel queda sin contrato"  "^fuera 0$" fuera155
+
+# EL CRITERIO REAL: que ROMPER uno ponga la prueba en rojo. Meter siete entradas a un objeto no
+# prueba nada; que un patron degradado FALLE, si.
+chk   "un patron degradado FALLA"                        "no casa" \
+  rompe155 's/const RE_ANUNCIA = .*;/const RE_ANUNCIA = \/ZZZ\/i;/'
+chk   "…y NOMBRA el patron roto"                         "ANUNCIA_AUTORIZACION" \
+  rompe155 's/const RE_ANUNCIA = .*;/const RE_ANUNCIA = \/ZZZ\/i;/'
+# EL FRENO: sin tocar nada, en verde. «Fallar siempre» pasaria los dos de arriba.
+chk   "sin tocar nada, todos cumplen su contrato"        "cumplen su contrato" rompe155 's/XXNADAXX/YY/'
+
+# ── PT-161 · EP-024 · CASOS-DE-USO se declara contrato de cobertura y nada lo comprobaba ────────
+#
+# Su encabezado dice: «un caso que no este aqui es un hueco DECLARADO, no un silencio». Fallo DOS
+# VECES en EP-022 —con DICTAMEN y con el alta/baja de un componente— y las dos veces lo encontro
+# alguien echandolo en falta al leer.
+#
+# La promesa ENTERA no se puede verificar —nadie sabe que casos EXISTEN— pero su parte derivable
+# si: el catalogo dice DONDE ENTRAR, y los puntos de entrada son los TRIGGERS, que el contrato ya
+# declara. Medido: 11 triggers, CUATRO sin caso, y DOS de ellos eran el bucle por el que pasa todo
+# el trabajo de FDGE — abrir y cerrar una implementacion.
+P161="$WORK/p161"
+sinCaso161() {  # $1 el trigger a borrar del catalogo
+  rm -rf "$P161"; cp -r "$SUITE" "$P161" 2>/dev/null
+  perl -0pi -e "s/\Q$1\E//g" "$P161/CASOS-DE-USO.md"
+  ( cd "$P161" && node tools/audit.mjs . 2>&1 )
+}
+
+# UN TRIGGER SIN CASO SE CAZA, Y SE DICE CUAL.
+chk   "un trigger sin caso en el catalogo se caza"    "trigger(s) sin caso" sinCaso161 "[START QA]"
+chk   "…y NOMBRA el trigger que falta"                "START QA"            sinCaso161 "[START QA]"
+# EL FRENO: el catalogo real los tiene todos. Sin este caso, «fallar siempre» pasaria los de
+# arriba y la comprobacion se desactivaria en la primera corrida.
+chkno "el catalogo real no tiene ningun trigger suelto" "trigger(s) sin caso" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/audit.mjs' docs/methodology 2>&1"
+# Y LOS TRES CASOS QUE FALTABAN ESTAN, con su trigger.
+chk   "el bucle de la implementacion tiene caso"      "E7" cat "$SUITE/CASOS-DE-USO.md"
+chk   "…y la reconciliacion suelta"                   "E8" cat "$SUITE/CASOS-DE-USO.md"
+chk   "…y la validacion de Foundation"                "E9" cat "$SUITE/CASOS-DE-USO.md"
+# AC-03 · lo que NO es comprobable SE DICE. El escenario no es «no hay escenario»: es que la
+# salida DECLARE su limite. Un criterio sin escenario es un criterio que nadie comprueba, y
+# FDGE-R15 lo llama Orphan Criterion — escribir «—» en la celda no lo hace menos huerfano.
+chk   "audit declara lo que su barrido NO alcanza"    "que el catalogo este COMPLETO" \
+  cat "$SUITE/tools/audit.mjs"
+
+# ── PT-160 · EP-024 · FDGE-R15a · los AC de la matriz son los del intake ────────────────────────
+#
+# FDGE-R15 dice que la lista del intake es CANONICA, y verify-fdge solo miraba que cada fila de
+# traceability tuviera escenario, prueba y evidencia. QUE LAS FILAS FUERAN LAS MISMAS NO LO
+# COMPROBABA NADIE: se podia escribir una matriz con CUATRO criterios cuando el intake declaraba
+# SIETE, y salia en verde con tres sin rastro. Paso en EP-022, y lo encontro LEER LOS DOS ARCHIVOS.
+#
+# Primera corrida: SEIS reales —PT-077 declara AC-06 y su matriz no lo recoge— y trece avisos. Los
+# seis son trabajo YA INTEGRADO, asi que la regla nace con RIGE_DESDE 13.2.0: juzgarlo hacia atras
+# es CE-014 y el rojo NO TENDRIA SALIDA, porque esas matrices ya se cerraron.
+P160="$WORK/p160"
+proj160() {  # $1 lo que se le hace a traceability · $2 a intake
+  rm -rf "$P160"; mkdir -p "$P160/changes/PT-001-login" "$P160/docs/implementation/evidence/PT-001"
+  cp -r "$RAIZ/docs/methodology" "$P160/docs/" 2>/dev/null
+  printf '%s\n' '```yaml' 'id: PT-001' 'type: FEATURE' 'track: STANDARD' 'status: DRAFT' \
+    'phase: 4' 'suite_version: 13.2.0' 'origin: DIRECT' '```' '' \
+    '| AC | Criterio |' '|:---|:---|' '| AC-01 | uno |' "$2" '' '## Firma' '' \
+    'Solicitado por: Alberto Martínez' 'Fecha: 2026-08-26' \
+    'He leído este Intake y confirmo que refleja mi intención: SÍ' \
+    '' 'VEREDICTO: PASS' '' '> Termina cuando: pasa.' \
+    > "$P160/changes/PT-001-login/intake.md"
+  printf '%s\n' '| AC | Criterio | TS | Test | Evidencia | Caso QA | Estado |' \
+    '|:---|:---|:---|:---|:---|:---|:---|' '| AC-01 | uno | TS-01 | t | e | n/a | OK |' "$1" \
+    > "$P160/changes/PT-001-login/traceability.md"
+  printf '%s' '{"allocations":[{"id":"PT-001","slug":"login","type":"FEATURE","status":"DRAFT","phase":4,"severity":"S3","suite_version":"13.2.0"}]}' \
+    > "$P160/docs/implementation/REGISTRY.json"
+  ( cd "$P160" && node docs/methodology/tools/verify-fdge.mjs PT-001 2>&1 )
+}
+
+# EL INTAKE DECLARA Y LA MATRIZ NO LO RECOGE: bloquea. Es el criterio que nadie comprueba.
+chk   "un AC del intake que falta en la matriz BLOQUEA"  "FDGE-R15a" \
+  proj160 '' '| AC-02 | dos |'
+chk   "…y dice que la lista del intake es canonica"      "CANONICA" \
+  proj160 '' '| AC-02 | dos |'
+# LA MATRIZ RECOGE Y EL INTAKE NO DECLARA: avisa. Es un criterio que nadie firmo, y puede ser
+# trabajo de mas o un AC anadido sin volver al intake — lo decide quien lo escribio, no un script.
+chk   "un AC de la matriz que el intake no declara AVISA" "nadie firmo" \
+  proj160 '| AC-09 | nueve | TS-09 | t | e | n/a | OK |' ''
+# EL FRENO: con las dos listas iguales, ni rojo ni aviso. Sin esto, «fallar siempre» pasaria los
+# tres de arriba y la comprobacion se desactivaria en la primera corrida.
+chkno "con las dos listas iguales no dice nada"          "FDGE-R15a" proj160 '' ''
+
+# ── PT-163 + PT-164 · EP-024 · un ID reutilizado, y renumerar como operacion ────────────────────
+#
+# PT-163 · `definidasDosVeces` contaba DOCUMENTOS, no definiciones: `donde` era un Set de archivos,
+# asi que dos definiciones del MISMO id en el MISMO archivo COLAPSABAN EN UNA y la comprobacion
+# salia verde. SUITE-R14 promete que verify-suite «rechaza cualquier definicion duplicada»: cumplia
+# la mitad, y la mitad que fallaba es LA MAS FACIL DE COMETER — nadie mira si un ID esta libre.
+#
+# No es teorico: PT-148 escribio LEX-R33 y LEX-R34 sobre IDs que existian desde PT-137 y PT-138, y
+# al regenerar LAS DOS REGLAS VIEJAS DESAPARECIERON DE CORE.md sin que nada avisara. Y al arreglarlo
+# aparecio otro VIVO: EXEC-R08 definida dos veces en EXECUTION-MODES.md, con dos obligaciones
+# distintas bajo un identificador.
+P163="$WORK/p163"
+proj163() {
+  rm -rf "$P163"; mkdir -p "$P163"
+  cp -r "$SUITE"/. "$P163/" 2>/dev/null
+  echo "$P163"
+}
+dup163() {  # $1 el texto a anadir a EXECUTION-MODES.md
+  local d; d="$(proj163)"
+  printf '%s\n' "$1" >> "$d/EXECUTION-MODES.md"
+  ( cd "$d" && node tools/verify-suite.mjs . 2>&1 )
+}
+
+# DOS VECES EN EL MISMO DOCUMENTO. Es lo que no se detectaba.
+chk   "un ID definido dos veces en el mismo doc se caza" "DEFINIDA 2 veces DENTRO de" \
+  dup163 '`EXEC-R04` · Un texto cualquiera que reusa un ID ya ocupado.'
+# Y EL MENSAJE SEPARA LOS DOS HECHOS: «en dos documentos» se arregla eligiendo duenno; «dos veces
+# en el mismo» se arregla renumerando. Fundirlos manda a quien lo lee a averiguar cual era.
+chk   "…y dice que la anterior DESAPARECE de CORE"       "DESAPARECE" \
+  dup163 '`EXEC-R04` · Un texto cualquiera que reusa un ID ya ocupado.'
+chkno "…y NO lo llama propietario duplicado"             "propietario duplicado: es un ID reutilizado. La" \
+  sh -c 'true'
+# EL FRENO: el arbol real no tiene ninguno, y sin este caso «fallar siempre» pasaria los de arriba.
+chk   "el arbol real no tiene ningun ID reutilizado"     "Sin errores de coherencia" \
+  sh -c "cd '$RAIZ' && node '$SUITE/tools/verify-suite.mjs' docs/methodology 2>&1"
+
+# PT-164 · RENUMERAR ES UN COMANDO. Se hizo A MANO dos veces en dos dias, y la primera dejo a
+# SUITE-R44 citando «retomada» con DOS IDs distintos dentro de la misma regla.
+REG164="$SUITE/tools/regla.mjs"
+ren164() { ( cd "$(proj163)" && node tools/regla.mjs renombrar "$1" "$2" 2>&1 ); }
+
+chk   "renombrar enumera lo que va a tocar"              "cita(s) en" ren164 EXEC-R04 EXEC-R90
+chk   "…y NO escribe sin la bandera"                     "Nada se ha escrito" ren164 EXEC-R04 EXEC-R90
+# AC-02 · negarse si el destino EXISTE es lo que evita que la herramienta cause el defecto que
+# arregla: renumerar sobre un ID ocupado es EXACTAMENTE lo que hizo PT-148.
+chk   "se niega si el destino YA existe"                 "YA ESTA DEFINIDA" ren164 EXEC-R04 EXEC-R05
+chk   "…y se niega a cambiar de familia"                 "familias distintas" ren164 EXEC-R04 LEX-R90
+chk   "…y a mover una regla que no existe"               "no esta definida"  ren164 EXEC-R97 EXEC-R98
+# Y con la bandera, las citas SE MUEVEN. Sin esto lo anterior es un enumerador, no un comando.
+aplica164() {
+  local d; d="$(proj163)"
+  ( cd "$d" && node tools/regla.mjs renombrar EXEC-R04 EXEC-R90 --aplicar >/dev/null 2>&1 )
+  # Se cuentan las citas EXACTAS: «EXEC-R04a» es OTRA REGLA y el comando NO debe tocarla. La
+  # primera version de este caso conto con `grep -o EXEC-R04`, que casa dentro de EXEC-R04a, y
+  # dio 46 citas «sin mover» que en realidad eran subreglas intactas — el caso acusaba al comando
+  # de un defecto que no tenia. Y la cuenta se DICE con su numero: un `grep -c` encadenado
+  # devuelve 1 cuando la cuenta es cero, que es la linea -7 del «no hacer».
+  echo "quedan $(grep -roE "EXEC-R04([^0-9A-Za-z]|$)" "$d" 2>/dev/null | wc -l | tr -d " ")"
+}
+chk   "con --aplicar no queda ninguna cita atras"        "^quedan 0$" aplica164
+# Y NO TOCA LAS SUBREGLAS: EXEC-R04a es otra regla, con su propio texto y su propia severidad.
+# Mover «EXEC-R04» y arrastrar «EXEC-R04a» convertiria el comando en el defecto que arregla.
+subregla164() {
+  local d; d="$(proj163)"
+  ( cd "$d" && node tools/regla.mjs renombrar EXEC-R04 EXEC-R90 --aplicar >/dev/null 2>&1 )
+  [ "$(grep -roE "EXEC-R04[a-z]" "$d" 2>/dev/null | wc -l | tr -d " ")" -gt 0 ] && echo "subreglas SI" || echo "subreglas NO"
+}
+chk   "…y NO arrastra las subreglas EXEC-R04a"           "subreglas SI" subregla164
+# AC-05 · igual: el comando DICE que una cita a un ID equivocado-pero-real no se puede detectar.
+# Declararlo es la mitad honesta de SUITE-R26, y que este ESCRITO es lo comprobable.
+chk   "el comando declara lo que no puede detectar"   "EQUIVOCADO-PERO-REAL" \
+  cat "$SUITE/tools/regla.mjs"
+
 # ── PT-151 · EP-024 · «npm run verify» NO era lo que corre CI ────────────────────────────────────
 #
 # El CLAUDE.md publicaba «npm run verify · todo lo anterior, como en CI» y NO era cierto. Medido en

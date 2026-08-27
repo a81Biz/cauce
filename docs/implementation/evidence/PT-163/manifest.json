@@ -1,0 +1,59 @@
+{
+  "pt": "PT-163",
+  "generated": "2026-08-26",
+  "titulo": "un ID definido dos veces en el mismo documento pasaba en verde",
+  "bateria": "1795 casos, cero rojos",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un ID definido dos veces en el mismo documento se caza",
+      "tests": [
+        "TS-01"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El mensaje separa los dos hechos",
+      "tests": [
+        "TS-02"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El árbol real no tiene ninguno",
+      "tests": [
+        "TS-03"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "El caso de dos documentos sigue cazándose",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Los tres patrones nuevos viajan con su contrato",
+      "verified": true
+    }
+  ],
+  "medido": {
+    "ids_reutilizados_encontrados": 1,
+    "cual": "EXEC-R08 a EXEC-R15"
+  },
+  "nota": "Cazo uno VIVO en su primera corrida: dos obligaciones distintas bajo un identificador. SUITE-R14 prometia rechazar cualquier duplicado y cumplia la mitad — la mas facil de cometer, porque nadie mira si un ID esta libre.",
+  "donde_esta_el_detalle": "traceability.md de la tarea y su parada. Aqui no se repite: RULE-01, un hecho tiene un solo sitio."
+}

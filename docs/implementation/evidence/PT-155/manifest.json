@@ -1,0 +1,71 @@
+{
+  "pt": "PT-155",
+  "generated": "2026-08-26",
+  "titulo": "siete patrones criticos vivian fuera del contrato",
+  "bateria": "1795 casos, cero rojos",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Ningún regex de primer nivel queda fuera de PATRONES",
+      "tests": [
+        "TS-01"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Cada uno lleva para, casa y noCasa",
+      "tests": [
+        "TS-04"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La cifra sube y se publica",
+      "tests": [
+        "TS-04"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Un patrón degradado falla",
+      "tests": [
+        "TS-02 · TS-03"
+      ],
+      "evidence": [
+        "salidas/bateria.out"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "Los doce patrones anteriores siguen cumpliendo",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Los regex se declaran antes de PATRONES, que los referencia",
+      "verified": true
+    }
+  ],
+  "medido": {
+    "patrones_con_contrato": "12 a 19",
+    "comprobaciones": "106 a 129",
+    "regex_sin_contrato": "7 a 0"
+  },
+  "nota": "No eran menos criticos: eran MENOS VISIBLES. SUITE-R59 lleva doce roturas medidas aqui y las que cazo una comprobacion fueron las que estaban EN PATRONES; las de fuera salieron por casualidad. TRES de los siete se escribieron en este mismo lote.",
+  "donde_esta_el_detalle": "traceability.md de la tarea y su parada. Aqui no se repite: RULE-01, un hecho tiene un solo sitio."
+}

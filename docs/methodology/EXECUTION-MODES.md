@@ -271,9 +271,15 @@ Solapamiento detectado: PT-101 ↔ PT-102 (src/forms/validator.ts) → serializa
 PT-103 es independiente pero se ejecuta en secuencia (ver EXEC-R08).
 ```
 
-`EXEC-R08` · La ejecución de un lote es **secuencial** por defecto. La ejecución concurrente
+`EXEC-R15` · La ejecución de un lote es **secuencial** por defecto. La ejecución concurrente
 en worktrees separados es una extensión opcional que exige, además, una política declarada
 de resolución de conflictos; no forma parte del comportamiento base.
+
+> **Llevaba el ID `EXEC-R08`, que ya tenía dueño**: *«los tres modos exigen lo mismo»*, en §5.
+> Dos obligaciones distintas bajo un identificador, y las citas de `CASOS-DE-USO`, `MANUAL` y
+> `CHANGELOG` apuntaban todas a la primera — así que ésta **no la citaba nadie**, y renumerarla no
+> rompe ninguna referencia. Lo destapó `PT-163` en su primera corrida: hasta hoy `definidasDosVeces`
+> contaba **documentos**, no definiciones, y dos IDs iguales en el mismo archivo colapsaban en uno.
 
 ### 7.5 Regla de parada
 

@@ -190,6 +190,14 @@ aplazado. En `G4` cada fila declara `HECHO` o el identificador al que se movió.
 detectable, y fingir que lo es sería peor. Lo que cambia es que omitir una fila deje de perder
 nada, porque la obligación ya no vive en ella.
 
+**`EXEC-R15`: un lote se ejecuta en secuencia.** Una tarea detrás de otra. La ejecución
+concurrente en worktrees separados es una **extensión opcional** y exige, además, una política
+declarada de resolución de conflictos: no forma parte del comportamiento base.
+
+Llevaba el ID `EXEC-R08`, que **ya tenía dueño** —*«los tres modos exigen lo mismo»*—, y `PT-163`
+la renumeró al cazar el ID reutilizado: hasta entonces `verify-suite` contaba **documentos** y dos
+definiciones en el mismo archivo colapsaban en una.
+
 **`SUITE-R62`: lo que ejecutas en local es lo que ejecuta CI.** El comando que el proyecto publica
 como su verificación y los pasos de su workflow son **el mismo conjunto**, y se comprueba en **los
 dos sentidos**: lo que falta en local **bloquea** —deja pasar errores al PR— y lo que sobra

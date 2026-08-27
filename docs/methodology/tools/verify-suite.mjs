@@ -772,6 +772,16 @@ const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''
   const propietarios = {};
   for (const f of ['RULES.md', 'LEXICON.md', 'EXECUTION-MODES.md']) propietarios[f] = leerDoc(f);
   for (const d of definidasDosVeces(propietarios)) {
+    // PT-163 · «en dos documentos» y «dos veces en el mismo» son hechos DISTINTOS con arreglos
+    // distintos —elegir propietario contra renumerar— y el mensaje los separa (RULE-02). Hasta
+    // hoy el segundo NO SE DETECTABA: PT-148 escribio dos IDs ya ocupados y las dos reglas viejas
+    // desaparecieron de CORE.md sin que nada avisara.
+    if (d.dentroDe.length) {
+      fail('SUITE-R38', d.dentroDe[0], 0, `${d.id} está DEFINIDA ${d.veces} veces DENTRO de ${d.dentroDe.join(' y de ')}. `
+        + 'No es un propietario duplicado: es un ID reutilizado. La definición anterior DESAPARECE '
+        + 'de CORE.md al regenerar, y CORE.md es lo único que el agente carga. Se renumera la nueva.');
+      continue;
+    }
     fail('SUITE-R38', d.docs[0], 0, `${d.id} está DEFINIDA en ${d.docs.join(' y en ')}. `
       + 'Una regla tiene un solo documento propietario (LEX-R22): los demás la CITAN por ID. '
       + 'Dos textos divergen — es lo que le pasó a la v3, y en la v9 las tres copias que había '

@@ -37,6 +37,26 @@ Tres, y por eso `MINOR` y no `MAJOR` — **no cambian ninguna obligación existe
 - `LEX-R36` — componente y familia de reglas no son lo mismo. Son **seis** y **diez**, y
   confundirlos hacía que `build-core` afirmara la lista dos veces con cifras distintas.
 
+**Y cuatro más de `EP-024`**, el lote que recoge lo que `EP-022` encontró y no podía arreglar:
+
+- `SUITE-R61` (`CHECK`) — **la batería se poda al cerrar un lote, y un fixture que no muta nada
+  falla.** El disparador es el cierre y no un plazo: una fecha en un documento no la mira nadie.
+  Obliga a publicar la cuenta por patrón —`superado`, `invertido`, `hueco`— **aunque sea cero**,
+  porque callarlo es indistinguible de no haber mirado. De los tres patrones sólo el `hueco` se
+  queda en verde para siempre, y por eso es el único con comprobación mecánica.
+- `SUITE-R62` (`CHECK`) — **lo que se ejecuta en local es lo que ejecuta CI.** El `CLAUDE.md`
+  publicaba *«todo lo anterior, como en CI»* y era falso en **tres** puntos, uno de ellos en
+  sentido contrario: `matriz:check` corría en local y **no** en CI, una comprobación cuyo rojo
+  nadie veía en el PR. Se compara en los dos sentidos.
+- `FDGE-R15a` (`HARD`) — **los criterios de la matriz son los del Intake.** `FDGE-R15` decía que
+  la lista del Intake es canónica y nadie comprobaba que las filas fueran las mismas: se podía
+  escribir una matriz con cuatro criterios cuando el Intake declaraba siete. `RIGE_DESDE 13.2.0`:
+  lo integrado antes **no se juzga** (`CE-014`), porque su matriz ya está cerrada.
+- `EXEC-R15` — **la ejecución de un lote es secuencial por defecto.** No es una regla nueva: es la
+  que llevaba el ID `EXEC-R08`, **ya ocupado** por *«los tres modos exigen lo mismo»*. `PT-163` lo
+  destapó al corregir `definidasDosVeces`, que contaba **documentos** y no definiciones — dos IDs
+  iguales en el mismo archivo colapsaban en uno.
+
 ### Qué cambia para un proyecto ya instalado
 
 **Nada que haya que migrar.** Al regenerar `CORE.md` aparecerán líneas nuevas y ninguna menos: el

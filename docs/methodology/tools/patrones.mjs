@@ -127,6 +127,11 @@ export const RIGE_DESDE = {
   'SUITE-R09': [11, 0, 0],  // el ledger no pierde lineas · el verificador nace con EP-018
   'EXEC-R04':  [11, 0, 0],  // la G4 deja constancia · 18 merges historicos sin ella
   'EXEC-R04a': [11, 0, 0],  // la constancia tiene forma fija · nace con EP-018
+  // PT-160 · EP-024 · que los AC de la matriz sean LOS DEL INTAKE nadie lo comprobaba. La primera
+  // corrida encontro SEIS reales —PT-077 declara AC-06 y su matriz no lo recoge— y trece avisos,
+  // todos sobre trabajo YA INTEGRADO. Juzgarlo hacia atras es CE-014: aquellas tareas no pudieron
+  // cumplir lo que nadie les pedia, y el rojo no tendria salida porque su matriz ya se cerro.
+  'FDGE-R15a': [13, 2, 0],  // los AC de la matriz son los del intake · nace con EP-024
   // PT-099 · la entrada a VALIDATION_PENDING se vigila desde 12.0.0. La REGLA es vieja
   // —LEX-R08 severidad H, FDGE-R26 HARD— pero nadie la aplicaba: 51 BUG del registro y CERO
   // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
@@ -943,6 +948,18 @@ export function clasificaRodeo(hallazgo, textoDelLedger, regla = 'FDGE-R19') {
   return { ...hallazgo, motivo: declarada ? 'FORZADO' : 'ELEGIDO' };
 }
 
+// PT-155 · LOS SIETE PATRONES QUE VIVIAN FUERA DEL CONTRATO, AHORA ANTES DE EL.
+// SUITE-R38 pide que un patron critico viaje CON SU CONTRATO, y estos siete estaban sueltos: sin
+// `para`, sin `casa`, sin `noCasa`, y por tanto sin nada que cazara un escape degradado. Se
+// declaran aqui arriba porque PATRONES los referencia, y se prueban abajo como los demas.
+const RE_FILA_SELLO = /^\|\s*`?([\w.\-/]+)`?\s*\|\s*(ACTUALIZADO|NO PROCEDE)\s*\|\s*(.*?)\s*\|/gim;
+const RE_LINEAS = /\r?\n/;
+const RE_DEF_TABLA = /^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(?:HARD|SOFT|CHECK)\s*\|/;
+const RE_DEF_PROSA = /^`([A-Z]+-R\d+[a-z]?)`\s*·/;
+const RE_NO_VERIFICABLE = /^\|\s*`?([A-Z]+-R\d+[a-z]?)`?\s*\|\s*(.+?)\s*\|/gim;
+const RE_ANUNCIA = /G4|VoBo|autorizad/i;
+const RE_ESPERA = /a la espera de|pendiente de|esperando|queda para|sin resolver/i;
+
 export const PATRONES = {
   FIRMA_SOLICITANTE: {
     re: /\b(?:Reportado|Solicitado|Validado)\s+por:[ \t]*(?!\[)(\S.*)$/im,
@@ -1066,6 +1083,64 @@ export const PATRONES = {
     para: 'el bloque de estado que hace retomable la sesión (SUITE-R33)',
     casa: ['<!-- ESTADO -->\nsiguiente: cerrar G3\n<!-- /ESTADO -->'],
     noCasa: ['<!-- ESTADO -->\nsiguiente: cerrar G3'],   // sin cerrar: no es un bloque
+  },
+
+  // PT-155 · LOS SIETE QUE VIVIAN FUERA DEL CONTRATO.
+  //
+  // SUITE-R38 dice que un patron critico vive en UN SOLO SITIO y VIAJA CON SU CONTRATO. Habia
+  // SIETE regex de primer nivel en este mismo archivo, sin `para`, sin `casa` y sin `noCasa`: la
+  // prueba no los tocaba, y un escape que se degradara en ellos NO LO CAZABA NADIE.
+  //
+  // No es teorico. SUITE-R59 lleva DOCE roturas medidas en este repositorio, y las que se
+  // encontraron fueron las que estaban EN PATRONES —viajan con sus ejemplos—; las de fuera
+  // salieron por casualidad, mirando bytes con cat -A o viendo reventar el arranque.
+  //
+  // Los siete no eran «menos criticos»: eran menos visibles. Tres los escribi HOY, en PT-163 y
+  // PT-149, y de haber degradado habrian dado verde sin casar nada.
+  DEF_EN_TABLA: {
+    re: RE_DEF_TABLA,
+    para: 'una regla DEFINIDA como fila de RULES.md (PT-163)',
+    casa: ['| `SUITE-R60` | CHECK | Un componente se declara.'],
+    noCasa: ['| `SUITE-R60` | lo cita sin severidad |', 'Menciona `SUITE-R60` en prosa'],
+  },
+  DEF_EN_PROSA: {
+    re: RE_DEF_PROSA,
+    para: 'una regla DEFINIDA en prosa, como LEXICON y EXECUTION-MODES (PT-163)',
+    casa: ['`LEX-R35` · Un componente se declara en el contrato.'],
+    noCasa: ['Lo dice `LEX-R35` mas arriba', '| `LEX-R35` | H | tabla |'],
+  },
+  FILA_DE_SELLO: {
+    re: RE_FILA_SELLO,
+    para: 'una fila de SELLO.md: que se actualizo y que no procede',
+    casa: ['| `CORE.md` | ACTUALIZADO | regenerado |', '| inventory | NO PROCEDE | sin cambios |'],
+    noCasa: ['| `CORE.md` | PENDIENTE | a medias |'],
+  },
+  FILA_NO_VERIFICABLE: {
+    re: RE_NO_VERIFICABLE,
+    para: 'una regla declarada NO VERIFICABLE, con su motivo (SUITE-R26)',
+    casa: ['| `SUITE-R01` | ninguna maquina lo comprueba |'],
+    noCasa: ['| SUITE-R01 sin comillas ni motivo'],
+  },
+  ANUNCIA_AUTORIZACION: {
+    re: RE_ANUNCIA,
+    para: 'un encabezado de SESSION_LOG que anuncia una autorizacion (EXEC-R04)',
+    casa: ['G4 de EP-022 autorizada', 'VoBo del firmante', 'Merge autorizado'],
+    // PT-170 · «Autorizacion» NO casa: le falta la «d». Un encabezado real fue rechazado por eso
+    // y el merge salio como NO autorizado teniendolo todo escrito. Queda como caso negativo
+    // hasta que PT-170 decida si la constancia se reconoce por su FORMA en vez de su titulo.
+    noCasa: ['Autorizacion expresa de excepcion', 'Nota sobre el cierre'],
+  },
+  ESPERA_NO_AUTORIZA: {
+    re: RE_ESPERA,
+    para: 'un encabezado que ANUNCIA LO CONTRARIO de una autorizacion (PT-095)',
+    casa: ['a la espera de G4', 'pendiente de firma', 'queda para el cierre'],
+    noCasa: ['G4 resuelta', 'autorizado por el firmante'],
+  },
+  SALTO_DE_LINEA: {
+    re: RE_LINEAS,
+    para: 'partir un texto en lineas sin depender de Windows o Unix',
+    casa: ['a\nb', 'a\r\nb'],
+    noCasa: ['ab'],
   },
 };
 
@@ -1790,7 +1865,6 @@ export const DOCUMENTOS_DE_ENTRADA = [
   'graphify-out/',
 ];
 
-const RE_FILA_SELLO = /^\|\s*`?([\w.\-/]+)`?\s*\|\s*(ACTUALIZADO|NO PROCEDE)\s*\|\s*(.*?)\s*\|/gim;
 
 export function selloSinResolver(actaDelSello) {
   const texto = String(actaDelSello ?? '');
@@ -1881,24 +1955,44 @@ export function rutaRelativaDelManifiesto(ruta, raiz) {
  * `docs` es un mapa {nombre: texto}. Devuelve una fila por ID duplicado con DONDE esta cada
  * copia: decir «hay conflicto» sin nombrar los dos sitios obliga a buscarlos a mano.
  */
+// PT-163 · los tres patrones, LITERALES y una sola vez. Montarlos desde strings es SUITE-R59, y
+// este archivo lleva la cuenta: doce roturas medidas, dos de ellas escribiendo verificadores.
+
 export function definidasDosVeces(docs) {
+  // PT-163 · CONTABA DOCUMENTOS, NO DEFINICIONES. `donde` era un Set de documentos, asi que dos
+  // definiciones del MISMO id en el MISMO archivo COLAPSABAN EN UNA y la comprobacion salia verde.
+  //
+  // No es teorico: PT-148 escribio LEX-R33 y LEX-R34 sobre dos IDs que ya existian desde PT-137 y
+  // PT-138. Al regenerar, LAS DOS REGLAS VIEJAS DESAPARECIERON DE CORE.md —el unico archivo que el
+  // agente carga— y esto no dijo nada. SUITE-R14 promete que verify-suite «rechaza cualquier
+  // definicion duplicada»: cumplia la mitad, y la mitad que fallaba era la mas facil de cometer.
+  //
+  // Ahora cuenta POR DOCUMENTO, y los dos hechos se distinguen (RULE-02): «en dos documentos» y
+  // «dos veces en el mismo» tienen arreglos distintos —elegir propietario contra renumerar— y
+  // fundirlos mandaba a quien lo lee a averiguar cual de los dos era.
   const donde = new Map();
   const anota = (id, doc) => {
-    if (!donde.has(id)) donde.set(id, new Set());
-    donde.get(id).add(doc);
+    if (!donde.has(id)) donde.set(id, new Map());
+    const m = donde.get(id);
+    m.set(doc, (m.get(doc) ?? 0) + 1);
   };
   for (const [doc, txt] of Object.entries(docs ?? {})) {
-    for (const l of String(txt ?? '').split(/\r?\n/)) {
+    for (const l of String(txt ?? '').split(RE_LINEAS)) {
       // Las dos formas de PT-066: RULES.md usa filas de tabla, los otros usan prosa.
-      const t = /^\|\s*`([A-Z]+-R\d+[a-z]?)`\s*\|\s*(?:HARD|SOFT|CHECK)\s*\|/.exec(l);
-      const q = /^`([A-Z]+-R\d+[a-z]?)`\s*·/.exec(l);
+      const t = RE_DEF_TABLA.exec(l);
+      const q = RE_DEF_PROSA.exec(l);
       if (t) anota(t[1], doc);
       else if (q) anota(q[1], doc);
     }
   }
-  return [...donde.entries()]
-    .filter(([, ds]) => ds.size > 1)
-    .map(([id, ds]) => ({ id, docs: [...ds].sort() }));
+  const fuera = [];
+  for (const [id, m] of donde.entries()) {
+    const ds = [...m.keys()].sort();
+    const repetido = ds.filter((d) => m.get(d) > 1);
+    if (repetido.length) fuera.push({ id, docs: ds, dentroDe: repetido, veces: m.get(repetido[0]) });
+    else if (ds.length > 1) fuera.push({ id, docs: ds, dentroDe: [], veces: 1 });
+  }
+  return fuera;
 }
 
 /**
@@ -1950,7 +2044,6 @@ export function clasificarReglas(reglas, textoHerramientas, declaradas) {
  * Formato: una fila por regla, con motivo. Sin motivo no cuenta — igual que en el sello y en el
  * LAYOUT: una celda vacia es indistinguible de una que nadie miro (FND-R22).
  */
-const RE_NO_VERIFICABLE = /^\|\s*`?([A-Z]+-R\d+[a-z]?)`?\s*\|\s*(.+?)\s*\|/gim;
 
 export function noVerificablesDeclaradas(texto) {
   const m = {};
@@ -2363,8 +2456,6 @@ export const SUJETOS = {
  * QUE ESTABLECE: que el encabezado nombre una autorizacion y no una espera.
  * QUE NO ESTABLECE: que el cuerpo diga lo que el encabezado anuncia. Eso lo mira quien lo lee.
  */
-const RE_ANUNCIA = /G4|VoBo|autorizad/i;
-const RE_ESPERA = /a la espera de|pendiente de|esperando|queda para|sin resolver/i;
 export const anunciaAutorizacion = (encabezado) => {
   const h = String(encabezado ?? '');
   return RE_ANUNCIA.test(h) && !RE_ESPERA.test(h);

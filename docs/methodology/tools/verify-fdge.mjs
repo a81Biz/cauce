@@ -1597,6 +1597,11 @@ function notasDelIssue(pt) {
   return Number.isFinite(n) ? n : null;
 }
 
+// PT-160 · los AC que el intake DECLARA. Su lista es canonica (FDGE-R15), y hasta hoy nadie la
+// contrastaba con la matriz. Se reconocen las dos formas en que un intake los escribe: fila de
+// tabla —«| AC-01 | …»— y prosa —«`AC-01` · …»—, con o sin comillas invertidas.
+const RE_AC_INTAKE = /(?:^|\|)\s*`?(AC-\d{2})`?\s*(?:\||·)/gm;
+
 function parseTraceability(md) {
   const rows = [];
   for (const line of md.split(/\r?\n/)) {
@@ -2289,6 +2294,32 @@ function checkPT(pt, { gate } = {}) {
     const rows = parseTraceability(trace);
     if (!rows.length) fail('FDGE-R15', `${pt}: traceability.md no contiene ninguna fila AC-nn reconocible.`);
     acs = rows.map((r) => r.ac);
+    // PT-160 · LOS AC DE LA TRAZABILIDAD SON LOS DEL INTAKE, Y NADIE LO COMPROBABA.
+    //
+    // FDGE-R15 dice que la lista del intake es CANONICA, y verify-fdge solo miraba que cada fila
+    // de traceability tuviera TS, test y evidencia. Que las filas fueran LAS MISMAS no lo
+    // comprobaba nadie: se podia escribir una matriz con CUATRO criterios cuando el intake
+    // declaraba SIETE, y salia en verde con tres criterios sin rastro.
+    //
+    // Paso en EP-022 y lo encontro leer los dos archivos, no una herramienta. Aqui se contrastan
+    // los identificadores en los DOS sentidos: un AC del intake que falte en la matriz es un
+    // criterio SIN COMPROBAR —lo grave—, y uno de la matriz que no este en el intake es un
+    // criterio que nadie firmo. RULE-02: son hechos distintos y se dicen distinto.
+    const enIntake = [...new Set([...String(intake ?? '').matchAll(RE_AC_INTAKE)].map((m) => m[1]))];
+    if (enIntake.length && rige('FDGE-R15a')) {
+      const enMatriz = rows.map((r) => r.ac);
+      const sinComprobar = enIntake.filter((x) => !enMatriz.includes(x));
+      const sinFirmar = enMatriz.filter((x) => !enIntake.includes(x));
+      if (sinComprobar.length) {
+        fail('FDGE-R15a', `${pt}: el intake declara ${sinComprobar.join(' · ')} y traceability.md no lo(s) recoge. `
+          + 'La lista del intake es CANONICA: un criterio que no llega a la matriz no lo comprueba nadie, '
+          + 'y la matriz sale en verde sin el.');
+      }
+      if (sinFirmar.length) {
+        warn('FDGE-R15a', `${pt}: traceability.md recoge ${sinFirmar.join(' · ')} y el intake no lo(s) declara. `
+          + 'Es un criterio que nadie firmo: puede ser trabajo de mas, o un AC anadido sin revisar el intake.');
+      }
+    }
     const testExempt = type === 'CHORE' || track === 'EXPRESS';
     // PT-134 · UN CRITERIO PUEDE DECAER, y hasta ahora no habia donde decirlo. FDGE-R15 exige un
     // TS a TODO AC; cuando el mundo cambia debajo y el criterio deja de aplicar, no puede tenerlo,

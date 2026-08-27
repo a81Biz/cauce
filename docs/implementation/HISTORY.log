@@ -9961,3 +9961,191 @@ Evidencia: evidence/PT-151/ — manifest con 4 AC y 4 RC, self-review, y cuatro 
 LO QUE NO ESTABLECE: que el paso HAGA lo mismo en los dos sitios — se comparan nombres. Ni que la
 bateria sea sostenible: es DOS MINUTOS Y MEDIO MAS CARA de lo que ya costaba, y eso empuja en la
 direccion equivocada. PT-169 abarato «--solo»; la corrida completa sigue igual.
+
+## PT-155 — siete patrones criticos vivian FUERA del contrato, en el archivo del contrato
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: EXPRESS
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-001 — el proxy en lugar del hecho
+
+SUITE-R38 dice que un patron critico vive en UN SOLO SITIO y VIAJA CON SU CONTRATO —para, casa,
+noCasa—. En patrones.mjs, el archivo DEL contrato, habia SIETE regex de primer nivel sin nada de
+eso. La prueba no los tocaba: un escape degradado en cualquiera NO LO CAZABA NADIE.
+
+    patrones con contrato        12  a  19
+    comprobaciones              106  a  129
+    regex sin contrato            7  a  0
+
+NO ERAN MENOS CRITICOS: ERAN MENOS VISIBLES. SUITE-R59 lleva DOCE roturas medidas en este
+repositorio, y las que cazo una comprobacion fueron las que estaban EN PATRONES —viajan con sus
+ejemplos—; las de fuera salieron POR CASUALIDAD: mirando bytes con cat -A, o viendo reventar el
+arranque. TRES de los siete se escribieron durante este mismo lote, en PT-163 y PT-149.
+
+UN CASO NEGATIVO ES UN DEFECTO VIVO, Y SE DEJA ESCRITO. ANUNCIA_AUTORIZACION lleva la cadena
+«Autorizacion expresa de excepcion» en noCasa PORQUE NO CASA: al patron le falta la «d» de
+«autorizad». Es lo que hizo que un merge saliera como NO AUTORIZADO teniendo la constancia entera
+escrita (PT-170). Dejarlo ahi NO LO APRUEBA: LO FIJA. Cuando se decida reconocer la constancia por
+su FORMA en vez de por su titulo, ese caso tendra que MOVERSE A «casa», y el cambio sera visible.
+
+Y LA BATERIA CAZO UNA REGLA FUERA DE LA GUIA. sellar --gate bloqueaba: FDGE-R15a no estaba en el
+CHANGELOG. EP-024 habia escrito CUATRO reglas nuevas y la guia declaraba tres. SUITE-R19 cobra la
+guia CUANDO SE ESCRIBE LA REGLA, no al cerrar el lote — y hace bien: una guia escrita al cierre se
+escribe de memoria.
+
+Evidencia: evidence/PT-155/ · Bateria: 1795 casos, cero rojos.
+
+## PT-160 — FDGE-R15a · los criterios de la matriz son los del Intake
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: EXPRESS
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-005 — verde por no haber mirado
+
+FDGE-R15 dice que la lista del intake es CANONICA y verify-fdge solo miraba que cada fila de
+traceability tuviera escenario, prueba y evidencia. QUE LAS FILAS FUERAN LAS MISMAS NO LO
+COMPROBABA NADIE: se podia escribir una matriz con CUATRO criterios cuando el intake declaraba
+SIETE, y salia en verde con tres sin rastro.
+
+    6 bloqueantes   el intake declara un AC y la matriz NO lo recoge
+    13 avisos       la matriz recoge un AC que el intake no declara
+
+PT-077 declara AC-06 —«ninguna otra accion que escriba se salta la guarda»— y su matriz no lo
+recoge. Un criterio que nadie comprobo, EN VERDE DURANTE CINCUENTA TAREAS.
+
+LLEVA FRONTERA Y NO ROJO. Los seis son trabajo YA INTEGRADO: juzgarlo hacia atras es CE-014, y aqui
+el rojo NO TENDRIA SALIDA porque esas matrices ya se cerraron. Anadirles una fila hoy seria INVENTAR
+UNA COMPROBACION QUE NUNCA OCURRIO. RIGE_DESDE 13.2.0, como EXEC-R04a con los merges historicos.
+
+Y LA OBLIGACION TIENE ID PROPIO. Emitir FDGE-R15 habria metido la frontera a TODA la regla, que
+rige desde siempre. Es la misma decision que PT-151 tomo con SUITE-R01/SUITE-R62: UNA COMPROBACION
+NUEVA NO PUEDE CAMBIAR EL ALCANCE DE UNA REGLA VIEJA, ni ampliandolo ni eximiendolo.
+
+LO QUE NO ESTABLECE: que los AC DIGAN lo mismo. Compara identificadores, no enunciados.
+
+Evidencia: evidence/PT-160/ · Bateria: 1795 casos, cero rojos.
+
+## PT-161 — CASOS-DE-USO se declara contrato de cobertura y nada lo comprobaba
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: EXPRESS
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-005 — verde por no haber mirado
+
+El encabezado del catalogo dice: «un caso que no este aqui es un hueco DECLARADO, no un silencio».
+Y nada lo comprobaba. Fallo DOS VECES en EP-022 —con DICTAMEN y con el alta/baja de un componente—
+y las dos veces lo encontro alguien echandolo en falta AL LEER.
+
+    triggers declarados      11
+    sin caso en el catalogo   4   CIERRA · IMPLEMENTACION · FOUNDATION VALIDATED · START RECONCILE
+
+DOS DE ELLOS SON EL BUCLE POR EL QUE PASA TODO EL TRABAJO DE FDGE: abrir y cerrar una
+implementacion. La puerta mas transitada del marco no estaba en el catalogo.
+
+La promesa ENTERA no se puede verificar —nadie sabe que casos EXISTEN— pero su parte derivable si:
+el catalogo dice DONDE ENTRAR, y los puntos de entrada son los TRIGGERS, que el contrato ya declara.
+Se comprueba eso y SE DICE cual no lo es.
+
+Los tres casos que faltaban —E7, E8, E9— se escribieron LEYENDO QUE HACE CADA TRIGGER —FDGE-R50,
+FND-R15, PHASE 6 de Foundation—, no inventandolo.
+
+Y SE CERRO UNA DEUDA DE PT-163: EXEC-R15 no la citaba ningun documento operativo. Renumerar movio
+las citas existentes, pero la regla NUNCA HABIA ESTADO en PHASES ni en los prompts.
+
+UNA NOTA DE REANCLAJE SE PERDIO Y LA CUENTA NO SE PUEDE REPARAR. FDGE-R52 exige una nota por
+transicion y en PHASE 7 hacen falta seis; tracker cuenta CINCO. Avanzar publica una nota Y SUBE LA
+FASE, asi que el deficit se conserva. La causa probable es mia: avance las fases EN BUCLE con notas
+de una linea, y FDGE-R52 pide tres —que cierras, que abres, que queda—. Lo que esto ensena vale mas
+que el arreglo: las fases se avanzaron para llegar al estado que el verificador exige, no porque
+cada transicion hubiera ocurrido, y FDGE-R52 existe exactamente para eso. Queda como PT-177.
+
+Evidencia: evidence/PT-161/ · Bateria: 1795 casos, cero rojos.
+
+## PT-163 — un ID definido dos veces en el mismo documento pasaba en verde
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: EXPRESS
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-008 — un hecho, varios nombres
+
+definidasDosVeces guardaba un Set de DOCUMENTOS: dos definiciones del mismo id en el mismo archivo
+COLAPSABAN EN UNA. SUITE-R14 promete que verify-suite «rechaza cualquier definicion duplicada» y
+cumplia LA MITAD — y la que fallaba es LA MAS FACIL DE COMETER, porque nadie mira si un ID esta
+libre antes de escribirlo.
+
+Lo demostro PT-148: escribio LEX-R33 y LEX-R34 sobre IDs que existian desde PT-137 y PT-138, y al
+regenerar LAS DOS REGLAS VIEJAS DESAPARECIERON DE CORE.md —el unico archivo que el agente carga—
+sin que nada avisara.
+
+Y CAZO UNO VIVO EN SU PRIMERA CORRIDA:
+
+    EXEC-R08 esta DEFINIDA 2 veces DENTRO de EXECUTION-MODES.md
+
+Dos obligaciones DISTINTAS bajo un identificador: «los tres modos exigen lo mismo» (HARD) y «la
+ejecucion de un lote es secuencial». Las citas de CASOS-DE-USO, MANUAL y CHANGELOG apuntaban TODAS
+a la primera, asi que la segunda no la citaba nadie y renumerarla a EXEC-R15 no rompio nada.
+
+LOS DOS HECHOS SE SEPARAN PORQUE SE ARREGLAN DISTINTO: «en dos documentos» se arregla eligiendo
+propietario; «dos veces en el mismo» se arregla renumerando. Fundirlos manda a quien lee el fallo a
+averiguar cual era — el mismo motivo por el que PT-093 separo una constancia malformada de una
+ausente.
+
+Evidencia: evidence/PT-163/ · Bateria: 1795 casos, cero rojos.
+
+## PT-164 — renumerar una regla es un comando, no una busqueda y reemplazo a ojo
+Fecha: 2026-08-26
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: EXPRESS
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 auto-resuelta por EXEC 5.2
+Clase de evento: CE-006 — el acto hecho fuera del comando
+
+Renumerar se hizo A MANO dos veces en dos dias. PT-148 renumero LEX-R33/R34 y el reemplazo alcanzo
+tambien a RULES.md: SUITE-R44 quedo citando «retomada» como LEX-R35 en un sitio y como LEX-R33 en
+otro, DENTRO DE LA MISMA REGLA. PT-163 renumero EXEC-R08 y hubo que comprobar a mano quien lo
+citaba.
+
+«regla renombrar DE A» enumera lo que va a tocar, no escribe sin --aplicar, y SE NIEGA en tres
+casos: destino ocupado, familia distinta, origen inexistente. El primero evita que la herramienta
+CAUSE EL DEFECTO QUE ARREGLA: renumerar sobre un ID ocupado es exactamente lo que hizo PT-148, y un
+comando que lo permitiera lo haria mas rapido y en mas sitios.
+
+TRES DEFECTOS QUE ENCONTRARON LOS CASOS, Y NINGUNO SE VEIA LEYENDO:
+
+1. DEJABA 23 CITAS ATRAS. Recorria .md y .mjs —«donde viven las reglas»— y selftest.sh CITA reglas.
+   Las citas no viven donde vive la regla: VIVEN DONDE ALGUIEN LAS ESCRIBE.
+2. AL ARREGLARLO BORRE LA RECURSION. El comando paso de 21 archivos a OCHO, ninguno de tools/,
+   anunciando «15 citas en 8 archivos» con total normalidad. UN COMANDO QUE RENOMBRA LA MITAD ES
+   PEOR QUE UNO QUE NO RENOMBRA: deja el arbol en un estado que nadie eligio.
+3. UN DEFECTO QUE NO LO ERA. El caso acusaba de dejar 46 citas y eran EXEC-R04a, una SUBREGLA que
+   el comando NO DEBE TOCAR. El error estaba en mi asercion, que contaba con grep -o y casaba
+   DENTRO. La propiedad tiene ahora caso propio, y NO clava la cifra.
+
+Y CE-003 EN LA PRIMERA EJECUCION. regla.mjs toma como ruta «el primer argumento que no empiece por
+guiones y no parezca un ID» — y eso era «renombrar». El sintoma MENTIA SOBRE LA CAUSA: decia «la
+regla no esta definida» cuando lo que no existia era el directorio donde buscaba. Corregido
+DECLARANDO LOS SUBCOMANDOS, no ampliando la heuristica.
+
+LO QUE NO ESTABLECE: detectar una cita a un ID EQUIVOCADO PERO REAL. LEX-R35 existe —solo que es
+otra— y eso no es mecanizable sin saber que quiso decir quien la escribio.
+
+Evidencia: evidence/PT-164/ · Bateria: 1795 casos, cero rojos.

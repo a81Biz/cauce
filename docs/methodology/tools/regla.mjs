@@ -21,13 +21,18 @@
  * CRLF: todo parseo por lineas usa split(/\r?\n/).
  */
 
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
+// PT-164 · CE-003 · «un argumento se cuela por la deteccion de ROOT». Es una clase de evento con
+// nombre en LEXICON, y este comando la reprodujo en su primera ejecucion: `regla renombrar A B`
+// tomaba «renombrar» como la RUTA del marco, asi que BASE apuntaba a un directorio inexistente y
+// la regla salia «no definida en ningun documento». Los subcomandos se declaran y se excluyen.
+const SUBCOMANDOS = new Set(['renombrar']);
 const ARGS = process.argv.slice(2);
-const BASE = resolve(ARGS.find((a) => !a.startsWith('--') && !/^[A-Z]+-R\d+$/.test(a)) ?? join(AQUI, '..'));
+const BASE = resolve(ARGS.find((a) => !a.startsWith('--') && !SUBCOMANDOS.has(a) && !/^[A-Z]+-R\d+$/.test(a)) ?? join(AQUI, '..'));
 const TOOLS = join(BASE, 'tools');
 
 const c = { dim: '\x1b[2m', neg: '\x1b[1m', rojo: '\x1b[31m', verde: '\x1b[32m', fin: '\x1b[0m' };
@@ -155,6 +160,90 @@ const EJECUTADO_DIRECTO = !!process.argv[1]
 
 if (EJECUTADO_DIRECTO) {
   const id = ARGS.find((a) => /^[A-Z]+-R\d+$/.test(a));
+
+  // PT-164 · RENUMERAR UNA REGLA ES UN COMANDO, NO UNA BUSQUEDA Y REEMPLAZO A OJO.
+  //
+  // Se hizo a mano DOS VECES EN DOS DIAS. PT-148 renumero LEX-R33/R34 al descubrir que los IDs
+  // estaban ocupados, y el reemplazo alcanzo tambien a RULES.md:94: SUITE-R44 quedo citando
+  // «retomada» como LEX-R35 en un sitio y como LEX-R33 en otro, DENTRO DE LA MISMA REGLA. PT-163
+  // renumero EXEC-R08 y hubo que comprobar a mano quien lo citaba.
+  //
+  // Y lo que NINGUNA herramienta caza: verify-suite comprueba que una regla citada EXISTA.
+  // LEX-R35 existe — solo que es otra. UNA CITA AL ID EQUIVOCADO-PERO-REAL PASA EN VERDE, y
+  // CORE.md la publica al agente como si fuera cierta. Eso NO se arregla aqui: no es mecanizable
+  // sin saber que quiso decir quien la escribio (SUITE-R26). Lo que si se arregla es que mover
+  // una regla deje de ser una operacion manual que se olvida a medias.
+  const iRen = ARGS.indexOf('renombrar');
+  if (iRen >= 0) {
+    const de = ARGS[iRen + 1];
+    const a = ARGS[iRen + 2];
+    const APLICA = ARGS.includes('--aplicar');
+    const RE_ID = /^[A-Z]+-R\d+[a-z]?$/;
+    if (!RE_ID.test(de ?? '') || !RE_ID.test(a ?? '')) {
+      di('regla renombrar <DE> <A> [--aplicar]   mueve una regla y TODAS sus citas');
+      process.exit(2);
+    }
+    if (de.split('-')[0] !== a.split('-')[0]) {
+      di(`  ${c.rojo}«${de}» y «${a}» son de familias distintas.${c.fin}`);
+      di(`  ${c.dim}Cambiar de familia no es renumerar: es cambiar de duenno, y eso lo decide`);
+      di(`  quien conoce el reparto (LEX-R22). Este comando mueve el NUMERO, no la casa.${c.fin}`);
+      process.exit(2);
+    }
+    // AC-02 · negarse si el destino EXISTE. Renumerar sobre un ID ocupado es exactamente lo que
+    // hizo PT-148, y un comando que lo permitiera lo haria mas rapido y en mas sitios.
+    if (definicionDe(a)) {
+      di(`  ${c.rojo}«${a}» YA ESTA DEFINIDA${c.fin} en ${definicionDe(a).documento}.`);
+      di(`  ${c.dim}Es el defecto que este comando existe para no repetir: PT-148 escribio dos`);
+      di(`  reglas sobre IDs ocupados y las dos anteriores desaparecieron de CORE.md.${c.fin}`);
+      process.exit(1);
+    }
+    if (!definicionDe(de)) {
+      di(`  ${c.rojo}«${de}» no esta definida en ningun documento del marco.${c.fin}`);
+      process.exit(1);
+    }
+    // Se recorren TODOS los .md del marco y sus subdirectorios, mas las herramientas: una cita
+    // vive tanto en prosa como dentro de un fail() o un warn().
+    const archivos = [];
+    const anda = (dir) => {
+      for (const f of readdirSync(dir, { withFileTypes: true })) {
+        const ruta = join(dir, f.name);
+        // La recursion se perdio al insertar el comentario de abajo: quedaban 8 archivos de 21 y
+        // ninguno de tools/. Lo dijo el caso «no queda ninguna cita atras», no la lectura.
+        if (f.isDirectory()) { if (f.name !== 'node_modules') anda(ruta); continue; }
+        // .sh TAMBIEN: el arnes CITA reglas —«chk … SUITE-R61 …»— y dejarlo fuera hacia que
+        // renombrar dejara 23 citas atras. Lo encontro el caso, no la lectura: la primera version
+        // recorria solo .md y .mjs porque son donde «viven» las reglas, y las citas viven donde
+        // alguien las escribe.
+        if (f.name.endsWith('.md') || f.name.endsWith('.mjs') || f.name.endsWith('.sh')) archivos.push(ruta);
+      }
+    };
+    anda(BASE);
+    const RE_CITA = new RegExp(de + '(?![0-9A-Za-z])', 'g');
+    const tocados = [];
+    for (const ruta of archivos) {
+      const txt = lee(ruta);
+      if (txt === null) continue;
+      const cuantas = (txt.match(RE_CITA) ?? []).length;
+      if (!cuantas) continue;
+      tocados.push({ ruta, cuantas });
+      if (APLICA) writeFileSync(ruta, txt.replace(RE_CITA, a), 'utf8');
+    }
+    const total = tocados.reduce((s, t) => s + t.cuantas, 0);
+    di();
+    di(`  ${c.neg}${de}${c.fin} → ${c.neg}${a}${c.fin}   ${total} cita(s) en ${tocados.length} archivo(s)`);
+    di();
+    for (const t of tocados) di(`  ${String(t.cuantas).padStart(4)}  ${t.ruta.replace(BASE, '.')}`);
+    di();
+    if (!APLICA) {
+      di(`  ${c.dim}Nada se ha escrito. SUITE-R06e cubre docs/methodology: un comando que reescribe`);
+      di(`  reglas en ${tocados.length} archivos tiene que poder mirarse antes de correr.${c.fin}`);
+      di(`  ${c.neg}regla renombrar ${de} ${a} --aplicar${c.fin}`);
+    } else {
+      di(`  ${c.dim}Escrito. Regenera el nucleo: node tools/build-core.mjs${c.fin}`);
+    }
+    process.exit(0);
+  }
+
 
   // PT-051 · `--donde` publica lo que `fallosPosibles` ya recorria y tiraba: el m.index de cada
   // emision. verify-fdge.mjs tiene 1490 lineas, asi que saber que la comprobacion esta «en

@@ -36,8 +36,8 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 171,
-    "EP": 24,
+    "PT": 177,
+    "EP": 25,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -4470,8 +4470,8 @@
       "id": "PT-152",
       "slug": "el-nucleo-publica-ocho-de-trece",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DRAFT",
+      "phase": 2,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -4490,13 +4490,20 @@
         "de": "PT-146",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-146 el 2026-08-26"
+      "origin": "Aplazado desde PT-146 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-153",
       "slug": "la-rama-de-lote-no-se-deriva",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4516,13 +4523,20 @@
         "de": "EP-022",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde EP-022 el 2026-08-26"
+      "origin": "Aplazado desde EP-022 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-154",
       "slug": "espejo-global-registro-por-rama",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "INVESTIGATION",
@@ -4542,14 +4556,21 @@
         "de": "EP-022",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde EP-022 el 2026-08-26"
+      "origin": "Aplazado desde EP-022 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-155",
       "slug": "los-contratos-sin-asercion",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S3",
@@ -4568,7 +4589,31 @@
         "de": "EP-022",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde EP-022 el 2026-08-26"
+      "origin": "Aplazado desde EP-022 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2040,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-156",
@@ -4609,7 +4654,7 @@
       "id": "PT-157",
       "slug": "el-estado-por-su-nombre-canonico",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4629,14 +4674,21 @@
         "de": "EP-022",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde EP-022 el 2026-08-26"
+      "origin": "Aplazado desde EP-022 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-158",
       "slug": "fide-no-tiene-archivo-de-prompts",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DRAFT",
+      "phase": 2,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S3",
@@ -4655,13 +4707,20 @@
         "de": "PT-147",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-147 el 2026-08-26"
+      "origin": "Aplazado desde PT-147 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-159",
       "slug": "un-declara-abre-o-declara-su-vuelta",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "READY",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4681,14 +4740,21 @@
         "de": "EP-022",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde EP-022 el 2026-08-26"
+      "origin": "Aplazado desde EP-022 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "READY",
+        "conIntake": true
+      }
     },
     {
       "id": "PT-160",
       "slug": "los-ac-de-la-trazabilidad-son-los-del-intake",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S3",
@@ -4707,14 +4773,38 @@
         "de": "PT-147",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-147 el 2026-08-26"
+      "origin": "Aplazado desde PT-147 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "READY",
+        "conIntake": true
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-161",
       "slug": "el-catalogo-comprueba-su-cobertura",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S3",
@@ -4733,13 +4823,37 @@
         "de": "PT-148",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-148 el 2026-08-26"
+      "origin": "Aplazado desde PT-148 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2040,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-162",
       "slug": "mover-una-tarea-de-lote",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4759,14 +4873,21 @@
         "de": "EP-022",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde EP-022 el 2026-08-26"
+      "origin": "Aplazado desde EP-022 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-163",
       "slug": "un-id-definido-dos-veces-en-el-mismo-documento",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "VALIDATION_PENDING",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -4785,14 +4906,38 @@
         "de": "PT-148",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-148 el 2026-08-26"
+      "origin": "Aplazado desde PT-148 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-164",
       "slug": "cita-al-id-equivocado-pasa-en-verde",
       "created": "2026-08-25",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S3",
@@ -4811,13 +4956,37 @@
         "de": "PT-156",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-156 el 2026-08-26"
+      "origin": "Aplazado desde PT-156 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2040,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-165",
       "slug": "core-contradecia-fpge-r04",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4837,13 +5006,20 @@
         "de": "PT-149",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-149 el 2026-08-26"
+      "origin": "Aplazado desde PT-149 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-166",
       "slug": "lexicon-2-no-prohibe-la-grafia-en-corchetes",
       "created": "2026-08-25",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.1.0",
       "type": "CHORE",
@@ -4863,7 +5039,14 @@
         "de": "PT-156",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-156 el 2026-08-26"
+      "origin": "Aplazado desde PT-156 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-167",
@@ -5019,7 +5202,7 @@
       "id": "PT-170",
       "slug": "la-constancia-existia-y-no-se-reconocio",
       "created": "2026-08-26",
-      "status": "DEFERRED",
+      "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.2.0",
       "type": "BUG",
@@ -5039,7 +5222,14 @@
         "fecha": "2026-08-26"
       },
       "origin": "Aplazado desde PT-149 el 2026-08-26",
-      "issue": 316
+      "issue": 316,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      }
     },
     {
       "id": "PT-171",
@@ -5056,7 +5246,167 @@
         "de": "PT-169",
         "motivo": "hallazgo",
         "fecha": "2026-08-26"
-      }
+      },
+      "issue": 318
+    },
+    {
+      "id": "PT-172",
+      "slug": "la-bateria-se-empaqueta-y-se-sella",
+      "created": "2026-08-26",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado",
+      "origen_parada": {
+        "de": "PT-155",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      },
+      "aplazamiento": {
+        "reentrada": "Se absorbe en EP-025, que nace de su analisis: el sello es su tarea PT-175 y llega despues de la independencia y el cierre transitivo. Volver aqui solo si se decide NO hacer el lote.",
+        "revision": "2026-09-16",
+        "dueno": "Alberto Martínez",
+        "de": "PT-155",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-155 el 2026-08-26",
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-26",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2040,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "issue": 319
+    },
+    {
+      "id": "EP-025",
+      "slug": "la-bateria-se-puede-certificar",
+      "created": "2026-08-26",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "title": "La bateria se puede certificar: independencia, cierre y sello"
+    },
+    {
+      "id": "PT-173",
+      "slug": "las-secciones-montan-lo-que-necesitan",
+      "created": "2026-08-26",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-025",
+      "title": "las secciones montan lo que necesitan",
+      "aplazamiento": {
+        "reentrada": "Al abrir EP-025, y es la PRIMERA: 338 casos corren sobre el WORK que dejo otra seccion y ocho secciones tienen el 100% de los suyos asi. Sin fixture propio, un paquete sellado afirmaria una propiedad de la SECUENCIA, no suya.",
+        "revision": "2026-09-16",
+        "dueno": "Alberto Martínez",
+        "de": "PT-172",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-172 el 2026-08-26"
+    },
+    {
+      "id": "PT-174",
+      "slug": "la-seleccion-sigue-el-grafo-de-importacion",
+      "created": "2026-08-26",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-025",
+      "title": "la seleccion sigue el grafo de importacion",
+      "aplazamiento": {
+        "reentrada": "Despues de PT-173. Cambiar patrones.mjs activa 15 de 45 secciones y deberia activar 43: sellar sobre esta seleccion certificaria en verde 28 secciones que nadie volvio a mirar.",
+        "revision": "2026-09-16",
+        "dueno": "Alberto Martínez",
+        "de": "PT-172",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-172 el 2026-08-26"
+    },
+    {
+      "id": "PT-175",
+      "slug": "el-sello-se-deriva-de-las-entradas",
+      "created": "2026-08-26",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-025",
+      "title": "el sello se deriva de las entradas",
+      "aplazamiento": {
+        "reentrada": "Despues de PT-173 y PT-174. Con independencia y cierre transitivo el sello es lo facil: selloDe ya existe y ya hashea el cuerpo de CORE.md.",
+        "revision": "2026-09-16",
+        "dueno": "Alberto Martínez",
+        "de": "PT-172",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-172 el 2026-08-26"
+    },
+    {
+      "id": "PT-176",
+      "slug": "CI-corre-solo-los-paquetes-abiertos",
+      "created": "2026-08-26",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "CHORE",
+      "severity": "S2",
+      "epic": "EP-025",
+      "title": "CI corre solo los paquetes abiertos",
+      "aplazamiento": {
+        "reentrada": "El ULTIMO del lote. Cambiar lo que CI ejecuta antes de demostrar el sello en local seria apagar la unica compuerta que hoy mira todo.",
+        "revision": "2026-09-16",
+        "dueno": "Alberto Martínez",
+        "de": "PT-172",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-172 el 2026-08-26"
+    },
+    {
+      "id": "PT-177",
+      "slug": "una-nota-de-reanclaje-perdida-no-se-repara",
+      "created": "2026-08-26",
+      "status": "DEFERRED",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-024",
+      "title": "Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar",
+      "aplazamiento": {
+        "reentrada": "Cuando EP-024 se descomponga o cuando vuelva a perderse una nota. FDGE-R52 cuenta las notas de reanclaje del issue y exige fase-1; si una no se publica o no casa RE_NOTA, el deficit NO SE PUEDE REPARAR: avanzar publica una nota Y sube la fase, asi que el hueco se conserva. No hay comando que publique una nota sin avanzar.",
+        "revision": "2026-09-09",
+        "dueno": "Alberto Martínez",
+        "de": "PT-161",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-161 el 2026-08-26"
     }
   ]
 }

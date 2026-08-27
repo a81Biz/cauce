@@ -9,7 +9,7 @@ type: BUG
 epic: EP-024
 track: STANDARD
 status: DEFERRED
-phase: 1
+phase: 8
 created: 2026-08-25
 structural: no
 suite_version: 13.1.0
