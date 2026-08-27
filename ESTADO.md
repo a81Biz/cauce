@@ -13,7 +13,7 @@ Proyectado el 2026-08-26 · 30 allocation(es) viva(s).
 | EP-023 |  | READY | 1 | — | — | da9c260 |
 | EP-024 |  | DRAFT | 1 | — | — | 6eb022b |
 | PT-151 | BUG | DONE | 8 | — | — | fae98a6 |
-| PT-152 | BUG | DRAFT | 3 | — | — | — |
+| PT-152 | BUG | DRAFT | 4 | — | — | — |
 | PT-153 | BUG | DRAFT | 1 | — | — | — |
 | PT-154 | INVESTIGATION | DRAFT | 1 | — | — | — |
 | PT-155 | CHORE | DONE | 8 | — | — | — |
