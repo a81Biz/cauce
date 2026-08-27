@@ -1,10 +1,10 @@
 {
-  "pt": "PT-170",
+  "pt": "PT-178",
   "type": "BUG",
-  "epic": "EP-024",
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "epic": null,
+  "status": "DRAFT",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "abd067859d77f4f9c5de2566c669af9aef45f202",
   "sha_corto": "abd0678",
@@ -48,8 +48,11 @@
     "docs/methodology/tools/verify-suite.mjs",
     "evidence/"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-26"
 }
