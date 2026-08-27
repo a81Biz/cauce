@@ -2,7 +2,7 @@
 
 <!-- ESTADO -->
 implementación: EP-024 (#306) CLOSED. Las 28 tareas en estado terminal: 27 INTEGRATED y 1 DEFERRED con reentrada (PT-171). G4 resuelta el 2026-08-27 con el PR #337. Version 13.3.0 en main. EP-025 y EP-026 abiertas y sin empezar.
-tarea:          NINGUNA en curso. EP-024 termino de punta a punta.
+tarea:          NINGUNA en curso. EP-024 quedo CLOSED, de punta a punta.
 compuerta:      TODAS resueltas. G1 y G2 delegadas con VoBo en SESSION_LOG · G3 aplicada con «tracker validar --aplicar» a los BUG, firmante Alberto Martinez · G4 ejecutada por autorizacion expresa del firmante, con alcance y limites en SESSION_LOG.
 siguiente:      DECISION DEL FIRMANTE. Lo que queda de EP-024 son DOS actos humanos: el tag v13.3.0 —paso 8, DESPUES del merge (SUITE-R06a)— y «npm publish», RESERVADO: «Excepto publicar». Despues, elegir entre EP-025 (la bateria se puede certificar) y EP-026 (lo que da verde sin mirar).
 decisiones:     1) La version es 13.3.0 y NO 13.2.0: la 13.2.0 ya estaba en main con otras tres reglas. 2) MINOR, con RIGE_DESDE en 13.3.0 (CE-014). 3) La evidencia vive en docs/implementation/evidence/. 4) manifest.criteria[].tests y .evidence son ARRAYS. 5) NO se declara suite.coverage. 6) La rama se declara con «tracker rama --declarar», que escribe LA REAL. 7) La carpeta de un PT se BUSCA por prefijo, no se compone del slug del registro (PT-180).
