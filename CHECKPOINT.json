@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "7ba90f186aee00d4be9fd6783ba0aa6eb7750f76",
   "sha_corto": "7ba90f1",
@@ -39,7 +39,10 @@
     "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-27"
 }
