@@ -5995,7 +5995,14 @@
         "de": "PT-162",
         "motivo": "hallazgo",
         "fecha": "2026-08-27"
-      }
+      },
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      ]
     }
   ]
 }

@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-212 entradas recorridas · 187 identificadores · 129 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-27
+231 entradas recorridas · 190 identificadores · 130 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-27
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
@@ -25,7 +25,7 @@
 | `CE-014` | Una regla nueva juzga hacia atrás | 7 | — | 2026-08-20 | 2026-08-27 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
 | `CE-015` | El cierre destapa más que el reparto | 6 | 6 | 2026-08-20 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-016` | Trabajar sin allocation | 6 | 3 | 2026-08-21 | 2026-08-27 | `SUITE-R08` · `FDGE-R19` | `SUITE-R08` falla · `FDGE-R19` falla |
-| `CE-017` | La comprobación acusa a quien documenta el hecho | 3 | — | 2026-08-19 | 2026-08-27 | **—** | **sin dueño** |
+| `CE-017` | La comprobación acusa a quien documenta el hecho | 4 | — | 2026-08-19 | 2026-08-27 | **—** | **sin dueño** |
 
 ## Qué falta por corregir
 
@@ -40,8 +40,8 @@ Ordenadas por cuántas veces han ocurrido:
   PT-053 · PT-057 · PT-060 · PT-062 · PT-064 · PT-125 · PT-119 · PT-126
 - `CE-015` **El cierre destapa más que el reparto** — 6 instancia(s) · la propia entrada llegó a declarar **6**
   PTSA-2026-08-20 · EP-018 · EP-019 · PT-125 · PT-126 · EP-020
-- `CE-017` **La comprobación acusa a quien documenta el hecho** — 3 instancia(s)
-  PT-066 · EP-018 · PT-157
+- `CE-017` **La comprobación acusa a quien documenta el hecho** — 4 instancia(s)
+  PT-066 · EP-018 · PT-157 · PT-185
 - `CE-012` **Filtrar la salida antes de mirarla** — 2 instancia(s) · la propia entrada llegó a declarar **3**
   PT-092 · INC-001
 
