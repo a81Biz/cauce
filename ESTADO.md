@@ -46,4 +46,4 @@ Proyectado el 2026-08-27 · 38 allocation(es) viva(s).
 | PT-181 | BUG | DRAFT | 1 | — | — | — |
 | PT-182 | BUG | DRAFT | 1 | — | — | — |
 | PT-183 | BUG | DONE | 8 | chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda | 7ba90f1 | 2068c1f |
-| PT-184 | BUG | DRAFT | 6 | — | — | — |
+| PT-184 | BUG | VALIDATION_PENDING | 7 | — | — | — |
