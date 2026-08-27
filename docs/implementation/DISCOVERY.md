@@ -98,4 +98,21 @@
 | PT-141 | BUG | S2 | INTEGRATED | EP-021 | El catch de SUITE-R56 referencia una variable inexistente: el comando revienta, tapa el fallo real y deja efecto a medias |
 | PT-142 | BUG | S3 | INTEGRATED | EP-021 | Nada compara el nombre de una rama con lo que ramaDeTarea deriva: type y slug inventados pasan la topologia |
 | PT-143 | BUG | S3 | INTEGRATED | EP-021 | asignar toma el primer argumento en mayusculas como prefijo, asi que --tipo BUG crea BUG-001 |
-| PT-150 | BUG | S2 | DRAFT | EP-022 | SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos |
+| PT-150 | BUG | S2 | INTEGRATED | EP-022 | SEVERIDADES vive en tracker.mjs y contradice a LEXICON en los dos extremos |
+| PT-151 | BUG | S2 | DONE | EP-024 | npm run verify no es lo que corre CI, y el CLAUDE.md dice que si |
+| PT-152 | BUG | S2 | DRAFT | EP-024 | CORE.md publica ocho triggers y LEXICON declara trece |
+| PT-153 | BUG | S3 | DRAFT | EP-024 | La rama de un lote no tiene forma derivable, y se inventa |
+| PT-154 | INVESTIGATION | S3 | DRAFT | EP-024 | El espejo es global y el registro es por rama |
+| PT-157 | BUG | S3 | DRAFT | EP-024 | contradiceElRegistro no reconoce el nombre canonico del estado |
+| PT-158 | BUG | S3 | DRAFT | EP-024 | FIDE no tiene archivo de prompts, y LEX-R15 dice que todo componente tiene uno |
+| PT-159 | BUG | S2 | READY | EP-024 | Una parada que declara un hallazgo no esta obligada a abrir trabajo ni a decir cuando se revisa |
+| PT-160 | BUG | S3 | DONE | EP-024 | Nada comprueba que los AC de traceability.md sean los del intake |
+| PT-162 | BUG | S3 | DRAFT | EP-024 | Una tarea DRAFT no puede cambiar de lote ni rechazarse por comando |
+| PT-163 | BUG | S2 | DONE | EP-024 | SUITE-R14 no caza un ID definido dos veces dentro del mismo documento |
+| PT-165 | BUG | S2 | DRAFT | EP-024 | El mapa de fases de CORE lo escribe build-core a mano, y contradecia FPGE-R04 |
+| PT-167 | BUG | S2 | DONE | EP-024 | Un caso que afirma cobertura buscando la linea del hueco solo pasa mientras hay defecto |
+| PT-168 | BUG | S1 | DONE | EP-024 | audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier sitio del documento |
+| PT-170 | BUG | S2 | DRAFT | EP-024 | EXEC-R04 no reconoce una constancia real porque su encabezado usa otra palabra |
+| PT-171 | BUG | S3 | DEFERRED | EP-024 | Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto |
+| PT-177 | BUG | S3 | DEFERRED | EP-024 | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
+| PT-178 | BUG | S2 | DRAFT | — | avanzar deja salir de PHASE 1 sin que exista el Intake |

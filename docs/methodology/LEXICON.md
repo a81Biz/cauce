@@ -28,7 +28,17 @@ construcción: hay un solo nombre para cada cosa y está aquí.
 
 `PHASE` es la **única** palabra admitida para designar un paso de cualquier flujo de la
 suite. Quedan prohibidos: `Estado n`, `STATE n`, `FASE n`, `F-n`, `Fn`, `FIDE-n`, `Step n`,
-`Etapa n`.
+`Etapa n`, y **`[n]` al principio de línea seguido de un nombre**.
+
+**La lista es incompleta por construcción, y se dice** (`SUITE-R26`). Enumerar grafías prohibidas
+es perseguir el idioma: la que falte no se ve hasta que algo ya se perdió. `[n]` entró en la lista
+**después** de que `FPGE` numerara sus siete pasos así durante **siete versiones** — y la
+consecuencia no fue estética: §3 no tenía apartado suyo, el contrato llevaba `SIN_EVALUAR` y
+`audit` reportaba el hueco. Lo cerró `PT-156`; que no vuelva, `PT-166`.
+
+`LEX-R20` barre las grafías de esta lista y **exime la cita**: un nombre derogado puede escribirse
+entre comillas invertidas o en prosa que explique la migración —*«en v3 la promoción entregaba a
+`STATE 1`»*—. Lo prohibido es **usarlo vivo**, no nombrarlo (`CE-017`).
 
 Regla de escritura: `PHASE <n> — <Nombre semántico>`. El número ordena; el nombre significa.
 Al referirse a una fase en prosa se usa el **nombre**, no el número
@@ -987,8 +997,16 @@ tendría dos nombres según qué rama se mire.
 ```
 cauce/<usuario>                       la proyección DERIVADA del estado (PT-054)
 <type>/<usuario>/PT-NNN-slug          la rama efímera de una tarea (FDGE-R19)
+chore/<usuario>/EP-NNN-slug           la rama efímera de un lote (PT-153)
 trabajo                               UNA · la rama de integración, sin usuario
 ```
+
+**La rama de un lote se deriva sin `type`** (`PT-153`). `LEX-R27` dice que un lote **no lleva
+`type`**, así que la derivación de la rama de tarea —que empieza por él— devolvía `null` para un
+lote, y la rama se inventaba: `chore/alberto-martinez/EP-022-cierre`, donde ni `chore` era su tipo
+ni `cierre` era su slug (es `los-componentes-se-declaran`). El prefijo de un lote es **siempre**
+`chore`, porque lo que se hace en esa rama es cerrar el lote, no construir el producto — y el resto
+sale del registro, que es el único que asigna (`SUITE-R08`).
 
 **`trabajo` sigue siendo una** y **`G4` sigue siendo una por lote** (`EXEC-R03`): el usuario vive
 en la rama de **tarea**, no en la de integración. Un cuarto nivel obligaría a decidir quién integra
@@ -1077,7 +1095,19 @@ proyecto sin `CORE.md` no puede cumplir `SUITE-R15`: no tiene qué cargar.
 
 `LEX-R15` · El archivo `instrucctions.md` (con errata) queda **derogado**. Su reemplazo es
 `FDGE-Prompts.md`, simétrico con `QA-Prompts.md`, `PTSA-Prompts.md`, `FPGE-Prompts.md` y
-`Foundation-Prompts.md`. **Todo componente tiene exactamente un archivo de prompts.**
+`Foundation-Prompts.md`. **Todo componente tiene exactamente un archivo de prompts, o declara por
+qué no puede tenerlo** (`RULE-06`).
+
+`FIDE` es hoy el único que lo declara, y no es un olvido: §6.6 enumera sus tres archivos y
+**ninguno lo es**. Es el único componente que opera **antes de que la suite exista**, así que su
+texto de activación es un `CLAUDE.md` anfitrión. El contrato lo dice con `SIN_EVALUAR` y `audit`
+lo **reporta**, no lo da por bueno — *«un componente al que no se le puede exigir un archivo no es
+un componente que lo cumpla»* (`PT-147`).
+
+**La frase anterior decía «todo componente tiene exactamente uno» y enumeraba cinco de seis.** Las
+herramientas ya trataban bien la excepción y **la regla se había quedado atrás**: quien la siguiera
+al pie de la letra concluiría que `FIDE` incumple, y quien mirase la herramienta vería que no
+(`LEX-R21` invertido). Lo corrigió `PT-158`.
 
 ---
 
@@ -1220,7 +1250,14 @@ imaginar casos:
 | `abre` | Nace una allocation: `PT-NNN` o `EP-NNN` |
 | `cambia-fase` | Es una transición — **el caso particular de `FDGE-R52`** |
 | `detiene` | El trabajo para y espera a una persona |
-| `declara` | Se registra un límite y no se hace nada más |
+| `declara` | Se registra un límite — **con fecha de revisión y dueño** (`FDGE-R55`) |
+
+`LEX-R37` · **Un `declara` lleva su vuelta escrita.** Exige `--revision` (futura) y `--dueno` (de
+la lista de personas conocidas), con el mismo listón que `SUITE-R44` pone al aplazado. Un hallazgo
+declarado o **abre trabajo** —y entonces su desenlace es `abre`— o dice **cuándo se revisa y quién
+responde**. Se midió por qué: `PT-157` se declaró en `EP-021` y seguía sin tarea un lote entero
+después, y `EP-022` publicó **siete** paradas con `declara` diciendo «candidato a tarea propia»,
+huérfanas las siete hasta que lo señaló el firmante — una persona, no un verificador.
 
 `LEX-R30` · **Una transición de fase es una parada cuyo desenlace es `cambia-fase`.** `FDGE-R52`
 no se relaja ni desaparece: es el caso particular que ya está implementado y verificado. Una

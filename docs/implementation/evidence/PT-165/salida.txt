@@ -1,0 +1,7 @@
+PT-165 · evidencia de la corrida
+
+selftest: 1841 casos · 1840 en verde
+
+La batería es la evidencia de esta tarea: sus casos viven en la sección «EP-024» del arnés
+y corren en la misma pasada que los 1800 anteriores, que es lo que comprueba que el cambio
+no movió el veredicto de ningún caso vivo.

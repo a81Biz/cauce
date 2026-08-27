@@ -36,8 +36,8 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 177,
-    "EP": 25,
+    "PT": 182,
+    "EP": 26,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -4420,7 +4420,7 @@
       "id": "PT-151",
       "slug": "verify-no-es-lo-que-corre-ci",
       "created": "2026-08-25",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4464,14 +4464,20 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-152",
       "slug": "el-nucleo-publica-ocho-de-trece",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 2,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -4497,14 +4503,37 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-153",
       "slug": "la-rama-de-lote-no-se-deriva",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S3",
@@ -4530,14 +4559,37 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-154",
       "slug": "espejo-global-registro-por-rama",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "INVESTIGATION",
       "severity": "S3",
@@ -4563,7 +4615,31 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
-      }
+      },
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
+      ]
     },
     {
       "id": "PT-155",
@@ -4654,8 +4730,8 @@
       "id": "PT-157",
       "slug": "el-estado-por-su-nombre-canonico",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S3",
@@ -4681,14 +4757,37 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-158",
       "slug": "fide-no-tiene-archivo-de-prompts",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 2,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S3",
@@ -4714,14 +4813,37 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-159",
       "slug": "un-declara-abre-o-declara-su-vuelta",
       "created": "2026-08-25",
-      "status": "READY",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -4747,13 +4869,43 @@
         "de": "DEFERRED",
         "destino": "READY",
         "conIntake": true
+      },
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
+      ],
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-160",
       "slug": "los-ac-de-la-trazabilidad-son-los-del-intake",
       "created": "2026-08-25",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4797,6 +4949,12 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
@@ -4853,8 +5011,8 @@
       "id": "PT-162",
       "slug": "mover-una-tarea-de-lote",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S3",
@@ -4880,13 +5038,36 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-163",
       "slug": "un-id-definido-dos-veces-en-el-mismo-documento",
       "created": "2026-08-25",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -4930,6 +5111,12 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
@@ -4986,8 +5173,8 @@
       "id": "PT-165",
       "slug": "core-contradecia-fpge-r04",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
       "severity": "S2",
@@ -5013,14 +5200,37 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-166",
       "slug": "lexicon-2-no-prohibe-la-grafia-en-corchetes",
       "created": "2026-08-25",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.1.0",
       "type": "CHORE",
       "severity": "S3",
@@ -5046,13 +5256,30 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 2040,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
       }
     },
     {
       "id": "PT-167",
       "slug": "casos-que-solo-pasan-mientras-hay-defecto",
       "created": "2026-08-25",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -5096,13 +5323,19 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-168",
       "slug": "audit-da-por-cubierta-una-fase-que-no-esta",
       "created": "2026-08-25",
-      "status": "VALIDATION_PENDING",
+      "status": "DONE",
       "phase": 8,
       "suite_version": "13.1.0",
       "type": "BUG",
@@ -5146,6 +5379,12 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
@@ -5202,8 +5441,8 @@
       "id": "PT-170",
       "slug": "la-constancia-existia-y-no-se-reconocio",
       "created": "2026-08-26",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "BUG",
       "severity": "S2",
@@ -5229,13 +5468,36 @@
         "de": "DEFERRED",
         "destino": "DRAFT",
         "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
       }
     },
     {
       "id": "PT-171",
       "slug": "ordenes-que-escapan-al-esqueleto",
       "created": "2026-08-26",
-      "status": "DRAFT",
+      "status": "DEFERRED",
       "phase": 1,
       "suite_version": "13.2.0",
       "type": "BUG",
@@ -5247,7 +5509,15 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-26"
       },
-      "issue": 318
+      "issue": 318,
+      "aplazamiento": {
+        "reentrada": "Si al reempaquetar la bateria en EP-025 --solo sigue dejando fuera ordenes de primer nivel, se abre tarea propia; si EP-025 lo absorbe, se cierra ahi",
+        "revision": "2026-09-30",
+        "dueno": "Alberto Martínez",
+        "de": "PT-159",
+        "fecha": "2026-08-26"
+      },
+      "origin": "Aplazado desde PT-159 el 2026-08-26"
     },
     {
       "id": "PT-172",
@@ -5258,7 +5528,7 @@
       "suite_version": "13.2.0",
       "type": "CHORE",
       "severity": "S2",
-      "epic": "EP-024",
+      "epic": "EP-025",
       "title": "La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado",
       "origen_parada": {
         "de": "PT-155",
@@ -5306,7 +5576,8 @@
       "status": "DRAFT",
       "phase": 1,
       "suite_version": "13.2.0",
-      "title": "La bateria se puede certificar: independencia, cierre y sello"
+      "title": "La bateria se puede certificar: independencia, cierre y sello",
+      "issue": 326
     },
     {
       "id": "PT-173",
@@ -5326,7 +5597,8 @@
         "de": "PT-172",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-172 el 2026-08-26"
+      "origin": "Aplazado desde PT-172 el 2026-08-26",
+      "issue": 320
     },
     {
       "id": "PT-174",
@@ -5346,7 +5618,8 @@
         "de": "PT-172",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-172 el 2026-08-26"
+      "origin": "Aplazado desde PT-172 el 2026-08-26",
+      "issue": 321
     },
     {
       "id": "PT-175",
@@ -5366,7 +5639,8 @@
         "de": "PT-172",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-172 el 2026-08-26"
+      "origin": "Aplazado desde PT-172 el 2026-08-26",
+      "issue": 322
     },
     {
       "id": "PT-176",
@@ -5386,7 +5660,8 @@
         "de": "PT-172",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-172 el 2026-08-26"
+      "origin": "Aplazado desde PT-172 el 2026-08-26",
+      "issue": 323
     },
     {
       "id": "PT-177",
@@ -5406,7 +5681,107 @@
         "de": "PT-161",
         "fecha": "2026-08-26"
       },
-      "origin": "Aplazado desde PT-161 el 2026-08-26"
+      "origin": "Aplazado desde PT-161 el 2026-08-26",
+      "issue": 324
+    },
+    {
+      "id": "PT-178",
+      "slug": "avanzar-sale-de-phase-1-sin-intake",
+      "created": "2026-08-26",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "title": "avanzar deja salir de PHASE 1 sin que exista el Intake",
+      "origen_parada": {
+        "de": "PT-157",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      },
+      "issue": 325,
+      "severity": "S2",
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-26"
+      },
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-26"
+        }
+      }
+    },
+    {
+      "id": "EP-026",
+      "slug": "lo-que-da-verde-sin-mirar",
+      "created": "2026-08-26",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "title": "Lo que da verde sin mirar: verificadores que avisan donde deberian bloquear",
+      "issue": 331
+    },
+    {
+      "id": "PT-179",
+      "slug": "evidencia-que-falta-solo-avisa",
+      "created": "2026-08-26",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "title": "verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6",
+      "origen_parada": {
+        "de": "PT-178",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      },
+      "issue": 327
+    },
+    {
+      "id": "PT-180",
+      "slug": "el-slug-del-registro-y-el-de-la-carpeta",
+      "created": "2026-08-26",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "title": "El slug del registro y el de la carpeta divergen, y cada herramienta usa uno",
+      "issue": 328
+    },
+    {
+      "id": "PT-181",
+      "slug": "la-expectativa-de-un-caso-es-una-regex",
+      "created": "2026-08-26",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "title": "La expectativa de un caso se compara como regex y no hay forma de decir literal",
+      "issue": 329
+    },
+    {
+      "id": "PT-182",
+      "slug": "el-mapa-fase-artefacto-en-dos-sitios",
+      "created": "2026-08-26",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.2.0",
+      "type": "BUG",
+      "title": "El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor",
+      "issue": 330
     }
   ]
 }

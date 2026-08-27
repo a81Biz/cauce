@@ -8643,6 +8643,220 @@ chkno "el contraste no lleva una lista de componentes" "for (const comp of \['" 
 
 
 
+
+sec "── EP-024 · lo que no se derivaba, y lo que no se miraba ──"
+
+# ── PT-152 · el nucleo publica los triggers de SUITE, no solo los de componente ─────
+#
+# `triggers()` devolvia «todos los de COMPONENTES», que es VERDAD y no es suficiente: LEXICON
+# declara trece y CORE publicaba ocho. [START MIGRATE] no es de ningun componente —es de la
+# suite— y no habia donde declararlo, asi que no se declaraba. CE-001, el proxy por el hecho.
+mlib  "los triggers de suite entran en la lista"   "[START MIGRATE]" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.triggers()))"
+mlib  "…y cada uno declara la regla que lo exige"  "SUITE-R17" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.TRIGGERS_DE_SUITE))"
+mlib  "…y para que sirve, no solo su nombre"       "migrar" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.TRIGGERS_DE_SUITE.map((t)=>t.para)))"
+# El caso invertido: sin los de componente la lista seria otra cosa, no una lista mas corta.
+mlib  "los de componente siguen estando"           "[START FDGE]" "$SUITE/tools/patrones.mjs" \
+  "console.log(JSON.stringify(m.triggers()))"
+
+# ── PT-153 · la rama de un lote se DERIVA, y no se inventa ──────────────────
+#
+# ramaDeTarea empieza por `type` y LEX-R27 dice que un lote NO lleva `type`. Las dos cosas son
+# correctas por separado y juntas daban null, asi que la rama se inventaba:
+# «chore/alberto-martinez/EP-022-cierre», donde ni chore era su tipo ni cierre era su slug.
+mlib  "la rama de un lote se deriva del registro"  "chore/alberto-martinez/EP-022-los-componentes" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.ramaDeLote('EP-022','los-componentes-se-declaran','Alberto Martinez'))"
+mlib  "…y sin usuario tiene dos niveles"           "chore/EP-022-los-componentes" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.ramaDeLote('EP-022','los-componentes-se-declaran'))"
+# RULE-06 · fuera de su objeto no inventa nada. Los dos casos invertidos que impiden que
+# `ramaDeLote` se convierta en «devuelve algo siempre», que es el defecto que vino a quitar.
+mlib  "lo que no es un lote no tiene rama de lote" "null" "$SUITE/tools/patrones.mjs" \
+  "console.log(String(m.ramaDeLote('PT-153','lo-que-sea','Alberto Martinez')))"
+mlib  "…y sin slug tampoco se inventa una"         "null" "$SUITE/tools/patrones.mjs" \
+  "console.log(String(m.ramaDeLote('EP-022',null,'Alberto Martinez')))"
+
+# ── PT-154 · el espejo es global y el registro es por rama ───────────────────
+#
+# Medido: main 194 allocations, trabajo 203, nueve solo en trabajo Y CON ISSUE PUBLICADO. Desde
+# main esas nueve salian como «no lo reclama ninguna allocation», que es FALSO: las reclama el
+# registro de otra rama. SUITE-R47 ya evitaba que BLOQUEARAN; informar algo falso sigue siendo
+# afirmarlo. RULE-06: lo que no se puede evaluar desde aqui se DECLARA no evaluable.
+_esp() { # $1 = que reclama la rama de integracion, como expresion JS
+  echo "const i=[{number:325,title:'de otra rama',labels:[]},{number:999,title:'de nadie',labels:[]}];
+        console.log(JSON.stringify(m.compararEspejo([],i,[],null,null,$1)));"
+}
+trlib "reclamado en integracion: NO EVALUABLE"     "NO EVALUABLE desde aqui, no huerfano" \
+  "$(_esp "new Set([325])")"
+trlib "…y la regla que lo dice es RULE-06"         "RULE-06" \
+  "$(_esp "new Set([325])")"
+# EL CASO INVERTIDO, y el que impide cambiar un falso positivo por un falso negativo (RULE-02):
+# un issue que NADIE reclama, ni aqui ni en integracion, sigue saliendo en rojo.
+trlib "lo que nadie reclama sigue siendo huerfano" "SUITE-R35" \
+  "$(_esp "new Set([])")"
+trlib "…y sin acceso a integracion no se acusa"    "NO SE PUDO contrastar" \
+  "$(_esp "null")"
+
+# ── PT-157 · el estado terminal, por su nombre canonico ─────────────────────
+#
+# La lista estaba escrita a mano —INTEGRAD|CERRAD|CLOSED|DEFERRED— y LEXICON 5.1 declara CINCO.
+# Faltaban REVERTED y REJECTED: un bloque que dijera la verdad salia acusado de contradecirla.
+# CE-017, la comprobacion que acusa a quien documenta el hecho. Ahora se DERIVA.
+# El resultado se imprime como PALABRA y no como «[]»: los corchetes son una clase de caracteres
+# para el grep del arnes, y «no aparecio: [] · salio: []» fue exactamente lo que dijo al probarlo.
+_ctr() { echo "const al=[{id:'PT-155',status:'$1'}];
+               const r=m.contradiceElRegistro('tarea:  PT-155 quedo $1.',al);
+               console.log(r.length ? 'CONTRADICE '+r.join(' ') : 'SIN_CONTRADICCION');"; }
+mlib  "INTEGRATED por su nombre no contradice"     "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr INTEGRATED)"
+mlib  "CLOSED tampoco"                             "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr CLOSED)"
+mlib  "REVERTED tampoco — y faltaba"               "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr REVERTED)"
+mlib  "REJECTED tampoco — y faltaba"               "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr REJECTED)"
+mlib  "DEFERRED tampoco"                           "SIN_CONTRADICCION" "$SUITE/tools/patrones.mjs"   "$(_ctr DEFERRED)"
+# RULE-02 · el arreglo NO puede apagar la comprobacion: una contradiccion real sigue saliendo.
+mlib  "una contradiccion REAL sigue saliendo"      "sigue en curso" "$SUITE/tools/patrones.mjs" \
+  "const al=[{id:'PT-155',status:'CLOSED'}];
+   console.log(JSON.stringify(m.contradiceElRegistro('tarea:  PT-155 sigue en curso.',al)));"
+
+# ── PT-170 · la constancia existia y no se reconocio ────────────────────────
+#
+# anunciaAutorizacion decidia por la FORMA DEL TITULO un hecho que vive en el CUERPO, y rechazo
+# una constancia real de SESSION_LOG.md. CE-001. Ahora basta un campo estructurado — y solo si
+# DICE algo: los dos ultimos casos son los que impiden que un esqueleto sin rellenar autorice.
+mlib  "un titulo que no anuncia, sin campo: no"    "false" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion',''))"
+mlib  "…con el campo Autoriza: si"                 "true" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion','Autoriza: Alberto Martinez'))"
+mlib  "un campo VACIO no autoriza"                 "false" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion','Autoriza:'))"
+mlib  "…ni uno con el marcador sin rellenar"       "false" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.anunciaAutorizacion('espera confirmacion','Autoriza: [nombre]'))"
+
+# EL TERRENO SE CONSTRUYE AQUI, y no se toma prestado del repositorio real. Un caso que corre
+# sobre el registro de verdad mide el estado de HOY: pasa mientras exista PT-159 y se cae el dia
+# que se integre. Es el defecto que EP-025 va a barrer en 338 casos — no se anade el 339.
+proj24() {
+  local d="$WORK/ep024"
+  if [ ! -d "$d" ]; then
+    mkdir -p "$d/docs/implementation" "$d/changes/PT-800-en-curso"
+    printf -- '---\nstatus: DRAFT\nphase: 5\nepic: EP-700\n---\n' > "$d/changes/PT-800-en-curso/intake.md"
+    mkdir -p "$d/changes/PT-801-sin-empezar"
+    printf -- '---\nstatus: DRAFT\nphase: 1\nepic: EP-700\n---\n' > "$d/changes/PT-801-sin-empezar/intake.md"
+    cat > "$d/docs/implementation/REGISTRY.json" <<'FIXJSON'
+{
+  "firmantes": ["Alberto Martínez"],
+  "allocations": [
+    { "id": "EP-700", "slug": "lote-abierto", "status": "DRAFT", "phase": 1 },
+    { "id": "EP-701", "slug": "lote-cerrado", "status": "CLOSED", "phase": 9 },
+    { "id": "EP-702", "slug": "otro-lote-abierto", "status": "DRAFT", "phase": 1 },
+    { "id": "PT-800", "slug": "en-curso", "epic": "EP-700", "status": "DRAFT", "phase": 5,
+      "suite_version": "13.2.0" },
+    { "id": "PT-801", "slug": "sin-empezar", "epic": "EP-700", "status": "DRAFT", "phase": 1,
+      "suite_version": "13.2.0" }
+  ]
+}
+FIXJSON
+    printf 'hallazgo de prueba con texto mas que suficiente\n' > "$d/p.md"
+  fi
+  printf '%s' "$d"
+}
+_t24() { # $@ = argumentos de tracker, ejecutados DENTRO del fixture
+  local d; d="$(proj24)"
+  ( cd "$d" && node "$SUITE/tools/tracker.mjs" "$@" 2>&1 )
+}
+
+# ── PT-159 · un «declara» lleva su vuelta escrita   LEX-R37 ─────────────────
+#
+# FDGE-R55 cubria `abre` y admitia `continua`; `declara` quedaba SIN GOBERNAR — y `declara` SI
+# deja rastro. Medido: PT-157 declarado en EP-021 seguia sin tarea UN LOTE ENTERO despues, y
+# EP-022 publico SIETE paradas huerfanas. Lo senalo el firmante, no un verificador.
+_par() { local d; d="$(proj24)"; _t24 parada PT-801 --motivo hallazgo --texto "$d/p.md"                 --desenlace declara "$@"; }
+chk   "«declara» sin vuelta se NIEGA"              "exige --revision y --dueno"   _par
+chk   "…y una revision pasada tambien"             "no es futura"   _par --revision 2020-01-01 --dueno "Alberto Martínez"
+chk   "…y un dueno inventado tambien"              "no esta declarado"   _par --revision 2099-01-01 --dueno "Nadie"
+# El caso invertido de la bandera: --revision fuera de «declara» no significa nada, y aceptarla
+# en silencio dejaria creer que la vuelta quedo escrita cuando no se escribio en ningun sitio.
+_parc() { local d; d="$(proj24)"; _t24 parada PT-801 --motivo hallazgo --texto "$d/p.md"                  --desenlace continua --revision 2099-01-01; }
+chk   "--revision con otro desenlace se NIEGA"     "solo tienen sentido con"   _parc
+# El cuerpo publicado LLEVA la vuelta: sin esto la exigencia se cumpliria sin que nadie la viera.
+trlib "el cuerpo publicado dice cuando y quien"    "responde" \
+  "console.log(m.cuerpoDeParada({id:'PT-801',motivo:'hallazgo',texto:'x',desenlace:'declara',revision:'2099-01-01',dueno:'Alberto Martinez'}))"
+
+
+# ── PT-162 · mover y rechazar, con las puertas que impiden que borren ───────
+#
+# LEXICON 5.1 declara REJECTED y NINGUN COMANDO lo escribia; y una tarea no podia cambiar de
+# lote. Los dos verbos se limitan a lo que AUN NO HA OCURRIDO: sin esas puertas serian una goma
+# de borrar. Cinco de los seis casos comprueban lo que RECHAZAN, que es donde esta el riesgo.
+_mv() { _t24 mover "$@"; }
+_rz() { _t24 rechazar "$@"; }
+chk   "mover una tarea ya empezada se NIEGA"       "ya no se mueve"        _mv PT-800 --epica EP-702
+chk   "…un destino que no es un lote tambien"      "no es un lote"         _mv PT-801 --epica PT-800
+chk   "…y un lote que no existe tambien"           "no esta en el registro" _mv PT-801 --epica EP-999
+chk   "…y meter trabajo en un lote CERRADO"        "lo reabriria"          _mv PT-801 --epica EP-701
+chk   "rechazar sin motivo se NIEGA"               "sin motivo escrito"    _rz PT-801
+chk   "…y sobre algo terminal tambien"             "no se rechaza"   _rz EP-701 --motivo "un motivo con palabras suficientes"
+# El par de los seis de arriba: sin el, «fallar siempre» los pasaria todos. Se enumera EN SECO
+# —sin --aplicar— para que el fixture no cambie bajo los casos que vienen despues.
+chk   "…y lo que SI se puede mover se enumera"     "EP-700 -> EP-702"   _mv PT-801 --epica EP-702
+
+
+# ── PT-178 · avanzar no sale de PHASE 1 sin Intake   FDGE-R01 ───────────────
+#
+# FDGE-R01 solo lo comprobaba verify-fdge, que corre en G4. `avanzar` —unica forma sancionada de
+# cambiar de fase (FDGE-R52)— TOCA el intake y no miraba si existia: CE-005, verde por no mirar.
+# Medido: NUEVE tareas de EP-024 llegaron a PHASE 5 sin intake, cinco en una sola sesion.
+chk   "salir de PHASE 1 sin intake se NIEGA"       "PHASE 1 no puede darse por terminada" \
+  bash -c 'd="$0/sinintake"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes";
+    printf "{\"allocations\":[{\"id\":\"PT-900\",\"slug\":\"sin-intake\",\"phase\":1,\"status\":\"DRAFT\"}]}\n" \
+      > "$d/docs/implementation/REGISTRY.json";
+    cd "$d" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' "$WORK" "$SUITE"
+chk   "…y el mensaje NOMBRA la ruta que falta"     "changes/PT-900-sin-intake/intake.md" \
+  bash -c 'cd "$0/sinintake" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' \
+    "$WORK" "$SUITE"
+# El par: sin este, «fallar siempre» pasaria los dos de arriba y seria peor que el defecto.
+chkno "con intake NO se queja de FDGE-R01"         "PHASE 1 no puede darse por terminada" \
+  bash -c 'd="$0/sinintake"; mkdir -p "$d/changes/PT-900-sin-intake";
+    printf -- "---\nstatus: DRAFT\nphase: 1\n---\n" > "$d/changes/PT-900-sin-intake/intake.md";
+    cd "$d" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' "$WORK" "$SUITE"
+
+# ── PT-165 · el mapa de fases de CORE se deriva ─────────────────────────────
+#
+# build-core escribia los rangos A MANO mientras patrones.mjs ya los declaraba: dos mapas del
+# mismo hecho, y solo uno comprobado. Divergieron, y el error viajaba a CADA SESION porque
+# CORE.md es lo unico que el agente carga (SUITE-R15).
+mlib  "CORE publica el rango que declara el contrato" "COINCIDEN" "$SUITE/tools/patrones.mjs"   "const {join,dirname}=require('path');
+   const core=require('fs').readFileSync(join(dirname(process.env.MTH_MOD),'..','CORE.md'),'utf8');
+   const falta=['FND','FDGE','QA','PTSA','FPGE','FIDE'].filter((c)=>!core.includes(c)||!m.fasesDe(c));
+   console.log(falta.length ? 'FALTAN '+falta.join(' ') : 'COINCIDEN los seis');"
+chk   "…y los SEIS componentes estan en el mapa"   "6 de 6" \
+  node "$SUITE/tools/audit.mjs"
+
+# ── PT-166 · la grafia prohibida esta en la lista de prohibidas ─────────────
+#
+# PT-156 renombro los siete pasos de FPGE de «[n]» a «PHASE n — Nombre» y dejo constancia de que
+# la grafia vieja NO ERA DETECTABLE. Un arreglo correcto sin defensa dura hasta el siguiente que
+# escriba «[1]». La lista NO es exhaustiva y eso se declara — RULE-06, no se promete cobertura.
+chk   "LEXICON 2 prohibe la grafia en corchetes"   "PROHIBIDA" \
+  bash -c 'grep -q -e "\[n]" "$0/LEXICON.md" && echo PROHIBIDA || echo NO' "$SUITE"
+chk   "…y declara que la lista NO es exhaustiva"   "incompleta" \
+  grep -i "incompleta por construcci" "$SUITE/LEXICON.md"
+
+# ── PT-158 · FIDE declara por que no tiene archivo de prompts   LEX-R15 ─────
+#
+# LEX-R15 afirmaba un universal que el repositorio desmentia desde antes de que la regla
+# existiera: seis componentes, cinco archivos de prompts. FIDE incuba desde una idea de negocio,
+# antes de que exista repositorio — su forma ES distinta. La excepcion se DECLARA, no se finge
+# con un archivo vacio para que la cifra cuadre (CE-001).
+chk   "LEX-R15 admite la excepcion declarada"      "o declara por" \
+  grep -i "un archivo de prompts, o declara por" "$SUITE/LEXICON.md"
+chkno "…y no se fabrico un FIDE-Prompts.md vacio"  "FIDE-Prompts" \
+  bash -c 'ls "$0/FIDE/" 2>/dev/null' "$SUITE"
+
+# Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
+chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
+  node "$SUITE/tools/verify-suite.mjs" "$SUITE"
+
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que
@@ -8653,6 +8867,7 @@ if [ -n "$SOLO" ] && [ "$TOTAL" -eq 0 ]; then
   rm -rf "$WORK"
   exit 1
 fi
+
 _cuantos="$TOTAL"
 [ -n "$SOLO" ] && _cuantos="$TOTAL de $UNIVERSO"
 # PT-086 · una corrida PARCIAL tiene que ser distinguible de una completa a simple vista, y

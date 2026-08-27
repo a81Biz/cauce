@@ -6,7 +6,7 @@
 ---
 id: PT-172
 type: CHORE
-epic: EP-024
+epic: EP-025
 track: STANDARD
 status: DEFERRED
 phase: 1

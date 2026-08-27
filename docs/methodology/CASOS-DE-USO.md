@@ -377,6 +377,20 @@ divergir**.
 | **Humano** | **Todo el caso.** El trigger *es* el acto humano: nadie más puede afirmar que la documentación describe el sistema |
 
 
+### E10 · Migrar el proyecto a la versión vigente
+
+| | |
+|:---|:---|
+| **Entrada** | `[START MIGRATE]` |
+| **Recorrido** | `SUITE-R17` · si `REGISTRY.suite_version` no coincide con la versión vigente de `CHANGELOG.md`, el proyecto entra en **modo restringido**: sólo se permiten `[START MIGRATE]`, los `status *` y **terminar los PT ya en vuelo**. No se abre trabajo nuevo |
+| **Fin** | Las versiones coinciden y la restricción se levanta |
+| **Humano** | Decidir migrar. **La restricción se levanta migrando, nunca ignorándola** |
+
+**Este trigger no pertenece a ningún componente: es de la suite**, y por eso no estaba en el
+contrato — no tenía sitio. `PT-152` le dio uno, y **la comprobación que `PT-161` acababa de
+escribir lo cazó en la primera corrida**: una puerta del marco que quedaba fuera del contrato de
+cobertura **y fuera de quien lo vigila**.
+
 ## F · Configuración
 
 ### F1 · Sin plataforma declarada

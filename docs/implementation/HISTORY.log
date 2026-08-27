@@ -10149,3 +10149,431 @@ LO QUE NO ESTABLECE: detectar una cita a un ID EQUIVOCADO PERO REAL. LEX-R35 exi
 otra— y eso no es mecanizable sin saber que quiso decir quien la escribio.
 
 Evidencia: evidence/PT-164/ · Bateria: 1795 casos, cero rojos.
+
+## PT-152 — CORE.md publica ocho triggers y LEXICON declara trece
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-001 — un proxy en lugar del hecho
+
+CORE.md PUBLICABA OCHO TRIGGERS Y LEXICON DECLARA TRECE. CORE.md es lo unico que el agente
+carga por defecto (SUITE-R15), asi que un trigger que la norma declara y el nucleo no publica es
+un trigger que el agente NO CONOCE: existe en el papel y no en lo que se lee.
+
+    node -e "...triggers().length"        8
+    grep -c '[START ' LEXICON.md         13
+
+LA DERIVACION NO ESTABA MAL: ESTABA INCOMPLETA POR CONSTRUCCION. triggers() devolvia «todos los de
+COMPONENTES», que es VERDAD y no es suficiente. [START MIGRATE] lo exige SUITE-R17 y NO ES DE
+NINGUN COMPONENTE — es de la suite—, y COMPONENTES es el contrato de los seis (PT-144), asi que no
+habia donde declararlo. No se declaraba, y el hueco no lo veia nadie porque la respuesta era cierta.
+
+Se anade TRIGGERS_DE_SUITE, y cada entrada declara la REGLA que lo exige y PARA QUE sirve: un
+trigger sin regla que lo reclame no entra, para que la lista no se convierta en el cajon de lo que
+no encaja en ningun sitio.
+
+Archivos modificados: tools/patrones.mjs · CORE.md (generado)
+
+Medido: triggers() 8 -> 13 · CORE publica los trece que LEXICON declara
+
+Evidencia: evidence/PT-152/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-152-el-nucleo-publica-ocho-de-trece/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-153 — La rama de un lote no tiene forma derivable, y se inventa
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-008 — un hecho con varios nombres
+
+LA RAMA DE UN LOTE NO TENIA FORMA DERIVABLE, Y SE INVENTABA. ramaDeTarea empieza por «type», y
+LEX-R27 dice que un lote NO LLEVA «type»: se reconoce por su identificador. Las dos cosas son
+correctas por separado y juntas daban null:
+
+    ramaDeTarea(a.type, 'EP-024', a.slug, 'Alberto Martinez')   ->   null
+
+Asi que se escribia a mano:  chore/alberto-martinez/EP-022-cierre  — donde ni «chore» era su tipo
+ni «cierre» era su slug (es «los-componentes-se-declaran»). La rama decia otra cosa y nada lo vio.
+
+ramaDeLote deriva sin tocar «type», con el prefijo chore fijo —en esa rama se CIERRA el lote, no se
+construye el producto— y devuelve null fuera de su objeto: sin eso seria «devuelve algo siempre»,
+que es el defecto que vino a quitar.
+
+Y EL MISMO CAMPO POR EL OTRO LADO: LEX-R27 es HARD y su aviso solo se disparaba al verificar UN
+lote por su nombre. La CI verifica tareas, no lotes: un lote nuevo con «type» entraba sin que nada
+lo dijera. Ahora se barre el registro entero.
+
+EL ANALISIS PEDIA BORRAR LOS DIECISIETE HISTORICOS, Y EL CODIGO YA HABIA DECIDIDO LO CONTRARIO. El
+comentario del sitio que iba a tocar decia: «no se retrofecha — SUITE-R09 es append-only». Tenia
+razon: reescribirlos habria sido borrar como estaba puesto para que la cifra cuadrara. Se cuentan
+y se declaran (RULE-06); lo que se cierra es la puerta hacia adelante, desde 13.2.0.
+
+Lo que lo corrigio no fue releer la regla: fue LEER EL COMENTARIO DEL ARCHIVO ANTES DE EDITARLO. Un
+analisis que decide antes de abrir el archivo decide sobre lo que recuerda.
+
+Archivos modificados: tools/patrones.mjs · tools/verify-fdge.mjs · LEXICON.md · CORE.md (generado)
+
+Medido: 17 lotes con «type» contados y declarados · RIGE_DESDE LEX-R27 = 13.2.0
+
+Evidencia: evidence/PT-153/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-153-la-rama-de-lote-no-se-deriva/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-154 — El espejo es global y el registro es por rama
+Fecha: 2026-08-27
+Estado: CLOSED
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 CLOSED directo: una INVESTIGATION no produce codigo y no pasa por INTEGRATED (FDGE-R27)
+Clase de evento: CE-005 — verde por no mirar
+
+EL ESPEJO ES GLOBAL Y EL REGISTRO ES POR RAMA. Los issues son del repositorio remoto;
+REGISTRY.json es un archivo VERSIONADO y su contenido depende de la rama.
+
+    main 194 allocations · trabajo 203 · solo en trabajo Y CON ISSUE PUBLICADO: 9
+
+Desde main, esas nueve salian una a una como «esta abierto y no lo reclama ninguna allocation». Es
+FALSO: las nueve existen, estan firmadas y tienen su issue. Lo que no existe es su REGISTRO EN ESA
+RAMA.
+
+LO QUE SUITE-R47 YA HABIA RESUELTO, Y LO QUE NO. PT-026 vio la mitad: en la rama por defecto el
+espejo INFORMA y no bloquea, porque alli el registro es la foto del ultimo merge y divergiria
+siempre. El dictamen inicial de esta tarea no lo menciono y daba a entender un rojo permanente que
+no existia. Lo que SI quedaba: informar una afirmacion falsa sigue siendo afirmarla.
+
+RULE-06 da la forma. Lo que no se puede evaluar desde aqui se DECLARA no evaluable. La referencia
+es la rama de integracion, porque es donde vive el trabajo en curso antes de G4:
+
+    reclamado en integracion  ->  RULE-06 · NO EVALUABLE desde aqui, no huerfano
+    no lo reclama nadie       ->  SUITE-R35 · divergencia, como siempre
+    no se pudo leer           ->  RULE-06 · NO EVALUABLE, y se dice por que
+
+El tercero es el que impide cambiar un falso positivo por un falso NEGATIVO, que seria peor
+(RULE-02). Y el espejo NOMBRA la rama de la que salio el registro que leyo.
+
+Archivos modificados: tools/tracker.mjs
+
+Medido: main 194 vs trabajo 203 · 9 issues reclasificados de huerfano a no evaluable
+
+Evidencia: evidence/PT-154/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: exenta (FDGE-R42). El dictamen esta en changes/PT-154-espejo-global-registro-por-rama/discovery.md.
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-157 — contradiceElRegistro no reconoce el nombre canonico del estado
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-017 — la comprobacion acusa a quien documenta el hecho
+
+LA LISTA DE ESTADOS TERMINALES ESTABA ESCRITA A MANO, Y NO ERA LA DE LEXICON.
+contradiceElRegistro decidia si el bloque ESTADO declara el cierre buscando
+
+    INTEGRAD | CERRAD | CLOSED | DEFERRED
+
+y LEXICON 5.1 declara CINCO: INTEGRATED · CLOSED · REVERTED · REJECTED · DEFERRED. Faltaban
+REVERTED y REJECTED. Un bloque que dijera «PT-155 quedo REVERTED» —el nombre canonico, el hecho—
+salia acusado de contradecir al registro.
+
+CORRECCION DE LO QUE EL ANALISIS CREIA: decia que tambien faltaba DONE. Es FALSO. DONE no es
+terminal —LEXICON 5.1 lo declara «terminado, esperando G4»—, la comprobacion no se dispara para el
+y nunca hubo falso positivo por ahi. Se vio EJECUTANDO LOS CINCO, no releyendo la lista.
+
+Ahora se deriva de ESTADOS_TERMINALES y se conservan las formas en prosa —CERRAD, INTEGRAD— porque
+el bloque ESTADO se escribe para leerse. El caso invertido comprueba que una contradiccion REAL
+sigue saliendo: ampliar lo que cuenta como «lo declara» acerca el patron a aceptarlo todo, y eso es
+lo que un arreglo perezoso rompe.
+
+Archivos modificados: tools/patrones.mjs
+
+Medido: los cinco estados terminales por su nombre canonico: 0 falsos positivos
+
+Evidencia: evidence/PT-157/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-157-el-estado-por-su-nombre-canonico/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-158 — FIDE no tiene archivo de prompts, y LEX-R15 dice que todo componente tiene uno
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-001 — un proxy en lugar del hecho
+
+LEX-R15 AFIRMABA UN UNIVERSAL QUE EL REPOSITORIO DESMENTIA. Decia «todo componente tiene
+exactamente un archivo de prompts». Seis componentes, CINCO archivos: FIDE tiene
+FIDE-CLAUDE-Launcher.md, que no es un *-Prompts.md.
+
+Y lo desmentia DESDE ANTES DE QUE LA REGLA EXISTIERA. La regla no describia lo que hay: describia
+lo que se esperaba que hubiera.
+
+FIDE incuba un proyecto DESDE UNA IDEA DE NEGOCIO, antes de que exista repositorio. Sus textos no
+son prompts de fase sobre un arbol: son un lanzador conversacional. No es un hueco por descuido —
+es un componente cuya FORMA es distinta, y la regla no lo admitia.
+
+LEX-R15 pasa a admitir la excepcion DECLARADA: «o declara por que no puede tenerlo». Lo que NO se
+hizo: fabricar un FIDE-Prompts.md vacio para que la cifra cuadrara, que es CE-001 con otro traje.
+Una excepcion que hay que escribir y firmar cuesta mas que cumplir, salvo cuando cumplir es
+imposible — que es exactamente el caso que se quiere admitir.
+
+Archivos modificados: LEXICON.md · CORE.md (generado)
+
+Medido: 6 componentes · 5 archivos de prompts · 1 excepcion declarada
+
+Evidencia: evidence/PT-158/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-158-fide-no-tiene-archivo-de-prompts/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-159 — Una parada que declara un hallazgo no esta obligada a abrir trabajo ni a decir cuando se revisa
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-016 — trabajo sin allocation que lo reclame
+
+«declara» NO ESTABA GOBERNADO, Y SI DEJA RASTRO. FDGE-R55 cubria «abre» —toda allocation nueva
+cita la parada que la produjo— y admitia «continua», que por construccion no deja nada contra lo que
+contrastar. «declara» quedaba en medio. Pero «declara» SE PUBLICA, con fecha y explicacion: la
+pregunta «este hallazgo abrio trabajo?» ES CONTESTABLE, que es el criterio que la propia regla usa
+para decidir que es mecanizable.
+
+MEDIDO:
+    PT-157   declarado en EP-021, con «merece tarea propia» escrito en el HANDOFF.
+             UN LOTE ENTERO despues, seguia sin tarea.
+    EP-022   SIETE paradas con «declara» diciendo «candidato a tarea propia».
+             Las siete huerfanas hasta que lo senalo el firmante.
+
+Lo senalo UNA PERSONA, no un verificador — literalmente la misma frase con la que nacio FDGE-R55,
+sobre el mismo objeto, un lote despues.
+
+La forma la da SUITE-R44, que cerro este mismo problema para el trabajo apartado: «declara» exige
+--revision futura y --dueno de la lista de personas. O abre trabajo —y entonces es «abre»— o dice
+cuando se revisa y quien responde.
+
+Y LA DECLARACION TENIA QUE DEJAR RASTRO DONDE SE PUEDE LEER. La primera version publico la vuelta
+SOLO EN EL ISSUE, y FDGE-R55 decidio a proposito que su verificacion fuera contra el REGISTRO —un
+verificador que necesitara red no podria correr donde no hay plataforma (SUITE-R22)—. Con la vuelta
+solo en el issue, dos AC del intake pedian barrer algo que desde el repositorio NO SE VE. Corregido
+por parada nueva, no editando la anterior (SUITE-R09).
+
+Primer uso real: PT-171 queda declarado con revision 2026-09-30 y dueno, y aplazado con su
+condicion de reentrada.
+
+Archivos modificados: tools/tracker.mjs · tools/verify-fdge.mjs · tools/patrones.mjs · RULES.md · LEXICON.md · PHASES.md · FDGE-Prompts.md · CORE.md (generado)
+
+Medido: regla nueva LEX-R37 · FDGE-R55 gana barrido · 1 declaracion registrada y al dia
+
+Evidencia: evidence/PT-159/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-159-un-declara-abre-o-declara-su-vuelta/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-162 — Una tarea DRAFT no puede cambiar de lote ni rechazarse por comando
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-006 — el acto hecho fuera del comando
+
+LEXICON 5.1 DECLARA REJECTED Y NINGUN COMANDO LO ESCRIBIA. Y una tarea asignada a un lote no
+tenia forma de cambiar de lote: el intake de PT-156 lo dejo escrito en su propio alcance —«mover
+esta tarea de EP-024 a EP-022; la herramienta no puede, y eso es PT-162».
+
+FDGE-R52 hace de los comandos la forma sancionada de mover el estado. Un estado que el lexico
+declara y ninguna herramienta escribe solo se alcanza EDITANDO REGISTRY.json A MANO, que es lo que
+SUITE-R08 existe para impedir — y lo que tracker.mjs condena con todas las letras: una regla que
+solo se puede cumplir saltandose la herramienta no se cumple, SE RODEA.
+
+Los dos verbos se limitan a lo que AUN NO HA OCURRIDO. Mover una tarea con trabajo hecho
+desmentiria su evidencia y sus commits, que citan un lote; rechazar algo integrado no es rechazar,
+es revertir, y eso pasa por G4. Sin esas dos puertas serian una goma de borrar.
+
+DOS DEFECTOS SALIERON AL USARLOS, NO AL PROBARLOS:
+
+1. La puerta trataba DEFERRED como cerrado. Al primer caso real —PT-172, «la bateria se empaqueta
+   y se sella», que es literalmente el objeto de EP-025— salio «PHASE 1 ... y ya no se mueve» en la
+   misma frase. Un aplazado NO tiene evidencia ni rama: SUITE-R44 lo declara VIVO. Se dejaba fuera
+   justo lo que mas sentido tiene mover.
+2. Los dos comandos EXIGIAN PLATAFORMA para escribir un archivo local. Es el defecto EXACTO que
+   PT-133 arreglo en «parada» y PT-084 en «avanzar», cometido dos comandos mas alla. Lo cazo el
+   arnes, que corre sobre un fixture SIN tablero — el caso que SUITE-R22 declara soportado.
+
+Ninguno de los dos lo habrian encontrado los cinco casos invertidos: todos preguntan por lo que el
+comando debe RECHAZAR.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh
+
+Medido: PT-172 movida de EP-024 a EP-025 con su intake sincronizado
+
+Evidencia: evidence/PT-162/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-162-mover-una-tarea-de-lote/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-165 — El mapa de fases de CORE lo escribe build-core a mano, y contradecia FPGE-R04
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-008 — un hecho con varios nombres
+
+EL MAPA DE FASES DE CORE LO ESCRIBIA build-core A MANO. Rangos literales en el generador,
+mientras patrones.mjs ya declaraba las fases de cada componente en el contrato que verify-patrones
+EJECUTA. Dos mapas del mismo hecho, y solo uno comprobado.
+
+Divergieron. El mapa a mano contradecia FPGE-R04 y lo publicaba en CORE.md, que es lo unico que el
+agente carga: EL ERROR VIAJABA A CADA SESION.
+
+Es RULE-01 incumplido DENTRO DE LA HERRAMIENTA QUE EXISTE PARA CUMPLIRLA: un hecho, dos casas. Y es
+el mismo defecto que PT-149 encontro en el colador de componentes — un generador que deriva casi
+todo y deja un trozo a mano promete mas de lo que da (SUITE-R26).
+
+Ahora el mapa se deriva de fasesDe() y audit contrasta lo publicado con lo derivado para los SEIS
+componentes: un componente ausente del mapa es tan defecto como un rango equivocado, y derivar sin
+esa exigencia habria producido un rango vacio que se lee como «no tiene».
+
+Archivos modificados: tools/build-core.mjs · tools/audit.mjs · CORE.md (generado)
+
+Medido: audit declara «Fases auditadas: 6 de 6»
+
+Evidencia: evidence/PT-165/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-165-core-contradecia-fpge-r04/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-166 — LEXICON 2 prohibe los pasos por su nombre, y la grafia en corchetes no esta en la lista
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 auto-resuelta por EXEC 5.2, comprobada mecanicamente (EXEC-R06)
+Clase de evento: CE-011 — un arreglo deja tests del estado anterior
+
+LA LISTA DE GRAFIAS PROHIBIDAS NO INCLUIA LA QUE EL REPOSITORIO USABA. LEXICON 2 fija
+«PHASE <n> — <Nombre>» y lista las prohibidas para que un verificador pueda cazarlas. La grafia
+«[n]» —la que usaba FPGE-Implementation.md— NO ESTABA EN ESA LISTA.
+
+Una lista de prohibidos que no incluye la grafia del propio repositorio es una lista que no protege
+de nada en el unico sitio donde hacia falta.
+
+PT-156 renombro los siete pasos y dejo constancia de que la grafia vieja NO ERA DETECTABLE: ningun
+verificador la habria visto volver. Un arreglo correcto sin defensa dura hasta el siguiente que
+escriba «[1]».
+
+Y SE DECLARA QUE LA LISTA ES INCOMPLETA POR CONSTRUCCION. Solo caza lo que alguien ya vio.
+Escribirlo es la diferencia entre una herramienta honesta y una que se lee como exhaustiva sin
+serlo (RULE-06, SUITE-R26).
+
+Archivos modificados: LEXICON.md · CORE.md (generado)
+
+Medido: la grafia [n] entra en la lista · verify-suite en verde
+
+Evidencia: evidence/PT-166/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-166-lexicon-2-no-prohibe-la-grafia-en-corchetes/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-170 — EXEC-R04 no reconoce una constancia real porque su encabezado usa otra palabra
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-001 — un proxy en lugar del hecho
+
+SE JUZGABA POR LA FORMA DEL TITULO UN HECHO QUE VIVE EN EL CUERPO. anunciaAutorizacion
+decidia leyendo SOLO el encabezado —RE_ANUNCIA contra RE_ESPERA— y RECHAZO una constancia real de
+SESSION_LOG.md, con la autorizacion escrita y el firmante nombrado, porque su encabezado decia
+«espera» en otro sentido.
+
+Un encabezado es una PISTA; quien autoriza es un DATO.
+
+Ahora basta un campo estructurado «Autoriza: <nombre>» en el cuerpo, y el encabezado sigue valiendo
+cuando no hay campo: no se rompe lo ya escrito.
+
+LOS DOS CASOS QUE IMPORTAN SON LOS INVERTIDOS. Anadir una via nueva para dar por buena una
+autorizacion es AFLOJAR UNA COMPUERTA, asi que un campo VACIO no cuenta y uno con el marcador sin
+rellenar tampoco: el campo solo cuenta cuando DICE algo. Comprobar que el nombre este en
+«firmantes» no se duplica aqui — ya lo hace SUITE-R27.
+
+Archivos modificados: tools/patrones.mjs
+
+Medido: 4 casos: con nombre si · por encabezado si · vacio no · marcador no
+
+Evidencia: evidence/PT-170/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-170-la-constancia-existia-y-no-se-reconocio/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida
+
+## PT-178 — avanzar deja salir de PHASE 1 sin que exista el Intake
+Fecha: 2026-08-27
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: undefined
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 HUMANA, pendiente: un BUG se detiene aqui y solo una persona lo mueve (FDGE-R26)
+Clase de evento: CE-005 — verde por no mirar
+
+NUEVE TAREAS DE ESTE LOTE LLEGARON A PHASE 5 SIN INTAKE, Y NINGUN COMANDO DIJO NADA.
+
+    verify-fdge PT-152
+      FDGE-R01   PT-152: no existe changes/PT-152-slug/. Todo trabajo entra por un Intake.
+
+    PT-152 · PT-153 · PT-154 · PT-157 · PT-158 · PT-162 · PT-165 · PT-166 · PT-170
+
+Cinco de ellas las movio el agente de PHASE 1 a PHASE 5 EN UNA SOLA SESION, con trabajo real hecho.
+
+FDGE-R01 es HARD y su unica comprobacion vivia en G4. Entre PHASE 1 y G4 no la miraba nadie — y
+tracker avanzar, que FDGE-R52 declara la UNICA forma sancionada de cambiar de fase, SI TOCA el
+intake: estampa su YAML y lo mete en el respaldo, asi que ya calculaba su ruta. Cuando el archivo
+no estaba, seguia adelante en silencio.
+
+Se bloquea SOLO la salida de PHASE 1: es la fase que PRODUCE el intake, y exigirlo antes seria
+exigir el resultado de la fase para poder empezarla.
+
+Y EL BLOQUEO ENTRA DESPUES DE DEJAR EL REPOSITORIO EN REGLA. Los diez intakes se escribieron primero
+—incluido el de esta tarea—; encender la puerta antes habria detenido en seco el lote que la
+construye.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · changes/ (diez intakes)
+
+Medido: 9 tareas sin intake -> 0 · verify-fdge no reporta FDGE-R01 en ninguna
+
+Evidencia: evidence/PT-178/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-178-avanzar-sale-de-phase-1-sin-intake/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: 1841 casos · 1840 verdes · el rojo restante (FND-R14) resuelto tras la corrida

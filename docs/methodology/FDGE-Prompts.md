@@ -395,6 +395,15 @@ desenlace  continua · abre · cambia-fase · detiene · declara
 `docs/implementation/TRANSICIONES.log` si no. **El mismo sitio que la nota de reanclaje** — no uno
 nuevo, porque un hecho con dos nombres es la avería que la v4 nació para eliminar (`LEX-R22`).
 
+**Un hallazgo declarado no se queda suelto** (`LEX-R37`). Si el desenlace es `declara`, el comando
+exige `--revision` (una fecha **futura**) y `--dueno` (de las personas declaradas): o **abre
+trabajo** —y entonces el desenlace es `abre`, con `--abre`— o dice **cuándo se revisa y quién
+responde**. La declaración se escribe también en la allocation, para que se pueda barrer sin red.
+
+```bash
+tracker parada PT-NNN --motivo hallazgo --texto ruta.md --desenlace declara         --revision AAAA-MM-DD --dueno "Nombre"
+```
+
 **Una transición de fase es una parada** cuyo desenlace es `cambia-fase` (`LEX-R30`). `FDGE-R52`
 sigue exigiendo sus tres líneas y su verificador: es el caso particular, no una excepción.
 

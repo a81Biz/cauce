@@ -131,7 +131,12 @@ export const RIGE_DESDE = {
   // corrida encontro SEIS reales —PT-077 declara AC-06 y su matriz no lo recoge— y trece avisos,
   // todos sobre trabajo YA INTEGRADO. Juzgarlo hacia atras es CE-014: aquellas tareas no pudieron
   // cumplir lo que nadie les pedia, y el rojo no tendria salida porque su matriz ya se cerro.
-  'FDGE-R15a': [13, 2, 0],  // los AC de la matriz son los del intake · nace con EP-024
+  'FDGE-R15a': [13, 2, 0],
+  'LEX-R27': [13, 2, 0],
+  'LEX-R37': [13, 2, 0],
+  'EXEC-R15': [13, 2, 0],          // la ejecucion de un lote es secuencial por defecto
+  'LEX-R35': [13, 2, 0],
+  'LEX-R36': [13, 2, 0],           // las diez familias de reglas no son los seis componentes           // PT-159 · un «declara» lleva su vuelta escrita           // PT-153 · el barrido del registro, no solo el lote verificado  // los AC de la matriz son los del intake · nace con EP-024
   // PT-099 · la entrada a VALIDATION_PENDING se vigila desde 12.0.0. La REGLA es vieja
   // —LEX-R08 severidad H, FDGE-R26 HARD— pero nadie la aplicaba: 51 BUG del registro y CERO
   // pasaron por ahi. Sin esta fila los 51 saldrian en rojo SIN SALIDA, porque un estado por el
@@ -624,6 +629,29 @@ export function ramaDeTarea(tipo, id, slug, usuario = null) {
   const u = usuario ? normalizaRef(usuario) : null;
   const cola = `${id}-${slug}`;
   return u ? `${t}/${u}/${cola}` : `${t}/${cola}`;
+}
+
+/**
+ * PT-153 · LA RAMA DE UN LOTE, DERIVADA.
+ *
+ * `ramaDeTarea` empieza por `type`, y LEX-R27 dice que un lote NO lleva `type`: se reconoce por su
+ * identificador. Las dos cosas son correctas por separado y juntas daban `null` — no habia forma
+ * derivable para la rama de un lote, asi que se inventaba una:
+ *
+ *   chore/alberto-martinez/EP-022-cierre
+ *           tipo inventado         slug inventado — el suyo es «los-componentes-se-declaran»
+ *
+ * El prefijo es SIEMPRE `chore`: en esa rama se cierra el lote, no se construye el producto. El
+ * resto sale del registro, que es el unico que asigna (SUITE-R08). Declarada en LEXICON 6.
+ *
+ * Devuelve `null` para lo que no es un lote: fuera de su objeto no inventa nada (RULE-06).
+ */
+export function ramaDeLote(id, slug, usuario = null) {
+  if (!/^EP-\d+$/.test(String(id ?? ''))) return null;
+  if (!slug) return null;
+  const u = usuario ? normalizaRef(usuario) : null;
+  const cola = `${id}-${slug}`;
+  return u ? `chore/${u}/${cola}` : `chore/${cola}`;
 }
 
 /** ¿Lleva usuario esta rama? Tres niveles, con el identificador al final. */
@@ -1258,8 +1286,16 @@ export function contradiceElRegistro(bloque, allocations) {
     const st = estado.get(sujeto);
     // Se mira si la propia linea DICE que esta cerrada: decirlo es correcto, y acusar al texto
     // que acierta seria el mismo defecto por el otro lado.
-    const loDeclara = new RegExp(sujeto + '[^.]{0,80}(INTEGRAD|CERRAD|CLOSED|DEFERRED)', 'i')
-      .test(lt);
+    // PT-157 · LA LISTA ESTABA ESCRITA A MANO y no era la de LEXICON: reconocia «INTEGRAD»,
+    // «CERRAD», «CLOSED» y «DEFERRED», y NO «DONE», «REVERTED» ni «REJECTED». Escribir «PT-155
+    // esta DONE» —el nombre canonico del estado— salia como CONTRADICCION: el bloque decia la
+    // verdad y la comprobacion lo acusaba. Es CE-017, la comprobacion que acusa a quien documenta
+    // el hecho, y ademas CE-008: dos listas de estados terminales con nombres distintos.
+    //
+    // Se deriva de ESTADOS_TERMINALES, que es la de LEXICON 5.1, y se conservan las formas en
+    // prosa —«CERRAD», «INTEGRAD»— porque el bloque ESTADO se escribe para leerse, no en mayusculas.
+    const terminales = [...ESTADOS_TERMINALES, 'INTEGRAD', 'CERRAD'].join('|');
+    const loDeclara = new RegExp(sujeto + '[^.]{0,80}(' + terminales + ')', 'i').test(lt);
     if (ESTADOS_TERMINALES.has(st) && !loDeclara) {
       fallos.push(`«tarea:» afirma que ${sujeto} sigue en curso y el registro dice ${st}`);
     }
@@ -1602,8 +1638,32 @@ export const familiasEnProsa = () => FAMILIAS.filter((f) => f.documento === 'RUL
 /** El orden de emision de CORE.md. → build-core.mjs:183 */
 export const ordenDePrefijos = () => [...FAMILIAS].sort((a, b) => a.orden - b.orden).map((f) => f.prefijo);
 
-/** Los triggers de arranque de todos los componentes. → build-core.mjs:433-437 */
-export const triggers = () => COMPONENTES.flatMap((c) => c.triggers);
+/**
+ * PT-152 · LOS TRIGGERS DE LA SUITE, QUE NO SON DE NINGUN COMPONENTE.
+ *
+ * `triggers()` derivaba de COMPONENTES y devolvia ONCE. LEXICON declara DOCE: falta
+ * `[START MIGRATE]`, y no es un olvido — es que NO TENIA SITIO. LEXICON lo dice en su propia
+ * columna: «[START MIGRATE] · SUITE · migrar el proyecto a la version vigente». Pertenece a la
+ * suite, no a un componente, y el contrato solo tenia casa para los de componente.
+ *
+ * Lo que eso rompia, y no se veia: PT-161 escribio la comprobacion de que TODO TRIGGER TIENE CASO
+ * en CASOS-DE-USO derivandola de `triggers()`. Como [START MIGRATE] no estaba ahi, esa
+ * comprobacion NO LO MIRABA — una puerta del marco fuera del contrato de cobertura Y fuera de
+ * quien lo vigila. Es la forma que EP-022 persiguio dieciseis veces: un hecho que existe y
+ * ninguna herramienta deriva.
+ *
+ * Cada uno declara SU REGLA, porque un trigger sin dueno es lo que se acaba de arreglar.
+ */
+export const TRIGGERS_DE_SUITE = [
+  { trigger: '[START MIGRATE]', regla: 'SUITE-R17', para: 'migrar el proyecto a la version vigente' },
+];
+
+
+/** Los triggers de arranque: los de cada componente MAS los de la suite. → build-core.mjs */
+export const triggers = () => [
+  ...COMPONENTES.flatMap((c) => c.triggers),
+  ...TRIGGERS_DE_SUITE.map((t) => t.trigger),
+];
 
 /**
  * El archivo de prompts de un componente, o SIN_EVALUAR si no tiene. → audit.mjs:192-195
@@ -2456,8 +2516,30 @@ export const SUJETOS = {
  * QUE ESTABLECE: que el encabezado nombre una autorizacion y no una espera.
  * QUE NO ESTABLECE: que el cuerpo diga lo que el encabezado anuncia. Eso lo mira quien lo lee.
  */
-export const anunciaAutorizacion = (encabezado) => {
+/**
+ * PT-170 · UNA CONSTANCIA SE RECONOCE POR SU FORMA, NO POR LAS PALABRAS DE SU TITULO.
+ *
+ * Reconocia el encabezado buscando «G4», «VoBo» o «autorizad». Una constancia REAL —con la frase
+ * literal del firmante, su nombre en `firmantes` y sus limites declarados— salio como NO
+ * AUTORIZADA porque su titulo decia «Autorizacion», que NO CONTIENE «autorizad»: FALLA POR UNA
+ * «d». Y el mensaje mandaba a quien lo leia al sitio equivocado —«sin constancia»— cuando lo que
+ * habia era una constancia QUE NO SE RECONOCE.
+ *
+ * Ampliar la lista de palabras seria perseguir el idioma, y ademas la haria mas ANCHA: un
+ * encabezado que hable de autorizaciones sin serlo pasaria, que es contra lo que PT-095 escribio
+ * `RE_ESPERA`. Lo que no se puede escribir «con otras palabras» es un DATO ESTRUCTURADO.
+ *
+ * Asi que se admiten LAS DOS VIAS y se dice cual es cual:
+ *   - el ENCABEZADO anuncia —compatible con lo escrito hasta hoy—, o
+ *   - el CUERPO lleva el campo `Autoriza:` con un nombre, que es la forma.
+ * La segunda no depende de como se titule el bloque; la primera se conserva porque hay
+ * constancias escritas asi y CE-014 dice que una regla nueva no juzga hacia atras.
+ */
+export const RE_CAMPO_AUTORIZA = /^\s*Autoriza:\s*(?!\[)(\S.*)$/im;
+
+export const anunciaAutorizacion = (encabezado, cuerpo) => {
   const h = String(encabezado ?? '');
+  if (RE_CAMPO_AUTORIZA.test(String(cuerpo ?? ''))) return true;
   return RE_ANUNCIA.test(h) && !RE_ESPERA.test(h);
 };
 

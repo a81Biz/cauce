@@ -4019,7 +4019,12 @@ Quedan tres ramas remotas: `main`, `trabajo` y `cauce/alberto-martinez` —la de
 cumplimiento del `CLAUDE.md` prevé la única salida: *«hasta que un humano autorice la excepción
 **dejando registro de esa autorización**»*. Esto es ese registro, escrito **antes** de usarla.
 
-**Quién.** Alberto Martínez, firmante declarado en `CLAUDE.md` (`SUITE-R27`).
+Autoriza: Alberto Martínez
+
+**Quién.** Alberto Martínez, firmante declarado en `CLAUDE.md` (`SUITE-R27`). El campo
+`Autoriza:` de arriba es lo que hace la constancia reconocible **por su forma** (`PT-170`): hasta
+hoy se reconocía por las palabras del título, y una constancia entera salió como **no autorizada**
+porque decía «Autorización», que no contiene «autorizad».
 
 **Qué autoriza, literalmente**, en la sesión del cierre de `EP-022`:
 
@@ -4084,7 +4089,12 @@ qué**, aquí y en `HISTORY.log`. La delegación cambia quién aprieta el botón
 cumplimiento del `CLAUDE.md` prevé la única salida: *«hasta que un humano autorice la excepción
 **dejando registro de esa autorización**»*. Esto es ese registro, escrito **antes** de usarla.
 
-**Quién.** Alberto Martínez, firmante declarado en `CLAUDE.md` (`SUITE-R27`).
+Autoriza: Alberto Martínez
+
+**Quién.** Alberto Martínez, firmante declarado en `CLAUDE.md` (`SUITE-R27`). El campo
+`Autoriza:` de arriba es lo que hace la constancia reconocible **por su forma** (`PT-170`): hasta
+hoy se reconocía por las palabras del título, y una constancia entera salió como **no autorizada**
+porque decía «Autorización», que no contiene «autorizad».
 
 **Qué autoriza, literalmente:**
 
@@ -4113,3 +4123,47 @@ una autorización **nueva y explícita** para `EP-024`, no una extensión de aqu
 `EXEC-R07` pide detenerse en el punto exacto y **describir el comando**. Con autorización, lo que
 se conserva es la otra mitad: **cada acción irreversible queda escrita con lo que se ejecutó y por
 qué**. La delegación cambia quién aprieta el botón, no si queda rastro.
+
+## 2026-08-27 · EP-024 · las once tareas hasta PHASE 8, y cuatro hallazgos que abren EP-026
+
+Autoriza: Alberto Martínez
+
+**Alcance de lo hecho con la autorización en curso.** `G1` y `G2` delegadas; `G3` aplicada con
+`tracker validar --aplicar` a los nueve `BUG`, firmante Alberto Martínez. **`G4` no se ha tocado y
+nada se ha fusionado.**
+
+**Límite que sigue en pie, sin cambios:** *«Excepto publicar»*. `npm publish` está reservado al
+firmante, y una autorización posterior que no lo menciona **no lo deroga**. Ante la duda, manda la
+reserva. Igual `push --force` y la reescritura de historia (`SUITE-R06f`).
+
+### Lo que cierra esta sesión
+
+Once tareas en `PHASE 8` con `verify-fdge` en **0 errores** cada una: `PT-152` `PT-153` `PT-154`
+`PT-157` `PT-158` `PT-159` `PT-162` `PT-165` `PT-166` `PT-170` `PT-178`. Batería completa: **1841
+casos, 1840 en verde**; el único rojo fue `FND-R14` —cifras del inventario que se movieron durante
+la propia corrida— y quedó resuelto después.
+
+### Lo que el firmante señaló, y que resultó ser cuatro defectos
+
+Preguntó por dos síntomas —*«muchos PT sin intake»* y *«un error al cazar una cadena, que se suponía
+resuelto»*— y por si había algo que nada obligara a hacer. Lo había:
+
+- `PT-179` (`S1`) · `verify-fdge` da **0 errores** a una tarea en `PHASE 7` sin evidencia, diciendo
+  *«normal antes de `PHASE 6`»*. La compuerta concede sin mirar la fase.
+- `PT-180` · el slug del registro y el de la carpeta divergen (`PT-155`), y cada herramienta usa uno.
+- `PT-181` · la expectativa de un caso se compara **como regex**: 303 de 1476 llevan
+  metacaracteres. `SUITE-R59` **no** cubre esto — allí el patrón se rompe, aquí se interpreta.
+- `PT-182` · el mapa fase→artefacto está escrito a mano en **dos** herramientas, y el del cursor
+  —que sí ve los huecos— **no lo consume nadie**.
+
+### Tres errores míos que el verificador no vio
+
+Evidencia escrita en `evidence/` en vez de `docs/implementation/evidence/`; `tests` y `evidence`
+como cadena donde el esquema pide array —`FDGE-R23` recorría sus letras—; y un `coverage: "no
+aplica"` que hacía comparar texto contra texto. Los tres corregidos, y **los tres pasaron en verde**
+antes de corregirse: son la prueba de `PT-179`.
+
+### Qué queda para retomar
+
+Cierre del lote —fila de cierre, entrada de `CHANGELOG`, sello—, una última corrida completa y
+`G4`, que decide una persona. El detalle está en el bloque `ESTADO` de `HANDOFF.md`.

@@ -200,6 +200,15 @@ const relOf = (p) => relative(BASE, p).replace(/\\/g, '/');
 // derogación: son las tablas de migración de LEXICON.md, RULES.md y los bloques
 // explicativos "en v3 …". Se detectan por marcadores.
 const DEPRECATED = [
+  // PT-166 · LA GRAFIA POR LA QUE SE COLO FPGE. LEXICON 2 prohibe las formas POR SU NOMBRE
+  //   —Estado n, STATE n, FASE n, F-n, Fn, FIDE-n, Step n, Etapa n— y «[1]» NO estaba en la lista.
+  // Por ahi FPGE numero sus siete pasos SIETE VERSIONES sin que nada dijera nada, y la
+  // consecuencia no fue estetica: LEXICON 3 no tenia apartado suyo, el contrato llevaba
+  // SIN_EVALUAR y audit reportaba el hueco. Lo cerro PT-156, y esto impide que vuelva.
+  //
+  // Se ancla al PRINCIPIO DE LINEA y exige mayuscula detras: «[1] FRESHNESS» es un paso; «[1]»
+  // en medio de una frase es una referencia, y una nota al pie no es una fase.
+  [/^\[\d{1,2}\]\s+[A-Z]/m, 'PHASE n'],
   [/\bSTATE\s+\d+/, 'PHASE n'],
   [/\bEstado\s+\d+\s*—/, 'nombre semántico, sin número (LEX-R01)'],
   [/\bFASE\s+\d+/, 'PHASE n'],

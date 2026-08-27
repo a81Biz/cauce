@@ -494,6 +494,39 @@ const opTxt = operativos.map(([, t]) => t).join('\n');
   // golpe seria un cambio grande y ciego. Lo que la regla impide es que el PROXIMO se escriba sin
   // ella. Es la misma forma que la tabla de sujetos de SUITE-R09 —«crece por adopcion declarada»—
   // y por eso la cifra se publica CON SU DENOMINADOR: un porcentaje esconde si el total crecio.
+  // PT-165 · EL MAPA DE FASES DE CORE ESTA TECLEADO, Y NO PUEDE CONTRADECIR AL CONTRATO.
+  //
+  // PT-149 le puso un COLADOR: un componente que falte se anade derivado, asi que el mapa ya no
+  // puede OMITIR a nadie —FIDE llevaba fases declaradas y no aparecia—. Lo que el colador no
+  // impide es que una linea REDACTADA diga un rango distinto del que el contrato declara.
+  //
+  // Las cinco lineas siguen escritas a mano A PROPOSITO: llevan la sintaxis de cada comando
+  // —«delta QA PT-XXX», «promote FPGE R-NNN»— que no sale de ningun contrato, y derivarlas
+  // enteras la perderia. Lo que se comprueba es que el RANGO coincida: lo redactado manda en la
+  // prosa, el contrato manda en los numeros.
+  {
+    const lineasCore = (CORE ?? '').split(SALTO);
+    for (const c of COMPONENTES) {
+      const r = fasesDe(c.nombre);
+      if (r === SIN_EVALUAR) continue;
+      const s = siglaDe(c.nombre);
+      const i = lineasCore.findIndex((l) => l.startsWith(s + ' '));
+      if (i < 0) continue;   // el colador lo anade; la ausencia la caza el bloque de fases
+      let bloque = lineasCore[i];
+      for (let j = i + 1; j < lineasCore.length && lineasCore[j].startsWith('      '); j++) bloque += ' ' + lineasCore[j];
+      const nums = [...bloque.matchAll(/(?:^|[^0-9])([0-9]{1,2})(?:-([0-9]{1,2}))?/g)]
+        .flatMap((x) => [Number(x[1]), x[2] ? Number(x[2]) : Number(x[1])])
+        .filter((n) => !Number.isNaN(n));
+      if (!nums.length) continue;
+      const min = Math.min(...nums); const max = Math.max(...nums);
+      if (min !== r[0] || max !== r[1]) {
+        gap('fase', `${c.nombre} en el mapa de CORE`, `la linea dice ${min}-${max} y el contrato declara ${r[0]}-${r[1]}. `
+          + 'El mapa esta redactado a mano para conservar la sintaxis de cada comando, pero sus NUMEROS '
+          + 'salen del contrato: lo redactado manda en la prosa, el contrato manda en el rango.');
+      } else tick('fase');
+    }
+  }
+
   // PT-161 · CASOS-DE-USO SE DECLARA «CONTRATO DE COBERTURA» Y NADA LO COMPROBABA.
   //
   // Su encabezado dice: «un caso que no este aqui es un hueco DECLARADO, no un silencio». Una

@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 75455e580491 -->
-<!-- fuentes: RULES.md:d71a1d1651ed LEXICON.md:d694f33771ff EXECUTION-MODES.md:199527454fb2 PHASES.md:5a38a5a37e3e -->
+<!-- cuerpo: 67f095b9adc8 -->
+<!-- fuentes: RULES.md:67abeb18e360 LEXICON.md:f27c862de008 EXECUTION-MODES.md:199527454fb2 PHASES.md:fcb17bf9f724 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -271,6 +271,7 @@ verifica un script y bloquea la integración.
 `LEX-R34` **H** aplazamiento — un aplazado dice cuándo se revisa y quién responde.
 `LEX-R35` **H** Un componente de la suite se declara en tools/patrones.mjs, y las herramientas lo derivan.
 `LEX-R36` **H** Un componente tiene fases, triggers y directorio.
+`LEX-R37` **H** Un declara lleva su vuelta escrita. Exige --revision (futura) y --dueno (de la lista de personas conocidas), con el mismo listón que SUITE-R44 pone al aplazado. Un hallazgo declarado o abre trabajo —y…
 
 ### EXEC — Compuertas y modos
 
@@ -911,6 +912,9 @@ PARADA con decisión, ESCRIBE en la TAREA antes de continuar:                  [
           motivo   ∈ hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
                      limite-alcanzado · desafio-al-intake
           desenlace ∈ continua · abre · cambia-fase · detiene · declara
+          «abre» exige --abre con la allocation que nace                  [FDGE-R55].
+          «declara» exige --revision futura y --dueno conocido             [LEX-R37]:
+                     o abre trabajo, o dice cuándo se revisa y quién responde.
           MISMO destino que el reanclaje: issue, o TRANSICIONES.log sin plataforma.
           NO lleva la forma «PHASE n → m» salvo que SEA una transición  [LEX-R30].
           Lo que sólo está en la conversación no está                   [SUITE-R04].

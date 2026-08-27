@@ -56,6 +56,34 @@ Tres, y por eso `MINOR` y no `MAJOR` — **no cambian ninguna obligación existe
   que llevaba el ID `EXEC-R08`, **ya ocupado** por *«los tres modos exigen lo mismo»*. `PT-163` lo
   destapó al corregir `definidasDosVeces`, que contaba **documentos** y no definiciones — dos IDs
   iguales en el mismo archivo colapsaban en uno.
+- `LEX-R37` — **un `declara` lleva su vuelta escrita** (`PT-159`). Una parada cuyo desenlace es
+  `declara` exige `--revision` **futura** y `--dueno` de las personas conocidas: o **abre trabajo**
+  —y entonces su desenlace es `abre`— o dice **cuándo se revisa y quién responde**, con el mismo
+  listón que `SUITE-R44` pone al aplazado. `FDGE-R55` cubría `abre`, admitía `continua` —que no
+  deja rastro— y dejaba `declara` **sin gobernar**, aunque `declara` sí lo deja. Se midió:
+  `PT-157` se declaró en `EP-021` y seguía sin tarea **un lote entero después**, y `EP-022`
+  publicó **siete** paradas huérfanas. `RIGE_DESDE 13.2.0`.
+
+### Reglas que ganan comprobación, sin cambiar lo que exigen
+
+Estas **no son nuevas**: existían con su texto intacto y **nadie las hacía cumplir**. Un proyecto
+ya instalado no tiene que cambiar nada de lo que hace; sí puede ver rojo donde antes había
+silencio, que es el objeto de esta versión.
+
+- `LEX-R27` — *un lote no lleva `type`*. Se comprobaba **sólo** al verificar un lote por su nombre,
+  y la CI verifica tareas: un lote nuevo escrito a mano entraba sin que nada lo dijera. Ahora se
+  barre el registro entero. Los lotes anteriores **no se retrofechan** (`SUITE-R09`): se cuentan y
+  se declaran. `RIGE_DESDE 13.2.0` — sólo falla lo nacido desde aquí (`PT-153`).
+- `FDGE-R01` — *todo trabajo entra por un Intake*. Su única comprobación vivía en `G4`, y
+  `tracker avanzar` —la única forma sancionada de cambiar de fase— **no miraba** si el intake
+  existía. Ahora se niega a salir de `PHASE 1` sin él. Se midió: **nueve** tareas de `EP-024`
+  llegaron a `PHASE 5` sin intake (`PT-178`).
+- `FDGE-R55` — gana el barrido de los `declara` con la revisión vencida, contra el **registro** y
+  no contra los comentarios del issue: un verificador que necesitara red no podría correr donde no
+  hay plataforma (`SUITE-R22`).
+- `LEX-R15` — deja de afirmar un universal que el repositorio desmentía. Admite la excepción
+  **declarada**: *«o declara por qué no puede tenerlo»*. `FIDE` incuba desde una idea de negocio,
+  antes de que exista repositorio, y su forma **es** distinta (`PT-158`).
 
 ### Qué cambia para un proyecto ya instalado
 

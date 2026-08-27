@@ -1136,7 +1136,9 @@ function checkG4ConConstancia() {
     const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
     // PT-095 · «a la espera de G4» NO es una autorizacion: anuncia lo contrario. El criterio
     // vive en patrones.mjs porque lo usan los DOS bucles de aqui, y escrito dos veces divergiria.
-    if (!m || !anunciaAutorizacion(m[2])) continue;
+    // PT-170 · se pasa TAMBIEN el cuerpo: una constancia se reconoce por su FORMA —el campo
+    // «Autoriza:»— y no solo por las palabras de su titulo, que fallaban por una «d».
+    if (!m || !anunciaAutorizacion(m[2], b)) continue;
     const quien = lista.find((n) => b.includes(n));
     if (quien) constancias.push({ nombre: quien, fecha: m[1] });
   }
@@ -1166,7 +1168,7 @@ function checkG4ConConstancia() {
   } else if (rigeGlobal('EXEC-R04a')) {
     for (const b of bloques) {
       const m = /^(\d{4}-\d{2}-\d{2})\s+·\s+(.*)/.exec(b);
-      if (!m || !anunciaAutorizacion(m[2])) continue;
+      if (!m || !anunciaAutorizacion(m[2], b)) continue;
       if (!alcanzadaPor(m[1], fronteraR04a)) continue;
       if (lista.some((n) => b.includes(n))) continue;
       // PT-095 · en un ledger append-only lo malformado se corrige ANADIENDO. Sin esto la
@@ -1304,6 +1306,60 @@ function checkNombreDeRama() {
 //
 // NO CIERRA NADA POR SU CUENTA: decidir que pasa con un aplazado caducado es humano (SUITE-R06).
 // La compuerta OBLIGA A MIRARLO, y ahi termina su trabajo.
+  // PT-159 · FDGE-R55 · UN «declara» NO SE QUEDA SUELTO.
+  //
+  // FDGE-R55 cubria `abre` —toda allocation nueva cita la parada que la produjo— y admitia
+  // `continua`, que por construccion no deja rastro contra el que contrastar. `declara` quedaba
+  // en medio, SIN GOBERNAR. Y `declara` SI deja rastro: se publica con fecha y explicacion, asi
+  // que la pregunta «¿este hallazgo abrio trabajo?» es contestable — que es el criterio que la
+  // propia regla usa para decidir que es mecanizable.
+  //
+  // MEDIDO:
+  //   PT-157   declarado en EP-021, con «merece tarea propia» escrito en el HANDOFF.
+  //            UN LOTE ENTERO despues, seguia sin tarea.
+  //   EP-022   SIETE paradas publicadas con `declara` diciendo «candidato a tarea propia».
+  //            Las siete huerfanas hasta que lo senalo el firmante.
+  //
+  // Lo senalo una PERSONA, no un verificador — la misma frase con la que nacio FDGE-R55, sobre el
+  // mismo objeto, un lote despues.
+  //
+  // La forma la da SUITE-R44, que cerro este mismo problema para el trabajo apartado, y por el
+  // mismo motivo se mira CONTRA EL REGISTRO: un verificador que necesitara red no podria correr
+  // en un repositorio sin plataforma (SUITE-R22).
+  //
+  // CE-014 · NO SE RETROFECHA. Las declaraciones publicadas antes de que el comando exigiera la
+  // vuelta no pudieron declarar lo que nadie les pedia, y no dejaron bloque en el registro: sin
+  // esta puerta, cada una de ellas seria deuda nueva por haber ocurrido antes.
+function checkDeclarados() {
+  let HOY = null;
+  try {
+    HOY = execFileSync('git', ['log', '-1', '--format=%cs'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+  } catch { /* sin git */ }
+  if (!HOY) HOY = new Date().toISOString().slice(0, 10);
+
+  const conDeclaracion = (reg?.allocations ?? []).filter((a) => Array.isArray(a?.declaraciones) && a.declaraciones.length);
+  const vencidas = [];
+  for (const a of conDeclaracion) {
+    if (!rigeDesde('FDGE-R55', a?.suite_version ?? '0.0.0')) continue;
+    for (const d of a.declaraciones) {
+      if (!d?.revision || !d?.dueno) continue;
+      if (String(d.revision) <= HOY) {
+        const dias = Math.round((Date.parse(HOY) - Date.parse(String(d.revision))) / 86400000);
+        vencidas.push(`${a.id} (${dias} dia(s), responde ${d.dueno})`);
+      }
+    }
+  }
+  if (vencidas.length) {
+    const m = `${vencidas.length} hallazgo(s) declarado(s) con la revision VENCIDA: ${vencidas.join(' · ')}. `
+      + 'Un declara con la vuelta pasada es otra vez un hallazgo suelto. La compuerta obliga a '
+      + 'mirarlos, no decide por nadie (SUITE-R06): se abre la tarea, se mueve la fecha con otra '
+      + 'parada, o se cierra el asunto por escrito.';
+    if (gate === 'G4') fail('FDGE-R55', m); else warn('FDGE-R55', m);
+  } else if (conDeclaracion.length) {
+    ok('FDGE-R55', `${conDeclaracion.length} hallazgo(s) declarado(s) con revision al dia.`);
+  }
+}
+
 function checkAplazados() {
   const aplazados = (reg?.allocations ?? []).filter((a) => a?.status === 'DEFERRED');
   if (!aplazados.length) { ok('SUITE-R44', 'no hay aplazados vivos que revisar.'); return; }
@@ -1800,6 +1856,36 @@ function checkPT(pt, { gate } = {}) {
   // eso se ocupan los ocho sitios de tracker.mjs (PT-096) y los seis de aqui.
   if (esLote(enRegistroPT) && enRegistroPT?.type !== undefined) {
     warn('LEX-R27', `${pt}: es un lote y declara «type: ${enRegistroPT.type}». LEX-R27 declara que un lote NO lleva «type»: se reconoce por su identificador, que el registro asigna y siempre esta. El campo no decide nada desde PT-096 y PT-100, y no se retrofecha (SUITE-R09).`);
+  }
+
+  // PT-153 · EL BARRIDO, y no solo el lote que se este verificando.
+  //
+  // El aviso de arriba solo se dispara cuando se verifica UN lote por su nombre. Nadie barria el
+  // registro, asi que un lote nuevo escrito a mano con «type» podia entrar sin que nada lo dijera
+  // hasta que alguien lo verificara suelto — que no es lo que hace la CI.
+  //
+  // NO SE RETROFECHA. Los diecisiete lotes historicos —«EP» en dieciseis, «EPIC» en uno— lo llevan
+  // escrito, y SUITE-R09 dice que el registro es append-only en los hechos: reescribirlos seria
+  // borrar como estaba puesto para que la cifra cuadre. Se CUENTAN y se declaran, que es lo que
+  // RULE-06 pide de lo que no se va a corregir. Lo que se cierra es la puerta hacia adelante:
+  // desde 13.2.0, un lote con «type» FALLA.
+  //
+  // El analisis de PT-153 llego aqui pidiendo quitar los diecisiete. Lo que lo corrigio fue leer
+  // el comentario de arriba, que ya habia decidido lo contrario y decia por que.
+  {
+    const lotesConType = (REGISTRO?.allocations ?? []).filter((a) => esLote(a) && a?.type !== undefined);
+    const nuevos = lotesConType.filter((a) => rigeDesde('LEX-R27', a?.suite_version ?? '0.0.0'));
+    if (nuevos.length) {
+      fail('LEX-R27', `${nuevos.length} lote(s) declaran «type» habiendo nacido con el barrido vigente: `
+        + `${nuevos.map((a) => `${a.id}=${a.type}`).join(' · ')}. Un lote se reconoce por su ID.`);
+    }
+    const historicos = lotesConType.length - nuevos.length;
+    if (historicos) {
+      warn('LEX-R27', `${historicos} lote(s) anteriores al barrido declaran «type» y NO se retrofechan `
+        + `(SUITE-R09, append-only). Se declara la cifra: ninguna herramienta depende de ese campo.`);
+    } else if (!nuevos.length) {
+      ok('LEX-R27', 'ningun lote del registro declara «type».');
+    }
   }
 
   // PT-098 · SUITE-R08 · un INTEGRATED que el arbol no sostiene.
@@ -2796,6 +2882,7 @@ checkAislamiento();
 checkVerifyEsCI();
 checkEpics();
 checkAplazados();
+checkDeclarados();
 checkManejadores();
 checkNombreDeRama();
 GRAPH = graphState(reg);

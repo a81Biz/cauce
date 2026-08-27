@@ -457,6 +457,9 @@ PARADA con decisión, ESCRIBE en la TAREA antes de continuar:                  [
           motivo   ∈ hallazgo · condicion-bloqueante · compuerta · abre-trabajo ·
                      limite-alcanzado · desafio-al-intake
           desenlace ∈ continua · abre · cambia-fase · detiene · declara
+          «abre» exige --abre con la allocation que nace                  [FDGE-R55].
+          «declara» exige --revision futura y --dueno conocido             [LEX-R37]:
+                     o abre trabajo, o dice cuándo se revisa y quién responde.
           MISMO destino que el reanclaje: issue, o TRANSICIONES.log sin plataforma.
           NO lleva la forma «PHASE n → m» salvo que SEA una transición  [LEX-R30].
           Lo que sólo está en la conversación no está                   [SUITE-R04].
