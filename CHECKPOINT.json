@@ -1,6 +1,6 @@
 {
-  "pt": "PT-154",
-  "type": "INVESTIGATION",
+  "pt": "PT-157",
+  "type": "BUG",
   "epic": "EP-024",
   "status": "DONE",
   "phase": 8,
