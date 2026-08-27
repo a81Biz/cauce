@@ -1,10 +1,10 @@
 {
-  "pt": "PT-177",
+  "pt": "PT-185",
   "type": "BUG",
   "epic": "EP-024",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "512cfb93a0c55c652d8bc7faac16cdd88ed1848f",
   "sha_corto": "512cfb9",
@@ -12,19 +12,23 @@
   "archivos": [
     "changes/PT-155-verify-patrones-comprueba-dos-de-siete/intake.md",
     "changes/PT-177-una-nota-de-reanclaje-perdida-no-se-repara/",
+    "changes/PT-185-el-estado-se-lee-de-su-columna/",
+    "docs/implementation/BACKLOG.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-177/",
+    "docs/implementation/evidence/PT-185/",
     "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/tracker.mjs"
+    "docs/methodology/tools/tracker.mjs",
+    "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-27"
 }
