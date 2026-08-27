@@ -1,6 +1,6 @@
 {
-  "pt": "PT-163",
-  "type": "BUG",
+  "pt": "PT-164",
+  "type": "CHORE",
   "epic": "EP-024",
   "status": "DRAFT",
   "phase": 2,
@@ -10,6 +10,9 @@
   "sha_corto": "5593966",
   "sucio": true,
   "archivos": [
+    "changes/PT-164-cita-al-id-equivocado-pasa-en-verde/",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/methodology/CORE.md",
     "docs/methodology/EXECUTION-MODES.md",
