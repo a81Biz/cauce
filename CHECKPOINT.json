@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "2ee9a9b77153804ac407d41068e9e36d45a1b0bb",
   "sha_corto": "2ee9a9b",
@@ -12,6 +12,8 @@
   "archivos": [
     "changes/PT-178-avanzar-sale-de-phase-1-sin-intake/intake.md",
     "changes/PT-183-una-bandera-desconocida-se-ignora/",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-183/",
@@ -22,8 +24,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-27"
 }
