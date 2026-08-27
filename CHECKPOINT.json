@@ -2,9 +2,9 @@
   "pt": "PT-180",
   "type": "BUG",
   "epic": "EP-024",
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "trabajo",
   "sha": "a6cf011f4e65d0bdd06489d83e5e8ec7eb4cec17",
   "sha_corto": "a6cf011",
@@ -38,13 +38,17 @@
     "changes/PT-186-phase-1-no-tiene-todavia-su-intake/intake.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-180/",
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/tracker.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-27"
 }
