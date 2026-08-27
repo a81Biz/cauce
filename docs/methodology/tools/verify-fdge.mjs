@@ -2855,7 +2855,25 @@ function checkIndex(pt, alloc, { gate } = {}) {
     // PT-044 · canónico no es lo mismo que CIERTO. Esto daba verde sobre una línea que decía
     // «READY» con el registro en «INTEGRATED»: comprobaba la FORMA del estado, no su verdad, y
     // el índice es lo que FPGE lee para decidir qué construir a continuación.
-    const declarado = LIFECYCLE.find((st) => new RegExp(`\\b${st}\\b`).test(line));
+    // PT-185 · EL ESTADO SE LEE DE SU COLUMNA, NO DE TODA LA LINEA.
+    //
+    // «LIFECYCLE.find(...test(line))» devuelve el primer estado de LA LISTA que aparezca en
+    // CUALQUIER punto de la fila — incluido el TITULO. PT-162 se titula «Una tarea DRAFT no
+    // puede cambiar de lote…» y su linea de indice dice, en su columna, DONE:
+    //
+    //   | PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote… |
+    //                          ^^^^ lo cierto        ^^^^^ lo que leia
+    //
+    // Salio «divergente: el registro dice DONE y el indice dice DRAFT» sobre un indice
+    // CORRECTO. Es CE-017 —la comprobacion acusa a quien documenta el hecho— y bloqueaba G4.
+    //
+    // Se lee la CELDA, como hace parseTraceability. Si la fila no es una tabla se cae al
+    // barrido anterior: no evaluar nada seria peor, y esa forma existe en los indices viejos.
+    const celdas = line.trim().startsWith('|')
+      ? line.trim().split('|').slice(1, -1).map((c) => c.trim())
+      : [];
+    const enCelda = celdas.find((c) => LIFECYCLE.includes(c));
+    const declarado = enCelda ?? LIFECYCLE.find((st) => new RegExp(`\\b${st}\\b`).test(line));
     if (alloc?.status && declarado && declarado !== alloc.status) {
       const m = `${pt}: «estado» divergente — el registro dice «${alloc.status}» y su línea de índice en ${idxHit} dice «${declarado}». El índice ESPEJA el registro (SUITE-R35); el registro asigna.`;
       if (gate === 'G4') fail('SUITE-R35', m); else warn('SUITE-R35', m);

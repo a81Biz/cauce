@@ -8957,6 +8957,65 @@ chk   "…y una de dos niveles queda igual"          "^cauce/alberto$" \
 chk   "sobre el arbol real, los nombres coinciden" "coinciden con los que deriva el registro" \
   bash -c 'cd "$0" && node "$1/tools/verify-fdge.mjs" --gate G4 PT-183 2>&1' "$RAIZ" "$SUITE"
 
+
+# ── PT-177 · la nota perdida se repara sin mover la fase   FDGE-R52 ────────
+#
+# FDGE-R52 cuenta las notas del issue y exige «fase - 1». Si una no se publica, EL DEFICIT NO SE
+# PODIA REPARAR: `avanzar` publica una nota Y SUBE LA FASE —agranda el hueco— y `parada` se niega a
+# publicar un «cambia-fase» suelto porque «dejaria una nota sobre una transicion que no ocurrio».
+# Una regla HARD cuyo incumplimiento la herramienta no permite corregir solo se puede rodear.
+#
+# Lo cazo G4 sobre PT-161: PHASE 8 con 6 notas de 7.
+_rn() { _t24 reanclar "$@"; }
+# LAS DOS PUERTAS, que son las que impiden que esto sea una forma de aprobar la compuerta
+# escribiendo comentarios. Van primero porque son el riesgo, no el caso feliz.
+chk   "reanclar una fase que NO ha ocurrido se NIEGA"  "tiene que ser MAYOR" \
+  _rn PT-800 --fase 9 --nota "una nota con palabras suficientes"
+chk   "…y lo dice citando LEX-R30"                     "LEX-R30" \
+  _rn PT-800 --fase 9 --nota "una nota con palabras suficientes"
+chk   "…y remite a avanzar para una transicion nueva"  "el comando es «avanzar»" \
+  _rn PT-800 --fase 9 --nota "una nota con palabras suficientes"
+# Sin issue no se sabe si hay deficit, y publicar a ciegas lo inflaria: RULE-06, no se acusa ni se
+# actua sin el dato.
+chk   "sin poder contar las notas NO se publica"       "no se sabe si hay deficit" \
+  _rn PT-800 --fase 3 --nota "una nota con palabras suficientes"
+
+
+# ── PT-185 · el estado del indice se lee de su COLUMNA   SUITE-R35 ─────────
+#
+# «LIFECYCLE.find(...test(line))» devolvia el primer estado DE LA LISTA que apareciera en CUALQUIER
+# punto de la fila — incluido el TITULO. PT-162 se titula «Una tarea DRAFT no puede cambiar de
+# lote…» y su columna dice DONE:
+#
+#   | PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote… |
+#                        ^^^^ lo cierto        ^^^^^ lo que leia
+#
+# Salio «divergente» sobre un indice CORRECTO, y bloqueaba G4. Es CE-017, y solo se disparaba sobre
+# las tareas cuyo titulo nombra aquello de lo que tratan.
+_col185() { # $1 = la linea de indice · imprime el estado que se deduce
+  node -e "
+    const LIFECYCLE=['DRAFT','READY','REOPENED','IN_PROGRESS','BLOCKED','VALIDATION_PENDING',
+                     'DONE','INTEGRATED','CLOSED','DEFERRED','REVERTED','REJECTED'];
+    const line=process.argv[1];
+    const celdas=line.trim().startsWith('|')
+      ? line.trim().split('|').slice(1,-1).map((c)=>c.trim()) : [];
+    const enCelda=celdas.find((c)=>LIFECYCLE.includes(c));
+    const barrido=LIFECYCLE.find((st)=>new RegExp('\\\\b'+st+'\\\\b').test(line));
+    console.log(enCelda ?? barrido ?? 'NINGUNO');" "$1"
+}
+chk   "un titulo que nombra un estado no gana"     "^DONE$" \
+  _col185 "| PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote |"
+# EL CASO INVERTIDO: la columna manda, tambien cuando lo que dice es lo divergente. Sin esto,
+# «devolver siempre el registro» pasaria el de arriba y habria apagado la comprobacion.
+chk   "…y si la COLUMNA dice otra cosa, esa vale"  "^DRAFT$" \
+  _col185 "| PT-162 | BUG | S3 | DRAFT | EP-024 | Una tarea DONE que no cambia de lote |"
+# RULE-02 · sin tabla no se deja de evaluar: el barrido sigue siendo el respaldo. Cambiar un falso
+# positivo por un falso NEGATIVO es peor que el defecto.
+chk   "una linea sin tabla se sigue evaluando"     "^DONE$" \
+  _col185 "PT-162 quedo DONE en este lote"
+chk   "…y si no hay ningun estado, se dice"        "^NINGUNO$" \
+  _col185 "PT-162 no dice nada de su estado"
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

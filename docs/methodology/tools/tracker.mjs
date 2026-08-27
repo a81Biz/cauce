@@ -1630,6 +1630,11 @@ const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 
   // «parada» y PT-084 en «avanzar», cometido dos comandos mas alla. Lo cazo el arnes, que corre
   // sobre un fixture SIN plataforma declarada — que es el caso que SUITE-R22 declara soportado.
   'mover', 'rechazar',
+  // PT-177 · «reanclar» PUBLICA en el tablero, asi que la plataforma es su objeto y no un
+  // requisito ajeno; pero sus validaciones —la fase, la nota vacia— no necesitan red y tienen que
+  // correr PRIMERO, por el mismo motivo que PT-053 metio aqui a «avanzar»: salir en la compuerta
+  // de acceso contesta con el diagnostico equivocado para el defecto real.
+  'reanclar',
   // PT-122 · «cierre» sin --aplicar solo DERIVA y enumera el texto: no habla con nadie.
   'cierre', 'indices',
   // PT-091 · «inventario» recalcula cifras del arbol y NO espeja nada: exigirle plataforma
@@ -5121,7 +5126,92 @@ function publicaEnElTablero(a, cuerpo) {
   if (apilarEnLog(cuerpo)) notas.push(`${a.id}: publicado en SESSION_LOG.md (sin tablero alcanzable)`);
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+
+// ── reanclar · la nota que se perdio, sin mover la fase   PT-177 ───────────
+//
+// FDGE-R52 cuenta las notas de reanclaje del issue y exige `fase - 1`. Si una no se publica —red
+// caida, un fallo del adaptador, un cuerpo que no casa RE_NOTA— EL DEFICIT NO SE PODIA REPARAR:
+// `avanzar` publica una nota Y SUBE LA FASE, asi que el hueco se conserva y se agranda. No habia
+// ningun comando que publicara una nota sin avanzar.
+//
+// Lo cazo G4 sobre PT-161: PHASE 8 con 6 notas de 7. Y la condicion de reentrada de PT-177 decia
+// literalmente «cuando vuelva a perderse una nota» — ocurrio, y por eso se retomo.
+//
+// POR QUE ESTO NO ES LO QUE `parada` PROHIBE. `parada --desenlace cambia-fase` se niega porque
+// «publicarla suelta dejaria una nota sobre una transicion que no ocurrio» (LEX-R30). Aqui la
+// transicion SI OCURRIO y el registro lo prueba: se exige que la fase actual sea MAYOR que la que
+// se reancla. Lo que se repara no es el hecho, es su publicacion.
+//
+// Y NO SE FINGE LA FECHA. La nota dice que repara una perdida y lleva la fecha de HOY: escribir la
+// del dia de la transicion seria inventar cuando se publico, que es justo el dato que falta.
+function reanclar() {
+  const flag = (n) => { const i = ARGS.indexOf(n); return i >= 0 ? ARGS[i + 1] : null; };
+  const id = ARGS.slice(1).find((a) => /^(PT|EP)-\d+$/.test(a));
+  const fase = Number(flag('--fase'));
+  const nota = flag('--nota');
+  if (!id || !Number.isInteger(fase) || !nota) {
+    console.error('reanclar necesita la tarea, la fase que se reancla y la nota:  '
+      + 'tracker reanclar PT-NNN --fase <n> --nota "que cierra · donde estas · que sigue" [--aplicar]');
+    process.exit(2);
+  }
+  const a = all.find((x) => x?.id === id);
+  if (!a) { fail('SUITE-R08', `${id} no esta en el registro (SUITE-R08).`); return; }
+  // LA TRANSICION TIENE QUE HABER OCURRIDO. Sin esta puerta esto seria «publicar una nota sobre
+  // una transicion que no ocurrio», que es exactamente lo que `parada` se niega a hacer.
+  if (!(Number(a.phase) > fase)) {
+    fail('LEX-R30', `${id} esta en PHASE ${a.phase} y se pide reanclar la ${fase}. Solo se repara la `
+      + 'publicacion de una transicion YA OCURRIDA: la fase actual tiene que ser MAYOR. Para una '
+      + `transicion nueva el comando es «avanzar», que mueve el registro en el mismo acto (FDGE-R52).`);
+    return;
+  }
+  if (!String(nota).trim()) { fail('FDGE-R52', `${id}: la nota no dice nada.`); return; }
+  // Y TIENE QUE HABER UN DEFICIT QUE REPARAR. Publicar una nota sobre un issue que ya tiene las
+  // suyas no repara: infla la cuenta, y una cuenta inflada engana igual que una corta.
+  // La cuenta la da «notas», que es la que verify-fdge consulta: dos formas de contar lo mismo
+  // divergirian, y este comando existe para reparar una cuenta, no para inventar otra.
+  const cuantas = (() => {
+    if (!adaptador?.comentar || !a.issue) return null;
+    try { return contarNotas(adaptador.comentarios(a.issue)); } catch { return null; }
+  })();
+  if (cuantas === null) {
+    fail('FND-R30', `${id}: no se pudo leer las notas del issue. Sin ese dato no se sabe si hay `
+      + 'deficit, y publicar a ciegas podria inflar la cuenta (RULE-06).');
+    return;
+  }
+  const exigidas = Number(a.phase) - 1;
+  if (cuantas >= exigidas) {
+    di(`  ${id}: ${cuantas} nota(s) para PHASE ${a.phase}, y se exigen ${exigidas}. Nada que reparar.`);
+    return;
+  }
+  const hoy = gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10);
+  const cuerpo = [
+    MARCA_AGENTE,
+    `**REANCLAJE REPARADO** · \`${id}\` · PHASE ${fase} → PHASE ${fase + 1}`,
+    '',
+    String(nota).trim(),
+    '',
+    '---',
+    '',
+    `> Esta nota **repara una publicacion perdida**, no registra una transicion nueva: \`${id}\` ya`,
+    `> estaba en \`PHASE ${a.phase}\` cuando se escribio. La fecha es la de HOY (\`${hoy}\`) y no la de`,
+    '> la transicion — poner aquella seria inventar cuando se publico, que es el dato que falta.',
+    `> \`FDGE-R52\` contaba ${cuantas} de ${exigidas} (\`PT-177\`).`,
+  ].join(SALTO);
+  if (!APLICAR) {
+    di(`  ${id}: ${cuantas} nota(s) de ${exigidas} exigidas. Se publicaria una para PHASE ${fase} → ${fase + 1}.`);
+    di('');
+    di('  --aplicar   lo publica. La nota dice que repara una perdida; no finge la fecha.');
+    return;
+  }
+  if (adaptador?.comentar && a.issue) {
+    adaptador.comentar(a.issue, cuerpo);
+    notas.push(`${id}: reanclaje reparado publicado en #${a.issue} (${cuantas + 1} de ${exigidas})`);
+  } else if (apilarEnLog(cuerpo)) {
+    notas.push(`${id}: reanclaje reparado en SESSION_LOG.md (sin tablero alcanzable)`);
+  }
+}
+
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

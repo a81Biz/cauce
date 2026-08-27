@@ -11,7 +11,7 @@ lo que este lote descubrio: NUEVE tareas llegaron a PHASE 5 sin intake (PT-178) 
 hallazgo sin tarea: NINGUNO. EP-026 recoge cuatro: PT-179 (S1) PT-180 PT-181 PT-182. Tres declarados con vuelta al 2026-09-30: si una INVESTIGATION que produce codigo sigue exenta (PT-154), la severidad de PT-179 a PT-182 (PT-183), y la forma de los bloques de la bateria dictada por el firmante (PT-172, publicada en #319).
 pregunta abierta: si PT-178 cerro un peldano de una escalera de cinco. «avanzar» ya no sale de PHASE 1 sin intake, y SIGUE saliendo de PHASE 3, 4, 6 y 8 sin los suyos. El mecanismo ya esta en el cursor (RASTRO_H) y nadie lo cablea. Es PT-182.
 lo que sigue sin resolverse: PT-025 (#35) DEFERRED · 21 allocations sin suite_version · 4 PT historicos sin lote, declarados y no retrofechados · los nodos «sin rastro» del cursor, muchos falsos por PT-180.
-actualizado:    2026-08-27 · EP-024 con PR #333 abierto, pendiente G4
+actualizado:    2026-08-27 · PT-185 en PHASE 8 Persistencia
 <!-- /ESTADO -->
 
 ---

@@ -50,12 +50,13 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-169 | CHORE | S2 | DONE | 8 | [#313](https://github.com/a81Biz/cauce/issues/313) | La bateria solo crece: nada retira un caso superado ni caza dos que prueban lo mismo |
 | PT-170 | BUG | S2 | DONE | 8 | [#316](https://github.com/a81Biz/cauce/issues/316) | EXEC-R04 no reconoce una constancia real porque su encabezado usa otra palabra |
 | PT-171 | BUG | S3 | DEFERRED | 1 | [#318](https://github.com/a81Biz/cauce/issues/318) | Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto |
-| PT-177 | BUG | S3 | DEFERRED | 1 | [#324](https://github.com/a81Biz/cauce/issues/324) | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
+| PT-177 | BUG | S3 | DONE | 8 | [#324](https://github.com/a81Biz/cauce/issues/324) | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
 | PT-178 | BUG | S2 | DONE | 8 | [#325](https://github.com/a81Biz/cauce/issues/325) | avanzar deja salir de PHASE 1 sin que exista el Intake |
 | PT-183 | BUG | S1 | DONE | 8 | [#332](https://github.com/a81Biz/cauce/issues/332) | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
 | PT-184 | BUG | S1 | DONE | 8 | [#334](https://github.com/a81Biz/cauce/issues/334) | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
+| PT-185 | BUG | S2 | DONE | 8 | [#335](https://github.com/a81Biz/cauce/issues/335) | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
 
-**25 de 25 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**26 de 26 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-025`
 
@@ -84,7 +85,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 **0 de 4 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
-## Aplazado — 8 allocation(s) `DEFERRED`
+## Aplazado — 7 allocation(s) `DEFERRED`
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
@@ -97,7 +98,6 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-174 | CHORE | [#321](https://github.com/a81Biz/cauce/issues/321) | Aplazado desde PT-172 el 2026-08-26 |
 | PT-175 | CHORE | [#322](https://github.com/a81Biz/cauce/issues/322) | Aplazado desde PT-172 el 2026-08-26 |
 | PT-176 | CHORE | [#323](https://github.com/a81Biz/cauce/issues/323) | Aplazado desde PT-172 el 2026-08-26 |
-| PT-177 | BUG | [#324](https://github.com/a81Biz/cauce/issues/324) | Aplazado desde PT-161 el 2026-08-26 |
 
 <!-- /BACKLOG:DERIVADO -->
 

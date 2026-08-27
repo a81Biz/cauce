@@ -10843,3 +10843,166 @@ Compuertas: G3 2026-08-27 Alberto Martinez
 
 La entrada original NO se toca: es lo que se audita (FDGE-R29). G4 lee esta correccion para
 «Estado» y «Compuertas», y la original para todo lo demas, que sigue siendo valido.
+
+## PT-151 — CORRIGE: la compuerta G3 de la entrada de este lote
+Corrige: la entrada de EP-024
+Motivo: declaraba «G3 auto-resuelta por EXEC 5.2» sobre un BUG. EXEC 5.2 SI admite
+  auto-resolver G3; lo que no admite es hacerlo sobre un BUG: FDGE-R26 dice que un BUG se
+  DETIENE en VALIDATION_PENDING y solo una persona lo mueve, registrando quien y cuando. La
+  excepcion de una regla no deroga a la otra. Y EXEC-R06 lo dice por el otro lado: auto
+  significa que verify-fdge PASO, no que el agente lo afirme. Aqui se afirmo.
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). La firma se aplica con el VoBo
+que el firmante dio en sesion para este lote y que consta en SESSION_LOG.md. SUITE-R27 dice lo
+que esto NO prueba —que firmara una persona— y si lo hace contrastable: el nombre esta en la
+lista de firmantes, y quien aparece en ella responde de lo que lleva su nombre.
+
+## PT-160 — CORRIGE: la compuerta G3 de la entrada de este lote
+Corrige: la entrada de EP-024
+Motivo: declaraba «G3 auto-resuelta por EXEC 5.2» sobre un BUG. EXEC 5.2 SI admite
+  auto-resolver G3; lo que no admite es hacerlo sobre un BUG: FDGE-R26 dice que un BUG se
+  DETIENE en VALIDATION_PENDING y solo una persona lo mueve, registrando quien y cuando. La
+  excepcion de una regla no deroga a la otra. Y EXEC-R06 lo dice por el otro lado: auto
+  significa que verify-fdge PASO, no que el agente lo afirme. Aqui se afirmo.
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). La firma se aplica con el VoBo
+que el firmante dio en sesion para este lote y que consta en SESSION_LOG.md. SUITE-R27 dice lo
+que esto NO prueba —que firmara una persona— y si lo hace contrastable: el nombre esta en la
+lista de firmantes, y quien aparece en ella responde de lo que lleva su nombre.
+
+## PT-163 — CORRIGE: la compuerta G3 de la entrada de este lote
+Corrige: la entrada de EP-024
+Motivo: declaraba «G3 auto-resuelta por EXEC 5.2» sobre un BUG. EXEC 5.2 SI admite
+  auto-resolver G3; lo que no admite es hacerlo sobre un BUG: FDGE-R26 dice que un BUG se
+  DETIENE en VALIDATION_PENDING y solo una persona lo mueve, registrando quien y cuando. La
+  excepcion de una regla no deroga a la otra. Y EXEC-R06 lo dice por el otro lado: auto
+  significa que verify-fdge PASO, no que el agente lo afirme. Aqui se afirmo.
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). La firma se aplica con el VoBo
+que el firmante dio en sesion para este lote y que consta en SESSION_LOG.md. SUITE-R27 dice lo
+que esto NO prueba —que firmara una persona— y si lo hace contrastable: el nombre esta en la
+lista de firmantes, y quien aparece en ella responde de lo que lleva su nombre.
+
+## PT-167 — CORRIGE: la compuerta G3 de la entrada de este lote
+Corrige: la entrada de EP-024
+Motivo: declaraba «G3 auto-resuelta por EXEC 5.2» sobre un BUG. EXEC 5.2 SI admite
+  auto-resolver G3; lo que no admite es hacerlo sobre un BUG: FDGE-R26 dice que un BUG se
+  DETIENE en VALIDATION_PENDING y solo una persona lo mueve, registrando quien y cuando. La
+  excepcion de una regla no deroga a la otra. Y EXEC-R06 lo dice por el otro lado: auto
+  significa que verify-fdge PASO, no que el agente lo afirme. Aqui se afirmo.
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). La firma se aplica con el VoBo
+que el firmante dio en sesion para este lote y que consta en SESSION_LOG.md. SUITE-R27 dice lo
+que esto NO prueba —que firmara una persona— y si lo hace contrastable: el nombre esta en la
+lista de firmantes, y quien aparece en ella responde de lo que lleva su nombre.
+
+## PT-168 — CORRIGE: la compuerta G3 de la entrada de este lote
+Corrige: la entrada de EP-024
+Motivo: declaraba «G3 auto-resuelta por EXEC 5.2» sobre un BUG. EXEC 5.2 SI admite
+  auto-resolver G3; lo que no admite es hacerlo sobre un BUG: FDGE-R26 dice que un BUG se
+  DETIENE en VALIDATION_PENDING y solo una persona lo mueve, registrando quien y cuando. La
+  excepcion de una regla no deroga a la otra. Y EXEC-R06 lo dice por el otro lado: auto
+  significa que verify-fdge PASO, no que el agente lo afirme. Aqui se afirmo.
+Compuertas: G1 por lote (INTAKE-R08) · G2 delegada · G3 2026-08-27 Alberto Martinez
+
+La entrada original NO se toca: es lo que se audita (FDGE-R29). La firma se aplica con el VoBo
+que el firmante dio en sesion para este lote y que consta en SESSION_LOG.md. SUITE-R27 dice lo
+que esto NO prueba —que firmara una persona— y si lo hace contrastable: el nombre esta en la
+lista de firmantes, y quien aparece en ella responde de lo que lleva su nombre.
+
+## PT-177 — Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-27 Alberto Martinez
+Clase de evento: CE-016 — una regla cuyo incumplimiento la herramienta no permite corregir
+
+SE RETOMO PORQUE SU CONDICION SE CUMPLIO, NO PORQUE TOCARA. Estaba DEFERRED con esta reentrada
+escrita: «cuando EP-024 se descomponga o CUANDO VUELVA A PERDERSE UNA NOTA». G4 sobre el lote:
+
+    FDGE-R52  PT-161: esta en PHASE 8 y su issue #303 tiene 6 nota(s); faltan 1.
+
+LEX-R33 dice que un aplazado vuelve cuando su condicion se cumple, y se cumplio.
+
+EL DEFICIT NO SE PODIA REPARAR, Y ESO ES LO GRAVE. `avanzar` publica una nota Y SUBE LA FASE en el
+mismo acto: usarlo para reparar AGRANDA el hueco. Y `parada` se niega explicitamente a publicar un
+«cambia-fase» suelto porque «dejaria una nota sobre una transicion que no ocurrio» (LEX-R30). No
+habia ningun comando que publicara una nota sin avanzar.
+
+Una regla HARD con un incumplimiento que la herramienta NO PERMITE CORREGIR solo se puede rodear —
+que es lo que PT-183 acaba de escribir por otro camino, en el mismo lote.
+
+POR QUE ESTO NO ES LO QUE `parada` PROHIBE. Alli la transicion no ha ocurrido; aqui SI, y el
+registro lo prueba. `reanclar` exige que la fase actual sea MAYOR que la que se reancla: lo que se
+repara no es el hecho, es su publicacion.
+
+Y NO SE FINGE LA FECHA. La nota dice que repara una perdida y lleva la de HOY. Poner la del dia de
+la transicion seria inventar CUANDO SE PUBLICO, que es exactamente el dato que falta — SUITE-R26.
+
+LAS DOS PUERTAS SON EL RIESGO, NO EL CASO FELIZ. Un comando que publica notas sueltas convierte
+FDGE-R52 en decorativa: bastaria con publicar tantas como hagan falta. Por eso se exige que la
+transicion HAYA OCURRIDO y que HAYA DEFICIT, y los dos casos invertidos estan en la bateria.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · changes/PT-177-…/
+
+Medido: PT-161 pasa de 6/7 notas a 7/7, y su fase NO se mueve: PHASE 8 antes y despues.
+
+Evidencia: docs/implementation/evidence/PT-177/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-177-una-nota-de-reanclaje-perdida-no-se-repara/traceability.md.
+Corrida de la bateria: 1859 casos, los cuatro nuevos en verde.
+
+## PT-185 — El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-27 Alberto Martinez
+Clase de evento: CE-017 — la comprobacion acusa a quien documenta el hecho
+
+EL INDICE ERA CORRECTO Y LA COMPROBACION LO ACUSABA. G4 sobre PT-162:
+
+    SUITE-R35  PT-162: «estado» divergente — el registro dice «DONE»
+               y su linea de indice en DISCOVERY.md dice «DRAFT».
+
+Su linea:
+
+    | PT-162 | BUG | S3 | DONE | EP-024 | Una tarea DRAFT no puede cambiar de lote… |
+                         ^^^^ lo cierto        ^^^^^ lo que leia
+
+`LIFECYCLE.find((st) => new RegExp('\b'+st+'\b').test(line))` devuelve el primer estado DE LA
+LISTA que aparezca en CUALQUIER punto de la fila, incluido el TITULO. DRAFT precede a DONE en
+LIFECYCLE, asi que gano el del titulo.
+
+Y LA TAREA SE LLAMA ASI PORQUE VA DE ESO: PT-162 construyo `mover` y `rechazar` para tareas en
+DRAFT. El defecto solo se dispara sobre las tareas cuyo titulo nombra aquello de lo que tratan —
+CE-017 en su forma mas limpia.
+
+SE LEE LA CELDA, como ya hace parseTraceability cuarenta lineas mas arriba en este mismo archivo.
+Otra vez dos formas de contestar la misma pregunta conviviendo, una correcta y otra no.
+
+LO QUE NO SE HIZO: cambiar el titulo de PT-162. Habria escondido el defecto renombrando el
+sintoma. Ni reordenar LIFECYCLE: el orden no es la causa, cualquier estado en un titulo romperia
+igual.
+
+Y SE CONSERVA EL BARRIDO COMO RESPALDO. Si la fila no es una tabla se sigue evaluando: apagar la
+comprobacion sobre los indices que no usan tabla habria cambiado un falso positivo por un falso
+NEGATIVO, que es peor (RULE-02). Su caso invertido esta en la bateria.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · changes/PT-185-…/
+
+Medido: PT-162 pasa G4 sin tocar su titulo · 4 casos nuevos, incluidos los dos invertidos.
+
+Evidencia: docs/implementation/evidence/PT-185/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-185-el-estado-se-lee-de-su-columna/traceability.md — sin AC huerfano.
+Corrida de la bateria: 1863 casos.

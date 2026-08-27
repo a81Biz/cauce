@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 184,
+    "PT": 185,
     "EP": 26,
     "QA": 0,
     "QR": 0,
@@ -5699,8 +5699,8 @@
       "id": "PT-177",
       "slug": "una-nota-de-reanclaje-perdida-no-se-repara",
       "created": "2026-08-26",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "BUG",
       "severity": "S3",
@@ -5714,7 +5714,43 @@
         "fecha": "2026-08-26"
       },
       "origin": "Aplazado desde PT-161 el 2026-08-26",
-      "issue": 324
+      "issue": 324,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-27",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      },
+      "origen_parada": {
+        "de": "PT-161",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-27"
+      }
     },
     {
       "id": "PT-178",
@@ -5910,6 +5946,55 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-27"
         }
+      },
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      ]
+    },
+    {
+      "id": "PT-185",
+      "slug": "el-estado-se-lee-de-su-columna",
+      "created": "2026-08-27",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.3.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-024",
+      "title": "El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe",
+      "issue": 335,
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1508,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      },
+      "origen_parada": {
+        "de": "PT-162",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-27"
       }
     }
   ]

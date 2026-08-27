@@ -114,7 +114,7 @@
 | PT-168 | BUG | S1 | DONE | EP-024 | audit da por cubierta la fase de un componente si el NUMERO aparece en cualquier sitio del documento |
 | PT-170 | BUG | S2 | DONE | EP-024 | EXEC-R04 no reconoce una constancia real porque su encabezado usa otra palabra |
 | PT-171 | BUG | S3 | DEFERRED | EP-024 | Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto |
-| PT-177 | BUG | S3 | DEFERRED | EP-024 | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
+| PT-177 | BUG | S3 | DONE | EP-024 | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
 | PT-178 | BUG | S2 | DONE | EP-024 | avanzar deja salir de PHASE 1 sin que exista el Intake |
 | PT-179 | BUG | — | DRAFT | EP-026 | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
 | PT-180 | BUG | — | DRAFT | EP-026 | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
@@ -122,3 +122,4 @@
 | PT-182 | BUG | — | DRAFT | EP-026 | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
 | PT-183 | BUG | S1 | DONE | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
 | PT-184 | BUG | S1 | DONE | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
+| PT-185 | BUG | S2 | DONE | EP-024 | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |

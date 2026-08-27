@@ -8,8 +8,8 @@ id: PT-155
 type: CHORE
 epic: EP-024
 track: STANDARD
-status: DRAFT
-phase: 1
+status: DONE
+phase: 8
 created: 2026-08-26
 structural: no
 suite_version: 13.2.0
