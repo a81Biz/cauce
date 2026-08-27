@@ -38,7 +38,7 @@ Proyectado el 2026-08-27 · 38 allocation(es) viva(s).
 | PT-174 | CHORE | DEFERRED | 1 | — | — | — |
 | PT-175 | CHORE | DEFERRED | 1 | — | — | — |
 | PT-176 | CHORE | DEFERRED | 1 | — | — | — |
-| PT-177 | BUG | DRAFT | 4 | — | — | — |
+| PT-177 | BUG | DRAFT | 5 | — | — | — |
 | PT-178 | BUG | DONE | 8 | chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda | 512cfb9 | 512cfb9 |
 | EP-026 |  | DRAFT | 1 | — | — | — |
 | PT-179 | BUG | DRAFT | 1 | — | — | — |
