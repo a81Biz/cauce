@@ -1,8 +1,8 @@
 {
-  "pt": "PT-161",
-  "type": "CHORE",
+  "pt": "PT-163",
+  "type": "BUG",
   "epic": "EP-024",
-  "status": "DONE",
+  "status": "VALIDATION_PENDING",
   "phase": 8,
   "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
