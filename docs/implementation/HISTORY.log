@@ -11048,3 +11048,50 @@ Medido: 4 errores de FDGE-R01 sobre tareas sin empezar -> 4 avisos · PHASE 2 si
 Evidencia: docs/implementation/evidence/PT-186/ — manifest, self-review y la salida de la corrida.
 Trazabilidad: changes/PT-186-phase-1-no-tiene-todavia-su-intake/traceability.md — sin AC huerfano.
 Corrida de la bateria: 1867 casos.
+
+## PT-180 — El slug del registro y el de la carpeta divergen, y cada herramienta usa uno
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-024
+Rama: chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-27 Alberto Martinez
+Clase de evento: CE-008 — un hecho con varios nombres
+
+UNA ALLOCATION DE 211 BLOQUEO EL CIERRE DEL LOTE DESPUES DE G4. Al integrar EP-024:
+
+    FDGE-R23  PT-155: no existe .\changes\PT-155-los-contratos-sin-asercion\intake.md
+
+    registro:  PT-155-los-contratos-sin-asercion
+    disco:     PT-155-verify-patrones-comprueba-dos-de-siete
+
+DOCE SITIOS de tracker.mjs componian la ruta a mano como `changes/<id>-<slug>` con el slug DEL
+REGISTRO, y cada uno reacciona distinto cuando no existe: `integrar` revienta, `cursor` cuenta la
+fase como «sin rastro», `avanzar` no sincroniza el YAML Y NO LO DICE. 27 de 28 en estado terminal, y
+la que faltaba no podia pasar.
+
+Es tambien el origen de los «30 nodos sin rastro» que el cursor reportaba sobre este lote: un
+informe lleno de falsos, que por eso nadie miraba. El defecto se descubrio en la sesion anterior y
+se aplazo a EP-026; volvio como BLOQUEO del cierre, y por eso se movio a EP-024.
+
+SE BUSCA POR PREFIJO, como ya hace `ptDir` en verify-fdge — otra vez dos formas de contestar la
+misma pregunta conviviendo, una correcta y otra no (RULE-01).
+
+Y LA DIVERGENCIA SE NOMBRA, que es la mitad que importa. Encontrar la carpeta desbloquea el comando
+y NO arregla que haya dos nombres para un hecho: sin decirlo, el defecto sobrevive callado y el
+siguiente sitio que componga una ruta a mano vuelve a romperse. El registro sigue asignando
+(SUITE-R08); lo que se corrige es SUPONER QUE EL DISCO LE OBEDECIO.
+
+LO QUE NO SE HIZO: renombrar la carpeta —sus rutas estan en HISTORY, en la evidencia y en commits
+ya fusionados a main— ni reescribir el slug del registro, que ningun comando hace y a mano es
+SUITE-R08. Los dos nombres siguen ahi, y ahora se ven.
+
+Archivos modificados: tools/tracker.mjs · tools/selftest.sh · changes/PT-180-…/
+
+Medido: 12 sitios componiendo la ruta a mano -> 0 · 1 divergencia de 211, nombrada.
+
+Evidencia: docs/implementation/evidence/PT-180/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-180-el-slug-del-registro-y-el-de-la-carpeta/traceability.md.
+Corrida de la bateria: 1870 casos.

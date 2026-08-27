@@ -1,34 +1,19 @@
 {
-  "pt": "PT-186",
+  "pt": "PT-180",
   "type": "BUG",
   "epic": "EP-024",
-  "status": "DONE",
+  "status": "INTEGRATED",
   "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
-  "sha": "56f538734718fa37f581fa1d15a158fca2451007",
-  "sha_corto": "56f5387",
+  "fase": null,
+  "rama": "trabajo",
+  "sha": "46f8c0f9187f6eacf55a58d0439cb0a58e1e518c",
+  "sha_corto": "46f8c0f",
   "sucio": true,
   "archivos": [
-    "changes/PT-186-phase-1-no-tiene-todavia-su-intake/",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/BACKLOG.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/DISCOVERY.md",
-    "docs/implementation/EVENTOS.jsonl",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/MATRIZ.md",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-186/",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/verify-fdge.mjs"
+    "docs/implementation/HANDOFF.md"
   ],
   "compuerta": null,
-  "produce": [
-    "HISTORY.log",
-    "índice"
-  ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "produce": [],
+  "siguiente": "PT-180 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
   "generado": "2026-08-27"
 }

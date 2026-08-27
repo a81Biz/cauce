@@ -4,7 +4,7 @@
 ---
 id: EP-024
 type: EPIC
-status: DRAFT
+status: CLOSED
 created: 2026-08-25
 suite_version: 13.2.0
 origin: hallazgos de EP-022, cada uno enlazado a la parada que lo encontró
@@ -108,6 +108,8 @@ puede cumplir saltándose la herramienta no se cumple: se rodea»*.
 | Cuántos casos se retiraron y por cuál de los tres patrones | **HECHO — ninguno, y se dice la cifra aunque sea cero** (`SUITE-R61`). `superado 0 · invertido 0 · hueco 1`. El único encontrado —un `sed` sobre un `SIN_EVALUAR` que `PT-156` ya había quitado— **no se retiró: se arregló**, porque su premisa seguía valiendo por el otro lado. La batería creció de `1749` a `1850` casos. |
 | Lo que `PT-168` destape sobre la cobertura real | **HECHO, y la cifra BAJÓ al mirarla bien.** El denominador no miraba `LEXICON` ni `EXECUTION-MODES` (+53 reglas), y 23 reglas contaban por una **mención** en un comentario — cinco de ellas sólo en `selftest.sh`, que ninguna compuerta ejecuta. Real: **113 verificadas · 6 no evaluables declaradas · 125 pendientes**, de 244. La cifra anterior era más alta y **medía otra cosa**. |
 | Lo que este lote encontró de sí mismo | **HECHO — cuatro defectos y un lote nuevo.** `EP-026` recoge lo que da verde sin mirar: `PT-179` (`verify-fdge` avisa donde debe bloquear), `PT-180` (el slug del registro y el de la carpeta divergen), `PT-181` (la expectativa de un caso se compara como **regex**: 303 de 1476), `PT-182` (el mapa fase→artefacto, a mano en dos herramientas). Y `PT-183` entró **en este lote** porque bloqueaba su cierre: nueve `PT` sin lote por una bandera que se ignoraba en silencio. |
+| Lo que apareció **al cerrar**, después de `G4` | **HECHO — seis defectos más, cuatro de ellos bloqueantes.** `PT-183` (`S1`, una bandera ignorada dejó nueve `PT` sin lote) · `PT-184` (`S1`, `G4` se bloqueaba a sí misma: publicar la rama era lo que la desviaba) · `PT-185` (el índice era correcto y la comprobación lo acusaba) · `PT-186` (abrir una tarea dejaba la CI en rojo) · `PT-180` (una allocation de 211 bloqueó el cierre **después** del merge) · `PT-177` (la nota de reanclaje perdida, retomada porque su condición se cumplió). Ninguno se habría encontrado leyendo: los seis salieron **al ejecutar el cierre**. |
+| El tag y la publicación | **PENDIENTE — son del firmante.** El tag `v13.3.0` es el paso 8, posterior al merge (`SUITE-R06a`); `npm publish` está reservado. Y al ir a etiquetar se midió que **35 de 46 versiones del `CHANGELOG` no tienen tag**, cinco publicadas en npm no lo tienen, y tres están en npm y no en el `CHANGELOG`: es `PT-187`, en `EP-026`. |
 | Los dos aplazados | **HECHO — declarados, no olvidados.** `PT-171` y `PT-177`, los dos con condición de reentrada, fecha de revisión (`2026-09-30`) y dueño, según `SUITE-R44`. |
 
 ## 7. Firma   `INTAKE-R06` · `SUITE-R27`
