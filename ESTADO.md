@@ -30,7 +30,7 @@ Proyectado el 2026-08-26 · 30 allocation(es) viva(s).
 | PT-167 | BUG | DONE | 8 | — | — | 72f5422 |
 | PT-168 | BUG | DONE | 8 | — | — | 72f5422 |
 | PT-169 | CHORE | DONE | 8 | — | — | 6eb022b |
-| PT-170 | BUG | DRAFT | 2 | — | — | — |
+| PT-170 | BUG | DRAFT | 3 | — | — | — |
 | PT-171 | BUG | DRAFT | 1 | — | — | — |
 | PT-172 | CHORE | DEFERRED | 1 | — | — | abd0678 |
 | EP-025 |  | DRAFT | 1 | — | — | abd0678 |
