@@ -2,9 +2,9 @@
   "pt": "PT-186",
   "type": "BUG",
   "epic": "EP-024",
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "56f538734718fa37f581fa1d15a158fca2451007",
   "sha_corto": "56f5387",
@@ -13,13 +13,17 @@
     "changes/PT-186-phase-1-no-tiene-todavia-su-intake/",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/evidence/PT-186/",
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-27"
 }
