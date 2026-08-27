@@ -1819,13 +1819,49 @@ const RAMA_TRABAJO = (() => {
   } catch { return null; }
 })();
 
+
+// ── PT-180 · LA CARPETA DE UN PT SE BUSCA, NO SE SUPONE ────────────────────
+//
+// Doce sitios de este archivo componian la ruta como `changes/<id>-<slug>` con el slug DEL
+// REGISTRO. Cuando el slug del registro y el de la carpeta divergen, los doce apuntan a una ruta
+// que no existe — y cada uno reacciona distinto: `integrar` revienta, `cursor` cuenta la fase como
+// «sin rastro», `avanzar` no sincroniza el YAML y no lo dice.
+//
+// Medido: UNA allocation de 211. PT-155 — registro «los-contratos-sin-asercion», carpeta
+// «PT-155-verify-patrones-comprueba-dos-de-siete». Y con esa sola basto para BLOQUEAR el cierre de
+// EP-024 despues de G4: 26 de 27 integradas, y la que faltaba no podia pasar.
+//
+// SE BUSCA POR PREFIJO, como ya hace `ptDir` en verify-fdge — otra vez dos formas de contestar la
+// misma pregunta, una correcta y otra no (RULE-01).
+//
+// Y LA DIVERGENCIA SE NOMBRA. Encontrar la carpeta no arregla que haya dos nombres para un hecho
+// (CE-008): sin decirlo, el defecto sobrevive callado y el siguiente comando que componga la ruta a
+// mano vuelve a romperse. El registro sigue asignando (SUITE-R08); lo que se corrige es suponer que
+// el disco le obedecio.
+const carpetasDeChanges = (() => {
+  try { return readdirSync(join(ROOT, 'changes')); } catch { return []; }
+})();
+const divergenciasDeSlug = [];
+function carpetaDe(a) {
+  const id = String(a?.id ?? '');
+  if (!id) return null;
+  const esperada = a?.slug ? `${id}-${a.slug}` : id;
+  if (carpetasDeChanges.includes(esperada)) return join(ROOT, 'changes', esperada);
+  const real = carpetasDeChanges.find((d) => d === id || d.startsWith(`${id}-`));
+  if (!real) return join(ROOT, 'changes', esperada);   // no existe: se devuelve la esperada
+  if (!divergenciasDeSlug.some((d) => d.id === id)) {
+    divergenciasDeSlug.push({ id, registro: esperada, disco: real });
+  }
+  return join(ROOT, 'changes', real);
+}
+
 const contextoCuerpo = (a) => ({
   ...REPO,
   ramaTrabajo: RAMA_TRABAJO,
   // PT-048 · el dato viaja en el contexto y NO se lee dentro de `cuerpoDeIssue`: esa funcion es
   // pura y exportada a proposito —para que un caso pueda comprobarla sin hablar con la
   // plataforma ni con el disco—, y meterle un `existsSync` la habria devuelto a ser inprobable.
-  hayDirectorio: existsSync(join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`)),
+  hayDirectorio: existsSync(carpetaDe(a)),
   // PT-079 · el ref DURABLE se calcula aqui, no en cuerpoDeIssue: esa funcion es pura a
   // proposito (PT-048) y meterle git la devolveria a ser improbable.
   refDurable: refDurableDe(a),
@@ -1849,7 +1885,7 @@ const contextoCuerpo = (a) => ({
  * ha producido nada» que «no se pudo mirar», y el cuerpo lo dice distinto (`RULE-06`).
  */
 function artefactosDe(a) {
-  const dir = join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`);
+  const dir = carpetaDe(a);
   if (!existsSync(dir)) return null;
   try { return new Set(readdirSync(dir)); } catch { return null; }
 }
@@ -3051,7 +3087,7 @@ function tipo() {
   if (!a) throw new Error(`${id} no existe en el registro. El registro asigna (SUITE-R08).`);
   if (esLote(a)) throw new Error(`${id} es un lote y un lote NO lleva «type» (LEX-R27).`);
 
-  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const fIntake = join(carpetaDe(a), 'intake.md');
   if (!existsSync(fIntake)) throw new Error(`${id} no tiene intake en ${fIntake}: sin el no hay de donde derivar el tipo.`);
   const enYaml = readFileSync(fIntake, 'utf8').match(/^type:[ \t]*([A-Z]+)[ \t]*$/m)?.[1];
   if (!enYaml) {
@@ -3551,7 +3587,7 @@ function avanzar() {
   // seria exigir el resultado de la fase para poder empezarla. A partir de PHASE 2 el archivo tiene
   // que existir, y quien lo borre despues lo vera en el siguiente avanzar.
   if (Number(actual) === 1 && Number(destino) > 1) {
-    const fIntakeR01 = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+    const fIntakeR01 = join(carpetaDe(a), 'intake.md');
     if (!existsSync(fIntakeR01)) {
       const ruta = `changes/${a.slug ? `${a.id}-${a.slug}` : a.id}/intake.md`;
       throw new Error(`${id}: no existe ${ruta} y PHASE 1 no `
@@ -3569,7 +3605,7 @@ function avanzar() {
   // «antes === null» importa: CHECKPOINT.json puede NO EXISTIR antes del primer avanzar, y
   // restaurarlo significa BORRARLO. Un archivo vacio donde no habia nada es un estado que no
   // existia, y eso es lo que su caso comprueba.
-  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const fIntake = join(carpetaDe(a), 'intake.md');
   const tocados = [join(IMPL, 'REGISTRY.json'), fIntake, join(IMPL, 'CHECKPOINT.json'), join(IMPL, 'HANDOFF.md')];
   const respaldo = tocados.map((f) => ({ f, antes: existsSync(f) ? readFileSync(f, 'utf8') : null }));
   const restaurar = () => {
@@ -3773,7 +3809,7 @@ function sellar() {
         return s.trim().split(/\r?\n/).filter(Boolean)
           .map((x) => x.replace(/^changes\//, '').replace(/\/$/, ''));
       },
-      (a) => existsSync(join(ROOT, 'changes', a?.slug ? `${a.id}-${a.slug}` : `${a?.id}`)),
+      (a) => existsSync(carpetaDe(a)),
       reg.allocations ?? [],
     );
     return { tag, ids };
@@ -4339,7 +4375,7 @@ function cursor() {
     const sinRastro = [];
     const sinEvaluar = [];
     for (const h of hijos) {
-      const dh = join(ROOT, 'changes', h.slug ? `${h.id}-${h.slug}` : String(h.id));
+      const dh = carpetaDe(h);
       const eh = join(IMPL, 'evidence', String(h.id));
       const hay = (p) => existsSync(p);
       const RASTRO_H = {
@@ -4374,7 +4410,7 @@ function cursor() {
   }
 
   if (!esLoteNodo(actual)) {
-    const dir = join(ROOT, 'changes', actual.slug ? `${actual.id}-${actual.slug}` : String(actual.id));
+    const dir = carpetaDe(actual);
     const ev = join(IMPL, 'evidence', String(actual.id));
     const hay = (p) => existsSync(p);
     const RASTRO = {
@@ -4463,7 +4499,7 @@ function integrar() {
     return;
   }
 
-  const dir = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id);
+  const dir = carpetaDe(a);
   const intake = join(dir, 'intake.md');
   if (!existsSync(intake)) {
     fail('FDGE-R23', `${id}: no existe ${intake.replace(ROOT, '.')}. El YAML del intake es la `
@@ -4735,7 +4771,7 @@ function aplazar() {
   // tiene ninguna sin sincronizar»— en CI, no en local, y solo despues de aplazar dieciseis.
   // La ruta se DERIVA como en el resto del archivo (tracker.mjs:2844), no se busca por prefijo:
   // dos tareas cuyo id sea prefijo de otro darian con la carpeta equivocada.
-  const fi = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const fi = join(carpetaDe(a), 'intake.md');
   if (existsSync(fi)) {
     const antes = readFileSync(fi, 'utf8');
     const despues = antes.replace(/^status:[ 	]*\S+[ 	]*$/m, 'status: DEFERRED');
@@ -4853,7 +4889,7 @@ function retomar() {
   //
   // Se decide MIRANDO si el intake existe, no preguntando ni suponiendo. Elegir un destino fijo
   // habria derogado a uno de los dos documentos desde una herramienta (SUITE-R00).
-  const fIntake = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const fIntake = join(carpetaDe(a), 'intake.md');
   const conIntake = existsSync(fIntake);
   const destino = conIntake ? 'READY' : 'DRAFT';
   const faseDestino = conIntake ? (a.phase ?? 1) : 1;
@@ -5106,7 +5142,7 @@ function rechazar() {
 
 /** El YAML del intake dice lo mismo que el registro, o no se toca nada (PT-149). */
 function sincronizaIntake(a, re, linea) {
-  const fi = join(ROOT, 'changes', a.slug ? `${a.id}-${a.slug}` : a.id, 'intake.md');
+  const fi = join(carpetaDe(a), 'intake.md');
   if (!existsSync(fi)) return;
   const antes = readFileSync(fi, 'utf8');
   const despues = antes.replace(re, linea);
@@ -5221,6 +5257,14 @@ if (ACCION === 'notas' || ACCION === 'pendiente') {
 }
 try { acciones[ACCION](); } catch (e) { console.error(String(e.message ?? e)); process.exit(1); }
 
+// PT-180 · LA DIVERGENCIA SE NOMBRA. Encontrar la carpeta por prefijo desbloquea el comando y NO
+// arregla que haya dos nombres para un hecho (CE-008): sin decirlo, el defecto sobrevive callado y
+// el siguiente sitio que componga la ruta a mano vuelve a romperse. El registro sigue asignando
+// (SUITE-R08); lo que se corrige es SUPONER que el disco le obedecio.
+for (const d of divergenciasDeSlug) {
+  notas.push(`${d.id}: el registro dice «${d.registro}» y en disco esta «${d.disco}». Se uso la del `
+    + 'disco, que es donde vive el trabajo. Un hecho con dos nombres es CE-008 (PT-180).');
+}
 console.log(`tracker · ${PLATAFORMA} · acción ${ACCION}\n`);
 for (const n of notas) console.log(`  · ${n}`);
 if (errores.length) {
