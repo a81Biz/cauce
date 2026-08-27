@@ -15,7 +15,7 @@ Proyectado el 2026-08-26 · 36 allocation(es) viva(s).
 | PT-151 | BUG | DONE | 8 | — | — | fae98a6 |
 | PT-152 | BUG | DONE | 8 | — | — | — |
 | PT-153 | BUG | DONE | 8 | — | — | — |
-| PT-154 | INVESTIGATION | DRAFT | 7 | — | — | — |
+| PT-154 | INVESTIGATION | DONE | 8 | — | — | — |
 | PT-155 | CHORE | DONE | 8 | — | — | — |
 | PT-157 | BUG | DONE | 7 | — | — | — |
 | PT-158 | BUG | DONE | 7 | — | — | — |
