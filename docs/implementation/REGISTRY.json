@@ -6051,7 +6051,19 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-27"
         }
-      }
+      },
+      "declaraciones": [
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        },
+        {
+          "revision": "2026-09-30",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      ]
     }
   ]
 }
