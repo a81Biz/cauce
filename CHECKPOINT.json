@@ -1,10 +1,10 @@
 {
-  "pt": "PT-152",
+  "pt": "PT-158",
   "type": "BUG",
   "epic": "EP-024",
   "status": "DRAFT",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/PT-169-la-bateria-crece-y-nadie-la-poda",
   "sha": "abd067859d77f4f9c5de2566c669af9aef45f202",
   "sha_corto": "abd0678",
@@ -20,7 +20,9 @@
     "docs/methodology/tools/verify-suite.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "strategy.md"
+  ],
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-26"
 }
