@@ -123,7 +123,12 @@ veredicto de cada uno es de quien conoce el caso, no de un barrido.
 **Y el firmante ya decidió cómo tratarlos**: se revisan todos en este lote; si más adelante hay que
 volver a alguno, se vuelve. No se deja una lista abierta esperando.
 
-## 8. Cierre del lote   `SUITE-R45`
+## Cierre del lote   `SUITE-R45`
+
+> **Sin numerar, y no es cosmetica.** `verify-fdge` la busca con `/^##+\s*Cierre del lote/im`
+> (`verify-fdge.mjs:1603`), asi que el «8.» la hacia INVISIBLE: la seccion estaba completa y la
+> compuerta `G4` la daba por ausente. Los otros 24 lotes y la plantilla `EPIC-INTAKE.md:146` la
+> titulan sin numero; el desviado era este intake. Lo destapo `verify-fdge --gate G4`.
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
@@ -134,7 +139,9 @@ volver a alguno, se vuelve. No se deja una lista abierta esperando.
 | La cuenta por patrón que `SUITE-R61` exige | **HECHO — `superado 0 · invertido 1 · hueco 0`, y se dice aunque sean ceros.** El **invertido** es el caso que fijaba `^9 pasos$`: al añadir un décimo paso legítimo falló **castigando la mejora**. No se retiró — se **convirtió** en lo que sí se sostiene: que nadie escriba la cuenta a mano. La batería creció de `1850` a `1916` casos. |
 | Lo que apareció **al cerrar** | **HECHO — cinco hallazgos, ninguno en el Intake y ninguno mío.** `audit` (dos herramientas nuevas sin declarar) · `SUITE-R62` (`sellar:bloques` en la CI y no en `verify`, el hueco exacto de `PT-151`) · `FND-R14` (el inventario, 9551 frente a 9561) · dos cuentas a mano del mismo hecho en `CLAUDE.md` (**18** y **15**, y son **20**) · y el selector **fallando en silencio**, que por diseño deja la batería corriendo entera para siempre. |
 | El carril del propio lote | **CORREGIDO AL CERRAR.** El trabajo estaba ocurriendo sobre `trabajo` y un commit de `PT-188` llegó allí **sin PR**. Se abrió la rama efímera del lote, `trabajo` volvió a `origin/trabajo` y las siete tareas se reanclaron en el registro. Es `FDGE-R19`, y que se saltara **en el lote que existe para impedir saltarse el marco** es el dato, no la anécdota. |
-| El tag y la publicación | **PENDIENTE — son del firmante.** `v13.4.0` es posterior al merge (`SUITE-R06a`); `npm publish` sigue **reservado**. |
+| El tag y la publicación | **MOVIDO A `PT-196`** (`EP-026`), y el motivo es el hallazgo. `v13.4.0` es posterior al merge por `SUITE-R06a`, así que **en `G4` no puede estar `HECHO` ni por definición** — pero `SUITE-R45` exige resolver la fila **en** `G4`. La regla y el orden real se contradicen, y esta fila es donde se ve. `npm publish` sigue **RESERVADO**: la autorización del `2026-08-28` lo excluye por su nombre («salvo publicar»), y consta en `SESSION_LOG.md`. |
+
+> **Lo que esta última fila destapó, y tiene tarea propia.** `PHASE 9` termina en el merge, y todo lo que > viene después —`integrar`, `cerrar`, `cierre`, `proyectar`, el tag— **no es de ninguna fase**: es una > lista de comandos que alguien recuerda. Por eso `SUITE-R45` pide en `G4` una respuesta que `SUITE-R06a` > prohíbe tener todavía. Es `PT-196` (`EP-026`), abierto desde la parada de este mismo cierre.
 
 ## 9. Firma   `INTAKE-R06` · `SUITE-R27`
 

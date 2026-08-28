@@ -31,3 +31,4 @@
 | PT-118 | FEATURE | S1 | INTEGRATED | EP-020 | La taxonomia de clases de evento, cerrada, en LEXICON |
 | PT-119 | FEATURE | S1 | INTEGRATED | EP-020 | tools/matriz.mjs deriva MATRIZ.md |
 | PT-128 | FEATURE | S1 | INTEGRATED | EP-020 | El cursor: donde estas, de donde vienes, a donde vas, y ningun nodo sin visitar |
+| PT-197 | FEATURE | S2 | DRAFT | EP-026 | DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio |

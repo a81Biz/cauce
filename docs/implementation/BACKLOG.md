@@ -14,15 +14,6 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 <!-- BACKLOG:DERIVADO -->
 
-## Implementación abierta — `EP-023`
-
-`EP-023` · **DICTAMEN: el septimo componente, y el entregable ejecutivo al dueno del dominio** · `READY` · issue [#287](https://github.com/a81Biz/cauce/issues/287).
-
-| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
-|:---|:---|:---|:---|:---|:---|:---|
-
-**0 de 0 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
-
 ## Implementación abierta — `EP-025`
 
 `EP-025` · **La bateria se puede certificar: independencia, cierre y sello** · `READY` · issue [#326](https://github.com/a81Biz/cauce/issues/326).
@@ -55,16 +46,20 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-192 | BUG | S2 | DRAFT | 1 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
 | PT-194 | BUG | S2 | DRAFT | 1 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
 | PT-195 | BUG | S2 | DRAFT | 1 | [#353](https://github.com/a81Biz/cauce/issues/353) | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
+| PT-196 | BUG | S2 | DRAFT | 1 | [#355](https://github.com/a81Biz/cauce/issues/355) | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
+| PT-197 | FEATURE | S2 | DRAFT | 1 | [#356](https://github.com/a81Biz/cauce/issues/356) | DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio |
+| PT-198 | BUG | S3 | DRAFT | 1 | [#357](https://github.com/a81Biz/cauce/issues/357) | Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe |
 
-**0 de 6 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**0 de 9 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
-## Aplazado — 3 allocation(s) `DEFERRED`
+## Aplazado — 4 allocation(s) `DEFERRED`
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
 | Id | Tipo | Issue | Por qué sigue fuera |
 |:---|:---|:---|:---|
 | PT-025 | CHORE | [#35](https://github.com/a81Biz/cauce/issues/35) | el adaptador de Azure existe pero no hay proyecto que lo use; escribir la guarda a ciegas seria codigo sin ejecucion |
+| EP-023 | — | [#287](https://github.com/a81Biz/cauce/issues/287) | — |
 | PT-171 | BUG | [#318](https://github.com/a81Biz/cauce/issues/318) | Aplazado desde PT-159 el 2026-08-26 |
 | PT-172 | CHORE | [#319](https://github.com/a81Biz/cauce/issues/319) | Aplazado desde PT-155 el 2026-08-26 |
 

@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 195,
+    "PT": 198,
     "EP": 26,
     "QA": 0,
     "QR": 0,
@@ -4394,7 +4394,7 @@
       "id": "EP-023",
       "slug": "el-dictamen-al-dueno-del-dominio",
       "created": "2026-08-24",
-      "status": "READY",
+      "status": "DEFERRED",
       "phase": 1,
       "suite_version": "13.1.0",
       "title": "DICTAMEN: el septimo componente, y el entregable ejecutivo al dueno del dominio",
@@ -4404,7 +4404,13 @@
           "fecha": "2026-08-24"
         }
       },
-      "issue": 287
+      "issue": 287,
+      "aplazamiento": {
+        "reentrada": "Cuando PT-197 tenga su intake firmado y el Dictamen exista como componente con su especificacion; o cuando el firmante decida que el septimo componente no se construye, y entonces se RECHAZA en vez de reabrirse.",
+        "revision": "2026-09-30",
+        "dueno": "Alberto Martínez",
+        "fecha": "2026-08-28"
+      }
     },
     {
       "id": "EP-024",
@@ -6528,6 +6534,45 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-28"
       }
+    },
+    {
+      "id": "PT-196",
+      "slug": "lo-posterior-a-G4-no-tiene-dueno-en-el-cierre",
+      "created": "2026-08-28",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote",
+      "issue": 355
+    },
+    {
+      "id": "PT-197",
+      "slug": "el-dictamen-al-dueno-del-dominio",
+      "created": "2026-08-28",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "type": "FEATURE",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio",
+      "issue": 356
+    },
+    {
+      "id": "PT-198",
+      "slug": "un-comentario-yaml-hace-invisible-el-status",
+      "created": "2026-08-28",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-026",
+      "title": "Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe",
+      "issue": 357
     }
   ]
 }
