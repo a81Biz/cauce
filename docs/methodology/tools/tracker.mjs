@@ -55,6 +55,8 @@ import {
   // PT-085 · la deuda de sellado, los documentos de entrada y la deriva del grafo.
   sinSellar, selladoEnTag, cuerpoSinEnlaceConRef, issueAAdoptar, TIPOS_DE_ITEM, bloqueDeBacklog,
   MOTIVOS_DE_PARADA, DESENLACES_DE_PARADA, selloSinResolver, derivaDelGrafo, DOCUMENTOS_DE_ENTRADA, rutaRelativaDelManifiesto,
+  // PT-182 · el mapa fase->artefacto, en UN solo sitio y con quien lo consulte.
+  faltaDeFase,
 } from './patrones.mjs';
 // PT-128 · las fases y sus compuertas salen de PHASES.md, no de una lista escrita aqui.
 import { fasesDeFDGE, nodosSinVisitar } from './patrones.mjs';
@@ -3573,28 +3575,47 @@ function avanzar() {
     }
   }
 
-  // PT-178 · SALIR DE PHASE 1 SIN INTAKE
+  // ── PT-182 · CADA FASE DEJA LO SUYO, Y «avanzar» LO EXIGE ────────────────
   //
-  // FDGE-R01 dice que todo trabajo entra por un Intake. Lo comprobaba UNICAMENTE verify-fdge, que
-  // corre en G4 — y entre PHASE 1 y G4 no lo miraba nadie. Este comando SI toca el intake (estampa
-  // su YAML mas abajo, y ya calcula su ruta para el respaldo): sabia donde estaba, y cuando no
-  // estaba seguia adelante en silencio. CE-005, verde por no mirar.
+  // PT-178 cerro UN peldaño: «avanzar» no salia de PHASE 1 sin intake. Quedaban cuatro —PHASE 3,
+  // 4, 6 y 8— y su comprobacion vivia solo en G4, que es donde ya cuesta deshacerlo.
   //
-  // Medido: NUEVE tareas de EP-024 llegaron a PHASE 5 sin intake, cinco de ellas en una sola
-  // sesion, con trabajo real hecho. Descubrirlo en G4 es descubrirlo cuando ya cuesta deshacerlo.
+  // ESO ES LO QUE COSTO SEIS TAREAS. EP-024 y EP-025 produjeron SIETE guardas nuevas, y CINCO
+  // arreglaban la misma forma: una regla HARD cuya unica comprobacion vivia en la compuerta final.
+  // El firmante lo nombro por su causa: «estamos reconstruyendo muchas cosas por habernos saltado
+  // el mismo marco… ya tenemos algunos metodos, pero ahora necesitamos integrar todo».
   //
-  // Se bloquea SOLO la salida de PHASE 1: es la fase que PRODUCE el intake, asi que exigirlo antes
-  // seria exigir el resultado de la fase para poder empezarla. A partir de PHASE 2 el archivo tiene
-  // que existir, y quien lo borre despues lo vera en el siguiente avanzar.
-  if (Number(actual) === 1 && Number(destino) > 1) {
-    const fIntakeR01 = join(carpetaDe(a), 'intake.md');
-    if (!existsSync(fIntakeR01)) {
-      const ruta = `changes/${a.slug ? `${a.id}-${a.slug}` : a.id}/intake.md`;
-      throw new Error(`${id}: no existe ${ruta} y PHASE 1 no `
-        + `puede darse por terminada sin el. Todo trabajo entra por un Intake (FDGE-R01).${SALTO}${SALTO}`
-        + `PHASE 1 es la fase que lo produce: escribelo, firmalo (INTAKE-R06) y vuelve a avanzar.`);
+  // Y LA INTEGRACION NO HABIA QUE INVENTARLA: `tracker cursor` ya comprobaba, fase a fase, que cada
+  // una dejo su artefacto — y no lo invocaba nadie. Ni package.json, ni la CI, ni «avanzar», ni
+  // ninguna compuerta. Estaba escrito y desconectado.
+  //
+  // Ahora el mapa se declara UNA vez —ARTEFACTO_DE_FASE, en patrones.mjs— y esto lo consulta en
+  // CADA transicion: la fase que se CIERRA tiene que haber dejado lo suyo. Las cinco dejan de ser
+  // hallazgos de G4 y pasan a ser imposibles.
+  //
+  // Una fase que NO declara artefacto devuelve null, y eso NO es «esta completa»: es que no se
+  // sabe, y no se inventa (RULE-06). Se deja pasar y se dice en el cursor, que es quien lo enumera.
+  {
+    const dirPT = carpetaDe(a);
+    const dirEv = join(IMPL, 'evidence', String(a.id));
+    const hay = (donde, archivo) => existsSync(
+      donde === 'evidencia' ? join(dirEv, archivo)
+        : donde === 'ledger' ? join(IMPL, archivo)
+          : join(dirPT, archivo),
+    );
+    // La fase que se cierra es la ACTUAL: se sale de ella, asi que su artefacto ya deberia estar.
+    const f = faltaDeFase(actual, hay);
+    if (f && f.falta.length) {
+      const dondeDice = f.donde === 'evidencia' ? `docs/implementation/evidence/${a.id}/`
+        : f.donde === 'ledger' ? 'docs/implementation/' : `changes/${a.id}-${a.slug}/`;
+      throw new Error(`${id}: PHASE ${actual} no puede darse por terminada — falta `
+        + `${f.falta.join(' y ')} en ${dondeDice}.${SALTO}${SALTO}`
+        + `Cada fase deja su artefacto, y «avanzar» es la unica puerta entre fases (FDGE-R52). `
+        + `Comprobarlo solo en G4 es descubrirlo cuando ya cuesta deshacerlo — y eso es lo que `
+        + `costo seis tareas entre EP-024 y EP-025 (PT-182).`);
     }
   }
+
 
   if (ARGS.includes('--ver')) {
     notas.push(`--ver: ${id} PHASE ${actual} -> ${destino} ${FASES[destino].nombre}. Valido, y NO se ha escrito nada.`);

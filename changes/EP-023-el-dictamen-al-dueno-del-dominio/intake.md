@@ -18,7 +18,11 @@
 ---
 id: EP-023
 created: 2026-08-24
-status: READY              # G1 CHALLENGE aceptado · 2026-08-24
+# G1 CHALLENGE aceptado · 2026-08-24 — el comentario va AQUI y no al final de la linea
+# de «status»: tracker la lee con /^status:[ 	]*\S+[ 	]*$/m y un comentario en linea
+# la hace invisible, con el mensaje «no declara status» cuando SI lo declara. Tiene tarea
+# propia en EP-026; no se cita aqui su identificador porque INTAKE-R09 exigiria su carpeta.
+status: DEFERRED
 mode: SUPERVISED
 origin: DIRECT
 depende_de: EP-022
@@ -260,10 +264,25 @@ QUÉ CIERRA EL HUECO, sin necesidad de volver a firmar:
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | PENDIENTE |
-| Número de versión | PENDIENTE — **`MINOR` esperado** por la restricción aditiva (decisión 13). Un `MAJOR` significaría que se salió del alcance |
-| La fila de `CASOS-DE-USO.md` | PENDIENTE — y su hueco declarado deja de ser un silencio |
-| El Dictamen de cauce sobre sí mismo | PENDIENTE — es `T5`, y es la única evidencia de que el componente sirve |
+| Entrada de `CHANGELOG.md` | **MOVIDO A `PT-197`** (`EP-026`). Este lote no produjo ninguna tarea, así que no hay nada suyo que anotar: la entrada la escribirá quien haga el trabajo. |
+| Número de versión | **MOVIDO A `PT-197`** (`EP-026`). El `MINOR` esperado sigue siendo el pronóstico correcto —la restricción aditiva no cambió— pero lo decide el lote que ejecute, no éste. |
+| La fila de `CASOS-DE-USO.md` | **MOVIDO A `PT-197`** (`EP-026`). El hueco declarado sigue siendo un hueco, y ahora tiene dueño. |
+| El Dictamen de cauce sobre sí mismo | **MOVIDO A `PT-197`** (`EP-026`). Era `T5` y la única evidencia de que el componente sirve; sigue siéndolo, en un identificador que sí nace descompuesto. |
+
+> **Este lote se APLAZA, no se cierra**   `SUITE-R44` · `2026-08-28`
+>
+> Fue admitido el `2026-08-24` con `G1` **`CHALLENGE`**: el agente objetó que no estaba
+> descompuesto —`DoR-E6`— y el firmante ordenó admitirlo igualmente *«para que no se me olvide»*.
+> Cuatro días después seguía con **cero tareas**, y sus cuatro filas en `PENDIENTE` **bloqueaban el
+> `G4` de `EP-025`**: un lote vacío y abierto impidiendo cerrar a otro que sí había terminado.
+>
+> Lo destapó `verify-fdge --gate G4`, no una lectura. El `CHALLENGE` tenía razón, y esto es lo que
+> pasa cuando se acepta: el hueco no desapareció del registro — reapareció en la compuerta.
+>
+> **Reentrada:** cuando `PT-197` tenga su intake firmado y el Dictamen exista como componente con
+> su especificación; o cuando el firmante decida que el séptimo componente **no** se construye, y
+> entonces se **rechaza** en vez de reabrirse.
+> **Revisión:** `2026-09-30` · **Dueño:** Alberto Martínez
 
 ---
 

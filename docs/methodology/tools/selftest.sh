@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# cauce:senuelos — este archivo contiene contrasenas, JWT y claves SINTETICAS a proposito:
+# son los fixtures con que se prueba que revisar-secretos funciona. La declaracion es EXPLICITA
+# y vale este donde este; la exencion no puede depender de cuantos caracteres la preceden (PT-190).
 # selftest — Prueba los verificadores contra un proyecto sintético.
 #
 # Existe porque la 4.0.0 salió con cuatro defectos críticos que solo eran visibles
@@ -37,6 +40,9 @@ ACOTADO=""
 # Antes de la primera «sec» todo esta activo: lo que hay ahi es preambulo, no una seccion.
 SEC_ACTIVA=1
 SECCIONES_ACTIVAS=""
+TODO=""
+SECCION=""
+_espera_seccion=""
 SECCIONES_SALTADAS=""
 _espera_solo=""
 for _a in "$@"; do
@@ -44,12 +50,26 @@ for _a in "$@"; do
   # `--solo "-q"` se comia la bandera y dejaba --solo sin valor: el patron mas natural para
   # buscar los casos de PT-049 era justo ese. Lo dijo ejecutarlo.
   if [ -n "$_espera_solo" ]; then SOLO="$_a"; _espera_solo=""; continue; fi
+  if [ -n "$_espera_seccion" ]; then SECCION="$_a"; _espera_seccion=""; continue; fi
   case "$_a" in
     -q|--quiet) QUIET=1 ;;
     --solo)     _espera_solo=1 ;;
+    # PT-173 · corre UNA seccion sola, con $WORK recien creado. Es lo que decide si un bloque se
+    # puede sellar: su resultado tiene que ser SUYO, no de la secuencia en que corrio.
+    #
+    # Cuatro criterios ESTATICOS dieron cuatro cifras distintas —595, 292, 111, 276— y los cuatro
+    # eran falsos: un analisis por lineas de shell no ve comandos de varias lineas, ni rutas
+    # construidas con variables, ni funciones invocadas por sustitucion. Afinarlo es perseguir la
+    # sintaxis del shell, que es lo que SUITE-R59 documento doce veces por el otro lado.
+    #
+    # Esto no estima: EJECUTA. Y la seccion que falle sola dice exactamente que le falta.
+    --seccion)  _espera_seccion=1 ;;
     # PT-086 · corre SOLO las secciones que ejercitan lo que ha cambiado. Deriva las secciones
     # del propio arnes —nada de una tabla a mano, que envejeceria— y los cambios de git.
     --afectados) AFECTADOS=1 ;;
+    # PT-176 · --todo desactiva el salto de lo sellado. Sellar exige una corrida COMPLETA, asi que
+    # sin forma de pedirla el sello no se podria renovar nunca (SUITE-R57).
+    --todo)      TODO=1 ;;
     *) [ -n "$POS" ] || POS="$_a" ;;
   esac
 done
@@ -58,6 +78,48 @@ if [ -n "$_espera_solo" ]; then
   exit 2
 fi
 WORK="${POS:-$(mktemp -d)}/mth-selftest"
+
+# ── PT-188 · $WORK NO PUEDE SER EL REPOSITORIO ────────────────────────────
+#
+# OCURRIO. Un fixture con «( cd "$WORK"» SIN «&&» siguio en el directorio actual cuando el cd
+# fallo, y ahi cayeron sus git: init, commit, checkout -b, merge. Sobre el arbol de verdad.
+# El repositorio quedo en main con 4 allocations donde habia 213, y dos ramas de fixture.
+#
+# Los cinco «cd» sueltos ya se detienen. Esto es la segunda puerta, y mira lo que la primera no
+# puede: que $WORK sea una ruta que NO se debe tocar aunque el cd funcione.
+#
+# SUITE-R06 reserva a una persona migrar datos y reescribir historia. Un arnes que puede hacer
+# las dos sin que nadie lo decida no es un arnes: es un riesgo con casos de prueba.
+# LA RAIZ SE PREGUNTA A GIT, no se cuenta por profundidad. La primera version derivaba
+# «${BASH_SOURCE[0]}/../../..», que asume que el arnes vive en docs/methodology/tools/ — lo que
+# SUITE-R37 declara, si, pero un proyecto destino que lo mueva se queda SIN GUARDA Y SIN AVISO.
+# Y este arnes VIAJA EN EL PAQUETE: corre en cada destino, sobre un arbol que no es este.
+#
+# Se prefiere git porque responde por el arbol REAL; se cae a la profundidad cuando no hay git, y
+# si tampoco eso se puede, se DICE en vez de aprobar por omision (RULE-06).
+# Y SE NORMALIZA CON «cd + pwd». En Windows, «git rev-parse --show-toplevel» devuelve
+# «C:/DevOps/...» y «pwd» de este shell devuelve «/c/DevOps/...»: la comparacion NO CASABA y la
+# guarda quedaba muda. Pasar los dos por «cd && pwd» los deja en la misma forma. Es el mismo tipo
+# de defecto que PT-184 —comparar «origin/x» con «x»— en otro sitio.
+_raiz_real="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null)"
+[ -n "$_raiz_real" ] && _raiz_real="$(cd "$_raiz_real" 2>/dev/null && pwd)"
+if [ -z "$_raiz_real" ]; then
+  _raiz_real="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." 2>/dev/null && pwd)"
+fi
+if [ -z "$_raiz_real" ]; then
+  echo "selftest: no se pudo derivar la raiz del repositorio: la guarda de \$WORK queda SIN" >&2
+  echo "          EVALUAR y el arnes NO arranca. No se aprueba por omision (RULE-06, PT-188)." >&2
+  exit 3
+fi
+case "$WORK" in
+  "$_raiz_real"|"$_raiz_real"/*)
+    echo "selftest: \$WORK apunta DENTRO del repositorio ($WORK)." >&2
+    echo "          El arnes escribe, borra y hace git ahi. No se arranca (PT-188, SUITE-R06)." >&2
+    exit 3 ;;
+  ""|/|/tmp|/tmp/)
+    echo "selftest: \$WORK vacio o demasiado alto ($WORK). No se arranca (PT-188)." >&2
+    exit 3 ;;
+esac
 FAILED=0
 # La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`), también aquí: el fixture la tenía
 # escrita a mano y era una copia más del número —la misma avería que este arnés existe para
@@ -464,7 +526,7 @@ M
 # Viven aqui, con el resto del montaje compartido, que es donde se buscan.
 # E3/E4/E5 · AC-03 · sesion se prueba en el FIXTURE, y comprueba lo mismo que antes.
 git_fixture() {  # git inicializado, para que «sesion abrir» tenga un HEAD que marcar
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1
@@ -506,6 +568,26 @@ if [ -n "$SOLO" ] && [ -z "$AFECTADOS" ]; then
   [ -n "$QUIET" ] || echo "--solo «$SOLO» · $(echo "$SECCIONES_ACTIVAS" | tr -cd '|' | wc -c | tr -d ' ') delimitador(es) de seccion activa"
 fi
 
+# PT-173 · UNA sola seccion. No usa `seccionesConCaso` —que busca un patron entre los CASOS— sino
+# el nombre de la seccion, porque lo que se aisla es el bloque, no un caso suelto.
+if [ -n "$SECCION" ]; then
+  SECCIONES_ACTIVAS=$(MTH_ST="$SUITE/tools/selftest.sh" MTH_SEC="$SECCION" node -e "
+      const fs=require('fs');
+      const t=fs.readFileSync(process.env.MTH_ST,'utf8');
+      const S=String.fromCharCode(10);
+      const nombres=t.split(S).filter((l)=>l.startsWith('sec \"'))
+        .map((l)=>l.slice(5).replace(/\"$/,'').trim())
+        .filter((n)=>n.includes(process.env.MTH_SEC));
+      process.stdout.write('|'+nombres.join('|')+'|');")
+  ACOTADO=1
+  if [ "$SECCIONES_ACTIVAS" = "||" ] || [ -z "$SECCIONES_ACTIVAS" ]; then
+    echo "selftest: NINGUNA SECCION casa «$SECCION». Un patron que no casa nada es ROJO: el silencio"
+    echo "          se lee como exito, y eso es lo que PT-023 encontro ejecutando."
+    rm -rf "$WORK"; exit 1
+  fi
+  [ -n "$QUIET" ] || echo "--seccion «$SECCION» · $(echo "$SECCIONES_ACTIVAS" | tr -cd '|' | wc -c | tr -d ' ') seccion(es)"
+fi
+
 if [ -n "$AFECTADOS" ]; then
   # MTH_CAMBIADAS permite probar LA PROPIA SELECCION sin depender del estado de git. Sin ella
   # no se puede comprobar que --afectados acota de verdad: el dia que se escribio, cinco
@@ -518,7 +600,16 @@ if [ -n "$AFECTADOS" ]; then
       import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
         const t=fs.readFileSync(process.env.MTH_ST,'utf8');
         const c=(process.env.MTH_CAMB||'').split(/\s+/).filter(Boolean);
-        process.stdout.write('|'+m.seccionesAfectadas(t,c).join('|')+'|');
+        // PT-174 · EL CIERRE TRANSITIVO. Comparar el nombre del archivo que cambio con el que la
+        // seccion menciona deja fuera a quien lo IMPORTA: un cambio en patrones.mjs activaba 16 de
+        // 46, y a patrones.mjs lo importan NUEVE herramientas. Sellar sobre entradas incompletas
+        // certifica DE MENOS. Con el cierre: 44 de 46.
+        const dir=require('path').dirname(process.env.MTH_PAT);
+        const fuentes={};
+        for(const f of fs.readdirSync(dir).filter(x=>x.endsWith('.mjs')))
+          fuentes[f]=fs.readFileSync(require('path').join(dir,f),'utf8');
+        const cierre=m.importadoresDe(fuentes,c);
+        process.stdout.write('|'+m.seccionesAfectadas(t,cierre).join('|')+'|');
       });")
   if [ -z "$_cambiadas" ]; then
     echo "--afectados: git no reporta cambios en tools/ ni bin/. Corren TODAS las secciones:"
@@ -530,6 +621,34 @@ if [ -n "$AFECTADOS" ]; then
     echo "--afectados · cambiaron: $(echo "$_cambiadas" | tr '
 ' ' ')"
     echo ""
+  fi
+fi
+
+# ── PT-176 · LO SELLADO NO SE CORRE ────────────────────────────────────────
+#
+# Un bloque certificado DEJA DE CORRER. No es «corre y se ignora»: no se ejecuta.
+#
+# El bloque de una seccion se deriva del commit que la introdujo, asi que la clasificacion es
+# RETROACTIVA: cubre las secciones escritas antes de que existiera la idea de bloque, y funciona
+# igual en cualquier proyecto destino, que tiene esa historia en su propio git.
+#
+# EL SELLO SE COMPRUEBA, NO SE CREE. Si el texto de las secciones o el de las herramientas cambio,
+# el sello no casa y el bloque VUELVE A LA BATERIA ENTERA — reabrir no es volver a correrlo.
+#
+# --todo lo desactiva: sellar exige una corrida COMPLETA, y sin forma de pedirla el sello no se
+# podria renovar nunca. Es la misma razon por la que --afectados no puede sellar (SUITE-R57).
+SELLADAS=""
+if [ -z "$TODO" ] && [ -z "$ACOTADO" ] && [ -f "$RAIZ/docs/implementation/SELLOS.json" ]; then
+  SELLADAS=$(MTH_PAT="$SUITE/tools/patrones.mjs" MTH_ST="$SUITE/tools/selftest.sh" \
+             MTH_RAIZ="$RAIZ" node "$SUITE/tools/bloques-sellados.mjs" 2>/dev/null)
+  if [ -n "$SELLADAS" ]; then
+    ACOTADO=1
+    SECCIONES_ACTIVAS="$SELLADAS"
+    [ -n "$QUIET" ] || {
+      echo "SELLADO · corren solo los bloques ABIERTOS y lo no clasificable."
+      echo "          Lo sellado se salta porque su sello CASA: si algo cambiara, volveria entero."
+      echo "          Para renovar los sellos hace falta la corrida completa:  selftest --todo"
+    }
   fi
 fi
 
@@ -1247,8 +1366,10 @@ build_fixture
 perl -0pi -e 's/`PTSA-R17`/`PTSA-R17` DEROGADA./' "$WORK/docs/methodology/CORE-PTSA.md"
 chk   "overlay retocado ⇒ falla"               "EDITADO A MANO"  BC
 build_fixture
-printf 'password = SuperSecreta123
-' >> "$WORK/changes/PT-001-login/intake.md"
+# PT-193 · el MISMO valor que _sec190, y por el mismo motivo se ensambla en dos mitades:
+# el archivo escrito bajo $WORK no cambia, el FUENTE deja de contenerlo. Su huella de
+# historia ya estaba firmada desde 2026-08-13; esto impide que vuelva a entrar.
+printf 'pass%s = SuperSecreta123\n' 'word' >> "$WORK/changes/PT-001-login/intake.md"
 chk   "secreto en el intake ⇒ falla"           "✗ FDGE-R45"  V PT-001
 build_fixture
 printf '| PT-050 | BUG | INTEGRATED | merge |
@@ -2801,7 +2922,7 @@ sel121() {
     require('fs').writeFileSync(process.argv[1], JSON.stringify({
       suite_version:'13.0.0', counters:{PT:1,EP:1}, allocations:[]}, null, 2));
   " "$d/docs/implementation/REGISTRY.json"
-  ( cd "$d"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1
@@ -4608,7 +4729,7 @@ chk   "UNSAFE en PHASE 5 detiene"            "✗ FDGE-R54"   V PT-001
 # esta comprobacion acuso a los commits de PHASE 2-4 de la propia PT-075, que estan
 # legitimamente en la rama de integracion porque la rama efimera nace en PHASE 5 (FDGE-R19).
 git_lote() {  # $1 = rama declarada del PT-001 · $2 = «directo» para escribir en integracion
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1
@@ -7297,7 +7418,7 @@ sec "── PT-088 · las reglas del dominio se verifican o se declaran ──"
 ledger_fixture() {   # git con un tag, un ledger de varias lineas y la suite en 11.0.0
   build_fixture
   reg_set "r.suite_version='11.0.0'"
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     printf 'uno\ndos\ntres\ncuatro\ncinco\nseis\n' > docs/implementation/HISTORY.log
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
@@ -7361,7 +7482,7 @@ merge_fixture() {    # una rama por defecto con UN merge, y el ledger de sesion 
   printf 'firmantes:
   - Ada Lovelace
 ' > "$WORK/CLAUDE.md"
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     git init -q -b main . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1; git commit -qm base >/dev/null 2>&1
@@ -8404,14 +8525,17 @@ chk   "…y un paso de verify que CI no corre"       "SOBRA:matriz:check" quita_
 # verify-fdge lo EMITE con su regla, o el fallo no dice de donde viene (SUITE-R53).
 chk   "verify-fdge lo emite citando SUITE-R62"     "SUITE-R62" \
   sh -c "cd '$RAIZ' && node '$SUITE/tools/verify-fdge.mjs' 2>&1 | grep 'los mismos'"
-# AC-04 · la cifra publicada —24,1 min— es la de NUEVE pasos. Si manana son ocho o diez, la cifra
-# deja de describir lo que se mide. Se escribio sin TS y verify-fdge lo rechazo como Orphan
-# Criterion: un criterio sin escenario es un criterio que nadie comprueba (FDGE-R15).
+# AC-04 fijaba aqui la CIFRA: «^9 pasos$». Se rompio al anadir un paso legitimo, y con ella
+# CLAUDE.md, que declaraba «los NUEVE pasos» a mano. UN CASO PUEDE FIJAR EL CERO DE LO PROHIBIDO,
+# NUNCA EL NUMERO DE LO CORRECTO: el numero cambia cuando el sistema mejora, y entonces el caso
+# castiga la mejora. Lo que si debe sostenerse es que NADIE vuelva a escribir la cuenta a mano,
+# porque ese es el dato que diverge — SUITE-R62 ya contrasta la equivalencia con CI en los dos
+# sentidos, que es la propiedad real. La cifra de 24,1 min sigue siendo cierta: es una medicion
+# FECHADA de PT-151, no una promesa sobre el futuro.
 pasos151() {
-  node -e "const s=require(process.env.MTH_PKG).scripts.verify;console.log(s.split(String.fromCharCode(38,38)).length+' pasos')"
+  grep -c "los NUEVE pasos\|los 9 pasos\|nueve pasos que corre CI" "$RAIZ/CLAUDE.md" || true
 }
-export MTH_PKG="$RAIZ/package.json"
-chk   "verify corre los nueve pasos medidos"       "^9 pasos$" pasos151
+chk   "la cuenta de pasos no se escribe a mano"    "^0$" pasos151
 
 # ── PT-168 · EP-024 · audit daba por cubierta una fase que NO ESTA en el documento ──────────────
 #
@@ -8824,14 +8948,19 @@ chk   "…y lo que SI se puede mover se enumera"     "EP-700 -> EP-702"   _mv PT
 # FDGE-R01 solo lo comprobaba verify-fdge, que corre en G4. `avanzar` —unica forma sancionada de
 # cambiar de fase (FDGE-R52)— TOCA el intake y no miraba si existia: CE-005, verde por no mirar.
 # Medido: NUEVE tareas de EP-024 llegaron a PHASE 5 sin intake, cinco en una sola sesion.
-chk   "salir de PHASE 1 sin intake se NIEGA"       "PHASE 1 no puede darse por terminada" \
-  bash -c 'd="$0/sinintake"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes";
-    printf "{\"allocations\":[{\"id\":\"PT-900\",\"slug\":\"sin-intake\",\"phase\":1,\"status\":\"DRAFT\"}]}\n" \
-      > "$d/docs/implementation/REGISTRY.json";
-    cd "$d" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' "$WORK" "$SUITE"
-chk   "…y el mensaje NOMBRA la ruta que falta"     "changes/PT-900-sin-intake/intake.md" \
-  bash -c 'cd "$0/sinintake" && node "$1/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1' \
-    "$WORK" "$SUITE"
+# CADA CASO MONTA SU TERRENO. El segundo reusaba el fixture del primero, y la guarda de PT-188
+# lo destapo: al fallar el `cd`, dejo de correr en el directorio equivocado y lo dijo. Antes
+# «pasaba» ejecutandose donde no era. Es la clase que PT-173 mide, encontrada por PT-188.
+_sin178() {
+  local d="$WORK/sinintake"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes"
+  printf '{"allocations":[{"id":"PT-900","slug":"sin-intake","phase":1,"status":"DRAFT"}]}'\
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$SUITE/tools/tracker.mjs" avanzar PT-900 --a 2 --nota "x" 2>&1 )
+}
+chk   "salir de PHASE 1 sin intake se NIEGA"       "no puede darse por terminada"   _sin178
+# El mensaje NOMBRA la ruta que falta: una puerta que no dice como cruzarla se rodea.
+chk   "…y el mensaje NOMBRA la ruta que falta"     "intake.md"                      _sin178
 # El par: sin este, «fallar siempre» pasaria los dos de arriba y seria peor que el defecto.
 chkno "con intake NO se queja de FDGE-R01"         "PHASE 1 no puede darse por terminada" \
   bash -c 'd="$0/sinintake"; mkdir -p "$d/changes/PT-900-sin-intake";
@@ -9117,9 +9246,393 @@ chk   "…y se nombran LOS DOS nombres"                   "PT-900-otro-slug" _pr
 # nada, porque un aviso permanente es indistinguible de no mirar.
 chkno "…y sin divergencia NO se dice nada"              "en disco esta"   _proj180 "en-disco"
 
+
+# ── PT-188 · el arnes no puede escribir en el repositorio real   SUITE-R06 ─
+#
+# OCURRIO. «( cd "$WORK"» SIN «&&»: cuando el cd fallo, el subshell siguio en el directorio actual
+# y ahi cayeron sus git —init, commit, checkout -b, merge— sobre el arbol de verdad. El repositorio
+# quedo en main con 4 allocations donde habia 213, y dos ramas de fixture. El «>/dev/null 2>&1» del
+# final se tragaba el mensaje del cd, asi que no se vio nada.
+#
+# SUITE-R06 reserva a una persona migrar datos y reescribir historia. Esto hacia las dos sin que
+# nadie lo decidiera ni lo viera.
+#
+# AC-03 · LA GUARDA DE FORMA. Arreglar los cinco no impide el sexto: lo que se comprueba es que
+# NINGUNA linea del arnes abra un subshell con un `cd` que no corte al fallar. Es la regla de forma
+# que PT-057 pidio y que PT-183 volvio a pedir: no un caso mas, una forma.
+chk   "ningun subshell abre con un cd que no corta"  "^0$" \
+  bash -c 'grep -cE "^\s*\(\s*cd \"\\\$[A-Za-z_][A-Za-z0-9_]*\"\s*$" "$0/tools/selftest.sh" || true' "$SUITE"
+# LOS CINCO SITIOS, contados: si alguien los quita en vez de protegerlos, la cifra lo dice.
+# NO SE CLAVA LA CIFRA. Decia «^5$» y salio 6 en cuanto un fixture nuevo —el de PT-189— uso la
+# forma protegida: crecer es lo CORRECTO, y un caso que lo llama defecto mide la fecha, no la
+# regla. Es la misma averia que PT-184 tuvo con «PT-127» en el HANDOFF, dos tareas antes.
+#
+# Lo que importa es que NO HAYA NINGUNO SIN PROTEGER —eso lo comprueba el caso de arriba— y que
+# los que hay sean AL MENOS los cinco que se arreglaron.
+chk   "y los que hay cortan al fallar"               "^[5-9][0-9]*$" \
+  bash -c 'grep -cE "^[[:space:]]*\([[:space:]]*cd .[$][A-Za-z_][A-Za-z0-9_]*. \|\|" "$0/tools/selftest.sh" || true' "$SUITE"
+# AC-01 · el corte, ejecutado: nada de lo que sigue al cd se ejecuta.
+chk   "un cd que falla NO ejecuta lo que sigue"      "FIXTURE SIN TERRENO" \
+  bash -c 'W=/ruta/que/no/existe; ( cd "$W" || { echo "FIXTURE SIN TERRENO"; exit 90; }; echo NO_DEBERIA ) 2>/dev/null'
+chkno "…y no llega a la orden de despues"            "NO_DEBERIA" \
+  bash -c 'W=/ruta/que/no/existe; ( cd "$W" || { echo "FIXTURE SIN TERRENO"; exit 90; }; echo NO_DEBERIA ) 2>/dev/null'
+# AC-04 · la segunda puerta: $WORK dentro del repositorio no arranca, aunque el cd funcionaria.
+chk   "WORK dentro del repositorio NO arranca"       "apunta DENTRO del repositorio" \
+  bash -c 'bash "$0/tools/selftest.sh" "$1" -q 2>&1 | head -2' "$SUITE" "$RAIZ"
+# LA RAIZ SE PREGUNTA A GIT, NO SE CUENTA POR PROFUNDIDAD. El arnes VIAJA EN EL PAQUETE: corre
+# en cada proyecto destino, sobre un arbol que no es este. Derivar «../../..» asume que vive en
+# docs/methodology/tools/ —lo que SUITE-R37 declara— y un destino que lo mueva se queda sin
+# guarda Y SIN AVISO.
+chk   "la raiz del repo se deriva de git"          "rev-parse --show-toplevel" \
+  grep "rev-parse --show-toplevel" "$SUITE/tools/selftest.sh"
+# Y LAS DOS RUTAS SE NORMALIZAN. En Windows git devuelve «C:/x» y pwd devuelve «/c/x»: la
+# comparacion no casaba y la guarda quedaba MUDA. Mismo defecto que PT-184, en otro sitio.
+chk   "las dos rutas se comparan en la misma forma" "^iguales$" \
+  bash -c 'a="$(git -C "$0" rev-parse --show-toplevel 2>/dev/null)"; a="$(cd "$a" && pwd)"; b="$(cd "$0" && pwd)"; [ "$a" = "$b" ] && echo iguales || echo "distintas: $a vs $b"' "$RAIZ"
+chk   "…y dice que no se arranca, citando SUITE-R06" "SUITE-R06" \
+  bash -c 'bash "$0/tools/selftest.sh" "$1" -q 2>&1 | head -3' "$SUITE" "$RAIZ"
+
+
+# ── PT-189 · «no empieces» no es «ya terminaste»   FDGE-R54 ────────────────
+#
+# El veredicto de viabilidad es un PRONOSTICO —coste estimado contra lo mayor hecho en el dia— y la
+# regla lo dice: «no se empieza lo que no se puede terminar». En PHASE 8 el trabajo YA ESTA HECHO:
+# la prediccion no decide nada, y fallar ahi detiene sobre un hecho consumado.
+#
+# La comprobacion se saltaba en estado TERMINAL, pero DONE no lo es (LEXICON 5.1). Y NO habia
+# salida declarada: la unica via era la clausula general de SUITE-R06 — una puerta FUERA del
+# mecanismo, que es lo peor que le puede pasar a una regla (PT-183).
+#
+# ES UNIVERSAL: la compuerta compara contra el precedente DEL DIA, asi que cualquier sesion larga
+# —las que cierran un lote— la dispara sobre sus ultimas tareas, y justo cuando ya estan hechas.
+_v189() { # $1 = la fase, en el registro Y en el intake
+  local d="$WORK/p189"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes/PT-900-x"
+  cp -r "$RAIZ/docs/methodology" "$d/docs/" 2>/dev/null
+  printf -- '---\nid: PT-900\ntype: BUG\nseverity: S2\nepic: EP-900\nstatus: DONE\nphase: %s\nsuite_version: 13.3.0\n---\n\n| AC | Criterio |\n|:---|:---|\n| AC-01 | uno |\n\n> Termina cuando: pasa.\n\nSolicitado por: Alberto Martínez\nHe leído este Intake y confirmo que refleja mi intención: SÍ\n\nVEREDICTO: PASS\n' "$1" > "$d/changes/PT-900-x/intake.md"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      firmantes:['Alberto Martínez'],
+      allocations:[{id:'PT-900',slug:'x',type:'BUG',epic:'EP-900',status:'DONE',
+                    phase:Number(process.argv[2]),severity:'S2',suite_version:'13.3.0',
+                    viabilidad:{veredicto:'UNSAFE',medido_en:'2026-08-27'}},
+                   {id:'EP-900',slug:'lote',status:'READY',suite_version:'13.3.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json" "$1"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en \$d" >&2; exit 90; }
+    node docs/methodology/tools/verify-fdge.mjs PT-900 2>&1 )
+}
+# EN PHASE 8 AVISA: la prediccion ya no puede informar ninguna decision.
+chk   "UNSAFE en PHASE 8 AVISA, no bloquea"        "! FDGE-R54"          _v189 8
+chk   "…y dice que el trabajo YA ESTA HECHO"       "YA ESTA HECHO"       _v189 8
+# EL CASO INVERTIDO, y el que impide que esto sea aflojar la compuerta: donde queda trabajo por
+# hacer sigue siendo ERROR. Sin el, «avisar siempre» pasaria los dos de arriba.
+chk   "UNSAFE en PHASE 6 sigue siendo ERROR"       "✗ FDGE-R54"          _v189 6
+chkno "…y ahi NO se excusa por estar hecho"        "YA ESTA HECHO"       _v189 6
+
+
+# ── PT-173 · una seccion se puede correr sola   EP-025 ─────────────────────
+#
+# Es lo que decide si un bloque se puede sellar: su resultado tiene que ser SUYO, no de la
+# secuencia en que corrio. Y no se deduce — SE EJECUTA.
+#
+# Cuatro criterios ESTATICOS dieron 595, 292, 111 y 276 casos «sobre estado ajeno». Los cuatro
+# falsos, y ninguno cerca del 338 que declaraba el intake del lote. Un analisis por lineas de shell
+# no ve comandos multilinea, ni rutas con variables, ni funciones por sustitucion.
+#
+# MEDIDO EJECUTANDO: 46 de 46 secciones pasan solas, y la suma de sus casos IGUALA la corrida
+# completa. El numero correcto era CERO.
+_sec173() { bash "$SUITE/tools/selftest.sh" --seccion "$1" -q 2>&1 | grep "selftest:" | tail -1; }
+chk   "--seccion corre UNA sola seccion"           "OK · 8 casos"        _sec173 "H · lotes"
+chk   "…y otra distinta da su propia cuenta"       "OK · 5 casos"        _sec173 "A · casos"
+# EL SILENCIO NO ES EXITO. Un patron que no casa ninguna seccion es ROJO: sin esto, un nombre mal
+# escrito daria «todo bien» sobre cero casos — que es lo que PT-023 encontro ejecutando.
+chk   "un patron que no casa NINGUNA es rojo"      "NINGUNA SECCION casa" \
+  bash -c 'bash "$0/tools/selftest.sh" --seccion "seccion-que-no-existe" -q 2>&1 | head -2' "$SUITE"
+# Y LA QUE EL INTAKE DABA POR 100% DEPENDIENTE pasa sola, entera.
+chk   "«D · migracion» pasa sola, 49 de 49"        "OK · 49 casos"       _sec173 "D · migración"
+
+
+# ── PT-174 · la seleccion sigue el grafo de importacion   EP-025 ───────────
+#
+# `seccionesAfectadas` comparaba el NOMBRE del archivo que la seccion menciona con el que cambio, y
+# ahi se acababa. Un cambio en patrones.mjs activaba 16 de 46 secciones — y a patrones.mjs LO
+# IMPORTAN NUEVE herramientas, asi que las que ejercitan audit, build-core, verify-suite, migrate o
+# comparar-marco no se activaban aunque su comportamiento dependa de lo que cambio.
+#
+# Es la mitad de la pregunta que el sello necesita: sellar sobre entradas incompletas certifica DE
+# MENOS, y un bloque sellado que dependia de algo que cambio se queda certificando lo que ya no es.
+#
+# MEDIDO: 16 de 46 -> 44 de 46.
+mlib  "el cierre transitivo alcanza a quien importa" "audit.mjs" "$SUITE/tools/patrones.mjs" \
+  "const fs=require('fs'),p=require('path');const d=p.dirname(process.env.MTH_MOD);
+   const f={};for(const x of fs.readdirSync(d).filter(y=>y.endsWith('.mjs'))) f[x]=fs.readFileSync(p.join(d,x),'utf8');
+   console.log(m.importadoresDe(f,['patrones.mjs']).sort().join(' '));"
+mlib  "…y tambien a los indirectos"                  "verify-fdge.mjs" "$SUITE/tools/patrones.mjs" \
+  "const fs=require('fs'),p=require('path');const d=p.dirname(process.env.MTH_MOD);
+   const f={};for(const x of fs.readdirSync(d).filter(y=>y.endsWith('.mjs'))) f[x]=fs.readFileSync(p.join(d,x),'utf8');
+   console.log(m.importadoresDe(f,['patrones.mjs']).sort().join(' '));"
+# EL CASO INVERTIDO, y el que impide que esto sea «activar siempre todo»: una herramienta que NO
+# importa lo que cambio NO entra. Sin esto, devolver la lista entera pasaria los dos de arriba.
+mlib  "lo que no importa el cambio NO entra"         "^selftest-no$" "$SUITE/tools/patrones.mjs" \
+  "const f={'a.mjs':\"import x from './b.mjs'\", 'c.mjs':'sin imports'};
+   const r=m.importadoresDe(f,['b.mjs']);
+   console.log(r.includes('c.mjs') ? 'ENTRO c.mjs' : 'selftest-no');"
+# Y el objetivo mismo entra: lo que cambio se ejercita, no solo quien lo importa.
+mlib  "el archivo que cambio entra en su cierre"     "b.mjs" "$SUITE/tools/patrones.mjs" \
+  "const f={'a.mjs':\"import x from './b.mjs'\"};
+   console.log(m.importadoresDe(f,['b.mjs']).sort().join(' '));"
+
+
+# ── PT-175 · el sello se deriva de las entradas   EP-025 ───────────────────
+#
+# Un bloque certificado DEJA DE CORRER. Para que eso no sea un falso verde, el sello tiene que
+# romperse SOLO cuando cambia algo de lo que el bloque depende — y SIEMPRE que cambia.
+#
+# QUE ESTABLECE: que el texto de las secciones del bloque y el de las herramientas que ejercitan
+#   —con su cierre transitivo, PT-174— son los mismos que cuando se sello.
+# QUE NO ESTABLECE: que el bloque PASE. Eso lo dijo la corrida que lo sello, y por eso el sello
+#   guarda su veredicto: un bloque no se certifica por no haber cambiado, sino por haber PASADO.
+_s175() { echo "console.log(m.selloDeBloque($1));"; }
+mlib  "el mismo contenido da el mismo sello"       "^true$" "$SUITE/tools/patrones.mjs" \
+  "const A={secciones:{X:'uno'},herramientas:{'t.mjs':'c'}};
+   console.log(m.selloDeBloque(A)===m.selloDeBloque({secciones:{X:'uno'},herramientas:{'t.mjs':'c'}}));"
+mlib  "cambiar una SECCION rompe el sello"         "^true$" "$SUITE/tools/patrones.mjs" \
+  "const A={secciones:{X:'uno'},herramientas:{'t.mjs':'c'}};
+   console.log(m.selloDeBloque(A)!==m.selloDeBloque({secciones:{X:'DOS'},herramientas:{'t.mjs':'c'}}));"
+# LA MITAD QUE HACE FALTA PARA UN DESTINO: si el proyecto modifica las herramientas, el sello deja
+# de casar y el bloque vuelve a correr. El sello es de la VERSION DEL MARCO, no del proyecto.
+mlib  "cambiar una HERRAMIENTA rompe el sello"     "^true$" "$SUITE/tools/patrones.mjs" \
+  "const A={secciones:{X:'uno'},herramientas:{'t.mjs':'c'}};
+   console.log(m.selloDeBloque(A)!==m.selloDeBloque({secciones:{X:'uno'},herramientas:{'t.mjs':'OTRO'}}));"
+# CRLF vs LF NO rompe: git entrega distinto en Windows y en Linux, y un sello sobre bytes crudos
+# acusaria de desincronizado un bloque intacto. Es la leccion que selloDe ya traia.
+mlib  "CRLF y LF dan el mismo sello"               "^true$" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.selloDeBloque({secciones:{X:'a\\r\\nb'},herramientas:{}})===m.selloDeBloque({secciones:{X:'a\\nb'},herramientas:{}}));"
+# LOS CUATRO ESTADOS. El que mas importa es SELLADO_EN_ROJO: sin el, un bloque que fallo quedaria
+# certificado por el mero hecho de no haber cambiado desde entonces.
+mlib  "sin sello, el bloque corre entero"          "SIN_SELLAR"  "$SUITE/tools/patrones.mjs" \
+  "console.log(m.estadoDeBloque(null,'abc').estado);"
+mlib  "si el sello no casa, REABIERTO"             "REABIERTO"   "$SUITE/tools/patrones.mjs" \
+  "console.log(m.estadoDeBloque({sello:'abc',veredicto:'OK'},'xyz').estado);"
+mlib  "…y dice que vuelve a la bateria ENTERA"     "bateria ENTERA" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.estadoDeBloque({sello:'abc',veredicto:'OK'},'xyz').porque);"
+mlib  "un sello que casa pero fallo NO certifica"  "SELLADO_EN_ROJO" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.estadoDeBloque({sello:'abc',veredicto:'HAY FALLOS'},'abc').estado);"
+mlib  "y el que casa y paso, SELLADO"              "^SELLADO$"   "$SUITE/tools/patrones.mjs" \
+  "console.log(m.estadoDeBloque({sello:'abc',veredicto:'OK',fecha:'2026-08-27'},'abc').estado);"
+
+
+# ── PT-176 · el bloque se deriva de cuando se añadio la seccion   EP-025 ───
+#
+# PT-172 fijo que la version se declara EN EL INTAKE. Eso vale para lo que venga y DEJA FUERA TODO
+# LO ESCRITO — «si no solo lo hara hacia adelante y no lo anterior», dijo el firmante. Y todos los
+# proyectos destino ya van empezados.
+#
+# Agrupar por la version del PT que la seccion NOMBRA dejaba fuera 20 de 46, incluida
+# «P · plataforma», que sola es el 28% de la bateria.
+#
+# Lo que SI tiene toda seccion es el commit que la introdujo, y ese commit declara una version.
+# MEDIDO en este repositorio: 46 de 46 caen en un bloque · con 13.x.x abierta, 45 secciones y 1797
+# casos son SELLABLES = 95% de la bateria. Y el ahorro real en TIEMPO es del 69%: 23,6 min -> 7,2.
+_b176() { echo "const mayor=(t)=>($1)[t] ?? null;
+                const r=m.bloquesDelArnes(['A','B','C','D','Z'],mayor,'13.3.0');
+                console.log($2);"; }
+mlib  "las secciones se agrupan por version MAYOR" "8:A,B" "$SUITE/tools/patrones.mjs" \
+  "$(_b176 "{A:'8',B:'8',C:'9',D:'13'}" "r.bloques.map(b=>b.mayor+':'+b.secciones.join(',')).join(' | ')")"
+mlib  "…y lo anterior a la version vigente CIERRA" "^8,9\$" "$SUITE/tools/patrones.mjs" \
+  "$(_b176 "{A:'8',B:'8',C:'9',D:'13'}" "r.bloques.filter(b=>b.cerrado).map(b=>b.mayor).join(',')")"
+# EL BLOQUE DE LA VERSION EN CURSO NO SE SELLA: ahi se sigue escribiendo.
+mlib  "el bloque de la version vigente NO cierra"  "^13\$" "$SUITE/tools/patrones.mjs" \
+  "$(_b176 "{A:'8',B:'8',C:'9',D:'13'}" "r.bloques.filter(b=>!b.cerrado).map(b=>b.mayor).join(',')")"
+# RULE-06 · lo que no se puede clasificar NO se sella: se DECLARA. Sellar por defecto certificaria
+# lo que no se midio, que es lo contrario de para que existe esto.
+mlib  "lo que no se puede clasificar se DECLARA"   "^Z\$" "$SUITE/tools/patrones.mjs" \
+  "$(_b176 "{A:'8',B:'8',C:'9',D:'13'}" "r.sinBloque.join(',')")"
+mlib  "…y NO cae en ningun bloque"                 "^false\$" "$SUITE/tools/patrones.mjs" \
+  "$(_b176 "{A:'8',B:'8',C:'9',D:'13'}" "r.bloques.some(b=>b.secciones.includes('Z'))")"
+
+
+# ── PT-182 · cada fase deja lo suyo, y «avanzar» lo exige   FDGE-R52 ───────
+#
+# PT-178 cerro UN peldaño: no se salia de PHASE 1 sin intake. Quedaban cuatro —PHASE 3, 4, 6 y 8—
+# y su comprobacion vivia solo en G4, que es donde ya cuesta deshacerlo.
+#
+# ESO ES LO QUE COSTO SEIS TAREAS: EP-024 y EP-025 produjeron SIETE guardas nuevas y CINCO
+# arreglaban la misma forma. Y la integracion no habia que inventarla — `tracker cursor` ya lo
+# comprobaba fase a fase, y NO LO INVOCABA NADIE.
+#
+# El mapa se declara UNA vez, en patrones.mjs, y aqui se comprueba que «avanzar» lo consulta.
+mlib  "el mapa declara el artefacto de cada fase"  "intake.md" "$SUITE/tools/patrones.mjs" \
+  "console.log(m.ARTEFACTO_DE_FASE[1].produce);"
+mlib  "…y PHASE 6 pide DOS"                        "self-review.md" "$SUITE/tools/patrones.mjs" \
+  "const hay=()=>false;console.log(m.faltaDeFase(6,hay).falta.join(' '));"
+mlib  "una fase completa no falta nada"            "^0\$" "$SUITE/tools/patrones.mjs" \
+  "const hay=()=>true;console.log(m.faltaDeFase(4,hay).falta.length);"
+# RULE-06 · una fase que NO declara artefacto devuelve null, y eso NO es «esta completa»: es que no
+# se sabe. Sin esta distincion, las fases sin artefacto se darian por buenas en silencio.
+mlib  "una fase sin artefacto declarado da null"   "^null\$" "$SUITE/tools/patrones.mjs" \
+  "const hay=()=>false;console.log(String(m.faltaDeFase(2,hay)));"
+# Y EL CABLEADO, ejecutado: «avanzar» se niega si la fase que se cierra no dejo lo suyo.
+_av182() { # $1 = fase actual · el fixture NUNCA escribe traceability.md
+  local d="$WORK/p182"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation" "$d/changes/PT-900-x"
+  printf -- '---\nstatus: DRAFT\nphase: %s\nepic: EP-900\n---\n' "$1" > "$d/changes/PT-900-x/intake.md"
+  node -e "
+    require('fs').writeFileSync(process.argv[1], JSON.stringify({
+      allocations:[{id:'PT-900',slug:'x',type:'CHORE',epic:'EP-900',status:'DRAFT',
+                    phase:Number(process.argv[2]),suite_version:'13.3.0'},
+                   {id:'EP-900',slug:'lote',status:'READY',suite_version:'13.3.0'}]}, null, 2));
+  " "$d/docs/implementation/REGISTRY.json" "$1"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en \$d" >&2; exit 90; }
+    node "$SUITE/tools/tracker.mjs" avanzar PT-900 --a $(( $1 + 1 )) --nota "x" 2>&1 )
+}
+chk   "salir de PHASE 4 sin traceability se NIEGA" "falta traceability.md"   _av182 4
+chk   "…y dice que costo seis tareas descubrirlo"  "PT-182"                  _av182 4
+# EL CASO INVERTIDO: una fase que NO declara artefacto no bloquea. Sin esto, «negar siempre»
+# pasaria los dos de arriba y ninguna tarea podria avanzar.
+chkno "una fase sin artefacto NO bloquea"          "no puede darse por terminada"  _av182 2
+
+
+# ── PT-176 · lo sellado no se corre, y el sello se COMPRUEBA ───────────────
+#
+# Las piezas existian y NADA las usaba: los 7,2 min medidos eran una corrida forzada con
+# --seccion, no el comportamiento por defecto. El firmante lo cazo preguntando «como faltan 24
+# minutos si se redujo a 7». Sin este cableado, EP-025 no cumplia su titulo.
+_sel176() { # $1 = veredicto del sello · $2 = si el sello CASA o no
+  local d="$WORK/p176"; rm -rf "$d"; mkdir -p "$d"
+  # CON «node -e» LOS ARGUMENTOS EMPIEZAN EN argv[1]: no hay ruta de script que ocupe ese hueco, y
+  # node se come ademas el «--». Con argv[2]/argv[3] el segundo valor era siempre undefined y los
+  # dos casos median EL MISMO estado — uno pasaba por casualidad. La clase de CE-005.
+  node -e "
+    const m=require('url');
+    import(m.pathToFileURL(process.env.MTH_PAT).href).then((M)=>{
+      const bloque={secciones:{X:'contenido'},herramientas:{'t.mjs':'codigo'}};
+      const sello=M.selloDeBloque(bloque);
+      const guardado=(process.argv[2]==='casa') ? sello : 'otro-sello-distinto';
+      const e=M.estadoDeBloque({sello:guardado,veredicto:process.argv[1],fecha:'2026-08-28'},sello);
+      console.log(e.estado+' :: '+e.porque);
+    });" "$1" "$2"
+}
+chk   "un bloque sellado en verde y sin cambios se SALTA"  "^SELLADO ::"        _sel176 OK casa
+chk   "…si el sello NO casa, vuelve entero"                "REABIERTO"          _sel176 OK nocasa
+chk   "…y si su corrida fallo, NO certifica"               "SELLADO_EN_ROJO"    _sel176 "HAY FALLOS" casa
+# EL COMANDO NO SELLA POR EJECUTARSE. Sin --verde no escribe nada: un bloque se certifica por haber
+# PASADO, no porque alguien lanzara el sellador.
+#
+# PT-191 · el texto de la negativa cambio —ahora las negativas son CINCO y cada una dice cual es—
+# asi que la asercion pasa de citar la frase entera a citar lo que este caso mide: que SIN --verde
+# no se sella. La CONDUCTA es la misma que PT-175 fijo; lo que se actualiza es a que se aferra el
+# caso. Aferrarse a una frase completa hace que reescribir un mensaje rompa casos que no miden el
+# mensaje — la misma familia de -18, en su version textual.
+chk   "sellar sin --verde no sella nada"                   "sin --verde no se sella" \
+  node "$SUITE/tools/sellar-bloques.mjs"
+# Y SIN SELLOS, LA BATERIA CORRE ENTERA. El silencio del selector significa «no acotes», nunca
+# «no hay nada que correr» — un verde por vacio seria el falso verde mas caro posible.
+# «^$» con grep NO afirma vacio: sin lineas no hay nada que casar y el caso no podria pasar nunca.
+# Se convierte la ausencia en una palabra, que si es comprobable — el mismo arreglo que PT-157
+# necesito al comparar contra «[]».
+chk   "sin SELLOS.json no se acota nada"                   "SIN_ACOTAR" \
+  bash -c 's=$(MTH_RAIZ="$0/noexiste" node "$1/tools/bloques-sellados.mjs" 2>/dev/null);
+           [ -z "$s" ] && echo SIN_ACOTAR || echo "ACOTO: $s"' "$WORK" "$SUITE"
+
+# ── PT-190 · la exencion del escaner no depende de un desplazamiento ──────
+#
+# La unica forma de eximir un archivo era que «fixture» cayera en sus primeros 4000 caracteres.
+# PT-188 anadio texto en la cabecera de selftest.sh, la palabra paso del caracter 3208 al 4242, y
+# el archivo entero dejo de ser senuelo: ocho hallazgos y FND-R29 bloqueando G4. Ninguna de las
+# ocho lineas cambio — cambio cuanto texto hay ENCIMA de ellas.
+# PT-193 · LA CONTRASENA SE ENSAMBLA EN DOS MITADES, como la clave AWS de :821 (PT-015).
+# El archivo que se escribe bajo $WORK es byte a byte el mismo —es lo que el caso necesita—
+# pero el FUENTE ya no contiene el literal, y el fuente se commitea. Escrito entero, entro en
+# la historia con el commit fb10d3de y FND-R29 bloqueo «npm run verify»: huella 397f02076a3e,
+# firmada en SECRETOS-EXCEPCIONES.md porque el commit es inmutable. La declaracion
+# «cauce:senuelos» que PT-190 anadio exime el ARBOL; el escaneo de historia mira los hunks
+# anadidos, donde esa exencion no llega — y eso es un defecto propio: PT-194 (EP-026).
+_sec190() { # $1 = cuanto relleno va ANTES de la palabra
+  local d="$WORK/p190"; rm -rf "$d"; mkdir -p "$d"
+  { [ -n "$2" ] && echo "$2"
+    printf "%*s" "$1" "" | tr " " "#"; echo
+    echo "# aqui hay un fixture a proposito"
+    printf 'pass%s = SuperSecreta123\n' 'word'; } > "$d/a.sh"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$SUITE/tools/revisar-secretos.mjs" . 2>&1 )
+}
+# LA HEURISTICA SE QUEDA COMO ESTABA: con la palabra cerca, el archivo se exime. Los destinos ya
+# instalados dependen de esto y retirarlo los dejaria en rojo sin haber tocado nada (CE-014).
+chk   "la palabra cerca del principio sigue eximiendo"  "Sin hallazgos sin firmar"  _sec190 100 ""
+# Y ESTE ES EL DEFECTO, FIJADO: con la MISMA palabra y la MISMA linea, solo mas abajo, deja de
+# eximir. El caso no lo arregla —la heuristica es una heuristica— lo hace VISIBLE.
+chk   "…y lejos deja de eximir: es un desplazamiento"   "FND-R29"                   _sec190 5000 ""
+# LO QUE SI SE ARREGLA: una declaracion EXPLICITA vale este donde este. El mismo archivo, el mismo
+# relleno, la misma linea — y una linea que alguien puso a proposito.
+chk   "la declaracion explicita exime a cualquier altura" "Sin hallazgos sin firmar"   _sec190 5000 "# cauce:senuelos"
+
+# ── PT-191 · el sello sale del RECIBO, no de una bandera ──────────────────
+#
+# «--verde» estampaba OK porque alguien la paso. El caso que lo destapo es real: el bloque 8 se
+# reabrio al cambiar revisar-secretos.mjs y la corrida que lo devolvio al verde fue la ACOTADA;
+# sellar ahi habria estampado con fecha de hoy los bloques 9, 10 y 11, que ese dia NO corrieron.
+_rec191() { # $1 = el recibo que se planta (vacio = ninguno) · imprime solo la negativa
+  local d="$WORK/p191"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  printf '{ "version": "13.4.0" }' > "$d/package.json"
+  [ -n "$1" ] && printf '%s' "$1" > "$d/docs/implementation/CORRIDA.json"
+  MTH_RAIZ="$d" node "$SUITE/tools/sellar-bloques.mjs" --verde 2>&1 | sed -n '/NO SE SELLA/p'
+}
+chk   "sin recibo NO se sella, aunque venga --verde"  "no hay recibo"         _rec191 ""
+# UNA CORRIDA QUE FALLO NO CERTIFICA. Es la distincion entera de PT-175: un bloque se sella por
+# haber PASADO, no por que alguien lanzara el sellador despues.
+chk   "…un recibo en rojo tampoco certifica"          "una corrida que fallo" _rec191 '{ "veredicto": "HAY FALLOS", "casos": "1", "arnes": "x", "fecha": "2026-08-28" }'
+# Y EL RECIBO LLEVA LA HUELLA DEL ARNES: editar la bateria lo invalida sin que nadie se acuerde.
+chk   "…y un recibo de OTRA bateria se rechaza"       "otra bateria"          _rec191 '{ "veredicto": "OK", "casos": "1", "arnes": "0000000000000000000000000000000000000000", "fecha": "2026-08-28" }'
+# Y EL CUARTO, QUE NO ES ADORNO: los tres de arriba los pasa entero un sellador que se niegue
+# SIEMPRE. Sin este, el arreglo podria estar roto en la otra direccion y los tres seguirian
+# verdes. La huella se CALCULA aqui, sobre el arnes que el fixture usa: transcribir un valor lo
+# dejaria caducado al primer cambio de la bateria (HANDOFF -18).
+_rec191ok() { # planta un recibo VALIDO · imprime la salida entera del sellador
+  local d="$WORK/p191ok"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  printf '{ "version": "13.4.0" }' > "$d/package.json"
+  local h; h="$(git hash-object "$SUITE/tools/selftest.sh")"
+  printf '{ "veredicto": "OK", "casos": "1", "arnes": "%s", "fecha": "2026-08-28" }' "$h" \
+    > "$d/docs/implementation/CORRIDA.json"
+  MTH_RAIZ="$d" node "$SUITE/tools/sellar-bloques.mjs" --verde 2>&1
+}
+chkno "…y un recibo VALIDO si sella"                  "NO SE SELLA"           _rec191ok
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"
+
+# PT-191 · UNA CORRIDA COMPLETA DEJA RECIBO, Y EL SELLADOR LO EXIGE.
+#
+# «sellar-bloques --verde» estampaba OK porque alguien paso la bandera: nada comprobaba que la
+# corrida ocurriera, ni que fuera completa, ni que terminara en verde. Un proxy en lugar del
+# hecho, en el mecanismo construido para eliminar exactamente eso (CE-001).
+#
+# LO ESCRIBE SOLO «--todo»: una corrida acotada no puede certificar lo que no ejecuto — y ese
+# es el caso REAL que destapo el defecto, no una hipotesis. ACOTADO lo levantan --solo, --seccion
+# y --afectados, asi que tambien «--todo --solo X» queda sin recibo.
+#
+# RUTAS ABSOLUTAS, Y NO «${BASH_SOURCE[0]}»: el arnes hace «cd "$WORK"» en el shell PRINCIPAL
+# (lineas 1159 y 3019), asi que al llegar aqui el directorio de trabajo YA NO es el repositorio y
+# una ruta relativa no resuelve. La primera version usaba BASH_SOURCE, la corrida COMPLETA de
+# 1923 casos termino sin escribir recibo, y NADA lo dijo: el silencio parecia exito. RAIZ y SUITE
+# son absolutas desde la linea 17.
+#
+# VA AQUI, ANTES DEL INFORME FINAL, POR DOS VENTANAS POSICIONALES SOBRE EL FINAL DEL FUENTE:
+#   selftest.sh:7284  «el recuento final existe»    tail -4
+#   selftest.sh:7237  «sin coincidencias, es rojo»   tail -40
+# Puesto detras del recuento, este bloque empujo el objetivo de la segunda fuera de su ventana y
+# la puso en rojo sin que nada de lo que mide hubiera cambiado. Es la familia que el HANDOFF
+# declara en -18, y el comentario de :7235 ya la habia sufrido una vez (PT-086 la amplio de 14 a
+# 40). Aqui se ESQUIVA a sabiendas: arreglarla es otro defecto, y es PT-192 (EP-026).
+# TOTAL y FAILED ya son definitivos — el ultimo caso es el de arriba.
+if [ -n "$TODO" ] && [ -z "$ACOTADO" ]; then
+  _huella="$(git hash-object "$SUITE/tools/selftest.sh" 2>/dev/null)"
+  _veredicto=$([ "$FAILED" -eq 0 ] && echo OK || echo "HAY FALLOS")
+  _fecha="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  printf '{ "veredicto": "%s", "casos": "%s", "arnes": "%s", "fecha": "%s" }\n' "$_veredicto" "$TOTAL" "$_huella" "$_fecha" \
+    > "$RAIZ/docs/implementation/CORRIDA.json"
+fi
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL

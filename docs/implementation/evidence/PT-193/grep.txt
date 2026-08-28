@@ -1,0 +1,24 @@
+PT-193 · AC-02 — el FUENTE ya no contiene el literal entero
+
+Este archivo NO cita el valor, ni el patron buscado, ni las lineas que lo contienen.
+Citarlos lo devolveria al repositorio y a la historia, que es lo que la tarea quita.
+El patron se ensambla en el comando, igual que en el fixture. Es la regla que
+SECRETOS-EXCEPCIONES.md se aplica a si mismo: «se describen; no se reproducen».
+
+$ grep -c <literal-entero> docs/methodology/tools/selftest.sh
+  0        (antes del cambio: 2)
+
+$ grep -c <forma-ensamblada> docs/methodology/tools/selftest.sh
+  2        las dos apariciones, ahora partidas · lineas 1372 y 9556
+
+Que fueran DOS y no una lo destapo EJECUTAR la comprobacion: el mismo valor estaba
+tambien en el fixture de FDGE-R45 (:1369), anterior a PT-190 y con su huella firmada
+desde 2026-08-13. Con esa aparicion en pie, AC-02 era INALCANZABLE. El cambio de
+alcance esta declarado en spec-changes.md.
+
+Los dos fixtures escriben bajo $WORK exactamente los mismos bytes que antes: lo
+unico que cambia es como el fuente los construye. Lo comprueba AC-01 con sus
+cuatro casos, no este archivo.
+
+Fuera de alcance, y sigue asi: la clave de ejemplo de AWS (ya partida por PT-015)
+y los JWT — 2 apariciones, con sus huellas firmadas.

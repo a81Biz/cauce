@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **13.3.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **13.4.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -1086,7 +1086,25 @@ tools/
                       serlo. Es LOCAL: publicarla es «--publicar», una decision y no un
                       efecto colateral.
   revisar-secretos.mjs  árbol e historia antes de publicar · bloquea y propone · FND-R29
+  sellar-bloques.mjs  sella los bloques CERRADOS de la batería · PT-176 · §6.2 SELLOS.json
+                      Un bloque agrupa las secciones introducidas bajo una MAJOR, y su MAJOR
+                      sale del COMMIT que introdujo la sección: retroactivo por construcción,
+                      sin que nadie declare nada. Solo sella con `--verde`: un bloque se
+                      certifica por haber PASADO, no porque alguien lanzara el sellador.
+                      El sello cubre las secciones Y las herramientas que ejercitan, con su
+                      cierre transitivo — sellar sobre entradas incompletas certifica DE MENOS.
+  bloques-sellados.mjs  devuelve las secciones que TODAVÍA hay que correr · PT-176
+                      Lo consulta `selftest.sh` para acotar. Comprueba el sello: solo salta un
+                      bloque cuyo sello CASA con lo que hoy son sus secciones y herramientas Y
+                      cuya corrida terminó en verde. REABIERTO, SELLADO_EN_ROJO y SIN_SELLAR
+                      vuelven a la batería, y reabrir NO es recalcular el sello: exige una
+                      corrida completa nueva.
+                      Si nada está sellado NO IMPRIME NADA: su silencio significa «no acotes»,
+                      nunca «no hay nada que correr» — un verde por vacío sería el falso verde
+                      más caro que este marco puede producir.
   selftest.sh         batería de casos límite, defectos inyectados y migración
+                      «--todo» desactiva el salto de lo sellado: es la corrida que SELLA, y la
+                      que corre `publicar.yml`. `verificacion.yml` salta lo sellado.
 ```
 
 `LEX-R25` · `CORE.md`, `CORE-PTSA.md`, `PHASES.md`, `tools/` y los directorios `templates/`

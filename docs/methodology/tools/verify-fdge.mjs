@@ -2032,8 +2032,30 @@ function checkPT(pt, { gate } = {}) {
         + `cuyo resultado no se escribe no se puede auditar.  node tools/tracker.mjs viabilidad ${pt} --registrar`;
       if (gate === 'G2' || fase >= 5) fail('FDGE-R54', m); else warn('FDGE-R54', m);
     } else if (viab.veredicto === 'UNSAFE' && fase >= 5) {
-      fail('FDGE-R54', `${pt}: viabilidad UNSAFE y la tarea esta en PHASE ${fase}. PT-059 es explicita: `
-        + `checkpoint, handoff y parada. UNSAFE exige evidencia EN CONTRA, asi que no es una duda.`);
+      // PT-189 · «NO EMPIECES» NO ES LO MISMO QUE «YA TERMINASTE».
+      //
+      // El veredicto es un PRONOSTICO —coste estimado contra lo mayor hecho en el dia— y la regla
+      // lo dice: «no se empieza lo que no se puede terminar». En PHASE 8 el trabajo YA ESTA HECHO:
+      // la prediccion no decide nada, y fallar ahi detiene sobre un hecho consumado.
+      //
+      // La comprobacion se saltaba en estado TERMINAL, pero DONE no lo es (LEXICON 5.1), asi que
+      // una tarea acabada y verificada seguia bajo una compuerta que pregunta si podra acabarse. Y
+      // NO habia salida declarada: la unica via era la clausula general de SUITE-R06, una puerta
+      // FUERA del mecanismo. PT-183 escribio por que eso es lo peor que le puede pasar a una regla.
+      //
+      // Es UNIVERSAL: la compuerta compara contra el precedente DEL DIA, asi que cualquier sesion
+      // larga —las que cierran un lote— la dispara sobre sus ultimas tareas, y justo cuando ya
+      // estan hechas. Todo proyecto destino lo encuentra.
+      //
+      // Sigue FALLANDO en PHASE 5, 6 y 7, que es donde queda trabajo por hacer. Lo que se afloja
+      // es solo el punto donde la prediccion ya no puede informar ninguna decision.
+      const m54 = `${pt}: viabilidad UNSAFE y la tarea esta en PHASE ${fase}. PT-059 es explicita: `
+        + `checkpoint, handoff y parada. UNSAFE exige evidencia EN CONTRA, asi que no es una duda.`;
+      if (fase >= 8) {
+        warn('FDGE-R54', `${m54} En PHASE ${fase} el trabajo YA ESTA HECHO: el veredicto era PREVIO `
+          + 'y su funcion —detener antes de empezar— ya no puede cumplirse. Se DICE y no bloquea '
+          + '(PT-189).');
+      } else fail('FDGE-R54', m54);
     } else {
       ok('FDGE-R54', `${pt}: viabilidad ${viab.veredicto}${viab.medido_en ? ` · medida contra ${String(viab.medido_en).slice(0, 7)}` : ''}.`);
     }

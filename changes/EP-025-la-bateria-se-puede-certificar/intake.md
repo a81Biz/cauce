@@ -4,7 +4,7 @@
 ---
 id: EP-025
 type: EPIC
-status: DRAFT
+status: CLOSED
 created: 2026-08-26
 suite_version: 13.2.0
 origin: la parada de PT-172, que midio por que el sello no se puede construir todavia
@@ -123,15 +123,25 @@ veredicto de cada uno es de quien conoce el caso, no de un barrido.
 **Y el firmante ya decidió cómo tratarlos**: se revisan todos en este lote; si más adelante hay que
 volver a alguno, se vuelve. No se deja una lista abierta esperando.
 
-## 8. Cierre del lote   `SUITE-R45`
+## Cierre del lote   `SUITE-R45`
+
+> **Sin numerar, y no es cosmetica.** `verify-fdge` la busca con `/^##+\s*Cierre del lote/im`
+> (`verify-fdge.mjs:1603`), asi que el «8.» la hacia INVISIBLE: la seccion estaba completa y la
+> compuerta `G4` la daba por ausente. Los otros 24 lotes y la plantilla `EPIC-INTAKE.md:146` la
+> titulan sin numero; el desviado era este intake. Lo destapo `verify-fdge --gate G4`.
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | PENDIENTE |
-| Número de versión | PENDIENTE — `MINOR` si sólo añade reglas y comprobaciones |
-| Cuántos de los 338 dependían por **descuido** y cuántos por **diseño** | PENDIENTE — la cifra se publica, no se resume |
-| Tiempo de la batería con y sin sellos | PENDIENTE — medido, no estimado |
-| La cuenta por patrón que `SUITE-R61` exige | PENDIENTE |
+| Entrada de `CHANGELOG.md` | **HECHO** — `13.4.0`, con el sello, los siete defectos y lo que apareció al cerrar. |
+| Número de versión | **HECHO — `13.4.0`, `MINOR`.** No hay reglas nuevas: `RULES.md` es idéntico al de `main`. Lo que entra es **capacidad** —sellar, acotar, `--seccion`, `--todo`— y siete correcciones. Y es `13.4.0` y no más `13.3.0` porque `13.3.0` **ya está en `main` y etiquetada**: repetir el número sería la avería que `EP-024` corrigió al escribir su propia fila. |
+| Cuántos de los 338 dependían por **descuido** y cuántos por **diseño** | **HECHO, y la respuesta es que no había 338: son CERO.** 46 secciones aisladas, 46 en verde, 1882 casos en aislado = 1882 en la corrida completa. La cifra del Intake se midió con cuatro criterios estáticos que dieron `595`, `292`, `111` y `276` — los cuatro falsos. Corregido en la Revisión 3; `SUITE-R09`, la cifra original no se borra. |
+| Tiempo de la batería con y sin sellos | **HECHO — medido por el camino que ejecuta CI, no forzado.** Completa **2055 s · 1916 casos**; sellada **346 s · 119 casos**: **−83 %**. Las dos cifras que se dieron antes eran malas y se dicen: los `7,2 min` salían de una corrida **forzada** con `--seccion`, que no es el camino por defecto, y el `69 %` se calculó sobre esa medición. Sólo vale el número que produce el camino que de verdad se ejecuta. |
+| La cuenta por patrón que `SUITE-R61` exige | **HECHO — `superado 0 · invertido 1 · hueco 0`, y se dice aunque sean ceros.** El **invertido** es el caso que fijaba `^9 pasos$`: al añadir un décimo paso legítimo falló **castigando la mejora**. No se retiró — se **convirtió** en lo que sí se sostiene: que nadie escriba la cuenta a mano. La batería creció de `1850` a `1916` casos. |
+| Lo que apareció **al cerrar** | **HECHO — cinco hallazgos, ninguno en el Intake y ninguno mío.** `audit` (dos herramientas nuevas sin declarar) · `SUITE-R62` (`sellar:bloques` en la CI y no en `verify`, el hueco exacto de `PT-151`) · `FND-R14` (el inventario, 9551 frente a 9561) · dos cuentas a mano del mismo hecho en `CLAUDE.md` (**18** y **15**, y son **20**) · y el selector **fallando en silencio**, que por diseño deja la batería corriendo entera para siempre. |
+| El carril del propio lote | **CORREGIDO AL CERRAR.** El trabajo estaba ocurriendo sobre `trabajo` y un commit de `PT-188` llegó allí **sin PR**. Se abrió la rama efímera del lote, `trabajo` volvió a `origin/trabajo` y las siete tareas se reanclaron en el registro. Es `FDGE-R19`, y que se saltara **en el lote que existe para impedir saltarse el marco** es el dato, no la anécdota. |
+| El tag y la publicación | **MOVIDO A `PT-196`** (`EP-026`), y el motivo es el hallazgo. `v13.4.0` es posterior al merge por `SUITE-R06a`, así que **en `G4` no puede estar `HECHO` ni por definición** — pero `SUITE-R45` exige resolver la fila **en** `G4`. La regla y el orden real se contradicen, y esta fila es donde se ve. `npm publish` sigue **RESERVADO**: la autorización del `2026-08-28` lo excluye por su nombre («salvo publicar»), y consta en `SESSION_LOG.md`. |
+
+> **Lo que esta última fila destapó, y tiene tarea propia.** `PHASE 9` termina en el merge, y todo lo que > viene después —`integrar`, `cerrar`, `cierre`, `proyectar`, el tag— **no es de ninguna fase**: es una > lista de comandos que alguien recuerda. Por eso `SUITE-R45` pide en `G4` una respuesta que `SUITE-R06a` > prohíbe tener todavía. Es `PT-196` (`EP-026`), abierto desde la parada de este mismo cierre.
 
 ## 9. Firma   `INTAKE-R06` · `SUITE-R27`
 
@@ -146,3 +156,114 @@ He leído el Intake de cada PT listado en §4 y confirmo que todos reflejan mi i
 La escribió el agente por delegación, con la decisión que el firmante tomó en sesión: *«como lote
 propio, revísalos todos pero que sea un lote»*. `SUITE-R27` dice lo que esto **no** prueba: que
 firmara una persona. Sí lo hace contrastable — el nombre está en `firmantes`.
+
+---
+
+## Revisiones
+
+> Append-only una vez firmado (`SUITE-R09`).
+
+## Revisión 1 — 2026-08-27 · `PT-188` entra el primero, antes que `PT-173`
+
+**Qué cambia.** El orden declarado empezaba por `PT-173`. Ahora empieza por **`PT-188`**:
+
+```
+1  PT-188  el arnés no puede escribir en el repositorio real   ← nueva, S1
+2  PT-173  las secciones montan lo que necesitan
+3  PT-174  la selección sigue el grafo de importación
+4  PT-175  el sello se deriva de las entradas
+5  PT-176  CI corre sólo los paquetes abiertos
+```
+
+**Por qué.** Al medir la independencia de las secciones —que es `PT-173`— el arnés **escribió en el
+repositorio real**: `git init`, `commit`, `checkout -b`, `merge` sobre `main`. El árbol quedó con
+**4 allocations donde había 213** y dos ramas de fixture. La causa es un `( cd "$WORK"` **sin
+`&&`**: si el `cd` falla, el subshell sigue en el directorio actual. **Cinco sitios** tienen ese
+patrón y los cinco ejecutan `git` dentro.
+
+**No se puede medir la independencia con una herramienta que puede destruir lo que mide.** `PT-173`
+necesita correr secciones aisladas, y aislar una sección es exactamente lo que dejó `$WORK` sin
+montar.
+
+**Lo que esto no cambia.** El orden de las otras cuatro sigue siendo el declarado y sigue sin ser
+negociable: `PT-173` antes que `PT-174`, y `PT-176` el último.
+
+**Lo que el firmante señaló al autorizarlo**, y consta porque es el juicio que ordena este lote:
+
+> *«había orden, en papel, pero al parecer nada se cumplió y hoy estamos sufriendo las
+> consecuencias»*
+
+El orden estaba escrito en `§4` y se declaró **no negociable**. Lo que faltaba no era la decisión:
+era que **nada la comprobara**. Es la misma forma que `EP-024` midió seis veces — una regla `HARD`
+cuya única comprobación vive en la compuerta final, o en ninguna.
+
+## Revisión 2 — 2026-08-27 · `PT-182` entra en el lote, y es la que integra
+
+**Qué cambia.** El orden pasa de cinco a siete, y `PT-182` —que estaba en `EP-026`— entra al final:
+
+```
+1  PT-188  el arnés no puede escribir en el repositorio real   ✓ hecha
+2  PT-189  la viabilidad no juzga un pronóstico ya cumplido    ✓ hecha
+3  PT-173  las secciones montan lo que necesitan
+4  PT-174  la selección sigue el grafo de importación
+5  PT-175  el sello se deriva de las entradas
+6  PT-176  CI corre sólo los paquetes abiertos
+7  PT-182  el mapa fase→artefacto, y quién lo consume          ← entra
+```
+
+**Por qué.** El firmante lo nombró por su causa:
+
+> *«estamos reconstruyendo muchas cosas por habernos saltado el mismo marco… ya tenemos algunos
+> métodos, pero ahora necesitamos integrar todo»*
+
+Medido: `EP-024` y lo que va de `EP-025` produjeron **siete** guardas nuevas, y **cinco de las
+siete** arreglan lo mismo — *una regla `HARD` cuya única comprobación vivía en `G4`*. Dos más:
+**en ninguna parte**.
+
+**La integración no hay que inventarla: está escrita y desconectada.** `tracker cursor` ya
+comprueba, fase a fase, que cada una dejó su artefacto — y **no lo invoca nadie**: ni
+`package.json`, ni CI, ni `avanzar`, ni ninguna compuerta.
+
+**Y es la misma pregunta que el sellado.** Un bloque se sella cuando su resultado es suyo; una fase
+se cierra cuando su artefacto está. Las dos necesitan saber **qué produce cada cosa**, y ese mapa
+está hoy escrito **dos veces y a mano** — `tracker cursor` y `verify-fdge`. Sellar sin resolverlo
+certificaría bloques cuyo contenido nadie garantiza completo.
+
+**Lo que esto no cambia.** El orden de las cuatro centrales sigue siendo el declarado en `§4` y
+sigue sin ser negociable. `PT-182` va **después** de `PT-176` porque integra lo que las anteriores
+dejan construido, no antes.
+
+## Revisión 3 — 2026-08-27 · la cifra de `§3` era falsa: son **cero**, no 338
+
+**Qué cambia.** `§3` y `§3b` declaran:
+
+> *«**338 de 1439** casos corren sobre el `$WORK` que dejó otra sección»*
+> *«**Ocho secciones** tienen el 100 %. `D · migración` son 49 de 49»*
+
+**Medido ejecutando, no leyendo:**
+
+```
+46 secciones corridas AISLADAS, cada una con $WORK recién creado
+46 en verde
+1882 casos en aislado  =  1882 de la corrida completa
+```
+
+**`D · migración` pasa sola: 49 de 49.** Y las otras siete. **El número correcto es cero.**
+
+**Cómo se llegó al 338, y por qué nadie lo vio.** Antes de ejecutar se midió con **cuatro criterios
+estáticos** y salieron `595`, `292`, `111` y `276` — los cuatro falsos, cada uno por una razón
+distinta, y ninguno cerca del `338`. Un análisis por líneas de shell no ve comandos multilínea, ni
+rutas con variables, ni funciones por sustitución. **Afinar el detector es perseguir la sintaxis.**
+
+**Qué implica para el lote.** La precondición que ordenaba `EP-025` **no existe**: no hay 338 casos
+que arreglar. `PT-173` cambia de objeto —de *hacer* independientes las secciones a *dejar
+demostrado* que lo son— y **el orden de las demás no cambia**: `PT-174` sigue después, y `PT-176`
+sigue siendo la última.
+
+**Lo que esto NO dice.** Que cada sección pase sola y pase en su posición **no prueba** que pase
+como parte de un **bloque**: un bloque arranca limpio pero sus secciones se acumulan entre ellas, y
+ése es un tercer caso **no medido**. Lo establece `PT-175`.
+
+`SUITE-R09`: la cifra original **no se borra**. Queda escrita en `§3` y esta revisión la corrige,
+que es como se ve que se midió mal y cómo se supo.
+

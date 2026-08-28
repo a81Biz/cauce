@@ -1,0 +1,92 @@
+{
+  "pt": "PT-188",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un fixture cuyo `cd` falla **no ejecuta** ninguna orden posterior",
+      "scenarios": [
+        "TS-01",
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 8 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Los cinco sitios quedan protegidos, y no queda ninguno con el patrón",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 8 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una guarda del propio arnés **falla** si aparece un `( cd \"$VAR\"` sin `&&` ni salida",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-024 · 8 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El arnés se **niega a arrancar** si `$WORK` no existe o es la raíz del repositorio, y la raíz se **deriva de `git`** —no de la profundidad— con las dos rutas normalizadas",
+      "scenarios": [
+        "TS-05",
+        "TS-06",
+        "TS-08",
+        "TS-09"
+      ],
+      "tests": [
+        "selftest §EP-024 · 8 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-05",
+      "statement": "Con `$WORK` correcto, todo sigue pasando — no hay regresión",
+      "scenarios": [
+        "TS-07"
+      ],
+      "tests": [
+        "selftest §EP-024 · 8 casos"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1878 casos",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

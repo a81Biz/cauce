@@ -52,6 +52,8 @@ Una fila sin firmante no es una firma. La plantilla sin rellenar **no exime**.
 
 | `08ee900870eb` | Alberto Martínez | 2026-08-15 | **clave de acceso AWS** · Fixture de `tools/selftest.sh` (`976b8bec`), del caso que `PT-015` añadió para comprobar que `revisar-secretos` cita `FND-R29` al bloquear. Es la clave de **ejemplo que documenta AWS**, no una emitida. **La causa ya está corregida**: el fixture la ensambla en dos mitades, así que el fuente no la contiene y no vuelve a aparecer — pero el commit es inmutable. |
 
+| `397f02076a3e` | Alberto Martínez | 2026-08-28 | **contraseña en texto plano** · Fixture de `tools/selftest.sh` (`_sec190`), del caso que `PT-190` añadió para comprobar que la exención del escáner no depende de un desplazamiento en bytes. Es una contraseña **sintética** en un archivo falso bajo `$WORK/`, escrita para que el escáner la cace. Apareció al **commitear** `fb10d3de`: la declaración `cauce:senuelos` que `PT-190` introdujo exime el **archivo** en el árbol, y el escaneo de **historia** mira los hunks añadidos, donde esa exención no llega. **La causa se corrige en `PT-193`** —el literal se ensambla en dos mitades, como `PT-015` hizo con la clave AWS— pero el commit es inmutable. Que la exención no viaje a la historia es un defecto propio y es **`PT-194`** (`EP-026`). |
+
 > **Las siete de arriba comparten una sola causa** y por eso comparten motivo: son el mismo
 > volcado. No se les asigna un tipo fila por fila porque no pude confirmarlo uno a uno, y
 > escribir un tipo sin confirmarlo es el error que esta misma tabla cometió en su primera

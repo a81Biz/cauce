@@ -56,7 +56,7 @@ docs/methodology/
 ├── PTSA/  PTSA-V3-Especificacion-Oficial.md · PTSA-Prompts.md · templates/COVERAGE.md
 ├── FIDE/  Framework-FIDE.md · FIDE-Implementation.md · FIDE-CLAUDE-Launcher.md
 │
-│   ── HERRAMIENTAS ─── 18, y ninguna es opcional ───────────────
+│   ── HERRAMIENTAS ─── ninguna es opcional ─────────────────────
 └── tools/
     │   verificadores      verify-suite · verify-fdge · verify-qa · verify-ptsa · verify-patrones
     │   generadores        build-core (CORE y overlay) · version (alinea los 21 documentos)
@@ -66,6 +66,8 @@ docs/methodology/
     │   consulta           regla — qué exige una regla y qué puede fallar, derivado
     │   compartido         patrones.mjs — los patrones críticos, con su contrato
     │   medición           audit (cobertura mecánica) · selftest.sh (la batería completa)
+    │   sellado            sellar-bloques (certifica los bloques cerrados, solo en verde) ·
+    │                      bloques-sellados (qué queda por correr; su silencio = no acotes)
     │   eventos            eventos (clasifica el ledger contra CE-nnn) · matriz (deriva
     │                      MATRIZ.md: qué se repite y qué clase no tiene regla que la reclame)
 ```
@@ -207,7 +209,7 @@ Orden de autoridad ante conflicto (`LEX-R21`):
 **Única sección que se personaliza.** Todo lo demás son punteros.
 
 ```yaml
-suite_version: 13.3.0
+suite_version: 13.4.0
 execution_mode: SUPERVISED        # MANUAL | SUPERVISED | AUTONOMOUS
 firmantes:                        # quién puede firmar un Intake y resolver una compuerta
   - Alberto Martínez
@@ -240,7 +242,7 @@ P-002  Procedimiento ejecutable  PHASES · INSTALL · los *-Implementation y *-P
        VÁLIDO si: un agente puede ejecutar una fase completa sin abrir un documento
        que CORE.md no le remita.
 
-P-003  Verificación mecánica     las 15 herramientas de tools/
+P-003  Verificación mecánica     las herramientas de tools/
        VÁLIDO si: cada regla HARD que declara comprobación tiene un script que puede
        fallar, y el fallo es distinguible del éxito (SUITE-R38).
 
@@ -284,7 +286,7 @@ node docs/methodology/tools/verify-fdge.mjs --gate G4 PT-XXX   # precondiciones 
 node docs/methodology/tools/verify-suite.mjs docs/methodology   # coherencia de la metodología
 node docs/methodology/tools/build-core.mjs                      # regenerar CORE tras tocar reglas
 node docs/methodology/tools/tracker.mjs espejo                  # registro ↔ issues de GitHub
-npm run verify                                                  # los NUEVE pasos que corre CI
+npm run verify                                                  # los mismos pasos que corre CI
 ```
 
 `FDGE-R34` · `verify-fdge` sin errores es precondición de **G4**.

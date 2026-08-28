@@ -86,8 +86,13 @@ jobs:
         run: npm run core:check
       - name: Cobertura de la auditoría
         run: npm run audit
-      - name: Batería de casos
-        run: npm run selftest
+      # PT-176 · AQUI LA COMPLETA, y a proposito. `verificacion.yml` salta los bloques sellados
+      # porque corre en cada push y el ahorro es todo el dia. Esto corre a mano, solo desde main y
+      # trece veces en toda la historia: ahorrar dieciseis minutos una vez por version no compensa
+      # ser el UNICO momento en que un falso verde llega a todos los proyectos destino.
+      # SUITE-R57 ya lo dice por el otro lado: sellar exige la corrida completa.
+      - name: Batería de casos · COMPLETA, sin saltar lo sellado
+        run: npm run selftest:todo
 
       # FDGE-R34 · verify-fdge sin errores es PRECONDICION DE G4, y publicar ocurre despues de
       # G4: llegar aqui sin haberlo corrido es publicar sin la comprobacion que autoriza el
