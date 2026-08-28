@@ -5706,7 +5706,12 @@
         "medido_en": null,
         "fecha": "2026-08-27"
       },
-      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar"
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar",
+      "origen_parada": {
+        "de": "PT-172",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-175",
@@ -5752,7 +5757,12 @@
         "medido_en": null,
         "fecha": "2026-08-27"
       },
-      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar"
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar",
+      "origen_parada": {
+        "de": "PT-172",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-176",
@@ -5805,7 +5815,12 @@
         "medido_en": null,
         "fecha": "2026-08-27"
       },
-      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar"
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar",
+      "origen_parada": {
+        "de": "PT-172",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-26"
+      }
     },
     {
       "id": "PT-177",
@@ -6020,7 +6035,13 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-28"
         }
-      }
+      },
+      "origen_parada": {
+        "de": "PT-178",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-27"
+      },
+      "severity": "S2"
     },
     {
       "id": "PT-183",

@@ -4,6 +4,7 @@
 ---
 id: PT-182
 type: BUG
+severity: S2
 epic: EP-025
 track: STANDARD
 status: DRAFT

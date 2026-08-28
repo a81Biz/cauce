@@ -124,10 +124,13 @@ Firmado en `PHASE 1` por Alberto Martínez, 2026-08-26.
 
 ## Firma   `INTAKE-R06` · `SUITE-R27`
 
-`EP-024` no está firmado como lote, así que esta tarea **no hereda nada de él**: `INTAKE-R08`
-*admite* la firma por lote, no la impone.
+Esta tarea pertenece a `EP-025`, **que sí está firmado como lote** (§9 de su Intake). La frase que
+había aquí decía que `EP-024` no lo estaba y concluía que no se heredaba nada — cierto sobre
+`EP-024` e **irrelevante**, porque el lote de esta tarea es otro. `INTAKE-R08` lo emitió al cerrar:
+sin la línea del lote, un Intake firmado es indistinguible de uno sin firmar.
 
 ```
+Firmado por lote: EP-025
 Solicitado por: Alberto Martínez
 Fecha: 2026-08-26
 He leído este Intake y confirmo que refleja mi intención: SÍ
