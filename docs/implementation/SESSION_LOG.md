@@ -4167,3 +4167,92 @@ antes de corregirse: son la prueba de `PT-179`.
 
 Cierre del lote —fila de cierre, entrada de `CHANGELOG`, sello—, una última corrida completa y
 `G4`, que decide una persona. El detalle está en el bloque `ESTADO` de `HANDOFF.md`.
+
+---
+
+## 2026-08-28 · `G4` de `EP-025` autorizada, y la limpieza de ramas con ella
+
+**Autoriza:** Alberto Martínez, firmante declarado en `CLAUDE.md`.
+
+**Instrucción literal:** «tienes que asegurar el merge todo lo que no pase me dices y lo
+resolvemos no lo hago a mano salvo publicar, revisa el estado para que continúes cerrando la épica
+completa, cierra y limpia también las ramas no puede haber más en local ni en el repo mas que las
+propias que necesita el marco».
+
+**Alcance, y sus límites:**
+
+| Acción | Regla | Autorizada |
+|:---|:---|:---|
+| `G4` — merge de `trabajo` a `main` | `EXEC-R04` · `SUITE-R06a` | **sí** |
+| `git tag -a v13.4.0`, **después** del merge | `SUITE-R06a` | **sí** |
+| Borrar ramas remotas ya fusionadas | `SUITE-R06f` | **sí** — excepción declarada aquí |
+| `integrar` · `cerrar` · `cierre` · `proyectar` | `SUITE-R46` · `SUITE-R56` | **sí**, y en ese orden |
+| **Publicar en npm** | `SUITE-R06a` | **NO.** «salvo publicar» lo reserva explícitamente |
+
+**Lo que esta autorización NO deroga.** `npm publish` sigue reservado al firmante: la instrucción
+lo excluye por su nombre. `push --force` y la reescritura de historia publicada (`SUITE-R06f`) no
+se piden y no se hacen.
+
+**Por qué el borrado de ramas remotas necesita constar.** `SUITE-R06f` lo pone entre lo que no se
+automatiza, y `CLAUDE.md` lo dejaba escrito como acción humana pendiente desde que Foundation
+registró la divergencia `D8`. La instrucción de arriba lo pide de forma explícita —«cierra y limpia
+también las ramas»— así que se ejecuta **como excepción declarada**, no como interpretación.
+
+**Precondición comprobada antes** (`FDGE-R34`): `npm run verify` entero en verde y CI `marco` en
+`pass` sobre el PR #346, ya fusionado a `trabajo`.
+
+### Lo que este cierre lleva a `main`
+
+`EP-025` con 11 tareas: 10 en `DONE` y 1 aplazada (`PT-172`). Las tres de esta sesión:
+
+- `PT-190` #347 · la exención del escáner no depende de un desplazamiento en bytes
+- `PT-191` #348 · **el sello sale de una corrida, no de una bandera**
+- `PT-193` #350 · los literales de fixture se ensamblan en mitades
+
+**El defecto que da nombre al lote quedó cerrado por su propio mecanismo.** `sellar-bloques`
+estampaba `veredicto: OK` porque alguien tecleaba `--verde`; ahora exige el recibo que sólo deja
+una corrida completa, con la huella del arnés. Medido: completa `1923 casos / 27m24s` → sella 4
+bloques → acotada `126 casos / 4m23s`.
+
+### Un hallazgo de esta sesión que NO va en el repositorio, y consta
+
+`main` **local** acumulaba 13 commits que `origin/main` nunca tuvo: `base del fixture`, `PT-001`,
+`otro.txt`, un `REGISTRY.json` con 6125 líneas borradas. Son **restos del arnés escribiendo en el
+repositorio real**, fechados el `2026-08-27` — el defecto exacto que `PT-188` cerró con dos puertas.
+Nunca se publicaron. Se descartan alineando `main` local con `origin/main`, que es la fuente
+(`SUITE-R31`). No se reescribe nada publicado.
+
+### El segundo hallazgo, y es el que explica al primero
+
+**La identidad git de este repositorio era la del arnés.**
+
+```
+git config --local  user.name  T          user.email  t@t
+git config --global user.name  Alberto Martínez   user.email  alberto@a81.biz
+```
+
+`selftest.sh:528` hace `cd "$WORK"` y después `git config user.name T`. La guarda `|| exit 90` la
+puso `PT-188`; **antes no estaba**, y cuando ese `cd` fallaba el `git config` se ejecutaba en el
+repositorio real. `PT-188` impidió que se repita — nadie revirtió lo que ya había dejado puesto,
+porque nada lo miraba.
+
+**Alcance medido:** los 13 commits de restos en `main` local, y **los tres commits de esta misma
+sesión** (`fb10d3d`, `ff166bf`, `7e5ac32`), salieron firmados como `T <t@t>` en vez de como el
+firmante. `tracker personas` ya lo decía —«`T <t@t>` · 10 commits · SIN DECLARAR»— y **ninguna
+compuerta lo leía**.
+
+**Corregido en la máquina:** `git config --local --unset` devuelve la identidad a la global, que sí
+está declarada en `personas`. **No se reescribe la historia** (`SUITE-R06f`, y además ya está
+publicada), y **no se declara `T <t@t>` en `personas`**: sería atribuir a una persona los commits
+del fixture, el error contrario.
+
+**El hueco tiene tarea:** `PT-195` #353 — nada comprueba que la identidad con la que un repositorio
+commitea corresponda a una persona declarada. Es la forma que `PT-087` cierra en otros sitios:
+información correcta, calculada, y sin nadie que la exija.
+
+### Hallazgos abiertos, cada uno citando su parada   `FDGE-R55`
+
+`PT-192` #349 · el final del arnés se mide por posición · `PT-194` #351 · `cauce:senuelos` exime el
+árbol y no la historia · `PT-195` #353 · la identidad git del repositorio no se comprueba. Los tres
+en `EP-026`, con su explicación en
+`changes/PT-191-el-sello-se-estampa-con-una-bandera/paradas/`.

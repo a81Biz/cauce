@@ -54,8 +54,9 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-187 | BUG | S2 | DRAFT | 1 | [#342](https://github.com/a81Biz/cauce/issues/342) | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
 | PT-192 | BUG | S2 | DRAFT | 1 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
 | PT-194 | BUG | S2 | DRAFT | 1 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
+| PT-195 | BUG | S2 | DRAFT | 1 | [#353](https://github.com/a81Biz/cauce/issues/353) | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
 
-**0 de 5 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**0 de 6 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Aplazado — 3 allocation(s) `DEFERRED`
 

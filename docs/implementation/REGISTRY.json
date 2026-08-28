@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 194,
+    "PT": 195,
     "EP": 26,
     "QA": 0,
     "QR": 0,
@@ -6505,6 +6505,24 @@
       "epic": "EP-026",
       "title": "La declaracion cauce:senuelos exime el arbol y no el escaneo de historia",
       "issue": 351,
+      "origen_parada": {
+        "de": "PT-191",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      }
+    },
+    {
+      "id": "PT-195",
+      "slug": "la-identidad-git-del-repo-no-se-comprueba",
+      "created": "2026-08-28",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "Nada comprueba que la identidad git del repositorio sea de una persona declarada",
+      "issue": 353,
       "origen_parada": {
         "de": "PT-191",
         "motivo": "hallazgo",
