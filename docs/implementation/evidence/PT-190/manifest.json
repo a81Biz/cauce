@@ -1,0 +1,49 @@
+{
+  "pt": "PT-190",
+  "generated": "2026-08-28",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La heuristica sigue eximiendo igual que antes",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-024 · la palabra cerca del principio sigue eximiendo"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El defecto queda visible: la misma palabra mas abajo deja de eximir",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · …y lejos deja de eximir: es un desplazamiento"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una declaracion explicita exime a cualquier altura",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-024 · la declaracion explicita exime a cualquier altura"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable"
+}

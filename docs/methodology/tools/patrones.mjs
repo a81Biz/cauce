@@ -2313,6 +2313,218 @@ export function seccionesConCaso(texto, patron) {
 }
 
 
+/**
+ * PT-174 · QUIEN IMPORTA A QUIEN, DERIVADO DEL CODIGO.
+ *
+ * `seccionesAfectadas` comparaba el NOMBRE del archivo que la seccion menciona con el que cambio, y
+ * ahi se acababa. Un cambio en `patrones.mjs` activaba 16 de 46 secciones — y a `patrones.mjs` lo
+ * importan NUEVE herramientas, asi que las secciones que ejercitan `audit`, `build-core`,
+ * `verify-suite`, `migrate` o `comparar-marco` NO se activaban aunque su comportamiento dependa de
+ * lo que cambio.
+ *
+ * Es la mitad de la pregunta que el sello necesita: sellar sobre entradas incompletas certifica DE
+ * MENOS, y un bloque sellado que dependia de algo que cambio se queda certificando lo que ya no es.
+ *
+ * SE DERIVA DEL CODIGO, no de una tabla. Un `import ... from './x.mjs'` es el hecho; enumerar a
+ * mano quien importa a quien es la clase de mapa que este lote lleva seis tareas quitando.
+ *
+ * PECA DE MAS a proposito, como `seccionesAfectadas` ya hacia: correr de mas es recuperable, y
+ * saltarse una seccion que tenia el caso es un falso verde (PT-086).
+ */
+/**
+ * PT-182 · EL MAPA FASE→ARTEFACTO, EN UN SOLO SITIO Y CON QUIEN LO CONSULTE.
+ *
+ * Estaba escrito DOS VECES y a mano: `RASTRO_H` dentro de `cursor`, y disperso en `verify-fdge`
+ * como llamadas a `exigible(regla, fase, archivo)`. Dos mapas del mismo hecho, y por eso daban
+ * respuestas distintas sobre las mismas tareas — el cursor reportaba «30 nodos sin rastro» sobre un
+ * lote que verify-fdge daba por limpio.
+ *
+ * Y EL CURSOR SABE Y NADIE LE PREGUNTA. Comprueba, fase a fase, que cada una dejo su artefacto — y
+ * no lo invoca `package.json`, ni la CI, ni `avanzar`, ni ninguna compuerta.
+ *
+ * ESO ES LO QUE COSTO SEIS TAREAS. EP-024 y EP-025 produjeron siete guardas nuevas, y CINCO
+ * arreglaban lo mismo: una regla HARD cuya unica comprobacion vivia en G4. PT-178 cerro un peldaño
+ * —`avanzar` ya no sale de PHASE 1 sin intake— y dejo los otros cuatro abiertos.
+ *
+ * Aqui el mapa se declara UNA vez y `avanzar` lo consulta en CADA transicion: la fase que se cierra
+ * tiene que haber dejado lo suyo. Las cinco dejan de ser hallazgos de G4 y pasan a ser imposibles.
+ */
+export const ARTEFACTO_DE_FASE = {
+  1: { produce: 'intake.md', donde: 'changes' },
+  3: { produce: 'strategy.md', donde: 'changes' },
+  4: { produce: 'traceability.md', donde: 'changes' },
+  6: { produce: 'manifest.json', donde: 'evidencia', tambien: 'self-review.md' },
+  8: { produce: 'HISTORY.log', donde: 'ledger' },
+};
+
+/**
+ * Que falta para dar por cerrada una fase. Devuelve `null` cuando la fase no declara artefacto —
+ * que NO es lo mismo que estar completa (RULE-06): es que no se sabe, y se dice.
+ */
+export function faltaDeFase(fase, hay) {
+  const d = ARTEFACTO_DE_FASE[Number(fase)];
+  if (!d) return null;
+  const falta = [];
+  if (!hay(d.donde, d.produce)) falta.push(d.produce);
+  if (d.tambien && !hay(d.donde, d.tambien)) falta.push(d.tambien);
+  return falta.length ? { fase: Number(fase), falta, donde: d.donde } : { fase: Number(fase), falta: [] };
+}
+
+/**
+ * PT-176 · EL BLOQUE DE UNA SECCION SE DERIVA DE CUANDO SE AÑADIO.
+ *
+ * PT-172 fijo que la version se declara EN EL INTAKE. Eso vale para lo que venga y DEJA FUERA TODO
+ * LO ESCRITO — que es lo que el firmante señalo: «si no solo lo hara hacia adelante y no lo
+ * anterior». Y todos los proyectos destino ya van empezados.
+ *
+ * Agrupar por la version del PT que la seccion NOMBRA dejaba fuera 20 de 46, incluida
+ * «P · plataforma», que sola es el 28% de la bateria: no todas nombran un PT.
+ *
+ * Lo que SI tiene toda seccion es el commit que la introdujo, y ese commit declara una version en
+ * package.json. De ahi sale su MAYOR, y de ahi su bloque. Es RETROACTIVO POR CONSTRUCCION: no hace
+ * falta que nadie declare nada, ya esta escrito en la historia — y la historia la tiene cada
+ * destino en su propio git.
+ *
+ * Medido en este repositorio: 46 de 46 secciones caen en un bloque, y con la version 13.x.x abierta
+ * quedan SELLABLES 45 secciones · 1797 casos = 95% de la bateria.
+ *
+ * `mayorDe` se INYECTA: esta funcion no habla con git. Asi se puede comprobar sin repositorio, que
+ * es la misma razon por la que `refExiste` se inyecta desde PT-079.
+ */
+export function bloquesDelArnes(titulos, mayorDe, versionActual) {
+  const actual = Number(String(versionActual ?? '').split('.')[0]);
+  const bloques = new Map();
+  const sinBloque = [];
+  for (const t of titulos ?? []) {
+    const mayor = mayorDe(t);
+    if (mayor === null || mayor === undefined) { sinBloque.push(t); continue; }
+    const k = String(mayor);
+    if (!bloques.has(k)) bloques.set(k, { mayor: Number(k), secciones: [], cerrado: false });
+    bloques.get(k).secciones.push(t);
+  }
+  for (const b of bloques.values()) {
+    // Un bloque esta CERRADO cuando su version mayor es anterior a la vigente. El abierto es el
+    // de la version en curso: ahi se sigue escribiendo, asi que no se puede sellar.
+    b.cerrado = Number.isFinite(actual) && b.mayor < actual;
+  }
+  return {
+    bloques: [...bloques.values()].sort((a, b) => a.mayor - b.mayor),
+    // RULE-06 · lo que no se puede clasificar NO se sella: se declara. Sellar por defecto
+    // certificaria lo que no se midio, que es exactamente lo contrario de para que existe esto.
+    sinBloque,
+  };
+}
+
+/**
+ * PT-175 · EL SELLO DE UN BLOQUE SE DERIVA DE SUS ENTRADAS.
+ *
+ * Un bloque certificado deja de correr. Para que eso no sea un falso verde, el sello tiene que
+ * romperse SOLO cuando cambia algo de lo que el bloque depende — y romperse SIEMPRE que cambia.
+ *
+ * QUE ESTABLECE: que el texto de las secciones del bloque y el de las herramientas que esas
+ *   secciones ejercitan —con su cierre transitivo, PT-174— son los mismos que cuando se sello.
+ * QUE NO ESTABLECE: que el bloque PASE. El sello dice «nada de lo que mide ha cambiado», no
+ *   «esto funciona». Lo segundo lo dijo la corrida que lo sello, y por eso el sello guarda su
+ *   veredicto y su fecha.
+ *
+ * REABRIR NO ES VOLVER A CORRER. El firmante lo dijo con todas las letras: «si se necesita hacer
+ * algun cambio de lo que ya esta sellado necesita saber que ademas del cambio debe abrir y probar
+ * de nuevo COMO NUEVO». Un sello que no case no se recalcula solo: el bloque vuelve a la bateria
+ * entera hasta que una corrida completa lo vuelva a sellar.
+ *
+ * Y ES DE LA VERSION DEL MARCO, NO DEL PROYECTO. Un destino que instale el paquete hereda el
+ * sello del marco; lo que NO hereda es haberlo corrido en SU arbol. Por eso el sello incluye las
+ * herramientas: si el destino las modifica, el sello deja de casar y el bloque vuelve a correr.
+ */
+export function selloDeBloque({ secciones, herramientas }) {
+  const partes = [];
+  for (const [titulo, cuerpo] of Object.entries(secciones ?? {}).sort()) {
+    partes.push(`sec:${titulo}`, selloDe(cuerpo));
+  }
+  for (const [nombre, texto] of Object.entries(herramientas ?? {}).sort()) {
+    partes.push(`tool:${nombre}`, selloDe(texto));
+  }
+  return selloDe(partes.join('\n'));
+}
+
+/**
+ * Que le pasa a un bloque sellado cuando algo cambia. Devuelve el veredicto y POR QUE, porque un
+ * «no cuadra» sin la razon obliga a ir a buscarla — y eso es lo que hace que se ignore.
+ */
+export function estadoDeBloque(sellado, ahora) {
+  if (!sellado || !sellado.sello) {
+    return { estado: 'SIN_SELLAR', porque: 'no consta ningun sello: el bloque corre entero.' };
+  }
+  if (sellado.sello !== ahora) {
+    return {
+      estado: 'REABIERTO',
+      porque: `el sello no casa (${String(sellado.sello).slice(0, 12)} != ${String(ahora).slice(0, 12)}): `
+        + 'algo de lo que el bloque mide ha cambiado. Vuelve a la bateria ENTERA hasta que una '
+        + 'corrida completa lo selle de nuevo — reabrir no es volver a correrlo (PT-175).',
+    };
+  }
+  if (sellado.veredicto !== 'OK') {
+    return {
+      estado: 'SELLADO_EN_ROJO',
+      porque: `el sello casa pero su corrida termino en «${sellado.veredicto}». Un bloque no se `
+        + 'certifica por no haber cambiado: se certifica por haber PASADO.',
+    };
+  }
+  return { estado: 'SELLADO', porque: `sellado el ${sellado.fecha ?? '?'} con veredicto OK.` };
+}
+
+/**
+ * PT-176 · DE QUE DEPENDE UNA HERRAMIENTA — el cierre HACIA ABAJO.
+ *
+ * `importadoresDe` sube: quien importa a lo que cambio. Para SELLAR hace falta lo contrario: dado
+ * lo que una seccion ejercita, de que depende — porque un cambio en una dependencia cambia el
+ * comportamiento de la seccion aunque la seccion no la nombre.
+ *
+ * SIN ESTO EL SELLO ERA INUTIL EN LA PRACTICA. La primera version metia TODAS las herramientas en
+ * el sello de TODOS los bloques: tocar cualquier archivo rompia todos los sellos, y en este
+ * repositorio casi toda sesion toca alguno. El 95% de ahorro habria sido teorico — la bateria
+ * habria corrido entera igual, con una capa mas encima.
+ */
+export function dependenciasDe(fuentes, objetivos) {
+  const deps = new Map();
+  for (const [nombre, texto] of Object.entries(fuentes ?? {})) {
+    const d = new Set();
+    for (const m of String(texto).matchAll(/from\s+'\.\/([A-Za-z0-9_.-]+\.mjs)'/g)) d.add(m[1]);
+    for (const m of String(texto).matchAll(/import\([^)]*['"]\.\/([A-Za-z0-9_.-]+\.mjs)/g)) d.add(m[1]);
+    deps.set(nombre, d);
+  }
+  const dentro = new Set((objetivos ?? []).map((f) => String(f).split('/').pop()));
+  let crecio = true;
+  while (crecio) {
+    crecio = false;
+    for (const n of [...dentro]) {
+      for (const d of deps.get(n) ?? []) if (!dentro.has(d)) { dentro.add(d); crecio = true; }
+    }
+  }
+  return [...dentro].filter((f) => deps.has(f));
+}
+
+export function importadoresDe(fuentes, objetivos) {
+  const grafo = new Map();
+  for (const [nombre, texto] of Object.entries(fuentes ?? {})) {
+    const deps = new Set();
+    for (const m of String(texto).matchAll(/from\s+'\.\/([A-Za-z0-9_.-]+\.mjs)'/g)) deps.add(m[1]);
+    for (const m of String(texto).matchAll(/import\([^)]*['"]\.\/([A-Za-z0-9_.-]+\.mjs)/g)) deps.add(m[1]);
+    grafo.set(nombre, deps);
+  }
+  // El cierre: quien importa a algo que ya esta dentro, entra.
+  const dentro = new Set((objetivos ?? []).map((f) => String(f).split('/').pop()));
+  let creció = true;
+  while (creció) {
+    creció = false;
+    for (const [nombre, deps] of grafo) {
+      if (dentro.has(nombre)) continue;
+      for (const d of deps) if (dentro.has(d)) { dentro.add(nombre); creció = true; break; }
+    }
+  }
+  return [...dentro];
+}
+
 export function seccionesAfectadas(texto, cambiadas) {
   const quiere = new Set((cambiadas ?? []).map((f) => f.split('/').pop()));
   return seccionesDelArnes(texto)

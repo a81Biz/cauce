@@ -58,7 +58,19 @@ jobs:
       - name: La matriz publicada esta al dia
         run: npm run matriz:check
 
-      - name: Batería de casos
+      # PT-176 · AQUI SE SALTA LO SELLADO. Un bloque es el conjunto de secciones introducidas bajo
+      # una misma version MAYOR, y el bloque se deriva del COMMIT que introdujo cada seccion — asi
+      # que cubre lo escrito antes de que existiera la idea de bloque, y funciona igual en un
+      # proyecto destino, que tiene esa historia en su propio git.
+      #
+      # EL SELLO SE COMPRUEBA, NO SE CREE: incluye el texto de las secciones Y el de las
+      # herramientas, asi que si esta rama toca cualquiera de las dos el bloque vuelve ENTERO. Y si
+      # SELLOS.json no existe, corre todo — el silencio del selector significa «no acotes».
+      #
+      # `publicar.yml` corre la COMPLETA a proposito: es el unico momento irreversible.
+      - name: Bloques sellados y su estado
+        run: npm run sellar:bloques
+      - name: Batería de casos · salta los bloques sellados
         run: npm run selftest
 
       # `FND-R29` · nada se publica sin revisar secretos, y la revisión bloquea. Un secreto en

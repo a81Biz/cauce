@@ -8,7 +8,7 @@
 > Prompts: [FPGE-Prompts.md](FPGE-Prompts.md)
 > Marcos hermanos: [Framework-FDGE.md](Framework-FDGE.md) · [QA/Framework-QA.md](QA/Framework-QA.md) · [PTSA/PTSA-V3-Especificacion-Oficial.md](PTSA/PTSA-V3-Especificacion-Oficial.md)
 >
-> Suite version: **13.3.0**
+> Suite version: **13.4.0**
 
 ---
 

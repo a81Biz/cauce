@@ -25,17 +25,23 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 ## Implementación abierta — `EP-025`
 
-`EP-025` · **La bateria se puede certificar: independencia, cierre y sello** · `DRAFT` · issue [#326](https://github.com/a81Biz/cauce/issues/326).
+`EP-025` · **La bateria se puede certificar: independencia, cierre y sello** · `READY` · issue [#326](https://github.com/a81Biz/cauce/issues/326).
 
 | PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-172 | CHORE | S2 | DEFERRED | 1 | [#319](https://github.com/a81Biz/cauce/issues/319) | La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado |
-| PT-173 | CHORE | S2 | DEFERRED | 1 | [#320](https://github.com/a81Biz/cauce/issues/320) | las secciones montan lo que necesitan |
-| PT-174 | CHORE | S2 | DEFERRED | 1 | [#321](https://github.com/a81Biz/cauce/issues/321) | la seleccion sigue el grafo de importacion |
-| PT-175 | CHORE | S2 | DEFERRED | 1 | [#322](https://github.com/a81Biz/cauce/issues/322) | el sello se deriva de las entradas |
-| PT-176 | CHORE | S2 | DEFERRED | 1 | [#323](https://github.com/a81Biz/cauce/issues/323) | CI corre solo los paquetes abiertos |
+| PT-173 | CHORE | S2 | DONE | 8 | [#320](https://github.com/a81Biz/cauce/issues/320) | las secciones montan lo que necesitan |
+| PT-174 | CHORE | S2 | DONE | 8 | [#321](https://github.com/a81Biz/cauce/issues/321) | la seleccion sigue el grafo de importacion |
+| PT-175 | CHORE | S2 | DONE | 8 | [#322](https://github.com/a81Biz/cauce/issues/322) | el sello se deriva de las entradas |
+| PT-176 | CHORE | S2 | DONE | 8 | [#323](https://github.com/a81Biz/cauce/issues/323) | CI corre solo los paquetes abiertos |
+| PT-182 | BUG | S2 | DONE | 8 | [#330](https://github.com/a81Biz/cauce/issues/330) | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
+| PT-188 | BUG | S1 | DONE | 8 | [#344](https://github.com/a81Biz/cauce/issues/344) | Un cd que falla deja al arnes operando sobre el repositorio real |
+| PT-189 | BUG | S2 | DONE | 8 | [#345](https://github.com/a81Biz/cauce/issues/345) | FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino |
+| PT-190 | BUG | S2 | DONE | 8 | [#347](https://github.com/a81Biz/cauce/issues/347) | La exencion del escaner de secretos depende de un desplazamiento en bytes |
+| PT-191 | BUG | S2 | DONE | 8 | [#348](https://github.com/a81Biz/cauce/issues/348) | El sello se estampa con una bandera, no con una corrida |
+| PT-193 | CHORE | S3 | DONE | 8 | [#350](https://github.com/a81Biz/cauce/issues/350) | Los literales de fixture se ensamblan en mitades para no entrar en la historia |
 
-**5 de 5 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**11 de 11 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-026`
 
@@ -45,12 +51,13 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 |:---|:---|:---|:---|:---|:---|:---|
 | PT-179 | BUG | — | DRAFT | 1 | [#327](https://github.com/a81Biz/cauce/issues/327) | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
 | PT-181 | BUG | — | DRAFT | 1 | [#329](https://github.com/a81Biz/cauce/issues/329) | La expectativa de un caso se compara como regex y no hay forma de decir literal |
-| PT-182 | BUG | — | DRAFT | 1 | [#330](https://github.com/a81Biz/cauce/issues/330) | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
 | PT-187 | BUG | S2 | DRAFT | 1 | [#342](https://github.com/a81Biz/cauce/issues/342) | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
+| PT-192 | BUG | S2 | DRAFT | 1 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
+| PT-194 | BUG | S2 | DRAFT | 1 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
 
-**0 de 4 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**0 de 5 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
-## Aplazado — 7 allocation(s) `DEFERRED`
+## Aplazado — 3 allocation(s) `DEFERRED`
 
 `SUITE-R44` · aplazar algo lo **pone** en el tablero, no lo saca.
 
@@ -59,10 +66,6 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-025 | CHORE | [#35](https://github.com/a81Biz/cauce/issues/35) | el adaptador de Azure existe pero no hay proyecto que lo use; escribir la guarda a ciegas seria codigo sin ejecucion |
 | PT-171 | BUG | [#318](https://github.com/a81Biz/cauce/issues/318) | Aplazado desde PT-159 el 2026-08-26 |
 | PT-172 | CHORE | [#319](https://github.com/a81Biz/cauce/issues/319) | Aplazado desde PT-155 el 2026-08-26 |
-| PT-173 | CHORE | [#320](https://github.com/a81Biz/cauce/issues/320) | Aplazado desde PT-172 el 2026-08-26 |
-| PT-174 | CHORE | [#321](https://github.com/a81Biz/cauce/issues/321) | Aplazado desde PT-172 el 2026-08-26 |
-| PT-175 | CHORE | [#322](https://github.com/a81Biz/cauce/issues/322) | Aplazado desde PT-172 el 2026-08-26 |
-| PT-176 | CHORE | [#323](https://github.com/a81Biz/cauce/issues/323) | Aplazado desde PT-172 el 2026-08-26 |
 
 <!-- /BACKLOG:DERIVADO -->
 

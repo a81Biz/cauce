@@ -7,7 +7,7 @@
 > Compuertas: [EXECUTION-MODES.md](EXECUTION-MODES.md) · Prompts: [FDGE-Prompts.md](FDGE-Prompts.md)
 > Admisión: [INTAKE/Intake-Protocol.md](INTAKE/Intake-Protocol.md)
 >
-> Suite version: **13.3.0**
+> Suite version: **13.4.0**
 
 ---
 

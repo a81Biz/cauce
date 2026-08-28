@@ -1,0 +1,76 @@
+{
+  "pt": "PT-176",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Las secciones se agrupan por versión MAYOR",
+      "scenarios": [
+        "TS-01",
+        "TS-06"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Lo anterior a la versión vigente queda **cerrado**",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El bloque de la versión vigente **no** cierra",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Lo que no se puede clasificar **se declara** y no cae en ningún bloque",
+      "scenarios": [
+        "TS-04",
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 5 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1904 casos · 95% sellable · ahorro real 69% del tiempo",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "pt": "PT-193",
+  "generated": "2026-08-28",
+  "track": "EXPRESS",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Los casos que usan el valor siguen midiendo lo mismo y en verde",
+      "scenarios": ["TS-01"],
+      "tests": [
+        "selftest §EP-025 · la palabra cerca del principio sigue eximiendo",
+        "selftest §EP-025 · …y lejos deja de eximir: es un desplazamiento",
+        "selftest §EP-025 · la declaracion explicita exime a cualquier altura",
+        "selftest §FDGE · secreto en el intake ⇒ falla"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El fuente de selftest.sh ya no contiene el literal entero",
+      "scenarios": ["TS-02"],
+      "tests": ["sin caso de bateria — declarado en traceability.md y spec-changes.md"],
+      "evidence": ["grep.txt"],
+      "verified": true,
+      "como": "grep -c del literal ensamblado en el comando: 0. Antes del cambio eran 2."
+    }
+  ],
+  "coverage": "2 de 2 criterios con evidencia; AC-02 sin caso ejecutable, con motivo declarado",
+  "cambio_de_especificacion": {
+    "hubo": true,
+    "donde": "spec-changes.md",
+    "que": "El eje del alcance pasa del FIXTURE al VALOR. El mismo literal aparecia DOS veces —la segunda en el fixture de FDGE-R45 (:1369), anterior a PT-190 y con su huella firmada desde 2026-08-13— y con ella en pie AC-02 era INALCANZABLE. Se parten las dos, y AC-01 pasa a cubrir cuatro casos en vez de tres.",
+    "por_que_no_se_acoto_el_AC": "Acotar AC-02 a _sec190 habria sido estrechar el criterio hasta el resultado ya obtenido, que es la forma de hacer que una comprobacion no pueda fallar."
+  }
+}
