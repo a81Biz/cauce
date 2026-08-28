@@ -1,0 +1,27 @@
+PT-191 · comprobacion INVERSA — el mismo arbol, el mismo recibo, los dos codigos
+Fixture: /c/tmp/oldrepo — repositorio git real con package.json 13.4.0 y una copia de tools/.
+
+== ANTERIOR · --verde y NINGUN recibo ==
+
+  --aplicar escribe C:\tmp\oldrepo\docs\implementation\SELLOS.json con 0 bloque(s).
+
+== ANTERIOR · --verde y un recibo que dice HAY FALLOS ==
+
+  --aplicar escribe C:\tmp\oldrepo\docs\implementation\SELLOS.json con 0 bloque(s).
+
+   ^ las dos veces llega a «--aplicar escribe SELLOS.json»: habria sellado.
+
+== NUEVO · el mismo arbol, el mismo recibo HAY FALLOS ==
+  NO SE SELLA: el recibo dice «HAY FALLOS»: una corrida que fallo no certifica nada.
+  Un bloque se certifica por haber PASADO, no por que alguien
+  ejecutara este comando (PT-175, PT-191).
+
+== NUEVO · las otras cuatro negativas, sobre el mismo fixture ==
+  NO SE SELLA: no hay recibo de corrida en C:\tmp\oldrepo\docs\implementation\CORRIDA.json. Lo escribe «selftest.sh --todo», y es eso lo que certifica — no esta bandera (PT-191).
+  NO SE SELLA: el recibo es de otra bateria (000000000000 != 7a8a4f7aa42b): el arnes cambio despues de correr.
+  NO SE SELLA: el recibo de C:\tmp\oldrepo\docs\implementation\CORRIDA.json no es JSON legible: un recibo que no se puede leer no certifica nada.
+  NO SE SELLA: sin --verde no se sella: el sello es una DECISION, no un efecto de ejecutar el comando.
+
+== NUEVO · un recibo VALIDO si sella (no aparece NO SE SELLA) ==
+
+  --aplicar escribe C:\tmp\oldrepo\docs\implementation\SELLOS.json con 0 bloque(s).

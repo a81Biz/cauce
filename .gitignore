@@ -17,3 +17,10 @@ graphify-out/
 
 # Configuración local de Claude Code en cualquier nivel: es de la máquina, no del marco.
 .claude/settings.local.json
+
+# El recibo de la corrida: PROPIO DE ESTA MAQUINA, nunca versionado — PT-191.
+# Certifica que la bateria corrio AQUI y termino en verde. Si viajara en el repositorio,
+# cualquier clon podria sellar sin haber corrido nada: bastaria que el arnes no hubiera
+# cambiado. El SELLO si se versiona —es la decision, y su rastro debe sobrevivir—; el
+# recibo es la prueba local del hecho, y una prueba que se copia deja de probar.
+docs/implementation/CORRIDA.json

@@ -1366,8 +1366,10 @@ build_fixture
 perl -0pi -e 's/`PTSA-R17`/`PTSA-R17` DEROGADA./' "$WORK/docs/methodology/CORE-PTSA.md"
 chk   "overlay retocado ⇒ falla"               "EDITADO A MANO"  BC
 build_fixture
-printf 'password = SuperSecreta123
-' >> "$WORK/changes/PT-001-login/intake.md"
+# PT-193 · el MISMO valor que _sec190, y por el mismo motivo se ensambla en dos mitades:
+# el archivo escrito bajo $WORK no cambia, el FUENTE deja de contenerlo. Su huella de
+# historia ya estaba firmada desde 2026-08-13; esto impide que vuelva a entrar.
+printf 'pass%s = SuperSecreta123\n' 'word' >> "$WORK/changes/PT-001-login/intake.md"
 chk   "secreto en el intake ⇒ falla"           "✗ FDGE-R45"  V PT-001
 build_fixture
 printf '| PT-050 | BUG | INTEGRATED | merge |
@@ -9516,7 +9518,13 @@ chk   "…si el sello NO casa, vuelve entero"                "REABIERTO"        
 chk   "…y si su corrida fallo, NO certifica"               "SELLADO_EN_ROJO"    _sel176 "HAY FALLOS" casa
 # EL COMANDO NO SELLA POR EJECUTARSE. Sin --verde no escribe nada: un bloque se certifica por haber
 # PASADO, no porque alguien lanzara el sellador.
-chk   "sellar sin --verde no sella nada"                   "no se sella nada" \
+#
+# PT-191 · el texto de la negativa cambio —ahora las negativas son CINCO y cada una dice cual es—
+# asi que la asercion pasa de citar la frase entera a citar lo que este caso mide: que SIN --verde
+# no se sella. La CONDUCTA es la misma que PT-175 fijo; lo que se actualiza es a que se aferra el
+# caso. Aferrarse a una frase completa hace que reescribir un mensaje rompa casos que no miden el
+# mensaje — la misma familia de -18, en su version textual.
+chk   "sellar sin --verde no sella nada"                   "sin --verde no se sella" \
   node "$SUITE/tools/sellar-bloques.mjs"
 # Y SIN SELLOS, LA BATERIA CORRE ENTERA. El silencio del selector significa «no acotes», nunca
 # «no hay nada que correr» — un verde por vacio seria el falso verde mas caro posible.
@@ -9533,12 +9541,19 @@ chk   "sin SELLOS.json no se acota nada"                   "SIN_ACOTAR" \
 # PT-188 anadio texto en la cabecera de selftest.sh, la palabra paso del caracter 3208 al 4242, y
 # el archivo entero dejo de ser senuelo: ocho hallazgos y FND-R29 bloqueando G4. Ninguna de las
 # ocho lineas cambio — cambio cuanto texto hay ENCIMA de ellas.
+# PT-193 · LA CONTRASENA SE ENSAMBLA EN DOS MITADES, como la clave AWS de :821 (PT-015).
+# El archivo que se escribe bajo $WORK es byte a byte el mismo —es lo que el caso necesita—
+# pero el FUENTE ya no contiene el literal, y el fuente se commitea. Escrito entero, entro en
+# la historia con el commit fb10d3de y FND-R29 bloqueo «npm run verify»: huella 397f02076a3e,
+# firmada en SECRETOS-EXCEPCIONES.md porque el commit es inmutable. La declaracion
+# «cauce:senuelos» que PT-190 anadio exime el ARBOL; el escaneo de historia mira los hunks
+# anadidos, donde esa exencion no llega — y eso es un defecto propio: PT-194 (EP-026).
 _sec190() { # $1 = cuanto relleno va ANTES de la palabra
   local d="$WORK/p190"; rm -rf "$d"; mkdir -p "$d"
   { [ -n "$2" ] && echo "$2"
     printf "%*s" "$1" "" | tr " " "#"; echo
     echo "# aqui hay un fixture a proposito"
-    echo "password = SuperSecreta123"; } > "$d/a.sh"
+    printf 'pass%s = SuperSecreta123\n' 'word'; } > "$d/a.sh"
   ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
     node "$SUITE/tools/revisar-secretos.mjs" . 2>&1 )
 }
@@ -9552,9 +9567,72 @@ chk   "…y lejos deja de eximir: es un desplazamiento"   "FND-R29"             
 # relleno, la misma linea — y una linea que alguien puso a proposito.
 chk   "la declaracion explicita exime a cualquier altura" "Sin hallazgos sin firmar"   _sec190 5000 "# cauce:senuelos"
 
+# ── PT-191 · el sello sale del RECIBO, no de una bandera ──────────────────
+#
+# «--verde» estampaba OK porque alguien la paso. El caso que lo destapo es real: el bloque 8 se
+# reabrio al cambiar revisar-secretos.mjs y la corrida que lo devolvio al verde fue la ACOTADA;
+# sellar ahi habria estampado con fecha de hoy los bloques 9, 10 y 11, que ese dia NO corrieron.
+_rec191() { # $1 = el recibo que se planta (vacio = ninguno) · imprime solo la negativa
+  local d="$WORK/p191"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  printf '{ "version": "13.4.0" }' > "$d/package.json"
+  [ -n "$1" ] && printf '%s' "$1" > "$d/docs/implementation/CORRIDA.json"
+  MTH_RAIZ="$d" node "$SUITE/tools/sellar-bloques.mjs" --verde 2>&1 | sed -n '/NO SE SELLA/p'
+}
+chk   "sin recibo NO se sella, aunque venga --verde"  "no hay recibo"         _rec191 ""
+# UNA CORRIDA QUE FALLO NO CERTIFICA. Es la distincion entera de PT-175: un bloque se sella por
+# haber PASADO, no por que alguien lanzara el sellador despues.
+chk   "…un recibo en rojo tampoco certifica"          "una corrida que fallo" _rec191 '{ "veredicto": "HAY FALLOS", "casos": "1", "arnes": "x", "fecha": "2026-08-28" }'
+# Y EL RECIBO LLEVA LA HUELLA DEL ARNES: editar la bateria lo invalida sin que nadie se acuerde.
+chk   "…y un recibo de OTRA bateria se rechaza"       "otra bateria"          _rec191 '{ "veredicto": "OK", "casos": "1", "arnes": "0000000000000000000000000000000000000000", "fecha": "2026-08-28" }'
+# Y EL CUARTO, QUE NO ES ADORNO: los tres de arriba los pasa entero un sellador que se niegue
+# SIEMPRE. Sin este, el arreglo podria estar roto en la otra direccion y los tres seguirian
+# verdes. La huella se CALCULA aqui, sobre el arnes que el fixture usa: transcribir un valor lo
+# dejaria caducado al primer cambio de la bateria (HANDOFF -18).
+_rec191ok() { # planta un recibo VALIDO · imprime la salida entera del sellador
+  local d="$WORK/p191ok"; rm -rf "$d"; mkdir -p "$d/docs/implementation"
+  printf '{ "version": "13.4.0" }' > "$d/package.json"
+  local h; h="$(git hash-object "$SUITE/tools/selftest.sh")"
+  printf '{ "veredicto": "OK", "casos": "1", "arnes": "%s", "fecha": "2026-08-28" }' "$h" \
+    > "$d/docs/implementation/CORRIDA.json"
+  MTH_RAIZ="$d" node "$SUITE/tools/sellar-bloques.mjs" --verde 2>&1
+}
+chkno "…y un recibo VALIDO si sella"                  "NO SE SELLA"           _rec191ok
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"
+
+# PT-191 · UNA CORRIDA COMPLETA DEJA RECIBO, Y EL SELLADOR LO EXIGE.
+#
+# «sellar-bloques --verde» estampaba OK porque alguien paso la bandera: nada comprobaba que la
+# corrida ocurriera, ni que fuera completa, ni que terminara en verde. Un proxy en lugar del
+# hecho, en el mecanismo construido para eliminar exactamente eso (CE-001).
+#
+# LO ESCRIBE SOLO «--todo»: una corrida acotada no puede certificar lo que no ejecuto — y ese
+# es el caso REAL que destapo el defecto, no una hipotesis. ACOTADO lo levantan --solo, --seccion
+# y --afectados, asi que tambien «--todo --solo X» queda sin recibo.
+#
+# RUTAS ABSOLUTAS, Y NO «${BASH_SOURCE[0]}»: el arnes hace «cd "$WORK"» en el shell PRINCIPAL
+# (lineas 1159 y 3019), asi que al llegar aqui el directorio de trabajo YA NO es el repositorio y
+# una ruta relativa no resuelve. La primera version usaba BASH_SOURCE, la corrida COMPLETA de
+# 1923 casos termino sin escribir recibo, y NADA lo dijo: el silencio parecia exito. RAIZ y SUITE
+# son absolutas desde la linea 17.
+#
+# VA AQUI, ANTES DEL INFORME FINAL, POR DOS VENTANAS POSICIONALES SOBRE EL FINAL DEL FUENTE:
+#   selftest.sh:7284  «el recuento final existe»    tail -4
+#   selftest.sh:7237  «sin coincidencias, es rojo»   tail -40
+# Puesto detras del recuento, este bloque empujo el objetivo de la segunda fuera de su ventana y
+# la puso en rojo sin que nada de lo que mide hubiera cambiado. Es la familia que el HANDOFF
+# declara en -18, y el comentario de :7235 ya la habia sufrido una vez (PT-086 la amplio de 14 a
+# 40). Aqui se ESQUIVA a sabiendas: arreglarla es otro defecto, y es PT-192 (EP-026).
+# TOTAL y FAILED ya son definitivos — el ultimo caso es el de arriba.
+if [ -n "$TODO" ] && [ -z "$ACOTADO" ]; then
+  _huella="$(git hash-object "$SUITE/tools/selftest.sh" 2>/dev/null)"
+  _veredicto=$([ "$FAILED" -eq 0 ] && echo OK || echo "HAY FALLOS")
+  _fecha="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  printf '{ "veredicto": "%s", "casos": "%s", "arnes": "%s", "fecha": "%s" }\n' "$_veredicto" "$TOTAL" "$_huella" "$_fecha" \
+    > "$RAIZ/docs/implementation/CORRIDA.json"
+fi
 
 echo
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL

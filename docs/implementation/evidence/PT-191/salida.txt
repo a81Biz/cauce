@@ -1,0 +1,16 @@
+PT-191 · corrida COMPLETA que certifica la 13.4.0
+
+  [32m✓[0m el lint sale limpio sobre el arbol real
+  [32m✓[0m sobre el arbol real, el contrato cumple
+  [32m✓[0m sobre el arbol real no queda ningun literal
+  [32m✓[0m sellar sin --verde no sella nada
+  [32m✓[0m sin recibo NO se sella, aunque venga --verde
+  [32m✓[0m …un recibo en rojo tampoco certifica
+  [32m✓[0m …y un recibo de OTRA bateria se rechaza
+  [32m✓[0m …y un recibo VALIDO si sella
+  [32m✓[0m sobre el arbol real, la suite es coherente
+
+selftest: OK · 1923 casos
+
+Recibo que dejo esa corrida (docs/implementation/CORRIDA.json, NO versionado):
+{ "veredicto": "OK", "casos": "1923", "arnes": "6e345046a4714877155afcf341c9c9560250327f", "fecha": "2026-08-28T15:01:46Z" }

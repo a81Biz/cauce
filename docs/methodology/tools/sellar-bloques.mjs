@@ -25,7 +25,10 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
-const RAIZ = (() => {
+// PT-191 · apuntable a un arbol de pruebas, igual que su hermano `bloques-sellados.mjs:19`.
+// Sin esto el sellador mira SIEMPRE el repositorio real, y un caso que le plante un recibo
+// sintetico no lo leeria nunca: pasaria o fallaria por el motivo equivocado.
+const RAIZ = process.env.MTH_RAIZ || (() => {
   const g = (() => { try { return execFileSync('git', ['-C', AQUI, 'rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim(); } catch { return ''; } })();
   return g || join(AQUI, '..', '..', '..');
 })();
@@ -65,7 +68,41 @@ for (const f of readdirSync(AQUI).filter((x) => x.endsWith('.mjs'))) {
 }
 
 const previos = existsSync(SELLOS) ? JSON.parse(readFileSync(SELLOS, 'utf8')) : {};
-const veredicto = process.argv.includes('--verde') ? 'OK' : null;
+// ── PT-191 · EL VEREDICTO SALE DEL RECIBO DE LA CORRIDA, NO DE UNA BANDERA ──
+//
+// Esto era «process.argv.includes('--verde') ? 'OK' : null»: nada comprobaba que la corrida
+// ocurriera, ni que fuera completa, ni que terminara en verde. El veredicto que el sello guarda
+// —la pieza que PT-175 introdujo para que un bloque no quedara certificado por no haber
+// cambiado— era la palabra de quien ejecuto el comando. Un proxy en lugar del hecho (CE-001), en
+// el mecanismo construido para eliminarlo. La cabecera de este archivo ya decia «tras una corrida
+// completa en verde»: la distancia entre esa linea y esta era el defecto entero.
+//
+// EL CASO QUE LO DESTAPO ES REAL. PT-190 cambio revisar-secretos.mjs, lo que reabrio el bloque 8,
+// y la corrida que lo devolvio al verde fue la ACOTADA —122 casos—. Sellar ahi habria estampado
+// con fecha de hoy los bloques 9, 10 y 11: 16 secciones que ese dia NO se ejecutaron.
+//
+// El recibo lo escribe SOLO «selftest.sh --todo», y lleva la huella del arnes: editar la bateria
+// lo invalida sin que nadie tenga que acordarse. Si no hay recibo, o no se puede leer, o su
+// corrida fallo, o es de otra bateria, NO SE SELLA — y se dice CUAL de las cuatro cosas es,
+// porque una negativa que no distingue obliga a suponer (RULE-06).
+const RECIBO = join(RAIZ, 'docs', 'implementation', 'CORRIDA.json');
+const arnesHoy = git(['hash-object', ARNES]);
+const recibo = (() => {
+  if (!existsSync(RECIBO)) return null;
+  try { return JSON.parse(readFileSync(RECIBO, 'utf8')); } catch { return 'ILEGIBLE'; }
+})();
+const porQueNo = !process.argv.includes('--verde')
+  ? 'sin --verde no se sella: el sello es una DECISION, no un efecto de ejecutar el comando'
+  : recibo === null
+    ? `no hay recibo de corrida en ${RECIBO.replace(RAIZ, '.')}. Lo escribe «selftest.sh --todo», y es eso lo que certifica — no esta bandera (PT-191)`
+    : recibo === 'ILEGIBLE'
+      ? `el recibo de ${RECIBO.replace(RAIZ, '.')} no es JSON legible: un recibo que no se puede leer no certifica nada`
+      : recibo.veredicto !== 'OK'
+        ? `el recibo dice «${recibo.veredicto}»: una corrida que fallo no certifica nada`
+        : recibo.arnes !== arnesHoy
+          ? `el recibo es de otra bateria (${String(recibo.arnes).slice(0, 12)} != ${String(arnesHoy).slice(0, 12)}): el arnes cambio despues de correr`
+          : null;
+const veredicto = porQueNo ? null : 'OK';
 const hoy = git(['log', '-1', '--format=%cs']) || new Date().toISOString().slice(0, 10);
 
 const salida = {};
@@ -107,8 +144,9 @@ if (sinBloque.length) {
 }
 console.log('');
 if (!veredicto) {
-  console.log('  Sin --verde no se sella nada: un bloque se certifica por haber PASADO,');
-  console.log('  no por que alguien ejecutara este comando (PT-175).');
+  console.log(`  NO SE SELLA: ${porQueNo}.`);
+  console.log('  Un bloque se certifica por haber PASADO, no por que alguien');
+  console.log('  ejecutara este comando (PT-175, PT-191).');
 } else if (!APLICAR) {
   console.log(`  --aplicar escribe ${SELLOS.replace(RAIZ, '.')} con ${Object.keys(salida).length} bloque(s).`);
 } else {

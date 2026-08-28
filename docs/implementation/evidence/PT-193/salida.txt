@@ -1,0 +1,13 @@
+PT-193 · AC-01 — los CUATRO casos que usan el valor, en la corrida completa
+
+  [32m✓[0m secreto en el intake ⇒ falla
+  [32m✓[0m la palabra cerca del principio sigue eximiendo
+  [32m✓[0m …y lejos deja de eximir: es un desplazamiento
+  [32m✓[0m la declaracion explicita exime a cualquier altura
+
+selftest: OK · 1923 casos
+
+Recibo de esa corrida (NO versionado):
+{ "veredicto": "OK", "casos": "1923", "arnes": "bf35d8ee149a248714483dcfa70efad025dcf426", "fecha": "2026-08-28T16:35:55Z" }
+
+Y con ese recibo se sellaron los 4 bloques.

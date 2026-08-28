@@ -1,0 +1,81 @@
+{
+  "pt": "PT-191",
+  "generated": "2026-08-28",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Sin recibo no se sella, aunque venga --verde",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-025 · sin recibo NO se sella, aunque venga --verde"
+      ],
+      "evidence": [
+        "salida.txt",
+        "inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un recibo cuyo veredicto no es OK no certifica",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-025 · …un recibo en rojo tampoco certifica"
+      ],
+      "evidence": [
+        "salida.txt",
+        "inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un recibo de otra bateria se rechaza",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-025 · …y un recibo de OTRA bateria se rechaza"
+      ],
+      "evidence": [
+        "salida.txt",
+        "inversa.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Un recibo valido si sella: el arreglo no es «negarse siempre»",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-025 · …y un recibo VALIDO si sella"
+      ],
+      "evidence": [
+        "salida.txt",
+        "inversa.txt"
+      ],
+      "verified": true,
+      "nota_recibo": "El recibo real de la corrida completa vive en docs/implementation/CORRIDA.json, que NO se versiona (.gitignore, y es parte del diseno de esta tarea): una prueba que se copia deja de probar. Su contenido queda TRANSCRITO en salida.txt, que si es evidencia versionada."
+    }
+  ],
+  "coverage": "4 de 4 criterios con escenario y caso ejecutable",
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Solo «--todo» escribe recibo: una corrida acotada no certifica lo que no ejecuto",
+      "por_que_no_hay_caso": "Probarlo exigiria anidar la bateria dentro de si misma, que es lo que PT-188 acaba de impedir con dos puertas tras medir que el arnes podia escribir en el repositorio real. Un grep al codigo seria otro proxy (CE-001) y no se escribe.",
+      "como_se_sostiene": "La guarda es «[ -n \"$TODO\" ] && [ -z \"$ACOTADO\" ]» en selftest.sh, y ACOTADO lo levantan --solo, --seccion y --afectados, asi que cualquier acotamiento —incluido «--todo --solo X»— deja el recibo sin escribir.",
+      "verified": false
+    }
+  ],
+  "comprobacion_inversa": {
+    "hecha": true,
+    "donde": "inversa.txt",
+    "que_establece": "Sobre el MISMO fixture, el codigo anterior llega a «--aplicar escribe SELLOS.json» tanto sin recibo alguno como con un recibo que dice HAY FALLOS. El nuevo se niega en los dos casos y dice cual es. Los cuatro casos NO pasan con el codigo anterior: no miden el arreglo por casualidad."
+  }
+}

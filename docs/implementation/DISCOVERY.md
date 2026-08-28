@@ -128,4 +128,6 @@
 | PT-188 | BUG | S1 | DONE | EP-025 | Un cd que falla deja al arnes operando sobre el repositorio real |
 | PT-189 | BUG | S2 | DONE | EP-025 | FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino |
 | PT-190 | BUG | S2 | DONE | EP-025 | La exencion del escaner de secretos depende de un desplazamiento en bytes |
-| PT-191 | BUG | S2 | DRAFT | EP-025 | El sello se estampa con una bandera, no con una corrida |
+| PT-191 | BUG | S2 | DONE | EP-025 | El sello se estampa con una bandera, no con una corrida |
+| PT-192 | BUG | S2 | DRAFT | EP-026 | El final del arnes se mide por POSICION y castiga cualquier anadido |
+| PT-194 | BUG | S2 | DRAFT | EP-026 | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |

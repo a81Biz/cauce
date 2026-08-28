@@ -58,3 +58,4 @@
 | PT-174 | CHORE | S2 | DONE | EP-025 | la seleccion sigue el grafo de importacion |
 | PT-175 | CHORE | S2 | DONE | EP-025 | el sello se deriva de las entradas |
 | PT-176 | CHORE | S2 | DONE | EP-025 | CI corre solo los paquetes abiertos |
+| PT-193 | CHORE | S3 | DONE | EP-025 | Los literales de fixture se ensamblan en mitades para no entrar en la historia |
