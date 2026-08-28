@@ -34,8 +34,9 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-174 | CHORE | S2 | DEFERRED | 1 | [#321](https://github.com/a81Biz/cauce/issues/321) | la seleccion sigue el grafo de importacion |
 | PT-175 | CHORE | S2 | DEFERRED | 1 | [#322](https://github.com/a81Biz/cauce/issues/322) | el sello se deriva de las entradas |
 | PT-176 | CHORE | S2 | DEFERRED | 1 | [#323](https://github.com/a81Biz/cauce/issues/323) | CI corre solo los paquetes abiertos |
+| PT-188 | BUG | S1 | DONE | 8 | [#344](https://github.com/a81Biz/cauce/issues/344) | Un cd que falla deja al arnes operando sobre el repositorio real |
 
-**5 de 5 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**6 de 6 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-026`
 

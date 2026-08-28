@@ -11095,3 +11095,71 @@ Medido: 12 sitios componiendo la ruta a mano -> 0 · 1 divergencia de 211, nombr
 Evidencia: docs/implementation/evidence/PT-180/ — manifest, self-review y la salida de la corrida.
 Trazabilidad: changes/PT-180-el-slug-del-registro-y-el-de-la-carpeta/traceability.md.
 Corrida de la bateria: 1870 casos.
+
+## PT-188 — Un cd que falla deja al arnes operando sobre el repositorio real
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S1 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-024-cierre-completo
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-27 Alberto Martinez
+Clase de evento: CE-006 — el acto hecho fuera del comando
+
+EL ARNES ESCRIBIO EN EL REPOSITORIO REAL. No es una hipotesis: ocurrio.
+
+    git branch --show-current   ->  main
+    git log -1                  ->  a80ee49 Merge pull request #1 from t/rama
+    REGISTRY.json               ->  4 allocations   (habia 213)
+    ramas locales               ->  main · trabajo · rama · fix/PT-001-login · cauce/…
+
+El reflog lo cuenta entero: commit «base», checkout a «rama», commit, checkout a main, merge. Todo
+sobre el arbol de verdad.
+
+LA CAUSA, Y LLEVABA AHI DESDE QUE SE ESCRIBIO:
+
+    git_lote() {
+      ( cd "$WORK"          <- SIN «&&»
+        git init -q .
+        git commit -qm "base del fixture"
+        git checkout -q -b "$1"
+        ...
+        true ) >/dev/null 2>&1
+    }
+
+Si el cd falla, EL SUBSHELL CONTINUA EN EL DIRECTORIO ACTUAL y ahi caen todos los git. Y el
+«>/dev/null 2>&1» del final se traga el mensaje del cd: no se ve nada. CINCO sitios tenian el
+patron, y los cinco ejecutan git dentro.
+
+Ha funcionado cientos de veces POR CASUALIDAD DE ORDEN, porque $WORK existia cuando el fixture lo
+pedia. Lo destapo la bandera --seccion —para correr una seccion aislada, que es lo que PT-173
+necesita— porque al saltarse el preambulo $WORK no estaba montado. La bandera NO es la causa:
+cualquier cosa que dejara $WORK sin crear habria hecho lo mismo.
+
+POR QUE ES S1. SUITE-R06 reserva a una persona migrar o borrar datos y reescribir historia. Esto
+hacia las dos SIN QUE NADIE LO DECIDIERA NI LO VIERA. Un arnes que puede destruir el repositorio
+que prueba no es un arnes: es un riesgo con casos de prueba.
+
+DOS PUERTAS, no una. Los cinco cd cortan al fallar; y el arnes se NIEGA A ARRANCAR si $WORK apunta
+dentro del repositorio, aunque el cd funcionara. La primera cubre el fallo; la segunda, la ruta
+equivocada.
+
+Y UNA GUARDA DE FORMA, no un caso mas: se comprueba que NINGUNA linea abra un subshell con un cd
+que no corte. Es lo que PT-057 pidio y PT-183 volvio a pedir — se arregla con una regla de forma,
+no anadiendo un caso al sexto sitio.
+
+EL CASO SE CONTABA A SI MISMO. La cuenta de sitios protegidos daba 7 en vez de 5: los cuerpos de
+los propios casos dicen «FIXTURE SIN TERRENO». Se cuenta la FORMA protegida, no la mencion.
+
+NO SE PERDIO NADA. El remoto estaba intacto —9b696ff en main, 21a6c66 en trabajo—; el dano era
+local porque el git init reescribio las referencias. Un fetch y un reset --hard restauraron las 213
+allocations y EP-024 CLOSED. Se perdio la bandera --seccion sin commitear, que se rehace en PT-173.
+
+Archivos modificados: tools/selftest.sh · changes/PT-188-…/
+
+Medido: 5 sitios con el patron -> 0 · 5 protegidos · 2 puertas · 6 casos nuevos.
+
+Evidencia: docs/implementation/evidence/PT-188/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-188-el-arnes-puede-escribir-en-el-repositorio-real/traceability.md.
+Corrida de la bateria: 1876 casos.

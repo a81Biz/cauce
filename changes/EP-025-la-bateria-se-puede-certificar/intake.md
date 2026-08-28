@@ -146,3 +146,44 @@ He leído el Intake de cada PT listado en §4 y confirmo que todos reflejan mi i
 La escribió el agente por delegación, con la decisión que el firmante tomó en sesión: *«como lote
 propio, revísalos todos pero que sea un lote»*. `SUITE-R27` dice lo que esto **no** prueba: que
 firmara una persona. Sí lo hace contrastable — el nombre está en `firmantes`.
+
+---
+
+## Revisiones
+
+> Append-only una vez firmado (`SUITE-R09`).
+
+## Revisión 1 — 2026-08-27 · `PT-188` entra el primero, antes que `PT-173`
+
+**Qué cambia.** El orden declarado empezaba por `PT-173`. Ahora empieza por **`PT-188`**:
+
+```
+1  PT-188  el arnés no puede escribir en el repositorio real   ← nueva, S1
+2  PT-173  las secciones montan lo que necesitan
+3  PT-174  la selección sigue el grafo de importación
+4  PT-175  el sello se deriva de las entradas
+5  PT-176  CI corre sólo los paquetes abiertos
+```
+
+**Por qué.** Al medir la independencia de las secciones —que es `PT-173`— el arnés **escribió en el
+repositorio real**: `git init`, `commit`, `checkout -b`, `merge` sobre `main`. El árbol quedó con
+**4 allocations donde había 213** y dos ramas de fixture. La causa es un `( cd "$WORK"` **sin
+`&&`**: si el `cd` falla, el subshell sigue en el directorio actual. **Cinco sitios** tienen ese
+patrón y los cinco ejecutan `git` dentro.
+
+**No se puede medir la independencia con una herramienta que puede destruir lo que mide.** `PT-173`
+necesita correr secciones aisladas, y aislar una sección es exactamente lo que dejó `$WORK` sin
+montar.
+
+**Lo que esto no cambia.** El orden de las otras cuatro sigue siendo el declarado y sigue sin ser
+negociable: `PT-173` antes que `PT-174`, y `PT-176` el último.
+
+**Lo que el firmante señaló al autorizarlo**, y consta porque es el juicio que ordena este lote:
+
+> *«había orden, en papel, pero al parecer nada se cumplió y hoy estamos sufriendo las
+> consecuencias»*
+
+El orden estaba escrito en `§4` y se declaró **no negociable**. Lo que faltaba no era la decisión:
+era que **nada la comprobara**. Es la misma forma que `EP-024` midió seis veces — una regla `HARD`
+cuya única comprobación vive en la compuerta final, o en ninguna.
+

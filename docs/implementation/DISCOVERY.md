@@ -125,3 +125,4 @@
 | PT-185 | BUG | S2 | INTEGRATED | EP-024 | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
 | PT-186 | BUG | S2 | INTEGRATED | EP-024 | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |
 | PT-187 | BUG | S2 | DRAFT | EP-026 | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
+| PT-188 | BUG | S1 | DONE | EP-025 | Un cd que falla deja al arnes operando sobre el repositorio real |

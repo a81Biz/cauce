@@ -58,6 +58,28 @@ if [ -n "$_espera_solo" ]; then
   exit 2
 fi
 WORK="${POS:-$(mktemp -d)}/mth-selftest"
+
+# ── PT-188 · $WORK NO PUEDE SER EL REPOSITORIO ────────────────────────────
+#
+# OCURRIO. Un fixture con «( cd "$WORK"» SIN «&&» siguio en el directorio actual cuando el cd
+# fallo, y ahi cayeron sus git: init, commit, checkout -b, merge. Sobre el arbol de verdad.
+# El repositorio quedo en main con 4 allocations donde habia 213, y dos ramas de fixture.
+#
+# Los cinco «cd» sueltos ya se detienen. Esto es la segunda puerta, y mira lo que la primera no
+# puede: que $WORK sea una ruta que NO se debe tocar aunque el cd funcione.
+#
+# SUITE-R06 reserva a una persona migrar datos y reescribir historia. Un arnes que puede hacer
+# las dos sin que nadie lo decida no es un arnes: es un riesgo con casos de prueba.
+_raiz_real="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+case "$WORK" in
+  "$_raiz_real"|"$_raiz_real"/*)
+    echo "selftest: \$WORK apunta DENTRO del repositorio ($WORK)." >&2
+    echo "          El arnes escribe, borra y hace git ahi. No se arranca (PT-188, SUITE-R06)." >&2
+    exit 3 ;;
+  ""|/|/tmp|/tmp/)
+    echo "selftest: \$WORK vacio o demasiado alto ($WORK). No se arranca (PT-188)." >&2
+    exit 3 ;;
+esac
 FAILED=0
 # La versión vigente se DERIVA del CHANGELOG (`SUITE-R40`), también aquí: el fixture la tenía
 # escrita a mano y era una copia más del número —la misma avería que este arnés existe para
@@ -464,7 +486,7 @@ M
 # Viven aqui, con el resto del montaje compartido, que es donde se buscan.
 # E3/E4/E5 · AC-03 · sesion se prueba en el FIXTURE, y comprueba lo mismo que antes.
 git_fixture() {  # git inicializado, para que «sesion abrir» tenga un HEAD que marcar
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1
@@ -2801,7 +2823,7 @@ sel121() {
     require('fs').writeFileSync(process.argv[1], JSON.stringify({
       suite_version:'13.0.0', counters:{PT:1,EP:1}, allocations:[]}, null, 2));
   " "$d/docs/implementation/REGISTRY.json"
-  ( cd "$d"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1
@@ -4608,7 +4630,7 @@ chk   "UNSAFE en PHASE 5 detiene"            "✗ FDGE-R54"   V PT-001
 # esta comprobacion acuso a los commits de PHASE 2-4 de la propia PT-075, que estan
 # legitimamente en la rama de integracion porque la rama efimera nace en PHASE 5 (FDGE-R19).
 git_lote() {  # $1 = rama declarada del PT-001 · $2 = «directo» para escribir en integracion
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1
@@ -7297,7 +7319,7 @@ sec "── PT-088 · las reglas del dominio se verifican o se declaran ──"
 ledger_fixture() {   # git con un tag, un ledger de varias lineas y la suite en 11.0.0
   build_fixture
   reg_set "r.suite_version='11.0.0'"
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     printf 'uno\ndos\ntres\ncuatro\ncinco\nseis\n' > docs/implementation/HISTORY.log
     git init -q . 2>/dev/null
     git config user.email t@t; git config user.name T
@@ -7361,7 +7383,7 @@ merge_fixture() {    # una rama por defecto con UN merge, y el ledger de sesion 
   printf 'firmantes:
   - Ada Lovelace
 ' > "$WORK/CLAUDE.md"
-  ( cd "$WORK"
+  ( cd "$WORK" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $WORK" >&2; exit 90; }
     git init -q -b main . 2>/dev/null
     git config user.email t@t; git config user.name T
     git add -A >/dev/null 2>&1; git commit -qm base >/dev/null 2>&1
@@ -9116,6 +9138,39 @@ chk   "…y se nombran LOS DOS nombres"                   "PT-900-otro-slug" _pr
 # EL PAR. Sin el, «avisar siempre» pasaria los dos de arriba: cuando NO hay divergencia no se dice
 # nada, porque un aviso permanente es indistinguible de no mirar.
 chkno "…y sin divergencia NO se dice nada"              "en disco esta"   _proj180 "en-disco"
+
+
+# ── PT-188 · el arnes no puede escribir en el repositorio real   SUITE-R06 ─
+#
+# OCURRIO. «( cd "$WORK"» SIN «&&»: cuando el cd fallo, el subshell siguio en el directorio actual
+# y ahi cayeron sus git —init, commit, checkout -b, merge— sobre el arbol de verdad. El repositorio
+# quedo en main con 4 allocations donde habia 213, y dos ramas de fixture. El «>/dev/null 2>&1» del
+# final se tragaba el mensaje del cd, asi que no se vio nada.
+#
+# SUITE-R06 reserva a una persona migrar datos y reescribir historia. Esto hacia las dos sin que
+# nadie lo decidiera ni lo viera.
+#
+# AC-03 · LA GUARDA DE FORMA. Arreglar los cinco no impide el sexto: lo que se comprueba es que
+# NINGUNA linea del arnes abra un subshell con un `cd` que no corte al fallar. Es la regla de forma
+# que PT-057 pidio y que PT-183 volvio a pedir: no un caso mas, una forma.
+chk   "ningun subshell abre con un cd que no corta"  "^0$" \
+  bash -c 'grep -cE "^\s*\(\s*cd \"\\\$[A-Za-z_][A-Za-z0-9_]*\"\s*$" "$0/tools/selftest.sh" || true' "$SUITE"
+# LOS CINCO SITIOS, contados: si alguien los quita en vez de protegerlos, la cifra lo dice.
+# El caso contaba SU PROPIO TEXTO: los cuerpos de aqui abajo tambien dicen «FIXTURE SIN
+# TERRENO», y la cuenta salio 7 en vez de 5. Se cuenta la FORMA PROTEGIDA —un subshell que
+# abre con cd y corta— no la mencion del mensaje. Lo dijo ejecutarlo.
+chk   "y los que hay cortan al fallar"               "^5$" \
+  bash -c 'grep -cE "^[[:space:]]*\([[:space:]]*cd .[$][A-Za-z_][A-Za-z0-9_]*. \|\|" "$0/tools/selftest.sh" || true' "$SUITE"
+# AC-01 · el corte, ejecutado: nada de lo que sigue al cd se ejecuta.
+chk   "un cd que falla NO ejecuta lo que sigue"      "FIXTURE SIN TERRENO" \
+  bash -c 'W=/ruta/que/no/existe; ( cd "$W" || { echo "FIXTURE SIN TERRENO"; exit 90; }; echo NO_DEBERIA ) 2>/dev/null'
+chkno "…y no llega a la orden de despues"            "NO_DEBERIA" \
+  bash -c 'W=/ruta/que/no/existe; ( cd "$W" || { echo "FIXTURE SIN TERRENO"; exit 90; }; echo NO_DEBERIA ) 2>/dev/null'
+# AC-04 · la segunda puerta: $WORK dentro del repositorio no arranca, aunque el cd funcionaria.
+chk   "WORK dentro del repositorio NO arranca"       "apunta DENTRO del repositorio" \
+  bash -c 'bash "$0/tools/selftest.sh" "$1" -q 2>&1 | head -2' "$SUITE" "$RAIZ"
+chk   "…y dice que no se arranca, citando SUITE-R06" "SUITE-R06" \
+  bash -c 'bash "$0/tools/selftest.sh" "$1" -q 2>&1 | head -3' "$SUITE" "$RAIZ"
 
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \

@@ -1,19 +1,34 @@
 {
-  "pt": "PT-180",
+  "pt": "PT-188",
   "type": "BUG",
-  "epic": "EP-024",
-  "status": "INTEGRATED",
+  "epic": "EP-025",
+  "status": "DONE",
   "phase": 8,
-  "fase": null,
+  "fase": "Persistencia",
   "rama": "trabajo",
-  "sha": "46f8c0f9187f6eacf55a58d0439cb0a58e1e518c",
-  "sha_corto": "46f8c0f",
+  "sha": "21a6c66f7a9246cd5c96a3f4eeaba2e4d2ee8714",
+  "sha_corto": "21a6c66",
   "sucio": true,
   "archivos": [
-    "docs/implementation/HANDOFF.md"
+    "changes/EP-025-la-bateria-se-puede-certificar/intake.md",
+    "changes/PT-188-el-arnes-puede-escribir-en-el-repositorio-real/",
+    "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/BACKLOG.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/DISCOVERY.md",
+    "docs/implementation/EVENTOS.jsonl",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/MATRIZ.md",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-188/",
+    "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PT-180 ya es INTEGRATED. Lo cerrado es evidencia, no estado (SUITE-R36).",
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-27"
 }
