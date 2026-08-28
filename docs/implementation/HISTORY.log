@@ -11469,3 +11469,57 @@ Medido: el mapa de 2 sitios a 1 · avanzar exige el artefacto en las 5 fases que
 Evidencia: docs/implementation/evidence/PT-182/ — manifest, self-review y la salida de la corrida.
 Trazabilidad: changes/PT-182-el-mapa-fase-artefacto-en-dos-sitios/traceability.md — sin AC huerfano (FDGE-R15).
 Corrida de la bateria: completa 1916 casos en verde en 2055 s · sellada 119 casos en 346 s (-83%)
+
+## PT-190 — La exencion del escaner de secretos depende de un desplazamiento en bytes
+Fecha: 2026-08-28
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no mirar
+
+LO ENCONTRO LA CI DEL PR, QUE ES DONDE TENIA QUE ENCONTRARSE, Y POR LA RAZON EQUIVOCADA.
+
+revisar-secretos decide si un archivo ENTERO es senuelo —y por tanto no se revisa— buscando
+«senuelo|fixture|a proposito» en sus PRIMEROS 4000 CARACTERES. selftest.sh contiene por diseno
+contrasenas, JWT y claves sinteticas: son los fixtures con que se prueba que el escaner funciona.
+Su exencion dependia de que la palabra «fixture» cayera en el caracter 3208.
+
+    origin/main                    caracter 3208    exime
+    esta rama, antes del arreglo   caracter 4242    NO exime
+
+PT-188 anadio la guarda del terreno cerca de la cabecera. Ocho hallazgos y FND-R29 bloqueando G4.
+NINGUNA DE LAS OCHO LINEAS CAMBIO: cambio cuanto texto hay ENCIMA de ellas.
+
+POR QUE ES UN DEFECTO Y NO UN DESCUIDO. No es contrastable: nada en el archivo declara «aqui hay
+senuelos», y quien edite la cabecera no tiene forma de saber que esta desactivando la exencion del
+fichero entero. Falla en la direccion cara: el rojo aparece en G4, sobre un PR ya escrito, y el
+mensaje habla de CONTRASENAS —no de que el archivo dejara de eximirse—, asi que la lectura natural,
+«hay un secreto», es FALSA. Y es universal: todo destino con un archivo de fixtures hereda la misma
+trampa y no lo sabe hasta que alguien anade un parrafo arriba.
+
+COMO NO SE ARREGLA. Ampliando la ventana: cualquier numero es igual de arbitrario y solo mueve el
+dia en que vuelve a pasar. Ni buscando la palabra en TODO el archivo: eso eximiria a cualquiera que
+mencione «fixture» de pasada, que es la direccion peligrosa.
+
+COMO SI. Una declaracion EXPLICITA —«cauce:senuelos»— que vale ESTE DONDE ESTE. Una linea que
+alguien pone a proposito, no un accidente de maquetacion.
+
+LA HEURISTICA SE QUEDA, Y SE DICE. Los destinos ya instalados dependen de ella y retirarla los
+dejaria en rojo sin haber tocado nada (CE-014). El caso TS-02 no la arregla: la deja VISIBLE Y
+EJECUTABLE, que es lo contrario de taparla (RULE-06).
+
+Y UNA LECCION SOBRE MI PROPIO PROCEDER: corri verify-suite, verify-patrones, audit y verify-fdge
+por separado, y NUNCA «npm run verify» entero — que es el que incluye verify:secretos. SUITE-R01
+existe exactamente para esto, y me la salte comprobando a mano lo que un comando comprueba junto.
+
+Archivos modificados: tools/revisar-secretos.mjs · tools/selftest.sh
+
+Medido: la palabra pasa del caracter 3208 al 4242 y el archivo deja de eximirse · 3 casos, uno por AC
+
+Evidencia: docs/implementation/evidence/PT-190/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-190-la-exencion-del-escaner-depende-de-un-desplazamiento/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: seccion EP-024 · 122 casos en verde

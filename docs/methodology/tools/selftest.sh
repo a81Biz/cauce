@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# cauce:senuelos — este archivo contiene contrasenas, JWT y claves SINTETICAS a proposito:
+# son los fixtures con que se prueba que revisar-secretos funciona. La declaracion es EXPLICITA
+# y vale este donde este; la exencion no puede depender de cuantos caracteres la preceden (PT-190).
 # selftest — Prueba los verificadores contra un proyecto sintético.
 #
 # Existe porque la 4.0.0 salió con cuatro defectos críticos que solo eran visibles
@@ -9523,6 +9526,31 @@ chk   "sellar sin --verde no sella nada"                   "no se sella nada" \
 chk   "sin SELLOS.json no se acota nada"                   "SIN_ACOTAR" \
   bash -c 's=$(MTH_RAIZ="$0/noexiste" node "$1/tools/bloques-sellados.mjs" 2>/dev/null);
            [ -z "$s" ] && echo SIN_ACOTAR || echo "ACOTO: $s"' "$WORK" "$SUITE"
+
+# ── PT-190 · la exencion del escaner no depende de un desplazamiento ──────
+#
+# La unica forma de eximir un archivo era que «fixture» cayera en sus primeros 4000 caracteres.
+# PT-188 anadio texto en la cabecera de selftest.sh, la palabra paso del caracter 3208 al 4242, y
+# el archivo entero dejo de ser senuelo: ocho hallazgos y FND-R29 bloqueando G4. Ninguna de las
+# ocho lineas cambio — cambio cuanto texto hay ENCIMA de ellas.
+_sec190() { # $1 = cuanto relleno va ANTES de la palabra
+  local d="$WORK/p190"; rm -rf "$d"; mkdir -p "$d"
+  { [ -n "$2" ] && echo "$2"
+    printf "%*s" "$1" "" | tr " " "#"; echo
+    echo "# aqui hay un fixture a proposito"
+    echo "password = SuperSecreta123"; } > "$d/a.sh"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$SUITE/tools/revisar-secretos.mjs" . 2>&1 )
+}
+# LA HEURISTICA SE QUEDA COMO ESTABA: con la palabra cerca, el archivo se exime. Los destinos ya
+# instalados dependen de esto y retirarlo los dejaria en rojo sin haber tocado nada (CE-014).
+chk   "la palabra cerca del principio sigue eximiendo"  "Sin hallazgos sin firmar"  _sec190 100 ""
+# Y ESTE ES EL DEFECTO, FIJADO: con la MISMA palabra y la MISMA linea, solo mas abajo, deja de
+# eximir. El caso no lo arregla —la heuristica es una heuristica— lo hace VISIBLE.
+chk   "…y lejos deja de eximir: es un desplazamiento"   "FND-R29"                   _sec190 5000 ""
+# LO QUE SI SE ARREGLA: una declaracion EXPLICITA vale este donde este. El mismo archivo, el mismo
+# relleno, la misma linea — y una linea que alguien puso a proposito.
+chk   "la declaracion explicita exime a cualquier altura" "Sin hallazgos sin firmar"   _sec190 5000 "# cauce:senuelos"
 
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \

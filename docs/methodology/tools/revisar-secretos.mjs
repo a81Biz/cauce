@@ -66,6 +66,30 @@ const BINARIO = /\.(png|jpe?g|gif|webp|pdf|zip|gz|tgz|mp4|webm|ico|woff2?|ttf|eo
 // excluyen porque el archivo declara que lo son.
 const RE_SEÑUELO = /señuelo|senuelo|fixture|de mentira|a propósito|a proposito/i;
 
+// PT-190 · UNA EXENCION NO PUEDE DEPENDER DE UN DESPLAZAMIENTO EN BYTES.
+//
+// La unica forma de eximir un archivo era que una de esas palabras cayera en sus primeros 4000
+// caracteres. `selftest.sh` contiene por diseno contrasenas, JWT y claves sinteticas —son los
+// fixtures con que se prueba que este escaner funciona— y su exencion dependia de que la palabra
+// «fixture» estuviera en el caracter 3208. PT-188 anadio la guarda del terreno cerca de la
+// cabecera, la palabra paso al 4242, y el archivo entero dejo de ser senuelo: ocho hallazgos y
+// FND-R29 bloqueando G4. NINGUNA de las ocho lineas cambio — cambio cuanto texto hay ENCIMA.
+//
+// Y el mensaje hablaba de contrasenas, no de que el archivo dejara de eximirse, asi que la lectura
+// natural —«hay un secreto»— era falsa. Falla en la direccion cara: en la compuerta, sobre un PR
+// ya escrito, y diciendo otra cosa.
+//
+// No se arregla ampliando la ventana: cualquier numero es igual de arbitrario. Ni buscando la
+// palabra en todo el archivo: eso eximiria a cualquiera que mencione «fixture» de pasada, que es
+// la direccion peligrosa. Se arregla haciendo la exencion EXPLICITA y contrastable — una linea
+// que un archivo pone a proposito, valida este donde este.
+//
+// La heuristica de los 4000 caracteres SE QUEDA: los destinos ya instalados dependen de ella y
+// retirarla los dejaria en rojo sin haber tocado nada (CE-014). Queda como lo que siempre fue,
+// una heuristica, con una declaracion explicita al lado.
+const RE_DECLARADO = /cauce:senuelos/;
+const esSeñuelo = (txt) => RE_DECLARADO.test(txt) || RE_SEÑUELO.test(txt.slice(0, 4000));
+
 let hallazgos = [];
 const rel = (p) => relative(ROOT, p).split(sep).join('/');
 
@@ -107,7 +131,7 @@ function revisarTexto(texto, donde, esSeñuelo, ambito = donde) {
       if (statSync(p).size > 2_000_000) continue;
       txt = readFileSync(p, 'utf8');
     } catch { continue; }
-    revisarTexto(txt, rel(p), RE_SEÑUELO.test(txt.slice(0, 4000)));
+    revisarTexto(txt, rel(p), esSeñuelo(txt));
   }
 })(ROOT);
 

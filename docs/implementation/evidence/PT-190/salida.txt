@@ -1,0 +1,3 @@
+  [32m✓[0m sobre el arbol real, la suite es coherente
+
+selftest: OK · 122 casos

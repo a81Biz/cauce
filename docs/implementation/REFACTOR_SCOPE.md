@@ -55,6 +55,6 @@
 | PT-169 | CHORE | S2 | INTEGRATED | EP-024 | La bateria solo crece: nada retira un caso superado ni caza dos que prueban lo mismo |
 | PT-172 | CHORE | S2 | DEFERRED | EP-025 | La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado |
 | PT-173 | CHORE | S2 | DONE | EP-025 | las secciones montan lo que necesitan |
-| PT-174 | CHORE | S2 | DEFERRED | EP-025 | la seleccion sigue el grafo de importacion |
-| PT-175 | CHORE | S2 | DEFERRED | EP-025 | el sello se deriva de las entradas |
-| PT-176 | CHORE | S2 | DEFERRED | EP-025 | CI corre solo los paquetes abiertos |
+| PT-174 | CHORE | S2 | DONE | EP-025 | la seleccion sigue el grafo de importacion |
+| PT-175 | CHORE | S2 | DONE | EP-025 | el sello se deriva de las entradas |
+| PT-176 | CHORE | S2 | DONE | EP-025 | CI corre solo los paquetes abiertos |
