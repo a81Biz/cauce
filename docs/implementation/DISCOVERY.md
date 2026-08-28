@@ -131,3 +131,4 @@
 | PT-191 | BUG | S2 | DONE | EP-025 | El sello se estampa con una bandera, no con una corrida |
 | PT-192 | BUG | S2 | DRAFT | EP-026 | El final del arnes se mide por POSICION y castiga cualquier anadido |
 | PT-194 | BUG | S2 | DRAFT | EP-026 | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
+| PT-195 | BUG | S2 | DRAFT | EP-026 | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
