@@ -7,7 +7,7 @@ type: CHORE
 severity: S2
 epic: EP-025
 track: STANDARD
-status: DRAFT
+status: INTEGRATED
 phase: 8
 created: 2026-08-26
 structural: no

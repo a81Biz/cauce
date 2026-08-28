@@ -14,26 +14,6 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 <!-- BACKLOG:DERIVADO -->
 
-## Implementación abierta — `EP-025`
-
-`EP-025` · **La bateria se puede certificar: independencia, cierre y sello** · `READY` · issue [#326](https://github.com/a81Biz/cauce/issues/326).
-
-| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
-|:---|:---|:---|:---|:---|:---|:---|
-| PT-172 | CHORE | S2 | DEFERRED | 1 | [#319](https://github.com/a81Biz/cauce/issues/319) | La bateria se empaqueta y se sella: CI solo corre lo que puede haber cambiado |
-| PT-173 | CHORE | S2 | DONE | 8 | [#320](https://github.com/a81Biz/cauce/issues/320) | las secciones montan lo que necesitan |
-| PT-174 | CHORE | S2 | DONE | 8 | [#321](https://github.com/a81Biz/cauce/issues/321) | la seleccion sigue el grafo de importacion |
-| PT-175 | CHORE | S2 | DONE | 8 | [#322](https://github.com/a81Biz/cauce/issues/322) | el sello se deriva de las entradas |
-| PT-176 | CHORE | S2 | DONE | 8 | [#323](https://github.com/a81Biz/cauce/issues/323) | CI corre solo los paquetes abiertos |
-| PT-182 | BUG | S2 | DONE | 8 | [#330](https://github.com/a81Biz/cauce/issues/330) | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
-| PT-188 | BUG | S1 | DONE | 8 | [#344](https://github.com/a81Biz/cauce/issues/344) | Un cd que falla deja al arnes operando sobre el repositorio real |
-| PT-189 | BUG | S2 | DONE | 8 | [#345](https://github.com/a81Biz/cauce/issues/345) | FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino |
-| PT-190 | BUG | S2 | DONE | 8 | [#347](https://github.com/a81Biz/cauce/issues/347) | La exencion del escaner de secretos depende de un desplazamiento en bytes |
-| PT-191 | BUG | S2 | DONE | 8 | [#348](https://github.com/a81Biz/cauce/issues/348) | El sello se estampa con una bandera, no con una corrida |
-| PT-193 | CHORE | S3 | DONE | 8 | [#350](https://github.com/a81Biz/cauce/issues/350) | Los literales de fixture se ensamblan en mitades para no entrar en la historia |
-
-**11 de 11 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
-
 ## Implementación abierta — `EP-026`
 
 `EP-026` · **Lo que da verde sin mirar: verificadores que avisan donde deberian bloquear** · `DRAFT` · issue [#331](https://github.com/a81Biz/cauce/issues/331).
