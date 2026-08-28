@@ -7,7 +7,7 @@ type: CHORE
 severity: S3
 epic: EP-025
 track: EXPRESS
-status: READY
+status: INTEGRATED
 phase: 8
 created: 2026-08-28
 structural: no
