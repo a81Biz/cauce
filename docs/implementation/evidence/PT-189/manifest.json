@@ -1,0 +1,74 @@
+{
+  "pt": "PT-189",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "`UNSAFE` en `PHASE 8` **avisa** en vez de fallar",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El aviso explica que el veredicto era previo y que el trabajo está hecho",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "`UNSAFE` en `PHASE 6` **sigue siendo error**",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "En `PHASE 6` **no** aparece la excusa de estar hecho",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos sobre fixture propio"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1882 casos",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

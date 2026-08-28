@@ -1,16 +1,15 @@
 {
-  "pt": "PT-188",
+  "pt": "PT-182",
   "generated": "2026-08-27",
   "criteria": [
     {
       "ac": "AC-01",
-      "statement": "Un fixture cuyo `cd` falla **no ejecuta** ninguna orden posterior",
+      "statement": "El mapa declara el artefacto de cada fase, en un solo sitio",
       "scenarios": [
-        "TS-01",
-        "TS-02"
+        "TS-01"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 7 casos"
       ],
       "evidence": [
         "salida.txt"
@@ -19,12 +18,12 @@
     },
     {
       "ac": "AC-02",
-      "statement": "Los cinco sitios quedan protegidos, y no queda ninguno con el patrón",
+      "statement": "`PHASE 6` pide **dos**: `manifest.json` y `self-review.md`",
       "scenarios": [
-        "TS-04"
+        "TS-02"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 7 casos"
       ],
       "evidence": [
         "salida.txt"
@@ -33,12 +32,13 @@
     },
     {
       "ac": "AC-03",
-      "statement": "Una guarda del propio arnés **falla** si aparece un `( cd \"$VAR\"` sin `&&` ni salida",
+      "statement": "Una fase completa no reporta nada; una fase sin artefacto declarado devuelve `null`",
       "scenarios": [
-        "TS-03"
+        "TS-03",
+        "TS-04"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 7 casos"
       ],
       "evidence": [
         "salida.txt"
@@ -47,15 +47,13 @@
     },
     {
       "ac": "AC-04",
-      "statement": "El arnés se **niega a arrancar** si `$WORK` no existe o es la raíz del repositorio, y la raíz se **deriva de `git`** —no de la profundidad— con las dos rutas normalizadas",
+      "statement": "`avanzar` **se niega** a salir de `PHASE 4` sin `traceability.md`",
       "scenarios": [
         "TS-05",
-        "TS-06",
-        "TS-08",
-        "TS-09"
+        "TS-06"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 7 casos"
       ],
       "evidence": [
         "salida.txt"
@@ -64,12 +62,12 @@
     },
     {
       "ac": "AC-05",
-      "statement": "Con `$WORK` correcto, todo sigue pasando — no hay regresión",
+      "statement": "Una fase que **no** declara artefacto **no** bloquea",
       "scenarios": [
         "TS-07"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 7 casos"
       ],
       "evidence": [
         "salida.txt"
@@ -80,7 +78,7 @@
   "regression": [
     {
       "rc": "RC-01",
-      "statement": "La bateria completa corre entera: selftest: 1878 casos",
+      "statement": "La bateria completa corre entera: selftest: 1911 casos",
       "verified": true
     },
     {

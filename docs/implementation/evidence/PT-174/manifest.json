@@ -1,0 +1,75 @@
+{
+  "pt": "PT-174",
+  "generated": "2026-08-27",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El cierre alcanza a quien importa el archivo cambiado",
+      "scenarios": [
+        "TS-01",
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Y a los **indirectos** — quien importa a quien lo importa",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Lo que **no** lo importa **no entra**",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "El archivo cambiado entra en su propio cierre",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-024 · 4 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "regression": [
+    {
+      "rc": "RC-01",
+      "statement": "La bateria completa corre entera: selftest: 1890 casos · seleccion 16 -> 44 de 46",
+      "verified": true
+    },
+    {
+      "rc": "RC-02",
+      "statement": "Ningun caso vivo cambia de veredicto: los casos nuevos se anaden, no sustituyen a ninguno.",
+      "verified": true
+    }
+  ]
+}

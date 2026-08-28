@@ -11163,3 +11163,309 @@ Medido: 5 sitios con el patron -> 0 · 5 protegidos · 2 puertas · 6 casos nuev
 Evidencia: docs/implementation/evidence/PT-188/ — manifest, self-review y la salida de la corrida.
 Trazabilidad: changes/PT-188-el-arnes-puede-escribir-en-el-repositorio-real/traceability.md.
 Corrida de la bateria: 1876 casos.
+
+## PT-189 — FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-024-cierre-completo
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-27 Alberto Martinez
+Clase de evento: CE-016 — una regla cuyo incumplimiento la herramienta no permite corregir
+
+LA COMPUERTA DETUVO UN TRABAJO YA TERMINADO. PT-188 en PHASE 8 —ocho casos en verde, bateria
+OK · 1878, HISTORY escrito, G3 firmada— y:
+
+    FDGE-R54  PT-188: viabilidad UNSAFE y la tarea esta en PHASE 8.
+
+El veredicto compara coste ESTIMADO (1458) contra lo mayor hecho HOY (927). Es un PRONOSTICO —«no
+se empieza lo que no se puede terminar», dice la regla— evaluado DESPUES DE TERMINAR.
+
+La comprobacion se saltaba en estado TERMINAL, y DONE NO LO ES (LEXICON 5.1): una tarea acabada y
+verificada seguia bajo una compuerta que pregunta si podra acabarse.
+
+Y NO HABIA SALIDA DECLARADA. La unica via era la clausula general de SUITE-R06 —autorizacion humana
+con registro—, que es una puerta FUERA DEL MECANISMO. PT-183 escribio por que eso es lo peor que le
+puede pasar a una regla: la que solo se cumple saltandose la herramienta no se cumple, SE RODEA.
+
+ES UNIVERSAL, y por eso entra en EP-025 y no se deja para despues. La compuerta compara contra el
+precedente DEL DIA, asi que cualquier sesion larga —justo las que cierran un lote— la dispara sobre
+sus ultimas tareas, y las dispara cuando YA ESTAN HECHAS. Todo proyecto destino lo encuentra.
+
+Desde PHASE 8 AVISA; en PHASE 5, 6 y 7 sigue siendo ERROR. Lo que se afloja es solo el punto donde
+la pregunta que hace ya no tiene respuesta util: el trabajo esta hecho, y detenerlo no lo deshace.
+Los dos casos invertidos comprueban que donde si queda trabajo no se aflojo nada.
+
+LO QUE NO SE HIZO: recalcular el veredicto al terminar. Seria reescribir lo que la compuerta midio,
+y SUITE-R09 lo impide. El veredicto se conserva; lo que cambia es que deja de decidir donde ya no
+puede.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · changes/PT-189-…/
+
+Medido: PT-188 pasa de 1 error a 0 · PHASE 6 sigue en rojo · 4 casos nuevos, 2 de ellos invertidos.
+
+Evidencia: docs/implementation/evidence/PT-189/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-189-la-viabilidad-juzga-un-pronostico-ya-cumplido/traceability.md.
+Corrida de la bateria: 1882 casos.
+
+## PT-173 — Las secciones montan lo que necesitan, y resulta que ya lo hacian
+Fecha: 2026-08-27
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-024-cierre-completo
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-27 Alberto Martinez
+Clase de evento: CE-001 — un proxy en lugar del hecho
+
+LA PREMISA DEL LOTE ERA FALSA, Y SOLO LO DIJO EJECUTAR.
+
+    46 secciones corridas AISLADAS, cada una con $WORK recien creado
+    46 en verde
+    1882 casos en aislado  =  1882 de la corrida completa
+
+Ni un caso se pierde ni se gana. La unica que fallo —PT-091 · las cifras se derivan— NO dependia de
+otra seccion: su caso mide EL ARBOL REAL, y sus cifras estaban viejas porque se habia editado
+selftest.sh. Refrescado el inventario, pasa.
+
+EL INTAKE DE EP-025 DECLARABA:
+
+    «338 de 1439 casos corren sobre el $WORK que dejo otra seccion»
+    «Ocho secciones tienen el 100%. D · migracion son 49 de 49»
+
+D · MIGRACION PASA SOLA: 49 DE 49. Y las otras siete. El numero correcto es CERO.
+
+CUATRO CRITERIOS ESTATICOS, CUATRO CIFRAS FALSAS: 595, 292, 111, 276. Ninguno cerca del 338, y cada
+uno fallaba por una razon distinta —granularidad de primer segmento, montar entre casos, funciones
+de fixture sin expandir, comandos de dos lineas—. Cada correccion la dijo ABRIR LA SECCION Y
+LEERLA, no la cifra. Y la quinta medicion, la que acerto, no dedujo nada: EJECUTO.
+
+Un analisis por lineas de shell no ve comandos multilinea, ni rutas con variables, ni funciones por
+sustitucion, ni perl, ni sed -i, ni redirecciones dentro de bash -c. Afinar el detector es perseguir
+la sintaxis del shell — lo mismo que SUITE-R59 documento doce veces por el otro lado.
+
+QUE CAMBIA PARA EL LOTE. La precondicion que ordenaba EP-025 no existe: PT-173 no tiene 338 casos
+que arreglar, tiene cero. Su objeto pasa de «hacer independientes las secciones» a «dejar demostrado
+que lo son, y que se pueda volver a demostrar». La bandera --seccion ES el entregable: es lo que
+PT-175 necesita para que un sello signifique «este bloque paso por su cuenta» y no «paso en la
+posicion en que estaba».
+
+LO QUE ESTO NO DICE, y decirlo seria SUITE-R26: que cada seccion pase sola y pase en su posicion NO
+prueba que pase como parte de un BLOQUE. Un bloque arranca limpio pero sus secciones se acumulan
+entre ellas, y ese es un tercer caso NO MEDIDO. Lo establece PT-175.
+
+Archivos modificados: tools/selftest.sh · changes/PT-173-…/ · changes/EP-025-…/intake.md (Revision 3)
+
+Medido: 46/46 aisladas en verde · 1882 = 1882 · la cifra del intake corregida de 338 a 0.
+
+Evidencia: docs/implementation/evidence/PT-173/ — manifest, self-review y el barrido de las 46.
+Trazabilidad: changes/PT-173-las-secciones-montan-lo-que-necesitan/traceability.md.
+Corrida de la bateria: 1886 casos.
+
+## PT-174 — la seleccion sigue el grafo de importacion
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-001 — un proxy en lugar del hecho
+
+LA SELECCION COMPARABA NOMBRES, NO DEPENDENCIAS. Un cambio en patrones.mjs activaba 16 de 46
+secciones — y a patrones.mjs LO IMPORTAN NUEVE herramientas, asi que las que ejercitan audit,
+build-core, verify-suite, migrate o comparar-marco no se activaban aunque su comportamiento
+dependa de lo que cambio.
+
+Es la mitad de la pregunta que el sello necesita: sellar sobre entradas incompletas certifica DE
+MENOS, y un bloque sellado que dependia de algo que cambio se queda certificando lo que ya no es.
+
+SE DERIVA DEL CODIGO. Un «import ... from './x.mjs'» es el hecho; enumerar a mano quien importa a
+quien es la clase de mapa que este lote lleva seis tareas quitando.
+
+PECA DE MAS a proposito: correr de mas es recuperable, saltarse una seccion que tenia el caso es un
+falso verde (PT-086).
+
+Archivos modificados: tools/patrones.mjs · tools/selftest.sh
+
+Medido: seleccion 16 -> 44 de 46 secciones · cierre de patrones.mjs: 10 herramientas
+
+Evidencia: docs/implementation/evidence/PT-174/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-174-la-seleccion-sigue-el-grafo-de-importacion/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: completa 1916 casos en verde en 2055 s · sellada 119 casos en 346 s (-83%)
+
+## PT-175 — el sello se deriva de las entradas
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-001 — un proxy en lugar del hecho
+
+UN BLOQUE CERTIFICADO DEJA DE CORRER, asi que el sello tiene que romperse SOLO cuando cambia
+algo de lo que el bloque depende — y SIEMPRE que cambia.
+
+QUE ESTABLECE: que el texto de las secciones del bloque y el de las herramientas que ejercitan —con
+su cierre transitivo, PT-174— son los mismos que cuando se sello.
+QUE NO ESTABLECE: que el bloque PASE. Eso lo dijo la corrida que lo sello, y por eso el sello guarda
+su VEREDICTO: un bloque no se certifica por no haber cambiado, sino por haber PASADO. Sin esa
+distincion, uno que fallo quedaria certificado porque nadie lo toco desde entonces.
+
+REABRIR NO ES VOLVER A CORRER. El firmante lo fijo: «si se necesita hacer algun cambio de lo que ya
+esta sellado necesita saber que ademas del cambio debe abrir y probar de nuevo COMO NUEVO». Un sello
+que no casa NO se recalcula solo.
+
+Y ES DE LA VERSION DEL MARCO, NO DEL PROYECTO: el sello incluye las herramientas, asi que un destino
+que las modifique deja de casar y vuelve a correr el bloque.
+
+LOS DOS CASOS DEL SELLO MEDIAN EL MISMO ESTADO. Con «node -e» los argumentos empiezan en argv[1]
+—no hay ruta de script que ocupe ese hueco— y node se come ademas el «--». Escritos contra
+argv[2]/argv[3], el segundo valor era SIEMPRE undefined: «el sello casa» y «no casa» ejercitaban la
+misma rama, y uno de los dos pasaba por casualidad (CE-005). Lo destapo la corrida COMPLETA, no la
+seccion aislada — y la primera correccion ataco una causa SUPUESTA, el «--», sin medirla. Medirlo
+costo un comando.
+
+Archivos modificados: tools/patrones.mjs · tools/selftest.sh
+
+Medido: cuatro estados · el sello ignora CRLF/LF y rompe ante secciones y herramientas
+
+Evidencia: docs/implementation/evidence/PT-175/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-175-el-sello-se-deriva-de-las-entradas/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: completa 1916 casos en verde en 2055 s · sellada 119 casos en 346 s (-83%)
+
+## PT-176 — CI corre solo los paquetes abiertos
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-014 — una regla nueva juzga hacia atras
+
+PT-172 FIJO QUE LA VERSION SE DECLARA EN EL INTAKE, y eso vale para lo que venga y DEJA FUERA
+TODO LO ESCRITO. El firmante lo señalo: «si no solo lo hara hacia adelante y no lo anterior». Y
+todos los proyectos destino ya van empezados.
+
+Agrupar por la version del PT que la seccion NOMBRA dejaba fuera 20 de 46, incluida P · plataforma,
+que sola es el 28% de la bateria.
+
+LO QUE SI TIENE TODA SECCION es el commit que la introdujo, y ese commit declara una version. De ahi
+sale su MAYOR y su bloque. RETROACTIVO POR CONSTRUCCION: no hace falta que nadie declare nada, ya
+esta escrito — y la historia la tiene cada destino en su propio git.
+
+    bloque  8.x.x  29 secciones  SELLADO
+    bloque  9.x.x   6 secciones  SELLADO
+    bloque 10.x.x   8 secciones  SELLADO
+    bloque 11.x.x   2 secciones  SELLADO
+    bloque 13.x.x   1 seccion    abierto — el que prueba la maquinaria del sello
+
+LA CIFRA REAL, MEDIDA POR EL CAMINO QUE USA LA CI:
+
+    completa   1916 casos   2055 s
+    sellada     119 casos    346 s        -83%
+
+Las dos cifras que di antes eran malas. Los 7,2 min salian de una corrida FORZADA con --seccion,
+que no es el camino por defecto; el 69% lo calcule sobre esa medicion. Solo vale el numero que
+produce el camino que de verdad se ejecuta.
+
+Y LAS PIEZAS EXISTIAN SIN USARSE. El firmante lo cazo: «como faltan 24 minutos si se redujo a 7».
+Las once menciones del sello en el arnes estaban TODAS dentro de casos de prueba; sin el cableado,
+este lote tenia las piezas y no cumplia su titulo.
+
+EL SELECTOR FALLABA EN SILENCIO, Y EL SILENCIO ES SU «NO ACOTES». bloques-sellados.mjs citaba una
+variable ARNES que no declaraba —copiada de sellar-bloques, donde si existe—, asi que lanzaba una
+excepcion. selftest.sh interpreta la salida vacia como «corre entero», de modo que el fallo NO
+rompia la bateria: la dejaba corriendo ENTERA para siempre, justo lo que este lote venia a evitar.
+Un verde por vacio es el falso verde mas caro que este marco puede producir, y aqui casi lo paga
+el propio mecanismo que lo enuncia. La ruta del arnes se leia en dos sitios; ahora en uno (RULE-01).
+
+TRES DEFECTOS MAS, TODOS CAZADOS POR EL MARCO Y NINGUNO POR MI:
+
+  audit      escribi DOS herramientas nuevas y no las declare en ninguna parte. La regla que
+             existe para eso las encontro: LEXICON §6.6 las da de alta y la tabla del README las
+             menciona — LEXICON no cuenta como documento OPERATIVO, y esa distincion importa.
+  SUITE-R62  anadi «sellar:bloques» al workflow y no a «npm run verify», reabriendo el hueco
+             exacto que PT-151 cerro. La comparacion en los dos sentidos lo emitio sola.
+  FND-R14    el inventario media selftest.sh en 9551 lineas y son 9561. Derivado, recalculado.
+
+Y DOS CUENTAS ESCRITAS A MANO DEL MISMO HECHO: CLAUDE.md declaraba 18 herramientas en un sitio y 15
+en otro, y hay 20 (CE-008). No se corrigen a 20: SE QUITAN. «ls docs/methodology/tools/» lo responde
+y no caduca.
+
+LOS DOS WORKFLOWS SON DISTINTOS A PROPOSITO, y lo confirmo el firmante: verificacion.yml salta lo
+sellado porque corre en cada push; publicar.yml corre la COMPLETA porque es workflow_dispatch, solo
+desde main, trece veces en toda la historia — y es el UNICO momento en que un falso verde llega a
+todos los destinos.
+
+Archivos modificados: tools/patrones.mjs · tools/sellar-bloques.mjs · tools/bloques-sellados.mjs · tools/selftest.sh · package.json · .github/workflows/ · LEXICON.md · README.md · CLAUDE.md
+
+Medido: 4 bloques sellados · 1916 casos certificados · corrida sellada 346 s frente a 2055 s
+
+Evidencia: docs/implementation/evidence/PT-176/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-176-CI-corre-solo-los-paquetes-abiertos/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: completa 1916 casos en verde en 2055 s · sellada 119 casos en 346 s (-83%)
+
+## PT-182 — El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor
+Fecha: 2026-08-28
+Estado: VALIDATION_PENDING
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-025
+Rama: chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 firma delegada con VoBo en sesion (SESSION_LOG) · G2 delegada · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-016 — una regla cuya comprobacion vive solo en la compuerta final
+
+ESTA ES LA CAUSA DE TODO EL LOTE, MEDIDA. EP-024 y EP-025 produjeron SIETE guardas nuevas, y
+CINCO arreglan la misma forma: una regla HARD cuya unica comprobacion vivia en G4. Dos: en ninguna
+parte.
+
+    PT-178  todo trabajo entra por un Intake       solo en G4
+    PT-183  un PT pertenece a un lote              en ningun sitio
+    PT-184  la rama se deriva del registro         en G4, y ROTA
+    PT-185  el indice espeja el registro           en G4, y ACUSABA AL CORRECTO
+    PT-186  el intake se exige donde puede existir en G4, sobre lo que aun no nace
+    PT-188  el arnes no toca el arbol              en ningun sitio
+    PT-189  la viabilidad detiene ANTES            en G4, sobre lo ya hecho
+
+El firmante lo nombro por su causa: «estamos reconstruyendo muchas cosas por habernos saltado el
+mismo marco… ya tenemos algunos metodos, pero ahora necesitamos integrar todo».
+
+Y LA INTEGRACION ESTABA ESCRITA Y DESCONECTADA. «tracker cursor» ya comprobaba, fase a fase, que
+cada una dejo su artefacto — y NO LO INVOCABA NADIE: ni package.json, ni la CI, ni «avanzar», ni
+ninguna compuerta. El mapa estaba ademas DOS VECES y a mano, y por eso el cursor reportaba «30 nodos
+sin rastro» sobre un lote que verify-fdge daba por limpio.
+
+PT-178 cerro UN peldaño de cinco. Aqui el mapa se declara UNA vez y «avanzar» lo consulta en CADA
+transicion: la fase que se cierra tiene que haber dejado lo suyo. Las cinco dejan de ser hallazgos
+de G4 y pasan a ser imposibles.
+
+Una fase que NO declara artefacto devuelve null, y eso NO es «esta completa»: es que no se sabe, y
+no se inventa (RULE-06).
+
+Y UNA REGLA SOBRE LOS PROPIOS CASOS, escrita donde vive porque es la tercera vez que aparece en un
+solo lote. Un caso fijaba «^9 pasos$»; al anadir un decimo paso LEGITIMO, el caso fallo — castigando
+la mejora — y arrastro a CLAUDE.md, que declaraba «los NUEVE pasos» a mano:
+
+    UN CASO PUEDE FIJAR EL CERO DE LO PROHIBIDO, NUNCA EL NUMERO DE LO CORRECTO.
+
+El numero de lo correcto cambia cuando el sistema mejora. Lo que si se sostiene es que nadie vuelva
+a escribir la cuenta a mano, y la equivalencia real ya la contrasta SUITE-R62 en los dos sentidos.
+La cifra de 24,1 min de PT-151 sigue siendo cierta: es una medicion FECHADA, no una promesa.
+
+Archivos modificados: tools/patrones.mjs · tools/tracker.mjs · tools/selftest.sh · CLAUDE.md
+
+Medido: el mapa de 2 sitios a 1 · avanzar exige el artefacto en las 5 fases que lo declaran
+
+Evidencia: docs/implementation/evidence/PT-182/ — manifest, self-review y la salida de la corrida.
+Trazabilidad: changes/PT-182-el-mapa-fase-artefacto-en-dos-sitios/traceability.md — sin AC huerfano (FDGE-R15).
+Corrida de la bateria: completa 1916 casos en verde en 2055 s · sellada 119 casos en 346 s (-83%)

@@ -5,15 +5,15 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-234 entradas recorridas · 193 identificadores · 131 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-27
+240 entradas recorridas · 199 identificadores · 138 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-28
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
-| `CE-001` | El proxy en lugar del hecho | 15 | 12 | 2026-08-20 | 2026-08-27 | **—** | **sin dueño** |
-| `CE-002` | Rotura de escapado | 20 | 12 | 2026-08-21 | 2026-08-26 | `SUITE-R59` | **NO**: la regla existe y nada emite por ella |
+| `CE-001` | El proxy en lugar del hecho | 18 | 12 | 2026-08-20 | 2026-08-28 | **—** | **sin dueño** |
+| `CE-002` | Rotura de escapado | 21 | 12 | 2026-08-21 | 2026-08-27 | `SUITE-R59` | **NO**: la regla existe y nada emite por ella |
 | `CE-003` | Un argumento se cuela por la detección de `ROOT` | 9 | 7 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-004` | Probar donde trabajo, no donde se decide | 10 | 9 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
-| `CE-005` | Verde por no haber mirado | 14 | 2 | 2026-08-14 | 2026-08-26 | `SUITE-R31` | `SUITE-R31` falla |
+| `CE-005` | Verde por no haber mirado | 16 | 2 | 2026-08-14 | 2026-08-28 | `SUITE-R31` | `SUITE-R31` falla |
 | `CE-006` | El acto hecho fuera del comando | 9 | — | 2026-08-21 | 2026-08-27 | `SUITE-R58` · `FDGE-R52` | `SUITE-R58` avisa · `FDGE-R52` falla |
 | `CE-007` | Existe la herramienta y nada la echa en falta | 6 | 7 | 2026-08-19 | 2026-08-24 | `FDGE-R19` | `FDGE-R19` falla |
 | `CE-008` | Un hecho, varios nombres | 12 | 5 | 2026-08-13 | 2026-08-26 | `SUITE-R14` · `SUITE-R60` | `SUITE-R14` falla · `SUITE-R60` falla |
@@ -22,7 +22,7 @@
 | `CE-011` | Un arreglo deja tests del estado anterior | 4 | 4 | 2026-08-13 | 2026-08-27 | `SUITE-R61` | `SUITE-R61` avisa |
 | `CE-012` | Filtrar la salida antes de mirarla | 2 | 3 | 2026-08-20 | 2026-08-20 | **—** | **sin dueño** |
 | `CE-013` | Un encabezado mal formado bloquea la integración | 5 | — | 2026-08-14 | 2026-08-21 | `FDGE-R29` | `FDGE-R29` falla |
-| `CE-014` | Una regla nueva juzga hacia atrás | 7 | — | 2026-08-20 | 2026-08-27 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
+| `CE-014` | Una regla nueva juzga hacia atrás | 8 | — | 2026-08-20 | 2026-08-28 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
 | `CE-015` | El cierre destapa más que el reparto | 6 | 6 | 2026-08-20 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-016` | Trabajar sin allocation | 6 | 3 | 2026-08-21 | 2026-08-27 | `SUITE-R08` · `FDGE-R19` | `SUITE-R08` falla · `FDGE-R19` falla |
 | `CE-017` | La comprobación acusa a quien documenta el hecho | 4 | — | 2026-08-19 | 2026-08-27 | **—** | **sin dueño** |
@@ -32,7 +32,7 @@
 **6 de 17 clases no tienen regla que las reclame.**
 Ordenadas por cuántas veces han ocurrido:
 
-- `CE-001` **El proxy en lugar del hecho** — 15 instancia(s) · la propia entrada llegó a declarar **12**
+- `CE-001` **El proxy en lugar del hecho** — 18 instancia(s) · la propia entrada llegó a declarar **12**
   PTSA-2026-08-20 · PT-087 · EP-019 · PT-131 · PT-124 · PT-125 · PT-119 · PT-126
 - `CE-004` **Probar donde trabajo, no donde se decide** — 10 instancia(s) · la propia entrada llegó a declarar **9**
   PT-056 · PT-064 · PT-082 · PT-098 · PT-099 · PT-128 · PT-125 · PT-119

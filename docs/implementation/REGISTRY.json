@@ -1,5 +1,5 @@
 {
-  "suite_version": "13.3.0",
+  "suite_version": "13.4.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 188,
+    "PT": 189,
     "EP": 26,
     "QA": 0,
     "QR": 0,
@@ -5605,7 +5605,7 @@
       "id": "EP-025",
       "slug": "la-bateria-se-puede-certificar",
       "created": "2026-08-26",
-      "status": "DRAFT",
+      "status": "CLOSED",
       "phase": 1,
       "suite_version": "13.2.0",
       "title": "La bateria se puede certificar: independencia, cierre y sello",
@@ -5615,8 +5615,8 @@
       "id": "PT-173",
       "slug": "las-secciones-montan-lo-que-necesitan",
       "created": "2026-08-26",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "CHORE",
       "severity": "S2",
@@ -5630,14 +5630,44 @@
         "fecha": "2026-08-26"
       },
       "origin": "Aplazado desde PT-172 el 2026-08-26",
-      "issue": 320
+      "issue": 320,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-27",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "UNSAFE",
+        "coste": {
+          "valor": 2048,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 927,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": null,
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar",
+      "origen_parada": {
+        "de": "PT-188",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-27"
+      }
     },
     {
       "id": "PT-174",
       "slug": "la-seleccion-sigue-el-grafo-de-importacion",
       "created": "2026-08-26",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "CHORE",
       "severity": "S2",
@@ -5651,14 +5681,39 @@
         "fecha": "2026-08-26"
       },
       "origin": "Aplazado desde PT-172 el 2026-08-26",
-      "issue": 321
+      "issue": 321,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-27",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "UNSAFE",
+        "coste": {
+          "valor": 2048,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 927,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": null,
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar"
     },
     {
       "id": "PT-175",
       "slug": "el-sello-se-deriva-de-las-entradas",
       "created": "2026-08-26",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "CHORE",
       "severity": "S2",
@@ -5672,14 +5727,39 @@
         "fecha": "2026-08-26"
       },
       "origin": "Aplazado desde PT-172 el 2026-08-26",
-      "issue": 322
+      "issue": 322,
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-27",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "UNSAFE",
+        "coste": {
+          "valor": 2048,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 927,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": null,
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar"
     },
     {
       "id": "PT-176",
       "slug": "CI-corre-solo-los-paquetes-abiertos",
       "created": "2026-08-26",
-      "status": "DEFERRED",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "CHORE",
       "severity": "S2",
@@ -5700,7 +5780,32 @@
           "dueno": "Alberto Martínez",
           "fecha": "2026-08-27"
         }
-      ]
+      ],
+      "retomada": {
+        "por": "Alberto Martínez",
+        "fecha": "2026-08-27",
+        "de": "DEFERRED",
+        "destino": "DRAFT",
+        "conIntake": false
+      },
+      "viabilidad": {
+        "veredicto": "UNSAFE",
+        "coste": {
+          "valor": 2048,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 927,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": null,
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar"
     },
     {
       "id": "PT-177",
@@ -5885,13 +5990,37 @@
       "id": "PT-182",
       "slug": "el-mapa-fase-artefacto-en-dos-sitios",
       "created": "2026-08-26",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor",
       "issue": 330,
-      "epic": "EP-026"
+      "epic": "EP-025",
+      "viabilidad": {
+        "veredicto": "UNSAFE",
+        "coste": {
+          "valor": 1458,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 927,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": null,
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      }
     },
     {
       "id": "PT-183",
@@ -6146,7 +6275,49 @@
         "medido_en": null,
         "fecha": "2026-08-27"
       },
-      "branch": "trabajo",
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar",
+      "compuertas": {
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-27"
+        }
+      }
+    },
+    {
+      "id": "PT-189",
+      "slug": "la-viabilidad-juzga-un-pronostico-ya-cumplido",
+      "created": "2026-08-27",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.3.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-025",
+      "title": "FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino",
+      "issue": 345,
+      "origen_parada": {
+        "de": "PT-188",
+        "motivo": "compuerta",
+        "fecha": "2026-08-27"
+      },
+      "viabilidad": {
+        "veredicto": "UNSAFE",
+        "coste": {
+          "valor": 1458,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 927,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": null,
+        "fecha": "2026-08-27"
+      },
+      "branch": "chore/alberto-martinez/EP-025-la-bateria-se-puede-certificar",
       "compuertas": {
         "G3": {
           "firmante": "Alberto Martínez",

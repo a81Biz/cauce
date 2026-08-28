@@ -1,16 +1,15 @@
 {
-  "pt": "PT-188",
+  "pt": "PT-175",
   "generated": "2026-08-27",
   "criteria": [
     {
       "ac": "AC-01",
-      "statement": "Un fixture cuyo `cd` falla **no ejecuta** ninguna orden posterior",
+      "statement": "El mismo contenido da el **mismo** sello",
       "scenarios": [
-        "TS-01",
-        "TS-02"
+        "TS-01"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 9 casos `mlib`"
       ],
       "evidence": [
         "salida.txt"
@@ -19,12 +18,12 @@
     },
     {
       "ac": "AC-02",
-      "statement": "Los cinco sitios quedan protegidos, y no queda ninguno con el patrón",
+      "statement": "Cambiar una **sección** lo rompe",
       "scenarios": [
-        "TS-04"
+        "TS-02"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 9 casos `mlib`"
       ],
       "evidence": [
         "salida.txt"
@@ -33,12 +32,12 @@
     },
     {
       "ac": "AC-03",
-      "statement": "Una guarda del propio arnés **falla** si aparece un `( cd \"$VAR\"` sin `&&` ni salida",
+      "statement": "Cambiar una **herramienta** lo rompe",
       "scenarios": [
         "TS-03"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 9 casos `mlib`"
       ],
       "evidence": [
         "salida.txt"
@@ -47,15 +46,12 @@
     },
     {
       "ac": "AC-04",
-      "statement": "El arnés se **niega a arrancar** si `$WORK` no existe o es la raíz del repositorio, y la raíz se **deriva de `git`** —no de la profundidad— con las dos rutas normalizadas",
+      "statement": "`CRLF` y `LF` dan el **mismo** sello",
       "scenarios": [
-        "TS-05",
-        "TS-06",
-        "TS-08",
-        "TS-09"
+        "TS-04"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 9 casos `mlib`"
       ],
       "evidence": [
         "salida.txt"
@@ -64,12 +60,28 @@
     },
     {
       "ac": "AC-05",
-      "statement": "Con `$WORK` correcto, todo sigue pasando — no hay regresión",
+      "statement": "Sin sello, `SIN_SELLAR`; sello que no casa, `REABIERTO`, y dice que vuelve a la batería entera",
       "scenarios": [
-        "TS-07"
+        "TS-05",
+        "TS-06"
       ],
       "tests": [
-        "selftest §EP-024 · 8 casos"
+        "selftest §EP-024 · 9 casos `mlib`"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-06",
+      "statement": "Un sello que casa pero cuya corrida **falló** no certifica: `SELLADO_EN_ROJO`",
+      "scenarios": [
+        "TS-07",
+        "TS-08"
+      ],
+      "tests": [
+        "selftest §EP-024 · 9 casos `mlib`"
       ],
       "evidence": [
         "salida.txt"
@@ -80,7 +92,7 @@
   "regression": [
     {
       "rc": "RC-01",
-      "statement": "La bateria completa corre entera: selftest: 1878 casos",
+      "statement": "La bateria completa corre entera: selftest: 1899 casos",
       "verified": true
     },
     {

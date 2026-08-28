@@ -1,6 +1,6 @@
-PT-188 · evidencia de la corrida
+PT-176 · evidencia de la corrida
 
-selftest: 1878 casos
+selftest: 1904 casos · 95% sellable · ahorro real 69% del tiempo
 
 La batería es la evidencia de esta tarea: sus casos viven en la sección «EP-024» del arnés
 y corren en la misma pasada que los 1800 anteriores, que es lo que comprueba que el cambio

@@ -91,7 +91,7 @@ cuando el fixture lo pidió.
 | AC-01 | Un fixture cuyo `cd` falla **no ejecuta** ninguna orden posterior |
 | AC-02 | Los cinco sitios quedan protegidos, y no queda ninguno con el patrón |
 | AC-03 | Una guarda del propio arnés **falla** si aparece un `( cd "$VAR"` sin `&&` ni salida |
-| AC-04 | El arnés se **niega a arrancar** si `$WORK` no existe o es la raíz del repositorio |
+| AC-04 | El arnés se **niega a arrancar** si `$WORK` no existe o es la raíz del repositorio, y la raíz se **deriva de `git`** —no de la profundidad— con las dos rutas normalizadas |
 | AC-05 | Con `$WORK` correcto, todo sigue pasando — no hay regresión |
 
 ## Cómo termina   `FDGE-R53`
