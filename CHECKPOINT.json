@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/EP-026-PT-199-el-esqueleto-del-acotado",
   "sha": "9eeef58679a67450eef58e0a9589f0bc7b9aa37a",
   "sha_corto": "9eeef58",
@@ -12,15 +12,23 @@
   "archivos": [
     "changes/PT-199-el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca/discovery.md",
     "changes/PT-199-el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca/intake.md",
+    "changes/PT-199-el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca/strategy.md",
+    "changes/PT-199-el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca/test-scenarios.md",
+    "changes/PT-199-el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-28"
 }
