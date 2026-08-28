@@ -687,7 +687,7 @@ después de sus secciones propias.
 
 **Lo único que se personaliza:**
 ```yaml
-suite_version: 13.3.0
+suite_version: 13.4.0
 execution_mode: SUPERVISED
 ```
 más el bloque **Declaración de Valor** (dominio, productos, reglas de validez), que es lo que
@@ -1113,7 +1113,9 @@ medio camino, y comprueban que once defectos inyectados se detectan.
 | `tools/audit.mjs` | cobertura: enumera reglas, fases, triggers, artefactos, herramientas | tras cualquier cambio en la suite |
 | `tools/eventos.mjs` | clasifica las entradas cerradas contra las clases de evento de `LEXICON` §4.4 y escribe `EVENTOS.jsonl` | al cerrar un lote, y antes de derivar la matriz |
 | `tools/matriz.mjs` | deriva `MATRIZ.md`: qué se repite, qué clase no tiene regla y qué regla no puede fallar | tras clasificar, y en `verify` para comprobar su frescura |
-| `tools/selftest.sh` | límites, defectos inyectados, migración y seguridad · imprime el total al terminar | antes de publicar una versión |
+| `tools/sellar-bloques.mjs` | sella los bloques **cerrados** de la batería — solo con `--verde`, y el sello cubre secciones y herramientas | tras una corrida completa en verde |
+| `tools/bloques-sellados.mjs` | devuelve las secciones que todavía hay que correr; su silencio significa «no acotes» | lo consulta `selftest.sh` en cada corrida |
+| `tools/selftest.sh` | límites, defectos inyectados, migración y seguridad · imprime el total al terminar · `--todo` corre lo sellado también | antes de publicar una versión |
 
 ---
 

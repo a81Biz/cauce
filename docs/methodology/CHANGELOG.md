@@ -8,6 +8,89 @@ El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajust
 
 ---
 
+## 13.4.0 — 2026-08-28
+
+**La batería se puede certificar** (`EP-025`). Ocho tareas: siete cerradas y una aplazada.
+La batería pasó de **2055 s** a **346 s** en la corrida que ejecuta CI en cada push, sin dejar de
+ejercitar ni un caso: los que no corren están **certificados por una corrida completa que pasó**.
+
+**Y es `MINOR`.** Ninguna obligación cambia y no hay reglas nuevas: lo que entra es capacidad
+—sellar, acotar, `--seccion`, `--todo`— más siete defectos corregidos. Un proyecto instalado puede
+ver **rojo donde antes había silencio**, que es el objeto de la versión.
+
+### El sello
+
+Un **bloque** son las secciones introducidas bajo una misma `MAJOR`, y su `MAJOR` sale del **commit
+que introdujo la sección** — no de lo que la sección declare. Es **retroactivo por construcción**:
+no hace falta que nadie anote nada, ya está escrito, y la historia la tiene cada destino en su
+propio `git`. Agrupar por la versión que la sección *nombra* dejaba fuera 20 de 46.
+
+    bloque  8.x.x  29 secciones   SELLADO
+    bloque  9.x.x   6 secciones   SELLADO
+    bloque 10.x.x   8 secciones   SELLADO
+    bloque 11.x.x   2 secciones   SELLADO
+    bloque 13.x.x   1 sección     abierto — el que prueba la maquinaria del sello
+
+**Un bloque se certifica por haber PASADO, no por no haber cambiado.** El sello guarda su
+**veredicto**, así que uno que falló no queda certificado porque nadie lo tocara desde entonces.
+Y `sellar-bloques` **se niega a sellar sin `--verde`**.
+
+**Reabrir no es volver a correr.** Un sello que no casa **no se recalcula solo**: el bloque vuelve
+a la batería entera hasta que una corrida completa lo selle de nuevo.
+
+**El sello cubre las secciones y las herramientas que ejercitan, con su cierre transitivo.** La
+primera versión metía *todas* las herramientas en *todos* los bloques: tocar un archivo cualquiera
+rompía los cinco sellos, y en este repositorio casi toda sesión toca alguno. El ahorro habría sido
+teórico.
+
+**Los dos workflows son distintos a propósito.** `verificacion.yml` salta lo sellado porque corre
+en cada push; `publicar.yml` corre la **completa** porque es `workflow_dispatch`, sólo desde `main`,
+y es el único momento en que un falso verde llega a todos los destinos.
+
+### Lo que se corrigió
+
+- **El arnés podía escribir en el repositorio real** (`PT-188`, `S1`). Un `( cd "$WORK"` sin `&&`
+  deja al bloque ejecutándose donde estuviera: el registro pasó de 213 asignaciones a 4. Se
+  recuperó del remoto. Ahora cinco fixtures **abortan** si no pueden entrar en su terreno, y la
+  batería **se niega a arrancar** si `$WORK` cae dentro del repositorio.
+- **El mapa fase→artefacto estaba escrito dos veces y a mano** (`PT-182`). `tracker cursor` ya
+  comprobaba fase a fase que cada una dejó lo suyo, y **no lo invocaba nadie**. Ahora se declara
+  una vez y `avanzar` lo consulta en **cada** transición. Cinco de las siete guardas que produjeron
+  `EP-024` y `EP-025` arreglaban la misma forma: una regla `HARD` cuya única comprobación vivía
+  en `G4` — que llega cuando el trabajo ya está hecho, así que no previene: **factura**.
+- **`FDGE-R54` bloqueaba con un pronóstico sobre una tarea terminada** (`PT-189`). Ahora avisa
+  desde `PHASE 8`, que es cuando la viabilidad ya no es una predicción.
+- **La selección de secciones comparaba nombres, no dependencias** (`PT-174`). Un cambio en
+  `patrones.mjs` activaba 16 de 46 secciones, y lo importan diez herramientas. Ahora se deriva del
+  grafo de importación y peca **de más** a propósito: correr de más es recuperable, saltarse una
+  sección que tenía el caso es un falso verde.
+- **La premisa del lote era falsa** (`PT-173`). El Intake declaraba «338 casos dependen de estado
+  ajeno»; ejecutado, el número es **cero**: 46 secciones aisladas, 46 en verde, 1882 = 1882. Cuatro
+  criterios estáticos dieron cuatro cifras distintas y ninguna cerca.
+
+### Y lo que apareció al cerrar
+
+Nada de esto estaba en el Intake; lo cazaron las reglas del propio marco durante el cierre.
+
+- `audit` — **dos herramientas nuevas sin declarar en ninguna parte**. `LEXICON` §6.6 las da de
+  alta y la tabla del `README` las menciona: `LEXICON` no cuenta como documento **operativo**.
+- `SUITE-R62` — se añadió `sellar:bloques` al workflow y **no** a `npm run verify`, reabriendo el
+  hueco exacto que `PT-151` cerró. La comparación en los dos sentidos lo emitió sola.
+- `FND-R14` — el inventario medía `selftest.sh` en 9551 líneas y son 9561.
+- **Dos cuentas del mismo hecho, escritas a mano y divergidas.** `CLAUDE.md` declaraba **18**
+  herramientas en un sitio y **15** en otro, y hay **20**. No se corrigen: **se quitan** —
+  `ls docs/methodology/tools/` lo responde y no caduca.
+- **Un caso fijaba `^9 pasos$`.** Al añadir un décimo paso legítimo, el caso falló **castigando la
+  mejora**. De ahí una regla sobre los propios casos: *un caso puede fijar el **cero de lo
+  prohibido**, nunca el **número de lo correcto***. La cifra de 24,1 min de `PT-151` sigue siendo
+  cierta: es una medición **fechada**, no una promesa.
+- **El selector fallaba en silencio, y su silencio significa «no acotes».** `bloques-sellados.mjs`
+  citaba una variable que no declaraba; `selftest.sh` lee la salida vacía como «corre entero», así
+  que la excepción **no rompía nada**: dejaba la batería corriendo entera para siempre — justo lo
+  que este lote venía a evitar.
+
+---
+
 ## 13.3.0 — 2026-08-27
 
 **Lo que `EP-022` encontró y no podía arreglar** (`EP-024`). Veinticuatro tareas: veintiuna
