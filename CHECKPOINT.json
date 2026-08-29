@@ -1,35 +1,22 @@
 {
-  "pt": "PT-179",
+  "pt": "PT-181",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-179-evidencia-que-falta-solo-avisa",
-  "sha": "090e819ab00695c3d581af718a693ed95cd42302",
-  "sha_corto": "090e819",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/alberto-martinez/EP-026-PT-181-la-expectativa-es-una-regex",
+  "sha": "5e75981c98f009175b3a07323df37b1422ad4da0",
+  "sha_corto": "5e75981",
   "sucio": true,
   "archivos": [
-    "changes/PT-179-evidencia-que-falta-solo-avisa/discovery.md",
-    "changes/PT-179-evidencia-que-falta-solo-avisa/intake.md",
-    "changes/PT-179-evidencia-que-falta-solo-avisa/strategy.md",
-    "changes/PT-179-evidencia-que-falta-solo-avisa/test-scenarios.md",
-    "changes/PT-179-evidencia-que-falta-solo-avisa/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-179/",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/verify-fdge.mjs"
+    "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-28"
 }
