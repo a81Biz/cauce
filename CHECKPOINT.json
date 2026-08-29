@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/EP-026-PT-196-lo-posterior-a-G4",
   "sha": "82794334d6591dbe6525c3d81c043f9145accae0",
   "sha_corto": "8279433",
@@ -12,14 +12,22 @@
   "archivos": [
     "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/discovery.md",
     "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/intake.md",
+    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/strategy.md",
+    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/test-scenarios.md",
+    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-29"
 }
