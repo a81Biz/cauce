@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/EP-026-PT-192-el-final-se-mide-por-posicion",
   "sha": "68476f944e34e027aa3b88d0b335728b3e16b187",
   "sha_corto": "68476f9",
@@ -12,14 +12,22 @@
   "archivos": [
     "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/discovery.md",
     "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/intake.md",
+    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/strategy.md",
+    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/test-scenarios.md",
+    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-28"
 }
