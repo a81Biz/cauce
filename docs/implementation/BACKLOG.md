@@ -23,7 +23,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-179 | BUG | — | DONE | 8 | [#327](https://github.com/a81Biz/cauce/issues/327) | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
 | PT-181 | BUG | — | DONE | 8 | [#329](https://github.com/a81Biz/cauce/issues/329) | La expectativa de un caso se compara como regex y no hay forma de decir literal |
 | PT-187 | BUG | S2 | DRAFT | 1 | [#342](https://github.com/a81Biz/cauce/issues/342) | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
-| PT-192 | BUG | S2 | DRAFT | 1 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
+| PT-192 | BUG | S2 | DONE | 8 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
 | PT-194 | BUG | S2 | DRAFT | 1 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
 | PT-195 | BUG | S2 | DRAFT | 1 | [#353](https://github.com/a81Biz/cauce/issues/353) | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
 | PT-196 | BUG | S2 | DRAFT | 1 | [#355](https://github.com/a81Biz/cauce/issues/355) | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
@@ -35,7 +35,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-202 | BUG | S3 | DRAFT | 1 | [#364](https://github.com/a81Biz/cauce/issues/364) | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
 | PT-203 | BUG | S3 | DRAFT | 1 | [#365](https://github.com/a81Biz/cauce/issues/365) | Citar un PT en una fila del intake del lote lo convierte en miembro |
 
-**4 de 14 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**5 de 14 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Aplazado — 4 allocation(s) `DEFERRED`
 
