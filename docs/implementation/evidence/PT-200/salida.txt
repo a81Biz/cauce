@@ -1,0 +1,20 @@
+PT-200 · corrida COMPLETA en verde, y el ahorro medido sobre el repositorio REAL
+
+  [32m✓[0m un PT sellado y sin cambios NO se re-verifica
+  [32m✓[0m …y si su artefacto cambia, vuelve
+  [32m✓[0m …y si cambia el VERIFICADOR, tambien
+  [32m✓[0m sin sellos se verifican TODOS
+  [32m✓[0m un PT vivo se verifica aunque tenga sello
+  [32m✓[0m sellar es una decision: sin --sellar no se escribe
+
+selftest: OK · 1956 casos
+
+== EL AHORRO ==
+  1 · SIN sellos:  536.8 s  ·  PTs verificados: 197
+  2 · sellar:      189 PT terminal(es) sellados en SELLOS-PT.json
+  3 · ACOTADA:      50.4 s  ·  PTs verificados: 14 · 189 saltados por su sello
+
+     -91% en tiempo  ·  -93% en tareas recorridas
+
+Recibo de la corrida completa (NO versionado):
+{ "veredicto": "OK", "casos": "1956", "arnes": "93006a12e37e4a9368e1226a1c8a53103535b881", "fecha": "2026-08-29T18:25:25Z" }

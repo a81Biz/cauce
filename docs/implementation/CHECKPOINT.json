@@ -1,27 +1,23 @@
 {
-  "pt": "PT-192",
+  "pt": "PT-200",
   "type": "BUG",
   "epic": "EP-026",
   "status": "DONE",
   "phase": 8,
   "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-192-el-final-se-mide-por-posicion",
-  "sha": "68476f944e34e027aa3b88d0b335728b3e16b187",
-  "sha_corto": "68476f9",
+  "rama": "chore/alberto-martinez/EP-026-PT-200-verify-fdge-no-acota",
+  "sha": "f7bae9222b0b12d5cb2f9705d856f882b92d9220",
+  "sha_corto": "f7bae92",
   "sucio": true,
   "archivos": [
-    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/discovery.md",
-    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/intake.md",
-    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/strategy.md",
-    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/test-scenarios.md",
-    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/traceability.md",
+    "changes/PT-200-verify-fdge-no-acota-lo-terminal/intake.md",
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-192/",
+    "docs/implementation/evidence/PT-200/",
     "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
@@ -30,5 +26,5 @@
     "índice"
   ],
   "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
-  "generado": "2026-08-28"
+  "generado": "2026-08-29"
 }

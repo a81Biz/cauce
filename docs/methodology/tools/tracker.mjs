@@ -971,7 +971,18 @@ const BANDERAS_CONOCIDAS = (() => {
     return null;
   }
 })();
-{
+// PT-200 · UN MODULO IMPORTADO NO VALIDA LOS ARGV DE QUIEN LO IMPORTA.
+//
+// verify-fdge.mjs IMPORTA este archivo —`estadoContrastado`, `FASES`, `estadoDelArbol`— y un
+// import ejecuta el cuerpo del modulo. Asi que esta comprobacion miraba `process.argv` de
+// verify-fdge y rechazaba sus banderas: «verify-fdge --all --sellar» moria con «bandera
+// desconocida: --sellar», nombrando banderas de tracker que no venian al caso.
+//
+// La guarda ya existia mas abajo (EJECUTADO_DIRECTO, :1486) pero se calculaba DESPUES de este
+// bloque. Se adelanta: la validacion es del CLI, no de la biblioteca.
+const CORRE_COMO_CLI = !!process.argv[1]
+  && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
+if (CORRE_COMO_CLI) {
   const desconocidas = ARGS.filter((a) => /^--[^=]+$/.test(a))
     .filter((a) => BANDERAS_CONOCIDAS && !BANDERAS_CONOCIDAS.has(a));
   if (desconocidas.length) {

@@ -12146,3 +12146,82 @@ LO QUE NO SE CUBRE, Y CONSTA. No se barren todas las extracciones posicionales d
 las cinco que miden el final del fuente y que han fallado tres veces. Y la marca es una CONVENCION,
 no una garantia: quien borre «# cauce:informe-final» rompe cinco casos. Lo que cambia respecto a hoy
 es que borrarla es un acto DELIBERADO y visible, mientras que anadir una linea al final no lo era.
+
+## PT-200 — verify-fdge revisaba los 197 PT cada vez, y 183 estaban INTEGRATED
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-200-verify-fdge-no-acota
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-001 — el proxy en lugar del hecho
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-200.md
+
+LA MITAD DE LA VERIFICACION SE QUEDO FUERA DEL SELLO QUE EP-025 CONSTRUYO.
+
+    verify-fdge.mjs:2974
+    const terminal = new Set(['CLOSED', 'REJECTED', 'REVERTED', 'DEFERRED']);
+
+INTEGRATED no estaba en la lista — y es el estado en el que acaba TODA tarea que se termina bien.
+Medido: «--all» recorria 197 de 203 PT, y 183 de esos 197 estaban INTEGRATED, con su codigo en main
+y su issue cerrado. Vivos de verdad: CATORCE.
+
+En el mismo verificacion.yml, un paso acota 1956 casos a 153 y el otro recorre 197 de 203 siempre.
+Lo dijo el firmante: «si se sello la prueba, el artefacto tambien».
+
+POR QUE NO BASTA CON ANADIR INTEGRATED A LA LISTA. Sus artefactos siguen en el arbol —changes/,
+evidence/, su entrada de HISTORY, su allocation— y nada impide editarlos despues. Saltarlos sin
+mirar dejaria la compuerta CIEGA para el 93% del repositorio. Es el defecto que PT-191 cerro en la
+bateria: un bloque no se certifica por NO HABER CAMBIADO, sino por HABER PASADO.
+
+SOLUCION. El mecanismo de PT-175 y PT-191, sin cambios conceptuales:
+  · SELLOS-PT.json guarda por PT su huella, su VEREDICTO y su fecha
+  · la huella cubre su allocation, changes/, evidence/, sus entradas de HISTORY Y EL VERIFICADOR
+  · «--sellar» es una DECISION, y solo certifica una corrida que termino EN VERDE
+  · sin sellos se verifican TODOS: el silencio no acota
+
+LA HUELLA DEL VERIFICADOR ES LA PIEZA MAS FACIL DE OLVIDAR, y tiene caso propio. Un cambio en
+verify-fdge.mjs o patrones.mjs cambia el veredicto SIN TOCAR EL ARTEFACTO; sin esa huella el sello
+certificaria contra una version de las reglas que ya no existe.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/tracker.mjs · tools/selftest.sh ·
+  enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+
+MEDIDO SOBRE EL REPOSITORIO REAL:
+
+    SIN sellos    536.8 s   ·  197 PT recorridos
+    CON sellos     50.4 s   ·   14 PT recorridos  ·  189 saltados
+                             -91% en tiempo · -93% en tareas
+
+Y corrida COMPLETA de la bateria: 1956 casos en verde.
+
+Evidencia: docs/implementation/evidence/PT-200/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-200-verify-fdge-no-acota-lo-terminal/traceability.md — sin AC huerfano.
+
+DELTA REAL VS PLANIFICADO — UN HALLAZGO LATERAL, ARREGLADO Y DECLARADO.
+
+verify-fdge IMPORTA tracker.mjs —estadoContrastado, FASES, estadoDelArbol— y un import EJECUTA el
+cuerpo del modulo. Asi que la validacion de banderas de tracker, que PT-183 introdujo para que un
+flag desconocido no se ignore en silencio, miraba los argv de VERIFY-FDGE y rechazaba «--sellar»,
+nombrando banderas de tracker que no venian al caso.
+
+LA GUARDA YA EXISTIA: EJECUTADO_DIRECTO, en tracker.mjs:1486 — pero se calculaba QUINIENTAS LINEAS
+DESPUES del bloque que la necesitaba. Se adelanta. Un modulo importado no valida los argv de quien
+lo importa, y tracker sigue rechazando sus propias banderas malas: comprobado en las dos
+direcciones.
+
+LO QUE COSTO EL FIXTURE, Y POR QUE SE DICE. El caso necesita un proyecto sintetico EN VERDE —el
+recuento «PTs verificados» solo se imprime si no hay errores— y llegar ahi exigio nueve iteraciones:
+traceability.md, la evidencia que el manifest cita, el indice, docs/enterprise-documentation/ con
+sus tres RULE-nn, suite_version en el registro, y una bitacora con el formato exacto
+«AAAA-MM-DD · PHASE n» que FDGE-R52 pide. Por eso el fixture vive en una funcion propia y comentada:
+el siguiente que necesite un proyecto verde no vuelve a pagarlo.
+
+LO QUE NO SE CUBRE, Y CONSTA. Un cambio en RULES.md que no toque verify-fdge.mjs NO invalida el
+sello, igual que en la bateria. Y no se fija ninguna cifra de minutos como criterio: seria fijar el
+numero de lo correcto (HANDOFF -18). Lo que se mide es que lo terminal y sin cambios no se recorre,
+y que cualquier cambio lo devuelve entero.

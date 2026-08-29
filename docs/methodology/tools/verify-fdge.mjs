@@ -40,7 +40,7 @@
  * en Windows. Ese fallo dejaba 25 reglas fuera de CORE.md sin avisar.
  */
 
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -2967,6 +2967,118 @@ function checkIndex(pt, alloc, { gate } = {}) {
 }
 
 // ─── Descubrimiento de PTs ───────────────────────────────────────────────────
+// ── PT-200 · EL SELLO DE UN PT TERMINAL ─────────────────────────────────────
+//
+// «verify-fdge --all» recorria 197 de 203 PT en cada corrida, y 183 de esos 197 estaban
+// INTEGRATED: su codigo en main y su issue cerrado. Vivos de verdad: CATORCE. Entre 9 y 14
+// minutos por corrida, en cada push, para re-verificar el 93% de un repositorio que no cambia.
+//
+// La bateria acota desde EP-025 —1950 casos a 153— y esta mitad de la verificacion se quedo
+// fuera. Lo dijo el firmante: «si se sello la prueba, el artefacto tambien».
+//
+// NO BASTA CON TRATAR «INTEGRATED» COMO TERMINAL. Sus artefactos siguen en el arbol y nada impide
+// editarlos despues: saltarlos sin mirar dejaria la compuerta CIEGA para el 93% del repositorio.
+// Es el defecto que PT-191 cerro en la bateria — un bloque no se certifica por no haber cambiado,
+// sino por haber PASADO— y aqui se aplica su mecanismo entero.
+//
+// QUE ENTRA EN LA HUELLA: todo lo que, si cambiara, podria cambiar el veredicto.
+//   · su allocation en REGISTRY.json      estado, fase, lote, compuertas, viabilidad
+//   · changes/PT-NNN-slug/**              intake, strategy, traceability
+//   · evidence/PT-NNN/**                  manifest, self-review
+//   · sus entradas en HISTORY.log         FDGE-R29 las lee
+//   · verify-fdge.mjs y patrones.mjs      UN CAMBIO EN EL VERIFICADOR CAMBIA EL VEREDICTO SIN
+//                                         TOCAR EL ARTEFACTO. Es la pieza que PT-191 demostro
+//                                         imprescindible, y la mas facil de olvidar.
+const SELLOS_PT = join(IMPL, 'SELLOS-PT.json');
+
+/** Lo que el sello de un PT cubre, concatenado y en orden estable. */
+function materialDe(pt, reg) {
+  const partes = [];
+  const a = (reg?.allocations ?? []).find((x) => x?.id === pt);
+  partes.push(a ? JSON.stringify(a, Object.keys(a).sort()) : '');
+  for (const base of [CHANGES, EVIDENCE]) {
+    if (!existsSync(base)) continue;
+    const dirs = readdirSync(base).filter((d) => d === pt || d.startsWith(pt + '-')).sort();
+    for (const d of dirs) {
+      const raiz = join(base, d);
+      const pila = [raiz];
+      const archivos = [];
+      while (pila.length) {
+        const cur = pila.pop();
+        let st; try { st = statSync(cur); } catch { continue; }
+        if (st.isDirectory()) { for (const e of readdirSync(cur).sort()) pila.push(join(cur, e)); }
+        else archivos.push(cur);
+      }
+      // La RUTA entra en la huella con «\\» en Windows y «/» en Linux, asi que un sello escrito
+      // aqui no casaria NUNCA en CI y la acotacion no llegaria donde mas hace falta. Se
+      // normaliza, igual que `selloDe` normaliza CRLF/LF por la misma razon (patrones.mjs:33).
+      for (const f of archivos.sort()) {
+        partes.push(f.replace(ROOT, '').split(sep).join('/'), read(f) ?? '');
+      }
+    }
+  }
+  const hist = read(join(IMPL, 'HISTORY.log')) ?? '';
+  const re = new RegExp(`^##\\s+${pt}\\s+—[\\s\\S]*?(?=^##\\s|$)`, 'gm');
+  for (const m of hist.matchAll(re)) partes.push(m[0]);
+  // El verificador: sin esto el sello certifica contra reglas que ya no existen.
+  const AQUI = fileURLToPath(import.meta.url);
+  partes.push(read(AQUI) ?? '');
+  partes.push(read(join(dirname(AQUI), 'patrones.mjs')) ?? '');
+  return partes.join('\u0000');
+}
+
+function sellosPT() {
+  if (!existsSync(SELLOS_PT)) return {};        // sin sellos NO se acota nada: el silencio no acota
+  try { return JSON.parse(read(SELLOS_PT) ?? '{}'); } catch { return {}; }
+}
+
+/** Los PT que se pueden SALTAR: terminales, sellados, con veredicto OK y sello que CASA. */
+function saltablesPT(reg) {
+  const sellos = sellosPT();
+  const fuera = new Set();
+  for (const a of (reg?.allocations ?? [])) {
+    if (!/^PT-\d+$/.test(a?.id ?? '')) continue;
+    if (!ESTADOS_TERMINALES.has(a.status) && a.status !== 'INTEGRATED') continue;
+    const s = sellos[a.id];
+    if (!s || s.veredicto !== 'OK') continue;
+    if (s.sello !== selloDe(materialDe(a.id, reg))) continue;
+    fuera.add(a.id);
+  }
+  return fuera;
+}
+
+/**
+ * PT-200 · Escribe SELLOS-PT.json. Solo con `--sellar` Y solo si la corrida termino EN VERDE.
+ *
+ * `enVerde` es el hecho, no la bandera: si la corrida tuvo errores no se sella nada y se dice.
+ * Es la misma distincion que PT-191 introdujo con el recibo — «--verde» dice que se QUIERE sellar;
+ * el veredicto de la corrida dice si se PUEDE.
+ */
+function sellarTerminales(reg, enVerde) {
+  if (!enVerde) {
+    console.log('NO SE SELLA: la corrida no termino en verde. Un PT no se certifica por que alguien');
+    console.log('lanzara el comando, sino por haber PASADO (PT-175, PT-191, PT-200).');
+    return;
+  }
+  const previos = sellosPT();
+  const hoy = (() => {
+    try {
+      return execFileSync('git', ['log', '-1', '--format=%cs'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim()
+        || new Date().toISOString().slice(0, 10);
+    } catch { return new Date().toISOString().slice(0, 10); }
+  })();
+  const salida = { ...previos };
+  let n = 0;
+  for (const a of (reg?.allocations ?? [])) {
+    if (!/^PT-\d+$/.test(a?.id ?? '')) continue;
+    if (!ESTADOS_TERMINALES.has(a.status) && a.status !== 'INTEGRATED') continue;
+    salida[a.id] = { sello: selloDe(materialDe(a.id, reg)), veredicto: 'OK', fecha: hoy, estado: a.status };
+    n += 1;
+  }
+  writeFileSync(SELLOS_PT, JSON.stringify(salida, null, 2) + '\n');
+  console.log(`${n} PT terminal(es) sellados en ${SELLOS_PT.replace(ROOT, '.')}`);
+}
+
 function allOpenPTs(reg) {
   // PT-013 · DEFERRED se une a los terminales AQUI: un aplazado no tiene intake ni ha recorrido
   // fases, y exigirselo seria un rojo permanente. Sigue siendo VIVO para el espejo (tracker),
@@ -2991,6 +3103,10 @@ if (gateIdx >= 0 && !/^G[1-4]$/.test(gate ?? '')) {
   process.exit(2);
 }
 const all = argv.includes('--all');
+// PT-200 · SELLAR ES UNA DECISION, NO UN EFECTO DE EJECUTAR EL COMANDO. Es la leccion de PT-191:
+// sin esta bandera, el sello se estamparia por el mero hecho de correr la verificacion, y volveria
+// a certificar «porque alguien lo lanzo» en vez de «porque paso».
+const sellar = argv.includes('--sellar');
 // PT-049 · `-q` calla la ENUMERACION del verde y nada mas. No toca los avisos, no toca los
 // errores, y NO toca el recuento final: un «sin errores» sin denominador es exactamente lo que
 // PT-002 corrigio, y PT-023 lo volvio a encontrar en otra forma —el silencio parece exito—.
@@ -3059,7 +3175,11 @@ if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);
 else if (GRAPH.state === 'SUSPECT') warn('FDGE-R43', `Grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);
 else warn('FDGE-R43', `Grafo ${GRAPH.state} — ${GRAPH.reason}.${GRAPH.state === 'MISSING' ? '' : ' Bloquea G2 en PTs MAJOR.'}`);
 
-const pts = all ? allOpenPTs(reg) : [...new Set(targets)];
+const todosPTs = all ? allOpenPTs(reg) : [...new Set(targets)];
+// PT-200 · lo TERMINAL y SELLADO no se recorre; lo VIVO se recorre siempre, tenga sello o no.
+// Y un PT nombrado a mano NO se salta: pedirlo por su id es pedir que se mire.
+const saltados = all ? saltablesPT(reg) : new Set();
+const pts = todosPTs.filter((pt) => !saltados.has(pt));
 if (!pts.length && !all) {
   console.log('Uso: node verify-fdge.mjs PT-042 | --all | --gate G4 PT-042\n');
 }
@@ -3102,8 +3222,15 @@ if (sinEvaluar.length) {
   console.log(`Sin errores, PERO ${sinEvaluar.length} comprobacion(es) quedaron SIN EVALUAR: ${detalle}.`);
   console.log('SIN EVALUAR no aprueba ni bloquea (RULE-06): son reglas que NO se llegaron a mirar,');
   console.log('no reglas que pasaron. Si esto autoriza una compuerta, la autoriza a medias.');
-  console.log(`PTs verificados: ${pts.length}.`);
+  if (sellar) sellarTerminales(reg, errors.length === 0);
+  console.log(`PTs verificados: ${pts.length}${saltados.size ? ` · ${saltados.size} saltados por su sello` : ''}.`);
   process.exit(0);
 }
-console.log(`Sin errores. PTs verificados: ${pts.length}.`);
+// PT-200 · el recuento DICE lo que se salto y por que. Un «PTs verificados: 14» sin decir que hay
+// 183 sellados seria un denominador que miente, que es lo que PT-002 corrigio.
+const acotado = saltados.size
+  ? ` · ${saltados.size} terminal(es) SALTADOS por su sello (PT-200): «--sellar» tras una corrida en verde los renueva.`
+  : (all ? ' · sin sellos: se verificaron TODOS. El silencio no acota.' : '');
+if (sellar) sellarTerminales(reg, errors.length === 0);
+console.log(`Sin errores. PTs verificados: ${pts.length}${acotado}`);
 process.exit(0);
