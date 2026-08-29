@@ -1,0 +1,32 @@
+PT-196 · corrida COMPLETA en verde · 1962 casos
+
+  [32m✓[0m una fila TRAS EL MERGE no bloquea G4
+  [32m✓[0m …y una PENDIENTE si bloquea
+  [32m✓[0m …y una HECHO sigue resolviendo
+  [32m✓[0m siguiente de un lote listo dice que toca en el cierre
+  [32m✓[0m …y declara el SEGUNDO merge, con su motivo
+  [32m✓[0m PHASES declara el doble viaje donde se ejecuta
+
+selftest: OK · 1962 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "1962", "arnes": "abdaaea535d53ad771a50e70203af2a4acb283a1", "fecha": "2026-08-29T20:50:07Z" }
+
+== LA CONDUCTA, SOBRE EL REPOSITORIO REAL ==
+$ tracker siguiente EP-026
+
+  EP-026  READY  ·  cierre del lote  ·  14 tarea(s)  ·  #331
+  reparto:    0 INTEGRATED · 6 DONE · 8 sin terminar
+  siguiente:  el lote NO cierra: PT-187 · PT-194 · PT-195 · PT-196 · PT-197 sin estado terminal.
+              Un lote cierra cuando TODAS sus tareas lo estan (PHASES · LOTES).
+
+  Esto se DERIVA del registro y del tablero (SUITE-R48). No es una opinión: si algo aquí
+  no cuadra con lo que crees que toca, el que se equivoca no es el tablero.
+
+$ tracker siguiente EP-025   (lote ya cerrado)
+
+  EP-025  CLOSED  ·  cierre del lote  ·  11 tarea(s)  ·  #326
+  reparto:    10 INTEGRATED · 0 DONE · 0 sin terminar
+  siguiente:  el lote esta CLOSED. Queda el tag si aplica y borrar sus ramas efimeras.
+
+  Esto se DERIVA del registro y del tablero (SUITE-R48). No es una opinión: si algo aquí

@@ -10005,6 +10005,45 @@ _p200sin() {
 }
 chkl  "sellar es una decision: sin --sellar no se escribe" "NO SE SELLO"  _p200sin
 
+# ── PT-196 · lo posterior a G4 tiene dueno ────────────────────────────────
+#
+# PHASE 9 TERMINA EN EL MERGE, y los seis actos que vienen despues —integrar, mergear otra vez,
+# cerrar, sellar el lote, proyectar, el tag— estaban escritos como PROSA dentro de ella. Ninguna
+# fase los poseia y se ejecutaban de memoria. Medido al cerrar EP-025: SUITE-R45 exigia resolver
+# «el tag y la publicacion» EN G4, y SUITE-R06a prohibe el tag ANTES del merge. G4 ES el merge:
+# no habia respuesta correcta.
+_r45() {  # $1 = el estado de la fila · imprime lo que SUITE-R45 dice en G4
+  local d="$WORK/p196"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/EP-700-l"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: EP-700\nstatus: READY\n---\n\n## Cierre del lote\n\n| Que se resuelve al cerrar | Estado |\n|:--|:--|\n| El tag | %s |\n' "$1" > "$d/changes/EP-700-l/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"EP":700},"allocations":[{"id":"EP-700","slug":"l","status":"READY","phase":1}]}' > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --gate G4 EP-700 2>&1 | sed -n '/SUITE-R45/p' | head -1 )
+}
+# AC-02 · UNA FILA POSTERIOR NO BLOQUEA G4, y NO desaparece: se sigue nombrando.
+chkl  "una fila TRAS EL MERGE no bloquea G4"          "se resuelve(n) TRAS EL MERGE"  _r45 "TRAS EL MERGE"
+# Y SU PAREJA: sin ella, AC-02 lo cumple un SUITE-R45 que no exija NADA.
+chkl  "…y una PENDIENTE si bloquea"                   "sin resolver"    _r45 "PENDIENTE"
+# …y una HECHA sigue resolviendo, que es la conducta que ya habia.
+chkl  "…y una HECHO sigue resolviendo"                "declarado y resuelto"  _r45 "HECHO"
+# AC-01 · «siguiente» de un LOTE contesta el CIERRE, no la fase de su intake. Las fases son del
+# PT; el viaje de vuelta es del lote, y ahi esta su dueno.
+_sig196() {
+  local d="$WORK/p196s"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/EP-700-l"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: EP-700\nstatus: READY\n---\n\n## Cierre del lote\n\n| Que | Estado |\n|:--|:--|\n| nada | HECHO |\n' > "$d/changes/EP-700-l/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"EP-700","slug":"l","status":"READY","phase":1},{"id":"PT-700","slug":"x","type":"CHORE","epic":"EP-700","status":"DONE","phase":8}]}' > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" siguiente EP-700 "$d" 2>&1 )
+}
+chkl  "siguiente de un lote listo dice que toca en el cierre"  "cierre del lote"  _sig196
+# Y DICE EL SEGUNDO MERGE, que es lo que se descubria chocando.
+chkl  "…y declara el SEGUNDO merge, con su motivo"    "SEGUNDO merge"   _sig196
+# AC-03 · Y esta escrito DONDE SE EJECUTA, no solo en la regla que lo causa.
+chkl  "PHASES declara el doble viaje donde se ejecuta"  "PASA POR G4 DOS VECES"  \
+  cat "$SUITE/PHASES.md"
+
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

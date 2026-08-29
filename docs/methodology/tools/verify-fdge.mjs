@@ -1629,6 +1629,16 @@ function loteDeclaraCierre(ep) {
   const dir = readdirSync(CHANGES).find((d) => d.startsWith(ep + '-'));
   return !!dir && RE_CIERRE_LOTE.test(read(join(CHANGES, dir, 'intake.md')) ?? '');
 }
+// PT-196 · UNA FILA PUEDE RESOLVERSE **AL CERRAR**, NO **EN** G4, Y HAY QUE PODER DECIRLO.
+//
+// SUITE-R45 exigia la respuesta EN G4. Pero G4 ES el merge, y SUITE-R06a prohibe el tag ANTES del
+// merge: la fila «el tag y la publicacion» no podia estar HECHA ni por definicion. Dos reglas del
+// mismo marco contradiciendose, medido al cerrar EP-025 — y la unica salida fue mover la fila a
+// otra tarea, que es rodear el problema.
+//
+// «TRAS EL MERGE» declara que la respuesta es POSTERIOR. No rebaja la pregunta: sigue habiendo que
+// contestarla, y el cierre del lote la reclama. Lo que cambia es CUANDO se exige.
+const RE_POSTERIOR = /\bTRAS EL MERGE\b|\bPOSTERIOR A G4\b/i;
 const RE_RESUELTA = /\bHECHO\b|\b(?:PT|EP)-\d+\b/;
 function checkCierreDeLote(ep, txt, dir) {
   const alloc = (REGISTRO?.allocations ?? []).find((a) => a?.id === ep);
@@ -1669,16 +1679,26 @@ function checkCierreDeLote(ep, txt, dir) {
     if (enG4) fail('SUITE-R45', m); else warn('SUITE-R45', m);
     return;
   }
-  const sinResolver = filas.filter((l) => !RE_RESUELTA.test(l.split('|').slice(-2)[0] ?? ''));
+  const estado = (l) => l.split('|').slice(-2)[0] ?? '';
+  const sinResolver = filas.filter((l) => !RE_RESUELTA.test(estado(l)) && !RE_POSTERIOR.test(estado(l)));
+  // PT-196 · las POSTERIORES se cuentan aparte: no bloquean G4, y NO desaparecen. El cierre del
+  // lote las reclama, y hasta entonces se dicen — un hueco que nadie nombra es el que se olvida.
+  const posteriores = filas.filter((l) => RE_POSTERIOR.test(estado(l)) && !RE_RESUELTA.test(estado(l)));
   if (sinResolver.length && enG4) {
     const cual = sinResolver.map((l) => `«${(l.split('|')[1] ?? '').trim().slice(0, 40)}»`).join(', ');
     fail('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de «## Cierre del lote» sin resolver `
-      + `en G4: ${cual}. Cada una declara HECHO o el identificador al que se movió — un lote no `
-      + `cierra dejando sin responder lo que él mismo se asignó.`);
+      + `en G4: ${cual}. Cada una declara HECHO, el identificador al que se movió, o «TRAS EL MERGE» `
+      + `si su respuesta es POSTERIOR a G4 (PT-196) — un lote no cierra dejando sin responder lo que `
+      + `él mismo se asignó.`);
     return;
   }
   if (sinResolver.length) {
     warn('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de cierre aún sin resolver. En G4 bloquean.`);
+    return;
+  }
+  if (posteriores.length) {
+    const cual = posteriores.map((l) => `«${(l.split('|')[1] ?? '').trim().slice(0, 40)}»`).join(', ');
+    ok('SUITE-R45', `${ep}: cierre declarado (${filas.length} fila(s)); ${posteriores.length} se resuelve(n) TRAS EL MERGE y el cierre del lote las reclama: ${cual}.`);
     return;
   }
   ok('SUITE-R45', `${ep}: cierre del lote declarado y resuelto (${filas.length} fila(s)).`);
