@@ -3,9 +3,9 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "chore/alberto-martinez/EP-026-PT-198-comentario-yaml",
   "sha": "c9848f24a7a0a1db2faa87d702ecc484075a7522",
   "sha_corto": "c9848f2",
   "sucio": true,
@@ -15,12 +15,21 @@
     "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/strategy.md",
     "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/test-scenarios.md",
     "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-198/",
+    "docs/methodology/tools/patrones.mjs",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/tracker.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-29"
 }
