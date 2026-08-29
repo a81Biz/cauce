@@ -64,6 +64,10 @@ import { fasesDeFDGE, nodosSinVisitar } from './patrones.mjs';
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia, PREFIJOS_DE_ID } from './patrones.mjs';
 // PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
 import { esLote } from './patrones.mjs';
+// PT-198 · el frontmatter de un intake se lee por UN sitio, y ese sitio vive donde
+// verify-patrones lo vigila. Habia siete expresiones a mano aqui, todas ancladas a fin de
+// linea, y un comentario `#` —YAML valido— las rompia en silencio.
+import { campoDeIntake, reemplazaCampoDeIntake } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 // PT-150 · la escala de severidad la declara LEXICON §8.3, y vive una sola vez.
@@ -3102,11 +3106,18 @@ function tipo() {
 
   const fIntake = join(carpetaDe(a), 'intake.md');
   if (!existsSync(fIntake)) throw new Error(`${id} no tiene intake en ${fIntake}: sin el no hay de donde derivar el tipo.`);
-  const enYaml = readFileSync(fIntake, 'utf8').match(/^type:[ \t]*([A-Z]+)[ \t]*$/m)?.[1];
-  if (!enYaml) {
+  const campoTipo = campoDeIntake(readFileSync(fIntake, 'utf8'), 'type');
+  // PT-198 · AUSENTE y NO LEGIBLE son dos hechos distintos y se dicen distinto (RULE-02).
+  if (!campoTipo) {
     throw new Error(`el intake de ${id} no declara «type». Se declara ahi primero: manda el YAML `
       + '(PT-004), y el registro lo espeja.');
   }
+  if (campoTipo.valor === null) {
+    throw new Error(`el intake de ${id} declara «type» en la linea ${campoTipo.linea} y no se `
+      + `pudo leer su valor: «${campoTipo.cruda.trim()}». El campo ESTA — lo que falla es la `
+      + 'lectura, y decir que no esta mandaria a anadir lo que ya hay (PT-198).');
+  }
+  const enYaml = campoTipo.valor;
   if (!TIPOS_DE_ITEM.includes(enYaml)) {
     throw new Error(`el intake de ${id} declara «${enYaml}», que no es un tipo de item. `
       + `LEXICON §8.1 declara: ${TIPOS_DE_ITEM.join(' · ')}`);
@@ -3751,13 +3762,8 @@ function avanzar() {
     // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo
     if (existsSync(fIntake)) {
       const txt = readFileSync(fIntake, 'utf8');
-      let nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
-      if (nuevo === txt) throw new Error(`el intake de ${id} no declara «phase»: no se puede sincronizar (SUITE-R08).`);
-      if (terminal) {
-        const conEstado = nuevo.replace(/^status:[ 	]*\S+[ 	]*$/m, `status: ${a.status}`);
-        if (conEstado === nuevo) throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
-        nuevo = conEstado;
-      }
+      let nuevo = escribeCampo(txt, id, 'phase', destino);
+      if (terminal) nuevo = escribeCampo(nuevo, id, 'status', a.status);
       writeFileSync(fIntake, nuevo);
     }
 
@@ -4591,13 +4597,19 @@ function integrar() {
   }
 
   const antes = readFileSync(intake, 'utf8');
-  const RE_ESTADO = /^status:[ 	]*(\S+)[ 	]*$/m;
-  const m = RE_ESTADO.exec(antes);
-  if (!m) {
+  const campoEstado = campoDeIntake(antes, 'status');
+  if (!campoEstado) {
     fail('FDGE-R23', `${id}: su intake no declara «status:». Sin el, no hay transicion que `
       + 'escribir y suponerla seria inventar un dato (SUITE-R08).');
     return;
   }
+  // PT-198 · esta ESCRITO y no se pudo leer: otro hecho, otro mensaje, y con su linea.
+  if (campoEstado.valor === null) {
+    fail('FDGE-R23', `${id}: declara «status» en la linea ${campoEstado.linea} y no se pudo `
+      + `leer su valor: «${campoEstado.cruda.trim()}». El campo ESTA; lo que falla es la lectura.`);
+    return;
+  }
+  const m = [campoEstado.cruda, campoEstado.valor];
 
   if (!APLICAR) {
     di(`  ${id}: ${a.status} -> ${destino}`);
@@ -4609,7 +4621,7 @@ function integrar() {
   }
 
   // Lo reversible primero: el YAML. Si falla, el registro se queda como estaba.
-  writeFileSync(intake, antes.replace(RE_ESTADO, `status: ${destino}`), 'utf8');
+  writeFileSync(intake, escribeCampo(antes, id, 'status', destino), 'utf8');
   a.status = destino;
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${m[1]} -> ${destino} en el intake y en el registro, en un solo acto`);
@@ -4856,11 +4868,7 @@ function aplazar() {
   const fi = join(carpetaDe(a), 'intake.md');
   if (existsSync(fi)) {
     const antes = readFileSync(fi, 'utf8');
-    const despues = antes.replace(/^status:[ 	]*\S+[ 	]*$/m, 'status: DEFERRED');
-    if (despues === antes) {
-      throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
-    }
-    writeFileSync(fi, despues, 'utf8');
+    writeFileSync(fi, escribeCampo(antes, id, 'status', 'DEFERRED'), 'utf8');
     notas.push(`${id}: intake sincronizado a DEFERRED`);
   }
   guardarRegistro(reg, ACCION);
@@ -5155,7 +5163,7 @@ function mover() {
     return;
   }
   a.epic = destino;
-  sincronizaIntake(a, /^epic:[ \t]*\S+[ \t]*$/m, `epic: ${destino}`);
+  sincronizaIntake(a, 'epic', destino);
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${antes ?? 'sin lote'} -> ${destino}`);
   publicaEnElTablero(a, [
@@ -5206,7 +5214,7 @@ function rechazar() {
   }
   a.status = 'REJECTED';
   a.rechazo = { motivo: texto, fecha: gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10) };
-  sincronizaIntake(a, /^status:[ \t]*\S+[ \t]*$/m, 'status: REJECTED');
+  sincronizaIntake(a, 'status', 'REJECTED');
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: -> REJECTED · ${texto}`);
   publicaEnElTablero(a, [
@@ -5222,17 +5230,32 @@ function rechazar() {
   ].join(SALTO));
 }
 
+/**
+ * PT-198 · Escribe un campo del frontmatter, o dice CUAL de los dos fallos ocurrio.
+ *
+ * Un solo sitio para los tres estados: ausente, ilegible, escrito. Antes cada llamada traia su
+ * propia expresion —siete— y las siete confundian «no esta» con «no supe leerlo».
+ */
+function escribeCampo(txt, id, campo, valor) {
+  const hallado = campoDeIntake(txt, campo);
+  if (!hallado) {
+    throw new Error(`el intake de ${id} no declara «${campo}»: no se puede sincronizar (SUITE-R08).`);
+  }
+  if (hallado.valor === null) {
+    throw new Error(`el intake de ${id} declara «${campo}» en la linea ${hallado.linea} y no se `
+      + `pudo leer su valor: «${hallado.cruda.trim()}». El campo ESTA — lo que falla es la `
+      + 'lectura, y decir que no esta mandaria a anadir lo que ya hay (PT-198).');
+  }
+  return reemplazaCampoDeIntake(txt, campo, valor);
+}
+
 /** El YAML del intake dice lo mismo que el registro, o no se toca nada (PT-149). */
-function sincronizaIntake(a, re, linea) {
+function sincronizaIntake(a, campo, valor) {
   const fi = join(carpetaDe(a), 'intake.md');
   if (!existsSync(fi)) return;
   const antes = readFileSync(fi, 'utf8');
-  const despues = antes.replace(re, linea);
-  if (despues === antes) {
-    throw new Error(`el intake de ${a.id} no declara esa linea: no se puede sincronizar (SUITE-R08).`);
-  }
-  writeFileSync(fi, despues, 'utf8');
-  notas.push(`${a.id}: intake sincronizado · ${linea}`);
+  writeFileSync(fi, escribeCampo(antes, a.id, campo, valor), 'utf8');
+  notas.push(`${a.id}: intake sincronizado · ${campo}: ${valor}`);
 }
 
 /** Publica en el tablero si lo hay; si no, al ledger — como retomar (PT-137). */

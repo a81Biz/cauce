@@ -1,0 +1,85 @@
+{
+  "pt": "PT-198",
+  "generated": "2026-08-29",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un status con comentario en linea se lee",
+      "scenarios": ["TS-01", "TS-05"],
+      "tests": [
+        "selftest §EP-026 · un status con comentario en linea se lee",
+        "selftest §EP-026 · …y la expresion anclada de antes NO casaba",
+        "selftest §EP-026 · …y phase con comentario tambien",
+        "selftest §EP-026 · …y type con comentario tambien",
+        "selftest §EP-026 · …y epic con comentario tambien",
+        "selftest §EP-026 · escribir el campo CONSERVA su comentario"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "La comprobacion inversa corre sobre la MISMA entrada: la expresion anclada de antes no casa nada. Sin ella el caso lo pasa cualquier lector y no prueba que el arreglo hiciera falta (PT-192)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un intake sin status sigue fallando",
+      "scenarios": ["TS-02"],
+      "tests": [
+        "selftest §EP-026 · …y un intake SIN el campo sigue siendo AUSENTE",
+        "selftest §EP-026 · …y el ausente sigue diciendo que NO lo declara"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "Es la pareja que impide arreglarlo en la direccion peligrosa: el riesgo de un lector mas tolerante va al reves del que motivo la tarea."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Los dos casos dan mensajes distintos",
+      "scenarios": ["TS-03"],
+      "tests": [
+        "selftest §EP-026 · …y uno ilegible es OTRO estado, con su linea",
+        "selftest §EP-026 · el mensaje dice que el campo ESTA y no se leyo",
+        "selftest §EP-026 · …y el ausente sigue diciendo que NO lo declara"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "El mensaje se mide sobre la SALIDA del comando corriendo en un arbol sintetico, no buscando el literal en el fuente — eso seria el proxy en lugar del hecho (CE-001)."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "La expresion vive en un sitio, no en siete",
+      "scenarios": ["TS-04", "TS-05"],
+      "tests": [
+        "selftest §EP-026 · ninguna expresion de campo suelta fuera de patrones",
+        "selftest §EP-026 · …y sobre un archivo que SI la tiene, la ve",
+        "selftest §EP-026 · …y phase con comentario tambien",
+        "selftest §EP-026 · …y type con comentario tambien",
+        "selftest §EP-026 · …y epic con comentario tambien"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "La salida del detector se normaliza a una marca: comprobar el literal «^status:» habria dejado pasar una octava copia escrita sobre «phase». Y la pareja prueba que el detector detecta."
+    }
+  ],
+  "coverage": "4 de 4 criterios con escenario y caso ejecutable · 12 casos sobre 5 escenarios",
+  "medido": {
+    "alcance_real": "7 expresiones sobre 4 campos (type, phase, status x4, epic), todas en tracker.mjs. El intake decia 3 sobre 1.",
+    "incidencia_hoy": "0 intakes del arbol lo disparan: el de EP-023 ya se corrigio. El defecto estaba LATENTE.",
+    "contrato": "verify-patrones rechazo mi primera version del contrato en la primera ejecucion (noCasa: 'statuses: READY' SI casa)."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "El frontmatter es YAML valido",
+      "por_que_no": "Se cubre el escalar con comentario en linea, que es el caso medido. Un parser completo es otra decision, otro coste y una dependencia que este repositorio no tiene.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Los campos no escalares del frontmatter",
+      "por_que_no": "Listas y bloques quedan fuera: ninguna de las siete llamadas los toca, y cubrirlos seria escribir un parser de YAML por la puerta de atras.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Otros artefactos con YAML",
+      "por_que_no": "HANDOFF y CHECKPOINT no son intakes y su forma la escribe una herramienta, no una persona.",
+      "verified": false
+    }
+  ]
+}

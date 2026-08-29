@@ -12309,3 +12309,103 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
   PT y anadir una para el lote mezclaria dos ciclos. El cierre del lote es del LOTE.
 - No se promete que no aparezca un octavo fallo de cierre por otra causa. Lo que se mide es que lo
   que toca se DERIVA del registro en vez de recordarse.
+
+================================================================================
+
+## PT-198 — Un comentario en linea hacia invisible el status, y el mensaje decia que no existia
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-198-comentario-yaml
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-29 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-001 — el proxy en lugar del hecho
+Origen: parada de EP-023 · motivo condicion-bloqueante
+
+NO ES QUE NO SUPIERA LEERLO: AFIRMABA QUE NO ESTABA.
+
+    $ tracker aplazar EP-023 …
+    el intake de EP-023 no declara «status»: no se puede sincronizar (SUITE-R08).
+
+Y lo declaraba, en la linea 5:
+
+    status: READY              # G1 CHALLENGE aceptado · 2026-08-24
+
+El comentario es YAML VALIDO. La expresion exigia FIN DE LINEA tras el valor, asi que no casaba —
+y el mensaje, en vez de decir «no supe leerlo», afirmaba lo contrario de lo que ocurria y mandaba
+a anadir un campo que ya estaba. Es RULE-06 por el otro lado: no se supone lo que no se sabe, y
+TAMPOCO SE AFIRMA LO QUE NO SE HA COMPROBADO.
+
+EL ALCANCE ERA EL DOBLE DE LO QUE EL INTAKE DECIA, Y LA CIFRA SE CORRIGE AQUI.
+
+El intake decia «tres sitios» y hablaba solo de status. Medido:
+
+    type:3105 · phase:3754 · status:3757 · status:4594 · status:4859 · epic:5158 · status:5209
+
+SIETE expresiones sobre CUATRO campos, todas en tracker.mjs. Arreglar solo `status` habria sido
+escribir el sitio unico y dejar tres campos con la averia intacta — la herramienta correcta
+escrita y no invocada, que es CE-007 dentro de la tarea que lo persigue.
+
+Y HOY NINGUN INTAKE DEL ARBOL LO DISPARA: el de EP-023 ya se corrigio quitando el comentario. El
+defecto estaba LATENTE, asi que la evidencia no puede ser «ahora pasa» — los casos lo PLANTAN en
+un fixture. Se dice porque cambia lo que la tarea compra: no apaga un rojo, impide una
+reincidencia y arregla un mensaje que mentia.
+
+EL PATRON VIVE DONDE ALGO LO VIGILA.
+
+`campoDeIntake` y `reemplazaCampoDeIntake` van a patrones.mjs con su contrato —`casa`, `noCasa`,
+`para`— porque ahi los comprueba verify-patrones. Esa es la razon de que hubiera siete copias: un
+patron critico escrito en el consumidor no lo mira nadie (SUITE-R38).
+
+El comentario SE CONSERVA al escribir. Un `phase: 5  # a medias` reescrito como `phase: 6` a secas
+destruiria informacion que alguien puso a proposito: seria cambiar un defecto por otro.
+
+TRES ESTADOS DONDE HABIA DOS.
+
+    AUSENTE      «su intake no declara "status"»                     -> anade el campo
+    NO_LEGIBLE   «declara "status" en la linea N y no se pudo leer»   -> mira la linea N
+    OK           el valor
+
+NO_LEGIBLE dice la LINEA. Distinguir sin localizar obliga a buscar, y buscar es donde se vuelve a
+suponer. Es la misma separacion que PT-093 hizo entre una constancia malformada y una ausente:
+dos defectos distintos con arreglos distintos (RULE-02).
+
+VERIFY-PATRONES CAZO MI CONTRATO EN LA PRIMERA EJECUCION.
+
+    ✗ SUITE-R38  CAMPO_DE_INTAKE: NO deberia casar "statuses: READY" y casa.
+
+Declare como `noCasa` algo que el patron SI casa: acepta cualquier campo y no sabe cual se le
+pide — eso lo discrimina `campoDeIntake` comparando el grupo 1. Un contrato que afirma del patron
+algo que no hace es justo lo que SUITE-R38 existe para impedir, y la herramienta funciono.
+
+DOS HUECOS EN MIS PROPIOS CASOS, CORREGIDOS ANTES DE CERRAR.
+
+1. El detector de expresiones sueltas comprobaba el literal «^status:». Una octava copia escrita
+   sobre «phase» habria pasado por no contener esa cadena: verde por mirar al sitio equivocado
+   (CE-005), dentro del caso escrito para impedirlo. La salida se normaliza a una marca, y se
+   anade la pareja que prueba que el detector DETECTA.
+2. El caso de lectura no probaba que el arreglo hiciera falta. Se anade la comprobacion inversa
+   sobre la MISMA entrada: la expresion anclada de antes no casa nada. Es lo que PT-192 dejo
+   escrito — un caso que no puede fallar no mide.
+
+Y UN ERROR DE TECNICA, YA CONOCIDO. Escribi los helpers con `await import('file://$SUITE/…')`
+dentro de un literal JS: revienta donde $SUITE lleva barra invertida, y los siete casos salieron
+«la herramienta revento». El idioma correcto ya estaba en el arnes desde `patlib` (selftest.sh:2027)
+— la ruta viaja por variable de entorno y se convierte con pathToFileURL. CE-007 en pequeno: la
+forma correcta existia y no la invoque.
+
+Evidencia: docs/implementation/evidence/PT-198/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-198-un-comentario-yaml-hace-invisible-el-status/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 1974 casos en verde · recibo 4abd8a5ead77.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se promete que el frontmatter sea YAML valido: se cubre el escalar con comentario en linea,
+  que es el caso medido. Un parser completo es otra decision, otro coste y una dependencia que
+  este repositorio hoy no tiene.
+- Los campos NO escalares —listas, bloques— quedan fuera: ninguna de las siete llamadas los toca.
+- Otros artefactos con YAML (HANDOFF, CHECKPOINT) no son intakes: su forma la escribe una
+  herramienta, no una persona.
