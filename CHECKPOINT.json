@@ -1,41 +1,22 @@
 {
-  "pt": "PT-196",
+  "pt": "PT-198",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-196-lo-posterior-a-G4",
-  "sha": "82794334d6591dbe6525c3d81c043f9145accae0",
-  "sha_corto": "8279433",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "trabajo",
+  "sha": "c9848f24a7a0a1db2faa87d702ecc484075a7522",
+  "sha_corto": "c9848f2",
   "sucio": true,
   "archivos": [
-    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/discovery.md",
-    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/intake.md",
-    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/strategy.md",
-    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/test-scenarios.md",
-    "changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/BACKLOG.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/DISCOVERY.md",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-196/",
-    "docs/methodology/CORE.md",
-    "docs/methodology/PHASES.md",
-    "docs/methodology/RULES.md",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/tracker.mjs",
-    "docs/methodology/tools/verify-fdge.mjs"
+    "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-29"
 }
