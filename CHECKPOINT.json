@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/EP-026-PT-200-verify-fdge-no-acota",
   "sha": "563684fefbd4d9c04ab87da4627a3885a99a49f2",
   "sha_corto": "563684f",
@@ -12,14 +12,20 @@
   "archivos": [
     "changes/PT-200-verify-fdge-no-acota-lo-terminal/discovery.md",
     "changes/PT-200-verify-fdge-no-acota-lo-terminal/intake.md",
+    "changes/PT-200-verify-fdge-no-acota-lo-terminal/strategy.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-29"
 }
