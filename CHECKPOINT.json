@@ -3,20 +3,23 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "trabajo",
   "sha": "c9848f24a7a0a1db2faa87d702ecc484075a7522",
   "sha_corto": "c9848f2",
   "sucio": true,
   "archivos": [
+    "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/discovery.md",
     "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-29"
 }
