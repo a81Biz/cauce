@@ -118,7 +118,7 @@
 | PT-178 | BUG | S2 | INTEGRATED | EP-024 | avanzar deja salir de PHASE 1 sin que exista el Intake |
 | PT-179 | BUG | — | DONE | EP-026 | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
 | PT-180 | BUG | — | INTEGRATED | EP-024 | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
-| PT-181 | BUG | — | DRAFT | EP-026 | La expectativa de un caso se compara como regex y no hay forma de decir literal |
+| PT-181 | BUG | — | DONE | EP-026 | La expectativa de un caso se compara como regex y no hay forma de decir literal |
 | PT-182 | BUG | S2 | INTEGRATED | EP-025 | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
 | PT-183 | BUG | S1 | INTEGRATED | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
 | PT-184 | BUG | S1 | INTEGRATED | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |

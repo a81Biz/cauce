@@ -273,6 +273,48 @@ chk() {
     bad "$name  (no apareció: $pat · salió: $(printf '%s' "$out" | head -c 400))"
   fi
 }
+# ── PT-181 · LA EXPECTATIVA LITERAL ─────────────────────────────────────────
+#
+# `chk` compara con «grep -q», que es BRE: el punto casa CUALQUIER caracter y no habia forma de
+# decir «esto es texto». Medido: 1401 expectativas, 215 con metacaracteres y NOVENTA Y SEIS
+# AMBIGUAS —punto entre alfanumericos y ningun metacaracter a proposito—: «regla.mjs»,
+# «instrucctions.md», «4.0.1». «regla.mjs» casa «reglaXmjs», y nadie lo pretendio.
+#
+# Un caso que casa de mas puede pasar POR LA RAZON EQUIVOCADA, y eso no se ve leyendolo. PT-199 lo
+# cometio en esta misma sesion con un «-f» que casaba de mas, y lo destapo ejecutarlo.
+#
+# `chk` NO CAMBIA: las 215 que llevan metacaracteres a proposito —«^phase:», «^NO$», «^0$»— siguen
+# exactamente igual. Invertir el defecto habria roto las 215 de golpe (SUITE-R26).
+#
+# SUITE-R59 NO cubre esto: alli el patron SE ROMPE —un corchete sin cerrar es error de sintaxis—;
+# aqui FUNCIONA y significa otra cosa. Dos defectos con la misma causa, y aquella cubre uno.
+chkl() {   # como chk, pero la expectativa es LITERAL
+  local name="$1" pat="$2"; shift 2
+  salta "$name" && return
+  local out; out="$("$@" 2>&1)"
+  if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -qF -- "$pat"; then pass "$name"; else
+    bad "$name  (no apareció literal: $pat · salió: $(printf '%s' "$out" | head -c 400))"
+  fi
+}
+chknol() {  # como chkno, pero la expectativa es LITERAL
+  local name="$1" pat="$2"; shift 2
+  salta "$name" && return
+  local out; out="$("$@" 2>&1)"
+  if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -qF -- "$pat"; then
+    bad "$name  (aparecio literal y no debia: $pat)"
+  else pass "$name"; fi
+}
+# LO QUE NO SE PUEDE ARREGLAR SE CUENTA Y SE DICE, como PT-199 con las raices que no deriva.
+# Heuristica y se declara: punto entre alfanumericos, sin ^ $ [ ] * ni barra invertida. No es una
+# auditoria — establece el orden de magnitud, y hace que la cifra deje de crecer a ciegas.
+expectativas_ambiguas() {   # $1 = archivo a mirar (por defecto, este mismo arnes)
+  grep -hoE '^(chk|chkno|mlib)[[:space:]]+"[^"]*"[[:space:]]+"[^"]*"' "${1:-$SUITE/tools/selftest.sh}" \
+    | sed 's/.*"\([^"]*\)"$/\1/' \
+    | grep -E '[A-Za-z0-9]\.[A-Za-z0-9]' \
+    | grep -vE '[\^$*\[]' | grep -c . || true
+}
 # ─── PT-079 · las guardas del arnes ─────────────────────────────────────────
 #
 # B-1 · ABORTA. Una comprobacion inversa que no revierte certifica lo CONTRARIO de lo que
@@ -9818,6 +9860,35 @@ chk   "…y en PHASE 4 solo avisa, diciendo la fase"   "el PT está en PHASE 4" 
 # 3 · no se sabe la fase -> NO SE EVALUA, que no es un aprobado (RULE-06).
 chkno "…y sin fase declarada NO se convierte en error" "✗ FDGE-R23"  _ev179 ""
 
+# ── PT-181 · la expectativa de un caso se comparaba SIEMPRE como regex ────
+#
+# «chk» usa «grep -q», que es BRE: el punto casa cualquier caracter y no habia forma de decir
+# «esto es texto». 96 expectativas llevan un punto entre alfanumericos y NINGUN metacaracter a
+# proposito —«regla.mjs», «instrucctions.md», «4.0.1»— asi que casan de mas sin que nadie lo
+# pretendiera. Un caso que casa de mas puede pasar POR LA RAZON EQUIVOCADA.
+_lit181() { echo "el archivo reglaXmjs no existe"; }
+# AC-01 y AC-02 · LAS DOS MITADES, y las dos hacen falta.
+# 1 · el literal NO casa el comodin. Solo esto lo cumple un chkl roto que no case NUNCA.
+chknol "un punto literal NO casa otro caracter"      "regla.mjs"   _lit181
+# 2 · …y chk, con la MISMA expectativa, SI lo casa. Esta es la que prueba que chkl hace algo.
+chk   "…mientras que chk SI lo casa, y por eso hacia falta"  "regla.mjs"   _lit181
+# Y el literal casa lo que SI esta, que es la otra direccion.
+chkl  "…y chkl casa el texto literal cuando esta"    "reglaXmjs"   _lit181
+# AC-03 · LAS QUE SON REGEX A PROPOSITO SIGUEN SIENDO REGEX. Sin esto, arreglarlo invirtiendo el
+# defecto —chk literal por defecto— rompería 215 casos de golpe y el arnes no lo diria.
+chk   "chk sigue interpretando la regex"             "^el archivo"  _lit181
+# LA CIFRA SE DECLARA, y se prueba sobre un arnes FALSO: fijar la del real seria fijar el numero
+# de lo correcto (HANDOFF -18) y cambiaria con cada tarea que anada un caso.
+_amb181() {
+  local d="$WORK/p181"; rm -rf "$d"; mkdir -p "$d"
+  { printf 'chk   "uno"  "regla.mjs"\n'      # ambigua: punto entre alfanumericos
+    printf 'chk   "dos"  "^phase:"\n'        # regex a proposito: NO cuenta
+    printf 'chk   "tres" "sin punto"\n'      # sin punto: NO cuenta
+  } > "$d/falso.sh"
+  expectativas_ambiguas "$d/falso.sh"
+}
+chkl  "…y la cifra de ambiguas se declara"           "1"  _amb181
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"
@@ -9882,6 +9953,10 @@ if [ -n "$AFECTADOS" ]; then
   echo ""
 fi
 # PT-199 · el esqueleto de las secciones saltadas dice QUE monto y QUE no puede derivar.
+# PT-181 · cuantas expectativas parecen literales y se interpretan. Se dice UNA vez: 96 avisos por
+# corrida serian el ruido que PT-199 acaba de quitar.
+_amb=$(expectativas_ambiguas)
+[ "${_amb:-0}" -eq 0 ] || echo "expectativas ambiguas: $_amb comparadas como REGEX y con pinta de literal. «chkl» las declara literales (PT-181)."
 if [ -n "$ACOTADO" ]; then
   _op=$(inertes_opacas | tr '\n' ' ')
   _nop=$(inertes_opacas | grep -c . || true)
