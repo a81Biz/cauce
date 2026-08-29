@@ -14,7 +14,7 @@ Proyectado el 2026-08-28 · 19 allocation(es) viva(s).
 | PT-171 | BUG | DEFERRED | 1 | — | — | — |
 | PT-172 | CHORE | DEFERRED | 1 | — | — | 2ee9a9b |
 | EP-026 |  | READY | 1 | — | — | 9c17741 |
-| PT-179 | BUG | DRAFT | 1 | — | — | 9c17741 |
+| PT-179 | BUG | READY | 2 | — | — | 9c17741 |
 | PT-181 | BUG | DRAFT | 1 | — | — | 9c17741 |
 | PT-187 | BUG | DRAFT | 1 | — | — | 9c17741 |
 | PT-192 | BUG | DRAFT | 1 | — | — | 9c17741 |
@@ -25,6 +25,6 @@ Proyectado el 2026-08-28 · 19 allocation(es) viva(s).
 | PT-198 | BUG | DRAFT | 1 | — | — | 9c17741 |
 | PT-199 | BUG | DONE | 8 | — | — | 4259425 |
 | PT-200 | BUG | DRAFT | 1 | — | — | 9c17741 |
-| PT-201 | BUG | DONE | 8 | — | — | 9c17741 |
+| PT-201 | BUG | DONE | 8 | — | — | 666d5bd |
 | PT-202 | BUG | DRAFT | 1 | — | — | 9c17741 |
 | PT-203 | BUG | DRAFT | 1 | — | — | 9c17741 |
