@@ -9933,6 +9933,78 @@ chkl  "…y no pasa por vacio: tail -40 devuelve relleno" "# relleno"    _tail19
 chkl  "el ancla no casa la linea que la busca"         "# cauce:informe-final"  _marca192
 chkl  "…y sobre el arnes real empieza en la marca"     "# cauce:informe-final"  _marcareal
 
+# ── PT-200 · verify-fdge acota lo TERMINAL con un sello ───────────────────
+#
+# «--all» recorria 197 de 203 PT en cada corrida, y 183 estaban INTEGRATED: codigo en main e issue
+# cerrado. Vivos de verdad: CATORCE. Entre 9 y 14 minutos, en cada push. La bateria acota desde
+# EP-025 y esta mitad se quedo fuera — «si se sello la prueba, el artefacto tambien».
+#
+# NO basta con tratar INTEGRATED como terminal: sus artefactos siguen en el arbol y saltarlos sin
+# mirar dejaria la compuerta CIEGA para el 93% del repositorio. Se aplica el mecanismo de PT-191:
+# sello con huella, veredicto guardado, y sellar como DECISION.
+_terreno200() {  # monta un proyecto sintetico VERDE con un PT terminal · $1=status $2=phase
+  local d="$WORK/p200"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation/evidence/PT-800" "$d/changes/PT-800-x" "$d/changes/EP-800-l" \
+           "$d/docs/enterprise-documentation"
+  cp -r "$SUITE" "$d/docs/methodology"
+  local f; for f in 02-PRD 03-TRD 06-Backend-Architecture; do echo "# $f" > "$d/docs/enterprise-documentation/$f.md"; done
+  printf '# Conventions\n\nRULE-01 a\nRULE-02 b\nRULE-03 c\n' > "$d/docs/enterprise-documentation/11-Conventions.md"
+  printf -- '---\nid: EP-800\nstatus: READY\n---\n\n## 1. Objetivo común\nx\n\n## 2. Criterio de éxito del lote\nx\n\n## 3. Qué NO entra en el lote   OUT\nx\n\n## 4. Firma única\nFirmado por: Alberto Martinez\nHe leido este Intake y confirmo que refleja mi intencion: SI\n\n## 6. Análisis de solapamiento\nNinguno.\n\n## Cierre del lote\n\n| Que | Estado |\n|:--|:--|\n| nada | HECHO |\n' > "$d/changes/EP-800-l/intake.md"
+  printf -- '---\nid: PT-800\ntype: CHORE\nstatus: %s\nphase: %s\nepic: EP-800\n---\n\n## Criterios de aceptación\n\n| | Criterio | Escenario |\n|:--|:--|:--|\n| AC-01 | x | TS-01 |\n\n## Firma\nFirmado por lote: EP-800\nHe leido este Intake y confirmo que refleja mi intencion: SI\n\n> Termina cuando: da igual\n' "${1:-INTEGRATED}" "${2:-9}" > "$d/changes/PT-800-x/intake.md"
+  printf '# PT-800 traceability\n\n| AC | Criterio | TS | Test | Evidencia | Caso QA | Estado |\n|:--|:--|:--|:--|:--|:--|:--|\n| AC-01 | x | TS-01 | t | evidence/PT-800/manifest.json | no aplica | ✓ |\n' > "$d/changes/PT-800-x/traceability.md"
+  printf '{"pt":"PT-800","criteria":[{"ac":"AC-01","statement":"x","scenarios":["TS-01"],"tests":["t"],"evidence":["manifest.json"],"verified":true}]}' > "$d/docs/implementation/evidence/PT-800/manifest.json"
+  printf '# self-review\nSin bloqueadores.\n' > "$d/docs/implementation/evidence/PT-800/self-review.md"
+  # FDGE-R52 pide una nota de reanclaje por transicion: un PT VIVO las necesita, uno INTEGRATED
+  # no. El formato es «AAAA-MM-DD · PHASE n» (verify-fdge.mjs:150). Se pone siempre: no estorba.
+  { echo '# PT-800 · bitacora'
+    for i in 1 2 3 4 5 6 7 8 9; do
+      printf '\n2026-08-29 · PHASE %s\nCierro: x\nEstoy en: PHASE %s\nSigue: PHASE %s\n' "$i" "$i" "$((i+1))"
+    done
+  } > "$d/changes/PT-800-x/bitacora.md"
+  printf '## PT-800 — CHORE: x\nFecha: 2026-08-29\nEstado: %s\nEstructural: no\nCompuertas: G3 2026-08-29 Alberto Martinez\n' "${1:-INTEGRATED}" > "$d/docs/implementation/HISTORY.log"
+  printf '# REFACTOR_SCOPE\n\n| ID | Tipo | Sev | Estado | Lote | Título |\n|:--|:--|:--|:--|:--|:--|\n| PT-800 | CHORE | S3 | %s | EP-800 | x |\n' "${1:-INTEGRATED}" > "$d/docs/implementation/REFACTOR_SCOPE.md"
+  { printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":800},"allocations":['
+    printf '{"id":"EP-800","slug":"l","status":"READY","phase":1},'
+    printf '{"id":"PT-800","slug":"x","type":"CHORE","severity":"S3","epic":"EP-800","status":"%s","phase":%s' "${1:-INTEGRATED}" "${2:-9}"
+    printf ',"suite_version":"13.4.0","branch":"chore/t/PT-800-x"'
+    printf ',"origen_parada":{"de":"PT-799","motivo":"hallazgo","fecha":"2026-08-29"}'
+    printf ',"viabilidad":{"veredicto":"SAFE"}}]}'
+  } > "$d/docs/implementation/REGISTRY.json"
+  printf '%s' "$d"
+}
+_p200() {  # $1 = que se toca antes de re-verificar · imprime la linea del recuento
+  local d; d="$(_terreno200 "${2:-INTEGRATED}" "${3:-9}")"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --all --sellar >/dev/null 2>&1
+    case "$1" in
+      artefacto)   printf 'tocado\n' >> changes/PT-800-x/intake.md ;;
+      verificador) printf '\n// tocado por el caso\n' >> docs/methodology/tools/verify-fdge.mjs ;;
+      sinsello)    rm -f docs/implementation/SELLOS-PT.json ;;
+    esac
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --all 2>&1 | sed -n '/PTs verificados/p' | tail -1 )
+}
+# AC-01 · UN PT TERMINAL Y SELLADO NO SE RE-VERIFICA.
+chkl  "un PT sellado y sin cambios NO se re-verifica"  "PTs verificados: 0"  _p200 nada
+# AC-02 · Y SI CAMBIA LO QUE SU SELLO CUBRE, VUELVE ENTERO. Sin esto, AC-01 lo cumple un
+# verify-fdge que ignore todo lo INTEGRATED sin mirar: la compuerta ciega para el 93% del arbol.
+chkl  "…y si su artefacto cambia, vuelve"              "PTs verificados: 1"  _p200 artefacto
+# LA HUELLA DEL VERIFICADOR ES LA PIEZA QUE PT-191 DEMOSTRO IMPRESCINDIBLE, y la mas facil de
+# olvidar: un cambio en las reglas cambia el veredicto SIN tocar el artefacto.
+chkl  "…y si cambia el VERIFICADOR, tambien"           "PTs verificados: 1"  _p200 verificador
+# AC-04 · SIN SELLOS SE VERIFICAN TODOS. El silencio no acota — la leccion de bloques-sellados.
+chkl  "sin sellos se verifican TODOS"                  "PTs verificados: 1"  _p200 sinsello
+# AC-03 · UN PT VIVO SE VERIFICA SIEMPRE, tenga sello o no. Sellar lo vivo seria apagar la
+# compuerta justo donde hace falta.
+chkl  "un PT vivo se verifica aunque tenga sello"      "PTs verificados: 1"  _p200 nada DONE 8
+# AC-01 · SELLAR ES UNA DECISION: sin --sellar no se escribe sello, y por tanto no se acota nada.
+_p200sin() {
+  local d; d="$(_terreno200)"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --all >/dev/null 2>&1
+    [ -f docs/implementation/SELLOS-PT.json ] && echo "SELLADO SIN PEDIRLO" || echo "NO SE SELLO" )
+}
+chkl  "sellar es una decision: sin --sellar no se escribe" "NO SE SELLO"  _p200sin
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

@@ -3009,7 +3009,12 @@ function materialDe(pt, reg) {
         if (st.isDirectory()) { for (const e of readdirSync(cur).sort()) pila.push(join(cur, e)); }
         else archivos.push(cur);
       }
-      for (const f of archivos.sort()) partes.push(f.replace(ROOT, ''), read(f) ?? '');
+      // La RUTA entra en la huella con «\\» en Windows y «/» en Linux, asi que un sello escrito
+      // aqui no casaria NUNCA en CI y la acotacion no llegaria donde mas hace falta. Se
+      // normaliza, igual que `selloDe` normaliza CRLF/LF por la misma razon (patrones.mjs:33).
+      for (const f of archivos.sort()) {
+        partes.push(f.replace(ROOT, '').split(sep).join('/'), read(f) ?? '');
+      }
     }
   }
   const hist = read(join(IMPL, 'HISTORY.log')) ?? '';

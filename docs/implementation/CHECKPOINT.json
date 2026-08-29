@@ -2,16 +2,29 @@
   "pt": "PT-200",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/EP-026-PT-200-verify-fdge-no-acota",
-  "sha": "262d5ef9744f9d0b71ca599a90a1f060e99acb55",
-  "sha_corto": "262d5ef",
-  "sucio": false,
-  "archivos": [],
+  "sha": "f7bae9222b0b12d5cb2f9705d856f882b92d9220",
+  "sha_corto": "f7bae92",
+  "sucio": true,
+  "archivos": [
+    "changes/PT-200-verify-fdge-no-acota-lo-terminal/intake.md",
+    "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-200/",
+    "docs/methodology/tools/selftest.sh"
+  ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-29"
 }

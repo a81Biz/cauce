@@ -6730,8 +6730,8 @@
       "id": "PT-200",
       "slug": "verify-fdge-no-acota-lo-terminal",
       "created": "2026-08-28",
-      "status": "READY",
-      "phase": 5,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
@@ -6745,6 +6745,10 @@
       "issue": 362,
       "compuertas": {
         "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        },
+        "G3": {
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-29"
         }
