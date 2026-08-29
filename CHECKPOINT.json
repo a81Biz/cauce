@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/EP-026-PT-201-comprobaciones-que-no-corren-en-local",
   "sha": "b04ce0992b0d1878d1cf2e802eda9ad49d289b74",
   "sha_corto": "b04ce09",
@@ -15,12 +15,22 @@
     "changes/PT-201-hay-comprobaciones-que-no-corren-en-local/strategy.md",
     "changes/PT-201-hay-comprobaciones-que-no-corren-en-local/test-scenarios.md",
     "changes/PT-201-hay-comprobaciones-que-no-corren-en-local/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-201/",
+    "docs/methodology/CORE.md",
+    "docs/methodology/RULES.md",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-28"
 }
