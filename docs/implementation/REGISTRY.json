@@ -6032,8 +6032,8 @@
       "id": "PT-181",
       "slug": "la-expectativa-de-un-caso-es-una-regex",
       "created": "2026-08-26",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "La expectativa de un caso se compara como regex y no hay forma de decir literal",
@@ -6042,6 +6042,33 @@
       "origen_parada": {
         "de": "PT-178",
         "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-28"
       }
     },

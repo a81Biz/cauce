@@ -1,0 +1,32 @@
+{
+  "pt": "PT-181",
+  "generated": "2026-08-28",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Existe una forma de declarar una expectativa literal",
+      "scenarios": ["TS-01"],
+      "tests": ["selftest §EP-026 · …y chkl casa el texto literal cuando esta"],
+      "evidence": ["salida.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Un literal con punto NO casa cualquier caracter",
+      "scenarios": ["TS-02"],
+      "tests": ["selftest §EP-026 · un punto literal NO casa otro caracter",
+                "selftest §EP-026 · …mientras que chk SI lo casa, y por eso hacia falta"],
+      "evidence": ["salida.txt"], "verified": true,
+      "como": "Las DOS mitades. Que chkl no case lo cumple un chkl roto que no case nunca; que chk SI case con la MISMA expectativa es lo que prueba que chkl hace algo distinto." },
+    { "ac": "AC-03", "statement": "Las expectativas que hoy son regex a proposito siguen funcionando",
+      "scenarios": ["TS-03", "TS-04"],
+      "tests": ["selftest §EP-026 · chk sigue interpretando la regex",
+                "selftest §EP-026 · …y la cifra de ambiguas se declara",
+                "los 1400+ casos que usan chk en la corrida completa"],
+      "evidence": ["salida.txt"], "verified": true }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable",
+  "declarado_sin_cubrir": [
+    { "afirmacion": "Las 96 expectativas ambiguas se migran o se auditan",
+      "por_que_no": "96 ediciones que nadie puede revisar una a una, y el siguiente caso volveria a escribirse igual porque el MECANISMO no habria cambiado. El intake ya lo declaraba.",
+      "como_se_sostiene": "Se cuentan y se DICEN una vez por corrida, como PT-199 hace con las raices que no puede derivar.",
+      "verified": false },
+    { "afirmacion": "La cifra de ambiguas es exacta",
+      "por_que_no": "Es una HEURISTICA: punto entre alfanumericos, sin ^ $ [ ] *. Puede marcar alguna que quisiera ser regex y escaparsele otra. Establece el orden de magnitud.",
+      "verified": false }
+  ]
+}

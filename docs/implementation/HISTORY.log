@@ -11977,3 +11977,88 @@ las tres de evidencia y persistencia, que son las medidas.
 Y UNA COSA QUE NO SE AFIRMA. Los tres errores de evidencia del SESSION_LOG tenian manifest —lo que
 fallaba era su CONTENIDO—, asi que NO se afirma que este arreglo los habria detectado. Lo que se
 cierra es el hueco de NO TENERLO.
+
+## PT-181 — La expectativa de un caso se comparaba como regex, sin forma de decir literal
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-181-la-expectativa-es-una-regex
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de PT-178 · motivo hallazgo
+
+«regla.mjs» CASA «reglaXmjs», Y NADIE LO PRETENDIO.
+
+    selftest.sh:272
+    if printf '%s' "$out" | grep -q -- "$pat"; then pass "$name"; else
+
+«grep -q» sin «-F» interpreta el patron como expresion regular basica. La expectativa de cada caso
+se compara COMO REGEX, y no habia forma de decir «esto es texto literal».
+
+MEDIDO HOY:
+
+    expectativas leidas                                      1401
+    con metacaracteres                                        215
+    AMBIGUAS: punto entre alfanumericos y NINGUN
+      metacaracter a proposito                                 96
+
+Ejemplos reales: «regla.mjs» · «instrucctions.md» · «REGISTRY.graph» · «4.0.1» · «### 24.2».
+
+CAUSA RAIZ. Un caso cuya expectativa CASA DE MAS puede pasar POR LA RAZON EQUIVOCADA, y eso no se ve
+leyendolo: se ve el dia que el defecto que vigila aparece con una forma parecida y el caso sigue
+verde. No es hipotetico en este arnes — PT-199 cometio esta misma clase de error en esta sesion con
+un «-f» que casaba de mas, y lo destapo ejecutarlo.
+
+SUITE-R59 NO CUBRE ESTO. Alli el patron SE ROMPE —un corchete sin cerrar es error de sintaxis de
+grep, no un «no casa»—; aqui el patron FUNCIONA y significa otra cosa. Dos defectos con la misma
+causa, y aquella cubre uno.
+
+SOLUCION. Dos piezas:
+  1) «chkl» y «chknol»: la expectativa LITERAL, con grep -qF. Un punto es un punto.
+  2) La corrida DECLARA cuantas expectativas parecen literales y se interpretan, UNA vez — como
+     PT-199 declara las raices que no puede derivar. La cifra deja de crecer a ciegas.
+
+«chk» NO CAMBIA: las 215 que llevan metacaracteres a proposito siguen exactamente igual.
+
+Archivos modificados: tools/selftest.sh · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+
+AC-02 NECESITA SUS DOS MITADES, y esa es la parte que importa del diseno. Que «chkl» NO case lo
+cumple un chkl roto que no case nunca. La mitad que prueba algo es que «chk», con la MISMA
+expectativa, SI casa. Sin ese segundo caso, chkl podria ser un alias de chk y los tres AC seguirian
+en verde.
+
+Medido: corrida COMPLETA 1945 casos en verde · la corrida declara 98 ambiguas · los 1400+ casos que
+  usan chk siguen igual, que es la evidencia de AC-03.
+
+Evidencia: docs/implementation/evidence/PT-181/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-181-la-expectativa-de-un-caso-es-una-regex/traceability.md — sin AC
+  huerfano (FDGE-R15).
+
+DELTA REAL VS PLANIFICADO — TRES DESCARTES QUE CONVIENE QUE CONSTEN.
+
+INVERTIR EL DEFECTO —chk literal, chkre para regex— es el cambio conceptualmente correcto: lo
+literal es mas frecuente y menos peligroso. Se descarto porque romperia 215 casos DE GOLPE en un
+arnes de 1401 aserciones, y una migracion que nadie puede revisar caso a caso cambia lo que mide sin
+que nadie lo note. Queda anotado por si algun dia se reescribe el arnes.
+
+DETECTAR Y FALLAR sobre las 96 se descarto por lo que PT-179 acaba de dejar escrito: ninguna falla
+hoy —el punto casa el punto real tambien— asi que convertirlas en error seria inventar un defecto
+donde solo hay un riesgo, y una compuerta roja sobre conducta correcta ensena a saltarsela.
+
+AVISAR EN CADA CASO AMBIGUO se descarto por ruido: 96 avisos por corrida es exactamente lo que
+PT-199 acaba de eliminar. Se cuenta una vez y se dice una vez.
+
+UNA DIFERENCIA CON LA CIFRA DEL INTAKE, Y SE EXPLICA. El intake citaba 303 de 1476 —la medida
+original de PT-183— y hoy son 215 de 1401 con metacaracteres, de las que 96 son ambiguas. Las cifras
+NO son comparables: aquella contaba cualquier metacaracter; esta separa los que estan A PROPOSITO de
+los que no. No se corrige la antigua —SUITE-R09, y era correcta para lo que medía—: se dice que mide
+cada una.
+
+LO QUE NO SE CUBRE, Y CONSTA. Las 96 no se migran ni se auditan: lo que esta tarea entrega es la
+FORMA de decir literal y la CIFRA visible. Y la cifra es una HEURISTICA, no una auditoria — puede
+marcar alguna que quisiera ser regex y escaparsele otra. Establece el orden de magnitud.
