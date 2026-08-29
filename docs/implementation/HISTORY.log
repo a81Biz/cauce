@@ -11724,3 +11724,92 @@ hace que un secreto REAL deje de bloquear—. Es PT-194 (EP-026), abierto desde 
 PT-191. Aqui no se decide siquiera que la exencion DEBA valer en la historia: puede que la
 respuesta correcta sea que no, y que lo que falte sea un mensaje que lo explique en vez de un rojo
 que parece hablar de contrasenas (RULE-06).
+
+## PT-199 — El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-199-el-esqueleto-del-acotado
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+
+TREINTA Y TRES ERRORES POR CORRIDA, EN VERDE, Y LA INTENCION DE NO TENERLOS ESTABA ESCRITA.
+
+La bateria acotada emitia 33 lineas «Can't open ... No such file or directory» en cada corrida. El
+montaje de cada caso vive FUERA de `chk` —`build_fixture; perl -0pi -e ... "$WORK/..."`— asi que con
+la seccion inactiva el `chk` no ejecuta pero el `perl` de la linea de arriba si.
+
+PT-086 lo previo y monto un esqueleto para que esas ordenes operaran sobre archivos inertes. Su
+comentario lo dice con todas las letras: «con el esqueleto, esas ordenes hacen su trabajo sobre
+archivos inertes Y NO DICEN NADA». La lista tenia DOS rutas y el arnes toca CIENTO SETENTA Y DOS.
+
+CAUSA RAIZ. Una lista escrita a mano que nada contrasta con lo que el andamiaje toca. Cobertura
+medida: 1%. Es la forma que da nombre al lote —informacion derivable, escrita a mano, sin nadie que
+la contraste— y la misma que PT-176 resolvio para los bloques y PT-091 para las cifras del
+inventario.
+
+SOLUCION. El esqueleto DERIVA su contenido del propio arnes: las rutas ya estan escritas ahi. Es
+retroactivo por construccion — la ruta que una tarea futura anada entra en el esqueleto el mismo dia
+que se escribe, porque sale del mismo archivo donde ella vive.
+
+LO QUE NO SE PUEDE DERIVAR SE DICE. El grep ve «$WORK/...» literal y no ve las rutas construidas en
+variables: son 14 raices, y cada corrida acotada las ENUMERA. No se afirma cobertura total; se
+afirma que lo que falta se ve. Sin eso, AC-01 lo satisface anadir dos rutas a mano — el defecto de
+hoy con otra cifra.
+
+Archivos modificados: tools/selftest.sh · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+
+Medido: corrida COMPLETA 1933 casos en verde · corrida ACOTADA 136 casos y CERO errores de
+  andamiaje, frente a 33 · el esqueleto deriva 172 rutas y declara 14 raices que no puede derivar.
+
+Evidencia: docs/implementation/evidence/PT-199/ — manifest, self-review, salida e inversa.
+Trazabilidad: changes/PT-199-el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca/traceability.md
+  — sin AC huerfano (FDGE-R15).
+
+COMPROBACION INVERSA, HECHA. El esqueleto ANTERIOR monta 2 archivos y falla las TRES rutas que los
+casos comprueban; el DERIVADO monta 87 y las tres pasan. Los casos no pasan con el codigo anterior.
+
+DELTA REAL VS PLANIFICADO — CUATRO COSAS QUE SOLO DESTAPO EJECUTAR, Y DOS ERAN MIAS.
+
+1) EL ESQUELETO DERIVADO COSTABA 8,1 SEGUNDOS POR MONTAJE. build_fixture se invoca 265 veces; la
+primera version hacia un mkdir/`: >` POR RUTA —unos 350 procesos— y medía 8159 ms: ~36 minutos de
+corrida acotada. Habria destruido el ahorro que EP-025 acababa de conseguir, que es exactamente por
+lo que PT-086 llamo «barato» a su esqueleto. Reescrito a DOS procesos: 183 ms. Lo destapo
+cronometrarlo, no leerlo.
+
+2) LA DERIVACION NECESITABA SU PROPIA GUARDA DE TERRENO. El grep capturaba «$WORK/...» de una
+ELIPSIS en un comentario —el mio— y creaba un archivo llamado «...» que reventaba «git add -A» y
+rompia el andamiaje de PT-056. Y capturaba SEIS «$WORK/../algo»: rutas que SALEN de $WORK y habrian
+escrito en el directorio PADRE, el defecto exacto que PT-188 cerro con dos puertas, reintroducido
+por la puerta de atras. Se descarta todo segmento formado solo por puntos, y hay un caso que lo fija
+en las dos direcciones.
+
+3) MI DISCRIMINADOR DE TS-03 NO DISCRIMINABA. Comprobaba «-f 11-Conventions.md» para distinguir el
+fixture completo del esqueleto, y EL ESQUELETO TAMBIEN MONTA ESA RUTA: daba COMPLETO en los dos
+escenarios y pasaba por la razon equivocada. Con «-s» si distingue, porque el esqueleto deja los
+archivos VACIOS. Es la familia de PT-181 —una asercion que casa de mas— aparecida mientras se
+arregla otra cosa.
+
+4) MONTAR DIRECTORIOS SUELTOS ROMPIO DIECIOCHO CASOS DE SECCIONES ACTIVAS. proj24() usa la
+EXISTENCIA de «$WORK/ep024» como centinela de «fixture ya construido»: al montarlo el esqueleto, el
+fixture no se construia nunca y 18 casos caian con «No hay REGISTRY.json legible». El arreglo fue
+crear MENOS, no parchear el fixture ajeno: el esqueleto monta los ARCHIVOS y sus PADRES, y nada mas.
+Es la misma leccion que el punto 3 con otro operador — «-d» no distingue construido de existe vacio.
+
+Y UNA ROTURA COLATERAL LEGITIMA. El caso «y los que hay cortan al fallar» usaba «^[5-9][0-9]*$» para
+decir «al menos cinco», y eso RECHAZA 10 a 49. Al anadir esta tarea un fixture mas con la forma
+protegida, la cuenta llego a 10 y el caso se puso rojo CASTIGANDO LA MEJORA. Su propio comentario ya
+declaraba «NO SE CLAVA LA CIFRA» —y la clavaba igual—: es la TERCERA vez en el mismo caso. Ahora
+compara el COMANDO y el patron solo lee su veredicto: fija el cero de lo prohibido sin fijar ningun
+numero correcto. Es la familia -18, y su tarea es PT-192.
+
+EL COSTE, MEDIDO Y DECLARADO. La corrida acotada pasa de 126 casos / 4m23s CON 33 ERRORES a 136
+casos / 7m10s CON CERO. El aumento es real y es el precio de que la salida se pueda leer. Se probo
+una plantilla montada una vez y copiada con «cp -a» —134 ms frente a 183— y se DESCARTO: un 27% que
+no cambia el orden de magnitud y anade una plantilla que mantener. La medida queda escrita para que
+la decision sea contrastable. La acotada sigue siendo -77% frente a la completa.

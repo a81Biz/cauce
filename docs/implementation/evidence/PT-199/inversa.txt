@@ -1,0 +1,17 @@
+PT-199 · comprobacion INVERSA — el esqueleto ANTERIOR contra el mismo caso
+
+El esqueleto de PT-086, tal cual estaba, sobre las mismas rutas que los casos comprueban:
+
+    FALTA:   docs/implementation/HISTORY.log     <- el caso se pone ROJO
+    FALTA:   changes/PT-002-pool/discovery.md     <- el caso se pone ROJO
+    FALTA:   docs/implementation/HANDOFF.md     <- el caso se pone ROJO
+
+  archivos montados por el esqueleto ANTERIOR: 2
+
+Y el de ahora, derivado, sobre las mismas tres:
+
+    MONTADA: docs/implementation/HISTORY.log
+    MONTADA: changes/PT-002-pool/discovery.md
+    MONTADA: docs/implementation/HANDOFF.md
+
+  archivos montados por el esqueleto DERIVADO: 87

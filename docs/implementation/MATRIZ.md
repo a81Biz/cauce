@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-243 entradas recorridas · 202 identificadores · 140 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-28
+244 entradas recorridas · 203 identificadores · 141 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-28
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
@@ -13,7 +13,7 @@
 | `CE-002` | Rotura de escapado | 21 | 12 | 2026-08-21 | 2026-08-27 | `SUITE-R59` | **NO**: la regla existe y nada emite por ella |
 | `CE-003` | Un argumento se cuela por la detección de `ROOT` | 9 | 7 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-004` | Probar donde trabajo, no donde se decide | 10 | 9 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
-| `CE-005` | Verde por no haber mirado | 16 | 2 | 2026-08-14 | 2026-08-28 | `SUITE-R31` | `SUITE-R31` falla |
+| `CE-005` | Verde por no haber mirado | 17 | 2 | 2026-08-14 | 2026-08-28 | `SUITE-R31` | `SUITE-R31` falla |
 | `CE-006` | El acto hecho fuera del comando | 9 | — | 2026-08-21 | 2026-08-27 | `SUITE-R58` · `FDGE-R52` | `SUITE-R58` avisa · `FDGE-R52` falla |
 | `CE-007` | Existe la herramienta y nada la echa en falta | 6 | 7 | 2026-08-19 | 2026-08-24 | `FDGE-R19` | `FDGE-R19` falla |
 | `CE-008` | Un hecho, varios nombres | 12 | 5 | 2026-08-13 | 2026-08-26 | `SUITE-R14` · `SUITE-R60` | `SUITE-R14` falla · `SUITE-R60` falla |
