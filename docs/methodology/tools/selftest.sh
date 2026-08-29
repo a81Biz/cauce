@@ -9747,6 +9747,39 @@ _act199() {  # $1 = valor de SEC_ACTIVA · dice si monto el fixture COMPLETO o e
 chk   "una seccion ACTIVA monta el fixture completo"  "COMPLETO"        _act199 1
 chk   "…y una saltada monta solo el esqueleto"        "SOLO ESQUELETO"  _act199 ""
 
+# ── PT-201 · hay comprobaciones que NO pueden correr en local, y se dice ──
+#
+# TRES veces en el cierre de EP-025 el «npm run verify» local dio verde y la CI fallo, y las tres la
+# CI tenia razon. No corren comandos distintos —SUITE-R62 contrasta las dos listas en los dos
+# sentidos— es que SUITE-R34 compara marcas de COMMIT y SUITE-R51 exige un ref DURABLE que no existe
+# hasta el push. El hecho medido NACE al commitear o al publicar, y el verde local no lo predice.
+_r34() {  # $1 = "sucio" para dejar un cambio sin commitear · imprime la linea de SUITE-R34
+  local d="$WORK/p201"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE" "$d/metodologia" 2>/dev/null
+  mkdir -p "$d/docs/implementation" "$d/changes"
+  cp "$RAIZ/docs/implementation/HANDOFF.md" "$d/docs/implementation/" 2>/dev/null
+  cp "$RAIZ/docs/implementation/REGISTRY.json" "$d/docs/implementation/" 2>/dev/null
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q . 2>/dev/null
+    git -c user.name=t -c user.email=t@t add -A >/dev/null 2>&1
+    git -c user.name=t -c user.email=t@t commit -qm base >/dev/null 2>&1
+    # el ARBOL LIMPIO no debe decir nada; el SUCIO si.
+    [ "$1" = "sucio" ] && echo "cambio sin commitear" >> docs/implementation/HANDOFF.md
+    node "$SUITE/tools/verify-fdge.mjs" "$d" 2>&1 | sed -n '/SUITE-R34/p' | head -1 )
+}
+# AC-02 · SOBRE UN ARBOL SUCIO SE DICE DESDE DONDE SE MIRA.
+chk   "sobre un arbol SUCIO se dice desde donde se mira"  "MEDIDO SOBRE LO COMMITEADO"  _r34 sucio
+# Y ESTE ES EL QUE IMPIDE QUE SEA RUIDO: un aviso que aparece SIEMPRE no informa de nada, y seria
+# la misma averia con otra forma. Es el argumento de SECRETOS-EXCEPCIONES.md: una compuerta siempre
+# roja ensena a saltarsela.
+chkno "…y sobre uno LIMPIO no se dice nada"               "MEDIDO SOBRE LO COMMITEADO"  _r34 limpio
+# AC-01 y AC-03 · LA REGLA LO DECLARA, y no solo la herramienta. Una conducta que solo vive en el
+# codigo no la puede consultar quien lee el marco (LEX-R22).
+chk   "SUITE-R62 dice donde deja de valer"           "en local todavía no existen" \
+  node "$SUITE/tools/regla.mjs" SUITE-R62
+chk   "…y nombra las dos que lo sufren"              "SUITE-R51" \
+  node "$SUITE/tools/regla.mjs" SUITE-R62
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

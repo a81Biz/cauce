@@ -6667,8 +6667,8 @@
       "id": "PT-201",
       "slug": "hay-comprobaciones-que-no-corren-en-local",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
@@ -6679,7 +6679,34 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-28"
       },
-      "issue": 363
+      "issue": 363,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-28"
+      }
     },
     {
       "id": "PT-202",

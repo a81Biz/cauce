@@ -1,0 +1,59 @@
+{
+  "pt": "PT-201",
+  "generated": "2026-08-28",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Las comprobaciones no reproducibles en local estan declaradas",
+      "scenarios": ["TS-01"],
+      "tests": [
+        "selftest §EP-026 · SUITE-R62 dice donde deja de valer",
+        "selftest §EP-026 · …y nombra las dos que lo sufren"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Sobre un arbol sucio, avisan en vez de dar verde",
+      "scenarios": ["TS-02", "TS-03"],
+      "tests": [
+        "selftest §EP-026 · sobre un arbol SUCIO se dice desde donde se mira",
+        "selftest §EP-026 · …y sobre uno LIMPIO no se dice nada"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "El caso del arbol LIMPIO es el que sostiene el criterio: un aviso permanente no informa de nada y seria la misma averia con otra forma."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "SUITE-R62 dice donde deja de valer su promesa",
+      "scenarios": ["TS-01", "TS-04"],
+      "tests": [
+        "selftest §EP-026 · SUITE-R62 dice donde deja de valer",
+        "el mensaje de SUITE-R34 lleva «MEDIDO SOBRE LO COMMITEADO» cuando el arbol esta sucio"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable",
+  "correccion_de_atribucion": {
+    "hubo": true,
+    "que": "El intake decia que la regla incumplida era SUITE-R01. NO lo es: SUITE-R01 es Evidence Before Action y esta declarada NO VERIFICABLE. La que comprueba «lo que se ejecuta en local es lo que ejecuta CI» es SUITE-R62, que se declara a si misma «una forma concreta de SUITE-R01 que no la agota».",
+    "de_donde_salio": "CLAUDE.md cita SUITE-R01 en su seccion de verificacion.",
+    "donde_consta": "intake.md §4b, discovery.md §4"
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Las once comprobaciones, una por una",
+      "por_que_no": "El inventario de discovery.md §3 es una APROXIMACION medida —asocia cada uso de git log o del adaptador con la primera regla citada despues— y no se afirma exacto. Establece el orden de magnitud, no la lista definitiva.",
+      "verified": false
+    },
+    {
+      "afirmacion": "SUITE-R51 con un caso propio",
+      "por_que_no": "Su hecho —el ref durable— solo existe tras el push. Reproducirlo en la bateria exigiria publicar.",
+      "verified": false
+    }
+  ]
+}

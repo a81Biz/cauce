@@ -1,0 +1,23 @@
+PT-201 · corrida COMPLETA en verde
+
+  [32m✓[0m sobre un arbol SUCIO se dice desde donde se mira
+  [32m✓[0m …y sobre uno LIMPIO no se dice nada
+  [32m✓[0m SUITE-R62 dice donde deja de valer
+  [32m✓[0m …y nombra las dos que lo sufren
+
+selftest: OK · 1937 casos
+
+== el aviso, sobre un arbol SUCIO ==
+  ✓ SUITE-R34      El estado es más reciente que el último trabajo. · MEDIDO SOBRE LO COMMITEADO: hay cambios sin commitear en HANDOFF.md o en changes/, y «git log» no los ve. Este veredicto no predice la CI hasta que commitees (PT-201).
+
+== y lo que SUITE-R62 declara ahora ==
+  segundo límite, opuesto al primero (`PT-201`): correr el mismo paso no hace que mida lo 
+  mismo, porque algunas comprobaciones miden hechos que en local todavía no existen. 
+  `SUITE-R34` compara marcas de commit y no ve el árbol de trabajo; `SUITE-R51` exige un ref 
+  durable que no hay hasta el `push`; el espejo depende de la plataforma. Medido: tres veces 
+  en el cierre de `EP-025` el `verify` local dio verde y la CI falló, y las tres la CI tenía 
+  razón. Sobre un árbol sucio esas comprobaciones dicen desde dónde miran en vez de dar un 
+  verde que no predice nada; sobre uno limpio no dicen nada, porque un aviso permanente no 
+
+Recibo de la corrida completa (NO versionado):
+{ "veredicto": "OK", "casos": "1937", "arnes": "0ec79ca41b02e2788f987482731196056835f71c", "fecha": "2026-08-29T01:28:28Z" }
