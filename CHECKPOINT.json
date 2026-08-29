@@ -3,23 +3,28 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
-  "rama": "chore/alberto-martinez/EP-026-PT-198-comentario-yaml",
-  "sha": "a88a114838a4bc6a04180d8d70ad78d22e08dd04",
-  "sha_corto": "a88a114",
+  "phase": 4,
+  "fase": "Propuesta",
+  "rama": "trabajo",
+  "sha": "d5265b489dbfde9e2c595a966a41fdae5cbbbc49",
+  "sha_corto": "d5265b4",
   "sucio": true,
   "archivos": [
-    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/discovery.md",
     "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/strategy.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/test-scenarios.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/traceability.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-29"
 }
