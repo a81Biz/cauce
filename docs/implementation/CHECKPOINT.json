@@ -1,36 +1,25 @@
 {
-  "pt": "PT-198",
+  "pt": "PT-203",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "READY",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/EP-026-PT-198-comentario-yaml",
-  "sha": "c9848f24a7a0a1db2faa87d702ecc484075a7522",
-  "sha_corto": "c9848f2",
+  "sha": "a88a114838a4bc6a04180d8d70ad78d22e08dd04",
+  "sha_corto": "a88a114",
   "sucio": true,
   "archivos": [
-    "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/discovery.md",
-    "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/intake.md",
-    "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/strategy.md",
-    "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/test-scenarios.md",
-    "changes/PT-198-un-comentario-yaml-hace-invisible-el-status/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/discovery.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/intake.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-198/",
-    "docs/methodology/tools/patrones.mjs",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/tracker.mjs"
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-29"
 }
