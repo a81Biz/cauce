@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/EP-026-PT-201-comprobaciones-que-no-corren-en-local",
   "sha": "b04ce0992b0d1878d1cf2e802eda9ad49d289b74",
   "sha_corto": "b04ce09",
@@ -12,14 +12,20 @@
   "archivos": [
     "changes/PT-201-hay-comprobaciones-que-no-corren-en-local/discovery.md",
     "changes/PT-201-hay-comprobaciones-que-no-corren-en-local/intake.md",
+    "changes/PT-201-hay-comprobaciones-que-no-corren-en-local/strategy.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-28"
 }
