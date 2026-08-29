@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
+  "phase": 4,
+  "fase": "Propuesta",
   "rama": "chore/alberto-martinez/EP-026-PT-179-evidencia-que-falta-solo-avisa",
   "sha": "090e819ab00695c3d581af718a693ed95cd42302",
   "sha_corto": "090e819",
@@ -12,6 +12,9 @@
   "archivos": [
     "changes/PT-179-evidencia-que-falta-solo-avisa/discovery.md",
     "changes/PT-179-evidencia-que-falta-solo-avisa/intake.md",
+    "changes/PT-179-evidencia-que-falta-solo-avisa/strategy.md",
+    "changes/PT-179-evidencia-que-falta-solo-avisa/test-scenarios.md",
+    "changes/PT-179-evidencia-que-falta-solo-avisa/traceability.md",
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
@@ -19,10 +22,15 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": null,
+  "compuerta": "G2",
   "produce": [
-    "strategy.md"
+    "design.md",
+    "tasks.md",
+    "test-scenarios.md",
+    "out-of-scope.md",
+    "spec-changes.md",
+    "traceability.md"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
   "generado": "2026-08-28"
 }
