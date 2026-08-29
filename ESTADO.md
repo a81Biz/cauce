@@ -20,11 +20,11 @@ Proyectado el 2026-08-29 · 19 allocation(es) viva(s).
 | PT-192 | BUG | DONE | 8 | — | — | a3058b0 |
 | PT-194 | BUG | DRAFT | 1 | — | — | 9c17741 |
 | PT-195 | BUG | DRAFT | 1 | — | — | 9c17741 |
-| PT-196 | BUG | DRAFT | 1 | — | — | 9c17741 |
+| PT-196 | BUG | READY | 2 | — | — | 9c17741 |
 | PT-197 | FEATURE | DRAFT | 1 | — | — | 9c17741 |
 | PT-198 | BUG | DRAFT | 1 | — | — | 9c17741 |
 | PT-199 | BUG | DONE | 8 | — | — | 4259425 |
-| PT-200 | BUG | DONE | 8 | — | — | 262d5ef |
+| PT-200 | BUG | DONE | 8 | — | — | cdb7e3f |
 | PT-201 | BUG | DONE | 8 | — | — | 666d5bd |
 | PT-202 | BUG | DRAFT | 1 | — | — | 9c17741 |
 | PT-203 | BUG | DRAFT | 1 | — | — | 9c17741 |
