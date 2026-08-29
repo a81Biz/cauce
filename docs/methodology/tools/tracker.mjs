@@ -3248,6 +3248,48 @@ function personas() {
   di('  CLAUDE.md sigue respondiendo quien puede firmar, y son cosas distintas.');
 }
 
+/**
+ * PT-196 · Que toca AHORA en el cierre de un lote, derivado de sus tareas y del arbol.
+ *
+ * No añade estado: mira en que estan sus PT y en que rama vive el terminal. El orden no es una
+ * lista que alguien recuerda — es el que SUITE-R46 impone, y por eso incluye el SEGUNDO merge.
+ */
+function cierreDeLote(ep) {
+  const suyas = all.filter((x) => x?.epic === ep.id);
+  const vivasAqui = suyas.filter((x) => !ESTADOS_TERMINALES.has(x.status) && x.status !== 'DONE');
+  const enDone = suyas.filter((x) => x.status === 'DONE');
+  const integradas = suyas.filter((x) => x.status === 'INTEGRATED');
+  di('');
+  di(`  ${ep.id}  ${ep.status}  ·  cierre del lote  ·  ${suyas.length} tarea(s)${ep.issue ? `  ·  #${ep.issue}` : ''}`);
+  di(`  reparto:    ${integradas.length} INTEGRATED · ${enDone.length} DONE · ${vivasAqui.length} sin terminar`);
+  if (vivasAqui.length) {
+    di(`  siguiente:  el lote NO cierra: ${vivasAqui.slice(0, 5).map((x) => x.id).join(' · ')} sin estado terminal.`);
+    di('              Un lote cierra cuando TODAS sus tareas lo estan (PHASES · LOTES).');
+    return;
+  }
+  if (enDone.length) {
+    di('  siguiente:  1) PR de la rama del lote a «trabajo» · 2) G4: merge de «trabajo» a «main», HUMANA');
+    di(`              3) «tracker integrar ${enDone.slice(0, 3).map((x) => x.id).join(' ')} --aplicar» → DONE a INTEGRATED`);
+    di('  ojo:        despues del 3 hace falta un SEGUNDO merge a «main». No es un descuido:');
+    di('              «tracker cerrar» exige que INTEGRATED este YA en la rama por defecto');
+    di('              (SUITE-R46), y ese apunte se escribe DESPUES de integrar. Cerrar un lote');
+    di('              pasa por G4 dos veces, y esta declarado en vez de descubrirse cada vez.');
+    return;
+  }
+  if (ep.status !== 'CLOSED') {
+    di('  siguiente:  1) «tracker cerrar --aplicar» → cierra los issues (SUITE-R46: solo con el');
+    di('                 estado terminal ya en la rama por defecto)');
+    di(`              2) «tracker integrar ${ep.id} --aplicar» → el lote a CLOSED`);
+    di('              3) «tracker cierre ' + ep.id + ' --aplicar» → publica el comentario de cierre');
+    di('              4) «tracker proyectar --publicar» (SUITE-R56)');
+    di('              5) «git tag -a vX.Y.Z» DESPUES del merge — HUMANO (SUITE-R06a)');
+    di('              6) borrar las ramas efimeras ya fusionadas (FDGE-R19)');
+    di('  resuelve:   las filas «TRAS EL MERGE» de su «## Cierre del lote» se contestan AQUI.');
+    return;
+  }
+  di('  siguiente:  el lote esta CLOSED. Queda el tag si aplica y borrar sus ramas efimeras.');
+}
+
 function siguienteDe() {
   let cp = null;
   try { cp = JSON.parse(readFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), 'utf8')); }
@@ -3279,6 +3321,14 @@ function siguienteDe() {
         descendiente: desciendeDe(cp.sha),
       })
       : null;
+    // PT-196 · SI ES UN LOTE CON TODAS SUS TAREAS TERMINADAS, LO QUE TOCA ES EL CIERRE.
+    //
+    // `queSigue` contesta por FASE, y las fases son del PT: para un lote devolvia «PHASE 1 ·
+    // Intake», que es la de su propio intake y no dice nada del cierre. Los seis actos posteriores
+    // a G4 —integrar, mergear otra vez, cerrar, sellar el lote, proyectar, el tag— estaban
+    // descritos en PHASES.md como PROSA dentro de PHASE 9, que ya termino en el merge: ninguna
+    // fase los posee y se ejecutan de memoria. Aqui tienen dueno, y se DERIVA del registro.
+    if (esLote(a)) { cierreDeLote(a); continue; }
     const r = queSigue(a, { comentarioPendiente: pendiente, issueAbierto: abierto, arbol });
     di('');
     di(`  ${r.id}  ${r.estado}${r.fase !== null && r.fase !== undefined ? `  ·  PHASE ${r.fase} ${r.nombre}` : ''}${a.issue ? `  ·  #${a.issue}` : ''}`);

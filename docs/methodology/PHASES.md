@@ -593,6 +593,39 @@ HAZ  1 EP desde REGISTRY · changes/EP-NNN-slug/intake.md desde la plantilla
      5 cierre: todos INTEGRATED|CLOSED o retirados → EP CLOSED + entrada propia en HISTORY
 ```
 
+### CIERRE DE UN LOTE · lo posterior a `G4`, que es del LOTE y no del PT   `PT-196`
+```
+POR QUE AQUI  Las fases son del PT (LEXICON 0-10) y PHASE 9 TERMINA EN EL MERGE. Los seis actos
+     que vienen despues estaban escritos como PROSA dentro de ella: ninguna fase los poseia,
+     ningun artefacto los cerraba y ninguna compuerta los miraba. Se ejecutaban DE MEMORIA, y
+     por eso fallaban siempre en el mismo sitio. El lote SI tiene ciclo y comando propios.
+QUE TOCA     node tools/tracker.mjs siguiente EP-NNN
+     Lo DERIVA del reparto de sus tareas y del arbol (SUITE-R48). No hay que recordarlo.
+EL ORDEN, y no es preferencia:
+     1 PR de la rama del lote a «trabajo»            revision, NO es G4 [FDGE-R19]
+     2 G4 · merge de «trabajo» a «main»              HUMANA [EXEC-R04, SUITE-R06a]
+     3 tracker integrar PT-NNN --aplicar             DONE -> INTEGRATED
+     4 ── SEGUNDO MERGE A «main» ──                  y NO es un descuido: ver abajo
+     5 tracker cerrar --aplicar                      cierra los issues [SUITE-R46]
+     6 tracker integrar EP-NNN --aplicar             el lote a CLOSED
+     7 tracker cierre EP-NNN --aplicar               publica el comentario de cierre
+     8 tracker proyectar --publicar                  el rastro sobrevive a la rama [SUITE-R56]
+     9 git tag -a vX.Y.Z                             DESPUES del merge · HUMANO [SUITE-R06a]
+    10 borrar las ramas efimeras ya fusionadas       [FDGE-R19, SUITE-R06f]
+CERRAR UN LOTE PASA POR G4 DOS VECES, y se dice aqui para que no se descubra chocando:
+     «tracker integrar» escribe INTEGRATED en la rama de TRABAJO, y «tracker cerrar» exige que
+     ese estado este YA en la rama por defecto (SUITE-R46). El apunte se escribe DESPUES de
+     integrar, asi que solo llega a «main» en el merge SIGUIENTE.
+     NO es un defecto que se pueda quitar sin cambiar otro por peor: SUITE-R46 nacio de una
+     averia real —la principal declarando un estado vivo con el issue ya cerrado— y quitarla
+     para ahorrar un merge cambiaria una molestia por un defecto.
+LAS FILAS «TRAS EL MERGE» SE CONTESTAN AQUI  [SUITE-R45, PT-196]
+     Una fila del «## Cierre del lote» cuya respuesta sea POSTERIOR a G4 —el tag, la
+     publicacion— se declara «TRAS EL MERGE» y NO bloquea la compuerta: G4 ES el merge y
+     SUITE-R06a prohibe el tag antes, asi que exigirla alli era pedir lo imposible. No
+     desaparece: verify-fdge la sigue nombrando, y el cierre la reclama.
+```
+
 ---
 
 ## Foundation

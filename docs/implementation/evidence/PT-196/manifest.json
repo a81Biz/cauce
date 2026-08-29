@@ -1,0 +1,63 @@
+{
+  "pt": "PT-196",
+  "generated": "2026-08-29",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Cada acto posterior a G4 pertenece a una fase o a un comando declarado",
+      "scenarios": ["TS-03"],
+      "tests": [
+        "selftest §EP-026 · siguiente de un lote listo dice que toca en el cierre",
+        "selftest §EP-026 · …y declara el SEGUNDO merge, con su motivo"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "El segundo caso no es adorno: TS-03 lo cumple cualquier salida que mencione el cierre. Lo que se descubria chocando es el SEGUNDO merge, y por eso se exige el literal."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Ninguna fila de SUITE-R45 exige en G4 algo que otra regla prohibe antes",
+      "scenarios": ["TS-01", "TS-02"],
+      "tests": [
+        "selftest §EP-026 · una fila TRAS EL MERGE no bloquea G4",
+        "selftest §EP-026 · …y una PENDIENTE si bloquea",
+        "selftest §EP-026 · …y una HECHO sigue resolviendo"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "Tres casos y los tres hacen falta. El primero prueba la puerta nueva; el segundo, que no quedo abierta; el tercero, que la conducta que ya habia sigue en pie."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El ciclo de dos viajes esta resuelto o declarado con su motivo",
+      "scenarios": ["TS-04"],
+      "tests": ["selftest §EP-026 · PHASES declara el doble viaje donde se ejecuta"],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "DECLARADO, no resuelto: lo causa SUITE-R46, que nacio de una averia real. La eleccion esta escrita en PHASES junto al procedimiento que la paga."
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable · 6 casos sobre 4 escenarios",
+  "medido": {
+    "corrida": "COMPLETA · 1962 casos · veredicto OK",
+    "recibo": "abdaaea535d53ad771a50e70203af2a4acb283a1 · 2026-08-29T20:50:07Z",
+    "contradiccion_de_origen": "Al cerrar EP-025, SUITE-R45 exigia resolver «el tag y la publicacion» EN G4 y SUITE-R06a lo prohibe ANTES del merge. G4 ES el merge: no existia respuesta correcta."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "El doble viaje desaparece",
+      "por_que_no": "No se elimina: lo causa SUITE-R46, cuya exigencia nacio de una averia real —la rama principal declarando un estado vivo con el issue ya cerrado—. Quitarla para ahorrar un merge cambiaria una molestia por un defecto. Lo que cambia es que este escrito donde se ejecuta.",
+      "verified": false
+    },
+    {
+      "afirmacion": "El cierre del lote se ejecuta solo",
+      "por_que_no": "El merge a main y el tag son de SUITE-R06a y EXEC-R07: el procedimiento los ENUMERA con su orden, no los ejecuta.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Los siete fallos de cierre no se repiten",
+      "por_que_no": "Se les da dueno y comando; no se promete que no aparezca un octavo por otra causa. Lo que se mide es que lo que toca se DERIVA del registro en vez de recordarse.",
+      "verified": false
+    }
+  ]
+}

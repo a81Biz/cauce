@@ -12225,3 +12225,87 @@ LO QUE NO SE CUBRE, Y CONSTA. Un cambio en RULES.md que no toque verify-fdge.mjs
 sello, igual que en la bateria. Y no se fija ninguna cifra de minutos como criterio: seria fijar el
 numero de lo correcto (HANDOFF -18). Lo que se mide es que lo terminal y sin cambios no se recorre,
 y que cualquier cambio lo devuelve entero.
+
+================================================================================
+
+## PT-196 — Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-196-lo-posterior-a-G4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-29 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-007 — existe la herramienta y nada la echa en falta
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-196.md
+
+CERRAR UN LOTE HABIA FALLADO SIETE VECES, Y NINGUNA FUE EL MISMO SINTOMA.
+
+Esa es la senal que lo delata. Siete descuidos distintos no son siete descuidos: son un tramo del
+procedimiento sin dueno. PHASE 9 TERMINA EN EL MERGE, y los seis actos que vienen despues
+—integrar, mergear otra vez, cerrar, sellar el lote, proyectar, el tag— estaban escritos como
+PROSA dentro de ella. Ninguna fase los poseia, ningun artefacto los cerraba, ninguna compuerta los
+miraba. Se ejecutaban DE MEMORIA — y lo que se ejecuta de memoria falla donde la memoria falla,
+que es en un sitio distinto cada vez.
+
+Es CE-007 en su forma pura: las herramientas EXISTIAN —integrar, cerrar, cierre, proyectar—, nadie
+decia cual ni en que orden, y ningun verificador echaba en falta la que no se corrio.
+
+LA CONTRADICCION, MEDIDA AL CERRAR EP-025.
+
+    SUITE-R45  exige resolver cada fila de «## Cierre del lote» EN G4
+    SUITE-R06a prohibe el tag ANTES del merge
+    G4 ES el merge
+
+La fila «el tag y la publicacion» no podia estar HECHA ni por definicion. No habia respuesta
+correcta, y la unica salida fue mover la fila a otra tarea — un rodeo, no un arreglo.
+
+LO QUE CAMBIA, EN TRES SITIOS Y NINGUNO DE MAS.
+
+1. verify-fdge.mjs · SUITE-R45 distingue lo POSTERIOR. Una fila cuyo estado diga «TRAS EL MERGE»
+   —o «POSTERIOR A G4»— no bloquea la compuerta, y NO desaparece: se cuenta aparte y se sigue
+   nombrando, porque un hueco que nadie nombra es el que se olvida. Una PENDIENTE sigue
+   bloqueando y una HECHO sigue resolviendo: la puerta nueva no abre las viejas.
+
+2. tracker.mjs · «siguiente EP-NNN» contesta el CIERRE, no la fase del intake. queSigue responde
+   por FASE y las fases son del PT: para un lote devolvia «PHASE 1 · Intake», que no dice nada del
+   cierre. cierreDeLote() lo DERIVA del reparto de sus tareas — no anade estado: si el reparto
+   cambia, la respuesta cambia sola.
+
+3. PHASES.md · el cierre del lote es procedimiento propio, con sus diez actos en orden, junto a
+   LOTES y no dentro de una fase que ya termino.
+
+EL DOBLE VIAJE SE DECLARA, NO SE QUITA — Y ESA ES LA DECISION.
+
+Cerrar un lote pasa por G4 DOS VECES: «tracker integrar» escribe INTEGRATED en la rama de trabajo
+y «tracker cerrar» exige que ese estado este YA en la rama por defecto (SUITE-R46), asi que el
+apunte solo llega a main en el merge siguiente. Se podria ahorrar quitando SUITE-R46. NO SE HACE:
+esa regla nacio de una averia real —la principal declarando un estado vivo con el issue ya
+cerrado— y quitarla cambiaria una molestia por un defecto. Lo que cambia es que este ESCRITO DONDE
+SE EJECUTA, en vez de descubrirse chocando.
+
+Evidencia: docs/implementation/evidence/PT-196/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/traceability.md — sin AC huerfano.
+
+SEIS CASOS SOBRE CUATRO ESCENARIOS, y los dos de mas no son escenarios nuevos: son la mitad que
+impide que su pareja pase por la razon equivocada. Sin «…y una PENDIENTE si bloquea», el primero
+lo cumple un SUITE-R45 que no exija NADA; sin «…y una HECHO sigue resolviendo», los dos los pasa
+un SUITE-R45 que hubiera dejado de reconocer HECHO; y sin «…y declara el SEGUNDO merge», el de
+«siguiente» lo cumple cualquier salida que mencione la palabra cierre.
+
+Corrida COMPLETA de la bateria: 1962 casos en verde · recibo abdaaea535d5.
+
+UN ERROR MIO, Y LO QUE COMPRO PT-181. El caso de PHASES esperaba «pasa por G4 dos veces» y el
+documento lo escribe en MAYUSCULAS. Fallo en la corrida acotada, no en la revision. Eso es
+exactamente lo que PT-181 compro al pasar las expectativas de regex a literal: la expectativa se
+equivoca EN VOZ ALTA en vez de casar por accidente.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- El doble viaje no desaparece: se declara, con su motivo, arriba.
+- Ni el merge a main ni el tag se automatizan (SUITE-R06a, EXEC-R07): el cierre los ENUMERA.
+- PHASE 9 sigue terminando en el merge. No se crea una PHASE 10 para el lote: las fases son del
+  PT y anadir una para el lote mezclaria dos ciclos. El cierre del lote es del LOTE.
+- No se promete que no aparezca un octavo fallo de cierre por otra causa. Lo que se mide es que lo
+  que toca se DERIVA del registro en vez de recordarse.
