@@ -977,6 +977,51 @@ export function clasificaRodeo(hallazgo, textoDelLedger, regla = 'FDGE-R19') {
   return { ...hallazgo, motivo: declarada ? 'FORZADO' : 'ELEGIDO' };
 }
 
+/**
+ * PT-198 · EL CAMPO DEL FRONTMATTER SE LEE POR UN SOLO SITIO.
+ *
+ * `[^\S\r\n]` es espacio horizontal: espacio o tabulador, NUNCA el salto. Escrito como `\s` se
+ * tragaria la linea siguiente y el valor seria el campo de abajo.
+ *
+ * Los grupos: 1 = el valor, 2 = la cola —el comentario tal cual, si lo hay—. La cola SE CONSERVA
+ * al escribir: un `phase: 5  # a medias` reescrito como `phase: 6` a secas destruiria informacion
+ * que alguien puso a proposito, y eso seria cambiar un defecto por otro.
+ */
+const RE_CAMPO_INTAKE = /^([A-Za-z_][\w-]*):[^\S\r\n]*([^\s#][^\r\n#]*?)[^\S\r\n]*(#[^\r\n]*)?$/;
+
+/**
+ * Lee un campo escalar del frontmatter. Devuelve `null` si NO ESTA, y `{ valor: null }` si esta
+ * y no se pudo leer — que son dos hechos distintos con arreglos distintos (RULE-02, PT-093).
+ *
+ * `linea` es 1-indexada y va en el mensaje: distinguir sin localizar obliga a buscar, y buscar es
+ * donde se vuelve a suponer (RULE-06).
+ */
+export function campoDeIntake(txt, campo) {
+  const lineas = porLineas(String(txt ?? ''));
+  for (let i = 0; i < lineas.length; i += 1) {
+    const l = lineas[i];
+    if (!l.startsWith(`${campo}:`)) continue;        // ancla al inicio: «statuses:» no cuenta
+    if (l[campo.length] !== ':') continue;
+    const m = RE_CAMPO_INTAKE.exec(l);
+    if (!m || m[1] !== campo) return { valor: null, linea: i + 1, comentario: null, cruda: l };
+    return { valor: m[2], linea: i + 1, comentario: m[3] ?? null, cruda: l };
+  }
+  return null;                                        // no esta: es OTRO hecho, no un fallo de lectura
+}
+
+/**
+ * Escribe el campo CONSERVANDO su comentario. Devuelve `null` si el campo no esta, y lanza si
+ * esta y no se puede leer: quien llama distingue los tres estados por el valor de retorno.
+ */
+export function reemplazaCampoDeIntake(txt, campo, valor) {
+  const hallado = campoDeIntake(txt, campo);
+  if (!hallado) return null;
+  const cola = hallado.comentario ? `   ${hallado.comentario}` : '';
+  const lineas = porLineas(String(txt ?? ''));
+  lineas[hallado.linea - 1] = `${campo}: ${valor}${cola}`;
+  return enLineas(lineas);
+}
+
 // PT-155 · LOS SIETE PATRONES QUE VIVIAN FUERA DEL CONTRATO, AHORA ANTES DE EL.
 // SUITE-R38 pide que un patron critico viaje CON SU CONTRATO, y estos siete estaban sueltos: sin
 // `para`, sin `casa`, sin `noCasa`, y por tanto sin nada que cazara un escape degradado. Se
@@ -1170,6 +1215,25 @@ export const PATRONES = {
     para: 'partir un texto en lineas sin depender de Windows o Unix',
     casa: ['a\nb', 'a\r\nb'],
     noCasa: ['ab'],
+  },
+
+  // PT-198 · UN CAMPO ESCALAR DEL FRONTMATTER, CON SU COMENTARIO SI LO LLEVA.
+  //
+  // Habia SIETE expresiones a mano en tracker.mjs —type:3105, phase:3754, status:3757/4594/4859,
+  // epic:5158/5209— y las siete anclaban a FIN DE LINEA. Un comentario `#`, que es YAML valido,
+  // las rompia: el status de EP-023 decia «READY   # G1 CHALLENGE aceptado» y el tracker
+  // respondia «no declara status». No es que no supiera leerlo: AFIRMABA QUE NO ESTABA.
+  //
+  // El patron vive aqui porque aqui lo vigila verify-patrones. Un patron critico en el consumidor
+  // no lo mira nadie, y por eso hubo siete copias (SUITE-R38).
+  CAMPO_DE_INTAKE: {
+    re: RE_CAMPO_INTAKE,
+    para: 'un campo escalar del frontmatter de un intake, con su comentario en linea (PT-198)',
+    casa: ['status: READY', 'status: READY   # G1 CHALLENGE aceptado', 'phase: 5\t# a medias'],
+    // «statuses: READY» NO esta aqui: el patron casa CUALQUIER campo y no sabe cual se pide —
+    // eso lo discrimina `campoDeIntake` comparando el grupo 1. Ponerlo en noCasa afirmaria del
+    // patron algo que no hace, y verify-patrones lo caza (asi salio este comentario).
+    noCasa: ['status:', '  status: READY', '# status: READY'],
   },
 };
 

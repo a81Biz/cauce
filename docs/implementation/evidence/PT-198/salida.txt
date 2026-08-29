@@ -1,0 +1,30 @@
+PT-198 · corrida COMPLETA en verde · 1974 casos
+
+  [32m✓[0m un status con comentario en linea se lee
+  [32m✓[0m …y la expresion anclada de antes NO casaba
+  [32m✓[0m …y un intake SIN el campo sigue siendo AUSENTE
+  [32m✓[0m …y uno ilegible es OTRO estado, con su linea
+  [32m✓[0m …y phase con comentario tambien
+  [32m✓[0m …y type con comentario tambien
+  [32m✓[0m …y epic con comentario tambien
+  [32m✓[0m escribir el campo CONSERVA su comentario
+  [32m✓[0m ninguna expresion de campo suelta fuera de patrones
+  [32m✓[0m …y sobre un archivo que SI la tiene, la ve
+  [32m✓[0m el mensaje dice que el campo ESTA y no se leyo
+  [32m✓[0m …y el ausente sigue diciendo que NO lo declara
+
+selftest: OK · 1974 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "1974", "arnes": "4abd8a5ead77b48ddab6b81695e6190eab768ddd", "fecha": "2026-08-29T22:41:49Z" }
+
+== EL CONTRATO DEL PATRON, VIGILADO (SUITE-R38) ==
+verify-patrones — 20 patrones · 135 comprobaciones
+
+[32mTodos los patrones cumplen su contrato.[0m
+
+== LAS SIETE EXPRESIONES, MEDIDAS ANTES Y DESPUES ==
+antes:   7 expresiones ancladas a fin de linea sobre 4 campos, todas en tracker.mjs
+         type:3105 · phase:3754 · status:3757/4594/4859 · epic:5158/5209
+ahora:   0
+0 sueltas en tracker.mjs

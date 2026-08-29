@@ -10043,6 +10043,94 @@ chkl  "…y declara el SEGUNDO merge, con su motivo"    "SEGUNDO merge"   _sig19
 chkl  "PHASES declara el doble viaje donde se ejecuta"  "PASA POR G4 DOS VECES"  \
   cat "$SUITE/PHASES.md"
 
+# -- PT-198 . un comentario en linea no hace invisible el campo --------------
+#
+# El status de EP-023 decia «READY   # G1 CHALLENGE aceptado» —YAML VALIDO— y el tracker
+# respondia «no declara status». No es que no supiera leerlo: AFIRMABA QUE NO ESTABA, que es lo
+# contrario de lo que ocurria, y mandaba a anadir un campo que ya estaba en la linea 5.
+# Habia SIETE expresiones a mano en tracker.mjs sobre CUATRO campos, todas ancladas a fin de linea.
+#
+# LOS CASOS PLANTAN EL COMENTARIO EN UN FIXTURE, no lo buscan en el arbol: buscarlo acusaria a los
+# documentos de esta misma tarea, que lo citan. Es CE-017, y PT-193 ya pago esa leccion.
+_pat198() {   # $1 = campo · $2 = las lineas del frontmatter (~ = salto) · imprime lo leido
+  # El idioma es el de `patlib` (:2027): la ruta viaja por variable de entorno y se convierte con
+  # pathToFileURL. Escribirla dentro del literal JS la rompe donde $SUITE lleva barra invertida.
+  MTH_PAT="$SUITE/tools/patrones.mjs" MTH_TXT="$2" MTH_CAMPO="$1" node -e \
+    'const {pathToFileURL}=require("url");
+     import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+       const t = process.env.MTH_TXT.split("~").join(String.fromCharCode(10));
+       const r = m.campoDeIntake(t, process.env.MTH_CAMPO);
+       console.log(r === null ? "AUSENTE" : r.valor === null ? "ILEGIBLE:" + r.linea : "VALOR:" + r.valor);
+     }).catch((e)=>console.log("IMPORT_FALLA "+e.message));' 2>&1
+}
+# AC-01 . TS-01 . el valor se lee AUNQUE lleve comentario.
+chkl  "un status con comentario en linea se lee"   "VALOR:READY" \
+  _pat198 status 'id: PT-1~status: READY              # G1 CHALLENGE aceptado~phase: 5'
+# LA COMPROBACION INVERSA, sobre la MISMA entrada: la expresion que habia —anclada a fin de
+# linea— no casa nada. Sin ella, el caso de arriba lo pasa cualquier lector y no prueba que el
+# arreglo hiciera falta. Es lo que PT-192 aprendio: un caso que no puede fallar no mide.
+chkl  "…y la expresion anclada de antes NO casaba"  "NO_CASA" \
+  sh -c 'node -e "const l=String.raw\`status: READY              # G1 CHALLENGE aceptado\`;
+         console.log(/^status:[ \t]*\S+[ \t]*$/m.test(l) ? \"CASA\" : \"NO_CASA\")"'
+# AC-02 . TS-02 . LA PAREJA QUE IMPIDE EL ARREGLO PELIGROSO. Sin esto, lo de arriba lo cumple un
+# lector que acepte cualquier cosa: el riesgo de un lector tolerante va al reves del que motivo
+# la tarea.
+chkl  "…y un intake SIN el campo sigue siendo AUSENTE"  "AUSENTE" \
+  _pat198 status 'id: PT-1~phase: 5'
+# AC-03 . TS-03 . Y EL TERCER ESTADO, que antes se fundia con el primero: esta escrito y no se
+# pudo leer. Con su LINEA — distinguir sin localizar obliga a buscar, y buscar es suponer.
+chkl  "…y uno ilegible es OTRO estado, con su linea"    "ILEGIBLE:2" \
+  _pat198 status 'id: PT-1~status:~phase: 5'
+# AC-01 + AC-04 . TS-05 . LOS OTROS TRES CAMPOS, que el intake no habia mirado. Sin esto, AC-04 lo
+# cumple un sitio unico que solo atienda a «status» — la herramienta correcta escrita y no
+# invocada, que es CE-007 en la tarea que lo persigue.
+chkl  "…y phase con comentario tambien"            "VALOR:5" \
+  _pat198 phase 'id: PT-1~phase: 5   # a medias~type: BUG'
+chkl  "…y type con comentario tambien"             "VALOR:BUG" \
+  _pat198 type 'id: PT-1~type: BUG    # no es feature~epic: EP-1'
+chkl  "…y epic con comentario tambien"             "VALOR:EP-026" \
+  _pat198 epic 'id: PT-1~epic: EP-026 # el lote que lo absorbio'
+# EL COMENTARIO SOBREVIVE A LA ESCRITURA. Un lector que lea y un escritor que borre cambian un
+# defecto por otro: la informacion la puso alguien a proposito.
+_esc198() {
+  MTH_PAT="$SUITE/tools/patrones.mjs" node -e \
+    'const {pathToFileURL}=require("url");
+     import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+       const NL = String.fromCharCode(10);
+       const t = "status: READY   # G1 CHALLENGE aceptado" + NL + "phase: 5";
+       console.log(m.reemplazaCampoDeIntake(t, "status", "DONE").split(NL)[0]);
+     }).catch((e)=>console.log("IMPORT_FALLA "+e.message));' 2>&1
+}
+chkl  "escribir el campo CONSERVA su comentario"    "DONE   # G1 CHALLENGE aceptado"  _esc198
+# AC-04 . TS-04 . Y NINGUNA EXPRESION SUELTA FUERA DEL SITIO UNICO. Es la comprobacion inversa:
+# el sitio unico no vale de nada si alguien escribe la octava manana.
+# La salida se NORMALIZA a una marca: si se comprobara el literal «^status:», una octava copia
+# sobre «phase» pasaria por no contener esa cadena — verde por mirar al sitio equivocado.
+chknol "ninguna expresion de campo suelta fuera de patrones" 'SUELTA' \
+  sh -c 'grep -h "\^\(status\|phase\|type\|epic\):" '"$SUITE"'/tools/tracker.mjs '"$SUITE"'/tools/verify-fdge.mjs 2>/dev/null | sed "s/.*/SUELTA/" || true'
+# Y LA PAREJA QUE PRUEBA QUE EL DETECTOR DETECTA: sobre un archivo que SI la tiene, la ve. Sin
+# esto, lo de arriba lo cumple un grep roto, que es CE-005 —verde por no haber mirado— dentro del
+# caso escrito para impedirlo.
+chkl  "…y sobre un archivo que SI la tiene, la ve"  "SUELTA" \
+  sh -c 'printf "%s\n" "  const RE = /^status:[ ]*\\S+$/m;" > '"$WORK"'/p198.js;
+         grep -h "\^\(status\|phase\|type\|epic\):" '"$WORK"'/p198.js | sed "s/.*/SUELTA/"'
+# AC-03 . Y EL MENSAJE DEL TRACKER SOBRE UN ARBOL, que es donde el defecto hacia dano de verdad.
+# No se comprueba el LITERAL en el fuente —eso seria el proxy en lugar del hecho (CE-001)— sino la
+# salida del comando corriendo.
+_msg198() {   # $1 = la linea de status que se planta
+  local d="$WORK/p198"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\n%s\nphase: 1\ntype: BUG\n---\n\ncuerpo\n' "$1" > "$d/changes/PT-700-x/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"DRAFT","phase":1}]}' > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" rechazar PT-700 --motivo "no procede por duplicado" --aplicar "$d" 2>&1 )
+}
+chkl  "el mensaje dice que el campo ESTA y no se leyo"  "El campo ESTA"   _msg198 'status:'
+# Y SU PAREJA: el AUSENTE sigue diciendo que NO declara. Sin esto, lo de arriba lo cumple un
+# mensaje unico que diga siempre «ESTA», que es el defecto de hoy con el texto cambiado.
+chkl  "…y el ausente sigue diciendo que NO lo declara"  "no declara"      _msg198 'sinstatus: x'
+
+
 
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
