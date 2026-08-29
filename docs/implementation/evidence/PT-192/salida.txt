@@ -1,0 +1,26 @@
+PT-192 · corrida COMPLETA en verde
+
+== los CINCO casos que median por posicion, ahora anclados ==
+  [32m✓[0m …y el motivo lleva las dos cifras
+  [32m✓[0m sin coincidencias, es rojo
+  [32m✓[0m …y lo dice con el patron
+  [32m✓[0m con --solo la salida lleva dos cifras
+  [32m✓[0m el recuento final existe
+  [32m✓[0m …y no mira QUIET
+  [32m✓[0m …y una desviada si, con las dos cifras
+
+== y los cinco nuevos que fijan el arreglo ==
+  [32m✓[0m anadir lineas al final NO rompe la extraccion
+  [32m✓[0m …y con tail -40 SI la rompia
+  [32m✓[0m …y no pasa por vacio: tail -40 devuelve relleno
+  [32m✓[0m el ancla no casa la linea que la busca
+  [32m✓[0m …y sobre el arnes real empieza en la marca
+
+selftest: OK · 1950 casos
+
+== la inversa, medida ==
+   con tail -40 y 50 lineas de relleno: NO encuentra el recuento (caso «…y con tail -40 SI la rompia»)
+   con el ancla y las mismas 50:        SI lo encuentra
+
+Recibo de la corrida completa (NO versionado):
+{ "veredicto": "OK", "casos": "1950", "arnes": "38d59eef6f246a7553cb32048712bad3414953a6", "fecha": "2026-08-29T05:38:08Z" }

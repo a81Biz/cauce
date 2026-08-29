@@ -1,0 +1,34 @@
+{
+  "pt": "PT-192",
+  "generated": "2026-08-28",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Los cuatro casos siguen detectando lo que detectaban",
+      "scenarios": ["TS-01"],
+      "tests": ["selftest · sin coincidencias, es rojo", "selftest · …y lo dice con el patron",
+                "selftest · con --solo la salida lleva dos cifras", "selftest · el recuento final existe",
+                "selftest · …y no mira QUIET"],
+      "evidence": ["salida.txt"], "verified": true,
+      "como": "Los CINCO —son cinco, no cuatro: «…y no mira QUIET» tambien usaba tail -4— siguen en verde en la corrida completa." },
+    { "ac": "AC-02", "statement": "Anadir lineas al final del fuente NO los pone en rojo",
+      "scenarios": ["TS-02"],
+      "tests": ["selftest §EP-026 · anadir lineas al final NO rompe la extraccion",
+                "selftest §EP-026 · …y con tail -40 SI la rompia",
+                "selftest §EP-026 · …y no pasa por vacio: tail -40 devuelve relleno"],
+      "evidence": ["salida.txt"], "verified": true,
+      "como": "Tres casos, no uno. El segundo prueba que el arreglo HACIA FALTA; el tercero impide que ese segundo pase por vacio." },
+    { "ac": "AC-03", "statement": "El ancla no casa su propia definicion",
+      "scenarios": ["TS-03"],
+      "tests": ["selftest §EP-026 · el ancla no casa la linea que la busca",
+                "selftest §EP-026 · …y sobre el arnes real empieza en la marca"],
+      "evidence": ["salida.txt"], "verified": true }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable",
+  "declarado_sin_cubrir": [
+    { "afirmacion": "Todas las extracciones posicionales del arnes",
+      "por_que_no": "Se cubren las CINCO que miden el final del fuente y que han fallado tres veces. Hay tail/head/sed -n en mas sitios; barrerlos es otro trabajo.",
+      "verified": false },
+    { "afirmacion": "Que nadie borre la marca",
+      "por_que_no": "Es una CONVENCION, como cauce:senuelos de PT-190. Quien borre «# cauce:informe-final» rompe cinco casos. Lo que cambia es que borrarla es un acto DELIBERADO y visible, mientras que anadir una linea al final no lo era.",
+      "verified": false }
+  ]
+}

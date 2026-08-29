@@ -129,7 +129,7 @@
 | PT-189 | BUG | S2 | INTEGRATED | EP-025 | FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino |
 | PT-190 | BUG | S2 | INTEGRATED | EP-025 | La exencion del escaner de secretos depende de un desplazamiento en bytes |
 | PT-191 | BUG | S2 | INTEGRATED | EP-025 | El sello se estampa con una bandera, no con una corrida |
-| PT-192 | BUG | S2 | DRAFT | EP-026 | El final del arnes se mide por POSICION y castiga cualquier anadido |
+| PT-192 | BUG | S2 | DONE | EP-026 | El final del arnes se mide por POSICION y castiga cualquier anadido |
 | PT-194 | BUG | S2 | DRAFT | EP-026 | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
 | PT-195 | BUG | S2 | DRAFT | EP-026 | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
 | PT-196 | BUG | S2 | DRAFT | EP-026 | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |

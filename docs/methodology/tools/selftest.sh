@@ -306,6 +306,12 @@ chknol() {  # como chkno, pero la expectativa es LITERAL
     bad "$name  (aparecio literal y no debia: $pat)"
   else pass "$name"; fi
 }
+# PT-192 · EL INFORME FINAL SE EXTRAE POR SU MARCA, NO POR SU DISTANCIA AL FINAL.
+#
+# El patron se ENSAMBLA para que este archivo no lo contenga entero: si lo contuviera, el sed
+# arrancaria en la linea que lo busca en vez de en la marca real — que es exactamente lo que le
+# paso al intento de :7355. Es la tecnica de PT-193.
+_informe_final() { sed -n "/cauce:info""rme-final/,\$p" "${1:-$SUITE/tools/selftest.sh}"; }
 # LO QUE NO SE PUEDE ARREGLAR SE CUENTA Y SE DICE, como PT-199 con las raices que no deriva.
 # Heuristica y se declara: punto entre alfanumericos, sin ^ $ [ ] * ni barra invertida. No es una
 # auditoria — establece el orden de magnitud, y hace que la cifra deje de crecer a ciegas.
@@ -7358,8 +7364,8 @@ chkno "…sin lanzar un proceso por caso"       'grep -qF'                 sh -c
 # dos veces en esta tarea: la lectura no la ve nunca.
 # PT-086 · la ventana pasa de 14 a 40 lineas: el bloque que avisa de PARCIAL empujo el objetivo
 # fuera. Extraer por POSICION es fragil en las dos direcciones, y aqui toco esta.
-chk   "sin coincidencias, es rojo"            'exit 1'                   sh -c 'tail -40 "$1"' _ "$_st2"
-chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c 'tail -40 "$1"' _ "$_st2"
+chk   "sin coincidencias, es rojo"            'exit 1'                   _informe_final "$_st2"
+chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         _informe_final "$_st2"
 # --solo sin valor: un patron vacio casaria con todo y la bandera mentiria.
 # Se extrae por «>&2» y no por el texto del mensaje: buscar «necesita un patron» habria casado
 # TAMBIEN esta misma linea, y el caso habria pasado aunque el mensaje real desapareciera. Es la
@@ -7367,7 +7373,7 @@ chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c
 chk   "--solo sin valor es un error"          'necesita un patron'       sh -c 'sed -n "/>&2/p" "$1"' _ "$_st2"
 chk   "…y el valor se consume ANTES del case" '_espera_solo" \]; then SOLO' sh -c 'sed -n "/^for _a in/,/^done/p" "$1"' _ "$_st2"
 # Las dos cifras solo aparecen cuando hay algo que distinguir.
-chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       sh -c 'tail -40 "$1"' _ "$_st2"
+chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       _informe_final "$_st2"
 chkno "…y sin --solo, una sola"               'de $UNIVERSO casos'       sh -c 'tail -3 "$1"' _ "$_st2"
 
 # ─── PT-049 · el verde se CUENTA, no se enumera ────────────────────────────
@@ -7405,8 +7411,8 @@ chk   "TOTAL sube antes que la guarda"        'pass() { TOTAL='     sh -c 'sed -
 # definirse, y una de ellas dice «QUIET»: el caso se cazaba a si mismo. Es la cuarta vez en la
 # sesion que aparece esta familia —la asercion que casa su propia definicion— y aqui queda por
 # escrito, porque el patron se repite y la lectura no lo ve.
-chk   "el recuento final existe"              'selftest: OK'        sh -c 'tail -4 "$1"' _ "$_st"
-chkno "…y no mira QUIET"                      'QUIET'               sh -c 'tail -4 "$1"' _ "$_st"
+chk   "el recuento final existe"              'selftest: OK'        _informe_final "$_st"
+chkno "…y no mira QUIET"                      'QUIET'               _informe_final "$_st"
 chk   "-q se FILTRA de los posicionales"      'quiet) QUIET=1'      sh -c 'sed -n "/quiet) QUIET/p" "$1"' _ "$_st"
 chk   "…y WORK sale del posicional filtrado"  'POS:-'               sh -c 'sed -n "/^WORK=/p" "$1"' _ "$_st"
 chkno "…no del primer argumento crudo"        '{1:-'                sh -c 'sed -n "/^WORK=/p" "$1"' _ "$_st"
@@ -9889,6 +9895,44 @@ _amb181() {
 }
 chkl  "…y la cifra de ambiguas se declara"           "1"  _amb181
 
+# ── PT-192 · el final del arnes deja de medirse por POSICION ──────────────
+#
+# CUATRO casos median este bloque con «tail -40» y «tail -4», y eso castiga cualquier anadido al
+# final aunque nada de lo que miden cambie. Paso TRES veces: PT-086 amplio la ventana de 14 a 40,
+# PT-191 metio 21 lineas y puso dos casos en rojo, y PT-199 tuvo que colocar su codigo antes del
+# informe por lo mismo. Ampliar la ventana otra vez solo moveria el dia en que vuelve a pasar.
+_arnes192() {  # $1 = lineas de relleno DESPUES del bloque · devuelve la ruta del arnes falso
+  local d="$WORK/p192" i; rm -rf "$d"; mkdir -p "$d"
+  { printf '# cabecera del arnes falso\n'
+    printf 'chk "un caso" "patron" comando\n'
+    printf '# cauce:info%s\n' 'rme-final'
+    printf 'echo "selftest: OK · N casos"\n'
+    printf 'exit 1\n'
+    if [ "${1:-0}" -gt 0 ]; then i=0; while [ "$i" -lt "$1" ]; do printf '# relleno\n'; i=$((i+1)); done; fi
+  } > "$d/falso.sh"
+  printf '%s' "$d/falso.sh"
+}
+# NOTA: estas envolturas existen porque `chk` invoca el comando DIRECTAMENTE, y un `sh -c` no ve
+# las funciones de este arnes. Escrito con `sh -c`, el comando fallaba con «command not found» y
+# el `chkno` PASABA por el motivo equivocado: sin salida, nada casa. Es la familia de PT-181.
+_ancla192()  { _informe_final "$(_arnes192 "${1:-0}")"; }
+_tail192()   { tail -40 "$(_arnes192 "${1:-50}")"; }
+_marca192()  { _informe_final "$(_arnes192 0)" | head -1; }
+_marcareal() { _informe_final | head -1; }
+# AC-02 · ANADIR LINEAS AL FINAL NO ROMPE LA EXTRACCION. 50 es holgadamente mas que las 21 que
+# PT-191 anadio y rompieron dos casos.
+chkl  "anadir lineas al final NO rompe la extraccion"  "selftest: OK"  _ancla192 50
+# Y SU PAREJA, que es la que prueba que el arreglo HACIA FALTA: con tail -40, el MISMO arnes falso
+# con las mismas 50 lineas, YA NO encuentra el recuento. Sin ella, AC-02 lo cumpliria cualquier
+# extraccion que funcione. Se comprueba ADEMAS que tail -40 SI devuelve algo, para que el caso no
+# pase por vacio.
+chknol "…y con tail -40 SI la rompia"                  "selftest: OK"  _tail192 50
+chkl  "…y no pasa por vacio: tail -40 devuelve relleno" "# relleno"    _tail192 50
+# AC-03 · EL ANCLA NO CASA LA LINEA QUE LA BUSCA. El intento anterior de anclar por texto
+# «arrancaba en ESTA MISMA LINEA y se tragaba medio archivo». El patron va PARTIDO.
+chkl  "el ancla no casa la linea que la busca"         "# cauce:informe-final"  _marca192
+chkl  "…y sobre el arnes real empieza en la marca"     "# cauce:informe-final"  _marcareal
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"
@@ -9926,6 +9970,23 @@ if [ -n "$TODO" ] && [ -z "$ACOTADO" ]; then
 fi
 
 echo
+# cauce:informe-final
+#
+# PT-192 · LA MARCA ES DELIBERADA, y de aqui hacia abajo es el informe final.
+#
+# Cuatro casos median este bloque por POSICION —«tail -40» tres veces y «tail -4» una— y eso
+# castiga cualquier anadido al final aunque nada de lo que miden cambie. Ya paso TRES veces:
+# PT-086 amplio la ventana de 14 a 40 por esto y dejo escrito «extraer por POSICION es fragil en
+# las dos direcciones»; PT-191 metio 21 lineas detras del recuento y puso DOS casos en rojo; y
+# PT-199 tuvo que colocar su codigo antes del informe por la misma razon.
+#
+# Anclar por TEXTO no valia: el arnes SE LEE A SI MISMO, asi que un patron literal esta en el
+# archivo dos veces —en el sitio buscado y en el caso que lo busca— y el intento anterior
+# «arrancaba en ESTA MISMA LINEA» (ver :7355). Por eso los casos construyen la marca PARTIDA, la
+# tecnica con que PT-193 saco las contrasenas del fuente.
+#
+# BORRAR ESTA LINEA ROMPE CUATRO CASOS. Es una convencion, como «cauce:senuelos» de PT-190: lo que
+# cambia respecto a hoy es que borrarla es un acto DELIBERADO, y anadir una linea al final no lo era.
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que
 # distinguir. Y un patron que no casa NADA es ROJO — un verde por vacio es lo que PT-023

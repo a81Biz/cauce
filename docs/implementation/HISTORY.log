@@ -12062,3 +12062,87 @@ cada una.
 LO QUE NO SE CUBRE, Y CONSTA. Las 96 no se migran ni se auditan: lo que esta tarea entrega es la
 FORMA de decir literal y la CIFRA visible. Y la cifra es una HEURISTICA, no una auditoria — puede
 marcar alguna que quisiera ser regex y escaparsele otra. Establece el orden de magnitud.
+
+## PT-192 — El final del arnes se media por POSICION y castigaba cualquier anadido
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-192-el-final-se-mide-por-posicion
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de PT-191 · motivo hallazgo · changes/PT-191-el-sello-se-estampa-con-una-bandera/paradas/PT-192.md
+
+TRES VECES LA MISMA CAUSA, Y LA TERCERA FUE ESTA MISMA EPICA.
+
+    selftest.sh:7361  «sin coincidencias, es rojo»            tail -40  sobre el fuente
+    selftest.sh:7362  «…y lo dice con el patron»              tail -40
+    selftest.sh:7370  «con --solo la salida lleva dos cifras» tail -40
+    selftest.sh:7408  «el recuento final existe»              tail -4
+    selftest.sh:7409  «…y no mira QUIET»                      tail -4
+
+CINCO casos —el intake decia cuatro— median el bloque del informe final por su DISTANCIA AL FINAL
+del archivo. Cualquier anadido detras empuja el objetivo fuera de la ventana y pone el caso en rojo
+SIN QUE NADA DE LO QUE MIDE HAYA CAMBIADO: castiga el anadido, no el error.
+
+EL HISTORIAL, ESCRITO EN EL PROPIO ARCHIVO:
+  · PT-086 amplio la ventana de 14 a 40 por esto, y dejo escrito: «extraer por POSICION es fragil
+    en las dos direcciones, y aqui toco esta».
+  · PT-191 metio 21 lineas detras del recuento y puso DOS casos en rojo.
+  · PT-199 tuvo que colocar su codigo «antes del informe final» por la misma razon, y dejarlo
+    comentado para que el siguiente no lo rompiera.
+El margen que quedaba al empezar esta tarea era de SIETE lineas.
+
+POR QUE EL ANCLA TEXTUAL INGENUO NO VALIA, y consta en :7355: «sed -n "/NINGUN CASO CASA/,/^fi/p"
+arrancaba en ESTA MISMA LINEA —que contiene ese texto al definirse— y se tragaba medio archivo». EL
+ARNES SE LEE A SI MISMO: cualquier patron literal esta en el archivo DOS veces, en el sitio buscado
+y en el caso que lo busca. Por eso se eligio la posicion.
+
+SOLUCION. Una MARCA deliberada —«# cauce:informe-final»— y los casos la construyen PARTIDA, para que
+el fuente no la contenga entera:
+
+    _informe_final() { sed -n "/cauce:info""rme-final/,\$p" "${1:-...}"; }
+
+Es la tecnica con que PT-193 saco las contrasenas del fuente, y la idea con que PT-190 sustituyo la
+heuristica de los 4000 caracteres: una declaracion explicita que vale ESTE DONDE ESTE.
+
+Archivos modificados: tools/selftest.sh · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+
+AC-02 LLEVA TRES CASOS Y LOS TRES HACEN FALTA. Que el ancla aguante 50 lineas nuevas lo cumple
+cualquier extraccion que funcione. El segundo —que con «tail -40», el MISMO arnes falso, FALLA— es
+el que prueba que el arreglo hacia falta. Y el tercero impide que ese segundo pase POR VACIO.
+
+Medido: corrida COMPLETA 1950 casos en verde · los cinco casos anclados siguen detectando lo suyo ·
+  50 lineas de relleno no rompen la extraccion, y con tail -40 si la rompian.
+
+Evidencia: docs/implementation/evidence/PT-192/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-192-el-final-del-arnes-se-mide-por-posicion/traceability.md — sin AC
+  huerfano (FDGE-R15).
+
+DELTA REAL VS PLANIFICADO — DOS ERRORES MIOS, Y LOS DOS DE LA MISMA FAMILIA.
+
+1) ESCRIBI LOS CASOS CON «sh -c», Y sh NO VE LAS FUNCIONES DE BASH. El comando fallaba con «command
+not found»... y el chkno PASABA EN VERDE: sin salida, nada casa. Un caso que aprueba porque su
+comando NO EXISTE es exactamente lo que da nombre a este lote. Reescrito con funciones propias, y
+anadido el caso «no pasa por vacio» que lo habria delatado.
+
+2) DEFINI «_informe_final()» JUNTO A LOS CASOS NUEVOS, al final del archivo — y TRES de sus cinco
+usos estan 7000 lineas mas arriba. La corrida POR SECCION paso, porque esos casos no estaban en
+ella; la COMPLETA fallo con «command not found». Movida junto a chk, chkl y chknol, que es donde
+viven los helpers.
+
+Los dos son el mismo defecto: UN CASO PUEDE FALLAR —o pasar— POR UNA RAZON QUE NO ES LA QUE MIDE. Y
+el segundo solo lo vio la corrida COMPLETA: la acotada no lo alcanzaba.
+
+ERAN CINCO CASOS, NO CUATRO. El intake y discovery.md contaban cuatro; al implementarlo aparecio
+«…y no mira QUIET», que tambien usaba tail -4 sobre el fuente. Se incluye —mismo defecto, misma
+ventana— y la cifra se corrige aqui en vez de dejarse en cuatro.
+
+LO QUE NO SE CUBRE, Y CONSTA. No se barren todas las extracciones posicionales del arnes: se cubren
+las cinco que miden el final del fuente y que han fallado tres veces. Y la marca es una CONVENCION,
+no una garantia: quien borre «# cauce:informe-final» rompe cinco casos. Lo que cambia respecto a hoy
+es que borrarla es un acto DELIBERADO y visible, mientras que anadir una linea al final no lo era.
