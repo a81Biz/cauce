@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/EP-026-PT-181-la-expectativa-es-una-regex",
   "sha": "5e75981c98f009175b3a07323df37b1422ad4da0",
   "sha_corto": "5e75981",
@@ -15,12 +15,18 @@
     "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/strategy.md",
     "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/test-scenarios.md",
     "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/evidence/PT-181/",
+    "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-28"
 }
