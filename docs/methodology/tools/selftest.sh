@@ -9780,6 +9780,44 @@ chk   "SUITE-R62 dice donde deja de valer"           "en local todavía no exist
 chk   "…y nombra las dos que lo sufren"              "SUITE-R51" \
   node "$SUITE/tools/regla.mjs" SUITE-R62
 
+# ── PT-179 · la evidencia que falta deja de AVISAR cuando ya tocaba ───────
+#
+# verify-fdge daba CERO ERRORES a una tarea en PHASE 7 sin evidencia, diciendo «normal antes de
+# PHASE 6». El mensaje describia una situacion que no era la suya y el dato para saberlo —la fase
+# declarada— estaba a diez lineas. La prueba de que no es teorico esta en el SESSION_LOG del lote
+# que lo descubrio: TRES errores de evidencia pasaron en verde antes de corregirse.
+#
+# `exigible()` ya existia y ya tenia las tres salidas de RULE-02. FDGE-R42 y FDGE-R15 lo usaban;
+# FDGE-R23, R25 y R29 no. El arreglo es USARLO, no escribir otro.
+_ev179() {  # $1 = fase declarada (vacio = ninguna) · imprime lo que dicen las tres reglas
+  local d="$WORK/p179"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-900-x" "$d/changes/EP-900-lote"
+  cp -r "$SUITE" "$d/docs/methodology"
+  { printf -- '---\nid: PT-900\ntype: BUG\nstatus: %s\n' "${2:-READY}"
+    [ -n "$1" ] && printf 'phase: %s\n' "$1"
+    printf -- 'epic: EP-900\n---\n\n## Firma\nFirmado por lote: EP-900\n'
+    printf 'He leido este Intake y confirmo que refleja mi intencion: SI\n\n> Termina cuando: da igual\n'
+  } > "$d/changes/PT-900-x/intake.md"
+  printf -- '---\nid: EP-900\nstatus: READY\n---\n\n## Cierre del lote\n\n| Que | Estado |\n|:--|:--|\n| nada | HECHO |\n' > "$d/changes/EP-900-lote/intake.md"
+  { printf '{"firmantes":["Alberto Martinez"],"counters":{"PT":900},"allocations":['
+    printf '{"id":"EP-900","slug":"lote","status":"READY","phase":1},'
+    printf '{"id":"PT-900","slug":"x","type":"BUG","severity":"S2","epic":"EP-900","status":"%s"' "${2:-READY}"
+    [ -n "$1" ] && printf ',"phase":%s' "$1"
+    printf ',"suite_version":"13.4.0","branch":"fix/t/PT-900-x"'
+    printf ',"origen_parada":{"de":"PT-899","motivo":"hallazgo","fecha":"2026-08-28"}'
+    printf ',"viabilidad":{"veredicto":"SAFE"}}]}'
+  } > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" PT-900 2>&1 | sed -n '/FDGE-R23/p' | head -1 )
+}
+# LAS TRES SALIDAS DE RULE-02, y las tres importan.
+# 1 · toca y falta -> ERROR. Es el defecto: antes decia «normal antes de PHASE 6» y daba 0 errores.
+chk   "evidencia que falta en PHASE 7 BLOQUEA"       "✗ FDGE-R23"   _ev179 7 VALIDATION_PENDING
+# 2 · aun no toca -> AVISO, y nombra LA FASE REAL. Sin esto, convertirlo en error pondria en rojo
+#     a todo PT recien abierto: una compuerta roja sobre conducta correcta ensena a saltarsela.
+chk   "…y en PHASE 4 solo avisa, diciendo la fase"   "el PT está en PHASE 4"  _ev179 4
+# 3 · no se sabe la fase -> NO SE EVALUA, que no es un aprobado (RULE-06).
+chkno "…y sin fase declarada NO se convierte en error" "✗ FDGE-R23"  _ev179 ""
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"

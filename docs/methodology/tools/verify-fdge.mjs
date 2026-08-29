@@ -2480,7 +2480,7 @@ function checkPT(pt, { gate } = {}) {
     } else if (!/^##\s*Conclusi[óo]n/im.test(disc)) {
       fail('FDGE-R42', `${pt}: discovery.md no tiene sección "## Conclusión". Una investigación no cierra sin ella.`);
     } else ok('FDGE-R42', `${pt}: investigación con conclusión documentada.`);
-    checkHistory(pt, rel, type, { gate });
+    checkHistory(pt, rel, type, { gate, fase: faseDeclarada });
     checkIndex(pt, enRegistroPT, { gate });
     checkAplazado(pt, rel, { gate });
     if (errors.length === errAt) ok('FDGE-R10', `${pt}: INVESTIGATION verificada (exenta de FDGE-R15 y FDGE-R23).`);
@@ -2580,9 +2580,23 @@ function checkPT(pt, { gate } = {}) {
   }
 
   // ── FDGE-R23 · manifiesto de evidencia ────────────────────────────────────
+  //
+  // PT-179 · LA COMPUERTA CONCEDIA SIN MIRAR LA FASE. Decia «normal antes de PHASE 6» a una tarea
+  // que YA HABIA PASADO PHASE 6, y devolvia 0 errores. El mensaje describia una situacion que no
+  // era la suya, y el dato para saberlo —la fase declarada— estaba a diez lineas.
+  //
+  // La prueba de que no es teorico esta en el SESSION_LOG del lote que lo descubrio: TRES errores
+  // de evidencia —ruta equivocada, `tests` como cadena donde el esquema pide array, un `coverage`
+  // que comparaba texto contra texto— PASARON LOS TRES EN VERDE antes de corregirse. Se escribio
+  // entonces: «son la prueba de PT-179».
+  //
+  // `exigible()` ya existia diez lineas mas arriba y ya tenia las tres salidas que RULE-02 pide:
+  // toca y falta -> error · aun no toca -> aviso · no se sabe la fase -> SIN EVALUAR. FDGE-R42 y
+  // FDGE-R15 lo usaban; esta no. El arreglo es usarlo, no escribir otro.
   if (manifest === null) {
-    if (exigibleEn(gate, 'manifest.json')) fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
-    else warn('FDGE-R23', `${pt}: aún sin evidence/${pt}/manifest.json (normal antes de PHASE 6).`);
+    if (exigibleEn(gate, 'manifest.json') || exigible('FDGE-R23', 6, `evidence/${pt}/manifest.json`)) {
+      fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
+    }
   } else if (manifest === undefined) {
     fail('FDGE-R23', `${pt}: manifest.json no es JSON válido.`);
   } else {
@@ -2613,12 +2627,18 @@ function checkPT(pt, { gate } = {}) {
   // ── FDGE-R25 · self-review ────────────────────────────────────────────────
   const sr = read(join(evDir, 'self-review.md'));
   if (sr === null) {
-    if (exigibleEn(gate, 'self-review.md') || afterPhase6) fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
+    // PT-179 · «afterPhase6» era un PROXY: deducia la fase de que EXISTIERA el manifest, asi que
+    // una tarea en PHASE 7 sin NINGUNO de los dos se le escapaba entera. La fase esta declarada;
+    // se lee, no se infiere (CE-001).
+    if (exigibleEn(gate, 'self-review.md') || afterPhase6
+        || exigible('FDGE-R25', 6, `evidence/${pt}/self-review.md`)) {
+      fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
+    }
   } else if (/SELF_REVIEW_BLOCKERS_FOUND/.test(sr)) {
     fail('FDGE-R25', `${pt}: el self-review está en SELF_REVIEW_BLOCKERS_FOUND.`);
   } else ok('FDGE-R25', `${pt}: self-review completo.`);
 
-  checkHistory(pt, rel, type, { gate });
+  checkHistory(pt, rel, type, { gate, fase: faseDeclarada });
   checkIndex(pt, enRegistroPT, { gate });
   checkAplazado(pt, rel, { gate });
 
@@ -2626,7 +2646,10 @@ function checkPT(pt, { gate } = {}) {
 }
 
 // ─── FDGE-R29 · HISTORY.log ──────────────────────────────────────────────────
-function checkHistory(pt, rel, type, { gate }) {
+// PT-179 · `fase` viaja hasta aqui por el mismo motivo: sin ella, una tarea en PHASE 8 sin entrada
+// en HISTORY salia con un aviso que decia «se escribe en PHASE 8» — describiendo como futura una
+// fase que la tarea ya declara haber alcanzado.
+function checkHistory(pt, rel, type, { gate, fase }) {
   const hist = read(join(IMPL, 'HISTORY.log')) ?? '';
   const entries = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—`, 'gm'))];
   const reverted = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+REVERTIDO`, 'gm'))];
@@ -2639,8 +2662,11 @@ function checkHistory(pt, rel, type, { gate }) {
   // que `reverted` ya usa —descontar por encabezado— y que FDGE-R36 ya obliga a aplicar.
   const corrige = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+CORRIGE`, 'gm'))];
   if (entries.length === 0) {
-    if (exigibleEn(gate, 'HISTORY.log')) fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log.`);
-    else warn('FDGE-R29', `${pt}: aún sin entrada en HISTORY.log (se escribe en PHASE 8).`);
+    if (exigibleEn(gate, 'HISTORY.log') || (Number.isInteger(fase) && fase >= 8)) {
+      fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log${Number.isInteger(fase) ? ` y está en PHASE ${fase}` : ''}.`);
+    } else if (!Number.isInteger(fase)) {
+      warn('FDGE-R29', `${pt}: sin entrada en HISTORY.log y su fase no consta: NO SE EVALÚA si ya tocaba (SUITE-R08).`);
+    } else warn('FDGE-R29', `${pt}: aún sin entrada en HISTORY.log — se escribe en PHASE 8 y el PT está en PHASE ${fase}.`);
     return;
   }
   // Sin entrada original, una CORRIGE seria una via para declarar trabajo que nunca ocurrio.

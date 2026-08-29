@@ -5947,8 +5947,8 @@
       "id": "PT-179",
       "slug": "evidencia-que-falta-solo-avisa",
       "created": "2026-08-26",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6",
@@ -5958,7 +5958,34 @@
         "fecha": "2026-08-26"
       },
       "issue": 327,
-      "epic": "EP-026"
+      "epic": "EP-026",
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-28"
+      }
     },
     {
       "id": "PT-180",

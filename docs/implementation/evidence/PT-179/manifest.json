@@ -1,0 +1,36 @@
+{
+  "pt": "PT-179",
+  "generated": "2026-08-28",
+  "criteria": [
+    { "ac": "AC-01", "statement": "Falta el manifest y la tarea paso PHASE 6 ⇒ error",
+      "scenarios": ["TS-01"],
+      "tests": ["selftest §EP-026 · evidencia que falta en PHASE 7 BLOQUEA"],
+      "evidence": ["salida.txt"], "verified": true },
+    { "ac": "AC-02", "statement": "Falta el manifest y la tarea esta antes de PHASE 6 ⇒ aviso",
+      "scenarios": ["TS-02"],
+      "tests": ["selftest §EP-026 · …y en PHASE 4 solo avisa, diciendo la fase"],
+      "evidence": ["salida.txt"], "verified": true,
+      "como": "Este es el que impide que el arreglo sea «error siempre», que pondria en rojo a todo PT recien abierto." },
+    { "ac": "AC-03", "statement": "El mensaje no afirma «normal antes de PHASE 6» cuando la tarea ya paso de ahi",
+      "scenarios": ["TS-02", "TS-03"],
+      "tests": ["selftest §EP-026 · …y en PHASE 4 solo avisa, diciendo la fase",
+                "selftest §EP-026 · …y sin fase declarada NO se convierte en error"],
+      "evidence": ["salida.txt"], "verified": true }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable",
+  "alcance_ampliado": {
+    "hubo": true,
+    "que": "No era UNA regla sino TRES: FDGE-R23 (manifest), FDGE-R25 (self-review) y FDGE-R29 (HISTORY). Comparten defecto y helper.",
+    "por_que": "Arreglar solo FDGE-R23 dejaria a FDGE-R29 diciendo «se escribe en PHASE 8» a una tarea que YA declara estar en 8, y a FDGE-R25 con su proxy.",
+    "el_peor": "FDGE-R25 usaba «afterPhase6», que deduce la fase de que EXISTA el manifest. Es CE-001 y falla en el caso peor: una tarea en PHASE 7 sin manifest NI self-review se escapaba entera, porque el proxy que debia delatarla tambien faltaba."
+  },
+  "declarado_sin_cubrir": [
+    { "afirmacion": "FDGE-R25 y FDGE-R29 con caso propio de bateria",
+      "por_que_no": "Comparten helper, fixture y las tres salidas con FDGE-R23; anadir dos casos identicos mediria lo mismo tres veces.",
+      "como_se_sostiene": "Comprobadas A MANO sobre el mismo fixture, en PHASE 7 y en PHASE 4, y la salida esta en salida.txt.",
+      "verified": false },
+    { "afirmacion": "Que ninguna otra regla conceda sin mirar la fase",
+      "por_que_no": "No se barrieron todas. Se cubren las tres de evidencia y persistencia, que son las medidas.",
+      "verified": false }
+  ]
+}

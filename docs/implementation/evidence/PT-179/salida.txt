@@ -1,0 +1,20 @@
+PT-179 · corrida COMPLETA en verde, y las tres salidas de RULE-02
+
+  [32m✓[0m evidencia que falta en PHASE 7 BLOQUEA
+  [32m✓[0m …y en PHASE 4 solo avisa, diciendo la fase
+  [32m✓[0m …y sin fase declarada NO se convierte en error
+
+selftest: OK · 1940 casos
+
+== FDGE-R25 y FDGE-R29 · comprobadas A MANO, como se declaro ==
+   (comparten helper y fixture con FDGE-R23, por eso no tienen caso propio)
+
+   --- PHASE 7 ---
+     ! FDGE-R29       PT-900: aún sin entrada en HISTORY.log — se escribe en PHASE 8 y el PT está en PHASE 7.
+     ✗ FDGE-R25       PT-900: falta evidence/PT-900/self-review.md.
+   --- PHASE 4 ---
+     ! FDGE-R25       PT-900: aún sin evidence/PT-900/self-review.md — se escribe en PHASE 6 y el PT está en PHASE 4.
+     ! FDGE-R29       PT-900: aún sin entrada en HISTORY.log — se escribe en PHASE 8 y el PT está en PHASE 4.
+
+Recibo de la corrida completa (NO versionado):
+{ "veredicto": "OK", "casos": "1940", "arnes": "d28684040612327b017979aaeb85b66a88a2f952", "fecha": "2026-08-29T02:36:18Z" }
