@@ -11898,3 +11898,82 @@ una aproximacion medida. SUITE-R51 no tiene caso propio, porque su hecho solo ex
 Y el aviso se anadio a SUITE-R34, donde se midio el dano tres veces: las otras diez NO lo llevan
 todavia — lo que este arreglo garantiza para ellas es que la REGLA lo declara, no que cada una lo
 diga. Es una limitacion real y no se disfraza.
+
+## PT-179 — La evidencia que falta solo avisaba, tambien cuando ya tocaba
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-179-evidencia-que-falta-solo-avisa
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de PT-178 · motivo hallazgo
+
+LA COMPUERTA CONCEDIA SIN MIRAR LA FASE, Y EL DATO ESTABA A DIEZ LINEAS.
+
+verify-fdge daba CERO ERRORES a una tarea en PHASE 7 sin evidencia, diciendo «aun sin manifest.json
+(normal antes de PHASE 6)». El mensaje describia una situacion que no era la suya.
+
+    verify-fdge.mjs:2584
+    if (exigibleEn(gate, 'manifest.json')) fail(...); else warn(... 'normal antes de PHASE 6');
+
+`exigibleEn(gate, ...)` mira LA COMPUERTA bajo la que se corre, no LA FASE de la tarea. Sin --gate
+—que es como corre «npm run verify» y como corre CI— nada exigia el artefacto.
+
+QUE LO HACE REAL Y NO TEORICO. El SESSION_LOG del lote que lo descubrio registra TRES errores de
+evidencia: ruta equivocada, «tests» como cadena donde el esquema pide array, y un «coverage» que
+comparaba texto contra texto. Se escribio entonces: «los tres pasaron en verde antes de corregirse:
+son la prueba de PT-179».
+
+SOLUCION. Usar el helper que YA EXISTIA diez lineas mas arriba:
+
+    verify-fdge.mjs:2213
+    const exigible = (regla, desde, artefacto) => { ... }   // tres salidas de RULE-02
+
+Ya lo usaban FDGE-R42 y FDGE-R15. Escribir otro habria duplicado el mismo criterio, que es lo que
+SUITE-R38 persigue. No se sustituye «exigibleEn»: se SUMA, porque bajo --gate G4 aquella exigencia
+sigue siendo correcta.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh ·
+  enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+TS-02 sostiene a los otros dos: AC-01 lo satisface convertir el aviso en error SIEMPRE, y eso
+pondria en rojo a todo PT recien abierto — el defecto contrario y peor. El comentario de :2206 ya lo
+decia: «una compuerta que se pone roja sobre comportamiento correcto ensena a saltarsela».
+
+Medido: corrida COMPLETA 1940 casos en verde · PHASE 7 sin evidencia BLOQUEA · PHASE 4 avisa
+  diciendo la fase real · sin fase declarada NO se convierte en error.
+
+Evidencia: docs/implementation/evidence/PT-179/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-179-evidencia-que-falta-solo-avisa/traceability.md — sin AC huerfano.
+
+DELTA REAL VS PLANIFICADO — EL ALCANCE CRECIO DE UNA REGLA A TRES, Y CON MOTIVO.
+
+El intake hablaba de FDGE-R23. Al mirarlo eran TRES con el mismo defecto:
+
+    FDGE-R23  manifest.json    solo miraba la compuerta
+    FDGE-R25  self-review.md   miraba «afterPhase6» — UN PROXY
+    FDGE-R29  HISTORY.log      solo miraba la compuerta, en otra funcion
+
+FDGE-R25 ERA EL PEOR CASO. «afterPhase6» se define como «manifest !== null && manifest !==
+undefined»: deduce la fase DE QUE EXISTA EL MANIFEST. Es CE-001 en su forma exacta, y falla justo
+donde mas duele — una tarea en PHASE 7 SIN MANIFEST NI SELF-REVIEW se escapaba entera, porque el
+proxy que debia delatarla tambien faltaba. Se CONSERVA la condicion y se le SUMA la fase: quitarla
+habria cambiado el comportamiento en casos que hoy funcionan, y no hacia falta.
+
+FDGE-R29 vive en otra funcion y exigible() no esta en su ambito; la fase viaja en el objeto de
+opciones. Se incluye porque es el MISMO defecto: dejarla fuera habria puesto a una tarea en PHASE 8
+leyendo «se escribe en PHASE 8».
+
+LO QUE NO SE CUBRE, Y CONSTA. FDGE-R25 y FDGE-R29 NO tienen caso de bateria propio: comparten
+helper, fixture y las tres salidas con FDGE-R23, y tres casos identicos medirian lo mismo tres
+veces. Se comprobaron A MANO sobre el mismo fixture, en PHASE 7 y en PHASE 4, y la salida esta en
+la evidencia. Y no se barrieron todas las reglas que puedan conceder sin mirar la fase: se cubren
+las tres de evidencia y persistencia, que son las medidas.
+
+Y UNA COSA QUE NO SE AFIRMA. Los tres errores de evidencia del SESSION_LOG tenian manifest —lo que
+fallaba era su CONTENIDO—, asi que NO se afirma que este arreglo los habria detectado. Lo que se
+cierra es el hueco de NO TENERLO.
