@@ -725,6 +725,21 @@ function checkEstado() {
   if (vacios.length) fail('SUITE-R33', `Campos del bloque ESTADO en blanco: ${vacios.join(', ')}. «ninguna» es una respuesta; el blanco no dice si no hay o si nadie lo escribió.`);
   if (!faltan.length && !vacios.length) ok('SUITE-R33', 'Bloque ESTADO completo.');
 
+  // PT-201 · ESTA COMPROBACION MIDE COMMITS, NO EL ARBOL DE TRABAJO, Y AHORA LO DICE.
+  //
+  // «git log» solo ve lo commiteado. «npm run verify» corre sobre el arbol de trabajo, asi que un
+  // HANDOFF actualizado y SIN COMMITEAR es invisible aqui — y el mensaje decia «hubo trabajo
+  // despues del estado», que en ese caso es FALSO: mandaba a actualizar un HANDOFF ya al dia.
+  //
+  // Medido: TRES veces en el cierre de EP-025 el verify local dio verde y la CI fallo, y las tres
+  // la CI tenia razon. No corren comandos distintos —SUITE-R62 lo garantiza— es que el hecho
+  // medido NACE al commitear. Se dice desde donde se mira (RULE-06).
+  const sucio = (ruta) => {
+    try {
+      return execFileSync('git', ['status', '--porcelain', '--', ruta],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().length > 0;
+    } catch { return false; }
+  };
   // Frescura contra git. Sin repositorio no hay reloj y no se puede exigir.
   const fecha = (ruta) => {
     try {
@@ -735,10 +750,16 @@ function checkEstado() {
   const tEstado = fecha('docs/implementation/HANDOFF.md');
   const tTrabajo = fecha('changes');
   if (tEstado < 0 || tTrabajo < 0) return;               // sin git, nada que comparar
+  const pendiente = sucio('docs/implementation/HANDOFF.md') || sucio('changes');
+  // PT-201 · lo que se anade NO es un veredicto: es DESDE DONDE se miro. Sin esto, un HANDOFF
+  // actualizado y sin commitear producia un mensaje que afirmaba lo contrario de lo que pasaba.
+  const desde = pendiente
+    ? ' · MEDIDO SOBRE LO COMMITEADO: hay cambios sin commitear en HANDOFF.md o en changes/, y «git log» no los ve. Este veredicto no predice la CI hasta que commitees (PT-201).'
+    : '';
   if (tTrabajo && tEstado && tTrabajo > tEstado) {
     const dias = Math.round((tTrabajo - tEstado) / 86400);
-    fail('SUITE-R34', `Hubo trabajo en changes/ después del último estado${dias ? ` (${dias} día(s) de diferencia)` : ''}. La sesión terminó sin dejar el estado retomable: mañana hay que reconstruirlo leyendo el repositorio, que es justo lo que SUITE-R03 dice que no debe hacer falta.`);
-  } else if (tEstado) ok('SUITE-R34', 'El estado es más reciente que el último trabajo.');
+    fail('SUITE-R34', `Hubo trabajo en changes/ después del último estado${dias ? ` (${dias} día(s) de diferencia)` : ''}. La sesión terminó sin dejar el estado retomable: mañana hay que reconstruirlo leyendo el repositorio, que es justo lo que SUITE-R03 dice que no debe hacer falta.${desde}`);
+  } else if (tEstado) ok('SUITE-R34', `El estado es más reciente que el último trabajo.${desde}`);
 
   // PT-085 · A · y ahora lo que la fecha no puede decir: que el bloque sea VERDAD.
   //

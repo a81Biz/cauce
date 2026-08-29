@@ -11813,3 +11813,88 @@ casos / 7m10s CON CERO. El aumento es real y es el precio de que la salida se pu
 una plantilla montada una vez y copiada con «cp -a» —134 ms frente a 183— y se DESCARTO: un 27% que
 no cambia el orden de magnitud y anade una plantilla que mantener. La medida queda escrita para que
 la decision sea contrastable. La acotada sigue siendo -77% frente a la completa.
+
+## PT-201 — Hay comprobaciones que no pueden correr en local y el marco no lo declara
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-201-comprobaciones-que-no-corren-en-local
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-001 — el proxy en lugar del hecho
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-201.md
+
+TRES VECES EN UN SOLO CIERRE, EL VERDE LOCAL FALLO EN CI. Y LAS TRES, LA CI TENIA RAZON.
+
+    SUITE-R34  «Hubo trabajo en changes/ despues del ultimo estado»
+    SUITE-R34  «El bloque ESTADO contradice al registro»
+    SUITE-R51  «publica la ruta SIN enlace y el contenido ya esta en un ref durable»
+
+Y una cuarta al abrir EP-026: otra vez SUITE-R51, sobre diecinueve issues.
+
+CAUSA RAIZ. verify-fdge.mjs:729 usa «git log -1 --format=%ct», que SOLO VE COMMITS. «npm run verify»
+corre sobre el ARBOL DE TRABAJO; SUITE-R34 mide el ARBOL COMMITEADO. Son dos objetos distintos y
+nada lo decia. SUITE-R51 es el mismo patron un paso mas alla: el ref DURABLE al que el issue debe
+enlazar no existe hasta el push, asi que en local esa comprobacion SOLO PUEDE PASAR.
+
+INVENTARIO MEDIDO: once reglas de verify-fdge dependen de algo que el arbol de trabajo no contiene
+—siete miran la historia de git, seis la plataforma, dos en ambas— mas el espejo de tracker. La
+cifra es APROXIMADA y se dice: sale de asociar cada uso de «git log» o del adaptador con la primera
+regla citada despues. Establece el orden de magnitud, no la lista definitiva.
+
+Y UN AGRAVANTE: el mensaje afirmaba algo FALSO. «Hubo trabajo en changes/ despues del ultimo estado»
+cuando el estado SI estaba al dia, solo que sin commitear — mandaba a actualizar un HANDOFF que ya
+lo estaba. Es la familia de PT-198 y PT-203: la herramienta no distingue el HECHO de su propia
+INCAPACIDAD DE VERLO.
+
+SOLUCION. Dos piezas, y ninguna toca lo que las once comprobaciones miden:
+  1) verify-fdge mira si el arbol esta sucio en lo que la comprobacion consulta, y cuando lo esta
+     DICE que su veredicto es sobre lo commiteado.
+  2) SUITE-R62 acota su promesa POR ESCRITO, en RULES.md.
+
+NINGUN VEREDICTO CAMBIA. Nada pasa de verde a rojo ni al reves: lo que cambia es que el verde deja
+de afirmar mas de lo que sabe. Es la misma forma con que verify-fdge ya trata lo SIN EVALUAR y con
+que bloques-sellados trata su silencio.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · RULES.md · CORE.md (regenerado,
+  267 reglas) · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+El caso del arbol LIMPIO es el que sostiene AC-02: un aviso que apareciera SIEMPRE no informaria de
+nada y seria la misma averia con otra forma — el argumento de SECRETOS-EXCEPCIONES.md, «una
+compuerta siempre roja ensena a saltarsela».
+
+Medido: corrida COMPLETA 1937 casos en verde · el aviso aparece sobre arbol sucio y NO sobre uno
+  limpio · regla.mjs SUITE-R62 devuelve el segundo limite.
+
+Evidencia: docs/implementation/evidence/PT-201/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-201-hay-comprobaciones-que-no-corren-en-local/traceability.md — sin AC
+  huerfano (FDGE-R15).
+
+DELTA REAL VS PLANIFICADO — UNA ATRIBUCION EQUIVOCADA, CORREGIDA ANTES DE ESCRIBIR CODIGO.
+
+El intake decia que la regla incumplida era SUITE-R01. NO LO ES: SUITE-R01 es «Evidence Before
+Action» y esta declarada NO VERIFICABLE —«no lo comprueba ninguna maquina»—. La que comprueba que
+«lo que se ejecuta en local es lo que ejecuta CI» es SUITE-R62, que se declara a si misma «una forma
+concreta de SUITE-R01 que no la agota». El error salio de CLAUDE.md, que cita SUITE-R01 en su
+seccion de verificacion.
+
+Se corrigio en PHASE 2, ANTES de tocar una linea de codigo, y consta en el intake §4b y en
+discovery.md §4 en vez de reescribirse en silencio.
+
+Y LEER SUITE-R62 DE VERDAD MEJORO EL RESULTADO. Ya declaraba un limite —que se comparan NOMBRES DE
+SCRIPT, no lo que cada paso hace—. El que faltaba es el OPUESTO: el mismo paso, haciendo exactamente
+lo mismo, mide un objeto que en local todavia no existe. Decirlo asi es mas preciso que lo que el
+intake proponia, y solo se pudo escribir despues de mirar la regla real.
+
+LO QUE NO PROMETE, Y ES EL NUCLEO. No promete que el verde local pase a predecir la CI: NO PUEDE. El
+ref durable de SUITE-R51 no existe hasta el push y ninguna herramienta local puede inventarlo.
+Promete que se sepa CUANDO NO LO PREDICE, que es lo contrario de suponerlo (RULE-06).
+
+Y TRES LIMITES QUE CONSTAN. Las once comprobaciones NO se auditaron una por una: el inventario es
+una aproximacion medida. SUITE-R51 no tiene caso propio, porque su hecho solo existe tras el push.
+Y el aviso se anadio a SUITE-R34, donde se midio el dano tres veces: las otras diez NO lo llevan
+todavia — lo que este arreglo garantiza para ellas es que la REGLA lo declara, no que cada una lo
+diga. Es una limitacion real y no se disfraza.

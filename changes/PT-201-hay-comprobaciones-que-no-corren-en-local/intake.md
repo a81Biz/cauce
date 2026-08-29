@@ -8,7 +8,7 @@ severity: S2
 epic: EP-026
 track: STANDARD
 status: READY
-phase: 1
+phase: 8
 created: 2026-08-28
 structural: no
 suite_version: 13.4.0
@@ -53,13 +53,24 @@ sobre un árbol sucio, en vez de dar un verde que no significa nada.
 No promete que el verde local pase a predecir la CI: **no puede**. Promete que se sepa **cuándo no
 la predice**, que es lo contrario de suponerlo.
 
+## 4b. Una atribución equivocada, corregida en `PHASE 2`
+
+Este intake decía que la regla incumplida era **`SUITE-R01`**. **No lo es.** `SUITE-R01` es
+*Evidence Before Action* y está declarada **no verificable**; la que comprueba que «lo que se
+ejecuta en local es lo que ejecuta CI» es **`SUITE-R62`**, que se declara a sí misma «una forma
+concreta de `SUITE-R01` que no la agota».
+
+El error viene de `CLAUDE.md`, que cita `SUITE-R01` en su sección de verificación. Se corrige aquí
+en vez de reescribir el intake en silencio: `AC-03` pasa a nombrar `SUITE-R62`, y el criterio no
+cambia de sentido — cambia la regla a la que se aplica.
+
 ## 5. Criterios de aceptación
 
 | | Criterio | Escenario |
 |:---|:---|:---|
 | `AC-01` | Las comprobaciones no reproducibles en local están **declaradas** | `TS-01` |
 | `AC-02` | Sobre un árbol sucio, **avisan** en vez de dar verde | `TS-02` |
-| `AC-03` | `SUITE-R01` dice dónde deja de valer su promesa | `TS-03` |
+| `AC-03` | `SUITE-R62` dice dónde deja de valer su promesa | `TS-03` |
 
 ## Cómo termina   `FDGE-R53`
 
