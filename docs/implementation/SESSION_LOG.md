@@ -4256,3 +4256,40 @@ información correcta, calculada, y sin nadie que la exija.
 árbol y no la historia · `PT-195` #353 · la identidad git del repositorio no se comprueba. Los tres
 en `EP-026`, con su explicación en
 `changes/PT-191-el-sello-se-estampa-con-una-bandera/paradas/`.
+
+---
+
+## 2026-08-28 · `VoBo` para ejecutar `EP-026` completa
+
+**Autoriza:** Alberto Martínez, firmante declarado en `CLAUDE.md`.
+
+**Instrucción literal:** «bien, comienza la Épica y no pares hasta terminarla, tienes mi VoBo para lo
+necesario».
+
+**Alcance, y sus límites:**
+
+| Acción | Regla | Autorizada |
+|:---|:---|:---|
+| `G1` de cada tarea | `INTAKE-R06` | **sí** — ya cubierta por la firma única del lote (`INTAKE-R08`) |
+| `G2` de cada tarea | `EXEC-R04` | **sí**, delegada. Se registra como «G2 delegada» en `HISTORY` |
+| `G3` de cada `BUG` | `EXEC-R05` · `FDGE-R26` | **sí**, delegada con este `VoBo`, y se registra con nombre y fecha |
+| `G4` del lote | `EXEC-R04` · `SUITE-R06a` | **sí** — merge de `trabajo` a `main` |
+| Borrar ramas efímeras ya fusionadas | `SUITE-R06f` | **sí** |
+| `git tag` de la versión, **después** del merge | `SUITE-R06a` | **sí** |
+| **Publicar en npm** | `SUITE-R06a` | **NO** |
+
+**Por qué `npm publish` sigue fuera y este `VoBo` no lo deroga.** La reserva es explícita y
+repetida: *«no lo hago a mano salvo publicar»* el `2026-08-28`, y antes *«No publiques la 9.0.0»*.
+Un `VoBo` posterior que **no lo menciona** no levanta una reserva que sí lo menciona — es la regla
+que este mismo `SESSION_LOG` viene aplicando desde `EP-017`. Ante la duda, manda la reserva.
+
+**Qué garantiza esta constancia y qué no** (`SUITE-R27`): que la autorización es **contrastable** —
+el nombre está en `firmantes` y la instrucción está transcrita literalmente. **No** garantiza que la
+escribiera una persona: la teclea el agente, y `EXEC-R04` ya declara ese límite.
+
+### Lo que `EP-026` va a ejecutar
+
+Catorce tareas, trece `BUG` y una `FEATURE`, todas con intake propio. El orden lo fija su intake y
+no es preferencia: `PT-199` y `PT-201` van primero porque hacen **legible la propia corrida** —
+mientras la salida escupa 33 errores de andamiaje y el verde local no prediga la CI, cualquier
+medida que tomen las demás se toma sobre un instrumento sucio.

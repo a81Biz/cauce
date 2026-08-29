@@ -369,15 +369,95 @@ chkno() {
 V() { node "$WORK/docs/methodology/tools/verify-fdge.mjs" "$@"; }
 
 # ─── Fixture ────────────────────────────────────────────────────────────────
+# PT-199 · EL ESQUELETO SE DERIVA DEL ARNES, NO SE ENUMERA.
+#
+# PT-086 monto un esqueleto para que el andamiaje de las secciones saltadas —perl, cp, printf, que
+# viven FUERA de `chk` y por tanto se ejecutan igual— operara sobre archivos inertes «y no dijera
+# nada». La intencion era correcta; la lista era de DOS rutas y el arnes toca CIENTO SETENTA Y
+# CUATRO. Cobertura: 1%. Resultado medido: 33 lineas «Can't open ... No such file or directory» por
+# corrida acotada, en verde, que es lo que entrena a no leer la salida.
+#
+# Anadir las que faltan hoy seria el mismo defecto con otra cifra. Las 174 YA ESTAN ESCRITAS en este
+# archivo, asi que la lista se DERIVA de el: retroactivo por construccion, sin declarar nada, como
+# PT-176 hizo con el bloque de una seccion y PT-091 con las cifras del inventario. La ruta que una
+# tarea futura anada entra en el esqueleto el mismo dia que se escribe.
+#
+# LIMITE DECLARADO: un grep de «$WORK/» no ve rutas construidas en variables —`local d="$WORK/p191";
+# … "$d/a.sh"`—. Por eso el esqueleto NO promete cobertura total, y el caso «lo que no monta NO pasa
+# en silencio» existe: lo que falte se nota (RULE-06).
+rutas_inertes() {   # $1 = archivo a mirar (por defecto, este mismo arnes)
+  grep -oE '\$WORK/[A-Za-z0-9_./-]+' "${1:-$SUITE/tools/selftest.sh}" \
+    | sed 's|^\$WORK/||' | grep -vE '(^|/)\.+(/|$)' | sort -u
+}
+_RUTAS_INERTES=""
+_DIRS_INERTES=""
+_FILES_INERTES=""
+esqueleto_inerte() {
+  # EL COSTE IMPORTA, Y SE MIDIO. build_fixture se invoca 265 veces; la primera version hacia un
+  # `mkdir`/`: >` POR RUTA —unos 350 procesos— y costaba 8,1 s por montaje: ~36 min de corrida
+  # acotada. Habria destruido el ahorro que EP-025 acababa de conseguir, que es exactamente por lo
+  # que PT-086 lo llamo «barato». Ahora la lista se calcula UNA vez y se monta en DOS procesos:
+  # un `mkdir -p` con todos los directorios y un `touch` con todos los archivos.
+  if [ -z "$_RUTAS_INERTES" ]; then
+    # LA DERIVACION NECESITA SU PROPIA GUARDA DE TERRENO, y se midio ejecutandola:
+    #   «$WORK/...»            de una ELIPSIS en un comentario. Creaba un archivo llamado «...»
+    #                          y «git add -A» reventaba con «unable to index file». Rompio el
+    #                          andamiaje de PT-056, que hace git init sobre $WORK.
+    #   «$WORK/../autoalojado» y cinco mas: rutas que SALEN de $WORK. Montarlas escribiria en el
+    #                          directorio PADRE — el defecto exacto que PT-188 cerro con dos
+    #                          puertas, reintroducido por la puerta de atras.
+    # Se descarta cualquier segmento formado SOLO por puntos. «.gitignore» y «.sin-gh» pasan: su
+    # segmento no es solo puntos.
+    _RUTAS_INERTES=$(rutas_inertes)
+    # SOLO LOS ARCHIVOS Y SUS PADRES. Nada de directorios sueltos, y la razon se midio:
+    #
+    # La primera version creaba tambien los directorios —«$WORK/ep024» entre ellos— y proj24()
+    # usa su EXISTENCIA como centinela de «fixture ya construido»: `if [ ! -d "$d" ]`. Al montarlo
+    # el esqueleto, el fixture no se construia nunca y DIECIOCHO casos de secciones ACTIVAS caian
+    # con «No hay REGISTRY.json legible».
+    #
+    # El esqueleto existe para que `perl -pi archivo` y `printf > archivo` no fallen. Para eso
+    # bastan los ARCHIVOS y sus PADRES. Un directorio vacio no aporta nada y si interfiere: crear
+    # menos es aqui la respuesta correcta, no crear mas.
+    local r d
+    for r in $_RUTAS_INERTES; do
+      case "${r##*/}" in
+        *.*) _FILES_INERTES="$_FILES_INERTES $r"
+             d=$(dirname "$r"); [ "$d" = "." ] || _DIRS_INERTES="$_DIRS_INERTES $d" ;;
+      esac
+    done
+  fi
+  # Los directorios PRIMERO: «docs/implementation» y «docs/implementation/HISTORY.log» conviven, y
+  # tocar el archivo antes que su carpeta fallaria. `touch` sobre algo que ya es directorio da error
+  # y se silencia: el directorio manda.
+  mkdir -p $_DIRS_INERTES 2>/dev/null
+  touch $_FILES_INERTES 2>/dev/null || true
+}
+
+# PT-199 · LO QUE NO SE PUEDE DERIVAR SE DICE, NO SE OMITE.
+#
+# El grep de «$WORK/» ve las rutas literales. NO ve las que el andamiaje construye en una variable
+# —`local d="$WORK/p191"; … "$d/a.sh"`—, y esas seguiran sin montarse. Callarlo dejaria el mismo
+# defecto que esta tarea arregla: una corrida limpia que no lo esta.
+#
+# Asi que se CUENTAN y se declaran. No se afirma cobertura total: se afirma que lo que falta se ve.
+inertes_opacas() {   # $1 = archivo a mirar (por defecto, este mismo arnes)
+  grep -oE '"\$[A-Za-z_][A-Za-z0-9_]*/' "${1:-$SUITE/tools/selftest.sh}" \
+    | sed 's|^"\$||; s|/$||' | sort -u \
+    | grep -vxE 'WORK|SUITE|RAIZ|RAIZ_REAL|MIG|VERDIR|TMPDIR|HOME|PWD' || true
+}
+
 build_fixture() {
   # PT-086 · con la seccion inactiva se monta un esqueleto VACIO y barato en vez del fixture.
   # No se devuelve sin mas: el andamiaje que viene detras —perl, cp, printf— opera sobre rutas
   # de $WORK, y sin ellas llenaria la salida de errores sobre archivos que no existen. Con el
   # esqueleto, esas ordenes hacen su trabajo sobre archivos inertes y no dicen nada.
   if [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ]; then
-    rm -rf "$WORK"; mkdir -p "$WORK/docs/implementation" "$WORK/docs/methodology/tools" "$WORK/changes/PT-001-login"
+    rm -rf "$WORK"; mkdir -p "$WORK"
     cd "$WORK"
-    : > changes/PT-001-login/intake.md
+    esqueleto_inerte
+    # REGISTRY.json no puede quedar VACIO: hay herramientas que lo parsean, y un archivo de cero
+    # bytes las revienta. Va DESPUES de la derivacion, que lo dejo inerte.
     echo '{"allocations":[]}' > docs/implementation/REGISTRY.json
     return 0
   fi
@@ -9269,8 +9349,17 @@ chk   "ningun subshell abre con un cd que no corta"  "^0$" \
 #
 # Lo que importa es que NO HAYA NINGUNO SIN PROTEGER —eso lo comprueba el caso de arriba— y que
 # los que hay sean AL MENOS los cinco que se arreglaron.
-chk   "y los que hay cortan al fallar"               "^[5-9][0-9]*$" \
-  bash -c 'grep -cE "^[[:space:]]*\([[:space:]]*cd .[$][A-Za-z_][A-Za-z0-9_]*. \|\|" "$0/tools/selftest.sh" || true' "$SUITE"
+#
+# PT-199 · Y EL ARREGLO ANTERIOR TAMPOCO EXPRESABA «AL MENOS CINCO». «^[5-9][0-9]*$» acepta 5 a 9,
+# 50 a 99 y 500 en adelante — y RECHAZA 10 a 49. Al anadir esta tarea un fixture mas con la forma
+# protegida la cuenta llego a 10 y el caso se puso rojo, castigando otra vez la mejora. Es la misma
+# familia por TERCERA vez en el mismo caso, y la causa es que el PATRON hacia de comparador.
+#
+# Ahora compara el COMANDO y el patron solo lee su veredicto: fija el cero de lo prohibido —menos
+# de cinco— sin fijar ningun numero correcto. La cuenta se imprime para que se vea crecer.
+chk   "y los que hay cortan al fallar"               "AL MENOS 5" \
+  bash -c 'n=$(grep -cE "^[[:space:]]*\([[:space:]]*cd .[$][A-Za-z_][A-Za-z0-9_]*. \|\|" "$0/tools/selftest.sh" || true);
+           [ "${n:-0}" -ge 5 ] && echo "AL MENOS 5 · hay $n" || echo "SOLO $n"' "$SUITE"
 # AC-01 · el corte, ejecutado: nada de lo que sigue al cd se ejecuta.
 chk   "un cd que falla NO ejecuta lo que sigue"      "FIXTURE SIN TERRENO" \
   bash -c 'W=/ruta/que/no/existe; ( cd "$W" || { echo "FIXTURE SIN TERRENO"; exit 90; }; echo NO_DEBERIA ) 2>/dev/null'
@@ -9598,6 +9687,66 @@ _rec191ok() { # planta un recibo VALIDO · imprime la salida entera del sellador
 }
 chkno "…y un recibo VALIDO si sella"                  "NO SE SELLA"           _rec191ok
 
+sec "── EP-026 · lo que da verde sin mirar ──"
+
+# ── PT-199 · el esqueleto de las secciones saltadas se DERIVA del arnes ───
+#
+# PT-086 lo monto para que el andamiaje de las secciones saltadas —perl, cp, printf, que viven
+# FUERA de `chk` y se ejecutan igual— operara sobre archivos inertes «y no dijera nada». Su lista
+# tenia DOS rutas y el arnes toca CIENTO SETENTA Y CUATRO: 1% de cobertura, y 33 lineas de
+# «Can't open» por corrida acotada, en verde. Un verde que escupe errores entrena a no leerlos.
+_esq199() {  # $1 = ruta relativa que el andamiaje toca · dice si el esqueleto la monto
+  local d="$WORK/p199"; rm -rf "$d"; mkdir -p "$d"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    esqueleto_inerte
+    [ -e "$1" ] && echo "MONTADA: $1" || echo "FALTA: $1" )
+}
+# LAS DOS QUE FALLABAN DE VERDAD, no un ejemplo inventado: son las que aparecian en la salida.
+chk   "el esqueleto monta lo que el andamiaje toca"  "MONTADA"  _esq199 docs/implementation/HISTORY.log
+chk   "…y tambien la del otro fixture"               "MONTADA"  _esq199 changes/PT-002-pool/discovery.md
+# Y NO SE ENUMERAN: la lista sale del propio arnes, asi que una ruta que nadie escribio a mano
+# tambien esta. HANDOFF.md nunca estuvo en ninguna lista del esqueleto.
+chk   "…y una que ninguna lista menciono"            "MONTADA"  _esq199 docs/implementation/HANDOFF.md
+# LO QUE NO SE PUEDE DERIVAR SE DICE, Y ESTE ES AC-02.
+#
+# El grep ve «$WORK/...» literal. NO ve `local d="$WORK/p199"; … "$d/a.sh"`, y esas rutas seguiran
+# sin montarse. Callarlo dejaria el mismo defecto que esta tarea arregla: una corrida limpia que no
+# lo esta. Se prueba sobre un arnes FALSO, no sobre el real: fijar los nombres del real seria fijar
+# el numero de lo correcto (HANDOFF -18), y cambiarian con cada tarea.
+_op199() {
+  local d="$WORK/p199op"; rm -rf "$d"; mkdir -p "$d"
+  printf '%s\n' 'z="$WORK/x"; cp "$WORK/a" "$INVENTADA/b"' > "$d/falso.sh"
+  inertes_opacas "$d/falso.sh"
+}
+chk   "…y nombra la raiz que NO puede derivar"       "INVENTADA"  _op199
+# LA DERIVACION NECESITA SU PROPIA GUARDA DE TERRENO, y esto lo fija. Sin ella el grep capturaba
+# «$WORK/...» de una ELIPSIS —creaba un archivo llamado «...» y reventaba «git add -A»— y seis
+# «$WORK/../algo», que habrian escrito en el directorio PADRE: el defecto exacto que PT-188 cerro.
+_guarda199() {
+  local d="$WORK/p199g"; rm -rf "$d"; mkdir -p "$d"
+  printf '%s\n' 'a="$WORK/../fuera"; b="$WORK/..."; c="$WORK/.gitignore"' > "$d/falso.sh"
+  rutas_inertes "$d/falso.sh"
+}
+chkno "…y NUNCA una ruta que salga de WORK"          "\\.\\."     _guarda199
+chk   "…pero si conserva los dotfiles legitimos"     ".gitignore"  _guarda199
+# Y NO MONTA DIRECTORIOS SUELTOS. Cuando los montaba, «$WORK/ep024» aparecia creado y proj24() usa
+# su EXISTENCIA como centinela de «fixture ya construido»: no lo construia nunca y DIECIOCHO casos
+# de secciones ACTIVAS caian con «No hay REGISTRY.json legible». Existir no es estar construido —
+# la misma leccion que obligo a usar «-s» y no «-f» tres casos mas abajo.
+chk   "…y NO monta directorios sueltos"              "NO ESTA"    bash -c 'd="$1/p199d"; rm -rf "$d"; mkdir -p "$d"; ( cd "$d" && esqueleto_inerte; [ -d ep024 ] && echo "CREADO" || echo "NO ESTA" )' _ "$WORK"
+chkno "…y no nombra WORK, que si deriva"             "WORK"       _op199
+# LA SECCION ACTIVA NO CAMBIA: sin esto, un esqueleto que se montara siempre dejaria la bateria
+# entera corriendo sobre arboles vacios Y EN VERDE, que es el peor fallo posible aqui.
+_act199() {  # $1 = valor de SEC_ACTIVA · dice si monto el fixture COMPLETO o el esqueleto
+  ( WORK="$WORK/p199act"; ACOTADO=1; SEC_ACTIVA="$1"
+    build_fixture >/dev/null 2>&1
+    # -s y no -f: el esqueleto TAMBIEN monta esta ruta —esta entre las que el arnes nombra— pero
+    # la deja VACIA. Lo que distingue al fixture completo es que escribe contenido.
+    [ -s docs/enterprise-documentation/11-Conventions.md ] && echo "COMPLETO" || echo "SOLO ESQUELETO" )
+}
+chk   "una seccion ACTIVA monta el fixture completo"  "COMPLETO"        _act199 1
+chk   "…y una saltada monta solo el esqueleto"        "SOLO ESQUELETO"  _act199 ""
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"
@@ -9660,6 +9809,13 @@ if [ -n "$AFECTADOS" ]; then
   fi
   echo "Para sellar una version hace falta la corrida COMPLETA: bash selftest.sh sin --afectados."
   echo ""
+fi
+# PT-199 · el esqueleto de las secciones saltadas dice QUE monto y QUE no puede derivar.
+if [ -n "$ACOTADO" ]; then
+  _op=$(inertes_opacas | tr '\n' ' ')
+  _nop=$(inertes_opacas | grep -c . || true)
+  echo "esqueleto inerte: $(printf '%s\n' $_RUTAS_INERTES | grep -c . || true) ruta(s) derivadas del arnes."
+  [ "${_nop:-0}" -eq 0 ] || echo "  $_nop raiz(ces) por variable que NO se pueden derivar, y por eso se dicen: $_op"
 fi
 [ "$FAILED" -eq 0 ] && echo "selftest: OK · $_cuantos casos" || echo "selftest: HAY FALLOS · $_cuantos casos"
 rm -rf "$WORK"

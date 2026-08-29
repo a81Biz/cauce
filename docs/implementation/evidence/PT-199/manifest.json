@@ -1,0 +1,57 @@
+{
+  "pt": "PT-199",
+  "generated": "2026-08-28",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una corrida acotada no emite ninguna linea de error de andamiaje",
+      "scenarios": ["TS-01"],
+      "tests": [
+        "selftest §EP-026 · el esqueleto monta lo que el andamiaje toca",
+        "selftest §EP-026 · …y tambien la del otro fixture",
+        "selftest §EP-026 · …y una que ninguna lista menciono"
+      ],
+      "evidence": ["salida.txt", "inversa.txt"],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Si el andamiaje toca una ruta que el esqueleto no monta, se sabe",
+      "scenarios": ["TS-02"],
+      "tests": [
+        "selftest §EP-026 · …y nombra la raiz que NO puede derivar",
+        "selftest §EP-026 · …y no nombra WORK, que si deriva",
+        "selftest §EP-026 · …y NUNCA una ruta que salga de WORK",
+        "selftest §EP-026 · …pero si conserva los dotfiles legitimos"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "La corrida acotada declara «14 raiz(ces) por variable que NO se pueden derivar» y las nombra. No se afirma cobertura total: se afirma que lo que falta se ve."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Los casos que si corren siguen midiendo lo mismo",
+      "scenarios": ["TS-03"],
+      "tests": [
+        "selftest §EP-026 · una seccion ACTIVA monta el fixture completo",
+        "selftest §EP-026 · …y una saltada monta solo el esqueleto",
+        "la corrida COMPLETA entera"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable",
+  "comprobacion_inversa": {
+    "hecha": true,
+    "donde": "inversa.txt",
+    "que_establece": "El esqueleto ANTERIOR monta 2 archivos y falla las tres rutas que los casos comprueban; el DERIVADO monta 87 y las tres pasan. Los casos NO pasan con el codigo anterior."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "El esqueleto monta TODAS las rutas que el andamiaje toca",
+      "por_que_no": "El grep ve «$WORK/...» literal y no ve rutas construidas en variables. Son 14 raices, y se ENUMERAN en cada corrida acotada.",
+      "verified": false
+    }
+  ]
+}

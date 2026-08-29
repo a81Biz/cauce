@@ -1,0 +1,27 @@
+PT-199 · corrida COMPLETA en verde y corrida ACOTADA limpia
+
+== los diez casos, en la completa ==
+  [32m✓[0m el esqueleto monta lo que el andamiaje toca
+  [32m✓[0m …y tambien la del otro fixture
+  [32m✓[0m …y una que ninguna lista menciono
+  [32m✓[0m …y nombra la raiz que NO puede derivar
+  [32m✓[0m …y NUNCA una ruta que salga de WORK
+  [32m✓[0m …pero si conserva los dotfiles legitimos
+  [32m✓[0m …y NO monta directorios sueltos
+  [32m✓[0m …y no nombra WORK, que si deriva
+  [32m✓[0m una seccion ACTIVA monta el fixture completo
+  [32m✓[0m …y una saltada monta solo el esqueleto
+
+selftest: OK · 1933 casos
+
+== y lo que esta tarea existia para arreglar: la corrida ACOTADA ==
+   errores de andamiaje ANTES: 33
+   errores de andamiaje AHORA: 0
+0
+
+esqueleto inerte: 172 ruta(s) derivadas del arnes.
+  14 raiz(ces) por variable que NO se pueden derivar, y por eso se dicen: AUTODIR INVENTADA LFDIR OTRODIR P144 P155 P160 P161 P163 P168 PATDIR SECDIR Z149 d 
+selftest: OK · 136 casos
+
+Recibo de la corrida completa (NO versionado):
+{ "veredicto": "OK", "casos": "1933", "arnes": "085e9d005af4495665b4ee379505b0e9499940d3", "fecha": "2026-08-29T00:09:55Z" }
