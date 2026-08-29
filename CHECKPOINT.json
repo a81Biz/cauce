@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
+  "phase": 6,
+  "fase": "Evidencia",
   "rama": "chore/alberto-martinez/EP-026-PT-192-el-final-se-mide-por-posicion",
   "sha": "68476f944e34e027aa3b88d0b335728b3e16b187",
   "sha_corto": "68476f9",
@@ -15,12 +15,19 @@
     "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/strategy.md",
     "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/test-scenarios.md",
     "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-192/",
+    "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-28"
 }
