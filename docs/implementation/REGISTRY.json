@@ -6730,8 +6730,8 @@
       "id": "PT-200",
       "slug": "verify-fdge-no-acota-lo-terminal",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "READY",
+      "phase": 5,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
@@ -6742,7 +6742,30 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-28"
       },
-      "issue": 362
+      "issue": 362,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-29"
+      }
     },
     {
       "id": "PT-201",

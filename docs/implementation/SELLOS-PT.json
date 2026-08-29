@@ -1,0 +1,1136 @@
+{
+  "PT-001": {
+    "sello": "981ecafe8b5a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-002": {
+    "sello": "3932745c2690",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-003": {
+    "sello": "8cb04700315b",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "CLOSED"
+  },
+  "PT-004": {
+    "sello": "4448018b4248",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-005": {
+    "sello": "78c8f25010df",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-006": {
+    "sello": "e0d71ea03b3d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-007": {
+    "sello": "4dafc2fe5f70",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-008": {
+    "sello": "74b7e6271ae9",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-009": {
+    "sello": "f9bdead79ec1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-010": {
+    "sello": "cf697c4a4e5a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-011": {
+    "sello": "5772438e3a89",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-012": {
+    "sello": "b4bd53936c84",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-013": {
+    "sello": "79f1f82c8ae9",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-014": {
+    "sello": "60eb2d013c90",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-015": {
+    "sello": "a813b1010710",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-016": {
+    "sello": "71f27bd06e6a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-017": {
+    "sello": "62213260800e",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-018": {
+    "sello": "5518fd411fe4",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-019": {
+    "sello": "18b3df7279ff",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-020": {
+    "sello": "2554e435db78",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-021": {
+    "sello": "dcf05fb69023",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-022": {
+    "sello": "1306677cd5e1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-023": {
+    "sello": "7b066c9feabd",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-024": {
+    "sello": "df1b7cf49d8d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-025": {
+    "sello": "97fcbe511b56",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "DEFERRED"
+  },
+  "PT-026": {
+    "sello": "c8c1ca481ed8",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-027": {
+    "sello": "38f47c5949ff",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "CLOSED"
+  },
+  "PT-028": {
+    "sello": "543667dba700",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-029": {
+    "sello": "3bdcd2f2b9f8",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-030": {
+    "sello": "727d27182323",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-031": {
+    "sello": "dda3aaa593ca",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-032": {
+    "sello": "7c515722b06a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "CLOSED"
+  },
+  "PT-033": {
+    "sello": "b105602e0229",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-034": {
+    "sello": "02cd9905afbf",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-035": {
+    "sello": "12b1f48de715",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-036": {
+    "sello": "1dd1b8d8061d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-037": {
+    "sello": "e125e2b74d5a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-038": {
+    "sello": "09493ee6c226",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-039": {
+    "sello": "286046790286",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-040": {
+    "sello": "e00cbf5a4a92",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-041": {
+    "sello": "328630e107ea",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-042": {
+    "sello": "954f46957708",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-043": {
+    "sello": "36da365c0f75",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-044": {
+    "sello": "abd8064667ac",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-045": {
+    "sello": "3736b520ffc7",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-046": {
+    "sello": "3000e67b6141",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-047": {
+    "sello": "391473bb0788",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-048": {
+    "sello": "5d7b6a99edb7",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-049": {
+    "sello": "cb9e323f7171",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-050": {
+    "sello": "a5db802c65e1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-051": {
+    "sello": "f1fdeba7d7df",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-052": {
+    "sello": "e4b6a9cb391f",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-053": {
+    "sello": "f6661b0c7ad7",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-054": {
+    "sello": "819500776c87",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-055": {
+    "sello": "6539d9ebaf4c",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-056": {
+    "sello": "c3a9a9c46832",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-057": {
+    "sello": "647ca5ebe69b",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-058": {
+    "sello": "24649627bca0",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-059": {
+    "sello": "245e2ad1e8a9",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-060": {
+    "sello": "dbf33054a341",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-061": {
+    "sello": "29cbf6e4cfa1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-062": {
+    "sello": "f4fc449fb839",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-063": {
+    "sello": "2902c10639f4",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-064": {
+    "sello": "d4e0280ee2b9",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-065": {
+    "sello": "5853b4cf11b4",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-066": {
+    "sello": "0888e603e4a1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-067": {
+    "sello": "6c9778471788",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-068": {
+    "sello": "e45f8fd2ec55",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-069": {
+    "sello": "da2cc93f9275",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-070": {
+    "sello": "d995f090fac2",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-071": {
+    "sello": "4dce40171905",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-072": {
+    "sello": "97d2384b4741",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-073": {
+    "sello": "c2b43c5d76ba",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-074": {
+    "sello": "df3e60033333",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-075": {
+    "sello": "05f8ed6a91de",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-076": {
+    "sello": "827018ee514e",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-077": {
+    "sello": "851884595324",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-078": {
+    "sello": "eddcb9e8b9cd",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-079": {
+    "sello": "e5078a5d1a78",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-080": {
+    "sello": "75d88c975f54",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-081": {
+    "sello": "5727c8baf7f1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-082": {
+    "sello": "e5891617bf95",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-083": {
+    "sello": "714c324166cb",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-084": {
+    "sello": "1b5f6cc13075",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-085": {
+    "sello": "1b826a44f619",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-086": {
+    "sello": "2455ce6b22f5",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-087": {
+    "sello": "a2409d6e9e1d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-088": {
+    "sello": "c9e3cd786fa9",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-089": {
+    "sello": "45e979c3317c",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-090": {
+    "sello": "77c2d3395964",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-091": {
+    "sello": "f8ec71952d2d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-092": {
+    "sello": "02b391aae862",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-093": {
+    "sello": "ee7b869dff00",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-094": {
+    "sello": "70ea40e2ba32",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-095": {
+    "sello": "40b156437fae",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-096": {
+    "sello": "5d8d6dc7c589",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-097": {
+    "sello": "83064ac18500",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-098": {
+    "sello": "8b0804893f56",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-099": {
+    "sello": "427511d49a0a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-100": {
+    "sello": "216bcb315d5e",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-101": {
+    "sello": "3111affac70f",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-102": {
+    "sello": "4445114b818a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-103": {
+    "sello": "a7969fe130da",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-104": {
+    "sello": "4ca240734076",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-105": {
+    "sello": "a00b9d84ade5",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-106": {
+    "sello": "09571471b6d2",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-107": {
+    "sello": "bd55d32bda79",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-108": {
+    "sello": "4fa72764fd48",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-109": {
+    "sello": "ecfa7eedec66",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-110": {
+    "sello": "bc388f95c471",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-111": {
+    "sello": "e317150654d0",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-112": {
+    "sello": "c88a70060e5a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-113": {
+    "sello": "0f1f68c33f75",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-114": {
+    "sello": "f92306a0d076",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-115": {
+    "sello": "2ad4ce602e08",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-116": {
+    "sello": "24064cb666b0",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-117": {
+    "sello": "4fe2186ea019",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-118": {
+    "sello": "65fa5df2583d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-119": {
+    "sello": "15e0c3fb6309",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-120": {
+    "sello": "f78918dc3dc3",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-121": {
+    "sello": "1b94c9632b80",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-122": {
+    "sello": "2b118eb517f5",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-123": {
+    "sello": "4780c00b43b8",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-124": {
+    "sello": "1aa0d9b004f7",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-125": {
+    "sello": "b7c2f529dc48",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-126": {
+    "sello": "0fc0ce5e41de",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-127": {
+    "sello": "5dc11b482b90",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-128": {
+    "sello": "4bff6bb220c8",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-129": {
+    "sello": "35fb219d0424",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-130": {
+    "sello": "5cc4d2f4b6c4",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-131": {
+    "sello": "a76bb4e7ae69",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-132": {
+    "sello": "6bcf8c3e0d75",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-133": {
+    "sello": "394b31e85df1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-134": {
+    "sello": "8d94dac4cc4a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-135": {
+    "sello": "39408fb950ba",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-136": {
+    "sello": "0ea605bdace6",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-137": {
+    "sello": "0aa5eed45f37",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-138": {
+    "sello": "4978d965df11",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-139": {
+    "sello": "674b7ade5491",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-140": {
+    "sello": "00eb2a596a7f",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-141": {
+    "sello": "64da013e6057",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-142": {
+    "sello": "e4c3138cd171",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-143": {
+    "sello": "211d28acbff4",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-144": {
+    "sello": "59cba4a7fbd0",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-145": {
+    "sello": "a39d81e075ed",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-146": {
+    "sello": "01dc13f6257d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-147": {
+    "sello": "96c138c7ad9d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-148": {
+    "sello": "36ab985647b1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-149": {
+    "sello": "d659000475b1",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-150": {
+    "sello": "258aea259c2c",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-151": {
+    "sello": "61339a4a12b5",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-152": {
+    "sello": "d7d218add444",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-153": {
+    "sello": "f5ef55a32031",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-154": {
+    "sello": "1e20047303f4",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-155": {
+    "sello": "f596dc487b01",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-156": {
+    "sello": "cbe5d6e1ae8d",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-157": {
+    "sello": "db598893f7e7",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-158": {
+    "sello": "89421c51b58e",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-159": {
+    "sello": "5891570052f3",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-160": {
+    "sello": "aca5265f7a17",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-161": {
+    "sello": "0da2685e45d7",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-162": {
+    "sello": "04919447c52a",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-163": {
+    "sello": "3581450ce926",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-164": {
+    "sello": "b546ceb77c18",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-165": {
+    "sello": "afff1f120d85",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-166": {
+    "sello": "bdcee0441a33",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-167": {
+    "sello": "3716e90611bb",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-168": {
+    "sello": "d13e3400b687",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-169": {
+    "sello": "9facdc100252",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-170": {
+    "sello": "14c9e55312ed",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-171": {
+    "sello": "b98246dd33ac",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "DEFERRED"
+  },
+  "PT-172": {
+    "sello": "61988f778da4",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "DEFERRED"
+  },
+  "PT-173": {
+    "sello": "c2225cb434e8",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-174": {
+    "sello": "f156ff7effd5",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-175": {
+    "sello": "110688eb77dd",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-176": {
+    "sello": "ed77ff5e8948",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-177": {
+    "sello": "619bd78822a0",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-178": {
+    "sello": "2f2936ba2af6",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-180": {
+    "sello": "735259e63b77",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-182": {
+    "sello": "6239cadb77d0",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-183": {
+    "sello": "0a96836c1134",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-184": {
+    "sello": "a6699d9c5b3b",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-185": {
+    "sello": "8c537e024b02",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-186": {
+    "sello": "44aa824f8fe6",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-188": {
+    "sello": "617146f31401",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-189": {
+    "sello": "184d4bceb50c",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-190": {
+    "sello": "4cc21d421709",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-191": {
+    "sello": "5491f9ff6c79",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  },
+  "PT-193": {
+    "sello": "9420425ce102",
+    "veredicto": "OK",
+    "fecha": "2026-08-29",
+    "estado": "INTEGRATED"
+  }
+}
