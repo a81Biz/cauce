@@ -2,9 +2,9 @@
   "pt": "PT-199",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "VALIDATION_PENDING",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/EP-026-PT-199-el-esqueleto-del-acotado",
   "sha": "9eeef58679a67450eef58e0a9589f0bc7b9aa37a",
   "sha_corto": "9eeef58",
@@ -18,13 +18,17 @@
     "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md",
     "docs/implementation/evidence/PT-199/",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-28"
 }
