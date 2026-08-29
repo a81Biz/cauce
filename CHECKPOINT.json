@@ -1,33 +1,22 @@
 {
-  "pt": "PT-181",
+  "pt": "PT-192",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-181-la-expectativa-es-una-regex",
-  "sha": "5e75981c98f009175b3a07323df37b1422ad4da0",
-  "sha_corto": "5e75981",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "chore/alberto-martinez/EP-026-PT-192-el-final-se-mide-por-posicion",
+  "sha": "68476f944e34e027aa3b88d0b335728b3e16b187",
+  "sha_corto": "68476f9",
   "sucio": true,
   "archivos": [
-    "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/discovery.md",
-    "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/intake.md",
-    "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/strategy.md",
-    "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/test-scenarios.md",
-    "changes/PT-181-la-expectativa-de-un-caso-es-una-regex/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/evidence/PT-181/",
-    "docs/methodology/tools/selftest.sh"
+    "changes/PT-192-el-final-del-arnes-se-mide-por-posicion/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-28"
 }
