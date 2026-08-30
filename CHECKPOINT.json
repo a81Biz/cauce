@@ -3,20 +3,22 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "trabajo",
   "sha": "791be57059a90dfb840755b09a0e72f30d4603a2",
   "sha_corto": "791be57",
   "sucio": true,
   "archivos": [
     "changes/PT-202-publicar-yml-viaja-a-donde-no-aplica/intake.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-30"
 }
