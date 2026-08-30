@@ -129,6 +129,32 @@ queda ya sin citar su parada.**
 - **`PT-203` va junto a `PT-198`** porque son la misma familia: una extracción frágil y un mensaje
   que presenta como hecho un fallo de lectura. Arreglar una sin mirar la otra dejaría media.
 
+### El lote creció a DIECISÉIS, y se declara aquí   `2026-08-30`
+
+Las catorce de arriba son las que `G1` admitió. **Dos más salieron de ejecutarlas**, y se añaden en
+vez de aplazarse porque encajan en el criterio de éxito mejor que varias de las catorce — y porque
+aplazarlas repetiría el fallo que las origina: decirlo en una épica más y que no le toque a nadie.
+
+| Orden | `PT` | Tipo | Qué cierra | De dónde sale |
+|---:|:---|:---|:---|:---|
+| 15 | `PT-204` | INVESTIGATION | **124 de 244 reglas son `PENDIENTE` y 91 no tienen verificador** (82 `HARD`, entre ellas `EXEC-R05`). `audit` lo dice en cada `npm run verify` y no le pertenece a nadie | `paradas/PT-204.md` |
+| 16 | `PT-205` | BUG | El estado **sólo** se sella avanzando de fase, así que cumplir `SUITE-R34` exige un acto fuera del comando (`CE-006`) | `paradas/PT-205.md` |
+
+**`PT-204` no es auditar las 244.** El firmante lo descartó: *«regresar a revisar que esté es una
+regresión demasiado grande»*. Es una `INVESTIGATION` cuyo entregable es **la decisión y su alcance**
+—separar deuda de límite, rankear por consecuencia, y decidir si hace falta un lote propio—.
+
+**`PT-205` es del lote y no de otro** porque lo destapó su propio CI, dos veces, y porque una regla
+que sólo se puede cumplir saliéndose de la herramienta es exactamente lo que este lote persigue.
+
+### Y una tercera parada que NO entra: `EP-028`
+
+El coste de la verificación —`verify-fdge` corre 71 comprobaciones de repositorio en **toda**
+invocación, y el sello por `PT` incluye el archivo **entero** del verificador— es un lote propio,
+decidido por el firmante el `2026-08-29`. **No cabe aquí**: cerrar eso no demostraría nada sobre
+«nada da verde sin mirar», y cada tarea nueva paga su corrida, así que atacar el coste desde dentro
+lo aumenta antes de bajarlo. Queda en `paradas/EP-028.md` y se abre al cerrar este lote.
+
 ## 6. Análisis de solapamiento   `[AGENTE]` — obligatorio   `FDGE-R40`
 
 | Archivo | Tareas que lo tocan | Serialización |

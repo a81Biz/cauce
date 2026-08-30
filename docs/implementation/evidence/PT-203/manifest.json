@@ -5,36 +5,51 @@
     {
       "ac": "AC-01",
       "statement": "Citar un PT como origen no lo hace miembro del lote",
-      "scenarios": ["TS-01"],
+      "scenarios": [
+        "TS-01"
+      ],
       "tests": [
         "selftest §EP-026 · citar un PT como origen no lo hace miembro",
         "selftest §EP-026 · …y lo nombra, en vez de callarlo"
       ],
-      "evidence": ["salida.txt"],
+      "evidence": [
+        "salida.txt"
+      ],
       "verified": true,
       "como": "No basta con que deje de fallar: lo NOMBRA en verde. Un hueco que nadie nombra es el que se olvida, y citar de donde salio una tarea es lo que FDGE-R55 premia."
     },
     {
       "ac": "AC-02",
       "statement": "Los miembros reales se siguen detectando",
-      "scenarios": ["TS-02", "TS-03"],
+      "scenarios": [
+        "TS-02",
+        "TS-03"
+      ],
       "tests": [
         "selftest §EP-026 · …y un miembro VIVO sin firma sigue bloqueando",
         "selftest §EP-026 · …y el miembro que la tabla NO lista tampoco se escapa"
       ],
-      "evidence": ["salida.txt"],
+      "evidence": [
+        "salida.txt"
+      ],
       "verified": true,
       "como": "TS-03 es el que prueba que la FUENTE cambio: TS-02 solo lo cumple un verificador que siga leyendo la tabla, porque el intake podia listarlas."
     },
     {
       "ac": "AC-03",
       "statement": "El mensaje distingue «no es miembro» de «le falta la firma de lote»",
-      "scenarios": ["TS-04", "TS-05", "TS-06"],
+      "scenarios": [
+        "TS-04",
+        "TS-05",
+        "TS-06"
+      ],
       "tests": [
         "selftest §EP-026 · un miembro TERMINAL sin firma se cuenta, no se rejuzga",
         "selftest §EP-026 · una firma que nombra OTRO lote se dice"
       ],
-      "evidence": ["salida.txt"],
+      "evidence": [
+        "salida.txt"
+      ],
       "verified": true,
       "como": "El grupo 1 de RE_SIGN_BATCH se capturaba y se TIRABA mientras el mensaje nombraba el lote. PT-172 es el caso real y nadie lo veia."
     }
@@ -77,5 +92,15 @@
       "por_que_no": "Lo que se compra es que la fuente sea el registro. Que aparezca otra clase de hueco no lo impide esto ni lo promete.",
       "verified": false
     }
-  ]
+  ],
+  "posterior_a_phase_8": {
+    "que": "Trabajo ocurrido en esta rama despues de cerrar la evidencia, documentado en la continuacion de HISTORY.log (SUITE-R09: se anade, no se edita)",
+    "hechos": [
+      "SUITE-R34 bloqueo el CI del PR #376: el analisis de cuatro tareas y tres paradas se escribieron en changes/ despues del ultimo sello del HANDOFF",
+      "El sello se estampo A MANO para desbloquear, con el valor derivado que «avanzar» habria escrito. Declarado en HANDOFF -30. Es CE-006 y su hueco es PT-205",
+      "Tres paradas abiertas y ninguna buscada (FDGE-R55): EP-028, PT-204, PT-205",
+      "Dos premisas de intake desmentidas al medir: publicar.yml NO viaja (PT-202); las cifras de versiones de PT-187 eran tres y son siete, cero y veintiocho (CE-010)"
+    ],
+    "verified": true
+  }
 }

@@ -115,4 +115,24 @@ otra vez.
   `EP-019` tiene filas, así que el respaldo nunca entró y sus diecisiete quedaron sin comprobar
   igual. Derivar del registro lo hace innecesario.
 
+## Lo que pasó DESPUÉS de `PHASE 8`, y que también consta
+
+Este documento se escribió con la tarea en `PHASE 6`. Después, en la misma rama, ocurrieron cuatro
+cosas que ningún artefacto recogía — y dejarlas fuera era el defecto que este lote persigue:
+
+1. **`SUITE-R34` bloqueó el CI, con razón.** Escribí el análisis de `PT-194`, `PT-195`, `PT-202` y
+   `PT-187` y tres paradas, todo en `changes/`, **después** del último sello del `HANDOFF`. Es la
+   lección `-16` y la incumplí yo.
+2. **Al arreglarlo apareció el hueco que lo hace fácil de incumplir**: `avanzar` es el **único** que
+   estampa el estado, y sólo al cambiar de fase. El sello se puso **a mano** para desbloquear el PR
+   y **se declara** —`HANDOFF -30`—, con el valor derivado que `avanzar` habría escrito. El hueco es
+   `PT-205`.
+3. **Tres paradas abiertas, ninguna buscada** (`FDGE-R55`): `EP-028` (el coste de la verificación),
+   `PT-204` (124 de 244 reglas que nada ejecuta) y `PT-205`.
+4. **Dos intakes desmentidos por medir**: `publicar.yml` **no viaja** (`PT-202`), y las cifras de
+   versiones de `PT-187` eran tres y son siete, cero y veintiocho.
+
+El detalle completo está en la continuación de la entrada de `HISTORY.log`, añadida y no editada
+(`SUITE-R09`).
+
 ## Sin bloqueadores

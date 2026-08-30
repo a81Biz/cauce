@@ -12534,3 +12534,70 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - No se promete que la tabla del intake y el registro coincidan: citar sigue siendo legitimo.
 - No se promete que no vuelva a abrirse una deuda de esta forma. Lo que se compra es que la
   fuente sea el registro.
+
+--- PT-203 · continuacion, escrita DESPUES de la entrada de arriba (SUITE-R09: se anade) ---
+
+LO QUE OCURRIO EN ESTA RAMA DESPUES DE PHASE 8, Y NO ESTABA DOCUMENTADO.
+
+La entrada de arriba se cerro con la tarea en PHASE 8. Despues, en la misma rama, paso esto —y
+dejarlo sin escribir era exactamente el defecto que este lote persigue: un hecho ocurrido que
+ningun artefacto recoge.
+
+1 · EL CI BLOQUEO CON SUITE-R34, Y TENIA RAZON.
+
+    ✗ SUITE-R34  Hubo trabajo en changes/ despues del ultimo estado.
+
+Escribi el analisis de PT-194, PT-195, PT-202 y PT-187 —discovery, strategy, escenarios,
+trazabilidad— y tres paradas, TODO en changes/, DESPUES del ultimo sello del HANDOFF. El estado
+quedo atras. Es la leccion -16 del HANDOFF («el sello va al final, en su propio commit») y la
+incumpli yo.
+
+2 · Y AL ARREGLARLO APARECIO EL HUECO QUE LO HACE FACIL DE INCUMPLIR.
+
+«avanzar» es el UNICO que estampa «actualizado:» en HANDOFF.md (tracker.mjs:3799), y estampa solo
+al cambiar de fase. Cualquier trabajo legitimo en changes/ que no sea una transicion —el analisis
+de la tarea siguiente, una parada, corregir un intake— deja el estado atras SIN VIA SANCIONADA
+para refrescarlo. Es CE-006: el acto existe solo empaquetado con otro.
+
+EL SELLO SE ESTAMPO A MANO PARA DESBLOQUEAR EL PR, Y SE DECLARA. No se disimula: esta en el
+HANDOFF como leccion -30, con el valor DERIVADO que «avanzar» habria escrito (fecha de git + el PT
+en su fase). El hueco es PT-205.
+
+Y el propio codigo ya lo decia de su antecesor: «la TERCERA vez que SUITE-R34 caza este patron en
+la sesion. El comando VIOLABA POR CONSTRUCCION la regla que dice que el estado viaja con el
+trabajo». PT-158 arreglo que AVANZAR la violara. No arreglo que avanzar fuera el UNICO camino.
+
+3 · TRES PARADAS ABIERTAS, NINGUNA BUSCADA (FDGE-R55).
+
+    EP-028   el coste de la verificacion. verify-fdge corre 71 comprobaciones de REPOSITORIO en
+             TODA invocacion, y el sello por PT incluye el ARCHIVO ENTERO del verificador, asi que
+             editar una linea reabre los 189 a la vez. Es el sello por bloque ANTES de PT-176.
+    PT-204   audit dice, en cada npm run verify, que 124 de 244 reglas son PENDIENTE y 91 no
+             tienen verificador —82 HARD, entre ellas EXEC-R05, la G3 humana de todo BUG—. El dato
+             existe desde hace lotes y no le pertenece a nadie. CE-007 a escala del marco.
+    PT-205   el hueco de SUITE-R34 descrito arriba.
+
+4 · UNA PREMISA DE INTAKE DESMENTIDA, Y OTRA CIFRA CORREGIDA.
+
+Al escribir el analisis adelantado de las tareas siguientes, medir cambio dos intakes:
+
+    PT-202  decia que publicar.yml VIAJA en el paquete. NO viaja: npm pack empaqueta 61 archivos
+            y CERO de .github/. Lo que viaja es la DOCUMENTACION que lo describe como si el
+            destino lo tuviera —CASOS-DE-USO.md le da un caso de uso completo—, y eso es peor:
+            un archivo sobrante se ve, una documentacion que miente no.
+    PT-187  decia «tres tags sin publicar» y «tres publicadas sin CHANGELOG». Medido: SIETE sin
+            publicar, CERO sin CHANGELOG, y 28 de 47 entradas del CHANGELOG sin tag, que el
+            intake no veia. Las cifras venian del HANDOFF de una medicion anterior: CE-010.
+
+Las dos correcciones viven en el discovery.md de cada tarea, no aqui: aqui consta que ocurrieron.
+
+5 · POR QUE ESTO SE ESCRIBE Y NO SE DEJA PASAR.
+
+Lo pidio el firmante con la razon delante:
+
+    «actualiza el PT que nada quede sin documentar, eso lo dice el marco, pero como lo hemos
+     visto, no haces caso»
+
+Es el mismo defecto que PT-204 mide en las reglas: el marco lo declara y nada obliga. Aqui la
+consecuencia habria sido que el trabajo de una rama —tres paradas, cuatro analisis, un bloqueo de
+CI y un acto hecho a mano— quedara fuera del unico sitio donde se busca despues.
