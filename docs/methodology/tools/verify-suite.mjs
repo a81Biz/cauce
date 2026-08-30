@@ -832,6 +832,60 @@ const fmt = (x) => `  ${x.rule.padEnd(12)} ${x.file}${x.line ? ':' + x.line : ''
   }
 })();
 
+// ─── PT-202 · LEX-R25 · un documento que VIAJA no describe un recorrido de la FUENTE ──
+//
+// El intake decia que `publicar.yml` VIAJA en el paquete. Medido, es falso: `npm pack` empaqueta
+// 61 archivos y CERO de `.github/`, y no lo copia ni el instalador ni plan-layout ni migrate.
+//
+// LO QUE SI LLEGA ES PEOR. `docs/methodology/` viaja ENTERO — 56 archivos — y dentro la
+// documentacion hablaba de `publicar.yml` COMO SI EL DESTINO LO TUVIERA: CASOS-DE-USO.md le daba
+// un caso de uso completo, «E2 · Publicar una version», cuyo recorrido es un workflow que no
+// tiene, para publicar un paquete que no es suyo.
+//
+// UN ARCHIVO SOBRANTE SE VE Y SE BORRA; UNA DOCUMENTACION QUE DESCRIBE UN RECORRIDO INEXISTENTE
+// NO SE VE: quien la lee busca el workflow, no lo encuentra, y no sabe si le falta a el o si el
+// documento miente.
+//
+// LA LISTA SE DERIVA, NO SE ESCRIBE. Un artefacto es DE LA FUENTE cuando esta en el repositorio y
+// NO en `package.json.files`. Escribirla a mano la haria divergir del arbol — CE-010, que este
+// lote ya ha pagado dos veces.
+(() => {
+  const RAIZ = resolve(BASE, '..', '..');
+  const pkgPath = join(RAIZ, 'package.json');
+  if (!existsSync(pkgPath)) return;                 // sin package.json no hay frontera que derivar
+  let files = [];
+  try { files = JSON.parse(readFileSync(pkgPath, 'utf8')).files ?? []; } catch { return; }
+  const viaja = (ruta) => files.some((f) => {
+    const pat = String(f).replace(/^!/, '');
+    return !String(f).startsWith('!') && (ruta === pat || ruta.startsWith(pat + '/'));
+  });
+  const wf = join(RAIZ, '.github', 'workflows');
+  if (!existsSync(wf)) return;
+  const deLaFuente = readdirSync(wf)
+    .filter((f) => /\.ya?ml$/.test(f))
+    .filter(() => !viaja('.github'))                // si .github viajara, NO serian de la fuente
+    .map((f) => f);
+  if (!deLaFuente.length) return;
+  // Se mira SOLO lo que viaja: un documento de la fuente puede nombrar lo que quiera.
+  const documentos = walk(BASE).filter((f) => f.endsWith('.md'));
+  for (const f of documentos) {
+    // `sep` no esta importado aqui, y escribir el escape a mano ya se degrado una vez (CE-002):
+    // se parte por el separador de la plataforma sin literal de barra invertida.
+    const rel = relative(BASE, f).split('\\').join('/');
+    const txt = readFileSync(f, 'utf8');
+    for (const w of deLaFuente) {
+      if (!txt.includes(w)) continue;
+      // MARCADO = el documento dice, cerca del nombre, que eso es de la FUENTE. No se exige una
+      // forma fija: se exige que la palabra este, porque lo que faltaba era DECIRLO.
+      const marcado = /DE LA FUENTE|de la \*\*fuente\*\*|NO viaja|no viaja/i.test(txt);
+      if (marcado) continue;
+      fail('LEX-R25', rel, 0, `menciona «${w}», que es de la FUENTE —esta en el repositorio y NO en `
+        + `package.json.files— y este documento VIAJA en el paquete. Quien lo instale leera un `
+        + `recorrido que no tiene. Marcalo: «DE LA FUENTE» o «no viaja» (PT-202, LEX-R25).`);
+    }
+  }
+})();
+
 // ─── PT-087 · SUITE-R38 · una comprobacion declara QUE HECHO establece ──────
 //
 // Siete veces el marco comprobo un proxy barato en lugar del hecho. La causa no esta en las

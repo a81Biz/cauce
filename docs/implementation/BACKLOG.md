@@ -32,12 +32,12 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-199 | BUG | S2 | DONE | 8 | [#361](https://github.com/a81Biz/cauce/issues/361) | El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca |
 | PT-200 | BUG | S2 | DONE | 8 | [#362](https://github.com/a81Biz/cauce/issues/362) | verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal |
 | PT-201 | BUG | S2 | DONE | 8 | [#363](https://github.com/a81Biz/cauce/issues/363) | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
-| PT-202 | BUG | S3 | DRAFT | 1 | [#364](https://github.com/a81Biz/cauce/issues/364) | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
+| PT-202 | BUG | S3 | DONE | 8 | [#364](https://github.com/a81Biz/cauce/issues/364) | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
 | PT-203 | BUG | S3 | DONE | 8 | [#365](https://github.com/a81Biz/cauce/issues/365) | Citar un PT en una fila del intake del lote lo convierte en miembro |
 | PT-204 | INVESTIGATION | S2 | DRAFT | 1 | [#377](https://github.com/a81Biz/cauce/issues/377) | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
 | PT-205 | BUG | S2 | DONE | 8 | [#378](https://github.com/a81Biz/cauce/issues/378) | Cumplir SUITE-R34 exige un acto fuera del comando |
 
-**12 de 16 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**13 de 16 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-027`
 

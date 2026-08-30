@@ -10469,6 +10469,79 @@ _arbol194() {
 }
 chkl  "…y en el ARBOL la declaracion sigue eximiendo"          "Sin hallazgos sin firmar"  _arbol194
 
+# -- PT-202 . la frontera fuente/destino se declara y se comprueba ------------
+#
+# EL INTAKE SE EQUIVOCABA DE MECANISMO. Decia que publicar.yml VIAJA en el paquete. Medido:
+# «npm pack» empaqueta 61 archivos y CERO de .github/, y no lo copia ni el instalador ni
+# plan-layout ni migrate. NO VIAJA.
+#
+# LO QUE SI LLEGA ES PEOR: docs/methodology/ viaja ENTERO —56 archivos— y dentro la documentacion
+# hablaba de publicar.yml COMO SI EL DESTINO LO TUVIERA. CASOS-DE-USO.md le daba un caso de uso
+# completo, «E2 · Publicar una version», cuyo recorrido el destino no tiene, para publicar un
+# paquete que no es suyo. Un archivo sobrante se ve y se borra; una documentacion que describe un
+# recorrido inexistente NO SE VE.
+# NO se invoca «npm pack» aqui: la red y el gestor no son del arnes, y una comprobacion que
+# depende de ellos falla por razones que no son la suya. Se mide EL HECHO del que el empaquetado
+# depende —que `.github` no este en `package.json.files`— que es lo que decide que no viaje.
+_pkg202() { node -e "
+  const f=require(process.argv[1]+'/package.json').files||[];
+  console.log('en-files:'+f.filter(x=>String(x).includes('.github')).length);
+" "$RAIZ" 2>&1; }
+# AC-01 . TS-01 . UNA INSTALACION LIMPIA NO RECIBE EL WORKFLOW DE PUBLICACION.
+#
+# YA SE CUMPLE HOY, y el caso sigue haciendo falta: sin el, nada impide «arreglar» el problema
+# imaginario ANADIENDO .github/ al paquete —que sobrescribiria los workflows del destino, y eso no
+# es instalar, es pisar—. El caso fija el CERO de lo prohibido, que es lo unico que un caso puede
+# fijar (HANDOFF -18).
+chkl  "el paquete no lleva NINGUN workflow"          "en-files:0"    _pkg202
+# AC-02 . TS-02 . Y ESTE REPOSITORIO SIGUE PUDIENDO PUBLICAR. Es el que impide arreglarlo
+# rompiendo la publicacion, y el intake ya lo declaraba asi.
+chkl  "…y este repositorio sigue pudiendo publicar"  "workflow_dispatch" \
+  cat "$RAIZ/.github/workflows/publicar.yml"
+# AC-03 . TS-03 . LA FRONTERA ESTA DECLARADA, junto a LEX-R25 que ya decia la mitad —que VIAJA—
+# y no la otra: que lo que viaja no es todo lo que APLICA al destino.
+chkl  "la frontera fuente/destino esta declarada"    "no es todo lo que APLICA al destino" \
+  cat "$SUITE/LEXICON.md"
+# AC-03 . TS-04 . Y UN DOCUMENTO QUE VIAJA NO DESCRIBE UN RECORRIDO DE LA FUENTE SIN MARCARLO.
+#
+# Sin esta comprobacion, TS-03 es una correccion de texto QUE SE DESHACE SOLA. Y no es hipotetico:
+# ya paso DOS veces —LEXICON.md y CASOS-DE-USO.md— sin que nada lo dijera, y al escribirla aparecio
+# una TERCERA que no habia visto: el CHANGELOG.
+_frontera202() {
+  # LA SUITE ENTERA, no solo sus .md de raiz: con los subdirectorios ausentes, verify-suite emite
+  # trece enlaces rotos y TRUNCA el informe —«… y 13 mas»—, asi que el hallazgo real no se veia.
+  # El caso pasaba a medir el truncado en vez de la comprobacion.
+  local d="$WORK/p202"; rm -rf "$d"; mkdir -p "$d/docs"
+  cp -r "$SUITE" "$d/docs/methodology"
+  mkdir -p "$d/.github/workflows"; printf 'name: publicar\n' > "$d/.github/workflows/publicar.yml"
+  printf '{"name":"x","version":"1.0.0","files":["docs/methodology"]}' > "$d/package.json"
+  # un documento que VIAJA y menciona el workflow SIN marcarlo
+  printf '# Doc\n\nEl recorrido es `publicar.yml`, manual.\n' > "$d/docs/methodology/SUELTO.md"
+  node "$SUITE/tools/verify-suite.mjs" "$d/docs/methodology" 2>&1 | grep "LEX-R25" | head -2
+}
+chkl  "un documento que viaja y no lo marca, falla"  "SUELTO.md"   _frontera202
+# Y SU PAREJA: MARCARLO BASTA. Sin esto, lo de arriba lo cumple una comprobacion que falle SIEMPRE
+# —y entonces el marco entero quedaria en rojo por nombrar sus propios workflows—.
+_marcado202() {
+  _frontera202 >/dev/null 2>&1
+  printf '# Doc\n\n`publicar.yml` es DE LA FUENTE y no viaja.\nEl recorrido es `publicar.yml`.\n' \
+    > "$WORK/p202/docs/methodology/SUELTO.md"
+  node "$SUITE/tools/verify-suite.mjs" "$WORK/p202/docs/methodology" 2>&1 | grep -c "SUELTO.md" || true
+}
+chkl  "…y marcarlo basta"                            "0"           _marcado202
+# AC-03 . TS-05 . Y LA LISTA SE DERIVA: un workflow NUEVO entra sin que nadie lo anada a mano.
+# Una lista escrita a mano diverge del arbol — CE-010, que este lote ya ha pagado dos veces.
+_deriva202() {
+  _frontera202 >/dev/null 2>&1
+  printf 'name: otro\n' > "$WORK/p202/.github/workflows/inventado.yml"
+  printf '# Doc\n\nEl recorrido es `inventado.yml`.\n' > "$WORK/p202/docs/methodology/SUELTO.md"
+  # -A 1 porque el nombre del workflow va en la SEGUNDA linea del hallazgo: «head -1» cortaba
+  # justo antes de lo que el caso mide.
+  node "$SUITE/tools/verify-suite.mjs" "$WORK/p202/docs/methodology" 2>&1 | grep -A 1 "LEX-R25" | head -2
+}
+chkl  "un workflow nuevo entra sin tocar ninguna lista"  "inventado.yml"  _deriva202
+
+
 
 # AC-03 . LA CERTIFICACION: FIRMAR NO ES SILENCIAR.
 #

@@ -1,0 +1,22 @@
+PT-202 · corrida COMPLETA en verde · 2013 casos
+
+  [32m✓[0m el paquete no lleva NINGUN workflow
+  [32m✓[0m …y este repositorio sigue pudiendo publicar
+  [32m✓[0m la frontera fuente/destino esta declarada
+  [32m✓[0m un documento que viaja y no lo marca, falla
+  [32m✓[0m …y marcarlo basta
+  [32m✓[0m un workflow nuevo entra sin tocar ninguna lista
+
+selftest: OK · 2013 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "2013", "arnes": "f11eb8b47a88f12a8bad4c420205cb61b01d1082", "fecha": "2026-08-30T16:28:58Z" }
+
+== LO MEDIDO: publicar.yml NO viaja ==
+  package.json.files: ["bin","!bin/graphify-out","docs/methodology","!docs/methodology/.claude","README.md","LICENSE","NOTICE"]
+  entradas con .github: 0
+
+== Y LA COMPROBACION, SOBRE EL ARBOL REAL ==
+  (los tres documentos que mencionaban los workflows ya lo declaran)
+
+Sin errores de coherencia.

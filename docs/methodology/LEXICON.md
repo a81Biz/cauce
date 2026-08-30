@@ -1110,6 +1110,24 @@ tools/
 `LEX-R25` · `CORE.md`, `CORE-PTSA.md`, `PHASES.md`, `tools/` y los directorios `templates/`
 forman parte del paquete instalable. Un
 proyecto sin `CORE.md` no puede cumplir `SUITE-R15`: no tiene qué cargar.
+**Y lo que viaja no es todo lo que APLICA al destino** (`PT-202`): `docs/methodology/` viaja
+**entero** — 56 archivos — y dentro lleva recorridos que sólo existen en el repositorio que
+**produce** el paquete. `publicar.yml` es el caso que lo hizo visible: **no viaja** —`npm pack`
+empaqueta 61 archivos y **cero** de `.github/`— y aun así `CASOS-DE-USO.md` le daba un caso de uso
+completo, `E2 · Publicar una versión`, cuyo recorrido el destino **no tiene**, para publicar un
+paquete que **no es suyo**.
+
+**Un artefacto es DE LA FUENTE cuando está en el repositorio y NO en `package.json.files`.** La
+lista no se escribe a mano — se **deriva** de esos dos hechos, porque una lista transcrita diverge
+del árbol (`CE-010`). Un documento que viaja y menciona uno de ellos **lo marca como tal**, y
+`verify-suite` lo comprueba: sin eso, la corrección se deshace sola — ya ocurrió **dos veces**,
+en este mismo archivo y en `CASOS-DE-USO.md`, sin que nada lo dijera.
+
+**Lo que esto NO resuelve, y consta** (`SUITE-R26`): `verificacion.yml` **tampoco viaja**, y al
+destino **sí le sirve**. Se queda sin la compuerta que necesita y con la documentación de una que
+no. Darle una es otra decisión y de otro tamaño — enviar `.github/` **sobrescribiría** lo suyo, y
+un workflow es específico de la plataforma, que `SUITE-R35` declara parametrizable. Hacerlo bien
+es **una plantilla que el destino adapta**, con su fase en `INSTALL.md`.
 
 `LEX-R15` · El archivo `instrucctions.md` (con errata) queda **derogado**. Su reemplazo es
 `FDGE-Prompts.md`, simétrico con `QA-Prompts.md`, `PTSA-Prompts.md`, `FPGE-Prompts.md` y

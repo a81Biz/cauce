@@ -6,6 +6,13 @@ capacidad sin romper; `PATCH` corrige texto.
 `SUITE-R13` · Todo proyecto declara su `suite_version` en `REGISTRY.json` y en su `CLAUDE.md`.
 El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajuste.
 
+> **`publicar.yml` y `verificacion.yml` son DE LA FUENTE y NO viajan en el paquete** (`LEX-R25`,
+> `PT-202`). Este archivo los nombra al narrar la historia del marco, y esa mención es correcta —
+> pero si lo estás leyendo en un proyecto que **instaló** cauce, esos workflows **no existen ahí**:
+> `package.json.files` no incluye `.github/`, y no los copia ni el instalador ni `plan-layout` ni
+> `migrate`. Se declara una vez aquí para no repetirlo en cada entrada, que es lo que `SUITE-R09`
+> impide corregir después.
+
 ---
 
 ## 13.4.0 — 2026-08-28
