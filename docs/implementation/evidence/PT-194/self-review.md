@@ -59,6 +59,27 @@ no en la revisión — que es exactamente lo que `PT-181` compró al pasar las e
 **la expectativa se equivoca en voz alta** en vez de casar por accidente. Segunda vez en este lote,
 tras `PT-196`.
 
+## Y `FDGE-R45` me cazó la evidencia
+
+La salida que copié llevaba el **valor sintético** del fixture, y `npm run verify` la bloqueó:
+
+```
+✗ FDGE-R45  PT-194: posible contraseña en texto plano en evidence/PT-194/salida.txt:21
+```
+
+**La evidencia de la tarea que arregla el escáner se convirtió en lo que el escáner caza.**
+Redactado, con su nota de qué se redactó. Es la lección `-23` del `HANDOFF` —no citar el valor de
+un fixture en la documentación— en su **tercera** aparición, y la primera fue `PT-193`, que es la
+tarea que ensambló los literales para que esto dejara de pasar.
+
+## Y un error de proceso, que se declara porque ya está fusionado
+
+La **implementación** de esta tarea viajó dentro del PR de `PT-195`. Usé `git add -A` en su rama y
+el commit `4811527` —que dice *«PT-194 su viabilidad consta»*— arrastró `revisar-secretos.mjs`
+(+53) y seis casos del arnés (+61). El mensaje **no miente sobre el `PT` que cita** (`FDGE-R19` se
+cumple) **pero sí sobre su contenido**. La historia no se reescribe (`SUITE-R06f`): queda declarado
+aquí, en `HISTORY.log` y como lección `-34`.
+
 ## Lo que NO se toca, y consta   `SUITE-R26`
 
 - **La exención en el ÁRBOL no cambia**: funciona, y es lo que `PT-190` compró. Tiene su caso.

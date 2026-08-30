@@ -1,0 +1,64 @@
+{
+  "pt": "PT-194",
+  "generated": "2026-08-30",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El comportamiento en historia queda declarado, valga o no la exencion",
+      "scenarios": ["TS-01", "TS-04"],
+      "tests": [
+        "selftest §EP-026 · un hallazgo de historia dice que la exencion no llega",
+        "selftest §EP-026 · …y dice POR QUE: la historia es de SIEMPRE",
+        "selftest §EP-026 · …y en el ARBOL la declaracion sigue eximiendo"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "No era una decision: era un efecto de por donde mira el escaner. revisar-secretos.mjs:164 pasa `false` EN DURO y el diff SI lleva el archivo — hacerla llegar habria sido facil, y eso es lo que hacia peligrosa la tarea."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Un secreto real en la historia sigue bloqueando, haya declaracion o no",
+      "scenarios": ["TS-02"],
+      "tests": ["selftest §EP-026 · …y BLOQUEA igual, con la declaracion puesta"],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "ES EL QUE GOBIERNA. TS-01, TS-03 y TS-04 los cumple un escaner que haya AMPLIADO la exencion; solo este prueba que no se hizo. El fixture planta el secreto CON la declaracion puesta."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El mensaje dice que ocurre de verdad, no «hay una contrasena» a secas",
+      "scenarios": ["TS-03"],
+      "tests": [
+        "selftest §EP-026 · …y nombra el mecanismo: firmar la huella",
+        "selftest §EP-026 · …y dice que el archivo SI lo declara hoy, como contexto"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "RULE-07: un mensaje dice COMO SE ARREGLA. Y el contexto va APARTE: sin esa linea quien lee un rojo sobre un fixture declarado no entiende por que no le vale la declaracion; con ella lo entiende Y SIGUE BLOQUEADO."
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable · 6 casos sobre 4 escenarios",
+  "medido": {
+    "la_decision": "el intake la dejaba abierta (RULE-06). Se decide que NO vale, por tres motivos que van EN LA SALIDA y no solo en un documento.",
+    "por_que_no_vale": "la declaracion vive en el arbol de HOY y la historia es de SIEMPRE: aplicarla eximiria todo lo que ese archivo tuvo alguna vez, incluida una credencial real borrada despues.",
+    "el_riesgo_va_al_reves": "lo que molesta es un falso positivo; ampliar mal una exencion hace que un secreto REAL deje de bloquear.",
+    "el_literal_se_ensambla": "en dos mitades, la leccion de PT-193 y PT-015: escribirlo entero haria que el escaner cazara a este mismo arnes."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Ningun fixture vuelve a aparecer en la historia",
+      "por_que_no": "Eso lo cerro PT-193 ensamblando los literales. Esta tarea es sobre QUE DEBE HACER el escaner cuando ocurra.",
+      "verified": false
+    },
+    {
+      "afirmacion": "La heuristica de los 4000 caracteres se revisa",
+      "por_que_no": "Se queda: los destinos ya instalados dependen de ella (CE-014), y revisar-secretos.mjs:87 ya lo declara.",
+      "verified": false
+    },
+    {
+      "afirmacion": "La conducta del escaner cambia",
+      "por_que_no": "El `false` sigue siendo `false` y bloquea donde bloqueaba. Lo que cambia es que sea una DECISION DECLARADA en vez de un efecto de por donde mira.",
+      "verified": false
+    }
+  ]
+}

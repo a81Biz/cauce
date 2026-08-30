@@ -6595,8 +6595,8 @@
       "id": "PT-194",
       "slug": "la-exencion-de-senuelos-no-viaja-a-la-historia",
       "created": "2026-08-28",
-      "status": "READY",
-      "phase": 5,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
@@ -6610,6 +6610,10 @@
       },
       "compuertas": {
         "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        },
+        "G3": {
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-30"
         }
