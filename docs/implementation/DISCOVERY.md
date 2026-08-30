@@ -139,5 +139,6 @@
 | PT-201 | BUG | S2 | DONE | EP-026 | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
 | PT-202 | BUG | S3 | DONE | EP-026 | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
 | PT-203 | BUG | S3 | DONE | EP-026 | Citar un PT en una fila del intake del lote lo convierte en miembro |
-| PT-204 | INVESTIGATION | S2 | DRAFT | EP-026 | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
+| PT-204 | INVESTIGATION | S2 | DONE | EP-026 | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
 | PT-205 | BUG | S2 | DONE | EP-026 | Cumplir SUITE-R34 exige un acto fuera del comando |
+| PT-206 | BUG | S3 | DONE | EP-026 | LEX-R31 no ve el 76% de las clases que si se declaran |

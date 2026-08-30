@@ -1,0 +1,38 @@
+PT-204 · corrida COMPLETA en verde · 2034 casos
+
+  [32m✓[0m …y tracker siguiente NO bloquea
+  [32m✓[0m una fase sin artefacto NO bloquea
+  [32m✓[0m …y no pasa por vacio: tail -40 devuelve relleno
+  [32m✓[0m …y una identidad ajena NO bloquea
+  [32m✓[0m lo que nadie ha juzgado sale como SIN_JUZGAR
+  [32m✓[0m …y lo juzgado mecanizable es DEUDA
+  [32m✓[0m …y PENDIENTE sigue siendo la suma de las dos
+  [32m✓[0m …y una NO_VERIFICABLE no cae en ninguna
+  [32m✓[0m una bajada de cobertura se DICE
+  [32m✓[0m …y NO bloquea
+  [32m✓[0m …y no pasa por vacio: el aviso esta
+  [32m✓[0m …y una subida tambien se dice
+
+selftest: OK · 2034 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "2034", "arnes": "cb7ee5353607bddc39d8fc760aec16c4dc1e3113", "fecha": "2026-08-30T22:45:18Z" }
+
+== LA DEUDA, SOBRE EL ARBOL REAL ==
+  Clasificación exhaustiva (PT-078) — ninguna queda fuera:
+    VERIFICADA       115   una herramienta la EMITE
+    NO_VERIFICABLE   6   declarada con motivo y firma
+    PENDIENTE        123   = DEUDA 0 + SIN_JUZGAR 123
+      DEUDA          0   juzgada mecanizable y sin verificador — falta escribirlo
+      SIN_JUZGAR     123   NADIE HA MIRADO si se puede verificar o no
+      Juzgar NO es verificar: decidir que una regla no es mecanizable cuesta un
+      parrafo con motivo y firma en NO-VERIFICABLES.md; escribir su verificador
+      cuesta una tarea. Lo que falta en estas es LO PRIMERO.
+    suma             244 de 244
+
+
+== Y SU COMPOSICION, QUE ES LO QUE DA EL CRITERIO ==
+  sin verificador: 91
+  por familia    : {"SUITE":17,"FND":10,"FDGE":24,"INTAKE":5,"QA":9,"FPGE":3,"FIDE":4,"LEX":10,"EXEC":9}
+  se ejercita AQUI cada dia: FDGE+SUITE+EXEC+INTAKE = 55
+  casi nunca, son de DESTINO: QA+FIDE+FPGE = 16

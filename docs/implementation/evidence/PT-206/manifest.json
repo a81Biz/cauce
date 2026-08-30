@@ -1,0 +1,96 @@
+{
+  "pt": "PT-206",
+  "generated": "2026-08-30",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "LEX-R31 ve las que si se declaran, no una fraccion",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-026 · la clase con descripcion detras se lee",
+        "selftest §EP-026 · …y la escueta tambien",
+        "selftest §EP-024 · una entrada que declara su clase, en verde"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "De 22 a 76 sobre el arbol real. La forma escueta —la que YA funcionaba— tiene su caso: el arreglo no rompe lo que habia."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Una entrada que no declara clase sigue avisando",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-026 · …y sin clase declarada devuelve null",
+        "selftest §EP-026 · …ni con la etiqueta y sin identificador",
+        "selftest §EP-024 · …y una que no la declara, AVISA"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "ES EL QUE IMPIDE ARREGLARLO EN LA DIRECCION PELIGROSA: un regex que acepte cualquier cosa cumple AC-01 y APAGA la regla. Y su caso en §EP-024 fue el que caz o mi error de tipo."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La lectura de la clase vive en un sitio, con contrato",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-026 · la lectura de la clase vive en patrones",
+        "selftest §EP-026 · …y verify-fdge ya no trae su propia expresion"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "En patrones.mjs con su `casa` y su `noCasa`, donde verify-patrones lo comprueba. NO se unifica con eventos.mjs: mide otra cosa —la clase DEDUCIDA del cuerpo— y fundirlas seria inventar un SUITE-R38 que no existe."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Se barre la familia y se declara la cifra",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-026 · la expresion anclada ya no se USA"
+      ],
+      "evidence": [
+        "self-review.md",
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "Lo mecanizable es el CERO —que la expresion vieja ya no se use—. La cifra es un hecho DECLARADO: fijarla en un caso seria fijar el numero de lo correcto (HANDOFF -18) y caducaria (CE-010)."
+    }
+  ],
+  "coverage": "4 de 4 criterios con escenario y caso ejecutable · 7 casos propios mas 2 preexistentes de §EP-024",
+  "medido": {
+    "antes_y_despues": "entradas que declaran: 76 · que LEX-R31 veia: 22 · que ve ahora: 76 · avisos falsos sobre el arbol: 0",
+    "la_familia": "once expresiones de tools/ anclan un campo a fin de linea; CINCO exigen un valor concreto y ahi el riesgo es real: Estructural, certificacion, confidence, health, health_unstable. Ninguna ha fallado todavia.",
+    "una_afirmacion_mia_falsa": "escribi en la parada que eventos.mjs leia la misma linea y que eso era SUITE-R38. Comprobado, es FALSO: clasifica por frases del cuerpo. Corregido ANTES de construir sobre ello.",
+    "el_error_de_tipo": "«=== undefined» era correcto con campo(); claseDeEvento devuelve NULL, y con la comparacion estricta el aviso se volvio VERDE — PT-129, que no declara clase, salia como «declara «Clase de evento: null»». Lo destapo la corrida COMPLETA: los dos casos que lo cazan viven en la seccion de EP-024."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Las cinco expresiones en riesgo quedan arregladas",
+      "por_que_no": "Se cuentan y se nombran. Ninguna ha fallado todavia, y arreglarlas es otro trabajo. Declararlo es lo que impide que la cifra se pierda.",
+      "verified": false
+    },
+    {
+      "afirmacion": "LEX-R31 pasa a bloquear",
+      "por_que_no": "Avisa a proposito: no todo trabajo repite un tropiezo, y RIGE_DESDE la acota a la 13.0.0 para no juzgar hacia atras (CE-014).",
+      "verified": false
+    },
+    {
+      "afirmacion": "La lectura se unifica con eventos.mjs",
+      "por_que_no": "Mide otra cosa: eventos DEDUCE la clase de lo que la entrada cuenta; LEX-R31 comprueba que la DECLARE.",
+      "verified": false
+    }
+  ]
+}

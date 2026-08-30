@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 205,
+    "PT": 206,
     "EP": 27,
     "QA": 0,
     "QR": 0,
@@ -7055,8 +7055,8 @@
       "id": "PT-204",
       "slug": "la-cobertura-mecanica-no-le-pertenece-a-nadie",
       "created": "2026-08-29",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "INVESTIGATION",
       "severity": "S2",
@@ -7067,6 +7067,23 @@
         "de": "EP-026",
         "motivo": "hallazgo",
         "fecha": "2026-08-29"
+      },
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
       }
     },
     {
@@ -7112,6 +7129,51 @@
         },
         "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-29"
+      }
+    },
+    {
+      "id": "PT-206",
+      "slug": "lex-r31-no-ve-las-clases-declaradas",
+      "created": "2026-08-30",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-026",
+      "title": "LEX-R31 no ve el 76% de las clases que si se declaran",
+      "origen_parada": {
+        "de": "EP-026",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-30"
+      },
+      "issue": 385,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
       }
     }
   ]

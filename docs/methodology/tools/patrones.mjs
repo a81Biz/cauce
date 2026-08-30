@@ -987,6 +987,19 @@ export function clasificaRodeo(hallazgo, textoDelLedger, regla = 'FDGE-R19') {
  * al escribir: un `phase: 5  # a medias` reescrito como `phase: 6` a secas destruiria informacion
  * que alguien puso a proposito, y eso seria cambiar un defecto por otro.
  */
+/**
+ * PT-206 · La clase se lee HASTA EL IDENTIFICADOR, y lo que venga detras es descripcion.
+ *
+ * Anclar a fin de linea confundia «declarada» con «declarada de una forma concreta», y la forma
+ * concreta era la MINORITARIA. Lo que la regla quiere saber es si hay clase — no como se escribio.
+ */
+const RE_CLASE_EVENTO = /^Clase de evento:[^\S\r\n]*(CE-\d{3})\b/im;
+
+/** La clase declarada por una entrada, o null. Un solo sitio (SUITE-R38). */
+export function claseDeEvento(texto) {
+  return RE_CLASE_EVENTO.exec(String(texto ?? ''))?.[1] ?? null;
+}
+
 const RE_CAMPO_INTAKE = /^([A-Za-z_][\w-]*):[^\S\r\n]*([^\s#][^\r\n#]*?)[^\S\r\n]*(#[^\r\n]*)?$/;
 
 /**
@@ -1226,6 +1239,32 @@ export const PATRONES = {
   //
   // El patron vive aqui porque aqui lo vigila verify-patrones. Un patron critico en el consumidor
   // no lo mira nadie, y por eso hubo siete copias (SUITE-R38).
+  // PT-206 · LA CLASE DE EVENTO DE UNA ENTRADA, CON LO QUE VENGA DETRAS.
+  //
+  // LEX-R31 la leia con /^Clase de evento:\s*(CE-\d{3})\s*$/im — anclada a FIN DE LINEA— y la
+  // convencion MAYORITARIA del propio HISTORY.log escribe «CE-NNN — descripcion». Medido:
+  //
+  //     entradas que DECLARAN una clase :  71
+  //     que LEX-R31 llegaba a ver       :  17
+  //     invisibles para la regla        :  54   (76 %)
+  //
+  // TRES DE CADA CUATRO ENTRADAS QUE CUMPLEN LA REGLA SALIAN COMO INCUMPLIENDOLA. Es el defecto
+  // que PT-198 cerro en tracker.mjs, en otra herramienta — y PT-198 no lo cazo porque midio UN
+  // ARCHIVO: su discovery declaro «ningun otro .mjs los tiene», cierto para status/phase/type/epic
+  // y falso para la familia entera. CE-005 en la tarea que cerraba CE-005.
+  //
+  // NO se unifica con eventos.mjs, y se dice porque yo mismo lo afirme antes de comprobarlo:
+  // eventos NO lee esta linea — clasifica por FRASES DEL CUERPO (eventos.mjs:40-47)—. Son dos
+  // hechos distintos: eventos DEDUCE la clase de lo que la entrada cuenta; LEX-R31 comprueba que
+  // la entrada la DECLARE. Fundirlas seria inventar un SUITE-R38 que no existe, y eso es peor que
+  // el defecto.
+  CLASE_DE_EVENTO: {
+    re: RE_CLASE_EVENTO,
+    para: 'la clase de evento de una entrada de HISTORY, con su descripcion si la lleva (PT-206)',
+    casa: ['Clase de evento: CE-005', 'Clase de evento: CE-005 — verde por no haber mirado',
+      'clase de evento:  CE-011  · lo que sea'],
+    noCasa: ['Clase de evento: CE-5', 'Clase de evento:', 'Clase de evento: ninguna'],
+  },
   CAMPO_DE_INTAKE: {
     re: RE_CAMPO_INTAKE,
     para: 'un campo escalar del frontmatter de un intake, con su comentario en linea (PT-198)',
@@ -2145,10 +2184,29 @@ export function definidasDosVeces(docs) {
 const COMILLA = '[\'"`]';
 const RE_EMISION = (id) => new RegExp('\\b(?:fail|warn|ok)\\s*\\(\\s*' + COMILLA + id + COMILLA);
 
-export function clasificarReglas(reglas, textoHerramientas, declaradas) {
+export function clasificarReglas(reglas, textoHerramientas, declaradas, juzgadas) {
   const txt = String(textoHerramientas ?? '');
   const dec = declaradas ?? {};
-  const salida = { VERIFICADA: [], NO_VERIFICABLE: [], PENDIENTE: [], sobran: [] };
+  const juz = juzgadas ?? {};
+  const salida = {
+    VERIFICADA: [], NO_VERIFICABLE: [], PENDIENTE: [], sobran: [],
+    // PT-204 · LA CUARTA CASILLA, que existia y estaba FUNDIDA dentro de PENDIENTE.
+    //
+    // «PENDIENTE» decia «deuda, no limite» y mezclaba DOS HECHOS con arreglos distintos:
+    //
+    //     DEUDA        alguien juzgo que es mecanizable y no esta hecho  -> escribir el verificador
+    //     SIN_JUZGAR   NADIE HA MIRADO si se puede o no                  -> emitir un juicio
+    //
+    // Es RULE-02, y medido el 2026-08-30: DEUDA 0, SIN_JUZGAR 118. Un numero que fusiona «lo
+    // decidimos y falta» con «no lo hemos mirado» no dice cuanto trabajo hay: dice cuanto hay MAS
+    // lo que nadie ha pensado, y las dos mitades se resuelven de forma distinta.
+    //
+    // JUZGAR NO ES VERIFICAR, y ahi esta toda la diferencia de coste. Decidir que FIDE-R03 no es
+    // mecanizable porque describe una conversacion cuesta UN PARRAFO con motivo y firma; escribir
+    // su verificador cuesta UNA TAREA. Separarlos convierte una deuda de 118 tareas en 118 juicios
+    // mas un lote de verificacion SOBRE LAS QUE SOBREVIVAN AL JUICIO.
+    DEUDA: [], SIN_JUZGAR: [],
+  };
   for (const r of reglas ?? []) {
     const emitida = RE_EMISION(r.id).test(txt);
     if (emitida) {
@@ -2157,7 +2215,8 @@ export function clasificarReglas(reglas, textoHerramientas, declaradas) {
     } else if (dec[r.id]) {
       salida.NO_VERIFICABLE.push(r.id);
     } else {
-      salida.PENDIENTE.push(r.id);
+      salida.PENDIENTE.push(r.id);          // se conserva: es la SUMA de las dos de abajo
+      if (juz[r.id]) salida.DEUDA.push(r.id); else salida.SIN_JUZGAR.push(r.id);
     }
   }
   return salida;
@@ -2169,6 +2228,27 @@ export function clasificarReglas(reglas, textoHerramientas, declaradas) {
  * Formato: una fila por regla, con motivo. Sin motivo no cuenta — igual que en el sello y en el
  * LAYOUT: una celda vacia es indistinguible de una que nadie miro (FND-R22).
  */
+
+/**
+ * PT-204 · Las reglas JUZGADAS mecanizables y todavia sin verificador: DEUDA de verdad.
+ *
+ * Vive en el mismo documento que las NO_VERIFICABLE y por el mismo motivo: es UNA DECISION, y por
+ * eso lleva motivo. Lo que cambia es el sentido — alli se declara que una regla NO se puede
+ * comprobar; aqui, que SI se puede y aun no se ha hecho.
+ *
+ * SIN ESTA SECCION, TODO LO NO EMITIDO ES «SIN_JUZGAR» — que es la verdad cuando nadie ha mirado,
+ * y es exactamente lo que hoy ocurre con 118 de las 244.
+ */
+export function juzgadasMecanizables(texto) {
+  const m = {};
+  const i = String(texto ?? '').indexOf('## Juzgadas MECANIZABLES');
+  if (i < 0) return m;
+  for (const f of String(texto).slice(i).matchAll(RE_NO_VERIFICABLE)) {
+    const motivo = f[2].replace(/[—-]/g, '').trim();
+    if (motivo) m[f[1]] = f[2].trim();
+  }
+  return m;
+}
 
 export function noVerificablesDeclaradas(texto) {
   const m = {};
