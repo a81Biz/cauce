@@ -12601,3 +12601,88 @@ Lo pidio el firmante con la razon delante:
 Es el mismo defecto que PT-204 mide en las reglas: el marco lo declara y nada obliga. Aqui la
 consecuencia habria sido que el trabajo de una rama —tres paradas, cuatro analisis, un bloqueo de
 CI y un acto hecho a mano— quedara fuera del unico sitio donde se busca despues.
+
+================================================================================
+
+## PT-205 — El verde local no predecia CI para lo que depende de lo empujado
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-205-el-verde-local-no-predice-CI
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-006
+Origen: parada de EP-026 · motivo condicion-bloqueante · absorbe tambien paradas/PT-207.md
+
+CUATRO CORRIDAS DE CI EN ROJO EN UNA SOLA RAMA, NINGUNA PREDICHA POR EL VERDE LOCAL.
+
+    failure  2 min   ✗ SUITE-R51      failure  7 min   ✗ SUITE-R51
+    failure  8 min   ✗ SUITE-R34      failure  5 min   ✗ SUITE-R34 · INTAKE-R09 · FDGE-R55 x2
+    ---
+    55 min de CI en la rama de PT-203 · 17+ en corridas FALLIDAS
+
+Y el coste real no son los minutos de maquina: es EL VIAJE. Empujar, esperar siete minutos, leer
+el log, arreglar, volver a esperar. Tres veces.
+
+LA CAUSA ES UNA: DEPENDEN DE LO EMPUJADO, Y EN LOCAL ESO NO EXISTE TODAVIA.
+
+    SUITE-R34   se mide con «git log»: lo pendiente NO esta commiteado, asi que no lo ve
+    SUITE-R51   necesita el ref en el remoto, y NO PUEDE cumplirse cuando «abrir» publica
+
+PERO SE DERIVAN DE LO QUE YA ESTA DELANTE. El arbol de trabajo las contiene: «changes/» sucio con
+HANDOFF limpio; el intake sin empujar de un issue vivo; el .md de parada sin «origen_parada».
+
+ES EL SEGUNDO LIMITE DE SUITE-R62, y la diferencia con el primero es la que importa: PT-201
+declaro lo que NO SE PUEDE saber en local. Esto SE PODIA SABER Y NO SE SABIA. PT-201 llego a poner
+medio aviso —«MEDIDO SOBRE LO COMMITEADO … no predice la CI hasta que commitees»— y aun asi
+volvio a fallar, porque ese texto dice «no lo se» cuando en realidad se puede.
+
+LO QUE ENTRA, Y NINGUNA REGLA SE TOCA.
+
+1. verify-fdge · el bloque PENDIENTE AL EMPUJAR, y SOLO si hay algo.
+   No son errores y no van en `errors`: «changes/» sucio es trabajo en curso y
+   MUDO_SIN_REF_DURABLE es un estado legitimo mientras el ref no existe —el propio
+   `decisionDeEnlace` lo declara como freno A PROPOSITO—. Hacerlas fallar HOY bloquearia el
+   trabajo normal. Lo que faltaba no era severidad: era que el momento en que dejan de ser
+   legitimas no llegara por sorpresa.
+
+2. tracker · «sellar-estado», la via sancionada de sellar sin cambiar de fase.
+   `estampaEstado` se EXTRAE de `avanzar`, no se duplica: una pregunta, una fuente (SUITE-R38).
+   Solo la linea «actualizado:», derivada. La prosa —decisiones y «no hacer»— no se toca, y hay
+   dos casos que lo fijan (LEX-R26).
+
+3. PHASES · «LO QUE ROMPE EN CI Y NO EN LOCAL», con los DOS rodeos escritos donde se ejecutan.
+   Se DECLARAN en vez de quitarse, y es la misma decision que PT-196 tomo con el doble viaje por
+   G4: el rodeo con su motivo escrito es aceptable; descubrirlo cada vez, no.
+
+TRES ERRORES MIOS, Y LOS TRES SON EL MISMO: LA PRIMERA VERSION MEDIA ALGO QUE SE PARECIA AL HECHO.
+
+1. LA PREDICCION SALTABA CON DIECIOCHO ISSUES. Miraba «el intake existe en el arbol», que es casi
+   siempre. Eso es EL RUIDO QUE LA TAREA PERSIGUE, escrito dentro de ella: un aviso que sale
+   siempre no se lee y el arreglo entero se pierde con el. La condicion correcta es mas estrecha
+   —el intake NO esta empujado— y con ella el bloque nombra UNO: el que de verdad rompe.
+
+2. LA PREDICCION DE SUITE-R34 VIVIA DENTRO DE `checkEstado`, que RETORNA ANTES si el HANDOFF no
+   lleva el bloque ESTADO. El aviso que existe para adelantarse se callaba JUSTO CUANDO EL ESTADO
+   ESTA PEOR. Lo destapo el fixture, no la lectura. Movida fuera: mira el ARBOL, no el bloque.
+
+3. EL SELLO NOMBRABA LA TAREA EQUIVOCADA, y es el peor de los tres. Derivaba de «la viva mas
+   avanzada por fase» y sobre el arbol REAL devolvio PT-203 en PHASE 8 mientras el trabajo era
+   PT-205 en PHASE 5. Un sello que nombra a quien no es deja SUITE-R34 EN VERDE AFIRMANDO ALGO
+   FALSO — CE-001 dentro del arreglo que persigue CE-006. El CHECKPOINT ya lo sabia desde PT-052.
+
+Evidencia: docs/implementation/evidence/PT-205/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 1995 casos en verde · recibo bfb6f9f991d5.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se predice lo que de verdad no se puede saber en local: el limite de PT-201, en pie.
+- NO se declara completa la lista de roturas de esta clase. Se cubren las TRES medidas; decir «ya
+  estan todas» sin barrer seria CE-005, que es el nombre de este lote.
+- Los rodeos se DECLARAN, no desaparecen. El freno MUDO_SIN_REF_DURABLE es correcto y quitarlo
+  cambiaria una molestia por un defecto.
+- Ninguna de las tres reglas se toca: las tres tenian razon y sus rojos fueron verdad.

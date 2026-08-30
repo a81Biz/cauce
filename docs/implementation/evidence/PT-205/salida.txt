@@ -1,0 +1,30 @@
+PT-205 · corrida COMPLETA en verde · 1995 casos
+
+  [32m✓[0m sin --aplicar no escribe nada
+  [32m✓[0m sin --aplicar no escribe nada
+  [32m✓[0m el verde local avisa de lo que rompera en CI
+  [32m✓[0m …y lleva el comando exacto, no solo el diagnostico
+  [32m✓[0m …y con el arbol limpio NO aparece
+  [32m✓[0m «sellar-estado --aplicar» pone el estado al dia
+  [32m✓[0m …y sin --aplicar no escribe nada
+  [32m✓[0m …y la prosa del HANDOFF queda INTACTA
+  [32m✓[0m el sello nombra la tarea del CHECKPOINT
+  [32m✓[0m …y NO la mas avanzada por fase
+
+selftest: OK · 1995 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "1995", "arnes": "bfb6f9f991d51909961d7f7ad008b18c7c5c4228", "fecha": "2026-08-30T07:41:53Z" }
+
+== LA CONDUCTA, SOBRE EL REPOSITORIO REAL ==
+$ node tools/verify-fdge.mjs PT-205
+PENDIENTE AL EMPUJAR — esto NO es incumplimiento todavia, y lo sera en CI:
+  → SUITE-R51      1 issue(s) vivo(s) cuyo intake NO esta empujado: PT-205 #378. Su cuerpo se publico sin ref durable —legitimo entonces— y al empujar pasara a incumplir. La reparacion NO necesita commit: «abrir» escribe el cuerpo en la plataforma.
+                    tras «git push»:  node tools/tracker.mjs abrir --aplicar
+
+$ node tools/tracker.mjs sellar-estado
+  HANDOFF.md · actualizado: 2026-08-29 · PT-205 en PHASE 5 Implementación
+
+  SOLO esa linea. La prosa —decisiones y «no hacer»— no se toca (LEX-R26).
+  --aplicar   la escribe. Commitea el HANDOFF EL ULTIMO, en su propio commit (SUITE-R34).
+tracker · github · acción sellar-estado

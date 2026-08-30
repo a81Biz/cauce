@@ -1633,7 +1633,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar',
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'sellar-estado',
   // PT-121 · «integrar» y «firmar» escriben el REGISTRO y el YAML del intake, los dos
   // locales. Exigirles plataforma repetiria lo que PT-133 acabo de arreglar en «parada»:
   // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
@@ -3796,13 +3796,11 @@ function avanzar() {
     // Solo se estampa la linea «actualizado:», que es DERIVABLE: la fecha sale de git y el hecho
     // —que PT-NNN esta en PHASE N— sale del registro. El resto de HANDOFF.md es prosa humana y no
     // se toca: estamparla seria inventar, y LEX-R26 dice que lo que no se deriva no se escribe.
-    const fHandoff = join(IMPL, 'HANDOFF.md');
-    if (existsSync(fHandoff)) {
-      const h = readFileSync(fHandoff, 'utf8');
-      const sello = `actualizado:    ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${id} en PHASE ${destino} ${FASES[destino].nombre}`;
-      const nuevoH = h.replace(/^actualizado:.*$/m, sello);
-      if (nuevoH !== h) writeFileSync(fHandoff, nuevoH);
-    }
+    // PT-205 · el sellado sale de aqui a `estampaEstado`, que tambien tiene comando propio.
+    // Estaba SOLO dentro de `avanzar`, asi que cumplir SUITE-R34 exigia cambiar de fase — y
+    // cualquier trabajo legitimo en changes/ que no fuera una transicion dejaba el estado atras
+    // sin via sancionada. Es CE-006, y costo cuatro corridas de CI en una sola rama.
+    estampaEstado(`${id} en PHASE ${destino} ${FASES[destino].nombre}`);
 
     // 5 · EL ESPEJO · SUITE-R35 · el registro asigna, la plataforma espeja
     //
@@ -5249,6 +5247,63 @@ function escribeCampo(txt, id, campo, valor) {
   return reemplazaCampoDeIntake(txt, campo, valor);
 }
 
+/**
+ * PT-205 · Estampa la linea «actualizado:» de HANDOFF.md. Derivada, y NADA MAS.
+ *
+ * SOLO la linea: la fecha sale de git y el hecho del registro. El resto de HANDOFF.md es prosa
+ * humana —las decisiones y los «no hacer»— y es lo unico del estado que NO se deriva (LEX-R26).
+ * Estamparla seria inventar, y por eso hay un caso que fija que sigue intacta.
+ *
+ * Devuelve lo que quedo escrito, o null si no habia linea que sustituir: quien llama distingue
+ * «sellado» de «este HANDOFF no tiene el campo», que son hechos distintos (RULE-02).
+ */
+function estampaEstado(hecho) {
+  const fHandoff = join(IMPL, 'HANDOFF.md');
+  if (!existsSync(fHandoff)) return null;
+  const h = readFileSync(fHandoff, 'utf8');
+  const sello = `actualizado:    ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${hecho}`;
+  const nuevoH = h.replace(/^actualizado:.*$/m, sello);
+  if (nuevoH === h) return null;
+  writeFileSync(fHandoff, nuevoH);
+  return sello;
+}
+
+/**
+ * PT-205 · `sellar-estado` · la via sancionada de poner el estado al dia SIN cambiar de fase.
+ *
+ * El hecho se DERIVA del registro —la tarea viva mas avanzada— y no se pide por bandera: un
+ * argumento seria una afirmacion que nadie contrasta, y el registro ya sabe donde esta el trabajo.
+ */
+function sellarEstado() {
+  // EL HECHO SALE DEL CHECKPOINT, que es quien declara QUE TAREA ESTA ABIERTA.
+  //
+  // La primera version elegia «la viva mas avanzada por fase» y devolvia PT-203 —DONE, fase 8—
+  // mientras el trabajo era PT-205 en fase 5. Un sello que nombra la tarea equivocada es peor que
+  // ninguno: SUITE-R34 quedaria en verde afirmando algo falso, que es el proxy en vez del hecho
+  // (CE-001). El CHECKPOINT lo sabe porque `avanzar` lo escribe (PT-052).
+  const cp = existsSync(join(IMPL, 'CHECKPOINT.json'))
+    ? (() => { try { return JSON.parse(readFileSync(join(IMPL, 'CHECKPOINT.json'), 'utf8')); } catch { return null; } })()
+    : null;
+  const a = cp?.pt ? all.find((x) => x?.id === cp.pt) : null;
+  const hecho = a
+    ? `${a.id} en PHASE ${a.phase} ${FASES[Number(a.phase)]?.nombre ?? ''}`.trim()
+    : (cp?.pt ? `${cp.pt} en PHASE ${cp.phase ?? '?'}` : 'sin tarea abierta en CHECKPOINT.json');
+  if (!APLICAR) {
+    di(`  HANDOFF.md · actualizado: ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${hecho}`);
+    di('');
+    di('  SOLO esa linea. La prosa —decisiones y «no hacer»— no se toca (LEX-R26).');
+    di('  --aplicar   la escribe. Commitea el HANDOFF EL ULTIMO, en su propio commit (SUITE-R34).');
+    return;
+  }
+  const escrito = estampaEstado(hecho);
+  if (!escrito) {
+    fail('SUITE-R34', 'HANDOFF.md no declara una linea «actualizado:», o no existe. Sin ella no hay '
+      + 'estado que sellar y suponer donde ponerla seria inventar (LEX-R26).');
+    return;
+  }
+  notas.push(`estado sellado · ${escrito.replace(/\s+/g, ' ').trim()}`);
+}
+
 /** El YAML del intake dice lo mismo que el registro, o no se toca nada (PT-149). */
 function sincronizaIntake(a, campo, valor) {
   const fi = join(carpetaDe(a), 'intake.md');
@@ -5352,7 +5407,7 @@ function reanclar() {
   }
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor, 'sellar-estado': sellarEstado };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

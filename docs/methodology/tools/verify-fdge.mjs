@@ -154,6 +154,34 @@ const RE_PHASE_YAML = /^\s*phase\s*:\s*(\d+)/im;
 const RE_STATUS_YAML = /^\s*status\s*:\s*([A-Z_]+)/im;
 const RE_SIGN_BATCH = /Firmado\s+por\s+lote:\s*(EP-\d+)/i;
 
+// PT-205 · «sucio» de ambito de modulo: el de checkSuite es local a esa funcion, y duplicar la
+// guarda seria la copia que SUITE-R38 persigue. Una pregunta, una fuente.
+const sucioDe = (ruta) => {
+  try {
+    return execFileSync('git', ['status', '--porcelain', '--', ruta],
+      { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().length > 0;
+  } catch { return false; }
+};
+
+// ── PT-205 · LO QUE ROMPERA EN CI Y TODAVIA NO ES INCUMPLIMIENTO ───────────
+//
+// Medido en la rama de PT-203: CUATRO corridas de CI en rojo, ninguna predicha por el verde
+// local, todas evitables. 17 minutos de maquina — y el coste real es el VIAJE: empujar, esperar
+// siete minutos, leer el log, arreglar, volver a esperar.
+//
+// Las tres roturas comparten causa: DEPENDEN DE LO EMPUJADO, y en local eso no existe todavia.
+// Pero SE DERIVAN DE LO QUE YA ESTA DELANTE — el arbol de trabajo las contiene—, asi que se
+// pueden decir ANTES. Es la diferencia con el limite que PT-201 declaro: aquel era lo que NO se
+// puede saber; esto se puede saber y no se sabia.
+//
+// NO SON ERRORES, Y POR ESO NO VAN EN `errors`. `changes/` sucio es trabajo en curso y
+// MUDO_SIN_REF_DURABLE es un estado legitimo mientras el ref no existe —el propio
+// `decisionDeEnlace` lo declara como freno a proposito—. Hacerlas fallar HOY bloquearia el
+// trabajo normal. Lo que falta no es severidad: es que el momento en que dejan de ser legitimas
+// no llegue por sorpresa.
+const pendientes = [];
+const alEmpujar = (rule, msg, comando) => pendientes.push({ rule, msg, comando });
+
 // PT-203 · LAS FIRMAS DE LOTE CERTIFICADAS, y el mismo contrato que SECRETOS-EXCEPCIONES.md.
 //
 // FIRMAR NO ES SILENCIAR: una fila certificada SIGUE APARECIENDO en cada corrida, con quien la
@@ -3316,8 +3344,100 @@ if (!pts.length && !all) {
 }
 for (const pt of pts) checkPT(pt, { gate });
 
+// ── PT-205 · las predicciones, sobre el ARBOL y antes de empujar ───────────
+//
+// SUITE-R34 · `git log` no ve lo pendiente, asi que el veredicto de checkEstado no puede fallar
+// todavia. Pero el arbol SI dice que `changes/` esta sucio y `HANDOFF.md` no: al commitear,
+// changes/ quedara mas nuevo y la compuerta bloqueara. PT-201 puso medio aviso —«MEDIDO SOBRE LO
+// COMMITEADO»— y aun asi volvio a fallar, porque ese texto dice «no lo se» cuando SE PUEDE SABER.
+//
+// VA FUERA DE `checkEstado` A PROPOSITO. Dentro, un HANDOFF sin el bloque ESTADO hacia que
+// SUITE-R33 fallara y RETORNARA antes, y la prediccion no llegaba a correr — la aviso que existe
+// para adelantarse quedaba callada justo cuando el estado esta peor. La prediccion mira el ARBOL,
+// no el bloque: no puede depender de que el bloque este bien formado.
+if (sucioDe('changes') && !sucioDe('docs/implementation/HANDOFF.md')) {
+  alEmpujar('SUITE-R34',
+    'hay trabajo sin commitear en changes/ y HANDOFF.md esta limpio: al commitear, el estado '
+    + 'quedara mas viejo que el trabajo y la compuerta bloqueara.',
+    'sella y commitea el HANDOFF EL ULTIMO, en su propio commit:  node tools/tracker.mjs sellar-estado --aplicar');
+}
+
+//
+// FDGE-R55 · existe `paradas/PT-NNN.md` y la allocation no declara `origen_parada`. Pasa cuando se
+// escribe el archivo A MANO en vez de invocar `tracker parada`, que escribe el campo EN EL MISMO
+// ACTO que publica. Es CE-006, y hoy costo una corrida entera de CI.
+(() => {
+  if (!existsSync(CHANGES)) return;
+  const conParada = [];
+  for (const d of readdirSync(CHANGES)) {
+    const dir = join(CHANGES, d, 'paradas');
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir)) {
+      const m = String(f).match(/^(PT-\d+)\.md$/);
+      if (!m) continue;
+      const a = (REGISTRO?.allocations ?? []).find((x) => x?.id === m[1]);
+      if (a && !a.origen_parada) conParada.push({ id: m[1], de: d.match(/^(EP|PT)-\d+/)?.[0] ?? '?' });
+    }
+  }
+  if (conParada.length) {
+    alEmpujar('FDGE-R55',
+      `${conParada.length} allocation(s) con parada escrita y sin «origen_parada» en el registro: `
+      + `${conParada.map((x) => x.id).join(' · ')}. El archivo solo no basta: el campo lo escribe el comando.`,
+      conParada.map((x) => `node tools/tracker.mjs parada ${x.de} --motivo <clase> --texto <ruta> --desenlace abre --abre ${x.id} --aplicar`).join('\n                   '));
+  }
+})();
+
+// SUITE-R51 · el cuerpo del issue no enlaza y su intake YA esta en el arbol. Al empujar, el ref se
+// vuelve durable y lo que hoy es `MUDO_SIN_REF_DURABLE` —legitimo— pasa a `REPARAR_MUDO`.
+//
+// LA REPARACION NO NECESITA COMMIT: `abrir` escribe el cuerpo en la plataforma, no archivos. Asi
+// que el coste no es arreglarlo —cinco segundos— sino ENTERARSE, y enterarse costaba siete
+// minutos de CI. Tres veces hoy: EP-027, PT-204 y PT-205.
+//
+// SIN RED NO SE CALLA. Si la plataforma no responde, se DICE — devolver «no hay nada pendiente»
+// seria devolver el viaje de CI que esto quita, y es lo que PT-187 midio en la direccion
+// contraria (SUITE-R22 declara soportado el proyecto sin red).
+(() => {
+  const vivas = (REGISTRO?.allocations ?? [])
+    .filter((a) => a?.issue && !ESTADOS_TERMINALES.has(String(a.status)));
+  if (!vivas.length) return;
+  // LA CONDICION ES ESTRECHA A PROPOSITO: el intake NO esta empujado todavia —esta sin trackear o
+  // modificado—, asi que cuando su issue se publico NO habia ref durable y su cuerpo quedo mudo.
+  //
+  // La primera version de esto miraba «el intake existe en el arbol» y saltaba con DIECIOCHO
+  // issues vivos. Eso es el ruido que TS-02 existe para impedir, escrito dentro de la tarea que
+  // lo persigue: un aviso que sale casi siempre no se lee, y el arreglo entero se pierde con el.
+  const sinEmpujar = vivas.filter((a) => {
+    if (!existsSync(CHANGES)) return false;
+    const d = readdirSync(CHANGES).find((x) => x === a.id || x.startsWith(a.id + '-'));
+    if (!d) return false;
+    const rel = ['changes', d, 'intake.md'].join('/');
+    return existsSync(join(CHANGES, d, 'intake.md')) && sucioDe(rel);
+  });
+  if (!sinEmpujar.length) return;
+  alEmpujar('SUITE-R51',
+    `${sinEmpujar.length} issue(s) vivo(s) cuyo intake NO esta empujado: ${sinEmpujar.map((a) => `${a.id} #${a.issue}`).join(' · ')}. `
+    + 'Su cuerpo se publico sin ref durable —legitimo entonces— y al empujar pasara a incumplir. '
+    + 'La reparacion NO necesita commit: «abrir» escribe el cuerpo en la plataforma.',
+    'tras «git push»:  node tools/tracker.mjs abrir --aplicar');
+})();
+
 // ─── Informe ─────────────────────────────────────────────────────────────────
 const pad = (s, n) => String(s).padEnd(n);
+
+// PT-205 · EL BLOQUE VA SEPARADO Y CON TITULO PROPIO, y solo si hay algo.
+//
+// Un aviso que sale SIEMPRE es ruido, y el ruido no se lee: el arreglo entero se perderia entre
+// los demas y el viaje de CI volveria intacto. Que el silencio signifique algo es la leccion de
+// `bloques-sellados`, y aqui tiene su caso.
+if (pendientes.length && !quiet) {
+  console.log('PENDIENTE AL EMPUJAR — esto NO es incumplimiento todavia, y lo sera en CI:');
+  for (const p of pendientes) {
+    console.log(`  → ${pad(p.rule, 14)} ${p.msg}`);
+    console.log(`     ${' '.repeat(14)} ${p.comando}`);
+  }
+  console.log('');
+}
 if (passed.length && !quiet) {
   console.log('PASA');
   for (const p of passed) console.log(`  ✓ ${pad(p.rule, 14)} ${p.msg}`);

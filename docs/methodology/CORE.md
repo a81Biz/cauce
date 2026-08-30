@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: c9d740cc0356 -->
-<!-- fuentes: RULES.md:48771ee419a8 LEXICON.md:35048c5312f7 EXECUTION-MODES.md:98cbdea0668a PHASES.md:e8057377029b -->
+<!-- cuerpo: 113ab4a08fcd -->
+<!-- fuentes: RULES.md:48771ee419a8 LEXICON.md:35048c5312f7 EXECUTION-MODES.md:98cbdea0668a PHASES.md:c77d48ac20ff -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -1046,6 +1046,36 @@ HAZ  1 EP desde REGISTRY · changes/EP-NNN-slug/intake.md desde la plantilla
      3 ejecución SECUENCIAL. Los que comparten archivos, serializados
      4 primer BLOCKED o compuerta fallida ⇒ EP→BLOCKED y se detiene el lote entero [FDGE-R41]
      5 cierre: todos INTEGRATED|CLOSED o retirados → EP CLOSED + entrada propia en HISTORY
+```
+
+### LO QUE ROMPE EN CI Y NO EN LOCAL · los dos rodeos, declarados   `PT-205`
+```
+POR QUE AQUI  Cuatro corridas de CI en rojo en UNA sola rama, ninguna predicha por el verde local
+     y todas evitables. Las tres roturas dependen de LO EMPUJADO —y en local eso no existe
+     todavia—, pero se DERIVAN del arbol de trabajo. Se dicen antes:
+
+     npm run verify   →   PENDIENTE AL EMPUJAR (n) — esto NO es incumplimiento todavia
+
+RODEO 1 · EL ISSUE SE PUBLICA MUDO, Y SE REPUBLICA DESPUES DEL PUSH    [SUITE-R51]
+     «abrir» publica cuando el intake AUN NO esta empujado, asi que el cuerpo queda SIN ENLACE.
+     Es legitimo: refDurableDe responde null CON RAZON y exigir el enlace ahi seria pedir un
+     commit que no existe (tracker.mjs:566). Lo que NO era legitimo es que nadie lo reclamara.
+
+     asignar → escribir intake → abrir → commit → push → tracker abrir --aplicar   ← el paso 6
+                                                                                     NO se olvida:
+                                                                                     verify lo dice
+     NO NECESITA COMMIT: «abrir» escribe el cuerpo en la plataforma, no archivos.
+
+RODEO 2 · EL ESTADO SE SELLA APARTE, Y EL HANDOFF SE COMMITEA EL ULTIMO   [SUITE-R34]
+     node tools/tracker.mjs sellar-estado --aplicar     SOLO la linea «actualizado:», derivada
+     git add docs/implementation/HANDOFF.md && git commit               en su PROPIO commit
+
+     Hasta PT-205, «avanzar» era lo UNICO que sellaba, y sellaba solo al cambiar de fase: cualquier
+     trabajo en changes/ que no fuera una transicion dejaba el estado atras sin via sancionada.
+     Era CE-006 —el acto que existe solo empaquetado con otro— y costo cuatro corridas.
+
+LOS DOS SE DECLARAN EN VEZ DE QUITARSE, y es la misma decision que PT-196 tomo con el doble
+     viaje por G4: el rodeo con su motivo escrito es aceptable; descubrirlo cada vez, no.
 ```
 
 ### CIERRE DE UN LOTE · lo posterior a `G4`, que es del LOTE y no del PT   `PT-196`

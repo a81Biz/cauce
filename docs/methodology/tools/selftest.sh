@@ -10257,6 +10257,97 @@ _partido203() {
   ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
 }
 chkl  "una firma que nombra OTRO lote se dice"       "firman por OTRO lote"   _partido203
+
+# -- PT-205 . lo que rompera en CI se dice ANTES de empujar --------------------
+#
+# Medido en la rama de PT-203: CUATRO corridas de CI en rojo, NINGUNA predicha por el verde local,
+# todas evitables. 17 min de maquina — y el coste real es el VIAJE: empujar, esperar siete
+# minutos, leer el log, arreglar, esperar otra vez.
+#
+# Las tres roturas dependen de LO EMPUJADO, y en local eso no existe todavia. Pero SE DERIVAN DE
+# LO QUE YA ESTA DELANTE: el arbol de trabajo las contiene. Esa es la diferencia con el limite que
+# PT-201 declaro —lo que NO se puede saber—: esto se podia saber y no se sabia.
+_p205() {   # $1 = como se prepara el arbol · imprime el bloque de prediccion
+  local d="$WORK/p205"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\nstatus: READY\nphase: 5\ntype: BUG\n---\n\n## Firma\nFirmado por lote: EP-700\n' \
+    > "$d/changes/PT-700-x/intake.md"
+  printf 'proyecto:       fixture\nactualizado:    2026-01-01 . nada\ndecisiones:     ninguna\nno hacer:       nada\n' \
+    > "$d/docs/implementation/HANDOFF.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":5}]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q . 2>/dev/null; git add -A 2>/dev/null
+    git -c user.email=t@t -c user.name=T commit -qm base 2>/dev/null
+    case "$1" in
+      sucio)   printf 'trabajo nuevo\n' > "$d/changes/PT-700-x/discovery.md" ;;
+      limpio)  : ;;
+    esac
+    node "$d/docs/methodology/tools/verify-fdge.mjs" 2>&1 | sed -n '/PENDIENTE AL EMPUJAR/,/^$/p' )
+}
+# AC-01 . TS-01 . EL AVISO LLEGA ANTES DE COMMITEAR, derivado del arbol y no de git log.
+chkl  "el verde local avisa de lo que rompera en CI"  "PENDIENTE AL EMPUJAR"  _p205 sucio
+# AC-01 . TS-03 . Y LLEVA EL COMANDO. RULE-07: un mensaje dice COMO SE ARREGLA. Es lo unico que
+# separa un viaje de CI de cinco segundos.
+chkl  "…y lleva el comando exacto, no solo el diagnostico"  "sellar-estado --aplicar"  _p205 sucio
+# AC-01 . TS-02 . Y CUANDO NO HAY NADA PENDIENTE, EL BLOQUE NO APARECE.
+#
+# ESTE CASO SOSTIENE LA TAREA ENTERA. Sin el, AC-01 lo cumple un aviso que salga SIEMPRE — y un
+# aviso que sale siempre es ruido, el arreglo se pierde entre los demas y el viaje de CI vuelve
+# intacto. La primera version de esta prediccion saltaba con DIECIOCHO issues vivos: el ruido
+# escrito dentro de la tarea que lo persigue.
+chknol "…y con el arbol limpio NO aparece"           "PENDIENTE AL EMPUJAR"  _p205 limpio
+# AC-02 . TS-04 . LA VIA SANCIONADA DE SELLAR SIN CAMBIAR DE FASE.
+_sello205() {   # $1 = bandera
+  local d="$WORK/p205s"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\nstatus: READY\nphase: 5\ntype: BUG\n---\n' > "$d/changes/PT-700-x/intake.md"
+  printf 'proyecto:       fixture\nactualizado:    2026-01-01 . nada\ndecisiones:     la del firmante\nno hacer:       -1) nada\n' \
+    > "$d/docs/implementation/HANDOFF.md"
+  # El CHECKPOINT es quien declara QUE tarea esta abierta: sin el, el sello no sabe a quien nombrar.
+  printf '{"pt":"PT-700","phase":5}' > "$d/docs/implementation/CHECKPOINT.json"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":5}]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" sellar-estado $1 "$d" >/dev/null 2>&1
+    cat "$d/docs/implementation/HANDOFF.md" )
+}
+chkl  "«sellar-estado --aplicar» pone el estado al dia"  "PT-700 en PHASE 5"  _sello205 --aplicar
+# AC-02 . TS-05 . EL HECHO SE DERIVA DEL REGISTRO, no se pide por bandera: un argumento seria una
+# afirmacion que nadie contrasta.
+chknol "…y sin --aplicar no escribe nada"               "PT-700 en PHASE 5"  _sello205 ""
+# AC-03 . TS-06 . LA PROSA NO SE TOCA. Es lo unico del estado que no se deriva (LEX-R26), y
+# estamparla seria inventar.
+chkl  "…y la prosa del HANDOFF queda INTACTA"           "decisiones:     la del firmante"  _sello205 --aplicar
+chkl  "…y sus «no hacer» tambien"                       "no hacer:       -1) nada"          _sello205 --aplicar
+# AC-02 . EL HECHO SALE DEL CHECKPOINT, no de «la viva mas avanzada».
+#
+# La primera version elegia por fase y nombraba PT-203 —DONE, fase 8— mientras el trabajo era
+# PT-205 en fase 5. Un sello que nombra la tarea EQUIVOCADA es peor que ninguno: deja SUITE-R34
+# en verde afirmando algo falso, que es CE-001 dentro del arreglo que persigue CE-006.
+_cp205() {
+  local d="$WORK/p205c"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---
+id: PT-700
+status: READY
+phase: 2
+type: BUG
+---
+' > "$d/changes/PT-700-x/intake.md"
+  printf 'actualizado:    2026-01-01 . nada
+' > "$d/docs/implementation/HANDOFF.md"
+  printf '{"pt":"PT-700","phase":2}' > "$d/docs/implementation/CHECKPOINT.json"
+  # PT-701 esta MAS AVANZADA: si el sello saliera de la fase, nombraria a esta.
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":701},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":2},{"id":"PT-701","slug":"y","type":"BUG","status":"DONE","phase":8}]}'     > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" sellar-estado --aplicar "$d" >/dev/null 2>&1
+    grep '^actualizado:' "$d/docs/implementation/HANDOFF.md" )
+}
+chkl  "el sello nombra la tarea del CHECKPOINT"        "PT-700 en PHASE 2"   _cp205
+# Y SU PAREJA: NO nombra la mas avanzada, que es la que la primera version elegia.
+chknol "…y NO la mas avanzada por fase"                "PT-701"              _cp205
+
 # AC-03 . LA CERTIFICACION: FIRMAR NO ES SILENCIAR.
 #
 # Derivar del registro hizo que INTAKE-R08 —HARD, bloquea— cubriera 62 tareas que nunca cubrio, y
