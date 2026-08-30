@@ -2,9 +2,9 @@
   "pt": "PT-195",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "READY",
-  "phase": 6,
-  "fase": "Evidencia",
+  "status": "VALIDATION_PENDING",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/EP-026-PT-195-la-identidad-git-no-se-comprueba",
   "sha": "4d4c122c13857ac5a36f71c06e94b753552ab8ca",
   "sha_corto": "4d4c122",
@@ -25,11 +25,8 @@
     "docs/methodology/tools/selftest.sh",
     "docs/methodology/tools/verify-fdge.mjs"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-30"
 }
