@@ -1,33 +1,32 @@
 {
-  "pt": "PT-206",
-  "type": "BUG",
+  "pt": "PT-204",
+  "type": "INVESTIGATION",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
+  "status": "DRAFT",
+  "phase": 2,
+  "fase": "Descubrimiento",
   "rama": "chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases",
-  "sha": "03ea5cad060b893b99948e2671f6a07b876ca99a",
-  "sha_corto": "03ea5ca",
+  "sha": "c198784d8cee319f472b7e925121afcb9567b626",
+  "sha_corto": "c198784",
   "sucio": true,
   "archivos": [
-    "changes/EP-026-lo-que-da-verde-sin-mirar/paradas/PT-206.md",
-    "changes/PT-206-lex-r31-no-ve-las-clases-declaradas/",
+    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/discovery.md",
+    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/intake.md",
+    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/strategy.md",
+    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/test-scenarios.md",
+    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/traceability.md",
     "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
+    "docs/implementation/COBERTURA.json",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-206/",
-    "docs/methodology/tools/patrones.mjs",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/verify-fdge.mjs"
+    "docs/implementation/evidence/PT-204/",
+    "docs/methodology/tools/audit.mjs",
+    "docs/methodology/tools/selftest.sh"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-30"
 }
