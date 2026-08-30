@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-29 · 22 allocation(es) viva(s).
+Proyectado el 2026-08-30 · 22 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -19,7 +19,7 @@ Proyectado el 2026-08-29 · 22 allocation(es) viva(s).
 | PT-187 | BUG | DRAFT | 1 | — | — | 95bf9eb |
 | PT-192 | BUG | DONE | 8 | — | — | a3058b0 |
 | PT-194 | BUG | DRAFT | 1 | — | — | 17b74e8 |
-| PT-195 | BUG | DRAFT | 1 | — | — | 1711693 |
+| PT-195 | BUG | READY | 2 | — | — | 1711693 |
 | PT-196 | BUG | DONE | 8 | — | — | 1bb6fc7 |
 | PT-197 | FEATURE | DRAFT | 1 | — | — | 9c17741 |
 | PT-198 | BUG | DONE | 8 | — | — | a88a114 |
@@ -30,4 +30,4 @@ Proyectado el 2026-08-29 · 22 allocation(es) viva(s).
 | PT-203 | BUG | DONE | 8 | — | — | 1711693 |
 | EP-027 |  | DRAFT | 1 | — | — | 1711693 |
 | PT-204 | INVESTIGATION | DRAFT | 1 | — | — | 060258d |
-| PT-205 | BUG | DONE | 8 | — | — | dadc462 |
+| PT-205 | BUG | DONE | 8 | — | — | 3c94b68 |

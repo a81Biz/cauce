@@ -1,38 +1,22 @@
 {
-  "pt": "PT-205",
+  "pt": "PT-195",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-205-el-verde-local-no-predice-CI",
-  "sha": "fd2c47613a469e6c1568d6c58a6a6fc1a5802a1b",
-  "sha_corto": "fd2c476",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "trabajo",
+  "sha": "4d4c122c13857ac5a36f71c06e94b753552ab8ca",
+  "sha_corto": "4d4c122",
   "sucio": true,
   "archivos": [
-    "changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/discovery.md",
-    "changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/intake.md",
-    "changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/strategy.md",
-    "changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/test-scenarios.md",
-    "changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-205/",
-    "docs/methodology/CORE.md",
-    "docs/methodology/PHASES.md",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/tracker.mjs",
-    "docs/methodology/tools/verify-fdge.mjs"
+    "changes/PT-195-la-identidad-git-del-repo-no-se-comprueba/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
-  "generado": "2026-08-29"
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "generado": "2026-08-30"
 }
