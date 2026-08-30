@@ -31,4 +31,4 @@ Proyectado el 2026-08-30 · 23 allocation(es) viva(s).
 | EP-027 |  | DRAFT | 1 | — | — | 1711693 |
 | PT-204 | INVESTIGATION | DRAFT | 1 | — | — | 060258d |
 | PT-205 | BUG | DONE | 8 | — | — | 3c94b68 |
-| PT-206 | BUG | READY | 3 | — | — | — |
+| PT-206 | BUG | READY | 4 | — | — | — |
