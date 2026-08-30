@@ -1,0 +1,81 @@
+{
+  "pt": "PT-204",
+  "generated": "2026-08-30",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "De las 91 sin verificador, cuantas son mecanizables y cuantas no, medido y declarado",
+      "scenarios": ["TS-01", "TS-02"],
+      "tests": [
+        "selftest §EP-026 · lo que nadie ha juzgado sale como SIN_JUZGAR",
+        "selftest §EP-026 · …y lo juzgado mecanizable es DEUDA",
+        "selftest §EP-026 · …y PENDIENTE sigue siendo la suma de las dos",
+        "selftest §EP-026 · …y una NO_VERIFICABLE no cae en ninguna"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "PENDIENTE mezclaba DOS hechos con arreglos distintos. Medido: DEUDA 0, SIN_JUZGAR 123. El numero no decia cuanto trabajo hay: decia cuanto hay MAS lo que nadie ha pensado (RULE-02)."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Las reglas quedan rankeadas por consecuencia, no por numero, con el criterio escrito",
+      "scenarios": [],
+      "tests": [],
+      "evidence": ["self-review.md", "salida.txt"],
+      "verified": true,
+      "como": "SIN CASO A PROPOSITO: es un JUICIO. El criterio es la FRECUENCIA con la que un trabajo real pasa por delante, no la severidad — 55 de FDGE/SUITE/EXEC/INTAKE se ejercitan aqui cada dia; 16 de QA/FIDE/FPGE casi nunca. Darle un caso seria fijar el resultado de un juicio como hecho mecanico (CE-001)."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La cobertura no puede bajar en silencio",
+      "scenarios": ["TS-03", "TS-04", "TS-05"],
+      "tests": [
+        "selftest §EP-026 · una bajada de cobertura se DICE",
+        "selftest §EP-026 · …y NO bloquea",
+        "selftest §EP-026 · …y no pasa por vacio: el aviso esta",
+        "selftest §EP-026 · …y una subida tambien se dice"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "ES EL UNICO QUE CAMBIA COMPORTAMIENTO, y es a proposito: sin el, esta tarea seria una INVESTIGATION que documenta que nadie hace nada, sin hacer nada. Avisa y NO bloquea: bloquear obligaria a verificar ANTES de poder anadir una regla, que es la regresion descartada."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Queda decidido si hace falta un lote propio, y con que criterio de exito",
+      "scenarios": [],
+      "tests": [],
+      "evidence": ["self-review.md"],
+      "verified": true,
+      "como": "SIN CASO A PROPOSITO: es la DECISION que la tarea existe para tomar. SI hace falta —EP-029— y no es «verificar 38»: es JUZGAR las 123 y verificar las que sobrevivan siendo ademas frecuentes."
+    }
+  ],
+  "coverage": "4 de 4 criterios · 8 casos ejecutables para AC-01 y AC-03 · AC-02 y AC-04 son juicios, declarados sin caso",
+  "medido": {
+    "la_cifra": "244 reglas · 142 ejecutadas por una compuerta · 91 sin ningun verificador (63 HARD)",
+    "la_fusion": "PENDIENTE 123 = DEUDA 0 + SIN_JUZGAR 123. Cero deuda real y 123 que nadie ha mirado.",
+    "el_criterio": "frecuencia, no severidad: FDGE+SUITE+EXEC+INTAKE = 55 se ejercitan aqui cada dia; QA+FIDE+FPGE = 16 casi nunca, y su deuda se paga en el DESTINO.",
+    "la_evidencia_del_criterio": "cinco lecciones nuevas del HANDOFF en esta epica (-30 a -34), TODAS de reglas FDGE/SUITE que existian y se incumplieron porque nada las ejecutaba."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Las 123 quedan juzgadas",
+      "por_que_no": "Decidir por 123 seria inventar 123 juicios. Cada declaracion lleva motivo y firma (SUITE-R26). Eso es EP-029.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Se escribe algun verificador",
+      "por_que_no": "Ninguno. Esta tarea decide el tamano y el orden; construir es otro lote.",
+      "verified": false
+    },
+    {
+      "afirmacion": "SUITE-R26 y su «aspira, no exige» se retiran",
+      "por_que_no": "Puede que siga siendo la correcta. Lo que esta tarea hace es que su PUERTA SE VEA y cuanto pasa por ella.",
+      "verified": false
+    },
+    {
+      "afirmacion": "La cobertura no puede bajar",
+      "por_que_no": "Puede: lo que no puede es bajar EN SILENCIO. Impedirlo obligaria a verificar antes de anadir, que es la regresion que el firmante descarto.",
+      "verified": false
+    }
+  ]
+}

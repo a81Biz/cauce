@@ -10633,6 +10633,71 @@ chknol "…y verify-fdge ya no trae su propia expresion"  'Clase de evento:.*CE-
 # documenta. Es un CERO de lo prohibido —lo unico que un caso puede fijar (HANDOFF -18)— y se
 # distingue del uso mirando que no este dentro de una llamada.
 chknol "la expresion anclada ya no se USA"           "campo(/^Clase de evento" \
+
+# -- PT-204 . la deuda de cobertura tiene forma, y no puede bajar en silencio --
+#
+# audit publica la cifra en CADA «npm run verify» desde hace lotes, y NADIE la convierte en
+# trabajo: 244 reglas, 142 ejecutadas por una compuerta, 91 sin ningun verificador —63 de ellas
+# HARD, entre ellas EXEC-R05, la G3 humana de todo BUG—. CE-007 a escala del marco entero.
+#
+# Y «PENDIENTE» MENTIA POR FUSION. Decia «deuda, no limite» y mezclaba dos hechos con arreglos
+# distintos: DEUDA —alguien juzgo que es mecanizable y falta escribirlo— y SIN_JUZGAR —NADIE HA
+# MIRADO—. Medido: DEUDA 0, SIN_JUZGAR 123. El numero no decia cuanto trabajo hay: decia cuanto
+# hay MAS lo que nadie ha pensado. Es RULE-02.
+#
+# JUZGAR NO ES VERIFICAR, y ahi esta el cambio de tamano: decidir que una regla no es mecanizable
+# cuesta un parrafo con motivo y firma; escribir su verificador cuesta una tarea.
+_clas204() { # $1 = JS que use `m` · imprime el resultado
+  MTH_PAT="$SUITE/tools/patrones.mjs" node -e 'const {pathToFileURL}=require("url");
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{ eval(process.argv[1]); })
+      .catch((e)=>console.log("IMPORT_FALLA "+e.message));' "$1" 2>&1
+}
+R204='[{id:"A-R1"},{id:"A-R2"},{id:"A-R3"}]'
+T204='"fail(\"A-R1\", x)"'
+# AC-01 . TS-01 . LO NO EMITIDO Y NO JUZGADO ES SIN_JUZGAR, no «deuda».
+chkl  "lo que nadie ha juzgado sale como SIN_JUZGAR"  "SIN_JUZGAR:A-R2,A-R3" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{},{});console.log('SIN_JUZGAR:'+c.SIN_JUZGAR.join(','))"
+# Y LO JUZGADO MECANIZABLE Y SIN VERIFICADOR ES DEUDA, que es otra cosa y se arregla distinto.
+chkl  "…y lo juzgado mecanizable es DEUDA"            "DEUDA:A-R2" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{},{'A-R2':'se puede'});console.log('DEUDA:'+c.DEUDA.join(','))"
+# Y LA SUMA SIGUE CUADRANDO: PENDIENTE se conserva como la suma de las dos, no se sustituye.
+# Sin esto, «abrir» la casilla podria perder reglas por el camino y nadie lo notaria.
+# Tres reglas, UNA emitida: PENDIENTE son las otras dos, una juzgada y otra no. Mi primera
+# expectativa decia «3=1+2» —conte mal— y el caso lo dijo en voz alta, que es lo que compra chkl.
+chkl  "…y PENDIENTE sigue siendo la suma de las dos"  "2=1+1" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{},{'A-R2':'x'});console.log(c.PENDIENTE.length+'='+c.DEUDA.length+'+'+c.SIN_JUZGAR.length)"
+# Y UNA DECLARADA NO_VERIFICABLE NO ES NI UNA NI OTRA: son tres casillas excluyentes (PT-078).
+chkl  "…y una NO_VERIFICABLE no cae en ninguna"       "NV:1 D:0 SJ:1" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{'A-R2':'no se puede'},{});console.log('NV:'+c.NO_VERIFICABLE.length+' D:'+c.DEUDA.length+' SJ:'+c.SIN_JUZGAR.length)"
+# AC-03 . TS-03 . LA COBERTURA NO BAJA EN SILENCIO.
+_cob204() { # $1 = cifra del hito anterior
+  # audit necesita package.json, los workflows y bin/ para poder MEDIR: sin ellos dice SIN EVALUAR
+  # CON RAZON —RULE-06, no asume ni 0 ni el total— y el caso pasaba POR VACIO. El «NO bloquea»
+  # daba verde porque no salia NADA, que es exactamente el defecto que este lote persigue.
+  local d="$WORK/p204"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/.github/workflows" "$d/bin"
+  cp -r "$SUITE" "$d/docs/methodology"
+  cp "$RAIZ/package.json" "$d/package.json"
+  cp "$RAIZ/.github/workflows/verificacion.yml" "$d/.github/workflows/" 2>/dev/null
+  cp "$RAIZ/bin/cauce.mjs" "$d/bin/" 2>/dev/null
+  printf '{"ejecutada":%s,"universo":244,"sin_juzgar":0,"deuda":0,"no_verificable":0}' "$1" \
+    > "$d/docs/implementation/COBERTURA.json"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{},"allocations":[]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/audit.mjs" "$d/docs/methodology" 2>&1 | sed -n '/COBERTURA BAJO/,+1p;/SUBIO/p' )
+}
+chkl  "una bajada de cobertura se DICE"              "LA COBERTURA BAJO"   _cob204 9999
+# Y NO BLOQUEA: bloquear obligaria a verificar ANTES de poder anadir una regla, que es la
+# regresion que el firmante descarto. Un aviso que impide trabajar se salta; este no impide nada.
+chknol "…y NO bloquea"                               "✗"                   _cob204 9999
+# Y NO PASA POR VACIO: sobre la MISMA corrida, el aviso EXISTE y nombra el universo. Sin esto,
+# «no bloquea» lo cumple una salida vacia — y eso fue literalmente lo que paso en el primer
+# intento, cuando al fixture le faltaba package.json.
+chkl  "…y no pasa por vacio: el aviso esta"          "244"                 _cob204 9999
+# Y LA SUBIDA TAMBIEN SE DICE: sin esto, el hito solo hablaria de lo malo y nadie sabria si el
+# trabajo de un lote sirvio de algo.
+chkl  "…y una subida tambien se dice"                "SUBIO"               _cob204 1
+
   cat "$SUITE/tools/verify-fdge.mjs"
 # LA CIFRA DE LA FAMILIA se DECLARA en la evidencia y en HISTORY, no se fija aqui: once expresiones
 # de tools/ anclan un campo a fin de linea y CINCO exigen un valor concreto —Estructural,

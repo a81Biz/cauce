@@ -30,7 +30,7 @@
  * en Windows. Ese fallo dejaba 25 reglas fuera de CORE.md sin avisar.
  */
 
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -99,7 +99,7 @@ export function fragilesEn(txt) {
 }
 
 // PT-078 · ninguna regla queda sin clasificar, y estar sin clasificar es un FALLO.
-import { clasificarReglas, noVerificablesDeclaradas } from './patrones.mjs';
+import { clasificarReglas, noVerificablesDeclaradas, juzgadasMecanizables } from './patrones.mjs';
 
 // PT-101 · importable para probarla. `fragilesEn` se exporta, y sin esta guarda importar el
 // modulo EJECUTA la auditoria entera y sale con `process.exit` — un caso no puede llamarla.
@@ -784,13 +784,28 @@ if (herramientasConCompuerta === null) {
     try { return noVerificablesDeclaradas(readFileSync(join(BASE, '..', 'implementation', 'NO-VERIFICABLES.md'), 'utf8')); }
     catch { return null; }
   })();
-  const clas = clasificarReglas(REGLAS_TODAS, toolsSinArnes, decl ?? {});
+  // PT-204 · el juicio vive donde vive la declaracion: una regla juzgada MECANIZABLE y sin
+  // verificador es DEUDA; una que nadie ha mirado es SIN_JUZGAR. El archivo declara las dos.
+  const juzg = (() => {
+    try { return juzgadasMecanizables(readFileSync(join(BASE, '..', 'implementation', 'NO-VERIFICABLES.md'), 'utf8')); }
+    catch { return {}; }
+  })();
+  const clas = clasificarReglas(REGLAS_TODAS, toolsSinArnes, decl ?? {}, juzg);
   const suma = clas.VERIFICADA.length + clas.NO_VERIFICABLE.length + clas.PENDIENTE.length;
   console.log('');
   console.log('  Clasificación exhaustiva (PT-078) — ninguna queda fuera:');
   console.log(`    VERIFICADA       ${clas.VERIFICADA.length}   una herramienta la EMITE`);
   console.log(`    NO_VERIFICABLE   ${clas.NO_VERIFICABLE.length}   declarada con motivo y firma`);
-  console.log(`    PENDIENTE        ${clas.PENDIENTE.length}   deuda, no límite`);
+  // PT-204 · PENDIENTE se abre en dos: decia «deuda, no limite» y mezclaba «lo decidimos y falta»
+  // con «nadie ha mirado». Se resuelven distinto, y por eso se cuentan aparte.
+  console.log(`    PENDIENTE        ${clas.PENDIENTE.length}   = DEUDA ${clas.DEUDA.length} + SIN_JUZGAR ${clas.SIN_JUZGAR.length}`);
+  console.log(`      DEUDA          ${clas.DEUDA.length}   juzgada mecanizable y sin verificador — falta escribirlo`);
+  console.log(`      SIN_JUZGAR     ${clas.SIN_JUZGAR.length}   NADIE HA MIRADO si se puede verificar o no`);
+  if (clas.SIN_JUZGAR.length) {
+    console.log('      Juzgar NO es verificar: decidir que una regla no es mecanizable cuesta un');
+    console.log('      parrafo con motivo y firma en NO-VERIFICABLES.md; escribir su verificador');
+    console.log('      cuesta una tarea. Lo que falta en estas es LO PRIMERO.');
+  }
   console.log(`    suma             ${suma} de ${TOTAL_REGLAS}${suma === TOTAL_REGLAS ? '' : '   ✗ NO CUADRA'}`);
   if (decl === null) {
     console.log('    (sin NO-VERIFICABLES.md: todo lo no emitido cuenta como PENDIENTE)');
@@ -804,6 +819,42 @@ if (herramientasConCompuerta === null) {
   console.log(`    +${ampliado}  reglas que el denominador no miraba: LEXICON.md y EXECUTION-MODES.md`);
   console.log(`    -${soloMencion}  dejaron de contar por una MENCIÓN: su ID sólo aparecía en comentarios`);
   console.log(`         de ellas ${soloArnes} sólo en selftest.sh — el arnés no lo ejecuta ninguna compuerta`);
+
+// PT-204 · LA COBERTURA NO PUEDE BAJAR EN SILENCIO.
+//
+// `audit` publica la cifra en CADA «npm run verify» desde hace lotes, y nadie la compara con la
+// anterior: anadir una regla HARD sin verificador publicaba un numero un poco peor y nadie lo
+// notaba. Una deuda que no se compara consigo misma no es una deuda: es una TENDENCIA que nadie
+// mira — y esa es la puerta que «SUITE-R26 aspira, no exige» dejaba abierta.
+//
+// AVISA, NO BLOQUEA, y no es tibieza: bloquear obligaria a escribir el verificador ANTES de poder
+// anadir la regla, y eso es exactamente la regresion que el firmante descarto. Lo que hace falta
+// no es impedirlo: es que no pase inadvertido.
+//
+// SE GUARDA LA CIFRA, NO EL JUICIO. El ultimo valor conocido vive junto al resto del estado
+// derivado; compararlo es mecanico y no exige que nadie se acuerde de nada.
+const HITO = join(BASE, '..', 'implementation', 'COBERTURA.json');
+if (herramientasConCompuerta !== null) {
+  const hoy = { ejecutada: COBERTURA.ejecutada.length, universo: TOTAL_REGLAS,
+    sin_juzgar: clas.SIN_JUZGAR.length, deuda: clas.DEUDA.length, no_verificable: clas.NO_VERIFICABLE.length };
+  let antes = null;
+  try { antes = JSON.parse(readFileSync(HITO, 'utf8')); } catch { antes = null; }
+  if (antes && Number.isFinite(antes.ejecutada)) {
+    if (hoy.ejecutada < antes.ejecutada) {
+      console.log('');
+      console.log(`  ⚠ LA COBERTURA BAJO: ${antes.ejecutada}/${antes.universo} → ${hoy.ejecutada}/${hoy.universo}.`);
+      console.log('    Alguien anadio una regla sin verificador, o retiro uno. NO bloquea — bloquear');
+      console.log('    obligaria a verificar antes de poder anadir, que es la regresion descartada —');
+      console.log('    pero deja de pasar inadvertido, que era todo el problema (PT-204).');
+    } else if (hoy.ejecutada > antes.ejecutada) {
+      console.log('');
+      console.log(`  La cobertura SUBIO: ${antes.ejecutada} → ${hoy.ejecutada} de ${hoy.universo}.`);
+    }
+  }
+  // Se escribe SIEMPRE que se pudo medir: el hito es un HECHO observado, no un objetivo. Si no se
+  // pudo medir no se toca — sobrescribirlo con «SIN EVALUAR» borraria la unica referencia que hay.
+  try { writeFileSync(HITO, `${JSON.stringify(hoy, null, 2)}${String.fromCharCode(10)}`); } catch { /* sin permiso de escritura: la comparacion sigue valiendo */ }
+}
 }
 if (process.argv.includes('--sin-verificar')) {
   console.log(`\nReglas sin ningún verificador (${COBERTURA['sin-verificador'].length}):`);

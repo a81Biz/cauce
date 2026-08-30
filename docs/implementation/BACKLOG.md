@@ -34,11 +34,11 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-201 | BUG | S2 | DONE | 8 | [#363](https://github.com/a81Biz/cauce/issues/363) | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
 | PT-202 | BUG | S3 | DONE | 8 | [#364](https://github.com/a81Biz/cauce/issues/364) | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
 | PT-203 | BUG | S3 | DONE | 8 | [#365](https://github.com/a81Biz/cauce/issues/365) | Citar un PT en una fila del intake del lote lo convierte en miembro |
-| PT-204 | INVESTIGATION | S2 | DRAFT | 1 | [#377](https://github.com/a81Biz/cauce/issues/377) | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
+| PT-204 | INVESTIGATION | S2 | DONE | 8 | [#377](https://github.com/a81Biz/cauce/issues/377) | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
 | PT-205 | BUG | S2 | DONE | 8 | [#378](https://github.com/a81Biz/cauce/issues/378) | Cumplir SUITE-R34 exige un acto fuera del comando |
 | PT-206 | BUG | S3 | DONE | 8 | [#385](https://github.com/a81Biz/cauce/issues/385) | LEX-R31 no ve el 76% de las clases que si se declaran |
 
-**15 de 17 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**16 de 17 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-027`
 

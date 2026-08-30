@@ -13135,3 +13135,109 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - NO se retrofecha ninguna entrada anterior, ni se reescriben las 76 cabeceras: el defecto era del
   regex, no de las entradas.
 - NO se unifica con eventos.mjs, por lo de arriba.
+
+================================================================================
+
+## PT-204 — 124 de 244 reglas no las ejecuta nada, y el numero mentia por fusion
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-007 — existe la herramienta y nada la echa en falta
+Origen: parada de EP-026 · motivo hallazgo · changes/EP-026-lo-que-da-verde-sin-mirar/paradas/PT-204.md
+
+EL DATO EXISTIA, ERA CORRECTO, Y SE PUBLICABA EN CADA CORRIDA SIN QUE LE PERTENECIERA A NADIE.
+
+    universo                        244
+    ejecutadas por una compuerta    142
+    sin ningun verificador           91      (63 de ellas HARD)
+
+Entre las 91: EXEC-R05 —«G3 es humana para todo BUG», la compuerta resuelta once veces en esta
+sesion—, FDGE-R38, SUITE-R41, la familia INTAKE entera y siete EXEC-*. Y «audit» lo imprime en
+CADA «npm run verify» desde hace lotes. Es CE-007 a escala del marco entero: existe la
+herramienta, el dato es correcto, y EL NUMERO NO LE PERTENECE A NADIE.
+
+Lo dijo el firmante con la consecuencia delante:
+
+    «Ya se ha dicho en muchas epicas, no hay nada que te obligue a seguir el marco y aqui esta la
+     consecuencia»
+
+Y LO PRIMERO QUE SE ENCONTRO ES QUE EL NUMERO MENTIA POR FUSION.
+
+    PENDIENTE  123  = DEUDA 0 + SIN_JUZGAR 123
+      DEUDA          0   juzgada mecanizable y sin verificador — falta ESCRIBIRLO
+      SIN_JUZGAR   123   NADIE HA MIRADO si se puede verificar o no
+
+«PENDIENTE» decia «deuda, no limite» y mezclaba DOS HECHOS CON ARREGLOS DISTINTOS. Es RULE-02, la
+misma forma que PT-198 y PT-203 corrigieron en otras herramientas esta semana. El numero que
+llevaba lotes publicandose NO DECIA CUANTO TRABAJO HAY: decia cuanto hay MAS LO QUE NADIE HA
+PENSADO.
+
+JUZGAR NO ES VERIFICAR, Y AHI ESTA EL CAMBIO DE TAMANO.
+
+Decidir que FIDE-R03 no es mecanizable porque describe una conversacion cuesta UN PARRAFO con
+motivo y firma; escribir su verificador cuesta UNA TAREA. Separarlos convierte una deuda de 123
+tareas en 123 JUICIOS mas un lote de verificacion SOBRE LAS QUE SOBREVIVAN AL JUICIO — y un juicio
+lo puede emitir cualquier tarea que toque esa regla, mientras que «escribir 118 verificadores» no
+tiene por donde empezar.
+
+EL CRITERIO DE RANKING ES LA FRECUENCIA, NO LA SEVERIDAD.
+
+    se ejercita AQUI cada dia   FDGE 24 + SUITE 17 + EXEC 9 + INTAKE 5 = 55
+    casi nunca, son de DESTINO  QA 9 + FIDE 4 + FPGE 3 = 16
+
+Una regla HARD de FIDE —que corre UNA VEZ, al incubar un proyecto— no cuesta lo mismo que una de
+FDGE, que gobierna cada tarea de cada lote. Y su deuda se paga en el DESTINO, no aqui.
+
+LA EVIDENCIA DEL CRITERIO ESTA EN ESTA MISMA EPICA: cinco lecciones nuevas del HANDOFF —-30 a
+-34— y LAS CINCO son de reglas FDGE/SUITE que existian y que se incumplieron porque nada las
+ejecutaba.
+
+LA DECISION, QUE ES EL ENTREGABLE: SI HACE FALTA UN LOTE, Y NO ES EL QUE PARECIA.
+
+No «verificar las 91». EP-029 JUZGA las 123 sin juzgar y VERIFICA las que sobrevivan al juicio
+siendo ademas frecuentes. El criterio de exito NO puede ser «subir la cifra»: eso seria fijar el
+numero de lo correcto (HANDOFF -18), y una cobertura de 200/244 con las 44 peores fuera es peor
+que una de 150/244 bien elegida.
+
+AC-03 ES LO UNICO QUE CAMBIA COMPORTAMIENTO, Y ES A PROPOSITO.
+
+La cobertura ya no puede bajar EN SILENCIO: se compara con el hito anterior y SE DICE, en las dos
+direcciones. NO BLOQUEA — bloquear obligaria a escribir el verificador ANTES de poder anadir la
+regla, y eso es exactamente la regresion que el firmante descarto:
+
+    «Llevamos ya muy adelantado el marco y regresar a revisar que este es una regresion
+     demasiado grande»
+
+Sin AC-03 esta tarea seria UNA INVESTIGATION QUE DOCUMENTA QUE NADIE HACE NADA, SIN HACER NADA —
+el defecto que denuncia, cometido al denunciarlo.
+
+AC-02 Y AC-04 NO TIENEN CASO, Y SE DECLARA EN VEZ DE FINGIRLO. Son JUICIOS: el ranking y la
+decision son lo que la tarea SABE, no lo que IMPIDE. Darles un caso seria fijar el resultado de un
+juicio como si fuera un hecho mecanico —CE-001— en la tarea que mide cuantas reglas no tienen
+hecho que comprobar.
+
+DOS ERRORES MIOS, Y LOS DOS DE LA FAMILIA DEL LOTE.
+
+1 CONTE MAL: la expectativa decia «3=1+2» y son «2=1+1» —tres reglas, una emitida—. `chkl` lo dijo
+  EN VOZ ALTA, que es lo que PT-181 compro.
+2 UN CASO PASABA POR VACIO: «…y NO bloquea» daba verde porque la salida estaba VACIA — al fixture
+  le faltaban package.json y los workflows, y audit decia SIN EVALUAR CON RAZON (RULE-06: no asume
+  ni 0 ni el total). Anadida su pareja, que exige que el aviso EXISTA.
+
+Evidencia: docs/implementation/evidence/PT-204/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2034 casos en verde · recibo cb7ee5353607.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- Las 123 NO quedan juzgadas: decidir por 123 seria inventar 123 juicios. Eso es EP-029.
+- NO se escribe ningun verificador: esta tarea decide el TAMANO y el ORDEN.
+- SUITE-R26 y su «aspira, no exige» NO se retiran: puede que siga siendo la correcta. Lo que
+  cambia es que SU PUERTA SE VEA y cuanto pasa por ella.
+- La cobertura SI puede bajar: lo que no puede es bajar EN SILENCIO.
