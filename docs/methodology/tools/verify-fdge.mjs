@@ -71,6 +71,7 @@ import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
 // PT-195 · `personaLocal` ya existia —«el nombre canonico de quien usa esta maquina, si esta
 // declarado»— y NINGUNA compuerta la invocaba. No se escribe patron nuevo: se usa el que hay.
 import { personaLocal } from './patrones.mjs';
+import { claseDeEvento } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde, manejadoresRotos, ramaDeTarea } from './patrones.mjs';
@@ -2932,8 +2933,14 @@ function checkHistory(pt, rel, type, { gate, fase }) {
   // `rigeGlobal` y no `rige`: aqui no hay una version del PT en ambito, y usar la del proyecto
   // es lo correcto — la clase de evento la exige la SUITE desde la 13.0.0, no cada tarea.
   if (rigeGlobal('LEX-R31')) {
-    const clase = campo(/^Clase de evento:\s*(CE-\d{3})\s*$/im);
-    if (clase === undefined) {
+    // PT-206 · por el sitio unico: el `\s*$` de aqui dejaba fuera al 76 % de las que SI declaran.
+    const clase = claseDeEvento(cuerpoCorrige ?? '') ?? claseDeEvento(cuerpoOriginal);
+    // PT-206 · «=== undefined» era correcto con `campo()`, que devuelve undefined cuando no casa.
+    // `claseDeEvento` devuelve NULL —el valor que dice «no hay», no «no se pregunto»— y con la
+    // comparacion estricta el aviso se volvia VERDE: PT-129, que NO declara clase, salia como
+    // «declara «Clase de evento: null»». Un cambio de TIPO que convierte una comprobacion en su
+    // contrario, y lo destapo la corrida completa: la acotada no lleva esos dos casos.
+    if (!clase) {
       warn('LEX-R31', `${pt}: su entrada de HISTORY.log no declara «Clase de evento: CE-NNN». `
         + 'Es opcional —no todo trabajo repite un tropiezo— pero sin ella la matriz de eventos '
         + 'no puede contar esta tarea, y lo que no se cuenta no se corrige.');

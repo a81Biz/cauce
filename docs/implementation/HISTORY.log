@@ -13041,3 +13041,97 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - Las 28 del CHANGELOG sin tag NO se juzgan: son de la historia temprana (CE-014). Se cuentan.
 - NO entra en «npm run verify»: consultar la red en cada corrida cambia el coste de algo que hoy
   no lo tiene. DONDE SE INVOCA SE DECIDE CON EL DATO DELANTE — y ahora el dato existe.
+
+================================================================================
+
+## PT-206 — LEX-R31 no veia el 71% de las clases que si se declaran
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de EP-026 · motivo hallazgo · changes/EP-026-lo-que-da-verde-sin-mirar/paradas/PT-206.md
+
+TRES DE CADA CUATRO ENTRADAS QUE CUMPLIAN LA REGLA SALIAN COMO INCUMPLIENDOLA.
+
+    const clase = campo(/^Clase de evento:\s*(CE-\d{3})\s*$/im);   // verify-fdge.mjs:2847
+                                                        ^^^^        exige FIN DE LINEA
+
+    entradas que DECLARAN una clase :  76
+    que LEX-R31 veia                :  22
+    que ve AHORA                    :  76
+
+La convencion MAYORITARIA del propio HISTORY.log escribe «CE-NNN — descripcion», y el `\s*$` no la
+admite. Anclar a fin de linea confundia «declarada» con «declarada de una forma concreta», y la
+forma concreta era la MINORITARIA.
+
+ES EL DEFECTO DE PT-198, EN OTRA HERRAMIENTA.
+
+    PT-198                                  aqui
+    /^status:[ \t]*\S+[ \t]*$/m             /^Clase de evento:\s*(CE-\d{3})\s*$/im
+    «status: READY  # comentario»           «Clase de evento: CE-005 — descripcion»
+    «no declara status»                     «no declara Clase de evento»
+    LO DECLARA                              LO DECLARA
+
+Y PT-198 NO LO CAZO PORQUE MIDIO UN ARCHIVO: su discovery declaro «ningun otro .mjs de tools/ los
+tiene» — cierto para status/phase/type/epic, FALSO para la familia entera. Es CE-005 dentro de la
+tarea que cerraba CE-005: se miro donde se sabia mirar.
+
+UNA AFIRMACION MIA QUE ERA FALSA, CORREGIDA ANTES DE CONSTRUIR SOBRE ELLA.
+
+Escribi en la parada que «eventos.mjs si las cuenta, asi que el mismo hecho se lee de dos formas y
+una se equivoca — SUITE-R38». Lo comprobe y ES FALSO:
+
+    'CE-005': ['verde por vac[ií]o', 'verde por no haber mirado', …]   // eventos.mjs:45
+
+eventos.mjs NO lee esa linea: clasifica por FRASES DEL CUERPO. Son DOS HECHOS DISTINTOS — uno
+DEDUCE la clase de lo que la entrada cuenta, el otro comprueba que la DECLARE. No hay SUITE-R38
+aqui, y unificarlos habria sido PEOR QUE EL DEFECTO. La parada queda corregida en su propio texto.
+
+Y EL ERROR MAS FINO DE LA SESION, QUE SOLO CAZO LA CORRIDA COMPLETA.
+
+La condicion era `if (clase === undefined)`. Correcta con el `campo()` original, que devuelve
+undefined cuando no casa. `claseDeEvento` devuelve NULL —el valor que dice «no hay», no «no se
+pregunto»— y con la comparacion ESTRICTA el aviso se volvio VERDE:
+
+    ✓ LEX-R31  PT-129: declara «Clase de evento: null».
+
+PT-129 NO DECLARA CLASE, Y SALIA DICIENDO QUE SI. Un cambio de TIPO que convierte una comprobacion
+en su contrario, dentro de la tarea que arregla una comprobacion que no veia.
+
+LO DESTAPO LA CORRIDA COMPLETA, no la acotada: los dos casos que lo cazan viven en la seccion de
+EP-024 y la de EP-026 no los lleva. Es la leccion de PT-192 otra vez, y es la respuesta a por que
+la corrida completa por tarea no se negocia.
+
+LA FAMILIA, BARRIDA — QUE ES LO QUE PT-198 NO HIZO.
+
+    once expresiones de tools/ anclan un campo a fin de linea
+    de ellas CINCO exigen un VALOR CONCRETO, y ahi el riesgo es real:
+      Estructural · certificacion · confidence · health · health_unstable
+
+Las de `.*$` no corren riesgo: aceptan cualquier cosa hasta el final. NINGUNA de las cinco ha
+fallado todavia — se cuentan y se nombran, y arreglarlas es otro trabajo. LA CIFRA SE DECLARA, no
+se fija en un caso: fijarla seria fijar el numero de lo correcto (HANDOFF -18) y caducaria
+(CE-010). Lo que si se fija es un CERO: que la expresion vieja ya no se USA.
+
+DOS ERRORES MAS, DE HERRAMIENTA. «grep -c» devuelve el numero y no el texto —el caso comparaba
+CLASE_DE_EVENTO contra «1»—, y «bc» no existe en este entorno, del que dependia mi primer caso de
+familia.
+
+Evidencia: docs/implementation/evidence/PT-206/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-206-lex-r31-no-ve-las-clases-declaradas/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2026 casos en verde · recibo 1c7cebcbec94.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- Las cinco expresiones en riesgo NO se arreglan: se cuentan y se nombran.
+- LEX-R31 sigue AVISANDO, no bloqueando: no todo trabajo repite un tropiezo, y RIGE_DESDE la acota
+  a la 13.0.0 para no juzgar hacia atras (CE-014).
+- NO se retrofecha ninguna entrada anterior, ni se reescriben las 76 cabeceras: el defecto era del
+  regex, no de las entradas.
+- NO se unifica con eventos.mjs, por lo de arriba.

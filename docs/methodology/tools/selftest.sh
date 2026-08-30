@@ -10589,6 +10589,57 @@ chknol "una diferencia legitima no se llama defecto"  "Esto SI es defecto: se pu
 # Las del intake venian del HANDOFF de una medicion anterior y estaban LAS TRES mal: CE-010.
 chkl  "sin tags, la cuenta cambia sola"               "EN CHANGELOG y NO tag       (2)"  _ver187 sintags
 
+# -- PT-206 . LEX-R31 ve las clases que SI se declaran ------------------------
+#
+# La regla las leia con /^Clase de evento:\s*(CE-\d{3})\s*$/im —ANCLADA A FIN DE LINEA— y la
+# convencion MAYORITARIA del propio HISTORY.log escribe «CE-NNN — descripcion». Medido:
+#
+#     entradas que DECLARAN una clase :  76
+#     que LEX-R31 veia ANTES          :  22
+#
+# TRES DE CADA CUATRO ENTRADAS QUE CUMPLEN LA REGLA SALIAN COMO INCUMPLIENDOLA. Es el defecto que
+# PT-198 cerro en tracker.mjs, en otra herramienta — y PT-198 no lo cazo porque midio UN ARCHIVO:
+# su discovery declaro «ningun otro .mjs los tiene», cierto para status/phase/type/epic y falso
+# para la familia entera. CE-005 dentro de la tarea que cerraba CE-005.
+#
+# NO SE UNIFICA CON eventos.mjs, y se dice porque yo mismo lo afirme ANTES de comprobarlo: eventos
+# NO lee esta linea —clasifica por FRASES DEL CUERPO—. Son dos hechos distintos: eventos DEDUCE la
+# clase de lo que la entrada cuenta; LEX-R31 comprueba que la entrada la DECLARE.
+_cls206() { patlib_out "m.claseDeEvento(process.argv[1])" "$1"; }
+patlib_out() { # $1 = expresion JS con process.argv[1] · $2 = el texto
+  MTH_PAT="$SUITE/tools/patrones.mjs" node -e 'const {pathToFileURL}=require("url");
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      console.log(String(eval(process.argv[2])));
+    }).catch((e)=>console.log("IMPORT_FALLA "+e.message));' "$2" "$1" 2>&1
+}
+# AC-01 . TS-01 . LA FORMA MAYORITARIA —con descripcion detras— SE LEE.
+chkl  "la clase con descripcion detras se lee"       "CE-005" \
+  _cls206 "Clase de evento: CE-005 — verde por no haber mirado"
+# …Y LA ESCUETA TAMBIEN, que es la que ya funcionaba: el arreglo no rompe lo que habia.
+chkl  "…y la escueta tambien"                        "CE-011"   _cls206 "Clase de evento: CE-011"
+# AC-02 . TS-02 . UNA ENTRADA QUE NO DECLARA CLASE SIGUE SIN DECLARARLA.
+#
+# ES EL QUE IMPIDE ARREGLARLO EN LA DIRECCION PELIGROSA: un regex que acepte cualquier cosa cumple
+# AC-01 y APAGA LA REGLA. Sin este caso, «arreglar» LEX-R31 seria quitarla.
+chkl  "…y sin clase declarada devuelve null"         "null"     _cls206 "Origen: parada de EP-025"
+# Y NI SIQUIERA CON LA ETIQUETA VACIA: «Clase de evento:» sin identificador no es una clase.
+chkl  "…ni con la etiqueta y sin identificador"      "null"     _cls206 "Clase de evento:"
+# AC-03 . TS-03 . LA LECTURA VIVE EN UN SITIO, con su contrato, y verify-patrones lo comprueba.
+chkl  "la lectura de la clase vive en patrones"      "CLASE_DE_EVENTO" \
+  grep -oh "CLASE_DE_EVENTO" "$SUITE/tools/patrones.mjs"
+chknol "…y verify-fdge ya no trae su propia expresion"  'Clase de evento:.*CE-' \
+  sh -c 'grep -hE "Clase de evento:[^ ]*\(CE" '"$SUITE"'/tools/verify-fdge.mjs || true'
+# AC-04 . TS-04 . LA EXPRESION VIEJA YA NO SE USA: solo queda CITADA en el comentario que la
+# documenta. Es un CERO de lo prohibido —lo unico que un caso puede fijar (HANDOFF -18)— y se
+# distingue del uso mirando que no este dentro de una llamada.
+chknol "la expresion anclada ya no se USA"           "campo(/^Clase de evento" \
+  cat "$SUITE/tools/verify-fdge.mjs"
+# LA CIFRA DE LA FAMILIA se DECLARA en la evidencia y en HISTORY, no se fija aqui: once expresiones
+# de tools/ anclan un campo a fin de linea y CINCO exigen un valor concreto —Estructural,
+# certificacion, confidence, health, health_unstable—, que es donde el riesgo es real. Fijar ese
+# numero seria fijar EL NUMERO DE LO CORRECTO (HANDOFF -18) y ademas caducaria (CE-010).
+
+
 
 
 
