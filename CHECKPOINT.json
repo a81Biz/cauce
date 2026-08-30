@@ -3,20 +3,33 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "chore/alberto-martinez/EP-026-PT-195-la-identidad-git-no-se-comprueba",
   "sha": "4d4c122c13857ac5a36f71c06e94b753552ab8ca",
   "sha_corto": "4d4c122",
   "sucio": true,
   "archivos": [
+    "changes/PT-187-las-versiones-no-cuadran-entre-sus-tres-fuentes/strategy.md",
+    "changes/PT-187-las-versiones-no-cuadran-entre-sus-tres-fuentes/test-scenarios.md",
+    "changes/PT-187-las-versiones-no-cuadran-entre-sus-tres-fuentes/traceability.md",
+    "changes/PT-194-la-exencion-de-senuelos-no-viaja-a-la-historia/strategy.md",
     "changes/PT-195-la-identidad-git-del-repo-no-se-comprueba/intake.md",
+    "changes/PT-195-la-identidad-git-del-repo-no-se-comprueba/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-195/",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-30"
 }
