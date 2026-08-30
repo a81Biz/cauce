@@ -3,8 +3,8 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 2,
-  "fase": "Descubrimiento",
+  "phase": 3,
+  "fase": "Estrategia",
   "rama": "chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases",
   "sha": "03ea5cad060b893b99948e2671f6a07b876ca99a",
   "sha_corto": "03ea5ca",
@@ -13,6 +13,8 @@
     "changes/EP-026-lo-que-da-verde-sin-mirar/paradas/PT-206.md",
     "changes/PT-206-lex-r31-no-ve-las-clases-declaradas/",
     "docs/enterprise-documentation/inventory/services.md",
+    "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh",
@@ -20,8 +22,8 @@
   ],
   "compuerta": null,
   "produce": [
-    "discovery.md"
+    "strategy.md"
   ],
-  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
+  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
   "generado": "2026-08-30"
 }
