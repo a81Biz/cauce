@@ -3,8 +3,8 @@
   "type": "INVESTIGATION",
   "epic": "EP-026",
   "status": "DRAFT",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases",
   "sha": "c198784d8cee319f472b7e925121afcb9567b626",
   "sha_corto": "c198784",
@@ -25,15 +25,8 @@
     "docs/methodology/tools/audit.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-30"
 }

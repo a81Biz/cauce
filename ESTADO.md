@@ -29,6 +29,6 @@ Proyectado el 2026-08-30 · 23 allocation(es) viva(s).
 | PT-202 | BUG | DONE | 8 | — | — | 89a06f0 |
 | PT-203 | BUG | DONE | 8 | — | — | 1711693 |
 | EP-027 |  | DRAFT | 1 | — | — | 1711693 |
-| PT-204 | INVESTIGATION | DRAFT | 4 | — | — | 060258d |
+| PT-204 | INVESTIGATION | DRAFT | 5 | — | — | 060258d |
 | PT-205 | BUG | DONE | 8 | — | — | 3c94b68 |
 | PT-206 | BUG | DONE | 8 | — | — | c198784 |
