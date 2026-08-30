@@ -16,10 +16,10 @@ Proyectado el 2026-08-30 · 22 allocation(es) viva(s).
 | EP-026 |  | READY | 1 | — | — | 4f92728 |
 | PT-179 | BUG | DONE | 8 | — | — | 3c8104d |
 | PT-181 | BUG | DONE | 8 | — | — | 164a2ce |
-| PT-187 | BUG | DRAFT | 1 | — | — | 95bf9eb |
+| PT-187 | BUG | DRAFT | 1 | — | — | e42eaed |
 | PT-192 | BUG | DONE | 8 | — | — | a3058b0 |
-| PT-194 | BUG | DRAFT | 1 | — | — | 17b74e8 |
-| PT-195 | BUG | DONE | 8 | — | — | 1711693 |
+| PT-194 | BUG | READY | 2 | — | — | e42eaed |
+| PT-195 | BUG | DONE | 8 | — | — | e42eaed |
 | PT-196 | BUG | DONE | 8 | — | — | 1bb6fc7 |
 | PT-197 | FEATURE | DRAFT | 1 | — | — | 9c17741 |
 | PT-198 | BUG | DONE | 8 | — | — | a88a114 |
