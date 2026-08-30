@@ -33,9 +33,20 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-200 | BUG | S2 | DONE | 8 | [#362](https://github.com/a81Biz/cauce/issues/362) | verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal |
 | PT-201 | BUG | S2 | DONE | 8 | [#363](https://github.com/a81Biz/cauce/issues/363) | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
 | PT-202 | BUG | S3 | DRAFT | 1 | [#364](https://github.com/a81Biz/cauce/issues/364) | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
-| PT-203 | BUG | S3 | DRAFT | 1 | [#365](https://github.com/a81Biz/cauce/issues/365) | Citar un PT en una fila del intake del lote lo convierte en miembro |
+| PT-203 | BUG | S3 | DONE | 8 | [#365](https://github.com/a81Biz/cauce/issues/365) | Citar un PT en una fila del intake del lote lo convierte en miembro |
+| PT-204 | INVESTIGATION | S2 | DRAFT | 1 | [#377](https://github.com/a81Biz/cauce/issues/377) | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
+| PT-205 | BUG | S2 | DRAFT | 1 | [#378](https://github.com/a81Biz/cauce/issues/378) | Cumplir SUITE-R34 exige un acto fuera del comando |
 
-**8 de 14 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**9 de 16 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+
+## Implementación abierta — `EP-027`
+
+`EP-027` · **Saldar la deuda que PT-203 hizo visible: 26 firmas de lote certificadas** · `DRAFT` · issue [#375](https://github.com/a81Biz/cauce/issues/375).
+
+| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
+|:---|:---|:---|:---|:---|:---|:---|
+
+**0 de 0 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Aplazado — 4 allocation(s) `DEFERRED`
 

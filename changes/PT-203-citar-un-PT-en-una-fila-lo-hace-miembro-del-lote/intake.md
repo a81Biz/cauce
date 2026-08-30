@@ -8,7 +8,7 @@ severity: S3
 epic: EP-026
 track: STANDARD
 status: READY
-phase: 3
+phase: 8
 created: 2026-08-28
 structural: no
 suite_version: 13.4.0

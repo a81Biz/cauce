@@ -1288,7 +1288,19 @@ cd "$WORK" 2>/dev/null || true
 
 # ─── H · lotes ───────────────────────────────────────────────────────────────
 sec "── H · lotes ──"
+# PT-203 · EL FIXTURE DEL LOTE NECESITA UN REGISTRO, porque el registro es quien asigna
+# (SUITE-R08). Hasta aqui la pertenencia salia de la TABLA del intake, asi que estos casos
+# funcionaban con un registro que no mencionaba el lote. Al derivarla del registro, EP-001 se
+# quedaba SIN MIEMBROS y las tres comprobaciones pasaban a no medir nada: SUITE-R61 lo llama
+# «hueco» —perdio su premisa y se queda en verde para siempre— y es el patron que la regla
+# persigue precisamente porque no se delata solo.
+_epic_en_registro() {
+  # Se inserta JUSTO detras del id: «[^}]*» entraba en el objeto anidado de «viabilidad» y
+  # dejaba el campo dentro de el. Lo destapo el caso, no la lectura.
+  perl -0pi -e 's/"id":"PT-001"/"id":"PT-001","epic":"EP-001"/' "$WORK/docs/implementation/REGISTRY.json"
+}
 mk_epic() {
+  _epic_en_registro
   mkdir -p "$WORK/changes/EP-001-validacion"
   cat > "$WORK/changes/EP-001-validacion/intake.md" <<'M'
 ---
@@ -1333,6 +1345,7 @@ chk "lote sin solapamiento ⇒ falla"       "INTAKE-R09"  V --all
 # da trazabilidad. La correccion venia del proyecto legado (commit 760f790), y el CHANGELOG de
 # la 4.13.0 la declaraba TRAIDA cuando el codigo nunca la llevo.
 mk_epic_tabla() {
+  _epic_en_registro
   mkdir -p "$WORK/changes/EP-001-validacion"
   cat > "$WORK/changes/EP-001-validacion/intake.md" <<'M'
 ---
@@ -1364,11 +1377,26 @@ M
 }
 
 build_fixture; mk_epic_tabla
-chkno "citar un PT en prosa no lo hace miembro"  "PT-003: pertenece"  V --all
-chkno "ni siquiera al de al lado"                "PT-002: pertenece"  V --all
-chk   "el de la tabla sí exige su firma"         "PT-001: pertenece"  V --all
+# PT-203 · REPUNTADOS A LA FUENTE NUEVA. Los tres decian «PT-NNN: pertenece», que era el texto de
+# cuando la pertenencia salia del intake. Ese mensaje ya no existe: ahora la lista de incumplidores
+# la nombra el propio aviso. Se conservan porque lo que MIDEN —que citar no afilia y que el miembro
+# real si se exige— sigue siendo cierto y sigue siendo lo que importa (SUITE-R61: «superado», el
+# hecho que el caso fijaba cambio por diseno).
+# PT-203 · SE MIRA LA LINEA QUE EXIGE, NO TODA LA SALIDA. El mensaje correcto NOMBRA la cita
+# —«identificador(es) citado(s) que NO son miembros»— asi que un chkno sobre la salida entera
+# fallaria por encontrarla donde debe estar. Lo que se exige es que NO aparezca donde se RECLAMA.
+_r08exige() { V --all 2>&1 | grep -E "INTAKE-R08" | grep -E "no llevan|VIVA" || true; }
+chkno "citar un PT en prosa no lo hace miembro"  "PT-003"  _r08exige
+chkno "ni siquiera al de al lado"                "PT-002"  _r08exige
+# Y NO PASA POR VACIO: sobre el mismo arbol, la linea que reclama EXISTE y nombra al miembro real.
+chkl  "…y la linea que reclama existe y nombra al real"  "PT-001"  _r08exige
+chk   "el de la tabla sí exige su firma"         "PT-001"  _r08exige
 build_fixture; mk_epic
-chk   "sin tabla, respaldo al barrido completo"  "PT-001: pertenece"  V --all
+# Y SIN TABLA TAMBIEN, que antes dependia de un RESPALDO al barrido completo. Ese respaldo existia
+# «para no dejar de comprobar en silencio los intakes escritos antes de que la plantilla tuviera
+# tabla», y NO FUNCIONO: EP-019 tenia filas, asi que nunca entro, y sus diecisiete quedaron sin
+# comprobar igual. Derivar del registro lo hace innecesario — y este caso lo prueba.
+chk   "sin tabla, el registro sigue mandando"    "PT-001"  _r08exige
 # Se filtra en vez de volcar el CHANGELOG entero: el detector de «la herramienta revento» busca
 # rastros de excepcion, y el CHANGELOG NARRA excepciones pasadas —«ReferenceError en cada
 # ejecucion»— asi que volcarlo entero se acusaba a si mismo de haber reventado.
@@ -9479,8 +9507,30 @@ chkno "…y ahi NO se excusa por estar hecho"        "YA ESTA HECHO"       _v189
 # MEDIDO EJECUTANDO: 46 de 46 secciones pasan solas, y la suma de sus casos IGUALA la corrida
 # completa. El numero correcto era CERO.
 _sec173() { bash "$SUITE/tools/selftest.sh" --seccion "$1" -q 2>&1 | grep "selftest:" | tail -1; }
-chk   "--seccion corre UNA sola seccion"           "OK · 8 casos"        _sec173 "H · lotes"
-chk   "…y otra distinta da su propia cuenta"       "OK · 5 casos"        _sec173 "A · casos"
+# PT-203 · ESTOS DOS FIJABAN «OK · 8 casos» Y «OK · 5 casos» — EL NUMERO DE LO CORRECTO.
+#
+# Cualquier caso nuevo en esas secciones los rompia, y hoy volvio a pasar: anadir un caso a
+# «H · lotes» los puso en rojo sin que nada estuviera mal. Es la leccion -18 del HANDOFF —un caso
+# puede fijar el CERO de lo prohibido, nunca el NUMERO de lo correcto— y es su SEXTA aparicion.
+#
+# Lo que quieren probar es que --seccion ACOTA, y eso se prueba sin fijar cifra: dos secciones
+# distintas dan cuentas distintas, las dos no vacias y las dos en verde. Si --seccion no acotara,
+# las dos darian la MISMA cuenta —la de la bateria entera— y esto lo dice.
+# UN SOLO CASO, y no por pereza: cada sub-corrida es una SECCION ENTERA. Partirlo en tres
+# aserciones costaria cinco sub-corridas donde bastan dos, y el arnes ya se mide en minutos.
+# El veredicto dice CUAL de las cuatro condiciones fallo, que es lo que un caso partido daria.
+_sec173acota() {
+  local la lb a b
+  la=$(_sec173 "H · lotes"); lb=$(_sec173 "A · casos")
+  a=$(printf '%s' "$la" | grep -oE '[0-9]+' | head -1)
+  b=$(printf '%s' "$lb" | grep -oE '[0-9]+' | head -1)
+  if [ -z "$a" ] || [ -z "$b" ]; then echo "NO ACOTA: alguna seccion no dio cuenta ($la / $lb)"; return; fi
+  if [ "$a" -le 0 ] || [ "$b" -le 0 ]; then echo "NO ACOTA: cuenta vacia ($la / $lb)"; return; fi
+  if [ "$a" = "$b" ]; then echo "NO ACOTA: las dos dan $a, que es lo que pasaria SIN acotar"; return; fi
+  case "$la$lb" in *"HAY FALLOS"*) echo "ACOTA pero alguna termino en ROJO ($la / $lb)"; return;; esac
+  echo "ACOTA y las dos en verde"
+}
+chkl  "--seccion corre UNA sola seccion, y en verde"  "ACOTA y las dos en verde"  _sec173acota
 # EL SILENCIO NO ES EXITO. Un patron que no casa ninguna seccion es ROJO: sin esto, un nombre mal
 # escrito daria «todo bien» sobre cero casos — que es lo que PT-023 encontro ejecutando.
 chk   "un patron que no casa NINGUNA es rojo"      "NINGUNA SECCION casa" \
@@ -10129,6 +10179,125 @@ chkl  "el mensaje dice que el campo ESTA y no se leyo"  "El campo ESTA"   _msg19
 # Y SU PAREJA: el AUSENTE sigue diciendo que NO declara. Sin esto, lo de arriba lo cumple un
 # mensaje unico que diga siempre «ESTA», que es el defecto de hoy con el texto cambiado.
 chkl  "…y el ausente sigue diciendo que NO lo declara"  "no declara"      _msg198 'sinstatus: x'
+
+# -- PT-203 . la pertenencia la asigna el REGISTRO, no la tabla del intake -----
+#
+# El extractor leia CUALQUIER «PT-NNN» en una fila de tabla. Una columna «Origen» —«<- PT-178»—
+# convertia en miembro a una tarea de OTRO lote, integrada hacia dias, y el mensaje mandaba a
+# tocar su intake. Ya llevaba DOS parches por la misma causa (PT-011 estrecho a filas de tabla,
+# PT-022 recorto la seccion de cierre) y los dos estrecharon la HEURISTICA, no la fuente.
+#
+# Medido sobre los 26 lotes antes de escribir el arreglo, el defecto iba en las DOS direcciones:
+#     FANTASMA    se comprobaba a quien NO es miembro           7 casos
+#     INVISIBLE   es miembro y su firma NO se comprobaba nunca  62 casos
+# EP-019 leia CERO de sus diecisiete. El FANTASMA se ve y molesta; el INVISIBLE calla.
+_ep203() {
+  # $1 = fila extra del intake · $2 = allocations del registro (JSON) · imprime lo de INTAKE-R08
+  local d="$WORK/p203"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/EP-700-l"
+  cp -r "$SUITE" "$d/docs/methodology"
+  { printf -- '---\nid: EP-700\nstatus: READY\n---\n\n'
+    printf '## Objetivo comun\nx\n\n## Criterio de exito del lote\nx\n\n'
+    printf 'OUT: nada\n\nsolapamiento: ninguno\n\nFirma unica del lote\n\n'
+    printf '| Orden | PT | Origen |\n|---:|:---|:---|\n%s\n' "$1"
+  } > "$d/changes/EP-700-l/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"EP-700","slug":"l","status":"READY","phase":1},%s]}' "$2" \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" 2>&1 | sed -n '/INTAKE-R08/p' | head -3 )
+}
+# El miembro FIRMADO, que existe para que los demas casos no pasen por vacio.
+_miembro203() {   # $1 = id · $2 = lo que dice su linea de firma ("" = sin linea) · $3 = status
+  mkdir -p "$WORK/p203/changes/$1-x"
+  { printf -- '---\nid: %s\nstatus: %s\nphase: 1\ntype: BUG\n---\n\n## Firma\n' "$1" "$3"
+    [ -n "$2" ] && printf 'Firmado por lote: %s\n' "$2"; } > "$WORK/p203/changes/$1-x/intake.md"
+}
+# AC-01 . TS-01 . CITAR UN PT COMO ORIGEN NO LO HACE MIEMBRO. Se le NOMBRA, y no se le exige nada.
+_cita203() {
+  _ep203 '| 1 | PT-701 | <- PT-178 |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  mkdir -p "$WORK/p203/changes/PT-178-viejo"
+  printf -- '---\nid: PT-178\n---\n' > "$WORK/p203/changes/PT-178-viejo/intake.md"
+  _miembro203 PT-701 EP-700 READY
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "citar un PT como origen no lo hace miembro"   "NO son miembros y no se les exige nada"  _cita203
+# Y NO ES QUE CALLE: lo NOMBRA. Un hueco que nadie nombra es el que se olvida.
+chkl  "…y lo nombra, en vez de callarlo"             "PT-178"                                  _cita203
+# AC-02 . TS-02 . EL MIEMBRO VIVO SIN FIRMA SIGUE BLOQUEANDO. Sin esta pareja, lo de arriba lo
+# cumple un verificador que no exija NADA — y aqui eso apagaria una regla HARD.
+_vivo203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  _miembro203 PT-701 "" READY
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "…y un miembro VIVO sin firma sigue bloqueando"  "tarea(s) VIVA(s)"   _vivo203
+# AC-02 . TS-03 . Y EL QUE EL INTAKE NO MENCIONA, TAMBIEN. Este es el defecto GRANDE: 62 tareas
+# que el registro asigna y que la tabla no listaba quedaban SIN COMPROBAR. TS-02 solo no lo cubre.
+_invisible203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1},{"id":"PT-702","slug":"y","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  _miembro203 PT-701 EP-700 READY
+  _miembro203 PT-702 "" READY          # miembro por REGISTRO y AUSENTE de la tabla
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "…y el miembro que la tabla NO lista tampoco se escapa"  "PT-702"   _invisible203
+# AC-03 . TS-04 . LO TERMINAL SE CUENTA Y SE NOMBRA, NO SE REJUZGA. 23 tareas cerradas de EP-024 y
+# EP-025 no llevan la linea: ponersela hoy seria reescribir el pasado para callar una comprobacion
+# (SUITE-R09 append-only, CE-014). Se declara la cifra, como ya hacen EXEC-R03 y LEX-R27.
+_terminal203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"INTEGRATED","phase":10}' >/dev/null 2>&1
+  _miembro203 PT-701 "" INTEGRATED
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "un miembro TERMINAL sin firma se cuenta, no se rejuzga"  "o se corrigen o se certifican"  _terminal203
+# AC-03 . TS-05 . LA FIRMA NOMBRA EL LOTE, Y AHORA SE COMPARA. El grupo 1 se capturaba y se TIRABA
+# mientras el mensaje NOMBRABA el lote: la comprobacion afirmaba mas de lo que miraba. PT-172 es
+# el caso real —su intake dice EP-024 y el registro dice EP-025— y hoy nadie lo veia.
+_partido203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  _miembro203 PT-701 EP-999 READY
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "una firma que nombra OTRO lote se dice"       "firman por OTRO lote"   _partido203
+# AC-03 . LA CERTIFICACION: FIRMAR NO ES SILENCIAR.
+#
+# Derivar del registro hizo que INTAKE-R08 —HARD, bloquea— cubriera 62 tareas que nunca cubrio, y
+# 26 no cumplen. TODAS estan en estado terminal: ponerles la linea seria reescribir trabajo cerrado
+# para callar una comprobacion (SUITE-R09 append-only, CE-014). Se certifican con firma, fecha y
+# DUENO —EP-027—, y siguen apareciendo en cada corrida. Es el contrato de SECRETOS-EXCEPCIONES.md.
+_cert203() {   # $1 = lineas extra de FIRMAS-DE-LOTE.md · $2 = status del miembro
+  _ep203 '| 1 | PT-701 | nace aqui |' "{\"id\":\"PT-701\",\"slug\":\"x\",\"type\":\"BUG\",\"epic\":\"EP-700\",\"status\":\"$2\",\"phase\":1}" >/dev/null 2>&1
+  _miembro203 PT-701 "" "$2"
+  { printf '# Firmas de lote certificadas\n\n'
+    printf '| `PT` | Lote | Que le falta | Firmada por | Fecha | Corrige |\n|:--|:--|:--|:--|:--|:--|\n'
+    printf '%s\n' "$1"; } > "$WORK/p203/docs/implementation/FIRMAS-DE-LOTE.md"
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "una firma certificada no bloquea"           "CERTIFICADA" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' INTEGRATED
+# Y NO SE CALLA: nombra la tarea y a QUIEN le toca corregirla. Sin esto, «certificar» y «silenciar»
+# serian la misma cosa, y una compuerta siempre verde no vale mas que una siempre roja.
+chkl  "…y dice a quien le toca corregirla"         "EP-027" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' INTEGRATED
+# EL LIMITE 1 . LO VIVO NO SE CERTIFICA. La misma fila, con la tarea VIVA, no exime: la
+# certificacion es sobre trabajo cerrado, y dejar de serlo la anula.
+chkl  "…pero lo VIVO no lo exime la certificacion"  "tarea(s) VIVA(s)" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' READY
+# EL LIMITE 2 . UNA FILA SIN FIRMANTE NO ES UNA FIRMA. La plantilla sin rellenar no exime — es la
+# clausula que SECRETOS-EXCEPCIONES.md escribe con todas las letras, y aqui se ejecuta.
+chkl  "…y una fila SIN firmante no exime"          "SIN certificar" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | --- | 2026-08-29 | `EP-027` |' INTEGRATED
+# EL LIMITE 3 . QUIEN NO ESTA ESCRITO NO ESTA CUBIERTO. Certificar una tarea no abre el lote.
+chkl  "…y certificar a OTRA no cubre a esta"       "SIN certificar" \
+  _cert203 '| `PT-999` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' INTEGRATED
+# Y SIN EL ARCHIVO NO SE EXIME NADA: el silencio no acota, la leccion de bloques-sellados.
+# `sh -c` NO ve las funciones de bash: eso hizo pasar un caso por la razon equivocada en PT-192.
+_sincert203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"INTEGRATED","phase":10}' >/dev/null 2>&1
+  _miembro203 PT-701 "" INTEGRATED
+  rm -f "$WORK/p203/docs/implementation/FIRMAS-DE-LOTE.md"
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "sin FIRMAS-DE-LOTE.md no se exime nada"     "SIN certificar"   _sincert203
+
 
 
 

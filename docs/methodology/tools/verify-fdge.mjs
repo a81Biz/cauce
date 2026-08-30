@@ -153,6 +153,29 @@ const RE_PHASE_YAML = /^\s*phase\s*:\s*(\d+)/im;
 // PT-044 · el estado que el intake dice de sí mismo, para poder compararlo con el registro.
 const RE_STATUS_YAML = /^\s*status\s*:\s*([A-Z_]+)/im;
 const RE_SIGN_BATCH = /Firmado\s+por\s+lote:\s*(EP-\d+)/i;
+
+// PT-203 · LAS FIRMAS DE LOTE CERTIFICADAS, y el mismo contrato que SECRETOS-EXCEPCIONES.md.
+//
+// FIRMAR NO ES SILENCIAR: una fila certificada SIGUE APARECIENDO en cada corrida, con quien la
+// firmo y a que tarea le toca corregirla. Lo unico que cambia es que deja de bloquear — porque
+// una compuerta siempre roja ensena a saltarsela, que es peor que no tenerla.
+//
+// La fila cubre UN identificador en UN lote y solo en estado TERMINAL. No es un permiso sobre el
+// lote: quien no este escrito no esta cubierto, y lo vivo bloquea siempre.
+const FIRMAS_LOTE = join(ROOT, 'docs', 'implementation', 'FIRMAS-DE-LOTE.md');
+const RE_FILA_FIRMA = /^\|\s*`(PT-\d+)`\s*\|\s*`(EP-\d+)`\s*\|[^|]*\|\s*([^|]+?)\s*\|[^|]*\|\s*`?(EP-\d+)`?\s*\|/;
+function firmasCertificadas() {
+  const txt = read(FIRMAS_LOTE);
+  const m = new Map();
+  if (txt === null) return m;                 // sin archivo no se exime nada: el silencio no acota
+  for (const l of txt.split(/\r?\n/)) {
+    const f = RE_FILA_FIRMA.exec(l);
+    // UNA FILA SIN FIRMANTE NO ES UNA FIRMA. La plantilla sin rellenar no exime — es la misma
+    // clausula que SECRETOS-EXCEPCIONES.md escribe con todas las letras.
+    if (f && f[3] && !/^-*$/.test(f[3].trim())) m.set(`${f[1]}@${f[2].toUpperCase()}`, { firmante: f[3].trim(), corrige: f[4] });
+  }
+  return m;
+}
 const RE_DOR = /(?:^|\n)\s*(?:VEREDICTO|DoR)\s*:\s*(PASS|FAIL|CHALLENGE)\b/i;
 const RE_DOR_OVERRIDE = /CHALLENGE\s+aceptado\s+por:\s*(?!\[)(\S.*)$/im;
 // PT-083 · el `$` exigia fin de linea inmediatamente despues de S2, y las plantillas que EL
@@ -1589,19 +1612,107 @@ function checkEpics() {
     // identificadores que no son miembros del lote sino destinos de lo que aplaza. Sin
     // excluirla, citar PT-023 en el cierre lo convertia en miembro y pedia su carpeta: la
     // regla nueva se rompio contra la anterior el mismo dia. Se recorta antes de leer.
+    // PT-203 · LA PERTENENCIA LA ASIGNA EL REGISTRO (SUITE-R08), NO LA TABLA DEL INTAKE.
+    //
+    // Los dos parches anteriores estrecharon la HEURISTICA DE LECTURA y ninguno toco la causa:
+    // el intake no es la fuente. Medido sobre los 26 lotes antes de escribir esto, el defecto
+    // iba en las DOS direcciones y la que nadie veia era la grande:
+    //
+    //     FANTASMA   se comprobaba a quien NO es miembro          7 casos
+    //     INVISIBLE  es miembro y su firma NO se comprobaba nunca 62 casos
+    //
+    // EP-019 leia CERO de sus diecisiete. EP-024, cuatro de veintiocho. INTAKE-R08 es HARD y
+    // BLOQUEA, y llevaba desde EP-001 corriendo sobre una fraccion de sus sujetos: lo que no
+    // cubria no daba error, no daba NADA. Es CE-005 en su forma mas grande medida en este lote.
+    //
+    // El FANTASMA se ve —sale en rojo y molesta—, por eso tiene dos parches. El INVISIBLE calla.
+    const miembros = (REGISTRO?.allocations ?? []).filter((a) => String(a?.epic ?? '') === ep && /^PT-\d+$/.test(String(a?.id ?? '')));
+
+    // LA TABLA NO SE TIRA: pasa a CONTRASTARSE. Un PT citado en una fila que no es miembro es una
+    // cita de origen —lo que FDGE-R55 premia— y deja de ser un error que manda a tocar el intake
+    // de una tarea de otro lote.
     const sinCierre = RE_CIERRE_LOTE.test(txt) ? txt.slice(0, txt.search(RE_CIERRE_LOTE)) : txt;
-    const enFilas = sinCierre
+    const citados = new Set(sinCierre
       .split(/\r?\n/)
       .filter((l) => /^\s*\|/.test(l))
-      .flatMap((l) => [...l.matchAll(/\bPT-\d+\b/g)].map((m) => m[0]));
-    const pts = enFilas.length ? enFilas : [...sinCierre.matchAll(/PT-\d+/g)].map((m) => m[0]);
-    for (const pt of [...new Set(pts)]) {
-      const d = readdirSync(CHANGES).find((x) => x.startsWith(pt + '-'));
-      if (!d) { fail('INTAKE-R09', `${ep}: lista ${pt} y no existe changes/${pt}-slug/.`); continue; }
-      const it = read(join(CHANGES, d, 'intake.md')) ?? '';
-      if (!RE_SIGN_BATCH.test(it)) {
-        fail('INTAKE-R08', `${pt}: pertenece a ${ep} pero su intake no lleva «Firmado por lote: ${ep}». Sin esa línea es indistinguible de uno sin firmar.`);
-      }
+      .flatMap((l) => [...l.matchAll(/\bPT-\d+\b/g)].map((m) => m[0])));
+    // INTAKE-R09 SIGUE LEYENDO LA TABLA: «cita PT-NNN y no existe su carpeta» es una comprobacion
+    // sobre lo que el intake DECLARA, y ese es su sitio. Lo que cambia es de donde sale la
+    // PERTENENCIA, no de donde sale lo que el documento afirma.
+    const certificadas = firmasCertificadas();
+    for (const pt of citados) {
+      if (readdirSync(CHANGES).find((x) => x.startsWith(pt + '-'))) continue;
+      // PT-203 · CE-017 · LA COMPROBACION NO ACUSA A QUIEN DOCUMENTA EL HECHO.
+      //
+      // Que PT-032 y PT-171 no tengan carpeta es EXACTAMENTE lo que FIRMAS-DE-LOTE.md certifica
+      // y lo que EP-027 existe para arreglar. Sin esto, el intake del lote que salda la deuda
+      // quedaba bloqueado por CITAR la deuda — y la unica salida seria no nombrarla, que es
+      // perder la trazabilidad que este marco compra.
+      //
+      // Solo exime a quien esta ESCRITO en la lista cerrada y firmada. Un identificador citado
+      // que no este ahi sigue en rojo.
+      if ([...certificadas.keys()].some((k) => k.startsWith(pt + '@'))) continue;
+      fail('INTAKE-R09', `${ep}: lista ${pt} y no existe changes/${pt}-slug/.`);
+    }
+
+    // LO TERMINAL SE CUENTA Y SE NOMBRA; LO VIVO BLOQUEA.
+    //
+    // Al derivar del registro, esta regla empieza a cubrir 62 tareas que nunca cubrio, y 23 de
+    // ellas —EP-024 y EP-025, todas INTEGRATED— no llevan la linea. Ponersela hoy seria reescribir
+    // trabajo cerrado para callar una comprobacion: SUITE-R09 es append-only y CE-014 nombra justo
+    // esto. No se retrofecha: se declara la cifra, como ya hacen EXEC-R03 y LEX-R27.
+    const sinFirma = [];
+    const terminalesSinFirma = [];
+    const lotePartido = [];
+    const cubiertas = [];
+    for (const a of miembros) {
+      const d = readdirSync(CHANGES).find((x) => x.startsWith(a.id + '-'));
+      const it = d ? (read(join(CHANGES, d, 'intake.md')) ?? '') : '';
+      const m = RE_SIGN_BATCH.exec(it);
+      const terminal = ESTADOS_TERMINALES.has(String(a.status));
+      // LO CERTIFICADO SOLO EXIME SI SIGUE SIENDO TERMINAL. Si esa tarea volviera a estar viva, la
+      // fila NO la cubre: la certificacion es sobre trabajo cerrado, y dejar de serlo la anula.
+      const cert = terminal ? certificadas.get(`${a.id}@${ep.toUpperCase()}`) : null;
+      if (cert) { cubiertas.push(`${a.id} (${cert.corrige})`); continue; }
+      if (!m) { (terminal ? terminalesSinFirma : sinFirma).push(a.id); continue; }
+      // PT-203 · EL GRUPO 1 SE CAPTURABA Y SE TIRABA mientras el mensaje NOMBRABA el lote: la
+      // comprobacion afirmaba mas de lo que miraba, que es lo que PT-198 acaba de cerrar en otra
+      // linea. PT-172 es el caso real: su intake dice EP-024 y el registro dice EP-025.
+      if (m[1].toUpperCase() !== ep.toUpperCase()) lotePartido.push(`${a.id} (dice ${m[1]})`);
+    }
+    if (sinFirma.length) {
+      fail('INTAKE-R08', `${ep}: ${sinFirma.length} tarea(s) VIVA(s) que el registro le asigna no `
+        + `llevan «Firmado por lote: ${ep}»: ${sinFirma.join(' · ')}. Sin esa linea son `
+        + 'indistinguibles de una sin firmar.');
+    }
+    if (cubiertas.length) {
+      // NO se calla, y por eso es `ok` y no ausencia: la deuda sigue contandose en cada corrida,
+      // con su dueno delante. Esa es la diferencia entre certificar y silenciar (FIRMAS-DE-LOTE.md).
+      ok('INTAKE-R08', `${ep}: ${cubiertas.length} firma(s) de lote CERTIFICADA(s) en `
+        + `FIRMAS-DE-LOTE.md, y su correccion tiene dueno: ${cubiertas.join(' · ')}. `
+        + 'Firmar no es silenciar: siguen aqui hasta que se corrijan.');
+    }
+    if (terminalesSinFirma.length) {
+      warn('INTAKE-R08', `${ep}: ${terminalesSinFirma.length} tarea(s) TERMINAL(es) sin la linea de `
+        + `firma de lote y SIN certificar en FIRMAS-DE-LOTE.md: ${terminalesSinFirma.join(' · ')}. `
+        + 'No se retrofechan (SUITE-R09, CE-014), pero tampoco se dan por buenas: o se corrigen o se '
+        + 'certifican con firma y dueno.');
+    }
+    if (lotePartido.length) {
+      const vivas = lotePartido.filter((x) => {
+        const id = x.split(' ')[0];
+        return !ESTADOS_TERMINALES.has(String(miembros.find((a) => a.id === id)?.status));
+      });
+      const decir = `${ep}: ${lotePartido.length} intake(s) firman por OTRO lote: ${lotePartido.join(' · ')}. `
+        + 'El registro asigna (SUITE-R08); el intake lo espeja.';
+      if (vivas.length) fail('INTAKE-R08', decir); else warn('INTAKE-R08', decir);
+    }
+    const citadosNoMiembros = [...citados].filter((x) => !miembros.some((a) => a.id === x));
+    if (citadosNoMiembros.length) {
+      ok('INTAKE-R08', `${ep}: ${miembros.length} miembro(s) segun el registro; `
+        + `${citadosNoMiembros.length} identificador(es) citado(s) que NO son miembros y no se les `
+        + `exige nada: ${citadosNoMiembros.join(' · ')}. Citar de donde salio una tarea es lo que `
+        + 'FDGE-R55 premia (PT-203).');
     }
     ok('INTAKE-R09', `${ep}: intake del lote completo.`);
   }

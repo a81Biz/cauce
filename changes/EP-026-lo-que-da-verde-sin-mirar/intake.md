@@ -129,6 +129,43 @@ queda ya sin citar su parada.**
 - **`PT-203` va junto a `PT-198`** porque son la misma familia: una extracción frágil y un mensaje
   que presenta como hecho un fallo de lectura. Arreglar una sin mirar la otra dejaría media.
 
+### El lote creció a DIECISÉIS, y se declara aquí   `2026-08-30`
+
+Las catorce de arriba son las que `G1` admitió. **Dos más salieron de ejecutarlas**, y se añaden en
+vez de aplazarse porque encajan en el criterio de éxito mejor que varias de las catorce — y porque
+aplazarlas repetiría el fallo que las origina: decirlo en una épica más y que no le toque a nadie.
+
+| Orden | `PT` | Tipo | Qué cierra | De dónde sale |
+|---:|:---|:---|:---|:---|
+| 15 | `PT-204` | INVESTIGATION | **124 de 244 reglas son `PENDIENTE` y 91 no tienen verificador** (82 `HARD`, entre ellas `EXEC-R05`). `audit` lo dice en cada `npm run verify` y no le pertenece a nadie | `paradas/PT-204.md` |
+| 16 | `PT-205` | BUG | **El verde local no predice CI para lo que depende de lo empujado.** 17 min de CI en corridas fallidas sólo en la rama de `PT-203`, y cuatro veces la misma forma | dos paradas, absorbidas (ver abajo) |
+
+**`PT-204` no es auditar las 244.** El firmante lo descartó: *«regresar a revisar que esté es una
+regresión demasiado grande»*. Es una `INVESTIGATION` cuyo entregable es **la decisión y su alcance**
+—separar deuda de límite, rankear por consecuencia, y decidir si hace falta un lote propio—.
+
+> **Nota de forma, y no es cosmética.** La celda de arriba decía los nombres de los dos archivos
+> de parada. `INTAKE-R09` los leyó como **identificadores listados** y exigió su carpeta —el mismo
+> defecto que `PT-203` acaba de quitar de `INTAKE-R08`, en la comprobación que `PT-203` declaró
+> **fuera de alcance a propósito**. El límite declarado mordió a los diez minutos. Se rodea aquí
+> nombrando las paradas en prosa, y el hueco queda dicho: `INTAKE-R09` no distingue «lista este
+> `PT` como miembro» de «cita la ruta de un archivo».
+
+**`PT-205` absorbe dos paradas y va la SIGUIENTE**, no la última. Lo pidió el firmante con el
+motivo: *«buscando que los siguientes no pierdan tanto tiempo»*. Quedan siete tareas × un viaje de
+CI evitable ≈ una hora de reloj, así que hacerla ahora la paga el propio lote.
+
+**`PT-205` es del lote y no de otro** porque lo destapó su propio CI, dos veces, y porque una regla
+que sólo se puede cumplir saliéndose de la herramienta es exactamente lo que este lote persigue.
+
+### Y una tercera parada que NO entra: `EP-028`
+
+El coste de la verificación —`verify-fdge` corre 71 comprobaciones de repositorio en **toda**
+invocación, y el sello por `PT` incluye el archivo **entero** del verificador— es un lote propio,
+decidido por el firmante el `2026-08-29`. **No cabe aquí**: cerrar eso no demostraría nada sobre
+«nada da verde sin mirar», y cada tarea nueva paga su corrida, así que atacar el coste desde dentro
+lo aumenta antes de bajarlo. Queda en `paradas/EP-028.md` y se abre al cerrar este lote.
+
 ## 6. Análisis de solapamiento   `[AGENTE]` — obligatorio   `FDGE-R40`
 
 | Archivo | Tareas que lo tocan | Serialización |
