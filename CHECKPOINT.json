@@ -3,23 +3,35 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "chore/alberto-martinez/EP-026-PT-203-la-pertenencia-la-asigna-el-registro",
   "sha": "d5265b489dbfde9e2c595a966a41fdae5cbbbc49",
   "sha_corto": "d5265b4",
   "sucio": true,
   "archivos": [
+    "changes/EP-026-lo-que-da-verde-sin-mirar/paradas/",
+    "changes/EP-027-la-deuda-de-firma-de-lote-se-salda/",
     "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/intake.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/spec-changes.md",
     "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/strategy.md",
     "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/test-scenarios.md",
     "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/FIRMAS-DE-LOTE.md",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-203/",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-29"
 }

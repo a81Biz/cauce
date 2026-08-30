@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-29 · 19 allocation(es) viva(s).
+Proyectado el 2026-08-29 · 20 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -27,4 +27,5 @@ Proyectado el 2026-08-29 · 19 allocation(es) viva(s).
 | PT-200 | BUG | DONE | 8 | — | — | cdb7e3f |
 | PT-201 | BUG | DONE | 8 | — | — | 666d5bd |
 | PT-202 | BUG | DRAFT | 1 | — | — | 9c17741 |
-| PT-203 | BUG | READY | 5 | — | — | bd89f9f |
+| PT-203 | BUG | READY | 6 | — | — | bd89f9f |
+| EP-027 |  | DRAFT | 1 | — | — | — |
