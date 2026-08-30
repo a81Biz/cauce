@@ -1,35 +1,23 @@
 {
-  "pt": "PT-204",
-  "type": "INVESTIGATION",
+  "pt": "PT-197",
+  "type": "FEATURE",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases",
-  "sha": "c198784d8cee319f472b7e925121afcb9567b626",
-  "sha_corto": "c198784",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "trabajo",
+  "sha": "2b556d970a230dc3ff1ba7bebdf033a855cc6296",
+  "sha_corto": "2b556d9",
   "sucio": true,
   "archivos": [
-    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/discovery.md",
-    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/intake.md",
-    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/strategy.md",
-    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/test-scenarios.md",
-    "changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/COBERTURA.json",
-    "docs/implementation/HANDOFF.md",
+    "changes/PT-197-el-dictamen-al-dueno-del-dominio/intake.md",
     "docs/implementation/REGISTRY.json",
-    "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-204/",
-    "docs/methodology/tools/audit.mjs",
-    "docs/methodology/tools/selftest.sh"
+    "docs/implementation/SESSION_LOG.md"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-30"
 }
