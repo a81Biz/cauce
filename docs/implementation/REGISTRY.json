@@ -36,7 +36,7 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 203,
+    "PT": 205,
     "EP": 27,
     "QA": 0,
     "QR": 0,
@@ -6942,6 +6942,32 @@
       "suite_version": "13.4.0",
       "title": "Saldar la deuda que PT-203 hizo visible: 26 firmas de lote certificadas",
       "issue": 375
+    },
+    {
+      "id": "PT-204",
+      "slug": "la-cobertura-mecanica-no-le-pertenece-a-nadie",
+      "created": "2026-08-29",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "type": "INVESTIGATION",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida",
+      "issue": 377
+    },
+    {
+      "id": "PT-205",
+      "slug": "el-estado-solo-se-sella-avanzando-de-fase",
+      "created": "2026-08-29",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "Cumplir SUITE-R34 exige un acto fuera del comando",
+      "issue": 378
     }
   ]
 }
