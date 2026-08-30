@@ -12871,3 +12871,94 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
   mismo caso ensambla su literal en dos mitades por el mismo motivo.
 - EL «false» SIGUE SIENDO «false»: no cambia la conducta del escaner. Cambia que sea una DECISION
   DECLARADA en vez de un efecto de por donde mira.
+
+================================================================================
+
+## PT-202 — publicar.yml NO viaja; lo que viaja es la documentacion que lo describe
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-202-la-frontera-fuente-destino
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-008
+Origen: senalado por el firmante · EP-026 §5
+
+EL INTAKE SE EQUIVOCABA DE MECANISMO, Y MEDIRLO LO CAMBIO TODO.
+
+Decia que publicar.yml «viaja dentro del paquete, igual que tools/». Medido:
+
+    npm pack --dry-run       61 archivos · .github: 0
+    package.json.files       ["bin","!bin/graphify-out","docs/methodology",…]  sin .github
+    grep en bin/cauce.mjs, plan-layout.mjs, migrate.mjs   sin coincidencias
+
+NO VIAJA. Se corrige en discovery.md en vez de arreglar un mecanismo que no existe — RULE-06 por
+el lado que mas cuesta: no dar por cierto lo que no se ha comprobado, NI SIQUIERA cuando lo dice
+el propio intake.
+
+LO QUE SI LLEGA ES PEOR.
+
+docs/methodology/ viaja ENTERO —56 archivos— y dentro la documentacion hablaba de publicar.yml
+COMO SI EL DESTINO LO TUVIERA. CASOS-DE-USO.md le daba un caso de uso completo, «E2 · Publicar una
+version», cuyo recorrido el destino NO TIENE, para publicar un paquete que NO ES SUYO.
+
+UN ARCHIVO SOBRANTE SE VE Y SE BORRA; UNA DOCUMENTACION QUE DESCRIBE UN RECORRIDO INEXISTENTE NO
+SE VE: quien la lee busca el workflow, no lo encuentra, y no sabe si le falta a el o si el
+documento miente.
+
+LAS TRES PIEZAS.
+
+    LEXICON        LEX-R25 decia la mitad —que VIAJA— y no la otra: que lo que viaja NO ES TODO
+                   LO QUE APLICA al destino. Se completa ahi, no se duplica al lado (SUITE-R38)
+    CASOS-DE-USO   E2 marcado «DE LA FUENTE», con el motivo delante
+    verify-suite   un documento que VIAJA no describe un recorrido de la FUENTE sin marcarlo
+
+LA LISTA SE DERIVA, NO SE ESCRIBE. Un artefacto es DE LA FUENTE cuando esta en el repositorio y NO
+en package.json.files. Escribirla a mano la haria divergir del arbol —CE-010, que este lote ya ha
+pagado dos veces— y por eso hay un caso que planta un workflow NUEVO y comprueba que entra sin
+tocar ninguna lista.
+
+Y LA COMPROBACION ENCONTRO UN TERCER DOCUMENTO QUE YO NO HABIA VISTO.
+
+Escribi la correccion para LEXICON.md y CASOS-DE-USO.md. Al correr verify-suite aparecio
+CHANGELOG.md, que menciona LOS DOS workflows al narrar la historia del marco. Su mencion ES
+CORRECTA —es un ledger que cuenta lo que paso— y lo que faltaba es que quien lo lea EN UN PROYECTO
+DESTINO sepa que esos workflows no existen ahi. Se declara UNA VEZ en su cabecera, que es una
+ADICION y no una edicion de sus entradas (SUITE-R09).
+
+ESA ES LA PRUEBA DE QUE TS-04 HACIA FALTA: la correccion a mano se habria quedado en dos de tres,
+y se habria deshecho sola a la siguiente.
+
+TS-01 YA SE CUMPLIA, Y SU CASO SIGUE HACIENDO FALTA. Sin el, nada impide «arreglar» el problema
+imaginario ANADIENDO .github/ al paquete —que sobrescribiria los workflows del destino, y eso no
+es instalar, es pisar—. El caso fija EL CERO DE LO PROHIBIDO, que es lo unico que un caso puede
+fijar (HANDOFF -18).
+
+CUATRO CORRECCIONES A MIS PROPIOS CASOS, Y TODAS AL EJECUTAR.
+
+1. EL FIXTURE NECESITABA LA SUITE ENTERA. Con solo los .md de raiz, verify-suite emitia trece
+   enlaces rotos y TRUNCABA el informe —«… y 13 mas»—, asi que el hallazgo real no se veia: el
+   caso media el truncado en vez de la comprobacion.
+2. «npm pack» NO RESPONDE DESDE EL ARNES. Se mide EL HECHO del que el empaquetado depende —que
+   .github no este en files— en vez de invocar un gestor que no es del arnes: una comprobacion que
+   depende de el falla por razones que no son la suya.
+3. «head -1» CORTABA ANTES DEL NOMBRE: el workflow va en la SEGUNDA linea del hallazgo.
+4. Y UNA DE ESCAPADO: la barra invertida se degrado al pasar por la sustitucion —CE-002— y se
+   resolvio partiendo por el separador sin literal.
+
+Evidencia: docs/implementation/evidence/PT-202/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-202-publicar-yml-viaja-a-donde-no-aplica/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2013 casos en verde · recibo f11eb8b47a88.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- verificacion.yml TAMPOCO viaja, y al destino SI LE SIRVE. Se queda sin la compuerta que necesita
+  y con la documentacion de una que no. Darle una es otra decision y de otro tamano: enviar
+  .github/ sobrescribiria lo suyo, y un workflow es especifico de la plataforma (SUITE-R35).
+  Hacerlo bien es UNA PLANTILLA QUE EL DESTINO ADAPTA, con su fase en INSTALL.md. Se NOMBRA.
+- package.json NO se toca: no manda .github/, y eso esta bien.
+- publicar.yml NO se borra: aqui hace falta, es donde SUITE-R06g reserva la publicacion.
+- NO se resuelve el reparto fuente/destino de todo el marco: solo se nombra y se arregla su caso.

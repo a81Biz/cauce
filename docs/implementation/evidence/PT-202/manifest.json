@@ -1,0 +1,66 @@
+{
+  "pt": "PT-202",
+  "generated": "2026-08-30",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una instalacion limpia no recibe un workflow que publique un paquete ajeno",
+      "scenarios": ["TS-01"],
+      "tests": ["selftest §EP-026 · el paquete no lleva NINGUN workflow"],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "YA se cumplia: el intake se equivocaba de mecanismo. El caso sigue haciendo falta porque fija el CERO de lo prohibido — sin el, nada impide «arreglar» el problema imaginario ANADIENDO .github/ al paquete, que sobrescribiria los workflows del destino."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Este repositorio sigue pudiendo publicar",
+      "scenarios": ["TS-02"],
+      "tests": ["selftest §EP-026 · …y este repositorio sigue pudiendo publicar"],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "Es el que impide arreglarlo rompiendo la publicacion, y el intake ya lo declaraba asi."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Lo que es de la fuente y lo que es del destino queda declarado",
+      "scenarios": ["TS-03", "TS-04", "TS-05"],
+      "tests": [
+        "selftest §EP-026 · la frontera fuente/destino esta declarada",
+        "selftest §EP-026 · un documento que viaja y no lo marca, falla",
+        "selftest §EP-026 · …y marcarlo basta",
+        "selftest §EP-026 · un workflow nuevo entra sin tocar ninguna lista"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "TS-04 impide que la correccion se deshaga sola —ya paso DOS veces sin que nada lo dijera— y al ejecutarla aparecio una TERCERA que no habia visto: el CHANGELOG. TS-05 impide que su lista caduque (CE-010)."
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable · 6 casos sobre 5 escenarios",
+  "medido": {
+    "el_intake_se_equivocaba": "decia que publicar.yml VIAJA. npm pack empaqueta 61 archivos y CERO de .github/, y no lo copia ni el instalador ni plan-layout ni migrate.",
+    "lo_que_si_llega": "docs/methodology/ entero —56 archivos— con documentacion que describe un recorrido que el destino no tiene. Un archivo sobrante se ve; una documentacion que miente, no.",
+    "el_tercer_documento": "la comprobacion encontro CHANGELOG.md, que menciona los DOS workflows. Su mencion es correcta —narra— y se declara UNA vez en su cabecera, que es una adicion y no una edicion (SUITE-R09)."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "El destino recibe verificacion.yml, que si le sirve",
+      "por_que_no": "Es la otra mitad del hueco y de otro tamano: enviar .github/ sobrescribiria lo suyo, y un workflow es especifico de la plataforma (SUITE-R35). Hacerlo bien es una plantilla que el destino adapta, con su fase en INSTALL.md. Se NOMBRA, no se hace.",
+      "verified": false
+    },
+    {
+      "afirmacion": "El reparto fuente/destino de todo el marco queda resuelto",
+      "por_que_no": "Solo se nombra y se arregla su caso, que es lo que el intake ya prometia en su §4.",
+      "verified": false
+    },
+    {
+      "afirmacion": "package.json cambia",
+      "por_que_no": "No manda .github/, y eso esta bien: mandarlo sobrescribiria los workflows del destino.",
+      "verified": false
+    },
+    {
+      "afirmacion": "publicar.yml se retira",
+      "por_que_no": "Aqui hace falta: es donde SUITE-R06g reserva la publicacion.",
+      "verified": false
+    }
+  ]
+}

@@ -275,7 +275,12 @@ El orden **no es opcional** (`SUITE-R46`):
 Al revés, la rama principal queda declarando trabajo vivo con el issue cerrado, y su compuerta
 falla **tras cada merge**.
 
-### E2 · Publicar una versión
+### E2 · Publicar una versión   · **DE LA FUENTE**   `LEX-R25` · `PT-202`
+
+> **Este caso es del repositorio que PRODUCE el paquete, no del que lo instala.**
+> `publicar.yml` **no viaja**: `package.json.files` no incluye `.github/`, y no lo copia ni el
+> instalador ni `plan-layout` ni `migrate`. Un proyecto que instala cauce **no tiene este
+> recorrido**, y lo que publicaría no sería suyo.
 
 | | |
 |:---|:---|
