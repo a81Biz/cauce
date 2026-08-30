@@ -140,4 +140,4 @@
 | PT-202 | BUG | S3 | DRAFT | EP-026 | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
 | PT-203 | BUG | S3 | DONE | EP-026 | Citar un PT en una fila del intake del lote lo convierte en miembro |
 | PT-204 | INVESTIGATION | S2 | DRAFT | EP-026 | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
-| PT-205 | BUG | S2 | DRAFT | EP-026 | Cumplir SUITE-R34 exige un acto fuera del comando |
+| PT-205 | BUG | S2 | DONE | EP-026 | Cumplir SUITE-R34 exige un acto fuera del comando |

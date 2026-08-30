@@ -8,7 +8,7 @@ severity: S2
 epic: EP-026
 track: STANDARD
 status: DRAFT
-phase: 1
+phase: 8
 created: 2026-08-30
 structural: no
 suite_version: 13.4.0

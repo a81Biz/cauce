@@ -4293,3 +4293,71 @@ Catorce tareas, trece `BUG` y una `FEATURE`, todas con intake propio. El orden l
 no es preferencia: `PT-199` y `PT-201` van primero porque hacen **legible la propia corrida** —
 mientras la salida escupa 33 errores de andamiaje y el verde local no prediga la CI, cualquier
 medida que tomen las demás se toma sobre un instrumento sucio.
+
+---
+
+## 2026-08-30 · Cierre de jornada · `EP-026` en 11 de 16
+
+**Autorización en curso:** el `VoBo` del `2026-08-28` para ejecutar `EP-026` completa
+(§ *«VoBo para ejecutar EP-026 completa»*, más arriba). Sigue vigente y **`npm publish` sigue
+fuera**: la reserva del `2026-08-27` —*«no lo hago a mano salvo publicar»*— no la deroga ningún
+`VoBo` posterior que no la mencione.
+
+Y dos decisiones nuevas del firmante, tomadas hoy:
+
+> *«necesitamos corregir o certificar y sellar, no podemos dejar pendientes menos una deuda tan
+> grande. De ser necesario ponlos en una épica que atacaremos al terminar ésta»* — sobre las 26
+> firmas de lote. Resultado: `FIRMAS-DE-LOTE.md` firmado y `EP-027` #375 abierta **sin `G1`**.
+
+> *«necesitamos arreglar ésto. Lo ideal sería un PT para hacerlo ahora, al terminar éste, buscando
+> que los siguientes no pierdan tanto tiempo»* — sobre el viaje de CI. Resultado: `PT-205`,
+> hecha **la siguiente** y no la última.
+
+### Dónde queda el trabajo
+
+| | |
+|:---|:---|
+| **Rama** | `chore/alberto-martinez/EP-026-PT-205-el-verde-local-no-predice-CI` |
+| **PR** | **#379**, esperando CI. Al pasar: fusionar a `trabajo` |
+| **`PT-205`** | `PHASE 8`, `DONE`, `G3` resuelta. Sólo falta el merge |
+| **Lote** | `EP-026` · **11 de 16** |
+
+### Lo que queda, en orden
+
+```
+PT-195 #353   la identidad git no se comprueba        ANALISIS YA ESCRITO (discovery, strategy,
+PT-194 #351   cauce:senuelos y la historia             escenarios y trazabilidad, los cuatro)
+PT-202 #364   publicar.yml viaja a donde no aplica     ANALISIS YA ESCRITO
+PT-187 #342   las versiones no cuadran                 ANALISIS YA ESCRITO (discovery)
+PT-206        LEX-R31 no ve el 76% de las clases       solo la parada
+PT-204 #377   124 de 244 reglas que nada ejecuta       intake escrito, G1 sin firmar
+PT-197 #356   DICTAMEN, el septimo componente          NECESITA DECISION DEL FIRMANTE en PHASE 2
+```
+
+**Cuatro tienen el análisis hecho y sin commitear todavía en su rama** — están en `changes/` y
+viajan con el merge de `PT-205`.
+
+### Lo que abrió esta jornada, y que NO es de este lote
+
+| | Estado |
+|:---|:---|
+| `EP-027` #375 · saldar las 26 firmas certificadas | Abierta, con intake, **sin `G1`** |
+| `EP-028` · el coste de la verificación | Sólo `paradas/EP-028.md`; se abre **al cerrar** `EP-026` |
+
+### Lo que hace falta de ti, y no antes
+
+**`PT-197` (DICTAMEN)** declara en su propio intake que *«no sabe todavía qué hace válido un
+Dictamen»* — `FND-R24` reserva eso a quien conoce el negocio. Sus `AC` son de forma; el contenido
+se decide en `PHASE 2` contigo. Va la última y llegaré ahí con propuesta delante.
+
+**`G1` de `EP-027` y de `EP-028`**: tu autorización cubrió **abrirlas**, no admitirlas.
+
+### Cómo se retoma
+
+```bash
+node docs/methodology/tools/tracker.mjs siguiente EP-026     # lo derivado, no lo recordado
+gh pr checks 379                                             # si sigue abierto, empezar por ahi
+```
+
+`SUITE-R03` · Ninguna sesión depende de la memoria del agente. El estado está en `HANDOFF.md`,
+`CHECKPOINT.json` y el registro; esto sólo añade **por qué** se decidió lo que se decidió.

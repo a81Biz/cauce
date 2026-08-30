@@ -11,7 +11,7 @@ lo que este lote descubrio: el sello se estampaba con una BANDERA y nadie compro
 hallazgo sin tarea: NINGUNO. EP-026 tiene PT-179 (S1), PT-181, PT-187, PT-192, PT-194 y PT-195. Los cuatro nuevos citan la parada de PT-191 que los produjo (FDGE-R55), con su explicacion en changes/PT-191-.../paradas/ y publicada en el issue #348.
 pregunta abierta: si el trazo PT -> caso debe derivarse del grafo, como pidio el firmante. Y graphify, que el marco exige (FND-R14, FDGE-R43), tiene graphify-out/graph.json VACIO: «{}», 3 bytes, mientras GRAPH_REPORT.md declara 1028 nodos.
 lo que sigue sin resolverse: PT-025 (#35) DEFERRED · PT-172 DEFERRED en este lote · PT-181 es la UNICA allocation que sigue sin citar su parada (FDGE-R55), y es anterior a esta sesion · 21 allocations sin suite_version · 4 PT historicos sin lote · el slug de PT-155 sigue divergiendo · v9.0.0, v10.0.0 y v5.2.0 tienen tag y no estan en npm · 4.13.0, 5.0.0 y 5.1.0 estan en npm y no en el CHANGELOG · verify-fdge deja 7 comprobaciones SIN EVALUAR (SUITE-R43 x6, SUITE-R08 x1) y eso no aprueba ni bloquea · GitGuardian esta en rojo por la contrasena sintetica de fb10d3de, no es required y se silencia en su dashboard, no desde el repo.
-actualizado:    2026-08-30 · PT-203 en PHASE 8 Persistencia · paradas de PT-204 y PT-205 registradas con «tracker parada»; PT-205 reescrito como el arreglo del viaje de CI
+actualizado:    2026-08-30 · PT-205 en PHASE 8 Persistencia
 <!-- /ESTADO -->
 
 ---
