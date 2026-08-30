@@ -2,9 +2,9 @@
   "pt": "PT-204",
   "type": "INVESTIGATION",
   "epic": "EP-026",
-  "status": "DRAFT",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases",
   "sha": "c198784d8cee319f472b7e925121afcb9567b626",
   "sha_corto": "c198784",
@@ -25,8 +25,11 @@
     "docs/methodology/tools/audit.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-30"
 }
