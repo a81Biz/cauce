@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-256 entradas recorridas · 215 identificadores · 154 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-30
+257 entradas recorridas · 216 identificadores · 156 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-30
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
@@ -18,11 +18,11 @@
 | `CE-007` | Existe la herramienta y nada la echa en falta | 8 | 7 | 2026-08-19 | 2026-08-30 | `FDGE-R19` | `FDGE-R19` falla |
 | `CE-008` | Un hecho, varios nombres | 12 | 5 | 2026-08-13 | 2026-08-26 | `SUITE-R14` · `SUITE-R60` | `SUITE-R14` falla · `SUITE-R60` falla |
 | `CE-009` | El estado terminal escrito a mano o adelantado | 1 | — | 2026-08-21 | 2026-08-21 | `SUITE-R46` | `SUITE-R46` falla |
-| `CE-010` | La cifra transcrita caduca | 1 | — | 2026-08-20 | 2026-08-20 | `FND-R14` | `FND-R14` avisa |
+| `CE-010` | La cifra transcrita caduca | 2 | — | 2026-08-20 | 2026-08-30 | `FND-R14` | `FND-R14` avisa |
 | `CE-011` | Un arreglo deja tests del estado anterior | 4 | 4 | 2026-08-13 | 2026-08-27 | `SUITE-R61` | `SUITE-R61` avisa |
 | `CE-012` | Filtrar la salida antes de mirarla | 2 | 3 | 2026-08-20 | 2026-08-20 | **—** | **sin dueño** |
 | `CE-013` | Un encabezado mal formado bloquea la integración | 5 | — | 2026-08-14 | 2026-08-21 | `FDGE-R29` | `FDGE-R29` falla |
-| `CE-014` | Una regla nueva juzga hacia atrás | 8 | — | 2026-08-20 | 2026-08-28 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
+| `CE-014` | Una regla nueva juzga hacia atrás | 9 | — | 2026-08-20 | 2026-08-30 | `SUITE-R09` · `SUITE-R44` | `SUITE-R09` falla · `SUITE-R44` falla |
 | `CE-015` | El cierre destapa más que el reparto | 6 | 6 | 2026-08-20 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-016` | Trabajar sin allocation | 6 | 3 | 2026-08-21 | 2026-08-27 | `SUITE-R08` · `FDGE-R19` | `SUITE-R08` falla · `FDGE-R19` falla |
 | `CE-017` | La comprobación acusa a quien documenta el hecho | 4 | — | 2026-08-19 | 2026-08-27 | **—** | **sin dueño** |

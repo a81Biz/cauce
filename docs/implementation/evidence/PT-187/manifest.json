@@ -1,0 +1,64 @@
+{
+  "pt": "PT-187",
+  "generated": "2026-08-30",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "La divergencia entre las cuatro fuentes se enumera, con direccion",
+      "scenarios": ["TS-01", "TS-05"],
+      "tests": [
+        "selftest §EP-026 · la divergencia se enumera con direccion",
+        "selftest §EP-026 · sin tags, la cuenta cambia sola"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "Las cifras se DERIVAN en cada corrida. Las del intake venian del HANDOFF de una medicion anterior y estaban LAS TRES mal: CE-010, la cifra transcrita que caduca."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Sin acceso a npm, se dice — no se da por cuadrado",
+      "scenarios": ["TS-02", "TS-03"],
+      "tests": [
+        "selftest §EP-026 · …y sin npm lo dice, no lo da por cuadrado",
+        "selftest §EP-026 · …y dice POR QUE no pudo consultarlo",
+        "selftest §EP-026 · …y aun asi da la comparacion que no necesita red"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "Reproducido TRES veces: al medir a mano (veinte divergencias inventadas por un catch vacio) y dos al implementar (npm.cmd no encontrado, y EINVAL de Node 18.20). Las tres la herramienta acerto en la CONDUCTA y mintio en el MOTIVO — CE-001 en pequeno. Ahora pasa el error tal cual."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Una diferencia legitima —tag sin publicar— no bloquea",
+      "scenarios": ["TS-04"],
+      "tests": ["selftest §EP-026 · una diferencia legitima no se llama defecto"],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "En NEGATIVO, y es la unica forma de fijarlo: presentar las cuatro divergencias como «errores» convertiria lo legitimo en alarma, y una alarma que suena por lo correcto ensena a ignorarla."
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable · 6 casos sobre 5 escenarios",
+  "medido": {
+    "las_cuatro_fuentes": "package.json 13.4.0 · tags 20 · CHANGELOG 47 · npm 13",
+    "divergencias": "TAG y no publicada: 7 (legitimo) · publicada sin CHANGELOG: 0 · publicada sin tag: 0 · CHANGELOG sin tag: 28 (historia temprana)",
+    "nadie_contrastaba": "grep «npm view|registry.npmjs» sobre TODAS las herramientas daba CERO. version.mjs alinea los 21 documentos ENTRE SI; el registro externo no lo miraba nadie.",
+    "el_intake_se_equivocaba": "decia tres tags sin publicar (son siete), tres publicadas sin CHANGELOG (son cero), y no veia las 28 sin tag."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Las cuatro fuentes coinciden",
+      "por_que_no": "No se promete: es legitimo que un tag exista antes de publicar (SUITE-R06a) y que una version publicada hace meses no tenga entrada retroactiva (SUITE-R09). Se promete que la diferencia sea VISIBLE y CONTABLE.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Se publica o se etiqueta para cuadrarlas",
+      "por_que_no": "npm publish es acto del firmante y esta reservado por su nombre (SUITE-R06g). Crear tags es SUITE-R06a.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Entra en npm run verify",
+      "por_que_no": "Consultar la red en cada corrida cambia el coste de algo que hoy no lo tiene, y SUITE-R22 declara soportado el proyecto sin ella. Donde se invoca se decide CON EL DATO DELANTE — y ahora el dato existe.",
+      "verified": false
+    }
+  ]
+}

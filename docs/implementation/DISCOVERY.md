@@ -124,7 +124,7 @@
 | PT-184 | BUG | S1 | INTEGRATED | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
 | PT-185 | BUG | S2 | INTEGRATED | EP-024 | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
 | PT-186 | BUG | S2 | INTEGRATED | EP-024 | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |
-| PT-187 | BUG | S2 | DRAFT | EP-026 | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
+| PT-187 | BUG | S2 | DONE | EP-026 | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
 | PT-188 | BUG | S1 | INTEGRATED | EP-025 | Un cd que falla deja al arnes operando sobre el repositorio real |
 | PT-189 | BUG | S2 | INTEGRATED | EP-025 | FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino |
 | PT-190 | BUG | S2 | INTEGRATED | EP-025 | La exencion del escaner de secretos depende de un desplazamiento en bytes |
