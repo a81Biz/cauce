@@ -1,0 +1,22 @@
+PT-195 · corrida COMPLETA en verde · 2001 casos
+
+  [32m✓[0m una identidad no declarada se dice
+  [32m✓[0m …y una declarada tambien, con su nombre
+  [32m✓[0m …y sin «personas» no se finge que se miro
+  [32m✓[0m …y una identidad ajena NO bloquea
+  [32m✓[0m …y aun asi la dice, como aviso
+  [32m✓[0m el aviso lo emite verify-fdge, no un comando aparte
+
+selftest: OK · 2001 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "2001", "arnes": "74e24d92ae7f0713a624b0370e8ad2c8682f3d28", "fecha": "2026-08-30T14:01:42Z" }
+
+== LA CONDUCTA, SOBRE EL REPOSITORIO REAL ==
+  ✓ SUITE-R27      Toda firma corresponde a un firmante declarado (Alberto Martínez).
+  ✓ SUITE-R27      El commit siguiente se atribuira a «Alberto Martínez» · «Alberto Martínez <alberto@a81.biz>».
+
+== Y LO QUE YA DECIA, SIN QUE NADIE LO LEYERA ==
+  SIN DECLARAR (1 autor(es) · 10 commit(s))
+    T <t@t>                                         10 commits
+    → si es de una persona ya declarada, anadelo a su lista «git».

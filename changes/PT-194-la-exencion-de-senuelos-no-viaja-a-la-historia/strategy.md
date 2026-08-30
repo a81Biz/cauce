@@ -38,6 +38,33 @@ exención y listo»— es la cómoda. Un motivo que hay que ir a buscar a `RULES
 Es el mismo criterio que `RULE-07` aplica a los mensajes: decir **cómo se arregla**, no sólo qué
 falló.
 
+## Las tres piezas, localizadas   *(añadido en `PHASE 5`, tras leer el código)*
+
+| | Dónde | Qué |
+|:---|:---|:---|
+| 1 | `revisar-secretos.mjs:115` | El hallazgo **no lleva su ámbito**. `hallazgos.push({donde, qué, cómo, muestra, huella})` — el `ambito` se usa para la huella y se tira. Sin él, el informe no puede distinguir un hallazgo de historia de uno del árbol |
+| 2 | `revisar-secretos.mjs:164` | El barrido de historia ignora las cabeceras `+++ b/ruta` del diff: recorre línea a línea y sólo distingue `^commit` y `^+`. **Sabe el commit y no sabe el archivo** |
+| 3 | `revisar-secretos.mjs:236` | El informe agrupa por `qué` y da una `Corrección` genérica. Para un hallazgo de historia esa corrección **no aplica**: el archivo ya no lo contiene |
+
+## Lo que el mensaje dirá, y por qué cada parte
+
+```
+contraseña en texto plano · 1 sitio(s)   ← EN LA HISTORIA
+  historia a1b2c3d4:  docs/…/selftest.sh
+    …
+  La historia NO SE REESCRIBE (SUITE-R06f), así que esto no se corrige quitándolo del archivo.
+  «cauce:senuelos» exime el ÁRBOL y NO la historia, y es deliberado: la declaración vive en el
+  árbol de HOY y la historia es de SIEMPRE — aplicarla eximiría todo lo que ese archivo tuvo
+  alguna vez, incluida una credencial real borrada después.
+  El mecanismo aquí es firmar la huella en SECRETOS-EXCEPCIONES.md, que SIGUE mostrándola y que
+  ata la firma AL VALOR: si el valor cambia, vuelve a bloquear.
+  → este archivo SÍ declara «cauce:senuelos» hoy    ← contexto, no exención
+```
+
+**La última línea es contexto y no permiso**, y por eso se escribe aparte. Sin ella, quien lee un
+rojo sobre un fixture declarado no entiende por qué no le vale la declaración; con ella, lo
+entiende **y sigue bloqueado**, que es lo correcto.
+
 ## Alcance, y su límite declarado   `SUITE-R26`
 
 **Dentro:** qué dice el escáner ante un hallazgo de **historia**, y que su comportamiento quede

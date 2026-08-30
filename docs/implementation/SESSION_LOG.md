@@ -4361,3 +4361,59 @@ gh pr checks 379                                             # si sigue abierto,
 
 `SUITE-R03` · Ninguna sesión depende de la memoria del agente. El estado está en `HANDOFF.md`,
 `CHECKPOINT.json` y el registro; esto sólo añade **por qué** se decidió lo que se decidió.
+
+---
+
+## 2026-08-30 · `VoBo` renovado para terminar `EP-026`
+
+**Instrucción literal:** *«bien, te doy mi VoBo para lo necesario y que continúes y no pares hasta
+terminar la épica»* — Alberto Martínez, `2026-08-30`.
+
+### Qué cubre
+
+| | Regla | ¿Cubierta? |
+|:---|:---|:---|
+| `G1` de cada tarea de `EP-026` | `INTAKE-R06` | **sí**, delegada, y se registra con nombre y fecha |
+| `G2` de cada tarea | `EXEC-R02` | **sí**, delegada |
+| `G3` de cada `BUG` | `EXEC-R05` · `FDGE-R26` | **sí**, delegada, con nombre y fecha en `HISTORY.log` |
+| Merge de cada tarea a `trabajo` | `FDGE-R19` | **sí** — es revisión, no `G4` |
+
+### Qué NO cubre, y se dice antes de necesitarlo
+
+- **`npm publish`.** La reserva del `2026-08-27` —*«no lo hago a mano salvo publicar»*— nombra el
+  acto por su nombre. Un `VoBo` posterior que **no lo menciona** no levanta una reserva que sí lo
+  menciona. `SUITE-R06g` sigue en pie.
+- **`G4` · el merge de `trabajo` a `main`.** `EXEC-R04` y `SUITE-R06a`: humana en los tres modos,
+  sin excepción. Se pedirá con la evidencia delante cuando el lote esté completo.
+- **`G1` de `EP-027` y de `EP-028`.** Son **otros lotes**. La autorización del `2026-08-29` cubrió
+  **abrirlos**, no admitirlos, y ésta es de `EP-026`.
+- **La decisión de dominio de `PT-197`.** No es una compuerta que se delegue: `FND-R24` dice que
+  **qué hace válido un producto** lo sabe quien conoce el negocio, no el agente. Un `VoBo` autoriza
+  a actuar; no transfiere un conocimiento. Se llegará ahí con la propuesta escrita y se preguntará.
+
+### Estado al recibirla
+
+`EP-026` · **12 de 16.** `PT-195` en `PHASE 8` con la batería en verde (2001 casos) y `npm run
+verify` corriendo. `PT-194`, `PT-202` y `PT-187` con su análisis completo escrito; `PT-194` además
+con su implementación redactada.
+
+### Ampliación del mismo día — `G4` SÍ queda autorizada   `EXEC-R04a`
+
+El bloque de arriba dejaba `G4` fuera por prudencia. **El firmante la incluye expresamente**, y se
+añade en vez de editarlo (`SUITE-R09`: el ledger no pierde líneas).
+
+**Instrucción literal:** *«solo puedes dejar el publicar a npm fuera, que es manual, pero el merge
+y pr a main y quitar las ramas es como debes terminar. La decición la vemos cuando lleguemos»*
+— Alberto Martínez, `2026-08-30`.
+
+| | ¿Cubierto ahora? |
+|:---|:---|
+| **`G4` · PR y merge de `trabajo` a `main`** | **SÍ**, autorizado por el firmante con esta constancia (`EXEC-R04`, `SUITE-R06a`) |
+| **Borrar las ramas efímeras ya fusionadas** | **SÍ** — `FDGE-R19`, y `SUITE-R06f` como excepción declarada aquí |
+| **`npm publish`** | **NO.** *«solo puedes dejar el publicar a npm fuera, que es manual»* — lo excluye por su nombre, igual que el `2026-08-27` |
+| **La decisión de dominio de `PT-197`** | **Aplazada, no delegada**: *«la decisión la vemos cuando lleguemos»*. `FND-R24` sigue reservándola a quien conoce el negocio |
+
+**Lo que esto NO convierte en automático.** `G4` sigue siendo una compuerta con constancia: esta
+entrada **es** la constancia que `EXEC-R04a` pide, con el nombre de la lista `firmantes` en su
+cuerpo. Lo que cambia es que el agente puede ejecutarla; lo que no cambia es que quede escrito
+quién la autorizó, cuándo y con qué palabras.

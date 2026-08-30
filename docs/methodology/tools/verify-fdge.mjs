@@ -68,6 +68,9 @@ import { SEVERIDADES, esSeveridad, RE_SEVERIDAD } from './patrones.mjs';
 import { estadoDelArbol } from './tracker.mjs';
 // PT-062 · los rangos reservados
 import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
+// PT-195 · `personaLocal` ya existia —«el nombre canonico de quien usa esta maquina, si esta
+// declarado»— y NINGUNA compuerta la invocaba. No se escribe patron nuevo: se usa el que hay.
+import { personaLocal } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde, manejadoresRotos, ramaDeTarea } from './patrones.mjs';
@@ -628,6 +631,63 @@ function checkValor(foundationLista) {
   } else if (!firmada) {
     fail('FND-R24', 'La Declaración de Valor está redactada y sin firmar. Lo que el agente no puede decidir es si lo que el sistema entrega sirve: eso lo firma quien conoce el negocio.');
   } else ok('FND-R24', `Declaración de Valor firmada por ${firmada}.`);
+}
+
+/**
+ * PT-195 · SUITE-R27 · La identidad git CONFIGURADA corresponde a alguien declarado.
+ *
+ * `tracker personas` ya lo decia —«T <t@t> · 10 commits · SIN DECLARAR»— y NINGUNA compuerta lo
+ * leia. Es CE-007 en su forma pura: existe la herramienta, el dato es correcto, y nada la echa en
+ * falta. La consecuencia no es teorica: la config LOCAL de este repositorio fue la del ARNES de
+ * pruebas, y firmo TRES commits de EP-025 como «T <t@t>» — un autor que no es de nadie, y
+ * SUITE-R27 dice que lo que hace contrastable una firma es que el nombre este en la lista.
+ *
+ * SE MIRA LA IDENTIDAD DE AHORA, NO LOS COMMITS PASADOS. Son dos hechos distintos: los pasados
+ * son historia y SUITE-R09 no los reescribe; el configurado es una prediccion contrastable sobre
+ * el commit SIGUIENTE, y es la que llega a tiempo.
+ *
+ * AVISA, NO BLOQUEA, y no es conveniencia. En CI la identidad es la del RUNNER y no casa con
+ * `personas` — esta documentado en selftest.sh:6549 y PT-068 se niega a atribuir la sesion de
+ * otro A PROPOSITO. Un error dejaria verificacion.yml en rojo permanente, y una compuerta siempre
+ * roja ensena a saltarsela. Y NO se detecta CI: seria inventar una dependencia de entorno que
+ * este marco no tiene, para una distincion que un aviso ya resuelve en los dos sitios (RULE-06).
+ *
+ * Lo que cambia no es la severidad: es QUIEN LO EMITE. Pasa de un comando que hay que invocar a
+ * mano a verify-fdge, que corre en «npm run verify» Y en CI.
+ */
+function checkIdentidad() {
+  const personas = REGISTRO?.personas ?? [];
+  const cfg = (k) => {
+    try {
+      return execFileSync('git', ['config', k], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+    } catch { return ''; }
+  };
+  const nombre = cfg('user.name');
+  const correo = cfg('user.email');
+  if (!nombre && !correo) {
+    warn('SUITE-R27', 'La identidad git de este repositorio no esta configurada: «git config user.name» '
+      + 'y «user.email» estan vacios. El commit siguiente saldra sin autor contrastable.');
+    return;
+  }
+  // TRES ESTADOS, NO DOS (RULE-02). Sin «personas» no hay contra que contrastar, y eso NO es lo
+  // mismo que una identidad que no es de nadie: SUITE-R22 declara soportado el proyecto de una
+  // sola persona, y uno que aun no declaro «personas» no puede salir igual que uno averiado.
+  if (!personas.length) {
+    warn('SUITE-R27', `La identidad configurada es «${nombre} <${correo}>» y el registro no declara `
+      + '«personas»: no hay contra que contrastarla. No se da por buena — se dice que no se pudo mirar.');
+    return;
+  }
+  const { persona, motivo } = personaLocal(nombre, correo, personas);
+  if (persona) {
+    // EL VERDE NOMBRA A LA PERSONA, y eso no es adorno: una comprobacion que solo habla cuando algo
+    // va mal es indistinguible de una que no corrio (CE-005, el nombre de este lote). Quien lo lea
+    // ve el nombre y sabe si es el suyo.
+    ok('SUITE-R27', `El commit siguiente se atribuira a «${persona}» · «${nombre} <${correo}>».`);
+    return;
+  }
+  warn('SUITE-R27', `La identidad git configurada NO esta declarada: ${motivo} En CI es la del runner `
+    + 'y no casa — por eso avisa y no bloquea (PT-068). En una maquina de trabajo, el commit '
+    + 'siguiente saldra atribuido a nadie:  node tools/tracker.mjs personas');
 }
 
 // FDGE-R48/R49 · la implementacion como unidad abierta.
@@ -3317,6 +3377,9 @@ checkEstado();
 checkCheckpoint();
 checkRangos();
 checkFirmas();
+// PT-195 · va junto a checkFirmas porque contesta la MISMA pregunta desde el otro lado: aquella
+// mira quien firmo lo que ya esta escrito; esta, a quien se atribuira lo siguiente.
+checkIdentidad();
 checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));
 checkInstallLog();
