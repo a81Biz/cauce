@@ -10348,6 +10348,128 @@ chkl  "el sello nombra la tarea del CHECKPOINT"        "PT-700 en PHASE 2"   _cp
 # Y SU PAREJA: NO nombra la mas avanzada, que es la que la primera version elegia.
 chknol "…y NO la mas avanzada por fase"                "PT-701"              _cp205
 
+# -- PT-195 . la identidad git configurada corresponde a alguien declarado -----
+#
+# `tracker personas` YA lo decia —«T <t@t> . 10 commits . SIN DECLARAR»— y NINGUNA compuerta lo
+# leia. CE-007 puro: existe la herramienta, el dato es correcto, y nada la echa en falta.
+#
+# NO ES TEORICO. La config LOCAL de este repositorio fue la del ARNES, y firmo TRES commits de
+# EP-025 como «T <t@t>»: un autor que no es de nadie, y SUITE-R27 dice que lo que hace
+# contrastable una firma es que el nombre este en la lista.
+#
+# LA IDENTIDAD SE PLANTA POR ENTORNO, con el mecanismo de PT-067: GIT_CONFIG_COUNT no toca
+# NINGUNA configuracion de la maquina. Que el arnes escribiera en la config real fue exactamente
+# el origen de esta tarea, y repetirlo aqui seria escribir el defecto dentro de su arreglo.
+_id195() {   # $1 = nombre · $2 = correo · $3 = «sin» para un registro sin «personas»
+  local d="$WORK/p195"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\nstatus: READY\nphase: 1\ntype: BUG\n---\n' > "$d/changes/PT-700-x/intake.md"
+  if [ "${3:-}" = "sin" ]; then     # el arnes corre con «set -u»: $3 sin valor revienta
+    printf '{"firmantes":["Ada Lovelace"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":1}]}' \
+      > "$d/docs/implementation/REGISTRY.json"
+  else
+    printf '{"firmantes":["Ada Lovelace"],"personas":[{"nombre":"Ada Lovelace","git":[{"nombre":"Ada Lovelace","correo":"ada@x"}]}],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":1}]}' \
+      > "$d/docs/implementation/REGISTRY.json"
+  fi
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q . 2>/dev/null
+    env GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=user.name GIT_CONFIG_VALUE_0="$1" \
+        GIT_CONFIG_KEY_1=user.email GIT_CONFIG_VALUE_1="$2" \
+      node "$d/docs/methodology/tools/verify-fdge.mjs" 2>&1 | grep -E "SUITE-R27.*(atribuira|declarada|contrastarla|configurada)" | tail -1 )
+}
+# AC-01 . TS-01 . UNA IDENTIDAD NO DECLARADA SE DICE, y la dice quien corre en verify y en CI.
+chkl  "una identidad no declarada se dice"          "NO esta declarada"   _id195 "T" "t@t"
+# AC-01 . TS-02 . Y UNA DECLARADA TAMBIEN, CON SU NOMBRE.
+#
+# No es simetria decorativa: una comprobacion que solo habla cuando algo va mal es INDISTINGUIBLE
+# de una que no corrio —CE-005, el nombre de este lote— y sin esto, TS-01 lo cumple un verificador
+# que se queje SIEMPRE.
+chkl  "…y una declarada tambien, con su nombre"     "se atribuira a «Ada Lovelace»"  _id195 "Ada Lovelace" "ada@x"
+# AC-01 . TS-03 . SIN «personas» NO SE FINGE QUE SE MIRO. SUITE-R22 declara soportado el proyecto
+# de una sola persona: uno que aun no las declaro no puede salir igual que uno averiado.
+chkl  "…y sin «personas» no se finge que se miro"   "no hay contra que contrastarla"  _id195 "Ada Lovelace" "ada@x" sin
+# AC-03 . TS-05 . NO BLOQUEA, ni en CI ni fuera. Un error dejaria verificacion.yml en rojo
+# permanente el dia que se pusiera, y una compuerta siempre roja ensena a saltarsela.
+# LA AFIRMACION PRECISA NO ES «exit=0» —el fixture puede fallar por otras reglas— sino que ESTA
+# comprobacion no emite NUNCA un error. Medir el codigo de salida seria medir el arbol entero y
+# atribuirselo a esto: el proxy en vez del hecho (CE-001).
+_id195v() {
+  _id195 "runner-de-ci" "r@ci" >/dev/null 2>&1
+  ( cd "$WORK/p195" && env GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=user.name GIT_CONFIG_VALUE_0="runner-de-ci" \
+      GIT_CONFIG_KEY_1=user.email GIT_CONFIG_VALUE_1="r@ci" \
+      node docs/methodology/tools/verify-fdge.mjs 2>&1 \
+      | grep -E "SUITE-R27.*(atribuira|declarada|contrastarla|configurada)" | sed 's/^ *//;s/ .*//' )
+}
+chknol "…y una identidad ajena NO bloquea"          "✗"        _id195v
+# Y NO PASA POR VACIO: sobre la misma corrida, la linea EXISTE y sale como aviso.
+chkl  "…y aun asi la dice, como aviso"              "!"        _id195v
+# AC-02 . TS-04 . EL AVISO SALE DE verify-fdge, que corre en «npm run verify» ANTES del commit.
+# Es una PROCEDENCIA, no un mensaje: lo que la tarea compra es QUIEN lo emite.
+chkl  "el aviso lo emite verify-fdge, no un comando aparte"  "SUITE-R27" \
+  sh -c 'grep -c "checkIdentidad();" '"$SUITE"'/tools/verify-fdge.mjs >/dev/null && grep -h "SUITE-R27" '"$SUITE"'/tools/verify-fdge.mjs | head -1'
+
+
+# -- PT-194 . la exencion NO vale para la historia, Y SE DICE ------------------
+#
+# El intake dejaba la decision abierta: «puede que la respuesta sea que NO debe valer. Decidirlo
+# es el trabajo». La respuesta es que NO debe:
+#
+#   1 la declaracion vive en el arbol de HOY y la historia es de SIEMPRE. Aplicarla eximiria todo
+#     lo que ese archivo tuvo ALGUNA VEZ, incluida una credencial real puesta y borrada despues —
+#     y el archivo que declara ser senuelo es justo donde mas comodo resulta esconder algo.
+#   2 el riesgo va AL REVES del sintoma: lo que molesta es un falso positivo; ampliar mal una
+#     exencion hace que un secreto REAL deje de bloquear.
+#   3 el mecanismo para la historia ya existe: firmar la huella, que SIGUE mostrandola y que ata
+#     la firma AL VALOR. Una exencion por archivo no tiene esa propiedad.
+#
+# NO ERA UNA DECISION: era un efecto de por donde mira el escaner. revisar-secretos.mjs:164 pasa
+# `false` EN DURO, y el diff de «git log -p» SI lleva el archivo en sus cabeceras — hacerla llegar
+# habria sido facil. Que no llegue pasa a estar ESCRITO, con su motivo, en la SALIDA.
+#
+# EL LITERAL SE ENSAMBLA EN DOS MITADES, que es la leccion de PT-193 y de PT-015: escribirlo
+# entero aqui haria que el escaner cazara a este mismo arnes.
+_hist194() {   # $1 = "declara" para poner cauce:senuelos en el archivo
+  local d="$WORK/p194"; rm -rf "$d"; mkdir -p "$d"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q .
+    { [ "$1" = "declara" ] && echo "# cauce:senuelos"
+      echo "# fixture"
+      printf 'pass%s = SuperSecreta123\n' 'word'; } > a.sh
+    git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm "entra el secreto" >/dev/null 2>&1
+    # se QUITA del arbol: en la historia sigue, que es todo el punto
+    { [ "$1" = "declara" ] && echo "# cauce:senuelos"
+      echo "# ya no esta"; } > a.sh
+    git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm "sale del arbol" >/dev/null 2>&1
+    node "$SUITE/tools/revisar-secretos.mjs" . --historial 2>&1 )
+}
+# AC-01 . TS-01 . EL COMPORTAMIENTO EN HISTORIA QUEDA DECLARADO, con su motivo.
+chkl  "un hallazgo de historia dice que la exencion no llega"  "exime el ARBOL y"  _hist194 declara
+# …Y CON EL MOTIVO, que es lo que impide que alguien lo «arregle» ampliandola.
+chkl  "…y dice POR QUE: la historia es de SIEMPRE"             "ALGUNA VEZ"        _hist194 declara
+# AC-02 . TS-02 . UN SECRETO EN LA HISTORIA SIGUE BLOQUEANDO, CON LA DECLARACION PUESTA.
+#
+# ESTE ES EL QUE IMPIDE ARREGLARLO EN LA DIRECCION PELIGROSA, y no es opcional: TS-01, TS-03 y
+# TS-04 los cumple un escaner que haya AMPLIADO la exencion. Solo este prueba que no se hizo.
+chkl  "…y BLOQUEA igual, con la declaracion puesta"            "FND-R29"           _hist194 declara
+# AC-03 . TS-03 . Y EL MENSAJE NOMBRA EL MECANISMO. RULE-07: dice COMO SE ARREGLA.
+chkl  "…y nombra el mecanismo: firmar la huella"               "firmar la huella"  _hist194 declara
+# Y EL CONTEXTO, que no es permiso: se dice que ESE archivo declara ser senuelo HOY.
+chkl  "…y dice que el archivo SI lo declara hoy, como contexto"  "no exencion"     _hist194 declara
+# AC-01 . TS-04 . Y EN EL ARBOL LA DECLARACION SIGUE EXIMIENDO.
+#
+# Sin esto, TS-02 lo cumple un escaner que haya ROTO la exencion del arbol — y eso es lo que
+# PT-190 ya compro. Es la mitad que prueba que solo cambio lo que debia cambiar.
+_arbol194() {
+  local d="$WORK/p194a"; rm -rf "$d"; mkdir -p "$d"
+  { echo "# cauce:senuelos"; printf 'pass%s = SuperSecreta123\n' 'word'; } > "$d/a.sh"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$SUITE/tools/revisar-secretos.mjs" . 2>&1 )
+}
+chkl  "…y en el ARBOL la declaracion sigue eximiendo"          "Sin hallazgos sin firmar"  _arbol194
+
+
 # AC-03 . LA CERTIFICACION: FIRMAR NO ES SILENCIAR.
 #
 # Derivar del registro hizo que INTAKE-R08 —HARD, bloquea— cubriera 62 tareas que nunca cubrio, y

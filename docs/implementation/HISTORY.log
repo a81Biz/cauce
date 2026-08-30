@@ -12686,3 +12686,98 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - Los rodeos se DECLARAN, no desaparecen. El freno MUDO_SIN_REF_DURABLE es correcto y quitarlo
   cambiaria una molestia por un defecto.
 - Ninguna de las tres reglas se toca: las tres tenian razon y sus rojos fueron verdad.
+
+================================================================================
+
+## PT-195 — La identidad git configurada no la comprobaba ninguna compuerta
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-195-la-identidad-git-no-se-comprueba
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-007
+Origen: parada de EP-025 · motivo hallazgo
+
+EL DATO EXISTIA, ERA CORRECTO, Y NINGUNA COMPUERTA LO LEIA.
+
+    $ tracker personas
+      SIN DECLARAR (1 autor(es) · 10 commit(s))
+        T <t@t>                                    10 commits
+
+Es CE-007 en su forma pura: existe la herramienta, acierta, y nada la echa en falta.
+
+Y LA CONSECUENCIA NO ES TEORICA. La configuracion LOCAL de este repositorio fue la del ARNES de
+pruebas —selftest.sh:528 hacia «git config user.email t@t» y cuando su «cd» fallaba lo escribia en
+el repositorio real— y firmo TRES commits de EP-025 como «T <t@t>». SUITE-R27 dice que lo que hace
+contrastable una firma es que el nombre este en «firmantes»: UN COMMIT ATRIBUIDO A «T <t@t>» NO ES
+CONTRASTABLE CONTRA NADA.
+
+NO SE ESCRIBE NINGUN PATRON NUEVO.
+
+`personaLocal` ya estaba en patrones.mjs —«el nombre canonico de quien usa esta maquina, si esta
+declarado»— con su contrato y sus casos. El arreglo es INVOCARLA desde donde se mira, no
+reescribirla. Lo que cambia no es la severidad: es QUIEN LO EMITE. Pasa de «tracker personas»
+—que hay que invocar a mano y nadie invoca— a verify-fdge, que corre en «npm run verify» Y en CI.
+
+SE MIRA LA IDENTIDAD DE AHORA, NO LOS COMMITS PASADOS.
+
+Son dos hechos distintos y se separan a proposito. Los pasados son historia y SUITE-R09 no los
+reescribe; el CONFIGURADO es una prediccion contrastable sobre el commit SIGUIENTE, y es la que
+llega a tiempo. Los 10 de «T <t@t>» se quedan y «tracker personas» los seguira contando, que es lo
+correcto.
+
+TRES ESTADOS, NO DOS (RULE-02).
+
+    SIN «personas»    no hay contra que contrastar — y NO es lo mismo que estar averiado
+    NO DECLARADA      se nombra, con su valor y con el comando
+    DECLARADA         se dice a quien se atribuira el commit siguiente
+
+El primero importa: SUITE-R22 declara soportado el proyecto de una sola persona, y uno que aun no
+declaro «personas» no puede salir igual que uno cuya identidad ES DE NADIE.
+
+EL VERDE NOMBRA A LA PERSONA, Y ESO NO ES ADORNO.
+
+    ✓ SUITE-R27  El commit siguiente se atribuira a «Alberto Martinez» · «Alberto Martinez <…>».
+
+Una comprobacion que SOLO HABLA CUANDO ALGO VA MAL es indistinguible de una que no corrio —CE-005,
+el nombre de este lote—. Quien lo lea ve el nombre y sabe si es el suyo. Sin el caso que lo fija,
+AC-01 lo cumple un verificador que se queje siempre.
+
+AVISA Y NO BLOQUEA, Y NO ES CONVENIENCIA.
+
+En CI la identidad es la del RUNNER y no casa con «personas»: esta documentado en selftest.sh:6549
+y PT-068 se niega a atribuir la sesion de otro A PROPOSITO. Un error dejaria verificacion.yml en
+rojo permanente el dia que se pusiera, y una compuerta siempre roja ensena a saltarsela.
+
+Y NO SE DETECTA CI. Seria inventar una dependencia de entorno que este marco no tiene, para una
+distincion que un aviso ya resuelve en los dos sitios (RULE-06).
+
+LA IDENTIDAD SE PLANTA POR ENTORNO, y aqui eso importa mas que de costumbre: GIT_CONFIG_COUNT —el
+mecanismo de PT-067— no toca NINGUNA configuracion de la maquina. Que el arnes escribiera en la
+config real fue exactamente el origen de esta tarea; repetirlo aqui seria escribir el defecto
+dentro de su arreglo.
+
+DOS CORRECCIONES A MIS PROPIOS CASOS.
+
+1. MEDIA EL CODIGO DE SALIDA. «exit=0» sobre un fixture que puede fallar por OTRAS reglas mide el
+   arbol entero y se lo atribuye a esto — el proxy en vez del hecho (CE-001). La afirmacion precisa
+   es que ESTA comprobacion no emite nunca un error, y su pareja: que aun asi LA DICE, como aviso.
+2. EL GREP COGIA OTRO SUITE-R27. La regla tiene mas de un emisor —la lista «firmantes» de
+   CLAUDE.md— y «tail -1» devolvia el que no era.
+
+Evidencia: docs/implementation/evidence/PT-195/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-195-la-identidad-git-del-repo-no-se-comprueba/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2001 casos en verde · recibo 74e24d92ae7f.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se promete que quien commitee sea quien dice ser: SUITE-R27 ya declara que el marco no puede
+  garantizarlo. Se promete que la identidad CONFIGURADA corresponda a alguien declarado.
+- Los 10 commits de «T <t@t>» —tres de EP-025— no se reescriben (SUITE-R06f, y estan publicados).
+- «T <t@t>» NO se declara en «personas»: seria atribuir a una persona los commits del fixture, el
+  error contrario y peor.
+- No se agrupan autores por parecido (LEXICON 6.5f): quien es quien lo dice una persona.

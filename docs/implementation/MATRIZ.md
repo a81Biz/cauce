@@ -5,17 +5,17 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-253 entradas recorridas · 212 identificadores · 151 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-29
+254 entradas recorridas · 213 identificadores · 153 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-30
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|
-| `CE-001` | El proxy en lugar del hecho | 23 | 12 | 2026-08-20 | 2026-08-29 | **—** | **sin dueño** |
+| `CE-001` | El proxy en lugar del hecho | 24 | 12 | 2026-08-20 | 2026-08-30 | **—** | **sin dueño** |
 | `CE-002` | Rotura de escapado | 23 | 12 | 2026-08-21 | 2026-08-29 | `SUITE-R59` | **NO**: la regla existe y nada emite por ella |
 | `CE-003` | Un argumento se cuela por la detección de `ROOT` | 9 | 7 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-004` | Probar donde trabajo, no donde se decide | 10 | 9 | 2026-08-18 | 2026-08-24 | **—** | **sin dueño** |
 | `CE-005` | Verde por no haber mirado | 21 | 2 | 2026-08-14 | 2026-08-29 | `SUITE-R31` | `SUITE-R31` falla |
 | `CE-006` | El acto hecho fuera del comando | 9 | — | 2026-08-21 | 2026-08-27 | `SUITE-R58` · `FDGE-R52` | `SUITE-R58` avisa · `FDGE-R52` falla |
-| `CE-007` | Existe la herramienta y nada la echa en falta | 7 | 7 | 2026-08-19 | 2026-08-29 | `FDGE-R19` | `FDGE-R19` falla |
+| `CE-007` | Existe la herramienta y nada la echa en falta | 8 | 7 | 2026-08-19 | 2026-08-30 | `FDGE-R19` | `FDGE-R19` falla |
 | `CE-008` | Un hecho, varios nombres | 12 | 5 | 2026-08-13 | 2026-08-26 | `SUITE-R14` · `SUITE-R60` | `SUITE-R14` falla · `SUITE-R60` falla |
 | `CE-009` | El estado terminal escrito a mano o adelantado | 1 | — | 2026-08-21 | 2026-08-21 | `SUITE-R46` | `SUITE-R46` falla |
 | `CE-010` | La cifra transcrita caduca | 1 | — | 2026-08-20 | 2026-08-20 | `FND-R14` | `FND-R14` avisa |
@@ -32,7 +32,7 @@
 **6 de 17 clases no tienen regla que las reclame.**
 Ordenadas por cuántas veces han ocurrido:
 
-- `CE-001` **El proxy en lugar del hecho** — 23 instancia(s) · la propia entrada llegó a declarar **12**
+- `CE-001` **El proxy en lugar del hecho** — 24 instancia(s) · la propia entrada llegó a declarar **12**
   PTSA-2026-08-20 · PT-087 · EP-019 · PT-131 · PT-124 · PT-125 · PT-119 · PT-126
 - `CE-004` **Probar donde trabajo, no donde se decide** — 10 instancia(s) · la propia entrada llegó a declarar **9**
   PT-056 · PT-064 · PT-082 · PT-098 · PT-099 · PT-128 · PT-125 · PT-119

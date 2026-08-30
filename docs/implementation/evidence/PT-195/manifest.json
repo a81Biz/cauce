@@ -1,0 +1,64 @@
+{
+  "pt": "PT-195",
+  "generated": "2026-08-30",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Una identidad no declarada se dice, y no solo en un comando que nadie invoca",
+      "scenarios": ["TS-01", "TS-02", "TS-03"],
+      "tests": [
+        "selftest §EP-026 · una identidad no declarada se dice",
+        "selftest §EP-026 · …y una declarada tambien, con su nombre",
+        "selftest §EP-026 · …y sin «personas» no se finge que se miro"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "El verde NOMBRA a la persona. Una comprobacion que solo habla cuando algo va mal es indistinguible de una que no corrio (CE-005). Sin ese caso, AC-01 lo cumple un verificador que se queje siempre."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "El aviso llega antes de commitear, no despues de firmar tres commits",
+      "scenarios": ["TS-04"],
+      "tests": ["selftest §EP-026 · el aviso lo emite verify-fdge, no un comando aparte"],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "Mide una PROCEDENCIA, no un mensaje: lo que la tarea compra es QUIEN lo emite. Pasa de «tracker personas» —que hay que invocar a mano— a verify-fdge, que corre en npm run verify Y en CI."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "En CI, donde la identidad es la del runner, no se bloquea por eso",
+      "scenarios": ["TS-05"],
+      "tests": [
+        "selftest §EP-026 · …y una identidad ajena NO bloquea",
+        "selftest §EP-026 · …y aun asi la dice, como aviso"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "La afirmacion precisa NO es «exit=0» —el fixture puede fallar por otras reglas— sino que ESTA comprobacion no emite nunca un error. Medir el codigo de salida seria medir el arbol entero y atribuirselo a esto (CE-001)."
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable · 6 casos sobre 5 escenarios",
+  "medido": {
+    "el_dato_ya_existia": "«tracker personas» decia «T <t@t> · 10 commits · SIN DECLARAR» desde hace lotes, y ninguna compuerta lo leia. CE-007 puro.",
+    "la_consecuencia": "la config LOCAL de este repositorio fue la del arnes, y firmo TRES commits de EP-025 como «T <t@t>»: un autor que no es contrastable contra nada (SUITE-R27).",
+    "no_se_escribe_patron_nuevo": "personaLocal ya existia en patrones.mjs. El arreglo es invocarla, no reescribirla.",
+    "la_identidad_se_planta_por_entorno": "GIT_CONFIG_COUNT, el mecanismo de PT-067: ningun caso toca la configuracion de la maquina — que el arnes escribiera en la config real fue el origen de esta tarea."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Quien commitea es quien dice ser",
+      "por_que_no": "SUITE-R27 ya declara que el marco no puede garantizarlo. Se promete que la identidad CONFIGURADA corresponda a alguien declarado, que si es contrastable.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Los commits pasados quedan atribuidos",
+      "por_que_no": "Los 10 de «T <t@t>» —tres de EP-025— no se reescriben (SUITE-R06f, y estan publicados). «tracker personas» los seguira contando, que es lo correcto.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Se detecta CI para endurecer fuera de el",
+      "por_que_no": "Seria inventar una dependencia de entorno que este marco no tiene, para una distincion que un aviso ya resuelve en los dos sitios (RULE-06).",
+      "verified": false
+    }
+  ]
+}

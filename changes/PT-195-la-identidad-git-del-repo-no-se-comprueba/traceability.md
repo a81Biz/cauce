@@ -16,6 +16,16 @@ Los `AC` son **los del intake**, leídos de él y no transcritos (`FDGE-R15a`).
 sin `personas` · no declarada · declarada. Fundirlos daría un mensaje que manda al sitio
 equivocado, que es lo que `PT-198` acaba de cerrar en otra herramienta.
 
+## Seis casos, no cinco
+
+Los escenarios son cinco; los casos, **seis**. El de más es la pareja de `TS-05`: que la identidad
+ajena **no bloquee** lo cumple un verificador que **no diga nada**. Hace falta el que fija que
+**aun así la dice**, como aviso.
+
+Y `TS-05` no se mide por código de salida: el fixture puede fallar por **otras** reglas, y
+atribuírselo a ésta sería medir el árbol entero — `CE-001`. Se mide que **esta comprobación** no
+emita nunca un error.
+
 ## Lo que la tarea NO cambia, y por qué eso importa aquí
 
 El dato **ya existía y ya era correcto**: `tracker personas` lo calcula desde hace lotes. Lo que
