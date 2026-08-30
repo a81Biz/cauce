@@ -10409,6 +10409,67 @@ chkl  "el aviso lo emite verify-fdge, no un comando aparte"  "SUITE-R27" \
   sh -c 'grep -c "checkIdentidad();" '"$SUITE"'/tools/verify-fdge.mjs >/dev/null && grep -h "SUITE-R27" '"$SUITE"'/tools/verify-fdge.mjs | head -1'
 
 
+# -- PT-194 . la exencion NO vale para la historia, Y SE DICE ------------------
+#
+# El intake dejaba la decision abierta: «puede que la respuesta sea que NO debe valer. Decidirlo
+# es el trabajo». La respuesta es que NO debe:
+#
+#   1 la declaracion vive en el arbol de HOY y la historia es de SIEMPRE. Aplicarla eximiria todo
+#     lo que ese archivo tuvo ALGUNA VEZ, incluida una credencial real puesta y borrada despues —
+#     y el archivo que declara ser senuelo es justo donde mas comodo resulta esconder algo.
+#   2 el riesgo va AL REVES del sintoma: lo que molesta es un falso positivo; ampliar mal una
+#     exencion hace que un secreto REAL deje de bloquear.
+#   3 el mecanismo para la historia ya existe: firmar la huella, que SIGUE mostrandola y que ata
+#     la firma AL VALOR. Una exencion por archivo no tiene esa propiedad.
+#
+# NO ERA UNA DECISION: era un efecto de por donde mira el escaner. revisar-secretos.mjs:164 pasa
+# `false` EN DURO, y el diff de «git log -p» SI lleva el archivo en sus cabeceras — hacerla llegar
+# habria sido facil. Que no llegue pasa a estar ESCRITO, con su motivo, en la SALIDA.
+#
+# EL LITERAL SE ENSAMBLA EN DOS MITADES, que es la leccion de PT-193 y de PT-015: escribirlo
+# entero aqui haria que el escaner cazara a este mismo arnes.
+_hist194() {   # $1 = "declara" para poner cauce:senuelos en el archivo
+  local d="$WORK/p194"; rm -rf "$d"; mkdir -p "$d"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q .
+    { [ "$1" = "declara" ] && echo "# cauce:senuelos"
+      echo "# fixture"
+      printf 'pass%s = SuperSecreta123\n' 'word'; } > a.sh
+    git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm "entra el secreto" >/dev/null 2>&1
+    # se QUITA del arbol: en la historia sigue, que es todo el punto
+    { [ "$1" = "declara" ] && echo "# cauce:senuelos"
+      echo "# ya no esta"; } > a.sh
+    git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm "sale del arbol" >/dev/null 2>&1
+    node "$SUITE/tools/revisar-secretos.mjs" . --historial 2>&1 )
+}
+# AC-01 . TS-01 . EL COMPORTAMIENTO EN HISTORIA QUEDA DECLARADO, con su motivo.
+chkl  "un hallazgo de historia dice que la exencion no llega"  "exime el ARBOL y"  _hist194 declara
+# …Y CON EL MOTIVO, que es lo que impide que alguien lo «arregle» ampliandola.
+chkl  "…y dice POR QUE: la historia es de SIEMPRE"             "ALGUNA VEZ"        _hist194 declara
+# AC-02 . TS-02 . UN SECRETO EN LA HISTORIA SIGUE BLOQUEANDO, CON LA DECLARACION PUESTA.
+#
+# ESTE ES EL QUE IMPIDE ARREGLARLO EN LA DIRECCION PELIGROSA, y no es opcional: TS-01, TS-03 y
+# TS-04 los cumple un escaner que haya AMPLIADO la exencion. Solo este prueba que no se hizo.
+chkl  "…y BLOQUEA igual, con la declaracion puesta"            "FND-R29"           _hist194 declara
+# AC-03 . TS-03 . Y EL MENSAJE NOMBRA EL MECANISMO. RULE-07: dice COMO SE ARREGLA.
+chkl  "…y nombra el mecanismo: firmar la huella"               "firmar la huella"  _hist194 declara
+# Y EL CONTEXTO, que no es permiso: se dice que ESE archivo declara ser senuelo HOY.
+chkl  "…y dice que el archivo SI lo declara hoy, como contexto"  "no exencion"     _hist194 declara
+# AC-01 . TS-04 . Y EN EL ARBOL LA DECLARACION SIGUE EXIMIENDO.
+#
+# Sin esto, TS-02 lo cumple un escaner que haya ROTO la exencion del arbol — y eso es lo que
+# PT-190 ya compro. Es la mitad que prueba que solo cambio lo que debia cambiar.
+_arbol194() {
+  local d="$WORK/p194a"; rm -rf "$d"; mkdir -p "$d"
+  { echo "# cauce:senuelos"; printf 'pass%s = SuperSecreta123\n' 'word'; } > "$d/a.sh"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$SUITE/tools/revisar-secretos.mjs" . 2>&1 )
+}
+chkl  "…y en el ARBOL la declaracion sigue eximiendo"          "Sin hallazgos sin firmar"  _arbol194
+
+
 # AC-03 . LA CERTIFICACION: FIRMAR NO ES SILENCIAR.
 #
 # Derivar del registro hizo que INTAKE-R08 —HARD, bloquea— cubriera 62 tareas que nunca cubrio, y

@@ -93,7 +93,7 @@ const esSeñuelo = (txt) => RE_DECLARADO.test(txt) || RE_SEÑUELO.test(txt.slice
 let hallazgos = [];
 const rel = (p) => relative(ROOT, p).split(sep).join('/');
 
-function revisarTexto(texto, donde, esSeñuelo, ambito = donde) {
+function revisarTexto(texto, donde, esSeñuelo, ambito = donde, archivo = null) {
   texto.split(/\r?\n/).forEach((linea, i) => {
     if (linea.length > 500) return;                 // minificados y datos, no código
     for (const [re, qué, cómo] of PATRONES) {
@@ -112,7 +112,10 @@ function revisarTexto(texto, donde, esSeñuelo, ambito = donde) {
       // FND-R29 promete y lo que sigue siendo cierto.
       const muestra = linea.trim().slice(0, 70);
       const huella = createHash('sha1').update(`${qué}|${ambito}|${muestra}`).digest('hex').slice(0, 12);
-      hallazgos.push({ donde: `${donde}:${i + 1}`, qué, cómo, muestra, huella });
+      // PT-194 · EL AMBITO VIAJA CON EL HALLAZGO. Se usaba para la huella y se TIRABA, asi que el
+      // informe no podia distinguir un hallazgo del ARBOL de uno de la HISTORIA — y son dos hechos
+      // con arreglos distintos: uno se quita del archivo, el otro NO SE PUEDE QUITAR.
+      hallazgos.push({ donde: `${donde}:${i + 1}`, qué, cómo, muestra, huella, ambito, archivo });
       return;
     }
   });
@@ -156,12 +159,24 @@ if (CON_HISTORIAL && existsSync(join(ROOT, '.git'))) {
         { cwd: ROOT, encoding: 'utf8', stdio: 'pipe', maxBuffer: 200 * 1024 * 1024 });
       historialRevisado = true;
       let commit = '(sin commit)';
+      // PT-194 · EL DIFF LLEVA EL ARCHIVO Y EL ESCANER LO IGNORABA. Recorria linea a linea
+      // distinguiendo solo `^commit` y `^+`, asi que sabia el commit y NO sabia el archivo. Con el
+      // se puede DECIR si ese archivo declara «cauce:senuelos» hoy — como CONTEXTO, nunca como
+      // exencion: la declaracion vive en el arbol de HOY y la historia es de SIEMPRE.
+      let archivoHunk = null;
       for (const linea of diff.split(/\r?\n/)) {
         const m = linea.match(/^commit ([0-9a-f]{7,})/);
-        if (m) { commit = m[1].slice(0, 8); continue; }
+        if (m) { commit = m[1].slice(0, 8); archivoHunk = null; continue; }
+        const f = linea.match(/^\+\+\+ b\/(.+)$/);
+        if (f) { archivoHunk = f[1] === 'dev/null' ? null : f[1]; continue; }
         if (!linea.startsWith('+') || linea.startsWith('+++')) continue;
         // El «dónde» conserva el commit para poder ir a buscarlo; el ÁMBITO de la huella, no.
-        revisarTexto(linea.slice(1), `historia ${commit}`, false, 'historia');
+        // El tercer parametro sigue siendo `false` A PROPOSITO, y ahora esta DECLARADO en vez de
+        // ser un efecto de por donde mira el escaner: «cauce:senuelos» exime el ARBOL y NO la
+        // historia. Aplicarla aqui eximiria TODO lo que ese archivo tuvo alguna vez, incluida una
+        // credencial real puesta y borrada despues — y el archivo que declara ser senuelo es
+        // justo donde mas comodo resulta esconder algo.
+        revisarTexto(linea.slice(1), `historia ${commit}`, false, 'historia', archivoHunk);
       }
     }
   } catch { historialRevisado = false; }
@@ -231,11 +246,39 @@ for (const h of hallazgos) {
   if (!porQué.has(h.qué)) porQué.set(h.qué, { cómo: h.cómo, sitios: [] });
   porQué.get(h.qué).sitios.push(h);
 }
+// PT-194 · LEE EL ARBOL DE HOY para poder decir si un archivo de la historia declara ser senuelo.
+// Es CONTEXTO y no permiso: sin esta linea, quien lee un rojo sobre un fixture declarado no
+// entiende por que no le vale la declaracion; con ella lo entiende Y SIGUE BLOQUEADO.
+const declaraSenuelo = (rutaRel) => {
+  if (!rutaRel) return false;
+  try { return RE_DECLARADO.test(readFileSync(join(ROOT, rutaRel), 'utf8')); } catch { return false; }
+};
 for (const [qué, d] of porQué) {
-  console.log(`${c.rojo}${c.neg}${qué}${c.fin} · ${d.sitios.length} sitio(s)`);
+  const enHistoria = d.sitios.filter((x) => x.ambito === 'historia');
+  console.log(`${c.rojo}${c.neg}${qué}${c.fin} · ${d.sitios.length} sitio(s)`
+    + (enHistoria.length ? `${c.dim}  · ${enHistoria.length} EN LA HISTORIA${c.fin}` : ''));
   for (const s of d.sitios.slice(0, 8)) console.log(`  ${s.donde}\n    ${c.dim}${s.muestra}${c.fin}`);
   if (d.sitios.length > 8) console.log(`  ${c.dim}… y ${d.sitios.length - 8} más${c.fin}`);
   console.log(`  ${c.neg}Corrección:${c.fin} ${d.cómo}`);
+  // PT-194 · UN HALLAZGO DE HISTORIA NO SE ARREGLA COMO UNO DEL ARBOL, y decir lo mismo para los
+  // dos manda al sitio equivocado: el archivo ya no lo contiene. El mensaje dice QUE OCURRE DE
+  // VERDAD, y dice el mecanismo — RULE-07: como se arregla, no solo que fallo. Aqui importa mas
+  // que de costumbre, porque quien lee el rojo esta a punto de decidir y la decision peligrosa
+  // —«amplio la exencion y listo»— es la comoda.
+  if (enHistoria.length) {
+    console.log(`  ${c.neg}Esto esta EN LA HISTORIA${c.fin}, y la historia no se reescribe (\`SUITE-R06f\`): quitarlo`);
+    console.log('  del archivo no lo quita de aqui. La declaracion `cauce:senuelos` exime el ARBOL y');
+    console.log('  NO la historia, y es DELIBERADO: vive en el arbol de HOY y la historia es de SIEMPRE,');
+    console.log('  asi que aplicarla eximiria todo lo que ese archivo tuvo ALGUNA VEZ — incluida una');
+    console.log('  credencial real puesta y borrada despues.');
+    console.log(`  ${c.neg}El mecanismo aqui es firmar la huella${c.fin} en docs/implementation/SECRETOS-EXCEPCIONES.md,`);
+    console.log('  que SIGUE mostrandola en cada revision y que ata la firma AL VALOR: si el valor');
+    console.log('  cambia, la huella cambia y vuelve a bloquear.');
+    const declarados = [...new Set(enHistoria.map((x) => x.archivo).filter((x) => declaraSenuelo(x)))];
+    for (const f of declarados) {
+      console.log(`  ${c.dim}→ ${f} SI declara «cauce:senuelos» HOY — es contexto, no exencion.${c.fin}`);
+    }
+  }
   console.log('');
 }
 // PT-015 · el bloqueo CITA su regla. Esta herramienta ES la comprobacion de FND-R29 —«nada se
