@@ -1633,7 +1633,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'sellar-estado',
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'sellar-estado', 'versiones',
   // PT-121 · «integrar» y «firmar» escriben el REGISTRO y el YAML del intake, los dos
   // locales. Exigirles plataforma repetiria lo que PT-133 acabo de arreglar en «parada»:
   // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
@@ -5304,6 +5304,75 @@ function sellarEstado() {
   notas.push(`estado sellado · ${escrito.replace(/\s+/g, ' ').trim()}`);
 }
 
+/**
+ * PT-187 · Las cuatro fuentes que dicen que version es cauce, contrastadas.
+ *
+ * package.json · los tags · el CHANGELOG · npm. Las cuatro son correctas por separado y NADIE las
+ * contrasta: `grep npm view` sobre todas las herramientas daba CERO. Medido el 2026-08-30, npm iba
+ * por la 13.1.0 y el repositorio por la 13.4.0 — la documentacion de un paquete describia un
+ * paquete que no es el que se descarga.
+ *
+ * LAS CUATRO DIVERGENCIAS NO VALEN LO MISMO, y presentarlas como «divergencias» a secas convertiria
+ * una diferencia legitima en una alarma — y una alarma que suena por lo correcto ensena a
+ * ignorarla. Un tag sin publicar es legitimo: SUITE-R06a reserva publicar al firmante.
+ *
+ * SIN RED SE DICE, Y NO SE APAGA LO DEMAS. El primer intento de medir esto dejo el conjunto vacio
+ * en un `catch` y salieron VEINTE divergencias inventadas con aspecto de hallazgo. El fallo va en
+ * las DOS direcciones —dar por cuadrado, o inventar— y la segunda es peor porque parece trabajo.
+ * SUITE-R22 declara soportado el proyecto sin red: apagar lo que SI se podia decir es el otro
+ * extremo del mismo error.
+ */
+function versiones() {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  const tags = new Set((gitDe(['tag', '--list', 'v*']) ?? '').split(SALTO)
+    .filter(Boolean).map((t) => t.replace(/^v/, '')));
+  const cambios = readFileSync(join(ROOT, 'docs', 'methodology', 'CHANGELOG.md'), 'utf8');
+  const chg = new Set([...cambios.matchAll(/^##\s+\[?(\d+\.\d+\.\d+)/gm)].map((m) => m[1]));
+
+  // npm es la UNICA que necesita red, y por eso es la unica que puede quedar SIN EVALUAR.
+  // En Windows el ejecutable es `npm.cmd`: con «npm» a secas execFileSync no lo encuentra y el
+  // catch devolvia SIN EVALUAR por la razon EQUIVOCADA — la herramienta acertaba en la conducta
+  // y mentia en el motivo, que es la forma de CE-001 que este lote persigue.
+  // Y con `shell` en Windows: desde Node 18.20 spawnSync se niega a ejecutar un `.cmd` sin el, y
+  // devuelve EINVAL — otra vez el motivo equivocado. El unico argumento variable es `pkg.name`,
+  // que sale del package.json DEL PROPIO REPOSITORIO: no hay entrada ajena que pueda colarse.
+  const NPM = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const OPC = { encoding: 'utf8', stdio: 'pipe', timeout: 20000, shell: process.platform === 'win32' };
+  let npmv = null;
+  let porQueNo = null;
+  try {
+    npmv = new Set(JSON.parse(execFileSync(NPM, ['view', pkg.name, 'versions', '--json'], OPC)));
+  } catch (e) { npmv = null; porQueNo = String(e?.message ?? e).split(SALTO)[0].slice(0, 90); }
+
+  di('');
+  di(`  package.json ${pkg.version}     tags ${tags.size}     CHANGELOG ${chg.size}     `
+    + `npm ${npmv ? npmv.size : SIN_EVALUAR}`);
+  di('');
+  const lista = (xs) => (xs.length ? xs.sort().join(' · ') : 'ninguna');
+  const chgSinTag = [...chg].filter((v) => !tags.has(v));
+  if (npmv) {
+    // CADA UNA CON LO QUE SIGNIFICA, no con una etiqueta comun.
+    di(`  TAG y NO publicada          (${[...tags].filter((v) => !npmv.has(v)).length}): ${lista([...tags].filter((v) => !npmv.has(v)))}`);
+    di('      Puede ser LEGITIMO: publicar es acto del firmante (SUITE-R06a) y un tag puede esperar.');
+    di(`  PUBLICADA y NO en CHANGELOG (${[...npmv].filter((v) => !chg.has(v)).length}): ${lista([...npmv].filter((v) => !chg.has(v)))}`);
+    di('      Esto SI es defecto: SUITE-R19 obliga a la guia de migracion.');
+    di(`  PUBLICADA y NO tag          (${[...npmv].filter((v) => !tags.has(v)).length}): ${lista([...npmv].filter((v) => !tags.has(v)))}`);
+    di('      Esto SI es defecto: se publico algo que el repositorio no marca.');
+  } else {
+    // SE DICE POR QUE NO SE PUDO. «sin red o sin acceso» son dos hechos distintos con arreglos
+    // distintos (RULE-02), y el error de node lo distingue: se pasa tal cual en vez de resumirlo.
+    di(`  npm: ${SIN_EVALUAR}. No se pudo consultar el registro: ${porQueNo ?? 'sin motivo legible'}`);
+    di('      NO se da por cuadrado y NO se inventan divergencias: las tres comparaciones que');
+    di('      dependen de npm quedan sin responder, y se dice cuales son. SUITE-R22 declara');
+    di('      soportado el proyecto sin red, asi que esto no es un caso raro.');
+  }
+  di(`  EN CHANGELOG y NO tag       (${chgSinTag.length}): ${chgSinTag.length > 6 ? `${chgSinTag.sort().slice(0, 3).join(' · ')} … ${chgSinTag.sort().slice(-1)[0]}` : lista(chgSinTag)}`);
+  di('      DEPENDE, y por eso se cuenta y no se juzga: las tempranas no se retrofechan (CE-014).');
+  di('');
+  di('  Las cifras se DERIVAN del arbol y del registro en cada corrida: una transcrita caduca');
+  di('  (CE-010, y las de este intake estaban las tres mal).');
+}
+
 /** El YAML del intake dice lo mismo que el registro, o no se toca nada (PT-149). */
 function sincronizaIntake(a, campo, valor) {
   const fi = join(carpetaDe(a), 'intake.md');
@@ -5407,7 +5476,7 @@ function reanclar() {
   }
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor, 'sellar-estado': sellarEstado };
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor, 'sellar-estado': sellarEstado, versiones };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

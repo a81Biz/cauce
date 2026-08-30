@@ -12962,3 +12962,82 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - package.json NO se toca: no manda .github/, y eso esta bien.
 - publicar.yml NO se borra: aqui hace falta, es donde SUITE-R06g reserva la publicacion.
 - NO se resuelve el reparto fuente/destino de todo el marco: solo se nombra y se arregla su caso.
+
+================================================================================
+
+## PT-187 — Cuatro fuentes dicen que version es cauce, y nadie las contrastaba
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-187-las-cuatro-fuentes-de-version
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-010
+Origen: EP-026 §5 · el HANDOFF ya declaraba divergencias historicas y ninguna herramienta las miraba
+
+NADIE CONTRASTABA, Y ESO ESTABA MEDIDO.
+
+    $ grep -rn "npm view|registry.npmjs" docs/methodology/tools/*.mjs bin/cauce.mjs
+    (sin coincidencias)
+
+version.mjs alinea los 21 documentos ENTRE SI y verify-suite comprueba que las versiones internas
+no diverjan. EL REGISTRO EXTERNO NO LO MIRABA NADIE. Las cuatro fuentes son correctas por separado
+y nadie las pone una al lado de otra — que es la forma de este lote.
+
+LAS CIFRAS DEL INTAKE ESTABAN LAS TRES MAL.
+
+    decia                          medido
+    tres tags sin publicar         SIETE: 1.0.0 · 5.2.0 · 9.0.0 · 10.0.0 · 13.2.0 · 13.3.0 · 13.4.0
+    tres publicadas sin CHANGELOG  NINGUNA
+    (no lo veia)                   28 de 47 entradas del CHANGELOG SIN TAG
+
+Venian del HANDOFF de una medicion anterior: CE-010, la cifra transcrita que caduca. Por eso el
+comando las DERIVA en cada corrida, y hay un caso que lo fija.
+
+LAS CUATRO DIVERGENCIAS NO VALEN LO MISMO, Y EL COMANDO LO DICE.
+
+    tag sin publicar          NO necesariamente defecto: SUITE-R06a reserva publicar al firmante
+    publicada sin CHANGELOG   SI: SUITE-R19 obliga a la guia de migracion
+    publicada sin tag         SI: se publico algo que el repositorio no marca
+    CHANGELOG sin tag         DEPENDE, y por eso se cuenta y no se juzga
+
+PRESENTARLAS TODAS COMO «DIVERGENCIAS» SERIA EL DEFECTO CONTRARIO: convertir una diferencia
+legitima en alarma. Y una alarma que suena por lo correcto ensena a ignorarla — que es la unica
+forma de romper esto sin que nadie lo note. Tiene su caso, EN NEGATIVO.
+
+AC-02 NO ERA TEORICO: LO REPRODUJE TRES VECES.
+
+1 AL MEDIRLO A MANO. El catch dejo el conjunto vacio y salieron VEINTE divergencias inventadas con
+  aspecto de hallazgo. El fallo va en LAS DOS DIRECCIONES —dar por cuadrado, o inventar— y la
+  segunda es PEOR PORQUE PARECE TRABAJO.
+2 AL IMPLEMENTARLO: «npm» no se encuentra, porque en Windows el ejecutable es «npm.cmd».
+3 Y OTRA VEZ: EINVAL, porque desde Node 18.20 spawnSync se niega a ejecutar un «.cmd» sin `shell`.
+
+LAS TRES VECES LA HERRAMIENTA ACERTO EN LA CONDUCTA —dijo SIN EVALUAR, no invento nada, y siguio
+dando la comparacion que no depende de la red— Y MINTIO EN EL MOTIVO: decia «sin red, o sin
+acceso» cuando el problema era la invocacion. Es CE-001 en pequeno, dentro de la tarea que
+persigue CE-010. Ahora se pasa el error TAL CUAL y hay un caso que lo exige.
+
+Y SIN RED NO SE APAGA LO DEMAS. SUITE-R22 declara soportado el proyecto sin ella: apagar lo que SI
+se podia decir es el otro extremo del mismo error, y tiene su caso.
+
+UN ERROR MIO, Y ES EL SEGUNDO DEL LOTE. `[ "$1" != "sintags" ]` con «set -u» revienta si no hay
+$1. Misma forma que en PT-195, en la misma jornada. Corregido con ${1:-}.
+
+Evidencia: docs/implementation/evidence/PT-187/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-187-las-versiones-no-cuadran-entre-sus-tres-fuentes/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2019 casos en verde · recibo a62b901d163e.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se publica, NO se etiqueta y NO se retrofecha nada. npm publish sigue reservado al firmante
+  por su nombre (SUITE-R06g), y crear tags es SUITE-R06a.
+- NO se promete que las cuatro coincidan: es legitimo que un tag exista antes de publicar y que
+  una version publicada hace meses no tenga entrada retroactiva (SUITE-R09, append-only). Se
+  promete que la diferencia sea VISIBLE y CONTABLE.
+- Las 28 del CHANGELOG sin tag NO se juzgan: son de la historia temprana (CE-014). Se cuentan.
+- NO entra en «npm run verify»: consultar la red en cada corrida cambia el coste de algo que hoy
+  no lo tiene. DONDE SE INVOCA SE DECIDE CON EL DATO DELANTE — y ahora el dato existe.

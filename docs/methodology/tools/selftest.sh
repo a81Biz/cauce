@@ -10541,6 +10541,55 @@ _deriva202() {
 }
 chkl  "un workflow nuevo entra sin tocar ninguna lista"  "inventado.yml"  _deriva202
 
+# -- PT-187 . las cuatro fuentes de version, contrastadas ---------------------
+#
+# package.json, los tags, el CHANGELOG y npm. Las cuatro correctas por separado y NADIE las
+# contrasta: «grep npm view» sobre TODAS las herramientas daba CERO. Medido el 2026-08-30, npm iba
+# por la 13.1.0 y el repositorio por la 13.4.0 — la documentacion de un paquete describia un
+# paquete que no es el que se descarga.
+#
+# EL FIXTURE NO TIENE RED, y eso es exactamente lo que AC-02 quiere ver: sin npm, la herramienta
+# tiene que DECIRLO y seguir dando lo que no depende de el.
+_ver187() {   # $1 = "sintags" para un repositorio sin ninguna etiqueta
+  local d="$WORK/p187"; rm -rf "$d"; mkdir -p "$d/docs/methodology" "$d/docs/implementation"
+  cp -r "$SUITE/tools" "$d/docs/methodology/tools"
+  printf '# CHANGELOG\n\n## 2.0.0 — 2026-01-01\nx\n\n## 1.0.0 — 2025-01-01\ny\n' \
+    > "$d/docs/methodology/CHANGELOG.md"
+  printf '{"name":"@a81biz/inventado-que-no-existe","version":"2.0.0"}' > "$d/package.json"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{},"allocations":[]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q .; git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm base >/dev/null 2>&1
+    [ "${1:-}" != "sintags" ] && git tag v1.0.0 >/dev/null 2>&1     # «set -u»: $1 sin valor revienta
+    node "$d/docs/methodology/tools/tracker.mjs" versiones "$d" 2>&1 )
+}
+# AC-01 . TS-01 . LA DIVERGENCIA SE ENUMERA, CON DIRECCION. No «no coinciden»: que falta en cada
+# lado. El CHANGELOG del fixture tiene 2.0.0 y 1.0.0, y solo 1.0.0 esta etiquetada.
+chkl  "la divergencia se enumera con direccion"      "EN CHANGELOG y NO tag"   _ver187
+# AC-02 . TS-02 . SIN ACCESO A npm SE DICE, y no se da por cuadrado.
+#
+# REPRODUCIDO EN VIVO al medir esta tarea: el catch dejo el conjunto vacio y salieron VEINTE
+# divergencias inventadas con aspecto de hallazgo. El fallo va en LAS DOS DIRECCIONES —dar por
+# cuadrado, o inventar— y la segunda es peor porque PARECE TRABAJO.
+chkl  "…y sin npm lo dice, no lo da por cuadrado"    "SIN EVALUAR"             _ver187
+# Y DICE POR QUE NO PUDO: «sin red» y «sin acceso» son dos hechos con arreglos distintos (RULE-02).
+chkl  "…y dice POR QUE no pudo consultarlo"          "No se pudo consultar el registro:"  _ver187
+# AC-02 . TS-03 . Y AUN ASI DICE LO QUE SI PUEDE.
+#
+# Sin esto, TS-02 lo cumple una herramienta que SE APAGUE ENTERA. SUITE-R22 declara soportado el
+# proyecto sin red: apagar lo que si se podia decir es el otro extremo del mismo error.
+chkl  "…y aun asi da la comparacion que no necesita red"  "2.0.0"             _ver187
+# AC-03 . TS-04 . UNA DIFERENCIA LEGITIMA NO SE PRESENTA COMO DEFECTO. Un tag sin publicar puede
+# esperar: SUITE-R06a reserva publicar al firmante. Una alarma que suena por lo correcto ensena a
+# ignorarla — y esa es la unica forma de romper esto sin que nadie lo note.
+chknol "una diferencia legitima no se llama defecto"  "Esto SI es defecto: se publico" _ver187
+# AC-01 . TS-05 . LAS CIFRAS SE DERIVAN: sin tags, la cuenta cambia sola.
+#
+# Las del intake venian del HANDOFF de una medicion anterior y estaban LAS TRES mal: CE-010.
+chkl  "sin tags, la cuenta cambia sola"               "EN CHANGELOG y NO tag       (2)"  _ver187 sintags
+
+
 
 
 # AC-03 . LA CERTIFICACION: FIRMAR NO ES SILENCIAR.
