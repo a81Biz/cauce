@@ -1,0 +1,81 @@
+{
+  "pt": "PT-203",
+  "generated": "2026-08-29",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Citar un PT como origen no lo hace miembro del lote",
+      "scenarios": ["TS-01"],
+      "tests": [
+        "selftest §EP-026 · citar un PT como origen no lo hace miembro",
+        "selftest §EP-026 · …y lo nombra, en vez de callarlo"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "No basta con que deje de fallar: lo NOMBRA en verde. Un hueco que nadie nombra es el que se olvida, y citar de donde salio una tarea es lo que FDGE-R55 premia."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Los miembros reales se siguen detectando",
+      "scenarios": ["TS-02", "TS-03"],
+      "tests": [
+        "selftest §EP-026 · …y un miembro VIVO sin firma sigue bloqueando",
+        "selftest §EP-026 · …y el miembro que la tabla NO lista tampoco se escapa"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "TS-03 es el que prueba que la FUENTE cambio: TS-02 solo lo cumple un verificador que siga leyendo la tabla, porque el intake podia listarlas."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "El mensaje distingue «no es miembro» de «le falta la firma de lote»",
+      "scenarios": ["TS-04", "TS-05", "TS-06"],
+      "tests": [
+        "selftest §EP-026 · un miembro TERMINAL sin firma se cuenta, no se rejuzga",
+        "selftest §EP-026 · una firma que nombra OTRO lote se dice"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "El grupo 1 de RE_SIGN_BATCH se capturaba y se TIRABA mientras el mensaje nombraba el lote. PT-172 es el caso real y nadie lo veia."
+    }
+  ],
+  "fuera_del_intake": {
+    "que": "La certificacion firmada de las 26 (FIRMAS-DE-LOTE.md), su lectura en INTAKE-R08 e INTAKE-R09, y la apertura de EP-027",
+    "por_que": "Implementar AC-02 hizo que INTAKE-R08 cubriera 62 tareas nuevas, de las que 26 no cumplen. El arreglo correcto introducia, por su propia correccion, 26 avisos permanentes sin dueno.",
+    "declarado_en": "spec-changes.md",
+    "autorizacion": "Alberto Martinez, 2026-08-29: «necesitamos corregir o certificar y sellar, no podemos dejar pendientes menos una deuda tan grande»",
+    "tests": [
+      "selftest §EP-026 · una firma certificada no bloquea",
+      "selftest §EP-026 · …y dice a quien le toca corregirla",
+      "selftest §EP-026 · …pero lo VIVO no lo exime la certificacion",
+      "selftest §EP-026 · …y una fila SIN firmante no exime",
+      "selftest §EP-026 · …y certificar a OTRA no cubre a esta",
+      "selftest §EP-026 · sin FIRMAS-DE-LOTE.md no se exime nada"
+    ],
+    "verified": true
+  },
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable · 12 casos · 6 de ellos sobre conducta declarada fuera del intake",
+  "medido": {
+    "antes": "26 lotes · 7 FANTASMA (se comprobaba a quien NO es miembro) · 62 INVISIBLE (es miembro y su firma NO se comprobaba nunca)",
+    "el_peor": "EP-019 leia CERO de sus diecisiete miembros. EP-024, cuatro de veintiocho.",
+    "riesgo_medido_antes_de_arreglar": "173 con firma correcta · 23 sin linea · 1 firmando por otro lote · 2 sin intake en el arbol",
+    "despues": "0 errores. 26 certificadas y nombradas en cada corrida con su dueno (EP-027); 7 citas de origen en verde nombradas."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Las 26 quedan corregidas",
+      "por_que_no": "Quedan CERTIFICADAS, que no es lo mismo. Corregir trabajo cerrado es EP-027, abierta con intake y sin G1: la autorizacion del firmante cubre abrirla, no admitirla.",
+      "verified": false
+    },
+    {
+      "afirmacion": "La tabla del intake y el registro coinciden",
+      "por_que_no": "No se promete: citar de donde salio una tarea sigue siendo legitimo y ahora sale nombrado en verde.",
+      "verified": false
+    },
+    {
+      "afirmacion": "No volvera a abrirse una deuda de esta forma",
+      "por_que_no": "Lo que se compra es que la fuente sea el registro. Que aparezca otra clase de hueco no lo impide esto ni lo promete.",
+      "verified": false
+    }
+  ]
+}

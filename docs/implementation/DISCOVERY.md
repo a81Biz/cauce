@@ -138,4 +138,4 @@
 | PT-200 | BUG | S2 | DONE | EP-026 | verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal |
 | PT-201 | BUG | S2 | DONE | EP-026 | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
 | PT-202 | BUG | S3 | DRAFT | EP-026 | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
-| PT-203 | BUG | S3 | DRAFT | EP-026 | Citar un PT en una fila del intake del lote lo convierte en miembro |
+| PT-203 | BUG | S3 | DONE | EP-026 | Citar un PT en una fila del intake del lote lo convierte en miembro |

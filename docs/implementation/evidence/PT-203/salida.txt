@@ -1,0 +1,36 @@
+PT-203 · corrida COMPLETA en verde · 1986 casos
+
+  [32m✓[0m citar un PT como origen no lo hace miembro
+  [32m✓[0m …y lo nombra, en vez de callarlo
+  [32m✓[0m …y un miembro VIVO sin firma sigue bloqueando
+  [32m✓[0m …y el miembro que la tabla NO lista tampoco se escapa
+  [32m✓[0m un miembro TERMINAL sin firma se cuenta, no se rejuzga
+  [32m✓[0m una firma que nombra OTRO lote se dice
+  [32m✓[0m una firma certificada no bloquea
+  [32m✓[0m …y dice a quien le toca corregirla
+  [32m✓[0m …pero lo VIVO no lo exime la certificacion
+  [32m✓[0m …y una fila SIN firmante no exime
+  [32m✓[0m …y certificar a OTRA no cubre a esta
+  [32m✓[0m sin FIRMAS-DE-LOTE.md no se exime nada
+
+  — y los repuntados de la seccion «lotes» (SUITE-R61) —
+  [32m✓[0m citar un PT en prosa no lo hace miembro
+  [32m✓[0m ni siquiera al de al lado
+  [32m✓[0m …y la linea que reclama existe y nombra al real
+  [32m✓[0m el de la tabla sí exige su firma
+  [32m✓[0m sin tabla, el registro sigue mandando
+
+selftest: OK · 1986 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "1986", "arnes": "44e416b163c54e3422d4e952cc0be268ca8ef6b1", "fecha": "2026-08-30T03:00:39Z" }
+
+== SOBRE EL ARBOL REAL: 0 errores, 26 certificadas con dueno ==
+  ✓ INTAKE-R08     EP-008: 1 firma(s) de lote CERTIFICADA(s) en FIRMAS-DE-LOTE.md, y su correccion tiene dueno: PT-032 (EP-027). Firmar no es silenciar: siguen aqui hasta que se corrijan.
+  ✓ INTAKE-R08     EP-012: 3 miembro(s) segun el registro; 2 identificador(es) citado(s) que NO son miembros y no se les exige nada: PT-039 · PT-042. Citar de donde salio una tarea es lo que FDGE-R55 premia (PT-203).
+  ✓ INTAKE-R08     EP-013: 8 miembro(s) segun el registro; 1 identificador(es) citado(s) que NO son miembros y no se les exige nada: PT-018. Citar de donde salio una tarea es lo que FDGE-R55 premia (PT-203).
+  ✓ INTAKE-R08     EP-020: 23 miembro(s) segun el registro; 2 identificador(es) citado(s) que NO son miembros y no se les exige nada: PT-091 · PT-110. Citar de donde salio una tarea es lo que FDGE-R55 premia (PT-203).
+  ✓ INTAKE-R08     EP-024: 18 firma(s) de lote CERTIFICADA(s) en FIRMAS-DE-LOTE.md, y su correccion tiene dueno: PT-152 (EP-027) · PT-153 (EP-027) · PT-154 (EP-027) · PT-156 (EP-027) · PT-157 (EP-027) · PT-158 (EP-027) · PT-162 (EP-027) · PT-165 (EP-027) · PT-166 (EP-027) · PT-170 (EP-027) · PT-171 (EP-027) · PT-177 (EP-027) · PT-178 (EP-027) · PT-180 (EP-027) · PT-183 (EP-027) · PT-184 (EP-027) · PT-185 (EP-027) · PT-186 (EP-027). Firmar no es silenciar: siguen aqui hasta que se corrijan.
+  ✓ INTAKE-R08     EP-024: 28 miembro(s) segun el registro; 1 identificador(es) citado(s) que NO son miembros y no se les exige nada: PT-149. Citar de donde salio una tarea es lo que FDGE-R55 premia (PT-203).
+  ✓ INTAKE-R08     EP-025: 7 firma(s) de lote CERTIFICADA(s) en FIRMAS-DE-LOTE.md, y su correccion tiene dueno: PT-172 (EP-027) · PT-173 (EP-027) · PT-174 (EP-027) · PT-175 (EP-027) · PT-176 (EP-027) · PT-182 (EP-027) · PT-189 (EP-027). Firmar no es silenciar: siguen aqui hasta que se corrijan.
+  ✓ INTAKE-R08     EP-025: 11 miembro(s) segun el registro; 1 identificador(es) citado(s) que NO son miembros y no se les exige nada: PT-169. Citar de donde salio una tarea es lo que FDGE-R55 premia (PT-203).

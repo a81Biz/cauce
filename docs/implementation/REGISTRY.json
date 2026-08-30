@@ -37,7 +37,7 @@
   },
   "counters": {
     "PT": 203,
-    "EP": 26,
+    "EP": 27,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -6892,8 +6892,8 @@
       "id": "PT-203",
       "slug": "citar-un-PT-en-una-fila-lo-hace-miembro-del-lote",
       "created": "2026-08-28",
-      "status": "READY",
-      "phase": 3,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S3",
@@ -6909,8 +6909,39 @@
         "G1": {
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-29"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
         }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-29"
       }
+    },
+    {
+      "id": "EP-027",
+      "slug": "la-deuda-de-firma-de-lote-se-salda",
+      "created": "2026-08-29",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "title": "Saldar la deuda que PT-203 hizo visible: 26 firmas de lote certificadas",
+      "issue": 375
     }
   ]
 }

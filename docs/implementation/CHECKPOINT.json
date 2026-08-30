@@ -2,24 +2,37 @@
   "pt": "PT-203",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "READY",
-  "phase": 3,
-  "fase": "Estrategia",
-  "rama": "chore/alberto-martinez/EP-026-PT-198-comentario-yaml",
-  "sha": "a88a114838a4bc6a04180d8d70ad78d22e08dd04",
-  "sha_corto": "a88a114",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
+  "rama": "chore/alberto-martinez/EP-026-PT-203-la-pertenencia-la-asigna-el-registro",
+  "sha": "d5265b489dbfde9e2c595a966a41fdae5cbbbc49",
+  "sha_corto": "d5265b4",
   "sucio": true,
   "archivos": [
-    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/discovery.md",
+    "changes/EP-026-lo-que-da-verde-sin-mirar/paradas/",
+    "changes/EP-027-la-deuda-de-firma-de-lote-se-salda/",
     "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/intake.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/spec-changes.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/strategy.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/test-scenarios.md",
+    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/traceability.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
+    "docs/implementation/FIRMAS-DE-LOTE.md",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/HISTORY.log",
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-203/",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/verify-fdge.mjs"
   ],
   "compuerta": null,
   "produce": [
-    "strategy.md"
+    "HISTORY.log",
+    "índice"
   ],
-  "siguiente": "PHASE 3 · Estrategia — cierra con: los caminos descartados, con su por qué. Luego PHASE 4 · Propuesta.",
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-29"
 }

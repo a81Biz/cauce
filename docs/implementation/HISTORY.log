@@ -12409,3 +12409,128 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - Los campos NO escalares —listas, bloques— quedan fuera: ninguna de las siete llamadas los toca.
 - Otros artefactos con YAML (HANDOFF, CHECKPOINT) no son intakes: su forma la escribe una
   herramienta, no una persona.
+
+================================================================================
+
+## PT-203 — Citar un PT en una fila lo hacia miembro, y 62 miembros de verdad no se miraban
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-203-la-pertenencia-la-asigna-el-registro
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-29 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-203.md
+
+EL DEFECTO IBA EN LAS DOS DIRECCIONES, Y LA GRANDE NO LA VEIA NADIE.
+
+El intake nombraba una: una columna «Origen» —«<- PT-178»— convertia en miembro del lote a una
+tarea de otro, integrada hacia dias. Medido sobre los 26 lotes ANTES de escribir el arreglo:
+
+    FANTASMA    se comprobaba a quien NO es miembro            7 casos
+    INVISIBLE   es miembro y su firma NO se comprobaba nunca  62 casos
+
+EP-019 leia CERO de sus diecisiete. EP-024, cuatro de veintiocho. INTAKE-R08 es HARD y BLOQUEA, y
+llevaba desde EP-001 corriendo sobre una fraccion de sus sujetos. Lo que no cubria no daba error:
+NO DABA NADA.
+
+El FANTASMA se ve —sale en rojo y molesta—, y por eso tenia ya DOS parches: PT-011 estrecho de
+«todo el texto» a «las filas de tabla», PT-022 recorto la seccion de cierre. El INVISIBLE calla, y
+por eso llevaba ahi desde el principio. Un tercer recorte habria arreglado 7 y dejado 62.
+
+LA CAUSA NO ERA LA HEURISTICA: ERA LA FUENTE.
+
+SUITE-R08 ya dice quien asigna —el registro— y allocations[].epic lo tiene escrito para las 229
+allocations. La pertenencia se DERIVA de ahi. La tabla del intake no se tira: pasa a
+CONTRASTARSE, y un PT citado que no es miembro sale NOMBRADO EN VERDE, porque citar de donde
+salio una tarea es lo que FDGE-R55 premia.
+
+EL RIESGO SE MIDIO ANTES DE ESCRIBIR EL ARREGLO, NO DESPUES.
+
+Hacer que una regla HARD cubra 62 sujetos nuevos puede bloquear el lote entero. Se conto primero:
+
+    firma de lote correcta : 173     SIN linea : 23
+    firma con OTRO lote    :   1     sin intake en el arbol : 2
+
+Las 26 estan TODAS en estado terminal. Ponerles la linea seria reescribir trabajo cerrado para
+callar una comprobacion: SUITE-R09 es append-only y CE-014 nombra justo eso.
+
+FIRMAR NO ES SILENCIAR — Y ESO TIENE SEIS CASOS QUE LO PRUEBAN.
+
+Se certifican en docs/implementation/FIRMAS-DE-LOTE.md, con el mismo contrato que
+SECRETOS-EXCEPCIONES.md: cada fila SIGUE APARECIENDO en cada corrida, con quien la firmo y A QUE
+TAREA LE TOCA CORREGIRLA. Lo unico que cambia es que deja de bloquear — porque una compuerta
+siempre roja ensena a saltarsela, que es peor que no tenerla.
+
+Los tres limites, cada uno con su caso:
+    lo VIVO no lo exime la certificacion      dejar de ser terminal la anula
+    una fila SIN firmante no es una firma     la plantilla sin rellenar no exime
+    certificar a OTRA no cubre a esta         no es un permiso sobre el lote
+
+Y sin el archivo no se exime nada: el silencio no acota, la leccion de bloques-sellados.
+
+EL ALCANCE CRECIO EN PHASE 5, Y SE DECLARO EN VEZ DE COLARSE.
+
+Los AC del intake son tres y ninguno habla de certificar. Implementar AC-02 introducia, por su
+propia correccion, 26 avisos permanentes SIN DUENO. El agente midio, reporto la cifra y SE
+DETUVO: el VoBo del 2026-08-28 cubre G1, G2 y G3 de EP-026 y no cubria certificar trabajo de
+lotes anteriores. La decision es del firmante y esta citada en spec-changes.md:
+
+    «necesitamos corregir o certificar y sellar, no podemos dejar pendientes menos una deuda tan
+     grande. De ser necesario ponlos en una epica que atacaremos al terminar esta»
+
+De ahi sale EP-027, abierta con intake y SIN G1: la autorizacion cubre ABRIRLA, no admitirla.
+
+PT-172 ES UN HALLAZGO QUE ESTA TAREA DESTAPA Y NO TAPA.
+
+Su intake dice «Firmado por lote: EP-024» y el registro dice EP-025. Nadie lo veia porque
+RE_SIGN_BATCH capturaba el lote y lo TIRABA mientras el mensaje lo NOMBRABA: la comprobacion
+afirmaba mas de lo que miraba. Es lo mismo que PT-198 cerro ayer, en otra linea.
+
+UN CE-017 QUE SALIO POR EL CAMINO. INTAKE-R09 bloqueaba el intake de EP-027 por CITAR PT-032 y
+PT-171 —las dos tareas sin carpeta que ese lote existe para arreglar—. La comprobacion acusaba a
+quien documenta el hecho, y la unica salida habria sido NO NOMBRAR LA DEUDA. Ahora honra la
+certificacion, y solo a quien esta escrito en la lista cerrada.
+
+LA PODA QUE EL CAMBIO OBLIGA — SUITE-R61, con su cuenta por patron.
+
+    superado   4     citar un PT en prosa · ni siquiera al de al lado ·
+                     el de la tabla si exige su firma · sin tabla, respaldo al barrido completo
+    invertido  0
+    hueco      0
+
+Ninguno se retira: los cuatro se REPUNTAN. El cuarto cambia de nombre porque el respaldo que
+nombraba ya no existe — existia «para no dejar de comprobar en silencio los intakes anteriores a
+la plantilla con tabla» y NO FUNCIONO: EP-019 tenia filas, asi que nunca entro.
+
+Y HABRIAN QUEDADO EN «HUECO» SI NO SE TOCA EL FIXTURE: su REGISTRY.json no mencionaba el lote, asi
+que EP-001 se quedaba SIN MIEMBROS y las comprobaciones pasaban sin medir nada. LO DESTAPO LA
+CORRIDA COMPLETA, no la acotada, que daba verde. La leccion de PT-192 otra vez.
+
+TRES ERRORES MIOS, Y LOS TRES LOS CAZO EJECUTAR.
+
+1. El perl del fixture insertaba «epic» DENTRO del objeto anidado: «[^}]*» se paraba en la llave
+   de cierre de «viabilidad». Se inserta justo detras del id.
+2. El chkno miraba TODA la salida, y el mensaje CORRECTO nombra la cita en verde — asi que
+   buscar PT-003 fallaba POR ENCONTRARLO DONDE DEBE ESTAR. Se mira la linea que RECLAMA, y se
+   anade el caso que impide que eso pase por vacio.
+3. Un caso ajeno fijaba «OK · 8 casos»: EL NUMERO DE LO CORRECTO. Anadir un caso a esa seccion lo
+   rompio sin que nada estuviera mal. Es la leccion -18 del HANDOFF y su SEXTA aparicion; se
+   repunta a lo que quiere probar —que --seccion ACOTA— sin fijar cifra, y en UN solo caso porque
+   cada sub-corrida es una seccion entera.
+
+Evidencia: docs/implementation/evidence/PT-203/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/traceability.md — sin AC huerfano.
+Alcance: el mismo directorio, spec-changes.md.
+
+Corrida COMPLETA de la bateria: 1986 casos en verde · recibo 44e416b163c5.
+Sobre el arbol real: 0 errores · 26 certificadas y nombradas con su dueno · 7 citas en verde.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- Las 26 quedan CERTIFICADAS, no corregidas. Corregirlas es EP-027.
+- No se promete que la tabla del intake y el registro coincidan: citar sigue siendo legitimo.
+- No se promete que no vuelva a abrirse una deuda de esta forma. Lo que se compra es que la
+  fuente sea el registro.
