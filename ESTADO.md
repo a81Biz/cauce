@@ -18,7 +18,7 @@ Proyectado el 2026-08-30 · 22 allocation(es) viva(s).
 | PT-181 | BUG | DONE | 8 | — | — | 164a2ce |
 | PT-187 | BUG | DRAFT | 1 | — | — | e42eaed |
 | PT-192 | BUG | DONE | 8 | — | — | a3058b0 |
-| PT-194 | BUG | DONE | 8 | — | — | e634f42 |
+| PT-194 | BUG | DONE | 8 | — | — | 0d6e938 |
 | PT-195 | BUG | DONE | 8 | — | — | e42eaed |
 | PT-196 | BUG | DONE | 8 | — | — | 1bb6fc7 |
 | PT-197 | FEATURE | DRAFT | 1 | — | — | 9c17741 |
@@ -26,7 +26,7 @@ Proyectado el 2026-08-30 · 22 allocation(es) viva(s).
 | PT-199 | BUG | DONE | 8 | — | — | 4259425 |
 | PT-200 | BUG | DONE | 8 | — | — | cdb7e3f |
 | PT-201 | BUG | DONE | 8 | — | — | 666d5bd |
-| PT-202 | BUG | DRAFT | 1 | — | — | 95bf9eb |
+| PT-202 | BUG | READY | 2 | — | — | 95bf9eb |
 | PT-203 | BUG | DONE | 8 | — | — | 1711693 |
 | EP-027 |  | DRAFT | 1 | — | — | 1711693 |
 | PT-204 | INVESTIGATION | DRAFT | 1 | — | — | 060258d |

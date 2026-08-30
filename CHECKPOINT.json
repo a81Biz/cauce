@@ -1,29 +1,22 @@
 {
-  "pt": "PT-194",
+  "pt": "PT-202",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-194-senuelos-y-la-historia",
-  "sha": "85d896c293c287326334e0b8ccef38f55778dbb0",
-  "sha_corto": "85d896c",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "trabajo",
+  "sha": "791be57059a90dfb840755b09a0e72f30d4603a2",
+  "sha_corto": "791be57",
   "sucio": true,
   "archivos": [
-    "changes/PT-194-la-exencion-de-senuelos-no-viaja-a-la-historia/intake.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-194/manifest.json",
-    "docs/implementation/evidence/PT-194/salida.txt"
+    "changes/PT-202-publicar-yml-viaja-a-donde-no-aplica/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-30"
 }
