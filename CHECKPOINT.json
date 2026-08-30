@@ -1,38 +1,22 @@
 {
-  "pt": "PT-203",
+  "pt": "PT-205",
   "type": "BUG",
   "epic": "EP-026",
-  "status": "DONE",
-  "phase": 8,
-  "fase": "Persistencia",
-  "rama": "chore/alberto-martinez/EP-026-PT-203-la-pertenencia-la-asigna-el-registro",
-  "sha": "d5265b489dbfde9e2c595a966a41fdae5cbbbc49",
-  "sha_corto": "d5265b4",
+  "status": "READY",
+  "phase": 2,
+  "fase": "Descubrimiento",
+  "rama": "trabajo",
+  "sha": "fd2c47613a469e6c1568d6c58a6a6fc1a5802a1b",
+  "sha_corto": "fd2c476",
   "sucio": true,
   "archivos": [
-    "changes/EP-026-lo-que-da-verde-sin-mirar/paradas/",
-    "changes/EP-027-la-deuda-de-firma-de-lote-se-salda/",
-    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/intake.md",
-    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/spec-changes.md",
-    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/strategy.md",
-    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/test-scenarios.md",
-    "changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/traceability.md",
-    "docs/enterprise-documentation/inventory/services.md",
-    "docs/implementation/CHECKPOINT.json",
-    "docs/implementation/FIRMAS-DE-LOTE.md",
-    "docs/implementation/HANDOFF.md",
-    "docs/implementation/HISTORY.log",
-    "docs/implementation/REGISTRY.json",
-    "docs/implementation/SELLOS.json",
-    "docs/implementation/evidence/PT-203/",
-    "docs/methodology/tools/selftest.sh",
-    "docs/methodology/tools/verify-fdge.mjs"
+    "changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/intake.md",
+    "docs/implementation/REGISTRY.json"
   ],
   "compuerta": null,
   "produce": [
-    "HISTORY.log",
-    "índice"
+    "discovery.md"
   ],
-  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
+  "siguiente": "PHASE 2 · Descubrimiento — cierra con: dónde está el defecto, con archivo y línea. Luego PHASE 3 · Estrategia.",
   "generado": "2026-08-29"
 }
