@@ -6954,7 +6954,12 @@
       "severity": "S2",
       "epic": "EP-026",
       "title": "124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida",
-      "issue": 377
+      "issue": 377,
+      "origen_parada": {
+        "de": "EP-026",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-29"
+      }
     },
     {
       "id": "PT-205",
@@ -6967,7 +6972,12 @@
       "severity": "S2",
       "epic": "EP-026",
       "title": "Cumplir SUITE-R34 exige un acto fuera del comando",
-      "issue": 378
+      "issue": 378,
+      "origen_parada": {
+        "de": "EP-026",
+        "motivo": "condicion-bloqueante",
+        "fecha": "2026-08-29"
+      }
     }
   ]
 }

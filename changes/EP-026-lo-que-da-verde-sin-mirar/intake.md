@@ -138,11 +138,18 @@ aplazarlas repetiría el fallo que las origina: decirlo en una épica más y que
 | Orden | `PT` | Tipo | Qué cierra | De dónde sale |
 |---:|:---|:---|:---|:---|
 | 15 | `PT-204` | INVESTIGATION | **124 de 244 reglas son `PENDIENTE` y 91 no tienen verificador** (82 `HARD`, entre ellas `EXEC-R05`). `audit` lo dice en cada `npm run verify` y no le pertenece a nadie | `paradas/PT-204.md` |
-| 16 | `PT-205` | BUG | **El verde local no predice CI para lo que depende de lo empujado.** 17 min de CI en corridas fallidas sólo en la rama de `PT-203`, y cuatro veces la misma forma | `paradas/PT-205.md` + `paradas/PT-207.md` |
+| 16 | `PT-205` | BUG | **El verde local no predice CI para lo que depende de lo empujado.** 17 min de CI en corridas fallidas sólo en la rama de `PT-203`, y cuatro veces la misma forma | dos paradas, absorbidas (ver abajo) |
 
 **`PT-204` no es auditar las 244.** El firmante lo descartó: *«regresar a revisar que esté es una
 regresión demasiado grande»*. Es una `INVESTIGATION` cuyo entregable es **la decisión y su alcance**
 —separar deuda de límite, rankear por consecuencia, y decidir si hace falta un lote propio—.
+
+> **Nota de forma, y no es cosmética.** La celda de arriba decía los nombres de los dos archivos
+> de parada. `INTAKE-R09` los leyó como **identificadores listados** y exigió su carpeta —el mismo
+> defecto que `PT-203` acaba de quitar de `INTAKE-R08`, en la comprobación que `PT-203` declaró
+> **fuera de alcance a propósito**. El límite declarado mordió a los diez minutos. Se rodea aquí
+> nombrando las paradas en prosa, y el hueco queda dicho: `INTAKE-R09` no distingue «lista este
+> `PT` como miembro» de «cita la ruta de un archivo».
 
 **`PT-205` absorbe dos paradas y va la SIGUIENTE**, no la última. Lo pidió el firmante con el
 motivo: *«buscando que los siguientes no pierdan tanto tiempo»*. Quedan siete tareas × un viaje de
