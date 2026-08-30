@@ -3,20 +3,32 @@
   "type": "BUG",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 5,
-  "fase": "Implementación",
-  "rama": "trabajo",
+  "phase": 6,
+  "fase": "Evidencia",
+  "rama": "chore/alberto-martinez/EP-026-PT-202-la-frontera-fuente-destino",
   "sha": "791be57059a90dfb840755b09a0e72f30d4603a2",
   "sha_corto": "791be57",
   "sucio": true,
   "archivos": [
     "changes/PT-202-publicar-yml-viaja-a-donde-no-aplica/intake.md",
+    "docs/enterprise-documentation/inventory/services.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
-    "docs/implementation/REGISTRY.json"
+    "docs/implementation/REGISTRY.json",
+    "docs/implementation/SELLOS.json",
+    "docs/implementation/evidence/PT-202/",
+    "docs/methodology/CASOS-DE-USO.md",
+    "docs/methodology/CHANGELOG.md",
+    "docs/methodology/CORE.md",
+    "docs/methodology/LEXICON.md",
+    "docs/methodology/tools/selftest.sh",
+    "docs/methodology/tools/verify-suite.mjs"
   ],
   "compuerta": null,
-  "produce": [],
-  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
+  "produce": [
+    "manifest.json",
+    "self-review.md"
+  ],
+  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
   "generado": "2026-08-30"
 }
