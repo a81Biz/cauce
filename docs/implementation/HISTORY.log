@@ -12781,3 +12781,93 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - «T <t@t>» NO se declara en «personas»: seria atribuir a una persona los commits del fixture, el
   error contrario y peor.
 - No se agrupan autores por parecido (LEXICON 6.5f): quien es quien lo dice una persona.
+
+================================================================================
+
+## PT-194 — La exencion de senuelos no vale para la historia, y ahora se DICE
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-194-senuelos-y-la-historia
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-001
+Origen: parada de EP-025 · motivo hallazgo
+
+NO ERA UNA DECISION: ERA UN EFECTO DE POR DONDE MIRA EL ESCANER.
+
+    revisarTexto(linea.slice(1), `historia ${commit}`, false, 'historia');
+                                                      ^^^^^  pasado EN DURO
+
+Y el diff de «git log -p» SI lleva el archivo en sus cabeceras «+++ b/»: el escaner las ignoraba,
+recorria linea a linea distinguiendo solo «^commit» y «^+». Sabia el commit y NO sabia el archivo.
+
+HACER QUE LA EXENCION LLEGARA HABRIA SIDO FACIL. Eso es lo que hacia peligrosa esta tarea.
+
+LA DECISION QUE EL INTAKE DEJABA ABIERTA: NO DEBE VALER. Y CON TRES MOTIVOS.
+
+El intake decia «puede que la respuesta sea que NO debe valer […] Decidirlo es el trabajo»
+(RULE-06). La respuesta es que no, y los tres motivos van EN LA SALIDA y no solo en un documento:
+
+  1 LA DECLARACION VIVE EN EL ARBOL DE HOY Y LA HISTORIA ES DE SIEMPRE. «cauce:senuelos» dice
+    «este archivo, tal como esta AHORA, es un fixture». Aplicarlo a la historia eximiria TODO lo
+    que ese archivo tuvo ALGUNA VEZ — incluida una credencial real puesta y borrada despues. Y el
+    archivo que declara ser senuelo es justo donde mas comodo resulta esconder algo.
+  2 EL RIESGO VA AL REVES DEL SINTOMA. Lo que motivo la tarea es un falso positivo molesto.
+    Ampliar mal una exencion de seguridad hace que un secreto REAL deje de bloquear. Entre
+    molestia y agujero, molestia.
+  3 EL MECANISMO YA EXISTE Y ES EL CORRECTO: firmar la huella en SECRETOS-EXCEPCIONES.md, que
+    SIGUE mostrandola en cada revision y que ata la firma AL VALOR — si el valor cambia, la huella
+    cambia y vuelve a bloquear. Una exencion por archivo NO tiene esa propiedad.
+
+POR QUE EL MOTIVO VA EN LA SALIDA. Quien lee el rojo esta a punto de decidir que hacer con el, y
+la decision peligrosa —«amplio la exencion y listo»— es la comoda. Un motivo que hay que ir a
+buscar a RULES.md no llega a tiempo. Es RULE-07 aplicado donde mas importa.
+
+LAS TRES PIEZAS.
+
+    :115   el AMBITO viaja con el hallazgo. Se usaba para la huella y se TIRABA, asi que el
+           informe no podia distinguir arbol de historia — dos hechos con arreglos distintos
+    :164   el ARCHIVO del hunk se lee de las cabeceras del diff
+    :236   el mensaje dice QUE OCURRE DE VERDAD, con el motivo y el mecanismo
+
+EL CONTEXTO QUE NO ES PERMISO. Cuando el archivo del hunk SI declara «cauce:senuelos» hoy, se dice
+—y se dice APARTE—: «→ a.sh SI declara «cauce:senuelos» HOY — es contexto, no exencion». Sin esa
+linea, quien lee un rojo sobre un fixture declarado no entiende por que no le vale la declaracion;
+con ella lo entiende Y SIGUE BLOQUEADO, que es lo correcto.
+
+AC-02 ES EL QUE GOBIERNA, Y SU CASO NO SE PUEDE QUITAR. TS-01, TS-03 y TS-04 los cumple un escaner
+que haya AMPLIADO la exencion. Solo TS-02 —el secreto que bloquea CON la declaracion puesta—
+prueba que no se hizo. Y TS-04 prueba lo otro: que la exencion del ARBOL sigue intacta, que es lo
+que PT-190 compro.
+
+UN ERROR MIO, Y YA CONOCIDO. La expectativa decia «alguna vez» y el mensaje escribe «ALGUNA VEZ».
+Fallo en la corrida acotada, no en la revision — que es exactamente lo que PT-181 compro al pasar
+las expectativas a literal: la expectativa se equivoca EN VOZ ALTA. Segunda vez en este lote, tras
+PT-196.
+
+Y UNO DE PROCESO, QUE SE DECLARA PORQUE ESTA FUSIONADO.
+
+La IMPLEMENTACION de esta tarea viajo dentro del PR de PT-195. Use «git add -A» en la rama de
+PT-195 y el commit 4811527 —que dice «PT-194 su viabilidad consta»— arrastro revisar-secretos.mjs
+(+53) y seis casos del arnes (+61). El mensaje NO miente sobre el PT que cita (FDGE-R19 se cumple)
+pero SI sobre su contenido. La historia no se reescribe (SUITE-R06f): se declara aqui, y queda
+como leccion -34 del HANDOFF. Lo que llega en el PR de esta tarea es la evidencia y este registro.
+
+Evidencia: docs/implementation/evidence/PT-194/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-194-la-exencion-de-senuelos-no-viaja-a-la-historia/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2007 casos en verde · recibo 6abffd61cfa9.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- La exencion en el ARBOL no cambia: funciona, y es lo que PT-190 compro. Tiene su caso.
+- La heuristica de los 4000 caracteres se queda: los destinos instalados dependen de ella
+  (CE-014), y revisar-secretos.mjs:87 ya lo declara.
+- No se reescribe historia ni se retira ninguna huella firmada.
+- No se promete que ningun fixture vuelva a aparecer en la historia: eso lo cerro PT-193, y este
+  mismo caso ensambla su literal en dos mitades por el mismo motivo.
+- EL «false» SIGUE SIENDO «false»: no cambia la conducta del escaner. Cambia que sea una DECISION
+  DECLARADA en vez de un efecto de por donde mira.

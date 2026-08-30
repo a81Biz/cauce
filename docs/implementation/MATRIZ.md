@@ -5,7 +5,7 @@
 > `fail()` reales del código. Una cifra transcrita caduca — es `CE-010`, medida quince
 > veces en este repositorio.
 
-254 entradas recorridas · 213 identificadores · 153 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-30
+255 entradas recorridas · 214 identificadores · 153 instancias · 17 clases declaradas · datos de 2026-08-13 a 2026-08-30
 
 | Clase | Qué es | Veces | Ordinal declarado | Primera | Última | Regla dueña | ¿Puede fallar? |
 |:---|:---|--:|--:|:---|:---|:---|:---|

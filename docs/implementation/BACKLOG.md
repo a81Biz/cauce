@@ -24,7 +24,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-181 | BUG | — | DONE | 8 | [#329](https://github.com/a81Biz/cauce/issues/329) | La expectativa de un caso se compara como regex y no hay forma de decir literal |
 | PT-187 | BUG | S2 | DRAFT | 1 | [#342](https://github.com/a81Biz/cauce/issues/342) | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
 | PT-192 | BUG | S2 | DONE | 8 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
-| PT-194 | BUG | S2 | DRAFT | 1 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
+| PT-194 | BUG | S2 | DONE | 8 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
 | PT-195 | BUG | S2 | DONE | 8 | [#353](https://github.com/a81Biz/cauce/issues/353) | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
 | PT-196 | BUG | S2 | DONE | 8 | [#355](https://github.com/a81Biz/cauce/issues/355) | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
 | PT-197 | FEATURE | S2 | DRAFT | 1 | [#356](https://github.com/a81Biz/cauce/issues/356) | DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio |
@@ -37,7 +37,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-204 | INVESTIGATION | S2 | DRAFT | 1 | [#377](https://github.com/a81Biz/cauce/issues/377) | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
 | PT-205 | BUG | S2 | DONE | 8 | [#378](https://github.com/a81Biz/cauce/issues/378) | Cumplir SUITE-R34 exige un acto fuera del comando |
 
-**11 de 16 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**12 de 16 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-027`
 
