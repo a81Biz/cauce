@@ -1,4 +1,4 @@
-# `PT-205` — Cumplir `SUITE-R34` exige un acto fuera del comando
+# `PT-205` — El verde local no predice CI para lo que depende de lo empujado, y cada caso cuesta un viaje
 
 ```yaml
 ---
@@ -17,80 +17,93 @@ suite_version: 13.4.0
 
 ## 1. Qué pasó   `[MEDIDO]`
 
-El PR **#376**, en el paso «Cumplimiento de los artefactos propios»:
+En la rama de `PT-203`, con `npm run verify` **en verde en local** antes de cada empujón:
 
 ```
-✗ SUITE-R34  Hubo trabajo en changes/ después del último estado. La sesión terminó sin dejar el
-             estado retomable […]
+$ gh run list --branch chore/…/EP-026-PT-203-…
+  failure   2 min      ✗ SUITE-R51   los issues publicados sin enlace
+  failure   7 min      ✗ SUITE-R51   los issues publicados sin enlace
+  success   6 min
+  failure   8 min      ✗ SUITE-R34   trabajo en changes/ despues del ultimo estado
+  success  33 min
+  ---
+  total 55 min · en corridas FALLIDAS 17 min
 ```
 
-**El veredicto era correcto.** Lo que no existe es la forma de cumplirlo.
+**Y el coste real no son los 17 minutos**: es el viaje. Empujar, esperar siete minutos, leer el
+log, arreglar, volver a esperar. Tres veces.
 
 ## 2. Por qué   `[HUMANO]`
 
-```js
-// tracker.mjs:3799 — DENTRO de `avanzar`, y sólo ahí
-const sello = `actualizado:    ${gitDe(['log','-1','--format=%cs'])} · ${id} en PHASE ${destino} …`;
+Las tres roturas comparten una causa: **dependen de lo que está empujado, y en local eso no existe
+todavía.**
+
+| | Qué mide | Por qué el verde local no lo ve |
+|:---|:---|:---|
+| `SUITE-R34` | `git log` de `HANDOFF.md` vs `changes/` | Lo pendiente **no está commiteado**, así que `git log` no lo ve. `PT-201` ya añadió el aviso *«MEDIDO SOBRE LO COMMITEADO»* — **y aun así volvió a pasar**, porque el aviso aparece cuando ya decidiste commitear |
+| `SUITE-R51` | Que el issue enlace un **ref durable** | En el momento de publicar, el intake **no está empujado**. La regla **no puede** cumplirse ahí |
+
+`SUITE-R62` promete que `npm run verify` equivale a CI. **Éste es su segundo límite**, y el primero
+—las comprobaciones que no pueden correr en local— ya lo declaró `PT-201`. La diferencia: aquél
+declaraba lo que no se puede saber; **éste se puede saber y no se sabe**.
+
+## 3. Y las dos secuencias sancionadas garantizan el rojo
+
+```
+asignar → escribir intake → abrir → commit → push → ✗ SUITE-R51 → abrir OTRA VEZ
+                                     ↑ publica el issue sin enlace, porque aun no hay ref
 ```
 
 ```
-$ grep -n "fHandoff|HANDOFF.md" tracker.mjs   →  sólo `avanzar` lo escribe
+avanzar → trabajo en changes/ (analisis, parada, correccion) → push → ✗ SUITE-R34
+          ↑ y «avanzar» es lo UNICO que sella el estado, y solo al cambiar de fase
 ```
 
-**`avanzar` es el único que estampa el estado, y estampa sólo al cambiar de fase.** Cualquier
-trabajo legítimo en `changes/` que no sea una transición deja el estado atrás **sin vía sancionada
-para refrescarlo**:
+**Ninguno de los dos pasos de vuelta está escrito**: ni el «`abrir` otra vez», ni cómo sellar el
+estado sin avanzar. Se descubren chocando, y hoy se han descubierto **cuatro veces** —tres de
+`SUITE-R51` con `EP-027`, `PT-204` y `PT-205`; una de `SUITE-R34`—.
 
-- escribir el `discovery`/`strategy` de las tareas siguientes mientras corre un CI
-- escribir una **parada** — que es lo que `FDGE-R55` exige, y hoy ocurrió tres veces
-- corregir la prosa de un intake ya escrito
+Es la misma forma que `PT-196` cerró para el cierre de lote: **actos necesarios que ninguna fase
+posee y que se ejecutan de memoria.** Y lo que `PT-196` dejó escrito vale aquí: lo que se ejecuta
+de memoria falla donde la memoria falla, que es en un sitio distinto cada vez.
 
-Es `CE-006` en su forma exacta: **el acto existe sólo empaquetado con otro**, así que se hace a mano
-o no se hace. Hoy se hizo **a mano** para desbloquear el PR, declarado en el `HANDOFF` como lección
-`-30`.
+## 4. Lo que lo hace defecto, y no disciplina
 
-## 3. Lo que lo hace defecto y no descuido
+**Una compuerta que sólo se satisface pasando antes por su rojo enseña a leer sus rojos como
+ruido.** `SUITE-R51` no puede cumplirse cuando `abrir` publica: el ref no existe. El rojo posterior
+no es un incumplimiento — es la **única trayectoria posible**.
 
-El propio código lo dice de su antecesor:
+Y el código ya lo dijo de un caso anterior:
 
-> *«FALTABA, y lo dijo la CI en rojo — la **TERCERA** vez que `SUITE-R34` caza este patrón en la
-> sesión. El comando **VIOLABA POR CONSTRUCCIÓN** la regla que dice que el estado viaja con el
+> *«FALTABA, y lo dijo la CI en rojo — la TERCERA vez que `SUITE-R34` caza este patrón en la
+> sesión. El comando VIOLABA POR CONSTRUCCIÓN la regla que dice que el estado viaja con el
 > trabajo.»* — `tracker.mjs:3792`
 
-`PT-158` arregló que **`avanzar`** la violara. **No arregló que `avanzar` fuera el único camino.**
-El patrón sigue vivo y aparece cuando el trabajo **no** es una transición.
-
-## 4. Y una segunda mitad: el verde local no lo predice
-
-Este paso ya falló antes en esta épica, y las dos veces por algo que el verde local no veía: la
-primera porque `verify` no corría lo mismo que CI (`PT-201`), ésta porque `SUITE-R34` se mide
-**sobre lo commiteado**. `PT-201` añadió el aviso *«MEDIDO SOBRE LO COMMITEADO»* — **y aun así
-volvió a pasar**, porque el aviso aparece cuando ya decidiste commitear.
+`PT-158` arregló que **`avanzar`** la violara. No arregló que fuera el **único camino**.
 
 ## 5. Qué NO entra   `OUT`
 
-- **Quitar `SUITE-R34`.** La regla es correcta y su rojo de hoy fue **verdad**.
-- **Un hook de `pre-commit`**: no corre en CI, se salta con `--no-verify`, y hay que instalarlo.
-- **Reescribir el `HANDOFF` automáticamente.** Su prosa es lo único del estado que no se deriva
-  (`LEX-R26`), y estamparla sería inventar.
+- **Quitar `SUITE-R34` ni `SUITE-R51`.** Las dos son correctas y sus rojos de hoy fueron **verdad**.
+- **Un hook de `pre-commit`**: no corre en CI, se salta con `--no-verify` y hay que instalarlo.
+- **Reescribir la prosa del `HANDOFF`**: es lo único del estado que no se deriva (`LEX-R26`).
+- **Predecir CI para lo que de verdad no se puede saber en local** — eso es el límite que `PT-201`
+  ya declaró, y sigue siendo un límite.
 
 ## 6. Criterios de aceptación
 
 | | Criterio | Escenario |
 |:---|:---|:---|
-| `AC-01` | Existe una vía **sancionada** de sellar el estado **sin** cambiar de fase | `TS-01` |
-| `AC-02` | El sello sigue siendo **derivado**: fecha de git, hecho del registro. Nada escrito a mano | `TS-02` |
-| `AC-03` | La prosa del `HANDOFF` **no se toca** (`LEX-R26`) | `TS-03` |
-| `AC-04` | Queda decidido si **`changes/` es la medida correcta**, o si la regla mide el sitio y no el hecho | `TS-04` |
+| `AC-01` | El verde local **avisa** de lo que romperá en CI por depender de lo empujado, **antes** de empujar | `TS-01` |
+| `AC-02` | Existe una vía **sancionada** de sellar el estado sin cambiar de fase, y el sello sigue **derivado** | `TS-02` |
+| `AC-03` | Crear una allocation **no** deja un issue sin enlace: o se dice en el momento, o se reclama después | `TS-03` |
+| `AC-04` | Lo que quede como rodeo **está escrito donde se ejecuta**, con su motivo — no descubriéndose | `TS-04` |
 
-`AC-04` no es retórico: escribir el análisis de la tarea siguiente **es** trabajo, pero no deja el
-estado irrecuperable — el `HANDOFF` no tiene nada nuevo que decir sobre él. Si la regla bloquea por
-**dónde** ocurrió y no por **qué** ocurrió, eso es `CE-001`, y decidirlo es parte de la tarea.
+`AC-04` no es el premio de consolación: `PT-196` demostró que **declarar el rodeo con su motivo**
+es a veces la respuesta correcta, y que lo inaceptable es descubrirlo cada vez.
 
 ## Cómo termina   `FDGE-R53`
 
-> Termina cuando: cumplir `SUITE-R34` no exija salirse de la herramienta, y lo que la regla mide
-> esté decidido en vez de heredado.
+> Termina cuando: empujar deje de ser la forma de enterarse de lo que ya se podía saber.
 
 ## 7. Firma   `INTAKE-R06` · `SUITE-R27`
 
@@ -105,4 +118,18 @@ He leído este Intake y confirmo que refleja mi intención: SÍ
 
 ## 8. Origen   `FDGE-R55`
 
-Parada de `EP-026` · motivo `condicion-bloqueante` · `changes/EP-026-lo-que-da-verde-sin-mirar/paradas/PT-205.md`
+Paradas de `EP-026`, **dos**, absorbidas en una sola tarea por compartir causa:
+`paradas/PT-205.md` (`SUITE-R34`) y `paradas/PT-207.md` (`SUITE-R51`).
+
+**Se absorben y no se hacen dos tareas** porque el arreglo de una sin la otra deja el viaje de CI
+en pie: lo que cuesta tiempo no es cada regla, es que el verde local no prediga el rojo remoto.
+
+## 9. Por qué va la SIGUIENTE, y no al final
+
+Lo pidió el firmante con el motivo delante:
+
+> *«necesitamos arreglar ésto. Lo ideal sería un PT para hacerlo ahora, al terminar éste, buscando
+> que los siguientes no pierdan tanto tiempo»*
+
+Quedan `PT-195`, `PT-194`, `PT-202`, `PT-187`, `PT-197`, `PT-204` y `PT-206`. **Siete tareas × un
+viaje de CI evitable ≈ una hora de reloj.** Hacerla ahora la paga el propio lote.

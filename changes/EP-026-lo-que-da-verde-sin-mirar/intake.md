@@ -138,11 +138,15 @@ aplazarlas repetiría el fallo que las origina: decirlo en una épica más y que
 | Orden | `PT` | Tipo | Qué cierra | De dónde sale |
 |---:|:---|:---|:---|:---|
 | 15 | `PT-204` | INVESTIGATION | **124 de 244 reglas son `PENDIENTE` y 91 no tienen verificador** (82 `HARD`, entre ellas `EXEC-R05`). `audit` lo dice en cada `npm run verify` y no le pertenece a nadie | `paradas/PT-204.md` |
-| 16 | `PT-205` | BUG | El estado **sólo** se sella avanzando de fase, así que cumplir `SUITE-R34` exige un acto fuera del comando (`CE-006`) | `paradas/PT-205.md` |
+| 16 | `PT-205` | BUG | **El verde local no predice CI para lo que depende de lo empujado.** 17 min de CI en corridas fallidas sólo en la rama de `PT-203`, y cuatro veces la misma forma | `paradas/PT-205.md` + `paradas/PT-207.md` |
 
 **`PT-204` no es auditar las 244.** El firmante lo descartó: *«regresar a revisar que esté es una
 regresión demasiado grande»*. Es una `INVESTIGATION` cuyo entregable es **la decisión y su alcance**
 —separar deuda de límite, rankear por consecuencia, y decidir si hace falta un lote propio—.
+
+**`PT-205` absorbe dos paradas y va la SIGUIENTE**, no la última. Lo pidió el firmante con el
+motivo: *«buscando que los siguientes no pierdan tanto tiempo»*. Quedan siete tareas × un viaje de
+CI evitable ≈ una hora de reloj, así que hacerla ahora la paga el propio lote.
 
 **`PT-205` es del lote y no de otro** porque lo destapó su propio CI, dos veces, y porque una regla
 que sólo se puede cumplir saliéndose de la herramienta es exactamente lo que este lote persigue.
