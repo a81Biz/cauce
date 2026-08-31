@@ -6,7 +6,7 @@ id: PT-181
 type: BUG
 epic: EP-026
 track: STANDARD
-status: READY
+status: INTEGRATED
 phase: 8
 created: 2026-08-28
 structural: no
