@@ -3,8 +3,8 @@
   "type": "FEATURE",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 6,
-  "fase": "Evidencia",
+  "phase": 7,
+  "fase": "Validación",
   "rama": "chore/alberto-martinez/EP-026-PT-197-el-dictamen",
   "sha": "2b556d970a230dc3ff1ba7bebdf033a855cc6296",
   "sha_corto": "2b556d9",
@@ -33,11 +33,8 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": null,
-  "produce": [
-    "manifest.json",
-    "self-review.md"
-  ],
-  "siguiente": "PHASE 6 · Evidencia — cierra con: cada AC con su evidencia, o declarado no verificado. Luego PHASE 7 · Validación.",
+  "compuerta": "G3",
+  "produce": [],
+  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
   "generado": "2026-08-30"
 }
