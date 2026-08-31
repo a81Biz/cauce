@@ -5,7 +5,7 @@
 >
 > No es la fuente de nada. Lo que decide vive en la rama de cada tarea, junto a su código.
 
-Proyectado el 2026-08-30 · 23 allocation(es) viva(s).
+Proyectado el 2026-08-31 · 5 allocation(es) viva(s).
 
 | Id | Tipo | Estado | Fase | Rama | SHA rama | SHA contenido |
 |:---|:---|:---|:---|:---|:---|:---|
@@ -13,22 +13,4 @@ Proyectado el 2026-08-30 · 23 allocation(es) viva(s).
 | EP-023 |  | DEFERRED | 1 | — | — | 9c17741 |
 | PT-171 | BUG | DEFERRED | 1 | — | — | — |
 | PT-172 | CHORE | DEFERRED | 1 | — | — | 2ee9a9b |
-| EP-026 |  | READY | 1 | — | — | c198784 |
-| PT-179 | BUG | DONE | 8 | — | — | 3c8104d |
-| PT-181 | BUG | DONE | 8 | — | — | 164a2ce |
-| PT-187 | BUG | DONE | 8 | — | — | 0a7044a |
-| PT-192 | BUG | DONE | 8 | — | — | a3058b0 |
-| PT-194 | BUG | DONE | 8 | — | — | 0d6e938 |
-| PT-195 | BUG | DONE | 8 | — | — | e42eaed |
-| PT-196 | BUG | DONE | 8 | — | — | 1bb6fc7 |
-| PT-197 | FEATURE | DONE | 8 | — | — | 9c17741 |
-| PT-198 | BUG | DONE | 8 | — | — | a88a114 |
-| PT-199 | BUG | DONE | 8 | — | — | 4259425 |
-| PT-200 | BUG | DONE | 8 | — | — | cdb7e3f |
-| PT-201 | BUG | DONE | 8 | — | — | 666d5bd |
-| PT-202 | BUG | DONE | 8 | — | — | 89a06f0 |
-| PT-203 | BUG | DONE | 8 | — | — | 1711693 |
 | EP-027 |  | DRAFT | 1 | — | — | 1711693 |
-| PT-204 | INVESTIGATION | DONE | 8 | — | — | 520f2a4 |
-| PT-205 | BUG | DONE | 8 | — | — | 3c94b68 |
-| PT-206 | BUG | DONE | 8 | — | — | c198784 |
