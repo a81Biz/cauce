@@ -3,8 +3,8 @@
   "type": "FEATURE",
   "epic": "EP-026",
   "status": "READY",
-  "phase": 4,
-  "fase": "Propuesta",
+  "phase": 5,
+  "fase": "Implementación",
   "rama": "chore/alberto-martinez/EP-026-PT-197-el-dictamen",
   "sha": "2b556d970a230dc3ff1ba7bebdf033a855cc6296",
   "sha_corto": "2b556d9",
@@ -13,20 +13,15 @@
     "changes/PT-197-el-dictamen-al-dueno-del-dominio/discovery.md",
     "changes/PT-197-el-dictamen-al-dueno-del-dominio/intake.md",
     "changes/PT-197-el-dictamen-al-dueno-del-dominio/strategy.md",
+    "changes/PT-197-el-dictamen-al-dueno-del-dominio/test-scenarios.md",
+    "changes/PT-197-el-dictamen-al-dueno-del-dominio/traceability.md",
     "docs/implementation/CHECKPOINT.json",
     "docs/implementation/HANDOFF.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SESSION_LOG.md"
   ],
-  "compuerta": "G2",
-  "produce": [
-    "design.md",
-    "tasks.md",
-    "test-scenarios.md",
-    "out-of-scope.md",
-    "spec-changes.md",
-    "traceability.md"
-  ],
-  "siguiente": "PHASE 4 · Propuesta — cierra con: G2 · aprobación. Luego PHASE 5 · Implementación.",
+  "compuerta": null,
+  "produce": [],
+  "siguiente": "PHASE 5 · Implementación — cierra con: los casos en verde y la comprobación inversa en rojo. Luego PHASE 6 · Evidencia.",
   "generado": "2026-08-30"
 }
