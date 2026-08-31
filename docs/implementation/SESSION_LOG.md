@@ -4417,3 +4417,38 @@ y pr a main y quitar las ramas es como debes terminar. La decición la vemos cua
 entrada **es** la constancia que `EXEC-R04a` pide, con el nombre de la lista `firmantes` en su
 cuerpo. Lo que cambia es que el agente puede ejecutarla; lo que no cambia es que quede escrito
 quién la autorizó, cuándo y con qué palabras.
+
+---
+
+## 2026-08-30 · Decisión de dominio para `PT-197` — qué hace válido un Dictamen   `FND-R24`
+
+**Esto no es una compuerta delegable.** `FND-R24` dice que **qué hace válido un producto** lo sabe
+quien conoce el negocio, no el agente: un `VoBo` autoriza a actuar, no transfiere un conocimiento.
+Se preguntó con las cuatro lecturas posibles delante y su coste.
+
+**Decisión:** *«Las tres, y el orden importa»* — Alberto Martínez, `2026-08-30`.
+
+### Qué queda definido
+
+Un Dictamen es **VÁLIDO** si tiene tres secciones **en este orden**:
+
+| | Sección | Qué permite hacer | Criterio de `PTSA` |
+|---:|:---|:---|:---|
+| 1 | **Qué se entregó contra lo prometido** | Verificar punto por punto que cada producto de la Declaración de Valor existe y cumple su condición | *¿Queda algún producto declarado sin veredicto?* |
+| 2 | **Qué queda sin cubrir** | Saber dónde está expuesto quien decide: lo declarado sin cubrir, las reglas sin verificador, las deudas certificadas | *¿Hay algún límite conocido que no se nombre?* |
+| 3 | **La decisión que eso habilita** | Decidir, sin leer nada más, si lo hecho justifica lo que viene | *¿Hay una decisión de inversión que este documento permita tomar y otro no?* |
+
+**El orden es parte del criterio, no presentación.** Primero lo que hay, después lo que falta, y
+sólo entonces la decisión: al revés sería una recomendación buscando datos que la sostengan.
+
+### Lo que esto le cuesta a `PT-197`
+
+Al preguntar se dijo que esta opción **convierte `PT-197` de tarea en lote**. Se ejecuta así:
+`PT-197` **declara el componente con esta especificación y produce UN Dictamen sobre este
+repositorio** —`AC-01`, `AC-02` y `AC-03` tal como su intake los escribió—, y **lo que exceda de
+eso se declara** y se abre como lote propio si hace falta.
+
+**Las tres secciones son derivables hoy**, y por eso el entregable cabe en la tarea: la
+Declaración de Valor tiene sus cuatro productos con condición de validez; los `declarado_sin_cubrir`
+de cada manifest y la salida de `audit` dan la sección 2; la 3 es un juicio que el firmante
+confirma, que es exactamente lo que `AC-03` ya pedía.

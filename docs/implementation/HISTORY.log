@@ -13241,3 +13241,110 @@ LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
 - SUITE-R26 y su «aspira, no exige» NO se retiran: puede que siga siendo la correcta. Lo que
   cambia es que SU PUERTA SE VEA y cuanto pasa por ella.
 - La cobertura SI puede bajar: lo que no puede es bajar EN SILENCIO.
+
+================================================================================
+
+## PT-197 — DICTAMEN, el septimo componente: que se construyo y si sirve
+Fecha: 2026-08-31
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-197-el-dictamen
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-31 Alberto Martinez
+Clase de evento: CE-007 — existe la herramienta y nada la echa en falta
+Origen: aplazado de EP-023 con reentrada (SUITE-R44) · su G1 fue CHALLENGE y tenia razon
+
+LOS SEIS COMPONENTES GOBIERNAN COMO SE CONSTRUYE. NINGUNO CONTESTABA QUE SE HA CONSTRUIDO Y SI
+SIRVE, que es la pregunta de quien paga.
+
+LA DECISION QUE FALTABA, Y POR QUE NO LA TOME YO.
+
+El intake declaraba: «no sabe todavia que hace VALIDO un Dictamen». FND-R24 dice por que — el
+agente puede describir lo que un producto entrega, pero SI ESO VALE LO SABE QUIEN CONOCE EL
+NEGOCIO. Un VoBo autoriza a actuar; NO TRANSFIERE UN CONOCIMIENTO. Se pregunto con las cuatro
+lecturas y su coste delante:
+
+    «las tres, y el orden importa» — Alberto Martinez, 2026-08-30
+
+    §1  que se entrego CONTRA LO PROMETIDO   ¿queda algun producto declarado sin veredicto?
+    §2  que queda SIN CUBRIR                 ¿hay algun limite conocido que no se nombre?
+    §3  la DECISION que eso habilita         ¿permite una decision que otro documento no?
+
+EL ORDEN ES CRITERIO, NO PRESENTACION. Primero lo que hay, despues lo que falta, y SOLO ENTONCES
+la decision. Al reves seria UNA RECOMENDACION BUSCANDO DATOS QUE LA SOSTENGAN, que es el defecto
+que un entregable ejecutivo comete con mas facilidad. Tiene su caso propio: «las tres secciones»
+se cumple con las tres EN CUALQUIER ORDEN.
+
+LAS TRES SECCIONES ERAN DERIVABLES HOY, y por eso el entregable cupo en la tarea. La Declaracion
+de Valor tiene sus cuatro productos con condicion de validez; los declarado_sin_cubrir de cada
+manifest, audit, FIRMAS-DE-LOTE y las paradas dan la §2; la §3 es un juicio. EL MARCO LLEVA LOTES
+PRODUCIENDO ESTOS TRES MATERIALES Y NUNCA LOS HABIA PUESTO EN EL MISMO SITIO.
+
+PT-149 TENIA RAZON: NO SE TOCO NINGUNA HERRAMIENTA. Lo que si hizo falta fue DECLARARLO EN TODOS
+LOS SITIOS DONDE EL MARCO LO BUSCA, y eso lo exigio audit, no una lectura:
+
+    ✗ DICT-R01 (HARD)    no llega a CORE.md
+    ✗ DICT-R02 (HARD)    no la cita ningun documento operativo · no llega a CORE.md
+    ✗ DICT-R03 (HARD)    no llega a CORE.md
+    ✗ [START DICTAMEN]   ausente en: CORE.md, PHASES.md
+
+CORE.md ES LO UNICO QUE EL AGENTE CARGA (SUITE-R15). Tres reglas HARD que no llegan ahi son tres
+reglas QUE NADIE EJECUTARA — exactamente lo que PT-204 acaba de medir a escala, cometido por mi al
+declararlas. Y al arreglarlo aparecio un quinto: meti el procedimiento DENTRO de la seccion de
+FDGE, y SUITE-R20 se lo imputaba a ese componente.
+
+DOS SUPOSICIONES MIAS QUE EL MARCO CORRIGIO.
+
+1 «Un *-Prompts.md de tres lineas nadie lo abriria». Era una suposicion; LEX-R15 dice lo contrario.
+  Se resolvio dandole SECCION PROPIA en PHASES.md, que es donde vive el procedimiento de los demas.
+2 «El Dictamen no tiene fases porque no es un ciclo». Declare `fases: null` y a la vez TRES
+  secciones en LEXICON: el mismo hecho con dos nombres (CE-008). Alineado a [1,3], con la
+  aclaracion de que se ejecutan EN UNA PASADA y la compuerta va al final.
+
+LA PODA QUE EL SEPTIMO COMPONENTE OBLIGA — SUITE-R61, con su cuenta por patron.
+
+    superado   4     «cubre los SEIS» · «lo dice contando» x2 · el fixture de PT-149
+    invertido  0
+    hueco      0
+
+Tres fijaban «(6 de 6)» o «(7 de 7)» —EL NUMERO DE LO CORRECTO, HANDOFF -18— y ahora comparan los
+dos numeros SIN FIJAR NINGUNO. El cuarto es el fixture de PT-149, que declaraba su componente falso
+en el orden 11 —el que ahora ocupa DICT— y SUITE-R38 lo cazo con razon: dos familias con el mismo
+orden harian que CORE.md dependa del orden de DECLARACION.
+
+Y UNO MAS QUE NO ERA CIFRA SINO CEGUERA: un caso enumeraba las seis siglas A MANO para comprobar
+que todas llegan a CORE.md. Con el septimo habria seguido EN VERDE COMPROBANDO SEIS y CALLANDO EL
+QUE FALTABA. Ahora la lista se DERIVA de COMPONENTES. Es la forma exacta que este lote persigue:
+no un caso que falla, sino UN CASO QUE DEJA DE MIRAR SIN DECIRLO.
+
+LO QUE EL DICTAMEN DICE DE ESTE REPOSITORIO, Y NO ES COMODO.
+
+    P-001  Marco normativo          CUMPLE
+    P-002  Procedimiento ejecutable CUMPLE
+    P-003  Verificacion mecanica    CUMPLE PARCIALMENTE — 142 de 247 reglas, 126 sin juzgar
+    P-004  Paquete e instalacion    CUMPLE con una divergencia declarada — npm tres versiones detras
+
+Y su §3: «el marco normativo y el procedimiento estan terminados y probados; la verificacion
+mecanica esta a poco mas de la mitad y nadie ha decidido cuanto de lo que falta es posible».
+
+UN DICTAMEN QUE SOLO CONTARA LO ENTREGADO SERIA PROPAGANDA, y DICT-R02 existe para impedirlo.
+
+Evidencia: docs/implementation/evidence/PT-197/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-197-el-dictamen-al-dueno-del-dominio/traceability.md — sin AC huerfano.
+El entregable: docs/implementation/DICTAMEN.md
+
+Corrida COMPLETA de la bateria: 2048 casos en verde · recibo 07f1581fb586.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- QUE EL DICTAMEN SIRVA lo dice el firmante. El documento lleva su bloque de firma EN BLANCO a
+  proposito: es la unica evidencia posible de que el componente vale (FND-R24, AC-03).
+- NINGUN GENERADOR, y a proposito: escribirlo antes de haber hecho uno seria decidir la forma sin
+  el dato. Ademas la §3 es un juicio, y un generador la dejaria en blanco.
+- El Dictamen de un proyecto DESTINO: este repositorio es el unico caso, y SUITE-R41 lo hace
+  representativo de la FUENTE.
+- PTSA no cambia: audita contra la Declaracion de Valor; el Dictamen la PRESENTA.
+- CERRAR ESTA TAREA NO DEMUESTRA NADA SOBRE EL OBJETIVO DEL LOTE. Es la unica FEATURE entre
+  diecisiete y el §8 del intake del lote ya lo declaraba.

@@ -1,0 +1,97 @@
+{
+  "pt": "PT-197",
+  "generated": "2026-08-31",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El Dictamen existe como componente declarado, sin tocar herramienta (PT-149)",
+      "scenarios": [
+        "TS-01"
+      ],
+      "tests": [
+        "selftest §EP-026 · el trigger del Dictamen esta declarado",
+        "selftest §EP-026 · …y ya no son seis componentes, son SIETE",
+        "selftest §EP-026 · el Dictamen tiene su caso de uso"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "PT-149 tenia razon: no se toco NINGUNA herramienta. Lo que si hizo falta fue declararlo en TODOS los sitios donde el marco lo busca —COMPONENTES, FAMILIAS, LEXICON, RULES, PHASES, CASOS-DE-USO— y eso lo exigio audit, no una lectura."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Tiene su especificacion, su trigger y su sitio en CASOS-DE-USO.md",
+      "scenarios": [
+        "TS-02",
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-026 · sus tres reglas estan definidas",
+        "selftest §EP-026 · …y la segunda impide que sea propaganda",
+        "selftest §EP-026 · el ORDEN es parte de la regla, no estilo"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "El ORDEN tiene caso propio porque «las tres secciones» se cumple con las tres EN CUALQUIER ORDEN — y la decision primero es una recomendacion buscando datos que la sostengan. Lo eligio el firmante explicitamente."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Produce un entregable sobre este repositorio, y el firmante dice si sirve",
+      "scenarios": [
+        "TS-04",
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-026 · el Dictamen existe y tiene la seccion 1",
+        "selftest §EP-026 · …y da veredicto de los cuatro productos",
+        "selftest §EP-026 · …y nombra las reglas sin juzgar",
+        "selftest §EP-026 · …y las deudas certificadas",
+        "selftest §EP-026 · …y las paradas abiertas",
+        "selftest §EP-026 · las tres secciones estan EN ORDEN",
+        "selftest §EP-026 · …y la decision es la ULTIMA",
+        "selftest §EP-026 · la firma de si SIRVE queda al firmante"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "Tiene DOS mitades y solo una es mecanizable. Que el entregable exista con sus tres secciones y veredicto de los cuatro productos SE COMPRUEBA. Que SIRVA lo dice el firmante — el documento lleva su bloque de firma EN BLANCO a proposito."
+    }
+  ],
+  "coverage": "3 de 3 criterios con escenario y caso ejecutable · 14 casos sobre 5 escenarios",
+  "medido": {
+    "la_decision_que_faltaba": "«las tres, y el orden importa» — Alberto Martinez, 2026-08-30. Sin ella PTSA no tendria contra que auditar el componente (FND-R24).",
+    "el_entregable": "docs/implementation/DICTAMEN.md · tres secciones en orden · veredicto de los CUATRO productos: P-001 CUMPLE, P-002 CUMPLE, P-003 CUMPLE PARCIALMENTE (142 de 247 reglas, 126 sin juzgar), P-004 CUMPLE con una divergencia declarada (npm tres versiones por detras)",
+    "lo_que_audit_me_obligo_a_hacer": "cuatro huecos: las tres reglas HARD no llegaban a CORE.md —lo unico que el agente carga— y el trigger faltaba en CORE y PHASES. Y un quinto: SUITE-R20 imputaba el procedimiento a FDGE por estar en su seccion.",
+    "poda_SUITE-R61": "superado 4 · invertido 0 · hueco 0. Cuatro casos fijaban el NUMERO de componentes; uno enumeraba las seis siglas a mano y con el septimo habria seguido en verde comprobando seis. Ahora se deriva de COMPONENTES."
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "El Dictamen SIRVE",
+      "por_que_no": "Lo dice el firmante. AC-03 lo reserva desde el intake y es la unica evidencia posible de que el componente vale (FND-R24). El documento lleva su bloque de firma en blanco.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Existe un generador",
+      "por_que_no": "Ninguno, y a proposito: escribir el generador antes de haber hecho uno seria decidir la forma sin el dato. Ademas la §3 es un JUICIO — un generador dejaria la tercera en blanco, que es el documento que FND-R24 dice que el agente no puede escribir solo.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Sirve para un proyecto DESTINO",
+      "por_que_no": "Este repositorio es el unico caso disponible, y SUITE-R41 lo hace representativo de la FUENTE, no del destino.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Cerrar esta tarea demuestra algo sobre el objetivo del lote",
+      "por_que_no": "Es la unica FEATURE entre diecisiete. El criterio de EP-026 —«nada da verde sin mirar»— NO la cubre, y el §8 del intake del lote ya lo declaraba.",
+      "verified": false
+    }
+  ],
+  "el_entregable": {
+    "ruta": "docs/implementation/DICTAMEN.md",
+    "por_que_no_va_en_evidence": "FDGE-R23 resuelve las rutas de `evidence` DENTRO de evidence/, asi que citarla ahi afirmaba una ruta que no existe — me lo dijo en rojo, igual que en PT-206. El Dictamen NO es evidencia de la tarea: es el PRODUCTO del componente, y vive donde vive el estado del proyecto. La evidencia de que existe y cumple sus tres reglas es salida.txt."
+  }
+}
