@@ -2,9 +2,9 @@
   "pt": "PT-197",
   "type": "FEATURE",
   "epic": "EP-026",
-  "status": "READY",
-  "phase": 7,
-  "fase": "Validación",
+  "status": "DONE",
+  "phase": 8,
+  "fase": "Persistencia",
   "rama": "chore/alberto-martinez/EP-026-PT-197-el-dictamen",
   "sha": "2b556d970a230dc3ff1ba7bebdf033a855cc6296",
   "sha_corto": "2b556d9",
@@ -20,6 +20,7 @@
     "docs/implementation/COBERTURA.json",
     "docs/implementation/DICTAMEN.md",
     "docs/implementation/HANDOFF.md",
+    "docs/implementation/HISTORY.log",
     "docs/implementation/MATRIZ.md",
     "docs/implementation/REGISTRY.json",
     "docs/implementation/SELLOS.json",
@@ -33,8 +34,11 @@
     "docs/methodology/tools/patrones.mjs",
     "docs/methodology/tools/selftest.sh"
   ],
-  "compuerta": "G3",
-  "produce": [],
-  "siguiente": "PHASE 7 · Validación — cierra con: G3 · validación. Luego PHASE 8 · Persistencia.",
+  "compuerta": null,
+  "produce": [
+    "HISTORY.log",
+    "índice"
+  ],
+  "siguiente": "PHASE 8 · Persistencia — cierra con: estado retomable (SUITE-R33/R34). Luego PHASE 9 · Integración.",
   "generado": "2026-08-30"
 }
