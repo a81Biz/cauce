@@ -116,29 +116,29 @@
 | PT-171 | BUG | S3 | DEFERRED | EP-024 | Con las secciones acotadas, algunas ordenes de primer nivel escriben a stderr sobre el esqueleto |
 | PT-177 | BUG | S3 | INTEGRATED | EP-024 | Una nota de reanclaje perdida deja una cuenta que ningun comando puede reparar |
 | PT-178 | BUG | S2 | INTEGRATED | EP-024 | avanzar deja salir de PHASE 1 sin que exista el Intake |
-| PT-179 | BUG | — | DONE | EP-026 | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
+| PT-179 | BUG | — | INTEGRATED | EP-026 | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
 | PT-180 | BUG | — | INTEGRATED | EP-024 | El slug del registro y el de la carpeta divergen, y cada herramienta usa uno |
-| PT-181 | BUG | — | DONE | EP-026 | La expectativa de un caso se compara como regex y no hay forma de decir literal |
+| PT-181 | BUG | — | INTEGRATED | EP-026 | La expectativa de un caso se compara como regex y no hay forma de decir literal |
 | PT-182 | BUG | S2 | INTEGRATED | EP-025 | El mapa fase-artefacto esta escrito a mano en dos herramientas y nadie consume el del cursor |
 | PT-183 | BUG | S1 | INTEGRATED | EP-024 | Una bandera desconocida se ignora en silencio, y nueve PT quedaron sin lote |
 | PT-184 | BUG | S1 | INTEGRATED | EP-024 | El recorte del prefijo remoto nunca casa, y toda rama publicada bloquea G4 |
 | PT-185 | BUG | S2 | INTEGRATED | EP-024 | El estado del indice se busca en toda la linea, y un titulo que nombre un estado lo rompe |
 | PT-186 | BUG | S2 | INTEGRATED | EP-024 | FDGE-R01 falla sobre una tarea en PHASE 1, que es la fase que produce el intake |
-| PT-187 | BUG | S2 | DONE | EP-026 | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
+| PT-187 | BUG | S2 | INTEGRATED | EP-026 | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
 | PT-188 | BUG | S1 | INTEGRATED | EP-025 | Un cd que falla deja al arnes operando sobre el repositorio real |
 | PT-189 | BUG | S2 | INTEGRATED | EP-025 | FDGE-R54 bloquea con un pronostico sobre una tarea que ya termino |
 | PT-190 | BUG | S2 | INTEGRATED | EP-025 | La exencion del escaner de secretos depende de un desplazamiento en bytes |
 | PT-191 | BUG | S2 | INTEGRATED | EP-025 | El sello se estampa con una bandera, no con una corrida |
-| PT-192 | BUG | S2 | DONE | EP-026 | El final del arnes se mide por POSICION y castiga cualquier anadido |
-| PT-194 | BUG | S2 | DONE | EP-026 | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
-| PT-195 | BUG | S2 | DONE | EP-026 | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
-| PT-196 | BUG | S2 | DONE | EP-026 | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
-| PT-198 | BUG | S3 | DONE | EP-026 | Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe |
-| PT-199 | BUG | S2 | DONE | EP-026 | El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca |
-| PT-200 | BUG | S2 | DONE | EP-026 | verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal |
-| PT-201 | BUG | S2 | DONE | EP-026 | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
-| PT-202 | BUG | S3 | DONE | EP-026 | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
-| PT-203 | BUG | S3 | DONE | EP-026 | Citar un PT en una fila del intake del lote lo convierte en miembro |
-| PT-204 | INVESTIGATION | S2 | DONE | EP-026 | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
-| PT-205 | BUG | S2 | DONE | EP-026 | Cumplir SUITE-R34 exige un acto fuera del comando |
-| PT-206 | BUG | S3 | DONE | EP-026 | LEX-R31 no ve el 76% de las clases que si se declaran |
+| PT-192 | BUG | S2 | INTEGRATED | EP-026 | El final del arnes se mide por POSICION y castiga cualquier anadido |
+| PT-194 | BUG | S2 | INTEGRATED | EP-026 | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
+| PT-195 | BUG | S2 | INTEGRATED | EP-026 | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
+| PT-196 | BUG | S2 | INTEGRATED | EP-026 | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
+| PT-198 | BUG | S3 | INTEGRATED | EP-026 | Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe |
+| PT-199 | BUG | S2 | INTEGRATED | EP-026 | El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca |
+| PT-200 | BUG | S2 | INTEGRATED | EP-026 | verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal |
+| PT-201 | BUG | S2 | INTEGRATED | EP-026 | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
+| PT-202 | BUG | S3 | INTEGRATED | EP-026 | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
+| PT-203 | BUG | S3 | INTEGRATED | EP-026 | Citar un PT en una fila del intake del lote lo convierte en miembro |
+| PT-204 | INVESTIGATION | S2 | INTEGRATED | EP-026 | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
+| PT-205 | BUG | S2 | INTEGRATED | EP-026 | Cumplir SUITE-R34 exige un acto fuera del comando |
+| PT-206 | BUG | S3 | INTEGRATED | EP-026 | LEX-R31 no ve el 76% de las clases que si se declaran |

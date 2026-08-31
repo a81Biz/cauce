@@ -4508,3 +4508,23 @@ firmante lo decida.
 
 **Firmar el Dictamen.** Su bloque queda **en blanco**: que sirva lo dice quien lo recibe
 (`FND-R24`, `AC-03` de `PT-197`).
+
+### Ampliación del `2026-08-31` — cerrar, comentar y limpiar
+
+**Instrucción literal:** *«limpia las ramas, tienes mi VoBo para realizar todo y cerrar, aún hay
+issues abiertos que me parece que deberían estar cerrados y comentados los necesarios con los
+hallazgos y los enlaces correspondientes. Cierra todo que quede limpio»* — Alberto Martínez.
+
+| | ¿Cubierto? |
+|:---|:---|
+| Cerrar los issues de las 17 tareas y del lote | **SÍ** |
+| Comentar los hallazgos con sus enlaces | **SÍ** |
+| `git tag -a v13.5.0` | **SÍ** — `SUITE-R06a`, y va **después** del merge |
+| Borrar las ramas efímeras ya fusionadas | **SÍ** — `FDGE-R19`, `SUITE-R06f` como excepción declarada |
+| **`npm publish`** | **NO.** Excluido por su nombre el `2026-08-30` y no mencionado aquí. Un `VoBo` que no lo nombra no levanta una reserva que sí lo nombra |
+| **`G1` de `EP-027`, `EP-028`, `EP-029`** | **NO.** Son otros lotes; se abren, no se admiten |
+
+**Lo que «limpio» significa aquí**, y se declara para que sea contrastable: `main`, `trabajo` y la
+proyección `cauce/alberto-martinez` (`SUITE-R56`). Ninguna rama efímera, ningún issue de `EP-026`
+abierto, y los lotes que quedan abiertos —`EP-027` y los que se abran— **visibles y sin admitir**,
+que no es lo mismo que sucio.

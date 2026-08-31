@@ -6,7 +6,7 @@
 ---
 id: EP-026
 created: 2026-08-26
-status: READY
+status: CLOSED
 mode: SUPERVISED
 origin: DIRECT
 depende_de: EP-025
