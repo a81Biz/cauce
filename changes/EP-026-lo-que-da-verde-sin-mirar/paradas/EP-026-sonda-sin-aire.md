@@ -81,3 +81,34 @@ eso queda suelto, y es lo que dejó siete paradas de `EP-022` huérfanas»—. E
 No promete que el límite secundario deje de existir: es de la plataforma y no se negocia. Lo que
 se persigue es que **cuando ocurra, el mensaje diga lo que pasa** — y que el protocolo de cierre
 no lo provoque sin avisar.
+
+---
+
+## Addendum · la misma forma, encontrada al arreglar ésta   `2026-08-31`
+
+Al poner el estado al día para desbloquear `SUITE-R34`, `sellar-estado` respondió:
+
+> `HANDOFF.md no declara una linea «actualizado:», o no existe.`
+
+**La línea existe y ya era correcta.** `estampaEstado`
+([`tracker.mjs:5266`](../../../docs/methodology/tools/tracker.mjs)) devuelve `null` cuando el
+reemplazo produce un texto **idéntico**, y quien lo llama lee ese `null` como «no hay línea»:
+
+```js
+const nuevoH = h.replace(/^actualizado:.*$/m, sello);
+if (nuevoH === h) return null;        // ← «no hay linea» y «ya estaba igual» son el MISMO null
+```
+
+| Causa real | Qué hay que hacer | Qué dice el mensaje |
+|:---|:---|:---|
+| No hay línea `actualizado:` | escribirla | «no declara una línea» ✓ |
+| La línea **ya es idéntica** | cambiar **la prosa** (lección `-33`) | «no declara una línea» ✗ |
+
+Y el segundo caso **no es raro: es el normal al cerrar un lote**. El sello se deriva de la fecha
+del último commit y del `CHECKPOINT`; si ninguno cambia —mismo día, misma tarea— no hay nada que
+estampar, y `SUITE-R34` se queda rojo señalando una línea que está delante de los ojos.
+
+Es **la tercera vez en esta tarea** que aparece la misma forma: `decidirSalida` (arriba),
+`estampaEstado` (aquí) y `PENDIENTE` en `audit` (`PT-204`, ya corregida). Tres sitios, un patrón:
+**un valor de fallo que representa dos hechos con arreglos distintos**. Eso ya no es un defecto
+suelto — es material para una regla, y la propuesta va con lo anterior al mismo dueño.
