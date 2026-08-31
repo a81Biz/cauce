@@ -4417,3 +4417,94 @@ y pr a main y quitar las ramas es como debes terminar. La decición la vemos cua
 entrada **es** la constancia que `EXEC-R04a` pide, con el nombre de la lista `firmantes` en su
 cuerpo. Lo que cambia es que el agente puede ejecutarla; lo que no cambia es que quede escrito
 quién la autorizó, cuándo y con qué palabras.
+
+---
+
+## 2026-08-30 · Decisión de dominio para `PT-197` — qué hace válido un Dictamen   `FND-R24`
+
+**Esto no es una compuerta delegable.** `FND-R24` dice que **qué hace válido un producto** lo sabe
+quien conoce el negocio, no el agente: un `VoBo` autoriza a actuar, no transfiere un conocimiento.
+Se preguntó con las cuatro lecturas posibles delante y su coste.
+
+**Decisión:** *«Las tres, y el orden importa»* — Alberto Martínez, `2026-08-30`.
+
+### Qué queda definido
+
+Un Dictamen es **VÁLIDO** si tiene tres secciones **en este orden**:
+
+| | Sección | Qué permite hacer | Criterio de `PTSA` |
+|---:|:---|:---|:---|
+| 1 | **Qué se entregó contra lo prometido** | Verificar punto por punto que cada producto de la Declaración de Valor existe y cumple su condición | *¿Queda algún producto declarado sin veredicto?* |
+| 2 | **Qué queda sin cubrir** | Saber dónde está expuesto quien decide: lo declarado sin cubrir, las reglas sin verificador, las deudas certificadas | *¿Hay algún límite conocido que no se nombre?* |
+| 3 | **La decisión que eso habilita** | Decidir, sin leer nada más, si lo hecho justifica lo que viene | *¿Hay una decisión de inversión que este documento permita tomar y otro no?* |
+
+**El orden es parte del criterio, no presentación.** Primero lo que hay, después lo que falta, y
+sólo entonces la decisión: al revés sería una recomendación buscando datos que la sostengan.
+
+### Lo que esto le cuesta a `PT-197`
+
+Al preguntar se dijo que esta opción **convierte `PT-197` de tarea en lote**. Se ejecuta así:
+`PT-197` **declara el componente con esta especificación y produce UN Dictamen sobre este
+repositorio** —`AC-01`, `AC-02` y `AC-03` tal como su intake los escribió—, y **lo que exceda de
+eso se declara** y se abre como lote propio si hace falta.
+
+**Las tres secciones son derivables hoy**, y por eso el entregable cabe en la tarea: la
+Declaración de Valor tiene sus cuatro productos con condición de validez; los `declarado_sin_cubrir`
+de cada manifest y la salida de `audit` dan la sección 2; la 3 es un juicio que el firmante
+confirma, que es exactamente lo que `AC-03` ya pedía.
+
+---
+
+## 2026-08-31 · `G4` de `EP-026` — constancia   `EXEC-R04a` · `SUITE-R06a`
+
+**Autorización del firmante, literal:**
+
+> *«solo puedes dejar el publicar a npm fuera, que es manual, pero el merge y pr a main y quitar
+> las ramas es como debes terminar»* — **Alberto Martínez**, `2026-08-30`
+
+`EXEC-R04` · `G4` es humana en los tres modos, **sin excepción**. Esta entrada **es** la constancia
+que la regla pide: nombre de la lista `firmantes`, fecha y palabras. Lo que la autorización cambia
+es que el agente pueda **ejecutarla**; lo que no cambia es que quede escrito **quién la autorizó**.
+
+### Qué se integra
+
+`EP-026` · **17 tareas, todas cerradas.** El lote nació con catorce y creció en marcha —`PT-204`,
+`PT-205`, `PT-206`— porque cerrar es el primer momento en que todo se mira junto (`CE-015`).
+
+```
+verify-fdge --gate G4 EP-026    sin errores
+selftest --todo                 2048 casos en verde · recibo 07f1581fb586
+SUITE-R45                       las 7 filas de cierre resueltas
+version                         todo declara 13.5.0
+```
+
+### Qué se hace, y en qué orden   `PHASES` · CIERRE DE UN LOTE   `PT-196`
+
+```
+1  PR de PT-197 a «trabajo»            revision, NO es G4 [FDGE-R19]        HECHO · #387 verde
+2  G4 · merge de «trabajo» a «main»    HUMANA — autorizada arriba
+3  tracker integrar … --aplicar        DONE -> INTEGRATED
+4  ── SEGUNDO MERGE A «main» ──        SUITE-R46 · no es un descuido
+5  tracker cerrar --aplicar            cierra los 17 issues
+6  tracker integrar EP-026 --aplicar   el lote a CLOSED
+7  tracker cierre EP-026 --aplicar     comentario de cierre
+8  tracker proyectar --publicar        SUITE-R56
+9  git tag -a v13.5.0                  DESPUES del merge [SUITE-R06a]
+10 borrar las ramas efimeras           [FDGE-R19, SUITE-R06f]
+```
+
+**Es la primera vez que este protocolo se ejecuta**, y lo escribió `PT-196` en este mismo lote tras
+medir que cerrar un lote había fallado **siete veces**, ninguna con el mismo síntoma.
+
+### Qué NO se hace, y por qué
+
+**`npm publish`.** El firmante lo excluye por su nombre —*«sólo puedes dejar el publicar a npm
+fuera, que es manual»*— y `SUITE-R06g` lo reserva. **npm se quedará en la `13.1.0`**, cuatro
+versiones por detrás del repositorio: eso está **medido y dicho** en el Dictamen (`§1`, `P-004`) y
+en el `CHANGELOG`, y ahora `tracker versiones` lo dice en cualquier momento.
+
+**`G1` de `EP-027`, `EP-028` y `EP-029`.** Son otros lotes. Se abren o se admiten cuando el
+firmante lo decida.
+
+**Firmar el Dictamen.** Su bloque queda **en blanco**: que sirva lo dice quien lo recibe
+(`FND-R24`, `AC-03` de `PT-197`).

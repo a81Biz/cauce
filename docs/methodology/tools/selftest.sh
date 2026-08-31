@@ -8360,8 +8360,17 @@ AU147="$SUITE/tools/audit.mjs"
 # que pasaban PORQUE FIDE FALLABA, y se pusieron en rojo el dia que dejo de fallar. Un caso que
 # solo puede pasar mientras hay un defecto no comprueba nada (RULE-02). audit publica ahora la
 # ANCHURA de la auditoria, que es lo que estos casos siempre quisieron decir.
-chk   "la auditoria de fases cubre los SEIS"      "(6 de 6)" \
-  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+# PT-197 · FIJABA «(6 de 6)» —EL NUMERO DE LO CORRECTO— y anadir el septimo componente lo rompio
+# sin que nada estuviera mal. Lo que el caso SIEMPRE quiso decir es que la anchura cubre a TODOS, y
+# eso se dice SIN CIFRA: los dos numeros son iguales. Leccion -18, y SUITE-R61 lo llama «superado».
+_anchura197() {   # imprime TODOS si la auditoria cubre a todos los componentes
+  local l a b
+  l=$(sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1" | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "TODOS ($a)"; else echo "PARCIAL a=$a b=$b"; fi
+}
+chkl  "la auditoria de fases cubre a TODOS"      "TODOS"    _anchura197
 chk   "FIDE entra, con su rango"                  "FIDE 1-5" \
   sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
 chk   "FPGE entra, con su rango"                  "FPGE 1-7" \
@@ -8722,7 +8731,16 @@ chk   "…y dice en cual falta"                         "ausente en" alta168
 # EL FRENO. Sin esto, «fallar siempre» pasaria el caso de arriba y seria PEOR que el defecto: los
 # seis componentes reales se volverian rojos y alguien quitaria la comprobacion entera.
 chkno "los seis reales NO se vuelven huecos"          "FDGE PHASE" alta168
-chk   "…y el arnes lo dice contando"                  "(7 de 7)"   alta168
+# PT-197 · mismo repunte: fijaba «(7 de 7)» —los seis mas el falso— y el septimo componente real
+# lo convirtio en ocho. Lo que mide es que el ANADIDO entre en la cuenta, no cuantos hay.
+_cuenta168() {
+  local l a b
+  l=$(alta168 | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "CUENTA TODOS ($a)"; else echo "PARCIAL a=$a b=$b"; fi
+}
+chkl  "…y el arnes lo dice contando"                  "CUENTA TODOS"   _cuenta168
 # Y sobre el arbol real: sin huecos. La cifra NO bajo —52 antes y despues— porque los seis estaban
 # bien documentados. Lo que cambio no es cuanto se cubre: es que la cobertura PUEDA FALLAR.
 chk   "el arbol real sigue sin huecos"                "sin huecos" \
@@ -8811,7 +8829,10 @@ alta149() {
   cp -r "$SUITE"/. "$Z149/alta/" 2>/dev/null
   # 1 y 2 · el CONTRATO: el componente y su familia de reglas
   perl -0pi -e "s/(    fases: \[1, 5\],\n    en_core: true,\n  \},\n)/\$1  {\n    nombre: 'Zeta', prompts: 'ZETA-Prompts.md', sigla: 'ZT', prefijo: 'ZTA',\n    directorio: 'ZETA', obligatorio: false, triggers: ['[START ZETA]'],\n    fases: [1, 3], en_core: true,\n  },\n/" "$Z149/alta/tools/patrones.mjs"
-  perl -0pi -e "s/(\{ prefijo: 'FIDE'[^\n]*\},)/\$1\n  { prefijo: 'ZTA', documento: 'RULES.md', orden: 11, etiqueta: 'Zeta' },/" "$Z149/alta/tools/patrones.mjs"
+  # PT-197 · el orden 11 lo ocupa DICT desde que el Dictamen es el septimo componente, y dos
+  # familias con el mismo orden hacen que CORE.md dependa del orden de DECLARACION en vez del
+  # declarado — SUITE-R38 lo caza, y tiene razon. El falso pasa al 12, detras del ultimo real.
+  perl -0pi -e "s/(\{ prefijo: 'DICT'[^\n]*\},)/\$1\n  { prefijo: 'ZTA', documento: 'RULES.md', orden: 12, etiqueta: 'Zeta' },/" "$Z149/alta/tools/patrones.mjs"
   # 3 · LEXICON 3 · su tabla de fases. Sin esto el rango es INVENTADO (RULE-06, PT-156).
   perl -0pi -e "s/^### 3\.7 El contrato de componente/### 3.6b Zeta\n\n| PHASE | Nombre |\n|:--|:---|\n| 1 | Uno |\n| 2 | Dos |\n| 3 | Tres |\n\n---\n\n### 3.7 El contrato de componente/m" "$Z149/alta/LEXICON.md"
   # 5 · el archivo de prompts, con sus fases
@@ -8839,7 +8860,16 @@ chk   "verify-suite recoge el prefijo nuevo"          "ZTA" \
 # audit: la ANCHURA, que es lo que discrimina. Las lineas «<comp> PHASE <n>» NO valen: audit las
 # da por cubiertas si el NUMERO aparece en cualquier sitio del documento — es PT-168.
 chk   "audit lo audita, y son siete de siete"         "Zeta 1-3" en149 node tools/audit.mjs .
-chk   "…y lo dice contando, no de pasada"             "(7 de 7)"  en149 node tools/audit.mjs .
+# PT-197 · tercero de la misma forma: fijaba «(7 de 7)» y el septimo componente REAL lo hizo ocho.
+# Lo que mide es que el anadido ENTRE EN LA CUENTA, no cuantos hay.
+_cuenta149() {
+  local l a b
+  l=$(en149 node tools/audit.mjs . | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "CUENTA TODOS ($a)"; else echo "PARCIAL a=$a b=$b"; fi
+}
+chkl  "…y lo dice contando, no de pasada"             "CUENTA TODOS"  _cuenta149
 chk   "verify-patrones admite un septimo componente"  "Todos los patrones cumplen" \
   en149 node tools/verify-patrones.mjs
 
@@ -9130,10 +9160,20 @@ chkno "con intake NO se queja de FDGE-R01"         "PHASE 1 no puede darse por t
 # CORE.md es lo unico que el agente carga (SUITE-R15).
 mlib  "CORE publica el rango que declara el contrato" "COINCIDEN" "$SUITE/tools/patrones.mjs"   "const {join,dirname}=require('path');
    const core=require('fs').readFileSync(join(dirname(process.env.MTH_MOD),'..','CORE.md'),'utf8');
-   const falta=['FND','FDGE','QA','PTSA','FPGE','FIDE'].filter((c)=>!core.includes(c)||!m.fasesDe(c));
-   console.log(falta.length ? 'FALTAN '+falta.join(' ') : 'COINCIDEN los seis');"
-chk   "…y los SEIS componentes estan en el mapa"   "6 de 6" \
-  node "$SUITE/tools/audit.mjs"
+   // PT-197 · la lista se DERIVA de COMPONENTES en vez de enumerarse: escrita a mano, anadir el
+   // septimo la dejaba comprobando seis y callando el que faltaba — el hueco que no se delata.
+   const falta=m.COMPONENTES.map((c)=>c.sigla).filter((c)=>!core.includes(c)||!m.fasesDe(c));
+   console.log(falta.length ? 'FALTAN '+falta.join(' ') : 'COINCIDEN todos');"
+# PT-197 · cuarto de la misma forma: fijaba «6 de 6» y el septimo componente lo hizo siete. Lo que
+# mide es que TODOS esten en el mapa, no cuantos son.
+_mapa197() {
+  local l a b
+  l=$(node "$SUITE/tools/audit.mjs" 2>&1 | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "TODOS EN EL MAPA ($a)"; else echo "FALTAN a=$a b=$b"; fi
+}
+chkl  "…y TODOS los componentes estan en el mapa"  "TODOS EN EL MAPA"  _mapa197
 
 # ── PT-166 · la grafia prohibida esta en la lista de prohibidas ─────────────
 #
@@ -10013,10 +10053,15 @@ _terreno200() {  # monta un proyecto sintetico VERDE con un PT terminal · $1=st
   } > "$d/changes/PT-800-x/bitacora.md"
   printf '## PT-800 — CHORE: x\nFecha: 2026-08-29\nEstado: %s\nEstructural: no\nCompuertas: G3 2026-08-29 Alberto Martinez\n' "${1:-INTEGRATED}" > "$d/docs/implementation/HISTORY.log"
   printf '# REFACTOR_SCOPE\n\n| ID | Tipo | Sev | Estado | Lote | Título |\n|:--|:--|:--|:--|:--|:--|\n| PT-800 | CHORE | S3 | %s | EP-800 | x |\n' "${1:-INTEGRATED}" > "$d/docs/implementation/REFACTOR_SCOPE.md"
-  { printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":800},"allocations":['
+  # PT-197 · LA VERSION SE DERIVA DEL CHANGELOG, no se escribe. Estaba fijada a «13.4.0» y al
+  # subir a 13.5.0 verify-fdge fallaba ANTES de imprimir el recuento, asi que los cinco casos de
+  # PT-200 salian con la salida VACIA — no median el sellado: median la version. Es CE-010, la
+  # cifra transcrita que caduca, dentro del arnes que existe para cazarla.
+  local V200; V200=$(grep -oE '^## [0-9]+[.][0-9]+[.][0-9]+' "$SUITE/CHANGELOG.md" | head -1 | grep -oE '[0-9]+[.][0-9]+[.][0-9]+')
+  { printf '{"firmantes":["Alberto Martinez"],"suite_version":"%s","counters":{"PT":800},"allocations":[' "$V200"
     printf '{"id":"EP-800","slug":"l","status":"READY","phase":1},'
     printf '{"id":"PT-800","slug":"x","type":"CHORE","severity":"S3","epic":"EP-800","status":"%s","phase":%s' "${1:-INTEGRATED}" "${2:-9}"
-    printf ',"suite_version":"13.4.0","branch":"chore/t/PT-800-x"'
+    printf ',"suite_version":"%s","branch":"chore/t/PT-800-x"' "$V200"
     printf ',"origen_parada":{"de":"PT-799","motivo":"hallazgo","fecha":"2026-08-29"}'
     printf ',"viabilidad":{"veredicto":"SAFE"}}]}'
   } > "$d/docs/implementation/REGISTRY.json"
@@ -10697,6 +10742,53 @@ chkl  "…y no pasa por vacio: el aviso esta"          "244"                 _co
 # Y LA SUBIDA TAMBIEN SE DICE: sin esto, el hito solo hablaria de lo malo y nadie sabria si el
 # trabajo de un lote sirvio de algo.
 chkl  "…y una subida tambien se dice"                "SUBIO"               _cob204 1
+
+# -- PT-197 . DICTAMEN, el septimo componente ---------------------------------
+#
+# Los seis componentes gobiernan COMO SE CONSTRUYE. Ninguno respondia QUE SE HA CONSTRUIDO Y SI
+# SIRVE, que es la pregunta de quien paga. El intake declaraba que no sabia que hace VALIDO un
+# Dictamen —FND-R24 lo reserva a quien conoce el negocio— y se pregunto:
+#
+#   «las tres, y el orden importa» — Alberto Martinez, 2026-08-30
+#
+# AC-01 . TS-01 . SE DA DE ALTA DECLARANDOLO, sin tocar herramienta. Es el mecanismo que PT-149
+# dejo probado, y esta tarea lo USA en vez de construirlo.
+chkl  "el trigger del Dictamen esta declarado"      "[START DICTAMEN]"   cat "$SUITE/LEXICON.md"
+chkl  "…y ya no son seis componentes, son SIETE"    "Los SIETE componentes"  cat "$SUITE/LEXICON.md"
+# AC-02 . TS-02 . SUS TRES REGLAS, con severidad y criterio de validez.
+chkl  "sus tres reglas estan definidas"             "DICT-R01"           cat "$SUITE/RULES.md"
+chkl  "…y la segunda impide que sea propaganda"     "ningun limite conocido queda sin nombrar" \
+  sh -c 'sed "s/ú/u/g;s/í/i/g;s/á/a/g;s/é/e/g;s/ó/o/g" "$1"' _ "$SUITE/RULES.md"
+# AC-02 . TS-03 . Y EL ORDEN ES PARTE DE LA REGLA, no presentacion.
+#
+# Sin esto, «las tres secciones» se cumple con las tres EN CUALQUIER ORDEN — y la decision primero
+# es el defecto tipico de un entregable ejecutivo: una recomendacion buscando datos que la
+# sostengan. Lo eligio el firmante EXPLICITAMENTE, asi que es criterio.
+chkl  "el ORDEN es parte de la regla, no estilo"    "va DESPUÉS"         cat "$SUITE/RULES.md"
+# AC-01 . TS-01 . Y TIENE SU RECORRIDO, con que lo hace valido.
+chkl  "el Dictamen tiene su caso de uso"            "D1"                 cat "$SUITE/CASOS-DE-USO.md"
+# AC-03 . TS-04 . PRODUCE UN ENTREGABLE, con las tres secciones y veredicto de los CUATRO.
+_dict197() { cat "$RAIZ/docs/implementation/DICTAMEN.md"; }
+chkl  "el Dictamen existe y tiene la seccion 1"     "DICT-R01"           _dict197
+chkl  "…y da veredicto de los cuatro productos"     "P-004"              _dict197
+# AC-03 . TS-05 . Y NINGUN LIMITE CONOCIDO QUEDA SIN NOMBRAR.
+#
+# Es el criterio de DICT-R02 y el que impide que el Dictamen sea propaganda: un entregable
+# ejecutivo que solo cuenta lo entregado es exactamente lo que nadie deberia firmar.
+chkl  "…y nombra las reglas sin juzgar"             "SIN_JUZGAR"         _dict197
+chkl  "…y las deudas certificadas"                  "FIRMAS-DE-LOTE"     _dict197
+chkl  "…y las paradas abiertas"                     "EP-028"             _dict197
+# Y LA SECCION 3 VA DESPUES DE LAS DOS, en el documento y no solo en la regla.
+_orden197() {
+  grep -n "^## §" "$RAIZ/docs/implementation/DICTAMEN.md" | head -3 | tr '\n' ' '
+}
+chkl  "las tres secciones estan EN ORDEN"           "§1"                 _orden197
+# Y SU PAREJA: la 3 es la ULTIMA. Sin esto, «estan las tres» lo cumple cualquier orden.
+chkl  "…y la decision es la ULTIMA"                 "§3"                 \
+  sh -c 'grep -n "^## §" "$1" | tail -1' _ "$RAIZ/docs/implementation/DICTAMEN.md"
+# Y LO QUE EL DICTAMEN NO PROMETE, que es lo que AC-03 reserva al firmante.
+chkl  "la firma de si SIRVE queda al firmante"      "Firma pendiente"    _dict197
+
 
   cat "$SUITE/tools/verify-fdge.mjs"
 # LA CIFRA DE LA FAMILIA se DECLARA en la evidencia y en HISTORY, no se fija aqui: once expresiones

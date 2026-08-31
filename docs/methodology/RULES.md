@@ -5,7 +5,7 @@
 > explican su porqué; nunca reformulan el texto.
 > **Autoridad:** ver `LEX-R21`. Vocabulario: [LEXICON.md](LEXICON.md).
 >
-> Suite version: **13.4.0**
+> Suite version: **13.5.0**
 
 ---
 
@@ -363,6 +363,9 @@ Reglas operativas de PTSA que el resto de la suite necesita citar:
 | `FIDE-R03` | HARD | **Autoridad consultiva, obediencia operativa.** Ante una elección que FIDE considera subóptima: advertir siempre; obedecer si el usuario insiste; registrar la decisión en `11-Conventions.md` como «Deuda Técnica Aceptada desde el Día Cero». |
 | `FIDE-R04` | HARD | **Compatibilidad con Foundation.** FIDE genera `docs/enterprise-documentation/` con los nombres canónicos de `LEX-R10` §6.1, y copia también los documentos de Foundation a `docs/methodology/`. La numeración propia de v3 (`00-BUSINESS_CASE`, `01-PRD`, `02-ARCHITECTURE`, `03-CONVENTIONS`) rompía en silencio a FDGE, QA, PTSA y FPGE en todo proyecto nacido de FIDE. |
 | `FIDE-R05` | HARD | Las features que FIDE vuelca al índice `ENRICHMENT.md` nacen en `DRAFT`, nunca en `READY`. Cada una pasa por FDGE PHASE 1 con firma humana antes de construirse (`FDGE-R01`). Un PRD redactado por un agente a partir de una consultoría es un punto de partida, no una intención declarada. |
+| `DICT-R01` | HARD | **La §1 del Dictamen da veredicto de CADA producto declarado.** Por cada `P-nnn` de la Declaración de Valor (`FND-R24`), el Dictamen dice si cumple su **«VÁLIDO si»** y con qué evidencia. **VÁLIDO si:** ningún producto declarado queda sin veredicto. Existe porque la Declaración de Valor lleva lotes declarando cuatro productos con su condición de validez y **nada los recorría uno por uno para decir si la cumplen**: `PTSA` audita contra ella, pero su salida es para quien lee código. Un producto sin veredicto es indistinguible de uno que nadie miró (`CE-005`). |
+| `DICT-R02` | HARD | **La §2 nombra lo que el marco NO garantiza.** Lo declarado sin cubrir en las evidencias, las reglas sin verificador, las deudas certificadas y las paradas abiertas. **VÁLIDO si:** ningún límite conocido queda sin nombrar. Es la regla que impide que el Dictamen sea **propaganda**: un entregable ejecutivo que sólo cuenta lo entregado es exactamente lo que nadie debería firmar, y el marco ya produce todos estos límites — lo que faltaba era ponerlos donde los lee quien decide. |
+| `DICT-R03` | HARD | **La §3 enuncia la decisión que las dos anteriores habilitan, y va DESPUÉS.** **VÁLIDO si:** hay una decisión que este documento permite tomar y otro no. **El orden es parte de la regla, no presentación**: primero lo que hay, después lo que falta, y sólo entonces la decisión. Al revés sería **una recomendación buscando datos que la sostengan**, que es el defecto que un entregable ejecutivo comete con más facilidad. Lo eligió el firmante explícitamente —«las tres, y el orden importa», `2026-08-30`— y por eso es criterio y no estilo. |
 | `FIDE-R06` | HARD | El `README.md` del paquete generado por FIDE declara explícitamente que documenta **arquitectura prevista, no observada**, y que no cumple todavía `FND-R01`. Sin esa declaración, todo consumidor asume —correctamente para Foundation, incorrectamente para FIDE— que cada afirmación está respaldada por el código. |
 
 ---

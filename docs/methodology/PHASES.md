@@ -7,7 +7,7 @@
 > Formato: `LEE` fuentes obligatorias · `HAZ` acciones · `SALE` artefactos · `NO` prohibido ·
 > `PARA` condición de detención. Las reglas se citan por ID; su texto está en `CORE.md §Reglas`.
 >
-> Suite version: **13.4.0**
+> Suite version: **13.5.0**
 
 ---
 
@@ -885,6 +885,37 @@ IDEMPOTENCIA si ya hay 00-Business-Case o package.json: NO destruir. Retomar o a
 ```
 
 ---
+
+## DICTAMEN
+
+### DICTAMEN · el entregable ejecutivo, en una pasada   `[START DICTAMEN]` · `PT-197`
+```
+POR QUE AQUI  Los seis componentes anteriores gobiernan COMO SE CONSTRUYE. Ninguno contestaba
+     QUE SE HA CONSTRUIDO Y SI SIRVE, que es la pregunta de quien paga. No es un ciclo con
+     compuertas: es UN entregable, y sus tres fases son sus tres SECCIONES.
+PHASE 1  Lectura     los productos de la Declaracion de Valor y su evidencia · lo declarado sin
+                     cubrir en cada manifest · audit · las deudas certificadas · las paradas
+PHASE 2  Veredicto   §1 y §2 del documento
+PHASE 3  Decision    §3 — y va DESPUES, que es la mitad del criterio
+
+EL ORDEN ES LA REGLA, NO LA PRESENTACION.
+     Primero lo que hay [DICT-R01], despues lo que falta [DICT-R02], y solo entonces la
+     decision [DICT-R03]. Al reves seria una RECOMENDACION BUSCANDO DATOS QUE LA SOSTENGAN, que
+     es el defecto que un entregable ejecutivo comete con mas facilidad.
+
+DICT-R02 ES LA QUE IMPIDE QUE SEA PROPAGANDA.
+     Un entregable ejecutivo que solo cuenta lo entregado es exactamente lo que nadie deberia
+     firmar. El marco ya produce todos esos limites —lo declarado sin cubrir, las reglas sin
+     verificador, las deudas certificadas, las paradas abiertas—: lo que faltaba era ponerlos
+     DONDE LOS LEE QUIEN DECIDE.
+
+LA COMPUERTA ES HUMANA Y VA AL FINAL  [FND-R24]
+     Que el Dictamen SIRVA no lo dice el agente. El documento lleva su bloque de firma en
+     blanco a proposito: es la unica evidencia posible de que el componente vale.
+
+QUE NO ES   PTSA AUDITA contra la Declaracion de Valor; el Dictamen la PRESENTA. «tracker
+     estado» dice QUE HAY; el Dictamen, SI SIRVE. El CHANGELOG cuenta QUE CAMBIO.
+```
 
 ## Migración y compatibilidad
 

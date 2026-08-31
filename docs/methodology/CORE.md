@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 056bb93dc145 -->
-<!-- fuentes: RULES.md:48771ee419a8 LEXICON.md:aa4c063c87c1 EXECUTION-MODES.md:98cbdea0668a PHASES.md:c77d48ac20ff -->
+<!-- cuerpo: b691ee41877f -->
+<!-- fuentes: RULES.md:816397abfc32 LEXICON.md:11920ba4b441 EXECUTION-MODES.md:289cb1b699bb PHASES.md:0fbf9c13ebf0 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -63,6 +63,7 @@ PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 
 FPGE  1 Compuertas · 2 Evidencia · 3 Candidatos · 4 Priority · 5 Orden · 6 Emisión
       7 Stop◆ — ordena y se DETIENE: promover es humano (FPGE-R04)
 FIDE  1-5  — declarado en el contrato; su recorrido, en LEXICON §3
+DICT  1-3  — declarado en el contrato; su recorrido, en LEXICON §3
 ```
 
 ## Compuertas × modo
@@ -144,6 +145,7 @@ CE-017  La comprobación acusa a quien documenta el hecho
 [START QA] · delta QA PT-XXX · status QA · promote QD-NNN to FDGE|PTSA · close QD-NNN
 [START PTSA] · resume PTSA · delta PTSA · status PTSA · audit PTSA close H-XXX
 [START FPGE] · promote FPGE R-NNN[..R-MMM as EP-XXX] · status FPGE
+[START DICTAMEN]
 ```
 
 ## Rutas
@@ -463,6 +465,12 @@ verifica un script y bloquea la integración.
 `FIDE-R04` **H** Compatibilidad con Foundation. FIDE genera docs/enterprise-documentation/ con los nombres canónicos de LEX-R10 §6.1, y copia también los documentos de Foundation a docs/methodology/. La numeración propia de…
 `FIDE-R05` **H** Las features que FIDE vuelca al índice ENRICHMENT.md nacen en DRAFT, nunca en READY.
 `FIDE-R06` **H** El README.md del paquete generado por FIDE declara explícitamente que documenta arquitectura prevista, no observada, y que no cumple todavía FND-R01.
+
+### DICT — Dictamen
+
+`DICT-R01` **H** La §1 del Dictamen da veredicto de CADA producto declarado.
+`DICT-R02` **H** La §2 nombra lo que el marco NO garantiza.
+`DICT-R03` **H** La §3 enuncia la decisión que las dos anteriores habilitan, y va DESPUÉS.
 
 ## Procedimiento por fase
 
@@ -1340,6 +1348,37 @@ IDEMPOTENCIA si ya hay 00-Business-Case o package.json: NO destruir. Retomar o a
 ```
 
 ---
+
+## DICTAMEN
+
+### DICTAMEN · el entregable ejecutivo, en una pasada   `[START DICTAMEN]` · `PT-197`
+```
+POR QUE AQUI  Los seis componentes anteriores gobiernan COMO SE CONSTRUYE. Ninguno contestaba
+     QUE SE HA CONSTRUIDO Y SI SIRVE, que es la pregunta de quien paga. No es un ciclo con
+     compuertas: es UN entregable, y sus tres fases son sus tres SECCIONES.
+PHASE 1  Lectura     los productos de la Declaracion de Valor y su evidencia · lo declarado sin
+                     cubrir en cada manifest · audit · las deudas certificadas · las paradas
+PHASE 2  Veredicto   §1 y §2 del documento
+PHASE 3  Decision    §3 — y va DESPUES, que es la mitad del criterio
+
+EL ORDEN ES LA REGLA, NO LA PRESENTACION.
+     Primero lo que hay [DICT-R01], despues lo que falta [DICT-R02], y solo entonces la
+     decision [DICT-R03]. Al reves seria una RECOMENDACION BUSCANDO DATOS QUE LA SOSTENGAN, que
+     es el defecto que un entregable ejecutivo comete con mas facilidad.
+
+DICT-R02 ES LA QUE IMPIDE QUE SEA PROPAGANDA.
+     Un entregable ejecutivo que solo cuenta lo entregado es exactamente lo que nadie deberia
+     firmar. El marco ya produce todos esos limites —lo declarado sin cubrir, las reglas sin
+     verificador, las deudas certificadas, las paradas abiertas—: lo que faltaba era ponerlos
+     DONDE LOS LEE QUIEN DECIDE.
+
+LA COMPUERTA ES HUMANA Y VA AL FINAL  [FND-R24]
+     Que el Dictamen SIRVA no lo dice el agente. El documento lleva su bloque de firma en
+     blanco a proposito: es la unica evidencia posible de que el componente vale.
+
+QUE NO ES   PTSA AUDITA contra la Declaracion de Valor; el Dictamen la PRESENTA. «tracker
+     estado» dice QUE HAY; el Dictamen, SI SIRVE. El CHANGELOG cuenta QUE CAMBIO.
+```
 
 ## Migración y compatibilidad
 

@@ -1699,6 +1699,30 @@ export const COMPONENTES = [
     fases: [1, 5],
     en_core: true,
   },
+  {
+    // PT-197 · EL SEPTIMO. Los seis anteriores gobiernan COMO SE CONSTRUYE; ninguno respondia QUE
+    // SE HA CONSTRUIDO Y SI SIRVE, que es la pregunta de quien paga.
+    //
+    // TRES FASES, y NO son un ciclo: son las tres SECCIONES del entregable, y el orden es
+    // criterio (DICT-R01..R03). Se declaran porque audit exige que quien es componente declare su
+    // rango, y porque LEXICON §3.5b las escribe — dejarlo en null aqui y en tres alli seria el
+    // hecho con dos nombres que CE-008 persigue. Se ejecutan en UNA pasada: la compuerta es
+    // humana y va al final.
+    //
+    // Y SIN PROMPTS todavia: LEX-R15 pide que todo componente tenga su archivo o DECLARE por que
+    // no puede. Aqui el motivo es que su procedimiento cabe en CASOS-DE-USO D1 y en tres reglas;
+    // escribir un *-Prompts.md de tres lineas seria un documento que nadie abriria (SIN_EVALUAR
+    // es el valor que dice «no se ha decidido», no «no hace falta»).
+    nombre: 'DICTAMEN',
+    prompts: SIN_EVALUAR,
+    sigla: 'DICT',
+    prefijo: 'DICT',
+    directorio: null,
+    obligatorio: false,
+    triggers: ['[START DICTAMEN]'],
+    fases: [1, 3],
+    en_core: true,
+  },
 ];
 
 /**
@@ -1721,6 +1745,10 @@ export const FAMILIAS = [
   { prefijo: 'PTSA', documento: 'PTSA/PTSA-V3-Especificacion-Oficial.md', orden: 8, etiqueta: 'Auditoría — definidas en la especificación oficial' },
   { prefijo: 'FPGE', documento: 'RULES.md', orden: 9, etiqueta: 'Priorización' },
   { prefijo: 'FIDE', documento: 'RULES.md', orden: 10, etiqueta: 'Incubación' },
+  // PT-197 · sin esta fila, DICT-R01..R03 NO LLEGAN A CORE.md — y CORE.md es lo unico que el
+  // agente carga (SUITE-R15). Una regla HARD que no llega ahi es una regla que nadie ejecutara:
+  // `audit` lo bloqueo en la primera corrida, que es exactamente para lo que existe.
+  { prefijo: 'DICT', documento: 'RULES.md', orden: 11, etiqueta: 'Dictamen' },
 ];
 
 // ── Proyecciones ────────────────────────────────────────────────────────────

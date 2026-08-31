@@ -27,7 +27,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-194 | BUG | S2 | DONE | 8 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
 | PT-195 | BUG | S2 | DONE | 8 | [#353](https://github.com/a81Biz/cauce/issues/353) | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
 | PT-196 | BUG | S2 | DONE | 8 | [#355](https://github.com/a81Biz/cauce/issues/355) | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
-| PT-197 | FEATURE | S2 | DRAFT | 1 | [#356](https://github.com/a81Biz/cauce/issues/356) | DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio |
+| PT-197 | FEATURE | S2 | DONE | 8 | [#356](https://github.com/a81Biz/cauce/issues/356) | DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio |
 | PT-198 | BUG | S3 | DONE | 8 | [#357](https://github.com/a81Biz/cauce/issues/357) | Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe |
 | PT-199 | BUG | S2 | DONE | 8 | [#361](https://github.com/a81Biz/cauce/issues/361) | El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca |
 | PT-200 | BUG | S2 | DONE | 8 | [#362](https://github.com/a81Biz/cauce/issues/362) | verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal |
@@ -38,7 +38,7 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 | PT-205 | BUG | S2 | DONE | 8 | [#378](https://github.com/a81Biz/cauce/issues/378) | Cumplir SUITE-R34 exige un acto fuera del comando |
 | PT-206 | BUG | S3 | DONE | 8 | [#385](https://github.com/a81Biz/cauce/issues/385) | LEX-R31 no ve el 76% de las clases que si se declaran |
 
-**16 de 17 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**17 de 17 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Implementación abierta — `EP-027`
 

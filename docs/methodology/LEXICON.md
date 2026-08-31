@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **13.4.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **13.5.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -155,6 +155,23 @@ correcta encima de documentación vieja contradictoria y nadie sabía cuál mand
 | 4 | Scaffolding |
 | 5 | Handoff |
 
+### 3.5b DICTAMEN — el entregable ejecutivo al dueño del dominio   `PT-197`
+
+| PHASE | Nombre |
+|:--|:---|
+| 1 | Lectura |
+| 2 | Veredicto |
+| 3 | Decisión |
+
+**Las tres no son un ciclo: son las tres secciones del entregable, y el orden es criterio**
+(`DICT-R01`…`DICT-R03`). Se declaran como fases porque es la única forma que este marco tiene de
+decir «el componente tiene un recorrido y éste es», y porque `audit` exige que quien es componente
+declare su rango — **no inventarlo sería dejar un hueco; inventar un `[0,10]` sería fingir un ciclo
+que no existe** (`RULE-06`).
+
+**Se ejecutan en una sola pasada.** No hay compuerta entre ellas: la compuerta es humana y va al
+final — el firmante dice **si sirve**, y eso es lo único que `FND-R24` no delega.
+
 ### 3.6 FPGE — Priorización Gobernada por Evidencia
 
 | PHASE | Nombre | Compuerta |
@@ -210,7 +227,13 @@ haría indistinguible de uno que cumple.
 `LEX-R36` · Un **componente** tiene fases, triggers y directorio. Una **familia de reglas** es un
 prefijo con un documento propietario y un orden de emisión en `CORE.md`.
 
-**Los seis componentes son también familia. Cuatro familias no son componente:**
+**Los SIETE componentes son también familia. Cuatro familias no son componente:**
+
+`PT-197` · **DICTAMEN es el séptimo**, y entra por el mecanismo que `PT-149` dejó probado: un
+componente se da de alta **declarándolo** — nombre y trigger aquí, reglas en `RULES.md`, recorrido
+en `CASOS-DE-USO.md` — **sin tocar ninguna herramienta**. Los seis anteriores gobiernan **cómo se
+construye**; ninguno respondía **qué se ha construido y si sirve**, que es la pregunta de quien
+paga.
 
 ```
 SUITE   INTAKE            reglas de RULES.md que no pertenecen a un componente
@@ -1176,6 +1199,7 @@ al pie de la letra concluiría que `FIDE` incumple, y quien mirase la herramient
 | `delta PTSA` | PTSA | Delta sync: re-auditar solo lo afectado. |
 | `status PTSA` | PTSA | Reportar score, clasificación y freshness. |
 | `[START FPGE]` | FPGE | Corrida completa de priorización. |
+| `[START DICTAMEN]` | DICTAMEN | El entregable ejecutivo al dueño del dominio: qué se entregó contra lo prometido, qué queda sin cubrir, y la decisión que eso habilita — **en ese orden** (`DICT-R01`…`DICT-R03`). |
 | `promote FPGE R-NNN` | FPGE | Promover un ítem a PT. |
 | `promote FPGE R-NNN..R-MMM as EP-XXX` | FPGE | Promover un rango como lote. |
 | `status FPGE` | FPGE | Reportar el roadmap vigente sin recalcular. |

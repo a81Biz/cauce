@@ -1,5 +1,5 @@
 {
-  "suite_version": "13.4.0",
+  "suite_version": "13.5.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -6757,8 +6757,8 @@
       "id": "PT-197",
       "slug": "el-dictamen-al-dueno-del-dominio",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "FEATURE",
       "severity": "S2",
@@ -6769,6 +6769,29 @@
         "de": "EP-023",
         "motivo": "abre-trabajo",
         "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 888,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
       }
     },
     {
