@@ -10053,10 +10053,15 @@ _terreno200() {  # monta un proyecto sintetico VERDE con un PT terminal · $1=st
   } > "$d/changes/PT-800-x/bitacora.md"
   printf '## PT-800 — CHORE: x\nFecha: 2026-08-29\nEstado: %s\nEstructural: no\nCompuertas: G3 2026-08-29 Alberto Martinez\n' "${1:-INTEGRATED}" > "$d/docs/implementation/HISTORY.log"
   printf '# REFACTOR_SCOPE\n\n| ID | Tipo | Sev | Estado | Lote | Título |\n|:--|:--|:--|:--|:--|:--|\n| PT-800 | CHORE | S3 | %s | EP-800 | x |\n' "${1:-INTEGRATED}" > "$d/docs/implementation/REFACTOR_SCOPE.md"
-  { printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":800},"allocations":['
+  # PT-197 · LA VERSION SE DERIVA DEL CHANGELOG, no se escribe. Estaba fijada a «13.4.0» y al
+  # subir a 13.5.0 verify-fdge fallaba ANTES de imprimir el recuento, asi que los cinco casos de
+  # PT-200 salian con la salida VACIA — no median el sellado: median la version. Es CE-010, la
+  # cifra transcrita que caduca, dentro del arnes que existe para cazarla.
+  local V200; V200=$(grep -oE '^## [0-9]+[.][0-9]+[.][0-9]+' "$SUITE/CHANGELOG.md" | head -1 | grep -oE '[0-9]+[.][0-9]+[.][0-9]+')
+  { printf '{"firmantes":["Alberto Martinez"],"suite_version":"%s","counters":{"PT":800},"allocations":[' "$V200"
     printf '{"id":"EP-800","slug":"l","status":"READY","phase":1},'
     printf '{"id":"PT-800","slug":"x","type":"CHORE","severity":"S3","epic":"EP-800","status":"%s","phase":%s' "${1:-INTEGRATED}" "${2:-9}"
-    printf ',"suite_version":"13.4.0","branch":"chore/t/PT-800-x"'
+    printf ',"suite_version":"%s","branch":"chore/t/PT-800-x"' "$V200"
     printf ',"origen_parada":{"de":"PT-799","motivo":"hallazgo","fecha":"2026-08-29"}'
     printf ',"viabilidad":{"veredicto":"SAFE"}}]}'
   } > "$d/docs/implementation/REGISTRY.json"

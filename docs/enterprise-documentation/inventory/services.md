@@ -6,7 +6,7 @@
 
 | Herramienta | Líneas | Qué hace | Escribe | Ejercitada por |
 |:---|---:|:---|:---|:---|
-| `selftest.sh` | 10936 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
+| `selftest.sh` | 10941 | 697 casos sobre un proyecto sintético con defectos inyectados | crea y borra `$WORK` | `npm run selftest` · CI |
 | `tracker.mjs` | 5508 | El estado operativo: espejo, consulta, checkpoint, transición, sesión, presupuesto, personas, proyección. **17 acciones** | **sí** · registro, checkpoint, marca de sesión, rama derivada | `npm run verify:espejo` · CI · el agente en cada fase |
 | `verify-fdge.mjs` | 3557 | Cumplimiento de los artefactos de un proyecto: registro, terreno, PTs, evidencia, estado, instalación | no | `selftest` · `verificacion.yml` · `cauce verify` |
 | `verify-suite.mjs` | 1045 | Coherencia de la metodología: vocabulario derogado, reglas citadas inexistentes, obligaciones mal ubicadas, enlaces rotos, versiones | no | `npm run verify:suite` · CI |

@@ -5,7 +5,7 @@
 > explican su porqué; nunca reformulan el texto.
 > **Autoridad:** ver `LEX-R21`. Vocabulario: [LEXICON.md](LEXICON.md).
 >
-> Suite version: **13.4.0**
+> Suite version: **13.5.0**
 
 ---
 

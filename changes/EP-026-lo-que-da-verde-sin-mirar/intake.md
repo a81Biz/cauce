@@ -223,10 +223,29 @@ cuatro días después bloqueaba el `G4` de otro lote. Este nace descompuesto.
 
 | Qué se resuelve al cerrar | Estado |
 |:---|:---|
-| Entrada de `CHANGELOG.md` | PENDIENTE |
-| Número de versión | PENDIENTE — **`MINOR` esperado**: son correcciones y acotamientos, no reglas nuevas. Un `MAJOR` significaría que se cambió un contrato público |
-| La severidad de `PT-179` y `PT-181` | PENDIENTE — vence el `2026-09-30` (`PT-183`) |
-| Si `PT-197` debió estar en este lote | PENDIENTE — se responde con lo medido al cerrar, no ahora |
-| Qué invalida el sello de un `PT` terminal | PENDIENTE — es la decisión de diseño de `PT-200` |
-| Lo que aparezca **al cerrar** | PENDIENTE — en `EP-025` fueron cinco hallazgos, cuatro del propio cierre |
-| El tag y la publicación | PENDIENTE — el tag es posterior al merge (`SUITE-R06a`); `npm publish` sigue **reservado** |
+| Entrada de `CHANGELOG.md` | **HECHO** — `13.5.0` |
+| Número de versión | **HECHO · `MINOR`**, y la previsión se cumplió: diecisiete tareas y **ningún contrato público cambió**. `DICT-R01`…`R03` son reglas **nuevas de un componente nuevo**, no un cambio de las existentes; `LEX-R25` se **completó** sin derogar nada |
+| La severidad de `PT-179` y `PT-181` | **TRAS EL MERGE** — vence el `2026-09-30` (`PT-183`) y no es de este lote |
+| Si `PT-197` debió estar en este lote | **HECHO: no debió.** Medido — es la única `FEATURE` entre diecisiete y el criterio del lote no la cubre, como su propio `§8` declaraba. Cerrarla **no demuestra nada** sobre «nada da verde sin mirar». Se hizo aquí porque el firmante decidió no abrir lote nuevo, y va última porque construir el Dictamen sobre un marco cuya verificación miente sería auditar con una regla torcida |
+| Qué invalida el sello de un `PT` terminal | **HECHO: su material y el verificador.** `materialDe` incluye la allocation, `changes/`, `evidence/`, su entrada de `HISTORY`, **y los bytes de `verify-fdge.mjs` y `patrones.mjs`** (`PT-200`, `HANDOFF -27`). **Y eso es lo que hace que el sello no ahorre nada aquí**: editar una línea del verificador reabre los 189. Está medido y es `EP-028` |
+| Lo que aparezca **al cerrar** | **HECHO** — ver abajo |
+| El tag y la publicación | **TRAS EL MERGE** (`SUITE-R45`, `PT-196`): el tag es posterior al merge por `SUITE-R06a`, y `npm publish` sigue **reservado al firmante** — *«sólo puedes dejar el publicar a npm fuera, que es manual»*, `2026-08-30` |
+
+### Lo que apareció al cerrar
+
+**Cinco paradas, ninguna buscada**, y todas de la familia que el lote persigue:
+
+| | Qué | Desenlace |
+|:---|:---|:---|
+| `PT-204` | 124 de 244 reglas que nada ejecuta, y el número mezclaba dos hechos | **Cerrada en el lote** |
+| `PT-205` | El verde local no predecía CI para lo que depende de lo empujado | **Cerrada en el lote** |
+| `PT-206` | `LEX-R31` no veía el 71 % de las clases declaradas | **Cerrada en el lote** |
+| `PT-207` | La secuencia sancionada garantiza el rojo de `SUITE-R51` | **Absorbida** en `PT-205` |
+| `EP-028` | El coste de la verificación: ~30 min de batería por tarea | **Se abre al cerrar**, decisión del firmante |
+
+**Y el lote creció de 14 a 17 tareas en marcha**, declarado en `§5`. Eso no es descontrol: es
+`CE-015` —el cierre destapa más que el reparto— funcionando como debe, porque **cerrar es el primer
+momento en que todo se mira junto**.
+
+**Dos lotes más quedan abiertos y sin admitir**, y su `G1` es del firmante: `EP-027` (saldar las 26
+firmas certificadas) y `EP-029` (juzgar las 126 sin juzgar, decidido por `PT-204`).
