@@ -5931,7 +5931,7 @@
       "id": "EP-026",
       "slug": "lo-que-da-verde-sin-mirar",
       "created": "2026-08-26",
-      "status": "READY",
+      "status": "CLOSED",
       "phase": 1,
       "suite_version": "13.2.0",
       "title": "Lo que da verde sin mirar: verificadores que avisan donde deberian bloquear",
