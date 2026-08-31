@@ -7,7 +7,7 @@ type: BUG
 severity: S3
 epic: EP-026
 track: STANDARD
-status: DRAFT
+status: INTEGRATED
 phase: 8
 created: 2026-08-30
 structural: no
