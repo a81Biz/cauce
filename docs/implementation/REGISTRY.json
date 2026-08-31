@@ -5941,7 +5941,14 @@
           "firmante": "Alberto Martínez",
           "fecha": "2026-08-28"
         }
-      }
+      },
+      "declaraciones": [
+        {
+          "revision": "2026-09-07",
+          "dueno": "Alberto Martínez",
+          "fecha": "2026-08-31"
+        }
+      ]
     },
     {
       "id": "PT-179",
