@@ -16,21 +16,38 @@ Regenerable desde `REGISTRY.json`. No asigna identificadores (`SUITE-R08`): los 
 
 ## Implementación abierta — `EP-026`
 
-`EP-026` · **Lo que da verde sin mirar: verificadores que avisan donde deberian bloquear** · `DRAFT` · issue [#331](https://github.com/a81Biz/cauce/issues/331).
+`EP-026` · **Lo que da verde sin mirar: verificadores que avisan donde deberian bloquear** · `READY` · issue [#331](https://github.com/a81Biz/cauce/issues/331).
 
 | PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
 |:---|:---|:---|:---|:---|:---|:---|
-| PT-179 | BUG | — | DRAFT | 1 | [#327](https://github.com/a81Biz/cauce/issues/327) | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
-| PT-181 | BUG | — | DRAFT | 1 | [#329](https://github.com/a81Biz/cauce/issues/329) | La expectativa de un caso se compara como regex y no hay forma de decir literal |
-| PT-187 | BUG | S2 | DRAFT | 1 | [#342](https://github.com/a81Biz/cauce/issues/342) | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
-| PT-192 | BUG | S2 | DRAFT | 1 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
-| PT-194 | BUG | S2 | DRAFT | 1 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
-| PT-195 | BUG | S2 | DRAFT | 1 | [#353](https://github.com/a81Biz/cauce/issues/353) | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
-| PT-196 | BUG | S2 | DRAFT | 1 | [#355](https://github.com/a81Biz/cauce/issues/355) | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
-| PT-197 | FEATURE | S2 | DRAFT | 1 | [#356](https://github.com/a81Biz/cauce/issues/356) | DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio |
-| PT-198 | BUG | S3 | DRAFT | 1 | [#357](https://github.com/a81Biz/cauce/issues/357) | Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe |
+| PT-179 | BUG | — | DONE | 8 | [#327](https://github.com/a81Biz/cauce/issues/327) | verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6 |
+| PT-181 | BUG | — | DONE | 8 | [#329](https://github.com/a81Biz/cauce/issues/329) | La expectativa de un caso se compara como regex y no hay forma de decir literal |
+| PT-187 | BUG | S2 | DONE | 8 | [#342](https://github.com/a81Biz/cauce/issues/342) | Las versiones no cuadran entre CHANGELOG, tags y npm, y nada lo comprueba |
+| PT-192 | BUG | S2 | DONE | 8 | [#349](https://github.com/a81Biz/cauce/issues/349) | El final del arnes se mide por POSICION y castiga cualquier anadido |
+| PT-194 | BUG | S2 | DONE | 8 | [#351](https://github.com/a81Biz/cauce/issues/351) | La declaracion cauce:senuelos exime el arbol y no el escaneo de historia |
+| PT-195 | BUG | S2 | DONE | 8 | [#353](https://github.com/a81Biz/cauce/issues/353) | Nada comprueba que la identidad git del repositorio sea de una persona declarada |
+| PT-196 | BUG | S2 | DONE | 8 | [#355](https://github.com/a81Biz/cauce/issues/355) | Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote |
+| PT-197 | FEATURE | S2 | DONE | 8 | [#356](https://github.com/a81Biz/cauce/issues/356) | DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio |
+| PT-198 | BUG | S3 | DONE | 8 | [#357](https://github.com/a81Biz/cauce/issues/357) | Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe |
+| PT-199 | BUG | S2 | DONE | 8 | [#361](https://github.com/a81Biz/cauce/issues/361) | El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca |
+| PT-200 | BUG | S2 | DONE | 8 | [#362](https://github.com/a81Biz/cauce/issues/362) | verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal |
+| PT-201 | BUG | S2 | DONE | 8 | [#363](https://github.com/a81Biz/cauce/issues/363) | Hay comprobaciones que no pueden correr en local y el marco no lo declara |
+| PT-202 | BUG | S3 | DONE | 8 | [#364](https://github.com/a81Biz/cauce/issues/364) | publicar.yml viaja al proyecto destino, donde npm publish no aplica |
+| PT-203 | BUG | S3 | DONE | 8 | [#365](https://github.com/a81Biz/cauce/issues/365) | Citar un PT en una fila del intake del lote lo convierte en miembro |
+| PT-204 | INVESTIGATION | S2 | DONE | 8 | [#377](https://github.com/a81Biz/cauce/issues/377) | 124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida |
+| PT-205 | BUG | S2 | DONE | 8 | [#378](https://github.com/a81Biz/cauce/issues/378) | Cumplir SUITE-R34 exige un acto fuera del comando |
+| PT-206 | BUG | S3 | DONE | 8 | [#385](https://github.com/a81Biz/cauce/issues/385) | LEX-R31 no ve el 76% de las clases que si se declaran |
 
-**0 de 9 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+**17 de 17 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
+
+## Implementación abierta — `EP-027`
+
+`EP-027` · **Saldar la deuda que PT-203 hizo visible: 26 firmas de lote certificadas** · `DRAFT` · issue [#375](https://github.com/a81Biz/cauce/issues/375).
+
+| PT | Tipo | Sev | Estado | Fase | Issue | Qué resuelve |
+|:---|:---|:---|:---|:---|:---|:---|
+
+**0 de 0 cerradas.** Las cifras salen del registro: no se transcriben (`PT-091`).
 
 ## Aplazado — 4 allocation(s) `DEFERRED`
 

@@ -1,0 +1,25 @@
+PT-206 · corrida COMPLETA en verde · 2026 casos
+
+  [32m✓[0m una entrada que declara su clase, en verde
+  [32m✓[0m …y una que no la declara, AVISA
+  [32m✓[0m la clase con descripcion detras se lee
+  [32m✓[0m …y la escueta tambien
+  [32m✓[0m …y sin clase declarada devuelve null
+  [32m✓[0m …ni con la etiqueta y sin identificador
+  [32m✓[0m la lectura de la clase vive en patrones
+  [32m✓[0m …y verify-fdge ya no trae su propia expresion
+  [32m✓[0m la expresion anclada ya no se USA
+
+selftest: OK · 2026 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "2026", "arnes": "1c7cebcbec948f9aa062390208b1527c35945b94", "fecha": "2026-08-30T19:47:54Z" }
+
+== SOBRE EL ARBOL REAL: de 22 a 76 ==
+  entradas que DECLARAN una clase : 76
+  que LEX-R31 veia ANTES          : 22
+  que ve AHORA                    : 76
+
+  y las dos direcciones, sobre entradas reales:
+  ✓ LEX-R31        PT-119: declara «Clase de evento: CE-002».
+  ! LEX-R31        PT-129: su entrada de HISTORY.log no declara «Clase de evento: CE-NNN». Es opcional —no todo trabajo repite un tropiezo— pero sin ella la matriz de eventos no puede contar esta tarea, y lo que no se cuenta no se corrige.

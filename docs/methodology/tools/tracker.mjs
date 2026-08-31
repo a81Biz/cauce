@@ -64,6 +64,10 @@ import { fasesDeFDGE, nodosSinVisitar } from './patrones.mjs';
 import { RIGE_DESDE, reglasNuevasFueraDeLaGuia, PREFIJOS_DE_ID } from './patrones.mjs';
 // PT-096 · SUITE-R38 · un lote se reconoce por su ID, y el predicado vive en UN solo sitio.
 import { esLote } from './patrones.mjs';
+// PT-198 · el frontmatter de un intake se lee por UN sitio, y ese sitio vive donde
+// verify-patrones lo vigila. Habia siete expresiones a mano aqui, todas ancladas a fin de
+// linea, y un comentario `#` —YAML valido— las rompia en silencio.
+import { campoDeIntake, reemplazaCampoDeIntake } from './patrones.mjs';
 // PT-091 · las cifras del inventario se DERIVAN, no se transcriben.
 import { cifrasTranscritas, cifrasQueMienten, recuentosDeClaude } from './patrones.mjs';
 // PT-150 · la escala de severidad la declara LEXICON §8.3, y vive una sola vez.
@@ -971,7 +975,18 @@ const BANDERAS_CONOCIDAS = (() => {
     return null;
   }
 })();
-{
+// PT-200 · UN MODULO IMPORTADO NO VALIDA LOS ARGV DE QUIEN LO IMPORTA.
+//
+// verify-fdge.mjs IMPORTA este archivo —`estadoContrastado`, `FASES`, `estadoDelArbol`— y un
+// import ejecuta el cuerpo del modulo. Asi que esta comprobacion miraba `process.argv` de
+// verify-fdge y rechazaba sus banderas: «verify-fdge --all --sellar» moria con «bandera
+// desconocida: --sellar», nombrando banderas de tracker que no venian al caso.
+//
+// La guarda ya existia mas abajo (EJECUTADO_DIRECTO, :1486) pero se calculaba DESPUES de este
+// bloque. Se adelanta: la validacion es del CLI, no de la biblioteca.
+const CORRE_COMO_CLI = !!process.argv[1]
+  && resolve(process.argv[1]).toLowerCase() === fileURLToPath(import.meta.url).toLowerCase();
+if (CORRE_COMO_CLI) {
   const desconocidas = ARGS.filter((a) => /^--[^=]+$/.test(a))
     .filter((a) => BANDERAS_CONOCIDAS && !BANDERAS_CONOCIDAS.has(a));
   if (desconocidas.length) {
@@ -1618,7 +1633,7 @@ const PLATAFORMA = reg.tracker?.plataforma ?? null;
 //
 // Lo que NO se hace es callar la diferencia: sin tablero, SUITE-R43 no se puede evaluar, y una
 // garantia que deja de comprobarse en silencio es peor que una que no existe (RULE-06).
-const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar',
+const SIN_PLATAFORMA = new Set(['estado', 'checkpoint', 'avanzar', 'proyectar', 'siguiente', 'coste', 'viabilidad', 'sesion', 'personas', 'asignar', 'rama', 'sellar', 'sellar-estado', 'versiones',
   // PT-121 · «integrar» y «firmar» escriben el REGISTRO y el YAML del intake, los dos
   // locales. Exigirles plataforma repetiria lo que PT-133 acabo de arreglar en «parada»:
   // pedir credencial para escribir un archivo del repositorio, y dejar sin viaje de vuelta
@@ -3091,11 +3106,18 @@ function tipo() {
 
   const fIntake = join(carpetaDe(a), 'intake.md');
   if (!existsSync(fIntake)) throw new Error(`${id} no tiene intake en ${fIntake}: sin el no hay de donde derivar el tipo.`);
-  const enYaml = readFileSync(fIntake, 'utf8').match(/^type:[ \t]*([A-Z]+)[ \t]*$/m)?.[1];
-  if (!enYaml) {
+  const campoTipo = campoDeIntake(readFileSync(fIntake, 'utf8'), 'type');
+  // PT-198 · AUSENTE y NO LEGIBLE son dos hechos distintos y se dicen distinto (RULE-02).
+  if (!campoTipo) {
     throw new Error(`el intake de ${id} no declara «type». Se declara ahi primero: manda el YAML `
       + '(PT-004), y el registro lo espeja.');
   }
+  if (campoTipo.valor === null) {
+    throw new Error(`el intake de ${id} declara «type» en la linea ${campoTipo.linea} y no se `
+      + `pudo leer su valor: «${campoTipo.cruda.trim()}». El campo ESTA — lo que falla es la `
+      + 'lectura, y decir que no esta mandaria a anadir lo que ya hay (PT-198).');
+  }
+  const enYaml = campoTipo.valor;
   if (!TIPOS_DE_ITEM.includes(enYaml)) {
     throw new Error(`el intake de ${id} declara «${enYaml}», que no es un tipo de item. `
       + `LEXICON §8.1 declara: ${TIPOS_DE_ITEM.join(' · ')}`);
@@ -3237,6 +3259,48 @@ function personas() {
   di('  CLAUDE.md sigue respondiendo quien puede firmar, y son cosas distintas.');
 }
 
+/**
+ * PT-196 · Que toca AHORA en el cierre de un lote, derivado de sus tareas y del arbol.
+ *
+ * No añade estado: mira en que estan sus PT y en que rama vive el terminal. El orden no es una
+ * lista que alguien recuerda — es el que SUITE-R46 impone, y por eso incluye el SEGUNDO merge.
+ */
+function cierreDeLote(ep) {
+  const suyas = all.filter((x) => x?.epic === ep.id);
+  const vivasAqui = suyas.filter((x) => !ESTADOS_TERMINALES.has(x.status) && x.status !== 'DONE');
+  const enDone = suyas.filter((x) => x.status === 'DONE');
+  const integradas = suyas.filter((x) => x.status === 'INTEGRATED');
+  di('');
+  di(`  ${ep.id}  ${ep.status}  ·  cierre del lote  ·  ${suyas.length} tarea(s)${ep.issue ? `  ·  #${ep.issue}` : ''}`);
+  di(`  reparto:    ${integradas.length} INTEGRATED · ${enDone.length} DONE · ${vivasAqui.length} sin terminar`);
+  if (vivasAqui.length) {
+    di(`  siguiente:  el lote NO cierra: ${vivasAqui.slice(0, 5).map((x) => x.id).join(' · ')} sin estado terminal.`);
+    di('              Un lote cierra cuando TODAS sus tareas lo estan (PHASES · LOTES).');
+    return;
+  }
+  if (enDone.length) {
+    di('  siguiente:  1) PR de la rama del lote a «trabajo» · 2) G4: merge de «trabajo» a «main», HUMANA');
+    di(`              3) «tracker integrar ${enDone.slice(0, 3).map((x) => x.id).join(' ')} --aplicar» → DONE a INTEGRATED`);
+    di('  ojo:        despues del 3 hace falta un SEGUNDO merge a «main». No es un descuido:');
+    di('              «tracker cerrar» exige que INTEGRATED este YA en la rama por defecto');
+    di('              (SUITE-R46), y ese apunte se escribe DESPUES de integrar. Cerrar un lote');
+    di('              pasa por G4 dos veces, y esta declarado en vez de descubrirse cada vez.');
+    return;
+  }
+  if (ep.status !== 'CLOSED') {
+    di('  siguiente:  1) «tracker cerrar --aplicar» → cierra los issues (SUITE-R46: solo con el');
+    di('                 estado terminal ya en la rama por defecto)');
+    di(`              2) «tracker integrar ${ep.id} --aplicar» → el lote a CLOSED`);
+    di('              3) «tracker cierre ' + ep.id + ' --aplicar» → publica el comentario de cierre');
+    di('              4) «tracker proyectar --publicar» (SUITE-R56)');
+    di('              5) «git tag -a vX.Y.Z» DESPUES del merge — HUMANO (SUITE-R06a)');
+    di('              6) borrar las ramas efimeras ya fusionadas (FDGE-R19)');
+    di('  resuelve:   las filas «TRAS EL MERGE» de su «## Cierre del lote» se contestan AQUI.');
+    return;
+  }
+  di('  siguiente:  el lote esta CLOSED. Queda el tag si aplica y borrar sus ramas efimeras.');
+}
+
 function siguienteDe() {
   let cp = null;
   try { cp = JSON.parse(readFileSync(join(ROOT, 'docs/implementation/CHECKPOINT.json'), 'utf8')); }
@@ -3268,6 +3332,14 @@ function siguienteDe() {
         descendiente: desciendeDe(cp.sha),
       })
       : null;
+    // PT-196 · SI ES UN LOTE CON TODAS SUS TAREAS TERMINADAS, LO QUE TOCA ES EL CIERRE.
+    //
+    // `queSigue` contesta por FASE, y las fases son del PT: para un lote devolvia «PHASE 1 ·
+    // Intake», que es la de su propio intake y no dice nada del cierre. Los seis actos posteriores
+    // a G4 —integrar, mergear otra vez, cerrar, sellar el lote, proyectar, el tag— estaban
+    // descritos en PHASES.md como PROSA dentro de PHASE 9, que ya termino en el merge: ninguna
+    // fase los posee y se ejecutan de memoria. Aqui tienen dueno, y se DERIVA del registro.
+    if (esLote(a)) { cierreDeLote(a); continue; }
     const r = queSigue(a, { comentarioPendiente: pendiente, issueAbierto: abierto, arbol });
     di('');
     di(`  ${r.id}  ${r.estado}${r.fase !== null && r.fase !== undefined ? `  ·  PHASE ${r.fase} ${r.nombre}` : ''}${a.issue ? `  ·  #${a.issue}` : ''}`);
@@ -3690,13 +3762,8 @@ function avanzar() {
     // 2 · el YAML del intake · PT-004: es lo que el PT dice de si mismo
     if (existsSync(fIntake)) {
       const txt = readFileSync(fIntake, 'utf8');
-      let nuevo = txt.replace(/^phase:[ \t]*\d+[ \t]*$/m, `phase: ${destino}`);
-      if (nuevo === txt) throw new Error(`el intake de ${id} no declara «phase»: no se puede sincronizar (SUITE-R08).`);
-      if (terminal) {
-        const conEstado = nuevo.replace(/^status:[ 	]*\S+[ 	]*$/m, `status: ${a.status}`);
-        if (conEstado === nuevo) throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
-        nuevo = conEstado;
-      }
+      let nuevo = escribeCampo(txt, id, 'phase', destino);
+      if (terminal) nuevo = escribeCampo(nuevo, id, 'status', a.status);
       writeFileSync(fIntake, nuevo);
     }
 
@@ -3729,13 +3796,11 @@ function avanzar() {
     // Solo se estampa la linea «actualizado:», que es DERIVABLE: la fecha sale de git y el hecho
     // —que PT-NNN esta en PHASE N— sale del registro. El resto de HANDOFF.md es prosa humana y no
     // se toca: estamparla seria inventar, y LEX-R26 dice que lo que no se deriva no se escribe.
-    const fHandoff = join(IMPL, 'HANDOFF.md');
-    if (existsSync(fHandoff)) {
-      const h = readFileSync(fHandoff, 'utf8');
-      const sello = `actualizado:    ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${id} en PHASE ${destino} ${FASES[destino].nombre}`;
-      const nuevoH = h.replace(/^actualizado:.*$/m, sello);
-      if (nuevoH !== h) writeFileSync(fHandoff, nuevoH);
-    }
+    // PT-205 · el sellado sale de aqui a `estampaEstado`, que tambien tiene comando propio.
+    // Estaba SOLO dentro de `avanzar`, asi que cumplir SUITE-R34 exigia cambiar de fase — y
+    // cualquier trabajo legitimo en changes/ que no fuera una transicion dejaba el estado atras
+    // sin via sancionada. Es CE-006, y costo cuatro corridas de CI en una sola rama.
+    estampaEstado(`${id} en PHASE ${destino} ${FASES[destino].nombre}`);
 
     // 5 · EL ESPEJO · SUITE-R35 · el registro asigna, la plataforma espeja
     //
@@ -4530,13 +4595,19 @@ function integrar() {
   }
 
   const antes = readFileSync(intake, 'utf8');
-  const RE_ESTADO = /^status:[ 	]*(\S+)[ 	]*$/m;
-  const m = RE_ESTADO.exec(antes);
-  if (!m) {
+  const campoEstado = campoDeIntake(antes, 'status');
+  if (!campoEstado) {
     fail('FDGE-R23', `${id}: su intake no declara «status:». Sin el, no hay transicion que `
       + 'escribir y suponerla seria inventar un dato (SUITE-R08).');
     return;
   }
+  // PT-198 · esta ESCRITO y no se pudo leer: otro hecho, otro mensaje, y con su linea.
+  if (campoEstado.valor === null) {
+    fail('FDGE-R23', `${id}: declara «status» en la linea ${campoEstado.linea} y no se pudo `
+      + `leer su valor: «${campoEstado.cruda.trim()}». El campo ESTA; lo que falla es la lectura.`);
+    return;
+  }
+  const m = [campoEstado.cruda, campoEstado.valor];
 
   if (!APLICAR) {
     di(`  ${id}: ${a.status} -> ${destino}`);
@@ -4548,7 +4619,7 @@ function integrar() {
   }
 
   // Lo reversible primero: el YAML. Si falla, el registro se queda como estaba.
-  writeFileSync(intake, antes.replace(RE_ESTADO, `status: ${destino}`), 'utf8');
+  writeFileSync(intake, escribeCampo(antes, id, 'status', destino), 'utf8');
   a.status = destino;
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${m[1]} -> ${destino} en el intake y en el registro, en un solo acto`);
@@ -4795,11 +4866,7 @@ function aplazar() {
   const fi = join(carpetaDe(a), 'intake.md');
   if (existsSync(fi)) {
     const antes = readFileSync(fi, 'utf8');
-    const despues = antes.replace(/^status:[ 	]*\S+[ 	]*$/m, 'status: DEFERRED');
-    if (despues === antes) {
-      throw new Error(`el intake de ${id} no declara «status»: no se puede sincronizar (SUITE-R08).`);
-    }
-    writeFileSync(fi, despues, 'utf8');
+    writeFileSync(fi, escribeCampo(antes, id, 'status', 'DEFERRED'), 'utf8');
     notas.push(`${id}: intake sincronizado a DEFERRED`);
   }
   guardarRegistro(reg, ACCION);
@@ -5094,7 +5161,7 @@ function mover() {
     return;
   }
   a.epic = destino;
-  sincronizaIntake(a, /^epic:[ \t]*\S+[ \t]*$/m, `epic: ${destino}`);
+  sincronizaIntake(a, 'epic', destino);
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: ${antes ?? 'sin lote'} -> ${destino}`);
   publicaEnElTablero(a, [
@@ -5145,7 +5212,7 @@ function rechazar() {
   }
   a.status = 'REJECTED';
   a.rechazo = { motivo: texto, fecha: gitDe(['log', '-1', '--format=%cs']) ?? new Date().toISOString().slice(0, 10) };
-  sincronizaIntake(a, /^status:[ \t]*\S+[ \t]*$/m, 'status: REJECTED');
+  sincronizaIntake(a, 'status', 'REJECTED');
   guardarRegistro(reg, ACCION);
   notas.push(`${id}: -> REJECTED · ${texto}`);
   publicaEnElTablero(a, [
@@ -5161,17 +5228,158 @@ function rechazar() {
   ].join(SALTO));
 }
 
+/**
+ * PT-198 · Escribe un campo del frontmatter, o dice CUAL de los dos fallos ocurrio.
+ *
+ * Un solo sitio para los tres estados: ausente, ilegible, escrito. Antes cada llamada traia su
+ * propia expresion —siete— y las siete confundian «no esta» con «no supe leerlo».
+ */
+function escribeCampo(txt, id, campo, valor) {
+  const hallado = campoDeIntake(txt, campo);
+  if (!hallado) {
+    throw new Error(`el intake de ${id} no declara «${campo}»: no se puede sincronizar (SUITE-R08).`);
+  }
+  if (hallado.valor === null) {
+    throw new Error(`el intake de ${id} declara «${campo}» en la linea ${hallado.linea} y no se `
+      + `pudo leer su valor: «${hallado.cruda.trim()}». El campo ESTA — lo que falla es la `
+      + 'lectura, y decir que no esta mandaria a anadir lo que ya hay (PT-198).');
+  }
+  return reemplazaCampoDeIntake(txt, campo, valor);
+}
+
+/**
+ * PT-205 · Estampa la linea «actualizado:» de HANDOFF.md. Derivada, y NADA MAS.
+ *
+ * SOLO la linea: la fecha sale de git y el hecho del registro. El resto de HANDOFF.md es prosa
+ * humana —las decisiones y los «no hacer»— y es lo unico del estado que NO se deriva (LEX-R26).
+ * Estamparla seria inventar, y por eso hay un caso que fija que sigue intacta.
+ *
+ * Devuelve lo que quedo escrito, o null si no habia linea que sustituir: quien llama distingue
+ * «sellado» de «este HANDOFF no tiene el campo», que son hechos distintos (RULE-02).
+ */
+function estampaEstado(hecho) {
+  const fHandoff = join(IMPL, 'HANDOFF.md');
+  if (!existsSync(fHandoff)) return null;
+  const h = readFileSync(fHandoff, 'utf8');
+  const sello = `actualizado:    ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${hecho}`;
+  const nuevoH = h.replace(/^actualizado:.*$/m, sello);
+  if (nuevoH === h) return null;
+  writeFileSync(fHandoff, nuevoH);
+  return sello;
+}
+
+/**
+ * PT-205 · `sellar-estado` · la via sancionada de poner el estado al dia SIN cambiar de fase.
+ *
+ * El hecho se DERIVA del registro —la tarea viva mas avanzada— y no se pide por bandera: un
+ * argumento seria una afirmacion que nadie contrasta, y el registro ya sabe donde esta el trabajo.
+ */
+function sellarEstado() {
+  // EL HECHO SALE DEL CHECKPOINT, que es quien declara QUE TAREA ESTA ABIERTA.
+  //
+  // La primera version elegia «la viva mas avanzada por fase» y devolvia PT-203 —DONE, fase 8—
+  // mientras el trabajo era PT-205 en fase 5. Un sello que nombra la tarea equivocada es peor que
+  // ninguno: SUITE-R34 quedaria en verde afirmando algo falso, que es el proxy en vez del hecho
+  // (CE-001). El CHECKPOINT lo sabe porque `avanzar` lo escribe (PT-052).
+  const cp = existsSync(join(IMPL, 'CHECKPOINT.json'))
+    ? (() => { try { return JSON.parse(readFileSync(join(IMPL, 'CHECKPOINT.json'), 'utf8')); } catch { return null; } })()
+    : null;
+  const a = cp?.pt ? all.find((x) => x?.id === cp.pt) : null;
+  const hecho = a
+    ? `${a.id} en PHASE ${a.phase} ${FASES[Number(a.phase)]?.nombre ?? ''}`.trim()
+    : (cp?.pt ? `${cp.pt} en PHASE ${cp.phase ?? '?'}` : 'sin tarea abierta en CHECKPOINT.json');
+  if (!APLICAR) {
+    di(`  HANDOFF.md · actualizado: ${gitDe(['log', '-1', '--format=%cs']) ?? 'sin fecha'} · ${hecho}`);
+    di('');
+    di('  SOLO esa linea. La prosa —decisiones y «no hacer»— no se toca (LEX-R26).');
+    di('  --aplicar   la escribe. Commitea el HANDOFF EL ULTIMO, en su propio commit (SUITE-R34).');
+    return;
+  }
+  const escrito = estampaEstado(hecho);
+  if (!escrito) {
+    fail('SUITE-R34', 'HANDOFF.md no declara una linea «actualizado:», o no existe. Sin ella no hay '
+      + 'estado que sellar y suponer donde ponerla seria inventar (LEX-R26).');
+    return;
+  }
+  notas.push(`estado sellado · ${escrito.replace(/\s+/g, ' ').trim()}`);
+}
+
+/**
+ * PT-187 · Las cuatro fuentes que dicen que version es cauce, contrastadas.
+ *
+ * package.json · los tags · el CHANGELOG · npm. Las cuatro son correctas por separado y NADIE las
+ * contrasta: `grep npm view` sobre todas las herramientas daba CERO. Medido el 2026-08-30, npm iba
+ * por la 13.1.0 y el repositorio por la 13.4.0 — la documentacion de un paquete describia un
+ * paquete que no es el que se descarga.
+ *
+ * LAS CUATRO DIVERGENCIAS NO VALEN LO MISMO, y presentarlas como «divergencias» a secas convertiria
+ * una diferencia legitima en una alarma — y una alarma que suena por lo correcto ensena a
+ * ignorarla. Un tag sin publicar es legitimo: SUITE-R06a reserva publicar al firmante.
+ *
+ * SIN RED SE DICE, Y NO SE APAGA LO DEMAS. El primer intento de medir esto dejo el conjunto vacio
+ * en un `catch` y salieron VEINTE divergencias inventadas con aspecto de hallazgo. El fallo va en
+ * las DOS direcciones —dar por cuadrado, o inventar— y la segunda es peor porque parece trabajo.
+ * SUITE-R22 declara soportado el proyecto sin red: apagar lo que SI se podia decir es el otro
+ * extremo del mismo error.
+ */
+function versiones() {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  const tags = new Set((gitDe(['tag', '--list', 'v*']) ?? '').split(SALTO)
+    .filter(Boolean).map((t) => t.replace(/^v/, '')));
+  const cambios = readFileSync(join(ROOT, 'docs', 'methodology', 'CHANGELOG.md'), 'utf8');
+  const chg = new Set([...cambios.matchAll(/^##\s+\[?(\d+\.\d+\.\d+)/gm)].map((m) => m[1]));
+
+  // npm es la UNICA que necesita red, y por eso es la unica que puede quedar SIN EVALUAR.
+  // En Windows el ejecutable es `npm.cmd`: con «npm» a secas execFileSync no lo encuentra y el
+  // catch devolvia SIN EVALUAR por la razon EQUIVOCADA — la herramienta acertaba en la conducta
+  // y mentia en el motivo, que es la forma de CE-001 que este lote persigue.
+  // Y con `shell` en Windows: desde Node 18.20 spawnSync se niega a ejecutar un `.cmd` sin el, y
+  // devuelve EINVAL — otra vez el motivo equivocado. El unico argumento variable es `pkg.name`,
+  // que sale del package.json DEL PROPIO REPOSITORIO: no hay entrada ajena que pueda colarse.
+  const NPM = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  const OPC = { encoding: 'utf8', stdio: 'pipe', timeout: 20000, shell: process.platform === 'win32' };
+  let npmv = null;
+  let porQueNo = null;
+  try {
+    npmv = new Set(JSON.parse(execFileSync(NPM, ['view', pkg.name, 'versions', '--json'], OPC)));
+  } catch (e) { npmv = null; porQueNo = String(e?.message ?? e).split(SALTO)[0].slice(0, 90); }
+
+  di('');
+  di(`  package.json ${pkg.version}     tags ${tags.size}     CHANGELOG ${chg.size}     `
+    + `npm ${npmv ? npmv.size : SIN_EVALUAR}`);
+  di('');
+  const lista = (xs) => (xs.length ? xs.sort().join(' · ') : 'ninguna');
+  const chgSinTag = [...chg].filter((v) => !tags.has(v));
+  if (npmv) {
+    // CADA UNA CON LO QUE SIGNIFICA, no con una etiqueta comun.
+    di(`  TAG y NO publicada          (${[...tags].filter((v) => !npmv.has(v)).length}): ${lista([...tags].filter((v) => !npmv.has(v)))}`);
+    di('      Puede ser LEGITIMO: publicar es acto del firmante (SUITE-R06a) y un tag puede esperar.');
+    di(`  PUBLICADA y NO en CHANGELOG (${[...npmv].filter((v) => !chg.has(v)).length}): ${lista([...npmv].filter((v) => !chg.has(v)))}`);
+    di('      Esto SI es defecto: SUITE-R19 obliga a la guia de migracion.');
+    di(`  PUBLICADA y NO tag          (${[...npmv].filter((v) => !tags.has(v)).length}): ${lista([...npmv].filter((v) => !tags.has(v)))}`);
+    di('      Esto SI es defecto: se publico algo que el repositorio no marca.');
+  } else {
+    // SE DICE POR QUE NO SE PUDO. «sin red o sin acceso» son dos hechos distintos con arreglos
+    // distintos (RULE-02), y el error de node lo distingue: se pasa tal cual en vez de resumirlo.
+    di(`  npm: ${SIN_EVALUAR}. No se pudo consultar el registro: ${porQueNo ?? 'sin motivo legible'}`);
+    di('      NO se da por cuadrado y NO se inventan divergencias: las tres comparaciones que');
+    di('      dependen de npm quedan sin responder, y se dice cuales son. SUITE-R22 declara');
+    di('      soportado el proyecto sin red, asi que esto no es un caso raro.');
+  }
+  di(`  EN CHANGELOG y NO tag       (${chgSinTag.length}): ${chgSinTag.length > 6 ? `${chgSinTag.sort().slice(0, 3).join(' · ')} … ${chgSinTag.sort().slice(-1)[0]}` : lista(chgSinTag)}`);
+  di('      DEPENDE, y por eso se cuenta y no se juzga: las tempranas no se retrofechan (CE-014).');
+  di('');
+  di('  Las cifras se DERIVAN del arbol y del registro en cada corrida: una transcrita caduca');
+  di('  (CE-010, y las de este intake estaban las tres mal).');
+}
+
 /** El YAML del intake dice lo mismo que el registro, o no se toca nada (PT-149). */
-function sincronizaIntake(a, re, linea) {
+function sincronizaIntake(a, campo, valor) {
   const fi = join(carpetaDe(a), 'intake.md');
   if (!existsSync(fi)) return;
   const antes = readFileSync(fi, 'utf8');
-  const despues = antes.replace(re, linea);
-  if (despues === antes) {
-    throw new Error(`el intake de ${a.id} no declara esa linea: no se puede sincronizar (SUITE-R08).`);
-  }
-  writeFileSync(fi, despues, 'utf8');
-  notas.push(`${a.id}: intake sincronizado · ${linea}`);
+  writeFileSync(fi, escribeCampo(antes, a.id, campo, valor), 'utf8');
+  notas.push(`${a.id}: intake sincronizado · ${campo}: ${valor}`);
 }
 
 /** Publica en el tablero si lo hay; si no, al ledger — como retomar (PT-137). */
@@ -5268,7 +5476,7 @@ function reanclar() {
   }
 }
 
-const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor };
+const acciones = { espejo, inventario, abrir, cerrar, integrar, firmar, cierre, validar, retomar, aplazar, mover, rechazar, reanclar, notas: notasDe, pr: prAbierto, estado, pendiente: pendienteDe, siguiente: siguienteDe, checkpoint, avanzar, proyectar, coste, viabilidad, sesion, personas, asignar, rama, tipo, parada, sellar, indices, cursor, 'sellar-estado': sellarEstado, versiones };
 if (!acciones[ACCION]) {
   console.error(`Acción desconocida: ${ACCION}. Conocidas: ${Object.keys(acciones).join(' · ')}`);
   process.exit(2);

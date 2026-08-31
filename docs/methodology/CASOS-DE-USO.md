@@ -275,7 +275,29 @@ El orden **no es opcional** (`SUITE-R46`):
 Al revés, la rama principal queda declarando trabajo vivo con el issue cerrado, y su compuerta
 falla **tras cada merge**.
 
-### E2 · Publicar una versión
+### D1 · Saber si lo construido sirve   · **DICTAMEN**   `PT-197`
+
+| | |
+|:---|:---|
+| **Entrada** | `[START DICTAMEN]` · una Declaración de Valor **firmada** (`FND-R24`) |
+| **Recorrido** | Se lee: los productos declarados y su evidencia · lo declarado sin cubrir · `audit` · las deudas certificadas · las paradas abiertas |
+| **Salida** | `docs/implementation/DICTAMEN.md`, con tres secciones **en orden** (`DICT-R01`…`DICT-R03`) |
+| **Humano** | **Qué lo hace válido** lo decide el dueño del dominio (`FND-R24`), y **si sirve** lo dice él |
+
+> **Qué lo hace válido.** Que quien lo recibe pueda hacer **tres cosas**: contrastar lo prometido
+> con lo entregado, saber dónde está expuesto, y decidir si lo hecho justifica lo que viene. Las
+> tres, **en ese orden**.
+>
+> **Qué NO es.** No sustituye a `PTSA` —aquella **audita**, éste **presenta**—, no es un informe de
+> estado —`tracker estado` ya lo da— y no es un `CHANGELOG` —éste cuenta qué cambió; el Dictamen,
+> si lo que hay justifica lo que viene—.
+
+### E2 · Publicar una versión   · **DE LA FUENTE**   `LEX-R25` · `PT-202`
+
+> **Este caso es del repositorio que PRODUCE el paquete, no del que lo instala.**
+> `publicar.yml` **no viaja**: `package.json.files` no incluye `.github/`, y no lo copia ni el
+> instalador ni `plan-layout` ni `migrate`. Un proyecto que instala cauce **no tiene este
+> recorrido**, y lo que publicaría no sería suyo.
 
 | | |
 |:---|:---|

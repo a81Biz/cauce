@@ -40,7 +40,7 @@
  * en Windows. Ese fallo dejaba 25 reglas fuera de CORE.md sin avisar.
  */
 
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -68,6 +68,10 @@ import { SEVERIDADES, esSeveridad, RE_SEVERIDAD } from './patrones.mjs';
 import { estadoDelArbol } from './tracker.mjs';
 // PT-062 · los rangos reservados
 import { solapes, seSolapan, ramaLlevaUsuario } from './patrones.mjs';
+// PT-195 · `personaLocal` ya existia —«el nombre canonico de quien usa esta maquina, si esta
+// declarado»— y NINGUNA compuerta la invocaba. No se escribe patron nuevo: se usa el que hay.
+import { personaLocal } from './patrones.mjs';
+import { claseDeEvento } from './patrones.mjs';
 // PT-081 · cada regla sabe desde que VERSION rige. Habia UNA constante para tres reglas
 // nacidas en versiones distintas, y la mas nueva heredaba una fecha de dos meses antes.
 import { rigeDesde, manejadoresRotos, ramaDeTarea } from './patrones.mjs';
@@ -153,6 +157,57 @@ const RE_PHASE_YAML = /^\s*phase\s*:\s*(\d+)/im;
 // PT-044 · el estado que el intake dice de sí mismo, para poder compararlo con el registro.
 const RE_STATUS_YAML = /^\s*status\s*:\s*([A-Z_]+)/im;
 const RE_SIGN_BATCH = /Firmado\s+por\s+lote:\s*(EP-\d+)/i;
+
+// PT-205 · «sucio» de ambito de modulo: el de checkSuite es local a esa funcion, y duplicar la
+// guarda seria la copia que SUITE-R38 persigue. Una pregunta, una fuente.
+const sucioDe = (ruta) => {
+  try {
+    return execFileSync('git', ['status', '--porcelain', '--', ruta],
+      { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().length > 0;
+  } catch { return false; }
+};
+
+// ── PT-205 · LO QUE ROMPERA EN CI Y TODAVIA NO ES INCUMPLIMIENTO ───────────
+//
+// Medido en la rama de PT-203: CUATRO corridas de CI en rojo, ninguna predicha por el verde
+// local, todas evitables. 17 minutos de maquina — y el coste real es el VIAJE: empujar, esperar
+// siete minutos, leer el log, arreglar, volver a esperar.
+//
+// Las tres roturas comparten causa: DEPENDEN DE LO EMPUJADO, y en local eso no existe todavia.
+// Pero SE DERIVAN DE LO QUE YA ESTA DELANTE — el arbol de trabajo las contiene—, asi que se
+// pueden decir ANTES. Es la diferencia con el limite que PT-201 declaro: aquel era lo que NO se
+// puede saber; esto se puede saber y no se sabia.
+//
+// NO SON ERRORES, Y POR ESO NO VAN EN `errors`. `changes/` sucio es trabajo en curso y
+// MUDO_SIN_REF_DURABLE es un estado legitimo mientras el ref no existe —el propio
+// `decisionDeEnlace` lo declara como freno a proposito—. Hacerlas fallar HOY bloquearia el
+// trabajo normal. Lo que falta no es severidad: es que el momento en que dejan de ser legitimas
+// no llegue por sorpresa.
+const pendientes = [];
+const alEmpujar = (rule, msg, comando) => pendientes.push({ rule, msg, comando });
+
+// PT-203 · LAS FIRMAS DE LOTE CERTIFICADAS, y el mismo contrato que SECRETOS-EXCEPCIONES.md.
+//
+// FIRMAR NO ES SILENCIAR: una fila certificada SIGUE APARECIENDO en cada corrida, con quien la
+// firmo y a que tarea le toca corregirla. Lo unico que cambia es que deja de bloquear — porque
+// una compuerta siempre roja ensena a saltarsela, que es peor que no tenerla.
+//
+// La fila cubre UN identificador en UN lote y solo en estado TERMINAL. No es un permiso sobre el
+// lote: quien no este escrito no esta cubierto, y lo vivo bloquea siempre.
+const FIRMAS_LOTE = join(ROOT, 'docs', 'implementation', 'FIRMAS-DE-LOTE.md');
+const RE_FILA_FIRMA = /^\|\s*`(PT-\d+)`\s*\|\s*`(EP-\d+)`\s*\|[^|]*\|\s*([^|]+?)\s*\|[^|]*\|\s*`?(EP-\d+)`?\s*\|/;
+function firmasCertificadas() {
+  const txt = read(FIRMAS_LOTE);
+  const m = new Map();
+  if (txt === null) return m;                 // sin archivo no se exime nada: el silencio no acota
+  for (const l of txt.split(/\r?\n/)) {
+    const f = RE_FILA_FIRMA.exec(l);
+    // UNA FILA SIN FIRMANTE NO ES UNA FIRMA. La plantilla sin rellenar no exime — es la misma
+    // clausula que SECRETOS-EXCEPCIONES.md escribe con todas las letras.
+    if (f && f[3] && !/^-*$/.test(f[3].trim())) m.set(`${f[1]}@${f[2].toUpperCase()}`, { firmante: f[3].trim(), corrige: f[4] });
+  }
+  return m;
+}
 const RE_DOR = /(?:^|\n)\s*(?:VEREDICTO|DoR)\s*:\s*(PASS|FAIL|CHALLENGE)\b/i;
 const RE_DOR_OVERRIDE = /CHALLENGE\s+aceptado\s+por:\s*(?!\[)(\S.*)$/im;
 // PT-083 · el `$` exigia fin de linea inmediatamente despues de S2, y las plantillas que EL
@@ -579,6 +634,63 @@ function checkValor(foundationLista) {
   } else ok('FND-R24', `Declaración de Valor firmada por ${firmada}.`);
 }
 
+/**
+ * PT-195 · SUITE-R27 · La identidad git CONFIGURADA corresponde a alguien declarado.
+ *
+ * `tracker personas` ya lo decia —«T <t@t> · 10 commits · SIN DECLARAR»— y NINGUNA compuerta lo
+ * leia. Es CE-007 en su forma pura: existe la herramienta, el dato es correcto, y nada la echa en
+ * falta. La consecuencia no es teorica: la config LOCAL de este repositorio fue la del ARNES de
+ * pruebas, y firmo TRES commits de EP-025 como «T <t@t>» — un autor que no es de nadie, y
+ * SUITE-R27 dice que lo que hace contrastable una firma es que el nombre este en la lista.
+ *
+ * SE MIRA LA IDENTIDAD DE AHORA, NO LOS COMMITS PASADOS. Son dos hechos distintos: los pasados
+ * son historia y SUITE-R09 no los reescribe; el configurado es una prediccion contrastable sobre
+ * el commit SIGUIENTE, y es la que llega a tiempo.
+ *
+ * AVISA, NO BLOQUEA, y no es conveniencia. En CI la identidad es la del RUNNER y no casa con
+ * `personas` — esta documentado en selftest.sh:6549 y PT-068 se niega a atribuir la sesion de
+ * otro A PROPOSITO. Un error dejaria verificacion.yml en rojo permanente, y una compuerta siempre
+ * roja ensena a saltarsela. Y NO se detecta CI: seria inventar una dependencia de entorno que
+ * este marco no tiene, para una distincion que un aviso ya resuelve en los dos sitios (RULE-06).
+ *
+ * Lo que cambia no es la severidad: es QUIEN LO EMITE. Pasa de un comando que hay que invocar a
+ * mano a verify-fdge, que corre en «npm run verify» Y en CI.
+ */
+function checkIdentidad() {
+  const personas = REGISTRO?.personas ?? [];
+  const cfg = (k) => {
+    try {
+      return execFileSync('git', ['config', k], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim();
+    } catch { return ''; }
+  };
+  const nombre = cfg('user.name');
+  const correo = cfg('user.email');
+  if (!nombre && !correo) {
+    warn('SUITE-R27', 'La identidad git de este repositorio no esta configurada: «git config user.name» '
+      + 'y «user.email» estan vacios. El commit siguiente saldra sin autor contrastable.');
+    return;
+  }
+  // TRES ESTADOS, NO DOS (RULE-02). Sin «personas» no hay contra que contrastar, y eso NO es lo
+  // mismo que una identidad que no es de nadie: SUITE-R22 declara soportado el proyecto de una
+  // sola persona, y uno que aun no declaro «personas» no puede salir igual que uno averiado.
+  if (!personas.length) {
+    warn('SUITE-R27', `La identidad configurada es «${nombre} <${correo}>» y el registro no declara `
+      + '«personas»: no hay contra que contrastarla. No se da por buena — se dice que no se pudo mirar.');
+    return;
+  }
+  const { persona, motivo } = personaLocal(nombre, correo, personas);
+  if (persona) {
+    // EL VERDE NOMBRA A LA PERSONA, y eso no es adorno: una comprobacion que solo habla cuando algo
+    // va mal es indistinguible de una que no corrio (CE-005, el nombre de este lote). Quien lo lea
+    // ve el nombre y sabe si es el suyo.
+    ok('SUITE-R27', `El commit siguiente se atribuira a «${persona}» · «${nombre} <${correo}>».`);
+    return;
+  }
+  warn('SUITE-R27', `La identidad git configurada NO esta declarada: ${motivo} En CI es la del runner `
+    + 'y no casa — por eso avisa y no bloquea (PT-068). En una maquina de trabajo, el commit '
+    + 'siguiente saldra atribuido a nadie:  node tools/tracker.mjs personas');
+}
+
 // FDGE-R48/R49 · la implementacion como unidad abierta.
 //
 // El sintoma que la motiva no es de disciplina, es mecanico: sin una unidad abierta hay que
@@ -725,6 +837,21 @@ function checkEstado() {
   if (vacios.length) fail('SUITE-R33', `Campos del bloque ESTADO en blanco: ${vacios.join(', ')}. «ninguna» es una respuesta; el blanco no dice si no hay o si nadie lo escribió.`);
   if (!faltan.length && !vacios.length) ok('SUITE-R33', 'Bloque ESTADO completo.');
 
+  // PT-201 · ESTA COMPROBACION MIDE COMMITS, NO EL ARBOL DE TRABAJO, Y AHORA LO DICE.
+  //
+  // «git log» solo ve lo commiteado. «npm run verify» corre sobre el arbol de trabajo, asi que un
+  // HANDOFF actualizado y SIN COMMITEAR es invisible aqui — y el mensaje decia «hubo trabajo
+  // despues del estado», que en ese caso es FALSO: mandaba a actualizar un HANDOFF ya al dia.
+  //
+  // Medido: TRES veces en el cierre de EP-025 el verify local dio verde y la CI fallo, y las tres
+  // la CI tenia razon. No corren comandos distintos —SUITE-R62 lo garantiza— es que el hecho
+  // medido NACE al commitear. Se dice desde donde se mira (RULE-06).
+  const sucio = (ruta) => {
+    try {
+      return execFileSync('git', ['status', '--porcelain', '--', ruta],
+        { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim().length > 0;
+    } catch { return false; }
+  };
   // Frescura contra git. Sin repositorio no hay reloj y no se puede exigir.
   const fecha = (ruta) => {
     try {
@@ -735,10 +862,16 @@ function checkEstado() {
   const tEstado = fecha('docs/implementation/HANDOFF.md');
   const tTrabajo = fecha('changes');
   if (tEstado < 0 || tTrabajo < 0) return;               // sin git, nada que comparar
+  const pendiente = sucio('docs/implementation/HANDOFF.md') || sucio('changes');
+  // PT-201 · lo que se anade NO es un veredicto: es DESDE DONDE se miro. Sin esto, un HANDOFF
+  // actualizado y sin commitear producia un mensaje que afirmaba lo contrario de lo que pasaba.
+  const desde = pendiente
+    ? ' · MEDIDO SOBRE LO COMMITEADO: hay cambios sin commitear en HANDOFF.md o en changes/, y «git log» no los ve. Este veredicto no predice la CI hasta que commitees (PT-201).'
+    : '';
   if (tTrabajo && tEstado && tTrabajo > tEstado) {
     const dias = Math.round((tTrabajo - tEstado) / 86400);
-    fail('SUITE-R34', `Hubo trabajo en changes/ después del último estado${dias ? ` (${dias} día(s) de diferencia)` : ''}. La sesión terminó sin dejar el estado retomable: mañana hay que reconstruirlo leyendo el repositorio, que es justo lo que SUITE-R03 dice que no debe hacer falta.`);
-  } else if (tEstado) ok('SUITE-R34', 'El estado es más reciente que el último trabajo.');
+    fail('SUITE-R34', `Hubo trabajo en changes/ después del último estado${dias ? ` (${dias} día(s) de diferencia)` : ''}. La sesión terminó sin dejar el estado retomable: mañana hay que reconstruirlo leyendo el repositorio, que es justo lo que SUITE-R03 dice que no debe hacer falta.${desde}`);
+  } else if (tEstado) ok('SUITE-R34', `El estado es más reciente que el último trabajo.${desde}`);
 
   // PT-085 · A · y ahora lo que la fecha no puede decir: que el bloque sea VERDAD.
   //
@@ -1568,19 +1701,107 @@ function checkEpics() {
     // identificadores que no son miembros del lote sino destinos de lo que aplaza. Sin
     // excluirla, citar PT-023 en el cierre lo convertia en miembro y pedia su carpeta: la
     // regla nueva se rompio contra la anterior el mismo dia. Se recorta antes de leer.
+    // PT-203 · LA PERTENENCIA LA ASIGNA EL REGISTRO (SUITE-R08), NO LA TABLA DEL INTAKE.
+    //
+    // Los dos parches anteriores estrecharon la HEURISTICA DE LECTURA y ninguno toco la causa:
+    // el intake no es la fuente. Medido sobre los 26 lotes antes de escribir esto, el defecto
+    // iba en las DOS direcciones y la que nadie veia era la grande:
+    //
+    //     FANTASMA   se comprobaba a quien NO es miembro          7 casos
+    //     INVISIBLE  es miembro y su firma NO se comprobaba nunca 62 casos
+    //
+    // EP-019 leia CERO de sus diecisiete. EP-024, cuatro de veintiocho. INTAKE-R08 es HARD y
+    // BLOQUEA, y llevaba desde EP-001 corriendo sobre una fraccion de sus sujetos: lo que no
+    // cubria no daba error, no daba NADA. Es CE-005 en su forma mas grande medida en este lote.
+    //
+    // El FANTASMA se ve —sale en rojo y molesta—, por eso tiene dos parches. El INVISIBLE calla.
+    const miembros = (REGISTRO?.allocations ?? []).filter((a) => String(a?.epic ?? '') === ep && /^PT-\d+$/.test(String(a?.id ?? '')));
+
+    // LA TABLA NO SE TIRA: pasa a CONTRASTARSE. Un PT citado en una fila que no es miembro es una
+    // cita de origen —lo que FDGE-R55 premia— y deja de ser un error que manda a tocar el intake
+    // de una tarea de otro lote.
     const sinCierre = RE_CIERRE_LOTE.test(txt) ? txt.slice(0, txt.search(RE_CIERRE_LOTE)) : txt;
-    const enFilas = sinCierre
+    const citados = new Set(sinCierre
       .split(/\r?\n/)
       .filter((l) => /^\s*\|/.test(l))
-      .flatMap((l) => [...l.matchAll(/\bPT-\d+\b/g)].map((m) => m[0]));
-    const pts = enFilas.length ? enFilas : [...sinCierre.matchAll(/PT-\d+/g)].map((m) => m[0]);
-    for (const pt of [...new Set(pts)]) {
-      const d = readdirSync(CHANGES).find((x) => x.startsWith(pt + '-'));
-      if (!d) { fail('INTAKE-R09', `${ep}: lista ${pt} y no existe changes/${pt}-slug/.`); continue; }
-      const it = read(join(CHANGES, d, 'intake.md')) ?? '';
-      if (!RE_SIGN_BATCH.test(it)) {
-        fail('INTAKE-R08', `${pt}: pertenece a ${ep} pero su intake no lleva «Firmado por lote: ${ep}». Sin esa línea es indistinguible de uno sin firmar.`);
-      }
+      .flatMap((l) => [...l.matchAll(/\bPT-\d+\b/g)].map((m) => m[0])));
+    // INTAKE-R09 SIGUE LEYENDO LA TABLA: «cita PT-NNN y no existe su carpeta» es una comprobacion
+    // sobre lo que el intake DECLARA, y ese es su sitio. Lo que cambia es de donde sale la
+    // PERTENENCIA, no de donde sale lo que el documento afirma.
+    const certificadas = firmasCertificadas();
+    for (const pt of citados) {
+      if (readdirSync(CHANGES).find((x) => x.startsWith(pt + '-'))) continue;
+      // PT-203 · CE-017 · LA COMPROBACION NO ACUSA A QUIEN DOCUMENTA EL HECHO.
+      //
+      // Que PT-032 y PT-171 no tengan carpeta es EXACTAMENTE lo que FIRMAS-DE-LOTE.md certifica
+      // y lo que EP-027 existe para arreglar. Sin esto, el intake del lote que salda la deuda
+      // quedaba bloqueado por CITAR la deuda — y la unica salida seria no nombrarla, que es
+      // perder la trazabilidad que este marco compra.
+      //
+      // Solo exime a quien esta ESCRITO en la lista cerrada y firmada. Un identificador citado
+      // que no este ahi sigue en rojo.
+      if ([...certificadas.keys()].some((k) => k.startsWith(pt + '@'))) continue;
+      fail('INTAKE-R09', `${ep}: lista ${pt} y no existe changes/${pt}-slug/.`);
+    }
+
+    // LO TERMINAL SE CUENTA Y SE NOMBRA; LO VIVO BLOQUEA.
+    //
+    // Al derivar del registro, esta regla empieza a cubrir 62 tareas que nunca cubrio, y 23 de
+    // ellas —EP-024 y EP-025, todas INTEGRATED— no llevan la linea. Ponersela hoy seria reescribir
+    // trabajo cerrado para callar una comprobacion: SUITE-R09 es append-only y CE-014 nombra justo
+    // esto. No se retrofecha: se declara la cifra, como ya hacen EXEC-R03 y LEX-R27.
+    const sinFirma = [];
+    const terminalesSinFirma = [];
+    const lotePartido = [];
+    const cubiertas = [];
+    for (const a of miembros) {
+      const d = readdirSync(CHANGES).find((x) => x.startsWith(a.id + '-'));
+      const it = d ? (read(join(CHANGES, d, 'intake.md')) ?? '') : '';
+      const m = RE_SIGN_BATCH.exec(it);
+      const terminal = ESTADOS_TERMINALES.has(String(a.status));
+      // LO CERTIFICADO SOLO EXIME SI SIGUE SIENDO TERMINAL. Si esa tarea volviera a estar viva, la
+      // fila NO la cubre: la certificacion es sobre trabajo cerrado, y dejar de serlo la anula.
+      const cert = terminal ? certificadas.get(`${a.id}@${ep.toUpperCase()}`) : null;
+      if (cert) { cubiertas.push(`${a.id} (${cert.corrige})`); continue; }
+      if (!m) { (terminal ? terminalesSinFirma : sinFirma).push(a.id); continue; }
+      // PT-203 · EL GRUPO 1 SE CAPTURABA Y SE TIRABA mientras el mensaje NOMBRABA el lote: la
+      // comprobacion afirmaba mas de lo que miraba, que es lo que PT-198 acaba de cerrar en otra
+      // linea. PT-172 es el caso real: su intake dice EP-024 y el registro dice EP-025.
+      if (m[1].toUpperCase() !== ep.toUpperCase()) lotePartido.push(`${a.id} (dice ${m[1]})`);
+    }
+    if (sinFirma.length) {
+      fail('INTAKE-R08', `${ep}: ${sinFirma.length} tarea(s) VIVA(s) que el registro le asigna no `
+        + `llevan «Firmado por lote: ${ep}»: ${sinFirma.join(' · ')}. Sin esa linea son `
+        + 'indistinguibles de una sin firmar.');
+    }
+    if (cubiertas.length) {
+      // NO se calla, y por eso es `ok` y no ausencia: la deuda sigue contandose en cada corrida,
+      // con su dueno delante. Esa es la diferencia entre certificar y silenciar (FIRMAS-DE-LOTE.md).
+      ok('INTAKE-R08', `${ep}: ${cubiertas.length} firma(s) de lote CERTIFICADA(s) en `
+        + `FIRMAS-DE-LOTE.md, y su correccion tiene dueno: ${cubiertas.join(' · ')}. `
+        + 'Firmar no es silenciar: siguen aqui hasta que se corrijan.');
+    }
+    if (terminalesSinFirma.length) {
+      warn('INTAKE-R08', `${ep}: ${terminalesSinFirma.length} tarea(s) TERMINAL(es) sin la linea de `
+        + `firma de lote y SIN certificar en FIRMAS-DE-LOTE.md: ${terminalesSinFirma.join(' · ')}. `
+        + 'No se retrofechan (SUITE-R09, CE-014), pero tampoco se dan por buenas: o se corrigen o se '
+        + 'certifican con firma y dueno.');
+    }
+    if (lotePartido.length) {
+      const vivas = lotePartido.filter((x) => {
+        const id = x.split(' ')[0];
+        return !ESTADOS_TERMINALES.has(String(miembros.find((a) => a.id === id)?.status));
+      });
+      const decir = `${ep}: ${lotePartido.length} intake(s) firman por OTRO lote: ${lotePartido.join(' · ')}. `
+        + 'El registro asigna (SUITE-R08); el intake lo espeja.';
+      if (vivas.length) fail('INTAKE-R08', decir); else warn('INTAKE-R08', decir);
+    }
+    const citadosNoMiembros = [...citados].filter((x) => !miembros.some((a) => a.id === x));
+    if (citadosNoMiembros.length) {
+      ok('INTAKE-R08', `${ep}: ${miembros.length} miembro(s) segun el registro; `
+        + `${citadosNoMiembros.length} identificador(es) citado(s) que NO son miembros y no se les `
+        + `exige nada: ${citadosNoMiembros.join(' · ')}. Citar de donde salio una tarea es lo que `
+        + 'FDGE-R55 premia (PT-203).');
     }
     ok('INTAKE-R09', `${ep}: intake del lote completo.`);
   }
@@ -1608,6 +1829,16 @@ function loteDeclaraCierre(ep) {
   const dir = readdirSync(CHANGES).find((d) => d.startsWith(ep + '-'));
   return !!dir && RE_CIERRE_LOTE.test(read(join(CHANGES, dir, 'intake.md')) ?? '');
 }
+// PT-196 · UNA FILA PUEDE RESOLVERSE **AL CERRAR**, NO **EN** G4, Y HAY QUE PODER DECIRLO.
+//
+// SUITE-R45 exigia la respuesta EN G4. Pero G4 ES el merge, y SUITE-R06a prohibe el tag ANTES del
+// merge: la fila «el tag y la publicacion» no podia estar HECHA ni por definicion. Dos reglas del
+// mismo marco contradiciendose, medido al cerrar EP-025 — y la unica salida fue mover la fila a
+// otra tarea, que es rodear el problema.
+//
+// «TRAS EL MERGE» declara que la respuesta es POSTERIOR. No rebaja la pregunta: sigue habiendo que
+// contestarla, y el cierre del lote la reclama. Lo que cambia es CUANDO se exige.
+const RE_POSTERIOR = /\bTRAS EL MERGE\b|\bPOSTERIOR A G4\b/i;
 const RE_RESUELTA = /\bHECHO\b|\b(?:PT|EP)-\d+\b/;
 function checkCierreDeLote(ep, txt, dir) {
   const alloc = (REGISTRO?.allocations ?? []).find((a) => a?.id === ep);
@@ -1648,16 +1879,26 @@ function checkCierreDeLote(ep, txt, dir) {
     if (enG4) fail('SUITE-R45', m); else warn('SUITE-R45', m);
     return;
   }
-  const sinResolver = filas.filter((l) => !RE_RESUELTA.test(l.split('|').slice(-2)[0] ?? ''));
+  const estado = (l) => l.split('|').slice(-2)[0] ?? '';
+  const sinResolver = filas.filter((l) => !RE_RESUELTA.test(estado(l)) && !RE_POSTERIOR.test(estado(l)));
+  // PT-196 · las POSTERIORES se cuentan aparte: no bloquean G4, y NO desaparecen. El cierre del
+  // lote las reclama, y hasta entonces se dicen — un hueco que nadie nombra es el que se olvida.
+  const posteriores = filas.filter((l) => RE_POSTERIOR.test(estado(l)) && !RE_RESUELTA.test(estado(l)));
   if (sinResolver.length && enG4) {
     const cual = sinResolver.map((l) => `«${(l.split('|')[1] ?? '').trim().slice(0, 40)}»`).join(', ');
     fail('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de «## Cierre del lote» sin resolver `
-      + `en G4: ${cual}. Cada una declara HECHO o el identificador al que se movió — un lote no `
-      + `cierra dejando sin responder lo que él mismo se asignó.`);
+      + `en G4: ${cual}. Cada una declara HECHO, el identificador al que se movió, o «TRAS EL MERGE» `
+      + `si su respuesta es POSTERIOR a G4 (PT-196) — un lote no cierra dejando sin responder lo que `
+      + `él mismo se asignó.`);
     return;
   }
   if (sinResolver.length) {
     warn('SUITE-R45', `${ep}: ${sinResolver.length} fila(s) de cierre aún sin resolver. En G4 bloquean.`);
+    return;
+  }
+  if (posteriores.length) {
+    const cual = posteriores.map((l) => `«${(l.split('|')[1] ?? '').trim().slice(0, 40)}»`).join(', ');
+    ok('SUITE-R45', `${ep}: cierre declarado (${filas.length} fila(s)); ${posteriores.length} se resuelve(n) TRAS EL MERGE y el cierre del lote las reclama: ${cual}.`);
     return;
   }
   ok('SUITE-R45', `${ep}: cierre del lote declarado y resuelto (${filas.length} fila(s)).`);
@@ -2459,7 +2700,7 @@ function checkPT(pt, { gate } = {}) {
     } else if (!/^##\s*Conclusi[óo]n/im.test(disc)) {
       fail('FDGE-R42', `${pt}: discovery.md no tiene sección "## Conclusión". Una investigación no cierra sin ella.`);
     } else ok('FDGE-R42', `${pt}: investigación con conclusión documentada.`);
-    checkHistory(pt, rel, type, { gate });
+    checkHistory(pt, rel, type, { gate, fase: faseDeclarada });
     checkIndex(pt, enRegistroPT, { gate });
     checkAplazado(pt, rel, { gate });
     if (errors.length === errAt) ok('FDGE-R10', `${pt}: INVESTIGATION verificada (exenta de FDGE-R15 y FDGE-R23).`);
@@ -2559,9 +2800,23 @@ function checkPT(pt, { gate } = {}) {
   }
 
   // ── FDGE-R23 · manifiesto de evidencia ────────────────────────────────────
+  //
+  // PT-179 · LA COMPUERTA CONCEDIA SIN MIRAR LA FASE. Decia «normal antes de PHASE 6» a una tarea
+  // que YA HABIA PASADO PHASE 6, y devolvia 0 errores. El mensaje describia una situacion que no
+  // era la suya, y el dato para saberlo —la fase declarada— estaba a diez lineas.
+  //
+  // La prueba de que no es teorico esta en el SESSION_LOG del lote que lo descubrio: TRES errores
+  // de evidencia —ruta equivocada, `tests` como cadena donde el esquema pide array, un `coverage`
+  // que comparaba texto contra texto— PASARON LOS TRES EN VERDE antes de corregirse. Se escribio
+  // entonces: «son la prueba de PT-179».
+  //
+  // `exigible()` ya existia diez lineas mas arriba y ya tenia las tres salidas que RULE-02 pide:
+  // toca y falta -> error · aun no toca -> aviso · no se sabe la fase -> SIN EVALUAR. FDGE-R42 y
+  // FDGE-R15 lo usaban; esta no. El arreglo es usarlo, no escribir otro.
   if (manifest === null) {
-    if (exigibleEn(gate, 'manifest.json')) fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
-    else warn('FDGE-R23', `${pt}: aún sin evidence/${pt}/manifest.json (normal antes de PHASE 6).`);
+    if (exigibleEn(gate, 'manifest.json') || exigible('FDGE-R23', 6, `evidence/${pt}/manifest.json`)) {
+      fail('FDGE-R23', `${pt}: falta evidence/${pt}/manifest.json. Sin manifiesto no hay PHASE 7.`);
+    }
   } else if (manifest === undefined) {
     fail('FDGE-R23', `${pt}: manifest.json no es JSON válido.`);
   } else {
@@ -2592,12 +2847,18 @@ function checkPT(pt, { gate } = {}) {
   // ── FDGE-R25 · self-review ────────────────────────────────────────────────
   const sr = read(join(evDir, 'self-review.md'));
   if (sr === null) {
-    if (exigibleEn(gate, 'self-review.md') || afterPhase6) fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
+    // PT-179 · «afterPhase6» era un PROXY: deducia la fase de que EXISTIERA el manifest, asi que
+    // una tarea en PHASE 7 sin NINGUNO de los dos se le escapaba entera. La fase esta declarada;
+    // se lee, no se infiere (CE-001).
+    if (exigibleEn(gate, 'self-review.md') || afterPhase6
+        || exigible('FDGE-R25', 6, `evidence/${pt}/self-review.md`)) {
+      fail('FDGE-R25', `${pt}: falta evidence/${pt}/self-review.md.`);
+    }
   } else if (/SELF_REVIEW_BLOCKERS_FOUND/.test(sr)) {
     fail('FDGE-R25', `${pt}: el self-review está en SELF_REVIEW_BLOCKERS_FOUND.`);
   } else ok('FDGE-R25', `${pt}: self-review completo.`);
 
-  checkHistory(pt, rel, type, { gate });
+  checkHistory(pt, rel, type, { gate, fase: faseDeclarada });
   checkIndex(pt, enRegistroPT, { gate });
   checkAplazado(pt, rel, { gate });
 
@@ -2605,7 +2866,10 @@ function checkPT(pt, { gate } = {}) {
 }
 
 // ─── FDGE-R29 · HISTORY.log ──────────────────────────────────────────────────
-function checkHistory(pt, rel, type, { gate }) {
+// PT-179 · `fase` viaja hasta aqui por el mismo motivo: sin ella, una tarea en PHASE 8 sin entrada
+// en HISTORY salia con un aviso que decia «se escribe en PHASE 8» — describiendo como futura una
+// fase que la tarea ya declara haber alcanzado.
+function checkHistory(pt, rel, type, { gate, fase }) {
   const hist = read(join(IMPL, 'HISTORY.log')) ?? '';
   const entries = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—`, 'gm'))];
   const reverted = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+REVERTIDO`, 'gm'))];
@@ -2618,8 +2882,11 @@ function checkHistory(pt, rel, type, { gate }) {
   // que `reverted` ya usa —descontar por encabezado— y que FDGE-R36 ya obliga a aplicar.
   const corrige = [...hist.matchAll(new RegExp(`^##\\s+${pt}\\s+—\\s+CORRIGE`, 'gm'))];
   if (entries.length === 0) {
-    if (exigibleEn(gate, 'HISTORY.log')) fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log.`);
-    else warn('FDGE-R29', `${pt}: aún sin entrada en HISTORY.log (se escribe en PHASE 8).`);
+    if (exigibleEn(gate, 'HISTORY.log') || (Number.isInteger(fase) && fase >= 8)) {
+      fail('FDGE-R29', `${pt}: sin entrada en HISTORY.log${Number.isInteger(fase) ? ` y está en PHASE ${fase}` : ''}.`);
+    } else if (!Number.isInteger(fase)) {
+      warn('FDGE-R29', `${pt}: sin entrada en HISTORY.log y su fase no consta: NO SE EVALÚA si ya tocaba (SUITE-R08).`);
+    } else warn('FDGE-R29', `${pt}: aún sin entrada en HISTORY.log — se escribe en PHASE 8 y el PT está en PHASE ${fase}.`);
     return;
   }
   // Sin entrada original, una CORRIGE seria una via para declarar trabajo que nunca ocurrio.
@@ -2666,8 +2933,14 @@ function checkHistory(pt, rel, type, { gate }) {
   // `rigeGlobal` y no `rige`: aqui no hay una version del PT en ambito, y usar la del proyecto
   // es lo correcto — la clase de evento la exige la SUITE desde la 13.0.0, no cada tarea.
   if (rigeGlobal('LEX-R31')) {
-    const clase = campo(/^Clase de evento:\s*(CE-\d{3})\s*$/im);
-    if (clase === undefined) {
+    // PT-206 · por el sitio unico: el `\s*$` de aqui dejaba fuera al 76 % de las que SI declaran.
+    const clase = claseDeEvento(cuerpoCorrige ?? '') ?? claseDeEvento(cuerpoOriginal);
+    // PT-206 · «=== undefined» era correcto con `campo()`, que devuelve undefined cuando no casa.
+    // `claseDeEvento` devuelve NULL —el valor que dice «no hay», no «no se pregunto»— y con la
+    // comparacion estricta el aviso se volvia VERDE: PT-129, que NO declara clase, salia como
+    // «declara «Clase de evento: null»». Un cambio de TIPO que convierte una comprobacion en su
+    // contrario, y lo destapo la corrida completa: la acotada no lleva esos dos casos.
+    if (!clase) {
       warn('LEX-R31', `${pt}: su entrada de HISTORY.log no declara «Clase de evento: CE-NNN». `
         + 'Es opcional —no todo trabajo repite un tropiezo— pero sin ella la matriz de eventos '
         + 'no puede contar esta tarea, y lo que no se cuenta no se corrige.');
@@ -2920,6 +3193,118 @@ function checkIndex(pt, alloc, { gate } = {}) {
 }
 
 // ─── Descubrimiento de PTs ───────────────────────────────────────────────────
+// ── PT-200 · EL SELLO DE UN PT TERMINAL ─────────────────────────────────────
+//
+// «verify-fdge --all» recorria 197 de 203 PT en cada corrida, y 183 de esos 197 estaban
+// INTEGRATED: su codigo en main y su issue cerrado. Vivos de verdad: CATORCE. Entre 9 y 14
+// minutos por corrida, en cada push, para re-verificar el 93% de un repositorio que no cambia.
+//
+// La bateria acota desde EP-025 —1950 casos a 153— y esta mitad de la verificacion se quedo
+// fuera. Lo dijo el firmante: «si se sello la prueba, el artefacto tambien».
+//
+// NO BASTA CON TRATAR «INTEGRATED» COMO TERMINAL. Sus artefactos siguen en el arbol y nada impide
+// editarlos despues: saltarlos sin mirar dejaria la compuerta CIEGA para el 93% del repositorio.
+// Es el defecto que PT-191 cerro en la bateria — un bloque no se certifica por no haber cambiado,
+// sino por haber PASADO— y aqui se aplica su mecanismo entero.
+//
+// QUE ENTRA EN LA HUELLA: todo lo que, si cambiara, podria cambiar el veredicto.
+//   · su allocation en REGISTRY.json      estado, fase, lote, compuertas, viabilidad
+//   · changes/PT-NNN-slug/**              intake, strategy, traceability
+//   · evidence/PT-NNN/**                  manifest, self-review
+//   · sus entradas en HISTORY.log         FDGE-R29 las lee
+//   · verify-fdge.mjs y patrones.mjs      UN CAMBIO EN EL VERIFICADOR CAMBIA EL VEREDICTO SIN
+//                                         TOCAR EL ARTEFACTO. Es la pieza que PT-191 demostro
+//                                         imprescindible, y la mas facil de olvidar.
+const SELLOS_PT = join(IMPL, 'SELLOS-PT.json');
+
+/** Lo que el sello de un PT cubre, concatenado y en orden estable. */
+function materialDe(pt, reg) {
+  const partes = [];
+  const a = (reg?.allocations ?? []).find((x) => x?.id === pt);
+  partes.push(a ? JSON.stringify(a, Object.keys(a).sort()) : '');
+  for (const base of [CHANGES, EVIDENCE]) {
+    if (!existsSync(base)) continue;
+    const dirs = readdirSync(base).filter((d) => d === pt || d.startsWith(pt + '-')).sort();
+    for (const d of dirs) {
+      const raiz = join(base, d);
+      const pila = [raiz];
+      const archivos = [];
+      while (pila.length) {
+        const cur = pila.pop();
+        let st; try { st = statSync(cur); } catch { continue; }
+        if (st.isDirectory()) { for (const e of readdirSync(cur).sort()) pila.push(join(cur, e)); }
+        else archivos.push(cur);
+      }
+      // La RUTA entra en la huella con «\\» en Windows y «/» en Linux, asi que un sello escrito
+      // aqui no casaria NUNCA en CI y la acotacion no llegaria donde mas hace falta. Se
+      // normaliza, igual que `selloDe` normaliza CRLF/LF por la misma razon (patrones.mjs:33).
+      for (const f of archivos.sort()) {
+        partes.push(f.replace(ROOT, '').split(sep).join('/'), read(f) ?? '');
+      }
+    }
+  }
+  const hist = read(join(IMPL, 'HISTORY.log')) ?? '';
+  const re = new RegExp(`^##\\s+${pt}\\s+—[\\s\\S]*?(?=^##\\s|$)`, 'gm');
+  for (const m of hist.matchAll(re)) partes.push(m[0]);
+  // El verificador: sin esto el sello certifica contra reglas que ya no existen.
+  const AQUI = fileURLToPath(import.meta.url);
+  partes.push(read(AQUI) ?? '');
+  partes.push(read(join(dirname(AQUI), 'patrones.mjs')) ?? '');
+  return partes.join('\u0000');
+}
+
+function sellosPT() {
+  if (!existsSync(SELLOS_PT)) return {};        // sin sellos NO se acota nada: el silencio no acota
+  try { return JSON.parse(read(SELLOS_PT) ?? '{}'); } catch { return {}; }
+}
+
+/** Los PT que se pueden SALTAR: terminales, sellados, con veredicto OK y sello que CASA. */
+function saltablesPT(reg) {
+  const sellos = sellosPT();
+  const fuera = new Set();
+  for (const a of (reg?.allocations ?? [])) {
+    if (!/^PT-\d+$/.test(a?.id ?? '')) continue;
+    if (!ESTADOS_TERMINALES.has(a.status) && a.status !== 'INTEGRATED') continue;
+    const s = sellos[a.id];
+    if (!s || s.veredicto !== 'OK') continue;
+    if (s.sello !== selloDe(materialDe(a.id, reg))) continue;
+    fuera.add(a.id);
+  }
+  return fuera;
+}
+
+/**
+ * PT-200 · Escribe SELLOS-PT.json. Solo con `--sellar` Y solo si la corrida termino EN VERDE.
+ *
+ * `enVerde` es el hecho, no la bandera: si la corrida tuvo errores no se sella nada y se dice.
+ * Es la misma distincion que PT-191 introdujo con el recibo — «--verde» dice que se QUIERE sellar;
+ * el veredicto de la corrida dice si se PUEDE.
+ */
+function sellarTerminales(reg, enVerde) {
+  if (!enVerde) {
+    console.log('NO SE SELLA: la corrida no termino en verde. Un PT no se certifica por que alguien');
+    console.log('lanzara el comando, sino por haber PASADO (PT-175, PT-191, PT-200).');
+    return;
+  }
+  const previos = sellosPT();
+  const hoy = (() => {
+    try {
+      return execFileSync('git', ['log', '-1', '--format=%cs'], { cwd: ROOT, encoding: 'utf8', stdio: 'pipe' }).trim()
+        || new Date().toISOString().slice(0, 10);
+    } catch { return new Date().toISOString().slice(0, 10); }
+  })();
+  const salida = { ...previos };
+  let n = 0;
+  for (const a of (reg?.allocations ?? [])) {
+    if (!/^PT-\d+$/.test(a?.id ?? '')) continue;
+    if (!ESTADOS_TERMINALES.has(a.status) && a.status !== 'INTEGRATED') continue;
+    salida[a.id] = { sello: selloDe(materialDe(a.id, reg)), veredicto: 'OK', fecha: hoy, estado: a.status };
+    n += 1;
+  }
+  writeFileSync(SELLOS_PT, JSON.stringify(salida, null, 2) + '\n');
+  console.log(`${n} PT terminal(es) sellados en ${SELLOS_PT.replace(ROOT, '.')}`);
+}
+
 function allOpenPTs(reg) {
   // PT-013 · DEFERRED se une a los terminales AQUI: un aplazado no tiene intake ni ha recorrido
   // fases, y exigirselo seria un rojo permanente. Sigue siendo VIVO para el espejo (tracker),
@@ -2944,6 +3329,10 @@ if (gateIdx >= 0 && !/^G[1-4]$/.test(gate ?? '')) {
   process.exit(2);
 }
 const all = argv.includes('--all');
+// PT-200 · SELLAR ES UNA DECISION, NO UN EFECTO DE EJECUTAR EL COMANDO. Es la leccion de PT-191:
+// sin esta bandera, el sello se estamparia por el mero hecho de correr la verificacion, y volveria
+// a certificar «porque alguien lo lanzo» en vez de «porque paso».
+const sellar = argv.includes('--sellar');
 // PT-049 · `-q` calla la ENUMERACION del verde y nada mas. No toca los avisos, no toca los
 // errores, y NO toca el recuento final: un «sin errores» sin denominador es exactamente lo que
 // PT-002 corrigio, y PT-023 lo volvio a encontrar en otra forma —el silencio parece exito—.
@@ -2995,6 +3384,9 @@ checkEstado();
 checkCheckpoint();
 checkRangos();
 checkFirmas();
+// PT-195 · va junto a checkFirmas porque contesta la MISMA pregunta desde el otro lado: aquella
+// mira quien firmo lo que ya esta escrito; esta, a quien se atribuira lo siguiente.
+checkIdentidad();
 checkTerreno();
 checkValor(existsSync(join(ROOT, 'docs', 'enterprise-documentation', '02-PRD.md')));
 checkInstallLog();
@@ -3012,14 +3404,110 @@ if (GRAPH.state === 'FRESH') ok('FDGE-R43', `Grafo FRESH — ${GRAPH.reason}.`);
 else if (GRAPH.state === 'SUSPECT') warn('FDGE-R43', `Grafo SUSPECT — ${GRAPH.reason}. No bloquea; sellar sí lo exige al día (SUITE-R57).`);
 else warn('FDGE-R43', `Grafo ${GRAPH.state} — ${GRAPH.reason}.${GRAPH.state === 'MISSING' ? '' : ' Bloquea G2 en PTs MAJOR.'}`);
 
-const pts = all ? allOpenPTs(reg) : [...new Set(targets)];
+const todosPTs = all ? allOpenPTs(reg) : [...new Set(targets)];
+// PT-200 · lo TERMINAL y SELLADO no se recorre; lo VIVO se recorre siempre, tenga sello o no.
+// Y un PT nombrado a mano NO se salta: pedirlo por su id es pedir que se mire.
+const saltados = all ? saltablesPT(reg) : new Set();
+const pts = todosPTs.filter((pt) => !saltados.has(pt));
 if (!pts.length && !all) {
   console.log('Uso: node verify-fdge.mjs PT-042 | --all | --gate G4 PT-042\n');
 }
 for (const pt of pts) checkPT(pt, { gate });
 
+// ── PT-205 · las predicciones, sobre el ARBOL y antes de empujar ───────────
+//
+// SUITE-R34 · `git log` no ve lo pendiente, asi que el veredicto de checkEstado no puede fallar
+// todavia. Pero el arbol SI dice que `changes/` esta sucio y `HANDOFF.md` no: al commitear,
+// changes/ quedara mas nuevo y la compuerta bloqueara. PT-201 puso medio aviso —«MEDIDO SOBRE LO
+// COMMITEADO»— y aun asi volvio a fallar, porque ese texto dice «no lo se» cuando SE PUEDE SABER.
+//
+// VA FUERA DE `checkEstado` A PROPOSITO. Dentro, un HANDOFF sin el bloque ESTADO hacia que
+// SUITE-R33 fallara y RETORNARA antes, y la prediccion no llegaba a correr — la aviso que existe
+// para adelantarse quedaba callada justo cuando el estado esta peor. La prediccion mira el ARBOL,
+// no el bloque: no puede depender de que el bloque este bien formado.
+if (sucioDe('changes') && !sucioDe('docs/implementation/HANDOFF.md')) {
+  alEmpujar('SUITE-R34',
+    'hay trabajo sin commitear en changes/ y HANDOFF.md esta limpio: al commitear, el estado '
+    + 'quedara mas viejo que el trabajo y la compuerta bloqueara.',
+    'sella y commitea el HANDOFF EL ULTIMO, en su propio commit:  node tools/tracker.mjs sellar-estado --aplicar');
+}
+
+//
+// FDGE-R55 · existe `paradas/PT-NNN.md` y la allocation no declara `origen_parada`. Pasa cuando se
+// escribe el archivo A MANO en vez de invocar `tracker parada`, que escribe el campo EN EL MISMO
+// ACTO que publica. Es CE-006, y hoy costo una corrida entera de CI.
+(() => {
+  if (!existsSync(CHANGES)) return;
+  const conParada = [];
+  for (const d of readdirSync(CHANGES)) {
+    const dir = join(CHANGES, d, 'paradas');
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir)) {
+      const m = String(f).match(/^(PT-\d+)\.md$/);
+      if (!m) continue;
+      const a = (REGISTRO?.allocations ?? []).find((x) => x?.id === m[1]);
+      if (a && !a.origen_parada) conParada.push({ id: m[1], de: d.match(/^(EP|PT)-\d+/)?.[0] ?? '?' });
+    }
+  }
+  if (conParada.length) {
+    alEmpujar('FDGE-R55',
+      `${conParada.length} allocation(s) con parada escrita y sin «origen_parada» en el registro: `
+      + `${conParada.map((x) => x.id).join(' · ')}. El archivo solo no basta: el campo lo escribe el comando.`,
+      conParada.map((x) => `node tools/tracker.mjs parada ${x.de} --motivo <clase> --texto <ruta> --desenlace abre --abre ${x.id} --aplicar`).join('\n                   '));
+  }
+})();
+
+// SUITE-R51 · el cuerpo del issue no enlaza y su intake YA esta en el arbol. Al empujar, el ref se
+// vuelve durable y lo que hoy es `MUDO_SIN_REF_DURABLE` —legitimo— pasa a `REPARAR_MUDO`.
+//
+// LA REPARACION NO NECESITA COMMIT: `abrir` escribe el cuerpo en la plataforma, no archivos. Asi
+// que el coste no es arreglarlo —cinco segundos— sino ENTERARSE, y enterarse costaba siete
+// minutos de CI. Tres veces hoy: EP-027, PT-204 y PT-205.
+//
+// SIN RED NO SE CALLA. Si la plataforma no responde, se DICE — devolver «no hay nada pendiente»
+// seria devolver el viaje de CI que esto quita, y es lo que PT-187 midio en la direccion
+// contraria (SUITE-R22 declara soportado el proyecto sin red).
+(() => {
+  const vivas = (REGISTRO?.allocations ?? [])
+    .filter((a) => a?.issue && !ESTADOS_TERMINALES.has(String(a.status)));
+  if (!vivas.length) return;
+  // LA CONDICION ES ESTRECHA A PROPOSITO: el intake NO esta empujado todavia —esta sin trackear o
+  // modificado—, asi que cuando su issue se publico NO habia ref durable y su cuerpo quedo mudo.
+  //
+  // La primera version de esto miraba «el intake existe en el arbol» y saltaba con DIECIOCHO
+  // issues vivos. Eso es el ruido que TS-02 existe para impedir, escrito dentro de la tarea que
+  // lo persigue: un aviso que sale casi siempre no se lee, y el arreglo entero se pierde con el.
+  const sinEmpujar = vivas.filter((a) => {
+    if (!existsSync(CHANGES)) return false;
+    const d = readdirSync(CHANGES).find((x) => x === a.id || x.startsWith(a.id + '-'));
+    if (!d) return false;
+    const rel = ['changes', d, 'intake.md'].join('/');
+    return existsSync(join(CHANGES, d, 'intake.md')) && sucioDe(rel);
+  });
+  if (!sinEmpujar.length) return;
+  alEmpujar('SUITE-R51',
+    `${sinEmpujar.length} issue(s) vivo(s) cuyo intake NO esta empujado: ${sinEmpujar.map((a) => `${a.id} #${a.issue}`).join(' · ')}. `
+    + 'Su cuerpo se publico sin ref durable —legitimo entonces— y al empujar pasara a incumplir. '
+    + 'La reparacion NO necesita commit: «abrir» escribe el cuerpo en la plataforma.',
+    'tras «git push»:  node tools/tracker.mjs abrir --aplicar');
+})();
+
 // ─── Informe ─────────────────────────────────────────────────────────────────
 const pad = (s, n) => String(s).padEnd(n);
+
+// PT-205 · EL BLOQUE VA SEPARADO Y CON TITULO PROPIO, y solo si hay algo.
+//
+// Un aviso que sale SIEMPRE es ruido, y el ruido no se lee: el arreglo entero se perderia entre
+// los demas y el viaje de CI volveria intacto. Que el silencio signifique algo es la leccion de
+// `bloques-sellados`, y aqui tiene su caso.
+if (pendientes.length && !quiet) {
+  console.log('PENDIENTE AL EMPUJAR — esto NO es incumplimiento todavia, y lo sera en CI:');
+  for (const p of pendientes) {
+    console.log(`  → ${pad(p.rule, 14)} ${p.msg}`);
+    console.log(`     ${' '.repeat(14)} ${p.comando}`);
+  }
+  console.log('');
+}
 if (passed.length && !quiet) {
   console.log('PASA');
   for (const p of passed) console.log(`  ✓ ${pad(p.rule, 14)} ${p.msg}`);
@@ -3055,8 +3543,15 @@ if (sinEvaluar.length) {
   console.log(`Sin errores, PERO ${sinEvaluar.length} comprobacion(es) quedaron SIN EVALUAR: ${detalle}.`);
   console.log('SIN EVALUAR no aprueba ni bloquea (RULE-06): son reglas que NO se llegaron a mirar,');
   console.log('no reglas que pasaron. Si esto autoriza una compuerta, la autoriza a medias.');
-  console.log(`PTs verificados: ${pts.length}.`);
+  if (sellar) sellarTerminales(reg, errors.length === 0);
+  console.log(`PTs verificados: ${pts.length}${saltados.size ? ` · ${saltados.size} saltados por su sello` : ''}.`);
   process.exit(0);
 }
-console.log(`Sin errores. PTs verificados: ${pts.length}.`);
+// PT-200 · el recuento DICE lo que se salto y por que. Un «PTs verificados: 14» sin decir que hay
+// 183 sellados seria un denominador que miente, que es lo que PT-002 corrigio.
+const acotado = saltados.size
+  ? ` · ${saltados.size} terminal(es) SALTADOS por su sello (PT-200): «--sellar» tras una corrida en verde los renueva.`
+  : (all ? ' · sin sellos: se verificaron TODOS. El silencio no acota.' : '');
+if (sellar) sellarTerminales(reg, errors.length === 0);
+console.log(`Sin errores. PTs verificados: ${pts.length}${acotado}`);
 process.exit(0);

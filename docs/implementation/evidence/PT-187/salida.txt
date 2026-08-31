@@ -1,0 +1,28 @@
+PT-187 · corrida COMPLETA en verde · 2019 casos
+
+  [32m✓[0m la divergencia se enumera con direccion
+  [32m✓[0m …y sin npm lo dice, no lo da por cuadrado
+  [32m✓[0m …y dice POR QUE no pudo consultarlo
+  [32m✓[0m …y aun asi da la comparacion que no necesita red
+  [32m✓[0m una diferencia legitima no se llama defecto
+  [32m✓[0m sin tags, la cuenta cambia sola
+
+selftest: OK · 2019 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "2019", "arnes": "a62b901d163ec3e9f738857c2ce43543785847a0", "fecha": "2026-08-30T17:44:51Z" }
+
+== LAS CUATRO FUENTES, SOBRE EL REPOSITORIO REAL ==
+  package.json 13.4.0     tags 20     CHANGELOG 47     npm 13
+
+  TAG y NO publicada          (7): 1.0.0 · 10.0.0 · 13.2.0 · 13.3.0 · 13.4.0 · 5.2.0 · 9.0.0
+      Puede ser LEGITIMO: publicar es acto del firmante (SUITE-R06a) y un tag puede esperar.
+  PUBLICADA y NO en CHANGELOG (0): ninguna
+      Esto SI es defecto: SUITE-R19 obliga a la guia de migracion.
+  PUBLICADA y NO tag          (0): ninguna
+      Esto SI es defecto: se publico algo que el repositorio no marca.
+  EN CHANGELOG y NO tag       (28): 3.0.0 · 4.0.0 · 4.0.1 … 8.1.0
+      DEPENDE, y por eso se cuenta y no se juzga: las tempranas no se retrofechan (CE-014).
+
+  Las cifras se DERIVAN del arbol y del registro en cada corrida: una transcrita caduca
+  (CE-010, y las de este intake estaban las tres mal).

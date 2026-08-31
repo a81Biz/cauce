@@ -11724,3 +11724,1627 @@ hace que un secreto REAL deje de bloquear—. Es PT-194 (EP-026), abierto desde 
 PT-191. Aqui no se decide siquiera que la exencion DEBA valer en la historia: puede que la
 respuesta correcta sea que no, y que lo que falte sea un mensaje que lo explique en vez de un rojo
 que parece hablar de contrasenas (RULE-06).
+
+## PT-199 — El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-199-el-esqueleto-del-acotado
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+
+TREINTA Y TRES ERRORES POR CORRIDA, EN VERDE, Y LA INTENCION DE NO TENERLOS ESTABA ESCRITA.
+
+La bateria acotada emitia 33 lineas «Can't open ... No such file or directory» en cada corrida. El
+montaje de cada caso vive FUERA de `chk` —`build_fixture; perl -0pi -e ... "$WORK/..."`— asi que con
+la seccion inactiva el `chk` no ejecuta pero el `perl` de la linea de arriba si.
+
+PT-086 lo previo y monto un esqueleto para que esas ordenes operaran sobre archivos inertes. Su
+comentario lo dice con todas las letras: «con el esqueleto, esas ordenes hacen su trabajo sobre
+archivos inertes Y NO DICEN NADA». La lista tenia DOS rutas y el arnes toca CIENTO SETENTA Y DOS.
+
+CAUSA RAIZ. Una lista escrita a mano que nada contrasta con lo que el andamiaje toca. Cobertura
+medida: 1%. Es la forma que da nombre al lote —informacion derivable, escrita a mano, sin nadie que
+la contraste— y la misma que PT-176 resolvio para los bloques y PT-091 para las cifras del
+inventario.
+
+SOLUCION. El esqueleto DERIVA su contenido del propio arnes: las rutas ya estan escritas ahi. Es
+retroactivo por construccion — la ruta que una tarea futura anada entra en el esqueleto el mismo dia
+que se escribe, porque sale del mismo archivo donde ella vive.
+
+LO QUE NO SE PUEDE DERIVAR SE DICE. El grep ve «$WORK/...» literal y no ve las rutas construidas en
+variables: son 14 raices, y cada corrida acotada las ENUMERA. No se afirma cobertura total; se
+afirma que lo que falta se ve. Sin eso, AC-01 lo satisface anadir dos rutas a mano — el defecto de
+hoy con otra cifra.
+
+Archivos modificados: tools/selftest.sh · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+
+Medido: corrida COMPLETA 1933 casos en verde · corrida ACOTADA 136 casos y CERO errores de
+  andamiaje, frente a 33 · el esqueleto deriva 172 rutas y declara 14 raices que no puede derivar.
+
+Evidencia: docs/implementation/evidence/PT-199/ — manifest, self-review, salida e inversa.
+Trazabilidad: changes/PT-199-el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca/traceability.md
+  — sin AC huerfano (FDGE-R15).
+
+COMPROBACION INVERSA, HECHA. El esqueleto ANTERIOR monta 2 archivos y falla las TRES rutas que los
+casos comprueban; el DERIVADO monta 87 y las tres pasan. Los casos no pasan con el codigo anterior.
+
+DELTA REAL VS PLANIFICADO — CUATRO COSAS QUE SOLO DESTAPO EJECUTAR, Y DOS ERAN MIAS.
+
+1) EL ESQUELETO DERIVADO COSTABA 8,1 SEGUNDOS POR MONTAJE. build_fixture se invoca 265 veces; la
+primera version hacia un mkdir/`: >` POR RUTA —unos 350 procesos— y medía 8159 ms: ~36 minutos de
+corrida acotada. Habria destruido el ahorro que EP-025 acababa de conseguir, que es exactamente por
+lo que PT-086 llamo «barato» a su esqueleto. Reescrito a DOS procesos: 183 ms. Lo destapo
+cronometrarlo, no leerlo.
+
+2) LA DERIVACION NECESITABA SU PROPIA GUARDA DE TERRENO. El grep capturaba «$WORK/...» de una
+ELIPSIS en un comentario —el mio— y creaba un archivo llamado «...» que reventaba «git add -A» y
+rompia el andamiaje de PT-056. Y capturaba SEIS «$WORK/../algo»: rutas que SALEN de $WORK y habrian
+escrito en el directorio PADRE, el defecto exacto que PT-188 cerro con dos puertas, reintroducido
+por la puerta de atras. Se descarta todo segmento formado solo por puntos, y hay un caso que lo fija
+en las dos direcciones.
+
+3) MI DISCRIMINADOR DE TS-03 NO DISCRIMINABA. Comprobaba «-f 11-Conventions.md» para distinguir el
+fixture completo del esqueleto, y EL ESQUELETO TAMBIEN MONTA ESA RUTA: daba COMPLETO en los dos
+escenarios y pasaba por la razon equivocada. Con «-s» si distingue, porque el esqueleto deja los
+archivos VACIOS. Es la familia de PT-181 —una asercion que casa de mas— aparecida mientras se
+arregla otra cosa.
+
+4) MONTAR DIRECTORIOS SUELTOS ROMPIO DIECIOCHO CASOS DE SECCIONES ACTIVAS. proj24() usa la
+EXISTENCIA de «$WORK/ep024» como centinela de «fixture ya construido»: al montarlo el esqueleto, el
+fixture no se construia nunca y 18 casos caian con «No hay REGISTRY.json legible». El arreglo fue
+crear MENOS, no parchear el fixture ajeno: el esqueleto monta los ARCHIVOS y sus PADRES, y nada mas.
+Es la misma leccion que el punto 3 con otro operador — «-d» no distingue construido de existe vacio.
+
+Y UNA ROTURA COLATERAL LEGITIMA. El caso «y los que hay cortan al fallar» usaba «^[5-9][0-9]*$» para
+decir «al menos cinco», y eso RECHAZA 10 a 49. Al anadir esta tarea un fixture mas con la forma
+protegida, la cuenta llego a 10 y el caso se puso rojo CASTIGANDO LA MEJORA. Su propio comentario ya
+declaraba «NO SE CLAVA LA CIFRA» —y la clavaba igual—: es la TERCERA vez en el mismo caso. Ahora
+compara el COMANDO y el patron solo lee su veredicto: fija el cero de lo prohibido sin fijar ningun
+numero correcto. Es la familia -18, y su tarea es PT-192.
+
+EL COSTE, MEDIDO Y DECLARADO. La corrida acotada pasa de 126 casos / 4m23s CON 33 ERRORES a 136
+casos / 7m10s CON CERO. El aumento es real y es el precio de que la salida se pueda leer. Se probo
+una plantilla montada una vez y copiada con «cp -a» —134 ms frente a 183— y se DESCARTO: un 27% que
+no cambia el orden de magnitud y anade una plantilla que mantener. La medida queda escrita para que
+la decision sea contrastable. La acotada sigue siendo -77% frente a la completa.
+
+## PT-201 — Hay comprobaciones que no pueden correr en local y el marco no lo declara
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-201-comprobaciones-que-no-corren-en-local
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-001 — el proxy en lugar del hecho
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-201.md
+
+TRES VECES EN UN SOLO CIERRE, EL VERDE LOCAL FALLO EN CI. Y LAS TRES, LA CI TENIA RAZON.
+
+    SUITE-R34  «Hubo trabajo en changes/ despues del ultimo estado»
+    SUITE-R34  «El bloque ESTADO contradice al registro»
+    SUITE-R51  «publica la ruta SIN enlace y el contenido ya esta en un ref durable»
+
+Y una cuarta al abrir EP-026: otra vez SUITE-R51, sobre diecinueve issues.
+
+CAUSA RAIZ. verify-fdge.mjs:729 usa «git log -1 --format=%ct», que SOLO VE COMMITS. «npm run verify»
+corre sobre el ARBOL DE TRABAJO; SUITE-R34 mide el ARBOL COMMITEADO. Son dos objetos distintos y
+nada lo decia. SUITE-R51 es el mismo patron un paso mas alla: el ref DURABLE al que el issue debe
+enlazar no existe hasta el push, asi que en local esa comprobacion SOLO PUEDE PASAR.
+
+INVENTARIO MEDIDO: once reglas de verify-fdge dependen de algo que el arbol de trabajo no contiene
+—siete miran la historia de git, seis la plataforma, dos en ambas— mas el espejo de tracker. La
+cifra es APROXIMADA y se dice: sale de asociar cada uso de «git log» o del adaptador con la primera
+regla citada despues. Establece el orden de magnitud, no la lista definitiva.
+
+Y UN AGRAVANTE: el mensaje afirmaba algo FALSO. «Hubo trabajo en changes/ despues del ultimo estado»
+cuando el estado SI estaba al dia, solo que sin commitear — mandaba a actualizar un HANDOFF que ya
+lo estaba. Es la familia de PT-198 y PT-203: la herramienta no distingue el HECHO de su propia
+INCAPACIDAD DE VERLO.
+
+SOLUCION. Dos piezas, y ninguna toca lo que las once comprobaciones miden:
+  1) verify-fdge mira si el arbol esta sucio en lo que la comprobacion consulta, y cuando lo esta
+     DICE que su veredicto es sobre lo commiteado.
+  2) SUITE-R62 acota su promesa POR ESCRITO, en RULES.md.
+
+NINGUN VEREDICTO CAMBIA. Nada pasa de verde a rojo ni al reves: lo que cambia es que el verde deja
+de afirmar mas de lo que sabe. Es la misma forma con que verify-fdge ya trata lo SIN EVALUAR y con
+que bloques-sellados trata su silencio.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh · RULES.md · CORE.md (regenerado,
+  267 reglas) · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+El caso del arbol LIMPIO es el que sostiene AC-02: un aviso que apareciera SIEMPRE no informaria de
+nada y seria la misma averia con otra forma — el argumento de SECRETOS-EXCEPCIONES.md, «una
+compuerta siempre roja ensena a saltarsela».
+
+Medido: corrida COMPLETA 1937 casos en verde · el aviso aparece sobre arbol sucio y NO sobre uno
+  limpio · regla.mjs SUITE-R62 devuelve el segundo limite.
+
+Evidencia: docs/implementation/evidence/PT-201/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-201-hay-comprobaciones-que-no-corren-en-local/traceability.md — sin AC
+  huerfano (FDGE-R15).
+
+DELTA REAL VS PLANIFICADO — UNA ATRIBUCION EQUIVOCADA, CORREGIDA ANTES DE ESCRIBIR CODIGO.
+
+El intake decia que la regla incumplida era SUITE-R01. NO LO ES: SUITE-R01 es «Evidence Before
+Action» y esta declarada NO VERIFICABLE —«no lo comprueba ninguna maquina»—. La que comprueba que
+«lo que se ejecuta en local es lo que ejecuta CI» es SUITE-R62, que se declara a si misma «una forma
+concreta de SUITE-R01 que no la agota». El error salio de CLAUDE.md, que cita SUITE-R01 en su
+seccion de verificacion.
+
+Se corrigio en PHASE 2, ANTES de tocar una linea de codigo, y consta en el intake §4b y en
+discovery.md §4 en vez de reescribirse en silencio.
+
+Y LEER SUITE-R62 DE VERDAD MEJORO EL RESULTADO. Ya declaraba un limite —que se comparan NOMBRES DE
+SCRIPT, no lo que cada paso hace—. El que faltaba es el OPUESTO: el mismo paso, haciendo exactamente
+lo mismo, mide un objeto que en local todavia no existe. Decirlo asi es mas preciso que lo que el
+intake proponia, y solo se pudo escribir despues de mirar la regla real.
+
+LO QUE NO PROMETE, Y ES EL NUCLEO. No promete que el verde local pase a predecir la CI: NO PUEDE. El
+ref durable de SUITE-R51 no existe hasta el push y ninguna herramienta local puede inventarlo.
+Promete que se sepa CUANDO NO LO PREDICE, que es lo contrario de suponerlo (RULE-06).
+
+Y TRES LIMITES QUE CONSTAN. Las once comprobaciones NO se auditaron una por una: el inventario es
+una aproximacion medida. SUITE-R51 no tiene caso propio, porque su hecho solo existe tras el push.
+Y el aviso se anadio a SUITE-R34, donde se midio el dano tres veces: las otras diez NO lo llevan
+todavia — lo que este arreglo garantiza para ellas es que la REGLA lo declara, no que cada una lo
+diga. Es una limitacion real y no se disfraza.
+
+## PT-179 — La evidencia que falta solo avisaba, tambien cuando ya tocaba
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-179-evidencia-que-falta-solo-avisa
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de PT-178 · motivo hallazgo
+
+LA COMPUERTA CONCEDIA SIN MIRAR LA FASE, Y EL DATO ESTABA A DIEZ LINEAS.
+
+verify-fdge daba CERO ERRORES a una tarea en PHASE 7 sin evidencia, diciendo «aun sin manifest.json
+(normal antes de PHASE 6)». El mensaje describia una situacion que no era la suya.
+
+    verify-fdge.mjs:2584
+    if (exigibleEn(gate, 'manifest.json')) fail(...); else warn(... 'normal antes de PHASE 6');
+
+`exigibleEn(gate, ...)` mira LA COMPUERTA bajo la que se corre, no LA FASE de la tarea. Sin --gate
+—que es como corre «npm run verify» y como corre CI— nada exigia el artefacto.
+
+QUE LO HACE REAL Y NO TEORICO. El SESSION_LOG del lote que lo descubrio registra TRES errores de
+evidencia: ruta equivocada, «tests» como cadena donde el esquema pide array, y un «coverage» que
+comparaba texto contra texto. Se escribio entonces: «los tres pasaron en verde antes de corregirse:
+son la prueba de PT-179».
+
+SOLUCION. Usar el helper que YA EXISTIA diez lineas mas arriba:
+
+    verify-fdge.mjs:2213
+    const exigible = (regla, desde, artefacto) => { ... }   // tres salidas de RULE-02
+
+Ya lo usaban FDGE-R42 y FDGE-R15. Escribir otro habria duplicado el mismo criterio, que es lo que
+SUITE-R38 persigue. No se sustituye «exigibleEn»: se SUMA, porque bajo --gate G4 aquella exigencia
+sigue siendo correcta.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/selftest.sh ·
+  enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+TS-02 sostiene a los otros dos: AC-01 lo satisface convertir el aviso en error SIEMPRE, y eso
+pondria en rojo a todo PT recien abierto — el defecto contrario y peor. El comentario de :2206 ya lo
+decia: «una compuerta que se pone roja sobre comportamiento correcto ensena a saltarsela».
+
+Medido: corrida COMPLETA 1940 casos en verde · PHASE 7 sin evidencia BLOQUEA · PHASE 4 avisa
+  diciendo la fase real · sin fase declarada NO se convierte en error.
+
+Evidencia: docs/implementation/evidence/PT-179/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-179-evidencia-que-falta-solo-avisa/traceability.md — sin AC huerfano.
+
+DELTA REAL VS PLANIFICADO — EL ALCANCE CRECIO DE UNA REGLA A TRES, Y CON MOTIVO.
+
+El intake hablaba de FDGE-R23. Al mirarlo eran TRES con el mismo defecto:
+
+    FDGE-R23  manifest.json    solo miraba la compuerta
+    FDGE-R25  self-review.md   miraba «afterPhase6» — UN PROXY
+    FDGE-R29  HISTORY.log      solo miraba la compuerta, en otra funcion
+
+FDGE-R25 ERA EL PEOR CASO. «afterPhase6» se define como «manifest !== null && manifest !==
+undefined»: deduce la fase DE QUE EXISTA EL MANIFEST. Es CE-001 en su forma exacta, y falla justo
+donde mas duele — una tarea en PHASE 7 SIN MANIFEST NI SELF-REVIEW se escapaba entera, porque el
+proxy que debia delatarla tambien faltaba. Se CONSERVA la condicion y se le SUMA la fase: quitarla
+habria cambiado el comportamiento en casos que hoy funcionan, y no hacia falta.
+
+FDGE-R29 vive en otra funcion y exigible() no esta en su ambito; la fase viaja en el objeto de
+opciones. Se incluye porque es el MISMO defecto: dejarla fuera habria puesto a una tarea en PHASE 8
+leyendo «se escribe en PHASE 8».
+
+LO QUE NO SE CUBRE, Y CONSTA. FDGE-R25 y FDGE-R29 NO tienen caso de bateria propio: comparten
+helper, fixture y las tres salidas con FDGE-R23, y tres casos identicos medirian lo mismo tres
+veces. Se comprobaron A MANO sobre el mismo fixture, en PHASE 7 y en PHASE 4, y la salida esta en
+la evidencia. Y no se barrieron todas las reglas que puedan conceder sin mirar la fase: se cubren
+las tres de evidencia y persistencia, que son las medidas.
+
+Y UNA COSA QUE NO SE AFIRMA. Los tres errores de evidencia del SESSION_LOG tenian manifest —lo que
+fallaba era su CONTENIDO—, asi que NO se afirma que este arreglo los habria detectado. Lo que se
+cierra es el hueco de NO TENERLO.
+
+## PT-181 — La expectativa de un caso se comparaba como regex, sin forma de decir literal
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-181-la-expectativa-es-una-regex
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de PT-178 · motivo hallazgo
+
+«regla.mjs» CASA «reglaXmjs», Y NADIE LO PRETENDIO.
+
+    selftest.sh:272
+    if printf '%s' "$out" | grep -q -- "$pat"; then pass "$name"; else
+
+«grep -q» sin «-F» interpreta el patron como expresion regular basica. La expectativa de cada caso
+se compara COMO REGEX, y no habia forma de decir «esto es texto literal».
+
+MEDIDO HOY:
+
+    expectativas leidas                                      1401
+    con metacaracteres                                        215
+    AMBIGUAS: punto entre alfanumericos y NINGUN
+      metacaracter a proposito                                 96
+
+Ejemplos reales: «regla.mjs» · «instrucctions.md» · «REGISTRY.graph» · «4.0.1» · «### 24.2».
+
+CAUSA RAIZ. Un caso cuya expectativa CASA DE MAS puede pasar POR LA RAZON EQUIVOCADA, y eso no se ve
+leyendolo: se ve el dia que el defecto que vigila aparece con una forma parecida y el caso sigue
+verde. No es hipotetico en este arnes — PT-199 cometio esta misma clase de error en esta sesion con
+un «-f» que casaba de mas, y lo destapo ejecutarlo.
+
+SUITE-R59 NO CUBRE ESTO. Alli el patron SE ROMPE —un corchete sin cerrar es error de sintaxis de
+grep, no un «no casa»—; aqui el patron FUNCIONA y significa otra cosa. Dos defectos con la misma
+causa, y aquella cubre uno.
+
+SOLUCION. Dos piezas:
+  1) «chkl» y «chknol»: la expectativa LITERAL, con grep -qF. Un punto es un punto.
+  2) La corrida DECLARA cuantas expectativas parecen literales y se interpretan, UNA vez — como
+     PT-199 declara las raices que no puede derivar. La cifra deja de crecer a ciegas.
+
+«chk» NO CAMBIA: las 215 que llevan metacaracteres a proposito siguen exactamente igual.
+
+Archivos modificados: tools/selftest.sh · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+
+AC-02 NECESITA SUS DOS MITADES, y esa es la parte que importa del diseno. Que «chkl» NO case lo
+cumple un chkl roto que no case nunca. La mitad que prueba algo es que «chk», con la MISMA
+expectativa, SI casa. Sin ese segundo caso, chkl podria ser un alias de chk y los tres AC seguirian
+en verde.
+
+Medido: corrida COMPLETA 1945 casos en verde · la corrida declara 98 ambiguas · los 1400+ casos que
+  usan chk siguen igual, que es la evidencia de AC-03.
+
+Evidencia: docs/implementation/evidence/PT-181/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-181-la-expectativa-de-un-caso-es-una-regex/traceability.md — sin AC
+  huerfano (FDGE-R15).
+
+DELTA REAL VS PLANIFICADO — TRES DESCARTES QUE CONVIENE QUE CONSTEN.
+
+INVERTIR EL DEFECTO —chk literal, chkre para regex— es el cambio conceptualmente correcto: lo
+literal es mas frecuente y menos peligroso. Se descarto porque romperia 215 casos DE GOLPE en un
+arnes de 1401 aserciones, y una migracion que nadie puede revisar caso a caso cambia lo que mide sin
+que nadie lo note. Queda anotado por si algun dia se reescribe el arnes.
+
+DETECTAR Y FALLAR sobre las 96 se descarto por lo que PT-179 acaba de dejar escrito: ninguna falla
+hoy —el punto casa el punto real tambien— asi que convertirlas en error seria inventar un defecto
+donde solo hay un riesgo, y una compuerta roja sobre conducta correcta ensena a saltarsela.
+
+AVISAR EN CADA CASO AMBIGUO se descarto por ruido: 96 avisos por corrida es exactamente lo que
+PT-199 acaba de eliminar. Se cuenta una vez y se dice una vez.
+
+UNA DIFERENCIA CON LA CIFRA DEL INTAKE, Y SE EXPLICA. El intake citaba 303 de 1476 —la medida
+original de PT-183— y hoy son 215 de 1401 con metacaracteres, de las que 96 son ambiguas. Las cifras
+NO son comparables: aquella contaba cualquier metacaracter; esta separa los que estan A PROPOSITO de
+los que no. No se corrige la antigua —SUITE-R09, y era correcta para lo que medía—: se dice que mide
+cada una.
+
+LO QUE NO SE CUBRE, Y CONSTA. Las 96 no se migran ni se auditan: lo que esta tarea entrega es la
+FORMA de decir literal y la CIFRA visible. Y la cifra es una HEURISTICA, no una auditoria — puede
+marcar alguna que quisiera ser regex y escaparsele otra. Establece el orden de magnitud.
+
+## PT-192 — El final del arnes se media por POSICION y castigaba cualquier anadido
+Fecha: 2026-08-28
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-192-el-final-se-mide-por-posicion
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-28 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de PT-191 · motivo hallazgo · changes/PT-191-el-sello-se-estampa-con-una-bandera/paradas/PT-192.md
+
+TRES VECES LA MISMA CAUSA, Y LA TERCERA FUE ESTA MISMA EPICA.
+
+    selftest.sh:7361  «sin coincidencias, es rojo»            tail -40  sobre el fuente
+    selftest.sh:7362  «…y lo dice con el patron»              tail -40
+    selftest.sh:7370  «con --solo la salida lleva dos cifras» tail -40
+    selftest.sh:7408  «el recuento final existe»              tail -4
+    selftest.sh:7409  «…y no mira QUIET»                      tail -4
+
+CINCO casos —el intake decia cuatro— median el bloque del informe final por su DISTANCIA AL FINAL
+del archivo. Cualquier anadido detras empuja el objetivo fuera de la ventana y pone el caso en rojo
+SIN QUE NADA DE LO QUE MIDE HAYA CAMBIADO: castiga el anadido, no el error.
+
+EL HISTORIAL, ESCRITO EN EL PROPIO ARCHIVO:
+  · PT-086 amplio la ventana de 14 a 40 por esto, y dejo escrito: «extraer por POSICION es fragil
+    en las dos direcciones, y aqui toco esta».
+  · PT-191 metio 21 lineas detras del recuento y puso DOS casos en rojo.
+  · PT-199 tuvo que colocar su codigo «antes del informe final» por la misma razon, y dejarlo
+    comentado para que el siguiente no lo rompiera.
+El margen que quedaba al empezar esta tarea era de SIETE lineas.
+
+POR QUE EL ANCLA TEXTUAL INGENUO NO VALIA, y consta en :7355: «sed -n "/NINGUN CASO CASA/,/^fi/p"
+arrancaba en ESTA MISMA LINEA —que contiene ese texto al definirse— y se tragaba medio archivo». EL
+ARNES SE LEE A SI MISMO: cualquier patron literal esta en el archivo DOS veces, en el sitio buscado
+y en el caso que lo busca. Por eso se eligio la posicion.
+
+SOLUCION. Una MARCA deliberada —«# cauce:informe-final»— y los casos la construyen PARTIDA, para que
+el fuente no la contenga entera:
+
+    _informe_final() { sed -n "/cauce:info""rme-final/,\$p" "${1:-...}"; }
+
+Es la tecnica con que PT-193 saco las contrasenas del fuente, y la idea con que PT-190 sustituyo la
+heuristica de los 4000 caracteres: una declaracion explicita que vale ESTE DONDE ESTE.
+
+Archivos modificados: tools/selftest.sh · enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓
+
+AC-02 LLEVA TRES CASOS Y LOS TRES HACEN FALTA. Que el ancla aguante 50 lineas nuevas lo cumple
+cualquier extraccion que funcione. El segundo —que con «tail -40», el MISMO arnes falso, FALLA— es
+el que prueba que el arreglo hacia falta. Y el tercero impide que ese segundo pase POR VACIO.
+
+Medido: corrida COMPLETA 1950 casos en verde · los cinco casos anclados siguen detectando lo suyo ·
+  50 lineas de relleno no rompen la extraccion, y con tail -40 si la rompian.
+
+Evidencia: docs/implementation/evidence/PT-192/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-192-el-final-del-arnes-se-mide-por-posicion/traceability.md — sin AC
+  huerfano (FDGE-R15).
+
+DELTA REAL VS PLANIFICADO — DOS ERRORES MIOS, Y LOS DOS DE LA MISMA FAMILIA.
+
+1) ESCRIBI LOS CASOS CON «sh -c», Y sh NO VE LAS FUNCIONES DE BASH. El comando fallaba con «command
+not found»... y el chkno PASABA EN VERDE: sin salida, nada casa. Un caso que aprueba porque su
+comando NO EXISTE es exactamente lo que da nombre a este lote. Reescrito con funciones propias, y
+anadido el caso «no pasa por vacio» que lo habria delatado.
+
+2) DEFINI «_informe_final()» JUNTO A LOS CASOS NUEVOS, al final del archivo — y TRES de sus cinco
+usos estan 7000 lineas mas arriba. La corrida POR SECCION paso, porque esos casos no estaban en
+ella; la COMPLETA fallo con «command not found». Movida junto a chk, chkl y chknol, que es donde
+viven los helpers.
+
+Los dos son el mismo defecto: UN CASO PUEDE FALLAR —o pasar— POR UNA RAZON QUE NO ES LA QUE MIDE. Y
+el segundo solo lo vio la corrida COMPLETA: la acotada no lo alcanzaba.
+
+ERAN CINCO CASOS, NO CUATRO. El intake y discovery.md contaban cuatro; al implementarlo aparecio
+«…y no mira QUIET», que tambien usaba tail -4 sobre el fuente. Se incluye —mismo defecto, misma
+ventana— y la cifra se corrige aqui en vez de dejarse en cuatro.
+
+LO QUE NO SE CUBRE, Y CONSTA. No se barren todas las extracciones posicionales del arnes: se cubren
+las cinco que miden el final del fuente y que han fallado tres veces. Y la marca es una CONVENCION,
+no una garantia: quien borre «# cauce:informe-final» rompe cinco casos. Lo que cambia respecto a hoy
+es que borrarla es un acto DELIBERADO y visible, mientras que anadir una linea al final no lo era.
+
+## PT-200 — verify-fdge revisaba los 197 PT cada vez, y 183 estaban INTEGRATED
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-200-verify-fdge-no-acota
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-28 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-001 — el proxy en lugar del hecho
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-200.md
+
+LA MITAD DE LA VERIFICACION SE QUEDO FUERA DEL SELLO QUE EP-025 CONSTRUYO.
+
+    verify-fdge.mjs:2974
+    const terminal = new Set(['CLOSED', 'REJECTED', 'REVERTED', 'DEFERRED']);
+
+INTEGRATED no estaba en la lista — y es el estado en el que acaba TODA tarea que se termina bien.
+Medido: «--all» recorria 197 de 203 PT, y 183 de esos 197 estaban INTEGRATED, con su codigo en main
+y su issue cerrado. Vivos de verdad: CATORCE.
+
+En el mismo verificacion.yml, un paso acota 1956 casos a 153 y el otro recorre 197 de 203 siempre.
+Lo dijo el firmante: «si se sello la prueba, el artefacto tambien».
+
+POR QUE NO BASTA CON ANADIR INTEGRATED A LA LISTA. Sus artefactos siguen en el arbol —changes/,
+evidence/, su entrada de HISTORY, su allocation— y nada impide editarlos despues. Saltarlos sin
+mirar dejaria la compuerta CIEGA para el 93% del repositorio. Es el defecto que PT-191 cerro en la
+bateria: un bloque no se certifica por NO HABER CAMBIADO, sino por HABER PASADO.
+
+SOLUCION. El mecanismo de PT-175 y PT-191, sin cambios conceptuales:
+  · SELLOS-PT.json guarda por PT su huella, su VEREDICTO y su fecha
+  · la huella cubre su allocation, changes/, evidence/, sus entradas de HISTORY Y EL VERIFICADOR
+  · «--sellar» es una DECISION, y solo certifica una corrida que termino EN VERDE
+  · sin sellos se verifican TODOS: el silencio no acota
+
+LA HUELLA DEL VERIFICADOR ES LA PIEZA MAS FACIL DE OLVIDAR, y tiene caso propio. Un cambio en
+verify-fdge.mjs o patrones.mjs cambia el veredicto SIN TOCAR EL ARTEFACTO; sin esa huella el sello
+certificaria contra una version de las reglas que ya no existe.
+
+Archivos modificados: tools/verify-fdge.mjs · tools/tracker.mjs · tools/selftest.sh ·
+  enterprise-documentation/inventory/services.md (derivada)
+
+Criterios: AC-01 ✓ · AC-02 ✓ · AC-03 ✓ · AC-04 ✓
+
+MEDIDO SOBRE EL REPOSITORIO REAL:
+
+    SIN sellos    536.8 s   ·  197 PT recorridos
+    CON sellos     50.4 s   ·   14 PT recorridos  ·  189 saltados
+                             -91% en tiempo · -93% en tareas
+
+Y corrida COMPLETA de la bateria: 1956 casos en verde.
+
+Evidencia: docs/implementation/evidence/PT-200/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-200-verify-fdge-no-acota-lo-terminal/traceability.md — sin AC huerfano.
+
+DELTA REAL VS PLANIFICADO — UN HALLAZGO LATERAL, ARREGLADO Y DECLARADO.
+
+verify-fdge IMPORTA tracker.mjs —estadoContrastado, FASES, estadoDelArbol— y un import EJECUTA el
+cuerpo del modulo. Asi que la validacion de banderas de tracker, que PT-183 introdujo para que un
+flag desconocido no se ignore en silencio, miraba los argv de VERIFY-FDGE y rechazaba «--sellar»,
+nombrando banderas de tracker que no venian al caso.
+
+LA GUARDA YA EXISTIA: EJECUTADO_DIRECTO, en tracker.mjs:1486 — pero se calculaba QUINIENTAS LINEAS
+DESPUES del bloque que la necesitaba. Se adelanta. Un modulo importado no valida los argv de quien
+lo importa, y tracker sigue rechazando sus propias banderas malas: comprobado en las dos
+direcciones.
+
+LO QUE COSTO EL FIXTURE, Y POR QUE SE DICE. El caso necesita un proyecto sintetico EN VERDE —el
+recuento «PTs verificados» solo se imprime si no hay errores— y llegar ahi exigio nueve iteraciones:
+traceability.md, la evidencia que el manifest cita, el indice, docs/enterprise-documentation/ con
+sus tres RULE-nn, suite_version en el registro, y una bitacora con el formato exacto
+«AAAA-MM-DD · PHASE n» que FDGE-R52 pide. Por eso el fixture vive en una funcion propia y comentada:
+el siguiente que necesite un proyecto verde no vuelve a pagarlo.
+
+LO QUE NO SE CUBRE, Y CONSTA. Un cambio en RULES.md que no toque verify-fdge.mjs NO invalida el
+sello, igual que en la bateria. Y no se fija ninguna cifra de minutos como criterio: seria fijar el
+numero de lo correcto (HANDOFF -18). Lo que se mide es que lo terminal y sin cambios no se recorre,
+y que cualquier cambio lo devuelve entero.
+
+================================================================================
+
+## PT-196 — Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-196-lo-posterior-a-G4
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-29 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-007 — existe la herramienta y nada la echa en falta
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-196.md
+
+CERRAR UN LOTE HABIA FALLADO SIETE VECES, Y NINGUNA FUE EL MISMO SINTOMA.
+
+Esa es la senal que lo delata. Siete descuidos distintos no son siete descuidos: son un tramo del
+procedimiento sin dueno. PHASE 9 TERMINA EN EL MERGE, y los seis actos que vienen despues
+—integrar, mergear otra vez, cerrar, sellar el lote, proyectar, el tag— estaban escritos como
+PROSA dentro de ella. Ninguna fase los poseia, ningun artefacto los cerraba, ninguna compuerta los
+miraba. Se ejecutaban DE MEMORIA — y lo que se ejecuta de memoria falla donde la memoria falla,
+que es en un sitio distinto cada vez.
+
+Es CE-007 en su forma pura: las herramientas EXISTIAN —integrar, cerrar, cierre, proyectar—, nadie
+decia cual ni en que orden, y ningun verificador echaba en falta la que no se corrio.
+
+LA CONTRADICCION, MEDIDA AL CERRAR EP-025.
+
+    SUITE-R45  exige resolver cada fila de «## Cierre del lote» EN G4
+    SUITE-R06a prohibe el tag ANTES del merge
+    G4 ES el merge
+
+La fila «el tag y la publicacion» no podia estar HECHA ni por definicion. No habia respuesta
+correcta, y la unica salida fue mover la fila a otra tarea — un rodeo, no un arreglo.
+
+LO QUE CAMBIA, EN TRES SITIOS Y NINGUNO DE MAS.
+
+1. verify-fdge.mjs · SUITE-R45 distingue lo POSTERIOR. Una fila cuyo estado diga «TRAS EL MERGE»
+   —o «POSTERIOR A G4»— no bloquea la compuerta, y NO desaparece: se cuenta aparte y se sigue
+   nombrando, porque un hueco que nadie nombra es el que se olvida. Una PENDIENTE sigue
+   bloqueando y una HECHO sigue resolviendo: la puerta nueva no abre las viejas.
+
+2. tracker.mjs · «siguiente EP-NNN» contesta el CIERRE, no la fase del intake. queSigue responde
+   por FASE y las fases son del PT: para un lote devolvia «PHASE 1 · Intake», que no dice nada del
+   cierre. cierreDeLote() lo DERIVA del reparto de sus tareas — no anade estado: si el reparto
+   cambia, la respuesta cambia sola.
+
+3. PHASES.md · el cierre del lote es procedimiento propio, con sus diez actos en orden, junto a
+   LOTES y no dentro de una fase que ya termino.
+
+EL DOBLE VIAJE SE DECLARA, NO SE QUITA — Y ESA ES LA DECISION.
+
+Cerrar un lote pasa por G4 DOS VECES: «tracker integrar» escribe INTEGRATED en la rama de trabajo
+y «tracker cerrar» exige que ese estado este YA en la rama por defecto (SUITE-R46), asi que el
+apunte solo llega a main en el merge siguiente. Se podria ahorrar quitando SUITE-R46. NO SE HACE:
+esa regla nacio de una averia real —la principal declarando un estado vivo con el issue ya
+cerrado— y quitarla cambiaria una molestia por un defecto. Lo que cambia es que este ESCRITO DONDE
+SE EJECUTA, en vez de descubrirse chocando.
+
+Evidencia: docs/implementation/evidence/PT-196/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-196-lo-posterior-a-G4-no-tiene-dueno-en-el-cierre/traceability.md — sin AC huerfano.
+
+SEIS CASOS SOBRE CUATRO ESCENARIOS, y los dos de mas no son escenarios nuevos: son la mitad que
+impide que su pareja pase por la razon equivocada. Sin «…y una PENDIENTE si bloquea», el primero
+lo cumple un SUITE-R45 que no exija NADA; sin «…y una HECHO sigue resolviendo», los dos los pasa
+un SUITE-R45 que hubiera dejado de reconocer HECHO; y sin «…y declara el SEGUNDO merge», el de
+«siguiente» lo cumple cualquier salida que mencione la palabra cierre.
+
+Corrida COMPLETA de la bateria: 1962 casos en verde · recibo abdaaea535d5.
+
+UN ERROR MIO, Y LO QUE COMPRO PT-181. El caso de PHASES esperaba «pasa por G4 dos veces» y el
+documento lo escribe en MAYUSCULAS. Fallo en la corrida acotada, no en la revision. Eso es
+exactamente lo que PT-181 compro al pasar las expectativas de regex a literal: la expectativa se
+equivoca EN VOZ ALTA en vez de casar por accidente.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- El doble viaje no desaparece: se declara, con su motivo, arriba.
+- Ni el merge a main ni el tag se automatizan (SUITE-R06a, EXEC-R07): el cierre los ENUMERA.
+- PHASE 9 sigue terminando en el merge. No se crea una PHASE 10 para el lote: las fases son del
+  PT y anadir una para el lote mezclaria dos ciclos. El cierre del lote es del LOTE.
+- No se promete que no aparezca un octavo fallo de cierre por otra causa. Lo que se mide es que lo
+  que toca se DERIVA del registro en vez de recordarse.
+
+================================================================================
+
+## PT-198 — Un comentario en linea hacia invisible el status, y el mensaje decia que no existia
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-198-comentario-yaml
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-29 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-001 — el proxy en lugar del hecho
+Origen: parada de EP-023 · motivo condicion-bloqueante
+
+NO ES QUE NO SUPIERA LEERLO: AFIRMABA QUE NO ESTABA.
+
+    $ tracker aplazar EP-023 …
+    el intake de EP-023 no declara «status»: no se puede sincronizar (SUITE-R08).
+
+Y lo declaraba, en la linea 5:
+
+    status: READY              # G1 CHALLENGE aceptado · 2026-08-24
+
+El comentario es YAML VALIDO. La expresion exigia FIN DE LINEA tras el valor, asi que no casaba —
+y el mensaje, en vez de decir «no supe leerlo», afirmaba lo contrario de lo que ocurria y mandaba
+a anadir un campo que ya estaba. Es RULE-06 por el otro lado: no se supone lo que no se sabe, y
+TAMPOCO SE AFIRMA LO QUE NO SE HA COMPROBADO.
+
+EL ALCANCE ERA EL DOBLE DE LO QUE EL INTAKE DECIA, Y LA CIFRA SE CORRIGE AQUI.
+
+El intake decia «tres sitios» y hablaba solo de status. Medido:
+
+    type:3105 · phase:3754 · status:3757 · status:4594 · status:4859 · epic:5158 · status:5209
+
+SIETE expresiones sobre CUATRO campos, todas en tracker.mjs. Arreglar solo `status` habria sido
+escribir el sitio unico y dejar tres campos con la averia intacta — la herramienta correcta
+escrita y no invocada, que es CE-007 dentro de la tarea que lo persigue.
+
+Y HOY NINGUN INTAKE DEL ARBOL LO DISPARA: el de EP-023 ya se corrigio quitando el comentario. El
+defecto estaba LATENTE, asi que la evidencia no puede ser «ahora pasa» — los casos lo PLANTAN en
+un fixture. Se dice porque cambia lo que la tarea compra: no apaga un rojo, impide una
+reincidencia y arregla un mensaje que mentia.
+
+EL PATRON VIVE DONDE ALGO LO VIGILA.
+
+`campoDeIntake` y `reemplazaCampoDeIntake` van a patrones.mjs con su contrato —`casa`, `noCasa`,
+`para`— porque ahi los comprueba verify-patrones. Esa es la razon de que hubiera siete copias: un
+patron critico escrito en el consumidor no lo mira nadie (SUITE-R38).
+
+El comentario SE CONSERVA al escribir. Un `phase: 5  # a medias` reescrito como `phase: 6` a secas
+destruiria informacion que alguien puso a proposito: seria cambiar un defecto por otro.
+
+TRES ESTADOS DONDE HABIA DOS.
+
+    AUSENTE      «su intake no declara "status"»                     -> anade el campo
+    NO_LEGIBLE   «declara "status" en la linea N y no se pudo leer»   -> mira la linea N
+    OK           el valor
+
+NO_LEGIBLE dice la LINEA. Distinguir sin localizar obliga a buscar, y buscar es donde se vuelve a
+suponer. Es la misma separacion que PT-093 hizo entre una constancia malformada y una ausente:
+dos defectos distintos con arreglos distintos (RULE-02).
+
+VERIFY-PATRONES CAZO MI CONTRATO EN LA PRIMERA EJECUCION.
+
+    ✗ SUITE-R38  CAMPO_DE_INTAKE: NO deberia casar "statuses: READY" y casa.
+
+Declare como `noCasa` algo que el patron SI casa: acepta cualquier campo y no sabe cual se le
+pide — eso lo discrimina `campoDeIntake` comparando el grupo 1. Un contrato que afirma del patron
+algo que no hace es justo lo que SUITE-R38 existe para impedir, y la herramienta funciono.
+
+DOS HUECOS EN MIS PROPIOS CASOS, CORREGIDOS ANTES DE CERRAR.
+
+1. El detector de expresiones sueltas comprobaba el literal «^status:». Una octava copia escrita
+   sobre «phase» habria pasado por no contener esa cadena: verde por mirar al sitio equivocado
+   (CE-005), dentro del caso escrito para impedirlo. La salida se normaliza a una marca, y se
+   anade la pareja que prueba que el detector DETECTA.
+2. El caso de lectura no probaba que el arreglo hiciera falta. Se anade la comprobacion inversa
+   sobre la MISMA entrada: la expresion anclada de antes no casa nada. Es lo que PT-192 dejo
+   escrito — un caso que no puede fallar no mide.
+
+Y UN ERROR DE TECNICA, YA CONOCIDO. Escribi los helpers con `await import('file://$SUITE/…')`
+dentro de un literal JS: revienta donde $SUITE lleva barra invertida, y los siete casos salieron
+«la herramienta revento». El idioma correcto ya estaba en el arnes desde `patlib` (selftest.sh:2027)
+— la ruta viaja por variable de entorno y se convierte con pathToFileURL. CE-007 en pequeno: la
+forma correcta existia y no la invoque.
+
+Evidencia: docs/implementation/evidence/PT-198/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-198-un-comentario-yaml-hace-invisible-el-status/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 1974 casos en verde · recibo 4abd8a5ead77.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se promete que el frontmatter sea YAML valido: se cubre el escalar con comentario en linea,
+  que es el caso medido. Un parser completo es otra decision, otro coste y una dependencia que
+  este repositorio hoy no tiene.
+- Los campos NO escalares —listas, bloques— quedan fuera: ninguna de las siete llamadas los toca.
+- Otros artefactos con YAML (HANDOFF, CHECKPOINT) no son intakes: su forma la escribe una
+  herramienta, no una persona.
+
+================================================================================
+
+## PT-203 — Citar un PT en una fila lo hacia miembro, y 62 miembros de verdad no se miraban
+Fecha: 2026-08-29
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-203-la-pertenencia-la-asigna-el-registro
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-29 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-29 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de EP-025 · motivo hallazgo · changes/EP-025-la-bateria-se-puede-certificar/paradas/PT-203.md
+
+EL DEFECTO IBA EN LAS DOS DIRECCIONES, Y LA GRANDE NO LA VEIA NADIE.
+
+El intake nombraba una: una columna «Origen» —«<- PT-178»— convertia en miembro del lote a una
+tarea de otro, integrada hacia dias. Medido sobre los 26 lotes ANTES de escribir el arreglo:
+
+    FANTASMA    se comprobaba a quien NO es miembro            7 casos
+    INVISIBLE   es miembro y su firma NO se comprobaba nunca  62 casos
+
+EP-019 leia CERO de sus diecisiete. EP-024, cuatro de veintiocho. INTAKE-R08 es HARD y BLOQUEA, y
+llevaba desde EP-001 corriendo sobre una fraccion de sus sujetos. Lo que no cubria no daba error:
+NO DABA NADA.
+
+El FANTASMA se ve —sale en rojo y molesta—, y por eso tenia ya DOS parches: PT-011 estrecho de
+«todo el texto» a «las filas de tabla», PT-022 recorto la seccion de cierre. El INVISIBLE calla, y
+por eso llevaba ahi desde el principio. Un tercer recorte habria arreglado 7 y dejado 62.
+
+LA CAUSA NO ERA LA HEURISTICA: ERA LA FUENTE.
+
+SUITE-R08 ya dice quien asigna —el registro— y allocations[].epic lo tiene escrito para las 229
+allocations. La pertenencia se DERIVA de ahi. La tabla del intake no se tira: pasa a
+CONTRASTARSE, y un PT citado que no es miembro sale NOMBRADO EN VERDE, porque citar de donde
+salio una tarea es lo que FDGE-R55 premia.
+
+EL RIESGO SE MIDIO ANTES DE ESCRIBIR EL ARREGLO, NO DESPUES.
+
+Hacer que una regla HARD cubra 62 sujetos nuevos puede bloquear el lote entero. Se conto primero:
+
+    firma de lote correcta : 173     SIN linea : 23
+    firma con OTRO lote    :   1     sin intake en el arbol : 2
+
+Las 26 estan TODAS en estado terminal. Ponerles la linea seria reescribir trabajo cerrado para
+callar una comprobacion: SUITE-R09 es append-only y CE-014 nombra justo eso.
+
+FIRMAR NO ES SILENCIAR — Y ESO TIENE SEIS CASOS QUE LO PRUEBAN.
+
+Se certifican en docs/implementation/FIRMAS-DE-LOTE.md, con el mismo contrato que
+SECRETOS-EXCEPCIONES.md: cada fila SIGUE APARECIENDO en cada corrida, con quien la firmo y A QUE
+TAREA LE TOCA CORREGIRLA. Lo unico que cambia es que deja de bloquear — porque una compuerta
+siempre roja ensena a saltarsela, que es peor que no tenerla.
+
+Los tres limites, cada uno con su caso:
+    lo VIVO no lo exime la certificacion      dejar de ser terminal la anula
+    una fila SIN firmante no es una firma     la plantilla sin rellenar no exime
+    certificar a OTRA no cubre a esta         no es un permiso sobre el lote
+
+Y sin el archivo no se exime nada: el silencio no acota, la leccion de bloques-sellados.
+
+EL ALCANCE CRECIO EN PHASE 5, Y SE DECLARO EN VEZ DE COLARSE.
+
+Los AC del intake son tres y ninguno habla de certificar. Implementar AC-02 introducia, por su
+propia correccion, 26 avisos permanentes SIN DUENO. El agente midio, reporto la cifra y SE
+DETUVO: el VoBo del 2026-08-28 cubre G1, G2 y G3 de EP-026 y no cubria certificar trabajo de
+lotes anteriores. La decision es del firmante y esta citada en spec-changes.md:
+
+    «necesitamos corregir o certificar y sellar, no podemos dejar pendientes menos una deuda tan
+     grande. De ser necesario ponlos en una epica que atacaremos al terminar esta»
+
+De ahi sale EP-027, abierta con intake y SIN G1: la autorizacion cubre ABRIRLA, no admitirla.
+
+PT-172 ES UN HALLAZGO QUE ESTA TAREA DESTAPA Y NO TAPA.
+
+Su intake dice «Firmado por lote: EP-024» y el registro dice EP-025. Nadie lo veia porque
+RE_SIGN_BATCH capturaba el lote y lo TIRABA mientras el mensaje lo NOMBRABA: la comprobacion
+afirmaba mas de lo que miraba. Es lo mismo que PT-198 cerro ayer, en otra linea.
+
+UN CE-017 QUE SALIO POR EL CAMINO. INTAKE-R09 bloqueaba el intake de EP-027 por CITAR PT-032 y
+PT-171 —las dos tareas sin carpeta que ese lote existe para arreglar—. La comprobacion acusaba a
+quien documenta el hecho, y la unica salida habria sido NO NOMBRAR LA DEUDA. Ahora honra la
+certificacion, y solo a quien esta escrito en la lista cerrada.
+
+LA PODA QUE EL CAMBIO OBLIGA — SUITE-R61, con su cuenta por patron.
+
+    superado   4     citar un PT en prosa · ni siquiera al de al lado ·
+                     el de la tabla si exige su firma · sin tabla, respaldo al barrido completo
+    invertido  0
+    hueco      0
+
+Ninguno se retira: los cuatro se REPUNTAN. El cuarto cambia de nombre porque el respaldo que
+nombraba ya no existe — existia «para no dejar de comprobar en silencio los intakes anteriores a
+la plantilla con tabla» y NO FUNCIONO: EP-019 tenia filas, asi que nunca entro.
+
+Y HABRIAN QUEDADO EN «HUECO» SI NO SE TOCA EL FIXTURE: su REGISTRY.json no mencionaba el lote, asi
+que EP-001 se quedaba SIN MIEMBROS y las comprobaciones pasaban sin medir nada. LO DESTAPO LA
+CORRIDA COMPLETA, no la acotada, que daba verde. La leccion de PT-192 otra vez.
+
+TRES ERRORES MIOS, Y LOS TRES LOS CAZO EJECUTAR.
+
+1. El perl del fixture insertaba «epic» DENTRO del objeto anidado: «[^}]*» se paraba en la llave
+   de cierre de «viabilidad». Se inserta justo detras del id.
+2. El chkno miraba TODA la salida, y el mensaje CORRECTO nombra la cita en verde — asi que
+   buscar PT-003 fallaba POR ENCONTRARLO DONDE DEBE ESTAR. Se mira la linea que RECLAMA, y se
+   anade el caso que impide que eso pase por vacio.
+3. Un caso ajeno fijaba «OK · 8 casos»: EL NUMERO DE LO CORRECTO. Anadir un caso a esa seccion lo
+   rompio sin que nada estuviera mal. Es la leccion -18 del HANDOFF y su SEXTA aparicion; se
+   repunta a lo que quiere probar —que --seccion ACOTA— sin fijar cifra, y en UN solo caso porque
+   cada sub-corrida es una seccion entera.
+
+Evidencia: docs/implementation/evidence/PT-203/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-203-citar-un-PT-en-una-fila-lo-hace-miembro-del-lote/traceability.md — sin AC huerfano.
+Alcance: el mismo directorio, spec-changes.md.
+
+Corrida COMPLETA de la bateria: 1986 casos en verde · recibo 44e416b163c5.
+Sobre el arbol real: 0 errores · 26 certificadas y nombradas con su dueno · 7 citas en verde.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- Las 26 quedan CERTIFICADAS, no corregidas. Corregirlas es EP-027.
+- No se promete que la tabla del intake y el registro coincidan: citar sigue siendo legitimo.
+- No se promete que no vuelva a abrirse una deuda de esta forma. Lo que se compra es que la
+  fuente sea el registro.
+
+--- PT-203 · continuacion, escrita DESPUES de la entrada de arriba (SUITE-R09: se anade) ---
+
+LO QUE OCURRIO EN ESTA RAMA DESPUES DE PHASE 8, Y NO ESTABA DOCUMENTADO.
+
+La entrada de arriba se cerro con la tarea en PHASE 8. Despues, en la misma rama, paso esto —y
+dejarlo sin escribir era exactamente el defecto que este lote persigue: un hecho ocurrido que
+ningun artefacto recoge.
+
+1 · EL CI BLOQUEO CON SUITE-R34, Y TENIA RAZON.
+
+    ✗ SUITE-R34  Hubo trabajo en changes/ despues del ultimo estado.
+
+Escribi el analisis de PT-194, PT-195, PT-202 y PT-187 —discovery, strategy, escenarios,
+trazabilidad— y tres paradas, TODO en changes/, DESPUES del ultimo sello del HANDOFF. El estado
+quedo atras. Es la leccion -16 del HANDOFF («el sello va al final, en su propio commit») y la
+incumpli yo.
+
+2 · Y AL ARREGLARLO APARECIO EL HUECO QUE LO HACE FACIL DE INCUMPLIR.
+
+«avanzar» es el UNICO que estampa «actualizado:» en HANDOFF.md (tracker.mjs:3799), y estampa solo
+al cambiar de fase. Cualquier trabajo legitimo en changes/ que no sea una transicion —el analisis
+de la tarea siguiente, una parada, corregir un intake— deja el estado atras SIN VIA SANCIONADA
+para refrescarlo. Es CE-006: el acto existe solo empaquetado con otro.
+
+EL SELLO SE ESTAMPO A MANO PARA DESBLOQUEAR EL PR, Y SE DECLARA. No se disimula: esta en el
+HANDOFF como leccion -30, con el valor DERIVADO que «avanzar» habria escrito (fecha de git + el PT
+en su fase). El hueco es PT-205.
+
+Y el propio codigo ya lo decia de su antecesor: «la TERCERA vez que SUITE-R34 caza este patron en
+la sesion. El comando VIOLABA POR CONSTRUCCION la regla que dice que el estado viaja con el
+trabajo». PT-158 arreglo que AVANZAR la violara. No arreglo que avanzar fuera el UNICO camino.
+
+3 · TRES PARADAS ABIERTAS, NINGUNA BUSCADA (FDGE-R55).
+
+    EP-028   el coste de la verificacion. verify-fdge corre 71 comprobaciones de REPOSITORIO en
+             TODA invocacion, y el sello por PT incluye el ARCHIVO ENTERO del verificador, asi que
+             editar una linea reabre los 189 a la vez. Es el sello por bloque ANTES de PT-176.
+    PT-204   audit dice, en cada npm run verify, que 124 de 244 reglas son PENDIENTE y 91 no
+             tienen verificador —82 HARD, entre ellas EXEC-R05, la G3 humana de todo BUG—. El dato
+             existe desde hace lotes y no le pertenece a nadie. CE-007 a escala del marco.
+    PT-205   el hueco de SUITE-R34 descrito arriba.
+
+4 · UNA PREMISA DE INTAKE DESMENTIDA, Y OTRA CIFRA CORREGIDA.
+
+Al escribir el analisis adelantado de las tareas siguientes, medir cambio dos intakes:
+
+    PT-202  decia que publicar.yml VIAJA en el paquete. NO viaja: npm pack empaqueta 61 archivos
+            y CERO de .github/. Lo que viaja es la DOCUMENTACION que lo describe como si el
+            destino lo tuviera —CASOS-DE-USO.md le da un caso de uso completo—, y eso es peor:
+            un archivo sobrante se ve, una documentacion que miente no.
+    PT-187  decia «tres tags sin publicar» y «tres publicadas sin CHANGELOG». Medido: SIETE sin
+            publicar, CERO sin CHANGELOG, y 28 de 47 entradas del CHANGELOG sin tag, que el
+            intake no veia. Las cifras venian del HANDOFF de una medicion anterior: CE-010.
+
+Las dos correcciones viven en el discovery.md de cada tarea, no aqui: aqui consta que ocurrieron.
+
+5 · POR QUE ESTO SE ESCRIBE Y NO SE DEJA PASAR.
+
+Lo pidio el firmante con la razon delante:
+
+    «actualiza el PT que nada quede sin documentar, eso lo dice el marco, pero como lo hemos
+     visto, no haces caso»
+
+Es el mismo defecto que PT-204 mide en las reglas: el marco lo declara y nada obliga. Aqui la
+consecuencia habria sido que el trabajo de una rama —tres paradas, cuatro analisis, un bloqueo de
+CI y un acto hecho a mano— quedara fuera del unico sitio donde se busca despues.
+
+================================================================================
+
+## PT-205 — El verde local no predecia CI para lo que depende de lo empujado
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-205-el-verde-local-no-predice-CI
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-006
+Origen: parada de EP-026 · motivo condicion-bloqueante · absorbe tambien paradas/PT-207.md
+
+CUATRO CORRIDAS DE CI EN ROJO EN UNA SOLA RAMA, NINGUNA PREDICHA POR EL VERDE LOCAL.
+
+    failure  2 min   ✗ SUITE-R51      failure  7 min   ✗ SUITE-R51
+    failure  8 min   ✗ SUITE-R34      failure  5 min   ✗ SUITE-R34 · INTAKE-R09 · FDGE-R55 x2
+    ---
+    55 min de CI en la rama de PT-203 · 17+ en corridas FALLIDAS
+
+Y el coste real no son los minutos de maquina: es EL VIAJE. Empujar, esperar siete minutos, leer
+el log, arreglar, volver a esperar. Tres veces.
+
+LA CAUSA ES UNA: DEPENDEN DE LO EMPUJADO, Y EN LOCAL ESO NO EXISTE TODAVIA.
+
+    SUITE-R34   se mide con «git log»: lo pendiente NO esta commiteado, asi que no lo ve
+    SUITE-R51   necesita el ref en el remoto, y NO PUEDE cumplirse cuando «abrir» publica
+
+PERO SE DERIVAN DE LO QUE YA ESTA DELANTE. El arbol de trabajo las contiene: «changes/» sucio con
+HANDOFF limpio; el intake sin empujar de un issue vivo; el .md de parada sin «origen_parada».
+
+ES EL SEGUNDO LIMITE DE SUITE-R62, y la diferencia con el primero es la que importa: PT-201
+declaro lo que NO SE PUEDE saber en local. Esto SE PODIA SABER Y NO SE SABIA. PT-201 llego a poner
+medio aviso —«MEDIDO SOBRE LO COMMITEADO … no predice la CI hasta que commitees»— y aun asi
+volvio a fallar, porque ese texto dice «no lo se» cuando en realidad se puede.
+
+LO QUE ENTRA, Y NINGUNA REGLA SE TOCA.
+
+1. verify-fdge · el bloque PENDIENTE AL EMPUJAR, y SOLO si hay algo.
+   No son errores y no van en `errors`: «changes/» sucio es trabajo en curso y
+   MUDO_SIN_REF_DURABLE es un estado legitimo mientras el ref no existe —el propio
+   `decisionDeEnlace` lo declara como freno A PROPOSITO—. Hacerlas fallar HOY bloquearia el
+   trabajo normal. Lo que faltaba no era severidad: era que el momento en que dejan de ser
+   legitimas no llegara por sorpresa.
+
+2. tracker · «sellar-estado», la via sancionada de sellar sin cambiar de fase.
+   `estampaEstado` se EXTRAE de `avanzar`, no se duplica: una pregunta, una fuente (SUITE-R38).
+   Solo la linea «actualizado:», derivada. La prosa —decisiones y «no hacer»— no se toca, y hay
+   dos casos que lo fijan (LEX-R26).
+
+3. PHASES · «LO QUE ROMPE EN CI Y NO EN LOCAL», con los DOS rodeos escritos donde se ejecutan.
+   Se DECLARAN en vez de quitarse, y es la misma decision que PT-196 tomo con el doble viaje por
+   G4: el rodeo con su motivo escrito es aceptable; descubrirlo cada vez, no.
+
+TRES ERRORES MIOS, Y LOS TRES SON EL MISMO: LA PRIMERA VERSION MEDIA ALGO QUE SE PARECIA AL HECHO.
+
+1. LA PREDICCION SALTABA CON DIECIOCHO ISSUES. Miraba «el intake existe en el arbol», que es casi
+   siempre. Eso es EL RUIDO QUE LA TAREA PERSIGUE, escrito dentro de ella: un aviso que sale
+   siempre no se lee y el arreglo entero se pierde con el. La condicion correcta es mas estrecha
+   —el intake NO esta empujado— y con ella el bloque nombra UNO: el que de verdad rompe.
+
+2. LA PREDICCION DE SUITE-R34 VIVIA DENTRO DE `checkEstado`, que RETORNA ANTES si el HANDOFF no
+   lleva el bloque ESTADO. El aviso que existe para adelantarse se callaba JUSTO CUANDO EL ESTADO
+   ESTA PEOR. Lo destapo el fixture, no la lectura. Movida fuera: mira el ARBOL, no el bloque.
+
+3. EL SELLO NOMBRABA LA TAREA EQUIVOCADA, y es el peor de los tres. Derivaba de «la viva mas
+   avanzada por fase» y sobre el arbol REAL devolvio PT-203 en PHASE 8 mientras el trabajo era
+   PT-205 en PHASE 5. Un sello que nombra a quien no es deja SUITE-R34 EN VERDE AFIRMANDO ALGO
+   FALSO — CE-001 dentro del arreglo que persigue CE-006. El CHECKPOINT ya lo sabia desde PT-052.
+
+Evidencia: docs/implementation/evidence/PT-205/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-205-el-estado-solo-se-sella-avanzando-de-fase/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 1995 casos en verde · recibo bfb6f9f991d5.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se predice lo que de verdad no se puede saber en local: el limite de PT-201, en pie.
+- NO se declara completa la lista de roturas de esta clase. Se cubren las TRES medidas; decir «ya
+  estan todas» sin barrer seria CE-005, que es el nombre de este lote.
+- Los rodeos se DECLARAN, no desaparecen. El freno MUDO_SIN_REF_DURABLE es correcto y quitarlo
+  cambiaria una molestia por un defecto.
+- Ninguna de las tres reglas se toca: las tres tenian razon y sus rojos fueron verdad.
+
+================================================================================
+
+## PT-195 — La identidad git configurada no la comprobaba ninguna compuerta
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-195-la-identidad-git-no-se-comprueba
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-007
+Origen: parada de EP-025 · motivo hallazgo
+
+EL DATO EXISTIA, ERA CORRECTO, Y NINGUNA COMPUERTA LO LEIA.
+
+    $ tracker personas
+      SIN DECLARAR (1 autor(es) · 10 commit(s))
+        T <t@t>                                    10 commits
+
+Es CE-007 en su forma pura: existe la herramienta, acierta, y nada la echa en falta.
+
+Y LA CONSECUENCIA NO ES TEORICA. La configuracion LOCAL de este repositorio fue la del ARNES de
+pruebas —selftest.sh:528 hacia «git config user.email t@t» y cuando su «cd» fallaba lo escribia en
+el repositorio real— y firmo TRES commits de EP-025 como «T <t@t>». SUITE-R27 dice que lo que hace
+contrastable una firma es que el nombre este en «firmantes»: UN COMMIT ATRIBUIDO A «T <t@t>» NO ES
+CONTRASTABLE CONTRA NADA.
+
+NO SE ESCRIBE NINGUN PATRON NUEVO.
+
+`personaLocal` ya estaba en patrones.mjs —«el nombre canonico de quien usa esta maquina, si esta
+declarado»— con su contrato y sus casos. El arreglo es INVOCARLA desde donde se mira, no
+reescribirla. Lo que cambia no es la severidad: es QUIEN LO EMITE. Pasa de «tracker personas»
+—que hay que invocar a mano y nadie invoca— a verify-fdge, que corre en «npm run verify» Y en CI.
+
+SE MIRA LA IDENTIDAD DE AHORA, NO LOS COMMITS PASADOS.
+
+Son dos hechos distintos y se separan a proposito. Los pasados son historia y SUITE-R09 no los
+reescribe; el CONFIGURADO es una prediccion contrastable sobre el commit SIGUIENTE, y es la que
+llega a tiempo. Los 10 de «T <t@t>» se quedan y «tracker personas» los seguira contando, que es lo
+correcto.
+
+TRES ESTADOS, NO DOS (RULE-02).
+
+    SIN «personas»    no hay contra que contrastar — y NO es lo mismo que estar averiado
+    NO DECLARADA      se nombra, con su valor y con el comando
+    DECLARADA         se dice a quien se atribuira el commit siguiente
+
+El primero importa: SUITE-R22 declara soportado el proyecto de una sola persona, y uno que aun no
+declaro «personas» no puede salir igual que uno cuya identidad ES DE NADIE.
+
+EL VERDE NOMBRA A LA PERSONA, Y ESO NO ES ADORNO.
+
+    ✓ SUITE-R27  El commit siguiente se atribuira a «Alberto Martinez» · «Alberto Martinez <…>».
+
+Una comprobacion que SOLO HABLA CUANDO ALGO VA MAL es indistinguible de una que no corrio —CE-005,
+el nombre de este lote—. Quien lo lea ve el nombre y sabe si es el suyo. Sin el caso que lo fija,
+AC-01 lo cumple un verificador que se queje siempre.
+
+AVISA Y NO BLOQUEA, Y NO ES CONVENIENCIA.
+
+En CI la identidad es la del RUNNER y no casa con «personas»: esta documentado en selftest.sh:6549
+y PT-068 se niega a atribuir la sesion de otro A PROPOSITO. Un error dejaria verificacion.yml en
+rojo permanente el dia que se pusiera, y una compuerta siempre roja ensena a saltarsela.
+
+Y NO SE DETECTA CI. Seria inventar una dependencia de entorno que este marco no tiene, para una
+distincion que un aviso ya resuelve en los dos sitios (RULE-06).
+
+LA IDENTIDAD SE PLANTA POR ENTORNO, y aqui eso importa mas que de costumbre: GIT_CONFIG_COUNT —el
+mecanismo de PT-067— no toca NINGUNA configuracion de la maquina. Que el arnes escribiera en la
+config real fue exactamente el origen de esta tarea; repetirlo aqui seria escribir el defecto
+dentro de su arreglo.
+
+DOS CORRECCIONES A MIS PROPIOS CASOS.
+
+1. MEDIA EL CODIGO DE SALIDA. «exit=0» sobre un fixture que puede fallar por OTRAS reglas mide el
+   arbol entero y se lo atribuye a esto — el proxy en vez del hecho (CE-001). La afirmacion precisa
+   es que ESTA comprobacion no emite nunca un error, y su pareja: que aun asi LA DICE, como aviso.
+2. EL GREP COGIA OTRO SUITE-R27. La regla tiene mas de un emisor —la lista «firmantes» de
+   CLAUDE.md— y «tail -1» devolvia el que no era.
+
+Evidencia: docs/implementation/evidence/PT-195/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-195-la-identidad-git-del-repo-no-se-comprueba/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2001 casos en verde · recibo 74e24d92ae7f.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se promete que quien commitee sea quien dice ser: SUITE-R27 ya declara que el marco no puede
+  garantizarlo. Se promete que la identidad CONFIGURADA corresponda a alguien declarado.
+- Los 10 commits de «T <t@t>» —tres de EP-025— no se reescriben (SUITE-R06f, y estan publicados).
+- «T <t@t>» NO se declara en «personas»: seria atribuir a una persona los commits del fixture, el
+  error contrario y peor.
+- No se agrupan autores por parecido (LEXICON 6.5f): quien es quien lo dice una persona.
+
+================================================================================
+
+## PT-194 — La exencion de senuelos no vale para la historia, y ahora se DICE
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-194-senuelos-y-la-historia
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-001
+Origen: parada de EP-025 · motivo hallazgo
+
+NO ERA UNA DECISION: ERA UN EFECTO DE POR DONDE MIRA EL ESCANER.
+
+    revisarTexto(linea.slice(1), `historia ${commit}`, false, 'historia');
+                                                      ^^^^^  pasado EN DURO
+
+Y el diff de «git log -p» SI lleva el archivo en sus cabeceras «+++ b/»: el escaner las ignoraba,
+recorria linea a linea distinguiendo solo «^commit» y «^+». Sabia el commit y NO sabia el archivo.
+
+HACER QUE LA EXENCION LLEGARA HABRIA SIDO FACIL. Eso es lo que hacia peligrosa esta tarea.
+
+LA DECISION QUE EL INTAKE DEJABA ABIERTA: NO DEBE VALER. Y CON TRES MOTIVOS.
+
+El intake decia «puede que la respuesta sea que NO debe valer […] Decidirlo es el trabajo»
+(RULE-06). La respuesta es que no, y los tres motivos van EN LA SALIDA y no solo en un documento:
+
+  1 LA DECLARACION VIVE EN EL ARBOL DE HOY Y LA HISTORIA ES DE SIEMPRE. «cauce:senuelos» dice
+    «este archivo, tal como esta AHORA, es un fixture». Aplicarlo a la historia eximiria TODO lo
+    que ese archivo tuvo ALGUNA VEZ — incluida una credencial real puesta y borrada despues. Y el
+    archivo que declara ser senuelo es justo donde mas comodo resulta esconder algo.
+  2 EL RIESGO VA AL REVES DEL SINTOMA. Lo que motivo la tarea es un falso positivo molesto.
+    Ampliar mal una exencion de seguridad hace que un secreto REAL deje de bloquear. Entre
+    molestia y agujero, molestia.
+  3 EL MECANISMO YA EXISTE Y ES EL CORRECTO: firmar la huella en SECRETOS-EXCEPCIONES.md, que
+    SIGUE mostrandola en cada revision y que ata la firma AL VALOR — si el valor cambia, la huella
+    cambia y vuelve a bloquear. Una exencion por archivo NO tiene esa propiedad.
+
+POR QUE EL MOTIVO VA EN LA SALIDA. Quien lee el rojo esta a punto de decidir que hacer con el, y
+la decision peligrosa —«amplio la exencion y listo»— es la comoda. Un motivo que hay que ir a
+buscar a RULES.md no llega a tiempo. Es RULE-07 aplicado donde mas importa.
+
+LAS TRES PIEZAS.
+
+    :115   el AMBITO viaja con el hallazgo. Se usaba para la huella y se TIRABA, asi que el
+           informe no podia distinguir arbol de historia — dos hechos con arreglos distintos
+    :164   el ARCHIVO del hunk se lee de las cabeceras del diff
+    :236   el mensaje dice QUE OCURRE DE VERDAD, con el motivo y el mecanismo
+
+EL CONTEXTO QUE NO ES PERMISO. Cuando el archivo del hunk SI declara «cauce:senuelos» hoy, se dice
+—y se dice APARTE—: «→ a.sh SI declara «cauce:senuelos» HOY — es contexto, no exencion». Sin esa
+linea, quien lee un rojo sobre un fixture declarado no entiende por que no le vale la declaracion;
+con ella lo entiende Y SIGUE BLOQUEADO, que es lo correcto.
+
+AC-02 ES EL QUE GOBIERNA, Y SU CASO NO SE PUEDE QUITAR. TS-01, TS-03 y TS-04 los cumple un escaner
+que haya AMPLIADO la exencion. Solo TS-02 —el secreto que bloquea CON la declaracion puesta—
+prueba que no se hizo. Y TS-04 prueba lo otro: que la exencion del ARBOL sigue intacta, que es lo
+que PT-190 compro.
+
+UN ERROR MIO, Y YA CONOCIDO. La expectativa decia «alguna vez» y el mensaje escribe «ALGUNA VEZ».
+Fallo en la corrida acotada, no en la revision — que es exactamente lo que PT-181 compro al pasar
+las expectativas a literal: la expectativa se equivoca EN VOZ ALTA. Segunda vez en este lote, tras
+PT-196.
+
+Y UNO DE PROCESO, QUE SE DECLARA PORQUE ESTA FUSIONADO.
+
+La IMPLEMENTACION de esta tarea viajo dentro del PR de PT-195. Use «git add -A» en la rama de
+PT-195 y el commit 4811527 —que dice «PT-194 su viabilidad consta»— arrastro revisar-secretos.mjs
+(+53) y seis casos del arnes (+61). El mensaje NO miente sobre el PT que cita (FDGE-R19 se cumple)
+pero SI sobre su contenido. La historia no se reescribe (SUITE-R06f): se declara aqui, y queda
+como leccion -34 del HANDOFF. Lo que llega en el PR de esta tarea es la evidencia y este registro.
+
+Evidencia: docs/implementation/evidence/PT-194/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-194-la-exencion-de-senuelos-no-viaja-a-la-historia/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2007 casos en verde · recibo 6abffd61cfa9.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- La exencion en el ARBOL no cambia: funciona, y es lo que PT-190 compro. Tiene su caso.
+- La heuristica de los 4000 caracteres se queda: los destinos instalados dependen de ella
+  (CE-014), y revisar-secretos.mjs:87 ya lo declara.
+- No se reescribe historia ni se retira ninguna huella firmada.
+- No se promete que ningun fixture vuelva a aparecer en la historia: eso lo cerro PT-193, y este
+  mismo caso ensambla su literal en dos mitades por el mismo motivo.
+- EL «false» SIGUE SIENDO «false»: no cambia la conducta del escaner. Cambia que sea una DECISION
+  DECLARADA en vez de un efecto de por donde mira.
+
+================================================================================
+
+## PT-202 — publicar.yml NO viaja; lo que viaja es la documentacion que lo describe
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-202-la-frontera-fuente-destino
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-008
+Origen: senalado por el firmante · EP-026 §5
+
+EL INTAKE SE EQUIVOCABA DE MECANISMO, Y MEDIRLO LO CAMBIO TODO.
+
+Decia que publicar.yml «viaja dentro del paquete, igual que tools/». Medido:
+
+    npm pack --dry-run       61 archivos · .github: 0
+    package.json.files       ["bin","!bin/graphify-out","docs/methodology",…]  sin .github
+    grep en bin/cauce.mjs, plan-layout.mjs, migrate.mjs   sin coincidencias
+
+NO VIAJA. Se corrige en discovery.md en vez de arreglar un mecanismo que no existe — RULE-06 por
+el lado que mas cuesta: no dar por cierto lo que no se ha comprobado, NI SIQUIERA cuando lo dice
+el propio intake.
+
+LO QUE SI LLEGA ES PEOR.
+
+docs/methodology/ viaja ENTERO —56 archivos— y dentro la documentacion hablaba de publicar.yml
+COMO SI EL DESTINO LO TUVIERA. CASOS-DE-USO.md le daba un caso de uso completo, «E2 · Publicar una
+version», cuyo recorrido el destino NO TIENE, para publicar un paquete que NO ES SUYO.
+
+UN ARCHIVO SOBRANTE SE VE Y SE BORRA; UNA DOCUMENTACION QUE DESCRIBE UN RECORRIDO INEXISTENTE NO
+SE VE: quien la lee busca el workflow, no lo encuentra, y no sabe si le falta a el o si el
+documento miente.
+
+LAS TRES PIEZAS.
+
+    LEXICON        LEX-R25 decia la mitad —que VIAJA— y no la otra: que lo que viaja NO ES TODO
+                   LO QUE APLICA al destino. Se completa ahi, no se duplica al lado (SUITE-R38)
+    CASOS-DE-USO   E2 marcado «DE LA FUENTE», con el motivo delante
+    verify-suite   un documento que VIAJA no describe un recorrido de la FUENTE sin marcarlo
+
+LA LISTA SE DERIVA, NO SE ESCRIBE. Un artefacto es DE LA FUENTE cuando esta en el repositorio y NO
+en package.json.files. Escribirla a mano la haria divergir del arbol —CE-010, que este lote ya ha
+pagado dos veces— y por eso hay un caso que planta un workflow NUEVO y comprueba que entra sin
+tocar ninguna lista.
+
+Y LA COMPROBACION ENCONTRO UN TERCER DOCUMENTO QUE YO NO HABIA VISTO.
+
+Escribi la correccion para LEXICON.md y CASOS-DE-USO.md. Al correr verify-suite aparecio
+CHANGELOG.md, que menciona LOS DOS workflows al narrar la historia del marco. Su mencion ES
+CORRECTA —es un ledger que cuenta lo que paso— y lo que faltaba es que quien lo lea EN UN PROYECTO
+DESTINO sepa que esos workflows no existen ahi. Se declara UNA VEZ en su cabecera, que es una
+ADICION y no una edicion de sus entradas (SUITE-R09).
+
+ESA ES LA PRUEBA DE QUE TS-04 HACIA FALTA: la correccion a mano se habria quedado en dos de tres,
+y se habria deshecho sola a la siguiente.
+
+TS-01 YA SE CUMPLIA, Y SU CASO SIGUE HACIENDO FALTA. Sin el, nada impide «arreglar» el problema
+imaginario ANADIENDO .github/ al paquete —que sobrescribiria los workflows del destino, y eso no
+es instalar, es pisar—. El caso fija EL CERO DE LO PROHIBIDO, que es lo unico que un caso puede
+fijar (HANDOFF -18).
+
+CUATRO CORRECCIONES A MIS PROPIOS CASOS, Y TODAS AL EJECUTAR.
+
+1. EL FIXTURE NECESITABA LA SUITE ENTERA. Con solo los .md de raiz, verify-suite emitia trece
+   enlaces rotos y TRUNCABA el informe —«… y 13 mas»—, asi que el hallazgo real no se veia: el
+   caso media el truncado en vez de la comprobacion.
+2. «npm pack» NO RESPONDE DESDE EL ARNES. Se mide EL HECHO del que el empaquetado depende —que
+   .github no este en files— en vez de invocar un gestor que no es del arnes: una comprobacion que
+   depende de el falla por razones que no son la suya.
+3. «head -1» CORTABA ANTES DEL NOMBRE: el workflow va en la SEGUNDA linea del hallazgo.
+4. Y UNA DE ESCAPADO: la barra invertida se degrado al pasar por la sustitucion —CE-002— y se
+   resolvio partiendo por el separador sin literal.
+
+Evidencia: docs/implementation/evidence/PT-202/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-202-publicar-yml-viaja-a-donde-no-aplica/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2013 casos en verde · recibo f11eb8b47a88.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- verificacion.yml TAMPOCO viaja, y al destino SI LE SIRVE. Se queda sin la compuerta que necesita
+  y con la documentacion de una que no. Darle una es otra decision y de otro tamano: enviar
+  .github/ sobrescribiria lo suyo, y un workflow es especifico de la plataforma (SUITE-R35).
+  Hacerlo bien es UNA PLANTILLA QUE EL DESTINO ADAPTA, con su fase en INSTALL.md. Se NOMBRA.
+- package.json NO se toca: no manda .github/, y eso esta bien.
+- publicar.yml NO se borra: aqui hace falta, es donde SUITE-R06g reserva la publicacion.
+- NO se resuelve el reparto fuente/destino de todo el marco: solo se nombra y se arregla su caso.
+
+================================================================================
+
+## PT-187 — Cuatro fuentes dicen que version es cauce, y nadie las contrastaba
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-187-las-cuatro-fuentes-de-version
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-010
+Origen: EP-026 §5 · el HANDOFF ya declaraba divergencias historicas y ninguna herramienta las miraba
+
+NADIE CONTRASTABA, Y ESO ESTABA MEDIDO.
+
+    $ grep -rn "npm view|registry.npmjs" docs/methodology/tools/*.mjs bin/cauce.mjs
+    (sin coincidencias)
+
+version.mjs alinea los 21 documentos ENTRE SI y verify-suite comprueba que las versiones internas
+no diverjan. EL REGISTRO EXTERNO NO LO MIRABA NADIE. Las cuatro fuentes son correctas por separado
+y nadie las pone una al lado de otra — que es la forma de este lote.
+
+LAS CIFRAS DEL INTAKE ESTABAN LAS TRES MAL.
+
+    decia                          medido
+    tres tags sin publicar         SIETE: 1.0.0 · 5.2.0 · 9.0.0 · 10.0.0 · 13.2.0 · 13.3.0 · 13.4.0
+    tres publicadas sin CHANGELOG  NINGUNA
+    (no lo veia)                   28 de 47 entradas del CHANGELOG SIN TAG
+
+Venian del HANDOFF de una medicion anterior: CE-010, la cifra transcrita que caduca. Por eso el
+comando las DERIVA en cada corrida, y hay un caso que lo fija.
+
+LAS CUATRO DIVERGENCIAS NO VALEN LO MISMO, Y EL COMANDO LO DICE.
+
+    tag sin publicar          NO necesariamente defecto: SUITE-R06a reserva publicar al firmante
+    publicada sin CHANGELOG   SI: SUITE-R19 obliga a la guia de migracion
+    publicada sin tag         SI: se publico algo que el repositorio no marca
+    CHANGELOG sin tag         DEPENDE, y por eso se cuenta y no se juzga
+
+PRESENTARLAS TODAS COMO «DIVERGENCIAS» SERIA EL DEFECTO CONTRARIO: convertir una diferencia
+legitima en alarma. Y una alarma que suena por lo correcto ensena a ignorarla — que es la unica
+forma de romper esto sin que nadie lo note. Tiene su caso, EN NEGATIVO.
+
+AC-02 NO ERA TEORICO: LO REPRODUJE TRES VECES.
+
+1 AL MEDIRLO A MANO. El catch dejo el conjunto vacio y salieron VEINTE divergencias inventadas con
+  aspecto de hallazgo. El fallo va en LAS DOS DIRECCIONES —dar por cuadrado, o inventar— y la
+  segunda es PEOR PORQUE PARECE TRABAJO.
+2 AL IMPLEMENTARLO: «npm» no se encuentra, porque en Windows el ejecutable es «npm.cmd».
+3 Y OTRA VEZ: EINVAL, porque desde Node 18.20 spawnSync se niega a ejecutar un «.cmd» sin `shell`.
+
+LAS TRES VECES LA HERRAMIENTA ACERTO EN LA CONDUCTA —dijo SIN EVALUAR, no invento nada, y siguio
+dando la comparacion que no depende de la red— Y MINTIO EN EL MOTIVO: decia «sin red, o sin
+acceso» cuando el problema era la invocacion. Es CE-001 en pequeno, dentro de la tarea que
+persigue CE-010. Ahora se pasa el error TAL CUAL y hay un caso que lo exige.
+
+Y SIN RED NO SE APAGA LO DEMAS. SUITE-R22 declara soportado el proyecto sin ella: apagar lo que SI
+se podia decir es el otro extremo del mismo error, y tiene su caso.
+
+UN ERROR MIO, Y ES EL SEGUNDO DEL LOTE. `[ "$1" != "sintags" ]` con «set -u» revienta si no hay
+$1. Misma forma que en PT-195, en la misma jornada. Corregido con ${1:-}.
+
+Evidencia: docs/implementation/evidence/PT-187/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-187-las-versiones-no-cuadran-entre-sus-tres-fuentes/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2019 casos en verde · recibo a62b901d163e.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- NO se publica, NO se etiqueta y NO se retrofecha nada. npm publish sigue reservado al firmante
+  por su nombre (SUITE-R06g), y crear tags es SUITE-R06a.
+- NO se promete que las cuatro coincidan: es legitimo que un tag exista antes de publicar y que
+  una version publicada hace meses no tenga entrada retroactiva (SUITE-R09, append-only). Se
+  promete que la diferencia sea VISIBLE y CONTABLE.
+- Las 28 del CHANGELOG sin tag NO se juzgan: son de la historia temprana (CE-014). Se cuentan.
+- NO entra en «npm run verify»: consultar la red en cada corrida cambia el coste de algo que hoy
+  no lo tiene. DONDE SE INVOCA SE DECIDE CON EL DATO DELANTE — y ahora el dato existe.
+
+================================================================================
+
+## PT-206 — LEX-R31 no veia el 71% de las clases que si se declaran
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S3 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-005 — verde por no haber mirado
+Origen: parada de EP-026 · motivo hallazgo · changes/EP-026-lo-que-da-verde-sin-mirar/paradas/PT-206.md
+
+TRES DE CADA CUATRO ENTRADAS QUE CUMPLIAN LA REGLA SALIAN COMO INCUMPLIENDOLA.
+
+    const clase = campo(/^Clase de evento:\s*(CE-\d{3})\s*$/im);   // verify-fdge.mjs:2847
+                                                        ^^^^        exige FIN DE LINEA
+
+    entradas que DECLARAN una clase :  76
+    que LEX-R31 veia                :  22
+    que ve AHORA                    :  76
+
+La convencion MAYORITARIA del propio HISTORY.log escribe «CE-NNN — descripcion», y el `\s*$` no la
+admite. Anclar a fin de linea confundia «declarada» con «declarada de una forma concreta», y la
+forma concreta era la MINORITARIA.
+
+ES EL DEFECTO DE PT-198, EN OTRA HERRAMIENTA.
+
+    PT-198                                  aqui
+    /^status:[ \t]*\S+[ \t]*$/m             /^Clase de evento:\s*(CE-\d{3})\s*$/im
+    «status: READY  # comentario»           «Clase de evento: CE-005 — descripcion»
+    «no declara status»                     «no declara Clase de evento»
+    LO DECLARA                              LO DECLARA
+
+Y PT-198 NO LO CAZO PORQUE MIDIO UN ARCHIVO: su discovery declaro «ningun otro .mjs de tools/ los
+tiene» — cierto para status/phase/type/epic, FALSO para la familia entera. Es CE-005 dentro de la
+tarea que cerraba CE-005: se miro donde se sabia mirar.
+
+UNA AFIRMACION MIA QUE ERA FALSA, CORREGIDA ANTES DE CONSTRUIR SOBRE ELLA.
+
+Escribi en la parada que «eventos.mjs si las cuenta, asi que el mismo hecho se lee de dos formas y
+una se equivoca — SUITE-R38». Lo comprobe y ES FALSO:
+
+    'CE-005': ['verde por vac[ií]o', 'verde por no haber mirado', …]   // eventos.mjs:45
+
+eventos.mjs NO lee esa linea: clasifica por FRASES DEL CUERPO. Son DOS HECHOS DISTINTOS — uno
+DEDUCE la clase de lo que la entrada cuenta, el otro comprueba que la DECLARE. No hay SUITE-R38
+aqui, y unificarlos habria sido PEOR QUE EL DEFECTO. La parada queda corregida en su propio texto.
+
+Y EL ERROR MAS FINO DE LA SESION, QUE SOLO CAZO LA CORRIDA COMPLETA.
+
+La condicion era `if (clase === undefined)`. Correcta con el `campo()` original, que devuelve
+undefined cuando no casa. `claseDeEvento` devuelve NULL —el valor que dice «no hay», no «no se
+pregunto»— y con la comparacion ESTRICTA el aviso se volvio VERDE:
+
+    ✓ LEX-R31  PT-129: declara «Clase de evento: null».
+
+PT-129 NO DECLARA CLASE, Y SALIA DICIENDO QUE SI. Un cambio de TIPO que convierte una comprobacion
+en su contrario, dentro de la tarea que arregla una comprobacion que no veia.
+
+LO DESTAPO LA CORRIDA COMPLETA, no la acotada: los dos casos que lo cazan viven en la seccion de
+EP-024 y la de EP-026 no los lleva. Es la leccion de PT-192 otra vez, y es la respuesta a por que
+la corrida completa por tarea no se negocia.
+
+LA FAMILIA, BARRIDA — QUE ES LO QUE PT-198 NO HIZO.
+
+    once expresiones de tools/ anclan un campo a fin de linea
+    de ellas CINCO exigen un VALOR CONCRETO, y ahi el riesgo es real:
+      Estructural · certificacion · confidence · health · health_unstable
+
+Las de `.*$` no corren riesgo: aceptan cualquier cosa hasta el final. NINGUNA de las cinco ha
+fallado todavia — se cuentan y se nombran, y arreglarlas es otro trabajo. LA CIFRA SE DECLARA, no
+se fija en un caso: fijarla seria fijar el numero de lo correcto (HANDOFF -18) y caducaria
+(CE-010). Lo que si se fija es un CERO: que la expresion vieja ya no se USA.
+
+DOS ERRORES MAS, DE HERRAMIENTA. «grep -c» devuelve el numero y no el texto —el caso comparaba
+CLASE_DE_EVENTO contra «1»—, y «bc» no existe en este entorno, del que dependia mi primer caso de
+familia.
+
+Evidencia: docs/implementation/evidence/PT-206/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-206-lex-r31-no-ve-las-clases-declaradas/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2026 casos en verde · recibo 1c7cebcbec94.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- Las cinco expresiones en riesgo NO se arreglan: se cuentan y se nombran.
+- LEX-R31 sigue AVISANDO, no bloqueando: no todo trabajo repite un tropiezo, y RIGE_DESDE la acota
+  a la 13.0.0 para no juzgar hacia atras (CE-014).
+- NO se retrofecha ninguna entrada anterior, ni se reescriben las 76 cabeceras: el defecto era del
+  regex, no de las entradas.
+- NO se unifica con eventos.mjs, por lo de arriba.
+
+================================================================================
+
+## PT-204 — 124 de 244 reglas no las ejecuta nada, y el numero mentia por fusion
+Fecha: 2026-08-30
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-206-lex-r31-no-ve-las-clases
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-30 Alberto Martinez
+Clase de evento: CE-007 — existe la herramienta y nada la echa en falta
+Origen: parada de EP-026 · motivo hallazgo · changes/EP-026-lo-que-da-verde-sin-mirar/paradas/PT-204.md
+
+EL DATO EXISTIA, ERA CORRECTO, Y SE PUBLICABA EN CADA CORRIDA SIN QUE LE PERTENECIERA A NADIE.
+
+    universo                        244
+    ejecutadas por una compuerta    142
+    sin ningun verificador           91      (63 de ellas HARD)
+
+Entre las 91: EXEC-R05 —«G3 es humana para todo BUG», la compuerta resuelta once veces en esta
+sesion—, FDGE-R38, SUITE-R41, la familia INTAKE entera y siete EXEC-*. Y «audit» lo imprime en
+CADA «npm run verify» desde hace lotes. Es CE-007 a escala del marco entero: existe la
+herramienta, el dato es correcto, y EL NUMERO NO LE PERTENECE A NADIE.
+
+Lo dijo el firmante con la consecuencia delante:
+
+    «Ya se ha dicho en muchas epicas, no hay nada que te obligue a seguir el marco y aqui esta la
+     consecuencia»
+
+Y LO PRIMERO QUE SE ENCONTRO ES QUE EL NUMERO MENTIA POR FUSION.
+
+    PENDIENTE  123  = DEUDA 0 + SIN_JUZGAR 123
+      DEUDA          0   juzgada mecanizable y sin verificador — falta ESCRIBIRLO
+      SIN_JUZGAR   123   NADIE HA MIRADO si se puede verificar o no
+
+«PENDIENTE» decia «deuda, no limite» y mezclaba DOS HECHOS CON ARREGLOS DISTINTOS. Es RULE-02, la
+misma forma que PT-198 y PT-203 corrigieron en otras herramientas esta semana. El numero que
+llevaba lotes publicandose NO DECIA CUANTO TRABAJO HAY: decia cuanto hay MAS LO QUE NADIE HA
+PENSADO.
+
+JUZGAR NO ES VERIFICAR, Y AHI ESTA EL CAMBIO DE TAMANO.
+
+Decidir que FIDE-R03 no es mecanizable porque describe una conversacion cuesta UN PARRAFO con
+motivo y firma; escribir su verificador cuesta UNA TAREA. Separarlos convierte una deuda de 123
+tareas en 123 JUICIOS mas un lote de verificacion SOBRE LAS QUE SOBREVIVAN AL JUICIO — y un juicio
+lo puede emitir cualquier tarea que toque esa regla, mientras que «escribir 118 verificadores» no
+tiene por donde empezar.
+
+EL CRITERIO DE RANKING ES LA FRECUENCIA, NO LA SEVERIDAD.
+
+    se ejercita AQUI cada dia   FDGE 24 + SUITE 17 + EXEC 9 + INTAKE 5 = 55
+    casi nunca, son de DESTINO  QA 9 + FIDE 4 + FPGE 3 = 16
+
+Una regla HARD de FIDE —que corre UNA VEZ, al incubar un proyecto— no cuesta lo mismo que una de
+FDGE, que gobierna cada tarea de cada lote. Y su deuda se paga en el DESTINO, no aqui.
+
+LA EVIDENCIA DEL CRITERIO ESTA EN ESTA MISMA EPICA: cinco lecciones nuevas del HANDOFF —-30 a
+-34— y LAS CINCO son de reglas FDGE/SUITE que existian y que se incumplieron porque nada las
+ejecutaba.
+
+LA DECISION, QUE ES EL ENTREGABLE: SI HACE FALTA UN LOTE, Y NO ES EL QUE PARECIA.
+
+No «verificar las 91». EP-029 JUZGA las 123 sin juzgar y VERIFICA las que sobrevivan al juicio
+siendo ademas frecuentes. El criterio de exito NO puede ser «subir la cifra»: eso seria fijar el
+numero de lo correcto (HANDOFF -18), y una cobertura de 200/244 con las 44 peores fuera es peor
+que una de 150/244 bien elegida.
+
+AC-03 ES LO UNICO QUE CAMBIA COMPORTAMIENTO, Y ES A PROPOSITO.
+
+La cobertura ya no puede bajar EN SILENCIO: se compara con el hito anterior y SE DICE, en las dos
+direcciones. NO BLOQUEA — bloquear obligaria a escribir el verificador ANTES de poder anadir la
+regla, y eso es exactamente la regresion que el firmante descarto:
+
+    «Llevamos ya muy adelantado el marco y regresar a revisar que este es una regresion
+     demasiado grande»
+
+Sin AC-03 esta tarea seria UNA INVESTIGATION QUE DOCUMENTA QUE NADIE HACE NADA, SIN HACER NADA —
+el defecto que denuncia, cometido al denunciarlo.
+
+AC-02 Y AC-04 NO TIENEN CASO, Y SE DECLARA EN VEZ DE FINGIRLO. Son JUICIOS: el ranking y la
+decision son lo que la tarea SABE, no lo que IMPIDE. Darles un caso seria fijar el resultado de un
+juicio como si fuera un hecho mecanico —CE-001— en la tarea que mide cuantas reglas no tienen
+hecho que comprobar.
+
+DOS ERRORES MIOS, Y LOS DOS DE LA FAMILIA DEL LOTE.
+
+1 CONTE MAL: la expectativa decia «3=1+2» y son «2=1+1» —tres reglas, una emitida—. `chkl` lo dijo
+  EN VOZ ALTA, que es lo que PT-181 compro.
+2 UN CASO PASABA POR VACIO: «…y NO bloquea» daba verde porque la salida estaba VACIA — al fixture
+  le faltaban package.json y los workflows, y audit decia SIN EVALUAR CON RAZON (RULE-06: no asume
+  ni 0 ni el total). Anadida su pareja, que exige que el aviso EXISTA.
+
+Evidencia: docs/implementation/evidence/PT-204/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-204-la-cobertura-mecanica-no-le-pertenece-a-nadie/traceability.md — sin AC huerfano.
+
+Corrida COMPLETA de la bateria: 2034 casos en verde · recibo cb7ee5353607.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- Las 123 NO quedan juzgadas: decidir por 123 seria inventar 123 juicios. Eso es EP-029.
+- NO se escribe ningun verificador: esta tarea decide el TAMANO y el ORDEN.
+- SUITE-R26 y su «aspira, no exige» NO se retiran: puede que siga siendo la correcta. Lo que
+  cambia es que SU PUERTA SE VEA y cuanto pasa por ella.
+- La cobertura SI puede bajar: lo que no puede es bajar EN SILENCIO.
+
+================================================================================
+
+## PT-197 — DICTAMEN, el septimo componente: que se construyo y si sirve
+Fecha: 2026-08-31
+Estado: DONE
+Severidad: S2 · Complejidad: STANDARD · Track: STANDARD
+Lote: EP-026
+Rama: chore/alberto-martinez/EP-026-PT-197-el-dictamen
+Estructural: no
+Modo de ejecucion: SUPERVISED
+Compuertas: G1 2026-08-30 Alberto Martinez (firma unica del lote, INTAKE-R08) · G2 delegada con el VoBo del 2026-08-28 (SESSION_LOG) · G3 2026-08-31 Alberto Martinez
+Clase de evento: CE-007 — existe la herramienta y nada la echa en falta
+Origen: aplazado de EP-023 con reentrada (SUITE-R44) · su G1 fue CHALLENGE y tenia razon
+
+LOS SEIS COMPONENTES GOBIERNAN COMO SE CONSTRUYE. NINGUNO CONTESTABA QUE SE HA CONSTRUIDO Y SI
+SIRVE, que es la pregunta de quien paga.
+
+LA DECISION QUE FALTABA, Y POR QUE NO LA TOME YO.
+
+El intake declaraba: «no sabe todavia que hace VALIDO un Dictamen». FND-R24 dice por que — el
+agente puede describir lo que un producto entrega, pero SI ESO VALE LO SABE QUIEN CONOCE EL
+NEGOCIO. Un VoBo autoriza a actuar; NO TRANSFIERE UN CONOCIMIENTO. Se pregunto con las cuatro
+lecturas y su coste delante:
+
+    «las tres, y el orden importa» — Alberto Martinez, 2026-08-30
+
+    §1  que se entrego CONTRA LO PROMETIDO   ¿queda algun producto declarado sin veredicto?
+    §2  que queda SIN CUBRIR                 ¿hay algun limite conocido que no se nombre?
+    §3  la DECISION que eso habilita         ¿permite una decision que otro documento no?
+
+EL ORDEN ES CRITERIO, NO PRESENTACION. Primero lo que hay, despues lo que falta, y SOLO ENTONCES
+la decision. Al reves seria UNA RECOMENDACION BUSCANDO DATOS QUE LA SOSTENGAN, que es el defecto
+que un entregable ejecutivo comete con mas facilidad. Tiene su caso propio: «las tres secciones»
+se cumple con las tres EN CUALQUIER ORDEN.
+
+LAS TRES SECCIONES ERAN DERIVABLES HOY, y por eso el entregable cupo en la tarea. La Declaracion
+de Valor tiene sus cuatro productos con condicion de validez; los declarado_sin_cubrir de cada
+manifest, audit, FIRMAS-DE-LOTE y las paradas dan la §2; la §3 es un juicio. EL MARCO LLEVA LOTES
+PRODUCIENDO ESTOS TRES MATERIALES Y NUNCA LOS HABIA PUESTO EN EL MISMO SITIO.
+
+PT-149 TENIA RAZON: NO SE TOCO NINGUNA HERRAMIENTA. Lo que si hizo falta fue DECLARARLO EN TODOS
+LOS SITIOS DONDE EL MARCO LO BUSCA, y eso lo exigio audit, no una lectura:
+
+    ✗ DICT-R01 (HARD)    no llega a CORE.md
+    ✗ DICT-R02 (HARD)    no la cita ningun documento operativo · no llega a CORE.md
+    ✗ DICT-R03 (HARD)    no llega a CORE.md
+    ✗ [START DICTAMEN]   ausente en: CORE.md, PHASES.md
+
+CORE.md ES LO UNICO QUE EL AGENTE CARGA (SUITE-R15). Tres reglas HARD que no llegan ahi son tres
+reglas QUE NADIE EJECUTARA — exactamente lo que PT-204 acaba de medir a escala, cometido por mi al
+declararlas. Y al arreglarlo aparecio un quinto: meti el procedimiento DENTRO de la seccion de
+FDGE, y SUITE-R20 se lo imputaba a ese componente.
+
+DOS SUPOSICIONES MIAS QUE EL MARCO CORRIGIO.
+
+1 «Un *-Prompts.md de tres lineas nadie lo abriria». Era una suposicion; LEX-R15 dice lo contrario.
+  Se resolvio dandole SECCION PROPIA en PHASES.md, que es donde vive el procedimiento de los demas.
+2 «El Dictamen no tiene fases porque no es un ciclo». Declare `fases: null` y a la vez TRES
+  secciones en LEXICON: el mismo hecho con dos nombres (CE-008). Alineado a [1,3], con la
+  aclaracion de que se ejecutan EN UNA PASADA y la compuerta va al final.
+
+LA PODA QUE EL SEPTIMO COMPONENTE OBLIGA — SUITE-R61, con su cuenta por patron.
+
+    superado   4     «cubre los SEIS» · «lo dice contando» x2 · el fixture de PT-149
+    invertido  0
+    hueco      0
+
+Tres fijaban «(6 de 6)» o «(7 de 7)» —EL NUMERO DE LO CORRECTO, HANDOFF -18— y ahora comparan los
+dos numeros SIN FIJAR NINGUNO. El cuarto es el fixture de PT-149, que declaraba su componente falso
+en el orden 11 —el que ahora ocupa DICT— y SUITE-R38 lo cazo con razon: dos familias con el mismo
+orden harian que CORE.md dependa del orden de DECLARACION.
+
+Y UNO MAS QUE NO ERA CIFRA SINO CEGUERA: un caso enumeraba las seis siglas A MANO para comprobar
+que todas llegan a CORE.md. Con el septimo habria seguido EN VERDE COMPROBANDO SEIS y CALLANDO EL
+QUE FALTABA. Ahora la lista se DERIVA de COMPONENTES. Es la forma exacta que este lote persigue:
+no un caso que falla, sino UN CASO QUE DEJA DE MIRAR SIN DECIRLO.
+
+LO QUE EL DICTAMEN DICE DE ESTE REPOSITORIO, Y NO ES COMODO.
+
+    P-001  Marco normativo          CUMPLE
+    P-002  Procedimiento ejecutable CUMPLE
+    P-003  Verificacion mecanica    CUMPLE PARCIALMENTE — 142 de 247 reglas, 126 sin juzgar
+    P-004  Paquete e instalacion    CUMPLE con una divergencia declarada — npm tres versiones detras
+
+Y su §3: «el marco normativo y el procedimiento estan terminados y probados; la verificacion
+mecanica esta a poco mas de la mitad y nadie ha decidido cuanto de lo que falta es posible».
+
+UN DICTAMEN QUE SOLO CONTARA LO ENTREGADO SERIA PROPAGANDA, y DICT-R02 existe para impedirlo.
+
+Evidencia: docs/implementation/evidence/PT-197/ — manifest, self-review y salida.
+Trazabilidad: changes/PT-197-el-dictamen-al-dueno-del-dominio/traceability.md — sin AC huerfano.
+El entregable: docs/implementation/DICTAMEN.md
+
+Corrida COMPLETA de la bateria: 2048 casos en verde · recibo 07f1581fb586.
+
+LO QUE NO SE CUBRE, Y CONSTA (SUITE-R26).
+
+- QUE EL DICTAMEN SIRVA lo dice el firmante. El documento lleva su bloque de firma EN BLANCO a
+  proposito: es la unica evidencia posible de que el componente vale (FND-R24, AC-03).
+- NINGUN GENERADOR, y a proposito: escribirlo antes de haber hecho uno seria decidir la forma sin
+  el dato. Ademas la §3 es un juicio, y un generador la dejaria en blanco.
+- El Dictamen de un proyecto DESTINO: este repositorio es el unico caso, y SUITE-R41 lo hace
+  representativo de la FUENTE.
+- PTSA no cambia: audita contra la Declaracion de Valor; el Dictamen la PRESENTA.
+- CERRAR ESTA TAREA NO DEMUESTRA NADA SOBRE EL OBJETIVO DEL LOTE. Es la unica FEATURE entre
+  diecisiete y el §8 del intake del lote ya lo declaraba.

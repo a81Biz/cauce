@@ -1,0 +1,84 @@
+{
+  "pt": "PT-200",
+  "generated": "2026-08-29",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "Un PT terminal y sin cambios no se re-verifica",
+      "scenarios": [
+        "TS-01",
+        "TS-05"
+      ],
+      "tests": [
+        "selftest §EP-026 · un PT sellado y sin cambios NO se re-verifica",
+        "selftest §EP-026 · sellar es una decision: sin --sellar no se escribe"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Si cambia lo que su sello cubre, vuelve entero",
+      "scenarios": [
+        "TS-02"
+      ],
+      "tests": [
+        "selftest §EP-026 · …y si su artefacto cambia, vuelve",
+        "selftest §EP-026 · …y si cambia el VERIFICADOR, tambien"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true,
+      "como": "Dos casos. El del VERIFICADOR es la pieza que PT-191 demostro imprescindible y la mas facil de olvidar: un cambio en las reglas cambia el veredicto SIN tocar el artefacto."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "Un PT vivo se verifica siempre, sellado o no",
+      "scenarios": [
+        "TS-03"
+      ],
+      "tests": [
+        "selftest §EP-026 · un PT vivo se verifica aunque tenga sello"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Sin sellos se verifican todos: el silencio no acota",
+      "scenarios": [
+        "TS-04"
+      ],
+      "tests": [
+        "selftest §EP-026 · sin sellos se verifican TODOS"
+      ],
+      "evidence": [
+        "salida.txt"
+      ],
+      "verified": true
+    }
+  ],
+  "coverage": "4 de 4 criterios con escenario y caso ejecutable",
+  "medido": {
+    "sin_sellos": "536.8 s · 197 PT recorridos",
+    "con_sellos": "50.4 s · 14 PT recorridos · 189 saltados",
+    "reduccion": "-91% en tiempo, -93% en PT recorridos"
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "El sello cubre todo lo que podria afectar al veredicto",
+      "por_que_no": "Un cambio en RULES.md que no toque verify-fdge.mjs no invalida el sello, igual que en la bateria de EP-025.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Una cifra de minutos como criterio",
+      "por_que_no": "Fijarla seria fijar el numero de lo correcto (HANDOFF -18). Lo que se mide es que lo terminal y sin cambios no se recorre, y que cualquier cambio lo devuelve.",
+      "verified": false
+    }
+  ]
+}

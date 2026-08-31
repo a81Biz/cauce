@@ -1,5 +1,5 @@
 {
-  "suite_version": "13.4.0",
+  "suite_version": "13.5.0",
   "execution_mode": "SUPERVISED",
   "personas": [
     {
@@ -36,8 +36,8 @@
     "umbral_clase_sin_dueno_motivo": "DECLARADO, no derivado. Sale de que las cuatro clases hoy CERRADA se cerraron cuando alguien CONTO, y la menor de esas cuentas fue tres. Es un juicio: subirlo dejaria fuera clases que ya se repiten, y bajarlo llenaria el roadmap de cosas que pasaron una vez. Vive aqui y no en el codigo para que cambiarlo sea un acto visible (SUITE-R38, PT-126)."
   },
   "counters": {
-    "PT": 198,
-    "EP": 26,
+    "PT": 206,
+    "EP": 27,
     "QA": 0,
     "QR": 0,
     "QD": 0,
@@ -5931,18 +5931,24 @@
       "id": "EP-026",
       "slug": "lo-que-da-verde-sin-mirar",
       "created": "2026-08-26",
-      "status": "DRAFT",
+      "status": "READY",
       "phase": 1,
       "suite_version": "13.2.0",
       "title": "Lo que da verde sin mirar: verificadores que avisan donde deberian bloquear",
-      "issue": 331
+      "issue": 331,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      }
     },
     {
       "id": "PT-179",
       "slug": "evidencia-que-falta-solo-avisa",
       "created": "2026-08-26",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "verify-fdge avisa por evidencia que falta estando la tarea pasada de PHASE 6",
@@ -5952,7 +5958,34 @@
         "fecha": "2026-08-26"
       },
       "issue": 327,
-      "epic": "EP-026"
+      "epic": "EP-026",
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-28"
+      }
     },
     {
       "id": "PT-180",
@@ -5999,13 +6032,45 @@
       "id": "PT-181",
       "slug": "la-expectativa-de-un-caso-es-una-regex",
       "created": "2026-08-26",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.2.0",
       "type": "BUG",
       "title": "La expectativa de un caso se compara como regex y no hay forma de decir literal",
       "issue": 329,
-      "epic": "EP-026"
+      "epic": "EP-026",
+      "origen_parada": {
+        "de": "PT-178",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-28"
+      }
     },
     {
       "id": "PT-182",
@@ -6254,8 +6319,8 @@
       "id": "PT-187",
       "slug": "las-versiones-no-cuadran-entre-sus-tres-fuentes",
       "created": "2026-08-27",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.3.0",
       "type": "BUG",
       "severity": "S2",
@@ -6266,7 +6331,34 @@
         "motivo": "hallazgo",
         "fecha": "2026-08-27"
       },
-      "issue": 342
+      "issue": 342,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
+      }
     },
     {
       "id": "PT-188",
@@ -6444,8 +6536,8 @@
       "id": "PT-192",
       "slug": "el-final-del-arnes-se-mide-por-posicion",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
@@ -6455,6 +6547,33 @@
       "origen_parada": {
         "de": "PT-191",
         "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
         "fecha": "2026-08-28"
       }
     },
@@ -6503,8 +6622,8 @@
       "id": "PT-194",
       "slug": "la-exencion-de-senuelos-no-viaja-a-la-historia",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
@@ -6515,14 +6634,41 @@
         "de": "PT-191",
         "motivo": "hallazgo",
         "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
       }
     },
     {
       "id": "PT-195",
       "slug": "la-identidad-git-del-repo-no-se-comprueba",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
@@ -6533,46 +6679,525 @@
         "de": "PT-191",
         "motivo": "hallazgo",
         "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
       }
     },
     {
       "id": "PT-196",
       "slug": "lo-posterior-a-G4-no-tiene-dueno-en-el-cierre",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S2",
       "epic": "EP-026",
       "title": "Lo que ocurre DESPUES de G4 no tiene dueno en el protocolo de cierre de lote",
-      "issue": 355
+      "issue": 355,
+      "origen_parada": {
+        "de": "EP-025",
+        "motivo": "compuerta",
+        "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-29"
+      }
     },
     {
       "id": "PT-197",
       "slug": "el-dictamen-al-dueno-del-dominio",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "FEATURE",
       "severity": "S2",
       "epic": "EP-026",
       "title": "DICTAMEN: el septimo componente y el entregable ejecutivo al dueno del dominio",
-      "issue": 356
+      "issue": 356,
+      "origen_parada": {
+        "de": "EP-023",
+        "motivo": "abre-trabajo",
+        "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 888,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
+      }
     },
     {
       "id": "PT-198",
       "slug": "un-comentario-yaml-hace-invisible-el-status",
       "created": "2026-08-28",
-      "status": "DRAFT",
-      "phase": 1,
+      "status": "DONE",
+      "phase": 8,
       "suite_version": "13.4.0",
       "type": "BUG",
       "severity": "S3",
       "epic": "EP-026",
       "title": "Un comentario en linea hace invisible el status del intake, y el mensaje dice que no existe",
-      "issue": 357
+      "issue": 357,
+      "origen_parada": {
+        "de": "EP-023",
+        "motivo": "condicion-bloqueante",
+        "fecha": "2026-08-28"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-29"
+      }
+    },
+    {
+      "id": "PT-199",
+      "slug": "el-esqueleto-del-acotado-no-cubre-lo-que-el-andamiaje-toca",
+      "created": "2026-08-28",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "El esqueleto de la corrida acotada no cubre las rutas que el andamiaje toca",
+      "origen_parada": {
+        "de": "EP-025",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "issue": 361,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-28"
+      }
+    },
+    {
+      "id": "PT-200",
+      "slug": "verify-fdge-no-acota-lo-terminal",
+      "created": "2026-08-28",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "verify-fdge revisa los 198 PT cada vez, y 189 estan en estado terminal",
+      "origen_parada": {
+        "de": "EP-025",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "issue": 362,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-29"
+      }
+    },
+    {
+      "id": "PT-201",
+      "slug": "hay-comprobaciones-que-no-corren-en-local",
+      "created": "2026-08-28",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "Hay comprobaciones que no pueden correr en local y el marco no lo declara",
+      "origen_parada": {
+        "de": "EP-025",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "issue": 363,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-28"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-28"
+      }
+    },
+    {
+      "id": "PT-202",
+      "slug": "publicar-yml-viaja-a-donde-no-aplica",
+      "created": "2026-08-28",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-026",
+      "title": "publicar.yml viaja al proyecto destino, donde npm publish no aplica",
+      "origen_parada": {
+        "de": "EP-025",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "issue": 364,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
+      }
+    },
+    {
+      "id": "PT-203",
+      "slug": "citar-un-PT-en-una-fila-lo-hace-miembro-del-lote",
+      "created": "2026-08-28",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-026",
+      "title": "Citar un PT en una fila del intake del lote lo convierte en miembro",
+      "origen_parada": {
+        "de": "EP-025",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-28"
+      },
+      "issue": 365,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-29"
+      }
+    },
+    {
+      "id": "EP-027",
+      "slug": "la-deuda-de-firma-de-lote-se-salda",
+      "created": "2026-08-29",
+      "status": "DRAFT",
+      "phase": 1,
+      "suite_version": "13.4.0",
+      "title": "Saldar la deuda que PT-203 hizo visible: 26 firmas de lote certificadas",
+      "issue": 375
+    },
+    {
+      "id": "PT-204",
+      "slug": "la-cobertura-mecanica-no-le-pertenece-a-nadie",
+      "created": "2026-08-29",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "INVESTIGATION",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "124 de 244 reglas no las ejecuta nada, y audit lo dice en cada corrida",
+      "issue": 377,
+      "origen_parada": {
+        "de": "EP-026",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-29"
+      },
+      "viabilidad": {
+        "veredicto": "MARGINAL",
+        "coste": {
+          "valor": null,
+          "naturaleza": "SIN EVALUAR"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
+      }
+    },
+    {
+      "id": "PT-205",
+      "slug": "el-estado-solo-se-sella-avanzando-de-fase",
+      "created": "2026-08-29",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S2",
+      "epic": "EP-026",
+      "title": "Cumplir SUITE-R34 exige un acto fuera del comando",
+      "issue": 378,
+      "origen_parada": {
+        "de": "EP-026",
+        "motivo": "condicion-bloqueante",
+        "fecha": "2026-08-29"
+      },
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-29"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-29"
+      }
+    },
+    {
+      "id": "PT-206",
+      "slug": "lex-r31-no-ve-las-clases-declaradas",
+      "created": "2026-08-30",
+      "status": "DONE",
+      "phase": 8,
+      "suite_version": "13.4.0",
+      "type": "BUG",
+      "severity": "S3",
+      "epic": "EP-026",
+      "title": "LEX-R31 no ve el 76% de las clases que si se declaran",
+      "origen_parada": {
+        "de": "EP-026",
+        "motivo": "hallazgo",
+        "fecha": "2026-08-30"
+      },
+      "issue": 385,
+      "compuertas": {
+        "G1": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        },
+        "G3": {
+          "firmante": "Alberto Martínez",
+          "fecha": "2026-08-30"
+        }
+      },
+      "viabilidad": {
+        "veredicto": "SAFE",
+        "coste": {
+          "valor": 1449,
+          "naturaleza": "ESTIMADO"
+        },
+        "precedente": {
+          "valor": 9583,
+          "naturaleza": "MEDIDO"
+        },
+        "techo": {
+          "valor": 38578,
+          "naturaleza": "MEDIDO"
+        },
+        "medido_en": "982bcd3d2d65d13f6d5493c9d8623731f0f9da20",
+        "fecha": "2026-08-30"
+      }
     }
   ]
 }

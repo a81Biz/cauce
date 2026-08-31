@@ -6,7 +6,7 @@
 > **Autoridad:** en cualquier conflicto de nomenclatura, este documento prevalece sobre
 > todos los demás, incluido el `CLAUDE.md` del proyecto destino.
 >
-> Suite version: **13.4.0** · Ver [CHANGELOG.md](CHANGELOG.md)
+> Suite version: **13.5.0** · Ver [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
@@ -155,6 +155,23 @@ correcta encima de documentación vieja contradictoria y nadie sabía cuál mand
 | 4 | Scaffolding |
 | 5 | Handoff |
 
+### 3.5b DICTAMEN — el entregable ejecutivo al dueño del dominio   `PT-197`
+
+| PHASE | Nombre |
+|:--|:---|
+| 1 | Lectura |
+| 2 | Veredicto |
+| 3 | Decisión |
+
+**Las tres no son un ciclo: son las tres secciones del entregable, y el orden es criterio**
+(`DICT-R01`…`DICT-R03`). Se declaran como fases porque es la única forma que este marco tiene de
+decir «el componente tiene un recorrido y éste es», y porque `audit` exige que quien es componente
+declare su rango — **no inventarlo sería dejar un hueco; inventar un `[0,10]` sería fingir un ciclo
+que no existe** (`RULE-06`).
+
+**Se ejecutan en una sola pasada.** No hay compuerta entre ellas: la compuerta es humana y va al
+final — el firmante dice **si sirve**, y eso es lo único que `FND-R24` no delega.
+
 ### 3.6 FPGE — Priorización Gobernada por Evidencia
 
 | PHASE | Nombre | Compuerta |
@@ -210,7 +227,13 @@ haría indistinguible de uno que cumple.
 `LEX-R36` · Un **componente** tiene fases, triggers y directorio. Una **familia de reglas** es un
 prefijo con un documento propietario y un orden de emisión en `CORE.md`.
 
-**Los seis componentes son también familia. Cuatro familias no son componente:**
+**Los SIETE componentes son también familia. Cuatro familias no son componente:**
+
+`PT-197` · **DICTAMEN es el séptimo**, y entra por el mecanismo que `PT-149` dejó probado: un
+componente se da de alta **declarándolo** — nombre y trigger aquí, reglas en `RULES.md`, recorrido
+en `CASOS-DE-USO.md` — **sin tocar ninguna herramienta**. Los seis anteriores gobiernan **cómo se
+construye**; ninguno respondía **qué se ha construido y si sirve**, que es la pregunta de quien
+paga.
 
 ```
 SUITE   INTAKE            reglas de RULES.md que no pertenecen a un componente
@@ -1110,6 +1133,24 @@ tools/
 `LEX-R25` · `CORE.md`, `CORE-PTSA.md`, `PHASES.md`, `tools/` y los directorios `templates/`
 forman parte del paquete instalable. Un
 proyecto sin `CORE.md` no puede cumplir `SUITE-R15`: no tiene qué cargar.
+**Y lo que viaja no es todo lo que APLICA al destino** (`PT-202`): `docs/methodology/` viaja
+**entero** — 56 archivos — y dentro lleva recorridos que sólo existen en el repositorio que
+**produce** el paquete. `publicar.yml` es el caso que lo hizo visible: **no viaja** —`npm pack`
+empaqueta 61 archivos y **cero** de `.github/`— y aun así `CASOS-DE-USO.md` le daba un caso de uso
+completo, `E2 · Publicar una versión`, cuyo recorrido el destino **no tiene**, para publicar un
+paquete que **no es suyo**.
+
+**Un artefacto es DE LA FUENTE cuando está en el repositorio y NO en `package.json.files`.** La
+lista no se escribe a mano — se **deriva** de esos dos hechos, porque una lista transcrita diverge
+del árbol (`CE-010`). Un documento que viaja y menciona uno de ellos **lo marca como tal**, y
+`verify-suite` lo comprueba: sin eso, la corrección se deshace sola — ya ocurrió **dos veces**,
+en este mismo archivo y en `CASOS-DE-USO.md`, sin que nada lo dijera.
+
+**Lo que esto NO resuelve, y consta** (`SUITE-R26`): `verificacion.yml` **tampoco viaja**, y al
+destino **sí le sirve**. Se queda sin la compuerta que necesita y con la documentación de una que
+no. Darle una es otra decisión y de otro tamaño — enviar `.github/` **sobrescribiría** lo suyo, y
+un workflow es específico de la plataforma, que `SUITE-R35` declara parametrizable. Hacerlo bien
+es **una plantilla que el destino adapta**, con su fase en `INSTALL.md`.
 
 `LEX-R15` · El archivo `instrucctions.md` (con errata) queda **derogado**. Su reemplazo es
 `FDGE-Prompts.md`, simétrico con `QA-Prompts.md`, `PTSA-Prompts.md`, `FPGE-Prompts.md` y
@@ -1158,6 +1199,7 @@ al pie de la letra concluiría que `FIDE` incumple, y quien mirase la herramient
 | `delta PTSA` | PTSA | Delta sync: re-auditar solo lo afectado. |
 | `status PTSA` | PTSA | Reportar score, clasificación y freshness. |
 | `[START FPGE]` | FPGE | Corrida completa de priorización. |
+| `[START DICTAMEN]` | DICTAMEN | El entregable ejecutivo al dueño del dominio: qué se entregó contra lo prometido, qué queda sin cubrir, y la decisión que eso habilita — **en ese orden** (`DICT-R01`…`DICT-R03`). |
 | `promote FPGE R-NNN` | FPGE | Promover un ítem a PT. |
 | `promote FPGE R-NNN..R-MMM as EP-XXX` | FPGE | Promover un rango como lote. |
 | `status FPGE` | FPGE | Reportar el roadmap vigente sin recalcular. |

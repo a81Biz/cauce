@@ -4256,3 +4256,255 @@ información correcta, calculada, y sin nadie que la exija.
 árbol y no la historia · `PT-195` #353 · la identidad git del repositorio no se comprueba. Los tres
 en `EP-026`, con su explicación en
 `changes/PT-191-el-sello-se-estampa-con-una-bandera/paradas/`.
+
+---
+
+## 2026-08-28 · `VoBo` para ejecutar `EP-026` completa
+
+**Autoriza:** Alberto Martínez, firmante declarado en `CLAUDE.md`.
+
+**Instrucción literal:** «bien, comienza la Épica y no pares hasta terminarla, tienes mi VoBo para lo
+necesario».
+
+**Alcance, y sus límites:**
+
+| Acción | Regla | Autorizada |
+|:---|:---|:---|
+| `G1` de cada tarea | `INTAKE-R06` | **sí** — ya cubierta por la firma única del lote (`INTAKE-R08`) |
+| `G2` de cada tarea | `EXEC-R04` | **sí**, delegada. Se registra como «G2 delegada» en `HISTORY` |
+| `G3` de cada `BUG` | `EXEC-R05` · `FDGE-R26` | **sí**, delegada con este `VoBo`, y se registra con nombre y fecha |
+| `G4` del lote | `EXEC-R04` · `SUITE-R06a` | **sí** — merge de `trabajo` a `main` |
+| Borrar ramas efímeras ya fusionadas | `SUITE-R06f` | **sí** |
+| `git tag` de la versión, **después** del merge | `SUITE-R06a` | **sí** |
+| **Publicar en npm** | `SUITE-R06a` | **NO** |
+
+**Por qué `npm publish` sigue fuera y este `VoBo` no lo deroga.** La reserva es explícita y
+repetida: *«no lo hago a mano salvo publicar»* el `2026-08-28`, y antes *«No publiques la 9.0.0»*.
+Un `VoBo` posterior que **no lo menciona** no levanta una reserva que sí lo menciona — es la regla
+que este mismo `SESSION_LOG` viene aplicando desde `EP-017`. Ante la duda, manda la reserva.
+
+**Qué garantiza esta constancia y qué no** (`SUITE-R27`): que la autorización es **contrastable** —
+el nombre está en `firmantes` y la instrucción está transcrita literalmente. **No** garantiza que la
+escribiera una persona: la teclea el agente, y `EXEC-R04` ya declara ese límite.
+
+### Lo que `EP-026` va a ejecutar
+
+Catorce tareas, trece `BUG` y una `FEATURE`, todas con intake propio. El orden lo fija su intake y
+no es preferencia: `PT-199` y `PT-201` van primero porque hacen **legible la propia corrida** —
+mientras la salida escupa 33 errores de andamiaje y el verde local no prediga la CI, cualquier
+medida que tomen las demás se toma sobre un instrumento sucio.
+
+---
+
+## 2026-08-30 · Cierre de jornada · `EP-026` en 11 de 16
+
+**Autorización en curso:** el `VoBo` del `2026-08-28` para ejecutar `EP-026` completa
+(§ *«VoBo para ejecutar EP-026 completa»*, más arriba). Sigue vigente y **`npm publish` sigue
+fuera**: la reserva del `2026-08-27` —*«no lo hago a mano salvo publicar»*— no la deroga ningún
+`VoBo` posterior que no la mencione.
+
+Y dos decisiones nuevas del firmante, tomadas hoy:
+
+> *«necesitamos corregir o certificar y sellar, no podemos dejar pendientes menos una deuda tan
+> grande. De ser necesario ponlos en una épica que atacaremos al terminar ésta»* — sobre las 26
+> firmas de lote. Resultado: `FIRMAS-DE-LOTE.md` firmado y `EP-027` #375 abierta **sin `G1`**.
+
+> *«necesitamos arreglar ésto. Lo ideal sería un PT para hacerlo ahora, al terminar éste, buscando
+> que los siguientes no pierdan tanto tiempo»* — sobre el viaje de CI. Resultado: `PT-205`,
+> hecha **la siguiente** y no la última.
+
+### Dónde queda el trabajo
+
+| | |
+|:---|:---|
+| **Rama** | `chore/alberto-martinez/EP-026-PT-205-el-verde-local-no-predice-CI` |
+| **PR** | **#379**, esperando CI. Al pasar: fusionar a `trabajo` |
+| **`PT-205`** | `PHASE 8`, `DONE`, `G3` resuelta. Sólo falta el merge |
+| **Lote** | `EP-026` · **11 de 16** |
+
+### Lo que queda, en orden
+
+```
+PT-195 #353   la identidad git no se comprueba        ANALISIS YA ESCRITO (discovery, strategy,
+PT-194 #351   cauce:senuelos y la historia             escenarios y trazabilidad, los cuatro)
+PT-202 #364   publicar.yml viaja a donde no aplica     ANALISIS YA ESCRITO
+PT-187 #342   las versiones no cuadran                 ANALISIS YA ESCRITO (discovery)
+PT-206        LEX-R31 no ve el 76% de las clases       solo la parada
+PT-204 #377   124 de 244 reglas que nada ejecuta       intake escrito, G1 sin firmar
+PT-197 #356   DICTAMEN, el septimo componente          NECESITA DECISION DEL FIRMANTE en PHASE 2
+```
+
+**Cuatro tienen el análisis hecho y sin commitear todavía en su rama** — están en `changes/` y
+viajan con el merge de `PT-205`.
+
+### Lo que abrió esta jornada, y que NO es de este lote
+
+| | Estado |
+|:---|:---|
+| `EP-027` #375 · saldar las 26 firmas certificadas | Abierta, con intake, **sin `G1`** |
+| `EP-028` · el coste de la verificación | Sólo `paradas/EP-028.md`; se abre **al cerrar** `EP-026` |
+
+### Lo que hace falta de ti, y no antes
+
+**`PT-197` (DICTAMEN)** declara en su propio intake que *«no sabe todavía qué hace válido un
+Dictamen»* — `FND-R24` reserva eso a quien conoce el negocio. Sus `AC` son de forma; el contenido
+se decide en `PHASE 2` contigo. Va la última y llegaré ahí con propuesta delante.
+
+**`G1` de `EP-027` y de `EP-028`**: tu autorización cubrió **abrirlas**, no admitirlas.
+
+### Cómo se retoma
+
+```bash
+node docs/methodology/tools/tracker.mjs siguiente EP-026     # lo derivado, no lo recordado
+gh pr checks 379                                             # si sigue abierto, empezar por ahi
+```
+
+`SUITE-R03` · Ninguna sesión depende de la memoria del agente. El estado está en `HANDOFF.md`,
+`CHECKPOINT.json` y el registro; esto sólo añade **por qué** se decidió lo que se decidió.
+
+---
+
+## 2026-08-30 · `VoBo` renovado para terminar `EP-026`
+
+**Instrucción literal:** *«bien, te doy mi VoBo para lo necesario y que continúes y no pares hasta
+terminar la épica»* — Alberto Martínez, `2026-08-30`.
+
+### Qué cubre
+
+| | Regla | ¿Cubierta? |
+|:---|:---|:---|
+| `G1` de cada tarea de `EP-026` | `INTAKE-R06` | **sí**, delegada, y se registra con nombre y fecha |
+| `G2` de cada tarea | `EXEC-R02` | **sí**, delegada |
+| `G3` de cada `BUG` | `EXEC-R05` · `FDGE-R26` | **sí**, delegada, con nombre y fecha en `HISTORY.log` |
+| Merge de cada tarea a `trabajo` | `FDGE-R19` | **sí** — es revisión, no `G4` |
+
+### Qué NO cubre, y se dice antes de necesitarlo
+
+- **`npm publish`.** La reserva del `2026-08-27` —*«no lo hago a mano salvo publicar»*— nombra el
+  acto por su nombre. Un `VoBo` posterior que **no lo menciona** no levanta una reserva que sí lo
+  menciona. `SUITE-R06g` sigue en pie.
+- **`G4` · el merge de `trabajo` a `main`.** `EXEC-R04` y `SUITE-R06a`: humana en los tres modos,
+  sin excepción. Se pedirá con la evidencia delante cuando el lote esté completo.
+- **`G1` de `EP-027` y de `EP-028`.** Son **otros lotes**. La autorización del `2026-08-29` cubrió
+  **abrirlos**, no admitirlos, y ésta es de `EP-026`.
+- **La decisión de dominio de `PT-197`.** No es una compuerta que se delegue: `FND-R24` dice que
+  **qué hace válido un producto** lo sabe quien conoce el negocio, no el agente. Un `VoBo` autoriza
+  a actuar; no transfiere un conocimiento. Se llegará ahí con la propuesta escrita y se preguntará.
+
+### Estado al recibirla
+
+`EP-026` · **12 de 16.** `PT-195` en `PHASE 8` con la batería en verde (2001 casos) y `npm run
+verify` corriendo. `PT-194`, `PT-202` y `PT-187` con su análisis completo escrito; `PT-194` además
+con su implementación redactada.
+
+### Ampliación del mismo día — `G4` SÍ queda autorizada   `EXEC-R04a`
+
+El bloque de arriba dejaba `G4` fuera por prudencia. **El firmante la incluye expresamente**, y se
+añade en vez de editarlo (`SUITE-R09`: el ledger no pierde líneas).
+
+**Instrucción literal:** *«solo puedes dejar el publicar a npm fuera, que es manual, pero el merge
+y pr a main y quitar las ramas es como debes terminar. La decición la vemos cuando lleguemos»*
+— Alberto Martínez, `2026-08-30`.
+
+| | ¿Cubierto ahora? |
+|:---|:---|
+| **`G4` · PR y merge de `trabajo` a `main`** | **SÍ**, autorizado por el firmante con esta constancia (`EXEC-R04`, `SUITE-R06a`) |
+| **Borrar las ramas efímeras ya fusionadas** | **SÍ** — `FDGE-R19`, y `SUITE-R06f` como excepción declarada aquí |
+| **`npm publish`** | **NO.** *«solo puedes dejar el publicar a npm fuera, que es manual»* — lo excluye por su nombre, igual que el `2026-08-27` |
+| **La decisión de dominio de `PT-197`** | **Aplazada, no delegada**: *«la decisión la vemos cuando lleguemos»*. `FND-R24` sigue reservándola a quien conoce el negocio |
+
+**Lo que esto NO convierte en automático.** `G4` sigue siendo una compuerta con constancia: esta
+entrada **es** la constancia que `EXEC-R04a` pide, con el nombre de la lista `firmantes` en su
+cuerpo. Lo que cambia es que el agente puede ejecutarla; lo que no cambia es que quede escrito
+quién la autorizó, cuándo y con qué palabras.
+
+---
+
+## 2026-08-30 · Decisión de dominio para `PT-197` — qué hace válido un Dictamen   `FND-R24`
+
+**Esto no es una compuerta delegable.** `FND-R24` dice que **qué hace válido un producto** lo sabe
+quien conoce el negocio, no el agente: un `VoBo` autoriza a actuar, no transfiere un conocimiento.
+Se preguntó con las cuatro lecturas posibles delante y su coste.
+
+**Decisión:** *«Las tres, y el orden importa»* — Alberto Martínez, `2026-08-30`.
+
+### Qué queda definido
+
+Un Dictamen es **VÁLIDO** si tiene tres secciones **en este orden**:
+
+| | Sección | Qué permite hacer | Criterio de `PTSA` |
+|---:|:---|:---|:---|
+| 1 | **Qué se entregó contra lo prometido** | Verificar punto por punto que cada producto de la Declaración de Valor existe y cumple su condición | *¿Queda algún producto declarado sin veredicto?* |
+| 2 | **Qué queda sin cubrir** | Saber dónde está expuesto quien decide: lo declarado sin cubrir, las reglas sin verificador, las deudas certificadas | *¿Hay algún límite conocido que no se nombre?* |
+| 3 | **La decisión que eso habilita** | Decidir, sin leer nada más, si lo hecho justifica lo que viene | *¿Hay una decisión de inversión que este documento permita tomar y otro no?* |
+
+**El orden es parte del criterio, no presentación.** Primero lo que hay, después lo que falta, y
+sólo entonces la decisión: al revés sería una recomendación buscando datos que la sostengan.
+
+### Lo que esto le cuesta a `PT-197`
+
+Al preguntar se dijo que esta opción **convierte `PT-197` de tarea en lote**. Se ejecuta así:
+`PT-197` **declara el componente con esta especificación y produce UN Dictamen sobre este
+repositorio** —`AC-01`, `AC-02` y `AC-03` tal como su intake los escribió—, y **lo que exceda de
+eso se declara** y se abre como lote propio si hace falta.
+
+**Las tres secciones son derivables hoy**, y por eso el entregable cabe en la tarea: la
+Declaración de Valor tiene sus cuatro productos con condición de validez; los `declarado_sin_cubrir`
+de cada manifest y la salida de `audit` dan la sección 2; la 3 es un juicio que el firmante
+confirma, que es exactamente lo que `AC-03` ya pedía.
+
+---
+
+## 2026-08-31 · `G4` de `EP-026` — constancia   `EXEC-R04a` · `SUITE-R06a`
+
+**Autorización del firmante, literal:**
+
+> *«solo puedes dejar el publicar a npm fuera, que es manual, pero el merge y pr a main y quitar
+> las ramas es como debes terminar»* — **Alberto Martínez**, `2026-08-30`
+
+`EXEC-R04` · `G4` es humana en los tres modos, **sin excepción**. Esta entrada **es** la constancia
+que la regla pide: nombre de la lista `firmantes`, fecha y palabras. Lo que la autorización cambia
+es que el agente pueda **ejecutarla**; lo que no cambia es que quede escrito **quién la autorizó**.
+
+### Qué se integra
+
+`EP-026` · **17 tareas, todas cerradas.** El lote nació con catorce y creció en marcha —`PT-204`,
+`PT-205`, `PT-206`— porque cerrar es el primer momento en que todo se mira junto (`CE-015`).
+
+```
+verify-fdge --gate G4 EP-026    sin errores
+selftest --todo                 2048 casos en verde · recibo 07f1581fb586
+SUITE-R45                       las 7 filas de cierre resueltas
+version                         todo declara 13.5.0
+```
+
+### Qué se hace, y en qué orden   `PHASES` · CIERRE DE UN LOTE   `PT-196`
+
+```
+1  PR de PT-197 a «trabajo»            revision, NO es G4 [FDGE-R19]        HECHO · #387 verde
+2  G4 · merge de «trabajo» a «main»    HUMANA — autorizada arriba
+3  tracker integrar … --aplicar        DONE -> INTEGRATED
+4  ── SEGUNDO MERGE A «main» ──        SUITE-R46 · no es un descuido
+5  tracker cerrar --aplicar            cierra los 17 issues
+6  tracker integrar EP-026 --aplicar   el lote a CLOSED
+7  tracker cierre EP-026 --aplicar     comentario de cierre
+8  tracker proyectar --publicar        SUITE-R56
+9  git tag -a v13.5.0                  DESPUES del merge [SUITE-R06a]
+10 borrar las ramas efimeras           [FDGE-R19, SUITE-R06f]
+```
+
+**Es la primera vez que este protocolo se ejecuta**, y lo escribió `PT-196` en este mismo lote tras
+medir que cerrar un lote había fallado **siete veces**, ninguna con el mismo síntoma.
+
+### Qué NO se hace, y por qué
+
+**`npm publish`.** El firmante lo excluye por su nombre —*«sólo puedes dejar el publicar a npm
+fuera, que es manual»*— y `SUITE-R06g` lo reserva. **npm se quedará en la `13.1.0`**, cuatro
+versiones por detrás del repositorio: eso está **medido y dicho** en el Dictamen (`§1`, `P-004`) y
+en el `CHANGELOG`, y ahora `tracker versiones` lo dice en cualquier momento.
+
+**`G1` de `EP-027`, `EP-028` y `EP-029`.** Son otros lotes. Se abren o se admiten cuando el
+firmante lo decida.
+
+**Firmar el Dictamen.** Su bloque queda **en blanco**: que sirva lo dice quien lo recibe
+(`FND-R24`, `AC-03` de `PT-197`).

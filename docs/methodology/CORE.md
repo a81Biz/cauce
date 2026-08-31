@@ -1,8 +1,8 @@
 # CORE — Núcleo operativo
 
 <!-- GENERADO por tools/build-core.mjs · NO EDITAR A MANO (SUITE-R16) -->
-<!-- cuerpo: 472303342c2c -->
-<!-- fuentes: RULES.md:41f16801f7b6 LEXICON.md:35048c5312f7 EXECUTION-MODES.md:98cbdea0668a PHASES.md:787d94c639a2 -->
+<!-- cuerpo: b691ee41877f -->
+<!-- fuentes: RULES.md:816397abfc32 LEXICON.md:11920ba4b441 EXECUTION-MODES.md:289cb1b699bb PHASES.md:0fbf9c13ebf0 -->
 
 Esto es **lo único** que carga el agente (`SUITE-R15`): reglas **y** procedimiento. Los
 documentos completos solo se abren cuando una línea de aquí lo remite.
@@ -63,6 +63,7 @@ PTSA  0 Value · 1-5 Inventory→Criticality · 6 Traceability(BLOQUEA 7-10) · 
 FPGE  1 Compuertas · 2 Evidencia · 3 Candidatos · 4 Priority · 5 Orden · 6 Emisión
       7 Stop◆ — ordena y se DETIENE: promover es humano (FPGE-R04)
 FIDE  1-5  — declarado en el contrato; su recorrido, en LEXICON §3
+DICT  1-3  — declarado en el contrato; su recorrido, en LEXICON §3
 ```
 
 ## Compuertas × modo
@@ -144,6 +145,7 @@ CE-017  La comprobación acusa a quien documenta el hecho
 [START QA] · delta QA PT-XXX · status QA · promote QD-NNN to FDGE|PTSA · close QD-NNN
 [START PTSA] · resume PTSA · delta PTSA · status PTSA · audit PTSA close H-XXX
 [START FPGE] · promote FPGE R-NNN[..R-MMM as EP-XXX] · status FPGE
+[START DICTAMEN]
 ```
 
 ## Rutas
@@ -463,6 +465,12 @@ verifica un script y bloquea la integración.
 `FIDE-R04` **H** Compatibilidad con Foundation. FIDE genera docs/enterprise-documentation/ con los nombres canónicos de LEX-R10 §6.1, y copia también los documentos de Foundation a docs/methodology/. La numeración propia de…
 `FIDE-R05` **H** Las features que FIDE vuelca al índice ENRICHMENT.md nacen en DRAFT, nunca en READY.
 `FIDE-R06` **H** El README.md del paquete generado por FIDE declara explícitamente que documenta arquitectura prevista, no observada, y que no cumple todavía FND-R01.
+
+### DICT — Dictamen
+
+`DICT-R01` **H** La §1 del Dictamen da veredicto de CADA producto declarado.
+`DICT-R02` **H** La §2 nombra lo que el marco NO garantiza.
+`DICT-R03` **H** La §3 enuncia la decisión que las dos anteriores habilitan, y va DESPUÉS.
 
 ## Procedimiento por fase
 
@@ -1048,6 +1056,69 @@ HAZ  1 EP desde REGISTRY · changes/EP-NNN-slug/intake.md desde la plantilla
      5 cierre: todos INTEGRATED|CLOSED o retirados → EP CLOSED + entrada propia en HISTORY
 ```
 
+### LO QUE ROMPE EN CI Y NO EN LOCAL · los dos rodeos, declarados   `PT-205`
+```
+POR QUE AQUI  Cuatro corridas de CI en rojo en UNA sola rama, ninguna predicha por el verde local
+     y todas evitables. Las tres roturas dependen de LO EMPUJADO —y en local eso no existe
+     todavia—, pero se DERIVAN del arbol de trabajo. Se dicen antes:
+
+     npm run verify   →   PENDIENTE AL EMPUJAR (n) — esto NO es incumplimiento todavia
+
+RODEO 1 · EL ISSUE SE PUBLICA MUDO, Y SE REPUBLICA DESPUES DEL PUSH    [SUITE-R51]
+     «abrir» publica cuando el intake AUN NO esta empujado, asi que el cuerpo queda SIN ENLACE.
+     Es legitimo: refDurableDe responde null CON RAZON y exigir el enlace ahi seria pedir un
+     commit que no existe (tracker.mjs:566). Lo que NO era legitimo es que nadie lo reclamara.
+
+     asignar → escribir intake → abrir → commit → push → tracker abrir --aplicar   ← el paso 6
+                                                                                     NO se olvida:
+                                                                                     verify lo dice
+     NO NECESITA COMMIT: «abrir» escribe el cuerpo en la plataforma, no archivos.
+
+RODEO 2 · EL ESTADO SE SELLA APARTE, Y EL HANDOFF SE COMMITEA EL ULTIMO   [SUITE-R34]
+     node tools/tracker.mjs sellar-estado --aplicar     SOLO la linea «actualizado:», derivada
+     git add docs/implementation/HANDOFF.md && git commit               en su PROPIO commit
+
+     Hasta PT-205, «avanzar» era lo UNICO que sellaba, y sellaba solo al cambiar de fase: cualquier
+     trabajo en changes/ que no fuera una transicion dejaba el estado atras sin via sancionada.
+     Era CE-006 —el acto que existe solo empaquetado con otro— y costo cuatro corridas.
+
+LOS DOS SE DECLARAN EN VEZ DE QUITARSE, y es la misma decision que PT-196 tomo con el doble
+     viaje por G4: el rodeo con su motivo escrito es aceptable; descubrirlo cada vez, no.
+```
+
+### CIERRE DE UN LOTE · lo posterior a `G4`, que es del LOTE y no del PT   `PT-196`
+```
+POR QUE AQUI  Las fases son del PT (LEXICON 0-10) y PHASE 9 TERMINA EN EL MERGE. Los seis actos
+     que vienen despues estaban escritos como PROSA dentro de ella: ninguna fase los poseia,
+     ningun artefacto los cerraba y ninguna compuerta los miraba. Se ejecutaban DE MEMORIA, y
+     por eso fallaban siempre en el mismo sitio. El lote SI tiene ciclo y comando propios.
+QUE TOCA     node tools/tracker.mjs siguiente EP-NNN
+     Lo DERIVA del reparto de sus tareas y del arbol (SUITE-R48). No hay que recordarlo.
+EL ORDEN, y no es preferencia:
+     1 PR de la rama del lote a «trabajo»            revision, NO es G4 [FDGE-R19]
+     2 G4 · merge de «trabajo» a «main»              HUMANA [EXEC-R04, SUITE-R06a]
+     3 tracker integrar PT-NNN --aplicar             DONE -> INTEGRATED
+     4 ── SEGUNDO MERGE A «main» ──                  y NO es un descuido: ver abajo
+     5 tracker cerrar --aplicar                      cierra los issues [SUITE-R46]
+     6 tracker integrar EP-NNN --aplicar             el lote a CLOSED
+     7 tracker cierre EP-NNN --aplicar               publica el comentario de cierre
+     8 tracker proyectar --publicar                  el rastro sobrevive a la rama [SUITE-R56]
+     9 git tag -a vX.Y.Z                             DESPUES del merge · HUMANO [SUITE-R06a]
+    10 borrar las ramas efimeras ya fusionadas       [FDGE-R19, SUITE-R06f]
+CERRAR UN LOTE PASA POR G4 DOS VECES, y se dice aqui para que no se descubra chocando:
+     «tracker integrar» escribe INTEGRATED en la rama de TRABAJO, y «tracker cerrar» exige que
+     ese estado este YA en la rama por defecto (SUITE-R46). El apunte se escribe DESPUES de
+     integrar, asi que solo llega a «main» en el merge SIGUIENTE.
+     NO es un defecto que se pueda quitar sin cambiar otro por peor: SUITE-R46 nacio de una
+     averia real —la principal declarando un estado vivo con el issue ya cerrado— y quitarla
+     para ahorrar un merge cambiaria una molestia por un defecto.
+LAS FILAS «TRAS EL MERGE» SE CONTESTAN AQUI  [SUITE-R45, PT-196]
+     Una fila del «## Cierre del lote» cuya respuesta sea POSTERIOR a G4 —el tag, la
+     publicacion— se declara «TRAS EL MERGE» y NO bloquea la compuerta: G4 ES el merge y
+     SUITE-R06a prohibe el tag antes, asi que exigirla alli era pedir lo imposible. No
+     desaparece: verify-fdge la sigue nombrando, y el cierre la reclama.
+```
+
 ---
 
 ## Foundation
@@ -1277,6 +1348,37 @@ IDEMPOTENCIA si ya hay 00-Business-Case o package.json: NO destruir. Retomar o a
 ```
 
 ---
+
+## DICTAMEN
+
+### DICTAMEN · el entregable ejecutivo, en una pasada   `[START DICTAMEN]` · `PT-197`
+```
+POR QUE AQUI  Los seis componentes anteriores gobiernan COMO SE CONSTRUYE. Ninguno contestaba
+     QUE SE HA CONSTRUIDO Y SI SIRVE, que es la pregunta de quien paga. No es un ciclo con
+     compuertas: es UN entregable, y sus tres fases son sus tres SECCIONES.
+PHASE 1  Lectura     los productos de la Declaracion de Valor y su evidencia · lo declarado sin
+                     cubrir en cada manifest · audit · las deudas certificadas · las paradas
+PHASE 2  Veredicto   §1 y §2 del documento
+PHASE 3  Decision    §3 — y va DESPUES, que es la mitad del criterio
+
+EL ORDEN ES LA REGLA, NO LA PRESENTACION.
+     Primero lo que hay [DICT-R01], despues lo que falta [DICT-R02], y solo entonces la
+     decision [DICT-R03]. Al reves seria una RECOMENDACION BUSCANDO DATOS QUE LA SOSTENGAN, que
+     es el defecto que un entregable ejecutivo comete con mas facilidad.
+
+DICT-R02 ES LA QUE IMPIDE QUE SEA PROPAGANDA.
+     Un entregable ejecutivo que solo cuenta lo entregado es exactamente lo que nadie deberia
+     firmar. El marco ya produce todos esos limites —lo declarado sin cubrir, las reglas sin
+     verificador, las deudas certificadas, las paradas abiertas—: lo que faltaba era ponerlos
+     DONDE LOS LEE QUIEN DECIDE.
+
+LA COMPUERTA ES HUMANA Y VA AL FINAL  [FND-R24]
+     Que el Dictamen SIRVA no lo dice el agente. El documento lleva su bloque de firma en
+     blanco a proposito: es la unica evidencia posible de que el componente vale.
+
+QUE NO ES   PTSA AUDITA contra la Declaracion de Valor; el Dictamen la PRESENTA. «tracker
+     estado» dice QUE HAY; el Dictamen, SI SIRVE. El CHANGELOG cuenta QUE CAMBIO.
+```
 
 ## Migración y compatibilidad
 

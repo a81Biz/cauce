@@ -1,0 +1,78 @@
+{
+  "pt": "PT-205",
+  "generated": "2026-08-30",
+  "criteria": [
+    {
+      "ac": "AC-01",
+      "statement": "El verde local avisa de lo que rompera en CI por depender de lo empujado, antes de empujar",
+      "scenarios": ["TS-01", "TS-02", "TS-03", "TS-07"],
+      "tests": [
+        "selftest §EP-026 · el verde local avisa de lo que rompera en CI",
+        "selftest §EP-026 · …y lleva el comando exacto, no solo el diagnostico",
+        "selftest §EP-026 · …y con el arbol limpio NO aparece"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "«…y con el arbol limpio NO aparece» sostiene la tarea entera: sin el, AC-01 lo cumple un aviso que salga SIEMPRE, y un aviso que sale siempre es ruido. La primera version saltaba con DIECIOCHO issues."
+    },
+    {
+      "ac": "AC-02",
+      "statement": "Existe via sancionada de sellar el estado sin cambiar de fase, y el sello sigue derivado",
+      "scenarios": ["TS-04", "TS-05"],
+      "tests": [
+        "selftest §EP-026 · «sellar-estado --aplicar» pone el estado al dia",
+        "selftest §EP-026 · …y sin --aplicar no escribe nada",
+        "selftest §EP-026 · el sello nombra la tarea del CHECKPOINT",
+        "selftest §EP-026 · …y NO la mas avanzada por fase"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "Los dos ultimos salieron de un error mio sobre el arbol REAL: la primera derivacion nombraba PT-203 en PHASE 8 mientras el trabajo era PT-205 en PHASE 5. Un sello que nombra la tarea equivocada deja SUITE-R34 en verde afirmando algo falso (CE-001)."
+    },
+    {
+      "ac": "AC-03",
+      "statement": "La prosa del HANDOFF no se toca",
+      "scenarios": ["TS-05", "TS-06"],
+      "tests": [
+        "selftest §EP-026 · …y la prosa del HANDOFF queda INTACTA",
+        "selftest §EP-026 · …y sus «no hacer» tambien"
+      ],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "LEX-R26: lo que no se deriva no se escribe. Se estampa SOLO la linea «actualizado:»."
+    },
+    {
+      "ac": "AC-04",
+      "statement": "Lo que quede como rodeo esta escrito donde se ejecuta, con su motivo",
+      "scenarios": ["TS-03"],
+      "tests": ["selftest §EP-026 · …y lleva el comando exacto, no solo el diagnostico"],
+      "evidence": ["salida.txt"],
+      "verified": true,
+      "como": "PHASES · «LO QUE ROMPE EN CI Y NO EN LOCAL» declara los DOS rodeos con su orden y su motivo, junto al procedimiento que los paga. Es la misma decision que PT-196 tomo con el doble viaje por G4."
+    }
+  ],
+  "coverage": "4 de 4 criterios con escenario y caso ejecutable · 9 casos sobre 7 escenarios",
+  "medido": {
+    "el_coste": "4 corridas de CI en rojo en UNA rama (PT-203), ninguna predicha por el verde local · 17 min de maquina y tres viajes completos",
+    "la_causa": "las tres roturas dependen de lo EMPUJADO, y en local eso no existe todavia — pero se DERIVAN del arbol de trabajo",
+    "la_diferencia_con_PT-201": "aquel declaro lo que NO se puede saber en local; esto se podia saber y no se sabia",
+    "corrida": "COMPLETA · 1993 casos · veredicto OK"
+  },
+  "declarado_sin_cubrir": [
+    {
+      "afirmacion": "Toda rotura de esta clase queda predicha",
+      "por_que_no": "Se cubren las TRES medidas. Decir «ya estan todas» sin barrer seria CE-005, que es el nombre de este lote.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Se predice lo que no se puede saber en local",
+      "por_que_no": "Ese es el limite que PT-201 declaro y sigue en pie. Esto es lo otro.",
+      "verified": false
+    },
+    {
+      "afirmacion": "Los rodeos desaparecen",
+      "por_que_no": "Se DECLARAN, con su motivo, en PHASES. El freno MUDO_SIN_REF_DURABLE es correcto —exigir el enlace al abrir seria pedir un commit inexistente— y quitarlo cambiaria una molestia por un defecto.",
+      "verified": false
+    }
+  ]
+}

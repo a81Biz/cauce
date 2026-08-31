@@ -1,0 +1,41 @@
+PT-194 · corrida COMPLETA en verde · 2007 casos
+
+  [32m✓[0m …y sin credencial BLOQUEA igual
+  [32m✓[0m la palabra cerca del principio sigue eximiendo
+  [32m✓[0m un hallazgo de historia dice que la exencion no llega
+  [32m✓[0m …y dice POR QUE: la historia es de SIEMPRE
+  [32m✓[0m …y BLOQUEA igual, con la declaracion puesta
+  [32m✓[0m …y nombra el mecanismo: firmar la huella
+  [32m✓[0m …y dice que el archivo SI lo declara hoy, como contexto
+  [32m✓[0m …y en el ARBOL la declaracion sigue eximiendo
+
+selftest: OK · 2007 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "2007", "arnes": "6abffd61cfa9af797f747480f46b229f548e7bd4", "fecha": "2026-08-30T15:04:35Z" }
+
+== EL MENSAJE, SOBRE UN FIXTURE CON HISTORIA PROPIA ==
+
+[31m[1mcontraseña en texto plano[0m · 1 sitio(s)[2m  · 1 EN LA HISTORIA[0m
+  historia 4394fe20:1
+    [2mpassword = REDACTADO[0m
+  [1mCorrección:[0m A variable de entorno. Si es de desarrollo, sigue siendo una contraseña que alguien reutilizará.
+  [1mEsto esta EN LA HISTORIA[0m, y la historia no se reescribe (`SUITE-R06f`): quitarlo
+  del archivo no lo quita de aqui. La declaracion `cauce:senuelos` exime el ARBOL y
+  NO la historia, y es DELIBERADO: vive en el arbol de HOY y la historia es de SIEMPRE,
+  asi que aplicarla eximiria todo lo que ese archivo tuvo ALGUNA VEZ — incluida una
+  credencial real puesta y borrada despues.
+  [1mEl mecanismo aqui es firmar la huella[0m en docs/implementation/SECRETOS-EXCEPCIONES.md,
+  que SIGUE mostrandola en cada revision y que ata la firma AL VALOR: si el valor
+  cambia, la huella cambia y vuelve a bloquear.
+  [2m→ a.sh SI declara «cauce:senuelos» HOY — es contexto, no exencion.[0m
+
+[31mFND-R29[0m  1 hallazgo(s). Publicar un repositorio con esto dentro es irreversible:
+un secreto en la historia sigue ahí después de borrarlo del archivo.
+
+--- REDACCION   FDGE-R45 ---
+Se redactaron 1 aparicion(es) del VALOR sintetico del fixture, sustituidas por «REDACTADO». El
+valor lo genera el propio caso —ensamblado en dos mitades, la leccion de PT-193 y PT-015— y
+copiarlo aqui hacia que el escaner cazara a la EVIDENCIA de la tarea que arregla el escaner.
+Tercera aparicion de la leccion -23 del HANDOFF. Lo que se conserva es lo que importa: la forma
+del mensaje, su motivo y su mecanismo.

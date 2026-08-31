@@ -273,6 +273,54 @@ chk() {
     bad "$name  (no apareció: $pat · salió: $(printf '%s' "$out" | head -c 400))"
   fi
 }
+# ── PT-181 · LA EXPECTATIVA LITERAL ─────────────────────────────────────────
+#
+# `chk` compara con «grep -q», que es BRE: el punto casa CUALQUIER caracter y no habia forma de
+# decir «esto es texto». Medido: 1401 expectativas, 215 con metacaracteres y NOVENTA Y SEIS
+# AMBIGUAS —punto entre alfanumericos y ningun metacaracter a proposito—: «regla.mjs»,
+# «instrucctions.md», «4.0.1». «regla.mjs» casa «reglaXmjs», y nadie lo pretendio.
+#
+# Un caso que casa de mas puede pasar POR LA RAZON EQUIVOCADA, y eso no se ve leyendolo. PT-199 lo
+# cometio en esta misma sesion con un «-f» que casaba de mas, y lo destapo ejecutarlo.
+#
+# `chk` NO CAMBIA: las 215 que llevan metacaracteres a proposito —«^phase:», «^NO$», «^0$»— siguen
+# exactamente igual. Invertir el defecto habria roto las 215 de golpe (SUITE-R26).
+#
+# SUITE-R59 NO cubre esto: alli el patron SE ROMPE —un corchete sin cerrar es error de sintaxis—;
+# aqui FUNCIONA y significa otra cosa. Dos defectos con la misma causa, y aquella cubre uno.
+chkl() {   # como chk, pero la expectativa es LITERAL
+  local name="$1" pat="$2"; shift 2
+  salta "$name" && return
+  local out; out="$("$@" 2>&1)"
+  if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -qF -- "$pat"; then pass "$name"; else
+    bad "$name  (no apareció literal: $pat · salió: $(printf '%s' "$out" | head -c 400))"
+  fi
+}
+chknol() {  # como chkno, pero la expectativa es LITERAL
+  local name="$1" pat="$2"; shift 2
+  salta "$name" && return
+  local out; out="$("$@" 2>&1)"
+  if revento "$out"; then bad "$name  (la herramienta reventó: no verifica nada)"; return; fi
+  if printf '%s' "$out" | grep -qF -- "$pat"; then
+    bad "$name  (aparecio literal y no debia: $pat)"
+  else pass "$name"; fi
+}
+# PT-192 · EL INFORME FINAL SE EXTRAE POR SU MARCA, NO POR SU DISTANCIA AL FINAL.
+#
+# El patron se ENSAMBLA para que este archivo no lo contenga entero: si lo contuviera, el sed
+# arrancaria en la linea que lo busca en vez de en la marca real — que es exactamente lo que le
+# paso al intento de :7355. Es la tecnica de PT-193.
+_informe_final() { sed -n "/cauce:info""rme-final/,\$p" "${1:-$SUITE/tools/selftest.sh}"; }
+# LO QUE NO SE PUEDE ARREGLAR SE CUENTA Y SE DICE, como PT-199 con las raices que no deriva.
+# Heuristica y se declara: punto entre alfanumericos, sin ^ $ [ ] * ni barra invertida. No es una
+# auditoria — establece el orden de magnitud, y hace que la cifra deje de crecer a ciegas.
+expectativas_ambiguas() {   # $1 = archivo a mirar (por defecto, este mismo arnes)
+  grep -hoE '^(chk|chkno|mlib)[[:space:]]+"[^"]*"[[:space:]]+"[^"]*"' "${1:-$SUITE/tools/selftest.sh}" \
+    | sed 's/.*"\([^"]*\)"$/\1/' \
+    | grep -E '[A-Za-z0-9]\.[A-Za-z0-9]' \
+    | grep -vE '[\^$*\[]' | grep -c . || true
+}
 # ─── PT-079 · las guardas del arnes ─────────────────────────────────────────
 #
 # B-1 · ABORTA. Una comprobacion inversa que no revierte certifica lo CONTRARIO de lo que
@@ -369,15 +417,95 @@ chkno() {
 V() { node "$WORK/docs/methodology/tools/verify-fdge.mjs" "$@"; }
 
 # ─── Fixture ────────────────────────────────────────────────────────────────
+# PT-199 · EL ESQUELETO SE DERIVA DEL ARNES, NO SE ENUMERA.
+#
+# PT-086 monto un esqueleto para que el andamiaje de las secciones saltadas —perl, cp, printf, que
+# viven FUERA de `chk` y por tanto se ejecutan igual— operara sobre archivos inertes «y no dijera
+# nada». La intencion era correcta; la lista era de DOS rutas y el arnes toca CIENTO SETENTA Y
+# CUATRO. Cobertura: 1%. Resultado medido: 33 lineas «Can't open ... No such file or directory» por
+# corrida acotada, en verde, que es lo que entrena a no leer la salida.
+#
+# Anadir las que faltan hoy seria el mismo defecto con otra cifra. Las 174 YA ESTAN ESCRITAS en este
+# archivo, asi que la lista se DERIVA de el: retroactivo por construccion, sin declarar nada, como
+# PT-176 hizo con el bloque de una seccion y PT-091 con las cifras del inventario. La ruta que una
+# tarea futura anada entra en el esqueleto el mismo dia que se escribe.
+#
+# LIMITE DECLARADO: un grep de «$WORK/» no ve rutas construidas en variables —`local d="$WORK/p191";
+# … "$d/a.sh"`—. Por eso el esqueleto NO promete cobertura total, y el caso «lo que no monta NO pasa
+# en silencio» existe: lo que falte se nota (RULE-06).
+rutas_inertes() {   # $1 = archivo a mirar (por defecto, este mismo arnes)
+  grep -oE '\$WORK/[A-Za-z0-9_./-]+' "${1:-$SUITE/tools/selftest.sh}" \
+    | sed 's|^\$WORK/||' | grep -vE '(^|/)\.+(/|$)' | sort -u
+}
+_RUTAS_INERTES=""
+_DIRS_INERTES=""
+_FILES_INERTES=""
+esqueleto_inerte() {
+  # EL COSTE IMPORTA, Y SE MIDIO. build_fixture se invoca 265 veces; la primera version hacia un
+  # `mkdir`/`: >` POR RUTA —unos 350 procesos— y costaba 8,1 s por montaje: ~36 min de corrida
+  # acotada. Habria destruido el ahorro que EP-025 acababa de conseguir, que es exactamente por lo
+  # que PT-086 lo llamo «barato». Ahora la lista se calcula UNA vez y se monta en DOS procesos:
+  # un `mkdir -p` con todos los directorios y un `touch` con todos los archivos.
+  if [ -z "$_RUTAS_INERTES" ]; then
+    # LA DERIVACION NECESITA SU PROPIA GUARDA DE TERRENO, y se midio ejecutandola:
+    #   «$WORK/...»            de una ELIPSIS en un comentario. Creaba un archivo llamado «...»
+    #                          y «git add -A» reventaba con «unable to index file». Rompio el
+    #                          andamiaje de PT-056, que hace git init sobre $WORK.
+    #   «$WORK/../autoalojado» y cinco mas: rutas que SALEN de $WORK. Montarlas escribiria en el
+    #                          directorio PADRE — el defecto exacto que PT-188 cerro con dos
+    #                          puertas, reintroducido por la puerta de atras.
+    # Se descarta cualquier segmento formado SOLO por puntos. «.gitignore» y «.sin-gh» pasan: su
+    # segmento no es solo puntos.
+    _RUTAS_INERTES=$(rutas_inertes)
+    # SOLO LOS ARCHIVOS Y SUS PADRES. Nada de directorios sueltos, y la razon se midio:
+    #
+    # La primera version creaba tambien los directorios —«$WORK/ep024» entre ellos— y proj24()
+    # usa su EXISTENCIA como centinela de «fixture ya construido»: `if [ ! -d "$d" ]`. Al montarlo
+    # el esqueleto, el fixture no se construia nunca y DIECIOCHO casos de secciones ACTIVAS caian
+    # con «No hay REGISTRY.json legible».
+    #
+    # El esqueleto existe para que `perl -pi archivo` y `printf > archivo` no fallen. Para eso
+    # bastan los ARCHIVOS y sus PADRES. Un directorio vacio no aporta nada y si interfiere: crear
+    # menos es aqui la respuesta correcta, no crear mas.
+    local r d
+    for r in $_RUTAS_INERTES; do
+      case "${r##*/}" in
+        *.*) _FILES_INERTES="$_FILES_INERTES $r"
+             d=$(dirname "$r"); [ "$d" = "." ] || _DIRS_INERTES="$_DIRS_INERTES $d" ;;
+      esac
+    done
+  fi
+  # Los directorios PRIMERO: «docs/implementation» y «docs/implementation/HISTORY.log» conviven, y
+  # tocar el archivo antes que su carpeta fallaria. `touch` sobre algo que ya es directorio da error
+  # y se silencia: el directorio manda.
+  mkdir -p $_DIRS_INERTES 2>/dev/null
+  touch $_FILES_INERTES 2>/dev/null || true
+}
+
+# PT-199 · LO QUE NO SE PUEDE DERIVAR SE DICE, NO SE OMITE.
+#
+# El grep de «$WORK/» ve las rutas literales. NO ve las que el andamiaje construye en una variable
+# —`local d="$WORK/p191"; … "$d/a.sh"`—, y esas seguiran sin montarse. Callarlo dejaria el mismo
+# defecto que esta tarea arregla: una corrida limpia que no lo esta.
+#
+# Asi que se CUENTAN y se declaran. No se afirma cobertura total: se afirma que lo que falta se ve.
+inertes_opacas() {   # $1 = archivo a mirar (por defecto, este mismo arnes)
+  grep -oE '"\$[A-Za-z_][A-Za-z0-9_]*/' "${1:-$SUITE/tools/selftest.sh}" \
+    | sed 's|^"\$||; s|/$||' | sort -u \
+    | grep -vxE 'WORK|SUITE|RAIZ|RAIZ_REAL|MIG|VERDIR|TMPDIR|HOME|PWD' || true
+}
+
 build_fixture() {
   # PT-086 · con la seccion inactiva se monta un esqueleto VACIO y barato en vez del fixture.
   # No se devuelve sin mas: el andamiaje que viene detras —perl, cp, printf— opera sobre rutas
   # de $WORK, y sin ellas llenaria la salida de errores sobre archivos que no existen. Con el
   # esqueleto, esas ordenes hacen su trabajo sobre archivos inertes y no dicen nada.
   if [ -n "$ACOTADO" ] && [ -z "$SEC_ACTIVA" ]; then
-    rm -rf "$WORK"; mkdir -p "$WORK/docs/implementation" "$WORK/docs/methodology/tools" "$WORK/changes/PT-001-login"
+    rm -rf "$WORK"; mkdir -p "$WORK"
     cd "$WORK"
-    : > changes/PT-001-login/intake.md
+    esqueleto_inerte
+    # REGISTRY.json no puede quedar VACIO: hay herramientas que lo parsean, y un archivo de cero
+    # bytes las revienta. Va DESPUES de la derivacion, que lo dejo inerte.
     echo '{"allocations":[]}' > docs/implementation/REGISTRY.json
     return 0
   fi
@@ -1160,7 +1288,19 @@ cd "$WORK" 2>/dev/null || true
 
 # ─── H · lotes ───────────────────────────────────────────────────────────────
 sec "── H · lotes ──"
+# PT-203 · EL FIXTURE DEL LOTE NECESITA UN REGISTRO, porque el registro es quien asigna
+# (SUITE-R08). Hasta aqui la pertenencia salia de la TABLA del intake, asi que estos casos
+# funcionaban con un registro que no mencionaba el lote. Al derivarla del registro, EP-001 se
+# quedaba SIN MIEMBROS y las tres comprobaciones pasaban a no medir nada: SUITE-R61 lo llama
+# «hueco» —perdio su premisa y se queda en verde para siempre— y es el patron que la regla
+# persigue precisamente porque no se delata solo.
+_epic_en_registro() {
+  # Se inserta JUSTO detras del id: «[^}]*» entraba en el objeto anidado de «viabilidad» y
+  # dejaba el campo dentro de el. Lo destapo el caso, no la lectura.
+  perl -0pi -e 's/"id":"PT-001"/"id":"PT-001","epic":"EP-001"/' "$WORK/docs/implementation/REGISTRY.json"
+}
 mk_epic() {
+  _epic_en_registro
   mkdir -p "$WORK/changes/EP-001-validacion"
   cat > "$WORK/changes/EP-001-validacion/intake.md" <<'M'
 ---
@@ -1205,6 +1345,7 @@ chk "lote sin solapamiento ⇒ falla"       "INTAKE-R09"  V --all
 # da trazabilidad. La correccion venia del proyecto legado (commit 760f790), y el CHANGELOG de
 # la 4.13.0 la declaraba TRAIDA cuando el codigo nunca la llevo.
 mk_epic_tabla() {
+  _epic_en_registro
   mkdir -p "$WORK/changes/EP-001-validacion"
   cat > "$WORK/changes/EP-001-validacion/intake.md" <<'M'
 ---
@@ -1236,11 +1377,26 @@ M
 }
 
 build_fixture; mk_epic_tabla
-chkno "citar un PT en prosa no lo hace miembro"  "PT-003: pertenece"  V --all
-chkno "ni siquiera al de al lado"                "PT-002: pertenece"  V --all
-chk   "el de la tabla sí exige su firma"         "PT-001: pertenece"  V --all
+# PT-203 · REPUNTADOS A LA FUENTE NUEVA. Los tres decian «PT-NNN: pertenece», que era el texto de
+# cuando la pertenencia salia del intake. Ese mensaje ya no existe: ahora la lista de incumplidores
+# la nombra el propio aviso. Se conservan porque lo que MIDEN —que citar no afilia y que el miembro
+# real si se exige— sigue siendo cierto y sigue siendo lo que importa (SUITE-R61: «superado», el
+# hecho que el caso fijaba cambio por diseno).
+# PT-203 · SE MIRA LA LINEA QUE EXIGE, NO TODA LA SALIDA. El mensaje correcto NOMBRA la cita
+# —«identificador(es) citado(s) que NO son miembros»— asi que un chkno sobre la salida entera
+# fallaria por encontrarla donde debe estar. Lo que se exige es que NO aparezca donde se RECLAMA.
+_r08exige() { V --all 2>&1 | grep -E "INTAKE-R08" | grep -E "no llevan|VIVA" || true; }
+chkno "citar un PT en prosa no lo hace miembro"  "PT-003"  _r08exige
+chkno "ni siquiera al de al lado"                "PT-002"  _r08exige
+# Y NO PASA POR VACIO: sobre el mismo arbol, la linea que reclama EXISTE y nombra al miembro real.
+chkl  "…y la linea que reclama existe y nombra al real"  "PT-001"  _r08exige
+chk   "el de la tabla sí exige su firma"         "PT-001"  _r08exige
 build_fixture; mk_epic
-chk   "sin tabla, respaldo al barrido completo"  "PT-001: pertenece"  V --all
+# Y SIN TABLA TAMBIEN, que antes dependia de un RESPALDO al barrido completo. Ese respaldo existia
+# «para no dejar de comprobar en silencio los intakes escritos antes de que la plantilla tuviera
+# tabla», y NO FUNCIONO: EP-019 tenia filas, asi que nunca entro, y sus diecisiete quedaron sin
+# comprobar igual. Derivar del registro lo hace innecesario — y este caso lo prueba.
+chk   "sin tabla, el registro sigue mandando"    "PT-001"  _r08exige
 # Se filtra en vez de volcar el CHANGELOG entero: el detector de «la herramienta revento» busca
 # rastros de excepcion, y el CHANGELOG NARRA excepciones pasadas —«ReferenceError en cada
 # ejecucion»— asi que volcarlo entero se acusaba a si mismo de haber reventado.
@@ -7236,8 +7392,8 @@ chkno "…sin lanzar un proceso por caso"       'grep -qF'                 sh -c
 # dos veces en esta tarea: la lectura no la ve nunca.
 # PT-086 · la ventana pasa de 14 a 40 lineas: el bloque que avisa de PARCIAL empujo el objetivo
 # fuera. Extraer por POSICION es fragil en las dos direcciones, y aqui toco esta.
-chk   "sin coincidencias, es rojo"            'exit 1'                   sh -c 'tail -40 "$1"' _ "$_st2"
-chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c 'tail -40 "$1"' _ "$_st2"
+chk   "sin coincidencias, es rojo"            'exit 1'                   _informe_final "$_st2"
+chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         _informe_final "$_st2"
 # --solo sin valor: un patron vacio casaria con todo y la bandera mentiria.
 # Se extrae por «>&2» y no por el texto del mensaje: buscar «necesita un patron» habria casado
 # TAMBIEN esta misma linea, y el caso habria pasado aunque el mensaje real desapareciera. Es la
@@ -7245,7 +7401,7 @@ chk   "…y lo dice con el patron"              'NINGUN CASO CASA'         sh -c
 chk   "--solo sin valor es un error"          'necesita un patron'       sh -c 'sed -n "/>&2/p" "$1"' _ "$_st2"
 chk   "…y el valor se consume ANTES del case" '_espera_solo" \]; then SOLO' sh -c 'sed -n "/^for _a in/,/^done/p" "$1"' _ "$_st2"
 # Las dos cifras solo aparecen cuando hay algo que distinguir.
-chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       sh -c 'tail -40 "$1"' _ "$_st2"
+chk   "con --solo la salida lleva dos cifras" 'TOTAL de $UNIVERSO'       _informe_final "$_st2"
 chkno "…y sin --solo, una sola"               'de $UNIVERSO casos'       sh -c 'tail -3 "$1"' _ "$_st2"
 
 # ─── PT-049 · el verde se CUENTA, no se enumera ────────────────────────────
@@ -7283,8 +7439,8 @@ chk   "TOTAL sube antes que la guarda"        'pass() { TOTAL='     sh -c 'sed -
 # definirse, y una de ellas dice «QUIET»: el caso se cazaba a si mismo. Es la cuarta vez en la
 # sesion que aparece esta familia —la asercion que casa su propia definicion— y aqui queda por
 # escrito, porque el patron se repite y la lectura no lo ve.
-chk   "el recuento final existe"              'selftest: OK'        sh -c 'tail -4 "$1"' _ "$_st"
-chkno "…y no mira QUIET"                      'QUIET'               sh -c 'tail -4 "$1"' _ "$_st"
+chk   "el recuento final existe"              'selftest: OK'        _informe_final "$_st"
+chkno "…y no mira QUIET"                      'QUIET'               _informe_final "$_st"
 chk   "-q se FILTRA de los posicionales"      'quiet) QUIET=1'      sh -c 'sed -n "/quiet) QUIET/p" "$1"' _ "$_st"
 chk   "…y WORK sale del posicional filtrado"  'POS:-'               sh -c 'sed -n "/^WORK=/p" "$1"' _ "$_st"
 chkno "…no del primer argumento crudo"        '{1:-'                sh -c 'sed -n "/^WORK=/p" "$1"' _ "$_st"
@@ -8204,8 +8360,17 @@ AU147="$SUITE/tools/audit.mjs"
 # que pasaban PORQUE FIDE FALLABA, y se pusieron en rojo el dia que dejo de fallar. Un caso que
 # solo puede pasar mientras hay un defecto no comprueba nada (RULE-02). audit publica ahora la
 # ANCHURA de la auditoria, que es lo que estos casos siempre quisieron decir.
-chk   "la auditoria de fases cubre los SEIS"      "(6 de 6)" \
-  sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
+# PT-197 · FIJABA «(6 de 6)» —EL NUMERO DE LO CORRECTO— y anadir el septimo componente lo rompio
+# sin que nada estuviera mal. Lo que el caso SIEMPRE quiso decir es que la anchura cubre a TODOS, y
+# eso se dice SIN CIFRA: los dos numeros son iguales. Leccion -18, y SUITE-R61 lo llama «superado».
+_anchura197() {   # imprime TODOS si la auditoria cubre a todos los componentes
+  local l a b
+  l=$(sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1" | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "TODOS ($a)"; else echo "PARCIAL a=$a b=$b"; fi
+}
+chkl  "la auditoria de fases cubre a TODOS"      "TODOS"    _anchura197
 chk   "FIDE entra, con su rango"                  "FIDE 1-5" \
   sh -c "cd '$RAIZ' && node '$AU147' docs/methodology 2>&1"
 chk   "FPGE entra, con su rango"                  "FPGE 1-7" \
@@ -8566,7 +8731,16 @@ chk   "…y dice en cual falta"                         "ausente en" alta168
 # EL FRENO. Sin esto, «fallar siempre» pasaria el caso de arriba y seria PEOR que el defecto: los
 # seis componentes reales se volverian rojos y alguien quitaria la comprobacion entera.
 chkno "los seis reales NO se vuelven huecos"          "FDGE PHASE" alta168
-chk   "…y el arnes lo dice contando"                  "(7 de 7)"   alta168
+# PT-197 · mismo repunte: fijaba «(7 de 7)» —los seis mas el falso— y el septimo componente real
+# lo convirtio en ocho. Lo que mide es que el ANADIDO entre en la cuenta, no cuantos hay.
+_cuenta168() {
+  local l a b
+  l=$(alta168 | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "CUENTA TODOS ($a)"; else echo "PARCIAL a=$a b=$b"; fi
+}
+chkl  "…y el arnes lo dice contando"                  "CUENTA TODOS"   _cuenta168
 # Y sobre el arbol real: sin huecos. La cifra NO bajo —52 antes y despues— porque los seis estaban
 # bien documentados. Lo que cambio no es cuanto se cubre: es que la cobertura PUEDA FALLAR.
 chk   "el arbol real sigue sin huecos"                "sin huecos" \
@@ -8655,7 +8829,10 @@ alta149() {
   cp -r "$SUITE"/. "$Z149/alta/" 2>/dev/null
   # 1 y 2 · el CONTRATO: el componente y su familia de reglas
   perl -0pi -e "s/(    fases: \[1, 5\],\n    en_core: true,\n  \},\n)/\$1  {\n    nombre: 'Zeta', prompts: 'ZETA-Prompts.md', sigla: 'ZT', prefijo: 'ZTA',\n    directorio: 'ZETA', obligatorio: false, triggers: ['[START ZETA]'],\n    fases: [1, 3], en_core: true,\n  },\n/" "$Z149/alta/tools/patrones.mjs"
-  perl -0pi -e "s/(\{ prefijo: 'FIDE'[^\n]*\},)/\$1\n  { prefijo: 'ZTA', documento: 'RULES.md', orden: 11, etiqueta: 'Zeta' },/" "$Z149/alta/tools/patrones.mjs"
+  # PT-197 · el orden 11 lo ocupa DICT desde que el Dictamen es el septimo componente, y dos
+  # familias con el mismo orden hacen que CORE.md dependa del orden de DECLARACION en vez del
+  # declarado — SUITE-R38 lo caza, y tiene razon. El falso pasa al 12, detras del ultimo real.
+  perl -0pi -e "s/(\{ prefijo: 'DICT'[^\n]*\},)/\$1\n  { prefijo: 'ZTA', documento: 'RULES.md', orden: 12, etiqueta: 'Zeta' },/" "$Z149/alta/tools/patrones.mjs"
   # 3 · LEXICON 3 · su tabla de fases. Sin esto el rango es INVENTADO (RULE-06, PT-156).
   perl -0pi -e "s/^### 3\.7 El contrato de componente/### 3.6b Zeta\n\n| PHASE | Nombre |\n|:--|:---|\n| 1 | Uno |\n| 2 | Dos |\n| 3 | Tres |\n\n---\n\n### 3.7 El contrato de componente/m" "$Z149/alta/LEXICON.md"
   # 5 · el archivo de prompts, con sus fases
@@ -8683,7 +8860,16 @@ chk   "verify-suite recoge el prefijo nuevo"          "ZTA" \
 # audit: la ANCHURA, que es lo que discrimina. Las lineas «<comp> PHASE <n>» NO valen: audit las
 # da por cubiertas si el NUMERO aparece en cualquier sitio del documento — es PT-168.
 chk   "audit lo audita, y son siete de siete"         "Zeta 1-3" en149 node tools/audit.mjs .
-chk   "…y lo dice contando, no de pasada"             "(7 de 7)"  en149 node tools/audit.mjs .
+# PT-197 · tercero de la misma forma: fijaba «(7 de 7)» y el septimo componente REAL lo hizo ocho.
+# Lo que mide es que el anadido ENTRE EN LA CUENTA, no cuantos hay.
+_cuenta149() {
+  local l a b
+  l=$(en149 node tools/audit.mjs . | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "CUENTA TODOS ($a)"; else echo "PARCIAL a=$a b=$b"; fi
+}
+chkl  "…y lo dice contando, no de pasada"             "CUENTA TODOS"  _cuenta149
 chk   "verify-patrones admite un septimo componente"  "Todos los patrones cumplen" \
   en149 node tools/verify-patrones.mjs
 
@@ -8974,10 +9160,20 @@ chkno "con intake NO se queja de FDGE-R01"         "PHASE 1 no puede darse por t
 # CORE.md es lo unico que el agente carga (SUITE-R15).
 mlib  "CORE publica el rango que declara el contrato" "COINCIDEN" "$SUITE/tools/patrones.mjs"   "const {join,dirname}=require('path');
    const core=require('fs').readFileSync(join(dirname(process.env.MTH_MOD),'..','CORE.md'),'utf8');
-   const falta=['FND','FDGE','QA','PTSA','FPGE','FIDE'].filter((c)=>!core.includes(c)||!m.fasesDe(c));
-   console.log(falta.length ? 'FALTAN '+falta.join(' ') : 'COINCIDEN los seis');"
-chk   "…y los SEIS componentes estan en el mapa"   "6 de 6" \
-  node "$SUITE/tools/audit.mjs"
+   // PT-197 · la lista se DERIVA de COMPONENTES en vez de enumerarse: escrita a mano, anadir el
+   // septimo la dejaba comprobando seis y callando el que faltaba — el hueco que no se delata.
+   const falta=m.COMPONENTES.map((c)=>c.sigla).filter((c)=>!core.includes(c)||!m.fasesDe(c));
+   console.log(falta.length ? 'FALTAN '+falta.join(' ') : 'COINCIDEN todos');"
+# PT-197 · cuarto de la misma forma: fijaba «6 de 6» y el septimo componente lo hizo siete. Lo que
+# mide es que TODOS esten en el mapa, no cuantos son.
+_mapa197() {
+  local l a b
+  l=$(node "$SUITE/tools/audit.mjs" 2>&1 | grep "Fases auditadas")
+  a=$(printf '%s' "$l" | sed -n 's/.*(\([0-9]*\) de [0-9]*).*/\1/p')
+  b=$(printf '%s' "$l" | sed -n 's/.*([0-9]* de \([0-9]*\)).*/\1/p')
+  if [ -n "$a" ] && [ "$a" = "$b" ]; then echo "TODOS EN EL MAPA ($a)"; else echo "FALTAN a=$a b=$b"; fi
+}
+chkl  "…y TODOS los componentes estan en el mapa"  "TODOS EN EL MAPA"  _mapa197
 
 # ── PT-166 · la grafia prohibida esta en la lista de prohibidas ─────────────
 #
@@ -9269,8 +9465,17 @@ chk   "ningun subshell abre con un cd que no corta"  "^0$" \
 #
 # Lo que importa es que NO HAYA NINGUNO SIN PROTEGER —eso lo comprueba el caso de arriba— y que
 # los que hay sean AL MENOS los cinco que se arreglaron.
-chk   "y los que hay cortan al fallar"               "^[5-9][0-9]*$" \
-  bash -c 'grep -cE "^[[:space:]]*\([[:space:]]*cd .[$][A-Za-z_][A-Za-z0-9_]*. \|\|" "$0/tools/selftest.sh" || true' "$SUITE"
+#
+# PT-199 · Y EL ARREGLO ANTERIOR TAMPOCO EXPRESABA «AL MENOS CINCO». «^[5-9][0-9]*$» acepta 5 a 9,
+# 50 a 99 y 500 en adelante — y RECHAZA 10 a 49. Al anadir esta tarea un fixture mas con la forma
+# protegida la cuenta llego a 10 y el caso se puso rojo, castigando otra vez la mejora. Es la misma
+# familia por TERCERA vez en el mismo caso, y la causa es que el PATRON hacia de comparador.
+#
+# Ahora compara el COMANDO y el patron solo lee su veredicto: fija el cero de lo prohibido —menos
+# de cinco— sin fijar ningun numero correcto. La cuenta se imprime para que se vea crecer.
+chk   "y los que hay cortan al fallar"               "AL MENOS 5" \
+  bash -c 'n=$(grep -cE "^[[:space:]]*\([[:space:]]*cd .[$][A-Za-z_][A-Za-z0-9_]*. \|\|" "$0/tools/selftest.sh" || true);
+           [ "${n:-0}" -ge 5 ] && echo "AL MENOS 5 · hay $n" || echo "SOLO $n"' "$SUITE"
 # AC-01 · el corte, ejecutado: nada de lo que sigue al cd se ejecuta.
 chk   "un cd que falla NO ejecuta lo que sigue"      "FIXTURE SIN TERRENO" \
   bash -c 'W=/ruta/que/no/existe; ( cd "$W" || { echo "FIXTURE SIN TERRENO"; exit 90; }; echo NO_DEBERIA ) 2>/dev/null'
@@ -9342,8 +9547,30 @@ chkno "…y ahi NO se excusa por estar hecho"        "YA ESTA HECHO"       _v189
 # MEDIDO EJECUTANDO: 46 de 46 secciones pasan solas, y la suma de sus casos IGUALA la corrida
 # completa. El numero correcto era CERO.
 _sec173() { bash "$SUITE/tools/selftest.sh" --seccion "$1" -q 2>&1 | grep "selftest:" | tail -1; }
-chk   "--seccion corre UNA sola seccion"           "OK · 8 casos"        _sec173 "H · lotes"
-chk   "…y otra distinta da su propia cuenta"       "OK · 5 casos"        _sec173 "A · casos"
+# PT-203 · ESTOS DOS FIJABAN «OK · 8 casos» Y «OK · 5 casos» — EL NUMERO DE LO CORRECTO.
+#
+# Cualquier caso nuevo en esas secciones los rompia, y hoy volvio a pasar: anadir un caso a
+# «H · lotes» los puso en rojo sin que nada estuviera mal. Es la leccion -18 del HANDOFF —un caso
+# puede fijar el CERO de lo prohibido, nunca el NUMERO de lo correcto— y es su SEXTA aparicion.
+#
+# Lo que quieren probar es que --seccion ACOTA, y eso se prueba sin fijar cifra: dos secciones
+# distintas dan cuentas distintas, las dos no vacias y las dos en verde. Si --seccion no acotara,
+# las dos darian la MISMA cuenta —la de la bateria entera— y esto lo dice.
+# UN SOLO CASO, y no por pereza: cada sub-corrida es una SECCION ENTERA. Partirlo en tres
+# aserciones costaria cinco sub-corridas donde bastan dos, y el arnes ya se mide en minutos.
+# El veredicto dice CUAL de las cuatro condiciones fallo, que es lo que un caso partido daria.
+_sec173acota() {
+  local la lb a b
+  la=$(_sec173 "H · lotes"); lb=$(_sec173 "A · casos")
+  a=$(printf '%s' "$la" | grep -oE '[0-9]+' | head -1)
+  b=$(printf '%s' "$lb" | grep -oE '[0-9]+' | head -1)
+  if [ -z "$a" ] || [ -z "$b" ]; then echo "NO ACOTA: alguna seccion no dio cuenta ($la / $lb)"; return; fi
+  if [ "$a" -le 0 ] || [ "$b" -le 0 ]; then echo "NO ACOTA: cuenta vacia ($la / $lb)"; return; fi
+  if [ "$a" = "$b" ]; then echo "NO ACOTA: las dos dan $a, que es lo que pasaria SIN acotar"; return; fi
+  case "$la$lb" in *"HAY FALLOS"*) echo "ACOTA pero alguna termino en ROJO ($la / $lb)"; return;; esac
+  echo "ACOTA y las dos en verde"
+}
+chkl  "--seccion corre UNA sola seccion, y en verde"  "ACOTA y las dos en verde"  _sec173acota
 # EL SILENCIO NO ES EXITO. Un patron que no casa ninguna seccion es ROJO: sin esto, un nombre mal
 # escrito daria «todo bien» sobre cero casos — que es lo que PT-023 encontro ejecutando.
 chk   "un patron que no casa NINGUNA es rojo"      "NINGUNA SECCION casa" \
@@ -9598,6 +9825,1025 @@ _rec191ok() { # planta un recibo VALIDO · imprime la salida entera del sellador
 }
 chkno "…y un recibo VALIDO si sella"                  "NO SE SELLA"           _rec191ok
 
+sec "── EP-026 · lo que da verde sin mirar ──"
+
+# ── PT-199 · el esqueleto de las secciones saltadas se DERIVA del arnes ───
+#
+# PT-086 lo monto para que el andamiaje de las secciones saltadas —perl, cp, printf, que viven
+# FUERA de `chk` y se ejecutan igual— operara sobre archivos inertes «y no dijera nada». Su lista
+# tenia DOS rutas y el arnes toca CIENTO SETENTA Y CUATRO: 1% de cobertura, y 33 lineas de
+# «Can't open» por corrida acotada, en verde. Un verde que escupe errores entrena a no leerlos.
+_esq199() {  # $1 = ruta relativa que el andamiaje toca · dice si el esqueleto la monto
+  local d="$WORK/p199"; rm -rf "$d"; mkdir -p "$d"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    esqueleto_inerte
+    [ -e "$1" ] && echo "MONTADA: $1" || echo "FALTA: $1" )
+}
+# LAS DOS QUE FALLABAN DE VERDAD, no un ejemplo inventado: son las que aparecian en la salida.
+chk   "el esqueleto monta lo que el andamiaje toca"  "MONTADA"  _esq199 docs/implementation/HISTORY.log
+chk   "…y tambien la del otro fixture"               "MONTADA"  _esq199 changes/PT-002-pool/discovery.md
+# Y NO SE ENUMERAN: la lista sale del propio arnes, asi que una ruta que nadie escribio a mano
+# tambien esta. HANDOFF.md nunca estuvo en ninguna lista del esqueleto.
+chk   "…y una que ninguna lista menciono"            "MONTADA"  _esq199 docs/implementation/HANDOFF.md
+# LO QUE NO SE PUEDE DERIVAR SE DICE, Y ESTE ES AC-02.
+#
+# El grep ve «$WORK/...» literal. NO ve `local d="$WORK/p199"; … "$d/a.sh"`, y esas rutas seguiran
+# sin montarse. Callarlo dejaria el mismo defecto que esta tarea arregla: una corrida limpia que no
+# lo esta. Se prueba sobre un arnes FALSO, no sobre el real: fijar los nombres del real seria fijar
+# el numero de lo correcto (HANDOFF -18), y cambiarian con cada tarea.
+_op199() {
+  local d="$WORK/p199op"; rm -rf "$d"; mkdir -p "$d"
+  printf '%s\n' 'z="$WORK/x"; cp "$WORK/a" "$INVENTADA/b"' > "$d/falso.sh"
+  inertes_opacas "$d/falso.sh"
+}
+chk   "…y nombra la raiz que NO puede derivar"       "INVENTADA"  _op199
+# LA DERIVACION NECESITA SU PROPIA GUARDA DE TERRENO, y esto lo fija. Sin ella el grep capturaba
+# «$WORK/...» de una ELIPSIS —creaba un archivo llamado «...» y reventaba «git add -A»— y seis
+# «$WORK/../algo», que habrian escrito en el directorio PADRE: el defecto exacto que PT-188 cerro.
+_guarda199() {
+  local d="$WORK/p199g"; rm -rf "$d"; mkdir -p "$d"
+  printf '%s\n' 'a="$WORK/../fuera"; b="$WORK/..."; c="$WORK/.gitignore"' > "$d/falso.sh"
+  rutas_inertes "$d/falso.sh"
+}
+chkno "…y NUNCA una ruta que salga de WORK"          "\\.\\."     _guarda199
+chk   "…pero si conserva los dotfiles legitimos"     ".gitignore"  _guarda199
+# Y NO MONTA DIRECTORIOS SUELTOS. Cuando los montaba, «$WORK/ep024» aparecia creado y proj24() usa
+# su EXISTENCIA como centinela de «fixture ya construido»: no lo construia nunca y DIECIOCHO casos
+# de secciones ACTIVAS caian con «No hay REGISTRY.json legible». Existir no es estar construido —
+# la misma leccion que obligo a usar «-s» y no «-f» tres casos mas abajo.
+chk   "…y NO monta directorios sueltos"              "NO ESTA"    bash -c 'd="$1/p199d"; rm -rf "$d"; mkdir -p "$d"; ( cd "$d" && esqueleto_inerte; [ -d ep024 ] && echo "CREADO" || echo "NO ESTA" )' _ "$WORK"
+chkno "…y no nombra WORK, que si deriva"             "WORK"       _op199
+# LA SECCION ACTIVA NO CAMBIA: sin esto, un esqueleto que se montara siempre dejaria la bateria
+# entera corriendo sobre arboles vacios Y EN VERDE, que es el peor fallo posible aqui.
+_act199() {  # $1 = valor de SEC_ACTIVA · dice si monto el fixture COMPLETO o el esqueleto
+  ( WORK="$WORK/p199act"; ACOTADO=1; SEC_ACTIVA="$1"
+    build_fixture >/dev/null 2>&1
+    # -s y no -f: el esqueleto TAMBIEN monta esta ruta —esta entre las que el arnes nombra— pero
+    # la deja VACIA. Lo que distingue al fixture completo es que escribe contenido.
+    [ -s docs/enterprise-documentation/11-Conventions.md ] && echo "COMPLETO" || echo "SOLO ESQUELETO" )
+}
+chk   "una seccion ACTIVA monta el fixture completo"  "COMPLETO"        _act199 1
+chk   "…y una saltada monta solo el esqueleto"        "SOLO ESQUELETO"  _act199 ""
+
+# ── PT-201 · hay comprobaciones que NO pueden correr en local, y se dice ──
+#
+# TRES veces en el cierre de EP-025 el «npm run verify» local dio verde y la CI fallo, y las tres la
+# CI tenia razon. No corren comandos distintos —SUITE-R62 contrasta las dos listas en los dos
+# sentidos— es que SUITE-R34 compara marcas de COMMIT y SUITE-R51 exige un ref DURABLE que no existe
+# hasta el push. El hecho medido NACE al commitear o al publicar, y el verde local no lo predice.
+_r34() {  # $1 = "sucio" para dejar un cambio sin commitear · imprime la linea de SUITE-R34
+  local d="$WORK/p201"; rm -rf "$d"; mkdir -p "$d"
+  cp -r "$SUITE" "$d/metodologia" 2>/dev/null
+  mkdir -p "$d/docs/implementation" "$d/changes"
+  cp "$RAIZ/docs/implementation/HANDOFF.md" "$d/docs/implementation/" 2>/dev/null
+  cp "$RAIZ/docs/implementation/REGISTRY.json" "$d/docs/implementation/" 2>/dev/null
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q . 2>/dev/null
+    git -c user.name=t -c user.email=t@t add -A >/dev/null 2>&1
+    git -c user.name=t -c user.email=t@t commit -qm base >/dev/null 2>&1
+    # el ARBOL LIMPIO no debe decir nada; el SUCIO si.
+    [ "$1" = "sucio" ] && echo "cambio sin commitear" >> docs/implementation/HANDOFF.md
+    node "$SUITE/tools/verify-fdge.mjs" "$d" 2>&1 | sed -n '/SUITE-R34/p' | head -1 )
+}
+# AC-02 · SOBRE UN ARBOL SUCIO SE DICE DESDE DONDE SE MIRA.
+chk   "sobre un arbol SUCIO se dice desde donde se mira"  "MEDIDO SOBRE LO COMMITEADO"  _r34 sucio
+# Y ESTE ES EL QUE IMPIDE QUE SEA RUIDO: un aviso que aparece SIEMPRE no informa de nada, y seria
+# la misma averia con otra forma. Es el argumento de SECRETOS-EXCEPCIONES.md: una compuerta siempre
+# roja ensena a saltarsela.
+chkno "…y sobre uno LIMPIO no se dice nada"               "MEDIDO SOBRE LO COMMITEADO"  _r34 limpio
+# AC-01 y AC-03 · LA REGLA LO DECLARA, y no solo la herramienta. Una conducta que solo vive en el
+# codigo no la puede consultar quien lee el marco (LEX-R22).
+chk   "SUITE-R62 dice donde deja de valer"           "en local todavía no existen" \
+  node "$SUITE/tools/regla.mjs" SUITE-R62
+chk   "…y nombra las dos que lo sufren"              "SUITE-R51" \
+  node "$SUITE/tools/regla.mjs" SUITE-R62
+
+# ── PT-179 · la evidencia que falta deja de AVISAR cuando ya tocaba ───────
+#
+# verify-fdge daba CERO ERRORES a una tarea en PHASE 7 sin evidencia, diciendo «normal antes de
+# PHASE 6». El mensaje describia una situacion que no era la suya y el dato para saberlo —la fase
+# declarada— estaba a diez lineas. La prueba de que no es teorico esta en el SESSION_LOG del lote
+# que lo descubrio: TRES errores de evidencia pasaron en verde antes de corregirse.
+#
+# `exigible()` ya existia y ya tenia las tres salidas de RULE-02. FDGE-R42 y FDGE-R15 lo usaban;
+# FDGE-R23, R25 y R29 no. El arreglo es USARLO, no escribir otro.
+_ev179() {  # $1 = fase declarada (vacio = ninguna) · imprime lo que dicen las tres reglas
+  local d="$WORK/p179"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-900-x" "$d/changes/EP-900-lote"
+  cp -r "$SUITE" "$d/docs/methodology"
+  { printf -- '---\nid: PT-900\ntype: BUG\nstatus: %s\n' "${2:-READY}"
+    [ -n "$1" ] && printf 'phase: %s\n' "$1"
+    printf -- 'epic: EP-900\n---\n\n## Firma\nFirmado por lote: EP-900\n'
+    printf 'He leido este Intake y confirmo que refleja mi intencion: SI\n\n> Termina cuando: da igual\n'
+  } > "$d/changes/PT-900-x/intake.md"
+  printf -- '---\nid: EP-900\nstatus: READY\n---\n\n## Cierre del lote\n\n| Que | Estado |\n|:--|:--|\n| nada | HECHO |\n' > "$d/changes/EP-900-lote/intake.md"
+  { printf '{"firmantes":["Alberto Martinez"],"counters":{"PT":900},"allocations":['
+    printf '{"id":"EP-900","slug":"lote","status":"READY","phase":1},'
+    printf '{"id":"PT-900","slug":"x","type":"BUG","severity":"S2","epic":"EP-900","status":"%s"' "${2:-READY}"
+    [ -n "$1" ] && printf ',"phase":%s' "$1"
+    printf ',"suite_version":"13.4.0","branch":"fix/t/PT-900-x"'
+    printf ',"origen_parada":{"de":"PT-899","motivo":"hallazgo","fecha":"2026-08-28"}'
+    printf ',"viabilidad":{"veredicto":"SAFE"}}]}'
+  } > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" PT-900 2>&1 | sed -n '/FDGE-R23/p' | head -1 )
+}
+# LAS TRES SALIDAS DE RULE-02, y las tres importan.
+# 1 · toca y falta -> ERROR. Es el defecto: antes decia «normal antes de PHASE 6» y daba 0 errores.
+chk   "evidencia que falta en PHASE 7 BLOQUEA"       "✗ FDGE-R23"   _ev179 7 VALIDATION_PENDING
+# 2 · aun no toca -> AVISO, y nombra LA FASE REAL. Sin esto, convertirlo en error pondria en rojo
+#     a todo PT recien abierto: una compuerta roja sobre conducta correcta ensena a saltarsela.
+chk   "…y en PHASE 4 solo avisa, diciendo la fase"   "el PT está en PHASE 4"  _ev179 4
+# 3 · no se sabe la fase -> NO SE EVALUA, que no es un aprobado (RULE-06).
+chkno "…y sin fase declarada NO se convierte en error" "✗ FDGE-R23"  _ev179 ""
+
+# ── PT-181 · la expectativa de un caso se comparaba SIEMPRE como regex ────
+#
+# «chk» usa «grep -q», que es BRE: el punto casa cualquier caracter y no habia forma de decir
+# «esto es texto». 96 expectativas llevan un punto entre alfanumericos y NINGUN metacaracter a
+# proposito —«regla.mjs», «instrucctions.md», «4.0.1»— asi que casan de mas sin que nadie lo
+# pretendiera. Un caso que casa de mas puede pasar POR LA RAZON EQUIVOCADA.
+_lit181() { echo "el archivo reglaXmjs no existe"; }
+# AC-01 y AC-02 · LAS DOS MITADES, y las dos hacen falta.
+# 1 · el literal NO casa el comodin. Solo esto lo cumple un chkl roto que no case NUNCA.
+chknol "un punto literal NO casa otro caracter"      "regla.mjs"   _lit181
+# 2 · …y chk, con la MISMA expectativa, SI lo casa. Esta es la que prueba que chkl hace algo.
+chk   "…mientras que chk SI lo casa, y por eso hacia falta"  "regla.mjs"   _lit181
+# Y el literal casa lo que SI esta, que es la otra direccion.
+chkl  "…y chkl casa el texto literal cuando esta"    "reglaXmjs"   _lit181
+# AC-03 · LAS QUE SON REGEX A PROPOSITO SIGUEN SIENDO REGEX. Sin esto, arreglarlo invirtiendo el
+# defecto —chk literal por defecto— rompería 215 casos de golpe y el arnes no lo diria.
+chk   "chk sigue interpretando la regex"             "^el archivo"  _lit181
+# LA CIFRA SE DECLARA, y se prueba sobre un arnes FALSO: fijar la del real seria fijar el numero
+# de lo correcto (HANDOFF -18) y cambiaria con cada tarea que anada un caso.
+_amb181() {
+  local d="$WORK/p181"; rm -rf "$d"; mkdir -p "$d"
+  { printf 'chk   "uno"  "regla.mjs"\n'      # ambigua: punto entre alfanumericos
+    printf 'chk   "dos"  "^phase:"\n'        # regex a proposito: NO cuenta
+    printf 'chk   "tres" "sin punto"\n'      # sin punto: NO cuenta
+  } > "$d/falso.sh"
+  expectativas_ambiguas "$d/falso.sh"
+}
+chkl  "…y la cifra de ambiguas se declara"           "1"  _amb181
+
+# ── PT-192 · el final del arnes deja de medirse por POSICION ──────────────
+#
+# CUATRO casos median este bloque con «tail -40» y «tail -4», y eso castiga cualquier anadido al
+# final aunque nada de lo que miden cambie. Paso TRES veces: PT-086 amplio la ventana de 14 a 40,
+# PT-191 metio 21 lineas y puso dos casos en rojo, y PT-199 tuvo que colocar su codigo antes del
+# informe por lo mismo. Ampliar la ventana otra vez solo moveria el dia en que vuelve a pasar.
+_arnes192() {  # $1 = lineas de relleno DESPUES del bloque · devuelve la ruta del arnes falso
+  local d="$WORK/p192" i; rm -rf "$d"; mkdir -p "$d"
+  { printf '# cabecera del arnes falso\n'
+    printf 'chk "un caso" "patron" comando\n'
+    printf '# cauce:info%s\n' 'rme-final'
+    printf 'echo "selftest: OK · N casos"\n'
+    printf 'exit 1\n'
+    if [ "${1:-0}" -gt 0 ]; then i=0; while [ "$i" -lt "$1" ]; do printf '# relleno\n'; i=$((i+1)); done; fi
+  } > "$d/falso.sh"
+  printf '%s' "$d/falso.sh"
+}
+# NOTA: estas envolturas existen porque `chk` invoca el comando DIRECTAMENTE, y un `sh -c` no ve
+# las funciones de este arnes. Escrito con `sh -c`, el comando fallaba con «command not found» y
+# el `chkno` PASABA por el motivo equivocado: sin salida, nada casa. Es la familia de PT-181.
+_ancla192()  { _informe_final "$(_arnes192 "${1:-0}")"; }
+_tail192()   { tail -40 "$(_arnes192 "${1:-50}")"; }
+_marca192()  { _informe_final "$(_arnes192 0)" | head -1; }
+_marcareal() { _informe_final | head -1; }
+# AC-02 · ANADIR LINEAS AL FINAL NO ROMPE LA EXTRACCION. 50 es holgadamente mas que las 21 que
+# PT-191 anadio y rompieron dos casos.
+chkl  "anadir lineas al final NO rompe la extraccion"  "selftest: OK"  _ancla192 50
+# Y SU PAREJA, que es la que prueba que el arreglo HACIA FALTA: con tail -40, el MISMO arnes falso
+# con las mismas 50 lineas, YA NO encuentra el recuento. Sin ella, AC-02 lo cumpliria cualquier
+# extraccion que funcione. Se comprueba ADEMAS que tail -40 SI devuelve algo, para que el caso no
+# pase por vacio.
+chknol "…y con tail -40 SI la rompia"                  "selftest: OK"  _tail192 50
+chkl  "…y no pasa por vacio: tail -40 devuelve relleno" "# relleno"    _tail192 50
+# AC-03 · EL ANCLA NO CASA LA LINEA QUE LA BUSCA. El intento anterior de anclar por texto
+# «arrancaba en ESTA MISMA LINEA y se tragaba medio archivo». El patron va PARTIDO.
+chkl  "el ancla no casa la linea que la busca"         "# cauce:informe-final"  _marca192
+chkl  "…y sobre el arnes real empieza en la marca"     "# cauce:informe-final"  _marcareal
+
+# ── PT-200 · verify-fdge acota lo TERMINAL con un sello ───────────────────
+#
+# «--all» recorria 197 de 203 PT en cada corrida, y 183 estaban INTEGRATED: codigo en main e issue
+# cerrado. Vivos de verdad: CATORCE. Entre 9 y 14 minutos, en cada push. La bateria acota desde
+# EP-025 y esta mitad se quedo fuera — «si se sello la prueba, el artefacto tambien».
+#
+# NO basta con tratar INTEGRATED como terminal: sus artefactos siguen en el arbol y saltarlos sin
+# mirar dejaria la compuerta CIEGA para el 93% del repositorio. Se aplica el mecanismo de PT-191:
+# sello con huella, veredicto guardado, y sellar como DECISION.
+_terreno200() {  # monta un proyecto sintetico VERDE con un PT terminal · $1=status $2=phase
+  local d="$WORK/p200"; rm -rf "$d"
+  mkdir -p "$d/docs/implementation/evidence/PT-800" "$d/changes/PT-800-x" "$d/changes/EP-800-l" \
+           "$d/docs/enterprise-documentation"
+  cp -r "$SUITE" "$d/docs/methodology"
+  local f; for f in 02-PRD 03-TRD 06-Backend-Architecture; do echo "# $f" > "$d/docs/enterprise-documentation/$f.md"; done
+  printf '# Conventions\n\nRULE-01 a\nRULE-02 b\nRULE-03 c\n' > "$d/docs/enterprise-documentation/11-Conventions.md"
+  printf -- '---\nid: EP-800\nstatus: READY\n---\n\n## 1. Objetivo común\nx\n\n## 2. Criterio de éxito del lote\nx\n\n## 3. Qué NO entra en el lote   OUT\nx\n\n## 4. Firma única\nFirmado por: Alberto Martinez\nHe leido este Intake y confirmo que refleja mi intencion: SI\n\n## 6. Análisis de solapamiento\nNinguno.\n\n## Cierre del lote\n\n| Que | Estado |\n|:--|:--|\n| nada | HECHO |\n' > "$d/changes/EP-800-l/intake.md"
+  printf -- '---\nid: PT-800\ntype: CHORE\nstatus: %s\nphase: %s\nepic: EP-800\n---\n\n## Criterios de aceptación\n\n| | Criterio | Escenario |\n|:--|:--|:--|\n| AC-01 | x | TS-01 |\n\n## Firma\nFirmado por lote: EP-800\nHe leido este Intake y confirmo que refleja mi intencion: SI\n\n> Termina cuando: da igual\n' "${1:-INTEGRATED}" "${2:-9}" > "$d/changes/PT-800-x/intake.md"
+  printf '# PT-800 traceability\n\n| AC | Criterio | TS | Test | Evidencia | Caso QA | Estado |\n|:--|:--|:--|:--|:--|:--|:--|\n| AC-01 | x | TS-01 | t | evidence/PT-800/manifest.json | no aplica | ✓ |\n' > "$d/changes/PT-800-x/traceability.md"
+  printf '{"pt":"PT-800","criteria":[{"ac":"AC-01","statement":"x","scenarios":["TS-01"],"tests":["t"],"evidence":["manifest.json"],"verified":true}]}' > "$d/docs/implementation/evidence/PT-800/manifest.json"
+  printf '# self-review\nSin bloqueadores.\n' > "$d/docs/implementation/evidence/PT-800/self-review.md"
+  # FDGE-R52 pide una nota de reanclaje por transicion: un PT VIVO las necesita, uno INTEGRATED
+  # no. El formato es «AAAA-MM-DD · PHASE n» (verify-fdge.mjs:150). Se pone siempre: no estorba.
+  { echo '# PT-800 · bitacora'
+    for i in 1 2 3 4 5 6 7 8 9; do
+      printf '\n2026-08-29 · PHASE %s\nCierro: x\nEstoy en: PHASE %s\nSigue: PHASE %s\n' "$i" "$i" "$((i+1))"
+    done
+  } > "$d/changes/PT-800-x/bitacora.md"
+  printf '## PT-800 — CHORE: x\nFecha: 2026-08-29\nEstado: %s\nEstructural: no\nCompuertas: G3 2026-08-29 Alberto Martinez\n' "${1:-INTEGRATED}" > "$d/docs/implementation/HISTORY.log"
+  printf '# REFACTOR_SCOPE\n\n| ID | Tipo | Sev | Estado | Lote | Título |\n|:--|:--|:--|:--|:--|:--|\n| PT-800 | CHORE | S3 | %s | EP-800 | x |\n' "${1:-INTEGRATED}" > "$d/docs/implementation/REFACTOR_SCOPE.md"
+  # PT-197 · LA VERSION SE DERIVA DEL CHANGELOG, no se escribe. Estaba fijada a «13.4.0» y al
+  # subir a 13.5.0 verify-fdge fallaba ANTES de imprimir el recuento, asi que los cinco casos de
+  # PT-200 salian con la salida VACIA — no median el sellado: median la version. Es CE-010, la
+  # cifra transcrita que caduca, dentro del arnes que existe para cazarla.
+  local V200; V200=$(grep -oE '^## [0-9]+[.][0-9]+[.][0-9]+' "$SUITE/CHANGELOG.md" | head -1 | grep -oE '[0-9]+[.][0-9]+[.][0-9]+')
+  { printf '{"firmantes":["Alberto Martinez"],"suite_version":"%s","counters":{"PT":800},"allocations":[' "$V200"
+    printf '{"id":"EP-800","slug":"l","status":"READY","phase":1},'
+    printf '{"id":"PT-800","slug":"x","type":"CHORE","severity":"S3","epic":"EP-800","status":"%s","phase":%s' "${1:-INTEGRATED}" "${2:-9}"
+    printf ',"suite_version":"%s","branch":"chore/t/PT-800-x"' "$V200"
+    printf ',"origen_parada":{"de":"PT-799","motivo":"hallazgo","fecha":"2026-08-29"}'
+    printf ',"viabilidad":{"veredicto":"SAFE"}}]}'
+  } > "$d/docs/implementation/REGISTRY.json"
+  printf '%s' "$d"
+}
+_p200() {  # $1 = que se toca antes de re-verificar · imprime la linea del recuento
+  local d; d="$(_terreno200 "${2:-INTEGRATED}" "${3:-9}")"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --all --sellar >/dev/null 2>&1
+    case "$1" in
+      artefacto)   printf 'tocado\n' >> changes/PT-800-x/intake.md ;;
+      verificador) printf '\n// tocado por el caso\n' >> docs/methodology/tools/verify-fdge.mjs ;;
+      sinsello)    rm -f docs/implementation/SELLOS-PT.json ;;
+    esac
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --all 2>&1 | sed -n '/PTs verificados/p' | tail -1 )
+}
+# AC-01 · UN PT TERMINAL Y SELLADO NO SE RE-VERIFICA.
+chkl  "un PT sellado y sin cambios NO se re-verifica"  "PTs verificados: 0"  _p200 nada
+# AC-02 · Y SI CAMBIA LO QUE SU SELLO CUBRE, VUELVE ENTERO. Sin esto, AC-01 lo cumple un
+# verify-fdge que ignore todo lo INTEGRATED sin mirar: la compuerta ciega para el 93% del arbol.
+chkl  "…y si su artefacto cambia, vuelve"              "PTs verificados: 1"  _p200 artefacto
+# LA HUELLA DEL VERIFICADOR ES LA PIEZA QUE PT-191 DEMOSTRO IMPRESCINDIBLE, y la mas facil de
+# olvidar: un cambio en las reglas cambia el veredicto SIN tocar el artefacto.
+chkl  "…y si cambia el VERIFICADOR, tambien"           "PTs verificados: 1"  _p200 verificador
+# AC-04 · SIN SELLOS SE VERIFICAN TODOS. El silencio no acota — la leccion de bloques-sellados.
+chkl  "sin sellos se verifican TODOS"                  "PTs verificados: 1"  _p200 sinsello
+# AC-03 · UN PT VIVO SE VERIFICA SIEMPRE, tenga sello o no. Sellar lo vivo seria apagar la
+# compuerta justo donde hace falta.
+chkl  "un PT vivo se verifica aunque tenga sello"      "PTs verificados: 1"  _p200 nada DONE 8
+# AC-01 · SELLAR ES UNA DECISION: sin --sellar no se escribe sello, y por tanto no se acota nada.
+_p200sin() {
+  local d; d="$(_terreno200)"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --all >/dev/null 2>&1
+    [ -f docs/implementation/SELLOS-PT.json ] && echo "SELLADO SIN PEDIRLO" || echo "NO SE SELLO" )
+}
+chkl  "sellar es una decision: sin --sellar no se escribe" "NO SE SELLO"  _p200sin
+
+# ── PT-196 · lo posterior a G4 tiene dueno ────────────────────────────────
+#
+# PHASE 9 TERMINA EN EL MERGE, y los seis actos que vienen despues —integrar, mergear otra vez,
+# cerrar, sellar el lote, proyectar, el tag— estaban escritos como PROSA dentro de ella. Ninguna
+# fase los poseia y se ejecutaban de memoria. Medido al cerrar EP-025: SUITE-R45 exigia resolver
+# «el tag y la publicacion» EN G4, y SUITE-R06a prohibe el tag ANTES del merge. G4 ES el merge:
+# no habia respuesta correcta.
+_r45() {  # $1 = el estado de la fila · imprime lo que SUITE-R45 dice en G4
+  local d="$WORK/p196"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/EP-700-l"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: EP-700\nstatus: READY\n---\n\n## Cierre del lote\n\n| Que se resuelve al cerrar | Estado |\n|:--|:--|\n| El tag | %s |\n' "$1" > "$d/changes/EP-700-l/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"EP":700},"allocations":[{"id":"EP-700","slug":"l","status":"READY","phase":1}]}' > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" --gate G4 EP-700 2>&1 | sed -n '/SUITE-R45/p' | head -1 )
+}
+# AC-02 · UNA FILA POSTERIOR NO BLOQUEA G4, y NO desaparece: se sigue nombrando.
+chkl  "una fila TRAS EL MERGE no bloquea G4"          "se resuelve(n) TRAS EL MERGE"  _r45 "TRAS EL MERGE"
+# Y SU PAREJA: sin ella, AC-02 lo cumple un SUITE-R45 que no exija NADA.
+chkl  "…y una PENDIENTE si bloquea"                   "sin resolver"    _r45 "PENDIENTE"
+# …y una HECHA sigue resolviendo, que es la conducta que ya habia.
+chkl  "…y una HECHO sigue resolviendo"                "declarado y resuelto"  _r45 "HECHO"
+# AC-01 · «siguiente» de un LOTE contesta el CIERRE, no la fase de su intake. Las fases son del
+# PT; el viaje de vuelta es del lote, y ahi esta su dueno.
+_sig196() {
+  local d="$WORK/p196s"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/EP-700-l"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: EP-700\nstatus: READY\n---\n\n## Cierre del lote\n\n| Que | Estado |\n|:--|:--|\n| nada | HECHO |\n' > "$d/changes/EP-700-l/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"EP-700","slug":"l","status":"READY","phase":1},{"id":"PT-700","slug":"x","type":"CHORE","epic":"EP-700","status":"DONE","phase":8}]}' > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" siguiente EP-700 "$d" 2>&1 )
+}
+chkl  "siguiente de un lote listo dice que toca en el cierre"  "cierre del lote"  _sig196
+# Y DICE EL SEGUNDO MERGE, que es lo que se descubria chocando.
+chkl  "…y declara el SEGUNDO merge, con su motivo"    "SEGUNDO merge"   _sig196
+# AC-03 · Y esta escrito DONDE SE EJECUTA, no solo en la regla que lo causa.
+chkl  "PHASES declara el doble viaje donde se ejecuta"  "PASA POR G4 DOS VECES"  \
+  cat "$SUITE/PHASES.md"
+
+# -- PT-198 . un comentario en linea no hace invisible el campo --------------
+#
+# El status de EP-023 decia «READY   # G1 CHALLENGE aceptado» —YAML VALIDO— y el tracker
+# respondia «no declara status». No es que no supiera leerlo: AFIRMABA QUE NO ESTABA, que es lo
+# contrario de lo que ocurria, y mandaba a anadir un campo que ya estaba en la linea 5.
+# Habia SIETE expresiones a mano en tracker.mjs sobre CUATRO campos, todas ancladas a fin de linea.
+#
+# LOS CASOS PLANTAN EL COMENTARIO EN UN FIXTURE, no lo buscan en el arbol: buscarlo acusaria a los
+# documentos de esta misma tarea, que lo citan. Es CE-017, y PT-193 ya pago esa leccion.
+_pat198() {   # $1 = campo · $2 = las lineas del frontmatter (~ = salto) · imprime lo leido
+  # El idioma es el de `patlib` (:2027): la ruta viaja por variable de entorno y se convierte con
+  # pathToFileURL. Escribirla dentro del literal JS la rompe donde $SUITE lleva barra invertida.
+  MTH_PAT="$SUITE/tools/patrones.mjs" MTH_TXT="$2" MTH_CAMPO="$1" node -e \
+    'const {pathToFileURL}=require("url");
+     import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+       const t = process.env.MTH_TXT.split("~").join(String.fromCharCode(10));
+       const r = m.campoDeIntake(t, process.env.MTH_CAMPO);
+       console.log(r === null ? "AUSENTE" : r.valor === null ? "ILEGIBLE:" + r.linea : "VALOR:" + r.valor);
+     }).catch((e)=>console.log("IMPORT_FALLA "+e.message));' 2>&1
+}
+# AC-01 . TS-01 . el valor se lee AUNQUE lleve comentario.
+chkl  "un status con comentario en linea se lee"   "VALOR:READY" \
+  _pat198 status 'id: PT-1~status: READY              # G1 CHALLENGE aceptado~phase: 5'
+# LA COMPROBACION INVERSA, sobre la MISMA entrada: la expresion que habia —anclada a fin de
+# linea— no casa nada. Sin ella, el caso de arriba lo pasa cualquier lector y no prueba que el
+# arreglo hiciera falta. Es lo que PT-192 aprendio: un caso que no puede fallar no mide.
+chkl  "…y la expresion anclada de antes NO casaba"  "NO_CASA" \
+  sh -c 'node -e "const l=String.raw\`status: READY              # G1 CHALLENGE aceptado\`;
+         console.log(/^status:[ \t]*\S+[ \t]*$/m.test(l) ? \"CASA\" : \"NO_CASA\")"'
+# AC-02 . TS-02 . LA PAREJA QUE IMPIDE EL ARREGLO PELIGROSO. Sin esto, lo de arriba lo cumple un
+# lector que acepte cualquier cosa: el riesgo de un lector tolerante va al reves del que motivo
+# la tarea.
+chkl  "…y un intake SIN el campo sigue siendo AUSENTE"  "AUSENTE" \
+  _pat198 status 'id: PT-1~phase: 5'
+# AC-03 . TS-03 . Y EL TERCER ESTADO, que antes se fundia con el primero: esta escrito y no se
+# pudo leer. Con su LINEA — distinguir sin localizar obliga a buscar, y buscar es suponer.
+chkl  "…y uno ilegible es OTRO estado, con su linea"    "ILEGIBLE:2" \
+  _pat198 status 'id: PT-1~status:~phase: 5'
+# AC-01 + AC-04 . TS-05 . LOS OTROS TRES CAMPOS, que el intake no habia mirado. Sin esto, AC-04 lo
+# cumple un sitio unico que solo atienda a «status» — la herramienta correcta escrita y no
+# invocada, que es CE-007 en la tarea que lo persigue.
+chkl  "…y phase con comentario tambien"            "VALOR:5" \
+  _pat198 phase 'id: PT-1~phase: 5   # a medias~type: BUG'
+chkl  "…y type con comentario tambien"             "VALOR:BUG" \
+  _pat198 type 'id: PT-1~type: BUG    # no es feature~epic: EP-1'
+chkl  "…y epic con comentario tambien"             "VALOR:EP-026" \
+  _pat198 epic 'id: PT-1~epic: EP-026 # el lote que lo absorbio'
+# EL COMENTARIO SOBREVIVE A LA ESCRITURA. Un lector que lea y un escritor que borre cambian un
+# defecto por otro: la informacion la puso alguien a proposito.
+_esc198() {
+  MTH_PAT="$SUITE/tools/patrones.mjs" node -e \
+    'const {pathToFileURL}=require("url");
+     import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+       const NL = String.fromCharCode(10);
+       const t = "status: READY   # G1 CHALLENGE aceptado" + NL + "phase: 5";
+       console.log(m.reemplazaCampoDeIntake(t, "status", "DONE").split(NL)[0]);
+     }).catch((e)=>console.log("IMPORT_FALLA "+e.message));' 2>&1
+}
+chkl  "escribir el campo CONSERVA su comentario"    "DONE   # G1 CHALLENGE aceptado"  _esc198
+# AC-04 . TS-04 . Y NINGUNA EXPRESION SUELTA FUERA DEL SITIO UNICO. Es la comprobacion inversa:
+# el sitio unico no vale de nada si alguien escribe la octava manana.
+# La salida se NORMALIZA a una marca: si se comprobara el literal «^status:», una octava copia
+# sobre «phase» pasaria por no contener esa cadena — verde por mirar al sitio equivocado.
+chknol "ninguna expresion de campo suelta fuera de patrones" 'SUELTA' \
+  sh -c 'grep -h "\^\(status\|phase\|type\|epic\):" '"$SUITE"'/tools/tracker.mjs '"$SUITE"'/tools/verify-fdge.mjs 2>/dev/null | sed "s/.*/SUELTA/" || true'
+# Y LA PAREJA QUE PRUEBA QUE EL DETECTOR DETECTA: sobre un archivo que SI la tiene, la ve. Sin
+# esto, lo de arriba lo cumple un grep roto, que es CE-005 —verde por no haber mirado— dentro del
+# caso escrito para impedirlo.
+chkl  "…y sobre un archivo que SI la tiene, la ve"  "SUELTA" \
+  sh -c 'printf "%s\n" "  const RE = /^status:[ ]*\\S+$/m;" > '"$WORK"'/p198.js;
+         grep -h "\^\(status\|phase\|type\|epic\):" '"$WORK"'/p198.js | sed "s/.*/SUELTA/"'
+# AC-03 . Y EL MENSAJE DEL TRACKER SOBRE UN ARBOL, que es donde el defecto hacia dano de verdad.
+# No se comprueba el LITERAL en el fuente —eso seria el proxy en lugar del hecho (CE-001)— sino la
+# salida del comando corriendo.
+_msg198() {   # $1 = la linea de status que se planta
+  local d="$WORK/p198"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\n%s\nphase: 1\ntype: BUG\n---\n\ncuerpo\n' "$1" > "$d/changes/PT-700-x/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"DRAFT","phase":1}]}' > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" rechazar PT-700 --motivo "no procede por duplicado" --aplicar "$d" 2>&1 )
+}
+chkl  "el mensaje dice que el campo ESTA y no se leyo"  "El campo ESTA"   _msg198 'status:'
+# Y SU PAREJA: el AUSENTE sigue diciendo que NO declara. Sin esto, lo de arriba lo cumple un
+# mensaje unico que diga siempre «ESTA», que es el defecto de hoy con el texto cambiado.
+chkl  "…y el ausente sigue diciendo que NO lo declara"  "no declara"      _msg198 'sinstatus: x'
+
+# -- PT-203 . la pertenencia la asigna el REGISTRO, no la tabla del intake -----
+#
+# El extractor leia CUALQUIER «PT-NNN» en una fila de tabla. Una columna «Origen» —«<- PT-178»—
+# convertia en miembro a una tarea de OTRO lote, integrada hacia dias, y el mensaje mandaba a
+# tocar su intake. Ya llevaba DOS parches por la misma causa (PT-011 estrecho a filas de tabla,
+# PT-022 recorto la seccion de cierre) y los dos estrecharon la HEURISTICA, no la fuente.
+#
+# Medido sobre los 26 lotes antes de escribir el arreglo, el defecto iba en las DOS direcciones:
+#     FANTASMA    se comprobaba a quien NO es miembro           7 casos
+#     INVISIBLE   es miembro y su firma NO se comprobaba nunca  62 casos
+# EP-019 leia CERO de sus diecisiete. El FANTASMA se ve y molesta; el INVISIBLE calla.
+_ep203() {
+  # $1 = fila extra del intake · $2 = allocations del registro (JSON) · imprime lo de INTAKE-R08
+  local d="$WORK/p203"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/EP-700-l"
+  cp -r "$SUITE" "$d/docs/methodology"
+  { printf -- '---\nid: EP-700\nstatus: READY\n---\n\n'
+    printf '## Objetivo comun\nx\n\n## Criterio de exito del lote\nx\n\n'
+    printf 'OUT: nada\n\nsolapamiento: ninguno\n\nFirma unica del lote\n\n'
+    printf '| Orden | PT | Origen |\n|---:|:---|:---|\n%s\n' "$1"
+  } > "$d/changes/EP-700-l/intake.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"EP-700","slug":"l","status":"READY","phase":1},%s]}' "$2" \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/verify-fdge.mjs" 2>&1 | sed -n '/INTAKE-R08/p' | head -3 )
+}
+# El miembro FIRMADO, que existe para que los demas casos no pasen por vacio.
+_miembro203() {   # $1 = id · $2 = lo que dice su linea de firma ("" = sin linea) · $3 = status
+  mkdir -p "$WORK/p203/changes/$1-x"
+  { printf -- '---\nid: %s\nstatus: %s\nphase: 1\ntype: BUG\n---\n\n## Firma\n' "$1" "$3"
+    [ -n "$2" ] && printf 'Firmado por lote: %s\n' "$2"; } > "$WORK/p203/changes/$1-x/intake.md"
+}
+# AC-01 . TS-01 . CITAR UN PT COMO ORIGEN NO LO HACE MIEMBRO. Se le NOMBRA, y no se le exige nada.
+_cita203() {
+  _ep203 '| 1 | PT-701 | <- PT-178 |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  mkdir -p "$WORK/p203/changes/PT-178-viejo"
+  printf -- '---\nid: PT-178\n---\n' > "$WORK/p203/changes/PT-178-viejo/intake.md"
+  _miembro203 PT-701 EP-700 READY
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "citar un PT como origen no lo hace miembro"   "NO son miembros y no se les exige nada"  _cita203
+# Y NO ES QUE CALLE: lo NOMBRA. Un hueco que nadie nombra es el que se olvida.
+chkl  "…y lo nombra, en vez de callarlo"             "PT-178"                                  _cita203
+# AC-02 . TS-02 . EL MIEMBRO VIVO SIN FIRMA SIGUE BLOQUEANDO. Sin esta pareja, lo de arriba lo
+# cumple un verificador que no exija NADA — y aqui eso apagaria una regla HARD.
+_vivo203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  _miembro203 PT-701 "" READY
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "…y un miembro VIVO sin firma sigue bloqueando"  "tarea(s) VIVA(s)"   _vivo203
+# AC-02 . TS-03 . Y EL QUE EL INTAKE NO MENCIONA, TAMBIEN. Este es el defecto GRANDE: 62 tareas
+# que el registro asigna y que la tabla no listaba quedaban SIN COMPROBAR. TS-02 solo no lo cubre.
+_invisible203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1},{"id":"PT-702","slug":"y","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  _miembro203 PT-701 EP-700 READY
+  _miembro203 PT-702 "" READY          # miembro por REGISTRO y AUSENTE de la tabla
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "…y el miembro que la tabla NO lista tampoco se escapa"  "PT-702"   _invisible203
+# AC-03 . TS-04 . LO TERMINAL SE CUENTA Y SE NOMBRA, NO SE REJUZGA. 23 tareas cerradas de EP-024 y
+# EP-025 no llevan la linea: ponersela hoy seria reescribir el pasado para callar una comprobacion
+# (SUITE-R09 append-only, CE-014). Se declara la cifra, como ya hacen EXEC-R03 y LEX-R27.
+_terminal203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"INTEGRATED","phase":10}' >/dev/null 2>&1
+  _miembro203 PT-701 "" INTEGRATED
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "un miembro TERMINAL sin firma se cuenta, no se rejuzga"  "o se corrigen o se certifican"  _terminal203
+# AC-03 . TS-05 . LA FIRMA NOMBRA EL LOTE, Y AHORA SE COMPARA. El grupo 1 se capturaba y se TIRABA
+# mientras el mensaje NOMBRABA el lote: la comprobacion afirmaba mas de lo que miraba. PT-172 es
+# el caso real —su intake dice EP-024 y el registro dice EP-025— y hoy nadie lo veia.
+_partido203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"READY","phase":1}' >/dev/null 2>&1
+  _miembro203 PT-701 EP-999 READY
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "una firma que nombra OTRO lote se dice"       "firman por OTRO lote"   _partido203
+
+# -- PT-205 . lo que rompera en CI se dice ANTES de empujar --------------------
+#
+# Medido en la rama de PT-203: CUATRO corridas de CI en rojo, NINGUNA predicha por el verde local,
+# todas evitables. 17 min de maquina — y el coste real es el VIAJE: empujar, esperar siete
+# minutos, leer el log, arreglar, esperar otra vez.
+#
+# Las tres roturas dependen de LO EMPUJADO, y en local eso no existe todavia. Pero SE DERIVAN DE
+# LO QUE YA ESTA DELANTE: el arbol de trabajo las contiene. Esa es la diferencia con el limite que
+# PT-201 declaro —lo que NO se puede saber—: esto se podia saber y no se sabia.
+_p205() {   # $1 = como se prepara el arbol · imprime el bloque de prediccion
+  local d="$WORK/p205"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\nstatus: READY\nphase: 5\ntype: BUG\n---\n\n## Firma\nFirmado por lote: EP-700\n' \
+    > "$d/changes/PT-700-x/intake.md"
+  printf 'proyecto:       fixture\nactualizado:    2026-01-01 . nada\ndecisiones:     ninguna\nno hacer:       nada\n' \
+    > "$d/docs/implementation/HANDOFF.md"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":5}]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q . 2>/dev/null; git add -A 2>/dev/null
+    git -c user.email=t@t -c user.name=T commit -qm base 2>/dev/null
+    case "$1" in
+      sucio)   printf 'trabajo nuevo\n' > "$d/changes/PT-700-x/discovery.md" ;;
+      limpio)  : ;;
+    esac
+    node "$d/docs/methodology/tools/verify-fdge.mjs" 2>&1 | sed -n '/PENDIENTE AL EMPUJAR/,/^$/p' )
+}
+# AC-01 . TS-01 . EL AVISO LLEGA ANTES DE COMMITEAR, derivado del arbol y no de git log.
+chkl  "el verde local avisa de lo que rompera en CI"  "PENDIENTE AL EMPUJAR"  _p205 sucio
+# AC-01 . TS-03 . Y LLEVA EL COMANDO. RULE-07: un mensaje dice COMO SE ARREGLA. Es lo unico que
+# separa un viaje de CI de cinco segundos.
+chkl  "…y lleva el comando exacto, no solo el diagnostico"  "sellar-estado --aplicar"  _p205 sucio
+# AC-01 . TS-02 . Y CUANDO NO HAY NADA PENDIENTE, EL BLOQUE NO APARECE.
+#
+# ESTE CASO SOSTIENE LA TAREA ENTERA. Sin el, AC-01 lo cumple un aviso que salga SIEMPRE — y un
+# aviso que sale siempre es ruido, el arreglo se pierde entre los demas y el viaje de CI vuelve
+# intacto. La primera version de esta prediccion saltaba con DIECIOCHO issues vivos: el ruido
+# escrito dentro de la tarea que lo persigue.
+chknol "…y con el arbol limpio NO aparece"           "PENDIENTE AL EMPUJAR"  _p205 limpio
+# AC-02 . TS-04 . LA VIA SANCIONADA DE SELLAR SIN CAMBIAR DE FASE.
+_sello205() {   # $1 = bandera
+  local d="$WORK/p205s"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\nstatus: READY\nphase: 5\ntype: BUG\n---\n' > "$d/changes/PT-700-x/intake.md"
+  printf 'proyecto:       fixture\nactualizado:    2026-01-01 . nada\ndecisiones:     la del firmante\nno hacer:       -1) nada\n' \
+    > "$d/docs/implementation/HANDOFF.md"
+  # El CHECKPOINT es quien declara QUE tarea esta abierta: sin el, el sello no sabe a quien nombrar.
+  printf '{"pt":"PT-700","phase":5}' > "$d/docs/implementation/CHECKPOINT.json"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":5}]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" sellar-estado $1 "$d" >/dev/null 2>&1
+    cat "$d/docs/implementation/HANDOFF.md" )
+}
+chkl  "«sellar-estado --aplicar» pone el estado al dia"  "PT-700 en PHASE 5"  _sello205 --aplicar
+# AC-02 . TS-05 . EL HECHO SE DERIVA DEL REGISTRO, no se pide por bandera: un argumento seria una
+# afirmacion que nadie contrasta.
+chknol "…y sin --aplicar no escribe nada"               "PT-700 en PHASE 5"  _sello205 ""
+# AC-03 . TS-06 . LA PROSA NO SE TOCA. Es lo unico del estado que no se deriva (LEX-R26), y
+# estamparla seria inventar.
+chkl  "…y la prosa del HANDOFF queda INTACTA"           "decisiones:     la del firmante"  _sello205 --aplicar
+chkl  "…y sus «no hacer» tambien"                       "no hacer:       -1) nada"          _sello205 --aplicar
+# AC-02 . EL HECHO SALE DEL CHECKPOINT, no de «la viva mas avanzada».
+#
+# La primera version elegia por fase y nombraba PT-203 —DONE, fase 8— mientras el trabajo era
+# PT-205 en fase 5. Un sello que nombra la tarea EQUIVOCADA es peor que ninguno: deja SUITE-R34
+# en verde afirmando algo falso, que es CE-001 dentro del arreglo que persigue CE-006.
+_cp205() {
+  local d="$WORK/p205c"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---
+id: PT-700
+status: READY
+phase: 2
+type: BUG
+---
+' > "$d/changes/PT-700-x/intake.md"
+  printf 'actualizado:    2026-01-01 . nada
+' > "$d/docs/implementation/HANDOFF.md"
+  printf '{"pt":"PT-700","phase":2}' > "$d/docs/implementation/CHECKPOINT.json"
+  # PT-701 esta MAS AVANZADA: si el sello saliera de la fase, nombraria a esta.
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{"PT":701},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":2},{"id":"PT-701","slug":"y","type":"BUG","status":"DONE","phase":8}]}'     > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/tracker.mjs" sellar-estado --aplicar "$d" >/dev/null 2>&1
+    grep '^actualizado:' "$d/docs/implementation/HANDOFF.md" )
+}
+chkl  "el sello nombra la tarea del CHECKPOINT"        "PT-700 en PHASE 2"   _cp205
+# Y SU PAREJA: NO nombra la mas avanzada, que es la que la primera version elegia.
+chknol "…y NO la mas avanzada por fase"                "PT-701"              _cp205
+
+# -- PT-195 . la identidad git configurada corresponde a alguien declarado -----
+#
+# `tracker personas` YA lo decia —«T <t@t> . 10 commits . SIN DECLARAR»— y NINGUNA compuerta lo
+# leia. CE-007 puro: existe la herramienta, el dato es correcto, y nada la echa en falta.
+#
+# NO ES TEORICO. La config LOCAL de este repositorio fue la del ARNES, y firmo TRES commits de
+# EP-025 como «T <t@t>»: un autor que no es de nadie, y SUITE-R27 dice que lo que hace
+# contrastable una firma es que el nombre este en la lista.
+#
+# LA IDENTIDAD SE PLANTA POR ENTORNO, con el mecanismo de PT-067: GIT_CONFIG_COUNT no toca
+# NINGUNA configuracion de la maquina. Que el arnes escribiera en la config real fue exactamente
+# el origen de esta tarea, y repetirlo aqui seria escribir el defecto dentro de su arreglo.
+_id195() {   # $1 = nombre · $2 = correo · $3 = «sin» para un registro sin «personas»
+  local d="$WORK/p195"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/changes/PT-700-x"
+  cp -r "$SUITE" "$d/docs/methodology"
+  printf -- '---\nid: PT-700\nstatus: READY\nphase: 1\ntype: BUG\n---\n' > "$d/changes/PT-700-x/intake.md"
+  if [ "${3:-}" = "sin" ]; then     # el arnes corre con «set -u»: $3 sin valor revienta
+    printf '{"firmantes":["Ada Lovelace"],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":1}]}' \
+      > "$d/docs/implementation/REGISTRY.json"
+  else
+    printf '{"firmantes":["Ada Lovelace"],"personas":[{"nombre":"Ada Lovelace","git":[{"nombre":"Ada Lovelace","correo":"ada@x"}]}],"suite_version":"13.4.0","counters":{"PT":700},"allocations":[{"id":"PT-700","slug":"x","type":"BUG","status":"READY","phase":1}]}' \
+      > "$d/docs/implementation/REGISTRY.json"
+  fi
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q . 2>/dev/null
+    env GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=user.name GIT_CONFIG_VALUE_0="$1" \
+        GIT_CONFIG_KEY_1=user.email GIT_CONFIG_VALUE_1="$2" \
+      node "$d/docs/methodology/tools/verify-fdge.mjs" 2>&1 | grep -E "SUITE-R27.*(atribuira|declarada|contrastarla|configurada)" | tail -1 )
+}
+# AC-01 . TS-01 . UNA IDENTIDAD NO DECLARADA SE DICE, y la dice quien corre en verify y en CI.
+chkl  "una identidad no declarada se dice"          "NO esta declarada"   _id195 "T" "t@t"
+# AC-01 . TS-02 . Y UNA DECLARADA TAMBIEN, CON SU NOMBRE.
+#
+# No es simetria decorativa: una comprobacion que solo habla cuando algo va mal es INDISTINGUIBLE
+# de una que no corrio —CE-005, el nombre de este lote— y sin esto, TS-01 lo cumple un verificador
+# que se queje SIEMPRE.
+chkl  "…y una declarada tambien, con su nombre"     "se atribuira a «Ada Lovelace»"  _id195 "Ada Lovelace" "ada@x"
+# AC-01 . TS-03 . SIN «personas» NO SE FINGE QUE SE MIRO. SUITE-R22 declara soportado el proyecto
+# de una sola persona: uno que aun no las declaro no puede salir igual que uno averiado.
+chkl  "…y sin «personas» no se finge que se miro"   "no hay contra que contrastarla"  _id195 "Ada Lovelace" "ada@x" sin
+# AC-03 . TS-05 . NO BLOQUEA, ni en CI ni fuera. Un error dejaria verificacion.yml en rojo
+# permanente el dia que se pusiera, y una compuerta siempre roja ensena a saltarsela.
+# LA AFIRMACION PRECISA NO ES «exit=0» —el fixture puede fallar por otras reglas— sino que ESTA
+# comprobacion no emite NUNCA un error. Medir el codigo de salida seria medir el arbol entero y
+# atribuirselo a esto: el proxy en vez del hecho (CE-001).
+_id195v() {
+  _id195 "runner-de-ci" "r@ci" >/dev/null 2>&1
+  ( cd "$WORK/p195" && env GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=user.name GIT_CONFIG_VALUE_0="runner-de-ci" \
+      GIT_CONFIG_KEY_1=user.email GIT_CONFIG_VALUE_1="r@ci" \
+      node docs/methodology/tools/verify-fdge.mjs 2>&1 \
+      | grep -E "SUITE-R27.*(atribuira|declarada|contrastarla|configurada)" | sed 's/^ *//;s/ .*//' )
+}
+chknol "…y una identidad ajena NO bloquea"          "✗"        _id195v
+# Y NO PASA POR VACIO: sobre la misma corrida, la linea EXISTE y sale como aviso.
+chkl  "…y aun asi la dice, como aviso"              "!"        _id195v
+# AC-02 . TS-04 . EL AVISO SALE DE verify-fdge, que corre en «npm run verify» ANTES del commit.
+# Es una PROCEDENCIA, no un mensaje: lo que la tarea compra es QUIEN lo emite.
+chkl  "el aviso lo emite verify-fdge, no un comando aparte"  "SUITE-R27" \
+  sh -c 'grep -c "checkIdentidad();" '"$SUITE"'/tools/verify-fdge.mjs >/dev/null && grep -h "SUITE-R27" '"$SUITE"'/tools/verify-fdge.mjs | head -1'
+
+
+# -- PT-194 . la exencion NO vale para la historia, Y SE DICE ------------------
+#
+# El intake dejaba la decision abierta: «puede que la respuesta sea que NO debe valer. Decidirlo
+# es el trabajo». La respuesta es que NO debe:
+#
+#   1 la declaracion vive en el arbol de HOY y la historia es de SIEMPRE. Aplicarla eximiria todo
+#     lo que ese archivo tuvo ALGUNA VEZ, incluida una credencial real puesta y borrada despues —
+#     y el archivo que declara ser senuelo es justo donde mas comodo resulta esconder algo.
+#   2 el riesgo va AL REVES del sintoma: lo que molesta es un falso positivo; ampliar mal una
+#     exencion hace que un secreto REAL deje de bloquear.
+#   3 el mecanismo para la historia ya existe: firmar la huella, que SIGUE mostrandola y que ata
+#     la firma AL VALOR. Una exencion por archivo no tiene esa propiedad.
+#
+# NO ERA UNA DECISION: era un efecto de por donde mira el escaner. revisar-secretos.mjs:164 pasa
+# `false` EN DURO, y el diff de «git log -p» SI lleva el archivo en sus cabeceras — hacerla llegar
+# habria sido facil. Que no llegue pasa a estar ESCRITO, con su motivo, en la SALIDA.
+#
+# EL LITERAL SE ENSAMBLA EN DOS MITADES, que es la leccion de PT-193 y de PT-015: escribirlo
+# entero aqui haria que el escaner cazara a este mismo arnes.
+_hist194() {   # $1 = "declara" para poner cauce:senuelos en el archivo
+  local d="$WORK/p194"; rm -rf "$d"; mkdir -p "$d"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q .
+    { [ "$1" = "declara" ] && echo "# cauce:senuelos"
+      echo "# fixture"
+      printf 'pass%s = SuperSecreta123\n' 'word'; } > a.sh
+    git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm "entra el secreto" >/dev/null 2>&1
+    # se QUITA del arbol: en la historia sigue, que es todo el punto
+    { [ "$1" = "declara" ] && echo "# cauce:senuelos"
+      echo "# ya no esta"; } > a.sh
+    git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm "sale del arbol" >/dev/null 2>&1
+    node "$SUITE/tools/revisar-secretos.mjs" . --historial 2>&1 )
+}
+# AC-01 . TS-01 . EL COMPORTAMIENTO EN HISTORIA QUEDA DECLARADO, con su motivo.
+chkl  "un hallazgo de historia dice que la exencion no llega"  "exime el ARBOL y"  _hist194 declara
+# …Y CON EL MOTIVO, que es lo que impide que alguien lo «arregle» ampliandola.
+chkl  "…y dice POR QUE: la historia es de SIEMPRE"             "ALGUNA VEZ"        _hist194 declara
+# AC-02 . TS-02 . UN SECRETO EN LA HISTORIA SIGUE BLOQUEANDO, CON LA DECLARACION PUESTA.
+#
+# ESTE ES EL QUE IMPIDE ARREGLARLO EN LA DIRECCION PELIGROSA, y no es opcional: TS-01, TS-03 y
+# TS-04 los cumple un escaner que haya AMPLIADO la exencion. Solo este prueba que no se hizo.
+chkl  "…y BLOQUEA igual, con la declaracion puesta"            "FND-R29"           _hist194 declara
+# AC-03 . TS-03 . Y EL MENSAJE NOMBRA EL MECANISMO. RULE-07: dice COMO SE ARREGLA.
+chkl  "…y nombra el mecanismo: firmar la huella"               "firmar la huella"  _hist194 declara
+# Y EL CONTEXTO, que no es permiso: se dice que ESE archivo declara ser senuelo HOY.
+chkl  "…y dice que el archivo SI lo declara hoy, como contexto"  "no exencion"     _hist194 declara
+# AC-01 . TS-04 . Y EN EL ARBOL LA DECLARACION SIGUE EXIMIENDO.
+#
+# Sin esto, TS-02 lo cumple un escaner que haya ROTO la exencion del arbol — y eso es lo que
+# PT-190 ya compro. Es la mitad que prueba que solo cambio lo que debia cambiar.
+_arbol194() {
+  local d="$WORK/p194a"; rm -rf "$d"; mkdir -p "$d"
+  { echo "# cauce:senuelos"; printf 'pass%s = SuperSecreta123\n' 'word'; } > "$d/a.sh"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$SUITE/tools/revisar-secretos.mjs" . 2>&1 )
+}
+chkl  "…y en el ARBOL la declaracion sigue eximiendo"          "Sin hallazgos sin firmar"  _arbol194
+
+# -- PT-202 . la frontera fuente/destino se declara y se comprueba ------------
+#
+# EL INTAKE SE EQUIVOCABA DE MECANISMO. Decia que publicar.yml VIAJA en el paquete. Medido:
+# «npm pack» empaqueta 61 archivos y CERO de .github/, y no lo copia ni el instalador ni
+# plan-layout ni migrate. NO VIAJA.
+#
+# LO QUE SI LLEGA ES PEOR: docs/methodology/ viaja ENTERO —56 archivos— y dentro la documentacion
+# hablaba de publicar.yml COMO SI EL DESTINO LO TUVIERA. CASOS-DE-USO.md le daba un caso de uso
+# completo, «E2 · Publicar una version», cuyo recorrido el destino no tiene, para publicar un
+# paquete que no es suyo. Un archivo sobrante se ve y se borra; una documentacion que describe un
+# recorrido inexistente NO SE VE.
+# NO se invoca «npm pack» aqui: la red y el gestor no son del arnes, y una comprobacion que
+# depende de ellos falla por razones que no son la suya. Se mide EL HECHO del que el empaquetado
+# depende —que `.github` no este en `package.json.files`— que es lo que decide que no viaje.
+_pkg202() { node -e "
+  const f=require(process.argv[1]+'/package.json').files||[];
+  console.log('en-files:'+f.filter(x=>String(x).includes('.github')).length);
+" "$RAIZ" 2>&1; }
+# AC-01 . TS-01 . UNA INSTALACION LIMPIA NO RECIBE EL WORKFLOW DE PUBLICACION.
+#
+# YA SE CUMPLE HOY, y el caso sigue haciendo falta: sin el, nada impide «arreglar» el problema
+# imaginario ANADIENDO .github/ al paquete —que sobrescribiria los workflows del destino, y eso no
+# es instalar, es pisar—. El caso fija el CERO de lo prohibido, que es lo unico que un caso puede
+# fijar (HANDOFF -18).
+chkl  "el paquete no lleva NINGUN workflow"          "en-files:0"    _pkg202
+# AC-02 . TS-02 . Y ESTE REPOSITORIO SIGUE PUDIENDO PUBLICAR. Es el que impide arreglarlo
+# rompiendo la publicacion, y el intake ya lo declaraba asi.
+chkl  "…y este repositorio sigue pudiendo publicar"  "workflow_dispatch" \
+  cat "$RAIZ/.github/workflows/publicar.yml"
+# AC-03 . TS-03 . LA FRONTERA ESTA DECLARADA, junto a LEX-R25 que ya decia la mitad —que VIAJA—
+# y no la otra: que lo que viaja no es todo lo que APLICA al destino.
+chkl  "la frontera fuente/destino esta declarada"    "no es todo lo que APLICA al destino" \
+  cat "$SUITE/LEXICON.md"
+# AC-03 . TS-04 . Y UN DOCUMENTO QUE VIAJA NO DESCRIBE UN RECORRIDO DE LA FUENTE SIN MARCARLO.
+#
+# Sin esta comprobacion, TS-03 es una correccion de texto QUE SE DESHACE SOLA. Y no es hipotetico:
+# ya paso DOS veces —LEXICON.md y CASOS-DE-USO.md— sin que nada lo dijera, y al escribirla aparecio
+# una TERCERA que no habia visto: el CHANGELOG.
+_frontera202() {
+  # LA SUITE ENTERA, no solo sus .md de raiz: con los subdirectorios ausentes, verify-suite emite
+  # trece enlaces rotos y TRUNCA el informe —«… y 13 mas»—, asi que el hallazgo real no se veia.
+  # El caso pasaba a medir el truncado en vez de la comprobacion.
+  local d="$WORK/p202"; rm -rf "$d"; mkdir -p "$d/docs"
+  cp -r "$SUITE" "$d/docs/methodology"
+  mkdir -p "$d/.github/workflows"; printf 'name: publicar\n' > "$d/.github/workflows/publicar.yml"
+  printf '{"name":"x","version":"1.0.0","files":["docs/methodology"]}' > "$d/package.json"
+  # un documento que VIAJA y menciona el workflow SIN marcarlo
+  printf '# Doc\n\nEl recorrido es `publicar.yml`, manual.\n' > "$d/docs/methodology/SUELTO.md"
+  node "$SUITE/tools/verify-suite.mjs" "$d/docs/methodology" 2>&1 | grep "LEX-R25" | head -2
+}
+chkl  "un documento que viaja y no lo marca, falla"  "SUELTO.md"   _frontera202
+# Y SU PAREJA: MARCARLO BASTA. Sin esto, lo de arriba lo cumple una comprobacion que falle SIEMPRE
+# —y entonces el marco entero quedaria en rojo por nombrar sus propios workflows—.
+_marcado202() {
+  _frontera202 >/dev/null 2>&1
+  printf '# Doc\n\n`publicar.yml` es DE LA FUENTE y no viaja.\nEl recorrido es `publicar.yml`.\n' \
+    > "$WORK/p202/docs/methodology/SUELTO.md"
+  node "$SUITE/tools/verify-suite.mjs" "$WORK/p202/docs/methodology" 2>&1 | grep -c "SUELTO.md" || true
+}
+chkl  "…y marcarlo basta"                            "0"           _marcado202
+# AC-03 . TS-05 . Y LA LISTA SE DERIVA: un workflow NUEVO entra sin que nadie lo anada a mano.
+# Una lista escrita a mano diverge del arbol — CE-010, que este lote ya ha pagado dos veces.
+_deriva202() {
+  _frontera202 >/dev/null 2>&1
+  printf 'name: otro\n' > "$WORK/p202/.github/workflows/inventado.yml"
+  printf '# Doc\n\nEl recorrido es `inventado.yml`.\n' > "$WORK/p202/docs/methodology/SUELTO.md"
+  # -A 1 porque el nombre del workflow va en la SEGUNDA linea del hallazgo: «head -1» cortaba
+  # justo antes de lo que el caso mide.
+  node "$SUITE/tools/verify-suite.mjs" "$WORK/p202/docs/methodology" 2>&1 | grep -A 1 "LEX-R25" | head -2
+}
+chkl  "un workflow nuevo entra sin tocar ninguna lista"  "inventado.yml"  _deriva202
+
+# -- PT-187 . las cuatro fuentes de version, contrastadas ---------------------
+#
+# package.json, los tags, el CHANGELOG y npm. Las cuatro correctas por separado y NADIE las
+# contrasta: «grep npm view» sobre TODAS las herramientas daba CERO. Medido el 2026-08-30, npm iba
+# por la 13.1.0 y el repositorio por la 13.4.0 — la documentacion de un paquete describia un
+# paquete que no es el que se descarga.
+#
+# EL FIXTURE NO TIENE RED, y eso es exactamente lo que AC-02 quiere ver: sin npm, la herramienta
+# tiene que DECIRLO y seguir dando lo que no depende de el.
+_ver187() {   # $1 = "sintags" para un repositorio sin ninguna etiqueta
+  local d="$WORK/p187"; rm -rf "$d"; mkdir -p "$d/docs/methodology" "$d/docs/implementation"
+  cp -r "$SUITE/tools" "$d/docs/methodology/tools"
+  printf '# CHANGELOG\n\n## 2.0.0 — 2026-01-01\nx\n\n## 1.0.0 — 2025-01-01\ny\n' \
+    > "$d/docs/methodology/CHANGELOG.md"
+  printf '{"name":"@a81biz/inventado-que-no-existe","version":"2.0.0"}' > "$d/package.json"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{},"allocations":[]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    git init -q .; git add -A >/dev/null 2>&1
+    git -c user.email=t@t -c user.name=T commit -qm base >/dev/null 2>&1
+    [ "${1:-}" != "sintags" ] && git tag v1.0.0 >/dev/null 2>&1     # «set -u»: $1 sin valor revienta
+    node "$d/docs/methodology/tools/tracker.mjs" versiones "$d" 2>&1 )
+}
+# AC-01 . TS-01 . LA DIVERGENCIA SE ENUMERA, CON DIRECCION. No «no coinciden»: que falta en cada
+# lado. El CHANGELOG del fixture tiene 2.0.0 y 1.0.0, y solo 1.0.0 esta etiquetada.
+chkl  "la divergencia se enumera con direccion"      "EN CHANGELOG y NO tag"   _ver187
+# AC-02 . TS-02 . SIN ACCESO A npm SE DICE, y no se da por cuadrado.
+#
+# REPRODUCIDO EN VIVO al medir esta tarea: el catch dejo el conjunto vacio y salieron VEINTE
+# divergencias inventadas con aspecto de hallazgo. El fallo va en LAS DOS DIRECCIONES —dar por
+# cuadrado, o inventar— y la segunda es peor porque PARECE TRABAJO.
+chkl  "…y sin npm lo dice, no lo da por cuadrado"    "SIN EVALUAR"             _ver187
+# Y DICE POR QUE NO PUDO: «sin red» y «sin acceso» son dos hechos con arreglos distintos (RULE-02).
+chkl  "…y dice POR QUE no pudo consultarlo"          "No se pudo consultar el registro:"  _ver187
+# AC-02 . TS-03 . Y AUN ASI DICE LO QUE SI PUEDE.
+#
+# Sin esto, TS-02 lo cumple una herramienta que SE APAGUE ENTERA. SUITE-R22 declara soportado el
+# proyecto sin red: apagar lo que si se podia decir es el otro extremo del mismo error.
+chkl  "…y aun asi da la comparacion que no necesita red"  "2.0.0"             _ver187
+# AC-03 . TS-04 . UNA DIFERENCIA LEGITIMA NO SE PRESENTA COMO DEFECTO. Un tag sin publicar puede
+# esperar: SUITE-R06a reserva publicar al firmante. Una alarma que suena por lo correcto ensena a
+# ignorarla — y esa es la unica forma de romper esto sin que nadie lo note.
+chknol "una diferencia legitima no se llama defecto"  "Esto SI es defecto: se publico" _ver187
+# AC-01 . TS-05 . LAS CIFRAS SE DERIVAN: sin tags, la cuenta cambia sola.
+#
+# Las del intake venian del HANDOFF de una medicion anterior y estaban LAS TRES mal: CE-010.
+chkl  "sin tags, la cuenta cambia sola"               "EN CHANGELOG y NO tag       (2)"  _ver187 sintags
+
+# -- PT-206 . LEX-R31 ve las clases que SI se declaran ------------------------
+#
+# La regla las leia con /^Clase de evento:\s*(CE-\d{3})\s*$/im —ANCLADA A FIN DE LINEA— y la
+# convencion MAYORITARIA del propio HISTORY.log escribe «CE-NNN — descripcion». Medido:
+#
+#     entradas que DECLARAN una clase :  76
+#     que LEX-R31 veia ANTES          :  22
+#
+# TRES DE CADA CUATRO ENTRADAS QUE CUMPLEN LA REGLA SALIAN COMO INCUMPLIENDOLA. Es el defecto que
+# PT-198 cerro en tracker.mjs, en otra herramienta — y PT-198 no lo cazo porque midio UN ARCHIVO:
+# su discovery declaro «ningun otro .mjs los tiene», cierto para status/phase/type/epic y falso
+# para la familia entera. CE-005 dentro de la tarea que cerraba CE-005.
+#
+# NO SE UNIFICA CON eventos.mjs, y se dice porque yo mismo lo afirme ANTES de comprobarlo: eventos
+# NO lee esta linea —clasifica por FRASES DEL CUERPO—. Son dos hechos distintos: eventos DEDUCE la
+# clase de lo que la entrada cuenta; LEX-R31 comprueba que la entrada la DECLARE.
+_cls206() { patlib_out "m.claseDeEvento(process.argv[1])" "$1"; }
+patlib_out() { # $1 = expresion JS con process.argv[1] · $2 = el texto
+  MTH_PAT="$SUITE/tools/patrones.mjs" node -e 'const {pathToFileURL}=require("url");
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{
+      console.log(String(eval(process.argv[2])));
+    }).catch((e)=>console.log("IMPORT_FALLA "+e.message));' "$2" "$1" 2>&1
+}
+# AC-01 . TS-01 . LA FORMA MAYORITARIA —con descripcion detras— SE LEE.
+chkl  "la clase con descripcion detras se lee"       "CE-005" \
+  _cls206 "Clase de evento: CE-005 — verde por no haber mirado"
+# …Y LA ESCUETA TAMBIEN, que es la que ya funcionaba: el arreglo no rompe lo que habia.
+chkl  "…y la escueta tambien"                        "CE-011"   _cls206 "Clase de evento: CE-011"
+# AC-02 . TS-02 . UNA ENTRADA QUE NO DECLARA CLASE SIGUE SIN DECLARARLA.
+#
+# ES EL QUE IMPIDE ARREGLARLO EN LA DIRECCION PELIGROSA: un regex que acepte cualquier cosa cumple
+# AC-01 y APAGA LA REGLA. Sin este caso, «arreglar» LEX-R31 seria quitarla.
+chkl  "…y sin clase declarada devuelve null"         "null"     _cls206 "Origen: parada de EP-025"
+# Y NI SIQUIERA CON LA ETIQUETA VACIA: «Clase de evento:» sin identificador no es una clase.
+chkl  "…ni con la etiqueta y sin identificador"      "null"     _cls206 "Clase de evento:"
+# AC-03 . TS-03 . LA LECTURA VIVE EN UN SITIO, con su contrato, y verify-patrones lo comprueba.
+chkl  "la lectura de la clase vive en patrones"      "CLASE_DE_EVENTO" \
+  grep -oh "CLASE_DE_EVENTO" "$SUITE/tools/patrones.mjs"
+chknol "…y verify-fdge ya no trae su propia expresion"  'Clase de evento:.*CE-' \
+  sh -c 'grep -hE "Clase de evento:[^ ]*\(CE" '"$SUITE"'/tools/verify-fdge.mjs || true'
+# AC-04 . TS-04 . LA EXPRESION VIEJA YA NO SE USA: solo queda CITADA en el comentario que la
+# documenta. Es un CERO de lo prohibido —lo unico que un caso puede fijar (HANDOFF -18)— y se
+# distingue del uso mirando que no este dentro de una llamada.
+chknol "la expresion anclada ya no se USA"           "campo(/^Clase de evento" \
+
+# -- PT-204 . la deuda de cobertura tiene forma, y no puede bajar en silencio --
+#
+# audit publica la cifra en CADA «npm run verify» desde hace lotes, y NADIE la convierte en
+# trabajo: 244 reglas, 142 ejecutadas por una compuerta, 91 sin ningun verificador —63 de ellas
+# HARD, entre ellas EXEC-R05, la G3 humana de todo BUG—. CE-007 a escala del marco entero.
+#
+# Y «PENDIENTE» MENTIA POR FUSION. Decia «deuda, no limite» y mezclaba dos hechos con arreglos
+# distintos: DEUDA —alguien juzgo que es mecanizable y falta escribirlo— y SIN_JUZGAR —NADIE HA
+# MIRADO—. Medido: DEUDA 0, SIN_JUZGAR 123. El numero no decia cuanto trabajo hay: decia cuanto
+# hay MAS lo que nadie ha pensado. Es RULE-02.
+#
+# JUZGAR NO ES VERIFICAR, y ahi esta el cambio de tamano: decidir que una regla no es mecanizable
+# cuesta un parrafo con motivo y firma; escribir su verificador cuesta una tarea.
+_clas204() { # $1 = JS que use `m` · imprime el resultado
+  MTH_PAT="$SUITE/tools/patrones.mjs" node -e 'const {pathToFileURL}=require("url");
+    import(pathToFileURL(process.env.MTH_PAT).href).then((m)=>{ eval(process.argv[1]); })
+      .catch((e)=>console.log("IMPORT_FALLA "+e.message));' "$1" 2>&1
+}
+R204='[{id:"A-R1"},{id:"A-R2"},{id:"A-R3"}]'
+T204='"fail(\"A-R1\", x)"'
+# AC-01 . TS-01 . LO NO EMITIDO Y NO JUZGADO ES SIN_JUZGAR, no «deuda».
+chkl  "lo que nadie ha juzgado sale como SIN_JUZGAR"  "SIN_JUZGAR:A-R2,A-R3" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{},{});console.log('SIN_JUZGAR:'+c.SIN_JUZGAR.join(','))"
+# Y LO JUZGADO MECANIZABLE Y SIN VERIFICADOR ES DEUDA, que es otra cosa y se arregla distinto.
+chkl  "…y lo juzgado mecanizable es DEUDA"            "DEUDA:A-R2" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{},{'A-R2':'se puede'});console.log('DEUDA:'+c.DEUDA.join(','))"
+# Y LA SUMA SIGUE CUADRANDO: PENDIENTE se conserva como la suma de las dos, no se sustituye.
+# Sin esto, «abrir» la casilla podria perder reglas por el camino y nadie lo notaria.
+# Tres reglas, UNA emitida: PENDIENTE son las otras dos, una juzgada y otra no. Mi primera
+# expectativa decia «3=1+2» —conte mal— y el caso lo dijo en voz alta, que es lo que compra chkl.
+chkl  "…y PENDIENTE sigue siendo la suma de las dos"  "2=1+1" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{},{'A-R2':'x'});console.log(c.PENDIENTE.length+'='+c.DEUDA.length+'+'+c.SIN_JUZGAR.length)"
+# Y UNA DECLARADA NO_VERIFICABLE NO ES NI UNA NI OTRA: son tres casillas excluyentes (PT-078).
+chkl  "…y una NO_VERIFICABLE no cae en ninguna"       "NV:1 D:0 SJ:1" \
+  _clas204 "const c=m.clasificarReglas($R204,$T204,{'A-R2':'no se puede'},{});console.log('NV:'+c.NO_VERIFICABLE.length+' D:'+c.DEUDA.length+' SJ:'+c.SIN_JUZGAR.length)"
+# AC-03 . TS-03 . LA COBERTURA NO BAJA EN SILENCIO.
+_cob204() { # $1 = cifra del hito anterior
+  # audit necesita package.json, los workflows y bin/ para poder MEDIR: sin ellos dice SIN EVALUAR
+  # CON RAZON —RULE-06, no asume ni 0 ni el total— y el caso pasaba POR VACIO. El «NO bloquea»
+  # daba verde porque no salia NADA, que es exactamente el defecto que este lote persigue.
+  local d="$WORK/p204"; rm -rf "$d"; mkdir -p "$d/docs/implementation" "$d/.github/workflows" "$d/bin"
+  cp -r "$SUITE" "$d/docs/methodology"
+  cp "$RAIZ/package.json" "$d/package.json"
+  cp "$RAIZ/.github/workflows/verificacion.yml" "$d/.github/workflows/" 2>/dev/null
+  cp "$RAIZ/bin/cauce.mjs" "$d/bin/" 2>/dev/null
+  printf '{"ejecutada":%s,"universo":244,"sin_juzgar":0,"deuda":0,"no_verificable":0}' "$1" \
+    > "$d/docs/implementation/COBERTURA.json"
+  printf '{"firmantes":["Alberto Martinez"],"suite_version":"13.4.0","counters":{},"allocations":[]}' \
+    > "$d/docs/implementation/REGISTRY.json"
+  ( cd "$d" || { echo "FIXTURE SIN TERRENO: no se pudo entrar en $d" >&2; exit 90; }
+    node "$d/docs/methodology/tools/audit.mjs" "$d/docs/methodology" 2>&1 | sed -n '/COBERTURA BAJO/,+1p;/SUBIO/p' )
+}
+chkl  "una bajada de cobertura se DICE"              "LA COBERTURA BAJO"   _cob204 9999
+# Y NO BLOQUEA: bloquear obligaria a verificar ANTES de poder anadir una regla, que es la
+# regresion que el firmante descarto. Un aviso que impide trabajar se salta; este no impide nada.
+chknol "…y NO bloquea"                               "✗"                   _cob204 9999
+# Y NO PASA POR VACIO: sobre la MISMA corrida, el aviso EXISTE y nombra el universo. Sin esto,
+# «no bloquea» lo cumple una salida vacia — y eso fue literalmente lo que paso en el primer
+# intento, cuando al fixture le faltaba package.json.
+chkl  "…y no pasa por vacio: el aviso esta"          "244"                 _cob204 9999
+# Y LA SUBIDA TAMBIEN SE DICE: sin esto, el hito solo hablaria de lo malo y nadie sabria si el
+# trabajo de un lote sirvio de algo.
+chkl  "…y una subida tambien se dice"                "SUBIO"               _cob204 1
+
+# -- PT-197 . DICTAMEN, el septimo componente ---------------------------------
+#
+# Los seis componentes gobiernan COMO SE CONSTRUYE. Ninguno respondia QUE SE HA CONSTRUIDO Y SI
+# SIRVE, que es la pregunta de quien paga. El intake declaraba que no sabia que hace VALIDO un
+# Dictamen —FND-R24 lo reserva a quien conoce el negocio— y se pregunto:
+#
+#   «las tres, y el orden importa» — Alberto Martinez, 2026-08-30
+#
+# AC-01 . TS-01 . SE DA DE ALTA DECLARANDOLO, sin tocar herramienta. Es el mecanismo que PT-149
+# dejo probado, y esta tarea lo USA en vez de construirlo.
+chkl  "el trigger del Dictamen esta declarado"      "[START DICTAMEN]"   cat "$SUITE/LEXICON.md"
+chkl  "…y ya no son seis componentes, son SIETE"    "Los SIETE componentes"  cat "$SUITE/LEXICON.md"
+# AC-02 . TS-02 . SUS TRES REGLAS, con severidad y criterio de validez.
+chkl  "sus tres reglas estan definidas"             "DICT-R01"           cat "$SUITE/RULES.md"
+chkl  "…y la segunda impide que sea propaganda"     "ningun limite conocido queda sin nombrar" \
+  sh -c 'sed "s/ú/u/g;s/í/i/g;s/á/a/g;s/é/e/g;s/ó/o/g" "$1"' _ "$SUITE/RULES.md"
+# AC-02 . TS-03 . Y EL ORDEN ES PARTE DE LA REGLA, no presentacion.
+#
+# Sin esto, «las tres secciones» se cumple con las tres EN CUALQUIER ORDEN — y la decision primero
+# es el defecto tipico de un entregable ejecutivo: una recomendacion buscando datos que la
+# sostengan. Lo eligio el firmante EXPLICITAMENTE, asi que es criterio.
+chkl  "el ORDEN es parte de la regla, no estilo"    "va DESPUÉS"         cat "$SUITE/RULES.md"
+# AC-01 . TS-01 . Y TIENE SU RECORRIDO, con que lo hace valido.
+chkl  "el Dictamen tiene su caso de uso"            "D1"                 cat "$SUITE/CASOS-DE-USO.md"
+# AC-03 . TS-04 . PRODUCE UN ENTREGABLE, con las tres secciones y veredicto de los CUATRO.
+_dict197() { cat "$RAIZ/docs/implementation/DICTAMEN.md"; }
+chkl  "el Dictamen existe y tiene la seccion 1"     "DICT-R01"           _dict197
+chkl  "…y da veredicto de los cuatro productos"     "P-004"              _dict197
+# AC-03 . TS-05 . Y NINGUN LIMITE CONOCIDO QUEDA SIN NOMBRAR.
+#
+# Es el criterio de DICT-R02 y el que impide que el Dictamen sea propaganda: un entregable
+# ejecutivo que solo cuenta lo entregado es exactamente lo que nadie deberia firmar.
+chkl  "…y nombra las reglas sin juzgar"             "SIN_JUZGAR"         _dict197
+chkl  "…y las deudas certificadas"                  "FIRMAS-DE-LOTE"     _dict197
+chkl  "…y las paradas abiertas"                     "EP-028"             _dict197
+# Y LA SECCION 3 VA DESPUES DE LAS DOS, en el documento y no solo en la regla.
+_orden197() {
+  grep -n "^## §" "$RAIZ/docs/implementation/DICTAMEN.md" | head -3 | tr '\n' ' '
+}
+chkl  "las tres secciones estan EN ORDEN"           "§1"                 _orden197
+# Y SU PAREJA: la 3 es la ULTIMA. Sin esto, «estan las tres» lo cumple cualquier orden.
+chkl  "…y la decision es la ULTIMA"                 "§3"                 \
+  sh -c 'grep -n "^## §" "$1" | tail -1' _ "$RAIZ/docs/implementation/DICTAMEN.md"
+# Y LO QUE EL DICTAMEN NO PROMETE, que es lo que AC-03 reserva al firmante.
+chkl  "la firma de si SIRVE queda al firmante"      "Firma pendiente"    _dict197
+
+
+  cat "$SUITE/tools/verify-fdge.mjs"
+# LA CIFRA DE LA FAMILIA se DECLARA en la evidencia y en HISTORY, no se fija aqui: once expresiones
+# de tools/ anclan un campo a fin de linea y CINCO exigen un valor concreto —Estructural,
+# certificacion, confidence, health, health_unstable—, que es donde el riesgo es real. Fijar ese
+# numero seria fijar EL NUMERO DE LO CORRECTO (HANDOFF -18) y ademas caducaria (CE-010).
+
+
+
+
+
+# AC-03 . LA CERTIFICACION: FIRMAR NO ES SILENCIAR.
+#
+# Derivar del registro hizo que INTAKE-R08 —HARD, bloquea— cubriera 62 tareas que nunca cubrio, y
+# 26 no cumplen. TODAS estan en estado terminal: ponerles la linea seria reescribir trabajo cerrado
+# para callar una comprobacion (SUITE-R09 append-only, CE-014). Se certifican con firma, fecha y
+# DUENO —EP-027—, y siguen apareciendo en cada corrida. Es el contrato de SECRETOS-EXCEPCIONES.md.
+_cert203() {   # $1 = lineas extra de FIRMAS-DE-LOTE.md · $2 = status del miembro
+  _ep203 '| 1 | PT-701 | nace aqui |' "{\"id\":\"PT-701\",\"slug\":\"x\",\"type\":\"BUG\",\"epic\":\"EP-700\",\"status\":\"$2\",\"phase\":1}" >/dev/null 2>&1
+  _miembro203 PT-701 "" "$2"
+  { printf '# Firmas de lote certificadas\n\n'
+    printf '| `PT` | Lote | Que le falta | Firmada por | Fecha | Corrige |\n|:--|:--|:--|:--|:--|:--|\n'
+    printf '%s\n' "$1"; } > "$WORK/p203/docs/implementation/FIRMAS-DE-LOTE.md"
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "una firma certificada no bloquea"           "CERTIFICADA" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' INTEGRATED
+# Y NO SE CALLA: nombra la tarea y a QUIEN le toca corregirla. Sin esto, «certificar» y «silenciar»
+# serian la misma cosa, y una compuerta siempre verde no vale mas que una siempre roja.
+chkl  "…y dice a quien le toca corregirla"         "EP-027" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' INTEGRATED
+# EL LIMITE 1 . LO VIVO NO SE CERTIFICA. La misma fila, con la tarea VIVA, no exime: la
+# certificacion es sobre trabajo cerrado, y dejar de serlo la anula.
+chkl  "…pero lo VIVO no lo exime la certificacion"  "tarea(s) VIVA(s)" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' READY
+# EL LIMITE 2 . UNA FILA SIN FIRMANTE NO ES UNA FIRMA. La plantilla sin rellenar no exime — es la
+# clausula que SECRETOS-EXCEPCIONES.md escribe con todas las letras, y aqui se ejecuta.
+chkl  "…y una fila SIN firmante no exime"          "SIN certificar" \
+  _cert203 '| `PT-701` | `EP-700` | sin la linea | --- | 2026-08-29 | `EP-027` |' INTEGRATED
+# EL LIMITE 3 . QUIEN NO ESTA ESCRITO NO ESTA CUBIERTO. Certificar una tarea no abre el lote.
+chkl  "…y certificar a OTRA no cubre a esta"       "SIN certificar" \
+  _cert203 '| `PT-999` | `EP-700` | sin la linea | Alberto Martinez | 2026-08-29 | `EP-027` |' INTEGRATED
+# Y SIN EL ARCHIVO NO SE EXIME NADA: el silencio no acota, la leccion de bloques-sellados.
+# `sh -c` NO ve las funciones de bash: eso hizo pasar un caso por la razon equivocada en PT-192.
+_sincert203() {
+  _ep203 '| 1 | PT-701 | nace aqui |' '{"id":"PT-701","slug":"x","type":"BUG","epic":"EP-700","status":"INTEGRATED","phase":10}' >/dev/null 2>&1
+  _miembro203 PT-701 "" INTEGRATED
+  rm -f "$WORK/p203/docs/implementation/FIRMAS-DE-LOTE.md"
+  ( cd "$WORK/p203" && node docs/methodology/tools/verify-fdge.mjs 2>&1 | sed -n '/INTAKE-R08/p' | head -2 )
+}
+chkl  "sin FIRMAS-DE-LOTE.md no se exime nada"     "SIN certificar"   _sincert203
+
+
+
+
 # Y el arbol real sigue en verde tras las seis: ninguna de las de arriba lo toco.
 chk   "sobre el arbol real, la suite es coherente" "Sin errores de coherencia" \
   node "$SUITE/tools/verify-suite.mjs" "$SUITE"
@@ -9635,6 +10881,23 @@ if [ -n "$TODO" ] && [ -z "$ACOTADO" ]; then
 fi
 
 echo
+# cauce:informe-final
+#
+# PT-192 · LA MARCA ES DELIBERADA, y de aqui hacia abajo es el informe final.
+#
+# Cuatro casos median este bloque por POSICION —«tail -40» tres veces y «tail -4» una— y eso
+# castiga cualquier anadido al final aunque nada de lo que miden cambie. Ya paso TRES veces:
+# PT-086 amplio la ventana de 14 a 40 por esto y dejo escrito «extraer por POSICION es fragil en
+# las dos direcciones»; PT-191 metio 21 lineas detras del recuento y puso DOS casos en rojo; y
+# PT-199 tuvo que colocar su codigo antes del informe por la misma razon.
+#
+# Anclar por TEXTO no valia: el arnes SE LEE A SI MISMO, asi que un patron literal esta en el
+# archivo dos veces —en el sitio buscado y en el caso que lo busca— y el intento anterior
+# «arrancaba en ESTA MISMA LINEA» (ver :7355). Por eso los casos construyen la marca PARTIDA, la
+# tecnica con que PT-193 saco las contrasenas del fuente.
+#
+# BORRAR ESTA LINEA ROMPE CUATRO CASOS. Es una convencion, como «cauce:senuelos» de PT-190: lo que
+# cambia respecto a hoy es que borrarla es un acto DELIBERADO, y anadir una linea al final no lo era.
 # PT-050 · con --solo la salida dice CUANTOS DE CUANTOS. Sin la bandera, UNIVERSO y TOTAL
 # coinciden y se imprime como siempre: la segunda cifra solo aparece cuando hay algo que
 # distinguir. Y un patron que no casa NADA es ROJO — un verde por vacio es lo que PT-023
@@ -9660,6 +10923,17 @@ if [ -n "$AFECTADOS" ]; then
   fi
   echo "Para sellar una version hace falta la corrida COMPLETA: bash selftest.sh sin --afectados."
   echo ""
+fi
+# PT-199 · el esqueleto de las secciones saltadas dice QUE monto y QUE no puede derivar.
+# PT-181 · cuantas expectativas parecen literales y se interpretan. Se dice UNA vez: 96 avisos por
+# corrida serian el ruido que PT-199 acaba de quitar.
+_amb=$(expectativas_ambiguas)
+[ "${_amb:-0}" -eq 0 ] || echo "expectativas ambiguas: $_amb comparadas como REGEX y con pinta de literal. «chkl» las declara literales (PT-181)."
+if [ -n "$ACOTADO" ]; then
+  _op=$(inertes_opacas | tr '\n' ' ')
+  _nop=$(inertes_opacas | grep -c . || true)
+  echo "esqueleto inerte: $(printf '%s\n' $_RUTAS_INERTES | grep -c . || true) ruta(s) derivadas del arnes."
+  [ "${_nop:-0}" -eq 0 ] || echo "  $_nop raiz(ces) por variable que NO se pueden derivar, y por eso se dicen: $_op"
 fi
 [ "$FAILED" -eq 0 ] && echo "selftest: OK · $_cuantos casos" || echo "selftest: HAY FALLOS · $_cuantos casos"
 rm -rf "$WORK"

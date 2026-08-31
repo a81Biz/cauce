@@ -1,0 +1,15 @@
+PT-181 · corrida COMPLETA en verde
+
+  [32m✓[0m un punto literal NO casa otro caracter
+  [32m✓[0m …mientras que chk SI lo casa, y por eso hacia falta
+  [32m✓[0m …y chkl casa el texto literal cuando esta
+  [32m✓[0m chk sigue interpretando la regex
+  [32m✓[0m …y la cifra de ambiguas se declara
+
+== y lo que la corrida DECLARA ahora, una vez ==
+expectativas ambiguas: 98 comparadas como REGEX y con pinta de literal. «chkl» las declara literales (PT-181).
+
+selftest: OK · 1945 casos
+
+Recibo de la corrida completa (NO versionado):
+{ "veredicto": "OK", "casos": "1945", "arnes": "52588bbe387d484a284f0167fc5e162ca3379fe0", "fecha": "2026-08-29T03:48:54Z" }

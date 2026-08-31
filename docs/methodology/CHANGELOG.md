@@ -6,6 +6,81 @@ capacidad sin romper; `PATCH` corrige texto.
 `SUITE-R13` · Todo proyecto declara su `suite_version` en `REGISTRY.json` y en su `CLAUDE.md`.
 El agente compara ambos con este archivo en PHASE 0 y reporta cualquier desajuste.
 
+> **`publicar.yml` y `verificacion.yml` son DE LA FUENTE y NO viajan en el paquete** (`LEX-R25`,
+> `PT-202`). Este archivo los nombra al narrar la historia del marco, y esa mención es correcta —
+> pero si lo estás leyendo en un proyecto que **instaló** cauce, esos workflows **no existen ahí**:
+> `package.json.files` no incluye `.github/`, y no los copia ni el instalador ni `plan-layout` ni
+> `migrate`. Se declara una vez aquí para no repetirlo en cada entrada, que es lo que `SUITE-R09`
+> impide corregir después.
+
+---
+
+## 13.5.0 — 2026-08-31
+
+**Lo que da verde sin mirar** (`EP-026`). Diecisiete tareas, todas cerradas. El lote nació con
+catorce y **creció en marcha**: `PT-204`, `PT-205` y `PT-206` salieron de ejecutar las otras.
+
+**Y es `MINOR`.** Ningún contrato público cambia. Entra un **componente nuevo** —el Dictamen, con
+`DICT-R01`…`DICT-R03`—, se **completa** `LEX-R25` sin derogar nada, y se corrigen once
+comprobaciones que **decían mirar y no miraban**. Un proyecto instalado verá **rojo donde antes
+había silencio**: ése es el objeto de la versión.
+
+### Lo que no se veía, medido
+
+Cada tarea encontró algo que **su propio intake no veía**, y ésa es la tesis del lote:
+
+```
+PT-198   decia 3 expresiones ancladas    eran 7, sobre 4 campos
+PT-203   veia 7 «fantasmas»              habia 62 miembros INVISIBLES: EP-019 leia CERO de 17
+PT-202   decia que publicar.yml viaja    NO viaja; lo que viaja es la documentacion que lo describe
+PT-187   decia 3 divergencias de version eran 7, 0 y 28
+PT-206   decia 71 clases y 17 vistas     eran 76 y 22
+PT-204   decia «124 PENDIENTE»           eran 0 de deuda y 123 SIN JUZGAR
+```
+
+**`INTAKE-R08` es `HARD` y bloquea**, y llevaba desde `EP-001` corriendo sobre una fracción de sus
+sujetos. **`LEX-R31`** salía en rojo sobre tres de cada cuatro entradas que **sí** la cumplían.
+
+### El séptimo componente
+
+**DICTAMEN** (`[START DICTAMEN]`) responde lo que ninguno respondía: **qué se ha construido y si
+sirve**. Tres secciones **en orden** —lo entregado contra lo prometido, lo que queda sin cubrir, y
+la decisión que eso habilita—, y el orden **es criterio**: al revés sería una recomendación
+buscando datos que la sostengan.
+
+Qué lo hace válido **lo decidió el firmante** (`FND-R24`): el agente puede describir lo que un
+producto entrega, pero si eso vale lo sabe quien conoce el negocio.
+
+**Y se dio de alta sin tocar ninguna herramienta**, como `PT-149` había dejado probado.
+
+### Lo que cambia para un proyecto instalado
+
+| | Antes | Ahora |
+|:---|:---|:---|
+| Pertenencia a un lote | Se leía de la **tabla del intake** | La asigna el **registro** (`SUITE-R08`) |
+| `status:` con comentario | «no declara `status`» — **falso** | Se lee, y «ausente» ≠ «no legible» |
+| Identidad `git` | La decía un comando que nadie invoca | La lee `verify-fdge`, en local **y** en CI |
+| Antes de empujar | El rojo se descubría en CI | `PENDIENTE AL EMPUJAR` lo dice antes, con el comando |
+| Cobertura de reglas | Un número que nadie comparaba | **No puede bajar en silencio** |
+| Secretos en la historia | «hay una contraseña» | Dice **qué ocurre de verdad** y cuál es el mecanismo |
+
+### Lo que NO se hizo, y consta   `SUITE-R26`
+
+- **Las 26 firmas de lote se certificaron, no se corrigieron.** Trabajo cerrado no se reescribe
+  para callar una comprobación (`SUITE-R09`, `CE-014`). Su dueño es **`EP-027`**, sin admitir.
+- **Las 126 reglas sin juzgar siguen sin juzgar.** `PT-204` decidió el tamaño y el orden — **juzgar
+  cuesta un párrafo, verificar cuesta una tarea** — y eso es **`EP-029`**, sin abrir.
+- **La batería sigue costando ~30 min por tarea.** Está medido y es **`EP-028`**, sin abrir: el
+  sello por `PT` incluye el **archivo entero** del verificador, así que editar una línea reabre los
+  189. Es el sello por bloque **antes de `PT-176`**.
+- **`npm publish` no se ejecutó**: sigue reservado al firmante por su nombre (`SUITE-R06g`).
+
+### Y lo que el propio marco encontró de sí mismo
+
+Cinco lecciones nuevas del `HANDOFF` —`-30` a `-34`— **todas de reglas que existían y se
+incumplieron porque nada las ejecutaba**. Es el argumento en contra del marco y está escrito por
+él: `PT-204` lo midió, y dice **142 de 247**.
+
 ---
 
 ## 13.4.0 — 2026-08-28

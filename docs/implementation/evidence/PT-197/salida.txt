@@ -1,0 +1,43 @@
+PT-197 · corrida COMPLETA en verde · 2048 casos
+
+  [32m✓[0m el trigger del Dictamen esta declarado
+  [32m✓[0m …y ya no son seis componentes, son SIETE
+  [32m✓[0m sus tres reglas estan definidas
+  [32m✓[0m …y la segunda impide que sea propaganda
+  [32m✓[0m el ORDEN es parte de la regla, no estilo
+  [32m✓[0m el Dictamen tiene su caso de uso
+  [32m✓[0m el Dictamen existe y tiene la seccion 1
+  [32m✓[0m …y da veredicto de los cuatro productos
+  [32m✓[0m …y nombra las reglas sin juzgar
+  [32m✓[0m …y las deudas certificadas
+  [32m✓[0m …y las paradas abiertas
+  [32m✓[0m las tres secciones estan EN ORDEN
+  [32m✓[0m …y la decision es la ULTIMA
+  [32m✓[0m la firma de si SIRVE queda al firmante
+
+  — y los cuatro repuntados por el septimo componente (SUITE-R61) —
+  [32m✓[0m la auditoria de fases cubre a TODOS
+  [32m✓[0m …y el arnes lo dice contando
+  [32m✓[0m …y lo dice contando, no de pasada
+  [32m✓[0m CORE publica el rango que declara el contrato
+  [32m✓[0m …y TODOS los componentes estan en el mapa
+
+selftest: OK · 2048 casos
+
+== RECIBO DE LA CORRIDA (PT-191) ==
+{ "veredicto": "OK", "casos": "2048", "arnes": "07f1581fb5869625bc60f4f043dafa12c9b8f271", "fecha": "2026-08-31T04:05:18Z" }
+
+== EL COMPONENTE, SOBRE EL ARBOL REAL ==
+Fases auditadas: FDGE 0-10 · FQAGE 1-7 · PTSA 0-14 · Foundation 0-6 · FPGE 1-7 · FIDE 1-5 · DICTAMEN 1-3  (7 de 7)
+
+Auditoría sin huecos en los elementos auditados. Cobertura mecánica de reglas: 142/247.
+
+== Y EL ENTREGABLE ==
+## §1 · Qué se entregó, contra lo prometido   `DICT-R01`
+## §2 · Qué queda sin cubrir   `DICT-R02`
+## §3 · La decisión que esto habilita   `DICT-R03`
+  veredictos de la §1:
+    `P-001` · Marco normativo — **CUMPLE
+    `P-002` · Procedimiento ejecutable — **CUMPLE
+    `P-003` · Verificación mecánica — **CUMPLE PARCIALMENTE, 
+    `P-004` · Paquete e instalación — **CUMPLE, 
